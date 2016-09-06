@@ -1,0 +1,75 @@
+/*******************************************************************************
+* Copyright 2015-2016 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+#define _USING_V110_SDK71_ 1
+
+#include "winresrc.h"
+#include "_daal_version.h"
+
+#if   defined(_DAAL_JAVA_INTERF)
+  #define FILE_COMMENT "Analitics algorithms for Java*.\0"
+  #define ORIG_FILE_NAME "JavaAPI.dll\0"
+  #define INTERNAL_FILE_NAME "JavaAPI.\0"
+#elif defined(_DAAL_THR_SEQ)
+  #define FILE_COMMENT "Sequential version.\0"
+  #define ORIG_FILE_NAME "daal_sequential.dll\0"
+  #define INTERNAL_FILE_NAME "daal_sequential\0"
+#elif defined(_DAAL_THR_TBB)
+  #define FILE_COMMENT "Parallel version.\0"
+  #define ORIG_FILE_NAME "daal_thread.dll \0"
+  #define INTERNAL_FILE_NAME "daal_thread\0"
+#else
+  #define FILE_COMMENT "Analitics algorithms optimized for IA.\0"
+  #define ORIG_FILE_NAME "daal_core.dll\0"
+  #define INTERNAL_FILE_NAME "daal_core\0"
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION FILE_VERSION
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", PRODUCT_NAME_STR
+            VALUE "Comments", FILE_COMMENT
+            VALUE "InternalName", INTERNAL_FILE_NAME
+            VALUE "OriginalFilename", ORIG_FILE_NAME
+            VALUE "CompanyName", "Intel Corporation\0"
+            VALUE "FileVersion", FILE_VERSION_STR
+            VALUE "LegalCopyright", "Copyright 2016, Intel Corporation.\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", PRODUCT_NAME_STR
+            VALUE "ProductVersion", PRODUCT_VERSION_STR
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

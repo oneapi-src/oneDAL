@@ -1,0 +1,59 @@
+/* file: outlier_detection_multivariate_batch.h */
+/*******************************************************************************
+* Copyright 2014-2016 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+/*
+//++
+//  Outlier Detection algorithm parameter structure
+//--
+*/
+
+#ifndef __OUTLIERDETECTION_MULTIVARIATE_BATCH_H__
+#define __OUTLIERDETECTION_MULTIVARIATE_BATCH_H__
+
+#include "outlier_detection_multivariate_types.h"
+
+namespace daal
+{
+namespace algorithms
+{
+namespace multivariate_outlier_detection
+{
+namespace interface1
+{
+
+/**
+ * Allocates memory to store the results of the multivariate outlier detection algorithm
+ * \tparam algorithmFPType  Data type to use for storing results, double or float
+ * \param[in] input   Pointer to %Input objects of the algorithm
+ * \param[in] parameter     Pointer to the parameters of the algorithm
+ * \param[in] method  Computation method
+ */
+template <typename algorithmFPType>
+DAAL_EXPORT void Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+{
+    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    size_t nVectors = algInput->get(data)->getNumberOfRows();
+    Argument::set(weights, data_management::SerializationIfacePtr(
+                      new data_management::HomogenNumericTable<algorithmFPType>(1, nVectors, data_management::NumericTable::doAllocate)));
+}
+
+} // namespace interface1
+} // namespace multivariate_outlier_detection
+} // namespace algorithms
+} // namespace daal
+
+#endif
