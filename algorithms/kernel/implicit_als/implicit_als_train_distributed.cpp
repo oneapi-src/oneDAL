@@ -1,0 +1,613 @@
+/* file: implicit_als_train_distributed.cpp */
+/*******************************************************************************
+* Copyright 2014-2016 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+/*
+//++
+//  Implementation of implicit als algorithm and types methods.
+//--
+*/
+
+#include "implicit_als_training_types.h"
+
+using namespace daal::data_management;
+using namespace daal::services;
+
+namespace daal
+{
+namespace algorithms
+{
+namespace implicit_als
+{
+namespace training
+{
+namespace interface1
+{
+DistributedInput<step1Local>::DistributedInput() : daal::algorithms::Input(1) {}
+
+/**
+ * Returns an input object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier
+ */
+services::SharedPtr<PartialModel> DistributedInput<step1Local>::get(PartialModelInputId id) const
+{
+    return services::staticPointerCast<PartialModel, data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets an input object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the new input object value
+ */
+void DistributedInput<step1Local>::set(PartialModelInputId id, const services::SharedPtr<PartialModel> &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Checks the parameters and input objects for the implicit ALS training algorithm
+ * in the first step of the distributed processing mode
+ * \param[in] parameter %Parameter of the algorithm
+ * \param[in] method    Computation method of the algorithm
+ */
+void DistributedInput<step1Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+{
+    DAAL_CHECK(method == fastCSR, ErrorMethodNotSupported);
+
+    const Parameter *alsParameter = static_cast<const Parameter *>(parameter);
+    size_t nFactors = alsParameter->nFactors;
+
+    PartialModelPtr model = get(partialModel);
+    DAAL_CHECK(model, ErrorNullPartialModel);
+
+    int unexpectedLayouts = (int)packed_mask;
+    if(!checkNumericTable(model->getFactors().get(), this->_errors.get(), factorsStr(), unexpectedLayouts, 0, nFactors, 0)) { return; }
+
+    unexpectedLayouts = (int)NumericTableIface::csrArray;
+    if(!checkNumericTable(model->getIndices().get(), this->_errors.get(), indicesStr(), unexpectedLayouts, 0, 1, model->getFactors()->getNumberOfRows())) { return; }
+}
+
+/** Default constructor */
+DistributedPartialResultStep1::DistributedPartialResultStep1() : daal::algorithms::PartialResult(1) {}
+
+/**
+ * Returns a partial result of the implicit ALS training algorithm
+ * \param[in] id    Identifier of the partial result
+ * \return          Value that corresponds to the given identifier
+ */
+data_management::NumericTablePtr DistributedPartialResultStep1::get(DistributedPartialResultStep1Id id) const
+{
+    return services::staticPointerCast<data_management::NumericTable, data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets a partial result of the implicit ALS training algorithm
+ * \param[in] id    Identifier of the partial result
+ * \param[in] ptr   Pointer to the new partial result object
+ */
+void DistributedPartialResultStep1::set(DistributedPartialResultStep1Id id, const data_management::NumericTablePtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Checks a partial result of the implicit ALS algorithm
+ * \param[in] input     %Input object for the algorithm
+ * \param[in] parameter %Parameter of the algorithm
+ * \param[in] method    Computation method
+ */
+void DistributedPartialResultStep1::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+{
+    DAAL_CHECK(method == fastCSR, ErrorMethodNotSupported);
+
+    const Parameter *alsParameter = static_cast<const Parameter *>(parameter);
+    size_t nFactors = alsParameter->nFactors;
+    int unexpectedLayouts = (int)NumericTableIface::upperPackedTriangularMatrix |
+                            (int)NumericTableIface::csrArray;
+
+    if(!checkNumericTable(get(outputOfStep1ForStep2).get(), this->_errors.get(), crossProductStr(), unexpectedLayouts, 0, nFactors, nFactors)) { return; }
+
+    const DistributedInput<step1Local> *alsInput = static_cast<const DistributedInput<step1Local> *>(input);
+    DAAL_CHECK(alsInput->get(partialModel), ErrorNullPartialModel);
+}
+
+/** Default constructor */
+DistributedInput<step2Master>::DistributedInput() : daal::algorithms::Input(1)
+{
+    Argument::set(inputOfStep2FromStep1, data_management::DataCollectionPtr(new data_management::DataCollection()));
+}
+
+/**
+ * Returns an input object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier
+ */
+data_management::DataCollectionPtr DistributedInput<step2Master>::get(MasterInputId id) const
+{
+    return services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets an input object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the new input object value
+ */
+void DistributedInput<step2Master>::set(MasterInputId id, const data_management::DataCollectionPtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Adds an input object for the implicit ALS training algorithm in the second step
+ * of the distributed processing mode
+ * \param[in] id            Identifier of the input object
+ * \param[in] partialResult Pointer to the partial result obtained in the previous step of the distributed processing mode
+ */
+void DistributedInput<step2Master>::add(MasterInputId id, const services::SharedPtr<DistributedPartialResultStep1> &partialResult)
+{
+    data_management::DataCollectionPtr collection =
+            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)    { return; }
+    if (!partialResult)    { return; }
+    collection->push_back(partialResult->get(training::outputOfStep1ForStep2));
+}
+
+/**
+ * Checks the parameters and input objects for the implicit ALS training algorithm in the second step
+ * of the distributed processing mode
+ * \param[in] parameter %Parameter of the algorithm
+ * \param[in] method    Computation method of the algorithm
+ */
+void DistributedInput<step2Master>::check(const daal::algorithms::Parameter *parameter, int method) const
+{
+    DAAL_CHECK(method == fastCSR, ErrorMethodNotSupported);
+
+    const Parameter *alsParameter = static_cast<const Parameter *>(parameter);
+    size_t nFactors = alsParameter->nFactors;
+
+    DataCollectionPtr collectionPtr = get(inputOfStep2FromStep1);
+    DAAL_CHECK(collectionPtr, ErrorNullInputDataCollection);
+
+    size_t nBlocks = collectionPtr->size();
+    DAAL_CHECK(collectionPtr->size(), ErrorIncorrectNumberOfInputNumericTables);
+
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        DAAL_CHECK_EX((*collectionPtr)[i], ErrorNullNumericTable, ArgumentName, inputOfStep2FromStep1Str());
+        NumericTablePtr nt = NumericTable::cast((*collectionPtr)[i]);
+        DAAL_CHECK_EX(nt, ErrorIncorrectElementInNumericTableCollection, ArgumentName, inputOfStep2FromStep1Str());
+        int unexpectedLayouts = (int)packed_mask;
+        if(!checkNumericTable(nt.get(), this->_errors.get(), inputOfStep2FromStep1Str(), unexpectedLayouts, 0, nFactors, nFactors)) { return; }
+    }
+}
+
+/** Default constructor */
+DistributedPartialResultStep2::DistributedPartialResultStep2() : daal::algorithms::PartialResult(1) {}
+
+/**
+ * Returns a partial result of the implicit ALS training algorithm
+ * \param[in] id    Identifier of the partial result
+ * \return          Value that corresponds to the given identifier
+ */
+data_management::NumericTablePtr DistributedPartialResultStep2::get(DistributedPartialResultStep2Id id) const
+{
+    return services::staticPointerCast<data_management::NumericTable, data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets a partial result of the implicit ALS training algorithm
+ * \param[in] id    Identifier of the partial result
+ * \param[in] ptr   Pointer to the new partial result object
+ */
+void DistributedPartialResultStep2::set(DistributedPartialResultStep2Id id, const data_management::NumericTablePtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+
+
+/**
+ * Checks a partial result of the implicit ALS training algorithm
+ * \param[in] input     Pointer to the structure of input objects
+ * \param[in] parameter Pointer to the structure of algorithm parameters
+ * \param[in] method    Computation method
+ */
+void DistributedPartialResultStep2::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+{
+    DAAL_CHECK(method == fastCSR, ErrorMethodNotSupported);
+
+    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    size_t nFactors = algParameter->nFactors;
+    int unexpectedLayouts = (int)packed_mask;
+    if(!checkNumericTable(get(outputOfStep2ForStep4).get(), this->_errors.get(), outputOfStep2ForStep4Str(), unexpectedLayouts, 0, nFactors, nFactors)) { return; }
+}
+/** Default constructor */
+DistributedInput<step3Local>::DistributedInput() : daal::algorithms::Input(3) {}
+
+/**
+ * Returns an input partial model object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier
+ */
+services::SharedPtr<PartialModel> DistributedInput<step3Local>::get(PartialModelInputId id) const
+{
+    return services::staticPointerCast<PartialModel, data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Returns an input key-value data collection object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier
+ */
+data_management::KeyValueDataCollectionPtr DistributedInput<step3Local>::get(Step3LocalCollectionInputId id) const
+{
+    return services::staticPointerCast<data_management::KeyValueDataCollection,
+                                       data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Returns an input numeric table object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier
+ */
+data_management::NumericTablePtr DistributedInput<step3Local>::get(Step3LocalNumericTableInputId id) const
+{
+    return services::staticPointerCast<data_management::NumericTable,
+                                       data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets an input partial model object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the new input object value
+ */
+void DistributedInput<step3Local>::set(PartialModelInputId id, const services::SharedPtr<PartialModel> &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Sets an input key-value data collection object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the new input object value
+ */
+void DistributedInput<step3Local>::set(Step3LocalCollectionInputId id, const data_management::KeyValueDataCollectionPtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Sets an input numeric table object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the new input object value
+ */
+void DistributedInput<step3Local>::set(Step3LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Returns the number of blocks of data used in distributed computations
+ * \return Number of blocks of data
+ */
+size_t DistributedInput<step3Local>::getNumberOfBlocks() const
+{
+    data_management::KeyValueDataCollectionPtr outBlocksCollection = get(partialModelBlocksToNode);
+    if (!outBlocksCollection)
+    { this->_errors->add(services::ErrorNullInputDataCollection); return 0; }
+
+    return outBlocksCollection->size();
+}
+
+/**
+ * Returns the index of the starting row of the input partial model
+ * \return Index of the starting row of the input partial model
+ */
+size_t DistributedInput<step3Local>::getOffset() const
+{
+    data_management::NumericTablePtr offsetTable = get(offset);
+    if (!offsetTable)
+    { this->_errors->add(services::ErrorNullInputNumericTable); return 0; }
+
+    data_management::BlockDescriptor<int> block;
+    offsetTable->getBlockOfRows(0, 1, data_management::readOnly, block);
+    size_t offset = (size_t)((block.getBlockPtr())[0]);
+    offsetTable->releaseBlockOfRows(block);
+    return offset;
+}
+
+/**
+ * Returns the numeric table that contains the indices of factors that should be transferred to a specified node
+ * \param[in] key Index of the node
+ * \return Numeric table that contains the indices of factors that should be transferred to a specified node
+ */
+data_management::NumericTablePtr DistributedInput<step3Local>::getOutBlockIndices(size_t key) const
+{
+    data_management::NumericTablePtr outBlockIndices;
+    data_management::KeyValueDataCollectionPtr outBlocksCollection = get(partialModelBlocksToNode);
+    if (!outBlocksCollection)
+    { this->_errors->add(services::ErrorNullInputDataCollection); return outBlockIndices; }
+
+    outBlockIndices = services::staticPointerCast<data_management::NumericTable, data_management::SerializationIface>(
+            (*outBlocksCollection)[key]);
+    return outBlockIndices;
+}
+
+/**
+ * Checks the parameters and input objects of the implicit ALS training algorithm in the first step of
+ * the distributed processing mode
+ * \param[in] parameter %Parameter of the algorithm
+ * \param[in] method    Computation method of the algorithm
+ */
+void DistributedInput<step3Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+{
+    DAAL_CHECK(method == fastCSR, ErrorMethodNotSupported);
+
+    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    size_t nFactors = algParameter->nFactors;
+
+    /* Check offset numeric table */
+    int unexpectedLayoutsCSR = (int)NumericTableIface::csrArray;
+    int unexpectedLayoutsPacked = (int)packed_mask;
+    if(!checkNumericTable(get(offset).get(), this->_errors.get(), offsetStr(), unexpectedLayoutsCSR, 0, 1, 1)) { return; }
+
+    /* Check input partial model */
+    PartialModelPtr model = get(partialModel);
+    DAAL_CHECK(model, ErrorNullPartialModel);
+    if(!checkNumericTable(model->getIndices().get(), this->_errors.get(), indicesStr(), unexpectedLayoutsCSR, 0, 1, 0)) { return; }
+    if(!checkNumericTable(model->getFactors().get(), this->_errors.get(), factorsStr(), unexpectedLayoutsPacked, 0, nFactors, model->getIndices()->getNumberOfRows())) { return; }
+
+    /* Check input collection */
+    KeyValueDataCollectionPtr collection = get(partialModelBlocksToNode);
+    DAAL_CHECK(collection, ErrorNullInputDataCollection);
+    size_t nBlocks = collection->size();
+
+    DAAL_CHECK_EX(nBlocks > 0, ErrorIncorrectNumberOfInputNumericTables, ArgumentName, partialModelBlocksToNodeStr());
+
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        DAAL_CHECK_EX(collection->getValueByIndex((int)i), ErrorNullNumericTable, ArgumentName, blockIndicesStr());
+        NumericTablePtr blockIndices = NumericTable::cast(collection->getValueByIndex((int)i));
+        DAAL_CHECK_EX(blockIndices, ErrorIncorrectElementInNumericTableCollection, ArgumentName, blockIndicesStr());
+        if(!checkNumericTable(blockIndices.get(), this->_errors.get(), blockIndicesStr(), unexpectedLayoutsCSR, 0, 1)) { return; }
+        DAAL_CHECK_EX(model->getIndices()->getNumberOfRows() >= blockIndices->getNumberOfRows(), ErrorIncorrectNumberOfRows, ArgumentName, blockIndicesStr());
+    }
+}
+
+/** Default constructor */
+DistributedPartialResultStep3::DistributedPartialResultStep3() : daal::algorithms::PartialResult(1) {}
+
+/**
+ * Returns a partial result of the implicit ALS training algorithm
+ *
+ * \param[in] id    Identifier of the partial result
+ * \return          Value that corresponds to the given identifier
+ */
+data_management::KeyValueDataCollectionPtr DistributedPartialResultStep3::get(DistributedPartialResultStep3Id id) const
+{
+    return services::staticPointerCast<data_management::KeyValueDataCollection,
+           data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Returns a partial model obtained with the compute() method of the implicit ALS algorithm in the third step of the
+ * distributed processing mode
+ *
+ * \param[in] id    Identifier of the partial result
+ * \param[in] key   Index of the partial model in the key-value data collection
+ * \return          Pointer to the partial model object
+ */
+services::SharedPtr<PartialModel> DistributedPartialResultStep3::get(DistributedPartialResultStep3Id id, size_t key) const
+{
+    services::SharedPtr<PartialModel> model;
+    data_management::KeyValueDataCollectionPtr collection = get(id);
+    if (!collection) { this->_errors->add(services::ErrorNullOutputDataCollection); return model; }
+    model = services::staticPointerCast<PartialModel, data_management::SerializationIface>((*collection)[key]);
+    return model;
+}
+
+/**
+ * Sets a partial result of the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the input object
+ */
+void DistributedPartialResultStep3::set(DistributedPartialResultStep3Id id, const data_management::KeyValueDataCollectionPtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Checks a partial result of the implicit ALS training algorithm
+ * \param[in] input     Pointer to the structure of input objects
+ * \param[in] parameter Pointer to the structure of algorithm parameters
+ * \param[in] method    Computation method
+ */
+void DistributedPartialResultStep3::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+{
+    DAAL_CHECK(method == fastCSR, ErrorMethodNotSupported);
+
+    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const DistributedInput<step3Local> *algInput = static_cast<const DistributedInput<step3Local> *>(input);
+    size_t nFactors = algParameter->nFactors;
+
+    KeyValueDataCollectionPtr collection = get(outputOfStep3ForStep4);
+    DAAL_CHECK(collection, ErrorNullOutputDataCollection);
+    size_t nBlocks = collection->size();
+    DAAL_CHECK_EX(nBlocks > 0, ErrorIncorrectNumberOfInputNumericTables, ArgumentName, partialModelBlocksToNodeStr());
+
+    int unexpectedLayouts = (int)packed_mask;
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        DAAL_CHECK_EX(collection->getValueByIndex((int)i), ErrorNullPartialModel, ArgumentName, outputOfStep3ForStep4Str());
+        PartialModelPtr model = PartialModel::cast(collection->getValueByIndex((int)i));
+        DAAL_CHECK_EX(model, ErrorIncorrectElementInPartialResultCollection, ArgumentName, outputOfStep3ForStep4Str());
+        NumericTablePtr nt = algInput->getOutBlockIndices(i);
+        DAAL_CHECK_EX(nt, ErrorNullNumericTable, ArgumentName, outBlockIndicesStr());
+        size_t nRows = nt->getNumberOfRows();
+        if(!checkNumericTable(model->getFactors().get(), this->_errors.get(), factorsStr(), unexpectedLayouts, 0, nFactors, nRows)) { return; }
+        if(!checkNumericTable(model->getIndices().get(), this->_errors.get(), indicesStr(), unexpectedLayouts, 0, 1, nRows)) { return; }
+    }
+}
+/** Default constructor */
+DistributedInput<step4Local>::DistributedInput() : daal::algorithms::Input(3) {}
+
+/**
+ * Returns an input key-value data collection object for the implicit ALS training algorithm
+ *
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier.
+ *                  A key-value data collection contains partial models consisting of user factors/item factors
+ *                  computed in the third step of the distributed processing mode
+ */
+data_management::KeyValueDataCollectionPtr DistributedInput<step4Local>::get(Step4LocalPartialModelsInputId id) const
+{
+    return services::staticPointerCast<data_management::KeyValueDataCollection,
+                                       data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Returns an input numeric table object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier
+ */
+data_management::NumericTablePtr DistributedInput<step4Local>::get(Step4LocalNumericTableInputId id) const
+{
+    return services::staticPointerCast<data_management::NumericTable,
+                                       data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets an input key-value data collection object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the new input object value
+ */
+void DistributedInput<step4Local>::set(Step4LocalPartialModelsInputId id, const data_management::KeyValueDataCollectionPtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Sets an input numeric table object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the new input object value
+ */
+void DistributedInput<step4Local>::set(Step4LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Returns the number of rows in the partial matrix of users factors/items factors
+ * \return Number of rows in the partial matrix of factors
+ */
+size_t DistributedInput<step4Local>::getNumberOfRows() const
+{
+    data_management::NumericTablePtr dataTable = get(partialData);
+    if (!dataTable) { this->_errors->add(services::ErrorNullInputNumericTable); return 0; }
+    return dataTable->getNumberOfRows();
+}
+
+/**
+ * Checks the parameters and input objects for the implicit ALS training algorithm in the first step of
+ * the distributed processing mode
+ * \param[in] parameter %Parameter of the algorithm
+ * \param[in] method    Computation method of the algorithm
+ */
+void DistributedInput<step4Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+{
+    DAAL_CHECK(method == fastCSR, ErrorMethodNotSupported);
+
+    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    size_t nFactors = algParameter->nFactors;
+
+    /* Check input numeric tables */
+    NumericTablePtr dataTable = get(partialData);
+    NumericTablePtr crossProduct = get(inputOfStep4FromStep2);
+
+    int expectedLayout = (int)NumericTableIface::csrArray;
+    if(!checkNumericTable(get(partialData).get(), this->_errors.get(), partialDataStr(), 0, expectedLayout)) { return; }
+    int unexpectedLayoutsPacked = (int)packed_mask;
+    int unexpectedLayoutsCSR = (int)packed_mask;
+    if(!checkNumericTable(get(inputOfStep4FromStep2).get(), this->_errors.get(), crossProductStr(), unexpectedLayoutsPacked, 0, nFactors, nFactors)) { return; }
+    /* Check input data collection */
+    KeyValueDataCollectionPtr collection = get(partialModels);
+    DAAL_CHECK(collection, ErrorNullInputDataCollection);
+    size_t nBlocks = collection->size();
+    DAAL_CHECK_EX(nBlocks > 0, ErrorIncorrectNumberOfInputNumericTables, ArgumentName, partialModelBlocksToNodeStr());
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        DAAL_CHECK_EX(collection->getValueByIndex((int)i), ErrorNullPartialModel, ArgumentName, partialModelsStr());
+        PartialModelPtr model = PartialModel::cast(collection->getValueByIndex((int)i));
+        DAAL_CHECK_EX(model, ErrorIncorrectElementInPartialResultCollection, ArgumentName, partialModelsStr());
+        if(!checkNumericTable(model->getFactors().get(), this->_errors.get(), factorsStr(), unexpectedLayoutsPacked, 0, nFactors)) { return; }
+        size_t nRows = model->getFactors()->getNumberOfRows();
+        if(!checkNumericTable(model->getIndices().get(), this->_errors.get(), indicesStr(), unexpectedLayoutsCSR, 0, 1, nRows)) { return; }
+    }
+}
+
+/** Default constructor */
+DistributedPartialResultStep4::DistributedPartialResultStep4() : daal::algorithms::PartialResult(1) {}
+
+/**
+ * Returns a partial result of the implicit ALS training algorithm
+ * \param[in] id    Identifier of the partial result
+ * \return          Value that corresponds to the given identifier
+ */
+services::SharedPtr<PartialModel> DistributedPartialResultStep4::get(DistributedPartialResultStep4Id id) const
+{
+    return services::staticPointerCast<PartialModel, data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets a partial result of the implicit ALS training algorithm
+ * \param[in] id    Identifier of the partial result
+ * \param[in] ptr   Pointer to the partial result
+ */
+void DistributedPartialResultStep4::set(DistributedPartialResultStep4Id id, const services::SharedPtr<PartialModel> &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Checks a partial result of the implicit ALS training algorithm
+ * \param[in] input     Pointer to the structure of input objects
+ * \param[in] parameter Pointer to the structure of algorithm parameters
+ * \param[in] method    Computation method
+ */
+void DistributedPartialResultStep4::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+{
+    DAAL_CHECK(method == fastCSR, ErrorMethodNotSupported);
+
+    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    size_t nFactors = algParameter->nFactors;
+
+    PartialModelPtr model = get(outputOfStep4);
+    DAAL_CHECK(model, ErrorNullPartialModel);
+
+    int unexpectedLayouts = (int)packed_mask;
+    if(!checkNumericTable(model->getFactors().get(), this->_errors.get(), factorsStr(), unexpectedLayouts, 0, nFactors)) { return; }
+
+    size_t nRows = model->getFactors()->getNumberOfRows();
+    unexpectedLayouts = (int)NumericTableIface::csrArray;
+    if(!checkNumericTable(model->getIndices().get(), this->_errors.get(), indicesStr(), unexpectedLayouts, 0, 1, nRows)) { return; }
+}
+
+}// namespace interface1
+}// namespace training
+}// namespace implicit_als
+}// namespace algorithms
+}// namespace daal
