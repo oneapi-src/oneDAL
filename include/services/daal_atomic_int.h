@@ -48,6 +48,7 @@ template<typename dataType = int>
 class DAAL_EXPORT Atomic
 {
 public:
+	DAAL_NEW_DELETE();
     /**
      * Returns an increment of atomic object
      * \return An increment of atomic object
@@ -89,8 +90,6 @@ public:
 protected:
     void *_ptr;
 };
-
-
 /** @} */
 
 } // namespace interface1
