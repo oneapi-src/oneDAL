@@ -52,13 +52,13 @@ public:
      * Returns an increment of atomic object
      * \return An increment of atomic object
      */
-    int inc();
+    dataType inc();
 
     /**
      * Returns a decrement of atomic object
      * \return An decrement of atomic object
      */
-    int dec();
+    dataType dec();
 
     /**
      * Assigns the value to atomic object
@@ -84,115 +84,13 @@ public:
     Atomic(dataType value);
 
     /** Destructor */
-    virtual ~Atomic();
+    ~Atomic();
 
 protected:
     void *_ptr;
 };
 
-/**
- * <a name="DAAL-CLASS-SERVICES__ATOMIC_INT"></a>
- * \brief Class that represents an atomic integer object
- */
-template<>
-class DAAL_EXPORT Atomic<int>
-{
-public:
-    DAAL_NEW_DELETE();
 
-    /**
-     * Returns an increment of atomic object
-     * \return An increment of atomic object
-     */
-    int inc();
-
-    /**
-     * Returns a decrement of atomic object
-     * \return An decrement of atomic object
-     */
-    int dec();
-
-    /**
-     * Assigns the value to atomic object
-     * \param[in] value    The value to be assigned
-     */
-    void set(int value);
-
-    /**
-     * Returns the value of the atomic object
-     * \return The value of the atomic object
-     */
-    int get() const;
-
-    /**
-     * Constructs an atomic object
-     */
-    Atomic();
-
-    /**
-     * Constructs an atomic object from a value
-     * \param[in] value The value to be assigned to the atomic object
-     */
-    Atomic(int value);
-
-    /** Destructor */
-    virtual ~Atomic();
-
-protected:
-    void *_ptr;
-};
-
-/**
- * <a name="DAAL-CLASS-SERVICES__ATOMIC_SIZE_T"></a>
- * \brief Class that represents an atomic unsigned integer object
- */
-template<>
-class DAAL_EXPORT Atomic<size_t>
-{
-public:
-    DAAL_NEW_DELETE();
-
-    /**
-     * Returns an increment of atomic object
-     * \return An increment of atomic object
-     */
-    size_t inc();
-
-    /**
-     * Returns a decrement of atomic object
-     * \return An decrement of atomic object
-     */
-    size_t dec();
-
-    /**
-     * Assigns the value to atomic object
-     * \param[in] value    The value to be assigned
-     */
-    void set(size_t value);
-
-    /**
-     * Returns the value of the atomic object
-     * \return The value of the atomic object
-     */
-    size_t get() const;
-
-    /**
-     * Constructs an atomic object
-     */
-    Atomic();
-
-    /**
-     * Constructs an atomic object from a value
-     * \param[in] value The value to be assigned to the atomic object
-     */
-    Atomic(size_t value);
-
-    /** Destructor */
-    virtual ~Atomic();
-
-protected:
-    void *_ptr;
-};
 /** @} */
 
 } // namespace interface1
