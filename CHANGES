@@ -1,0 +1,47 @@
+Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) Update 1
+
+Changes (w.r.t. Intel DAAL 2017):
+
+Added batch processing mode for k-Nearest Neighbors (kNN) algorithm
+
+Added distributed processing mode for neural network training to support distributed parallel data processing
+
+Added diagonal variance-covariance matrices and controls to treat degenerated covariance matrices to Expectation-Maximization (EM) algorithm for Gaussian Mixture Model (GMM) 
+
+Added k-means++ and k-means|| initialization methods for K-Means clustering
+
+Added the Gaussian initializer for neural network model parameters (weights and biases) 
+
+Added min-max normalization algorithm
+
+Added multiple ground truth tensors and multiple result tensors to neural networks training and inference stages, respectively
+
+Added optional arguments and results to the Stochastic Gradient Descent (SGD) algorithm to enable the resumption of computation from a paused state
+
+Added support for merging the numeric tables by rows
+
+Added support for symmetric and triangular packed numeric tables in Java*
+
+Improved performance in the following functionalities:
+- Neural network training and inference, including support for batch processing mode on the inference stage
+- Local response normalization forward and backward layers and two-dimensional (2D) max pooling forward and backward layers
+- Absolute value (abs) and hyperbolic tangent (tanh) backward layers
+- Cosine distance for result in lower triangular matrix layout and correlation distance for result in full, lower, and upper triangular matrix layouts
+- Moments of low order
+- Z-score normalization
+- Principal Component Analysis (PCA)
+- Kernel functions for CSR numeric tables
+- CSV feature manager
+
+Fixed bugs for the following components:
+- Multi-class classifier
+- Limited-memory Broyden-Fletcher-Goldfarb-Shanno (BFGS) optimization solver
+- Documentation
+
+Open-source contributions integrated:
+- Fixed redundant atomic class definition, by Ethanlm
+
+------------------------------------------------------------------------
+Intel is a trademark of Intel Corporation or its subsidiaries in the U.S. and/or other countries.
+* Other names and brands may be claimed as the property of others.
+
