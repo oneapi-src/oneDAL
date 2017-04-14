@@ -108,7 +108,16 @@ If you have issues with running the script, you may need to replace the *INSTALL
         set PATH=C:\Program Files\Java\jdk1.8.0_77\bin;%PATH%
         set INCLUDE=C:\Program Files\Java\jdk1.8.0_77\include;C:\Program Files\Java\jdk1.8.0_77\include\win32;%INCLUDE%
 
-6. Build Intel DAAL via the command-line interface with the following commands, depending on your platform:
+6. Install Intel(R) Threading Building Blocks (Intel(R) TBB) (Windows* only)
+
+    Download and install free Community License Intel TBB.
+    See [this page](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2) for more details.
+
+    Copy Intel TBB header files and libraries into Intel DAAL folder. E.g.:
+        copy C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2017.2.187\windows\redist %DAALDIR%\src\externals\tbb\win
+        copy C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2017.2.187\windows\tbb %DAALDIR%\src\externals\tbb\win
+
+7. Build Intel DAAL via the command-line interface with the following commands, depending on your platform:
 
  *  on Linux\* using Intel(R) C++ Compiler:
 
