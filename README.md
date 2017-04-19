@@ -114,8 +114,8 @@ If you have issues with running the script, you may need to replace the *INSTALL
     See [this page](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2) for more details.
 
     Copy Intel TBB header files and libraries into Intel DAAL folder. E.g.:
-        copy C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2017.2.187\windows\redist %DAALDIR%\src\externals\tbb\win
-        copy C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2017.2.187\windows\tbb %DAALDIR%\src\externals\tbb\win
+        xcopy /I /Y /Q /E "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2017.2.187\windows\redist" %DAALDIR%\externals\tbb\win\redist
+        xcopy /I /Y /Q /E "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2017.2.187\windows\tbb" %DAALDIR%\externals\tbb\win\tbb
 
 7. Build Intel DAAL via the command-line interface with the following commands, depending on your platform:
 
