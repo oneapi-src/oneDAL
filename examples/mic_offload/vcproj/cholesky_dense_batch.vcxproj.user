@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'">
+    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\..\..\..\redist\intel64_win\tbb\vc_mt;$(ProjectDir)..\..\..\..\redist\intel64_win\daal;%PATH%
+LD_LIBRARY_PATH=$(ProjectDir)..\..\..\..\..\linux\daal\lib\intel64_lin;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.7;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.4;$(ICInstallDir)..\linux\compiler\lib\intel64_lin;%LD_LIBRARY_PATH%
+LIB=$(ProjectDir)..\..\..\lib\intel64_win;%LIB%
+CPATH=$(ProjectDir)..\..\..\include;%CPATH%</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.threaded|x64'">
+    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\..\..\..\redist\intel64_win\tbb\vc_mt;$(ProjectDir)..\..\..\..\redist\intel64_win\daal;%PATH%
+LD_LIBRARY_PATH=$(ProjectDir)..\..\..\..\..\linux\daal\lib\intel64_lin;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.7;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.4;$(ICInstallDir)..\linux\compiler\lib\intel64_lin;%LD_LIBRARY_PATH%
+LIB=$(ProjectDir)..\..\..\lib\intel64_win;%LIB%
+CPATH=$(ProjectDir)..\..\..\include;%CPATH%</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.threaded|x64'">
+    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\..\..\..\redist\intel64_win\tbb\vc_mt;$(ProjectDir)..\..\..\..\redist\intel64_win\daal;%PATH%
+LD_LIBRARY_PATH=$(ProjectDir)..\..\..\..\..\linux\daal\lib\intel64_lin;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.7;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.4;$(ICInstallDir)..\linux\compiler\lib\intel64_lin;%LD_LIBRARY_PATH%
+LIB=$(ProjectDir)..\..\..\lib\intel64_win;%LIB%
+CPATH=$(ProjectDir)..\..\..\include;%CPATH%</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.threaded|x64'">
+    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\..\..\..\redist\intel64_win\tbb\vc_mt;$(ProjectDir)..\..\..\..\redist\intel64_win\daal;%PATH%
+LD_LIBRARY_PATH=$(ProjectDir)..\..\..\..\..\linux\daal\lib\intel64_lin;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.7;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.4;$(ICInstallDir)..\linux\compiler\lib\intel64_lin;%LD_LIBRARY_PATH%
+LIB=$(ProjectDir)..\..\..\lib\intel64_win;%LIB%
+CPATH=$(ProjectDir)..\..\..\include;%CPATH%</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.sequential|x64'">
+    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\..\..\..\redist\intel64_win\tbb\vc_mt;$(ProjectDir)..\..\..\..\redist\intel64_win\daal;%PATH%
+LD_LIBRARY_PATH=$(ProjectDir)..\..\..\..\..\linux\daal\lib\intel64_lin;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.7;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.4;$(ICInstallDir)..\linux\compiler\lib\intel64_lin;%LD_LIBRARY_PATH%
+LIB=$(ProjectDir)..\..\..\lib\intel64_win;%LIB%
+CPATH=$(ProjectDir)..\..\..\include;%CPATH%</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.sequential|x64'">
+    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\..\..\..\redist\intel64_win\tbb\vc_mt;$(ProjectDir)..\..\..\..\redist\intel64_win\daal;%PATH%
+LD_LIBRARY_PATH=$(ProjectDir)..\..\..\..\..\linux\daal\lib\intel64_lin;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.7;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.4;$(ICInstallDir)..\linux\compiler\lib\intel64_lin;%LD_LIBRARY_PATH%
+LIB=$(ProjectDir)..\..\..\lib\intel64_win;%LIB%
+CPATH=$(ProjectDir)..\..\..\include;%CPATH%</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.sequential|x64'">
+    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\..\..\..\redist\intel64_win\tbb\vc_mt;$(ProjectDir)..\..\..\..\redist\intel64_win\daal;%PATH%
+LD_LIBRARY_PATH=$(ProjectDir)..\..\..\..\..\linux\daal\lib\intel64_lin;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.7;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.4;$(ICInstallDir)..\linux\compiler\lib\intel64_lin;%LD_LIBRARY_PATH%
+LIB=$(ProjectDir)..\..\..\lib\intel64_win;%LIB%
+CPATH=$(ProjectDir)..\..\..\include;%CPATH%</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.sequential|x64'">
+    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\..\..\..\redist\intel64_win\tbb\vc_mt;$(ProjectDir)..\..\..\..\redist\intel64_win\daal;%PATH%
+LD_LIBRARY_PATH=$(ProjectDir)..\..\..\..\..\linux\daal\lib\intel64_lin;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.7;$(ProjectDir)..\..\..\..\..\linux\tbb\lib\intel64_lin\gcc4.4;$(ICInstallDir)..\linux\compiler\lib\intel64_lin;%LD_LIBRARY_PATH%
+LIB=$(ProjectDir)..\..\..\lib\intel64_win;%LIB%
+CPATH=$(ProjectDir)..\..\..\include;%CPATH%</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>true</ShowAllFiles>
+  </PropertyGroup>
+</Project>

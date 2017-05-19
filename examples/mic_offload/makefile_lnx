@@ -1,0 +1,113 @@
+#===============================================================================
+# Copyright 2014-2017 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
+##  Content:
+##     Intel(R) Data Analytics Acceleration Library 
+##     Intel(R) Many Integrated Core Compiler Assisted Offload examples creation and run
+##     * support Intel(R) Xeon Phi(TM) processors/coprocessors based on
+##       Intel(R) Advanced Vector Extensions 512 only
+##******************************************************************************
+
+help:
+	@echo "Usage: make {libintel64|sointel64|help} [mode=mode_name] [threading=threading_name]"
+	@echo
+	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
+	@echo
+	@echo "mode_name         - can be build or run. Default is run"
+
+##------------------------------------------------------------------------------
+## examples of using:
+##
+## make sointel64                - build by Intel(R) C++ Compiler
+##                                 and run all examples for Intel(R)64 processor
+##                                 family  applications, dynamic linking
+##
+## make sointel64 mode=build     - build only (not run) by Intel(R) C++ Compiler
+##                                 all examples for Intel(R)64
+##                                 processor family  applications, dynamic linking
+##
+## make help                     - show help
+##
+##------------------------------------------------------------------------------
+
+DAAL  = cholesky_dense_batch
+
+ifndef example
+    example = $(DAAL)
+endif
+
+ifneq ($(mode),build)
+    override mode = run
+endif
+
+ifndef DAALROOT
+    DAALROOT = ./../..
+endif
+
+ifndef TBBROOT
+    TBBROOT = ./../../../tbb
+endif
+TBB_PATH = "$(TBBROOT)/lib/$(_IA)_lin/gcc4.4"
+
+ifeq ($(threading),sequential)
+    DAAL_LIB_T := daal_sequential
+else
+    override threading = parallel
+    DAAL_LIB_T := daal_thread
+endif
+    DAAL_LIB_C := daal_core
+
+ifeq ($(RES_EXT),a)
+    DAAL_LIB := -Wl,--start-group $(DAALROOT)/lib/$(_IA)_lin/lib$(DAAL_LIB_C).a $(DAALROOT)/lib/$(_IA)_lin/lib$(DAAL_LIB_T).a -Wl,--end-group
+else
+    DAAL_LIB := -Wl,--start-group -l$(DAAL_LIB_C) -l$(DAAL_LIB_T) -Wl,--end-group
+endif
+
+
+COPTS := -Wall
+LDOPTS:= -L$(TBB_PATH) -ltbb -ltbbmalloc -lpthread
+offload_flag:=-qoffload-attribute-target=mic -qoffload-arch=mic-avx512
+
+RES_DIR=_results/intel_$(_IA)_$(threading)_$(RES_EXT)
+RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
+
+    CC = icc
+    LD = icc
+
+
+libintel64:
+	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
+sointel64:
+	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
+
+
+_make_ex: $(RES)
+
+
+vpath
+vpath %.cpp ./source
+
+
+.SECONDARY:
+$(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
+	$(CC) -c $(offload_flag) $(COPTS) $< -o $(subst .exe,.o,$@)
+	$(LD) $(offload_flag) $(LDOPTS) -qoffload-option,mic,compiler,"$(LDOPTS) $(DAAL_LIB)" $(subst .exe,.o,$@) $(DAAL_LIB) -o $@
+
+
+$(RES_DIR)/%.res:  $(RES_DIR)/%.exe
+	$< > $@
+
+%/.:; mkdir -p $*
