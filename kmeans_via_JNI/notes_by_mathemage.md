@@ -33,7 +33,30 @@ Resolving deltas: 100% (16684/16684), done.
 Checking out files: 100% (5367/5367), done.
 ```
 
-2. Build Intel DAAL via the command-line interface with the following commands:
+2. Set an environment variable for one of the supported Java* compilers; for example:
+
+```
+$ echo $PATH
+/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+
+$ cat >>~/.bashrc
+# Java JDK -> $PATH
+JAVA_JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin
+export JAVA_JDK
+PATH=$JAVA_JDK/bin:$PATH
+export PATH
+
+$ source ~/.bashrc
+
+$ echo $PATH
+/usr/lib/jvm/java-8-openjdk-amd64/bin/bin:/home/mathemage/torch/install/bin:jdk-install-dir/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+```
+
+```
+set INCLUDE=C:\Program Files\Java\jdk1.8.0_77\include;C:\Program Files\Java\jdk1.8.0_77\include\win32;%INCLUDE%
+```
+        
+3. Build Intel DAAL via the command-line interface with the following commands:
  
  (on Linux\* using GNU Compiler Collection\*)
 
