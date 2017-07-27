@@ -100,4 +100,29 @@ make daal PLAT=lnx32e COMPILER=gnu
     make: *** [__work_gnu/lnx32e/daal/lib/libdaal_core.a] Error 9
     ```
 
-    TODO to be solved
+    I make-cleaned and reinstall again. This time, I got a different issue (see below).
+    
+ * JNI issue again:
+ 
+    ```bash
+    $ make _daal_jj PLAT=lnx32e COMPILER=gnu
+    ========= Building java =========
+    g++ -D__int64="long long" -D__int32="int" -m64 -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -fPIC -std=c++11   -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED @./__work_gnu/lnx32e/jni_tmpdir/inc_j_folders.txt  -c  -o__work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o lang_service/java/com/intel/daal/algorithms/parameter.cpp && printf '\n%s\n' '__work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o.mkdeps += makefile build/cmplr.gnu.mk build/common.mk build/deps.mk makefile.ver' '$(__work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o.mkdeps):' '__work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o: $(__work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o.mkdeps)' '__work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o.trigger = g++ -D__int64="long long" -D__int32="int" -m64 -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -fPIC -std=c++11   -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED @./__work_gnu/lnx32e/jni_tmpdir/inc_j_folders.txt  -c  -o__work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o lang_service/java/com/intel/daal/algorithms/parameter.cpp' >> __work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o.d.tmp && mv -f __work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o.d.tmp __work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o.d
+    lang_service/java/com/intel/daal/algorithms/parameter.cpp:18:17: fatal error: jni.h: No such file or directory
+     #include <jni.h>
+                     ^
+    compilation terminated.
+    makefile:577: recipe for target '__work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o' failed
+    make: *** [__work_gnu/lnx32e/jni_tmpdir/com/intel/daal/algorithms/parameter.o] Error 1
+    ```
+ 
+    The [solution](https://github.com/01org/daal/issues/4) is taken from the issue #4 of DAAL's GitHub, which finally compiles:
+    
+    ```
+    $ make daal PLAT=lnx32e COMPILER=gnu CPATH=/usr/lib/jvm/java-8-openjdk-amd64/include:/usr/lib/jvm/java-8-openjdk-amd64/include/linux/
+    ========= Building core =========
+    ========= Building threading =========
+    ========= Building java =========
+    ========= Building release =========
+    make: Nothing to be done for 'daal'.
+    ```
