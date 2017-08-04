@@ -1,0 +1,39 @@
+{% set version = "DAAL4PY_VERSION" %}
+{% set buildnumber = 0 %}
+
+package:
+    name: daal4py
+    version: {{version}}
+
+source:
+    path: ../daal4py
+
+requirements:
+    build:
+        - python
+        - setuptools
+        - numpy >=1.13
+        - tbb-devel
+        - cnc ==1.2.001
+        - daal-devel ==2018.0.1.20170906
+    run:
+        - python
+        - numpy >=1.13
+        - tbb
+        - cnc ==1.2.001
+        - daal ==2018.0.1.20170906
+
+build:
+    features:
+        - intel
+    number: {{buildnumber}}
+    script_env:
+        - DAAL_INCLUDE
+
+test:
+    imports:
+        - daal4py
+
+about:
+    license: Apache 2.0
+    license_file: LICENSE
