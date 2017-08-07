@@ -126,3 +126,36 @@ make daal PLAT=lnx32e COMPILER=gnu
     ========= Building release =========
     make: Nothing to be done for 'daal'.
     ```
+    
+  ## DAAL via Java
+  
+  ### Build
+  The [Intel DAAL Getting Started](https://software.intel.com/en-us/get-started-with-daal-for-linux) page mentions using DAAL via Java:
+   
+  > To build and run Java code examples, use the version of the Java Virtual Machine* corresponding to the architecture parameter you provided to the daalvars.sh script during setting environment variables.
+  > 
+  > 1. Free 4 gigabytes of memory on your system.
+  > 2. Build examples:
+  >
+  > Go to the Java examples directory and execute the launcher command with the build parameter:
+  > 
+  > ```
+  > cd <install dir>/daal/examples/java
+  > launcher.sh build $PATH_TO_JAVAC
+  > ```
+  > The command builds executables *.class (for example, `CholeskyBatch.class`) in the
+  > `<install dir>/daal/examples/java/com/intel/daal/examples/<example name>` directory.
+  > 3. Run examples:
+  >
+  > Go to the Java examples directory and execute the launcher command with the run parameter:
+  >
+  > ```
+  > cd <install dir>/daal/examples/java
+  > launcher.sh {ia32|intel64} run $PATH_TO_JAVAC
+  > ```
+  > Choose the same architecture parameter as you provided to the `daalvars.sh` script.
+  > The output for each example is written to the file `<example name>.res` located in the `./_results/ia32 or ./_results/intel64` directory, depending on the specified architecture.
+
+  
+  ### Examples by Intel
+  There are some prepared examples of DAAL in Java by Intel, e.g., *kmeans-clustering* examples in [h2oai/daal/examples/java/com/intel/daal/examples/kmeans/](../examples/java/com/intel/daal/examples/kmeans/)
