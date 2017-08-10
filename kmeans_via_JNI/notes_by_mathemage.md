@@ -52,10 +52,6 @@ $ echo $PATH
 /usr/lib/jvm/java-8-openjdk-amd64/bin/bin:/home/mathemage/torch/install/bin:jdk-install-dir/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/home/mathemage/torch/install/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
 ```
 
-```
-set INCLUDE=C:\Program Files\Java\jdk1.8.0_77\include;C:\Program Files\Java\jdk1.8.0_77\include\win32;%INCLUDE%
-```
-        
 3. Build Intel DAAL via the command-line interface with the following commands:
  
  (on Linux\* using GNU Compiler Collection\*)
