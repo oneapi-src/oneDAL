@@ -102,6 +102,10 @@ Intel DAAL supports the IA-32 and Intel(R) 64 architectures. For a detailed expl
         ========= Building java =========
         ========= Building release =========
         make: Nothing to be done for 'daal'.
+        
+    or, if you have installed Oracle JDK:
+    
+        $ make daal PLAT=lnx32e COMPILER=gnu CPATH=/usr/lib/jvm/java-8-oracle/include:/usr/lib/jvm/java-8-oracle/include/linux/
     
   ## DAAL via Java
   
