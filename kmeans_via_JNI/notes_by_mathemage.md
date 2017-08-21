@@ -122,6 +122,11 @@ Intel DAAL supports the IA-32 and Intel(R) 64 architectures. For a detailed expl
   >     cd <install dir>/daal/examples/java
   >     launcher.sh build $PATH_TO_JAVAC
   >
+In my case, `<install dir>` was `/home/mathemage/h2oai/daal/__release_lnx_gnu`, so the `cd` command was
+    
+    mathemage@mathemage-MacBookPro:~/h2oai/daal/examples/java$ cd ../../__release_lnx_gnu/daal/examples/java/
+    mathemage@mathemage-MacBookPro:~/h2oai/daal/__release_lnx_gnu/daal/examples/java$
+
   > The command builds executables `*.class` (for example, `CholeskyBatch.class`) in the
   > `daal/examples/java/com/intel/daal/examples/<example name>` directory.
   > 3. Run examples:
