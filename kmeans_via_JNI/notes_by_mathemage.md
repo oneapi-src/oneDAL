@@ -132,6 +132,9 @@ Intel DAAL supports the IA-32 and Intel(R) 64 architectures. For a detailed expl
     
   ## DAAL via Java
   
+  ### Examples by Intel
+  There are some prepared examples of DAAL in Java by Intel, e.g., *kmeans-clustering* examples in [h2oai/daal/examples/java/com/intel/daal/examples/kmeans/](../examples/java/com/intel/daal/examples/kmeans/)
+  
   ### Build
   The [Intel DAAL Getting Started](https://software.intel.com/en-us/get-started-with-daal-for-linux) page mentions using DAAL via Java:
    
@@ -326,7 +329,3 @@ In my case:
 
   > Choose the same architecture parameter as you provided to the `daalvars.sh` script.
   > The output for each example is written to the file `<example name>.res` located in the `./_results/ia32 or ./_results/intel64` directory, depending on the specified architecture.
-
-  
-  ### Examples by Intel
-  There are some prepared examples of DAAL in Java by Intel, e.g., *kmeans-clustering* examples in [h2oai/daal/examples/java/com/intel/daal/examples/kmeans/](../examples/java/com/intel/daal/examples/kmeans/)
