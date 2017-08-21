@@ -106,6 +106,29 @@ Intel DAAL supports the IA-32 and Intel(R) 64 architectures. For a detailed expl
     or, if you have installed Oracle JDK:
     
         $ make daal PLAT=lnx32e COMPILER=gnu CPATH=/usr/lib/jvm/java-8-oracle/include:/usr/lib/jvm/java-8-oracle/include/linux/
+
+4. Set up environment variables of DAAL. Find out the necessary command:
+
+        mathemage@mathemage-MacBookPro:~/h2oai/daal/__release_lnx_gnu/daal/bin$ ./daalvars.sh daal_help
+        Syntax: source daalvars.sh <arch>
+        Where <arch> is one of:
+          ia32      - setup environment for IA-32 architecture
+          intel64   - setup environment for Intel(R) 64 architecture
+        
+        If the arguments to the sourced script are ignored (consult docs for
+        your shell) the alternative way to specify target is environment
+        variables COMPILERVARS_ARCHITECTURE or DAALVARS_ARCHITECTURE to pass
+        <arch> to the script.
+        
+    Set up the environment variables:
+   
+        mathemage@mathemage-MacBookPro:~/h2oai/daal/__release_lnx_gnu/daal/bin$ source daalvars.sh intel64
+
+    Verify:
+   
+        mathemage@mathemage-MacBookPro:~/h2oai/daal/__release_lnx_gnu/daal/bin$ echo $DAALROOT 
+        /home/mathemage/h2oai/daal/__release_lnx_gnu/daal
+
     
   ## DAAL via Java
   
@@ -136,6 +159,171 @@ In my case, `<install dir>` was `/home/mathemage/h2oai/daal/__release_lnx_gnu`, 
   >     cd <install dir>/daal/examples/java
   >     launcher.sh {ia32|intel64} run $PATH_TO_JAVAC
   >
+In my case:
+
+    mathemage@mathemage-MacBookPro:~/h2oai/daal/__release_lnx_gnu/daal/examples/java$ ./launcher.sh intel64 run /usr/bin/javac 
+    11:00:18 PASSED         AssocRulesAprioriBatch
+    11:00:18 PASSED         BrownBoostDenseBatch
+    11:00:18 PASSED         AdaBoostDenseBatch
+    11:00:19 PASSED         LogitBoostDenseBatch
+    11:00:19 PASSED         CholeskyDenseBatch
+    11:00:19 PASSED         CompressorExample
+    11:00:20 PASSED         CompressionBatch
+    11:00:20 PASSED         CompressionOnline
+    11:00:20 PASSED         CovDenseBatch
+    11:00:20 PASSED         CovDenseDistr
+    11:00:20 PASSED         CovDenseOnline
+    11:00:21 PASSED         CovCSRBatch
+    11:00:21 PASSED         CovCSRDistr
+    11:00:21 PASSED         CovCSROnline
+    11:00:21 PASSED         DataStructuresHomogen
+    11:00:21 PASSED         DataStructuresHomogenTensor
+    11:00:22 PASSED         DataStructuresAOS
+    11:00:22 PASSED         DataStructuresSOA
+    11:00:22 PASSED         DataStructuresCSR
+    11:00:22 PASSED         DataStructuresMerged
+    11:00:22 PASSED         DataStructuresMatrix
+    11:00:23 PASSED         DataStructuresPackedSymmetric
+    11:00:23 PASSED         DataStructuresPackedTriangular
+    11:00:23 PASSED         DataStructuresRowMerged
+    11:00:25 PASSED         DfClsDenseBatch
+    11:00:26 PASSED         DfClsTraverseModel
+    11:00:26 PASSED         DfRegDenseBatch
+    11:00:26 PASSED         DfRegTraverseModel
+    11:00:27 PASSED         DtClsDenseBatch
+    11:00:27 PASSED         DtRegDenseBatch
+    11:00:27 PASSED         CorDistDenseBatch
+    11:00:27 PASSED         CosDistDenseBatch
+    11:00:28 PASSED         EmGmmDenseBatch
+    11:00:28 PASSED         KDTreeKNNDenseBatch
+    11:00:28 PASSED         KMeansDenseBatch
+    11:00:28 PASSED         KMeansCSRBatch
+    11:00:29 PASSED         KMeansDenseBatchAssign
+    11:00:29 PASSED         KMeansInitDenseBatch
+    11:00:29 PASSED         KMeansCSRBatchAssign
+    11:00:29 PASSED         KMeansDenseDistr
+    11:00:30 PASSED         KMeansCSRDistr
+    11:00:30 PASSED         KMeansInitDenseDistr
+    11:00:31 PASSED         KMeansInitCSRDistr
+    11:00:31 PASSED         LinRegNormEqDenseBatch
+    11:00:31 PASSED         LinRegNormEqDenseDistr
+    11:00:31 PASSED         LinRegNormEqDenseOnline
+    11:00:32 PASSED         LinRegQRDenseBatch
+    11:00:32 PASSED         LinRegQRDenseDistr
+    11:00:32 PASSED         LinRegQRDenseOnline
+    11:00:32 PASSED         LowOrderMomsDenseBatch
+    11:00:32 PASSED         LowOrderMomsDenseDistr
+    11:00:33 PASSED         LowOrderMomsDenseOnline
+    11:00:33 PASSED         LowOrderMomsCSRBatch
+    11:00:33 PASSED         LowOrderMomsCSRDistr
+    11:00:33 PASSED         LowOrderMomsCSROnline
+    11:00:34 PASSED         MnNaiveBayesDenseBatch
+    11:00:34 PASSED         MnNaiveBayesCSRBatch
+    11:00:34 PASSED         MnNaiveBayesDenseOnline
+    11:00:34 PASSED         MnNaiveBayesDenseDistr
+    11:00:35 PASSED         MnNaiveBayesCSROnline
+    11:00:35 PASSED         MnNaiveBayesCSRDistr
+    11:00:35 PASSED         OutDetectUniDenseBatch
+    11:00:36 PASSED         OutDetectBaconDenseBatch
+    11:00:36 PASSED         OutDetectMultDenseBatch
+    11:00:36 PASSED         PCACorDenseBatch
+    11:00:36 PASSED         PCACorDenseDistr
+    11:00:36 PASSED         PCACorDenseOnline
+    11:00:37 PASSED         PCACorCSRBatch
+    11:00:37 PASSED         PCACorCSRDistr
+    11:00:37 PASSED         PCACorCSROnline
+    11:00:37 PASSED         PCASVDDenseBatch
+    11:00:38 PASSED         PCASVDDenseDistr
+    11:00:38 PASSED         PCASVDDenseOnline
+    11:00:38 PASSED         QRDenseBatch
+    11:00:39 PASSED         QRDenseDistr
+    11:00:39 PASSED         QRDenseOnline
+    11:00:39 PASSED         RidgeRegNormEqDenseBatch
+    11:00:40 PASSED         RidgeRegNormEqDenseOnline
+    11:00:40 PASSED         RidgeRegNormEqDistr
+    11:00:40 PASSED         SerializationExample
+    11:00:40 PASSED         StumpDenseBatch
+    11:00:41 PASSED         SVDDenseBatch
+    11:00:41 PASSED         SVDDenseDistr
+    11:00:41 PASSED         SVDDenseOnline
+    11:00:41 PASSED         SVMMultiClassDenseBatch
+    11:00:42 PASSED         SVMMultiClassCSRBatch
+    11:00:43 PASSED         SVMTwoClassDenseBatch
+    11:00:44 PASSED         SVMTwoClassCSRBatch
+    11:00:44 PASSED         LibraryVersionInfoExample
+    11:00:44 PASSED         QuantilesDenseBatch
+    11:00:45 PASSED         PivotedQRDenseBatch
+    11:00:45 PASSED         LinRegMetricsDenseBatch
+    11:00:46 PASSED         SVMTwoClassMetricsDenseBatch
+    11:00:46 PASSED         SVMMultiClassMetricsDenseBatch
+    11:00:47 PASSED         KernelFuncLinDenseBatch
+    11:00:47 PASSED         KernelFuncLinCSRBatch
+    11:00:47 PASSED         KernelFuncRbfDenseBatch
+    11:00:47 PASSED         KernelFuncRbfCSRBatch
+    11:00:47 PASSED         ImplAlsCSRBatch
+    11:00:48 PASSED         ImplAlsCSRDistr
+    11:00:48 PASSED         ImplAlsDenseBatch
+    11:00:48 PASSED         SetNumberOfThreads
+    11:00:49 PASSED         DataStructuresMerged
+    11:00:49 PASSED         SortingDenseBatch
+    11:00:49 PASSED         ErrorHandling
+    11:00:49 PASSED         SoftmaxDenseBatch
+    11:00:50 PASSED         AbsDenseBatch
+    11:00:50 PASSED         AbsCSRBatch
+    11:00:50 PASSED         SmoothReLUDenseBatch
+    11:00:50 PASSED         LogisticDenseBatch
+    11:00:50 PASSED         ReLUCSRBatch
+    11:00:51 PASSED         ReLUDenseBatch
+    11:00:51 PASSED         TanhDenseBatch
+    11:00:51 PASSED         TanhCSRBatch
+    11:00:51 PASSED         ZScoreDenseBatch
+    11:00:51 PASSED         MinMaxDenseBatch
+    11:00:52 PASSED         SGDDenseBatch
+    11:00:52 PASSED         SGDMiniDenseBatch
+    11:00:52 PASSED         SGDMomentDenseBatch
+    11:00:52 PASSED         SGDMomentOptResDenseBatch
+    11:00:53 PASSED         LBFGSDenseBatch
+    11:00:53 PASSED         LBFGSOptResDenseBatch
+    11:00:53 PASSED         AdagradDenseBatch
+    11:00:53 PASSED         AdagradOptResDenseBatch
+    11:00:53 PASSED         MSEDenseBatch
+    11:00:54 PASSED         ReLULayerDenseBatch
+    11:00:54 PASSED         ReshapeLayerDenseBatch
+    11:00:54 PASSED         AbsLayerDenseBatch
+    11:00:54 PASSED         BatchNormLayerDenseBatch
+    11:00:55 PASSED         DropoutLayerDenseBatch
+    11:00:55 PASSED         FullyconLayerDenseBatch
+    11:00:55 PASSED         SplitLayerDenseBatch
+    11:00:56 PASSED         SmoothReLULayerDenseBatch
+    11:00:56 PASSED         SoftmaxLayerDenseBatch
+    11:00:56 PASSED         PReLULayerDenseBatch
+    11:00:57 PASSED         TanhLayerDenseBatch
+    11:00:57 PASSED         LRNLayerDenseBatch
+    11:00:57 PASSED         Conv2DLayerDenseBatch
+    11:00:57 PASSED         TransConv2DLayerDenseBatch
+    11:00:57 PASSED         LogisticLayerDenseBatch
+    11:00:58 PASSED         AvePool1DLayerDenseBatch
+    11:00:58 PASSED         MaxPool1DLayerDenseBatch
+    11:00:58 PASSED         AvePool2DLayerDenseBatch
+    11:00:58 PASSED         MaxPool2DLayerDenseBatch
+    11:00:59 PASSED         StochPool2DLayerDenseBatch
+    11:00:59 PASSED         AvePool3DLayerDenseBatch
+    11:00:59 PASSED         MaxPool3DLayerDenseBatch
+    11:00:59 PASSED         ConcatLayerDenseBatch
+    11:00:59 PASSED         LossSoftmaxEntrLayerDenseBatch
+    11:01:00 PASSED         LossLogisticEntrLayerDenseBatch
+    11:01:00 PASSED         NeuralNetDenseBatch
+    11:01:00 PASSED         NeuralNetPredicDenseBatch
+    11:01:00 PASSED         Locallycon2DLayerDenseBatch
+    11:01:01 PASSED         LCNLayerDenseBatch
+    11:01:01 PASSED         SpatAvePool2DLayerDenseBatch
+    11:01:01 PASSED         SpatMaxPool2DLayerDenseBatch
+    11:01:01 PASSED         SpatStochPool2DLayerDenseBatch
+    11:01:02 PASSED         NeuralNetDenseDistr
+    11:01:02 PASSED         InitializersDenseBatch
+    11:01:02 PASSED         UniformDenseBatch
+    11:01:02 PASSED         NormalDenseBatch
+
   > Choose the same architecture parameter as you provided to the `daalvars.sh` script.
   > The output for each example is written to the file `<example name>.res` located in the `./_results/ia32 or ./_results/intel64` directory, depending on the specified architecture.
 
