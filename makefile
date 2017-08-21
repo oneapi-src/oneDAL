@@ -496,6 +496,7 @@ THR.objs := $(THR.objs_a) $(THR.objs_y)
 
 $(THR.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_HIDE_DEPRECATED
 $(THR.objs): INCLUDES += $(addprefix -I, $(CORE.incdirs))
+$(THR.objs): INCLUDES += $(addprefix -I, /usr/lib/jvm/java-8-openjdk-amd64/include/)
 $(THR_TBB.objs): COPT += -D__DO_TBB_LAYER__
 $(THR_SEQ.objs): COPT += -D__DO_SEQ_LAYER__
 $(THR.objs_y): COPT += -D__DAAL_IMPLEMENTATION
