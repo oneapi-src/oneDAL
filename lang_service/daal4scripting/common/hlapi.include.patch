@@ -1,0 +1,646 @@
+/*******************************************************************************
+* Copyright 2014-2017 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+Index: services/daal_shared_ptr.h
+===================================================================
+--- services/daal_shared_ptr.h	(.../trunk/src/include)	(revision 24798)
++++ services/daal_shared_ptr.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -187,6 +187,11 @@
+ class SharedPtr
+ {
+ public:
++    /**
++     * Template parameter (T): the type of the managed object
++     */
++    typedef T element_type;
++
+     DAAL_NEW_DELETE();
+
+     typedef T   ElementType;
+Index: algorithms/multi_class_classifier/multi_class_classifier_model.h
+===================================================================
+--- algorithms/multi_class_classifier/multi_class_classifier_model.h	(revision 25928)
++++ algorithms/multi_class_classifier/multi_class_classifier_model.h	(working copy)
+@@ -89,8 +89,8 @@
+ struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::Parameter
+ {
+     ParameterBase(size_t nClasses): daal::algorithms::classifier::Parameter(nClasses), training(), prediction() {}
+-    services::SharedPtr<classifier::training::Batch> training;          /*!< Two-class classifier training stage */
+-    services::SharedPtr<classifier::prediction::Batch> prediction;      /*!< Two-class classifier prediction stage */
++    services::SharedPtr<algorithms::classifier::training::Batch> training;          /*!< Two-class classifier training stage */
++    services::SharedPtr<algorithms::classifier::prediction::Batch> prediction;      /*!< Two-class classifier prediction stage */
+ 
+     services::Status check() const DAAL_C11_OVERRIDE;
+ };
+Index: algorithms/multi_class_classifier/multi_class_classifier_predict.h
+===================================================================
+--- algorithms/multi_class_classifier/multi_class_classifier_predict.h	(revision 25928)
++++ algorithms/multi_class_classifier/multi_class_classifier_predict.h	(working copy)
+@@ -131,6 +131,10 @@
+ class Batch : public classifier::prediction::Batch
+ {
+ public:
++    typedef algorithms::multi_class_classifier::prediction::Input input_type;
++    typedef algorithms::multi_class_classifier::Parameter parameter_type;
++    typedef algorithms::classifier::prediction::Result result_type;
++
+     Input input;                /*!< Input objects of the algorithm */
+     Parameter parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+ 
+Index: algorithms/multi_class_classifier/multi_class_classifier_train.h
+===================================================================
+--- algorithms/multi_class_classifier/multi_class_classifier_train.h	(revision 25928)
++++ algorithms/multi_class_classifier/multi_class_classifier_train.h	(working copy)
+@@ -125,5 +125,9 @@
+ class DAAL_EXPORT Batch : public classifier::training::Batch
+ {
+ public:
++    typedef algorithms::classifier::training::Input input_type;
++    typedef algorithms::multi_class_classifier::Parameter parameter_type;
++    typedef algorithms::multi_class_classifier::training::Result result_type;
++
+     Parameter parameter;                /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+     classifier::training::Input input;  /*!< %Input objects of the algorithm */
+
+Index: algorithms/naive_bayes/multinomial_naive_bayes_predict.h
+===================================================================
+--- algorithms/naive_bayes/multinomial_naive_bayes_predict.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/naive_bayes/multinomial_naive_bayes_predict.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -116,8 +116,12 @@
+ class Batch : public classifier::prediction::Batch
+ {
+ public:
+-    Input input;                /*!< %Input objects of the algorithm */
+-    Parameter parameter;        /*!< \ref interface1::Parameter "Parameters" of the prediction algorithm */
++    typedef algorithms::multinomial_naive_bayes::prediction::Input input_type;
++    typedef algorithms::multinomial_naive_bayes::Parameter parameter_type;
++    typedef algorithms::classifier::prediction::Result result_type;
++
++    input_type input;                /*!< %Input objects of the algorithm */
++    parameter_type parameter;        /*!< \ref interface1::Parameter "Parameters" of the prediction algorithm */
+     /**
+      * Default constructor
+      * \param nClasses  Number of classes
+Index: algorithms/naive_bayes/multinomial_naive_bayes_training_batch.h
+===================================================================
+--- algorithms/naive_bayes/multinomial_naive_bayes_training_batch.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/naive_bayes/multinomial_naive_bayes_training_batch.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -117,9 +117,13 @@
+ class DAAL_EXPORT Batch : public classifier::training::Batch
+ {
+ public:
+-    Parameter parameter;                /*!< \ref interface1::Parameter "Parameters" of the training algorithm */
+-    classifier::training::Input input;  /*!< %Input objects of the algorithm */
++    typedef algorithms::classifier::training::Input input_type;
++    typedef algorithms::multinomial_naive_bayes::Parameter parameter_type;
++    typedef algorithms::multinomial_naive_bayes::training::Result result_type;
+
++    input_type input;              /*!< %Input objects of the algorithm */
++    parameter_type parameter; /*!< \ref interface1::Parameter "Parameters" of the training algorithm */
++
+     /**
+      * Default constructor
+      * \param nClasses  Number of classes
+Index: algorithms/naive_bayes/multinomial_naive_bayes_training_distributed.h
+===================================================================
+--- algorithms/naive_bayes/multinomial_naive_bayes_training_distributed.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/naive_bayes/multinomial_naive_bayes_training_distributed.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -144,6 +144,11 @@
+ class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
+ {
+ public:
++    typedef algorithms::classifier::training::Input input_type;
++    typedef algorithms::multinomial_naive_bayes::Parameter parameter_type;
++    typedef algorithms::multinomial_naive_bayes::training::Result result_type;
++    typedef algorithms::multinomial_naive_bayes::training::PartialResult partial_result_type;
++
+     /**
+      * Default constructor
+      * \param nClasses  Number of classes
+@@ -194,9 +199,14 @@
+ class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
+ {
+ public:
+-    Parameter        parameter; /*!< \ref interface1::Parameter "Parameters" of the distributed training algorithm */
+-    DistributedInput input;     /*!< %Input objects of the algorithm */
++    typedef algorithms::multinomial_naive_bayes::training::DistributedInput input_type;
++    typedef algorithms::multinomial_naive_bayes::Parameter parameter_type;
++    typedef algorithms::multinomial_naive_bayes::training::Result result_type;
++    typedef algorithms::multinomial_naive_bayes::training::PartialResult partial_result_type;
+
++    parameter_type  parameter; /*!< \ref interface1::Parameter "Parameters" of the distributed training algorithm */
++    input_type      input;     /*!< %Input objects of the algorithm */
++
+     /**
+      * Default constructor
+      * \param nClasses  Number of classes
+Index: algorithms/naive_bayes/multinomial_naive_bayes_model.h
+===================================================================
+--- algorithms/naive_bayes/multinomial_naive_bayes_model.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/naive_bayes/multinomial_naive_bayes_model.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -310,6 +310,8 @@
+         return services::Status();
+     }
+ };
++
++typedef services::SharedPtr<Model> ModelPtr;
+ typedef services::SharedPtr<PartialModel> PartialModelPtr;
+ } // namespace interface1
+ using interface1::Parameter;
+Index: algorithms/svd/svd_batch.h
+===================================================================
+--- algorithms/svd/svd_batch.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/svd/svd_batch.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -108,9 +108,13 @@
+ class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
+ {
+ public:
+-    Input input;            /*!< %Input data structure */
+-    Parameter parameter;    /*!< SVD parameters structure */
++    typedef algorithms::svd::Input input_type;
++    typedef algorithms::svd::Parameter parameter_type;
++    typedef algorithms::svd::Result result_type;
+
++    input_type input;            /*!< %Input data structure */
++    parameter_type parameter;    /*!< SVD parameters structure */
++
+     Batch()
+     {
+         initialize();
+Index: algorithms/svd/svd_distributed.h
+===================================================================
+--- algorithms/svd/svd_distributed.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/svd/svd_distributed.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -240,6 +240,11 @@
+ class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+ {
+ public:
++    typedef algorithms::svd::DistributedStep2Input input_type;
++    typedef algorithms::svd::Parameter parameter_type;
++    typedef algorithms::svd::Result result_type;
++    typedef data_management::DataCollection partial_result_type;
++
+     DistributedStep2Input input;     /*!< %DistributedStep2Input data structure */
+     Parameter             parameter; /*!< SVD parameters structure */
+
+@@ -364,6 +369,11 @@
+     daal::algorithms::Analysis<distributed>
+ {
+ public:
++    typedef algorithms::svd::DistributedStep3Input input_type;
++    typedef algorithms::svd::Parameter parameter_type;
++    typedef algorithms::svd::Result result_type;
++    typedef algorithms::svd::DistributedPartialResultStep3 partial_result_type;
++
+     DistributedStep3Input input;     /*!< %DistributedStep3Input data structure */
+     Parameter             parameter; /*!< SVD parameters structure */
+
+Index: algorithms/pca/pca_batch.h
+===================================================================
+--- algorithms/pca/pca_batch.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/pca/pca_batch.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -132,6 +132,10 @@
+ class DAAL_EXPORT Batch : public Analysis<batch>
+ {
+ public:
++    typedef algorithms::pca::Input input_type;
++    typedef algorithms::pca::BatchParameter<algorithmFPType, method> parameter_type;
++    typedef algorithms::pca::Result result_type;
++
+     /** Default constructor */
+     Batch()
+     {
+@@ -184,8 +188,8 @@
+         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
+     }
+
+-    Input input; /*!< Input data structure */
+-    BatchParameter<algorithmFPType, method> parameter; /*!< Parameters */
++    input_type input; /*!< Input data structure */
++    parameter_type parameter; /*!< Parameters */
+
+ protected:
+     ResultPtr _result;
+Index: algorithms/pca/pca_distributed.h
+===================================================================
+--- algorithms/pca/pca_distributed.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/pca/pca_distributed.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -239,6 +240,11 @@
+ class DAAL_EXPORT Distributed<step2Master, algorithmFPType, correlationDense> : public Analysis<distributed>
+ {
+ public:
++    typedef algorithms::pca::DistributedInput<correlationDense> input_type;
++    typedef algorithms::pca::DistributedParameter<step2Master, algorithmFPType, correlationDense> parameter_type;
++    typedef algorithms::pca::Result result_type;
++    typedef algorithms::pca::PartialResult<correlationDense> partial_result_type;
++
+     /** Default constructor */
+     Distributed()
+     {
+@@ -368,6 +374,11 @@
+ class DAAL_EXPORT Distributed<step2Master, algorithmFPType, svdDense> : public Analysis<distributed>
+ {
+ public:
++    typedef algorithms::pca::DistributedInput<svdDense> input_type;
++    typedef algorithms::pca::DistributedParameter<step2Master, algorithmFPType, svdDense> parameter_type;
++    typedef algorithms::pca::Result result_type;
++    typedef algorithms::pca::PartialResult<svdDense> partial_result_type;
++
+     /** Default constructor */
+     Distributed()
+     {
+Index: algorithms/pca/pca_online.h
+===================================================================
+--- algorithms/pca/pca_online.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/pca/pca_online.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -150,6 +150,11 @@
+ class DAAL_EXPORT Online<algorithmFPType, correlationDense> : public Analysis<online>
+ {
+ public:
++    typedef algorithms::pca::Input input_type;
++    typedef algorithms::pca::OnlineParameter<algorithmFPType, correlationDense> parameter_type;
++    typedef algorithms::pca::Result result_type;
++    typedef algorithms::pca::PartialResult<correlationDense> partial_result_type;
++
+     /** Default constructor */
+     Online()
+     {
+@@ -280,6 +285,11 @@
+ class DAAL_EXPORT Online<algorithmFPType, svdDense> : public Analysis<online>
+ {
+ public:
++    typedef algorithms::pca::Input input_type;
++    typedef algorithms::pca::OnlineParameter<algorithmFPType, svdDense> parameter_type;
++    typedef algorithms::pca::Result result_type;
++    typedef algorithms::pca::PartialResult<svdDense> partial_result_type;
++
+     /** Default constructor */
+     Online()
+     {
+Index: algorithms/pca/transform/pca_transform_batch.h
+===================================================================
+--- algorithms/pca/transform/pca_transform_batch.h	(revision 25928)
++++ algorithms/pca/transform/pca_transform_batch.h	(working copy)
+@@ -109,5 +109,9 @@
+ class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
+ {
+ public:
++    typedef algorithms::pca::transform::Input input_type;
++    typedef algorithms::pca::transform::Parameter parameter_type;
++    typedef algorithms::pca::transform::Result result_type;
++
+     Input input;            /*!< Input object */
+     Parameter parameter;    /*!< PCA transformation parameters */
+Index: algorithms/svm/svm_model.h
+===================================================================
+--- algorithms/svm/svm_model.h	(revision 25928)
++++ algorithms/svm/svm_model.h	(working copy)
+@@ -109,7 +109,7 @@
+                                      A non-zero value enables use of a cache optimization technique */
+     bool doShrinking;           /*!< Flag that enables use of the shrinking optimization technique */
+     size_t shrinkingStep;       /*!< Number of iterations between the steps of shrinking optimization technique */
+-    services::SharedPtr<kernel_function::KernelIface> kernel;   /*!< Kernel function */
++    algorithms::kernel_function::KernelIfacePtr kernel;   /*!< Kernel function */
+ 
+     services::Status check() const DAAL_C11_OVERRIDE;
+ };
+Index: algorithms/svm/svm_predict.h
+===================================================================
+--- algorithms/svm/svm_predict.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/svm/svm_predict.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -120,9 +120,13 @@
+ class Batch : public classifier::prediction::Batch
+ {
+ public:
+-    Input input;                /*!< %Input objects of the algorithm */
+-    Parameter parameter;        /*!< \ref interface1::Parameter "Parameter" of the algorithm */
++    typedef algorithms::svm::prediction::Input input_type;
++    typedef algorithms::svm::Parameter parameter_type;
++    typedef algorithms::classifier::prediction::Result result_type;
+
++    input_type input;                /*!< %Input objects of the algorithm */
++    parameter_type parameter;        /*!< \ref interface1::Parameter "Parameter" of the algorithm */
++
+     /** Default constructor */
+     Batch()
+     {
+Index: algorithms/svm/svm_train.h
+===================================================================
+--- algorithms/svm/svm_train.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/svm/svm_train.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -118,9 +118,13 @@
+ class DAAL_EXPORT Batch : public classifier::training::Batch
+ {
+ public:
+-    Parameter parameter;                /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+-    classifier::training::Input input;  /*!< %Input objects of the algorithm */
++    typedef algorithms::classifier::training::Input input_type;
++    typedef algorithms::svm::Parameter parameter_type;
++    typedef algorithms::svm::training::Result result_type;
+
++    parameter_type parameter;  /*!< \ref interface1::Parameter "Parameters" of the algorithm */
++    input_type input;          /*!< %Input objects of the algorithm */
++
+     /** Default constructor */
+     Batch()
+     {
+Index: algorithms/linear_regression/linear_regression_predict.h
+===================================================================
+--- algorithms/linear_regression/linear_regression_predict.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/linear_regression/linear_regression_predict.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -89,31 +89,14 @@
+  *      - \ref training::interface1::Distributed "training::Distributed" class
+  */
+ template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+-class Batch
+-{};
+-
+-/**
+- * <a name="DAAL-CLASS-ALGORITHMS__LINEAR_REGRESSION__PREDICTION__BATCH"></a>
+- * \brief Provides methods to run implementations of the linear regression model-based prediction
+- * <!-- \n<a href="DAAL-REF-LINEARREGRESSION-ALGORITHM">Linear regression algorithm description and usage models</a> -->
+- *
+- * \tparam algorithmFPType  Data type to use in intermediate computations for linear regression model-based prediction
+- *                          in the batch processing mode, double or float
+- *
+- * \par References
+- *      - \ref linear_regression::interface1::Model "linear_regression::Model" class
+- *      - \ref linear_regression::interface1::ModelNormEq "linear_regression::ModelNormEq" class
+- *      - \ref linear_regression::interface1::ModelQR "linear_regression::ModelQR" class
+- *      - \ref training::interface1::Batch "training::Batch" class
+- *      - \ref training::interface1::Online "training::Online" class
+- *      - \ref training::interface1::Distributed "training::Distributed" class
+- */
+-template<typename algorithmFPType>
+-class Batch<algorithmFPType, defaultDense> : public linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense>
++class Batch : public linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense>
+ {
+ public:
+-    Input input; /*!< %Input data structure */
++    typedef algorithms::linear_regression::prediction::Input input_type;
++    typedef algorithms::linear_regression::prediction::Result result_type;
+
++    input_type input; /*!< %Input data structure */
++
+     /** Default constructor */
+     Batch()
+     {
+Index: algorithms/linear_regression/linear_regression_training_batch.h
+===================================================================
+--- algorithms/linear_regression/linear_regression_training_batch.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/linear_regression/linear_regression_training_batch.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -118,9 +118,13 @@
+ class DAAL_EXPORT Batch : public linear_model::training::Batch
+ {
+ public:
+-    Input     input;     /*!< %Input data structure */
+-    Parameter parameter; /*!< %Training \ref interface1::Parameter "parameters" */
++    typedef algorithms::linear_regression::training::Input input_type;
++    typedef algorithms::linear_regression::Parameter parameter_type;
++    typedef algorithms::linear_regression::training::Result result_type;
+
++    input_type     input;     /*!< %Input data structure */
++    parameter_type parameter; /*!< %Training \ref interface1::Parameter "parameters" */
++
+     /** Default constructor */
+     Batch()
+     {
+Index: algorithms/linear_regression/linear_regression_training_distributed.h
+===================================================================
+--- algorithms/linear_regression/linear_regression_training_distributed.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/linear_regression/linear_regression_training_distributed.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -162,6 +162,11 @@
+ class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
+ {
+ public:
++    typedef algorithms::linear_regression::training::Input input_type;
++    typedef algorithms::linear_regression::Parameter parameter_type;
++    typedef algorithms::linear_regression::training::Result result_type;
++    typedef algorithms::linear_regression::training::PartialResult partial_result_type;
++
+     /** Default constructor */
+     Distributed<step1Local, algorithmFPType, method>()
+     {}
+@@ -215,6 +220,11 @@
+ class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
+ {
+ public:
++    typedef algorithms::linear_regression::training::DistributedInput<step2Master> input_type;
++    typedef algorithms::linear_regression::Parameter parameter_type;
++    typedef algorithms::linear_regression::training::Result result_type;
++    typedef algorithms::linear_regression::training::PartialResult partial_result_type;
++
+     /** Default constructor */
+     Distributed()
+     {
+@@ -296,11 +306,11 @@
+     }
+
+     DistributedInput<step2Master> input; /*!< %Input data structure */
+-    Parameter parameter; /*!< %Training \ref interface1::Parameter "parameters" */
++    parameter_type parameter; /*!< %Training \ref interface1::Parameter "parameters" */
+
+ protected:
+-    PartialResultPtr _partialResult;
+-    ResultPtr _result;
++    services::SharedPtr<partial_result_type> _partialResult;
++    services::SharedPtr<result_type> _result;
+
+     virtual Distributed<step2Master, algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
+     {
+Index: algorithms/outlier_detection/outlier_detection_multivariate.h
+===================================================================
+--- algorithms/outlier_detection/outlier_detection_multivariate.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/outlier_detection/outlier_detection_multivariate.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -119,6 +119,9 @@
+ class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
+ {
+ public:
++    typedef algorithms::multivariate_outlier_detection::Input input_type;
++    typedef algorithms::multivariate_outlier_detection::Result result_type;
++
+     /** Default constructor */
+     Batch()
+     {
+@@ -196,10 +199,10 @@
+     }
+
+ public:
+-    Input input; /*!< %Input object */
++    input_type input;            /*!< %Input object */
+
+ private:
+-    ResultPtr _result;
++    services::SharedPtr<result_type> _result;
+ };
+ /** @} */
+ } // namespace interface1
+Index: algorithms/outlier_detection/outlier_detection_univariate.h
+===================================================================
+--- algorithms/outlier_detection/outlier_detection_univariate.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/outlier_detection/outlier_detection_univariate.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -114,6 +114,9 @@
+ class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
+ {
+ public:
++    typedef algorithms::univariate_outlier_detection::Input input_type;
++    typedef algorithms::univariate_outlier_detection::Result result_type;
++
+     /** Default constructor */
+     Batch()
+     {
+@@ -191,10 +194,10 @@
+     }
+
+ public:
+-    Input input; /*!< %Input data structure */
++    input_type input;            /*!< %Input data structure */
+
+ private:
+-    ResultPtr _result;
++    services::SharedPtr<result_type> _result;
+ };
+ /** @} */
+ } // namespace interface1
+Index: algorithms/kmeans/kmeans_batch.h
+===================================================================
+--- algorithms/kmeans/kmeans_batch.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/kmeans/kmeans_batch.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -112,6 +112,10 @@
+ class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
+ {
+ public:
++    typedef algorithms::kmeans::Input input_type;
++    typedef algorithms::kmeans::Parameter parameter_type;
++    typedef algorithms::kmeans::Result result_type;
++
+     /**
+      *  Main constructor
+      *  \param[in] nClusters   Number of clusters
+@@ -194,11 +198,11 @@
+     }
+
+ public:
+-    Input input;            /*!< %Input data structure */
+-    Parameter parameter;    /*!< K-Means parameters structure */
++    input_type input;            /*!< %Input data structure */
++    parameter_type parameter;    /*!< K-Means parameters structure */
+
+ private:
+-    ResultPtr _result;
++    services::SharedPtr<result_type> _result;
+ };
+ /** @} */
+ } // namespace interface1
+Index: algorithms/kmeans/kmeans_init_batch.h
+===================================================================
+--- algorithms/kmeans/kmeans_init_batch.h	(.../trunk/src/include)	(revision 24798)
++++ algorithms/kmeans/kmeans_init_batch.h	(.../branches/users/fschlimb_hlapi/src/include)	(revision 24798)
+@@ -114,6 +114,10 @@
+ class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
+ {
+ public:
++    typedef algorithms::kmeans::init::Input input_type;
++    typedef algorithms::kmeans::init::Parameter parameter_type;
++    typedef algorithms::kmeans::init::Result result_type;
++
+     /**
+      *  Main constructor
+      *  \param[in] nClusters   Number of clusters
+@@ -195,11 +199,11 @@
+     }
+
+ public:
+-    Input input;            /*!< %Input data structure */
+-    Parameter parameter;    /*!< K-Means parameters structure */
++    input_type input;            /*!< %Input data structure */
++    parameter_type parameter;    /*!< K-Means parameters structure */
+
+ private:
+-    ResultPtr _result;
++    services::SharedPtr<result_type> _result;
+ };
+ /** @} */
+ } // namespace interface1
+Index: data_management/data/data_archive.h
+===================================================================
+--- data_management/data/data_archive.h	(revision 24787)
++++ data_management/data/data_archive.h	(working copy)
+@@ -725,6 +725,17 @@
+     }
+
+     /**
++     *  Constructor of an input data archive from a DataArchiveIface
++     *  The new InputDataArchive object will own the provided pointer
++     *  and free it when it gets deleted.
++     */
++    InputDataArchive(DataArchiveIface * arch) : _finalized(false), _errors(new services::ErrorCollection())
++    {
++        _arch = arch;
++        archiveHeader();
++    }
++
++    /**
+      *  Constructor of an input data archive to a byte array of compressed data
+      */
+     InputDataArchive(daal::data_management::CompressorImpl *compressor) : _finalized(false),
+@@ -977,6 +986,17 @@
+     }
+
+     /**
++     *  Constructor of an output data archive from a DataArchiveIface
++     *  The new OutputDataArchive object will own the provided pointer
++     *  and free it when it gets deleted.
++     */
++    OutputDataArchive( DataArchiveIface * arch ) : _errors(new services::ErrorCollection())
++    {
++        _arch = arch;
++        archiveHeader();
++    }
++
++    /**
+      *  Constructor of an output data archive from a byte array
+      */
+     OutputDataArchive( byte *ptr, size_t size ) : _errors(new services::ErrorCollection())
+Index: algorithms/kernel_function/kernel_function_linear.h
+===================================================================
+--- algorithms/kernel_function/kernel_function_linear.h	(revision 24787)
++++ algorithms/kernel_function/kernel_function_linear.h	(working copy)
+@@ -117,6 +117,10 @@
+ class DAAL_EXPORT Batch : public KernelIface
+ {
+ public:
++    typedef algorithms::kernel_function::linear::Input input_type;
++    typedef algorithms::kernel_function::linear::Parameter parameter_type;
++    typedef algorithms::kernel_function::Result result_type;
++
+     Parameter parameter;  /*!< Parameter of the kernel function*/
+     Input input;                /*!< %Input data structure */
+ 
+Index: algorithms/kernel_function/kernel_function_rbf.h
+===================================================================
+--- algorithms/kernel_function/kernel_function_rbf.h	(revision 24787)
++++ algorithms/kernel_function/kernel_function_rbf.h	(working copy)
+@@ -116,5 +116,9 @@
+ class DAAL_EXPORT Batch : public KernelIface
+ {
+ public:
++    typedef algorithms::kernel_function::rbf::Input input_type;
++    typedef algorithms::kernel_function::rbf::Parameter parameter_type;
++    typedef algorithms::kernel_function::Result result_type;
++
+     Parameter parameter;  /*!< Parameter of the kernel function*/
+     Input input;                /*!< %Input data structure */

@@ -1,0 +1,67 @@
+#*******************************************************************************
+# Copyright 2014-2017 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#******************************************************************************/
+
+# Requires vars PYTHON, BUILD_PREFIX, DAALROOT, TOOLSDIR and HLAPILANG
+# auto-set by language specific Makefile
+BUILD_PREFIX  ?= please/set/BUILD_PREFIX
+DAALROOT      ?= please/set/DAALROOT
+TOOLSDIR_     ?= oops/TOOLSDIR_/must/be/set
+HLAPILANG     ?= please-set-HLAPILANG
+PYTHON        ?= python
+
+# End of config section
+######################
+
+DAALROOT_     = $(subst \,/,$(DAALROOT))
+BUILD_PREFIX_ = $(subst \,/,$(BUILD_PREFIX))
+PREFIX_       = $(subst \,/,$(PREFIX))
+
+DAAL_INCLUDE = $(BUILD_PREFIX_)/daal/include
+
+LICENSE = $(TOOLSDIR_)/../LICENSE
+
+COMMON_SOURCE_FILES = \
+	$(BUILD_PREFIX_)/daal_wrap.cpp \
+	$(TOOLSDIR_)/hlapi.h \
+	$(TOOLSDIR_)/hlapi_distr.h \
+	$(TOOLSDIR_)/cnc4daal.h \
+	$(TOOLSDIR_)/readGraph.h \
+	$(TOOLSDIR_)/apply_gather.h \
+	$(TOOLSDIR_)/dkmi.h
+
+TOOLS_FILES = \
+	$(TOOLSDIR_)/wrappers.py \
+	$(TOOLSDIR_)/wrapper_gen.py \
+	$(TOOLSDIR_)/makefile.common \
+	$(TOOLSDIR_)/gen_hlapi.py \
+	$(TOOLSDIR_)/swig_interface.py \
+	$(TOOLSDIR_)/parse.py
+
+$(DAAL_INCLUDE)/daal.h: $(TOOLSDIR_)/hlapi.include.patch
+	-mkdir -p $(DAAL_INCLUDE)
+	cp -rp $(DAALROOT_)/include/* $(DAAL_INCLUDE)/
+	patch -p0 -N -r - -d $(DAAL_INCLUDE) < $<
+
+$(BUILD_PREFIX_)/hlapi.i: $(DAAL_INCLUDE)/daal.h $(TOOLS_FILES)
+	-mkdir -p $(BUILD_PREFIX_)
+	$(PYTHON) $(TOOLSDIR_)/gen_hlapi.py --hlapi=$(HLAPILANG) --daalroot=$(DAAL_INCLUDE)/.. > $@
+
+touch:
+	touch $(BUILD_PREFIX_)/*
+	touch $(BUILD_PREFIX_)/daal4r.*
+
+clean:
+	rm -rf $(BUILD_PREFIX_)
