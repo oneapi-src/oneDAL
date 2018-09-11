@@ -1,0 +1,165 @@
+/* file: dtrees_feature_type_helper.cpp */
+/*******************************************************************************
+* Copyright 2014-2018 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/*
+//++
+//  Implementation of service data structures
+//--
+*/
+#include "dtrees_feature_type_helper.h"
+
+namespace daal
+{
+namespace algorithms
+{
+namespace dtrees
+{
+namespace internal
+{
+
+FeatureTypes::~FeatureTypes()
+{
+    destroyBuf();
+}
+
+bool FeatureTypes::init(const NumericTable& data)
+{
+    size_t count = 0;
+    _firstUnordered = -1;
+    _lastUnordered = -1;
+    _nFeat = data.getNumberOfColumns();
+
+    for(size_t i = 0; i < _nFeat; ++i)
+    {
+        if(data.getFeatureType(i) != data_management::features::DAAL_CATEGORICAL)
+            continue;
+        if(_firstUnordered < 0)
+            _firstUnordered = i;
+        _lastUnordered = i;
+        ++count;
+    }
+    _bAllUnordered = ((_nNoOrderedFeat == count) && count);
+    if(_bAllUnordered)
+    {
+        destroyBuf();
+        return true;
+    }
+    if(!count)
+        return true;
+    allocBuf(_lastUnordered - _firstUnordered + 1);
+    if(!_aFeat)
+        return false;
+    for(size_t i = _firstUnordered; i < _lastUnordered + 1; ++i)
+    {
+        _aFeat[i - _firstUnordered] = (data.getFeatureType(i) == data_management::features::DAAL_CATEGORICAL);
+    }
+    return true;
+}
+
+void FeatureTypes::allocBuf(size_t n)
+{
+    destroyBuf();
+    if(n)
+    {
+        _nNoOrderedFeat = n;
+        _aFeat = (bool*)daal::services::daal_malloc(_nNoOrderedFeat);
+        if(!_aFeat)
+            _nNoOrderedFeat = 0;
+    }
+}
+
+void FeatureTypes::destroyBuf()
+{
+    if(_aFeat)
+    {
+        daal::services::daal_free(_aFeat);
+        _aFeat = nullptr;
+        _nNoOrderedFeat = 0;
+    }
+}
+
+bool FeatureTypes::findInBuf(size_t iFeature) const
+{
+    if(iFeature < _firstUnordered)
+        return false;
+    const size_t i = iFeature - _firstUnordered;
+    if(i < _nNoOrderedFeat)
+        return _aFeat[i];
+    DAAL_ASSERT(iFeature > _lastUnordered);
+    return false;
+}
+
+IndexedFeatures::~IndexedFeatures()
+{
+    if(_data)
+        daal::services::daal_free(_data);
+    delete[] _entries;
+}
+
+IndexedFeatures::FeatureEntry::~FeatureEntry()
+{
+    if(binBorders)
+        daal::services::daal_free(binBorders);
+}
+
+services::Status IndexedFeatures::FeatureEntry::allocBorders()
+{
+    DAAL_ASSERT(numIndices > 1);
+    if(binBorders)
+    {
+        daal::services::daal_free(binBorders);
+        binBorders = nullptr;
+    }
+    binBorders = (ModelFPType*)services::daal_malloc(sizeof(ModelFPType)*numIndices);
+    return binBorders ? services::Status() : services::Status(services::ErrorMemoryAllocationFailed);
+}
+
+services::Status IndexedFeatures::alloc(size_t nC, size_t nR)
+{
+    const size_t newCapacity = nC*nR;
+    if(_data)
+    {
+        if(newCapacity > _capacity)
+        {
+            services::daal_free(_data);
+            _data = nullptr;
+            _capacity = 0;
+            _data = (IndexType*)services::daal_malloc(sizeof(IndexType)*newCapacity);
+            DAAL_CHECK_MALLOC(_data);
+            _capacity = newCapacity;
+        }
+    }
+    else
+    {
+        _data = (IndexType*)services::daal_malloc(sizeof(IndexType)*newCapacity);
+        DAAL_CHECK_MALLOC(_data);
+        _capacity = newCapacity;
+    }
+    if(_entries)
+    {
+        delete[] _entries;
+        _entries = nullptr;
+    }
+    _entries = new FeatureEntry[nC];
+    DAAL_CHECK_MALLOC(_entries);
+    _nCols = nC;
+    _nRows = nR;
+    return services::Status();
+}
+
+} /* namespace internal */
+} /* namespace dtrees */
+} /* namespace algorithms */
+} /* namespace daal */

@@ -1,0 +1,115 @@
+Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) 2018
+
+Changes (w.r.t. Intel DAAL 2018 Beta Update 1):
+
+Introduced API modifications to streamline library usage and enable consistency across functionality
+
+Introduced support for filtering in the Data Source including loading selected features/columns from CSV data source and binary representation of the categorical features
+
+Introduced Traversing Trees in Classification and Regression Decision Trees
+
+Introduced new samples that allow easily integrate library with Spark* MLlib
+
+Introduced service method for enabling thread pinning
+
+Performance improvements in various algorithms on Intel® Xeon® Processor supporting Intel® Advanced Vector Extensions 512 (Intel® AVX-512) (codename Skylake Server)
+
+Introduced installing Intel® Performance Libraries and Intel® Distribution for Python* using APT Repository. You can find the details by following this link: https://software.intel.com/en-us/articles/installing-intel-free-libs-and-python-apt-repo
+
+--------------------------------------------------------------------------------
+Intel DAAL 2018 Beta Update 1
+
+Changes (w.r.t. Intel DAAL 2018 Beta):
+
+Introduced API modifications to streamline library usage and enable consistency across functionality. See the following link for full list of API changes: https://software.intel.com/en-us/articles/api-changes-introduced-in-intel-daal-2018
+
+Added service method for decision forest model to access its contents
+
+Added more samples to demonstrate usage of the library interfaces as a replacement for Apache* Mllib. You can find the exact list for changes in samples by following this link: https://software.intel.com/en-us/node/609941
+
+------------------------------------------------------------------------
+Intel DAAL 2018 Beta
+
+Changes (w.r.t. Intel DAAL 2017 Update 2):
+
+Introduced API modifications to streamline library usage and enable consistency across functionality
+
+Introduced Classification and Regression Decision Tree including Gini index and Information Gain for classification, Mean Square Error for regression split criteria, and Reduced Error Pruning
+
+Introduced Classification and Regression Decision Forest including Gini index for classification, Variance for regression split criteria, and generalization error and Mean Decrease Impurity and Mean Decrease Accuracy variable importance measures
+
+Introduced support for varying learning rate in Stochastic Gradient Descent algorithm for Neural Network Training stage
+
+Added more samples to demonstrate usage of the library interfaces including neural network API. You can find the exact list for changes in samples by following this link: https://software.intel.com/en-us/node/609941
+
+Improved performance in the following functionalities:
+- Neural network layers used in topologies such as Alexnet
+
+------------------------------------------------------------------------
+Intel DAAL 2017 Update 2
+
+Changes (w.r.t. Intel DAAL 2017 Update 1):
+
+Added the transposed convolution layer to the neural networks API
+
+Added the reshape layer to the neural networks API
+
+Extended interface of loss softmax cross-entropy layer to support the tensor of arbitrary dimension as input
+
+Added sigmoid cross-entropy criterion
+
+Added truncated Gaussian initializer for tensors
+
+Enhanced support for distributed computing by adding the objective function with pre-computed chracteristics
+
+Improved performance in the following functionalities:
+- Neural network layers used in topologies such as Alexnet
+
+------------------------------------------------------------------------
+Intel DAAL 2017 Update 1
+
+Changes (w.r.t. Intel DAAL 2017):
+
+Added batch processing mode for k-Nearest Neighbors (kNN) algorithm
+
+Added distributed processing mode for neural network training to support distributed parallel data processing
+
+Added diagonal variance-covariance matrices and controls to treat degenerated covariance matrices to Expectation-Maximization (EM) algorithm for Gaussian Mixture Model (GMM) 
+
+Added k-means++ and k-means|| initialization methods for K-Means clustering
+
+Added the Gaussian initializer for neural network model parameters (weights and biases) 
+
+Added min-max normalization algorithm
+
+Added multiple ground truth tensors and multiple result tensors to neural networks training and inference stages, respectively
+
+Added optional arguments and results to the Stochastic Gradient Descent (SGD) algorithm to enable the resumption of computation from a paused state
+
+Added support for merging the numeric tables by rows
+
+Added support for symmetric and triangular packed numeric tables in Java*
+
+Improved performance in the following functionalities:
+- Neural network training and inference, including support for batch processing mode on the inference stage
+- Local response normalization forward and backward layers and two-dimensional (2D) max pooling forward and backward layers
+- Absolute value (abs) and hyperbolic tangent (tanh) backward layers
+- Cosine distance for result in lower triangular matrix layout and correlation distance for result in full, lower, and upper triangular matrix layouts
+- Moments of low order
+- Z-score normalization
+- Principal Component Analysis (PCA)
+- Kernel functions for CSR numeric tables
+- CSV feature manager
+
+Fixed bugs for the following components:
+- Multi-class classifier
+- Limited-memory Broyden-Fletcher-Goldfarb-Shanno (BFGS) optimization solver
+- Documentation
+
+Open-source contributions integrated:
+- Fixed redundant atomic class definition, by Ethanlm
+
+------------------------------------------------------------------------
+Intel is a trademark of Intel Corporation or its subsidiaries in the U.S. and/or other countries.
+* Other names and brands may be claimed as the property of others.
+
