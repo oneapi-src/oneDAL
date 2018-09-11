@@ -1,3 +1,18 @@
+Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) 2019 What’s New: 
+
+Implemented logistic regression classification algorithm.
+
+Implemented cross-entropy and logistic loss objective functions.
+
+Added new distribution model via Java MAVEN, which helps JAVA developers to simplify the process of getting and building projects with Intel DAAL usage.
+
+Extended traversal API to return additional data from decision tree, decision forest, and gradient boosting models.
+
+Added boost machine learning and data analytics performance in EM-GMM, sparse SVM training (linear kernel), logit boost training, gradient boosting prediction and others.
+
+You can find the details of each update release by following this link: https://software.intel.com/en-us/articles/intel-daal-release-notes-and-new-features
+
+--------------------------------------------------------------------------------
 Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) 2018
 
 Changes (w.r.t. Intel DAAL 2018 Beta Update 1):
