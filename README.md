@@ -5,7 +5,7 @@ Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) helps speed up big 
 Intel DAAL is licensed under Apache License 2.0.
 
 ## Online Release Notes and Documentation
-You can find What's New features per release on [Intel(R) DAAL Release Notes] (https://software.intel.com/en-us/articles/intel-daal-release-notes-and-new-features) web page and latest documentation on the [Intel(R) Data Analytics Acceleration Library Documentation](https://software.intel.com/en-us/intel-daal-support/documentation) web page.
+You can find What's New features per release on [Intel(R) DAAL Release Notes](https://software.intel.com/en-us/articles/intel-daal-release-notes-and-new-features) web page and latest documentation on the [Intel(R) Data Analytics Acceleration Library Documentation](https://software.intel.com/en-us/intel-daal-support/documentation) web page.
 
 ## How to Contribute
 We welcome community contributions to Intel DAAL. If you have an idea how to improve the product:
