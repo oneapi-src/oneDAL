@@ -1,0 +1,192 @@
+#================================================== -*- makefile -*- vim:ft=make
+# Copyright 2014-2018 Intel Corporation.
+#
+# This software and the related documents are Intel copyrighted  materials,  and
+# your use of  them is  governed by the  express license  under which  they were
+# provided to you (License).  Unless the License provides otherwise, you may not
+# use, modify, copy, publish, distribute,  disclose or transmit this software or
+# the related documents without Intel's prior written permission.
+#
+# This software and the related documents  are provided as  is,  with no express
+# or implied  warranties,  other  than those  that are  expressly stated  in the
+# License.
+#===============================================================================
+
+##  Content:
+##     Intel(R) Data Analytics Acceleration Library examples list
+##******************************************************************************
+
+DAAL  = assoc_rules_apriori_batch             \
+        adaboost_dense_batch                  \
+        basic_statistics                      \
+        brownboost_dense_batch                \
+        logitboost_dense_batch                \
+        cholesky_dense_batch                  \
+        compressor                            \
+        compression_batch                     \
+        compression_online                    \
+        cov_dense_batch                       \
+        cov_dense_online                      \
+        cov_dense_distr                       \
+        cov_csr_batch                         \
+        cov_csr_online                        \
+        cov_csr_distr                         \
+        datasource_featureextraction          \
+        datastructures_aos                    \
+        datastructures_homogen                \
+        datastructures_homogentensor          \
+        datastructures_soa                    \
+        datastructures_csr                    \
+        datastructures_merged                 \
+        datastructures_rowmerged              \
+        datastructures_matrix                 \
+        datastructures_packedsymmetric        \
+        datastructures_packedtriangular       \
+        df_cls_dense_batch                    \
+        df_cls_traverse_model                 \
+        df_reg_dense_batch                    \
+        df_reg_traverse_model                 \
+        dt_cls_dense_batch                    \
+        dt_cls_traverse_model                 \
+        dt_reg_dense_batch                    \
+        dt_reg_traverse_model                 \
+        cor_dist_dense_batch                  \
+        cos_dist_dense_batch                  \
+        em_gmm_dense_batch                    \
+        gbt_cls_dense_batch                   \
+        gbt_reg_dense_batch                   \
+        host_cancel_compute                   \
+        impl_als_csr_batch                    \
+        impl_als_csr_distr                    \
+        impl_als_dense_batch                  \
+        kdtree_knn_dense_batch                \
+        kernel_func_lin_dense_batch           \
+        kernel_func_lin_csr_batch             \
+        kernel_func_rbf_dense_batch           \
+        kernel_func_rbf_csr_batch             \
+        kmeans_dense_batch                    \
+        kmeans_dense_distr                    \
+        kmeans_init_dense_batch               \
+        kmeans_init_dense_distr               \
+        kmeans_dense_batch_assign             \
+        kmeans_csr_batch                      \
+        kmeans_csr_distr                      \
+        kmeans_init_csr_distr                 \
+        kmeans_csr_batch_assign               \
+        lin_reg_norm_eq_dense_batch           \
+        lin_reg_norm_eq_dense_distr           \
+        lin_reg_norm_eq_dense_online          \
+        lin_reg_qr_dense_batch                \
+        lin_reg_qr_dense_distr                \
+        lin_reg_qr_dense_online               \
+        lin_reg_metrics_dense_batch           \
+        low_order_moms_dense_batch            \
+        low_order_moms_dense_distr            \
+        low_order_moms_dense_online           \
+        low_order_moms_csr_batch              \
+        low_order_moms_csr_distr              \
+        low_order_moms_csr_online             \
+        mn_naive_bayes_dense_batch            \
+        mn_naive_bayes_dense_online           \
+        mn_naive_bayes_dense_distr            \
+        mn_naive_bayes_csr_batch              \
+        mn_naive_bayes_csr_online             \
+        mn_naive_bayes_csr_distr              \
+        out_detect_bacon_dense_batch          \
+        out_detect_mult_dense_batch           \
+        out_detect_uni_dense_batch            \
+        pca_cor_dense_batch                   \
+        pca_cor_dense_distr                   \
+        pca_cor_dense_online                  \
+        pca_cor_csr_batch                     \
+        pca_cor_csr_distr                     \
+        pca_cor_csr_online                    \
+        pca_svd_dense_batch                   \
+        pca_svd_dense_distr                   \
+        pca_svd_dense_online                  \
+        pca_transform_dense_batch             \
+        qr_dense_batch                        \
+        qr_dense_distr                        \
+        qr_dense_online                       \
+        serialization                         \
+        stump_dense_batch                     \
+        svd_dense_batch                       \
+        svd_dense_distr                       \
+        svd_dense_online                      \
+        svm_multi_class_dense_batch           \
+        svm_multi_class_csr_batch             \
+        svm_two_class_dense_batch             \
+        svm_two_class_csr_batch               \
+        library_version_info                  \
+        quantiles_dense_batch                 \
+        svm_two_class_metrics_dense_batch     \
+        svm_multi_class_metrics_dense_batch   \
+        pivoted_qr_dense_batch                \
+        set_number_of_threads                 \
+        elu_layer_dense_batch                 \
+        relu_layer_dense_batch                \
+        relu_csr_batch                        \
+        relu_dense_batch                      \
+        smoothrelu_layer_dense_batch          \
+        smoothrelu_dense_batch                \
+        abs_layer_dense_batch                 \
+        abs_dense_batch                       \
+        abs_csr_batch                         \
+        fullycon_layer_dense_batch            \
+        sorting_dense_batch                   \
+        softmax_dense_batch                   \
+        softmax_layer_dense_batch             \
+        error_handling_nothrow                \
+        error_handling_throw                  \
+        logistic_dense_batch                  \
+        logistic_layer_dense_batch            \
+        tanh_csr_batch                        \
+        tanh_dense_batch                      \
+        tanh_layer_dense_batch                \
+        dropout_layer_dense_batch             \
+        batch_norm_layer_dense_batch          \
+        lrn_layer_dense_batch                 \
+        conv2d_layer_dense_batch              \
+        trans_conv2d_layer_dense_batch        \
+        sgd_dense_batch                       \
+        sgd_mini_dense_batch                  \
+        sgd_moment_dense_batch                \
+        sgd_moment_opt_res_dense_batch        \
+        lbfgs_dense_batch                     \
+        lbfgs_opt_res_dense_batch             \
+        adagrad_dense_batch                   \
+        adagrad_opt_res_dense_batch           \
+        mse_dense_batch                       \
+        zscore_dense_batch                    \
+        minmax_dense_batch                    \
+        neural_net_dense_batch                \
+        neural_net_predict_dense_batch        \
+        prelu_layer_dense_batch               \
+        split_layer_dense_batch               \
+        concat_layer_dense_batch              \
+        ave_pool1d_layer_dense_batch          \
+        ave_pool2d_layer_dense_batch          \
+        ave_pool3d_layer_dense_batch          \
+        max_pool1d_layer_dense_batch          \
+        max_pool2d_layer_dense_batch          \
+        max_pool3d_layer_dense_batch          \
+        stoch_pool2d_layer_dense_batch        \
+        loss_softmax_entr_layer_dense_batch   \
+        loss_logistic_entr_layer_dense_batch  \
+        ridge_reg_norm_eq_dense_batch         \
+        ridge_reg_norm_eq_dense_online        \
+        ridge_reg_norm_eq_dense_distr         \
+        lcn_layer_dense_batch                 \
+        reshape_layer_dense_batch             \
+        spat_ave_pool2d_layer_dense_batch     \
+        spat_max_pool2d_layer_dense_batch     \
+        locallycon2d_layer_dense_batch        \
+        spat_stoch_pool2d_layer_dense_batch   \
+        eltwise_sum_layer_dense_batch         \
+        neural_net_dense_distr                \
+        initializers_dense_batch              \
+        uniform_dense_batch                   \
+        normal_dense_batch                    \
+        bernoulli_dense_batch                 \
+        enable_thread_pinning                 \
+        sgd_custom_obj_func_dense_batch

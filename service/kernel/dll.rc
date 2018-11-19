@@ -1,0 +1,73 @@
+/*******************************************************************************
+* Copyright 2015-2018 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+#define _USING_V110_SDK71_ 1
+
+#include "winresrc.h"
+#include "_daal_version.h"
+
+#if   defined(_DAAL_JAVA_INTERF)
+  #define FILE_COMMENT "Analitics algorithms for Java*.\0"
+  #define ORIG_FILE_NAME "JavaAPI.dll\0"
+  #define INTERNAL_FILE_NAME "JavaAPI.\0"
+#elif defined(_DAAL_THR_SEQ)
+  #define FILE_COMMENT "Sequential version.\0"
+  #define ORIG_FILE_NAME "daal_sequential.dll\0"
+  #define INTERNAL_FILE_NAME "daal_sequential\0"
+#elif defined(_DAAL_THR_TBB)
+  #define FILE_COMMENT "Parallel version.\0"
+  #define ORIG_FILE_NAME "daal_thread.dll \0"
+  #define INTERNAL_FILE_NAME "daal_thread\0"
+#else
+  #define FILE_COMMENT "Analitics algorithms optimized for IA.\0"
+  #define ORIG_FILE_NAME "daal_core.dll\0"
+  #define INTERNAL_FILE_NAME "daal_core\0"
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION FILE_VERSION
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", PRODUCT_NAME_STR
+            VALUE "Comments", FILE_COMMENT
+            VALUE "InternalName", INTERNAL_FILE_NAME
+            VALUE "OriginalFilename", ORIG_FILE_NAME
+            VALUE "CompanyName", "Intel Corporation\0"
+            VALUE "FileVersion", FILE_VERSION_STR
+            VALUE "LegalCopyright", "Copyright 2018, Intel Corporation.\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", PRODUCT_NAME_STR
+            VALUE "ProductVersion", PRODUCT_VERSION_STR
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

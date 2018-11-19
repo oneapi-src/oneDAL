@@ -1,0 +1,142 @@
+#================================================== -*- makefile -*- vim:ft=make
+# Copyright 2014-2018 Intel Corporation.
+#
+# This software and the related documents are Intel copyrighted  materials,  and
+# your use of  them is  governed by the  express license  under which  they were
+# provided to you (License).  Unless the License provides otherwise, you may not
+# use, modify, copy, publish, distribute,  disclose or transmit this software or
+# the related documents without Intel's prior written permission.
+#
+# This software and the related documents  are provided as  is,  with no express
+# or implied  warranties,  other  than those  that are  expressly stated  in the
+# License.
+#===============================================================================
+
+##  Content:
+##     Intel(R) Data Analytics Acceleration Library examples creation and run
+##******************************************************************************
+
+help:
+	@echo "Usage: make {libia32|soia32|libintel64|sointel64|help}"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo
+	@echo "name              - example name. Please see daal.lst file"
+	@echo
+	@echo "compiler_name     - can be gnu, clang, or intel. Default value is intel."
+	@echo "                    Intel(R) C Compiler as default."
+	@echo "                    If compiler=gnu then GNU C compiler will be used."
+	@echo "                    If compiler=clang then Clang C compiler will be used."
+	@echo
+	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
+	@echo
+	@echo "mode_name         - can be build or run. Default is run"
+
+##------------------------------------------------------------------------------
+## examples of using:
+##
+## make libia32 example=association_rules  - build  by Intel(R) C++ Compiler (as default)
+##                                 and  run  association_rules  example  for 32-bit
+##                                 applications, static linking
+##
+## make soia32 compiler=clang    - build by Clang C++ compiler and run all examples
+##                                 of Intel(R) DAAL for
+##                                 32-bit applications, dynamic linking
+##
+## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all example
+##                                 of Intel(R) DAAL for
+##                                 Intel(R) 64 processor family applications,
+##                                 static linking
+##
+## make sointel64                - build by Intel(R) C++ Compiler (as default)
+##                                 and run all examples for Intel(R)64 processor
+##                                 family  applications, dynamic linking
+##
+## make sointel64 mode=build     - build only (not run) by Intel(R) C++ Compiler
+##                                 (as default) all examples for Intel(R)64
+##                                 processor family  applications, dynamic linking
+##
+## make help                     - show help
+##
+##------------------------------------------------------------------------------
+
+include daal.lst
+
+ifndef example
+    example = $(DAAL)
+endif
+
+ifeq (,$(filter gnu clang,$(compiler)))
+    override compiler = intel
+endif
+
+ifneq ($(mode),build)
+    override mode = run
+endif
+
+ifndef DAALROOT
+    DAALROOT = ./../..
+endif
+DAAL_PATH = "$(DAALROOT)/lib/$(_IA)_fre"
+TBB_PATH = "$(DAALROOT)/../tbb/lib/$(_IA)_fre/gcc4.4"
+
+EXT_LIB := 
+
+ifeq ($(threading),sequential)
+    DAAL_LIB_T := $(DAAL_PATH)/libdaal_sequential.$(RES_EXT)
+else
+    override threading = parallel
+    DAAL_LIB_T := $(DAAL_PATH)/libdaal_thread.$(RES_EXT)
+    EXT_LIB += -L$(TBB_PATH) -ltbb -ltbbmalloc
+endif
+
+DAAL_LIB := $(DAAL_PATH)/libdaal_core.$(RES_EXT) $(DAAL_LIB_T)
+
+COPTS := -Wall -w -I./source/utils -I/usr/include/c++/v1 -I/usr/local/include
+LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group -lc++
+
+RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
+
+ifeq ($(compiler),intel)
+    CC = icc
+endif
+
+ifeq ($(compiler),gnu)
+    CC = g++
+    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
+endif
+
+ifeq ($(compiler),clang)
+    CC = clang++
+    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64) -stdlib=libstdc++ -fgnu-runtime -L/usr/local/lib/gcc6
+endif
+
+libia32:
+	$(MAKE) _make_ex _IA=ia32 RES_EXT=a
+soia32:
+	$(MAKE) _make_ex _IA=ia32 RES_EXT=so
+libintel64:
+	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
+sointel64:
+	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
+
+
+
+_make_ex: $(RES)
+
+vpath
+vpath %.cpp $(addprefix ./source/,association_rules boosting cholesky compression covariance datasource decision_forest distance em \
+                                  gradient_boosted_trees host_app kernel_function kmeans linear_regression logistic_regression \
+                                  moments naive_bayes outlier_detection qr quality_metrics serialization stump svd svm utils services  \
+                                  quantiles pivoted_qr pca implicit_als set_number_of_threads neural_networks math sorting error_handling \
+                                  optimization_solvers optimization_solver/objective_function normalization ridge_regression \
+                                  k_nearest_neighbors decision_tree distributions enable_thread_pinning pca_transform)
+
+.SECONDARY:
+$(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
+	$(CC) $(COPTS) $< -o $@ $(LOPTS)
+
+$(RES_DIR)/%.res:  $(RES_DIR)/%.exe
+	$< > $@
+
+%/.:; mkdir -p $*

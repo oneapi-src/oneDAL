@@ -1,0 +1,1186 @@
+﻿<html xmlns:MSHelp="http://www.microsoft.com/MSHelp/" lang="en-us" xml:lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<style>
+@font-face {
+font-family: "IntelClearWebFont";
+src: url('https://software.intel.com/sites/all/themes/idzen/fonts/IntelClear_WLatn_Rg.woff') format('woff'), /*current browsers*/
+     url('https://software.intel.com/sites/all/themes/idzen/fonts/IntelClear_WLatn_Rg.ttf') format('truetype'), /*older browsers*/
+     url('https://software.intel.com/sites/all/themes/idzen/fonts/IntelClear_WLatn_Rg.eot') format('eot'); /*really old browsers*/
+font-variant: normal;
+font-style: normal;
+}
+body{
+    color:#333333;
+    background-color :#ffffff;
+    /* font-family: "Intel Clear", IntelClearWebFont, Verdana, Arial, sans-serif; */
+    font-family: IntelClearWebFont, Arial, sans-serif;
+
+    font-size: 10pt;
+    margin-left: 30px;
+}
+.titlepage{
+    margin-right:40%;
+}
+/* -------------------------------------- */
+/* Divs and classes to control the banner */
+/* -------------------------------------- */
+#banner {
+/* Div for banner */
+float:left;
+margin: 0px;
+width: 100%;
+background-color: #0071C5;
+z-index: 0;
+width: 100%;
+}
+#banner .banner_width {
+width: 1100px;
+}
+#banner h1.title {
+/* Add as class to H1 in banner */
+font-family: "Intel Clear", Verdana, Arial, sans-serif;
+font-weight:normal;
+color: #FFFFFF;
+font-size: 170%;
+margin-right: 60px;
+margin-left: 40px;
+padding-right: 20px;
+/*text-indent: 20px;*/
+/*padding-left: 10px;*/
+vertical-align:top;
+}
+#banner .intellogo {
+/* Apply to Intel logo in banner. Add as class to image tag. */
+float: left;
+margin-right: 20px;
+margin-left: 20px;
+margin-top: 10px;
+padding-bottom: 10px;
+}
+#banner .componentlogo {
+/* Apply to component logo in banner. Add as class to image tag. */
+
+float: right;
+z-index: 1;
+margin-left: 20px;
+margin-right: 20px;
+margin-top: 10px;
+width: 45px;
+height: 45px;
+}
+/* ------------------------------------------------- */
+/* Help 3 body style overriding default MSHV behavior */
+body.OH_VSIP_body{
+    margin-left:30px;
+}
+DIV.OH_outerContent{
+    border:0px none #FFFFFF;
+}
+/* ------------------------------------------------- */
+/* Title headings styles                             */
+h1{
+    color:#0071c5;
+    font-size:15pt;
+    font-weight:normal;
+    padding-bottom:1px;
+    margin-left:0pt;
+    margin-bottom:0px;
+    border-bottom:1px solid #0071c5;
+}
+h1.firsttitle{
+    font-weight:normal;
+    border-bottom:0 none;
+    margin-left:0;
+    font-size:18pt;
+    border-bottom:1px solid #0860A8;
+    line-height:230%;
+}
+h2{
+    color:#0071c5;
+    font-weight:lighter;
+    margin-top:5pt;
+    margin-bottom:0;
+    font-size:13pt;
+}
+h3{
+    color:#333333;
+    font-weight:bold;
+    margin-top:5pt;
+    margin-bottom:0;
+    font-size:10.5pt;
+}
+h4{
+    color:#333333;
+    color:#0071c5;
+    margin-bottom:0.75em;
+    padding-left:0px;
+    font-size:10.0pt;
+}
+.relinfo{
+    padding-left:30px;
+}
+caption{
+    font-size:10pt;
+    font-weight:bold;
+}
+.figcap{
+    margin-left:24px;
+    font-size:10pt;
+    font-weight:bold;
+    text-align:center;
+}
+.sectiontitle{
+    padding-left:0px;
+}
+.linklist{
+    padding-left:0px;
+}
+
+/* ------------------------------------------------- */
+/* Link styles                                       */
+a:link{
+    color:#0071c5;
+    text-decoration:none;
+}
+a:active{
+    color:#0071c5;
+    text-decoration:underline;
+}
+a:visited{
+    color:#0071c5;
+    text-decoration:none;
+}
+a:hover{
+    color:#00aeef;
+	text-decoration:underline;
+}
+.familylinks{
+    margin-top:1em;
+}
+a.start{
+    font-size:18pt;
+    text-decoration:underline;
+}
+a:active.start{
+    color:#0071c5;
+    text-decoration:underline;
+}
+a:visited.start{
+    color:#0071c5;
+    text-decoration:underline;
+}
+a.underlined{
+    text-decoration:underline;
+}
+a:active.underlined{
+    color:#0071c5;
+    text-decoration:underline;
+}
+a:visited.underlined{
+    color:#0071c5;
+    text-decoration:underline;
+}
+/* ------------------------------------------------- */
+/* Paragraph styles                                  */
+.shortdesc{
+    font-size:inherit;
+    padding-left:inherit;
+    line-height:16pt;
+    margin-top:0px;
+    margin-bottom:0.5em;
+}
+.shortdesc-it{
+    font-style:italic;
+}
+p{
+    font-size:inherit;
+    margin-left:0px;
+    line-height:120%;
+    margin-top:0;
+    margin-bottom:10px;
+}
+.p{
+    font-size:inherit;
+    margin-left:0px;
+    line-height:170%;
+    margin-top:0;
+    margin-bottom:5pt;
+    padding-left:0pt;
+}
+/* ------------------------------------------------- */
+/* Table styles                                      */
+table{
+    margin-bottom:5pt;
+    border-collapse:collapse;
+    margin-left:0px;
+    margin-top:0.3em;
+    font-size:10pt;
+}
+tr{
+    vertical-align:top;
+}
+th,
+th h3{
+    padding:4px;
+    text-align:left;
+    background-color:#0071C5;
+    font-weight:bold;
+    margin-top:1px;
+    margin-bottom:0;
+    color:#FFFFFF;
+    font-size:10pt;
+	vertical-align:middle;
+}
+th{
+    border:1px #dddddd solid;
+    padding-top:2px;
+    padding-bottom:0px;
+    padding-right:3px;
+    padding-left:3px;
+}
+td{
+    border:1px #dddddd solid;
+    vertical-align:top;
+    font-size:100%;
+    text-align:left;
+    margin-bottom:0;
+}
+td,
+td p{
+    margin-top:0;
+    margin-left:0;
+    text-align:left;
+    font-size:inherit;
+    line-height:120%;
+}
+td p{
+    margin-bottom:0;
+    padding-top:5px;
+    padding-bottom:5px;
+    padding-right:5px;
+    padding-left:1px;
+}
+.noborder{
+    border:0px none;
+}
+.noborder1stcol{
+    border:0px none;
+    padding-left:0pt;
+}
+td ol{
+    font-size:inherit;
+    margin-left:28px;
+}
+td ul{
+    font-size:inherit;
+    margin-left:24px;
+}
+.DefListTbl{
+    width:90%;
+    margin-left:-3pt;
+}
+.syntaxdiagramtbl{
+    margin-left:-3pt;
+}
+.sdtbl{
+}
+.sdrow{
+}
+.sdtblp{
+    border:0px none;
+    font-size:inherit;
+    line-height:120%;
+    margin-bottom:0;
+    padding-bottom:0px;
+    padding-top:5px;
+    padding-left:0px;
+    padding-right:5px;
+    vertical-align:top;
+}
+.idepara, .ide_para{
+    border:0px none;
+    font-size:inherit;
+    line-height:120%;
+    margin-bottom:0;
+    padding-bottom:0px;
+    padding-top:5px;
+    padding-left:0px;
+    padding-right:5px;
+    vertical-align:top;
+}
+/* ------------------------------------------------- */
+/* Note styles */
+div.Note{
+    margin-top:0px;
+    margin-left:15px;
+    margin-bottom:10px;
+    padding-left:10px;
+    padding-right:5px;
+    padding-bottom:5px;
+    background-color:#E2E7EB;
+    max-width:600px;
+    box-shadow:2px 3px 3px 1px #CCCCCC;
+}
+dd div.Note{
+    margin-top:10px;
+}
+h3.NoteTipHead{
+    color:#0071c5;
+    padding-top:5px;
+    text-transform:uppercase;
+}
+h3.NoteTipHead img{
+    vertical-align:middle;
+}
+P.Note{
+    margin-top:0;
+    margin-left:15px;
+    padding-left:10px;
+    padding-right:5px;
+    padding-bottom:5px;
+    margin-bottom:0pt;
+    background-color:#E2E7EB;
+    max-width:600px;
+}
+
+/* ------------------------------------------------- */
+blockquote{
+    margin-top:0;
+    margin-bottom:0;
+}
+HR{
+    /*color:#ff9900; */
+    color:#0071c5;
+    border:0;
+    background:#ff9900;
+    height:1px;
+    margin-left:0;
+}
+
+/* ------------------------------------------------- */
+/* List styles */
+.simple{
+    list-style:none;
+}
+ul{
+	margin-bottom:1em;
+	font-size:inherit;
+    line-height:130%;
+    list-style-image:url();
+    margin-top:0px;
+}
+ol{
+    font-size:inherit;
+    line-height:130%;
+    list-style-type:decimal;
+    margin-top:0px;
+    margin-bottom:1em;
+}
+ol.num{
+    font-size:inherit;
+    line-height:130%;
+    list-style-type:decimal;
+    margin-bottom:1em;
+    margin-top:0px;
+}
+ol.abc{
+    font-size:inherit;
+    line-height:130%;
+    list-style-type:lower-alpha;
+    margin-bottom:1em;
+    margin-top:0px;
+}
+ol.ABC{
+    font-size:inherit;
+    line-height:130%;
+    list-style-type:upper-alpha;
+    margin-bottom:1em;
+    margin-top:0px;
+}
+ol.roman{
+    font-size:inherit;
+    line-height:130%;
+    list-style-type:lower-roman;
+    margin-bottom:1em;
+    margin-top:0px;
+}
+ol.Roman{
+    font-size:inherit;
+    line-height:130%;
+    list-style-type:upper-roman;
+    margin-bottom:1em;
+    margin-top:0px;
+}
+ol ol{
+    margin-left:24px;
+    list-style:lower-alpha;
+    margin-bottom:0em;
+    font-size:inherit;
+}
+ul ol{
+    margin-left:24px;
+    list-style-image:url();
+    list-style-type:decimal;
+    margin-bottom:0em;
+    font-size:inherit;
+}
+ul ul{
+    font-size:inherit;
+    margin-bottom:0px;
+    margin-left:18px;
+}
+ul ul li p{
+    list-style:url();
+}
+ol ul{
+    font-size:inherit;
+    margin-bottom:0px;
+    margin-left:17px;
+}
+ul li p{
+    font-size:inherit;
+    line-height:130%;
+}
+
+ul.nobullet{
+    list-style:none;
+}
+dd ul,
+dd p ul{
+    list-style:url();
+}
+dd ul{
+    margin-left:16px;
+    font-size:inherit;
+}
+dd ol{
+    margin-left:24px;
+    font-size:inherit;
+}
+li{
+    font-size:inherit;
+    line-height:130%;
+    margin-top:0px;
+}
+li p,
+ol p,
+ul p{
+    margin-bottom:0.2em;
+    margin-top:0.2em;
+    margin-left:0;
+    padding-left:0;
+    font-size:inherit;
+}
+li table,
+td table,
+dd table{
+    margin-left:0;
+}
+indent li p{
+    margin-bottom:0.2em;
+    margin-top:0.2em;
+    margin-left:-2em;
+}
+P.Preformatted,
+pre{
+    background-color:#f5f5f5;
+    font-size:inherit;
+    font-family:"Courier New", Courier, monospace;
+    line-height:110%;
+    margin-bottom:0;
+    margin-bottom:10px;
+    margin-top:0;
+    x-text-tab-stops:repeat 1in;
+}
+td P.Preformatted,
+pre{
+    background-color:#f5f5f5;
+    font-size:10pt;
+    font-family:"Courier New", Courier, monospace;
+    margin-bottom:10px;
+    margin-left:0px;
+    margin-top:0;
+    x-text-tab-stops:repeat 1in;
+}
+ul.ullinks{
+    margin-left:0px;
+    margin-bottom:1em;
+    font-size:inherit;
+    line-height:100%;
+    margin-top:0px;
+    margin-left:16px;
+}
+
+/* ------------------------------------------------- */
+/* Definition list */
+dl{
+    font-size:inherit;
+    margin-bottom:0px;
+    margin-left:0px;
+    margin-top:0px;
+}
+dt{
+    margin-left:0em;
+    margin-top:0em;
+    margin-bottom:0em;
+    width:100px;
+}
+.dlterm{
+    margin-left:0em;
+    margin-top:0em;
+    margin-bottom:0em;
+    width:100px;
+}
+dd{
+    font-size:inherit;
+    margin-left:0px;
+    position:relative;
+    top:-13pt;
+    left:110px;
+    width:70%;
+    line-height:14pt;
+    margin-top:0em;
+    margin-bottom:-10pt;
+}
+dd.biblio{
+    font-size:inherit;
+    margin-left:0px;
+    position:relative;
+    top:-14pt;
+    left:140px;
+    width:60%;
+    line-height:14pt;
+    margin-top:0em;
+    margin-bottom:0em;
+}
+.DefListTbl{
+    width:90%;
+}
+table.argTbl{
+    width:75%;
+}
+.dlsyntax{
+    margin-left:0px;
+    padding-left:0px;
+    font-size:inherit;
+    margin-top:-1px;
+    line-height:150%;
+}
+.dtsyntax{
+    margin-bottom:-1.125em;
+    margin-left:0em;
+    margin-top:0em;
+    width:100px;
+}
+.ddsyntax{
+    font-size:inherit;
+    margin-left:0px;
+    position:relative;
+    top:-4pt;
+    left:110px;
+    width:70%;
+    line-height:14pt;
+    margin-bottom:-1em;
+}
+.dlsyntaxpara{
+    margin-left:0px;
+    margin-bottom:1em;
+    font-size:inherit;
+    line-height:150%;
+}
+.syntaxnote{
+    margin-left:0px;
+    padding-left:0px;
+    font-size:inherit;
+    margin-top:-5px;
+    line-height:150%;
+}
+.syntaxnote-orig{
+    margin-left:135px;
+    margin-bottom:1em;
+    padding-left:30px;
+    font-size:inherit;
+    margin-top:-1px;
+    line-height:150%;
+}
+/* "dl" style for ""ReturnValues" */
+.dlretval{
+    margin-left:24px;
+    margin-bottom:2em;
+    padding-left:30px;
+    font-size:inherit;
+    margin-top:-1px;
+    line-height:150%;
+    width:90%;
+}
+/* "dt" style for ""ReturnValues" */
+.dtretval{
+    margin-left:0em;
+    margin-top:0em;
+    margin-bottom:-1.25em;
+    width:400px;
+}
+/* "dd" style for ""ReturnValues" */
+.ddretval{
+    font-size:inherit;
+    margin-left:0px;
+    position:relative;
+    top:-4pt;
+    left:300px;
+    margin-bottom:0;
+}
+dd p{
+    margin-bottom:0em;
+    margin-top:0em;
+    margin-left:0;
+    padding-left:0;
+    font-size:inherit;
+}
+dd dl{
+    margin-left:0px;
+}
+
+/* ------------------------------------------------- */
+/* Inline Styles */
+SPAN.Big{
+    font-weight:bold;
+    font-size:105%;
+}
+SPAN.Code,
+.Code{
+    font-family:"Courier New", Courier, monospace;
+}
+.code{
+    background-color:#F5F5F5;
+    font-family:"Courier New", Courier, monospace;
+    font-size:10pt;
+    line-height:118%;
+    margin-top:0.0em;
+    margin-bottom:0.0em;
+    padding-left:0px;
+    white-space:pre;
+}
+code{
+    background-color:#F5F5F5;
+    font-family:"Courier New", Courier, monospace;
+    font-size:10pt;
+    line-height:118%;
+    margin-top:0.0em;
+    margin-bottom:0.0em;
+    padding-left:0px;
+    white-space:pre;
+}
+strong{
+    font-size:inherit;
+}
+sup,
+sub{
+    vertical-align:0;
+    position:relative;
+}
+sub{
+    top:0.8ex;
+}
+sup{
+    bottom:1ex;
+}
+tt{
+    font-family:"Courier New", Courier, monospace;
+}
+.b{
+    font-weight:bold;
+}
+.boldspan{
+    font-weight:bold;
+}
+.bgcolorgray{
+    background-color:#999999;
+}
+.bi{
+    font-style:italic;
+    font-weight:bold;
+}
+.bt{
+    font-family:times;
+    font-weight:bold;
+}
+.codeph{
+    font-family:"Courier New", Courier, monospace;
+}
+.delim{
+    font-family:"Courier New", Courier, monospace;
+}
+.eq{
+    margin-bottom:1em;
+}
+.eqsymbol{
+    font-family:'Times New Roman', sans-serif;
+    font-size:12pt;
+}
+.imagecenter{
+    text-align:center;
+}
+.tfootnote{
+    font-size:8pt;
+}
+.italic{
+    font-style:italic;
+}
+.keyword{
+    font-family:"Courier New", Courier, monospace;
+    font-weight:normal;
+}
+.keywordb{
+    font-family:"Courier New", Courier, monospace;
+    font-weight:bold;
+}
+.keywordtt{
+    font-family:"Courier New", Courier, monospace;
+    font-weight:normal;
+}
+.keywordbt{
+    font-family:"Courier New", Courier, monospace;
+    font-weight:bold;
+}
+.keywordit{
+    font-family:"Courier New", Courier, monospace;
+    font-style:italic;
+    font-weight:inherit;
+}
+.keywordbi{
+    font-family:"Courier New", Courier, monospace;
+    font-weight:bold;
+    font-style:italic;
+}
+.keywordn{
+    font-family:"Courier New", Courier, monospace;
+    font-style:normal;
+    font-weight:normal;
+}
+h1 .keyword,
+h2 .keyword,
+h3 .keyword{
+    font-family:"Courier New", Courier, monospace;
+    font-weight:bold;
+}
+.kwd{
+    font-family:"Courier New", Courier, monospace;
+}
+.option{
+    font-family:"Courier New", Courier, monospace;
+}
+.optionb{
+    font-family:"Courier New", Courier, monospace;
+    font-weight:bold;
+}
+.optiontt{
+    font-family:"Courier New", Courier, monospace;
+    font-weight:normal;
+}
+.optionbt{
+    font-family:"Courier New", Courier, monospace;
+    font-weight:bold;
+}
+.optionit{
+    font-family:"Courier New", Courier, monospace;
+    font-style:italic;
+    font-weight:inherit;
+}
+.optionbi{
+    font-family:"Courier New", Courier, monospace;
+    font-weight:bold;
+    font-style:italic;
+}
+.optionn{
+    font-family:"Courier New", Courier, monospace;
+    font-style:normal;
+    font-weight:normal;
+}
+.oper{
+    font-family:"Courier New", Courier, monospace;
+}
+.parmname{
+    font-style:italic;
+    font-family:"Courier New", Courier, monospace;
+    font-weight:normal;
+}
+.parmnameb{
+    font-family:"Courier New", Courier, monospace;
+    font-style:italic;
+    font-weight:bold;
+}
+.parmnamett{
+    font-family:"Courier New", Courier, monospace;
+    font-style:normal;
+    font-weight:normal;
+}
+.parmnamebt{
+    font-family:"Courier New", Courier, monospace;
+    font-style:normal;
+    font-weight:bold;
+}
+.parmnamen{
+    font-family:"Courier New", Courier, monospace;
+    font-style:normal;
+    font-weight:normal;
+}
+.sep{
+    font-family:"Courier New", Courier, monospace;
+}
+.tenpt{
+    font-size:8pt;
+}
+.tt{
+    font-family:"Courier New", Courier, monospace;
+}
+.var{
+    font-style:italic;
+    font-family:"Courier New", Courier, monospace;
+}
+.equation{
+    font-style:italic;
+    font-family:"Times New Roman", monospace;
+}
+.varname{
+    font-style:italic;
+    font-family:"Courier New", monospace;
+}
+.varnameb{
+    font-family:"Courier New", monospace;
+    font-style:italic;
+    font-weight:bold;
+}
+.varnamebo{
+    font-family:"Courier New", monospace;
+    font-style:italic;
+    font-weight:bold;
+    text-decoration:overline
+}
+.varnamebt{
+    font-family:"Courier New", monospace;
+    font-style:normal;
+    font-weight:bold;
+}
+.varnamebu{
+    font-family:"Courier New", monospace;
+    font-style:italic;
+    font-weight:bold;
+    text-decoration:underline
+}
+.varnamett{
+    font-family:"Courier New", monospace;
+    font-style:normal;
+    font-weight:normal;
+}
+.varnamen{
+    font-family:"Courier New", monospace;
+    font-style:normal;
+    font-weight:normal;
+}
+.overline{
+    text-decoration:overline
+}
+.underline{
+    text-decoration:underline
+}
+.filepath{
+    font-style:normal;
+    font-family:"Courier New", Courier, monospace;
+}
+/*.Fortran95 {*/
+.NonStdFortran{
+    color:green;
+}
+.h3titleblue{
+    color:#0071c5;
+    font-weight:lighter;
+    margin-top:5pt;
+    margin-bottom:0;
+    font-size:13pt;
+}
+.Context_StepsIntro{
+    font-weight:bold;
+}
+.docfeedback{
+    margin-top:15px;
+    margin-left:0pt;
+    margin-bottom:0px;
+    border-top:1px solid #cccccc;
+    font-weight:bold;
+}
+.noBgrnd{
+    background-image:none;
+}
+.dropPara{
+    float:left;
+}
+.RevUpdate{
+    background-color:#FFFF99;
+    font-weight:normal;
+    line-height:120%;
+}
+</style>
+<body lang=EN link=blue vlink="#954F72" style='tab-interval:35.4pt'>
+<div id="banner">
+<img src="resources/intel_logo.png" class="intellogo" alt="Intel logo"/>
+<h1 class="title">Intel® Data Analytics Acceleration Library Neural Networks Samples</h1>
+</div>
+<p>Neural networks samples for the Intel® Data Analytics Acceleration Library (Intel® DAAL) are designed to show how to use this library to create most common neural network topologies such as LeNet*, AlexNet*, GoogleNet* in a C++ application.</p>
+<p>Unzip the archive with Intel® DAAL samples to your working directory (<span class="filepath"><var>&lt;sample_dir&gt;</var></span>).<h2><a name="System_Requirements">System Requirements</a></h2>
+<p>You can use Intel® DAAL neural networks samples on Linux*, Windows*, and macOS* operating systems.
+For a list of Intel® DAAL hardware and software requirements, refer to release notes
+for the version of Intel® DAAL you are using. </p>
+<h2><a name="System_Requirements">Preparation Before Build and Run</a></h2>
+<h3>Preparing the Data Sets&nbsp;</h3>
+    <p>Before running the sample, prepare the training and testing data sets.</p>
+
+    <h4>LeNet Sample&nbsp;</h4>
+        <p>You can use this sample with the standard Mixed National Institute of Standards and Technology (MNIST) data sets.
+        Use the following links to download the data sets:</p>
+        <p><a href="http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz">train-images-idx3-ubyte.gz</a>  -
+        training set images - 55000 training images and 5000 validation images</p>
+        <p><a href="http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz">train-labels-idx1-ubyte.gz</a>  -
+        training set labels matching the images</p>
+        <p><a href="http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz">t10k-images-idx3-ubyte.gz</a>  -
+        test set images - 10000 images</p>
+        <p><a href="http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz">t10k-labels-idx1-ubyte.gz</a>  -
+        test set labels matching the images</p>
+        <p>Before running the sample, download and decompress the data set into the following folder:
+        <samp class="codeph"><var>&lt;sample_dir&gt;</var>\cpp\neural_networks\data</samp>.
+        Update the filenames if they do not match the names in the launcher.</p>
+
+    <h4>AlexNet Sample&nbsp;</h4>
+        <p>For this sample the <samp class="codeph"><var>&lt;sample_dir&gt;</var>\cpp\neural_networks\data</samp>
+        directory already contains the <var>train_227x227.blob</var> and <var>test_227x227.blob</var> synthetic data sets.
+        The <var>train_227x227.blob</var> data set contains five images for the AlexNet training stage, and the
+        <var>test_227x227.blob</var> data set contains two images for the inference stage.
+        The *.blob files data layout has following structure:<p/>
+        <table border="1">
+            <tr>
+                <td>&nbsp; Header, 16 bytes &nbsp;</td>
+                <td>&nbsp; Images, [<var>number_of_images x image_size</var>] bytes &nbsp;</td>
+                <td>&nbsp; Labels, [<var>number_of_images x 4</var>] bytes &nbsp;</td>
+            </tr>
+        </table>
+        <ul>
+            <li>The "Header" section consists of four unsigned 32-bit integer in the little-endian format:</li>
+            <ul>
+                <li>Header[0] - number of images in the "Images" file section;</li>
+                <li>Header[1] - number of channels each image has;</li>
+                <li>Header[2] - image width;</li>
+                <li>Header[3] - image height.</li>
+            </ul>
+            <li>The "Images" section contains <var>number_of_images</var> images packed in the "layered" format (B, G, R).
+            Each layer is packed sequentially and consists of [<var>image_width x image_height</var>] bytes
+            (C unsigned chars in the little-endian format).
+            Total number of bytes in "Images" section is equal [<var>number_of_images x number_of_channels x image_width x image_height</var>]
+            bytes.</li>
+            <li>The "Labels" section consists of <var>number_of_images</var> unsigned 32-bit integers in the little-endian format.
+            Each label corresponds to the image with the same index.</li>
+        </ul>
+
+    <h4>GoogleNet Sample&nbsp;</h4>
+        <p>For this sample the <samp class="codeph"><var>&lt;sample_dir&gt;</var>\cpp\neural_networks\data</samp>
+        directory contains the <var>train_224x224.blob</var> and <var>test_224x224.blob</var> synthetic data sets
+        with the data layout described in the previous section.<p/>
+
+<h3> Setting Up the Build Environment&nbsp;</h3>
+<p> Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel® DAAL includes the <span class="filepath">daalvars</span> scripts that you can run to set environment variables:</p>
+    <ul id="GUID-2FEE5E18-4507-402C-806D-F3C422B0D085">
+        <li>On Windows*, you can find the <span class="filepath">daalvars.bat</span> batch file at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:</span><samp class="codeph"><br />
+            daalvars.bat {ia32|intel64}
+            </samp>
+        </li>
+        <li>On Linux*, you can find the <span class="filepath">daalvars.sh|daalvars.csh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:</span><samp class="codeph"><br />
+            source daalvars.sh|csh {ia32|intel64}
+            </samp>
+        </li>
+        <li>On macOS*, you can find the <span class="filepath">daalvars.sh|daalvars.csh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:</span><samp class="codeph"><br />
+            source daalvars.sh|csh&nbsp;
+            </samp>
+        </li>
+    </ul>
+    <p>For more information about setting environment variables
+		and configuring Intel® DAAL, refer to Getting Started guides for the
+		library.</p>
+    <h2><a name="Build_and_Run_Instructions">Build and Run Instructions</a></h2>
+<h3>On Windows*</h3>
+<p>To build Intel® DAAL neural networks C++ samples, go to the C++ neural networks samples directory and execute the <samp class="codeph">launcher</samp>
+script with
+the <samp class="codeph">build</samp> parameter:</p>
+<p><samp class="codeph">cd <var>&lt;sample_dir&gt;</var>\cpp\neural_networks</samp></p>
+<p><samp class="codeph"> launcher.bat {ia32|intel64} build </samp></p>
+<p>The command creates the <samp class="codeph">.\_results\ia32</samp> or <samp class="codeph">.\_results\intel64 </samp>
+directory and builds <samp class="codeph">*.exe</samp> executables and <samp class="codeph">*.exe </samp>libraries, as well as creates
+a log file for build results. </p>
+<p>To run Intel® DAAL neural networks C++ samples, go to the C++ neural networks samples directory and execute the <samp class="codeph">launcher</samp>
+script
+with the <samp class="codeph">run</samp> parameter:</p>
+<p><samp class="codeph">cd <var>&lt;sample_dir&gt;</var>\cpp\neural_networks</samp></p>
+<p><samp class="codeph"> launcher.bat {ia32|intel64} run </samp></p>
+<p>Select the same architecture parameter as you provided to the <samp class="codeph">launcher</samp>
+script with
+the <samp class="codeph">build</samp> parameter.</p>
+<p>For each sample, the results are placed into the <samp class="codeph">.\_results\ia32\<em>&lt;sample name&gt;</em>\.res</samp> or <samp class="codeph">.\_results\intel64\<em>&lt;sample name&gt;</em>\.res </samp>file, depending on the specified architecture. </p>
+
+<h3>On Linux*</h3>
+      <p>To build Intel® DAAL neural networks C++ samples, go to the C++ neural networks samples directory and execute the
+        <span class="keyword">make</span> command:
+      </p>
+
+      <p><samp class="codeph">cd
+          <span class="filepath"><var>&lt;sample_dir&gt;</var></span><span class="filepath">/cpp/neural_networks</span></samp>
+      </p>
+
+      <p><samp class="codeph">make {libia32|soia32|libintel64|sointel64}</samp>
+       <p><samp class="codeph">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;compiler={intel|gnu}
+        </samp>
+      </p>
+      <p><samp class="codeph">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mode=build</samp>
+      </p>
+
+      <p> From the
+        <samp class="codeph">{libia32|soia32|libintel64|sointel64}</samp> parameters,
+	  select the one that matches the architecture parameter you provided to the
+        <span class="filepath">daalvars</span><span class="filepath">.sh</span> script and
+	  that has the prefix that matches the type of executables you want to build:
+        <samp class="codeph">lib</samp> for static and
+        <samp class="codeph">so</samp> for dynamic executables.
+      </p>
+
+
+      <p>The command creates a directory for the chosen compiler, architecture, and library extension (<span class="filepath">a</span> or
+        <span class="filepath">so</span>). For example:
+        <span class="filepath">_results/intel_intel64_a</span>.
+      </p>
+
+      <p>To run Intel® DAAL neural networks C++ samples, go to the C++ neural networks samples directory and execute the
+        <span class="keyword">make</span> command in the run mode. For example, if you run the
+        <span class="filepath">daalvars</span> script with the
+        <span class="keyword">intel64</span> target:
+      </p>
+
+      <p><samp class="codeph">cd
+          <span class="filepath"><var>&lt;sample_dir&gt;</var></span><span class="filepath">/cpp/neural_networks</span></samp>
+      </p>
+
+      <p><samp class="codeph">make libintel64 mode=run</samp>
+      </p>
+
+      <p>The
+        <span class="keyword">make</span> command builds a static library for the
+	  Intel® 64 architecture and runs the executable.
+      </p>
+
+<h3>On macOS*</h3>
+      <p>To build Intel® DAAL neural networks C++ samples, go to the C++ neural networks samples directory and execute the
+        <span class="keyword">make</span> command:
+      </p>
+
+      <p><samp class="codeph">cd
+          <span class="filepath"><var>&lt;sample_dir&gt;</var></span><span class="filepath">/cpp/neural_networks</span></samp>
+      </p>
+
+      <p><samp class="codeph">make {libia32|dylibia32|libintel64|dylibintel64}</samp>
+       <p><samp class="codeph">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;compiler={intel|gnu|clang}
+        </samp>
+      </p>
+      <p><samp class="codeph">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mode=build</samp>
+      </p>
+
+      <p> From the
+        <samp class="codeph">{libia32|dylibia32|libintel64|dylibintel64}</samp> parameters,
+	  select the one that matches the architecture parameter you provided to the
+        <span class="filepath">daalvars</span><span class="filepath">.sh</span> script and
+	  that has the prefix that matches the type of executables you want to build:
+        <samp class="codeph">lib</samp> for static and
+          <samp class="codeph">dylib</samp> for dynamic executables.
+      </p>
+
+
+      <p>The command creates a directory for the chosen compiler, architecture, and library extension (<span class="filepath">a</span> or
+        <span class="filepath">dylib</span>). For example:
+        <span class="filepath">_results/intel_intel64_a</span>.
+      </p>
+
+      <p>To run Intel® DAAL neural networks C++ samples, go to the C++ neural networks samples directory and execute the
+        <span class="keyword">make</span> command in the run mode. For example, if you run the
+        <span class="filepath">daalvars</span> script with the
+        <span class="keyword">intel64</span> target:
+      </p>
+
+      <p><samp class="codeph">cd
+          <span class="filepath"><var>&lt;sample_dir&gt;</var></span><span class="filepath">/cpp/neural_networks</span></samp>
+      </p>
+
+      <p><samp class="codeph">make libintel64 mode=run</samp>
+      </p>
+
+      <p>The
+        <span class="keyword">make</span> command builds a static library for the
+	  Intel® 64 architecture and runs the executable.
+      </p>
+
+    </div>
+	<h2 class="sectiontitle">Legal Information</h2>
+      <p>Intel, and the Intel logo are trademarks of Intel Corporation in the
+	  U.S. and/or other countries.
+      </p>
+
+      <p>*Other names and brands may be claimed as the property of others.
+      </p>
+       <p>© Copyright 2017, Intel Corporation
+      </p>
+
+    </div>
+  <p>
+<div class="tablenoborder"><a name="d16e18"><!-- --></a><table cellpadding="4" summary="" id="d16e18" frame="border" border="1" cellspacing="0" rules="all">
+		  <thead align="left">
+			 <tr>
+				<th class="cellrowborder" align="left" valign="top" width="100%" id="d16792e96">
+				  <p id="d16e29"><a name="d16e29"><!-- --></a>Optimization
+				  Notice
+				  </p>
+
+				</th>
+
+			 </tr>
+</thead>
+
+		  <tbody>
+			 <tr>
+				<td class="bgcolor(#f5f5f5)" bgcolor="#f5f5f5" valign="top" width="100%" headers="d16792e96 ">
+				  <p>Intel's compilers may or may not optimize to the same
+				  degree for non-Intel microprocessors for optimizations that
+				  are not unique to Intel microprocessors. These optimizations
+				  include SSE2, SSE3, and SSSE3 instruction sets and other
+				  optimizations. Intel does not guarantee the availability,
+				  functionality, or effectiveness of any optimization on
+				  microprocessors not manufactured by Intel.
+				  Microprocessor-dependent optimizations in this product are
+				  intended for use with Intel microprocessors. Certain
+				  optimizations not specific to Intel microarchitecture are
+				  reserved for Intel microprocessors. Please refer to the
+				  applicable product User and Reference Guides for more
+				  information regarding the specific instruction sets covered by
+				  this notice.
+				  </p>
+
+				  <p> Notice revision #20110804
+				  </p>
+
+
+				  </td>
+
+			 </tr>
+
+		  </tbody>
+
+		</table>
+</div>
+
+	 </p>
+</body>
+
+</html>

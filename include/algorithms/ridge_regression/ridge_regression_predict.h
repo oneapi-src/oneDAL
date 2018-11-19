@@ -1,0 +1,168 @@
+/* file: ridge_regression_predict.h */
+/*******************************************************************************
+* Copyright 2014-2018 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/*
+//++
+//  Implementation of the interface for ridge regression model-based prediction
+//--
+*/
+
+#ifndef __RIDGE_REGRESSION_PREDICT_H__
+#define __RIDGE_REGRESSION_PREDICT_H__
+
+#include "algorithms/algorithm.h"
+#include "services/daal_defines.h"
+#include "algorithms/ridge_regression/ridge_regression_predict_types.h"
+#include "algorithms/linear_model/linear_model_predict.h"
+
+namespace daal
+{
+namespace algorithms
+{
+namespace ridge_regression
+{
+namespace prediction
+{
+namespace interface1
+{
+/**
+ * @defgroup ridge_regression_prediction_batch Batch
+ * @ingroup ridge_regression_prediction
+ * @{
+ */
+
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__PREDICTION__BATCH"></a>
+ * \brief Provides methods to run implementations of the ridge regression model-based prediction
+ * <!-- \n<a href="DAAL-REF-RIDGEREGRESSION-ALGORITHM">Ridge regression algorithm description and usage models</a> -->
+ *
+ * \tparam algorithmFPType  Data type to use in intermediate computations for ridge regression model-based prediction
+ *                          in the batch processing mode, double or float
+ * \tparam method           Computation method in the batch processing mode, \ref Method
+ *
+ * \par Enumerations
+ *      - \ref Method  Computation methods for ridge regression model-based prediction
+ *
+ * \par References
+ *      - \ref ridge_regression::interface1::Model "ridge_regression::Model" class
+ *      - \ref ridge_regression::interface1::ModelNormEq "ridge_regression::ModelNormEq" class
+ *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref training::interface1::Online "training::Online" class
+ *      - \ref training::interface1::Distributed "training::Distributed" class
+ */
+template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+class Batch
+{};
+
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__PREDICTION__BATCH"></a>
+ * \brief Provides methods to run implementations of the ridge regression model-based prediction
+ * <!-- \n<a href="DAAL-REF-RIDGEREGRESSION-ALGORITHM">Ridge regression algorithm description and usage models</a> -->
+ *
+ * \tparam algorithmFPType  Data type to use in intermediate computations for ridge regression model-based prediction
+ *                          in the batch processing mode, double or float
+ *
+ * \par References
+ *      - \ref ridge_regression::interface1::Model "ridge_regression::Model" class
+ *      - \ref ridge_regression::interface1::ModelNormEq "ridge_regression::ModelNormEq" class
+ *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref training::interface1::Online "training::Online" class
+ *      - \ref training::interface1::Distributed "training::Distributed" class
+ */
+template<typename algorithmFPType>
+class Batch<algorithmFPType, defaultDense> : public linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense>
+{
+public:
+    typedef linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense> super;
+
+    typedef algorithms::ridge_regression::prediction::Input  InputType;
+    typedef typename super::ParameterType                    ParameterType;
+    typedef algorithms::ridge_regression::prediction::Result ResultType;
+
+    InputType input; /*!< %Input data structure */
+
+    /** Default constructor */
+    Batch()
+    {
+        initialize();
+    }
+
+    /**
+     * Constructs a ridge regression prediction algorithm by copying input objects
+     * of another ridge regression prediction algorithm
+     * \param[in] other Algorithm to use as the source to initialize the input objects
+     *                  of the algorithm
+     */
+    Batch(const Batch<algorithmFPType, defaultDense> &other) : input(other.input)
+    {
+        initialize();
+    }
+
+    /**
+     * Returns the method of the algorithm
+     * \return Method of the algorithm
+     */
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)defaultDense; }
+
+    /**
+     * Returns the structure that contains the result of ridge regression model-based prediction
+     * \return Structure that contains the result of the ridge regression model-based prediction
+     */
+    ResultPtr getResult() { return ResultType::cast(this->_result); }
+
+    /**
+     * Returns a pointer to a newly allocated ridge regression prediction algorithm
+     * with a copy of the input objects for this ridge regression prediction algorithm
+     * \return Pointer to the newly allocated algorithm
+     */
+    services::SharedPtr<Batch<algorithmFPType, defaultDense> > clone() const
+    {
+        return services::SharedPtr<Batch<algorithmFPType, defaultDense> >(cloneImpl());
+    }
+
+    virtual regression::prediction::Input* getInput() DAAL_C11_OVERRIDE { return &input; }
+
+protected:
+
+    virtual Batch<algorithmFPType, defaultDense> * cloneImpl() const DAAL_C11_OVERRIDE
+    {
+        return new Batch<algorithmFPType, defaultDense>(*this);
+    }
+
+    services::Status allocateResult() DAAL_C11_OVERRIDE
+    {
+        services::Status s = getResult()->template allocate<algorithmFPType>(this->_in, 0, 0);
+        this->_res = this->_result.get();
+        return s;
+    }
+
+    void initialize()
+    {
+        this->_ac = new __DAAL_ALGORITHM_CONTAINER(batch, linear_model::prediction::BatchContainer, algorithmFPType, linear_model::prediction::defaultDense)(&(this->_env));
+        this->_in = &input;
+        this->_par = NULL;
+        this->_result.reset(new ResultType());
+    }
+};
+/** @} */
+} // namespace interface1
+using interface1::Batch;
+
+} // namespace prediction
+} // namespace ridge_regression
+} // namespace algorithms
+} // namespace daal
+
+#endif

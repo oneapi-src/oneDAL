@@ -1,0 +1,260 @@
+/* file: engine.h */
+/*******************************************************************************
+* Copyright 2014-2018 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+#ifndef __DATA_SOURCE_MODIFIERS_CSV_INTERNAL_ENGINE_H__
+#define __DATA_SOURCE_MODIFIERS_CSV_INTERNAL_ENGINE_H__
+
+#include <string>
+
+#include "services/internal/error_handling_helpers.h"
+#include "data_management/features/internal/helpers.h"
+#include "data_management/features/internal/identifiers_impl.h"
+#include "data_management/data_source/modifiers/csv/modifier.h"
+#include "data_management/data_source/modifiers/internal/engine.h"
+#include "data_management/data_source/internal/csv_feature_utils.h"
+
+namespace daal
+{
+namespace data_management
+{
+namespace modifiers
+{
+namespace csv
+{
+namespace internal
+{
+
+using data_management::internal::CSVFeaturesInfo;
+
+/**
+ * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__INTERNAL__FEATURECONFIG"></a>
+ * \brief Class represents configuration of single input feature
+ */
+class InputFeatureInfo : public modifiers::internal::InputFeatureInfo
+{
+public:
+    InputFeatureInfo() : _detectedFeatureType(features::DAAL_CATEGORICAL), _token() { }
+
+    explicit InputFeatureInfo(features::FeatureType detectedFeatureType) :
+        _detectedFeatureType(detectedFeatureType) { }
+
+    const services::StringView &getToken() const
+    {
+        return _token;
+    }
+
+    features::FeatureType getDetectedFeatureType() const
+    {
+        return _detectedFeatureType;
+    }
+
+    void setToken(const services::StringView &token)
+    {
+        _token = token;
+    }
+
+private:
+    services::StringView _token;
+    features::FeatureType _detectedFeatureType;
+};
+
+/**
+ * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__INTERNAL__FEATURECONFIG"></a>
+ * \brief Class represents configuration of single output feature
+ */
+class OutputFeatureInfo : public modifiers::internal::OutputFeatureInfo { };
+
+/**
+ * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__INTERNAL__CONFIGIMPL"></a>
+ * \brief Internal implementation of feature modifier configuration
+ */
+class ConfigImpl : public Config,
+                   public modifiers::internal::Config<InputFeatureInfo,
+                                                      OutputFeatureInfo>
+{
+private:
+    typedef modifiers::internal::Config<InputFeatureInfo,
+                                        OutputFeatureInfo> impl;
+
+public:
+    ConfigImpl() { }
+
+    explicit ConfigImpl(const services::internal::CollectionPtr<InputFeatureInfo *> &pickedInputFeatures,
+                        services::Status *status = NULL) :
+        impl(pickedInputFeatures, status) { }
+
+    virtual size_t getNumberOfInputFeatures() const DAAL_C11_OVERRIDE
+    {
+        return impl::getNumberOfInputFeatures();
+    }
+
+    virtual features::FeatureType getInputFeatureDetectedType(size_t index) const DAAL_C11_OVERRIDE
+    {
+        return impl::getPickedInputFeature(index).getDetectedFeatureType();
+    }
+
+    virtual services::Status setNumberOfOutputFeatures(size_t numberOfOutputFeatures) DAAL_C11_OVERRIDE
+    {
+        return impl::setNumberOfOutputFeatures(numberOfOutputFeatures);
+    }
+
+    virtual services::Status setOutputFeatureType(size_t outputFeatureIndex,
+                                                  features::FeatureType featureType) DAAL_C11_OVERRIDE
+    {
+        return impl::setOutputFeatureType(outputFeatureIndex, featureType);
+    }
+
+    virtual services::Status setNumberOfCategories(size_t outputFeatureIndex,
+                                                   size_t numberOfCategories) DAAL_C11_OVERRIDE
+    {
+        return impl::setNumberOfCategories(outputFeatureIndex, numberOfCategories);
+    }
+
+    virtual services::Status setCategoricalDictionary(size_t outputFeatureIndex,
+                                                      const CategoricalFeatureDictionaryPtr &dictionary) DAAL_C11_OVERRIDE
+    {
+        return impl::setCategoricalDictionary(outputFeatureIndex, dictionary);
+    }
+};
+
+/**
+ * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__INTERNAL__CONTEXTIMPL"></a>
+ * \brief Internal implementation of feature modifier context
+ */
+class ContextImpl : public Context,
+                    public modifiers::internal::Context<InputFeatureInfo,
+                                                        OutputFeatureInfo>
+{
+private:
+    typedef modifiers::internal::Context<InputFeatureInfo,
+                                         OutputFeatureInfo> impl;
+
+public:
+    ContextImpl() { }
+
+    explicit ContextImpl(const services::internal::CollectionPtr<InputFeatureInfo *> &pickedInputFeatures,
+                         services::Status *status = NULL) :
+        impl(pickedInputFeatures, status) { }
+
+    virtual size_t getNumberOfTokens() const DAAL_C11_OVERRIDE
+    {
+        return impl::getNumberOfInputFeatures();
+    }
+
+    virtual services::StringView getToken(size_t index) const DAAL_C11_OVERRIDE
+    {
+        return impl::getPickedInputFeature(index).getToken();
+    }
+
+    virtual services::BufferView<DAAL_DATA_TYPE> getOutputBuffer() const DAAL_C11_OVERRIDE
+    {
+        return impl::getOutputBuffer();
+    }
+};
+
+/**
+ * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__INTERNAL__MODIFIERSMANAGER"></a>
+ * \brief Class that holds modifiers and implements logic of modifiers applying flow
+ */
+class ModifiersManager : public modifiers::internal::ModifiersManager<FeatureModifierIface,
+                                                                      ConfigImpl, ContextImpl>
+{
+public:
+    static services::SharedPtr<ModifiersManager> create(services::Status *status = NULL)
+    {
+        return services::internal::wrapSharedAndTryThrow<ModifiersManager>(new ModifiersManager(), status);
+    }
+
+    void setToken(size_t tokenIndex, const services::StringView &token)
+    {
+        getBinder().getInputFeatureInfo(tokenIndex).setToken(token);
+    }
+
+    services::Status prepare(const CSVFeaturesInfo &featuresInfo)
+    {
+        services::Status status;
+
+        const features::FeatureIdMappingIfacePtr featureMapping = createFeatureMapping(featuresInfo, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        const services::internal::CollectionPtr<InputFeatureInfo> inputFeaturesInfo =
+            createInputFeaturesInfo(featuresInfo, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        status |= getBinder().bind(featureMapping, inputFeaturesInfo);
+
+        return status;
+    }
+
+private:
+    services::internal::CollectionPtr<InputFeatureInfo> createInputFeaturesInfo(const CSVFeaturesInfo &featuresInfo,
+                                                                                services::Status *status = NULL)
+    {
+        const size_t numberOfFeatures = featuresInfo.getNumberOfFeatures();
+
+        services::internal::CollectionPtr<InputFeatureInfo> inputFeaturesInfo =
+            services::internal::HeapAllocatableCollection<InputFeatureInfo>::create(numberOfFeatures);
+        if (!inputFeaturesInfo)
+        {
+            services::internal::tryAssignStatusAndThrow(status, services::ErrorMemoryAllocationFailed);
+            return inputFeaturesInfo;
+        }
+
+        for (size_t i = 0; i < numberOfFeatures; i++)
+        {
+            features::FeatureType fType = featuresInfo.getDetectedFeatureType(i);
+            (*inputFeaturesInfo)[i] = InputFeatureInfo(fType);
+        }
+
+        return inputFeaturesInfo;
+    }
+
+    features::FeatureIdMappingIfacePtr createFeatureMapping(const CSVFeaturesInfo &featuresInfo,
+                                                  services::Status *status = NULL)
+    {
+        const size_t numberOfFeatures = featuresInfo.getNumberOfFeatures();
+
+        services::Status localStatus;
+        const features::internal::FeatureIdDefaultMappingPtr mapping =
+            features::internal::FeatureIdDefaultMapping::create(numberOfFeatures, &localStatus);
+        if (!localStatus)
+        {
+            services::internal::tryAssignStatusAndThrow(status, localStatus);
+            return mapping;
+        }
+
+        if (featuresInfo.areFeatureNamesAvailable())
+        {
+            for (size_t i = 0; i < numberOfFeatures; ++i)
+            {
+                mapping->setFeatureKey(i, featuresInfo.getFeatureName(i));
+            }
+        }
+
+        return mapping;
+    }
+
+private:
+    ModifiersManager() { }
+};
+typedef services::SharedPtr<ModifiersManager> ModifiersManagerPtr;
+
+} // namespace internal
+} // namespace csv
+} // namespace modifiers
+} // namespace data_management
+} // namespace daal
+
+#endif

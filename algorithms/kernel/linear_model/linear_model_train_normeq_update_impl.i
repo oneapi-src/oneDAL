@@ -1,0 +1,229 @@
+/* file: linear_model_train_normeq_update_impl.i */
+/*******************************************************************************
+* Copyright 2014-2018 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/*
+//++
+//  Implementation of common base classes for normal equations model training.
+//--
+*/
+
+#include "linear_model_train_normeq_kernel.h"
+#include "service_blas.h"
+#include "service_error_handling.h"
+#include "threading.h"
+
+namespace daal
+{
+namespace algorithms
+{
+namespace linear_model
+{
+namespace normal_equations
+{
+namespace training
+{
+namespace internal
+{
+using namespace daal::services;
+using namespace daal::data_management;
+using namespace daal::internal;
+using namespace daal::services::internal;
+
+template <typename algorithmFPType, CpuType cpu>
+ThreadingTask<algorithmFPType, cpu>::ThreadingTask(size_t nBetasIntercept, size_t nResponses, Status &st) :
+    _nBetasIntercept(nBetasIntercept), _nResponses(nResponses)
+{
+    _xtx = service_scalable_calloc<algorithmFPType, cpu>(nBetasIntercept * nBetasIntercept);
+    _xty = service_scalable_calloc<algorithmFPType, cpu>(nBetasIntercept * nResponses);
+    if (!_xtx || !_xty)
+        st.add(ErrorMemoryAllocationFailed);
+}
+
+template <typename algorithmFPType, CpuType cpu>
+ThreadingTask<algorithmFPType, cpu> * ThreadingTask<algorithmFPType, cpu>::create(size_t nBetasIntercept,
+                                                                                  size_t nResponses)
+{
+    Status st;
+    ThreadingTask<algorithmFPType, cpu> * res = new ThreadingTask<algorithmFPType, cpu>(nBetasIntercept, nResponses, st);
+    if (!st)
+    {
+        delete res;
+        return nullptr;
+    }
+    return res;
+}
+
+template <typename algorithmFPType, CpuType cpu>
+Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT nRows,
+                                                   const NumericTable &xTable, const NumericTable &yTable)
+{
+    DAAL_INT nFeatures(xTable.getNumberOfColumns());
+
+    /* SYRK and GEMM parameters */
+    char up      = 'U';
+    char trans   = 'T';
+    char notrans = 'N';
+    algorithmFPType alpha(1.0);
+
+    _xBlock.set(const_cast<NumericTable &>(xTable), startRow, nRows);
+    DAAL_CHECK_BLOCK_STATUS(_xBlock);
+    const algorithmFPType *x = _xBlock.get();
+
+    _yBlock.set(const_cast<NumericTable &>(yTable), startRow, nRows);
+    DAAL_CHECK_BLOCK_STATUS(_yBlock);
+    const algorithmFPType *y = _yBlock.get();
+
+    Blas<algorithmFPType, cpu>::xxsyrk(&up, &notrans, &nFeatures, &nRows, &alpha,
+                                       const_cast<algorithmFPType *>(x), &nFeatures, &alpha,
+                                       _xtx, &_nBetasIntercept);
+
+    if (nFeatures < _nBetasIntercept)
+    {
+        algorithmFPType *xtxPtr = _xtx + nFeatures * _nBetasIntercept;
+        const algorithmFPType *xPtr = x;
+
+        for (DAAL_INT i = 0; i < nRows; i++, xPtr += nFeatures)
+        {
+          PRAGMA_IVDEP
+          PRAGMA_VECTOR_ALWAYS
+            for (DAAL_INT j = 0; j < nFeatures; j++)
+            {
+                xtxPtr[j] += xPtr[j];
+            }
+        }
+
+        xtxPtr[nFeatures] += algorithmFPType(nRows);
+    }
+
+    Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &nFeatures, &_nResponses, &nRows, &alpha, x,
+                                       &nFeatures, y, &_nResponses, &alpha, _xty, &_nBetasIntercept);
+
+    if (nFeatures < _nBetasIntercept)
+    {
+        const algorithmFPType *yPtr = y;
+        for (DAAL_INT i = 0; i < nRows; i++, yPtr += _nResponses)
+        {
+          PRAGMA_IVDEP
+          PRAGMA_VECTOR_ALWAYS
+            for (DAAL_INT j = 0; j < _nResponses; j++)
+            {
+                _xty[j * _nBetasIntercept + nFeatures] += yPtr[j];
+            }
+        }
+    }
+    return Status();
+}
+
+template <typename algorithmFPType, CpuType cpu>
+void ThreadingTask<algorithmFPType, cpu>::reduce(algorithmFPType *xtx, algorithmFPType *xty)
+{
+  PRAGMA_IVDEP
+  PRAGMA_VECTOR_ALWAYS
+    for( size_t i = 0; i < (_nBetasIntercept * _nBetasIntercept); i++)
+    {
+        xtx[i] += _xtx[i];
+    }
+
+  PRAGMA_IVDEP
+  PRAGMA_VECTOR_ALWAYS
+    for( size_t i = 0; i < (_nBetasIntercept * _nResponses); i++)
+    {
+        xty[i] += _xty[i];
+    }
+}
+
+template <typename algorithmFPType, CpuType cpu>
+ThreadingTask<algorithmFPType, cpu>::~ThreadingTask()
+{
+    service_scalable_free<algorithmFPType, cpu>(_xtx);
+    service_scalable_free<algorithmFPType, cpu>(_xty);
+}
+
+template <typename algorithmFPType, CpuType cpu>
+Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable &xTable, const NumericTable &yTable,
+                                                   NumericTable &xtxTable, NumericTable &xtyTable,
+                                                   bool initializeResult, bool interceptFlag)
+{
+    DAAL_INT nRows     (xTable.getNumberOfRows());          /* observations */
+    DAAL_INT nResponses(yTable.getNumberOfColumns());       /* responses */
+    DAAL_INT nBetas    (xTable.getNumberOfColumns() + 1);   /* coefficients */
+
+    size_t nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
+
+    WriteRowsType xtxBlock(xtxTable, 0, nBetasIntercept);
+    DAAL_CHECK_BLOCK_STATUS(xtxBlock);
+    algorithmFPType *xtx = xtxBlock.get();
+
+    WriteRowsType xtyBlock(xtyTable, 0, nResponses);
+    DAAL_CHECK_BLOCK_STATUS(xtyBlock);
+    algorithmFPType *xty = xtyBlock.get();
+
+    /* Initialize output arrays by zero in case of batch mode */
+    if(initializeResult)
+    {
+        service_memset<algorithmFPType, cpu>(xtx, 0, nBetasIntercept * nBetasIntercept);
+        service_memset<algorithmFPType, cpu>(xty, 0, nResponses * nBetasIntercept);
+    }
+
+    /* Split rows by blocks */
+    size_t nRowsInBlock = 128;
+
+    size_t nBlocks = nRows / nRowsInBlock;
+    if (nBlocks * nRowsInBlock < nRows) { nBlocks++; }
+
+    /* Create TLS */
+    daal::tls<ThreadingTaskType *> tls( [ = ]() -> ThreadingTaskType*
+    {
+        return ThreadingTaskType::create(nBetasIntercept, nResponses);
+    } );
+
+    SafeStatus safeStat;
+    daal::threader_for( nBlocks, nBlocks, [ =, &tls, &xTable, &yTable, &safeStat ](int iBlock)
+    {
+        ThreadingTaskType *tlsLocal = tls.local();
+
+        if (!tlsLocal)
+        {
+            safeStat.add(services::ErrorMemoryAllocationFailed);
+            return;
+        }
+
+        size_t startRow = iBlock * nRowsInBlock;
+        size_t endRow = startRow + nRowsInBlock;
+        if (endRow > nRows) { endRow = nRows; }
+
+        Status localSt = tlsLocal->update(startRow, endRow - startRow, xTable, yTable);
+        DAAL_CHECK_STATUS_THR(localSt);
+    } );
+
+    Status st = safeStat.detach();
+    tls.reduce([ =, &st ](ThreadingTaskType *tlsLocal) -> void
+    {
+        if (!tlsLocal)
+            return;
+        if (st)
+            tlsLocal->reduce(xtx, xty);
+        delete tlsLocal;
+    } );
+
+    return st;
+}
+
+}
+}
+}
+}
+}
+}

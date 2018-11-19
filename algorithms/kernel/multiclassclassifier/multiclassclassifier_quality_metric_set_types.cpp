@@ -1,0 +1,66 @@
+/* file: multiclassclassifier_quality_metric_set_types.cpp */
+/*******************************************************************************
+* Copyright 2014-2018 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/*
+//++
+//  Interface for the multi_class_classifier algorithm quality metrics
+//--
+*/
+
+#include "multi_class_classifier_quality_metric_set_types.h"
+
+using namespace daal::data_management;
+using namespace daal::services;
+
+namespace daal
+{
+namespace algorithms
+{
+namespace multi_class_classifier
+{
+namespace quality_metric_set
+{
+namespace interface1
+{
+
+Parameter::Parameter(size_t nClasses) : nClasses(nClasses) {}
+
+/**
+ * Returns the result of the quality metrics algorithm
+ * \param[in] id   Identifier of the result
+ * \return         Result that corresponds to the given identifier
+ */
+classifier::quality_metric::multiclass_confusion_matrix::ResultPtr ResultCollection::getResult(QualityMetricId id) const
+{
+    return staticPointerCast<classifier::quality_metric::multiclass_confusion_matrix::Result, SerializationIface>((*this)[(size_t)id]);
+}
+
+/**
+ * Returns the input object for the quality metrics algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier
+ */
+classifier::quality_metric::multiclass_confusion_matrix::InputPtr InputDataCollection::getInput(QualityMetricId id) const
+{
+    return staticPointerCast<classifier::quality_metric::multiclass_confusion_matrix::Input, algorithms::Input>(
+            algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
+}
+
+
+} //namespace interface1
+} //namespace quality_metric_set
+} //namespace multi_class_classifier
+} //namespace algorithms
+} //namespace daal

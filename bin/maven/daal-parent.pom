@@ -1,0 +1,104 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.intel.daal</groupId>
+  <artifactId>daal-parent</artifactId>
+  <version>{{version}}</version>
+  <packaging>pom</packaging>
+
+  <name>Intel(R) Data Analytics Acceleration Library</name>
+  <description>Boost machine learning and data analytics performance with this easy-to-use library</description>
+  <url>https://software.intel.com/en-us/intel-daal</url>
+
+  <licenses>
+    <license>
+      <name>Intel Simplified Software License</name>
+      <url>https://software.intel.com/en-us/license/intel-simplified-software-license</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <organization>Intel</organization>
+      <organizationUrl>http://www.intel.com</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/intel/daal.git</connection>
+    <developerConnection>scm:git:https://github.com/intel/daal.git</developerConnection>
+    <url>https://github.com/intel/daal</url>
+  </scm>
+
+  <profiles>
+    <profile>
+      <id>win_x86</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>x86</arch>
+        </os>
+      </activation>
+      <properties>
+        <daal.os.name>windows</daal.os.name>
+        <daal.arch.name>x86</daal.arch.name>
+      </properties>
+    </profile>
+    <profile>
+      <id>win_amd64</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <daal.os.name>windows</daal.os.name>
+        <daal.arch.name>x86_64</daal.arch.name>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>lnx_i386</id>
+      <activation>
+        <os>
+          <family>unix</family>
+          <arch>i386</arch>
+        </os>
+      </activation>
+      <properties>
+        <daal.os.name>linux</daal.os.name>
+        <daal.arch.name>x86</daal.arch.name>
+      </properties>
+    </profile>
+    <profile>
+      <id>lnx_amd64</id>
+      <activation>
+        <os>
+          <family>unix</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <daal.os.name>linux</daal.os.name>
+        <daal.arch.name>x86_64</daal.arch.name>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>mac_x86_64</id>
+      <activation>
+        <os>
+          <family>mac</family>
+          <arch>x86_64</arch>
+        </os>
+      </activation>
+      <properties>
+        <daal.os.name>macos</daal.os.name>
+        <daal.arch.name>x86_64</daal.arch.name>
+      </properties>
+    </profile>
+  </profiles>
+
+</project>

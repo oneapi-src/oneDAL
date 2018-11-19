@@ -1,0 +1,199 @@
+#!/bin/bash
+#===============================================================================
+# Copyright 2014-2018 Intel Corporation.
+#
+# This software and the related documents are Intel copyrighted  materials,  and
+# your use of  them is  governed by the  express license  under which  they were
+# provided to you (License).  Unless the License provides otherwise, you may not
+# use, modify, copy, publish, distribute,  disclose or transmit this software or
+# the related documents without Intel's prior written permission.
+#
+# This software and the related documents  are provided as  is,  with no express
+# or implied  warranties,  other  than those  that are  expressly stated  in the
+# License.
+#===============================================================================
+
+#  Content:
+#     Intel(R) Data Analytics Acceleration Library examples list
+#===============================================================================
+
+Java_example_list=( association_rules/AssocRulesAprioriBatch         \
+                    boosting/brownboost/BrownBoostDenseBatch         \
+                    boosting/adaboost/AdaBoostDenseBatch             \
+                    boosting/logitboost/LogitBoostDenseBatch         \
+                    cholesky/CholeskyDenseBatch                      \
+                    compression/CompressorExample                    \
+                    compression/CompressionBatch                     \
+                    compression/CompressionOnline                    \
+                    covariance/CorCSRBatch                           \
+                    covariance/CorCSRDistr                           \
+                    covariance/CorCSROnline                          \
+                    covariance/CorDenseBatch                         \
+                    covariance/CorDenseDistr                         \
+                    covariance/CorDenseOnline                        \
+                    covariance/CovCSRBatch                           \
+                    covariance/CovCSRDistr                           \
+                    covariance/CovCSROnline                          \
+                    covariance/CovDenseBatch                         \
+                    covariance/CovDenseDistr                         \
+                    covariance/CovDenseOnline                        \
+                    datasource/DataSourceFeatureExtraction           \
+                    datasource/DataStructuresHomogen                 \
+                    datasource/DataStructuresHomogenTensor           \
+                    datasource/DataStructuresAOS                     \
+                    datasource/DataStructuresSOA                     \
+                    datasource/DataStructuresCSR                     \
+                    datasource/DataStructuresMerged                  \
+                    datasource/DataStructuresMatrix                  \
+                    datasource/DataStructuresPackedSymmetric         \
+                    datasource/DataStructuresPackedTriangular        \
+                    datasource/DataStructuresRowMerged               \
+                    decision_forest/DfClsDenseBatch                  \
+                    decision_forest/DfClsTraverseModel               \
+                    decision_forest/DfRegDenseBatch                  \
+                    decision_forest/DfRegTraverseModel               \
+                    decision_tree/DtClsDenseBatch                    \
+                    decision_tree/DtClsTraverseModel                 \
+                    decision_tree/DtRegDenseBatch                    \
+                    decision_tree/DtRegTraverseModel                 \
+                    distance/CorDistDenseBatch                       \
+                    distance/CosDistDenseBatch                       \
+                    em/EmGmmDenseBatch                               \
+                    gbt/GbtClsDenseBatch                             \
+                    gbt/GbtRegDenseBatch                             \
+                    kdtree_knn_classification/KDTreeKNNDenseBatch    \
+                    kmeans/KMeansDenseBatch                          \
+                    kmeans/KMeansCSRBatch                            \
+                    kmeans/KMeansDenseBatchAssign                    \
+                    kmeans/KMeansInitDenseBatch                      \
+                    kmeans/KMeansCSRBatchAssign                      \
+                    kmeans/KMeansDenseDistr                          \
+                    kmeans/KMeansCSRDistr                            \
+                    kmeans/KMeansInitDenseDistr                      \
+                    kmeans/KMeansInitCSRDistr                        \
+                    linear_regression/LinRegNormEqDenseBatch         \
+                    linear_regression/LinRegNormEqDenseDistr         \
+                    linear_regression/LinRegNormEqDenseOnline        \
+                    linear_regression/LinRegQRDenseBatch             \
+                    linear_regression/LinRegQRDenseDistr             \
+                    linear_regression/LinRegQRDenseOnline            \
+                    logistic_regression/LogRegBinaryDenseBatch       \
+                    logistic_regression/LogRegDenseBatch             \
+                    moments/LowOrderMomsDenseBatch                   \
+                    moments/LowOrderMomsDenseDistr                   \
+                    moments/LowOrderMomsDenseOnline                  \
+                    moments/LowOrderMomsCSRBatch                     \
+                    moments/LowOrderMomsCSRDistr                     \
+                    moments/LowOrderMomsCSROnline                    \
+                    naive_bayes/MnNaiveBayesDenseBatch               \
+                    naive_bayes/MnNaiveBayesCSRBatch                 \
+                    naive_bayes/MnNaiveBayesDenseOnline              \
+                    naive_bayes/MnNaiveBayesDenseDistr               \
+                    naive_bayes/MnNaiveBayesCSROnline                \
+                    naive_bayes/MnNaiveBayesCSRDistr                 \
+                    outlier_detection/OutDetectUniDenseBatch         \
+                    outlier_detection/OutDetectBaconDenseBatch       \
+                    outlier_detection/OutDetectMultDenseBatch        \
+                    pca/PCACorDenseBatch                             \
+                    pca/PCACorDenseDistr                             \
+                    pca/PCACorDenseOnline                            \
+                    pca/PCACorCSRBatch                               \
+                    pca/PCACorCSRDistr                               \
+                    pca/PCACorCSROnline                              \
+                    pca/PCASVDDenseBatch                             \
+                    pca/PCASVDDenseDistr                             \
+                    pca/PCASVDDenseOnline                            \
+                    pca_transform/PCATransformDenseBatch             \
+                    qr/QRDenseBatch                                  \
+                    qr/QRDenseDistr                                  \
+                    qr/QRDenseOnline                                 \
+                    ridge_regression/RidgeRegNormEqDenseBatch        \
+                    ridge_regression/RidgeRegNormEqDenseOnline       \
+                    ridge_regression/RidgeRegNormEqDistr             \
+                    serialization/SerializationExample               \
+                    stump/StumpDenseBatch                            \
+                    svd/SVDDenseBatch                                \
+                    svd/SVDDenseDistr                                \
+                    svd/SVDDenseOnline                               \
+                    svm/SVMMultiClassDenseBatch                      \
+                    svm/SVMMultiClassCSRBatch                        \
+                    svm/SVMTwoClassDenseBatch                        \
+                    svm/SVMTwoClassCSRBatch                          \
+                    services/LibraryVersionInfoExample               \
+                    quantiles/QuantilesDenseBatch                    \
+                    pivoted_qr/PivotedQRDenseBatch                   \
+                    quality_metrics/LinRegMetricsDenseBatch          \
+                    quality_metrics/PCAMetricsDenseBatch             \
+                    quality_metrics/SVMTwoClassMetricsDenseBatch     \
+                    quality_metrics/SVMMultiClassMetricsDenseBatch   \
+                    kernel_function/KernelFuncLinDenseBatch          \
+                    kernel_function/KernelFuncLinCSRBatch            \
+                    kernel_function/KernelFuncRbfDenseBatch          \
+                    kernel_function/KernelFuncRbfCSRBatch            \
+                    implicit_als/ImplAlsCSRBatch                     \
+                    implicit_als/ImplAlsCSRDistr                     \
+                    implicit_als/ImplAlsDenseBatch                   \
+                    set_number_of_threads/SetNumberOfThreads         \
+                    datasource/DataStructuresMerged                  \
+                    sorting/SortingDenseBatch                        \
+                    error_handling/ErrorHandling                     \
+                    math/SoftmaxDenseBatch                           \
+                    math/AbsDenseBatch                               \
+                    math/AbsCSRBatch                                 \
+                    math/SmoothReLUDenseBatch                        \
+                    math/LogisticDenseBatch                          \
+                    math/ReLUCSRBatch                                \
+                    math/ReLUDenseBatch                              \
+                    math/TanhDenseBatch                              \
+                    math/TanhCSRBatch                                \
+                    normalization/ZScoreDenseBatch                   \
+                    normalization/MinMaxDenseBatch                   \
+                    optimization_solvers/SGDDenseBatch               \
+                    optimization_solvers/SGDMiniDenseBatch           \
+                    optimization_solvers/SGDMomentDenseBatch         \
+                    optimization_solvers/SGDMomentOptResDenseBatch   \
+                    optimization_solvers/LBFGSDenseBatch             \
+                    optimization_solvers/LBFGSOptResDenseBatch       \
+                    optimization_solvers/AdagradDenseBatch           \
+                    optimization_solvers/AdagradOptResDenseBatch     \
+                    optimization_solvers/MSEDenseBatch               \
+                    neural_networks/ELULayerDenseBatch               \
+                    neural_networks/ReLULayerDenseBatch              \
+                    neural_networks/AbsLayerDenseBatch               \
+                    neural_networks/ReshapeLayerDenseBatch           \
+                    neural_networks/BatchNormLayerDenseBatch         \
+                    neural_networks/DropoutLayerDenseBatch           \
+                    neural_networks/FullyconLayerDenseBatch          \
+                    neural_networks/SplitLayerDenseBatch             \
+                    neural_networks/SmoothReLULayerDenseBatch        \
+                    neural_networks/SoftmaxLayerDenseBatch           \
+                    neural_networks/PReLULayerDenseBatch             \
+                    neural_networks/TanhLayerDenseBatch              \
+                    neural_networks/LRNLayerDenseBatch               \
+                    neural_networks/Conv2DLayerDenseBatch            \
+                    neural_networks/TransConv2DLayerDenseBatch       \
+                    neural_networks/LogisticLayerDenseBatch          \
+                    neural_networks/AvePool1DLayerDenseBatch         \
+                    neural_networks/MaxPool1DLayerDenseBatch         \
+                    neural_networks/AvePool2DLayerDenseBatch         \
+                    neural_networks/MaxPool2DLayerDenseBatch         \
+                    neural_networks/StochPool2DLayerDenseBatch       \
+                    neural_networks/AvePool3DLayerDenseBatch         \
+                    neural_networks/MaxPool3DLayerDenseBatch         \
+                    neural_networks/ConcatLayerDenseBatch            \
+                    neural_networks/LossSoftmaxEntrLayerDenseBatch   \
+                    neural_networks/LossLogisticEntrLayerDenseBatch  \
+                    neural_networks/NeuralNetDenseBatch              \
+                    neural_networks/NeuralNetPredicDenseBatch        \
+                    neural_networks/Locallycon2DLayerDenseBatch      \
+                    neural_networks/LCNLayerDenseBatch               \
+                    neural_networks/SpatAvePool2DLayerDenseBatch     \
+                    neural_networks/SpatMaxPool2DLayerDenseBatch     \
+                    neural_networks/SpatStochPool2DLayerDenseBatch   \
+                    neural_networks/NeuralNetDenseDistr              \
+                    neural_networks/InitializersDenseBatch           \
+                    neural_networks/EltwiseSumLayerDenseBatch        \
+                    distributions/UniformDenseBatch                  \
+                    distributions/BernoulliDenseBatch                \
+                    distributions/NormalDenseBatch                   \
+                    enable_thread_pinning/EnableThreadPinning        )
