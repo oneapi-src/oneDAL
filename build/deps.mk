@@ -126,6 +126,7 @@ sed.mk-phony-targets = $(sed.mk-phony-targets.$(_OS))
 sed.mk-phony-targets.lnx = s/^.*://; s/^ *//; /./{ s/ *$$/:/; s/  */:\n/g; p; };
 sed.mk-phony-targets.win = s/^.*://; s/^ *//; /./{ s/ *$$/:/; s/  */:\n/g; p; };
 sed.mk-phony-targets.mac = s/^.*://; s/^ *//; /./{ s/ *$$/:/; s/  */:\'$$'\n''/g; p; };
+sed.mk-phony-targets.fbsd = s/^.*://; s/^ *//; /./{ s/ *$$/:/; s/  */:\n/g; p; };
 sed.remove-source = s@$<\( \|$$\)@@
 
 # } sed scripts

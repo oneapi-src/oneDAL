@@ -55,6 +55,18 @@
 #else // LINUX
     #include <sched.h>
     #define __PINNER_LINUX__
+    #ifdef __FreeBSD__
+        #include <pthread_np.h>
+
+        extern int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask);
+
+        cpu_set_t* __sched_cpualloc(size_t count) {
+            return (cpu_set_t*) malloc(CPU_ALLOC_SIZE(count));
+        }
+        void __sched_cpufree(cpu_set_t* set) {
+            free(set);
+        }
+    #endif
 #endif
 
 struct cpu_mask_t

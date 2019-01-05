@@ -27,6 +27,20 @@
 #include "service_memory.h"
 #include "service_topo.h"
 
+#ifdef __FreeBSD__
+    #undef stdout
+    #undef stderr
+    FILE *stdout=__stdoutp;
+    FILE *stderr=__stderrp;
+
+    int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask) {
+        return cpuset_setaffinity(CPU_LEVEL_WHICH, CPU_WHICH_PID, pid == 0 ? -1 : pid, cpusetsize, mask);
+    }
+    int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask) {
+        return cpuset_getaffinity(CPU_LEVEL_WHICH, CPU_WHICH_PID, pid == 0 ? -1 : pid, cpusetsize, mask);
+    }
+#endif
+
 
 #define _INTERNAL_DAAL_MALLOC(x)        daal_malloc((x),64)
 #define _INTERNAL_DAAL_FREE(x)          daal_free((x))
@@ -87,7 +101,7 @@ static void *__internal_daal_memset(void *s, int c, size_t n)
 static int __internal_daal_bindContext(unsigned int cpu, void *prevAffinity)
 {
     int ret = -1;
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD__)
     cpu_set_t currentCPU;
     // add check for size of cpumask_t.
     MY_CPU_ZERO(&currentCPU);
@@ -161,7 +175,7 @@ static int __internal_daal_bindContext(unsigned int cpu, void *prevAffinity)
 
 static void __internal_daal_restoreContext(void *prevAffinity)
 {
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD__)
     sched_setaffinity (0, sizeof(*((cpu_set_t *)prevAffinity)), (cpu_set_t *)prevAffinity);
 #else
 #if (_WIN32_WINNT >= 0x0601)
@@ -182,7 +196,7 @@ unsigned  int _internal_daal_GetMaxCPUSupportedByOS()
 {
 
     unsigned  int lcl_OSProcessorCount = 0;
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD__)
 
     lcl_OSProcessorCount = sysconf(_SC_NPROCESSORS_CONF); //This will tell us how many CPUs are currently enabled.
 
@@ -239,7 +253,7 @@ unsigned  int _internal_daal_GetMaxCPUSupportedByOS()
 static void  __internal_daal_setChkProcessAffinityConsistency( unsigned int lcl_OSProcessorCount )
 {
     unsigned int i, sum = 0;
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD__)
     cpu_set_t allowedCPUs;
 
     sched_getaffinity(0, sizeof(allowedCPUs), &allowedCPUs);
@@ -1319,7 +1333,7 @@ static int __internal_daal_queryParseSubIDs(void)
     unsigned  i;
     int numMappings = 0;
     unsigned     lcl_OSProcessorCount;
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD__)
     cpu_set_t pa;
 #else
 #if (_WIN32_WINNT >= 0x0601)

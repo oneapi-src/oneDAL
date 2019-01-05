@@ -30,6 +30,50 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#ifdef __FreeBSD__
+    #ifndef _GNU_SOURCE
+        #define _GNU_SOURCE
+    #endif
+    #include <sched.h>
+
+    #include <sys/param.h>
+    #include <sys/cpuset.h>
+
+    typedef cpuset_t cpu_set_t;
+
+    cpu_set_t* __sched_cpualloc(size_t count);
+    void __sched_cpufree(cpu_set_t* set);
+
+    typedef long int __cpu_mask;
+    # define __NCPUBITS	(8 * sizeof (__cpu_mask))
+    # define __CPUELT(cpu)	((cpu) / __NCPUBITS)
+    # define __CPUMASK(cpu)	((__cpu_mask) 1 << ((cpu) % __NCPUBITS))
+    # define __CPU_ALLOC_SIZE(count) \
+      ((((count) + __NCPUBITS - 1) / __NCPUBITS) * sizeof (__cpu_mask))
+    # define __CPU_ALLOC(count) __sched_cpualloc (count)
+    # define __CPU_FREE(cpuset) __sched_cpufree (cpuset)
+    # define __CPU_ZERO_S(setsize, cpusetp)             \
+      do {									            \
+        size_t __i;								        \
+        size_t __imax = (setsize) / sizeof (__cpu_mask);\
+        __cpu_mask *__bits = (cpusetp)->__bits;			\
+        for (__i = 0; __i < __imax; ++__i)				\
+          __bits[__i] = 0;							    \
+      } while (0)
+    # define __CPU_SET_S(cpu, setsize, cpusetp)                         \
+           (__extension__							                    \
+           ({ size_t __cpu = (cpu);						                \
+              __cpu / 8 < (setsize)						                \
+              ? (((__cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)] \
+             |= __CPUMASK (__cpu))						                \
+              : 0; }))
+    # define CPU_ALLOC(count) __CPU_ALLOC (count)
+    # define CPU_FREE(cpuset) __CPU_FREE (cpuset)
+    # define CPU_ALLOC_SIZE(count) __CPU_ALLOC_SIZE (count)
+    # define CPU_ZERO_S(setsize, cpusetp) __CPU_ZERO_S (setsize, cpusetp)
+    # define CPU_SET_S(cpu, setsize, cpusetp)   __CPU_SET_S (cpu, setsize, cpusetp)
+#endif
+
 namespace daal
 {
 namespace services

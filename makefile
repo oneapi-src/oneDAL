@@ -36,6 +36,8 @@ attr.mac32e = mac intel64
 attr.mac32  = mac ia32
 attr.win32e = win intel64 win
 attr.win32  = win ia32    win
+attr.fbsd32e = fbsd intel64 fre
+attr.fbsd32  = fbsd ia32    fre
 
 _OS := $(word 1,$(attr.$(PLAT)))
 _IA := $(word 2,$(attr.$(PLAT)))
@@ -65,13 +67,13 @@ include build/deps.mk
 # Common macros
 #===============================================================================
 
-OSList          := lnx win mac
+OSList          := lnx win mac fbsd
 
 o      := $(if $(OS_is_win),obj,o)
 a      := $(if $(OS_is_win),lib,a)
 plib   := $(if $(OS_is_win),,lib)
 scr    := $(if $(OS_is_win),bat,sh)
-y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
+y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -Fo    := $(if $(OS_is_win),-Fo,-o)
 -Q     := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
 -cxx11 := $(if $(COMPILER_is_vc),,$(-Q)std=c++11)
@@ -80,8 +82,9 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
 -DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)))
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
 -DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
--sGRP  = $(if $(OS_is_lnx),-Wl$(comma)--start-group,)
--eGRP  = $(if $(OS_is_lnx),-Wl$(comma)--end-group,)
+-sGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--start-group,)
+-eGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--end-group,)
+daalmake = $(if $(OS_is_fbsd),gmake,make)
 
 p4_OPT   := $(p4_OPT.$(COMPILER))
 mc_OPT   := $(mc_OPT.$(COMPILER))
@@ -91,7 +94,7 @@ avx2_OPT := $(avx2_OPT.$(COMPILER))
 knl_OPT  := $(knl_OPT.$(COMPILER))
 skx_OPT  := $(skx_OPT.$(COMPILER))
 
-_OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,))
+_OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,$(if $(OS_is_fbsd),fre,)))
 
 #===============================================================================
 # Paths
@@ -124,6 +127,15 @@ _OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,))
 # redist/ia32/daal - dlls for ia32
 # redist/intel64/daal - dlls for intel64
 
+# FREEBSD release structure (under __release_fbsd):
+# daal
+# daal/bin - platform independent binaries: env setters
+# daal/examples - usage demonstrations
+# daal/include - header files
+# daal/lib - platform-independent libraries (jar files)
+# daal/lib/ia32 - static and dynamic libraries for ia32
+# daal/lib/intel64 - static and dynamic libraries for intel64
+
 # List of needed threadings layers can be specified in DAALTHRS.
 # if DAALTHRS is empty, threading will be incapsulated to core
 DAALTHRS ?= tbb seq
@@ -147,19 +159,19 @@ COVFILE   := $(subst BullseyeStub,$(RELEASEDIR.daal)/Bullseye_$(_IA).cov,$(COVFI
 COV.libia := $(if $(BULLSEYEROOT),$(BULLSEYEROOT)/lib)
 
 MKLFPKDIR:= $(if $(wildcard $(DIR)/externals/mklfpk/*),$(DIR)/externals/mklfpk,$(subst \,/,$(MKLFPKROOT)))
-MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(_OS)/include
-MKLFPKDIR.libia   := $(MKLFPKDIR)/$(_OS)/lib/$(_IA)
+MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
+MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib/$(_IA)
 
-TBBDIR := $(if $(wildcard $(DIR)/externals/tbb/*),$(DIR)/externals/tbb/$(_OS)$(if $(OS_is_win),/tbb),$(subst \,/,$(TBBROOT)))
+TBBDIR := $(if $(OS_is_fbsd),/usr/local,$(if $(wildcard $(DIR)/externals/tbb/*),$(DIR)/externals/tbb/$(_OS)$(if $(OS_is_win),/tbb),$(subst \,/,$(TBBROOT))))
 TBBDIR.include := $(TBBDIR)/include/tbb $(TBBDIR)/include
-TBBDIR.libia   := $(TBBDIR)/lib$(if $(OS_is_mac),,/$(_IA)$(if $(OS_is_win),/vc_mt,/gcc4.4))
-TBBDIR.soia    := $(TBBDIR)$(if $(OS_is_win),/../redist,/lib)$(if $(OS_is_mac),,/$(_IA)/$(if $(OS_is_win),tbb/vc_mt,gcc4.4))
+TBBDIR.libia   := $(TBBDIR)/lib$(if $(or $(OS_is_mac),$(OS_is_fbsd)),,/$(_IA)$(if $(OS_is_win),/vc_mt,/gcc4.4))
+TBBDIR.soia    := $(TBBDIR)$(if $(OS_is_win),/../redist,/lib)$(if $(or $(OS_is_mac),$(OS_is_fbsd)),,/$(_IA)/$(if $(OS_is_win),tbb/vc_mt,gcc4.4))
 RELEASEDIR.tbb       := $(RELEASEDIR)/tbb
 RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,/$(_IA)_$(_OSr)$(if $(OS_is_win),/vc_mt,/gcc4.4))
 RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR)/redist/$(_IA)_$(_OSr)/tbb/vc_mt,$(RELEASEDIR.tbb.libia))
 releasetbb.LIBS_A := $(if $(OS_is_win),$(TBBDIR.libia)/tbb.$(a) $(TBBDIR.libia)/tbbmalloc.$(a),)
 releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmalloc.$(y) \
-                     $(if $(OS_is_lnx),$(TBBDIR.libia)/$(plib)tbb.so.2 $(TBBDIR.libia)/$(plib)tbbmalloc.so.2,) 
+                     $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),$(TBBDIR.libia)/$(plib)tbb.so.2 $(TBBDIR.libia)/$(plib)tbbmalloc.so.2,)
 
 #===============================================================================
 # Release library names
@@ -233,6 +245,22 @@ daaldep.mac32.ipp :=
 daaldep.mac32.rt.thr := -L$(TBBDIR.libia) -ltbb -ltbbmalloc $(daaldep.mac32.rt.$(COMPILER))
 daaldep.mac32.rt.seq := $(daaldep.mac32.rt.$(COMPILER))
 
+daaldep.fbsd32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
+daaldep.fbsd32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
+daaldep.fbsd32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
+daaldep.fbsd32e.vml :=
+daaldep.fbsd32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
+daaldep.fbsd32e.rt.thr := -L$(TBBDIR.libia) -ltbb -ltbbmalloc -lpthread $(daaldep.fbsd32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
+daaldep.fbsd32e.rt.seq := -lpthread $(daaldep.fbsd32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
+
+daaldep.fbsd32.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
+daaldep.fbsd32.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
+daaldep.fbsd32.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
+daaldep.fbsd32.vml :=
+daaldep.fbsd32.ipp := $(if $(COV.libia),$(COV.libia)/libcov32.a)
+daaldep.fbsd32.rt.thr := -L$(TBBDIR.libia) -ltbb -ltbbmalloc -lpthread $(daaldep.fbsd32.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov32.a)
+daaldep.fbsd32.rt.seq := -lpthread $(daaldep.fbsd32.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov32.a)
+
 daaldep.mkl.thr := $(daaldep.$(PLAT).mkl.thr)
 daaldep.mkl.seq := $(daaldep.$(PLAT).mkl.seq)
 daaldep.mkl     := $(daaldep.$(PLAT).mkl)
@@ -270,12 +298,12 @@ release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/cpp/*),               
                           )                                                                                              \
                         )
 release.SAMPLES.JAVA := $(if $(wildcard $(SAMPLES.srcdir)/java/*),                                                       \
-                          $(if $(or $(OS_is_lnx),$(OS_is_mac)),                                                          \
+                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                                          \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/java -type f))                               \
                           )                                                                                              \
                         )
 release.SAMPLES.SCALA := $(if $(wildcard $(SAMPLES.srcdir)/scala/*),                                                     \
-                          $(if $(or $(OS_is_lnx),$(OS_is_mac)),                                                          \
+                          $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                                          \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/scala -type f))                              \
                           )                                                                                              \
                         )
@@ -470,7 +498,15 @@ else
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(addprefix -u ,$(shell grep -v -E '^(EXPORTS|;)' $(THR.srcdir)/export.def))
 endif
 else
+        ifdef OS_is_fbsd
+            ifdef PLAT_is_fbsd32e
+                $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(addprefix -Wl$(comma)-u -Wl$(comma),$(shell grep -v -E '^(EXPORTS|;)' $(THR.srcdir)/export_fbsd32e.def))
+            else
+                $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(addprefix -Wl$(comma)-u -Wl$(comma),$(shell grep -v -E '^(EXPORTS|;)' $(THR.srcdir)/export.def))
+            endif
+        else
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(addprefix -u ,$(shell grep -v -E '^(EXPORTS|;)' $(THR.srcdir)/export_mac.def))
+endif
 endif
 endif
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(daaldep.rt.thr)
@@ -492,7 +528,15 @@ else
 $(WORKDIR.lib)/$(thr_seq_y): LOPT += $(addprefix -u ,$(shell grep -v -E '^(EXPORTS|;)' $(THR.srcdir)/export.def))
 endif
 else
+        ifdef OS_is_fbsd
+            ifdef PLAT_is_fbsd32e
+                $(WORKDIR.lib)/$(thr_seq_y): LOPT += $(addprefix -Wl$(comma)-u -Wl$(comma),$(shell grep -v -E '^(EXPORTS|;)' $(THR.srcdir)/export_fbsd32e.def))
+            else
+                $(WORKDIR.lib)/$(thr_seq_y): LOPT += $(addprefix -Wl$(comma)-u -Wl$(comma),$(shell grep -v -E '^(EXPORTS|;)' $(THR.srcdir)/export.def))
+            endif
+        else
 $(WORKDIR.lib)/$(thr_seq_y): LOPT += $(addprefix -u ,$(shell grep -v -E '^(EXPORTS|;)' $(THR.srcdir)/export_mac.def))
+endif
 endif
 endif
 $(WORKDIR.lib)/$(thr_seq_y): LOPT += $(daaldep.rt.seq)
@@ -608,7 +652,7 @@ daal: $(if $(CORE.ALGORITHMS.CUSTOM),                                           
 
 ## TODO: migrate to absolute path!!!
 pydaal: _release _release_doc
-	+cd ./lang_service/python && make -f Makefile pydaal PREFIX=./../../$(RELEASEDIR.daal) BUILD_PREFIX=./../../$(WORKDIR)/pydaal DAALROOT=./../../$(RELEASEDIR.daal) PYDAAL_VERSION=$(MAJOR).$(MINOR).$(UPDATE)$(subst p,.,$(call lcase,$(STATUS)))$(BUILD) && cd ../..
+	+cd ./lang_service/python && $(daalmake) -f Makefile pydaal PREFIX=./../../$(RELEASEDIR.daal) BUILD_PREFIX=./../../$(WORKDIR)/pydaal DAALROOT=./../../$(RELEASEDIR.daal) PYDAAL_VERSION=$(MAJOR).$(MINOR).$(UPDATE)$(subst p,.,$(call lcase,$(STATUS)))$(BUILD) && cd ../..
 
 daal_dbg:
 	@echo $(CORE.ALGORITHMS)
@@ -702,7 +746,7 @@ $(CORE.incdirs): _release_c_h
 define .release.dd
 $3: $2
 $2: $1 ; $(value mkdir)$(value cpy)
-	$(if $(filter %library_version_info.h,$2),+make -f makefile update_headers_version)
+	$(if $(filter %library_version_info.h,$2),+$(daalmake) -f makefile update_headers_version)
 endef
 $(foreach d,$(release.HEADERS.COMMON),$(eval $(call .release.dd,$d,$(subst include/,$(RELEASEDIR.include)/,$d),_release_c_h)))
 $(foreach d,$(release.HEADERS.OSSPEC),$(eval $(call .release.dd,$d,$(subst include/,$(RELEASEDIR.include)/,$(subst _$(_OS),,$d)),_release_c_h)))

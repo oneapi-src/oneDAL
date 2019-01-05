@@ -17,7 +17,7 @@
 #  Clang defenitions for makefile
 #--
 
-PLATs.clang = mac32e mac32
+PLATs.clang = mac32e mac32 fbsd32e fbsd32
 
 CMPLRDIRSUFF.clang = _clang
 
@@ -28,10 +28,11 @@ CORE.SERV.COMPILER.clang = generic
 
 COMPILER.lnx.clang = clang++ -D__int64="long long" -D__int32="int" $(if $(IA_is_ia32),-m32,-m64) -fgnu-runtime -Wno-inconsistent-missing-override -stdlib=libstdc++ -nostdinc++
 COMPILER.mac.clang = clang++ -D__int64="long long" -D__int32="int" $(if $(IA_is_ia32),-m32,-m64) -fgnu-runtime -stdlib=libstdc++ -mmacosx-version-min=10.11
-
+COMPILER.fbsd.clang = clang++ -D__int64="long long" -D__int32="int" $(if $(IA_is_ia32),-m32,-m64) -I/usr/include/c++/v1 -I/usr/local/include
 
 link.dynamic.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
 link.dynamic.mac.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
 
 p4_OPT.clang   = $(-Q)$(if $(OS_is_mac),$(if $(IA_is_ia32),march=nocona,march=core2),$(if $(IA_is_ia32),march=pentium4,march=nocona))
 mc_OPT.clang   = $(-Q)$(if $(PLAT_is_mac32),march=nocona,march=core2)

@@ -67,15 +67,18 @@ md5sum.cmd = $(md5sum.cmd.$(_OS))
 md5sum.cmd.lnx = md5sum
 md5sum.cmd.win = md5sum
 md5sum.cmd.mac = md5 -q
+md5sum.cmd.fbsd = md5 -q
 
 # Enable compiler-provided defences as recommended by Intel Security Development Lifecycle document (SW.01)
 secure.opts.icc.win = -GS
 secure.opts.icc.lnx = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
                                                                          # disabled due to known issue in compiler. see DPD200371640
 secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 # -fstack-protector
+secure.opts.icc.fbsd = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
 secure.opts.link.win = -DYNAMICBASE -NXCOMPAT $(if $(IA_is_ia32),-SAFESEH)
 secure.opts.link.lnx = -z relro -z now -z noexecstack
 secure.opts.link.mac =
+secure.opts.link.fbsd = -z relro -z now -z noexecstack
 
 RC.COMPILE = rc.exe $(RCOPT) -fo$@ $<
 
@@ -96,10 +99,13 @@ LINK.STATIC = $(mkdir)$(call rm,$@)$(link.static.cmd)
 link.static.cmd = $(call link.static.$(_OS),$(LOPT) $(or $1,$(^.no-mkdeps)))
 link.static.lnx = $(if $(filter %.a,$1),$(link.static.lnx.script),$(link.static.lnx.cmdline))
 link.static.lnx.cmdline = ar rs $@ $(1:%_link.txt=@%_link.txt)
+link.static.fbsd = $(if $(filter %.a,$1),$(link.static.fbsd.script),$(link.static.fbsd.cmdline))
+link.static.fbsd.cmdline = /usr/local/bin/ar rs $@ $(1:%_link.txt=@%_link.txt)
 .addlib = $(foreach lib,$(filter %.a,$1),addlib $(lib)\n)
 .addmod = $(if $(filter %.o,$1),addmod $(filter %.o,$1))
 .addlink = $(if $(filter %_link.txt,$1),addmod $(shell tr '\n' ', ' < $(filter %_link.txt,$1)))
 link.static.lnx.script = printf "create $@\n$(call .addlib,$1)\n$(call .addmod,$1)\n$(call .addlink,$1)\nsave\n" | ar -M
+link.static.fbsd.script = printf "create $@\n$(call .addlib,$1)\n$(call .addmod,$1)\n$(call .addlink,$1)\nsave\n" | ar -M
 link.static.win = lib $(link.static.win.$(COMPILER)) -nologo -out:$@ $(1:%_link.txt=@%_link.txt)
 link.static.mac = libtool -V -static -o $@ $(1:%_link.txt=-filelist %_link.txt)
 
@@ -110,6 +116,7 @@ link.dynamic.lnx = $(if $(link.dynamic.lnx.$(COMPILER)),$(link.dynamic.lnx.$(COM
 link.dynamic.win = link $(link.dynamic.win.$(COMPILER)) -WX -nologo -map -dll $(-DEBL) $(1:%_link.txt=@%_link.txt) -out:$@
 link.dynamic.mac = $(if $(link.dynamic.mac.$(COMPILER)),$(link.dynamic.mac.$(COMPILER)),$(error link.dynamic.mac.$(COMPILER) must be defined)) \
                    -undefined dynamic_lookup -dynamiclib -Wl,-flat_namespace -Wl,-install_name,@rpath/$(@F) -Wl,-current_version,$(MAJOR).$(MINOR).$(UPDATE) -Wl,-compatibility_version,1.0.0 -Wl,-headerpad_max_install_names $(1:%_link.txt=-filelist %_link.txt) -o $@
+link.dynamic.fbsd = $(if $(link.dynamic.fbsd.$(COMPILER)),$(link.dynamic.fbsd.$(COMPILER)),$(error link.dynamic.fbsd.$(COMPILER) must be defined)) -shared $(-sGRP) $(1:%_link.txt=@%_link.txt) $(-eGRP) -o $@
 #TODO think on dependence from include sequence for $(if $(link.dynamic.lnx.$(COMPILER)),...)
 
 LINK.DYNAMIC.POST = $(call link.dynamic.post.$(_OS))
@@ -121,6 +128,7 @@ link.dynamic.post.mac = install_name_tool -change "libtbb.dylib" "@rpath/libtbb.
                         install_name_tool -add_rpath "@loader_path/" $@;                       \
                         install_name_tool -add_rpath "@executable_path/" $@;                   \
                         install_name_tool -add_rpath "." $@
+link.dynamic.post.fbsd =
 
 info.building.%:; $(info ========= Building $* =========)
 %/.:; mkdir -p $*
@@ -136,18 +144,21 @@ sed.-i = $(sed.-i.$(_OS))
 sed.-i.mac = -i.bak
 sed.-i.win = -i
 sed.-i.lnx = -i
+sed.-i.fbsd = -i ""
 
 # sed's -b option
 sed.-b = $(sed.-b.$(_OS))
 sed.-b.mac =
 sed.-b.win = -b
 sed.-b.lnx =
+sed.-b.fbsd =
 
 # sed's EOL
 sed.eol = $(sed.eol.$(_OS))
 sed.eol.mac =
 sed.eol.win = \r
 sed.eol.lnx =
+sed.eol.fbsd =
 
 # sed
 PATCHBIN = $(patchbin.cmd)

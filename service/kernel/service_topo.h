@@ -19,7 +19,7 @@
 #include "daal_defines.h"
 #if !defined (DAAL_CPU_TOPO_DISABLED)
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD__)
 
     #ifndef _GNU_SOURCE
         #define _GNU_SOURCE
@@ -30,7 +30,19 @@
     #include <unistd.h>
     #include <string.h>
     #include <sched.h>
+
+#ifdef __FreeBSD__
+    #include <sys/param.h>
+    #include <sys/cpuset.h>
+    typedef cpuset_t cpu_set_t;
+    int sched_setaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask);
+    int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask);
+#endif
+
+#ifdef __linux__
     #include <alloca.h>
+#endif
+
     #include <stdarg.h>
 
     #ifdef __CPU_ISSET

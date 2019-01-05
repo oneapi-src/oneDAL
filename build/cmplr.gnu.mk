@@ -16,7 +16,7 @@
 #  g++ defenitions for makefile
 #--
 
-PLATs.gnu = lnx32e lnx32
+PLATs.gnu = lnx32e lnx32 fbsd32e fbsd32
 
 CMPLRDIRSUFF.gnu = _gnu
 
@@ -26,8 +26,10 @@ CORE.SERV.COMPILER.gnu = generic
 -DEBC.gnu = -g
 
 COMPILER.lnx.gnu = g++ -D__int64="long long" -D__int32="int" $(if $(IA_is_ia32),-m32,-m64)
+COMPILER.fbsd.gnu = g++ -D__int64="long long" -D__int32="int" $(if $(IA_is_ia32),-m32,-m64) -I/usr/local/include
 
 link.dynamic.lnx.gnu = g++ $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.fbsd.gnu = g++ $(if $(IA_is_ia32),-m32,-m64)
 
 p4_OPT.gnu   = $(-Q)$(if $(OS_is_mac),$(if $(IA_is_ia32),march=nocona,march=core2),$(if $(IA_is_ia32),march=pentium4,march=nocona))
 mc_OPT.gnu   = $(-Q)$(if $(PLAT_is_mac32),march=nocona,march=core2)
