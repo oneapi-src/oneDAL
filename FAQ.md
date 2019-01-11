@@ -14,6 +14,7 @@ The cause of this problem is absence of the path to [JNI][jni-wiki] headers in c
 ```
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH     # for Linux*
 export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH    # for MacOS*
+setenv CPATH $JAVA_HOME/include:$JAVA_HOME/include/freebsd          # for FreeBSD*
 set INCLUDE=%JAVA_HOME%/include;%JAVA_HOME%/include/win32;%INCLUDE% # for Windows*
 ```
 

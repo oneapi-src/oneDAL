@@ -96,7 +96,15 @@ If you have issues with running the script, you may need to replace the *INSTALL
         export PATH=$JAVA_HOME/bin:$PATH
         export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
 
-5. Install Intel(R) Threading Building Blocks (Intel(R) TBB) (Windows* only)
+ * FreeBSD:
+        
+        setenv JAVA_HOME /usr/local/openjdk8
+        setenv PATH $JAVA_HOME/bin:$PATH
+        setenv CPATH $JAVA_HOME/include:$JAVA_HOME/include/freebsd
+
+5. Install Intel(R) Threading Building Blocks (Intel(R) TBB) (Windows* and FreeBSD*)
+
+ *  on Windows*:
 
     Download and install free Community License Intel TBB.
     See [this page](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2) for more details.
@@ -105,6 +113,10 @@ If you have issues with running the script, you may need to replace the *INSTALL
     
             xcopy /I /Y /Q /E "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2017.2.187\windows\redist" %DAALDIR%\externals\tbb\win\redist
             xcopy /I /Y /Q /E "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2017.2.187\windows\tbb" %DAALDIR%\externals\tbb\win\tbb
+ 
+ *  on FreeBSD*:
+ 
+    pkg install tbb
 
 6. Build Intel DAAL via the command-line interface with the following commands, depending on your platform:
 
@@ -131,6 +143,10 @@ If you have issues with running the script, you may need to replace the *INSTALL
  *  on Windows\* using Microsoft Visual* C++ Compiler:
 
             make daal PLAT=win32e COMPILER=vc
+ 
+ *  on FreeBSD\* using Clang\*:
+ 
+            gmake daal PLAT=fbsd32e COMPILER=clang
 
 Built libraries are located in the *\_\_release\_{os_name}/daal* directory.
 

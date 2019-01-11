@@ -56,29 +56,29 @@ endif
 
 if ( ${?LIBRARY_PATH} ) then
     if ( ${?TBBROOT} ) then
-        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${LIBRARY_PATH}"
+        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fbsd:${LIBRARY_PATH}"
     else
-        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4:${LIBRARY_PATH}"
+        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fbsd:/usr/local/lib:${LIBRARY_PATH}"
     endif
 else
     if ( ${?TBBROOT} ) then
-        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre"
+        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fbsd"
     else
-        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4"
+        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fbsd:/usr/local/lib"
     endif
 endif
 
 if ( ${?LD_LIBRARY_PATH} ) then
     if ( ${?TBBROOT} ) then
-        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${LD_LIBRARY_PATH}"
+        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fbsd:${LD_LIBRARY_PATH}"
     else
-        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4:${LD_LIBRARY_PATH}"
+        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fbsd:/usr/local/lib:${LD_LIBRARY_PATH}"
     endif
 else
     if ( ${?TBBROOT} ) then
-        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre"
+        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fbsd"
     else
-        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4"
+        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fbsd:/usr/local/lib"
     endif
 endif
 

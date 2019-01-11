@@ -35,8 +35,8 @@ attr.lnx32  = lnx ia32    lin
 attr.mac32e = mac intel64
 attr.win32e = win intel64 win
 attr.win32  = win ia32    win
-attr.fbsd32e = fbsd intel64 fre
-attr.fbsd32  = fbsd ia32    fre
+attr.fbsd32e = fbsd intel64 fbsd
+attr.fbsd32  = fbsd ia32 fbsd
 
 _OS := $(word 1,$(attr.$(PLAT)))
 _IA := $(word 2,$(attr.$(PLAT)))
@@ -93,7 +93,7 @@ avx2_OPT := $(avx2_OPT.$(COMPILER))
 knl_OPT  := $(knl_OPT.$(COMPILER))
 skx_OPT  := $(skx_OPT.$(COMPILER))
 
-_OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,$(if $(OS_is_fbsd),fre,)))
+_OSr := $(if $(OS_is_win),win,$(if $(OS_is_lnx),lin,$(if $(OS_is_fbsd),fbsd,)))
 
 #===============================================================================
 # Paths
@@ -161,7 +161,7 @@ MKLFPKDIR:= $(if $(wildcard $(DIR)/externals/mklfpk/*),$(DIR)/externals/mklfpk,$
 MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
 MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib/$(_IA)
 
-TBBDIR := $(if $(wildcard $(DIR)/externals/tbb/*),$(DIR)/externals/tbb/$(_OS)$(if $(OS_is_win),/tbb),$(subst \,/,$(TBBROOT)))
+TBBDIR := $(if $(OS_is_fbsd),/usr/local,$(if $(wildcard $(DIR)/externals/tbb/*),$(DIR)/externals/tbb/$(_OS)$(if $(OS_is_win),/tbb),$(subst \,/,$(TBBROOT))))
 TBBDIR.include := $(TBBDIR)/include/tbb $(TBBDIR)/include
 TBBDIR.libia   := $(TBBDIR)/lib$(if $(or $(OS_is_mac),$(OS_is_fbsd)),,/$(_IA)$(if $(OS_is_win),/vc_mt,/gcc4.4))
 TBBDIR.soia    := $(TBBDIR)$(if $(OS_is_win),/../redist,/lib)$(if $(or $(OS_is_mac),$(OS_is_fbsd)),,/$(_IA)/$(if $(OS_is_win),tbb/vc_mt,gcc4.4))

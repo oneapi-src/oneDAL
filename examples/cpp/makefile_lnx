@@ -97,7 +97,7 @@ COPTS := -Wall -w -I./source/utils
 LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
 
 RES_DIR=_results/$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
-RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
+RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example))))
 
 ifeq ($(compiler),intel)
     CC = icc
@@ -135,10 +135,10 @@ vpath %.cpp $(addprefix ./source/,association_rules boosting cholesky compressio
                                   k_nearest_neighbors decision_tree distributions enable_thread_pinning pca_transform)
 
 .SECONDARY:
-$(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
+$(RES_DIR)/: %.cpp | $(RES_DIR)/.
 	$(CC) $(COPTS) $< -o $@ $(LOPTS)
 
-$(RES_DIR)/%.res:  $(RES_DIR)/%.exe
+$(RES_DIR)/%.res:  $(RES_DIR)/
 	$< > $@
 
 %/.:; mkdir -p $*
