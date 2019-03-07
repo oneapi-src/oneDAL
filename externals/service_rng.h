@@ -1,0 +1,172 @@
+/* file: service_rng.h */
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/*
+//++
+//  Template wrappers for RNG functions.
+//--
+*/
+
+
+#ifndef __SERVICE_RNG_H__
+#define __SERVICE_RNG_H__
+
+#include "daal_defines.h"
+#include "service_memory.h"
+#include "service_rng_mkl.h"
+
+using namespace daal::services;
+
+namespace daal
+{
+namespace internal
+{
+
+template<CpuType cpu, typename _BaseGenerators = mkl::BaseRNG<cpu> >
+class BaseRNGs : public BaseRNGIface<cpu>
+{
+public:
+    BaseRNGs(const unsigned int _seed = 777, const int _brngId = __DAAL_BRNG_MT19937) : _baseRNG(_seed, _brngId) {}
+    ~BaseRNGs() {}
+
+    int getStateSize() const
+    {
+        return _baseRNG.getStateSize();
+    }
+
+    int saveState(void* dest) const
+    {
+        return _baseRNG.saveState(dest);
+    }
+
+    int loadState(const void* src)
+    {
+        return _baseRNG.loadState(src);
+    }
+
+    int leapfrog(size_t threadNum, size_t nThreads)
+    {
+        return _baseRNG.leapfrog(threadNum, nThreads);
+    }
+
+    int skipAhead(size_t nSkip)
+    {
+        return _baseRNG.skipAhead(nSkip);
+    }
+
+    void* getState()
+    {
+        return _baseRNG.getState();
+    }
+
+    _BaseGenerators &getBrng()
+    {
+        return _baseRNG;
+    }
+
+    BaseRNGs(const BaseRNGs<cpu, _BaseGenerators>& other) : _baseRNG(other._baseRNG) {}
+
+private:
+    _BaseGenerators _baseRNG;
+};
+
+template<typename Type, CpuType cpu, typename _RNGs = mkl::RNGs<Type, cpu> >
+class RNGs
+{
+public:
+    typedef typename _RNGs::SizeType SizeType;
+    typedef typename _RNGs::BaseType BaseType;
+
+    RNGs() {}
+    ~RNGs() {}
+
+    /* Generates random numbers uniformly distributed on the interval [a, b) */
+    int uniform(const SizeType n, Type* r, BaseRNGs<cpu, BaseType> &brng, const Type a, const Type b, const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    {
+        return _generators.uniform(n, r, brng.getBrng(), a, b, method);
+    }
+
+    int uniform(const SizeType n, Type* r, void *state, const Type a, const Type b, const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    {
+        return _generators.uniform(n, r, state, a, b, method);
+    }
+
+    int bernoulli(const SizeType n, Type* r, BaseRNGs<cpu, BaseType> &brng, const double p, const int method = __DAAL_RNG_METHOD_BERNOULLI_ICDF)
+    {
+        return _generators.bernoulli(n, r, brng.getBrng(), p, method);
+    }
+
+    int bernoulli(const SizeType n, Type* r, void *state, const double p, const int method = __DAAL_RNG_METHOD_BERNOULLI_ICDF)
+    {
+        return _generators.bernoulli(n, r, state, p, method);
+    }
+
+    int gaussian(const SizeType n, Type* r, BaseRNGs<cpu, BaseType> &brng, const Type a, const Type sigma, const int method = __DAAL_RNG_METHOD_GAUSSIAN_ICDF)
+    {
+        return _generators.gaussian(n, r, brng.getBrng(), a, sigma, method);
+    }
+
+    int gaussian(const SizeType n, Type* r, void *state, const Type a, const Type sigma, const int method = __DAAL_RNG_METHOD_GAUSSIAN_ICDF)
+    {
+        return _generators.gaussian(n, r, state, a, sigma, method);
+    }
+
+    int uniformWithoutReplacement(const SizeType n, Type* r, void *state, const Type a, const Type b, const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    {
+        Type* buffer = (Type*)daal_malloc(sizeof(Type) * n);
+        int errorcode = uniformWithoutReplacement(n, r, buffer, state, a, b, method);
+        daal_free(buffer);
+        return errorcode;
+    }
+
+    int uniformWithoutReplacement(const SizeType n, Type* r, Type* buffer, void *state, const Type a, const Type b, const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    {
+        int errorcode = 0;
+        for (SizeType i = 0; i < n; i++)
+        {
+            errorcode = uniform(1, buffer + i, state, a + i, b, method);
+            int value = buffer[i];
+
+            for(SizeType j = i; j > 0; j--)
+            {
+                if(value == buffer[j - 1])
+                {
+                    value = (Type) (j - 1 + a);
+                }
+            }
+            r[i] = value;
+        }
+        return errorcode;
+    }
+
+    int uniformWithoutReplacement(const SizeType n, Type* r, BaseRNGs<cpu, BaseType> &brng, const Type a, const Type b, const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    {
+        return uniformWithoutReplacement(n, r, brng.getState(), a, b, method);
+    }
+
+    int uniformWithoutReplacement(const SizeType n, Type* r, Type* buffer, BaseRNGs<cpu, BaseType> &brng, const Type a, const Type b, const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
+    {
+        return uniformWithoutReplacement(n, r, buffer, brng.getState(), a, b, method);
+    }
+
+
+private:
+    _RNGs _generators;
+};
+
+} // namespace internal
+} // namespace daal
+
+#endif

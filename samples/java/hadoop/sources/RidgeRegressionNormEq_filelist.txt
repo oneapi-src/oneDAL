@@ -1,0 +1,4 @@
+RidgeRegressionNormEq_1
+RidgeRegressionNormEq_2
+RidgeRegressionNormEq_3
+RidgeRegressionNormEq_4

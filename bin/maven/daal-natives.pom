@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.intel.daal</groupId>
+    <artifactId>daal-parent</artifactId>
+    <version>{{version}}</version>
+    <relativePath></relativePath>
+  </parent>
+
+  <artifactId>daal-natives</artifactId>
+  <packaging>jar</packaging>
+
+  <name>Intel(R) Data Analytics Acceleration Library</name>
+  <description>Boost machine learning and data analytics performance with this easy-to-use library</description>
+  <url>https://software.intel.com/en-us/intel-daal</url>
+
+  <licenses>
+    <license>
+      <name>Intel Simplified Software License</name>
+      <url>https://software.intel.com/en-us/license/intel-simplified-software-license</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <organization>Intel</organization>
+      <organizationUrl>http://www.intel.com</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/intel/daal.git</connection>
+    <developerConnection>scm:git:https://github.com/intel/daal.git</developerConnection>
+    <url>https://github.com/intel/daal</url>
+  </scm>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>create-daal-nativies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classesDirectory>${daal.os.name}-${daal.arch.name}</classesDirectory>
+              <classifier>${daal.os.name}-${daal.arch.name}</classifier>
+              <includes>
+                <include>lib/*JavaAPI*</include>
+                <include>lib/*tbb*</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

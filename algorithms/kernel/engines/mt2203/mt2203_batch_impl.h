@@ -1,0 +1,256 @@
+/* file: mt2203_batch_impl.h */
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/*
+//++
+//  Implementation of the class defining the mt2203 engine
+//--
+*/
+
+#include "engines/mt2203/mt2203.h"
+#include "engine_batch_impl.h"
+#include "service_rng.h"
+#include "service_numeric_table.h"
+#include "services/collection.h"
+
+static const int leapfrogMethodErrcode  = -1002;
+static const int skipAheadMethodErrcode = -1003;
+
+namespace daal
+{
+namespace algorithms
+{
+namespace engines
+{
+namespace mt2203
+{
+namespace internal
+{
+
+template<CpuType cpu, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+class BatchImpl : public algorithms::engines::mt2203::interface1::Batch<algorithmFPType, method>, public algorithms::engines::internal::BatchBaseImpl
+{
+private:
+    using BaseRNGsPtr = SharedPtr<daal::internal::BaseRNGs<cpu> >;
+
+private:
+    const int32_t header = 0x4441414C;
+
+public:
+    typedef algorithms::engines::mt2203::interface1::Batch<algorithmFPType, method> super1;
+    typedef algorithms::engines::internal::BatchBaseImpl super2;
+
+    BatchImpl(size_t seed = 777, services::Status *st = nullptr) : super1(seed), super2(seed)
+    {
+        push_back(0, BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(seed, __DAAL_BRNG_MT2203)));
+    }
+
+    services::Status addImpl(size_t numberOfStreams) DAAL_C11_OVERRIDE
+    {
+        Collection<size_t> indices(numberOfStreams);
+        services::Status s = requestIndices(numberOfStreams, 6024, indices);
+
+        for(size_t i = 0; i < numberOfStreams; i++)
+        {
+            push_back(indices[i], BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(this->getSeed(), __DAAL_BRNG_MT2203 + indices[i])));
+        }
+        return s;
+    }
+
+    FamilyEnginePtr getImpl(size_t i) const DAAL_C11_OVERRIDE
+    {
+        return FamilyEnginePtr(new BatchImpl(this->getSeed(), _streamIdxs[i], _streams[i]));
+    }
+
+    void *getState() DAAL_C11_OVERRIDE
+    {
+        return _streams[0]->getState();
+    }
+
+    int getStateSize() const DAAL_C11_OVERRIDE
+    {
+        return _streams[0]->getStateSize();
+    }
+
+    services::Status saveStateImpl(byte* dest) const DAAL_C11_OVERRIDE
+    {
+        DAAL_CHECK(dest, ErrorIncorrectErrorcodeFromGenerator);
+
+        int *headerIn = (int*)(dest);
+        *headerIn = header;
+
+        services::Collection<size_t> *streamIdxsIn = new (dest + sizeof(int)) services::Collection<size_t>();
+        services::Collection<BaseRNGsPtr> *streamsIn = new (dest + sizeof(int) + sizeof(services::Collection<size_t>)) services::Collection<BaseRNGsPtr>();
+
+        streamIdxsIn->resize(this->getNumberOfStreams());
+        streamsIn->resize(this->getNumberOfStreams());
+
+        for(size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            (*streamIdxsIn)[i] = _streamIdxs[i];
+        }
+
+        for(size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            (*streamsIn)[i] = BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>( *(_streams[i]) ));
+        }
+        return services::Status();
+    }
+
+    services::Status loadStateImpl(const byte* src) DAAL_C11_OVERRIDE
+    {
+        DAAL_CHECK(src, ErrorIncorrectErrorcodeFromGenerator);
+        const int *headerIn = (const int*)(src) ;
+        DAAL_CHECK(*headerIn == header, ErrorIncorrectErrorcodeFromGenerator);
+
+        services::Collection<size_t> &streamIdxsIn = *(services::Collection<size_t> *)(src + sizeof(int));
+        services::Collection<BaseRNGsPtr> &streamsIn = *(services::Collection<BaseRNGsPtr> *)(src + sizeof(int) + sizeof(services::Collection<size_t>));
+
+        _streamIdxs.resize(this->getNumberOfStreams());
+        _streams.resize(this->getNumberOfStreams());
+
+        for(size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            _streamIdxs[i] = streamIdxsIn[i];
+        }
+
+        for(size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            _streams[i] = BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>( *( streamsIn[i] )));
+        }
+
+        return services::Status();
+    }
+
+    services::Status leapfrogImpl(size_t threadNum, size_t nThreads) DAAL_C11_OVERRIDE
+    {
+        Status s;
+        for(size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            s.add(leapfrogOne(i, threadNum, nThreads));
+        }
+        return s;
+    }
+
+    services::Status skipAheadImpl(size_t nSkip) DAAL_C11_OVERRIDE
+    {
+        Status s;
+        for(size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            s.add(skipAheadOne(i, nSkip));
+        }
+        return s;
+    }
+
+    virtual BatchImpl<cpu, algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
+    {
+        return new BatchImpl<cpu, algorithmFPType, method>(*this);
+    }
+
+    size_t getNumberOfStreamsImpl() const DAAL_C11_OVERRIDE
+    {
+        return _streams.size();
+    }
+
+    size_t getMaxNumberOfStreamsImpl() const DAAL_C11_OVERRIDE
+    {
+        return 6024;
+    }
+
+    bool hasSupport(engines::internal::ParallelizationTechnique technique) const DAAL_C11_OVERRIDE
+    {
+        switch(technique)
+        {
+            case engines::internal::family: return true;
+            case engines::internal::skipahead: return false;
+            case engines::internal::leapfrog: return false;
+        }
+        return false;
+    }
+
+    ~BatchImpl() {}
+
+protected:
+    BatchImpl(const BatchImpl<cpu, algorithmFPType, method> &other) : super1(other), super2(other)
+    {
+        for(size_t i = 0; i < other.getNumberOfStreams(); i++)
+        {
+            push_back(other._streamIdxs[i],
+                BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>( *(other._streams[i]) )));
+        }
+    }
+
+    BatchImpl(size_t seed, size_t i, services::SharedPtr<daal::internal::BaseRNGs<cpu> > baseRng) : super1(seed), super2(seed)
+    {
+        push_back(i, baseRng);
+    }
+
+    services::Status leapfrogOne(size_t i, size_t threadNum, size_t nThreads)
+    {
+        int errcode = _streams[i]->leapfrog(threadNum, nThreads);
+        services::Status s;
+        if(errcode == leapfrogMethodErrcode) s.add(ErrorLeapfrogUnsupported);
+        else if(errcode) s.add(ErrorIncorrectErrorcodeFromGenerator);
+        return s;
+    }
+
+    services::Status skipAheadOne(size_t i, size_t nSkip)
+    {
+        int errcode = _streams[i]->skipAhead(nSkip);
+        services::Status s;
+        if(errcode == skipAheadMethodErrcode) s.add(ErrorSkipAheadUnsupported);
+        else if (errcode) s.add(ErrorIncorrectErrorcodeFromGenerator);
+        return s;
+    }
+
+    void push_back(size_t idx, SharedPtr<daal::internal::BaseRNGs<cpu> > brngPtr)
+    {
+        _streamIdxs.push_back(idx);
+        _streams.push_back(brngPtr);
+    }
+
+    services::Status requestIndices(size_t nStreams, size_t maxStreams, Collection<size_t> &indices)
+    {
+        size_t i, idx = 0;
+        for(i = 0; i < maxStreams; i++)
+        {
+            if(find(i) == -1)
+            {
+                indices[idx++] = i;
+                if(idx == nStreams) break;
+            }
+        }
+        if(i == maxStreams) return services::Status(ErrorIncorrectErrorcodeFromGenerator);
+        return services::Status();
+    }
+
+    int find(size_t idx)
+    {
+        for(size_t i = 0; i < _streamIdxs.size(); i++)
+        {
+            if(_streamIdxs[i] == idx) return i;
+        }
+        return -1;
+    }
+
+    services::Collection<size_t> _streamIdxs;
+    services::Collection<BaseRNGsPtr> _streams;
+};
+
+} // namespace interface1
+} // namespace mt2203
+} // namespace engines
+} // namespace algorithms
+} // namespace daal
