@@ -100,14 +100,14 @@ write.prereqs.dump = $(call exec,printf -- "$(subst $(space),$2,$1)$(if $6,$2)" 
 LINK.STATIC = $(mkdir)$(call rm,$@)$(link.static.cmd)
 link.static.cmd = $(call link.static.$(_OS),$(LOPT) $(or $1,$(^.no-mkdeps)))
 link.static.lnx = $(if $(filter %.a,$1),$(link.static.lnx.script),$(link.static.lnx.cmdline))
-link.static.lnx.cmdline = ar rs $@ $(1:%_link.txt=@%_link.txt)
+link.static.lnx.cmdline = ${AR} rs $@ $(1:%_link.txt=@%_link.txt)
 link.static.fbsd = $(if $(filter %.a,$1),$(link.static.fbsd.script),$(link.static.fbsd.cmdline))
-link.static.fbsd.cmdline = /usr/local/bin/ar rs $@ $(1:%_link.txt=@%_link.txt)
+link.static.fbsd.cmdline = ${AR} rs $@ $(1:%_link.txt=@%_link.txt)
 .addlib = $(foreach lib,$(filter %.a,$1),addlib $(lib)\n)
 .addmod = $(if $(filter %.o,$1),addmod $(filter %.o,$1))
 .addlink = $(if $(filter %_link.txt,$1),addmod $(shell tr '\n' ', ' < $(filter %_link.txt,$1)))
-link.static.lnx.script = printf "create $@\n$(call .addlib,$1)\n$(call .addmod,$1)\n$(call .addlink,$1)\nsave\n" | ar -M
-link.static.fbsd.script = printf "create $@\n$(call .addlib,$1)\n$(call .addmod,$1)\n$(call .addlink,$1)\nsave\n" | /usr/local/bin/ar -M
+link.static.lnx.script = printf "create $@\n$(call .addlib,$1)\n$(call .addmod,$1)\n$(call .addlink,$1)\nsave\n" | ${AR} -M
+link.static.fbsd.script = printf "create $@\n$(call .addlib,$1)\n$(call .addmod,$1)\n$(call .addlink,$1)\nsave\n" | ${AR} -M
 link.static.win = lib $(link.static.win.$(COMPILER)) -nologo -out:$@ $(1:%_link.txt=@%_link.txt)
 link.static.mac = libtool -V -static -o $@ $(1:%_link.txt=-filelist %_link.txt)
 
