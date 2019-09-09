@@ -1,16 +1,18 @@
 @echo off
 rem ============================================================================
-rem Copyright 2014-2019 Intel Corporation.
+rem Copyright 2014-2019 Intel Corporation
 rem
-rem This software  and the related  documents  are Intel  copyrighted materials,
-rem and your use  of them is  governed by the express  license under  which they
-rem were provided to you (License).  Unless the License provides otherwise,  you
-rem may not use,  modify,  copy, publish,  distribute, disclose or transmit this
-rem software or the related documents without Intel's prior written permission.
+rem Licensed under the Apache License, Version 2.0 (the "License");
+rem you may not use this file except in compliance with the License.
+rem You may obtain a copy of the License at
 rem
-rem This software and the related documents are provided as is,  with no express
-rem or implied warranties,  other  than those that  are expressly  stated in the
-rem License.
+rem     http://www.apache.org/licenses/LICENSE-2.0
+rem
+rem Unless required by applicable law or agreed to in writing, software
+rem distributed under the License is distributed on an "AS IS" BASIS,
+rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+rem See the License for the specific language governing permissions and
+rem limitations under the License.
 rem ============================================================================
 
 rem  Content:
