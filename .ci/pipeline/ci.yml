@@ -1,0 +1,75 @@
+# C/C++ with GCC
+# Build your C/C++ project with GCC using make.
+# Add steps that publish test results, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/c-cpp/gcc
+
+trigger:
+- daal_2019_update4
+
+jobs:
+- job: Linux
+  timeoutInMinutes: 0
+  pool:
+    vmImage: 'ubuntu-16.04'
+  strategy:
+    matrix:
+      lnx32:
+        platform.type : 'lnx32'
+      lnx32e:
+        platform.type : 'lnx32e'
+    maxParallel: 2
+  steps:
+  - script: sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
+    displayName: 'apt-get'
+  - script: |
+      scripts/mklfpk.sh ${$(platform.type):3}
+      scripts/tbb.sh ${$(platform.type):3}
+      export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+      export PATH=$JAVA_HOME/bin:$PATH
+      export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH 
+      make daal -j4 PLAT=$(platform.type) COMPILER=gnu REQCPU="avx2"
+    displayName: 'make'
+  - script: |
+      cp -R __release_lnx_gnu $(Build.ArtifactStagingDirectory)/
+    displayName: 'Copy build'
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: '$(platform.type) build'
+      targetPath: '__release_lnx_gnu'
+- job: macOS
+  timeoutInMinutes: 0
+  pool:
+    vmImage: 'macOS-10.14'
+  strategy:
+    matrix:
+      mac32e:
+        platform.type : 'mac32e'
+  steps:
+  - script: |
+      scripts/mklfpk.sh ${$(platform.type):3}
+      scripts/tbb.sh ${$(platform.type):3}
+      export JAVA_HOME=$(/usr/libexec/java_home -v 12)
+      export PATH=$JAVA_HOME/bin:$PATH
+      export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
+      make daal -j4 PLAT=$(platform.type) COMPILER=clang REQCPU="avx2"
+    displayName: 'make'
+  - script: |
+      cp -R __release_mac_clang $(Build.ArtifactStagingDirectory)/
+    displayName: 'Copy build'
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'Mac build'
+      targetPath: '__release_mac_clang'
+#- job: Windows
+#  pool:
+#    vmImage: 'vs2017-win2016'
+#  steps:
+#  - script: |
+#      java -version
+#      set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+#      call .\scripts\mklfpk.bat && call .\scripts\tbb.bat
+#      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+#      call .\externals\tbb\bin\tbbvars.bat intel64 14_uwp
+#     make daal COMPILER=vc REQCPU="avx2" PLAT="win32e"
+
+
