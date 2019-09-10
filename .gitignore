@@ -1,26 +1,10 @@
-.vscode
-init.sh
-/patches
-qa/new_ts/_bin_lnx_intel64_static_sequential
-qa/new_ts/_bin_lnx_intel64_static_thread
-qa/new_ts/_bin_win_intel64_static_sequential
-qa/new_ts/_bin_win_intel64_static_thread
-qa/new_ts/_obj_lnx_intel64_static_sequential
-qa/new_ts/_obj_lnx_intel64_static_thread
-qa/new_ts/_obj_win_intel64_static_sequential
-qa/new_ts/_obj_win_intel64_static_thread
-qa/new_ts/_log
-qa/new_ts/_out
-qa/new_ts/_results
-src/*.log
-src/.vs
-src/Debug
-src/__release_lnx
-src/__release_lnx_gnu/
-src/__release_win
-src/__release_win_vc
-src/__work
-src/__work_gnu
-src/__work_vc
-src/_build_lnx32e.log
-src/_build_lnx32e_gnu.log
+# Logs
+*.log
+
+# Release and work directories
+__release*
+__work*
+
+# Visual Studio related files, e.g., ".vscode"
+.vs*
+
