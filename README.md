@@ -1,6 +1,16 @@
 # Intel(R) Data Analytics Acceleration Library
 Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) helps speed up big data analysis by providing highly optimized algorithmic building blocks for all stages of data analytics (preprocessing, transformation, analysis, modeling, validation, and decision making) in batch, online, and distributed processing modes of computation.
 
+## Transition to Open Development model
+Development model for Intel(R) DAAL have been changed and now public github.com repository become main point for product development. Now we will have transparent commits history, public CI and public review process. You will see more changes going forward! 
+Previous repository structure have bee cleaned and can be shared on request. Existing forks can be reused and  will require only pull-down for master branch. Details on branching schema will be updated in future.
+
+- [How to contribute](#how-to-contribute)
+- [System Requirements](#system-requirements)
+- [Installation](#installation)
+	- [Installation from Binaries](#installation-from-binaries)
+	- [Installation from Sources](#installation-from-sources)
+
 ## License
 Intel DAAL is licensed under Apache License 2.0.
 
@@ -8,149 +18,156 @@ Intel DAAL is licensed under Apache License 2.0.
 You can find What's New features per release on [Intel(R) DAAL Release Notes](https://software.intel.com/en-us/articles/intel-daal-release-notes-and-new-features) web page and latest documentation on the [Intel(R) Data Analytics Acceleration Library Documentation](https://software.intel.com/en-us/intel-daal-support/documentation) web page.
 
 ## Deprecation Notice
-With the introduction of daal4py, a package that supersedes PyDAAL, Intel is deprecating PyDAAL and will discontinue support starting with Intel® DAAL 2021 and Intel® Distribution for Python 2021. Until then Intel will continue to provide compatible pyDAAL pip and conda packages for newer releases of Intel DAAL and make it available in open source. However, Intel will not add the new features of Intel DAAL to pyDAAL. Intel recommends developers switch to and use daal4py.
+With the introduction of [daal4py](https://intelpython.github.io/daal4py/index.html), a package that supersedes PyDAAL, Intel is deprecating PyDAAL and will discontinue support starting with Intel(R) DAAL 2021 and Intel(R) Distribution for Python 2021. Until then Intel will continue to provide compatible pyDAAL [pip](https://pypi.org/project/pydaal/) and [conda](https://anaconda.org/intel/pydaal) packages for newer releases of Intel DAAL and make it available in open source. However, Intel will not add the new features of Intel DAAL to pyDAAL. Intel recommends developers switch to and use [daal4py](https://github.com/IntelPython/daal4py).
 
 ## How to Contribute
-We welcome community contributions to Intel DAAL. If you have an idea how to improve the product:
+We welcome community contributions to Intel DAAL. 
+If you have an idea how to improve the product:
 
-* Let us know about your proposal via [https://github.com/intel/daal/issues](https://github.com/intel/daal/issues) or [Intel(R) DAAL Forum](https://software.intel.com/en-us/forums/intel-data-analytics-acceleration-library)
-* Make sure you can build the product and run all the examples with your patch
-* In case of a larger feature, provide a relevant example
-* Submit a pull request at [https://github.com/intel/daal/pulls](https://github.com/intel/daal/pulls)
+* Let us know about your proposal via [Issues on Intel(R) DAAL GitHub\*](https://github.com/intel/daal/issues) or [Intel(R) DAAL Forum](https://software.intel.com/en-us/forums/intel-data-analytics-acceleration-library).
 
-We will review your contribution and, if any additional fixes or modifications are necessary, may give some feedback to guide you. When accepted, your pull request will be merged into our internal and GitHub* repositories.
+Or contribute your changes directly to repository through pull request:
+* Make sure you can build the product and run all the examples with your patch.
+* In case of a larger feature, provide a relevant example.
+* [Submit](https://github.com/intel/daal/pulls) a pull request.
+
+Public and private CIs are enabled for repository and should be passing for PR. We will review your contribution and, if any additional fixes or modifications are necessary, may give some feedback to guide you. When accepted, your pull request will be merged into GitHub* repository.
 
 Intel DAAL is licensed under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). By contributing to the project, you agree to the license and copyright terms therein and release your contribution under these terms.
 
-## <a name="system-requirements">System Requirements</a>
+## System Requirements
 Intel DAAL supports the IA-32 and Intel(R) 64 architectures. For a detailed explanation of these architecture names, read the [Intel Architecture Platform Terminology for Development Tools](https://software.intel.com/en-us/articles/intel-architecture-platform-terminology-for-development-tools) article.
 
-The lists below contain the system requirements necessary to support application development with Intel DAAL. We tested Intel DAAL on the operating systems and with the compilers listed below, but Intel DAAL is expected to work on many more Linux* distributions as well.
+The lists below contain the system requirements necessary to support application development with Intel DAAL. We tested Intel DAAL on the operating systems and with the compilers listed below, but Intel DAAL is expected to work on many more Linux\* distributions as well.
 
 Let us know if you have any troubles with the distribution you are using.
 
-### List of supported Operating Systems and tools may be found at [Intel DAAL web site](https://software.intel.com/en-us/node/776616).
+List of supported Operating Systems and tools may be found at [Intel DAAL web site](https://software.intel.com/en-us/articles/intel-daal-2019-system-requirements).
 
 ## Installation
-You can install Intel DAAL from the provided binary packages or from the GitHub* sources.
+You can install Intel DAAL from the provided binary packages or from the GitHub\* sources.
 
 For platform-specific getting started documents, see the following pages:
 
-* [Getting Started with Intel(R) Data Analytics Acceleration Library for Windows*](https://software.intel.com/en-us/get-started-with-daal-for-windows)
-* [Getting Started with Intel(R) Data Analytics Acceleration Library for Linux*](https://software.intel.com/en-us/get-started-with-daal-for-linux)
-* [Getting Started with Intel(R) Data Analytics Acceleration Library for macOS*](https://software.intel.com/en-us/get-started-with-daal-for-osx)
+* [Get Started with Intel(R) Data Analytics Acceleration Library for Windows*](https://software.intel.com/en-us/get-started-with-daal-for-windows)
+* [Get Started with Intel(R) Data Analytics Acceleration Library for Linux*](https://software.intel.com/en-us/get-started-with-daal-for-linux)
+* [Get Started with Intel(R) Data Analytics Acceleration Library for macOS*](https://software.intel.com/en-us/get-started-with-daal-for-osx)
 
-### Installing from the Binaries
-You can download an archive from the GitHub\* release page at [https://github.com/intel/daal/releases](https://github.com/intel/daal/releases). This archive contains a script to set the environment variables for library usage in the *daal/bin* directory.
+### Installation from Binaries
+You can download an archive from the [GitHub\* release page](https://github.com/intel/daal/releases). In the `daal/bin` directory of the downloaded archive you can find a script to set the environment variables for library usage.
 
-If you have issues with running the script, you may need to replace the *INSTALLDIR* string in *daal/bin/daalvars.sh* and/or *daal/bin/daalvars.csh* with the name of the directory where you unpacked the archive.
+If you have issues with running the script, you may need to replace the `INSTALLDIR` string in `daal/bin/daalvars.sh` and/or `daal/bin/daalvars.csh` with the name of the directory where you unpacked the archive.
 
-### Installing from the Sources
+### Installation from Sources
 
-#### Required Software
+Required Software:
 * C/C++ compiler (see [System Requirements](#system-requirements))
 * Java\* JDK (see [System Requirements](#system-requirements))
-* Microsoft Visual Studio\* (Windows* only)
+* Microsoft Visual Studio\* (Windows\* only)
 * [Git Large File Storage (LFS) extension](https://git-lfs.github.com)
-* [http://msys2.github.io](http://msys2.github.io) with the msys/make package (Windows* only); install the package as follows:
+* [MSYS2 installer](http://msys2.github.io) with the msys/make package (Windows\* only); install the package as follows:
 
-        pacman -S msys/make
+		pacman -S msys/make
 
 #### Installation Steps
-1. Clone the sources from GitHub* as follows:
+1. Clone the sources from GitHub\* as follows:
 
-        git clone --recursive https://github.com/intel/daal.git
+		git clone --recursive https://github.com/intel/daal.git
 
-2. Set the PATH environment variable to the MSYS2\* bin directory (Windows* only); for example:
 
-        set PATH=C:\msys64\usr\bin;%PATH%
+2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only); for example:
 
-3. Set an environment variables for one of the supported C/C++ compilers; for example:
+		set PATH=C:\msys64\usr\bin;%PATH%
 
- * Microsoft Visual Studio\*:
+3. Set an environment variables for one of the supported C/C++ compilers. For example:
 
-        call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
+	- **Microsoft Visual Studio\***:
 
- * Intel Compiler (Windows):
+			call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
 
-        call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat" intel64
+	- **Intel Compiler (Windows\*)**:
 
- * Intel Compiler (Linux):
+			call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat" intel64
 
-        source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
+	- **Intel Compiler (Linux\*)**:
 
-4. Set an environment variables for one of the supported Java* compilers; for example:
+			source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
 
- * Windows:
+4. Set an environment variables for one of the supported Java\* compilers. For example:
 
-        set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_77
-        set PATH=%JAVA_HOME%\bin;%PATH%
-        set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+	- **Windows\***:
 
- * macOS:
+			set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_77
+			set PATH=%JAVA_HOME%\bin;%PATH%
+			set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
 
-        export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
-        export PATH=$JAVA_HOME/bin:$PATH
-        export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
+	- **macOS\***:
 
- * Linux:
+			export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
+			export PATH=$JAVA_HOME/bin:$PATH
+			export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
 
-        export JAVA_HOME=/usr/jdk/jdk1.6.0_02
-        export PATH=$JAVA_HOME/bin:$PATH
-        export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
+	- **Linux\***:
 
-5. Install Intel(R) Threading Building Blocks (Intel(R) TBB) (Windows* only)
+			export JAVA_HOME=/usr/jdk/jdk1.6.0_02
+			export PATH=$JAVA_HOME/bin:$PATH
+			export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
 
-    Download and install free Community License Intel TBB.
-    See [this page](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2) for more details.
 
-    Set an environment variables for Intel TBB; for example:
+5. Install Intel(R) Threading Building Blocks (Intel(R) TBB) (Windows\* only):
 
-        call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\tbb\bin\tbbvars.bat" intel64 all
+	- Download and install free Community License Intel TBB. For more information, see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2).
+	- Set an environment variables for Intel TBB. For example:
 
-6. Build Intel DAAL via the command-line interface with the following commands, depending on your platform:
+			call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\tbb\bin\tbbvars.bat" intel64 all
 
- *  on Linux\* using Intel(R) C++ Compiler:
+6. Build Intel DAAL via command-line interface. Choose the appropriate commands based on the platform and the compiler you use:
+
+	- on **Linux\*** using **Intel(R) C++ Compiler**:
 
             make -f makefile daal PLAT=lnx32e
 
- *  on Linux\* using GNU Compiler Collection\*:
+	- on **Linux\*** using **GNU Compiler Collection\***:
 
             make -f makefile daal PLAT=lnx32e COMPILER=gnu
 
- *  on macOS* using Intel(R) C++ Compiler:
+	- on **macOS\*** using **Intel(R) C++ Compiler**:
 
             make -f makefile daal PLAT=mac32e
 
- *  on macOS\* using Clang\*:
+	- on **macOS\*** using **Clang\***:
 
             make -f makefile daal PLAT=mac32e COMPILER=clang
 
- *  on Windows* using Intel(R) C++ Compiler:
+	- on **Windows\*** using **Intel(R) C++ Compiler**:
 
             make -f makefile daal PLAT=win32e
 
- *  on Windows\* using Microsoft Visual* C++ Compiler:
+	- on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
 
             make -f makefile daal PLAT=win32e COMPILER=vc
 
-It is possible to build DAAL libraries with selected set of algorithms or/and CPU optimizations. CORE.ALGORITHMS.CUSTOM and REQCPUS makefile defines are used for it.
-To build DAAL with Linear Regression and Support Vector Machine algorithms:
+It is possible to build Intel DAAL libraries with selected set of algorithms and/or CPU optimizations. `CORE.ALGORITHMS.CUSTOM` and `REQCPUS` makefile defines are used for it.
+
+- To build DAAL with Linear Regression and Support Vector Machine algorithms, run:
 
             make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=”linear_regression svm” -j16
 
-To build DAAL with AVX2 and AVX CPU optimizations:
+
+- To build DAAL with AVX2 and AVX CPU optimizations, run:
 
             make -f makefile daal PLAT=win32e REQCPU=”avx2 avx” -j16
 
-To build DAAL with Moments of Low Order algorithm and AVX2 CPU optimizations:
+
+- To build DAAL with Moments of Low Order algorithm and AVX2 CPU optimizations, run:
 
             make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=low_order_moments REQCPU=avx2 -j16
 
-Built libraries are located in the *\_\_release\_{os_name}/daal* directory.
+
+Built libraries are located in the `\_\_release\_{os_name}/daal` directory.
 
 ## Python*
-Intel DAAL can be also used with Python\* interfaces. You can find the pyDAAL package at [http://anaconda.org/intel/pydaal](http://anaconda.org/intel/pydaal).
+Intel DAAL can also be used with Python\* interfaces. See [PyDAAL Deprecation Notice](#deprecation-notice) for more information.
 
 ## See Also
 * [Intel(R) DAAL Product Page](https://software.intel.com/en-us/intel-daal)
