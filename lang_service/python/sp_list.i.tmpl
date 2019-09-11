@@ -1,0 +1,92 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+// List of *all* shared_ptr types
+
+{% from 'jinjadefs.tmpl' import for_all_templates, cls_with_iface %}
+
+%import <services/daal_defines.h>
+%import "daal_shared_ptr.i"
+
+%shared_ptr(daal::Base);
+
+// services
+#define USE_services
+{% from 'services.i.tmpl' import cfg as srv_cfg %}
+{% for a in ['daal::algorithms::neural_networks::layers::forward::interface1::LayerDescriptor',
+             'daal::algorithms::neural_networks::layers::forward::LayerIfacePtr',
+             'daal::algorithms::neural_networks::layers::backward::LayerIfacePtr',
+             'daal::algorithms::neural_networks::layers::interface1::NextLayers', ] %}
+%shared_ptr(daal::services::{{cls_with_iface('Collection', srv_cfg)}}< {{a}} >);
+{% endfor %}
+
+// data_management
+#define USE_data_management
+#define USE_data_management__features
+#define USE_data_management__modifiers
+#define USE_data_management__modifiers__csv
+
+{% from 'data_management.i.tmpl' import cfg as dm_cfg %}
+%shared_ptr(daal::data_management::{{cls_with_iface('Dictionary', dm_cfg)}}< daal::data_management::{{cls_with_iface('NumericTableFeature', dm_cfg)}},  daal::SERIALIZATION_DATADICTIONARY_NT_ID >);
+%shared_ptr(daal::data_management::{{cls_with_iface('Dictionary', dm_cfg)}}< daal::data_management::{{cls_with_iface('DataSourceFeature', dm_cfg)}},  daal::SERIALIZATION_DATADICTIONARY_DS_ID >);
+
+// for DB stuff the C++ shared poitners are not in our artificial namespace db
+#ifdef USE_data_management__db
+{% from 'data_management__db.i.tmpl' import cfg as dmdb_cfg %}
+%shared_ptr(daal::data_management::{{cls_with_iface('MySQLFeatureManager', dmdb_cfg)}});
+%shared_ptr(daal::data_management::{{cls_with_iface('ODBCDataSource', dmdb_cfg)}}< daal::data_management::{{cls_with_iface('MySQLFeatureManager', dmdb_cfg)}}, double >);
+#endif
+
+////////////////////////////////////////////////
+// Now all specific algorithms
+////////////////////////////////////////////////
+
+// we have some back and forth deps between forward/backward layers
+#ifdef USE_algorithms__neural_networks
+#ifndef USE_algorithms__neural_networks__layers
+#define USE_algorithms__neural_networks__layers
+#endif
+#ifndef USE_algorithms__neural_networks__layers__forward
+#define USE_algorithms__neural_networks__layers__forward
+#endif
+#ifndef USE_algorithms__neural_networks__layers__backward
+#define USE_algorithms__neural_networks__layers__backward
+#endif
+{% from 'algorithms__neural_networks.i.tmpl' import cfg as nn_cfg %}
+%shared_ptr(daal::algorithms::neural_networks::{{cls_with_iface('ForwardLayers', nn_cfg)}});
+%shared_ptr(daal::algorithms::neural_networks::{{cls_with_iface('BackLayers', nn_cfg)}});
+#endif
+
+// common classes
+#define USE_algorithms
+{% for a in mods.strip("'").split() %}
+    {% set ns = a.replace('__', '::') %}
+    {% from a+'.i.tmpl' import cfg %}
+#ifdef USE_{{a}}
+    {% for cls in cfg.classes %}
+%shared_ptr({{'::'.join(['daal',
+                         ns,
+                         'interface1' if cls not in cfg.namespaces else cfg.namespaces[cls],
+                         cls]).replace('::::', '::')}});
+    {% endfor %}
+    {%- call(cls, args ) for_all_templates(ns, cfg) -%}
+      {%- if cls.split('::')|length <= 2 %}
+%shared_ptr({{'::'.join(['daal',
+                         ns,
+                         cls.rstrip('!')],
+                        ).replace('::::', '::')}}< {{", ".join(args)}} >);
+      {%- endif %}
+    {%- endcall %}
+#endif
+{% endfor %}

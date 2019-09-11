@@ -1,0 +1,114 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::algorithms::svd namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace,
+                         add_includes, add_aliases, add_ignores, handle_all_templates, cls_with_iface %}
+{% set ns  = 'algorithms::svd' %}
+{% set module  = 'svd' %}
+{% set package = 'algorithms' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated
+// by standard macros.
+// like 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': ['algorithms/svd/svd_types.h',
+                 'algorithms/svd/svd_batch.h',
+                 'algorithms/svd/svd_online.h',
+                 'algorithms/svd/svd_distributed.h',],
+    'classes': ['DistributedPartialResult',
+                'DistributedPartialResultStep3',
+                'DistributedStep2Input',
+                'DistributedStep3Input',
+                'Input',
+                'OnlinePartialResult',
+                'Parameter',
+                'Result'],
+    'methods': ['defaultDense'],
+    'steps': ['daal::step1Local', 'daal::step2Master', 'daal::step3Local'],
+    'templates': {
+        'Batch': [['fptype', fptypes, 'double'], ['method', 'methods', 'defaultDense']],
+        'Distributed': [['step', 'steps', ''], ['fptype', fptypes, 'double'], ['method', 'methods', 'defaultDense']],
+        'Online': [['fptype', fptypes, 'double'], ['method', 'methods', 'defaultDense']],
+        'Result::allocate': [['fptype', fptypes, '']],
+        'OnlinePartialResult::allocate': [['fptype', fptypes, '']],
+        'OnlinePartialResult::initialize': [['fptype', fptypes, '']],
+        'DistributedPartialResult::allocate': [['fptype', fptypes, '']],
+        'DistributedPartialResultStep3::allocate': [['fptype', fptypes, '']],
+    },
+} %}
+
+{{declare_module('daal.'+package, module)}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_{{ns.replace('::', '__')}}
+#define USE_{{package.replace('.', '__')}}
+
+%include "daal_common.i"
+
+// renaming, typemaps need to go before declarations -> put them here
+%rename (setCollection) daal::algorithms::svd::interface1::DistributedPartialResult::set(DistributedPartialResultCollectionId id, const data_management::KeyValueDataCollectionPtr &value);
+%rename (getCollection) daal::algorithms::svd::interface1::DistributedPartialResult::get(DistributedPartialResultCollectionId id) const;
+%rename (setResult) daal::algorithms::svd::interface1::DistributedPartialResult::set(DistributedPartialResultId id, const ResultPtr &value);
+%rename (getResult) daal::algorithms::svd::interface1::DistributedPartialResult::get(DistributedPartialResultId id) const;
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "{{package.replace('.', '__')}}.i"
+
+// standard/basic type mappings
+%import <std_string.i>
+
+%{
+#include <daal.h>
+using namespace daal::{{ns}};
+using namespace daal::algorithms;
+%}
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+{{add_includes(cfg)}}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+    // Add our compute wrappers
+    {{add_compute("Batch")}}
+    {{add_compute2(ns, cfg, "Online", pr='OnlinePartialResult')}}
+    {% for s in cfg.steps %}
+      {% set pres = 'OnlinePartialResult' if s.endswith('step1Local') else ('DistributedPartialResultStep3' if s.endswith('step3Local') else 'DistributedPartialResult') %}
+      {% for fpt in fptypes %}
+        {% for m in cfg.methods %}
+          {{add_compute2(ns, cfg, 'Distributed< ' + ', '.join([s, fpt, m]) + ' >', pr=pres)}};
+        {% endfor %}
+      {% endfor %}
+    {% endfor %}
+
+    %extend {{cls_with_iface('DistributedPartialResult', cfg)}} {
+        daal::data_management::DataCollectionPtr getCollection(DistributedPartialResultCollectionId id, size_t index) const {
+            daal::data_management::KeyValueDataCollectionPtr _coll =
+                const_cast< daal::algorithms::svd::{{cls_with_iface('DistributedPartialResult', cfg)}}* >($self)->get(id);
+            return daal::services::staticPointerCast< daal::data_management::DataCollection,
+                                                      daal::data_management::SerializationIface >((*_coll)[index]);
+        }
+    }
+
+    // now all template instantiations
+    {{handle_all_templates(ns, cfg)}}
+
+{% endcall %}
+
+{{add_aliases(cfg)}}

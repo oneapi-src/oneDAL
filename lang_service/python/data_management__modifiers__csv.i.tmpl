@@ -1,0 +1,114 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::data_management::features namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace, add_includes, add_aliases, add_ignores, handle_all_templates, cls_with_iface %}
+{% set ns  = 'data_management::modifiers::csv' %}
+{% set module  = 'csv' %}
+{% set package = 'data_management.modifiers' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated
+// by standard macros.
+// like 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': ['data_management/data_source/modifiers/csv/modifier.h',
+                 'data_management/data_source/modifiers/csv/pyfeaturemodifier.h',
+                 'data_management/data_source/modifiers/csv/shortcuts.h',],
+    'classes': ['ConfigIface',
+                'Config',
+                'ContextIface',
+                'Context',
+                'FeatureModifierIface',
+                'FeatureModifier',
+                'PyFeatureModifier',],
+    'module': 'csv',
+    'namespace': 'data_management::modifiers::csv',
+    'package': 'data_management.modifiers',
+    'templates': {},
+    'ignore': ['ConfigIface',
+               'Config',
+               'ContextIface',
+               'Context',
+               'FeatureModifier',
+               'PyFeatureModifier::initialize',
+               'PyFeatureModifier::apply(Context &context)',
+               'PyFeatureModifier::finalize',],
+} %}
+
+{{declare_module('daal.'+package, module, 'directors="1"')}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_{{cfg.namespace.replace('::', '__')}}
+#define USE_{{cfg.package.replace('.', '__')}}
+
+%feature("abstract") daal::{{ns}}::{{cls_with_iface('FeatureModifierIface', cfg)}};
+%nodefaultctor daal::{{ns}}::{{cls_with_iface('FeatureModifierIface', cfg)}};
+
+%include "daal_common.i"
+
+// renaming, typemaps need to go before declarations -> put them here
+%feature("director") PyFeatureModifier;
+%rename(FeatureModifier) PyFeatureModifier;
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "data_management__modifiers.i"
+// we need this for now as long as data_management__modifiers is just a dummy
+%import "data_management.i"
+
+// standard/basic type mappings
+//%import <cstring.i>
+/* %import <std_vector.i> */
+
+/* namespace std { */
+/*     %template() vector< PyObject * >; */
+/*     %template() vector< double >; */
+/*     %template() vector< vector< double > >; */
+/* } */
+%typemap(directorout) PyObject * {
+    $result = $1;
+    Py_INCREF($result);
+}
+
+%{
+using namespace daal::{{ns}};
+using namespace daal::data_management;
+%}
+using namespace daal::data_management;
+
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+%feature("pythonappend") daal::{{ns}}::{{cls_with_iface('PyFeatureModifier', cfg)}}::PyFeatureModifier %{
+    self.__disown__()
+%}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+
+{{add_includes(cfg)}}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+    // Add our compute wrappers
+    // no Batch
+    // no Online
+    // no Distributed
+    // now all template instantiations
+    {{handle_all_templates(ns, cfg)}}
+
+{% endcall %}
+
+{{add_aliases(cfg)}}

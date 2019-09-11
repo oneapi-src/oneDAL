@@ -1,0 +1,95 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::algorithms::neural_networks::layers namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace, add_includes, add_auto_imports,
+                                add_getitem, add_aliases, add_ignores, handle_all_templates, add_setgetitem %}
+{% set ns  = 'algorithms::neural_networks::layers' %}
+{% set module  = 'layers' %}
+{% set package = 'algorithms.neural_networks' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated by standard macros.
+//   E.g. 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': [
+        'algorithms/neural_networks/layers/layer_types.h',
+        'algorithms/neural_networks/layers/layer_descriptor.h',
+        'algorithms/neural_networks/layers/layer.h',
+    ],
+    'classes': [
+        'LayerDescriptor',
+        'LayerIface',
+        'NextLayers',
+        'Parameter',
+    ],
+    'methods': [
+    ],
+    'templates': {
+    },
+} %}
+
+{{declare_module('daal.'+package, module)}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_algorithms
+#define USE_algorithms__neural_networks
+#define USE_algorithms__neural_networks__layers
+#define USE_algorithms__neural_networks__layers__fullyconnected
+#define USE_algorithms__neural_networks__initializers
+#define USE_algorithms__engines
+#define USE_algorithms__engines__mt19937
+
+%include "daal_common.i"
+
+// renaming, typemaps need to go before declarations -> put them here
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "algorithms__neural_networks__initializers.i"
+
+// standard/basic type mappings
+%import <std_string.i>
+
+%{
+#include <daal.h>
+using namespace daal::{{ns}};
+%}
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+{{add_includes(cfg)}}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+
+    // Add our compute wrappers
+    // no Batch
+    // no Online
+    // no Distributed
+    {{ add_setgetitem('NextLayers', 'size_t&', 'size_t') }};
+
+    // now all template instantiations
+    {{handle_all_templates(ns, cfg)}}
+{% endcall %}
+
+{{add_aliases(cfg)}}
+
+%pythoncode %{
+    LayerData = daal.data_management.KeyValueDataCollection
+%}
+
+{{add_auto_imports(ns.replace('::', '__'))}}

@@ -1,0 +1,105 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::algorithms::ridge_regression::training namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace, add_includes,
+                                add_getitem, add_aliases, add_ignores, handle_all_templates %}
+{% set ns  = 'algorithms::ridge_regression::training' %}
+{% set module  = 'training' %}
+{% set package = 'algorithms.ridge_regression' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated by standard macros.
+//   E.g. 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': [
+        'algorithms/ridge_regression/ridge_regression_training_types.h',
+        'algorithms/ridge_regression/ridge_regression_training_distributed.h',
+        'algorithms/ridge_regression/ridge_regression_training_online.h',
+        'algorithms/ridge_regression/ridge_regression_training_batch.h',
+    ],
+    'classes': [
+        'Input',
+        'InputIface',
+        'PartialResult',
+        'Result',
+    ],
+    'methods': [
+        ['defaultDense', 'normEqDense'],
+    ],
+    'steps': ['daal::step1Local', 'daal::step2Master',],
+    'templates': {
+        'Distributed': [['step', 'steps', ''], ['fptype', fptypes, 'double'], ['method', 'methods', 'normEqDense']],
+        'Online': [['fptype', fptypes, 'double'], ['method', 'methods', 'normEqDense']],
+        'DistributedInput': [['step', 'steps', '']],
+        'Batch': [['fptype', fptypes, 'double'], ['method', 'methods', 'normEqDense']],
+        'PartialResult::allocate': [['fptype', fptypes, '']],
+        'PartialResult::initialize': [['fptype', fptypes, '']],
+        'Result::allocate': [['fptype', fptypes, '']],
+    },
+} %}
+
+{{declare_module('daal.'+package, module)}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_algorithms
+#define USE_algorithms__ridge_regression
+#define USE_algorithms__ridge_regression__training
+#define USE_algorithms__linear_model__training
+
+%include "daal_common.i"
+
+// renaming, typemaps need to go before declarations -> put them here
+// E.g. if a list of get/set methods follows here
+// %rename(getInput) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::Input::get(InputId id) const;;
+// %rename(setInput) /*void */ daal::{{ns}}::interface1::Input::set(InputId id, const data_management::NumericTablePtr &value);;
+%rename(getPartialResult) /*daal::algorithms::ridge_regression::ModelPtr */ daal::{{ns}}::interface1::PartialResult::get(PartialResultID id) const;;
+%rename(setPartialResult) /*void */ daal::{{ns}}::interface1::PartialResult::set(PartialResultID id, const daal::algorithms::ridge_regression::ModelPtr &value);;
+%rename(getStep2MasterInput) /*data_management::DataCollectionPtr */ daal::{{ns}}::interface1::PartialResult::get(Step2MasterInputId id) const;;
+%rename(setStep2MasterInput) /*void */ daal::{{ns}}::interface1::PartialResult::set(Step2MasterInputId id, const data_management::DataCollectionPtr & ptr);;
+// %rename(getResult) /*daal::algorithms::ridge_regression::ModelPtr */ daal::{{ns}}::interface1::Result::get(ResultId id) const;;
+// %rename(setResult) /*void */ daal::{{ns}}::interface1::Result::set(ResultId id, const daal::algorithms::ridge_regression::ModelPtr & value);;
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "algorithms__ridge_regression.i"
+%import "algorithms__linear_model__training.i"
+
+// standard/basic type mappings
+%import <std_string.i>
+
+%{
+#include <daal.h>
+using namespace daal::algorithms::ridge_regression::training;
+%}
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+{{add_includes(cfg)}}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+    // Add our compute wrappers
+    {{add_compute("Batch")}}
+    {{add_compute2(ns, cfg, "Online")}}
+    {{add_compute2(ns, cfg, "Distributed")}}
+
+    // now all template instantiations
+    {{handle_all_templates(ns, cfg)}}
+
+{% endcall %}
+
+{{add_aliases(cfg)}}

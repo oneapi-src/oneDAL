@@ -1,0 +1,473 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+# some jinja2 magic
+
+# We cannot use SWIG macros as some classes are templates with multipe parameters;
+# A macro argument cannot contain a comma (','), though...
+# Luckily jinja2 has this nice caller capability that lets the macro call back to the caller.
+
+# Let's start with some collections with algo-specific information
+#   to be used in generic commands
+
+# Each algorithm is identified by the namespace it defines (starting at 'algorithm').
+# Each algorithm has a config dict.
+# The purpose is to use these for jinja wherever possible.
+# In some cases we need this info at different places. This helps avoiding duplication.
+# The following keys are currently used in jinja macros.
+#
+#  'includes':     List of files to be included/scanned by SWIG.
+#                  See also 'needpatch'.
+#  'needpatch':    List of files be included/scanned by SWIG after applying a patch.
+#                  Expects a 3-tuple: (orig file, match/replacement string for patch.py, new file name).
+#  'classes':      classes that are defined, (usually non-templated).
+#                  all members will be declared as shared-ptr (sp_list.i.tmpl)
+#  'methods':      computation methods, usually an enum "Method" in C++ code.
+#                  used to auto-create instances of templates that depend on this type
+#  'steps':        steps used for distributed algorithm
+#                  used to auto-create instances of templates that depend on this type
+#  'templates':    dict of array of 3-tuple/array[3]; one tuple for each tempalte argument:
+#                    [0]: name of template paramter (string), used for keyword args in factory classes
+#                    [1]: list of posible values for this template paramter
+#                         or string. If string, it will be used as key in current dict to look up list
+#                         (e.g. 'methods' will use the 'methods' entry of current dict).
+#                    [3]: default value (string)
+#                   Current helper functions support up to 3 template arguments.
+#                   A special marker '!' can be appended to the template name (key in the dict).
+#                     It is only useful for template functions and indicates that the 
+#                     various template instantiations should be handled as overloads.
+#  'ignore':       List of entities subject to not appear in the API
+#                  (e.g. subject to %ignore and ignored by template handlers etc).
+#  'namespaces':   Dictionary with sub-names per entity
+#                  sub-namepsace defaults to "interface1" if not provided.
+#
+# See also for_all_templates.
+#
+# A few other keys are also added specifically for certain namespaces.
+
+#############################
+
+{% set common = {
+     'ignore': ['AlgorithmContainerIface', 'AnalysisContainerIface',
+                'PredictionContainerIface', 'TrainingContainerIface', 'DistributedPredictionContainerIface',
+                'BatchContainerIface', 'OnlineContainerIface', 'DistributedContainerIface',
+                'BatchContainer', 'OnlineContainer', 'DistributedContainer',
+                '*::serializeImpl', '*::deserializeImpl', '*::getErrors',],
+ }
+%}
+
+# declare name of module and its package using default options
+{% macro declare_module(package, module, args=None) %}
+{% if args %}
+%module({{args}}, package="{{package}}") {{module}};
+{% else %}
+%module(package="{{package}}") {{module}};
+{% endif %}
+{% endmacro %}
+
+# add %include statements for all required files
+#   in 'includes' and 'needpatch' sections of given config
+{% macro add_includes(cfg) %}
+    {% for i in cfg.includes %}
+%include <{{i}}>
+    {% endfor %}
+    {% for i in cfg.needpatch %}
+%include <{{i[2]}}>
+    {% endfor %}
+{% endmacro %}
+
+# add %ignore statements for all that's given in 'ignore' section.
+# prepends a::interface::.
+{% macro add_ignores(cfg,a) %}
+  {% for i in cfg.ignore if '/' not in i %}
+    {% if i.startswith('!') %}
+%ignore {{i.lstrip('!')}};
+    {% else %}
+%ignore {{'::'.join(['daal',
+                     a,
+                     'interface1' if i not in cfg.namespaces else cfg.namespaces[i],
+                     i]).replace('::::', '::')}};
+    {% endif %}
+  {% endfor %}
+{% endmacro %}
+
+
+# generate Python factory classes for C++ template equivalents.
+#   using 'default' template arguments
+{% macro add_aliases(cfg) %}
+{% if MODE != 'dox' %}
+%pythoncode %{
+from numpy import float64, float32, intc
+
+    {% for c in cfg.templates if not '::' in c and c not in cfg.ignore and not c in common.ignore %}
+        {% set tpcfa = cfg.templates[c]|astuple %}
+	{% set ctor = '_create' if c+'::'+c in cfg.ignore or c+'::'+c in common.ignore else '' %}
+class {{c}}(object):
+    r"""Factory class for different types of {{c}}."""
+    def __new__(cls,
+        {% for tpa in tpcfa[0] if tpa[2] == '' %}
+                {{tpa[0]}},
+        {% endfor %}
+                *args, **kwargs):
+        {% for tpcf in tpcfa %}
+        {% for tpa1 in tpcf[0][1]|getcfg(cfg) %}
+            {% if tpcf[0][2] == '' %}
+        if {{tpcf[0][0]}} == {{([tpa1]|ta2pt)[0]}}:
+            {% elif tpa1 in tpcf[0][2]|aslist %}
+        if '{{tpcf[0][0]}}' not in kwargs or kwargs['{{tpcf[0][0]}}'] == {{([tpa1]|ta2pt)[0]}}:
+            {% else %}
+        if '{{tpcf[0][0]}}' in kwargs and kwargs['{{tpcf[0][0]}}'] == {{([tpa1]|ta2pt)[0]}}:
+            {% endif %}
+            {% if not tpcf[1] %}
+            return {{c + '_' + [tpa1]|ta2pt|titlelize + ctor}}(*args)
+            {% else %}
+                {% for tpa2 in tpcf[1][1]|getcfg(cfg) %}
+                    {% if tpcf[1][2] == '' %}
+            if {{tpcf[1][0]}} == {{([tpa2]|ta2pt)[0]}}:
+                    {% elif tpa2 in tpcf[1][2]|aslist %}
+            if '{{tpcf[1][0]}}' not in kwargs or kwargs['{{tpcf[1][0]}}'] == {{([tpa2]|ta2pt)[0]}}:
+                    {% else %}
+            if '{{tpcf[1][0]}}' in kwargs and kwargs['{{tpcf[1][0]}}'] == {{([tpa2]|ta2pt)[0]}}:
+                    {% endif %}
+                    {% if not tpcf[2] %}
+                return {{c + '_' + [tpa1,tpa2]|ta2pt|titlelize + ctor}}(*args)
+                    {% else %}
+                        {% for tpa3 in tpcf[2][1]|getcfg(cfg) %}
+                            {% if tpcf[2][2] == '' %}
+                    if {{tpcf[2][0]}} == {{([tpa3]|ta2pt)[0]}}:
+                            {% elif tpa3 in tpcf[2][2]|aslist %}
+                    if '{{tpcf[2][0]}}' not in kwargs or kwargs['{{tpcf[2][0]}}'] == {{([tpa3]|ta2pt)[0]}}:
+                            {% else %}
+                    if '{{tpcf[2][0]}}' in kwargs and kwargs['{{tpcf[2][0]}}'] == {{([tpa3]|ta2pt)[0]}}:
+                            {% endif %}
+                        return {{c + '_' + [tpa1, tpa2, tpa3]|ta2pt|titlelize + ctor}}(*args)
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        {% endfor %}
+
+        raise RuntimeError("No appropriate constructor found for {{c}}")
+
+    {% endfor %}
+%}
+{% endif %}
+{% endmacro %}
+
+# Looping over all template specs found in configuration for given namespace 'ns'.
+# Calling back to caller with 2 arguments
+#   1. template-name
+#   2. sequence of template arguments
+# Use this whenever you need to do something to all templates.
+# See above docu for config for supported template styles.
+# Make sure you adjust the docu there if you make changes here.
+# Keep the order of template expansions, some interface files react sensitive.
+{% macro for_all_templates(ns, cfg, flt=None) %}
+  {% if 'templates' in cfg %}
+    {% set tmpls = cfg.templates|sortforswig(flt) %}
+    {% for c in tmpls %}
+      {% set iface_plus_c = c|get_interface(cfg) %}
+      {% set all_tmplt_combos = cfg.templates[c]|get_all_tmplt_combos(cfg, ns) %}
+      {% if all_tmplt_combos %}
+        {% for tpas in all_tmplt_combos %}
+{{caller(iface_plus_c, tpas)}}
+        {% endfor %}
+      {% else %}
+#error No template instantiations for {{c}}
+      {% endif %}
+    {% endfor %}
+ {% endif %}
+{% endmacro %}
+
+# template instantiation plus docu transplantation
+# T: template (class, method or function)
+# TA: sequence/array of template parameters to T
+{% macro api_template_instance(cfg, T, TA) %}
+  {% set TT = T.rstrip('!') %}
+  {% if 'ignore' in cfg and TT in cfg.ignore or TT in common.ignore %}
+      {% set TN = TT + '_dummy_' %}
+  {% else %}
+      {% set TN = TT %}
+  {% endif %}
+
+  {% if T.split('::')|length > 2 %}
+    {% if T.endswith('!') %}
+    // Template function with SWIG dispatching for the specified types, SWIG does all the work for docu
+    %template({{TN.split('::')[-1]}}) {{TT}}< {{', '.join(TA)}} >;
+    {% else %}
+    // Template function with separate Python instances
+    %feature("docstring") {{TN}}< {{', '.join(TA)}} > "
+    This function is specialized for {{', '.join(TA|ta2pt)}}";
+    %template({{TN.split('::')[-1] + '_' + TA|ta2pt|titlelize}}) {{TT}}< {{', '.join(TA)}} >;
+    {% endif %}
+  {% else %}
+    // Template class specialization
+    %feature("docstring") {{TT}}< {{', '.join(TA)}} > "
+    This class is an alias of {{TN.split('::')[-1]}}({{', '.join(TA|argvaltuple(cfg.templates[T]))}})
+    ";
+    %template({{TN.split('::')[-1] + '_' + TA|ta2pt|titlelize}}) {{TT}}< {{', '.join(TA)}} >;
+  {% endif %}
+
+{% endmacro %}
+
+# template instantiation declaration without API or docu creation
+# T: template (class, method or function)
+# TA: sequence/array of template parameters to T
+{% macro ignoretemplate(T, args) %}
+      %template() {{T}}< {{', '.join(args)}} >;
+{% endmacro %}
+
+
+# Create docu for a template class (used by doxygen).
+# Instantiated a place-holder class and list all possible
+# instantiations provided in the API. The placeholder-class
+# does exist as a dispatching class in the API, to.
+{% macro doc_template_class(a, cfg, c, ArgCombos) %}
+    {% set c_no_iface = c.split('::')[-1] %}
+    %feature("docstring") {{c + "< " + ",".join(ArgCombos[0])}} > "
+@par Aliases
+        {% for ta in ArgCombos %}
+        - <code>{{c_no_iface + '_' + ta|ta2pt|titlelize}}</code> is an alias of <code>{{c_no_iface}}({{', '.join(ta|argvaltuple(cfg.templates[c_no_iface]))}})</code>
+        {% endfor %}
+    ";
+    %template({{c_no_iface + OBFUSCATOR}}) {{c}}< {{', '.join(ArgCombos[0])}} >;
+{% endmacro %}
+
+
+# Create docu for a template function (used by doxygen).
+{% macro doc_template_func(a, c, ArgCombos) %}
+  {% set TT = c.rstrip('!') %}
+  {% if c.endswith('!') %}
+    // Template function with SWIG dispatching for the specified types
+    %feature("docstring") {{TT}} "
+@par Allowed Types
+    {% for ta in ArgCombos %}
+    - <code>{{', '.join(ta|ta2pt)}}</code>
+    {% endfor %}
+    ";
+    %template({{TT.split('::')[-1]}}) {{TT}}< {{', '.join(ArgCombos[0])}} >;
+  {% else %}
+    // Template function with separate Python instances
+    %feature("docstring") {{TT}}< {{', '.join(ArgCombos[0])}} > "
+@par Full Names
+    {% for ta in ArgCombos %}
+    - <code>{{TT.split('::')[-1] + '_' + ta|ta2pt|titlelize}}</code> is for <code>{{', '.join(ta|ta2pt)}}</code>
+    {% endfor %}
+    ";
+    %template({{TT.split('::')[-1]}}___9__{{'__1__'.join(ArgCombos|pyArgs)}}__0__) {{TT}}< {{', '.join(ArgCombos[0])}} >;
+  {% endif %}
+{% endmacro %}
+
+
+# Precess all the templates in two modes: api & doc
+{% macro handle_all_templates(a, cfg, flt=None) %}
+  {% if MODE != 'dox' %}
+    {% call(c, ta) for_all_templates(a, cfg, flt) %}
+      {{api_template_instance(cfg, c, ta)}}
+    {% endcall %}
+  {% else %}
+    %pythonbegin %{
+## @package daal.{{ '.'.join(a.split('::')) }} {{a|find_description(cfg)}}
+    %}
+    {% if 'templates' in cfg %}
+      {% set tmpls = cfg.templates|sortforswig(flt) %}
+      // List all templates and their specializations
+      {% for c in tmpls %}
+        {% set iface_plus_c = c|get_interface(cfg) %}
+        {% set ArgCombos = cfg.templates[c]|get_all_tmplt_combos(cfg,a) %}
+        {% if iface_plus_c.split('::')|length > 2 %}
+        {{doc_template_func(a, iface_plus_c, ArgCombos)}}
+        {% else %}
+        {{doc_template_class(a, cfg, iface_plus_c, ArgCombos)}}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+{% endmacro %}
+
+
+{% macro ref_ndarray(tbl, ctr) %}
+%pythonprepend {{'::'.join([tbl, ctr])}} %{
+    self._ndas = []
+    for a in args:
+        if isinstance(a, numpy.ndarray):
+            self._ndas.append(a)
+%}
+{% endmacro %}
+
+# writes "namespace x {" for all levels of the given namespace hierachy
+{% macro in_namespace(ns) %}
+  {% for n in ns.split('::') %}
+namespace {{n}} {
+  {% endfor %}
+  {{caller()}}
+  {% for n in ns.split('::') %}
+} // namespace {{n}}
+  {% endfor %}
+{% endmacro %}
+
+
+# Extend given class with getBlockOfRows and getBlockOfColumnValues returning numpy arrays
+{% macro add_getBlocks(T) %}
+%extend {{caller()}} {
+    //! Return numpy array by rows
+    void getBlockOfRows{{varargs[0]}}(size_t vector_idx, size_t vector_num, BlockDescriptor< {{T}} > ** block_)
+    {
+        *block_ = new daal::data_management::BlockDescriptor< {{T}} >;
+        $self->getBlockOfRows(vector_idx, vector_num, daal::data_management::readOnly, **block_);
+    }
+    //! Return numpy array by column
+    void getBlockOfColumnValues{{varargs[0]}}(size_t feature_idx, size_t vector_idx, size_t value_num, BlockDescriptor< {{T}} > ** block_)
+    {
+        *block_ = new daal::data_management::BlockDescriptor< {{T}} >;
+        $self->getBlockOfColumnValues(feature_idx, vector_idx, value_num, daal::data_management::readOnly, **block_);
+    }
+};
+{% endmacro %}
+
+
+{% macro add_compute(T, res='Result', cfg=None) %}
+  {% if cfg is none %}
+    {%set T = 'interface1::' + T%}
+    {% if not res.startswith('daal') %}
+      {%set res = 'interface1::' + res%}
+    {% endif %}
+  {% else %}
+    {% set T = T|get_interface(cfg) %}
+    {% if not res.startswith('daal')  %}
+      {% set res = res|get_interface(cfg) %}
+    {% endif %}
+  {% endif %}
+%extend {{T}} {
+    //! Invokes computations
+    daal::services::SharedPtr< {{res}} > compute() {
+        $self->compute();
+        return $self->getResult();
+    }
+};
+{% endmacro %}
+
+# extend a class with compute and finalizeCompute (for online and distributed)
+# If given class is defined as a tempalte, %extend will be added for each 
+# template isntantiation.
+# a :           namespace
+# T :           class/type to extend
+# pr:           partialresult class, occurances of '<>' in it will be replaced with
+#                 T's template arguments (see firsttaforpr)
+# obfuscate:    add OBFUSCATOR to in % extend clause
+# firsttaforpr: skip the first that many template arguments when pr is a template
+# finalize:     add finalizeCompute()
+{% macro add_compute2(a, cfg, T, nums=None, pr='PartialResult', obfuscate=False, firsttaforpr=0, finalize=True) %}
+  {% if T in cfg.templates %}
+    {% set ArgCombos = cfg.templates[T]|get_all_tmplt_combos(cfg,a,nums=nums) %}
+    {% for ta in ArgCombos %}
+      {{add_compute2(a, cfg, T|get_interface(cfg) + '< ' +  ', '.join(ta) + ' >', pr = pr.replace('<>', '< ' +  ', '.join(ta[firsttaforpr:]) + ' >'), obfuscate=obfuscate, finalize=finalize)}}
+    {% endfor %}
+  {% else %}
+    {% set obf = OBFUSCATOR if obfuscate else '' %}
+    {% if not pr.startswith('daal') %}
+      {% set pr = pr|get_interface(cfg) %}
+    {% endif %}
+%extend {{T|get_interface(cfg) + obf}} {
+    //! Invokes computations and returns partial result
+    daal::services::SharedPtr< {{pr}} > compute() {
+        $self->compute();
+        return $self->getPartialResult();
+    }
+    {% if finalize == True %}
+    //! Finalizes computations and returns (final) result
+    daal::services::SharedPtr< {{'Result'|get_interface(cfg)}} > finalizeCompute() {
+        $self->finalizeCompute();
+        return $self->getResult();
+    }
+    {% endif %}
+};
+  {% endif %}
+{% endmacro %}
+
+# add __getitem__ to proxy class
+# uses operator []
+# T: C++-class to generate __getitem__ for
+# D: itemtype (return type)
+# I: index type
+# FIXME -builtin does not generate operator[]
+{%- macro add_getitem(T, D, I, cfg=None) -%}
+  {% if cfg is none %}
+    {% set T = 'interface1::' + T %}
+  {% else %}
+    {% set T = T|get_interface(cfg) %}
+  {% endif %}
+%extend {{T}} {
+    /// read operator []
+    {{D}} __getitem__({{I}} i) {
+        return (*$self)[i];
+    }
+};
+{%- endmacro -%}
+
+# add __setitem__ to proxy class
+# uses operator []
+# T: C++-class to generate __getitem__ for
+# D: itemtype (return type)
+# I: index time
+# FIXME -builtin does not generate operator[]
+{%- macro add_setitem(T, D, I, cfg=None) -%}
+  {%if cfg is none %}
+    {% set T = 'interface1::' + T %}
+  {% else %}
+    {% set T = T|get_interface(cfg) %}
+  {% endif %}
+%extend {{T}} {
+    /// write operator []
+    {{D}} __setitem__({{I}} i, {{D}} v) {
+        return (*$self)[i] = v;
+    }
+};
+{%- endmacro -%}
+
+# add __setitem__ and __getitem__ to proxy class
+# uses operator []
+# T: C++-class to generate __getitem__ for
+# D: itemtype (return type)
+# I: index time
+# FIXME -builtin does not generate operator[]
+{%- macro add_setgetitem(T, D, I) -%}
+    {{- add_getitem(T, D, I ) -}};
+    {{ add_setitem(T, D, I ) -}}
+{%- endmacro -%}
+
+
+# Finds all modules and subpackages of package P and imports them so they are
+# accessible from package P.
+# P: The template file (without extension) that represents the current package.
+# e.g. 'algorithms__svm' 
+{%- macro add_auto_imports(P) -%}
+%pythoncode %{
+  {% set modules_to_import = P|get_submodules %}
+  {% for m in modules_to_import %}
+    {{ "from . import {}".format(m) }}
+  {% endfor %}
+%}
+{%- endmacro -%}
+
+# Replaces a class name with that name prepended by the appropriate interfaceX namespace.
+# Searches cfg['namespaces'], defaulting to 'interface1'
+# cls: The name of a class.
+# cfg: The config form an interface file.
+# Example:
+# cls_with_iface('ClassFromIface2', cfg) -> 'interface2::ClassFromIface2'
+{%- macro cls_with_iface(cls, cfg) -%}
+  {{cls|get_interface(cfg)}}
+{%- endmacro -%}

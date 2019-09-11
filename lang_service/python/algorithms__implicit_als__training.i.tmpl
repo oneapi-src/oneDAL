@@ -1,0 +1,113 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::algorithms::implicit_als::training namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace, add_includes, add_aliases, add_ignores, handle_all_templates %}
+{% set ns  = 'algorithms::implicit_als::training' %}
+{% set module  = 'training' %}
+{% set package = 'algorithms.implicit_als' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated
+// by standard macros.
+// like 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': ['algorithms/implicit_als/implicit_als_training_types.h',
+                 'algorithms/implicit_als/implicit_als_training_batch.h',
+                 'algorithms/implicit_als/implicit_als_training_distributed.h',],
+    'classes': ['Input', 'Result',
+                'DistributedPartialResultStep1', 'DistributedPartialResultStep2',
+                'DistributedPartialResultStep3', 'DistributedPartialResultStep4',],
+    'methods': ['defaultDense', 'fastCSR',],
+    'bmethods': ['defaultDense', 'fastCSR',],
+    'dmethods': ['fastCSR',],
+    'stages': ['Step1', 'Step2', 'Step3', 'Step4'],
+    'steps': ['daal::step1Local', 'daal::step2Master', 'daal::step3Local', 'daal::step4Local'],
+    'templates': {
+        'Batch': [['fptype', fptypes, 'double'], ['method', 'bmethods', 'defaultDense']],
+        'Distributed': [['step', 'steps', ''], ['fptype', fptypes, 'double'], ['method', 'dmethods', 'fastCSR']],
+        'DistributedInput': [['step', 'steps', '']],
+        'Result::allocate': [['fptype', fptypes, '']],
+        'DistributedPartialResultStep1::allocate': [['fptype', fptypes, '']],
+        'DistributedPartialResultStep2::allocate': [['fptype', fptypes, '']],
+        'DistributedPartialResultStep3::allocate': [['fptype', fptypes, '']],
+        'DistributedPartialResultStep4::allocate': [['fptype', fptypes, '']],
+    },
+} %}
+
+{{declare_module('daal.'+package, module)}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_{{ns.replace('::', '__')}}
+#define USE_{{package.replace('.', '__')}}
+#define USE_algorithms__engines
+#define USE_algorithms__engines__mt19937
+
+%include "daal_common.i"
+
+// renaming, typemaps need to go before declarations -> put them here
+%rename(setTable) daal::algorithms::implicit_als::training::interface1::Input::set(NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+%rename(getTable) daal::algorithms::implicit_als::training::interface1::Input::get(NumericTableInputId id) const;
+%rename(setModel) daal::algorithms::implicit_als::training::interface1::Input::set(ModelInputId id, const ModelPtr &ptr);
+%rename(getModel) daal::algorithms::implicit_als::training::interface1::Input::get(ModelInputId id) const;
+// no %rename for DistributedInput<daal::step1Local>, DistributedInput<daal::step2Master>
+%rename(setModel) daal::algorithms::implicit_als::training::interface1::DistributedInput<step3Local>::set(PartialModelInputId id, const PartialModelPtr &ptr);
+%rename(getModel) daal::algorithms::implicit_als::training::interface1::DistributedInput<step3Local>::get(PartialModelInputId id) const;
+%rename(setCollection) daal::algorithms::implicit_als::training::interface1::DistributedInput<step3Local>::set(Step3LocalCollectionInputId id, const data_management::KeyValueDataCollectionPtr &ptr);
+%rename(getCollection) daal::algorithms::implicit_als::training::interface1::DistributedInput<step3Local>::get(Step3LocalCollectionInputId id) const;
+%rename(setTable) daal::algorithms::implicit_als::training::interface1::DistributedInput<daal::step3Local>::set(Step3LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr);
+%rename(getTable) daal::algorithms::implicit_als::training::interface1::DistributedInput<daal::step3Local>::get(Step3LocalNumericTableInputId id) const;
+%rename(setModels) daal::algorithms::implicit_als::training::interface1::DistributedInput<daal::step4Local>::set(Step4LocalPartialModelsInputId id, const data_management::KeyValueDataCollectionPtr &ptr);
+%rename(getModels) daal::algorithms::implicit_als::training::interface1::DistributedInput<daal::step4Local>::get(Step4LocalPartialModelsInputId id) const;
+%rename(setTable) daal::algorithms::implicit_als::training::interface1::DistributedInput<daal::step4Local>::set(Step4LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr);
+%rename(getTable) daal::algorithms::implicit_als::training::interface1::DistributedInput<daal::step4Local>::get(Step4LocalNumericTableInputId id) const;
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "{{package.replace('.', '__')}}.i"
+
+// standard/basic type mappings
+%import <std_string.i>
+
+%{
+#include <daal.h>
+using namespace daal::{{ns}};
+%}
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+{{add_includes(cfg)}}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+    // Add our compute wrappers
+    {{add_compute("Batch")}}
+    // no Online
+    {% for s in cfg.steps %}
+      {% set pres = 'DistributedPartialResultStep' + s.rsplit('step',1)[-1][0] %}
+      {% for fpt in fptypes %}
+        {% for m in cfg.dmethods %}
+          {{add_compute2(ns, cfg, 'Distributed< ' + ', '.join([s, fpt, m]) + ' >', pr=pres, finalize=False)}};
+        {% endfor %}
+      {% endfor %}
+    {% endfor %}
+
+    // now all template instantiations
+    {{handle_all_templates(ns, cfg)}}
+
+{% endcall %}
+
+{{add_aliases(cfg)}}

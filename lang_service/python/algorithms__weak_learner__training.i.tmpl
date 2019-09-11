@@ -1,0 +1,75 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::algorithms::weak_learner::training namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace, add_includes, add_aliases, add_ignores, handle_all_templates %}
+{% set ns  = 'algorithms::weak_learner::training' %}
+{% set module  = 'training' %}
+{% set package = 'algorithms.weak_learner' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated
+// by standard macros.
+// like 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': ['algorithms/weak_learner/weak_learner_training_types.h',
+                 'algorithms/weak_learner/weak_learner_training_batch.h'],
+    'classes': ['Batch', 'Result'],
+    'templates': {},
+} %}
+
+{{declare_module('daal.'+package, module)}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_{{ns.replace('::', '__')}}
+#define USE_{{package.replace('.', '__')}}
+#define USE_algorithms__classifier
+#define USE_algorithms__classifier__training
+
+%include "daal_common.i"
+
+// renaming, typemaps need to go before declarations -> put them here
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "{{package.replace('.', '__')}}.i"
+%import "algorithms__classifier__training.i"
+
+// standard/basic type mappings
+%import <std_string.i>
+
+%{
+#include <daal.h>
+using namespace daal::{{ns}};
+%}
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+{{add_includes(cfg)}}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+    // Add our compute wrappers
+    {{add_compute("Batch")}}
+    // no Online
+    // no Distributed
+
+    // now all template instantiations
+    {{handle_all_templates(ns, cfg)}}
+
+{% endcall %}
+
+{{add_aliases(cfg)}}

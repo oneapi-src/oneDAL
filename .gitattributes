@@ -1,0 +1,73 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+​
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout.
+*.c text
+*.h text
+*.cpp text
+*.def text
+*.i text
+*.java text
+*.csv text
+*.py text
+*.json text
+*.cxx text
+*.pl text
+*.js text
+*.css text
+*.txt text
+*.html text
+*.htm text
+*.xml text
+*.r text
+*.yml text
+*.yaml text
+*.cfg text
+*.scala text
+*.tmpl text
+*.md text
+*.ver text
+
+# Declare files that will always have LF line endings on checkout.
+*.sh text eol=lf
+*.bash text eol=lf
+*.csh text eol=lf
+*.mk text eol=lf
+*.lst text eol=lf
+*makefile text eol=lf
+*makefile_lnx text eol=lf
+*makefile_mac text eol=lf
+*makefile_fbsd text eol=lf
+
+# Declare files that will always have CRLF line endings on checkout.
+*.sln text eol=crlf
+*.bat text eol=crlf
+*.rc text eol=crlf
+*makefile_win text eol=crlf
+​*.vcxproj text eol=crlf
+*.vcxproj.filters text eol=crlf
+*.vcxproj.user text eol=crlf
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
+*.lib binary
+*.dll binary
+*.dylib binary
+*.so binary
+*.so.2 binary
+*.a binary
+*.ico binary
+*.gif binary
+*.a binary
+*.docx binary
+*.sqlite3 binary
+*.mwb binary
+*.exe binary
+*.doc binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+*.vsdx binary

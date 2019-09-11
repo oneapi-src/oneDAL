@@ -1,0 +1,90 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::algorithms::low_order_moments namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace, add_includes, add_aliases, add_ignores, handle_all_templates %}
+{% set ns  = 'algorithms::low_order_moments' %}
+{% set module  = 'low_order_moments' %}
+{% set package = 'algorithms' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated
+// by standard macros.
+// like 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': ['algorithms/moments/low_order_moments_types.h',
+                 'algorithms/moments/low_order_moments_batch.h',
+                 'algorithms/moments/low_order_moments_distributed.h',
+                 'algorithms/moments/low_order_moments_online.h',],
+    'classes': ['BatchImpl',
+                'BatchContainerIface',
+                'Input',
+                'InputIface',
+                'Parameter',
+                'PartialResult',
+                'Result'],
+    'methods': ['defaultDense', 'singlePassDense', 'sumDense', 'fastCSR', 'singlePassCSR', 'sumCSR',],
+    'steps': ['daal::step1Local', 'daal::step2Master'],
+    'templates': {
+        'DistributedInput': [['step', ['daal::step2Master'], '']],
+        'Batch': [['fptype', fptypes, 'double'], ['method', 'methods', 'defaultDense']],
+        'Distributed': [['step', 'steps', ''], ['fptype', fptypes, 'double'], ['method', 'methods', 'defaultDense']],
+        'Online': [['fptype', fptypes, 'double'], ['method', 'methods', 'defaultDense']],
+        'PartialResult::allocate': [['fptype', fptypes, '']],
+        'PartialResult::initialize': [['fptype', fptypes, '']],
+        'Result::allocate': [['fptype', fptypes, '']],
+    },
+} %}
+
+{{declare_module('daal.'+package, module)}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_{{ns.replace('::', '__')}}
+#define USE_{{package.replace('.', '__')}}
+
+%include "daal_common.i"
+
+// renaming, typemaps need to go before declarations -> put them here
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "{{package.replace('.', '__')}}.i"
+
+// standard/basic type mappings
+%import <std_string.i>
+
+%{
+#include <daal.h>
+using namespace daal::{{ns}};
+%}
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+{{add_includes(cfg)}}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+    // Add our compute wrappers
+    {{add_compute("Batch")}}
+    {{add_compute2(ns, cfg, "Online")}}
+    {{add_compute2(ns, cfg, "Distributed")}}
+
+    // now all template instantiations
+    {{handle_all_templates(ns, cfg)}}
+
+{% endcall %}
+
+{{add_aliases(cfg)}}

@@ -1,0 +1,105 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::algorithms::implicit_als::training::init namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace, add_includes, add_aliases, add_ignores, handle_all_templates %}
+{% set ns  = 'algorithms::implicit_als::training::init' %}
+{% set module  = 'init' %}
+{% set package = 'algorithms.implicit_als.training' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated
+// by standard macros.
+// like 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': ['algorithms/implicit_als/implicit_als_training_init_types.h',
+                 'algorithms/implicit_als/implicit_als_training_init_batch.h',
+                 'algorithms/implicit_als/implicit_als_training_init_distributed.h',],
+    'classes': ['DistributedParameter', 'DistributedPartialResultStep2', 'Input', 'Parameter', 'PartialResult', 'PartialResultBase', 'Result'],
+    'methods': ['defaultDense', 'fastCSR',],
+    'bmethods': ['defaultDense', 'fastCSR',],
+    'dmethods': ['fastCSR',],
+    'steps': ['daal::step1Local', 'daal::step2Local'],
+    'templates': {
+        'Batch': [['fptype', fptypes, 'double'], ['method', 'bmethods', 'defaultDense']],
+        'Distributed': [['step', 'steps', ''], ['fptype', fptypes, 'double'], ['method', 'dmethods', 'fastCSR']],
+        'DistributedInput': [['step', 'steps', '']],
+        'PartialResult::allocate': [['fptype', fptypes, '']],
+        'DistributedPartialResultStep2::allocate': [['fptype', fptypes, '']],
+    },
+} %}
+
+{{declare_module('daal.'+package, module)}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_{{ns.replace('::', '__')}}
+#define USE_{{package.replace('.', '__')}}
+#define USE_algorithms__implicit_als
+#define USE_algorithms__engines
+#define USE_algorithms__engines__mt19937
+
+%include "daal_common.i"
+
+// renaming, typemaps need to go before declarations -> put them here
+%rename(getCollection) daal::{{ns}}::interface1::PartialResultBase::get(PartialResultBaseId id) const;
+%rename(getCollection) daal::{{ns}}::interface1::PartialResultBase::get(PartialResultBaseId id, size_t key) const;
+%rename(setCollection) daal::{{ns}}::interface1::PartialResultBase::set(PartialResultBaseId id, const data_management::KeyValueDataCollectionPtr &ptr);
+%rename(getPartialModel) daal::{{ns}}::interface1::PartialResult::get(PartialResultId id) const;
+%rename(setPartialModel) daal::{{ns}}::interface1::PartialResult::set(PartialResultId id, const PartialModelPtr &ptr);
+%rename(getTablesCollection) daal::{{ns}}::interface1::PartialResult::get(PartialResultCollectionId id) const;
+%rename(getTablesCollection) daal::{{ns}}::interface1::PartialResult::get(PartialResultCollectionId id, size_t key) const;
+%rename(setTablesCollection) daal::{{ns}}::interface1::PartialResult::set(PartialResultCollectionId id, const data_management::KeyValueDataCollectionPtr &ptr);
+%rename(getTable) daal::{{ns}}::interface1::DistributedPartialResultStep2::get(DistributedPartialResultStep2Id id) const;
+%rename(setTable) daal::{{ns}}::interface1::DistributedPartialResultStep2::set(DistributedPartialResultStep2Id id, const data_management::NumericTablePtr &ptr);
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "algorithms__implicit_als__training.i"
+%import "algorithms__engines__mt19937.i"
+
+// standard/basic type mappings
+%import <std_string.i>
+
+%{
+#include <daal.h>
+using namespace daal::{{ns}};
+%}
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+{{add_includes(cfg)}}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+    // Add our compute wrappers
+    {{add_compute("Batch")}}
+    // no Online
+
+    {% for s in cfg.steps %}
+      {% set pres = 'PartialResult' if s.endswith('step1Local') else ('DistributedPartialResultStep2') %}
+      {% for fpt in fptypes %}
+        {% for m in cfg.dmethods %}
+          {{add_compute2(ns, cfg, 'Distributed< ' + ', '.join([s, fpt, m]) + ' >', pr=pres, finalize=False)}};
+        {% endfor %}
+      {% endfor %}
+    {% endfor %}
+
+    // now all template instantiations
+    {{handle_all_templates(ns, cfg)}}
+
+{% endcall %}
+
+{{add_aliases(cfg)}}

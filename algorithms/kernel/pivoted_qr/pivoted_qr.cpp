@@ -1,0 +1,148 @@
+/* file: pivoted_qr.cpp */
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/*
+//++
+//  Definition of Pivoted QR common types.
+//--
+*/
+
+#include "pivoted_qr_types.h"
+#include "serialization_utils.h"
+#include "daal_strings.h"
+
+using namespace daal::data_management;
+using namespace daal::services;
+
+namespace daal
+{
+namespace algorithms
+{
+namespace pivoted_qr
+{
+namespace interface1
+{
+__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_PIVOTED_QR_RESULT_ID);
+
+Parameter::Parameter(const NumericTablePtr permutedColumns) : daal::algorithms::Parameter(), permutedColumns(permutedColumns) {}
+
+
+Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
+Input::Input(const Input& other) : daal::algorithms::Input(other){}
+
+/**
+ * Returns input object for the pivoted QR algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          Input object that corresponds to the given identifier
+ */
+NumericTablePtr Input::get(InputId id) const
+{
+    return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
+}
+/**
+ * Sets input object for the pivoted QR algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] value Pointer to the input object
+ */
+void Input::set(InputId id, const NumericTablePtr &value)
+{
+    Argument::set(id, value);
+}
+
+Status Input::check(const daal::algorithms::Parameter *par, int method) const
+{
+    Status s = checkNumericTable(get(data).get(), dataStr());
+    if(!s) { return s; }
+    size_t nVectors = get(data)->getNumberOfRows();
+    size_t nFeatures = get(data)->getNumberOfColumns();
+
+    DAAL_CHECK_EX(nVectors >= nFeatures, ErrorIncorrectNumberOfRows, ArgumentName, dataStr());
+
+    Parameter *parameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+    if(parameter->permutedColumns.get() != NULL)
+    {
+        int unexpectedLayouts = (int)NumericTableIface::csrArray |
+                                (int)NumericTableIface::upperPackedTriangularMatrix |
+                                (int)NumericTableIface::lowerPackedTriangularMatrix |
+                                (int)NumericTableIface::upperPackedSymmetricMatrix |
+                                (int)NumericTableIface::lowerPackedSymmetricMatrix;
+
+        s |= checkNumericTable(parameter->permutedColumns.get(), permutedColumnsStr(), unexpectedLayouts, 0, nFeatures, 1);
+    }
+    return s;
+}
+
+
+Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
+
+/**
+ * Returns result of the pivoted QR algorithm
+ * \param[in] id    Identifier of the result
+ * \return          Result that corresponds to the given identifier
+ */
+NumericTablePtr Result::get(ResultId id) const
+{
+    return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets NumericTable to store the result of the pivoted QR algorithm
+ * \param[in] id    Identifier of the result
+ * \param[in] value Pointer to the storage NumericTable
+ */
+void Result::set(ResultId id, const NumericTablePtr &value)
+{
+    Argument::set(id, value);
+}
+
+/**
+* Checks the correctness of the result object
+* \param[in] in     Pointer to the input objects structure
+* \param[in] par    Pointer to the structure of the algorithm parameters
+* \param[in] method Computation method
+*/
+Status Result::check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const
+{
+    const Input *input = static_cast<const Input *>(in);
+
+    size_t nVectors = input->get(data)->getNumberOfRows();
+    size_t nFeatures = input->get(data)->getNumberOfColumns();
+
+    int unexpectedLayouts = (int)NumericTableIface::csrArray |
+                            (int)NumericTableIface::upperPackedTriangularMatrix |
+                            (int)NumericTableIface::lowerPackedTriangularMatrix |
+                            (int)NumericTableIface::upperPackedSymmetricMatrix |
+                            (int)NumericTableIface::lowerPackedSymmetricMatrix;
+
+    Status s = checkNumericTable(get(matrixQ).get(), matrixQStr(),
+                                 unexpectedLayouts, 0, nFeatures, nVectors);
+    if(!s) { return s; }
+    s |= checkNumericTable(get(permutationMatrix).get(), permutationMatrixStr(),
+                           unexpectedLayouts, 0, nFeatures, 1);
+    if(!s) { return s; }
+    unexpectedLayouts = (int)NumericTableIface::csrArray |
+                        (int)NumericTableIface::lowerPackedTriangularMatrix |
+                        (int)NumericTableIface::upperPackedSymmetricMatrix |
+                        (int)NumericTableIface::lowerPackedSymmetricMatrix;
+
+    s |= checkNumericTable(get(matrixR).get(), matrixRStr(),
+                           unexpectedLayouts, 0, nFeatures, nFeatures);
+    return s;
+}
+
+}// namespace interface1
+}// namespace pivoted_qr
+}// namespace algorithms
+}// namespace daal

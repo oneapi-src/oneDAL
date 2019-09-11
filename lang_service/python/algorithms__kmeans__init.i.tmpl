@@ -1,0 +1,209 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::algorithms::kmeans::init namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace, add_includes, add_aliases, add_ignores, handle_all_templates, cls_with_iface %}
+{% set ns  = 'algorithms::kmeans::init' %}
+{% set module  = 'init' %}
+{% set package = 'algorithms.kmeans' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated
+// by standard macros.
+// like 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': ['algorithms/kmeans/kmeans_init_types.h',
+                 'algorithms/kmeans/kmeans_init_distributed.h',
+                 'algorithms/kmeans/kmeans_init_batch.h'],
+    'classes': ['DistributedStep2MasterInput',
+                'DistributedStep2LocalPlusPlusParameter',
+                'DistributedStep2LocalPlusPlusInput',
+                'DistributedStep4LocalPlusPlusInput',
+                'DistributedStep2LocalPlusPlusPartialResult',
+                'DistributedStep4LocalPlusPlusPartialResult',
+                'DistributedStep5MasterPlusPlusInput',
+                'DistributedStep3MasterPlusPlusInput',
+                'DistributedStep3MasterPlusPlusPartialResult',
+                'DistributedStep5MasterPlusPlusPartialResult',
+                'Input',
+                'InputIface',
+                'Parameter',
+                'BatchBase',
+                'DistributedBase',
+                'DistributedStep2LocalPlusPlusBase',
+                'PartialResult',
+                'Result'],
+    'methods': [['defaultDense', 'deterministicDense'],
+                'randomDense',
+                'plusPlusDense',
+                'randomCSR',
+                'parallelPlusDense',
+                'parallelPlusCSR',
+                'deterministicCSR',
+                'plusPlusCSR'],
+    's1methods': ['deterministicDense',
+                  'deterministicCSR',
+                  'randomDense',
+                  'randomCSR',
+                  'plusPlusDense',
+                  'plusPlusCSR',
+                  'parallelPlusDense',
+                  'parallelPlusCSR',],
+    's2mmethods': ['deterministicDense',
+                   'deterministicCSR',
+                   'randomDense',
+                   'randomCSR',],
+    's2l34methods': ['plusPlusDense',
+                     'parallelPlusDense',
+                     'plusPlusCSR',
+                     'parallelPlusCSR',],
+    's5methods': ['parallelPlusDense',
+                  'parallelPlusCSR',],
+    'steps': ['daal::step1Local',
+              'daal::step2Local',
+              'daal::step2Master',
+              'daal::step3Master',
+              'daal::step4Local',
+              'daal::step5Master',],
+    'templates': {
+         'Batch': [['fptype', fptypes, 'double'], ['method', 'methods', 'deterministicDense']],
+         'Distributed': ([['step', ['daal::step1Local',], ''], ['fptype', fptypes, 'double'], ['method', 's1methods', 'defaultDense']],
+                         [['step', ['daal::step2Master',], ''], ['fptype', fptypes, 'double'], ['method', 's2mmethods', 'defaultDense']],
+                         [['step', ['daal::step2Local',], ''], ['fptype', fptypes, 'double'], ['method', 's2l34methods', 'defaultDense']],
+                         [['step', ['daal::step3Master',], ''], ['fptype', fptypes, 'double'], ['method', 's2l34methods', 'defaultDense']],
+                         [['step', ['daal::step4Local',], ''], ['fptype', fptypes, 'double'], ['method', 's2l34methods', 'defaultDense']],
+                         [['step', ['daal::step5Master'], ''], ['fptype', fptypes, 'double'], ['method', 's5methods', 'defaultDense']]),
+         'PartialResult::allocate': [['fptype', fptypes, '']],
+         'DistributedStep2LocalPlusPlusPartialResult::allocate': [['fptype', fptypes, '']],
+         'DistributedStep4LocalPlusPlusPartialResult::allocate': [['fptype', fptypes, '']],
+         'DistributedStep3MasterPlusPlusPartialResult::allocate': [['fptype', fptypes, '']],
+         'DistributedStep5MasterPlusPlusPartialResult::allocate': [['fptype', fptypes, '']],
+         'Result::allocate': [['fptype', fptypes, '']],
+    },
+    'namespaces': {
+        'Batch': 'interface2',
+        'BatchBase': 'interface2',
+        'BatchContainer': 'interface2',
+        'Parameter': 'interface2',
+        'DistributedContainer': 'interface2',
+        'DistributedBase': 'interface2',
+        'DistributedStep2LocalPlusPlusBase': 'interface2',
+        'Distributed': 'interface2',
+    }
+} %}
+
+{{declare_module('daal.'+package, module)}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_{{ns.replace('::', '__')}}
+#define USE_{{package.replace('.', '__')}}
+#define USE_algorithms__engines
+#define USE_algorithms__engines__mt19937
+
+%include "daal_common.i"
+
+// Create compact wrapper for constructors with default SharedPtr args so our typemaps are applied
+%feature("compactdefaultargs", "1") daal::{{ns}}::interface1::Parameter;
+%feature("compactdefaultargs", "1") daal::{{ns}}::{{cls_with_iface('Parameter', cfg)}};
+
+// renaming, typemaps need to go before declarations -> put them here
+
+%rename(interface1_Parameter) daal::{{ns}}::interface1::Parameter;
+
+%shared_ptr(daal::{{ns}}::interface1::Parameter);
+
+//%rename(getInput) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::Input::get(InputId id) const;
+//%rename(setInput) /*void */ daal::{{ns}}::interface1::Input::set(InputId id, const data_management::NumericTablePtr &ptr);
+
+//%rename(getPartialResult) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::PartialResult::get(PartialResultId id) const;
+//%rename(setPartialResult) /*void */ daal::{{ns}}::interface1::PartialResult::set(PartialResultId id, const data_management::NumericTablePtr &ptr);
+
+//%rename(getResult) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::Result::get(ResultId id) const;
+//%rename(setResult) /*void */ daal::{{ns}}::interface1::Result::set(ResultId id, const data_management::NumericTablePtr &ptr);
+
+%rename(getInput) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::DistributedStep2LocalPlusPlusInput::get(InputId id) const;
+%rename(setInput) /*void */ daal::{{ns}}::interface1::DistributedStep2LocalPlusPlusInput::set(InputId id, const data_management::NumericTablePtr &ptr);
+%rename(getLocal) /*data_management::DataCollectionPtr */ daal::{{ns}}::interface1::DistributedStep2LocalPlusPlusInput::get(DistributedLocalPlusPlusInputDataId id) const;
+%rename(setLocal) /*void */ daal::{{ns}}::interface1::DistributedStep2LocalPlusPlusInput::set(DistributedLocalPlusPlusInputDataId id, const data_management::DataCollectionPtr &ptr);
+%rename(getStepInput) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::DistributedStep2LocalPlusPlusInput::get(DistributedStep2LocalPlusPlusInputId id) const;
+%rename(setStepInput) /*void */ daal::{{ns}}::interface1::DistributedStep2LocalPlusPlusInput::set(DistributedStep2LocalPlusPlusInputId id, const data_management::NumericTablePtr &ptr);
+
+//%rename(getDistributedStep3MasterPlusPlusInput) /*data_management::KeyValueDataCollectionPtr */ daal::{{ns}}::interface1::DistributedStep3MasterPlusPlusInput::get(DistributedStep3MasterPlusPlusInputId id) const;
+//%rename(setDistributedStep3MasterPlusPlusInput) /*void */ daal::{{ns}}::interface1::DistributedStep3MasterPlusPlusInput::set(DistributedStep3MasterPlusPlusInputId id, const data_management::KeyValueDataCollectionPtr &ptr);
+
+%rename(getInput) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::DistributedStep4LocalPlusPlusInput::get(InputId id) const;
+%rename(setInput) /*void */ daal::{{ns}}::interface1::DistributedStep4LocalPlusPlusInput::set(InputId id, const data_management::NumericTablePtr &ptr);
+%rename(getLocal) /*data_management::DataCollectionPtr */ daal::{{ns}}::interface1::DistributedStep4LocalPlusPlusInput::get(DistributedLocalPlusPlusInputDataId id) const;
+%rename(setLocal) /*void */ daal::{{ns}}::interface1::DistributedStep4LocalPlusPlusInput::set(DistributedLocalPlusPlusInputDataId id, const data_management::DataCollectionPtr &ptr);
+%rename(getStepInput) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::DistributedStep4LocalPlusPlusInput::get(DistributedStep4LocalPlusPlusInputId id) const;
+%rename(setStepInput) /*void */ daal::{{ns}}::interface1::DistributedStep4LocalPlusPlusInput::set(DistributedStep4LocalPlusPlusInputId id, const data_management::NumericTablePtr &ptr);
+
+%rename(getInput) /*data_management::DataCollectionPtr */ daal::{{ns}}::interface1::DistributedStep5MasterPlusPlusInput::get(DistributedStep5MasterPlusPlusInputId id) const;
+%rename(setInput) /*void */ daal::{{ns}}::interface1::DistributedStep5MasterPlusPlusInput::set(DistributedStep5MasterPlusPlusInputId id, const data_management::DataCollectionPtr &ptr);
+%rename(getStepInput) /*data_management::SerializationIfacePtr */ daal::{{ns}}::interface1::DistributedStep5MasterPlusPlusInput::get(DistributedStep5MasterPlusPlusInputDataId id) const;
+%rename(setStepInput) /*void */ daal::{{ns}}::interface1::DistributedStep5MasterPlusPlusInput::set(DistributedStep5MasterPlusPlusInputDataId id, const data_management::SerializationIfacePtr &ptr);
+
+%rename(getOutput) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::DistributedStep2LocalPlusPlusPartialResult::get(DistributedStep2LocalPlusPlusPartialResultId id) const;
+%rename(setOutput) /*void */ daal::{{ns}}::interface1::DistributedStep2LocalPlusPlusPartialResult::set(DistributedStep2LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr);
+%rename(getLocal) /*data_management::DataCollectionPtr */ daal::{{ns}}::interface1::DistributedStep2LocalPlusPlusPartialResult::get(DistributedStep2LocalPlusPlusPartialResultDataId id) const;
+%rename(setLocal) /*void */ daal::{{ns}}::interface1::DistributedStep2LocalPlusPlusPartialResult::set(DistributedStep2LocalPlusPlusPartialResultDataId id, const data_management::DataCollectionPtr &ptr);
+
+%rename(getOutput) /*data_management::KeyValueDataCollectionPtr */ daal::{{ns}}::interface1::DistributedStep3MasterPlusPlusPartialResult::get(DistributedStep3MasterPlusPlusPartialResultId id) const;
+%rename(getOutput) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::DistributedStep3MasterPlusPlusPartialResult::get(DistributedStep3MasterPlusPlusPartialResultId id, size_t key) const;
+%rename(getStepOutput) /*data_management::SerializationIfacePtr */ daal::{{ns}}::interface1::DistributedStep3MasterPlusPlusPartialResult::get(DistributedStep3MasterPlusPlusPartialResultDataId id) const;
+
+//%rename(getDistributedStep4LocalPlusPlusPartialResult) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::DistributedStep4LocalPlusPlusPartialResult::get(DistributedStep4LocalPlusPlusPartialResultId id) const;
+//%rename(setDistributedStep4LocalPlusPlusPartialResult) /*void */ daal::{{ns}}::interface1::DistributedStep4LocalPlusPlusPartialResult::set(DistributedStep4LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr);
+
+//%rename(getDistributedStep5MasterPlusPlusPartialResult) /*data_management::NumericTablePtr */ daal::{{ns}}::interface1::DistributedStep5MasterPlusPlusPartialResult::get(DistributedStep5MasterPlusPlusPartialResultId id) const;
+//%rename(setDistributedStep5MasterPlusPlusPartialResult) /*void */ daal::{{ns}}::interface1::DistributedStep5MasterPlusPlusPartialResult::set(DistributedStep5MasterPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr);
+
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "algorithms.i"
+%import "algorithms__engines__mt19937.i"
+
+// standard/basic type mappings
+%import <std_string.i>
+
+%{
+#include <daal.h>
+using namespace daal::{{ns}};
+%}
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+{{add_includes(cfg)}}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+    // Add our compute wrappers
+    {{add_compute("Batch", cfg=cfg)}}
+    // no Online
+    // Distributed only for selected variants
+    {{add_compute2(ns, cfg, "Distributed", nums=[0,1])}}
+    {{add_compute2(ns, cfg, "Distributed", nums=[2], pr='DistributedStep2LocalPlusPlusPartialResult', finalize=False)}}
+    {{add_compute2(ns, cfg, "Distributed", nums=[3], pr='DistributedStep3MasterPlusPlusPartialResult', finalize=False)}}
+    {{add_compute2(ns, cfg, "Distributed", nums=[4], pr='DistributedStep4LocalPlusPlusPartialResult', finalize=False)}}
+    {{add_compute2(ns, cfg, "Distributed", nums=[5], pr='DistributedStep5MasterPlusPlusPartialResult')}}
+
+    // now all template instantiations
+    {{handle_all_templates(ns, cfg)}}
+
+{% endcall %}
+
+{{add_aliases(cfg)}}

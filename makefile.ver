@@ -1,0 +1,62 @@
+#================================================== -*- makefile -*- vim:ft=make
+# Copyright 2014-2019 Intel Corporation.
+#
+# This software and the related documents are Intel copyrighted  materials,  and
+# your use of  them is  governed by the  express license  under which  they were
+# provided to you (License).  Unless the License provides otherwise, you may not
+# use, modify, copy, publish, distribute,  disclose or transmit this software or
+# the related documents without Intel's prior written permission.
+#
+# This software and the related documents  are provided as  is,  with no express
+# or implied  warranties,  other  than those  that are  expressly stated  in the
+# License.
+#===============================================================================
+
+MAJOR   =       2020
+MINOR   =       0
+UPDATE  =       0
+BUILD   =       $(shell date +'%Y%m%d')
+STATUS  =       P
+BUILDREV ?=     work
+
+#-------------------------------------------------------------------------------
+# Declarations
+#
+
+# auto-generated include file to take version data from
+VERSION_DATA_FILE = $(WORKDIR)/_daal_version_data.h
+
+# content of version data file to be included in product
+define DAAL_VERSION_DATA
+// DO NOT EDIT: file is auto-generated on build time
+// DO NOT PUT THIS FILE TO SVN: file is auto-generated on build time
+// Product version is specified in src/makefile.ver file
+#define MAJORVERSION $(MAJOR)
+#define MINORVERSION $(MINOR)
+#define UPDATEVERSION $(UPDATE)
+#define BUILD "$(BUILD)"
+#define BUILD_REV "$(BUILDREV)"
+#define PRODUCT_STATUS '$(STATUS)'
+endef
+export DAAL_VERSION_DATA
+
+#-------------------------------------------------------------------------------
+# Targets
+#
+
+# check if version data has been changed and we need to rebuilt version data header file
+ifneq ($(shell cat $(VERSION_DATA_FILE) 2>/dev/null), $(strip $(DAAL_VERSION_DATA)))
+.PHONY: $(VERSION_DATA_FILE)
+endif
+
+# target generating version data include file
+$(VERSION_DATA_FILE): | $(WORKDIR)/.
+	@bash -c 'echo "$$DAAL_VERSION_DATA"' > $@
+
+# update public headers in release directory with actual version data
+update_headers_version:
+	@file=$(RELEASEDIR.include)/services/library_version_info.h && mark="#define __INTEL_DAAL" && \
+	sed $(sed.-b) $(sed.-i) -e "s/_DAAL_BUILD_DATE.*/_DAAL_BUILD_DATE $(BUILD)$(sed.eol)/" \
+		-e "s/\($${mark}__\).*/\1 $(MAJOR)$(sed.eol)/;s/\($${mark}_MINOR__\).*/\1 $(MINOR)$(sed.eol)/" \
+		-e "s/\($${mark}_UPDATE__\).*/\1 $(UPDATE)$(sed.eol)/" $$file && \
+        rm -f $$file.bak

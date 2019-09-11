@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>inteldaal.redist.linux-x64</id>
+    <version>$version$</version>
+    <authors>Intel Corporation</authors>
+    <owners>Intel Corporation</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">license.txt</license>
+    <projectUrl>https://software.intel.com/en-us/intel-daal</projectUrl>
+    <iconUrl>https://software.intel.com/sites/products/vtune/assets/brand-intel-transparent-64x64.png</iconUrl>
+    <description>Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) helps speed up big data analysis by providing highly optimized algorithmic building blocks for all stages of data analytics (preprocessing, transformation, analysis, modeling, validation, and decision making) in batch, online, and distributed processing modes of computation.</description>
+    <summary>Package includes linux-x64 run-time libraries</summary>
+    <releaseNotes>https://software.intel.com/en-us/articles/intel-daal-release-notes-and-new-features</releaseNotes>
+    <copyright>Copyright 2019 Intel Corporation</copyright>
+    <tags>native intel daal</tags>
+  </metadata>
+</package>

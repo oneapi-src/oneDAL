@@ -1,0 +1,132 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::algorithms namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace,
+                         add_includes, add_aliases, add_ignores, handle_all_templates, cls_with_iface %}
+{% set ns  = 'algorithms' %}
+{% set module  = 'algorithms' %}
+{% set package = 'daal' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated
+// by standard macros.
+// like 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'classes': ['AlgorithmContainerIface',
+                'AlgorithmContainerIfaceImpl',
+                'AlgorithmDispatchContainer',
+                'AlgorithmIface',
+                'AlgorithmIfaceImpl',
+                'Argument',
+                'DistributedPrediction',
+                'HostAppIface',
+                'Input',
+                'Kernel',
+                'Model',
+                'OptionalArgument',
+                'Parameter',
+                'PartialResult',
+                'Prediction',
+                'Result',
+                'SerializableArgument',
+                'PredictionContainerIface',
+                'DistributedPredictionContainerIface',],
+    'templates': {
+        'Algorithm': [['cmode', cmodes, '']],
+        'AlgorithmImpl': [['cmode', cmodes, '']],
+        'Analysis': [['cmode', cmodes, '']],
+        'Training': [['cmode', cmodes, '']],
+        'AlgorithmContainer': [['cmode', cmodes, '']],
+        'AlgorithmContainerImpl': [['cmode', cmodes, '']],
+        'AnalysisContainerIface': [['cmode', cmodes, '']],
+    },
+    'namespaces': {
+        'Analysis': '',
+        'Training': '',
+        'Prediction': '',
+        'DistributedPrediction': '',
+        'AnalysisContainerIface': '',
+        'PredictionContainerIface': '',
+        'TrainingContainerIface': '',
+        'DistributedPredictionContainerIface': '',
+    },
+} %}
+
+{{declare_module(package, module)}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_{{ns.replace('::', '__')}}
+
+%include "daal_common.i"
+
+// renaming, typemaps need to go before declarations -> put them here
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "data_management.i"
+
+// standard/basic type mappings
+%import <std_string.i>
+%shared_ptr(daal::algorithms::interface1::Model);
+
+%{
+#include <daal.h>
+using namespace daal;
+%}
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+%include <algorithms/algorithm_kernel.h>
+%include <algorithms/algorithm_container_base_common.h>
+%include <algorithms/algorithm_container_base_batch.h>
+%include <algorithms/algorithm_base_common.h>
+%include <algorithms/algorithm_base_mode.h>
+%include <algorithms/algorithm_base_mode_impl.h>
+%include <algorithms/algorithm_types.h>
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+
+    // Declare the parent template instantiations we want
+    // these need to go before including/declaring derived clases
+    {{ handle_all_templates(ns, cfg, ['Algorithm', 'AlgorithmImpl','AlgorithmContainer', 'AlgorithmContainerImpl']) }}
+
+{% endcall %}
+
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+
+    {% for c in ['Algorithm', 'AlgorithmImpl', 'AlgorithmContainer', 'AlgorithmContainerImpl', ] %}
+        {% for cm in cmodes %}
+    using {{cls_with_iface(c, cfg)}}<{{cm}}>;
+        {% endfor %}
+    {% endfor %}
+
+{% endcall %}
+
+%include <algorithms/analysis.h>
+%include <algorithms/model.h>
+%include <algorithms/training.h>
+%include <algorithms/prediction.h>
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+
+    {{ handle_all_templates(ns, cfg, ['Analysis', 'Training', 'AnalysisContainerIface',]) }}
+
+{% endcall %}
+
+{{add_aliases(cfg)}}

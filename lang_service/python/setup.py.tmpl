@@ -1,0 +1,189 @@
+#! /usr/bin/env python
+#===============================================================================
+# Copyright 2014-2019 Intel Corporation.
+#
+# This software and the related documents are Intel copyrighted  materials,  and
+# your use of  them is  governed by the  express license  under which  they were
+# provided to you (License).  Unless the License provides otherwise, you may not
+# use, modify, copy, publish, distribute,  disclose or transmit this software or
+# the related documents without Intel's prior written permission.
+#
+# This software and the related documents  are provided as  is,  with no express
+# or implied  warranties,  other  than those  that are  expressly stated  in the
+# License.
+#===============================================================================
+
+{% from 'jinjadefs.tmpl' import config %}
+
+# System imports
+import os
+import subprocess
+import sys
+from distutils.core import *
+from distutils      import sysconfig
+from setuptools     import setup, Extension
+from os.path import join as jp
+from distutils.sysconfig import get_config_vars
+
+import numpy as np
+
+npyver = int(np.__version__.split('.')[1])
+
+if npyver == 9:
+    print("Warning:  Detected numpy version {}".format(np.__version__))
+    print("Numpy 1.10 or greater is strongly recommended.")
+    print("Earlier versions have not been tested. Use at your own risk.")
+
+if npyver < 9:
+    sys.exit("Error: Detected numpy {}. The minimum requirement is 1.9, and >= 1.10 is strongly recommended".format(np.__version__))
+
+
+daal_root=os.environ['DAALROOT']
+IS_WIN = False
+IS_MAC = False
+IS_LIN = False
+
+if 'linux' in sys.platform:
+    IS_LIN = True
+    lib_dir = '/lib/intel64_lin'
+elif sys.platform == 'darwin':
+    IS_MAC = True
+    lib_dir = '/lib'
+elif sys.platform in ['win32', 'cygwin']:
+    IS_WIN = True
+    lib_dir = '/lib/intel64_win'
+else:
+    assert False, sys.platform + ' not supported'
+
+DAAL_DEFAULT_TYPE = 'double'
+
+all_modules = {
+{% for m in mods.strip("'").split() %}
+        '{{"daal." + m.replace("__", ".")}}': '_{{m|unify}}_',
+{% endfor %}
+}
+
+def get_sdl_cflags():
+    if IS_LIN or IS_MAC:
+        cflags = ['-fstack-protector', '-fPIC', '-D_FORTIFY_SOURCE=2', '-Wformat', '-Wformat-security']
+        if IS_LIN:
+            return cflags + ['-O2']
+        elif IS_MAC:
+            return cflags + []
+    elif IS_WIN:
+        return ['-GS', '-O2']
+
+
+def get_sdl_ldflags():
+    if IS_LIN:
+        return ['-Wl,-z,noexecstack', '-Wl,-z,relro', '-Wl,-z,now']
+    elif IS_MAC:
+        return []
+    elif IS_WIN:
+        return ['-NXCompat', '-DynamicBase']
+
+def get_type_defines():
+    daal_type_defines = ['DAAL_ALGORITHM_FP_TYPE', 'DAAL_SUMMARY_STATISTICS_TYPE', 'DAAL_DATA_TYPE']
+    return ["-D{}={}".format(d, DAAL_DEFAULT_TYPE) for d in daal_type_defines]
+
+
+
+def getpyexts():
+    include_dir_plat = ['./daal/include', daal_root + '/include']
+    using_intel = os.environ.get('cc', '') in ['icc', 'icpc', 'icl']
+    eca = get_type_defines()
+    ela = []
+
+    if using_intel and IS_WIN:
+        include_dir_plat.append(jp(os.environ.get('ICPP_COMPILER16', ''), 'compiler', 'include'))
+        eca += ['-std=c++11', '-w']
+    elif not using_intel and IS_WIN:
+        eca += ['-wd4267', '-wd4244', '-wd4101', '-wd4996']
+    else:
+        eca += ['-std=c++11', '-w']
+
+    # Security flags
+    eca += get_sdl_cflags()
+    ela += get_sdl_ldflags()
+
+    if sys.version_info[0] >= 3:
+        eca.append('-DSWIGPY_USE_CAPSULE_')
+
+    if IS_WIN:
+        libraries_plat = ['daal_thread', 'daal_core_dll', 'odbc32']
+    else:
+        libraries_plat = ['daal_core', 'daal_thread']
+
+    if IS_MAC:
+        ela.append('-stdlib=libc++')
+        ela.append("-Wl,-rpath,{}".format(jp(daal_root, 'lib')))
+        ela.append("-Wl,-rpath,{}".format(jp(daal_root, '..', 'tbb', 'lib')))
+    elif IS_WIN:
+        ela.append('-IGNORE:4197')
+
+    exts = []
+    for m in all_modules:
+        stem = m.replace('.', '__')[6:]
+        s = m + '.'
+        if m in ['daal.daal'] or not any(e.startswith(s) for e in all_modules):
+            ext = ".".join([m.rsplit(".",1)[0], all_modules[m]])
+        else:
+            ext = ".".join([m, all_modules[m]])
+        exts.append(Extension(ext,
+                              [jp('daal', 'wrp', '_' + stem + '.cpp')],
+                              include_dirs=include_dir_plat + [np.get_include()],
+                              extra_compile_args=eca,
+                              extra_link_args=ela,
+                              libraries=libraries_plat,
+                              library_dirs=[daal_root + lib_dir],
+                              language='c++')),
+    return exts
+
+def getpypkgs():
+    pkgs = ['daal']
+    for m in all_modules:
+        s = m + '.'
+        if any(e.startswith(s) for e in all_modules):
+            pkgs.append(m)
+    return pkgs
+
+def getpymods():
+    mods = []
+    for m in all_modules:
+        s = m + '.'
+        if m not in ['daal.daal'] and not any(e.startswith(s) for e in all_modules):
+            mods.append(m)
+    return mods
+
+cfg_vars = get_config_vars()
+for key, value in get_config_vars().items():
+    if type(value) == str:
+        cfg_vars[key] = value.replace("-Wstrict-prototypes", "")
+
+# daal setup
+setup(  name        = "pydaal",
+        description = "Python API to Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL)",
+        author      = "Intel",
+        version     = "{{PYDAAL_VERSION}}",
+        classifiers=[
+            'Development Status :: 4 - Beta',
+            'Environment :: Console',
+            'Intended Audience :: Developers',
+            'Intended Audience :: System Administrators',
+            'Intended Audience :: Other Audience',
+            'Intended Audience :: Science/Research',
+            'License :: Other/Proprietary License',
+            'Operating System :: MacOS :: MacOS X',
+            'Operating System :: Microsoft :: Windows',
+            'Operating System :: POSIX :: Linux',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
+            'Topic :: Scientific/Engineering',
+            'Topic :: System',
+            'Topic :: Software Development',
+          ],
+        setup_requires = ['numpy>=1.9'],
+        packages = getpypkgs(),
+        ext_modules = getpyexts(),
+        py_modules = getpymods(),
+)

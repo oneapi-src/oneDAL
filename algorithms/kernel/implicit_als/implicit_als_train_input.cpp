@@ -1,0 +1,135 @@
+/* file: implicit_als_train_input.cpp */
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/*
+//++
+//  Implementation of implicit als algorithm and types methods.
+//--
+*/
+
+#include "implicit_als_training_types.h"
+#include "daal_strings.h"
+
+using namespace daal::data_management;
+using namespace daal::services;
+
+namespace daal
+{
+namespace algorithms
+{
+namespace implicit_als
+{
+namespace training
+{
+namespace interface1
+{
+Input::Input() : daal::algorithms::Input(lastModelInputId + 1) {}
+
+/**
+ * Returns the input numeric table object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier
+ */
+data_management::NumericTablePtr Input::get(NumericTableInputId id) const
+{
+    return services::staticPointerCast<data_management::NumericTable,
+           data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Returns the input initial model object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier
+ */
+ModelPtr Input::get(ModelInputId id) const
+{
+    return services::staticPointerCast<Model, data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets the input numeric table object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the input object
+ */
+void Input::set(NumericTableInputId id, const data_management::NumericTablePtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Sets the input initial model object for the implicit ALS training algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the input object
+ */
+void Input::set(ModelInputId id, const ModelPtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Returns the number of users equal to the number of rows in the input data set
+ * \return Number of users
+ */
+size_t Input::getNumberOfUsers() const { return get(data)->getNumberOfRows(); }
+
+/**
+ * Returns the number of items equal to the number of columns in the input data set
+ * \return Number of items
+ */
+size_t Input::getNumberOfItems() const { return get(data)->getNumberOfColumns(); }
+
+/**
+ * Checks the parameters and input objects for the implicit ALS training algorithm
+ * \param[in] parameter %Parameter of the algorithm
+ * \param[in] method    Computation method of the algorithm
+ */
+services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+{
+    DAAL_CHECK(parameter, ErrorNullParameterNotSupported);
+    const Parameter *alsParameter = static_cast<const Parameter *>(parameter);
+    const size_t nFactors = alsParameter->nFactors;
+
+    services::Status s;
+    if(method == defaultDense)
+    {
+        const int unexpectedLayouts = (int)NumericTableIface::upperPackedTriangularMatrix |
+                                (int)NumericTableIface::lowerPackedTriangularMatrix |
+                                (int)NumericTableIface::upperPackedSymmetricMatrix  |
+                                (int)NumericTableIface::lowerPackedSymmetricMatrix;
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(), dataStr(), unexpectedLayouts));
+    }
+    else
+    {
+        const int expectedLayout = (int)NumericTableIface::csrArray;
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(), dataStr(), 0, expectedLayout));
+    }
+
+    NumericTablePtr dataTable = get(data);
+    const size_t nUsers = dataTable->getNumberOfRows();
+    const size_t nItems = dataTable->getNumberOfColumns();
+    ModelPtr model = get(inputModel);
+    DAAL_CHECK(model, ErrorNullModel);
+
+    const int unexpectedLayouts = (int)packed_mask;
+    DAAL_CHECK_STATUS(s, checkNumericTable(model->getUsersFactors().get(), usersFactorsStr(), unexpectedLayouts, 0, nFactors, nUsers));
+    DAAL_CHECK_STATUS(s, checkNumericTable(model->getItemsFactors().get(), itemsFactorsStr(), unexpectedLayouts, 0, nFactors, nItems));
+    return s;
+}
+
+}// namespace interface1
+}// namespace training
+}// namespace implicit_als
+}// namespace algorithms
+}// namespace daal

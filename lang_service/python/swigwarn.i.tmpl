@@ -1,0 +1,47 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+// list of all warnings we know we can safely ignore
+// only supress individual warnings, e.g. per class/function
+// do not generally supress warning types
+
+%warnfilter(451) daal::services::interface1::LibraryVersionInfo;
+%warnfilter(389) daal::services::interface1::Collection::operator[];
+%warnfilter(325) daal::services::interface1::Environment::_envStruct;
+%warnfilter(362) daal::services::interface1::Collection::operator=;
+%warnfilter(362) daal::services::interface1::Status::operator=;
+%warnfilter(389) daal::data_management::interface1::KeyValueDataCollection::operator[];
+%warnfilter(389) daal::data_management::interface1::KeyValueCollection::operator[];
+%warnfilter(389) daal::data_management::interface1::DataCollection::operator[];
+%warnfilter(389) daal::data_management::interface1::Dictionary::operator[];
+%warnfilter(389) daal::data_management::interface1::HomogenNumericTable::operator[];
+%warnfilter(389) daal::algorithms::neural_networks::training::interface1::Topology::operator[];
+%warnfilter(389) daal::algorithms::neural_networks::prediction::interface1::Topology::operator[];
+%warnfilter(509) daal::data_management::interface1::CompressionStream::operator<<;
+%warnfilter(509) daal::data_management::interface1::DecompressionStream::operator<<;
+%warnfilter(325) daal::data_management::interface1::NumericTable::BasicStatisticsDataCollection;
+%warnfilter(401) daal::data_management::interface1::NumericTable::BasicStatisticsDataCollection;
+%warnfilter(362) daal::data_management::interface1::NumericTableFeature::operator=;
+%warnfilter(362) daal::data_management::interface1::DataSourceFeature::operator=;
+%warnfilter(509) daal::data_management::interface1::CSRNumericTable::CSRNumericTable;
+%warnfilter(509) daal::data_management::interface1::CSRNumericTable::setArrays;
+%warnfilter(314) daal::algorithms::implicit_als::interface1::Parameter::lambda; // FIXME
+%warnfilter(314) daal::algorithms::gbt::training::interface1::Parameter::lambda;
+%warnfilter(389) daal::algorithms::quality_metric_set::interface1::InputAlgorithmsCollection::operator[];
+%warnfilter(302) daal::algorithms::quality_metric_set::interface1::Batch::compute; // redefined, that's what we want
+%warnfilter(389) daal::algorithms::neural_networks::layers::interface1::NextLayers::operator[];
+%warnfilter(389) daal::services::interface1::KernelErrorCollection::operator[];
+%warnfilter(401) std::exception;
+%warnfilter(740) ; // FIXME (also in makefile)
+%warnfilter(742) ; // (also in makefile)

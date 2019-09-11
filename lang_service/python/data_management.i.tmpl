@@ -1,0 +1,798 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::data_management namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import declare_module, add_compute, add_compute2, in_namespace, add_includes,
+        add_aliases, add_ignores, handle_all_templates, ref_ndarray, add_setgetitem, add_getitem, for_all_templates,
+        cls_with_iface %}
+{% set ns  = 'data_management' %}
+{% set module  = 'data_management' %}
+{% set package = 'daal' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated
+// by standard macros.
+// like 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': [
+            'data_management/compression/compression.h',
+            'data_management/compression/compression_stream.h',
+            'data_management/compression/bzip2compression.h',
+            'data_management/compression/lzocompression.h',
+            'data_management/compression/rlecompression.h',
+            'data_management/compression/zlibcompression.h',
+            'data_management/data/numeric_types.h',
+            'data_management/data/data_archive.h',
+            'data_management/data/data_collection.h',
+            'data_management/data/input_collection.h',
+            'data_management/data/data_block.h',
+            'data_management/data/data_dictionary.h',
+            'data_management/data_source/data_source_dictionary.h',
+            'data_management/data/numeric_table.h',
+            'data_management/data/tensor.h',
+            'data_management/data/subtensor.h',
+            'data_management/data/npy_aos_numeric_table.h',
+            'data_management/data/soa_numeric_table.h',
+            'data_management/data/csr_numeric_table.h',
+            'data_management/data/homogen_numeric_table.h',
+            'data_management/data/homogen_tensor.h',
+            'data_management/data/merged_numeric_table.h',
+            'data_management/data/row_merged_numeric_table.h',
+            'data_management/data/matrix.h',
+            'data_management/data/symmetric_matrix.h',
+            'data_management/data_source/data_source.h',
+            'data_management/data_source/csv_data_source.h',
+            'data_management/data_source/string_data_source.h',
+            'data_management/data_source/data_source_utils.h',
+            'data_management/data_source/csv_feature_manager.h',
+            'data_management/data_source/file_data_source.h',
+            'data_management/features/identifiers.h',
+            'data_management/features/indices.h',],
+    'dont_includes': ['data_management/data/factory.h',
+                      'data_management/data/memory_block.h',],
+    'classes': ['BasicStatisticsDataCollection',
+                'CSRNumericTable',
+                'CSRNumericTableIface',
+                'ColumnFilter',
+                'CompressedDataArchive',
+                'Compression',
+                'CompressionIface',
+                'CompressionStream',
+                'CompressorImpl',
+                'CSVFeatureManager',
+                'DataArchive',
+                'DataArchiveIface',
+                'DataArchiveImpl',
+                'DataBlockIface',
+                'DataBlock',
+                'DataCollection',
+                'DataSource',
+                'DataSourceFeature',
+                'DataSourceIface',
+                'DecompressedDataArchive',
+                'DecompressionStream',
+                'DecompressorImpl',
+                'DenseNumericTableIface',
+                'DenseTensorIface',
+                'DictionaryIface',
+                'FeatureIdMappingIface',
+                'FeatureIdMapping',
+                'FeatureIdIface',
+                'FeatureId',
+                'FeatureIdCollectionIface',
+                'FeatureIdCollection',
+                'FeatureIndexTraits',
+                'FeatureIndicesIface',
+                'FeatureIndices',
+                'InputDataArchive',
+                'MakeCategorical',
+                'MergedNumericTable',
+                'ModifierIface',
+                'NpyAOSNumericTable',
+                'NumericTable',
+                'NumericTable',
+                'NumericTableFeature',
+                'NumericTableIface',
+                'OneHotEncoder',
+                'OutputDataArchive',
+                'PackedArrayNumericTableIface',
+                'RowMergedNumericTable',
+                'SOANumericTable',
+                'SerializationIface',
+                'StringRowFeatureManagerIface',
+                'Tensor',
+                'TensorIface',
+                'TensorLayoutIface',
+                'TensorLayout',
+                'TensorOffsetLayout',],
+    'FIXMEclasses': ['AbstractCreator',
+                     'Bzip2CompressionParameter',
+                     'CategoricalFeatureDictionary',
+                     'CompressionParameter',
+                     'Factory',
+                     'FactoryList',
+                     'LzoCompressionParameter',
+                     'RleCompressionParameter',
+                     'ZlibCompressionParameter'],
+    'ignore': ['MemoryBlock',
+               '!*::DataBlockIface',
+               '!*::DataBlock(size_t size)',
+               '!*::DataBlock(const DataBlock &block)',
+               '!*::DataBlock::setSize',
+               '!*::DataBlock(byte * ptr, size_t size)',
+               '!*::DataBlock(const services::SharedPtr<byte> &ptr, size_t size)',
+               '!*::getArchiveAsArray',
+               '!*::getArchiveAsArraySharedPtr',
+               '!*::getDictionarySharedPtr',
+               '!*::setArray(DataType *const)',
+               '!*::setArray(DataType *const ptr, size_t nRows)',
+               '!*::setArray(T *ptr, size_t idx)',
+               '!*::setArrays(void *const ptr, size_t *colIndices, size_t *rowOffsets, CSRIndexing indexing = oneBased)',
+               '!*::setArrays(const services::SharedPtr<DataType>& ptr, const services::SharedPtr<size_t>& colIndices, const services::SharedPtr<size_t>& rowOffsets, CSRIndexing indexing = oneBased)',
+               '!*::getArray() const',
+               '!*::getArray(size_t idx)',
+               '!*::getBlockPtr const',
+               '!*::getArraySharedPtr',
+               '!*::getArrays( void **ptr, size_t **colIndices, size_t **rowOffsets ) const',
+               '!*::getArrays(services::SharedPtr<DataType> &ptr, services::SharedPtr<size_t> &colIndices, services::SharedPtr<size_t> &rowOffsets) const',
+               '!*::getBlockValuesPtr()', '!*::getBlockColumnIndicesPtr() const', '!*::getBlockRowIndicesPtr() const',
+               '!*::getBlockValuesSharedPtr()', '!*::getBlockColumnIndicesSharedPtr() const', '!*::getBlockRowIndicesSharedPtr() const',
+               '!*::setRowIndicesPtr', '!*::setValuesPtr', '!*::setColumnIndicesPtr',
+               '!*::setPtr',
+               '!*::getPtr',
+               '!*::getSharedPtr',
+               '!*::setInputDataBlock( DataBlock &inBlock )',
+               '!*::run( DataBlock &outBlock )',
+               '!*::operator << (DataBlock *inBlock)',
+               '!*::push_back(DataBlock *inBlock)',
+               'HomogenNumericTable::HomogenNumericTable',
+               'HomogenNumericTable::setArray',
+               'Matrix::Matrix',
+               'Matrix::setArray',
+               'PackedSymmetricMatrix::PackedSymmetricMatrix',
+               'PackedSymmetricMatrix::setArray',
+               'PackedTriangularMatrix::PackedTriangularMatrix',
+               'PackedTriangularMatrix::setArray',
+               'HomogenTensor::HomogenTensor',
+               'HomogenTensor::setArray',
+               '!*::CSRNumericTable(DataType *const ptr, size_t *colIndices = 0, size_t *rowOffsets = 0, size_t nColumns = 0, size_t nRows = 0, CSRIndexing indexing = oneBased)',
+               '!*::getFixedDimNums() const',
+               '!*::getSubtensorDimSizes() const',
+               'MergedNumericTable::create',
+               'RowMergedNumericTable::create',
+               'SOANumericTable::create',
+               'StringRowFeatureManagerIface',
+               'FeatureAuxData',],
+    'templates': {
+        'BlockDescriptor': [['ntype', ntypes, 'double']],
+        'CSRBlockDescriptor': [['ntype', ntypes, 'double']],
+        'Compressor':   [['CompressionMethod',
+                          ['daal::data_management::bzip2', 'daal::data_management::lzo', 'daal::data_management::rle', 'daal::data_management::zlib'],
+                          '']],
+        'Decompressor': [['CompressionMethod',
+                          ['daal::data_management::bzip2', 'daal::data_management::lzo', 'daal::data_management::rle', 'daal::data_management::zlib'],
+                          '']],
+        'Dictionary::setFeature': [['ntype', ntypes, '']],
+        'NumericTableFeature::setType': [['ntype', ntypes, 'double']],
+        'DataSourceFeature::setType': [['ntype', ntypes, 'double']],
+        'HomogenNumericTable': [['ntype', ntypes, 'double']],
+        'NumericTable::getValue': [['ntype', ntypes, 'double']],
+        'Matrix': [['ntype', ntypes, 'double']],
+        'PackedSymmetricMatrix': [['packedLayout', ['daal::data_management::interface1::NumericTableIface::upperPackedSymmetricMatrix',
+                                                    'daal::data_management::interface1::NumericTableIface::lowerPackedSymmetricMatrix'],
+                                   ''],
+                                  ['ntype', ntypes, 'double']],
+        'PackedTriangularMatrix': [['packedLayout', ['daal::data_management::interface1::NumericTableIface::upperPackedTriangularMatrix',
+                                                     'daal::data_management::interface1::NumericTableIface::lowerPackedTriangularMatrix'],
+                                    ''],
+                                   ['ntype', ntypes, 'double']],
+        'DataSourceTemplate': [['TableType',
+                                ['daal::data_management::interface1::HomogenNumericTable<double>',
+                                 'daal::data_management::interface1::HomogenNumericTable<float>',
+                                 'daal::data_management::interface1::HomogenNumericTable<int>'],
+                                ''],
+                               ['StatsType', stypes, 'double']],
+        'CsvDataSource': [['FeatureManager',
+                            ['daal::data_management::interface1::CSVFeatureManager'],
+                            'daal::data_management::interface1::CSVFeatureManager'],
+                           ['StatsType', stypes, 'double']],
+        'FileDataSource': [['FeatureManager',
+                            ['daal::data_management::interface1::CSVFeatureManager'],
+                            'daal::data_management::interface1::CSVFeatureManager'],
+                           ['StatsType', stypes, 'double']],
+        'StringDataSource':[['FeatureManager',
+                             ['daal::data_management::interface1::CSVFeatureManager'],
+                             'daal::data_management::interface1::CSVFeatureManager'],
+                            ['StatsType', stypes, 'double']],
+        'SubtensorDescriptor': [['ntype', ntypes, 'double']],
+        'HomogenTensor': [['ntype', ntypes, 'double']],
+        'KeyValueCollection': [['T',
+                                     [ "daal::data_management::interface1::SerializationIface",
+                                       "daal::algorithms::interface1::Input"],
+                                      '']],
+        'SerializableKeyValueCollection': [
+            ['T', ['daal::data_management::interface1::SerializationIface'], ''],
+        ],
+    }
+} %}
+
+{{declare_module(package, module)}}
+
+%warnfilter(509) daal::data_management::{{cls_with_iface('CSRNumericTable', cfg)}}::setArrays;
+
+%pythoncode %{
+import numpy
+%}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+{% endcall %}
+using namespace daal;
+using namespace {{'::'.join(['daal', ns])}};
+
+%feature("flatnested") daal::data_management::{{cls_with_iface('NumericTable', cfg)}}::BasicStatisticsDataCollection;
+
+// Compressor constructors are not abstract
+%feature("notabstract") daal::data_management::{{cls_with_iface('Compressor', cfg)}}<daal::data_management::bzip2>;
+%feature("notabstract") daal::data_management::{{cls_with_iface('Compressor', cfg)}}<daal::data_management::lzo>;
+%feature("notabstract") daal::data_management::{{cls_with_iface('Compressor', cfg)}}<daal::data_management::rle>;
+%feature("notabstract") daal::data_management::{{cls_with_iface('Compressor', cfg)}}<daal::data_management::zlib>;
+
+// Decompressor constructors are not abstract
+%feature("notabstract") daal::data_management::{{cls_with_iface('Decompressor', cfg)}}<daal::data_management::bzip2>;
+%feature("notabstract") daal::data_management::{{cls_with_iface('Decompressor', cfg)}}<daal::data_management::lzo>;
+%feature("notabstract") daal::data_management::{{cls_with_iface('Decompressor', cfg)}}<daal::data_management::rle>;
+%feature("notabstract") daal::data_management::{{cls_with_iface('Decompressor', cfg)}}<daal::data_management::zlib>;
+
+%{
+#define SWIG_FILE_WITH_INIT
+// includes etc. needed to compile wrappers
+
+#include <daal.h>
+
+template<typename T> void my_delete(void * p ) { delete static_cast<T*>(p); }
+
+using namespace daal::data_management;
+// for SOA; can't be below as it would be included too late
+// note that the use of 'self' should be '$self' but this doesn't
+// work with the expansion order in SWIG. So we rely on SWIG to
+// expand '$self' to 'self'.
+#define SETARRAY_(_T) { daal::services::SharedPtr< _T > _tmp(reinterpret_cast< _T * >(PyArray_DATA(ary)), NumpyDeleter(ary)); self->setArray(_tmp, idx); }
+%}
+
+%include "daal_common.i"
+// SWIG warnings
+%include "swigwarn.i"
+
+// numpy includes
+%include "numpy.i"
+%init %{
+import_array();
+ %}
+
+// other standard interface file includes
+%import <std_string.i>
+%import <std_pair.i>
+%import <std_map.i>
+%import <cstring.i>
+
+{{add_ignores(cfg,ns)}}
+
+%rename(get) daal::data_management::interface1::OutputDataArchive::getAsSharedPtr;
+%rename(AOSNumericTable) NpyAOSNumericTable;
+%rename(getValueByIndexConst) daal::data_management::interface1::KeyValueCollection::getValueByIndex(int idx) const;
+%rename(getArchiveAsArray) getArchiveAsArray_;
+
+
+// Declare features (e.g. directors)
+ //%feature("director") daal::data_management::interface1::NumericTableIface;
+ //%feature("director") daal::data_management::interface1::DenseNumericTableIface;
+
+// for DataArchive::getArchiveAsArray, InputDataArchive::getArchiveAsArray
+// *DataArchive accepting buffer and size
+// copy-in
+ // data_archive::getArchiveAsArray (%extend)
+%apply(daal::services::SharedPtr< unsigned char > * ARGOUTVIEW_SP_ARRAY1, size_t* DIM) {
+    (daal::services::SharedPtr< daal::byte> * ptr, size_t * size)
+};
+
+// DataBLock setPtr (%extend)
+%apply(unsigned char* IN_FORCE_INPLACE_ARRAY1, size_t DIM) {
+    // compression: setInputDataBlock, run, push_back, copyCompressedArray, copyDecompressedArray
+    (daal::byte *outBlock, size_t size),
+    (daal::byte *outPtr, size_t outSize),
+    (daal::byte *inBlock, size_t size),
+    // Archive read/write/copytoarray
+    (daal::byte *ptr, size_t size),
+    (daal::byte *ptr, size_t maxLength)
+};
+
+// FeatureManagers: parseRowAsDictionary and parseRowIn
+%apply(char *STRING, size_t LENGTH) {
+    (char *rawRowData, size_t rawDataSize)
+};
+
+// HomogenTensor::getSubtensor
+// mapping dims, not data, copied-in
+%apply(size_t DIM, size_t* IN_ALLOW_CONVERSION_ARRAY1) {
+    (size_t fixedDims, const size_t* fixedDimNums)
+};
+
+// CSRNumericTable::CSRNumericTable (%extend)
+%apply(const daal::services::SharedPtr< size_t > & IN_ALLOW_CONVERSION_SP_ARRAY1, size_t DIM) {
+    (const daal::services::SharedPtr< size_t > & colIndices, size_t ncols),
+    (const daal::services::SharedPtr< size_t > & rowOffsets, size_t noffs)
+};
+
+// CSR and subtensor (%extend)
+%apply(size_t* DIM, daal::services::SharedPtr< size_t>* ARGOUTVIEW_SP_ARRAY1) {
+    (size_t * as1_, daal::services::SharedPtr< size_t > * arr1_),
+    (size_t * as2_, daal::services::SharedPtr< size_t > * arr2_)
+};
+
+%typemap(in) daal::services::interface1::Collection<size_t> {
+    if(!PyList_Check($input)) {
+        SWIG_fail;
+    }
+
+    Py_ssize_t length = PyList_Size($input);
+    $1.resize(length);
+
+    for(Py_ssize_t i = 0; i < length; i++) {
+        $1.push_back(PyLong_AsUnsignedLong(PyList_GetItem($input, i)));
+    }
+}
+
+// Declare/apply DAAL-specific typemaps
+{% for ntype in ntypes %}
+    // input typemap (constructors et al)
+    // HomogenNumericTable::HomogenNumericTable, Matrix::Matrix (%extend)
+    %apply(const daal::services::SharedPtr< {{ntype}} > & IN_ALLOW_CONVERSION_SP_ARRAY2, size_t DIM1, size_t DIM2) {
+        (const daal::services::SharedPtr< {{ntype}} > & ptr, size_t nColumns, size_t nRows)
+    };
+
+    // PackedSymmetricMatrix, PackedTriangularMatrix: constructors
+    %apply(const daal::services::SharedPtr< {{ntype}} > & IN_ALLOW_CONVERSION_SP_ARRAY1_PACKED, size_t DIM) {
+        (const daal::services::SharedPtr< {{ntype}} > & ptr, size_t nDim)
+    };
+
+    // CSRNumericTable::CSRNumericTable (%extend)
+    %apply(const daal::services::SharedPtr< {{ntype}} > & IN_ALLOW_CONVERSION_SP_ARRAY1, size_t DIM) {
+        (const daal::services::SharedPtr< {{ntype}} > & values, size_t nvals)
+    };
+
+    // HomogenTensor::HomogenTensor
+    %apply(size_t N, const size_t *DIMS, const daal::services::SharedPtr< {{ntype}} > & IN_ALLOW_CONVERSION_SP_N_DIMS_ARRAY) {
+        (size_t nDim, const size_t *dimSizes, const daal::services::SharedPtr< {{ntype}} > & data)
+    };
+
+    // out-args to return value (used by our %extend)
+    %apply(size_t* DIM, daal::services::SharedPtr< {{ntype}} >* ARGOUTVIEW_SP_ARRAY1){
+        (size_t * as_, daal::services::SharedPtr< {{ntype}} > * arr_)
+    };
+
+    // for DenseNumericTableIface::getBlockOfRows and DenseNumericTableIface::getBlockOfColumnValues
+    %apply(daal::data_management::BlockDescriptor< {{ntype}} > ** ARGOUTVIEW_DBD_ARRAY2) {
+        (daal::data_management::BlockDescriptor< {{ntype}} >** block_)
+    };
+
+    // HomogenTensor::getArray
+    %apply(daal::services::Collection<size_t> const** DIMS, daal::services::SharedPtr< {{ntype}} >* ARGOUTVIEW_SP_DIMS_ARRAY) {
+        (daal::services::Collection<size_t> const** nDims, daal::services::SharedPtr< {{ntype}} >* data)
+    };
+
+    // subTensorDescriptor::getArray
+    %apply(size_t *NDIMS, size_t **DIMSIZES, daal::services::SharedPtr< {{ntype}} >* ARGOUTVIEW_SP_N_DIMS_ARRAY) {
+        (size_t *nDims, size_t **dimSizes, daal::services::SharedPtr< {{ntype}} >* data)
+    };
+
+    // out-args for Blockdescriptor::getArray (%extend)
+    %apply(daal::services::SharedPtr< {{ntype}} >* ARGOUTVIEW_SP_ARRAY2, size_t* DIM1, size_t* DIM2) {
+        (daal::services::SharedPtr< {{ntype}} >* ptr, size_t * nColumns, size_t * nRows)
+    };
+{% endfor %}
+
+// out-args DataBlock/MemoryBlock::getArray (%extend)
+%apply(size_t* DIM, daal::services::SharedPtr< unsigned char >* ARGOUTVIEW_SP_ARRAY1){
+    (size_t * as_, daal::services::SharedPtr< daal::byte > * arr_)
+};
+
+// pyObject -> structured array
+%apply(PyArrayObject * SARRAY) {
+    (PyArrayObject * ary)
+};
+
+%apply char * {daal::byte *data};
+
+// import the DAAL files swig needs (don't include!)
+// only import the last module in package hierachy (omit importing its parents)
+%import "daal.i"
+
+// we have to include this here, if we get it through an import in services it gets ignored
+%include <data_management/data/data_serialize.h>
+%include <data_management/data/data_block.h>
+%import "services.i"
+%import "data_management__features.i"
+%import "data_management__modifiers__csv.i"
+
+%ignore std::map< std::string,std::pair< int, int > >;
+// declare standard template instantiations
+%template() std::pair< int, int >;
+%template(StdMap_str_pair_i_i) std::map< std::string,std::pair< int, int > >;
+
+// %import the DAAL files swig needs but no interface is to be generated
+// %include the DAAL files where swig should extract the interfaces
+{{ add_includes(cfg) }}
+
+%template(convertToHomogen_Float64) daal::data_management::convertToHomogen<double>;
+%template(convertToHomogen_Float32) daal::data_management::convertToHomogen<float>;
+%template(convertToHomogen_Intc) daal::data_management::convertToHomogen<int>;
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+
+    // Declare the DAAL template instantiations we want
+    // <data_management/data/numpy_aos_numeric_table.h>
+ 
+    // <data_management/data/data_archive.h>
+    {% for cls in ['DataArchive', 'InputDataArchive'] %}
+    %extend {{cls_with_iface(cls, cfg)}} {
+        /// Returns Archive data as numpy byte array.
+        /// \return Archive data as numpy byte array.
+        void getArchiveAsArray_(daal::services::SharedPtr< daal::byte> * ptr, size_t * size) {
+            *size = $self->getSizeOfArchive();
+            *ptr  = $self->getArchiveAsArraySharedPtr();
+        }
+    }
+    {% endfor %}
+    // clean
+
+    // <data_management/data/data_collection.h>
+    {{ add_setgetitem('DataCollection', 'SerializationIfacePtr&', 'size_t') }}
+    {{ add_setgetitem('KeyValueCollection', 'daal::services::interface1::SharedPtr<T>&', 'size_t') }}
+
+    // clean
+
+    // <data_management/data/input_collection.h>
+    // <data_management/data/data_serialize.h>
+    // clean
+
+    // <data_management/data/factory.h>
+
+    // <data_management/data/soa_numeric_table.h>
+    %extend {{cls_with_iface('SOANumericTable', cfg)}} {
+    {% for ntype in ntypes %}
+        /// Sets numpy array to use.
+        /// \param[in]  ary_ numpy array which stores feature values
+        /// \param[in]  idx Feature index
+        void setArray(PyArrayObject * ary, size_t idx)
+        {
+            // assume we have a type check
+            if( $self->getDictionary() == NULL ) {
+                $self->setDictionary(new NumericTableDictionary());
+            }
+            Py_INCREF(ary);
+            SET_NPY_FEATURE( ((PyArrayObject_fields *)ary)->descr->type, SETARRAY_ );
+        }
+    {% endfor %}
+
+        ///  Returns a pointer to a numpy array of values for a given feature
+        ///  \param[in]  index Feature index
+        ///  \return numpy array for given index
+        PyObject * getArray(int index)
+        {
+            int typenum = get_npy_type($self->getDictionary(), index);
+            npy_intp dims = $self->getNumberOfRows();
+            void * data = $self->getArray(index);
+            return PyArray_SimpleNewFromData(1, &dims, typenum, data);
+        }
+    }
+
+
+    // <data_management/data/csr_numeric_table.h>
+    // Let's extend the template class
+    %extend {{cls_with_iface('CSRBlockDescriptor', cfg)}} {
+        /// Returns column indices.
+        /// \return numpy array with coloumn indices.
+        void getBlockColumnIndices(size_t * as1_, daal::services::SharedPtr< size_t > * arr1_) const {
+            *as1_ = $self->getDataSize();
+            *arr1_ = $self->getBlockColumnIndicesSharedPtr();
+        }
+        /// Returns row inidces.
+        /// \return numpy array with row indices.
+        void getBlockRowIndices(size_t * as1_, daal::services::SharedPtr< size_t > * arr1_) const {
+            *as1_ = $self->getNumberOfRows() + 1;
+            *arr1_ = $self->getBlockRowIndicesSharedPtr();
+        }
+    }
+
+    {% for ntype in ntypes %}
+    %extend {{cls_with_iface('CSRBlockDescriptor', cfg)}}<{{ntype}}> {
+        /// Returns values as {{ntype}}.
+        /// \return numpy array with {{ntype}} values.
+        void getBlockValues(size_t * as_, daal::services::SharedPtr< {{ntype}} > * arr_) const {
+            *as_ = $self->getDataSize();
+            *arr_ = $self->getBlockValuesSharedPtr();
+        }
+    }
+    {% endfor %}
+
+    %extend {{cls_with_iface('CSRNumericTable', cfg)}} {
+    // we use three typemaps here!
+    {% for ntype in ntypes %}
+         /// Create a CSR Table from 3 numpy arrays
+         /// \param values numpy array with {{ntype}} values
+         /// \param colIndices numpy array with column indices (long ints)
+         /// \param rowOffsets numpy array with row offsets (long ints)
+         CSRNumericTable(const daal::services::SharedPtr< {{ntype}} > & values, size_t nvals,
+                         const daal::services::SharedPtr< size_t > & colIndices, size_t ncols,
+                         const daal::services::SharedPtr< size_t > & rowOffsets, size_t noffs,
+                         size_t nColumns, size_t nRows) {
+            assert(nRows+1 == noffs);
+            return new CSRNumericTable(values, colIndices, rowOffsets, nColumns, nRows);
+        }
+         /// Sets numpy arrays of a CSR data set
+         /// \param    values      numpy array of {{ntype}} values in the CSR layout
+         /// \param    colIndices  numpy array of column indices (long int) in the CSR layout
+         /// \param    rowOffsets  numpy array of row indices (long int) in the CSR layout
+         void setArrays(const daal::services::SharedPtr< {{ntype}} > & values, size_t nvals,
+                        const daal::services::SharedPtr< size_t > & colIndices, size_t ncols,
+                        const daal::services::SharedPtr< size_t > & rowOffsets, size_t noffs) {
+             $self->setArrays(values, colIndices, rowOffsets);
+        }
+    {% endfor %}
+        ///  Returns numpy arrays with the data set stored in the CSR layout
+        /// \return 3-tuple of numpy arrays (values, column-indices, row-offsets)
+         PyObject * getArrays(size_t * as1_, daal::services::SharedPtr< size_t > * arr1_,
+                              size_t * as2_, daal::services::SharedPtr< size_t > * arr2_) {
+            // SWIG combines the return value and the 2 arg-out paramters into a 3-tuple, yey!
+            *as1_ = $self->getDataSize();
+            *as2_ = $self->getNumberOfRows() + 1;
+            daal::services::SharedPtr<daal::byte> data;
+            $self->getArrays(data, *arr1_, *arr2_);
+            npy_intp nv = (npy_intp)*as1_;
+            int typenum = get_npy_type($self->getDictionary());
+            return PyArray_SimpleNewFromData(1, &nv, typenum, data.get());
+        }
+    }
+
+    // <data_management/data/data_block.h>
+    %extend {{cls_with_iface('DataBlock', cfg)}} {
+        DataBlock(daal::byte *outBlock, size_t size) {
+            return new DataBlock(outBlock, size);
+        }
+        /// Returns block as array.
+        /// \return block as numpy array.
+        void getArray(size_t * as_, daal::services::SharedPtr< daal::byte > * arr_) {
+            *as_ = $self->getSize();
+            *arr_  = $self->getSharedPtr();
+        }
+        /// Sets array as block.
+        /// \return block as numpy array.
+        void setArray(daal::byte *outBlock, size_t size) {
+            $self->setSize(size);
+            $self->setPtr(outBlock);
+        }
+    }
+    // clean
+
+    // <data_management/data/memory_block.h>
+    // ignored
+    // clean
+
+    // <data_management/data/data_dictionary.h>
+    {{ add_setgetitem('Dictionary', 'Feature&', 'size_t') }};
+
+    %template(NumericTableDictionary) {{cls_with_iface('Dictionary', cfg)}}< {{cls_with_iface('NumericTableFeature', cfg)}}, daal::SERIALIZATION_DATADICTIONARY_NT_ID >;
+    %template(DataSourceDictionary) {{cls_with_iface('Dictionary', cfg)}}< {{cls_with_iface('DataSourceFeature', cfg)}}, daal::SERIALIZATION_DATADICTIONARY_DS_ID >;
+
+    // no __copy__/constructor
+
+    // <data_management/data/homogen_numeric_table.h>
+    {{ add_getitem('HomogenNumericTable', 'DataType*', 'size_t') }};
+
+    // <data_management/data/merged_numeric_table.h>
+    // clean
+
+    // <data_management/data/numeric_table.h>
+    {% for ntype in ntypes %}
+        // we extend DenseNumericTableIface to return numpy ndarrays with overloaded member functions.
+        // by calling virtual functions in our extensions we get this for all derived classes
+        // note this requires our numpy typemap (see above ARGOUTVIEW_DBD_ARRAY2)
+        %extend {{cls_with_iface('DenseNumericTableIface', cfg)}} {
+            /// Returns and array for the given row-block spcification as {{ntype}}
+            /// \param[in] vector_idx       Index of the first row to include into the block.
+            /// \param[in] vector_num       Number of rows in the block.
+            /// \return block as {{ntype}} numpy array.
+            void getBlockOfRowsAs{{ntype.title()}}(size_t vector_idx, size_t vector_num, {{cls_with_iface('BlockDescriptor', cfg)}}<{{ntype}}> ** block_)
+            {
+                *block_ = new daal::data_management::BlockDescriptor<{{ntype}}>;
+                $self->getBlockOfRows(vector_idx, vector_num, daal::data_management::readOnly, **block_);
+            }
+
+            /// Returns and array for the given column-block specification as {{ntype}}
+            /// \param[in] feature_idx Feature index.
+            /// \param[in] vector_idx  Index of the first feature vector to include into the block.
+            /// \param[in] value_num   Number of feature values in the block.
+            /// \return block as {{ntype}} numpy array.
+            void getBlockOfColumnValuesAs{{ntype.title()}}(size_t feature_idx, size_t vector_idx, size_t value_num, {{cls_with_iface('BlockDescriptor', cfg)}}<{{ntype}}> ** block_)
+            {
+                *block_ = new daal::data_management::BlockDescriptor<{{ntype}}>;
+                $self->getBlockOfColumnValues(feature_idx, vector_idx, value_num, daal::data_management::readOnly, **block_);
+            }
+        };
+
+        // We also extend the Blockdescriptor and SubtensorDescriptor.
+        %extend {{cls_with_iface('BlockDescriptor', cfg)}}<{{ntype}}> {
+            /// Returns data block of this descriptor as {{ntype}} numpy array.
+            /// \return data block as {{ntype}} numpy array
+            void getArray(daal::services::SharedPtr<{{ntype}}>* ptr, size_t * nColumns, size_t * nRows)
+            {
+                *ptr = $self->getBlockSharedPtr();
+                *nColumns = $self->getNumberOfColumns();
+                *nRows = $self->getNumberOfRows();
+            }
+        };
+
+        %extend {{cls_with_iface('SubtensorDescriptor', cfg)}}<{{ntype}}> {
+            /// Returns data block of this descriptor as {{ntype}} numpy array.
+            /// \return data block as {{ntype}} numpy array
+            void getArray(size_t *nDims, size_t **dimSizes, daal::services::SharedPtr<{{ntype}}>* data)
+            {
+                *data = $self->getSharedPtr();
+                *nDims = $self->getNumberOfDims();
+                *dimSizes = $self->getSubtensorDimSizes();
+            }
+            /**
+             *  Returns the array with sizes of dimensions of the subtensor
+             *  \return Array with sizes of the dimensions of the subtensor
+             */
+            PyObject * getSubtensorDimSizes()
+            {
+                npy_intp dims[1] = { (npy_intp)$self->getNumberOfDims() };
+                PyObject* array = PyArray_SimpleNew(1, dims, NPY_UINT64);
+                if( ! array ) throw std::runtime_error("Creating Numpy array returned NULL");
+                memcpy(array_data(array), $self->getSubtensorDimSizes(), *dims * sizeof(size_t));
+                return array;
+            }
+            /**
+             *  Gets values at which dimensions are fixed
+             *  \return An array of values
+             */
+            PyObject * getFixedDimNums()
+            {
+                npy_intp dims[1] = { (npy_intp)$self->getFixedDims() };
+                PyObject* array = PyArray_SimpleNew(1, dims, NPY_UINT64);
+                if( ! array ) throw std::runtime_error("Creating Numpy array returned NULL");
+                memcpy(array_data(array), $self->getFixedDimNums(), *dims * sizeof(size_t));
+                return array;
+            }
+        };
+
+        %extend {{cls_with_iface('HomogenTensor', cfg)}}<{{ntype}}> {
+            /// Returns data of entire tensor as {{ntype}} numpy array.
+            /// \return tensor data as {{ntype}} numpy array
+            void getArray(daal::services::Collection<size_t> const** nDims, daal::services::SharedPtr<{{ntype}}>* data)
+            {
+                *nDims = &($self->getDimensions());
+                *data = $self->getArraySharedPtr();
+            }
+         }
+
+        // we also extend the repsective tables with a replacement for getArray
+        {% for c in ['HomogenNumericTable', 'PackedSymmetricMatrix', 'PackedTriangularMatrix',] %}
+            %extend {{cls_with_iface(c, cfg)}}<{{ntype}}> {
+                /// Returns data of entire table as {{ntype}} numpy array.
+                /// \return table data as {{ntype}} numpy array
+                void getArray(daal::services::SharedPtr<{{ntype}}>* ptr, size_t * nColumns, size_t * nRows) {
+                    *ptr = $self->getArraySharedPtr();
+                    *nColumns = $self->getNumberOfColumns();
+                    *nRows = $self->getNumberOfRows();
+                }
+             }
+        {% endfor %}
+    {% endfor %}
+
+
+    // <data_management/data/symmetric_matrix.h>
+    %extend {{cls_with_iface('Matrix', cfg)}} {
+        /// Create a Matrix from a numpy array.
+        /// \param narray numpy array
+        static services::SharedPtr<Matrix<DataType> > create(const daal::services::SharedPtr< DataType > & ptr, size_t nColumns, size_t nRows)
+        {
+            return Matrix<DataType>::create(nColumns, nRows, const_cast<daal::services::SharedPtr< DataType > &>(ptr));
+        }
+        /// Create a Matrix from a numpy array. Initialize with given value.
+        /// \param narray numpy array
+        /// \param value value to fill matrix with
+        static services::SharedPtr<Matrix<DataType> > create(const daal::services::SharedPtr< DataType > & ptr, size_t nColumns, size_t nRows, const DataType &v)
+        {
+            return Matrix<DataType>::create(nColumns, nRows, ptr, v);
+        }
+               // Matrix( DictionaryIface::FeaturesEqual featuresEqual, size_t nColumns, size_t nRows, const services::SharedPtr<DataType> &ptr ):
+               // Matrix( DictionaryIface::FeaturesEqual featuresEqual, size_t nColumns, size_t nRows, const services::SharedPtr<DataType> &ptr, const DataType &constValue ):
+
+    }
+
+    // <data_management/data_source/csv_feature_manager.h>
+    // clean
+
+    // <data_management/data_source/data_source.h>
+    // allocateNumericTableImpl are internal
+
+    // <data_management/data_source/data_source_utils.h>
+    // clean
+
+    // <data_management/data_source/file_data_source.h>
+
+    // <data_management/data_source/string_data_source.h>
+
+    // <data_management/compression/bzip2compression.h>
+    // <data_management/compression/compression.h>
+    // <data_management/compression/lzocompression.h>
+    // <data_management/compression/rlecompression.h>
+    // <data_management/compression/zlibcompression.h>
+    // <data_management/compression/compression_stream.h>
+    %extend {{cls_with_iface('CompressionStream', cfg)}} {
+        /// Push a data to be compressed, accepts numpy byte array.
+        /// \param[in] inBlock numpy byte array
+        void push_back(daal::byte *inBlock, size_t size) {
+            DataBlock db(inBlock, size);
+            $self->push_back(&db);
+        }
+    }
+    %extend {{cls_with_iface('DecompressionStream', cfg)}} {
+        /// Push a data to be decompressed, accepts numpy byte array.
+        /// \param[in] inblock numpy byte array
+        void push_back(daal::byte *inBlock, size_t size) {
+            DataBlock db(inBlock, size);
+            $self->push_back(&db);
+        }
+    }
+    // clean
+
+    // now all template instantiations
+    {{ handle_all_templates(ns, cfg) }}
+    %template(KeyValueDataCollection) {{cls_with_iface('SerializableKeyValueCollection', cfg)}}<{{cls_with_iface('SerializationIface', cfg)}}>;
+{% endcall %}
+
+#if 0
+// we need convertion/down-cast functions numerictable -> child classes
+%{
+// once providing C++ code.
+{% call(c, ta) for_all_templates(ns, cfg, ['HomogenNumericTable', 'Matrix', 'PackedSymmetricMatrix', 'PackedTriangularMatrix',
+                                           'CSRNumericTable', 'SOANumericTable', 'AOSNumericTable']) %}
+    {{'::'.join(['daal', ns, c])}}< {{', '.join(ta)}} > * to{{c}}_{{ta|ta2pt|titlelize}}( daal::data_management::NumericTable * nt ) {
+        return dynamic_cast< {{'::'.join(['daal', ns, c])}}< {{', '.join(ta)}} > * >(nt);
+    }
+{% endcall %}
+%}
+// once for SWIG.
+{% call(c, ta) for_all_templates(ns, cfg, ['HomogenNumericTable', 'Matrix', 'PackedSymmetricMatrix', 'PackedTriangularMatrix',
+                                           'CSRNumericTable', 'SOANumericTable', 'AOSNumericTable']) %}
+    {{'::'.join(['daal', ns, c])}}< {{', '.join(ta)}} > * to{{c}}_{{ta|ta2pt|titlelize}}( daal::data_management::NumericTable * nt );
+{% endcall %}
+#endif
+
+{{ add_aliases(cfg) }}
+
+%pythoncode %{
+    def convertToHomogen(ntable, ntype=float64):
+        if ntype == float64:
+            return convertToHomogen_Float64(ntable)
+        elif ntype == float32:
+            return convertToHomogen_Float32(ntable)
+        elif ntype == intc:
+            return convertToHomogen_Intc(ntable)
+        else:
+            raise TypeError("Cannot convert to HomogenNumericTable with data type {}".format(ntype))
+%}

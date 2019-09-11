@@ -1,0 +1,138 @@
+/*******************************************************************************
+* Copyright 2014-2019 Intel Corporation.
+*
+* This software and the related documents are Intel copyrighted  materials,  and
+* your use of  them is  governed by the  express license  under which  they were
+* provided to you (License).  Unless the License provides otherwise, you may not
+* use, modify, copy, publish, distribute,  disclose or transmit this software or
+* the related documents without Intel's prior written permission.
+*
+* This software and the related documents  are provided as  is,  with no express
+* or implied  warranties,  other  than those  that are  expressly stated  in the
+* License.
+*******************************************************************************/
+
+/* Defines the classes/types/consts etc of the daal::algorithms::optimization_solver::sgd namespace of DAAL */
+
+{% from 'jinjadefs.tmpl' import add_compute, add_compute2, in_namespace, add_includes,
+                         add_getitem, add_aliases, add_ignores, handle_all_templates, cls_with_iface %}
+{% set ns  = 'algorithms::optimization_solver::sgd' %}
+{% set module  = 'sgd' %}
+{% set package = 'algorithms.optimization_solver' %}
+
+// see jinjadefs.tmpl for all configuration options evaluated by standard macros.
+//   E.g. 'needpatch', 'ignore', 'steps', 'methods' and others
+{% set cfg = {
+    'includes': [
+        'algorithms/optimization_solver/sgd/sgd_types.h',
+        'algorithms/optimization_solver/sgd/sgd_batch.h',
+    ],
+    'classes': [
+        'BaseParameter',
+        'Input',
+        'Result',
+    ],
+    'methods': [
+        'defaultDense',
+        'miniBatch',
+        'momentum',
+    ],
+    'templates': {
+        'Parameter': [['method', 'methods', '']],
+        'Batch': [['fptype', fptypes, 'double'], ['method', 'methods', 'defaultDense']],
+        'Result::allocate': [['fptype', fptypes, '']],
+    },
+    'namespaces': {
+        'Batch': 'interface2',
+        'BatchContainer': 'interface2',
+        'Input': 'interface2',
+        'Result': 'interface2',
+        'Result::allocate': 'interface2',
+        'ResultPtr': 'interface2',
+        'BaseParameter': 'interface2',
+        'Parameter': 'interface2'
+    }
+} %}
+
+%module(package="daal.{{package}}") {{module}}
+
+// define the namespace needed as being used
+// we only include those we need to save SWIG compile time
+#define USE_algorithms
+#define USE_algorithms__optimization_solver
+#define USE_algorithms__optimization_solver__sgd
+#define USE_algorithms__optimization_solver__iterative_solver
+#define USE_algorithms__optimization_solver__sum_of_functions
+#define USE_algorithms__optimization_solver__objective_function
+#define USE_algorithms__engines
+#define USE_algorithms__engines__mt19937
+
+%include "daal_common.i"
+
+// renaming, typemaps need to go before declarations -> put them here
+%rename(interface1_BaseParameter) daal::{{ns}}::interface1::BaseParameter;
+
+%shared_ptr(daal::{{ns}}::interface1::BaseParameter);
+
+%shared_ptr(daal::{{ns}}::interface1::Parameter);
+
+%rename(interface1_Input) daal::{{ns}}::interface1::Input;
+
+%shared_ptr(daal::{{ns}}::interface1::Input);
+
+%rename(interface1_Result) daal::{{ns}}::interface1::Result;
+
+%shared_ptr(daal::{{ns}}::interface1::Result);
+
+%rename(interface1_Batch) daal::{{ns}}::interface1::Batch;
+
+%shared_ptr(daal::{{ns}}::interface1::Batch);
+
+%rename(getOptionalData)  daal::{{ns}}::interface2::Input::get(OptionalDataId id) const;
+%rename(setOptionalData)  daal::{{ns}}::interface2::Input::set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+%rename(getOptionalData)  daal::{{ns}}::interface2::Result::get(OptionalDataId id) const;
+%rename(setOptionalData)  daal::{{ns}}::interface2::Result::set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+
+%rename(interface1_getOptionalData)  daal::{{ns}}::interface1::Input::get(OptionalDataId id) const;
+%rename(interface1_setOptionalData)  daal::{{ns}}::interface1::Input::set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+%rename(interface1_getOptionalData)  daal::{{ns}}::interface1::Result::get(OptionalDataId id) const;
+%rename(interface1_setOptionalData)  daal::{{ns}}::interface1::Result::set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+
+// renaming, typemaps need to go before declarations -> put them here
+{% call() in_namespace('::'.join(['daal', ns])) %}
+class {{cls_with_iface('Parameter', cfg)}};
+class {{cls_with_iface('Batch', cfg)}};
+{% endcall %}
+
+// only import the last module in package hierachy (omit importing its parents)
+%import "algorithms__optimization_solver__iterative_solver.i"
+%import "algorithms__optimization_solver__sum_of_functions.i"
+%import "algorithms__engines__mt19937.i"
+
+// standard/basic type mappings
+%import <std_string.i>
+
+%{
+#include <daal.h>
+using namespace daal::{{ns}};
+%}
+
+// declare to-be-ignored classes *before* scanning headers
+{{add_ignores(cfg,ns)}}
+
+// Let swig do the heavy-lifting: parse the headers and
+//  extract the interfaces
+{{add_includes(cfg)}}
+
+{% call() in_namespace('::'.join(['daal', ns])) %}
+    // Add our compute wrappers
+    {{add_compute("Batch", res="daal::algorithms::optimization_solver::iterative_solver::Result", cfg=cfg)}}
+    // no Online
+    // no Distributed
+
+    // now all template instantiations
+    {{handle_all_templates(ns, cfg)}}
+
+{% endcall %}
+
+{{add_aliases(cfg)}}

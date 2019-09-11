@@ -1,0 +1,311 @@
+#===============================================================================
+# Copyright 2014-2019 Intel Corporation.
+#
+# This software and the related documents are Intel copyrighted  materials,  and
+# your use of  them is  governed by the  express license  under which  they were
+# provided to you (License).  Unless the License provides otherwise, you may not
+# use, modify, copy, publish, distribute,  disclose or transmit this software or
+# the related documents without Intel's prior written permission.
+#
+# This software and the related documents  are provided as  is,  with no express
+# or implied  warranties,  other  than those  that are  expressly stated  in the
+# License.
+#===============================================================================
+
+# Define the PY3 variable on the command line to build/test python3 on Linux
+# FIXME: This was tested with our latest python 3.5, but we don't have a
+# standard system location for python 3.5 so it defaults to python 3.4. We
+# should coordinate with the daal team on this.
+ifdef PY3
+	PYCMD ?= python3
+	PYDEFS ?= -DSWIGPY_USE_CAPSULE_
+else
+	PYCMD ?= python2
+	PYDEFS ?=
+endif
+PY_INCDIR ?= $(wildcard $(realpath $(dir $(shell which $(PYCMD)))/../include)/$(PYCMD).*)
+
+DEFAULT_DATA_TYPE ?= double
+
+SWIGFLAGS ?= -DDAAL_ALGORITHM_FP_TYPE=$(DEFAULT_DATA_TYPE)       \
+             -DDAAL_SUMMARY_STATISTICS_TYPE=$(DEFAULT_DATA_TYPE) \
+             -DDAAL_DATA_TYPE=$(DEFAULT_DATA_TYPE)
+
+
+CXX      ?= icpc
+CXXFLAGS ?= -O3 $(SWIGFLAGS)
+
+ifeq "$(DOXY_SHORT)" "YES"	
+DOC_ARCH_NAME = pre_doc_short.zip
+else ifeq "$(DOXY_SHORT)" "NO"
+DOC_ARCH_NAME = pre_doc_long.zip
+else
+$(error Bad value of DOXY_SHORT)
+endif
+
+pydaal: make.rules.tmpl
+	$(MAKE) patched
+	$(MAKE) apiifiles
+	$(MAKE) pydaal-install
+
+daal: make.rules.tmpl
+	$(MAKE) patched
+	$(MAKE) apiifiles
+	$(MAKE) daal-test
+
+doc: make.rules.tmpl
+	$(MAKE) patched
+	$(MAKE) docifiles
+	$(MAKE) $(BUILD_PREFIX)/$(DOC_ARCH_NAME)
+
+devdoc: make.rules.tmpl
+	$(MAKE) patched
+	$(MAKE) docifiles
+	$(MAKE) $(BUILD_PREFIX)/doc/html/index.html
+
+all: make.rules.tmpl
+	$(MAKE) pydaal
+	$(MAKE) daal
+	$(MAKE) doc
+
+zip:
+	$(MAKE) patched
+	$(MAKE) apiifiles
+	$(MAKE) pydaal-install
+	$(MAKE) examples-install
+	cd $(PREFIX) && rm -f pydaal.zip && zip -r pydaal.zip pydaal_sources examples/python
+	@echo "##teamcity[publishArtifacts 'lang_service/python/$(PREFIX)/pydaal.zip => pydaal.zip']"
+	-$(MAKE) doc
+
+{% from 'all_namespaces.j2' import all_namespaces as mods %}
+
+MODULES = \
+{% for m in mods %}
+    {{m}} \
+{% endfor %}
+
+LIBS = \
+{% for m in mods %}
+    $(BUILD_PREFIX)/{{m}}/_{{m}}_.so \
+{% endfor %}
+
+WRAPPERS = \
+{% for m in mods %}
+    $(BUILD_PREFIX)/{{m}}/_{{m}}.cpp \
+{% endfor %}
+
+APIIFILES = $(BUILD_PREFIX)/api/daal_common.i $(BUILD_PREFIX)/api/sp_list.i $(BUILD_PREFIX)/api/numpy.i $(BUILD_PREFIX)/api/daal_shared_ptr.i $(BUILD_PREFIX)/api/swigwarn.i \
+{% for m in mods %}
+    $(BUILD_PREFIX)/api/{{m}}.i \
+{% endfor %}
+
+DOCIFILES = $(subst /api,/doc,$(APIIFILES))
+export DAAL_SRC_ROOT=../..
+
+PYPKGS = \
+{% for m in mods if m != 'daal' %}
+    daal.{{m.replace('__', '.')}} \
+{% endfor %}
+
+DOC.PY =\
+{% for m in mods %}
+    $(BUILD_PREFIX)/doc/{{m}}/_w.cpp \
+{% endfor %}
+
+SWIG ?= $(shell which swig)
+#SWIG ?= swig/preinst-swig
+
+{% for m in mods %}
+LIB_{{m}} = _{{m|unify}}_
+{% endfor %}
+
+
+$(BUILD_PREFIX)/api/sp_list.i: sp_list.i.tmpl $(BUILD_PREFIX)/make.rules *.i.tmpl $(BUILD_PREFIX)/all_namespaces.j2 $(BUILD_PREFIX)/api/._dir
+	@echo Generating $@ ...
+	@python ./jinja.py $< --mode=api --vars="mods='$(IF_CONFIGS)'"> $@
+#.new
+#	if [ -f $@ ] && cmp -s $@ $@.new ; then : ; else cp $@.new $@ ; fi
+$(BUILD_PREFIX)/doc/sp_list.i: sp_list.i.tmpl $(BUILD_PREFIX)/make.rules *.i.tmpl $(BUILD_PREFIX)/all_namespaces.j2 $(BUILD_PREFIX)/doc/._dir
+	@echo Generating $@ ...
+	@python ./jinja.py $< --mode=dox --vars="mods='$(IF_CONFIGS)'"> $@
+#.new
+#	if [ -f $@ ] && cmp -s $@ $@.new ; then : ; else cp $@.new $@ ; fi
+
+$(BUILD_PREFIX)/api/services.i: $(DEP_SPLIST)
+$(BUILD_PREFIX)/api/data_management.i: $(BUILD_PREFIX)/api/services.i
+
+PYDAAL_HEADERS = $(BUILD_PREFIX)/include/data_management/data/npy_aos_numeric_table.h\
+		 $(BUILD_PREFIX)/include/data_management/data/npy_utils.h\
+		 $(BUILD_PREFIX)/include/data_management/data_source/modifiers/csv/pyfeaturemodifier.h\
+	         $(BUILD_PREFIX)/include/gc_sharedptr.h
+
+PATCHED_DAAL = $(BUILD_PREFIX)/include/daal.h $(PYDAAL_HEADERS)
+
+DEPS_services = $(BUILD_PREFIX)/env__detect.h
+DEPS_data_management__data_source__modifiers__csv = $(BUILD_PREFIX)/include/data_management/data_source/modifiers/csv/pyfeaturemodifier.h
+DEPS_data_management = $(PYDAAL_HEADERS) $(BUILD_PREFIX)/api/numpy.i
+
+$(BUILD_PREFIX)/include/%.h: %.h $(BUILD_PREFIX)/include/._dir
+	cp $< $@
+
+$(BUILD_PREFIX)/include/data_management/data/%.h: %.h $(BUILD_PREFIX)/include/data_management/data/._dir
+	cp $< $@
+
+$(BUILD_PREFIX)/include/data_management/data_source/modifiers/csv/%.h: %.h $(BUILD_PREFIX)/include/data_management/data_source/modifiers/csv/._dir
+	cp $< $@
+
+.SECONDARY:
+
+swig/autogen.sh:
+	cd ../.. && git submodule update --init --remote swig
+
+swig/Makefile: swig/autogen.sh
+	ln -fs ../../swig/swig .
+	cd swig && sh ./autogen.sh && sh ./configure
+
+swig/preinst-swig: swig/Makefile
+	make -C swig -j
+
+$(BUILD_PREFIX)/api/%.i: %.i.tmpl $(BUILD_PREFIX)/api/._dir jinja.py jinjadefs.tmpl
+	python ./jinja.py $< --mode=api --vars="PYDAAL_VERSION=$(PYDAAL_VERSION)" > $@
+
+$(BUILD_PREFIX)/doc/%.i: %.i.tmpl $(BUILD_PREFIX)/doc/._dir jinja.py jinjadefs.tmpl
+	python ./jinja.py $< --mode=dox --vars="PYDAAL_VERSION=$(PYDAAL_VERSION)" > $@
+
+%/._dir:
+	-mkdir -p $(@D)
+	touch $@
+
+$(BUILD_PREFIX)/include/daal.h: $(DAALROOT)/include/daal.h $(BUILD_PREFIX)/include/._dir
+	python patch.py $< 'aos_numeric_table.h' 'npy_aos_numeric_table.h' > $@
+
+{% for c in mods %}
+    {% from c+'.i.tmpl' import cfg %}
+    {% for a in cfg.needpatch %}
+$(BUILD_PREFIX)/{{a[2]}}: $(DAALROOT)/{{a[0]}} jinjadefs.tmpl
+	-mkdir -p `dirname $@`
+	python patch.py $< {{a[1]}} > $@
+
+DEPS_{{c}} += $(BUILD_PREFIX)/{{a[2]}}
+PATCHED += $(BUILD_PREFIX)/{{a[2]}}
+
+    {% endfor %}
+{% endfor %}
+
+LDFLAGS_data_management__db = -lodbc
+
+DEP_SPLIST ?= $(BUILD_PREFIX)/api/sp_list.i
+
+patched: $(PATCHED_DAAL) $(PATCHED)
+
+{% for m in mods %}
+$(BUILD_PREFIX)/{{m}}/_{{m}}.cpp: $(BUILD_PREFIX)/api/{{m}}.i $(BUILD_PREFIX)/api/daal_common.i $(PATCHED) $(DEP_SPLIST) $(DEPS_{{m}}) $(BUILD_PREFIX)/{{m}}/._dir $(SWIG) jinjadefs.tmpl
+	$(SWIG) $(SWIGFLAGS) -w350,351,394,395,740,742 -python -dirvtable -c++ -threads -interface $(LIB_{{m}}) -outdir $(BUILD_PREFIX)/{{m}} -o $@ -I$(BUILD_PREFIX) -I$(BUILD_PREFIX)/include -I$(DAALROOT)/include $(CPPFLAGS) $<
+	sed -ri$(BACKUP_SFX) -- 's/{{OBFUSCATOR}}//g;s/algorithmFPType/fptype/g;s/\.interface[1-9]\././g; s/PyObject_CallFunction\(swig_method, \(char \*\)\"\(O\)\" ,\(PyObject \*\)obj0\)/PyObject_CallFunctionObjArgs(swig_method, (PyObject *)obj0, NULL)/g' $(BUILD_PREFIX)/{{m}}/*.py $@
+#	sed -ri -- 's/__interface1__/__/g; s/_interface1_/_/g; s/interface1:://g; s/(algorithms|data_management)::(CanThrowStatus|TensorLayoutIface|DataArchiveImpl|DenseTensorIface|OptionalArgument|SerializableArgument)/\1::interface1::\2/g; s/pca::BaseParameter/pca::interface1::BaseParameter/g' $@
+
+$(BUILD_PREFIX)/doc/{{m}}/_w.cpp: $(BUILD_PREFIX)/doc/{{m}}.i $(PATCHED) $(DEP_SPLIST) $(DEPS_{{m}}) $(BUILD_PREFIX)/doc/{{m}}/._dir $(SWIG) jinjadefs.tmpl
+	$(SWIG) $(SWIGFLAGS) -w401,315,350,351,394,395 -python -c++ -nomodern -noh -doxygen -features doxygen:notranslate,autodoc -outdir $(BUILD_PREFIX)/doc/{{m}} -o $@ -I$(BUILD_PREFIX) -I$(BUILD_PREFIX)/include -I$(DAALROOT)/include $(CPPFLAGS) $<
+	{% if m == "data_management" %}
+	sed -i 's/SerializationDesc_first() -> SerializationDesc/SerializationDesc_first() -> SerializationDesc @endcond/g' $(BUILD_PREFIX)/doc/{{m}}/{{m}}.py
+	{% endif %}
+	sed -ri.1$(BACKUP_SFX) -- 's/\br"""/"""\! <p><\/p>/;s/{{OBFUSCATOR}}//g;s/algorithmFPType/fptype/g;s/\\tparam +modelFPType.+$$//;s/interface[1-9]:://g;s/ *\*Overload ([0-9]):\*/<hr>@par Variant \1/;s/\\tparam/@param/;s/^ *[*|]//;s/^\w+\(.*\)( -> [^"]+)?//;s/Proxy of C\+\+ .+ class//;s/::/./g;s/param\[(in|out)\]/param/g;s/DAAL-EXAMPLE-CPP/DAAL-EXAMPLE-PY/' $(BUILD_PREFIX)/doc/{{m}}/*.py
+	perl -i.2$(BACKUP_SFX) -p0e 's/^( *)([.\w]+ = )[.\w\)\(, ]+. *"""!(.+?)"""/$$1##$$3\n$$1$$2.../imsg' $(BUILD_PREFIX)/doc/{{m}}/*.py
+
+$(BUILD_PREFIX)/{{m}}/_{{m}}_.so: $(BUILD_PREFIX)/{{m}}/_{{m}}.cpp $(BUILD_PREFIX)/include/daal.h $(DEPS_{{m}}) $(BUILD_PREFIX)/{{m}}/._dir
+	$(CXX) $(CXXFLAGS) -fPIC $(PYDEFS) $< -o $(BUILD_PREFIX)/{{m}}/_{{m}}.o -I$(PY_INCDIR) -I$(BUILD_PREFIX) -I$(BUILD_PREFIX)/include -I$(DAALROOT)/include $(CPPFLAGS) -std=c++11 -c
+	$(CXX) $(CXXFLAGS) -shared $(BUILD_PREFIX)/{{m}}/_{{m}}.o -o $@ -L$(DAALROOT)/lib/intel64_lin -ldaal_core -ldaal_thread $(LDFLAGS_{{m}})
+
+{% endfor %}
+
+examples-test:
+	egrep 'DAAL-EXAMPLE|\\example' ../../examples/python/source/*/*.py | egrep -i ':# |[()]|cpp' && echo Error: examples are broken && exit 1 || exit 0
+
+$(BUILD_PREFIX)/doc/html/index.html: py.doxyfile examples-test $(DOC.PY) doc-install
+	doxygen $<
+	sed -i$(BACKUP_SFX) -- 's/__9__/{/g;s/__0__/}/g;s/__1__/|/g;s/ title=\" *\"//g;s/##[^<]*//g' $(BUILD_PREFIX)/doc/html/*
+
+$(BUILD_PREFIX)/$(DOC_ARCH_NAME): examples-test $(DOC.PY) doc-install
+	rm -rf $(BUILD_PREFIX)/documentation
+	mkdir -p $(BUILD_PREFIX)/documentation/common/daal_ur_guides
+	doxygen ../../doxygen_conf_python_examples.txt
+	sed "s/SHORT_NAMES.*=.*/SHORT_NAMES = $(DOXY_SHORT)/g" ../../$(DOXYFILE) > $(BUILD_PREFIX)/$(DOXYFILE)
+	doxygen $(BUILD_PREFIX)/$(DOXYFILE)
+	sed -i$(BACKUP_SFX) -- 's/__9__/{/g;s/__0__/}/g;s/__1__/|/g;s/ title=\" *\"//g;s/##[^<]*//g' $(BUILD_PREFIX)/documentation/*/*/*/*.htm
+	cd $(BUILD_PREFIX) && zip -rq9P 12345 $(BACKUP_EXCL) $(DOC_ARCH_NAME) documentation
+	@echo "##teamcity[publishArtifacts 'lang_service/python/$@ => $(DOC_ARCH_NAME)']"
+
+apiifiles: $(APIIFILES)
+docifiles: $(DOCIFILES)
+
+methods_list:
+	grep -zoER '\w+ *\(.*\) *:[^{]*_errors *\( *new' $(DAALROOT)/include/ | grep -v ErrorCollection | sed -rn 's/^.+\:(\'
+
+daal-install: patched $(APIFILES) $(LIBS)
+{% for m in mods %}
+{{m|mkinstrule('$(BUILD_PREFIX)', '$(PREFIX)', mods, copy_so=True)}}
+{% endfor %}
+	touch $(PREFIX)/daal/algorithms/classifier/quality_metric/__init__.py
+	touch $(PREFIX)/daal/algorithms/implicit_als/prediction/__init__.py
+	touch $(PREFIX)/daal/algorithms/math/__init__.py
+	touch $(PREFIX)/daal/algorithms/normalization/__init__.py
+	touch $(PREFIX)/daal/algorithms/linear_regression/quality_metric/__init__.py
+	touch $(PREFIX)/daal/algorithms/pca/quality_metric/__init__.py
+
+doc-install: $(DOC.PY)
+{% for m in mods %}
+{{m|mkinstrule('$(BUILD_PREFIX)/doc', '$(BUILD_PREFIX)/docface', mods, copy_so=False)}}
+{% endfor %}
+	touch $(BUILD_PREFIX)/docface/daal/algorithms/classifier/quality_metric/__init__.py
+	touch $(BUILD_PREFIX)/docface/daal/algorithms/implicit_als/prediction/__init__.py
+	touch $(BUILD_PREFIX)/docface/daal/algorithms/math/__init__.py
+	touch $(BUILD_PREFIX)/docface/daal/algorithms/normalization/__init__.py
+	touch $(BUILD_PREFIX)/docface/daal/algorithms/linear_regression/quality_metric/__init__.py
+	touch $(BUILD_PREFIX)/docface/daal/algorithms/pca/quality_metric/__init__.py
+
+%.import: daal-install
+	cd $(PREFIX) && $(PYCMD) -c "import $*"
+
+daal-test: patched apiifiles daal.import $(patsubst %,%.import,$(PYPKGS))
+
+clean:
+	rm -rf daal $(BUILD_PREFIX) build doc pydaal pydaal_sources examples *.o *~ *.log *.i *.zip
+
+distclean_yes_really: clean
+	rm -rf $(PREFIX)
+
+$(PREFIX)/pydaal_sources/setup.py: setup.py.tmpl
+	-mkdir -p $(@D)
+	python ./jinja.py $< --vars="PYDAAL_VERSION=$(PYDAAL_VERSION),mods='$(IF_CONFIGS)'" > $@
+
+$(PREFIX)/pydaal_sources/daal/data_management/data_feature_utils.py: data_feature_utils.py
+	-mkdir -p $(@D)
+	cp $< $@
+
+pydaal-install: patched apiifiles $(WRAPPERS) \
+                $(PREFIX)/pydaal_sources/setup.py \
+                $(PREFIX)/pydaal_sources/daal/data_management/data_feature_utils.py \
+                make.rules.tmpl
+{% for m in mods %}
+{{m|mkinstrule('$(BUILD_PREFIX)', '$(PREFIX)/pydaal_sources', mods, copy_so=False)}}
+{% endfor %}
+	-mkdir -p $(PREFIX)/pydaal_sources/daal/wrp
+{% for m in mods %}
+	(cat license_header.tmpl && tail -n +10 $(BUILD_PREFIX)/{{m}}/_{{m}}.h 2>/dev/null || true) > $(PREFIX)/pydaal_sources/daal/wrp/_{{m}}.h
+	(cat license_header.tmpl && tail -n +10 $(BUILD_PREFIX)/{{m}}/_{{m}}.cpp) > $(PREFIX)/pydaal_sources/daal/wrp/_{{m}}.cpp
+{% endfor %}
+	touch $(PREFIX)/pydaal_sources/daal/algorithms/classifier/quality_metric/__init__.py
+	touch $(PREFIX)/pydaal_sources/daal/algorithms/implicit_als/prediction/__init__.py
+	touch $(PREFIX)/pydaal_sources/daal/algorithms/math/__init__.py
+	touch $(PREFIX)/pydaal_sources/daal/algorithms/normalization/__init__.py
+	touch $(PREFIX)/pydaal_sources/daal/algorithms/linear_regression/quality_metric/__init__.py
+	touch $(PREFIX)/pydaal_sources/daal/algorithms/pca/quality_metric/__init__.py
+	-mkdir -p $(PREFIX)/pydaal_sources/daal/include/data_management/data $(PREFIX)/pydaal_sources/daal/include/data_management/data_source/modifiers/csv
+	cp npy_aos_numeric_table.h npy_utils.h $(PREFIX)/pydaal_sources/daal/include/data_management/data/
+	cp pyfeaturemodifier.h $(PREFIX)/pydaal_sources/daal/include/data_management/data_source/modifiers/csv/
+	cp gc_sharedptr.h $(PREFIX)/pydaal_sources/daal/include/
+	cp $(BUILD_PREFIX)/include/daal.h $(PREFIX)/pydaal_sources/daal/include
+
+examples-install: pydaal-install
+	-mkdir -p $(PREFIX)/examples
+	cp -r ../../examples/python $(PREFIX)/examples/
