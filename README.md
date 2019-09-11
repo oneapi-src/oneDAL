@@ -1,4 +1,5 @@
 # Intel(R) Data Analytics Acceleration Library
+![License](https://img.shields.io/github/license/intel/daal.svg)
 Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) helps speed up big data analysis by providing highly optimized algorithmic building blocks for all stages of data analytics (preprocessing, transformation, analysis, modeling, validation, and decision making) in batch, online, and distributed processing modes of computation.
 
 ## Transition to Open Development model
@@ -167,7 +168,7 @@ It is possible to build Intel DAAL libraries with selected set of algorithms and
 Built libraries are located in the `\_\_release\_{os_name}/daal` directory.
 
 ## Python*
-Intel DAAL can also be used with Python\* interfaces. See [PyDAAL Deprecation Notice](#deprecation-notice) for more information.
+Intel DAAL can also be used with Python\* interfaces. You can find the daal4py package at  https://anaconda.org/intel/daal4py  See [PyDAAL Deprecation Notice](#deprecation-notice) for more information.
 
 ## See Also
 * [Intel(R) DAAL Product Page](https://software.intel.com/en-us/intel-daal)
