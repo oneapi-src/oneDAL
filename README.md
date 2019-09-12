@@ -114,15 +114,31 @@ Required Software:
 			export PATH=$JAVA_HOME/bin:$PATH
 			export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
 
+5. Download and set an environment for mklfpk libs:
 
-5. Install Intel(R) Threading Building Blocks (Intel(R) TBB) (Windows\* only):
+	- **Windows\***:
 
-	- Download and install free Community License Intel TBB. For more information, see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2).
-	- Set an environment variables for Intel TBB. For example:
+			call .\scripts\mklfpk.bat
+
+	- **Linux/macOS\***:
+
+			scripts/mklfpk.sh [32|32e]
+
+6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB) from https://github.com/intel/tbb:
+
+	- **Windows\***:
+		- Download and install free Community License Intel TBB. For more information, see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2).
+		- Or build your own Intel TBB from https://github.com/intel/tbb
+		- Set an environment variables for Intel TBB. For example:
 
 			call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\tbb\bin\tbbvars.bat" intel64 all
 
-6. Build Intel DAAL via command-line interface. Choose the appropriate commands based on the platform and the compiler you use:
+	- **Linux/macOS\***:
+		- Use pre-build package or build TBB on your own. Or simply use scripts to dothis for you:
+
+			scripts/tbb.sh [32|32e]
+
+7. Build Intel DAAL via command-line interface. Choose the appropriate commands based on the platform and the compiler you use:
 
 	- on **Linux\*** using **Intel(R) C++ Compiler**:
 
