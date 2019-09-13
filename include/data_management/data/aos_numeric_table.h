@@ -210,12 +210,12 @@ public:
     template<typename T>
     services::Status setFeature(size_t idx, size_t offset, features::FeatureType featureType = features::DAAL_CONTINUOUS, size_t categoryNumber=0)
     {
-        services::Status s;
         if (offset >= _structSize || idx >= getNumberOfColumns())
         {
-            return services::Status(services::ErrorIncorrectDataRange);
+            return services::throwIfPossible(services::Status(services::ErrorIncorrectDataRange));
         }
 
+        services::Status s;
         if( _ddict.get() == NULL )
         {
             _ddict = NumericTableDictionary::create(&s);
