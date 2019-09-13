@@ -211,6 +211,11 @@ public:
     services::Status setFeature(size_t idx, size_t offset, features::FeatureType featureType = features::DAAL_CONTINUOUS, size_t categoryNumber=0)
     {
         services::Status s;
+        if (offset >= _structSize || idx >= getNumberOfColumns())
+        {
+            return services::Status(services::ErrorIncorrectDataRange);
+        }
+
         if( _ddict.get() == NULL )
         {
             _ddict = NumericTableDictionary::create(&s);
@@ -233,7 +238,14 @@ public:
      */
     void setOffset(size_t idx, size_t offset)
     {
-        _offsets[idx] = offset;
+        if (offset >= _structSize || idx >= getNumberOfColumns())
+        {
+            _status.add(services::throwIfPossible(services::Status(services::ErrorIncorrectDataRange)));
+        }
+        else
+        {
+            _offsets[idx] = offset;
+        }
     }
 
     services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double>& block) DAAL_C11_OVERRIDE
