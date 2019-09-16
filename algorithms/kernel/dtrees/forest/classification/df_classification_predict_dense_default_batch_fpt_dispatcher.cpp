@@ -29,6 +29,8 @@ namespace daal
 {
 namespace algorithms
 {
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::prediction::interface1::BatchContainer, batch,\
+    DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::prediction::BatchContainer, batch,\
     DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense)
 }

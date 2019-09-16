@@ -20,6 +20,10 @@
 
 DAAL  = assoc_rules_apriori_batch             \
         adaboost_dense_batch                  \
+        adaboost_samme_two_class_batch        \
+        adaboost_samme_multi_class_batch      \
+        adaboost_sammer_two_class_batch       \
+        adaboost_sammer_multi_class_batch     \
         basic_statistics                      \
         brownboost_dense_batch                \
         logitboost_dense_batch                \
@@ -122,6 +126,9 @@ DAAL  = assoc_rules_apriori_batch             \
         qr_dense_online                       \
         serialization                         \
         stump_dense_batch                     \
+        stump_cls_gini_dense_batch            \
+        stump_cls_infogain_dense_batch        \
+        stump_reg_mse_dense_batch             \
         svd_dense_batch                       \
         svd_dense_distr                       \
         svd_dense_online                      \

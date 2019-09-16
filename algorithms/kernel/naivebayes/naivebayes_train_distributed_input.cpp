@@ -99,8 +99,18 @@ Status DistributedInput::check(const daal::algorithms::Parameter *parameter, int
     const size_t size = collection->size();
     DAAL_CHECK_EX(size > 0, ErrorEmptyInputCollection, ArgumentName, numberOfModelsStr());
 
-    const multinomial_naive_bayes::Parameter *algPar = static_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-    size_t nFeatures=0;
+    size_t nClasses = 0;
+    {
+        const multinomial_naive_bayes::interface1::Parameter *algPar1 = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        if(algPar1) nClasses = algPar1->nClasses;
+    }
+    {
+        const multinomial_naive_bayes::Parameter *algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        if(algPar2) nClasses = algPar2->nClasses;
+    }
+    DAAL_CHECK_EX(nClasses > 0, ErrorNullParameterNotSupported, ArgumentName, nClassesStr());
+
+    size_t nFeatures = 0;
 
     auto checkModel = [&](const SerializationIfacePtr &model) -> services::Status
     {
@@ -117,8 +127,8 @@ Status DistributedInput::check(const daal::algorithms::Parameter *parameter, int
             nFeatures = trainingDataFeatures;
         }
 
-        s |= checkNumericTable(partialModel->getClassSize().get(), classSizeStr(), 0, 0, 1, algPar->nClasses);
-        s |= checkNumericTable(partialModel->getClassGroupSum().get(), groupSumStr(), 0, 0, nFeatures, algPar->nClasses);
+        s |= checkNumericTable(partialModel->getClassSize().get(), classSizeStr(), 0, 0, 1, nClasses);
+        s |= checkNumericTable(partialModel->getClassGroupSum().get(), groupSumStr(), 0, 0, nFeatures, nClasses);
         return s;
     };
 

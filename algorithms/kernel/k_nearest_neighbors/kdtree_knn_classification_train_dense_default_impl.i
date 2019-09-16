@@ -137,7 +137,7 @@ struct IndexValuePair
 
 template <typename algorithmFpType, CpuType cpu>
 Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-                 compute(NumericTable * x, NumericTable * y, kdtree_knn_classification::Model * r, const kdtree_knn_classification::Parameter& par, engines::BatchBase &engine)
+                 compute(NumericTable * x, NumericTable * y, kdtree_knn_classification::Model * r, engines::BatchBase &engine)
 {
     Status status;
 

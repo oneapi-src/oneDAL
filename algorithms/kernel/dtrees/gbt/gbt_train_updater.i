@@ -359,6 +359,7 @@ protected:
 
         tls->release();
         _data.GH_SUMS_BUF->GHForCols.returnBlockToStorage(tls);
+        services::internal::service_scalable_free<algorithmFPType*, cpu>(ptrs);
     }
 
     virtual void findBestSplit(SplitDataType& split, DAAL_INT& iFeature, DAAL_INT& idxFeatureValueBestSplit) DAAL_C11_OVERRIDE {} // TODO: rework to remove

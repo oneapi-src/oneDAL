@@ -119,7 +119,7 @@ public:
 
     void computeCorrectionPairImpl(size_t correctionIndex, const algorithmFPType *hessian, bool useWolfeConditions);
 
-    algorithmFPType lineSearch(algorithmFPType* x, NumericTablePtr &ntValue, algorithmFPType* previousGrad, NumericTablePtr &ntGradient, algorithmFPType* dx, sum_of_functions::BatchPtr &gradientFunction, bool& continueSearch);
+    algorithmFPType lineSearch(algorithmFPType* x, NumericTablePtr &ntValue, NumericTablePtr &ntGradient, algorithmFPType* dx, sum_of_functions::BatchPtr &gradientFunction, bool& continueSearch);
     algorithmFPType lineSearch1(algorithmFPType* x, NumericTablePtr &ntValue, NumericTablePtr &ntGradient, algorithmFPType* dx, sum_of_functions::interface1::BatchPtr &gradientFunction, bool& continueSearch);
     /*
     * Updates argument of the objective function
@@ -182,7 +182,7 @@ private:
     * Two-loop recursion algorithm that computes approximation of inverse Hessian matrix
     * multiplied by input gradient vector from a set of correction pairs (s(j), y(j)), j = 1,...,m.
     */
-    void twoLoopRecursion(size_t m, size_t correctionIndex, algorithmFPType *gradient, bool useWolfeConditions);
+    void twoLoopRecursion(size_t m, size_t correctionIndex, algorithmFPType *gradient);
 
 public:
     bool continueLineSearch;

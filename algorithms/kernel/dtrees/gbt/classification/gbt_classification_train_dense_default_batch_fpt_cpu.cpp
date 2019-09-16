@@ -38,6 +38,10 @@ namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
+namespace interface2
+{
+template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+}
 namespace internal
 {
 template class ClassificationTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

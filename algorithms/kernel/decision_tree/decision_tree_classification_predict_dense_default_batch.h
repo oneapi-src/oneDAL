@@ -52,7 +52,7 @@ template <typename algorithmFPType, CpuType cpu>
 class DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu> : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
+    services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, NumericTable * p, const daal::algorithms::Parameter * par);
 };
 
 } // namespace internal

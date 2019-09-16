@@ -38,6 +38,9 @@ import com.intel.daal.algorithms.logistic_regression.prediction.*;
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
 import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
 import com.intel.daal.algorithms.classifier.prediction.PredictionResultId;
+import com.intel.daal.algorithms.classifier.prediction.PredictionResult;
+import com.intel.daal.algorithms.classifier.ResultsToComputeId;
+import com.intel.daal.algorithms.classifier.Parameter;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.data_management.data.HomogenNumericTable;
 import com.intel.daal.data_management.data.MergedNumericTable;
@@ -117,7 +120,7 @@ class LogRegModelBuilder {
         logisticRegressionPredict.input.set(NumericTableInputId.data, testData);
         logisticRegressionPredict.input.set(ModelInputId.model, model);
 
-        logisticRegressionPredict.parameter.setResultsToCompute(PredictionResultsToComputeId.computeClassesLabels);
+        logisticRegressionPredict.parameter.setResultsToEvaluate(ResultsToComputeId.computeClassesLabels);
 
         /* Compute prediction results */
         PredictionResult predictionResult = logisticRegressionPredict.compute();

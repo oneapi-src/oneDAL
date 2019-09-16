@@ -53,7 +53,7 @@ class BatchContainerIface : public daal::algorithms::AnalysisContainerIface<batc
 {
 public:
     /** Default constructor */
-    BatchContainerIface() {};
+    BatchContainerIface() {}
     /** Default destructor */
     virtual ~BatchContainerIface() {}
 
@@ -260,7 +260,7 @@ public:
     BatchImpl()
     {
         initialize();
-    };
+    }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -281,7 +281,7 @@ public:
     ResultPtr getResult()
     {
         return _result;
-    };
+    }
 
     /**
      * Registers user-allocated memory to store results of computation of the correlation or variance-covariance matrix

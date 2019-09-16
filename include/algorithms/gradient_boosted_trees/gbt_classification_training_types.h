@@ -81,6 +81,28 @@ namespace interface1
  * \snippet gradient_boosted_trees/gbt_classification_training_types.h Parameter source code
  */
 /* [Parameter source code] */
+struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public daal::algorithms::gbt::training::Parameter
+{
+    /** Default constructor */
+    Parameter(size_t nClasses) : classifier::interface1::Parameter(nClasses), loss(crossEntropy) {}
+    services::Status check() const DAAL_C11_OVERRIDE;
+    LossFunctionType loss; /*!< Loss function type */
+};
+/* [Parameter source code] */
+}
+
+/**
+ * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__GBT__CLASSIFICATION__TRAINING__PARAMETER"></a>
+ * \brief Gradient Boosted Trees algorithm parameters
+ *
+ * \snippet gradient_boosted_trees/gbt_classification_training_types.h Parameter source code
+ */
+/* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algorithms::gbt::training::Parameter
 {
     /** Default constructor */
@@ -89,8 +111,10 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algori
     LossFunctionType loss; /*!< Loss function type */
 };
 /* [Parameter source code] */
+}
 
-
+namespace interface1
+{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__GBT__CLASSIFICATION__TRAINING__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
@@ -148,7 +172,7 @@ protected:
 typedef services::SharedPtr<Result> ResultPtr;
 
 } // namespace interface1
-using interface1::Parameter;
+using interface2::Parameter;
 using interface1::Result;
 using interface1::ResultPtr;
 

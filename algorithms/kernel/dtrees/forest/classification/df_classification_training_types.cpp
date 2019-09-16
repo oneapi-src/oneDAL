@@ -87,7 +87,8 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     DAAL_CHECK(m.get(), ErrorNullModel);
 
     services::Status s;
-    const Parameter* algParameter = static_cast<const Parameter *>(par);
+    const daal::algorithms::decision_forest::training::Parameter* algParameter = dynamic_cast<const daal::algorithms::decision_forest::training::Parameter *>(par);
+    DAAL_CHECK(algParameter, ErrorNullParameterNotSupported);
     if(algParameter->resultsToCompute & decision_forest::training::computeOutOfBagError)
     {
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1));
@@ -113,12 +114,23 @@ engines::EnginePtr Result::get(ResultEngineId id) const
 services::Status Parameter::check() const
 {
     services::Status s;
+    DAAL_CHECK_STATUS(s, classifier::interface1::Parameter::check());
+    DAAL_CHECK_STATUS(s, decision_forest::training::checkImpl(*this));
+    return s;
+}
+}
+
+namespace interface2
+{
+services::Status Parameter::check() const
+{
+    services::Status s;
     DAAL_CHECK_STATUS(s, classifier::Parameter::check());
     DAAL_CHECK_STATUS(s, decision_forest::training::checkImpl(*this));
     return s;
 }
+}
 
-} // namespace interface1
 } // namespace training
 } // namespace classification
 } // namespace decision_forest

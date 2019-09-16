@@ -30,5 +30,8 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(decision_tree::classification::prediction::BatchContainer, batch, DAAL_FPTYPE, \
                                       decision_tree::classification::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(decision_tree::classification::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE, \
+                                      decision_tree::classification::prediction::defaultDense)
+
 } // namespace algorithms
 } // namespace daal

@@ -52,11 +52,11 @@ services::Status BoostingPredictKernel<algorithmFPType, cpu>::compute(const Nume
     const algorithmFPType *rWeak = rWeakTable->getArray();
 
     services::SharedPtr<weak_learner::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction->clone();
-    classifier::prediction::Input *learnerInput = learnerPredict->getInput();
+    classifier::prediction::interface1::Input *learnerInput = learnerPredict->getInput();
     DAAL_CHECK(learnerInput, services::ErrorNullInput);
     learnerInput->set(classifier::prediction::data, xTable);
 
-    classifier::prediction::ResultPtr predictionRes(new classifier::prediction::Result());
+    classifier::prediction::interface1::ResultPtr predictionRes(new classifier::prediction::interface1::Result());
     predictionRes->set(classifier::prediction::prediction, rWeakTable);
     DAAL_CHECK_STATUS(s, learnerPredict->setResult(predictionRes));
 

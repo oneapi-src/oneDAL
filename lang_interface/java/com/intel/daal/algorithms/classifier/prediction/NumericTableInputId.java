@@ -47,5 +47,18 @@ public final class NumericTableInputId {
     private static final int Data = 0;
 
     public static final NumericTableInputId data = new NumericTableInputId(Data); /*!< Data for the prediction stage*/
+
+    public static boolean validate(NumericTableInputId id) {
+        return id.getValue() == data.getValue();
+    }
+
+    public static void throwIfInvalid(NumericTableInputId id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Null input id");
+        }
+        if (!NumericTableInputId.validate(id)) {
+            throw new IllegalArgumentException("Unsupported input id");
+        }
+    }
 }
 /** @} */

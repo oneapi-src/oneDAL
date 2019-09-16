@@ -54,13 +54,13 @@
         ((KernelClass<templateArguments, cpu> *)(_kernel))->method(__VA_ARGS__);
 
 #define __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, Mode, ClassName, BaseClassName, ...) \
-extern template class DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, __VA_ARGS__);               \
-extern template class DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, __VA_ARGS__);              \
-extern template class DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, __VA_ARGS__);              \
-extern template class DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, __VA_ARGS__);                \
-extern template class DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__);               \
-extern template class DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, __VA_ARGS__);         \
-extern template class DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, __VA_ARGS__);             \
+DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, __VA_ARGS__)               \
+DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, __VA_ARGS__)              \
+DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, __VA_ARGS__)              \
+DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, __VA_ARGS__)                \
+DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, __VA_ARGS__)               \
+DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, __VA_ARGS__)         \
+DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, __VA_ARGS__)             \
 namespace interface1                                                                             \
 {                                                                                                \
 template<>                                                                                       \

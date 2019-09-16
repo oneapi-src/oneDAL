@@ -25,6 +25,8 @@ package com.intel.daal.algorithms.logistic_regression.prediction;
 import com.intel.daal.utils.*;
 import com.intel.daal.algorithms.Precision;
 import com.intel.daal.services.DaalContext;
+import com.intel.daal.algorithms.classifier.Parameter;
+import com.intel.daal.algorithms.classifier.prediction.PredictionResult;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__PREDICTIONBATCH"></a>
@@ -39,7 +41,7 @@ import com.intel.daal.services.DaalContext;
 public class PredictionBatch extends com.intel.daal.algorithms.classifier.prediction.PredictionBatch {
     public PredictionInput  input;       /*!< %Input data */
     public PredictionMethod method;      /*!< %Prediction method for the algorithm */
-    public PredictionParameter        parameter;   /*!< Parameters of the algorithm */
+    public Parameter        parameter;   /*!< Parameters of the algorithm */
     private Precision       prec;        /*!< Precision of intermediate computations */
 
     /** @private */
@@ -61,7 +63,7 @@ public class PredictionBatch extends com.intel.daal.algorithms.classifier.predic
 
         this.cObject = cClone(other.cObject, prec.getValue(), method.getValue());
         input = new PredictionInput(getContext(), cObject);
-        parameter = new PredictionParameter(getContext(), cInitParameter(this.cObject, prec.getValue(), method.getValue()));
+        parameter = new Parameter(getContext(), cInitParameter(this.cObject, prec.getValue(), method.getValue()));
     }
 
     /**
@@ -93,7 +95,7 @@ public class PredictionBatch extends com.intel.daal.algorithms.classifier.predic
 
         this.cObject = cInit(prec.getValue(), method.getValue(), nClasses);
         input = new PredictionInput(getContext(), cObject);
-        parameter = new PredictionParameter(getContext(), cInitParameter(this.cObject, prec.getValue(), method.getValue()));
+        parameter = new Parameter(getContext(), cInitParameter(this.cObject, prec.getValue(), method.getValue()));
     }
 
     /**
@@ -103,7 +105,7 @@ public class PredictionBatch extends com.intel.daal.algorithms.classifier.predic
     @Override
     public PredictionResult compute() {
         super.compute();
-        return new PredictionResult(getContext(), cGetResult(cObject, prec.getValue(), method.getValue()));
+        return new PredictionResult(getContext(), this.cObject);
     }
 
     /**

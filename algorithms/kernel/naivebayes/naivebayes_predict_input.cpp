@@ -103,8 +103,16 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     DAAL_CHECK(inputModel->getLogTheta(), services::ErrorModelNotFullInitialized);
     DAAL_CHECK(inputModel->getAuxTable(), services::ErrorModelNotFullInitialized);
 
-    const multinomial_naive_bayes::Parameter *algPar = static_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-    size_t nClasses = algPar->nClasses;
+    size_t nClasses = 0;
+    {
+        const multinomial_naive_bayes::interface1::Parameter *algPar1 = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        if(algPar1) nClasses = algPar1->nClasses;
+    }
+    {
+        const multinomial_naive_bayes::Parameter *algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        if(algPar2) nClasses = algPar2->nClasses;
+    }
+    DAAL_CHECK_EX(nClasses > 0, ErrorNullParameterNotSupported, ArgumentName, nClassesStr());
 
     DAAL_CHECK(inputModel->getLogP()->getNumberOfRows() == nClasses, ErrorNaiveBayesIncorrectModel);
 

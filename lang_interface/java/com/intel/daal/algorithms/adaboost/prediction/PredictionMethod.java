@@ -37,7 +37,6 @@ public final class PredictionMethod {
         _value = value;
     }
 
-
     /**
      * Returns the value corresponding to the prediction method object
      * @return Value corresponding to the prediction method object
@@ -46,8 +45,15 @@ public final class PredictionMethod {
         return _value;
     }
 
-    private static final int DefaultDense = 0;
+    private static final int Samme = 0;
+    private static final int DefaultDense = Samme;
+    private static final int SammeR = 1;
 
-    public static final PredictionMethod defaultDense = new PredictionMethod(DefaultDense); /*!< Default method */
+    /** Default AdaBoost training method */
+    public static final PredictionMethod defaultDense = new PredictionMethod(DefaultDense);
+    /** SAMME algorithm */
+    public static final PredictionMethod samme = new PredictionMethod(Samme);
+    /** SAMME.R algorithm, need probabilities from weak learner prediction result */
+    public static final PredictionMethod sammeR = new PredictionMethod(SammeR);
 }
 /** @} */

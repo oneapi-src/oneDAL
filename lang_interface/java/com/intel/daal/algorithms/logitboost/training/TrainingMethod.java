@@ -50,8 +50,10 @@ public final class TrainingMethod {
     }
 
     @Native private static final int Friedman = 0;
+    private static final int DefaultDense = Friedman;
 
     /** Default method proposed by Friedman et al. */
+    public static final TrainingMethod defaultDense = new TrainingMethod(DefaultDense);
     public static final TrainingMethod friedman = new TrainingMethod(Friedman);
 }
 /** @} */

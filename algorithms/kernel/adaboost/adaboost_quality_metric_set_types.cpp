@@ -42,7 +42,7 @@ namespace interface1
  * \param[in] id   Identifier of the result
  * \return         Result that corresponds to the given identifier
  */
-classifier::quality_metric::binary_confusion_matrix::ResultPtr ResultCollection::getResult(QualityMetricId id) const
+classifier::quality_metric::binary_confusion_matrix::ResultPtr daal::algorithms::adaboost::quality_metric_set::interface1::ResultCollection::getResult(daal::algorithms::adaboost::quality_metric_set::QualityMetricId id) const
 {
     return staticPointerCast<classifier::quality_metric::binary_confusion_matrix::Result, SerializationIface>((*this)[(size_t)id]);
 }
@@ -52,14 +52,38 @@ classifier::quality_metric::binary_confusion_matrix::ResultPtr ResultCollection:
  * \param[in] id    Identifier of the input object
  * \return          %Input object that corresponds to the given identifier
  */
-classifier::quality_metric::binary_confusion_matrix::InputPtr InputDataCollection::getInput(QualityMetricId id) const
+classifier::quality_metric::binary_confusion_matrix::InputPtr daal::algorithms::adaboost::quality_metric_set::interface1::InputDataCollection::getInput(daal::algorithms::adaboost::quality_metric_set::QualityMetricId id) const
 {
     return staticPointerCast<classifier::quality_metric::binary_confusion_matrix::Input, algorithms::Input>(
             algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
 }
-
-
 } //namespace interface1
+namespace interface2
+{
+
+Parameter::Parameter(size_t nClasses) : nClasses(nClasses) {}
+
+/**
+ * Returns the result of the quality metrics algorithm
+ * \param[in] id   Identifier of the result
+ * \return         Result that corresponds to the given identifier
+ */
+classifier::quality_metric::multiclass_confusion_matrix::ResultPtr ResultCollection::getResult(QualityMetricId id) const
+{
+    return staticPointerCast<classifier::quality_metric::multiclass_confusion_matrix::Result, SerializationIface>((*this)[(size_t)id]);
+}
+
+/**
+ * Returns the input object of the quality metrics algorithm
+ * \param[in] id    Identifier of the input object
+ * \return          %Input object that corresponds to the given identifier
+ */
+classifier::quality_metric::multiclass_confusion_matrix::InputPtr InputDataCollection::getInput(QualityMetricId id) const
+{
+    return staticPointerCast<classifier::quality_metric::multiclass_confusion_matrix::Input, algorithms::Input>(
+            algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
+}
+} //namespace interface2
 } //namespace quality_metric_set
 } //namespace adaboost
 } //namespace algorithms

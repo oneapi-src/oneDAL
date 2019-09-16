@@ -33,6 +33,41 @@ namespace kdtree_knn_classification
 {
 namespace prediction
 {
+namespace interface1
+{
+
+template <typename algorithmFpType, Method method, CpuType cpu>
+BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
+{
+    __DAAL_INITIALIZE_KERNELS(internal::KNNClassificationPredictKernel, algorithmFpType, method);
+}
+
+template <typename algorithmFpType, Method method, CpuType cpu>
+BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
+{
+    __DAAL_DEINITIALIZE_KERNELS();
+}
+
+template <typename algorithmFpType, Method method, CpuType cpu>
+services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
+{
+    const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
+    classifier::prediction::interface1::Result * const result = static_cast<classifier::prediction::interface1::Result *>(_res);
+
+    const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
+    const classifier::ModelConstPtr m = input->get(classifier::prediction::model);
+    const data_management::NumericTablePtr r = result->get(classifier::prediction::prediction);
+
+    const daal::algorithms::Parameter * const par = _par;
+    daal::services::Environment::env & env = *_env;
+
+    __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), \
+                       compute, a.get(), m.get(), r.get(), par);
+}
+
+}
+namespace interface2
+{
 
 template <typename algorithmFpType, Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
@@ -63,6 +98,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
                        compute, a.get(), m.get(), r.get(), par);
 }
 
+}
 } // namespace prediction
 } // namespace kdtree_knn_classification
 } // namespace algorithms

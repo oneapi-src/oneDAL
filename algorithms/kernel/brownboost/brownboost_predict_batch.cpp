@@ -24,6 +24,7 @@
 #include "algorithms/boosting/brownboost_predict_types.h"
 #include "daal_strings.h"
 
+
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -36,6 +37,70 @@ namespace brownboost
 namespace prediction
 {
 namespace interface1
+{
+
+/**
+ * Returns the input Numeric Table object in the prediction stage of the classification algorithm
+ * \param[in] id    Identifier of the input NumericTable object
+ * \return          %Input object that corresponds to the given identifier
+ */
+NumericTablePtr Input::get(classifier::prediction::NumericTableInputId id) const
+{
+    return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Returns the input Model object in the prediction stage of the BrownBoost algorithm
+ * \param[in] id    Identifier of the input Model object
+ * \return          %Input object that corresponds to the given identifier
+ */
+brownboost::interface1::ModelPtr Input::get(classifier::prediction::ModelInputId id) const
+{
+    return staticPointerCast<brownboost::interface1::Model, SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets the input NumericTable object in the prediction stage of the classification algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the input object
+ */
+void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Sets the input Model object in the prediction stage of the BrownBoost algorithm
+ * \param[in] id    Identifier of the input object
+ * \param[in] ptr   Pointer to the input object
+ */
+void Input::set(classifier::prediction::ModelInputId id, const brownboost::interface1::ModelPtr &ptr)
+{
+    Argument::set(id, ptr);
+}
+
+/**
+ * Checks the correctness of the input object
+ * \param[in] parameter Pointer to the structure of the algorithm parameters
+ * \param[in] method    Computation method
+ */
+services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+{
+    services::Status s = classifier::prediction::interface1::Input::check(parameter, method);
+    if(!s) return s;
+
+    brownboost::interface1::ModelPtr m =
+        staticPointerCast<brownboost::interface1::Model, classifier::Model>(get(classifier::prediction::model));
+    DAAL_CHECK(m->getNumberOfWeakLearners() > 0, ErrorModelNotFullInitialized);
+
+    s |= checkNumericTable(m->getAlpha().get(), alphaStr());
+    if(!s) return services::Status(services::ErrorModelNotFullInitialized);
+    DAAL_CHECK(m->getNumberOfWeakLearners() == m->getAlpha()->getNumberOfRows(), ErrorIncorrectSizeOfModel);
+    return s;
+}
+} // namespace interface1
+
+namespace interface2
 {
 
 /**
@@ -99,7 +164,7 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
 }
 
 
-} // namespace interface1
+} // namespace interface2
 } // namespace prediction
 } // namespace brownboost
 } // namespace algorithms

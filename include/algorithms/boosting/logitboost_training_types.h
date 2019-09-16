@@ -70,6 +70,50 @@ namespace interface1
  * \brief Provides methods to access final results obtained with the compute() method
  *        of the LogitBoost training algorithm in the batch processing mode
  */
+class DAAL_EXPORT Result : public classifier::training::interface1::Result
+{
+public:
+    DECLARE_SERIALIZABLE_CAST(Result);
+
+    virtual ~Result() {}
+
+    /**
+     * Returns the model trained with the LogitBoost algorithm
+     * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
+     * \return          Model trained with the LogitBoost algorithm
+     */
+    daal::algorithms::logitboost::interface1::ModelPtr get(classifier::training::ResultId id) const;
+
+    /**
+     * Allocates memory to store final results of the LogitBoost training algorithm
+     * \param[in] input         %Input of the LogitBoost training algorithm
+     * \param[in] parameter     Parameters of the algorithm
+     * \param[in] method        LogitBoost computation method
+     */
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+
+protected:
+    /** \private */
+    template<typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive *arch)
+    {
+        return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
+    }
+};
+typedef services::SharedPtr<Result> ResultPtr;
+} // namespace interface1
+
+/**
+ * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__LOGITBOOST__TRAINING__RESULT"></a>
+ * \brief Provides methods to access final results obtained with the compute() method
+ *        of the LogitBoost training algorithm in the batch processing mode
+ */
 class DAAL_EXPORT Result : public classifier::training::Result
 {
 public:
@@ -102,9 +146,9 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-using interface1::Result;
-using interface1::ResultPtr;
+} // namespace interface2
+using interface2::Result;
+using interface2::ResultPtr;
 
 } // namespace daal::algorithms::logitboost::training
 /** @} */

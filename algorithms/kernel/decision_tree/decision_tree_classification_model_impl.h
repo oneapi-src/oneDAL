@@ -130,6 +130,10 @@ public:
 
     void setNodeSmplCntTable(const services::SharedPtr<data_management::HomogenNumericTable<int> > & value) { _nodeSampleCountTable = value; }
 
+    void setProbTable(const services::SharedPtr<data_management::HomogenNumericTable<double> > & value) { _probTable = value; }
+
+    void setProbIndicesTable(const services::SharedPtr<data_management::HomogenNumericTable<int> > & value) { _probIndicesTable = value; }
+
     const double* getImpVals() const
     {
         return _impTable ? _impTable->getArray() : nullptr;
@@ -138,6 +142,23 @@ public:
     const int* getNodeSampleCount() const
     {
         return _nodeSampleCountTable ? _nodeSampleCountTable->getArray() : nullptr;
+    }
+
+    const double * getProbabilities(size_t index) const
+    {
+        if (_probTable)
+        {
+            DAAL_ASSERT(_probIndicesTable);
+            DAAL_ASSERT(index < _probIndicesTable->getNumberOfRows());
+            const int probTableIndex = *(_probIndicesTable->getArray() + index);
+            DAAL_ASSERT(probTableIndex < _probTable->getNumberOfRows());
+            // operator[] of homogen numeric table does not have const version
+            return _probTable->getArray() + probTableIndex * _probTable->getNumberOfColumns();
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
     void traverseDF(classifier::TreeNodeVisitor& visitor) const
@@ -234,6 +255,12 @@ public:
         {
             arch->setSharedPtrObj(_impTable);
             arch->setSharedPtrObj(_nodeSampleCountTable);
+
+            if (daalVersion >= COMPUTE_DAAL_VERSION(2019, 0, 3))
+            {
+                arch->setSharedPtrObj(_probIndicesTable);
+                arch->setSharedPtrObj(_probTable);
+            }
         }
 
         return services::Status();
@@ -243,6 +270,8 @@ private:
     DecisionTreeTablePtr _TreeTable;
     services::SharedPtr<data_management::HomogenNumericTable<double> > _impTable;
     services::SharedPtr<data_management::HomogenNumericTable<int> >    _nodeSampleCountTable;
+    services::SharedPtr<data_management::HomogenNumericTable<int> >    _probIndicesTable;
+    services::SharedPtr<data_management::HomogenNumericTable<double> > _probTable;
 
     template <typename OnSplitFunctor, typename OnLeafFunctor>
     bool traverseNodesDF(size_t level, size_t iRowInTable, const DecisionTreeNode* aNode, OnSplitFunctor &visitSplit, OnLeafFunctor &visitLeaf) const

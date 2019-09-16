@@ -41,8 +41,9 @@ namespace logistic_regression
 namespace training
 {
 
-namespace interface2
+namespace interface3
 {
+
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
@@ -94,7 +95,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     return pImpl->reset(par->interceptFlag);
 }
 
-} // namespace interface2
+}
 }
 }
 }

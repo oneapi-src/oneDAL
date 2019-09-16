@@ -809,6 +809,28 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface* pHostApp,
     const NumericTable *x, const NumericTable *y, decision_forest::classification::Model& m,
     Result& res,
+    const decision_forest::classification::training::interface1::Parameter& par)
+{
+    Parameter tmpPar(par.nClasses);
+    tmpPar.nTrees = par.nTrees;
+    tmpPar.observationsPerTreeFraction = par.observationsPerTreeFraction;
+    tmpPar.featuresPerNode = par.featuresPerNode;
+    tmpPar.maxTreeDepth = par.maxTreeDepth;
+    tmpPar.minObservationsInLeafNode = par.minObservationsInLeafNode;
+    tmpPar.seed = par.seed;
+    tmpPar.engine = par.engine;
+    tmpPar.impurityThreshold = par.impurityThreshold;
+    tmpPar.varImportance = par.varImportance;
+    tmpPar.resultsToCompute = par.resultsToCompute;
+    tmpPar.memorySavingMode = par.memorySavingMode;
+    tmpPar.bootstrap = par.bootstrap;
+    return compute(pHostApp, x, y, m, res, tmpPar);
+}
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface* pHostApp,
+    const NumericTable *x, const NumericTable *y, decision_forest::classification::Model& m,
+    Result& res,
     const decision_forest::classification::training::Parameter& par)
 {
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get());

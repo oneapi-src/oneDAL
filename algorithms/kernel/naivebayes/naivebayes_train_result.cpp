@@ -104,15 +104,31 @@ services::Status Result::checkImpl(size_t nFeatures,const daal::algorithms::Para
     const size_t trainingDataFeatures = resModel->getNFeatures();
     DAAL_CHECK(trainingDataFeatures, services::ErrorModelNotFullInitialized);
 
-    const multinomial_naive_bayes::Parameter *algPar = static_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-    size_t nClasses = algPar->nClasses;
+    size_t nClasses = 0;
+    NumericTablePtr alphaTable;
+    {
+        const multinomial_naive_bayes::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        if(algPar)
+        {
+            nClasses = algPar->nClasses;
+            alphaTable = algPar->alpha;
+        }
+    }
+    {
+        const multinomial_naive_bayes::interface1::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        if(algPar)
+        {
+            nClasses = algPar->nClasses;
+            alphaTable = algPar->alpha;
+        }
+    }
 
     s |= checkNumericTable(resModel->getLogP().get(), logPStr(), 0, 0, 1, nClasses);
     s |= checkNumericTable(resModel->getLogTheta().get(), logThetaStr(), 0, 0, nFeatures, nClasses);
 
-    if(algPar->alpha)
+    if(alphaTable)
     {
-        s |= checkNumericTable(algPar->alpha.get(), alphaStr(), 0, 0, nFeatures, 1);
+        s |= checkNumericTable(alphaTable.get(), alphaStr(), 0, 0, nFeatures, 1);
     }
 
     return s;

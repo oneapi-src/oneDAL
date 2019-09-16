@@ -18,8 +18,9 @@
 /*
  * Contains optimizations for AVX512.
 */
+
 template <>
-void SVMTrainTask<float, avx512>::WSSjLocal(const size_t jStart, const size_t jEnd,
+void SVMTrainTask<float, daal::algorithms::svm::interface2::Parameter, avx512>::WSSjLocal(const size_t jStart, const size_t jEnd,
     const float *KiBlock, const float GMax, const float Kii, const float tau,
     int &Bj, float &GMin, float &GMin2, float &delta) const
 {
@@ -163,7 +164,7 @@ void SVMTrainTask<float, avx512>::WSSjLocal(const size_t jStart, const size_t jE
 }
 
 template <>
-void SVMTrainTask<double, avx512>::WSSjLocal(const size_t jStart, const size_t jEnd,
+void SVMTrainTask<double, daal::algorithms::svm::interface2::Parameter, avx512>::WSSjLocal(const size_t jStart, const size_t jEnd,
     const double *KiBlock, const double GMax, const double Kii, const double tau,
     int &Bj, double &GMin, double &GMin2, double &delta) const
 {

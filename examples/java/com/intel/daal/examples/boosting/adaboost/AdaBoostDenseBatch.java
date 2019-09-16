@@ -28,9 +28,9 @@
 
 package com.intel.daal.examples.boosting.adaboost;
 
-import com.intel.daal.algorithms.adaboost.Model;
-import com.intel.daal.algorithms.adaboost.prediction.*;
-import com.intel.daal.algorithms.adaboost.training.*;
+import com.intel.daal.algorithms.binary_adaboost.Model;
+import com.intel.daal.algorithms.binary_adaboost.prediction.*;
+import com.intel.daal.algorithms.binary_adaboost.training.*;
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
 import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
 import com.intel.daal.algorithms.classifier.prediction.PredictionResult;

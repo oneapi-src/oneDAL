@@ -43,14 +43,14 @@
     #define DAAL_KERNEL_SSE2_ONLY(something) , something
     #define DAAL_KERNEL_SSE2_ONLY_CODE(...) __VA_ARGS__
     #define DAAL_KERNEL_SSE2_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__)
-    #define DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, ...)  DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__)
+    #define DAAL_KERNEL_SSE2_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__) ;
     #define DAAL_KERNEL_SSE2_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, sse2, __VA_ARGS__)
 
 #if defined(DAAL_KERNEL_SSSE3)
     #define DAAL_KERNEL_SSSE3_ONLY(something) , something
     #define DAAL_KERNEL_SSSE3_ONLY_CODE(...) __VA_ARGS__
     #define DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__)
-    #define DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, ...)  DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__)
+    #define DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__) ;
     #define DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, ssse3, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_SSSE3_ONLY(something)
@@ -64,7 +64,7 @@
     #define DAAL_KERNEL_SSE42_ONLY(something) , something
     #define DAAL_KERNEL_SSE42_ONLY_CODE(...) __VA_ARGS__
     #define DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__)
-    #define DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, ...)  DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__)
+    #define DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__) ;
     #define DAAL_KERNEL_SSE42_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, sse42, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_SSE42_ONLY(something)
@@ -78,7 +78,7 @@
     #define DAAL_KERNEL_AVX_ONLY(something) , something
     #define DAAL_KERNEL_AVX_ONLY_CODE(...) __VA_ARGS__
     #define DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__)
-    #define DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, ...)  DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__)
+    #define DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__) ;
     #define DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, avx, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_AVX_ONLY(something)
@@ -92,7 +92,7 @@
     #define DAAL_KERNEL_AVX2_ONLY(something) , something
     #define DAAL_KERNEL_AVX2_ONLY_CODE(...) __VA_ARGS__
     #define DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__)
-    #define DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, ...)  DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__)
+    #define DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__) ;
     #define DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, avx2, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_AVX2_ONLY(something)
@@ -106,7 +106,7 @@
     #define DAAL_KERNEL_AVX512_MIC_ONLY(something) , something
     #define DAAL_KERNEL_AVX512_MIC_ONLY_CODE(...) __VA_ARGS__
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__)
-    #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...)  DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__)
+    #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__) ;
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, avx512_mic, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_AVX512_MIC_ONLY(something)
@@ -120,7 +120,7 @@
     #define DAAL_KERNEL_AVX512_ONLY(something) , something
     #define DAAL_KERNEL_AVX512_ONLY_CODE(...) __VA_ARGS__
     #define DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512, __VA_ARGS__)
-    #define DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, ...)  DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512, __VA_ARGS__)
+    #define DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512, __VA_ARGS__) ;
     #define DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, avx512, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_AVX512_ONLY(something)

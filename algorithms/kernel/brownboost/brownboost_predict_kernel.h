@@ -49,9 +49,18 @@ class BrownBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cp
 {
     using BoostingPredictKernel<algorithmFPtype, cpu>::compute;
 public:
-    services::Status compute(const NumericTablePtr& x, const Model *m, const NumericTablePtr& r, const Parameter *par);
+    services::Status compute(const NumericTablePtr &x, const brownboost::interface1::Model *m,
+                             const NumericTablePtr &r, const brownboost::interface1::Parameter *par);
 };
 
+template <Method method, typename algorithmFPtype, CpuType cpu>
+class BrownBoostPredictKernelNew : public Kernel
+{
+public:
+    services::Status compute(const NumericTablePtr &x, const Model *m, const NumericTablePtr &r, const Parameter *par);
+    services::Status computeImpl(const NumericTablePtr &xTable, const Model *m, size_t nWeakLearners, const algorithmFPtype *alpha, algorithmFPtype *r,
+                                 const Parameter *par);
+};
 } // namespace daal::algorithms::brownboost::prediction::internal
 }
 }

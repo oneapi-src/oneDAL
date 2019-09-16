@@ -37,6 +37,10 @@ namespace interface1
 {
 template class OnlineContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 }
+namespace interface2
+{
+template class OnlineContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
+}
 namespace internal
 {
 template class NaiveBayesOnlineTrainKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;

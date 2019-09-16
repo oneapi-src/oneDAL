@@ -38,7 +38,7 @@ import com.intel.daal.algorithms.decision_tree.regression.Parameter;
  *      - com.intel.daal.algorithms.decision_tree.regression.Model class
  *      - com.intel.daal.algorithms.decision_tree.regression.prediction.PredictionResult class
  */
-public class PredictionBatch extends com.intel.daal.algorithms.Prediction {
+public class PredictionBatch extends com.intel.daal.algorithms.regression.prediction.PredictionBatch {
     protected Precision    prec;
     public PredictionInput input;   /*!< %Input data */
     public Parameter parameter;     /*!< Parameters of the algorithm */
@@ -104,7 +104,7 @@ public class PredictionBatch extends com.intel.daal.algorithms.Prediction {
     @Override
     public PredictionResult compute() {
         super.compute();
-        PredictionResult result = new PredictionResult(getContext(), cGetResult(cObject, prec.getValue(), method.getValue()));
+        PredictionResult result = new PredictionResult(getContext(), this.cObject);
         return result;
     }
 

@@ -56,7 +56,16 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         algorithmFPType *distance = mtR.get();
 
         Model *model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
-        Parameter *parameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+        kernel_function::KernelIfacePtr kernel;
+        {
+            svm::interface1::Parameter *parameter = dynamic_cast<svm::interface1::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+            if(parameter) kernel = parameter->kernel->clone();
+        }
+        {
+            svm::interface2::Parameter *parameter = dynamic_cast<svm::interface2::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+            if(parameter) kernel = parameter->kernel->clone();
+        }
+        DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
 
         NumericTablePtr svCoeffTable  = model->getClassificationCoefficients();
         const size_t nSV = svCoeffTable->getNumberOfRows();
@@ -71,7 +80,6 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         }
 
         const algorithmFPType bias(model->getBias());
-        kernel_function::KernelIfacePtr kernel = parameter->kernel->clone();
         NumericTablePtr svTable = model->getSupportVectors();
 
         ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);

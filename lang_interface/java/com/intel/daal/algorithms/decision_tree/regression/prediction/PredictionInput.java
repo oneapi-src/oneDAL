@@ -31,7 +31,7 @@ import com.intel.daal.algorithms.decision_tree.regression.Model;
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__PREDICTION__PREDICTIONINPUT"></a>
  * @brief  %Input objects for the decision tree regression prediction algorithm
  */
-public class PredictionInput extends com.intel.daal.algorithms.Input {
+public class PredictionInput extends com.intel.daal.algorithms.regression.prediction.PredictionInput {
     /** @private */
     static {
         LibUtils.loadLibrary();
@@ -100,7 +100,7 @@ public class PredictionInput extends com.intel.daal.algorithms.Input {
 
     private native void cSetInputModel(long inputAddr, int id, long modelAddr);
 
-    private native long cGetInputModel(long inputAddr, int id);
+    protected native long cGetInputModel(long inputAddr, int id);
 
 }
 /** @} */

@@ -33,7 +33,7 @@ namespace logistic_regression
 {
 namespace prediction
 {
-namespace interface1
+namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }

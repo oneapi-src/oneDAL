@@ -56,9 +56,21 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0        /*!< Default method */
+    defaultDense = 0,     /*!< Default method */
+    samme = defaultDense, /*!< SAMME algorithm */
+    sammeR = 1            /*!< SAMME.R algorithm, need probabilities from weak learner prediction result */
 };
 
+/**
+* <a name="DAAL-ENUM-ALGORITHMS__ADABOOST__CLASSIFICATION__TRAINING__RESULTNUMERICTABLEID"></a>
+* \brief Available identifiers of the result of AdaBoost model-based training
+*/
+enum ResultNumericTableId
+{
+    weakLearnersErrors = classifier::training::model + 1,  /*!< %Numeric table 1 x maxIterations containing
+                                                                weak learners classification errors */
+    lastResultNumericTableId = weakLearnersErrors
+};
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -69,7 +81,7 @@ namespace interface1
  * \brief Provides methods to access final results obtained with the compute() method
  *        of the AdaBoost training algorithm in the batch processing mode
  */
-class DAAL_EXPORT Result : public classifier::training::Result
+class DAAL_EXPORT Result : public classifier::training::interface1::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
@@ -90,7 +102,75 @@ public:
      * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
      * \return          Model trained with the AdaBoost algorithm
      */
-    daal::algorithms::adaboost::ModelPtr get(classifier::training::ResultId id) const;
+    daal::algorithms::adaboost::interface1::ModelPtr get(classifier::training::ResultId id) const;
+
+    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+
+protected:
+    /** \private */
+    template<typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive *arch)
+    {
+        return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
+    }
+};
+typedef services::SharedPtr<interface1::Result> ResultPtr;
+} // namespace interface1
+
+/**
+ * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__TRAINING__RESULT"></a>
+ * \brief Provides methods to access final results obtained with the compute() method
+ *        of the AdaBoost training algorithm in the batch processing mode
+ */
+class DAAL_EXPORT Result : public classifier::training::Result
+{
+public:
+    DECLARE_SERIALIZABLE_CAST(Result);
+
+    Result();
+    virtual ~Result() {}
+
+    /**
+     * Allocates memory to store final results of AdaBoost training
+     * \param[in] input         %Input of the AdaBoost training algorithm
+     * \param[in] parameter     Parameters of the algorithm
+     * \param[in] method        AdaBoost computation method
+     */
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+
+    /**
+     * Returns the model trained with the AdaBoost algorithm
+     * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
+     * \return          Model trained with the LogitBoost algorithm
+     */
+    ModelPtr get(classifier::training::ResultId id) const;
+
+    /**
+    * Sets the result of AdaBoost model-based training
+    * \param[in] id      Identifier of the result
+    * \param[in] value   Result
+    */
+    void set(classifier::training::ResultId id, const ModelPtr &value);
+
+    /**
+    * Returns the result of AdaBoost model-based training
+    * \param[in] id    Identifier of the result
+    * \return          Result that corresponds to the given identifier
+    */
+    data_management::NumericTablePtr get(ResultNumericTableId id) const;
+
+    /**
+    * Sets the result of AdaBoost model-based training
+    * \param[in] id      Identifier of the result
+    * \param[in] value   Result
+    */
+    void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
 
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 
@@ -103,9 +183,9 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // namespace interface1
-using interface1::Result;
-using interface1::ResultPtr;
+} // namespace interface2
+using interface2::Result;
+using interface2::ResultPtr;
 
 } // namespace daal::algorithms::adaboost::training
 /** @} */

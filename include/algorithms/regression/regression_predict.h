@@ -80,8 +80,19 @@ public:
      */
     ResultPtr getResult() { return _result; }
 
+    /**
+     * Returns a pointer to the newly allocated regression prediction algorithm with a copy of input objects
+     * and parameters of this regression prediction algorithm
+     * \return Pointer to the newly allocated algorithm
+     */
+    services::SharedPtr<Batch> clone() const
+    {
+        return services::SharedPtr<Batch>(cloneImpl());
+    }
+
 protected:
     ResultPtr _result;
+    virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };
 /** @} */
 }

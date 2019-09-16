@@ -94,6 +94,27 @@ namespace interface1
  * \snippet decision_forest/decision_forest_classification_training_types.h Parameter source code
  */
 /* [Parameter source code] */
+struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public daal::algorithms::decision_forest::training::Parameter
+{
+    /** Default constructor */
+    Parameter(size_t nClasses) : classifier::interface1::Parameter(nClasses) {}
+    services::Status check() const DAAL_C11_OVERRIDE;
+};
+/* [Parameter source code] */
+}
+
+/**
+ * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__TRAINING__PARAMETER"></a>
+ * \brief Decision forest algorithm parameters
+ *
+ * \snippet decision_forest/decision_forest_classification_training_types.h Parameter source code
+ */
+/* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algorithms::decision_forest::training::Parameter
 {
     /** Default constructor */
@@ -101,8 +122,10 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algori
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
+}
 
-
+namespace interface1
+{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__TRAINING__RESULT"></a>
  * \brief Provides methods to access final results obtained with the compute() method
@@ -191,7 +214,7 @@ private:
 typedef services::SharedPtr<Result> ResultPtr;
 
 } // namespace interface1
-using interface1::Parameter;
+using interface2::Parameter;
 using interface1::Result;
 using interface1::ResultPtr;
 

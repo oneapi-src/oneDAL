@@ -58,5 +58,20 @@ public final class InputId {
     public static final InputId data    = new InputId(Data);    /*!< Data for the training stage */
     public static final InputId labels  = new InputId(Labels);  /*!< Labels for the training stage */
     public static final InputId weights = new InputId(Weights); /*!< Weights for the training stage */
+
+    public static boolean validate(InputId id) {
+        return id.getValue() == data.getValue() ||
+               id.getValue() == labels.getValue() ||
+               id.getValue() == weights.getValue();
+    }
+
+    public static void throwIfInvalid(InputId id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Null input id");
+        }
+        if (!InputId.validate(id)) {
+            throw new IllegalArgumentException("Unsupported input id");
+        }
+    }
 }
 /** @} */

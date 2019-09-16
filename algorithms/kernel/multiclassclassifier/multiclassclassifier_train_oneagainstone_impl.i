@@ -48,13 +48,13 @@ namespace training
 namespace internal
 {
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu>::
+template<typename algorithmFPType, typename ClsType, typename MccParType, CpuType cpu>
+services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, MccParType, cpu>::
 compute(const NumericTable *xTable, const NumericTable *yTable, daal::algorithms::Model *r,
         const daal::algorithms::Parameter *par)
 {
     Model *model = static_cast<Model *>(r);
-    const Parameter *mccPar = static_cast<const Parameter *>(par);
+    const MccParType *mccPar = static_cast<const MccParType *>(par);
 
     const size_t nVectors = xTable->getNumberOfRows();
     ReadColumns<int, cpu> mtY(*const_cast<NumericTable*>(yTable), 0, 0, nVectors);
@@ -62,7 +62,7 @@ compute(const NumericTable *xTable, const NumericTable *yTable, daal::algorithms
     const int* y = mtY.get();
     const size_t nFeatures = xTable->getNumberOfColumns();
     model->setNFeatures(nFeatures);
-    services::SharedPtr<classifier::training::Batch> simpleTrainingInit = mccPar->training->clone();
+    services::SharedPtr<ClsType> simpleTrainingInit = mccPar->training->clone();
 
     const size_t nClasses = mccPar->nClasses;
     /* Compute data size needed to store the largest subset of input tables */
@@ -72,13 +72,13 @@ compute(const NumericTable *xTable, const NumericTable *yTable, daal::algorithms
         DAAL_CHECK_STATUS(s, computeDataSize(nVectors, nFeatures, nClasses, xTable, y, nSubsetVectors, dataSize));
     }
 
-    typedef SubTask<algorithmFPType, cpu> TSubTask;
+    typedef SubTask<algorithmFPType, ClsType, cpu> TSubTask;
     /* Allocate memory for storing subsets of input data */
     daal::ls<TSubTask *> lsTask([=, &simpleTrainingInit]()
     {
         if(xTable->getDataLayout() == NumericTableIface::csrArray)
-            return (TSubTask*)SubTaskCSR<algorithmFPType, cpu>::create(nFeatures, nSubsetVectors, dataSize, xTable, simpleTrainingInit);
-        return (TSubTask*)SubTaskDense<algorithmFPType, cpu>::create(nFeatures, nSubsetVectors, dataSize, xTable, simpleTrainingInit);
+            return (TSubTask*)SubTaskCSR<algorithmFPType, ClsType, cpu>::create(nFeatures, nSubsetVectors, dataSize, xTable, simpleTrainingInit);
+        return (TSubTask*)SubTaskDense<algorithmFPType, ClsType, cpu>::create(nFeatures, nSubsetVectors, dataSize, xTable, simpleTrainingInit);
     });
 
     SafeStatus safeStat;
@@ -130,8 +130,8 @@ compute(const NumericTable *xTable, const NumericTable *yTable, daal::algorithms
     return safeStat.detach();
 }
 
-template<typename algorithmFPType, CpuType cpu>
-Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu>::
+template<typename algorithmFPType, typename ClsType, typename MccParType, CpuType cpu>
+Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, MccParType, cpu>::
     computeDataSize(size_t nVectors, size_t nFeatures, size_t nClasses,
                     const NumericTable *xTable, const int *y, size_t& nSubsetVectors, size_t& dataSize)
 {
@@ -176,8 +176,8 @@ Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu>::
     return Status();
 }
 
-template<typename algorithmFPType, CpuType cpu>
-Status SubTaskDense<algorithmFPType, cpu>::copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label,
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+Status SubTaskDense<algorithmFPType, ClsType, cpu>::copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label,
     const int *y, size_t& nRows)
 {
     for (size_t ix = 0; ix < nVectors; ix++)
@@ -196,8 +196,8 @@ Status SubTaskDense<algorithmFPType, cpu>::copyDataIntoSubtable(size_t nFeatures
     return Status();
 }
 
-template<typename algorithmFPType, CpuType cpu>
-Status SubTaskCSR<algorithmFPType, cpu>::copyDataIntoSubtable(size_t nFeatures, size_t nVectors,
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+Status SubTaskCSR<algorithmFPType, ClsType, cpu>::copyDataIntoSubtable(size_t nFeatures, size_t nVectors,
     int classIdx, algorithmFPType label, const int *y, size_t& nRows)
 {
     _rowOffsetsX[0] = 1;

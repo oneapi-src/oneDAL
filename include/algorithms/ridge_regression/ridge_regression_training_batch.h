@@ -131,6 +131,16 @@ public:
      */
     ResultPtr getResult() { return ResultType::cast(_result); }
 
+    /* Resets the results of the regression model-based training
+     * \return Status of the operation
+     */
+    virtual services::Status resetResult() DAAL_C11_OVERRIDE
+    {
+        _result.reset(new ResultType());
+        DAAL_CHECK(_result, services::ErrorNullResult)
+        _res = NULL;
+        return services::Status();
+    }
     /**
      * Returns a pointer to a newly allocated ridge regression training algorithm
      * with a copy of the input objects and parameters for this ridge regression training algorithm

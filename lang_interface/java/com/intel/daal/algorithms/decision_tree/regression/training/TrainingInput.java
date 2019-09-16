@@ -32,7 +32,7 @@ import com.intel.daal.algorithms.Precision;
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__TRAINING__TRAININGINPUT"></a>
  * @brief  %Input objects for the decision_tree regression algorithm model training
  */
-public class TrainingInput extends com.intel.daal.algorithms.Input {
+public class TrainingInput extends com.intel.daal.algorithms.regression.training.TrainingInput {
     /** @private */
     static {
         LibUtils.loadLibrary();
@@ -49,11 +49,7 @@ public class TrainingInput extends com.intel.daal.algorithms.Input {
      * @param val   Value of the input object
      */
     public void set(TrainingInputId id, NumericTable val) {
-        if (id != TrainingInputId.data && id != TrainingInputId.dependentVariables &&
-            id != TrainingInputId.dataForPruning && id != TrainingInputId.dependentVariablesForPruning) {
-            throw new IllegalArgumentException("id unsupported");
-        }
-
+        TrainingInputId.throwIfInvalid(id);
         cSetInput(cObject, id.getValue(), val.getCObject());
     }
 
@@ -63,11 +59,7 @@ public class TrainingInput extends com.intel.daal.algorithms.Input {
      * @return   Input object that corresponds to the given identifier
      */
     public NumericTable get(TrainingInputId id) {
-        if (id != TrainingInputId.data && id != TrainingInputId.dependentVariables &&
-            id != TrainingInputId.dataForPruning && id != TrainingInputId.dependentVariablesForPruning) {
-            throw new IllegalArgumentException("id unsupported");
-        }
-
+        TrainingInputId.throwIfInvalid(id);
         return (NumericTable)Factory.instance().createObject(getContext(), cGetInput(this.cObject, id.getValue()));
     }
 

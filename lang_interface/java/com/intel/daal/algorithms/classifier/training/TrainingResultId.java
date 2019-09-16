@@ -50,5 +50,18 @@ public final class TrainingResultId {
 
     /** Trained model */
     public static final TrainingResultId model = new TrainingResultId(Model);
+
+    public static boolean validate(TrainingResultId id) {
+        return id.getValue() == model.getValue();
+    }
+
+    public static void throwIfInvalid(TrainingResultId id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Null result id");
+        }
+        if (!TrainingResultId.validate(id)) {
+            throw new IllegalArgumentException("Unsupported result id");
+        }
+    }
 }
 /** @} */

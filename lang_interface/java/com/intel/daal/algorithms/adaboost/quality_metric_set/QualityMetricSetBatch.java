@@ -37,7 +37,8 @@ import com.intel.daal.services.DaalContext;
  *      - @ref QualityMetricId  Identifiers of quality metrics provided by the library
  */
 public class QualityMetricSetBatch extends com.intel.daal.algorithms.quality_metric_set.QualityMetricSetBatch {
-    private InputDataCollection inputData;
+    public QualityMetricSetParameter parameter;
+    private InputDataCollection      inputData;
 
     /** @private */
     static {
@@ -47,11 +48,13 @@ public class QualityMetricSetBatch extends com.intel.daal.algorithms.quality_met
     /**
      * Constructs the quality metric set
      * @param context   Context to manage the quality metric set
+     * @param nClasses  Number of classes
      */
-    public QualityMetricSetBatch(DaalContext context) {
+    public QualityMetricSetBatch(DaalContext context, long nClasses) {
         super(context);
-        this.cObject = cInit();
+        this.cObject = cInit(nClasses);
         inputData = new InputDataCollection(getContext(), cObject, ComputeMode.batch);
+        parameter = new QualityMetricSetParameter(getContext(), cInitParameter(cObject), nClasses);
     }
 
     /**
@@ -72,6 +75,8 @@ public class QualityMetricSetBatch extends com.intel.daal.algorithms.quality_met
         return new ResultCollection(getContext(), cObject, ComputeMode.batch);
     }
 
-    private native long cInit();
+    private native long cInit(long nClasses);
+
+    private native long cInitParameter(long algAddr);
 }
 /** @} */

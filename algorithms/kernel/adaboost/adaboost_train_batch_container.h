@@ -37,10 +37,45 @@ namespace adaboost
 {
 namespace training
 {
+namespace interface1
+{
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::AdaBoostTrainKernel, method, algorithmFPType);
+}
+
+template<typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
+{
+    __DAAL_DEINITIALIZE_KERNELS();
+}
+
+template<typename algorithmFPType, Method method, CpuType cpu>
+services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
+{
+    classifier::training::interface1::Input *input = static_cast<classifier::training::interface1::Input *>(_in);
+    adaboost::training::interface1::Result *result = static_cast<adaboost::training::interface1::Result *>(_res);
+
+    size_t n = input->size();
+
+    NumericTablePtr a[2];
+    a[0] = services::staticPointerCast<NumericTable>(input->get(classifier::training::data));
+    a[1] = services::staticPointerCast<NumericTable>(input->get(classifier::training::labels));
+
+    adaboost::interface1::Model *r = static_cast<adaboost::interface1::Model *>(result->get(classifier::training::model).get());
+    adaboost::interface1::Parameter *par = static_cast<adaboost::interface1::Parameter *>(_par);
+
+    daal::services::Environment::env &env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::AdaBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, n, a, r, par);
+}
+}
+namespace interface2
+{
+template<typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+{
+    __DAAL_INITIALIZE_KERNELS(internal::AdaBoostTrainKernelNew, method, algorithmFPType);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -62,12 +97,13 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     a[1] = services::staticPointerCast<NumericTable>(input->get(classifier::training::labels));
 
     adaboost::Model *r = static_cast<adaboost::Model *>(result->get(classifier::training::model).get());
+    NumericTable *weakLearnersErrorsTable = result->get(adaboost::training::weakLearnersErrors).get();
     adaboost::Parameter *par = static_cast<adaboost::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::AdaBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, n, a, r, par);
+    __DAAL_CALL_KERNEL(env, internal::AdaBoostTrainKernelNew, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, n, a, r, weakLearnersErrorsTable, par);
 }
-
+}
 } // namespace daal::algorithms::adaboost::training
 }
 }

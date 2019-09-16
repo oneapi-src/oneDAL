@@ -35,6 +35,8 @@ namespace regression
 {
 namespace prediction
 {
+namespace interface1
+{
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
@@ -64,7 +66,40 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(env, internal::DecisionTreePredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), \
                        compute, a.get(), m.get(), r.get(), par);
 }
+}
 
+namespace interface2
+{
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
+{
+    __DAAL_INITIALIZE_KERNELS(internal::DecisionTreePredictKernel, algorithmFPType, method);
+}
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
+{
+    __DAAL_DEINITIALIZE_KERNELS();
+}
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
+{
+    const Input * const input = static_cast<const Input *>(_in);
+    Result * const result = static_cast<Result *>(_res);
+
+    const data_management::NumericTableConstPtr a = input->get(data);
+    const ModelConstPtr m = input->get(model);
+    const data_management::NumericTablePtr r = result->get(prediction);
+
+    const daal::algorithms::Parameter * const par = _par;
+    daal::services::Environment::env & env = *_env;
+
+    __DAAL_CALL_KERNEL(env, internal::DecisionTreePredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), \
+                       compute, a.get(), m.get(), r.get(), par);
+}
+}
 } // namespace prediction
 } // namespace regression
 } // namespace decision_tree

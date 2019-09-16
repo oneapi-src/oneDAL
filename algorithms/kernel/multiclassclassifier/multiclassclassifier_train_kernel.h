@@ -43,7 +43,7 @@ namespace training
 namespace internal
 {
 
-template<Method method, typename AlgorithmFPtype, CpuType cpu>
+template<Method method, typename AlgorithmFPtype, typename ClsType, typename MccParType, CpuType cpu>
 struct MultiClassClassifierTrainKernel : public Kernel
 {
     services::Status compute(const NumericTable *a0, const NumericTable *a1, daal::algorithms::Model *r,

@@ -51,5 +51,12 @@ public final class Precision implements Serializable {
 
     public static final Precision doublePrecision = new Precision(doublePrecisionValue); /* Double precision */
     public static final Precision singlePrecision = new Precision(singlePrecisionValue); /* Single precision */
+
+    public static Precision fromClass(Class<? extends Number> cls) {
+        if (cls != Double.class && cls != Float.class) {
+            throw new IllegalArgumentException("Unsupported precision type");
+        }
+        return (cls == Double.class) ? Precision.doublePrecision : Precision.singlePrecision;
+    }
 }
 /** @} */

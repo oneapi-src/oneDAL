@@ -192,7 +192,9 @@ enum ErrorID
                                                                          *   association rules confidence is too small */
     ErrorAprioriIncorrectInputData = -5005,                             /*!< Incorrect input data */
 
-    // BrownBoost errors: -5200..-5399
+    // Boosting errors: -5200..-5399
+    ErrorInconsistentNumberOfClasses = -5200,                           /*!< Inconsistent number of classes between boosting
+                                                                         *   algorithm and weak learner */
 
     // Cholesky errors: -5400..-5599
     ErrorCholeskyInternal = -5400,                                      /*!< Cholesky internal error */
@@ -285,6 +287,10 @@ enum ErrorID
     ErrorSVMPredictKernerFunctionCall = -8601,                          /*!< SVM predict: error in kernel function call. Details are as follows. */
 
     // WeakLearner errors: -8800..-8999
+    ErrorIncorrectWeakLearnerClassificationAlgorithm = -8800,           /*!< Weak learner can not be casted to classifier algorithm */
+    ErrorIncorrectWeakLearnerRegressionAlgorithm = -8801,               /*!< Weak learner can not be casted to regression algorithm */
+    ErrorIncorrectWeakLearnerClassificationModel = -8802,               /*!< Weak learner's model can not be casted to classifier model */
+    ErrorIncorrectWeakLearnerRegressionModel = -8803,                   /*!< Weak learner's model can not be casted to regression model */
 
     // Compression errors: -9000..-9199
     ErrorCompressionNullInputStream = -9000,                            /*!< Null input stream is not supported */

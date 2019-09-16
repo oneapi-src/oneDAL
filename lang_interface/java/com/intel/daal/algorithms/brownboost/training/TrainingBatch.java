@@ -43,7 +43,7 @@ import com.intel.daal.services.DaalContext;
  *      - com.intel.daal.algorithms.brownboost.Model class
  *      - com.intel.daal.algorithms.classifier.training.TrainingInput class
  */
-public class TrainingBatch extends com.intel.daal.algorithms.boosting.training.TrainingBatch {
+public class TrainingBatch extends com.intel.daal.algorithms.classifier.training.TrainingBatch {
     public TrainingMethod method;    /*!< %Training method for the algorithm */
     public Parameter      parameter; /*!< Parameters of the algorithm */
 
@@ -77,26 +77,7 @@ public class TrainingBatch extends com.intel.daal.algorithms.boosting.training.T
      */
     public TrainingBatch(DaalContext context, Class<? extends Number> cls, TrainingMethod method) {
         super(context);
-
-        this.method = method;
-
-        if (this.method != TrainingMethod.defaultDense) {
-            throw new IllegalArgumentException("method unsupported");
-        }
-
-        if (cls != Double.class && cls != Float.class) {
-            throw new IllegalArgumentException("type unsupported");
-        }
-
-        if (cls == Double.class) {
-            prec = Precision.doublePrecision;
-        } else {
-            prec = Precision.singlePrecision;
-        }
-
-        this.cObject = cInit(prec.getValue(), this.method.getValue());
-        input = new TrainingInput(getContext(), cObject, ComputeMode.batch);
-        parameter = new Parameter(getContext(), cInitParameter(this.cObject, prec.getValue(), method.getValue()));
+        init(Precision.fromClass(cls), method);
     }
 
     /**
@@ -120,6 +101,16 @@ public class TrainingBatch extends com.intel.daal.algorithms.boosting.training.T
     @Override
     public TrainingBatch clone(DaalContext context) {
         return new TrainingBatch(context, this);
+    }
+
+    private void init(Precision prec, TrainingMethod method) {
+        this.prec      = prec;
+        this.method    = method;
+        this.cObject   = cInit(prec.getValue(), method.getValue());
+        this.input     = new TrainingInput(getContext(), this.cObject, ComputeMode.batch);
+        this.parameter = new Parameter( getContext(), cInitParameter(this.cObject,
+                                                                     prec.getValue(),
+                                                                     method.getValue()) );
     }
 
     private native long cInit(int prec, int method);

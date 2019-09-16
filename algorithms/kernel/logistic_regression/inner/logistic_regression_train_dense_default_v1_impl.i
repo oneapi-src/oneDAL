@@ -22,8 +22,8 @@
 //--
 */
 
-#ifndef __LOGISTIC_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
-#define __LOGISTIC_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
+#ifndef __LOGISTIC_REGRESSION_TRAIN_DENSE_DEFAULT_V1_IMPL_I__
+#define __LOGISTIC_REGRESSION_TRAIN_DENSE_DEFAULT_V1_IMPL_I__
 
 #include "logistic_regression_train_kernel_v1.h"
 #include "../logistic_regression_model_impl.h"

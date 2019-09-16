@@ -41,6 +41,92 @@ using namespace daal::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
+    const brownboost::interface1::Model *m, const NumericTablePtr& rTable, const brownboost::interface1::Parameter *par)
+{
+    const size_t nVectors  = xTable->getNumberOfRows();
+    brownboost::interface1::Model *boostModel = const_cast<brownboost::interface1::Model *>(m);
+    const size_t nWeakLearners = boostModel->getNumberOfWeakLearners();
+
+    services::Status s;
+    WriteOnlyColumns<algorithmFPType, cpu> mtR(*rTable, 0, 0, nVectors);
+    DAAL_CHECK_BLOCK_STATUS(mtR);
+    algorithmFPType *r = mtR.get();
+    DAAL_ASSERT(r);
+
+    {
+        ReadColumns<algorithmFPType, cpu> mtAlpha(*boostModel->getAlpha(), 0, 0, nWeakLearners);
+        DAAL_CHECK_BLOCK_STATUS(mtAlpha);
+        DAAL_ASSERT(mtAlpha.get());
+        DAAL_CHECK_STATUS(s, this->compute(xTable, m, nWeakLearners, mtAlpha.get(), r, par));
+    }
+
+    brownboost::interface1::Parameter *parameter = const_cast<brownboost::interface1::Parameter *>(par);
+    const algorithmFPType error = parameter->accuracyThreshold;
+    const algorithmFPType zero = (algorithmFPType)0.0;
+    if(error != zero)
+    {
+        algorithmFPType sqrtC = daal::internal::Math<algorithmFPType, cpu>::sErfInv(algorithmFPType(1.0) - error);
+        algorithmFPType invSqrtC = algorithmFPType(1.0) / sqrtC;
+        for (size_t j = 0; j < nVectors; j++)
+        {
+            r[j] *= invSqrtC;
+        }
+    }
+    daal::internal::Math<algorithmFPType,cpu>::vErf(nVectors, r, r);
+    return s;
+}
+
+template <Method method, typename algorithmFPType, CpuType cpu>
+services::Status BrownBoostPredictKernelNew<method, algorithmFPType, cpu>::computeImpl(const NumericTablePtr& xTable,
+    const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par)
+{
+    const size_t nVectors  = xTable->getNumberOfRows();
+    Model *boostModel = const_cast<Model *>(m);
+    Parameter *parameter = const_cast<Parameter *>(par);
+
+    services::Status s;
+    services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > rWeakTable = daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu>::create(1, nVectors, &s);
+    DAAL_CHECK_STATUS_VAR(s);
+    const algorithmFPType *rWeak = rWeakTable->getArray();
+
+    services::SharedPtr<classifier::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction->clone();
+    classifier::prediction::Input *learnerInput = learnerPredict->getInput();
+    DAAL_CHECK(learnerInput, services::ErrorNullInput);
+    learnerInput->set(classifier::prediction::data, xTable);
+
+    classifier::prediction::ResultPtr predictionRes(new classifier::prediction::Result());
+    predictionRes->set(classifier::prediction::prediction, rWeakTable);
+    DAAL_CHECK_STATUS(s, learnerPredict->setResult(predictionRes));
+
+    const algorithmFPType zero = (algorithmFPType)0.0;
+
+    /* Initialize array of prediction results */
+    for (size_t j = 0; j < nVectors; j++)
+    {
+        r[j] = zero;
+    }
+
+    const algorithmFPType one = (algorithmFPType)1.0;
+    for(size_t i = 0; i < nWeakLearners; i++)
+    {
+        /* Get  weak learner's classification results */
+        classifier::ModelPtr learnerModel = boostModel->getWeakLearnerModel(i);
+
+        learnerInput->set(classifier::prediction::model, learnerModel);
+        DAAL_CHECK_STATUS(s, learnerPredict->computeNoThrow());
+
+        /* Update boosting classification results */
+        for (size_t j = 0; j < nVectors; j++)
+        {
+            algorithmFPType p = ((rWeak[j] > zero) ? one : -one);
+            r[j] += p * alpha[i];
+        }
+    }
+    return s;
+}
+
+template <Method method, typename algorithmFPType, CpuType cpu>
+services::Status BrownBoostPredictKernelNew<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
     const Model *m, const NumericTablePtr& rTable, const Parameter *par)
 {
     const size_t nVectors  = xTable->getNumberOfRows();
@@ -57,7 +143,7 @@ services::Status BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(
         ReadColumns<algorithmFPType, cpu> mtAlpha(*boostModel->getAlpha(), 0, 0, nWeakLearners);
         DAAL_CHECK_BLOCK_STATUS(mtAlpha);
         DAAL_ASSERT(mtAlpha.get());
-        DAAL_CHECK_STATUS(s, this->compute(xTable, m, nWeakLearners, mtAlpha.get(), r, par));
+        DAAL_CHECK_STATUS(s, this->computeImpl(xTable, m, nWeakLearners, mtAlpha.get(), r, par));
     }
 
     Parameter *parameter = const_cast<Parameter *>(par);

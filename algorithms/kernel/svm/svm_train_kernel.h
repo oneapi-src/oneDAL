@@ -56,17 +56,17 @@ enum SVMVectorStatus
     shrink  = 0x4
 };
 
-template <typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 struct SVMTrainTask
 {
     static const size_t kernelFunctionBlockSize = 1024; /* Size of the block of kernel function elements */
 
     SVMTrainTask(size_t nVectors) : _cache(nullptr), _nVectors(nVectors){}
 
-    Status setup(const Parameter& svmPar, const NumericTablePtr& xTable, NumericTable& yTable);
+    Status setup(const ParameterType& svmPar, const NumericTablePtr& xTable, NumericTable& yTable);
 
     /* Perform Sequential Minimum Optimization (SMO) algorithm to find optimal coefficients alpha */
-    Status compute(const Parameter& svmPar);
+    Status compute(const ParameterType& svmPar);
 
     /* Write support vectors and classification coefficients into model */
     Status setResultsToModel(const NumericTable& xTable, Model& model, algorithmFPType C) const;
@@ -125,11 +125,11 @@ protected:
     SVMCacheIface<algorithmFPType, cpu> *_cache; //caches matrix Q (kernel(x[i], x[j])) values
 };
 
-template <Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, typename ParameterType, CpuType cpu>
 struct SVMTrainImpl : public Kernel
 {
     services::Status compute(const NumericTablePtr& xTable, NumericTable& yTable,
-        daal::algorithms::Model *r, const daal::algorithms::Parameter *par);
+        daal::algorithms::Model *r, const ParameterType *par);
 };
 
 } // namespace internal
