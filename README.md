@@ -1,5 +1,6 @@
 # Intel(R) Data Analytics Acceleration Library
 ![License](https://img.shields.io/github/license/intel/daal.svg)
+
 Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) helps speed up big data analysis by providing highly optimized algorithmic building blocks for all stages of data analytics (preprocessing, transformation, analysis, modeling, validation, and decision making) in batch, online, and distributed processing modes of computation.
 
 ## Transition to Open Development model
@@ -9,8 +10,8 @@ Previous repository structure have bee cleaned and can be shared on request. Exi
 - [How to contribute](#how-to-contribute)
 - [System Requirements](#system-requirements)
 - [Installation](#installation)
-	- [Installation from Binaries](#installation-from-binaries)
-	- [Installation from Sources](#installation-from-sources)
+    - [Installation from Binaries](#installation-from-binaries)
+    - [Installation from Sources](#installation-from-sources)
 
 ## License
 Intel DAAL is licensed under Apache License 2.0.
@@ -68,99 +69,99 @@ Required Software:
 * [Git Large File Storage (LFS) extension](https://git-lfs.github.com)
 * [MSYS2 installer](http://msys2.github.io) with the msys/make package (Windows\* only); install the package as follows:
 
-		pacman -S msys/make
+        pacman -S msys/make
 
 #### Installation Steps
 1. Clone the sources from GitHub\* as follows:
 
-		git clone --recursive https://github.com/intel/daal.git
+        git clone --recursive https://github.com/intel/daal.git
 
 
 2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only); for example:
 
-		set PATH=C:\msys64\usr\bin;%PATH%
+        set PATH=C:\msys64\usr\bin;%PATH%
 
 3. Set an environment variables for one of the supported C/C++ compilers. For example:
 
-	- **Microsoft Visual Studio\***:
+    - **Microsoft Visual Studio\***:
 
-			call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
+            call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
 
-	- **Intel Compiler (Windows\*)**:
+    - **Intel Compiler (Windows\*)**:
 
-			call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat" intel64
+            call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat" intel64
 
-	- **Intel Compiler (Linux\*)**:
+    - **Intel Compiler (Linux\*)**:
 
-			source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
+            source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
 
 4. Set an environment variables for one of the supported Java\* compilers. For example:
 
-	- **Windows\***:
+    - **Windows\***:
 
-			set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_77
-			set PATH=%JAVA_HOME%\bin;%PATH%
-			set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+            set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_77
+            set PATH=%JAVA_HOME%\bin;%PATH%
+            set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
 
-	- **macOS\***:
+    - **macOS\***:
 
-			export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
-			export PATH=$JAVA_HOME/bin:$PATH
-			export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
+            export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
+            export PATH=$JAVA_HOME/bin:$PATH
+            export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
 
-	- **Linux\***:
+    - **Linux\***:
 
-			export JAVA_HOME=/usr/jdk/jdk1.6.0_02
-			export PATH=$JAVA_HOME/bin:$PATH
-			export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
+            export JAVA_HOME=/usr/jdk/jdk1.6.0_02
+            export PATH=$JAVA_HOME/bin:$PATH
+            export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
 
 5. Download and set an environment for mklfpk libs:
 
-	- **Windows\***:
+    - **Windows\***:
 
-			call .\scripts\mklfpk.bat
+            call .\scripts\mklfpk.bat
 
-	- **Linux/macOS\***:
+    - **Linux/macOS\***:
 
-			scripts/mklfpk.sh [32|32e]
+            scripts/mklfpk.sh [32|32e]
 
 6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB) from https://github.com/intel/tbb:
 
-	- **Windows\***:
-		- Download and install free Community License Intel TBB. For more information, see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2).
-		- Or build your own Intel TBB from https://github.com/intel/tbb
-		- Set an environment variables for Intel TBB. For example:
+    - **Windows\***:
+        - Download and install free Community License Intel TBB. For more information, see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2).
+        - Or build your own Intel TBB from https://github.com/intel/tbb
+        - Set an environment variables for Intel TBB. For example:
 
-			call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\tbb\bin\tbbvars.bat" intel64 all
+            call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\tbb\bin\tbbvars.bat" intel64 all
 
-	- **Linux/macOS\***:
-		- Use pre-build package or build TBB on your own. Or simply use scripts to dothis for you:
+    - **Linux/macOS\***:
+        - Use pre-build package or build TBB on your own. Or simply use scripts to dothis for you:
 
-			scripts/tbb.sh [32|32e]
+            scripts/tbb.sh [32|32e]
 
 7. Build Intel DAAL via command-line interface. Choose the appropriate commands based on the platform and the compiler you use:
 
-	- on **Linux\*** using **Intel(R) C++ Compiler**:
+    - on **Linux\*** using **Intel(R) C++ Compiler**:
 
             make -f makefile daal PLAT=lnx32e
 
-	- on **Linux\*** using **GNU Compiler Collection\***:
+    - on **Linux\*** using **GNU Compiler Collection\***:
 
             make -f makefile daal PLAT=lnx32e COMPILER=gnu
 
-	- on **macOS\*** using **Intel(R) C++ Compiler**:
+    - on **macOS\*** using **Intel(R) C++ Compiler**:
 
             make -f makefile daal PLAT=mac32e
 
-	- on **macOS\*** using **Clang\***:
+    - on **macOS\*** using **Clang\***:
 
             make -f makefile daal PLAT=mac32e COMPILER=clang
 
-	- on **Windows\*** using **Intel(R) C++ Compiler**:
+    - on **Windows\*** using **Intel(R) C++ Compiler**:
 
             make -f makefile daal PLAT=win32e
 
-	- on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
+    - on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
 
             make -f makefile daal PLAT=win32e COMPILER=vc
 
@@ -168,12 +169,12 @@ It is possible to build Intel DAAL libraries with selected set of algorithms and
 
 - To build DAAL with Linear Regression and Support Vector Machine algorithms, run:
 
-            make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=”linear_regression svm” -j16
+            make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM="linear_regression svm" -j16
 
 
 - To build DAAL with AVX2 and AVX CPU optimizations, run:
 
-            make -f makefile daal PLAT=win32e REQCPU=”avx2 avx” -j16
+            make -f makefile daal PLAT=win32e REQCPU="avx2 avx" -j16
 
 
 - To build DAAL with Moments of Low Order algorithm and AVX2 CPU optimizations, run:
@@ -181,7 +182,7 @@ It is possible to build Intel DAAL libraries with selected set of algorithms and
             make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=low_order_moments REQCPU=avx2 -j16
 
 
-Built libraries are located in the `\_\_release\_{os_name}/daal` directory.
+Built libraries are located in the `__release_{os_name}/daal` directory.
 
 ## Python*
 Intel DAAL can also be used with Python\* interfaces. You can find the daal4py package at  https://anaconda.org/intel/daal4py  See [PyDAAL Deprecation Notice](#deprecation-notice) for more information.
