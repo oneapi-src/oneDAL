@@ -182,7 +182,7 @@ It is possible to build Intel DAAL libraries with selected set of algorithms and
             make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=low_order_moments REQCPU=avx2 -j16
 
 
-Built libraries are located in the `\_\_release\_{os_name}/daal` directory.
+Built libraries are located in the `__release_{os_name}/daal` directory.
 
 ## Python*
 Intel DAAL can also be used with Python\* interfaces. You can find the daal4py package at  https://anaconda.org/intel/daal4py  See [PyDAAL Deprecation Notice](#deprecation-notice) for more information.
