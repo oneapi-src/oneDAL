@@ -25,6 +25,7 @@
 #ifndef __REGRESSION_TRAINING_BATCH_H__
 #define __REGRESSION_TRAINING_BATCH_H__
 
+#include "algorithms/algorithm.h"
 #include "algorithms/regression/regression_training_types.h"
 
 namespace daal
@@ -77,6 +78,21 @@ public:
         return services::Status();
     }
 
+    /* Resets the results of the regression model-based training
+     * \return Status of the operation
+     */
+    virtual services::Status resetResult() = 0;
+
+    /**
+     * Returns a pointer to the newly allocated regression training algorithm with a copy of input objects
+     * and parameters of this regression training algorithm
+     * \return Pointer to the newly allocated algorithm
+     */
+    services::SharedPtr<Batch> clone() const
+    {
+        return services::SharedPtr<Batch>(cloneImpl());
+    }
+
     /**
      * Returns the structure that contains the result of the regression model-based training
      * \return Structure that contains the result of the regression model-based training
@@ -84,6 +100,7 @@ public:
     ResultPtr getResult() { return _result; }
 
 protected:
+    virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     ResultPtr _result;
 };
 /** @} */

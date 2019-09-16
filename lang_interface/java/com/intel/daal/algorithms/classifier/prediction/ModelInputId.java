@@ -52,5 +52,18 @@ public final class ModelInputId {
     private static final int Model = 1;
 
     public static final ModelInputId model = new ModelInputId(Model); /*!< Model to use in the prediction stage*/
+
+    public static boolean validate(ModelInputId id) {
+        return id.getValue() == model.getValue();
+    }
+
+    public static void throwIfInvalid(ModelInputId id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Null input id");
+        }
+        if (!ModelInputId.validate(id)) {
+            throw new IllegalArgumentException("Unsupported input id");
+        }
+    }
 }
 /** @} */

@@ -68,6 +68,14 @@ Status Parameter::check() const
 
 
 } // namespace interface1
+
+namespace interface2
+{
+Status Parameter::check() const
+{
+    return gbt::training::checkImpl(*this);
+}
+}
 } // namespace training
 } // namespace classification
 } // namespace gbt

@@ -38,9 +38,14 @@ namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
+namespace interface2
+{
+template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+}
 namespace internal
 {
 template class BrownBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
+template class BrownBoostPredictKernelNew<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
 }
 }

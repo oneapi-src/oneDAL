@@ -31,7 +31,7 @@ import com.intel.daal.algorithms.decision_tree.regression.Model;
  * @brief Provides methods to access final results obtained with the compute() method of the decision tree regression training algorithm
  *                                                                                                in the batch processing mode.
  */
-public final class TrainingResult extends com.intel.daal.algorithms.Result {
+public final class TrainingResult extends com.intel.daal.algorithms.regression.training.TrainingResult {
     /** @private */
     static {
         LibUtils.loadLibrary();

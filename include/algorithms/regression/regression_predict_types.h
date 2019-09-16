@@ -136,7 +136,7 @@ class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    Result(size_t nElements = 0);
+    Result(size_t nElements = lastResultId + 1);
 
     /**
      * Returns the result of the regression model-based prediction

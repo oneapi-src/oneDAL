@@ -57,7 +57,7 @@ namespace interface1
  * \snippet boosting/boosting_model.h Parameter source code
  */
 /* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public classifier::Parameter
+struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
 {
     /** Default constructor. Sets the decision stump as the default weak learner */
     Parameter();
@@ -71,7 +71,7 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
               const services::SharedPtr<weak_learner::prediction::Batch>& wlPredictForParameter);
 
     /** Copy constructor */
-    Parameter(const Parameter& other) :weakLearnerTraining(other.weakLearnerTraining),
+    Parameter(const Parameter& other) : weakLearnerTraining(other.weakLearnerTraining),
         weakLearnerPrediction(other.weakLearnerPrediction){}
 
     /** The algorithm for weak learner model training */

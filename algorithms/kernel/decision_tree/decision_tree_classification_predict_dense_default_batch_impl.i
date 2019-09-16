@@ -53,12 +53,11 @@ using namespace decision_tree::internal;
 
 template<typename algorithmFPType, CpuType cpu>
 services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
-    compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par)
+    compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, NumericTable * p, const daal::algorithms::Parameter * par)
 {
     typedef daal::services::internal::SignBit<algorithmFPType, cpu> SignBitType;
 
     DAAL_ASSERT(x);
-    DAAL_ASSERT(y);
 
     const decision_tree::classification::Parameter * const parameter = static_cast<const decision_tree::classification::Parameter *>(par);
     const decision_tree::classification::Model * const model = static_cast<const decision_tree::classification::Model *>(m);
@@ -67,18 +66,20 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
     DAAL_ASSERT(model);
 
     FeatureTypesCache featureTypesCache(*x);
-    const DecisionTreeTable & treeTable = *(model->impl()->getTreeTable());
+    const auto modelImpl = *(model->impl());
+    const DecisionTreeTable & treeTable = *(modelImpl.getTreeTable());
     const DecisionTreeNode * const nodes = static_cast<const DecisionTreeNode *>(treeTable.getArray());
     DAAL_ASSERT(treeTable.getNumberOfRows());
 
     const size_t xRowCount = x->getNumberOfRows();
     const size_t xColumnCount = x->getNumberOfColumns();
-    const size_t yColumnCount = y->getNumberOfColumns();
-    DAAL_ASSERT(xRowCount == y->getNumberOfRows());
+    if(y) DAAL_ASSERT(xRowCount == y->getNumberOfRows());
 
     const auto rowsPerBlock = 512;
     const auto blockCount = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
-    daal::threader_for(blockCount, blockCount, [=, &featureTypesCache, &treeTable](int iBlock)
+
+    const size_t numberOfClasses = parameter->nClasses;
+    daal::threader_for(blockCount, blockCount, [=, &featureTypesCache, &treeTable, &modelImpl](int iBlock)
     {
         const size_t first = iBlock * rowsPerBlock;
         const size_t last = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
@@ -86,9 +87,18 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
         BlockDescriptor<algorithmFPType> xBD;
         const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);
         const algorithmFPType * const dx = xBD.getBlockPtr();
-        BlockDescriptor<algorithmFPType> yBD;
-        y->getBlockOfRows(first, last - first, writeOnly, yBD);
-        auto * const dy = yBD.getBlockPtr();
+        BlockDescriptor<algorithmFPType> yBD, pBD;
+        algorithmFPType *dp = nullptr, *dy = nullptr;
+        if(y)
+        {
+            y->getBlockOfRows(first, last - first, writeOnly, yBD);
+            dy = yBD.getBlockPtr();
+        }
+        if(p)
+        {
+            p->getBlockOfRows(first, last - first, writeOnly, pBD);
+            dp = pBD.getBlockPtr();
+        }
         for (size_t i = 0; i < last - first; ++i)
         {
             const algorithmFPType * const xRow = &dx[i * xColumnCount];
@@ -112,9 +122,27 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
                 DAAL_ASSERT(nodeIndex < treeTable.getNumberOfRows());
             }
             DAAL_ASSERT(nodeIndex < treeTable.getNumberOfRows());
-            dy[i * yColumnCount] = nodes[nodeIndex].leftIndexOrClass;
+            if(y)
+            {
+                size_t yColumnCount = y->getNumberOfColumns();
+                dy[i * yColumnCount] = nodes[nodeIndex].leftIndexOrClass;
+            }
+            if(p)
+            {
+                const auto probs = modelImpl.getProbabilities(nodeIndex);
+                if (probs)
+                {
+                    for (size_t k = 0; k < numberOfClasses; ++k) { dp[i * numberOfClasses + k] = probs[k]; }
+                }
+                else
+                {
+                    for (size_t k = 0; k < numberOfClasses; ++k) { dp[i * numberOfClasses + k] = 0; }
+                    dp[i * numberOfClasses + nodes[nodeIndex].leftIndexOrClass] = 1;
+                }
+            }
         }
-        y->releaseBlockOfRows(yBD);
+        if (y) y->releaseBlockOfRows(yBD);
+        if (p) p->releaseBlockOfRows(pBD);
         const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
     } );
     return Status();

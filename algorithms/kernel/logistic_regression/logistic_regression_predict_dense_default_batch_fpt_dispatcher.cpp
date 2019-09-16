@@ -35,7 +35,7 @@ namespace logistic_regression
 {
 namespace prediction
 {
-namespace interface1
+namespace interface2
 {
 template <>
 Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(size_t nClasses)
@@ -51,9 +51,8 @@ Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(const B
     _par = new ParameterType(other.parameter());
     initialize();
 }
-
 }
-}// namespace prediction
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
+}
+}
+}
+} // namespace daal

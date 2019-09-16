@@ -54,13 +54,13 @@ namespace prediction
 namespace internal
 {
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, cpu>::
+template<typename algorithmFPType, typename ClsType, typename MccParam, CpuType cpu>
+services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, ClsType, MccParam, cpu>::
 compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r,
         const daal::algorithms::Parameter *par)
 {
     Model *model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
-    Parameter *mccPar = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+    MccParam *mccPar = static_cast<MccParam *>(const_cast<daal::algorithms::Parameter *>(par));
     size_t nClasses = mccPar->nClasses;
     TArray<size_t, cpu> nonEmptyClassMapBuffer(nClasses);
     DAAL_CHECK_MALLOC(nonEmptyClassMapBuffer.get());
@@ -81,12 +81,12 @@ compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r
     if (nBlocks * nRowsInBlock < nVectors) { nBlocks++; }
 
     /* Allocate data for storing of intermediate results and subsets of input data*/
-    typedef SubTask<algorithmFPType, cpu> TSubTask;
+    typedef SubTask<algorithmFPType, ClsType, cpu> TSubTask;
     daal::ls<TSubTask *> lsTask([=]()
     {
         if(a->getDataLayout() == NumericTableIface::csrArray)
-            return (TSubTask*)SubTaskCSR<algorithmFPType, cpu>::create(nClasses, nRowsInBlock, a, r, mccPar->prediction);
-        return (TSubTask*)SubTaskDense<algorithmFPType, cpu>::create(nClasses, nRowsInBlock, a, r, mccPar->prediction);
+            return (TSubTask*)SubTaskCSR<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, a, r, mccPar->prediction);
+        return (TSubTask*)SubTaskDense<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, a, r, mccPar->prediction);
     });
 
     daal::SafeStatus safeStat;
@@ -109,7 +109,7 @@ compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r
                                 model, nIter, eps);
     } );
 
-    lsTask.reduce([=](SubTask<algorithmFPType, cpu> *local)
+    lsTask.reduce([=](SubTask<algorithmFPType, ClsType, cpu> *local)
     {
         delete local;
     } );
@@ -200,8 +200,8 @@ inline void updateProbabilities(size_t nClasses, const algorithmFPType *Q, algor
     }
 }
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status SubTask<algorithmFPType, cpu>::getBlockOfRowsOfResults(NumericTable *r, size_t nFeatures, size_t startRow, size_t nRows,
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults(NumericTable *r, size_t nFeatures, size_t startRow, size_t nRows,
     size_t nClasses, const size_t *nonEmptyClassMap, Model *model, size_t nIter, double eps)
 {
     const algorithmFPType one(1.0);
@@ -262,8 +262,8 @@ services::Status SubTask<algorithmFPType, cpu>::getBlockOfRowsOfResults(NumericT
     return services::Status();
 }
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status SubTask<algorithmFPType, cpu>::get2ClassProbabilities(size_t nFeatures, size_t startRow, size_t nRows,
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+services::Status SubTask<algorithmFPType, ClsType, cpu>::get2ClassProbabilities(size_t nFeatures, size_t startRow, size_t nRows,
     size_t nClasses, const size_t *nonEmptyClassMap, algorithmFPType *y, Model *model, algorithmFPType *rProb)
 {
     NumericTablePtr xTable;
@@ -272,15 +272,15 @@ services::Status SubTask<algorithmFPType, cpu>::get2ClassProbabilities(size_t nF
     return predictSimpleClassifier(nFeatures, startRow, nRows, nClasses, nonEmptyClassMap, y, model, rProb, xTable);
 }
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status SubTask<algorithmFPType, cpu>::predictSimpleClassifier(size_t nFeatures, size_t startRow, size_t nRows,
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+services::Status SubTask<algorithmFPType, ClsType, cpu>::predictSimpleClassifier(size_t nFeatures, size_t startRow, size_t nRows,
     size_t nClasses, const size_t *nonEmptyClassMap, algorithmFPType *y, Model *model, algorithmFPType *rProb,
     const NumericTablePtr& xTable)
 {
     services::Status status;
     NumericTablePtr yTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(y, 1, nRows, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    classifier::prediction::ResultPtr yRes(new classifier::prediction::Result());
+    services::SharedPtr<typename ClsType::ResultType> yRes(new typename ClsType::ResultType());
     DAAL_CHECK_MALLOC(yTable.get() && yRes.get());
     yRes->set(classifier::prediction::prediction, yTable);
     const algorithmFPType one(1.0);
@@ -315,8 +315,8 @@ services::Status SubTask<algorithmFPType, cpu>::predictSimpleClassifier(size_t n
     return services::Status();
 }
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status SubTaskCSR<algorithmFPType, cpu>::getInput(size_t nFeatures, size_t startRow, size_t nRows, NumericTablePtr& res)
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+services::Status SubTaskCSR<algorithmFPType, ClsType, cpu>::getInput(size_t nFeatures, size_t startRow, size_t nRows, NumericTablePtr& res)
 {
     _mtX.next(startRow, nRows);
     DAAL_CHECK_BLOCK_STATUS(_mtX);
@@ -325,8 +325,8 @@ services::Status SubTaskCSR<algorithmFPType, cpu>::getInput(size_t nFeatures, si
     return s;
 }
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status SubTaskDense<algorithmFPType, cpu>::getInput(size_t nFeatures, size_t startRow, size_t nRows, NumericTablePtr& res)
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+services::Status SubTaskDense<algorithmFPType, ClsType, cpu>::getInput(size_t nFeatures, size_t startRow, size_t nRows, NumericTablePtr& res)
 {
     _mtX.next(startRow, nRows);
     DAAL_CHECK_BLOCK_STATUS(_mtX);

@@ -23,7 +23,7 @@ package com.intel.daal.algorithms.adaboost.quality_metric_set;
 
 import com.intel.daal.utils.*;
 import com.intel.daal.algorithms.ComputeMode;
-import com.intel.daal.algorithms.classifier.quality_metric.binary_confusion_matrix.BinaryConfusionMatrixResult;
+import com.intel.daal.algorithms.classifier.quality_metric.multi_class_confusion_matrix.MultiClassConfusionMatrixResult;
 import com.intel.daal.services.DaalContext;
 
 /**
@@ -45,11 +45,11 @@ public class ResultCollection extends com.intel.daal.algorithms.quality_metric_s
      * @param  id     Identifier of the quality metric
      * @return Result object
      */
-    public BinaryConfusionMatrixResult getResult(QualityMetricId id) {
+    public MultiClassConfusionMatrixResult getResult(QualityMetricId id) {
         if (id != QualityMetricId.confusionMatrix) {
             throw new IllegalArgumentException("id unsupported");
         }
-        return new BinaryConfusionMatrixResult(getContext(), cGetResult(getCObject(), id.getValue()));
+        return new MultiClassConfusionMatrixResult(getContext(), cGetResult(getCObject(), id.getValue()));
     }
 }
 /** @} */

@@ -28,6 +28,43 @@ namespace daal
 {
 namespace algorithms
 {
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(adaboost::training::interface1::BatchContainer, batch, DAAL_FPTYPE, adaboost::training::defaultDense)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(adaboost::training::BatchContainer, batch, DAAL_FPTYPE, adaboost::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(adaboost::training::BatchContainer, batch, DAAL_FPTYPE, adaboost::training::sammeR)
+
+namespace adaboost
+{
+namespace training
+{
+namespace interface2
+{
+
+template<typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(size_t nClasses)
+{
+    _par = new ParameterType(nClasses);
+    initialize();
 }
+
+template<typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(const Batch &other) :
+    classifier::training::Batch(other),
+    input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
+
+#define INSTANTIATE_CONSTRUCTORS(algorithmFPType, method) \
+    template Batch<algorithmFPType, method>::Batch(size_t); \
+    template Batch<algorithmFPType, method>::Batch(const Batch &);
+
+INSTANTIATE_CONSTRUCTORS(DAAL_FPTYPE, adaboost::training::defaultDense);
+INSTANTIATE_CONSTRUCTORS(DAAL_FPTYPE, adaboost::training::sammeR);
+
+} // namespace interface2
+} // namespace training
+} // namespace adaboost
+
+} // namespace algorithms
 } // namespace daal

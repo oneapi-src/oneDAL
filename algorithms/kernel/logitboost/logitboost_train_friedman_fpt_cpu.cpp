@@ -37,9 +37,14 @@ namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, friedman, DAAL_CPU>;
 }
+namespace interface2
+{
+template class BatchContainer<DAAL_FPTYPE, friedman, DAAL_CPU>;
+}
 namespace internal
 {
 template struct LogitBoostTrainKernel<friedman, DAAL_FPTYPE, DAAL_CPU>;
+template struct LogitBoostTrainKernelNew<friedman, DAAL_FPTYPE, DAAL_CPU>;
 }
 }
 }

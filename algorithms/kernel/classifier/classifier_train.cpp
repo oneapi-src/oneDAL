@@ -43,7 +43,17 @@ services::Status Parameter::check() const
     return services::Status();
 }
 }
+namespace interface2
+{
+Parameter::Parameter(size_t nClasses) : nClasses(nClasses), resultsToEvaluate(computeClassesLabels) {}
 
+services::Status Parameter::check() const
+{
+    DAAL_CHECK_EX(nClasses > 0, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+    DAAL_CHECK_EX(resultsToEvaluate != 0, services::ErrorIncorrectParameter, services::ParameterName, resultsToEvaluateStr())
+    return services::Status();
+}
+}
 namespace training
 {
 namespace interface1

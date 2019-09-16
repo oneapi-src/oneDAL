@@ -37,6 +37,10 @@ namespace interface1
 {
 template class DistributedContainer<step2Master, DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 }
+namespace interface2
+{
+template class DistributedContainer<step2Master, DAAL_FPTYPE, fastCSR, DAAL_CPU>;
+}
 namespace internal
 {
 template class NaiveBayesDistributedTrainKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;

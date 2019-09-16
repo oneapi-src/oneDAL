@@ -39,6 +39,18 @@ namespace classifier
 {
 
 /**
+* <a name="DAAL-ENUM-ALGORITHMS__CLASSIFIER__RESULTOCOMPUTETID"></a>
+* Available identifiers of optional results of the classifier algorithm
+* @ingroup training_and_prediction
+*/
+enum ResultToComputeId
+{
+    computeClassesLabels          = 0x00000001ULL, /*!< Numeric table of size n x 1 with the predicted labels >*/
+    computeClassesProbabilities   = 0x00000002ULL, /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+    computeClassesLogProbabilities   = 0x00000004ULL, /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+};
+
+/**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
@@ -63,7 +75,45 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
+}
+/**
+ * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+/**
+ * @ingroup classifier
+ * @{
+ */
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__CLASSIFIER__PARAMETER"></a>
+ * \brief Base class for the parameters of the classification algorithm
+ *
+ * \snippet classifier/classifier_model.h Parameter source code
+ */
+/* [Parameter source code] */
+struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+{
+    Parameter(size_t nClasses = 2);
 
+    size_t nClasses;        /*!< Number of classes */
+    DAAL_UINT64 resultsToEvaluate;  /*!< 64 bit integer flag that indicates the results to compute */
+    services::Status check() const DAAL_C11_OVERRIDE;
+};
+/* [Parameter source code] */
+/** @} */
+} // namespace interface2
+using interface2::Parameter;
+
+/**
+ * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface1
+{
+/**
+ * @ingroup classifier
+ * @{
+ */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__CLASSIFIER__MODEL"></a>
  * \brief Base class for the model of the classification algorithm
@@ -99,7 +149,6 @@ public:
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
 } // namespace interface1
-using interface1::Parameter;
 using interface1::Model;
 using interface1::ModelPtr;
 using interface1::ModelConstPtr;

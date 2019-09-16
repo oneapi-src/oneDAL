@@ -39,7 +39,7 @@ import com.intel.daal.services.DaalContext;
  *      - com.intel.daal.algorithms.logitboost.Model class
  *      - com.intel.daal.algorithms.classifier.prediction.PredictionResult class
  */
-public class PredictionBatch extends com.intel.daal.algorithms.boosting.prediction.PredictionBatch {
+public class PredictionBatch extends com.intel.daal.algorithms.classifier.prediction.PredictionBatch {
     public PredictionInput  input;     /*!< %Input data */
     public PredictionMethod method;    /*!< %Prediction method for the algorithm */
     public Parameter        parameter; /*!< Parameters of the algorithm */
@@ -69,33 +69,24 @@ public class PredictionBatch extends com.intel.daal.algorithms.boosting.predicti
     /**
      * Constructs the LogitBoost prediction algorithm
      * @param context   Context to manage LogitBoost prediction
+     * @param nClasses  Number of classes
      * @param cls       Data type to use in intermediate computations for LogitBoost prediction,
      *                  Double.class or Float.class
      * @param method    LogitBoost prediction method, @ref PredictionMethod
+     */
+    public PredictionBatch(DaalContext context, long nClasses, Class<? extends Number> cls, PredictionMethod method) {
+        super(context);
+        init(Precision.fromClass(cls), method, nClasses);
+    }
+
+    /**
+     * Constructs the LogitBoost prediction algorithm
+     * @param context   Context to manage LogitBoost prediction
      * @param nClasses  Number of classes
      */
-    public PredictionBatch(DaalContext context, Class<? extends Number> cls, PredictionMethod method, long nClasses) {
+    public PredictionBatch(DaalContext context, long nClasses) {
         super(context);
-
-        this.method = method;
-
-        if (this.method != PredictionMethod.defaultDense) {
-            throw new IllegalArgumentException("method unsupported");
-        }
-
-        if (cls != Double.class && cls != Float.class) {
-            throw new IllegalArgumentException("type unsupported");
-        }
-
-        if (cls == Double.class) {
-            prec = Precision.doublePrecision;
-        } else {
-            prec = Precision.singlePrecision;
-        }
-
-        this.cObject = cInit(prec.getValue(), this.method.getValue(), nClasses);
-        input = new PredictionInput(getContext(), cObject);
-        parameter = new Parameter(getContext(), cInitParameter(this.cObject, prec.getValue(), method.getValue()));
+        init(Precision.singlePrecision, PredictionMethod.defaultDense, nClasses);
     }
 
     /**
@@ -108,6 +99,16 @@ public class PredictionBatch extends com.intel.daal.algorithms.boosting.predicti
     @Override
     public PredictionBatch clone(DaalContext context) {
         return new PredictionBatch(context, this);
+    }
+
+    private void init(Precision prec, PredictionMethod method, long nClasses) {
+        this.prec      = prec;
+        this.method    = method;
+        this.cObject   = cInit(prec.getValue(), method.getValue(), nClasses);
+        this.input     = new PredictionInput(getContext(), this.cObject, ComputeMode.batch);
+        this.parameter = new Parameter( getContext(), cInitParameter(this.cObject,
+                                                                     prec.getValue(),
+                                                                     method.getValue()) );
     }
 
     private native long cInit(int prec, int method, long nClasses);

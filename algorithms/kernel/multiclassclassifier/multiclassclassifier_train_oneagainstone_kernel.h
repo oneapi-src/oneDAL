@@ -46,7 +46,7 @@ namespace internal
 {
 
 //Base class for binary classification subtask
-template<typename algorithmFPType, CpuType cpu>
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
 class SubTask
 {
 public:
@@ -69,7 +69,7 @@ public:
         _subsetXTable->resize(nRowsInSubset);
         _subsetYTable->resize(nRowsInSubset);
 
-        classifier::training::Input *input = _simpleTraining->getInput();
+        typename ClsType::InputType *input = _simpleTraining->getInput();
         DAAL_CHECK(input, services::ErrorNullInput);
         input->set(classifier::training::data,   _subsetXTable);
         input->set(classifier::training::labels, _subsetYTable);
@@ -84,7 +84,7 @@ protected:
     typedef HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
 
     SubTask(size_t nSubsetVectors, size_t dataSize,
-        const services::SharedPtr<classifier::training::Batch>& st) : _subsetX(dataSize + nSubsetVectors), _subsetY(nullptr)
+        const services::SharedPtr<ClsType>& st) : _subsetX(dataSize + nSubsetVectors), _subsetY(nullptr)
     {
         services::Status status;
         if(!_subsetX.get())
@@ -109,16 +109,16 @@ protected:
     algorithmFPType *_subsetY;
     NumericTablePtr _subsetYTable;
     NumericTablePtr _subsetXTable;
-    services::SharedPtr<classifier::training::Batch> _simpleTraining;
+    services::SharedPtr<ClsType> _simpleTraining;
 };
 
-template<typename algorithmFPType, CpuType cpu>
-class SubTaskCSR : public SubTask<algorithmFPType, cpu>
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+class SubTaskCSR : public SubTask<algorithmFPType, ClsType, cpu>
 {
 public:
-    typedef SubTask<algorithmFPType, cpu> super;
+    typedef SubTask<algorithmFPType, ClsType, cpu> super;
     static SubTaskCSR* create(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable *xTable,
-        const services::SharedPtr<classifier::training::Batch>& st)
+        const services::SharedPtr<ClsType>& st)
     {
         auto val = new SubTaskCSR(nFeatures, nSubsetVectors, dataSize, dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable)), st);
         if(val && val->isValid())
@@ -134,7 +134,7 @@ private:
     }
 
     SubTaskCSR(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, CSRNumericTableIface *xTable,
-        const services::SharedPtr<classifier::training::Batch>& st) :
+        const services::SharedPtr<ClsType>& st) :
         super(nSubsetVectors, dataSize, st), _mtX(xTable), _colIndicesX(dataSize + nSubsetVectors + 1), _rowOffsetsX(nullptr)
     {
         if(_colIndicesX.get())
@@ -155,13 +155,13 @@ private:
     ReadRowsCSR<algorithmFPType, cpu> _mtX;
 };
 
-template<typename algorithmFPType, CpuType cpu>
-class SubTaskDense : public SubTask<algorithmFPType, cpu>
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+class SubTaskDense : public SubTask<algorithmFPType, ClsType, cpu>
 {
 public:
-    typedef SubTask<algorithmFPType, cpu> super;
+    typedef SubTask<algorithmFPType, ClsType, cpu> super;
     static SubTaskDense* create(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable *xTable,
-        const services::SharedPtr<classifier::training::Batch>& st)
+        const services::SharedPtr<ClsType>& st)
     {
         auto val = new SubTaskDense(nFeatures, nSubsetVectors, dataSize, xTable, st);
         if(val && val->isValid())
@@ -178,7 +178,7 @@ private:
     }
 
     SubTaskDense(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable *xTable,
-        const services::SharedPtr<classifier::training::Batch>& st) :
+        const services::SharedPtr<ClsType>& st) :
         super(nSubsetVectors, dataSize, st), _mtX(const_cast<NumericTable *>(xTable))
     {
         services::Status status;
@@ -195,8 +195,8 @@ private:
     ReadRows<algorithmFPType, cpu> _mtX;
 };
 
-template<typename algorithmFPType, CpuType cpu>
-class MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu> : public Kernel
+template<typename algorithmFPType, typename ClsType, typename MccParType, CpuType cpu>
+class MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, MccParType, cpu> : public Kernel
 {
 public:
     services::Status compute(const NumericTable *xTable, const NumericTable *yTable, daal::algorithms::Model *r,

@@ -42,12 +42,21 @@ namespace interface1
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
 {
-    const ParameterBase *algParameter = static_cast<const ParameterBase *>(parameter);
     const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
     services::Status st;
-    ModelPtr modelPtr = Model::create(algInput->getNumberOfFeatures(), algParameter, &st);
+    const multi_class_classifier::interface1::ParameterBase *algParameter1 = dynamic_cast<const multi_class_classifier::interface1::ParameterBase *>(parameter);
+    if(algParameter1)
+    {
+        multi_class_classifier::ModelPtr modelPtr = Model::create(algInput->getNumberOfFeatures(), algParameter1, &st);
+        set(classifier::training::model, modelPtr);
+    }
+    else
+    {
+        const ParameterBase *algParameter2 = dynamic_cast<const ParameterBase *>(parameter);
+        ModelPtr modelPtr = Model::create(algInput->getNumberOfFeatures(), algParameter2, &st);
+        set(classifier::training::model, modelPtr);
+    }
     DAAL_CHECK_STATUS_VAR(st);
-    set(classifier::training::model, modelPtr);
     return st;
 }
 

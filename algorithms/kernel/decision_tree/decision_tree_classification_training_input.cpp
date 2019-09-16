@@ -63,9 +63,18 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter) const
 {
     services::Status s;
-    const decision_tree::classification::Parameter * const par = static_cast<const decision_tree::classification::Parameter *>(parameter);
+    decision_tree::Pruning treePruning;
+    {
+        auto par1 = dynamic_cast<const decision_tree::classification::interface1::Parameter *>(parameter);
+        if(par1) treePruning = par1->pruning;
 
-    if (par->pruning == decision_tree::reducedErrorPruning)
+        auto par2 = dynamic_cast<const decision_tree::classification::interface2::Parameter *>(parameter);
+        if(par2) treePruning = par2->pruning;
+
+        if(par1 == NULL && par2 == NULL) return services::Status(ErrorNullParameterNotSupported);
+    }
+
+    if (treePruning == decision_tree::reducedErrorPruning)
     {
         const NumericTablePtr dataForPruningTable = get(dataForPruning);
         DAAL_CHECK_STATUS(s, checkNumericTable(dataForPruningTable.get(), dataForPruningStr(), 0, 0, this->getNumberOfFeatures()));

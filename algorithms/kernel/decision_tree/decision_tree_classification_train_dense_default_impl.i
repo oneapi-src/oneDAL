@@ -28,10 +28,12 @@
 #include "service_math.h"
 #include "service_memory.h"
 #include "service_utils.h"
+#include "service_numeric_table.h"
 #include "numeric_table.h"
 #include "decision_tree_classification_model_impl.h"
 #include "decision_tree_classification_train_kernel.h"
 #include "decision_tree_train_impl.i"
+#include "decision_tree_classification_split_criterion.i"
 
 namespace daal
 {
@@ -52,261 +54,6 @@ using namespace daal::services::internal;
 using namespace decision_tree::internal;
 
 template <CpuType cpu>
-class ClassCounters
-{
-public:
-    ClassCounters() : _size(0), _counters(nullptr) {}
-
-    ClassCounters(const ClassCounters & value) : _size(value._size), _counters(value._size ? daal_alloc<size_t>(value._size) : nullptr)
-    {
-        daal_memcpy_s(_counters, _size * sizeof(size_t), value._counters, value._size * sizeof(size_t));
-    }
-
-    ClassCounters(size_t size) : _size(size), _counters(size ? daal_alloc<size_t>(size) : nullptr) { reset(); }
-
-    ClassCounters(size_t size, const NumericTable & x, const NumericTable & y) : _size(size), _counters(size ? daal_alloc<size_t>(size) : nullptr)
-    {
-        if (size)
-        {
-            reset();
-            const size_t yRowCount = y.getNumberOfRows();
-            BlockDescriptor<int> yBD;
-            const_cast<NumericTable &>(y).getBlockOfColumnValues(0, 0, yRowCount, readOnly, yBD);
-            const int * const dy = yBD.getBlockPtr();
-            for (size_t i = 0; i < yRowCount; ++i)
-            {
-                update(static_cast<size_t>(dy[i]));
-            }
-            const_cast<NumericTable &>(y).releaseBlockOfColumnValues(yBD);
-        }
-    }
-
-    ~ClassCounters()
-    {
-        daal_free(_counters);
-    }
-
-    ClassCounters & operator= (ClassCounters rhs)
-    {
-        swap(rhs);
-        return *this;
-    }
-
-    ClassCounters & operator-= (const ClassCounters & rhs)
-    {
-        DAAL_ASSERT(_size == rhs._size);
-        for (size_t i = 0; i < _size; ++i)
-        {
-            DAAL_ASSERT(_counters[i] >= rhs._counters[i]);
-            _counters[i] -= rhs._counters[i];
-        }
-        return *this;
-    }
-
-    size_t operator[] (size_t index) const
-    {
-        DAAL_ASSERT(index < _size);
-        return _counters[index];
-    }
-
-    void swap(ClassCounters & value)
-    {
-        services::internal::swap<cpu>(_counters, value._counters);
-        services::internal::swap<cpu>(_size, value._size);
-    }
-
-    size_t getBestDependentVariableValue() const
-    {
-        return maxElement<cpu>(_counters, &_counters[_size]) - _counters;
-    }
-
-    void reset(const ClassCounters & value)
-    {
-        if (_size != value._size)
-        {
-            _size = value._size;
-            size_t * const saveCounters = _counters;
-            _counters = _size ? daal_alloc<size_t>(_size) : nullptr;
-            daal_free(saveCounters);
-        }
-        reset();
-    }
-
-    void reset()
-    {
-        for (size_t i = 0; i < _size; ++i) { _counters[i] = 0; }
-    }
-
-    void update(size_t index)
-    {
-        DAAL_ASSERT(index < _size);
-        ++_counters[index];
-    }
-
-    bool isPure(size_t & onlyClass) const
-    {
-        size_t numberOfClasses = 0;
-        for (size_t i = 0; i < _size; ++i)
-        {
-            if (_counters[i])
-            {
-                ++numberOfClasses;
-                if (numberOfClasses >= 2) { break; }
-                onlyClass = i;
-            }
-        }
-        return (numberOfClasses == 1);
-    }
-
-    size_t size() const { return _size; }
-
-private:
-    size_t _size;
-    size_t * _counters;
-};
-
-template <typename algorithmFPType, CpuType cpu>
-struct Gini
-{
-    typedef ClassCounters<cpu> DataStatistics;
-    typedef algorithmFPType ValueType;
-    typedef size_t DependentVariableType;
-
-    template <typename RandomIterator>
-    ValueType operator() (RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next, DataStatistics & dataStatistics,
-                          const DataStatistics & totalDataStatistics, data_management::features::FeatureType featureType,
-                          size_t leftCount, size_t rightCount, size_t totalCount)
-    {
-        const ValueType leftProbability = leftCount * static_cast<ValueType>(1) / totalCount;
-        const ValueType rightProbability = rightCount * static_cast<ValueType>(1) / totalCount;
-        ValueType leftGini = 1;
-        ValueType rightGini = 1;
-        const size_t size = dataStatistics.size();
-        DAAL_ASSERT(size == totalDataStatistics.size());
-        for (size_t i = 0; i < size; ++i)
-        {
-            const ValueType leftP = dataStatistics[i] * static_cast<ValueType>(1) / leftCount;
-            leftGini -= leftP * leftP;
-            const ValueType rightP = (totalDataStatistics[i] - dataStatistics[i]) * static_cast<ValueType>(1) / rightCount;
-            rightGini -= rightP * rightP;
-        }
-        return leftProbability * leftGini + rightProbability * rightGini;
-    }
-
-    ValueType operator() (const DataStatistics & totalDataStatistics, size_t totalCount)
-    {
-        ValueType gini = 1;
-        const size_t size = totalDataStatistics.size();
-        for (size_t i = 0; i < size; ++i)
-        {
-            const ValueType leftP = totalDataStatistics[i] * static_cast<ValueType>(1) / totalCount;
-            gini -= leftP * leftP;
-        }
-        return gini;
-    }
-};
-
-template <typename algorithmFPType, CpuType cpu>
-struct InfoGain
-{
-    typedef ClassCounters<cpu> DataStatistics;
-    typedef algorithmFPType ValueType;
-    typedef size_t DependentVariableType;
-
-    InfoGain() : _tempSize(0), _tempP(nullptr), _tempLg(nullptr) {}
-
-    InfoGain(const InfoGain &) : _tempSize(0), _tempP(nullptr), _tempLg(nullptr) {}
-
-    InfoGain & operator= (const InfoGain &) { return *this; }
-
-    ~InfoGain() { deallocateTempData(); }
-
-    template <typename RandomIterator>
-    ValueType operator() (RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next, DataStatistics & dataStatistics,
-                          const DataStatistics & totalDataStatistics, data_management::features::FeatureType featureType,
-                          size_t leftCount, size_t rightCount, size_t totalCount)
-    {
-        typedef Math<algorithmFPType, cpu> MathType;
-
-        const ValueType leftProbability = leftCount * static_cast<ValueType>(1) / totalCount;
-        const ValueType rightProbability = rightCount * static_cast<ValueType>(1) / totalCount;
-        ValueType leftInfo = 0;
-        ValueType rightInfo = 0;
-        const size_t size = dataStatistics.size();
-        DAAL_ASSERT(size == totalDataStatistics.size());
-        if (allocateTempData(size * 2))
-        {
-            for (size_t i = 0; i < size; ++i)
-            {
-                const ValueType leftP = dataStatistics[i] * static_cast<ValueType>(1) / leftCount;
-                _tempP[i] = (leftP != 0) ? leftP : 1;
-                const ValueType rightP = (totalDataStatistics[i] - dataStatistics[i]) * static_cast<ValueType>(1) / rightCount;
-                _tempP[size + i] = (rightP != 0) ? rightP : 1;
-            }
-            MathType::vLog(size * 2, _tempP, _tempLg);
-            for (size_t i = 0; i < size; ++i)
-            {
-                leftInfo -= _tempP[i] * _tempLg[i];
-                rightInfo -= _tempP[size + i] * _tempLg[size + i];
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < size; ++i)
-            {
-                const ValueType leftP = dataStatistics[i] * static_cast<ValueType>(1) / leftCount;
-                leftInfo -= (leftP != 0) ? leftP * MathType::sLog(leftP) : 0;
-                const ValueType rightP = (totalDataStatistics[i] - dataStatistics[i]) * static_cast<ValueType>(1) / rightCount;
-                rightInfo -= (rightP != 0) ? rightP * MathType::sLog(rightP) : 0;
-            }
-        }
-        return leftProbability * leftInfo + rightProbability * rightInfo;
-    }
-
-    ValueType operator() (const DataStatistics & totalDataStatistics, size_t totalCount)
-    {
-        typedef Math<algorithmFPType, cpu> MathType;
-
-        ValueType info = 0;
-        const size_t size = totalDataStatistics.size();
-
-        for (size_t i = 0; i < size; ++i)
-        {
-            const ValueType leftP = totalDataStatistics[i] * static_cast<ValueType>(1) / totalCount;
-            info -= (leftP != 0) ? leftP * MathType::sLog(leftP) : 0;
-        }
-
-        return info;
-    }
-
-protected:
-    bool allocateTempData(size_t size)
-    {
-        DAAL_ASSERT((_tempSize == 0) == (_tempP == nullptr));
-        DAAL_ASSERT((_tempSize == 0) == (_tempLg == nullptr));
-
-        if (_tempSize >= size) { return true; }
-
-        deallocateTempData();
-        _tempSize = size;
-        _tempP = services::internal::service_scalable_malloc<ValueType, cpu>(size);
-        _tempLg = services::internal::service_scalable_malloc<ValueType, cpu>(size);
-        return _tempP != nullptr && _tempLg != nullptr;
-    }
-
-    void deallocateTempData()
-    {
-        services::internal::service_scalable_free<ValueType, cpu>(_tempP);
-        services::internal::service_scalable_free<ValueType, cpu>(_tempLg);
-    }
-
-private:
-    size_t _tempSize;
-    ValueType * _tempP;
-    ValueType * _tempLg;
-};
-
-template <CpuType cpu>
 class REPPruningData : public PruningData<cpu, int>
 {
     typedef PruningData<cpu, int> BaseType;
@@ -319,7 +66,7 @@ public:
         resetCounters();
     }
 
-    ~REPPruningData()
+    ~REPPruningData() DAAL_C11_OVERRIDE
     {
         daal_free(_counters);
     }
@@ -374,6 +121,36 @@ public:
         BaseType::prune(index, majorityClass(index));
     }
 
+    void putProbabilities(size_t index, double * probs, size_t numProbs) const DAAL_C11_OVERRIDE
+    {
+        DAAL_ASSERT(index < size());
+        DAAL_ASSERT(probs);
+        DAAL_ASSERT(numProbs == _numberOfClasses);
+        DAAL_ASSERT(_counters);
+
+        size_t total = 0;
+        size_t * const cnts = _counters + index * _numberOfClasses;
+        for (size_t i = 0; i < _numberOfClasses; ++i)
+        {
+            total += cnts[i];
+        }
+
+        if (total != 0)
+        {
+            for (size_t i = 0; i < _numberOfClasses; ++i)
+            {
+                probs[i] = static_cast<double>(cnts[i]) / static_cast<double>(total);
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < _numberOfClasses; ++i)
+            {
+                probs[i] = 0.0;
+            }
+        }
+    }
+
     using BaseType::size;
 
 protected:
@@ -398,100 +175,128 @@ private:
     size_t * _counters;
 };
 
-template <typename algorithmFPType, CpuType cpu>
-static void copyNode(size_t srcNodeIdx, size_t destNodeIdx, const decision_tree::internal::Tree<cpu, algorithmFPType, int> & src,
-             decision_tree::classification::DecisionTreeNode * dest, double *impVals, int *smplCntVals, size_t & destNodeCount, size_t destNodeCapacity,
-             const decision_tree::internal::PruningData<cpu, int> & pruningData)
+template <typename algorithmFPType, CpuType cpu, typename LeavesData>
+struct CopyNodeContext
 {
-    if (src[srcNodeIdx].isLeaf())
+    const decision_tree::internal::Tree<cpu, algorithmFPType, int> & src;
+    decision_tree::classification::DecisionTreeNode * dest;
+    double * impVals;
+    int * smplCntVals;
+    size_t & destNodeCount;
+    size_t destNodeCapacity;
+    const decision_tree::internal::PruningData<cpu, int> & pruningData;
+    const LeavesData & leavesData;
+    int & leafIndex;
+    int * probIndices;
+    double * probs;
+    size_t nClasses;
+};
+
+template <typename algorithmFPType, CpuType cpu, typename LeavesData>
+static void copyNode(const CopyNodeContext<algorithmFPType, cpu, LeavesData> & context, size_t srcNodeIdx, size_t destNodeIdx)
+{
+    if (context.src[srcNodeIdx].isLeaf())
     {
-        dest[destNodeIdx].dimension = static_cast<size_t>(-1);
-        dest[destNodeIdx].leftIndexOrClass = src[srcNodeIdx].dependentVariable();
-        dest[destNodeIdx].cutPoint = 0;
-        impVals[destNodeIdx] = src[srcNodeIdx].impurity();
-        smplCntVals[destNodeIdx] = src[srcNodeIdx].count();
+        context.dest[destNodeIdx].dimension = static_cast<size_t>(-1);
+        context.dest[destNodeIdx].leftIndexOrClass = context.src[srcNodeIdx].dependentVariable();
+        context.dest[destNodeIdx].cutPoint = 0;
+        context.impVals[destNodeIdx] = context.src[srcNodeIdx].impurity();
+        context.smplCntVals[destNodeIdx] = context.src[srcNodeIdx].count();
+        context.probIndices[destNodeIdx] = context.leafIndex;
+        context.leavesData.putProbabilities(context.src[srcNodeIdx].leavesDataIndex(), context.probs + context.leafIndex * context.nClasses,
+                                            context.nClasses);
+        ++context.leafIndex;
     }
-    else if (pruningData.isPruned(srcNodeIdx))
+    else if (context.pruningData.isPruned(srcNodeIdx))
     {
-        dest[destNodeIdx].dimension = static_cast<size_t>(-1);
-        dest[destNodeIdx].leftIndexOrClass = pruningData.dependentVariable(srcNodeIdx);
-        dest[destNodeIdx].cutPoint = 0;
-        impVals[destNodeIdx] = src[srcNodeIdx].impurity();
-        smplCntVals[destNodeIdx] = src[srcNodeIdx].count();
+        context.dest[destNodeIdx].dimension = static_cast<size_t>(-1);
+        context.dest[destNodeIdx].leftIndexOrClass = context.pruningData.dependentVariable(srcNodeIdx);
+        context.dest[destNodeIdx].cutPoint = 0;
+        context.impVals[destNodeIdx] = context.src[srcNodeIdx].impurity();
+        context.smplCntVals[destNodeIdx] = context.src[srcNodeIdx].count();
+        context.probIndices[destNodeIdx] = context.leafIndex;
+        context.pruningData.putProbabilities(srcNodeIdx, context.probs + context.leafIndex * context.nClasses, context.nClasses);
+        ++context.leafIndex;
     }
     else
     {
-        DAAL_ASSERT(destNodeCount + 2 <= destNodeCapacity);
-        dest[destNodeIdx].dimension = src[srcNodeIdx].featureIndex();
-        const size_t childIndex = destNodeCount;
-        dest[destNodeIdx].leftIndexOrClass = childIndex;
-        dest[destNodeIdx].cutPoint = src[srcNodeIdx].cutPoint();
-        impVals[destNodeIdx] = src[srcNodeIdx].impurity();
-        smplCntVals[destNodeIdx] = src[srcNodeIdx].count();
-        destNodeCount += 2;
-        copyNode(src[srcNodeIdx].leftChildIndex(), childIndex, src, dest, impVals, smplCntVals, destNodeCount, destNodeCapacity, pruningData);
-        copyNode(src[srcNodeIdx].rightChildIndex(), childIndex + 1, src, dest, impVals, smplCntVals, destNodeCount, destNodeCapacity, pruningData);
+        DAAL_ASSERT(context.destNodeCount + 2 <= context.destNodeCapacity);
+        context.dest[destNodeIdx].dimension = context.src[srcNodeIdx].featureIndex();
+        const size_t childIndex = context.destNodeCount;
+        context.dest[destNodeIdx].leftIndexOrClass = childIndex;
+        context.dest[destNodeIdx].cutPoint = context.src[srcNodeIdx].cutPoint();
+        context.impVals[destNodeIdx] = context.src[srcNodeIdx].impurity();
+        context.smplCntVals[destNodeIdx] = context.src[srcNodeIdx].count();
+        context.probIndices[destNodeIdx] = -1;
+        context.destNodeCount += 2;
+        copyNode(context, context.src[srcNodeIdx].leftChildIndex(), childIndex);
+        copyNode(context, context.src[srcNodeIdx].rightChildIndex(), childIndex + 1);
     }
 }
 
-template <typename algorithmFPType, CpuType cpu>
-services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::defaultDense, cpu>::
-    compute(const NumericTable * x, const NumericTable * y, const NumericTable * px, const NumericTable * py,
-            decision_tree::classification::Model * r, const daal::algorithms::Parameter * par)
+template <typename algorithmFPType, CpuType cpu, typename ParameterType, typename LeavesData>
+static services::Status pruneAndConvertTree(const NumericTable * px, const NumericTable * py, decision_tree::classification::Model & r,
+                                            const ParameterType & parameter,
+                                            decision_tree::internal::Tree<cpu, algorithmFPType, int> & tree,
+                                            const LeavesData & leavesData)
 {
-    DAAL_ASSERT(x);
-    DAAL_ASSERT(y);
-    DAAL_ASSERT(r);
-    const decision_tree::classification::Parameter * const parameter = static_cast<const decision_tree::classification::Parameter *>(par);
-    DAAL_ASSERT(parameter);
+    using services::SharedPtr;
+    using data_management::HomogenNumericTable;
 
-    r->setNFeatures(x->getNumberOfColumns());
-
-    Tree<cpu, algorithmFPType, int> tree;
-    if (parameter->splitCriterion == gini)
-    {
-        Gini<algorithmFPType, cpu> splitCriterion;
-        tree.train(splitCriterion, *x, *y, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
-    }
-    else
-    {
-        DAAL_ASSERT(parameter->splitCriterion == infoGain);
-        InfoGain<algorithmFPType, cpu> splitCriterion;
-        tree.train(splitCriterion, *x, *y, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
-    }
     services::Status status;
-    if (parameter->pruning == reducedErrorPruning)
+    if (parameter.pruning == reducedErrorPruning)
     {
         DAAL_ASSERT(px);
         DAAL_ASSERT(py);
-        REPPruningData<cpu> repData(tree.nodeCount(), parameter->nClasses);
+        REPPruningData<cpu> repData(tree.nodeCount(), parameter.nClasses);
         tree.reducedErrorPruning(*px, *py, repData);
 
         const size_t nodeCapacity = countNodes(0, tree, repData);
+        const size_t decisionNodeCount = (nodeCapacity > 0) ? (nodeCapacity - 1) / 2 : 0;
+        const size_t leafNodeCount = nodeCapacity - decisionNodeCount;
         DecisionTreeTablePtr treeTable(new DecisionTreeTable(nodeCapacity, status));
-        services::SharedPtr<data_management::HomogenNumericTable<double> > impTbl(new HomogenNumericTable<double>(1, nodeCapacity, NumericTable::doAllocate));
-        services::SharedPtr<data_management::HomogenNumericTable<int> > smplCntTbl(new HomogenNumericTable<int>(1, nodeCapacity, NumericTable::doAllocate));
+        DAAL_CHECK_STATUS_VAR(status);
+        SharedPtr<HomogenNumericTableCPU<double, cpu> > impTbl(new HomogenNumericTableCPU<double, cpu>(1, nodeCapacity, status));
+        SharedPtr<HomogenNumericTableCPU<int, cpu> > smplCntTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCapacity, status));
+        SharedPtr<HomogenNumericTableCPU<int, cpu> > probIndicesTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCapacity, status));
+        SharedPtr<HomogenNumericTableCPU<double, cpu> > probTbl(new HomogenNumericTableCPU<double, cpu>(parameter.nClasses, leafNodeCount, status));
         DAAL_CHECK_STATUS_VAR(status);
         DecisionTreeNode * const nodes = static_cast<DecisionTreeNode *>(treeTable->getArray());
-        double *impVals = impTbl->getArray();
-        int *smplCntVals = smplCntTbl->getArray();
+        double * const impVals = impTbl->getArray();
+        int * const smplCntVals = smplCntTbl->getArray();
+        int * const probIndices = probIndicesTbl->getArray();
+        double * const probs = probTbl->getArray();
         size_t nodeCount = 1;
-        copyNode<>(0, 0, tree, nodes, impVals, smplCntVals, nodeCount, nodeCapacity, repData);
-        r->impl()->setTreeTable(treeTable);
-        r->impl()->setImpTable(impTbl);
-        r->impl()->setNodeSmplCntTable(smplCntTbl);
+        int leafIndex = 0;
+        const CopyNodeContext<algorithmFPType, cpu, LeavesData> context { tree, nodes, impVals, smplCntVals, nodeCount, nodeCapacity, repData,
+                                                                          leavesData, leafIndex, probIndices, probs, parameter.nClasses };
+        copyNode<>(context, 0, 0);
+        DAAL_ASSERT(leafIndex == leafNodeCount);
+        r.impl()->setTreeTable(treeTable);
+        r.impl()->setImpTable(impTbl);
+        r.impl()->setNodeSmplCntTable(smplCntTbl);
+        r.impl()->setProbIndicesTable(probIndicesTbl);
+        r.impl()->setProbTable(probTbl);
     }
     else
     {
         const size_t nodeCount = tree.nodeCount();
+        const size_t decisionNodeCount = (nodeCount > 0) ? (nodeCount - 1) / 2 : 0;
+        const size_t leafNodeCount = nodeCount - decisionNodeCount;
         DecisionTreeTablePtr treeTable(new DecisionTreeTable(nodeCount, status));
-        services::SharedPtr<data_management::HomogenNumericTable<double> > impTbl(new HomogenNumericTable<double>(1, nodeCount, NumericTable::doAllocate));
-        services::SharedPtr<data_management::HomogenNumericTable<int> > smplCntTbl(new HomogenNumericTable<int>(1, nodeCount, NumericTable::doAllocate));
-
         DAAL_CHECK_STATUS_VAR(status);
+        SharedPtr<HomogenNumericTableCPU<double, cpu> > impTbl(new HomogenNumericTableCPU<double, cpu>(1, nodeCount, status));
+        SharedPtr<HomogenNumericTableCPU<int, cpu> > smplCntTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCount, status));
+        SharedPtr<HomogenNumericTableCPU<int, cpu> > probIndicesTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCount, status));
+        SharedPtr<HomogenNumericTableCPU<double, cpu> > probTbl(new HomogenNumericTableCPU<double, cpu>(parameter.nClasses, leafNodeCount, status));
+        DAAL_CHECK_STATUS_VAR(status);
+
         DecisionTreeNode * const nodes = static_cast<DecisionTreeNode *>(treeTable->getArray());
-        double *impVals = impTbl->getArray();
-        int *smplCntVals = smplCntTbl->getArray();
+        double * const impVals = impTbl->getArray();
+        int * const smplCntVals = smplCntTbl->getArray();
+        int * const probIndices = probIndicesTbl->getArray();
+        double * const probs = probTbl->getArray();
+        int leafIndex = 0;
 
         for (size_t i = 0; i < nodeCount; ++i)
         {
@@ -500,26 +305,100 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::default
                 nodes[i].dimension = static_cast<size_t>(-1);
                 nodes[i].leftIndexOrClass = tree[i].dependentVariable();
                 nodes[i].cutPoint = 0;
+                probIndices[i] = leafIndex;
+                DAAL_ASSERT(leafIndex >= 0 && leafIndex < leafNodeCount);
+                leavesData.putProbabilities(tree[i].leavesDataIndex(), probs + leafIndex * parameter.nClasses, parameter.nClasses);
+                ++leafIndex;
             }
             else
             {
                 nodes[i].dimension = tree[i].featureIndex();
                 nodes[i].leftIndexOrClass = tree[i].leftChildIndex();
                 nodes[i].cutPoint = tree[i].cutPoint();
+                probIndices[i] = -1;
             }
             impVals[i] = tree[i].impurity();
             smplCntVals[i] = tree[i].count();
         }
-        r->impl()->setTreeTable(treeTable);
-        r->impl()->setImpTable(impTbl);
-        r->impl()->setNodeSmplCntTable(smplCntTbl);
+        r.impl()->setTreeTable(treeTable);
+        r.impl()->setImpTable(impTbl);
+        r.impl()->setNodeSmplCntTable(smplCntTbl);
+        r.impl()->setProbIndicesTable(probIndicesTbl);
+        r.impl()->setProbTable(probTbl);
     }
     return status;
 }
 
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, training::defaultDense, cpu>::
+    compute(const NumericTable * x, const NumericTable * y, const NumericTable * w,
+            const NumericTable * px, const NumericTable * py,
+            decision_tree::classification::Model * r, const ParameterType * parameter)
+{
+    DAAL_ASSERT(x);
+    DAAL_ASSERT(y);
+    DAAL_ASSERT(r);
+    DAAL_ASSERT(parameter);
+
+    r->setNFeatures(x->getNumberOfColumns());
+
+    services::Status status;
+    Tree<cpu, algorithmFPType, int> tree;
+    if (w == nullptr)
+    {
+        LeavesData<cpu, ClassCounters<cpu> > leavesData;
+        if (parameter->splitCriterion == gini)
+        {
+            Gini<algorithmFPType, cpu> splitCriterion;
+            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+        }
+        else
+        {
+            InfoGain<algorithmFPType, cpu> splitCriterion;
+            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+        }
+    }
+    else
+    {
+        LeavesData<cpu, ClassWeightsCounters<algorithmFPType, cpu> > leavesData;
+        if (parameter->splitCriterion == gini)
+        {
+            GiniWeighted<algorithmFPType, cpu> splitCriterion;
+            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+        }
+        else
+        {
+            InfoGainWeighted<algorithmFPType, cpu> splitCriterion;
+            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+        }
+    }
+    return status;
+}
+
+
 } // namespace internal
 } // namespace training
 } // namespace classification
+
+namespace internal
+{
+template <CpuType cpu, typename algorithmFPType>
+struct CutPointFinder<cpu, algorithmFPType, GiniWeighted<algorithmFPType, cpu> > : private WeightedBaseCutPointFinder<cpu>
+{
+    using WeightedBaseCutPointFinder<cpu>::find;
+};
+
+template <CpuType cpu, typename algorithmFPType>
+struct CutPointFinder<cpu, algorithmFPType, InfoGainWeighted<algorithmFPType, cpu> > : private WeightedBaseCutPointFinder<cpu>
+{
+    using WeightedBaseCutPointFinder<cpu>::find;
+};
+} // namespace internal
+
 } // namespace decision_tree
 } // namespace algorithms
 } // namespace daal

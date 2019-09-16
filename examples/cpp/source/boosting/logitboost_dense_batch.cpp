@@ -88,8 +88,8 @@ void trainModel()
 
     /* Create an algorithm object to train the LogitBoost model */
     logitboost::training::Batch<> algorithm(nClasses);
-    algorithm.parameter.maxIterations = maxIterations;
-    algorithm.parameter.accuracyThreshold = accuracyThreshold;
+    algorithm.parameter().maxIterations = maxIterations;
+    algorithm.parameter().accuracyThreshold = accuracyThreshold;
 
     /* Pass the training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);

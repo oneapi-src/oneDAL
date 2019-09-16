@@ -40,7 +40,7 @@ namespace training
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LOGISTIC_REGRESSION_TRAINING_RESULT_ID);
-Result::Result() : algorithms::classifier::training::Result(classifier::training::lastResultId + 1) {};
+Result::Result() : algorithms::classifier::training::interface1::Result(classifier::training::lastResultId + 1) {};
 
 logistic_regression::ModelPtr Result::get(classifier::training::ResultId id) const
 {
@@ -58,7 +58,7 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
 }
 
 Parameter::Parameter(size_t nClasses, const SolverPtr& solver):
-    classifier::Parameter(nClasses), interceptFlag(true), penaltyL1(0.), penaltyL2(0), optimizationSolver(solver)
+    classifier::interface1::Parameter(nClasses), interceptFlag(true), penaltyL1(0.), penaltyL2(0), optimizationSolver(solver)
 {
 }
 

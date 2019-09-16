@@ -22,6 +22,8 @@
 */
 
 #include "algorithms/boosting/adaboost_model.h"
+#include "algorithms/stump/stump_classification_training_batch.h"
+#include "algorithms/stump/stump_classification_predict.h"
 #include "serialization_utils.h"
 #include "daal_strings.h"
 
@@ -34,11 +36,16 @@ namespace algorithms
 {
 namespace adaboost
 {
-namespace interface1
+
+namespace interface2
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_ADABOOST_MODEL_ID);
 
-Parameter::Parameter() : boosting::Parameter(), accuracyThreshold(0.0), maxIterations(10) {}
+Parameter::Parameter(size_t nClasses_) :
+    classifier::Parameter(nClasses_),
+    weakLearnerTraining(new stump::classification::training::Batch<>(nClasses_)),
+    weakLearnerPrediction(new stump::classification::prediction::Batch<>(nClasses_)),
+    accuracyThreshold(0.0), maxIterations(100), learningRate(1.0), resultsToCompute(computeWeakLearnersErrors) {}
 
 /**
  * Constructs the AdaBoost parameter structure
@@ -47,18 +54,25 @@ Parameter::Parameter() : boosting::Parameter(), accuracyThreshold(0.0), maxItera
  * \param[in] acc           Accuracy of the AdaBoost training algorithm
  * \param[in] maxIter       Maximal number of iterations of the AdaBoost training algorithm
  */
-Parameter::Parameter(SharedPtr<weak_learner::training::Batch>   wlTrain,
-          SharedPtr<weak_learner::prediction::Batch> wlPredict,
-          double acc, size_t maxIter) :
-    boosting::Parameter(wlTrain, wlPredict),
-    accuracyThreshold(acc), maxIterations(maxIter) {}
+Parameter::Parameter(SharedPtr<classifier::training::Batch> wlTrain,
+                     SharedPtr<classifier::prediction::Batch> wlPredict,
+                     double acc, size_t maxIter, double learningRate_, DAAL_UINT64 resultsToCompute_, size_t nClasses_) :
+    classifier::Parameter(nClasses_),
+    weakLearnerTraining(wlTrain), weakLearnerPrediction(wlPredict),
+    accuracyThreshold(acc), maxIterations(maxIter), learningRate(learningRate_), resultsToCompute(resultsToCompute_) {}
 
 Status Parameter::check() const
 {
     Status s;
-    DAAL_CHECK_STATUS(s, boosting::Parameter::check());
+    DAAL_CHECK_STATUS(s, classifier::Parameter::check());
+    DAAL_CHECK_EX(nClasses >= 2, ErrorIncorrectParameter, ParameterName, nClassesStr());
+    DAAL_CHECK_EX(weakLearnerTraining, ErrorNullAuxiliaryAlgorithm, ParameterName, weakLearnerTrainingStr());
+    DAAL_CHECK_EX(nClasses == weakLearnerTraining->parameter().nClasses, ErrorInconsistentNumberOfClasses, ParameterName, weakLearnerTrainingStr());
+    DAAL_CHECK_EX(weakLearnerPrediction, ErrorNullAuxiliaryAlgorithm, ParameterName, weakLearnerPredictionStr());
+    DAAL_CHECK_EX(nClasses == weakLearnerPrediction->parameter().nClasses, ErrorInconsistentNumberOfClasses, ParameterName, weakLearnerPredictionStr());
     DAAL_CHECK_EX(accuracyThreshold >= 0 && accuracyThreshold < 1, ErrorIncorrectParameter, ParameterName, accuracyThresholdStr());
     DAAL_CHECK_EX(maxIterations > 0, ErrorIncorrectParameter, ParameterName, maxIterationsStr());
+    DAAL_CHECK_EX(learningRate > 0, ErrorIncorrectParameter, ParameterName, learningRateStr());
     return s;
 }
 
@@ -73,8 +87,32 @@ NumericTablePtr Model::getAlpha() const
     return _alpha;
 }
 
+size_t Model::getNumberOfWeakLearners() const
+{
+    return _models->size();
+}
 
-} // namespace interface1
+classifier::ModelPtr Model::getWeakLearnerModel(size_t idx) const
+{
+    if(idx < _models->size())
+    {
+        return staticPointerCast<classifier::Model, SerializationIface>((*_models)[idx]);
+    }
+    return classifier::ModelPtr();
+}
+
+void Model::addWeakLearnerModel(classifier::ModelPtr model)
+{
+    (*_models) << model;
+}
+
+void Model::clearWeakLearnerModels()
+{
+    _models->clear();
+}
+
+
+} // namespace interface2
 } // namespace adaboost
 } // namespace algorithms
 } // namespace daal

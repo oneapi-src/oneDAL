@@ -35,14 +35,30 @@ namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_MULTI_CLASS_CLASSIFIER_MODEL_ID);
 
-Model::Model(size_t nFeatures, const ParameterBase *par) :
+Model::Model(size_t nFeatures, const interface1::ParameterBase *par) :
     _modelsArray(NULL),
     _models(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2)),
     _nFeatures(nFeatures)
 {
 }
 
-Model::Model(size_t nFeatures, const ParameterBase *par, services::Status &st) :
+Model::Model(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase *par) :
+    _modelsArray(NULL),
+    _models(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2)),
+    _nFeatures(nFeatures)
+{
+}
+
+Model::Model(size_t nFeatures, const interface1::ParameterBase *par, services::Status &st) :
+    _modelsArray(NULL),
+    _nFeatures(nFeatures)
+{
+    _models.reset(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2));
+    if (!_models)
+        st.add(services::ErrorMemoryAllocationFailed);
+}
+
+Model::Model(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase *par, services::Status &st) :
     _modelsArray(NULL),
     _nFeatures(nFeatures)
 {
@@ -55,7 +71,12 @@ Model::Model() : _modelsArray(NULL), _models(new data_management::DataCollection
 {
 }
 
-ModelPtr Model::create(size_t nFeatures, const ParameterBase *par, services::Status* stat)
+ModelPtr Model::create(size_t nFeatures, const interface1::ParameterBase *par, services::Status* stat)
+{
+    DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, par);
+}
+
+ModelPtr Model::create(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase *par, services::Status* stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, par);
 }
@@ -92,6 +113,17 @@ classifier::ModelPtr Model::getTwoClassClassifierModel(size_t idx) const
     return classifier::ModelPtr();
 }
 
+services::Status Parameter::check() const
+{
+    services::Status s;
+    DAAL_CHECK_STATUS(s, interface1::ParameterBase::check());
+    DAAL_CHECK_EX((accuracyThreshold > 0) && (accuracyThreshold < 1), services::ErrorIncorrectParameter, services::ParameterName, accuracyThresholdStr());
+    DAAL_CHECK_EX(maxIterations, services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr());
+    return s;
+}
+}
+namespace interface2
+{
 services::Status Parameter::check() const
 {
     services::Status s;

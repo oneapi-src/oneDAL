@@ -40,8 +40,6 @@ namespace prediction
 namespace interface1
 {
 
-__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LOGISTIC_REGRESSION_PREDICTION_RESULT_ID);
-
 /**
  * Returns an input object for making logistic regression model-based prediction
  * \param[in] id    Identifier of the input object
@@ -93,47 +91,9 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     const daal::algorithms::logistic_regression::internal::ModelImpl* pModel =
         static_cast<const daal::algorithms::logistic_regression::internal::ModelImpl*>(m.get());
     DAAL_ASSERT(pModel);
-    const daal::algorithms::logistic_regression::prediction::Parameter* pPrm = static_cast<const daal::algorithms::logistic_regression::prediction::Parameter*>(parameter);
+    const daal::algorithms::logistic_regression::prediction::interface1::Parameter* pPrm = static_cast<const daal::algorithms::logistic_regression::prediction::interface1::Parameter*>(parameter);
     const size_t nBetaPerClass = get(classifier::prediction::data)->getNumberOfColumns() + 1;
     return checkNumericTable(pModel->getBeta().get(), betaStr(), 0, 0, nBetaPerClass, pPrm->nClasses == 2 ? 1 : pPrm->nClasses);
-}
-
-Result::Result() : algorithms::classifier::prediction::Result(lastResultNumericTableId + 1) {}
-
-NumericTablePtr Result::get(classifier::prediction::ResultId id) const
-{
-    return classifier::prediction::Result::get(id);
-}
-
-void Result::set(classifier::prediction::ResultId id, const NumericTablePtr &value)
-{
-    classifier::prediction::Result::set(id, value);
-}
-
-NumericTablePtr Result::get(ResultNumericTableId id) const
-{
-    return NumericTable::cast(Argument::get(id));
-}
-
-void Result::set(ResultNumericTableId id, const NumericTablePtr &value)
-{
-    Argument::set(id, value);
-}
-
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
-{
-    const size_t nRows = (static_cast<const Input *>(input))->getNumberOfRows();
-    const Parameter* prm = static_cast<const Parameter*>(par);
-    Status s;
-    const daal::algorithms::logistic_regression::prediction::Parameter* pPrm = static_cast<const daal::algorithms::logistic_regression::prediction::Parameter*>(par);
-    const size_t nProb = (pPrm->nClasses == 2 ? 1 : pPrm->nClasses);
-    if(prm->resultsToCompute & computeClassesLabels)
-        s |= data_management::checkNumericTable(get(classifier::prediction::prediction).get(), probabilitiesStr(), packed_mask, 0, 1, nRows);
-    if(prm->resultsToCompute & computeClassesProbabilities)
-        s |= data_management::checkNumericTable(get(probabilities).get(), probabilitiesStr(), packed_mask, 0, nProb, nRows);
-    if(prm->resultsToCompute & computeClassesLogProbabilities)
-        s |= data_management::checkNumericTable(get(logProbabilities).get(), logProbabilitiesStr(), packed_mask, 0, nProb, nRows);
-    return s;
 }
 
 } // namespace interface1

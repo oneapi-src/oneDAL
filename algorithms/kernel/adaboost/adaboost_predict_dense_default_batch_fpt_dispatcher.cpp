@@ -30,5 +30,41 @@ namespace daal
 namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(adaboost::prediction::BatchContainer, batch, DAAL_FPTYPE, adaboost::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(adaboost::prediction::BatchContainer, batch, DAAL_FPTYPE, adaboost::prediction::sammeR)
+
+namespace adaboost
+{
+namespace prediction
+{
+namespace interface2
+{
+
+template<typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(size_t nClasses)
+{
+    _par = new ParameterType(nClasses);
+    initialize();
 }
+
+template<typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(const Batch &other) :
+    classifier::prediction::Batch(other),
+    input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
+
+#define INSTANTIATE_CONSTRUCTORS(algorithmFPType, method) \
+    template Batch<algorithmFPType, method>::Batch(size_t); \
+    template Batch<algorithmFPType, method>::Batch(const Batch &);
+
+INSTANTIATE_CONSTRUCTORS(DAAL_FPTYPE, adaboost::prediction::defaultDense);
+INSTANTIATE_CONSTRUCTORS(DAAL_FPTYPE, adaboost::prediction::sammeR);
+
+} // namespace interface2
+} // namespace prediction
+} // namespace adaboost
+
+} // namespace algorithms
 } // namespace daal

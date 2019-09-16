@@ -59,6 +59,7 @@ using namespace daal;
 using namespace daal::algorithms::svm::training::internal;
 
 #include "svm_train_boser_avx512_impl.i"
+#include "inner/svm_train_boser_avx512_impl_v1.i"
 
 #endif // __CPUID__(DAAL_CPU) == __avx512__
 #endif // defined (_M_AMD64) || defined (__amd64) || defined (__x86_64) || defined (__x86_64__)
@@ -76,12 +77,11 @@ namespace training
 namespace internal
 {
 
-template <typename algorithmFPType, CpuType cpu>
-services::Status SVMTrainImpl<boser, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
-    NumericTable& yTable, daal::algorithms::Model *r, const daal::algorithms::Parameter *par)
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+services::Status SVMTrainImpl<boser, algorithmFPType, ParameterType, cpu>::compute(const NumericTablePtr& xTable,
+    NumericTable& yTable, daal::algorithms::Model *r, const ParameterType *svmPar)
 {
-    const Parameter *svmPar = static_cast<const Parameter *>(par);
-    SVMTrainTask<algorithmFPType, cpu> task(xTable->getNumberOfRows());
+    SVMTrainTask<algorithmFPType, ParameterType, cpu> task(xTable->getNumberOfRows());
     Status s = task.setup(*svmPar, xTable, yTable);
     if(!s)
         return s;
@@ -89,8 +89,8 @@ services::Status SVMTrainImpl<boser, algorithmFPType, cpu>::compute(const Numeri
     return s.ok() ? task.setResultsToModel(*xTable, *static_cast<Model *>(r), svmPar->C) : s;
 }
 
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::compute(const Parameter& svmPar)
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const ParameterType& svmPar)
 {
     const algorithmFPType C(svmPar.C);
     const algorithmFPType eps(svmPar.accuracyThreshold);
@@ -159,8 +159,8 @@ Status SVMTrainTask<algorithmFPType, cpu>::compute(const Parameter& svmPar)
     return s;
 }
 
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::setResultsToModel(const NumericTable& xTable, Model& model, algorithmFPType C) const
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setResultsToModel(const NumericTable& xTable, Model& model, algorithmFPType C) const
 {
     const algorithmFPType* alpha = _alpha.get();
     const algorithmFPType zero(0.0);
@@ -190,12 +190,12 @@ Status SVMTrainTask<algorithmFPType, cpu>::setResultsToModel(const NumericTable&
 
 /**
  * \brief Write classification coefficients into resulting model
- *
+ *template <typename algorithmFPType, typename ParameterType, CpuType cpu>
  * \param[in]  nSV          Number of support vectors
  * \param[out] model        Resulting model
  */
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::setSVCoefficients(size_t nSV, Model& model) const
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSVCoefficients(size_t nSV, Model& model) const
 {
     const algorithmFPType zero(0.0);
     NumericTablePtr svCoeffTable = model.getClassificationCoefficients();
@@ -225,8 +225,8 @@ Status SVMTrainTask<algorithmFPType, cpu>::setSVCoefficients(size_t nSV, Model& 
  * \param[in]  nSV          Number of support vectors
  * \param[out] model        Resulting model
  */
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::setSVIndices(size_t nSV, Model& model) const
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSVIndices(size_t nSV, Model& model) const
 {
     NumericTablePtr svIndicesTable = model.getSupportIndices();
     Status s;
@@ -254,8 +254,8 @@ Status SVMTrainTask<algorithmFPType, cpu>::setSVIndices(size_t nSV, Model& model
  * \param[in]  xTable       Input data set in dense layout
  * \param[in]  nSV          Number of support vectors
  */
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::setSV_Dense(Model& model, const NumericTable& xTable, size_t nSV) const
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_Dense(Model& model, const NumericTable& xTable, size_t nSV) const
 {
     const size_t nFeatures = xTable.getNumberOfColumns();
     /* Allocate memory for support vectors and coefficients */
@@ -295,8 +295,8 @@ Status SVMTrainTask<algorithmFPType, cpu>::setSV_Dense(Model& model, const Numer
  * \param[in]  xTable       Input data set in CSR layout
  * \param[in]  nSV          Number of support vectors
  */
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::setSV_CSR(Model& model, const NumericTable& xTable, size_t nSV) const
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_CSR(Model& model, const NumericTable& xTable, size_t nSV) const
 {
     TArray<size_t, cpu> aSvRowOffsets(nSV + 1);
     DAAL_CHECK_MALLOC(aSvRowOffsets.get());
@@ -369,8 +369,8 @@ Status SVMTrainTask<algorithmFPType, cpu>::setSV_CSR(Model& model, const Numeric
  * \param[in]  C        Upper bound in constraints of the quadratic optimization problem
  * \return Bias for the SVM model
  */
-template <typename algorithmFPType, CpuType cpu>
-algorithmFPType SVMTrainTask<algorithmFPType, cpu>::calculateBias(algorithmFPType C) const
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::calculateBias(algorithmFPType C) const
 {
     algorithmFPType bias;
     const algorithmFPType zero(0.0);
@@ -420,8 +420,8 @@ algorithmFPType SVMTrainTask<algorithmFPType, cpu>::calculateBias(algorithmFPTyp
  *
  * \return The function returns m(alpha) = max(-y[i]*grad[i]): i belongs to I_UP (alpha)
  */
-template <typename algorithmFPType, CpuType cpu>
-algorithmFPType SVMTrainTask<algorithmFPType, cpu>::WSSi(size_t nActiveVectors, int& Bi) const
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSi(size_t nActiveVectors, int& Bi) const
 {
     Bi = -1;
     algorithmFPType GMax = -(MaxVal<algorithmFPType>::get());  // some big negative number
@@ -443,8 +443,8 @@ algorithmFPType SVMTrainTask<algorithmFPType, cpu>::WSSi(size_t nActiveVectors, 
     return GMax;
 }
 
-template <typename algorithmFPType, CpuType cpu>
-void SVMTrainTask<algorithmFPType, cpu>::WSSjLocalBaseline(const size_t jStart, const size_t jEnd,
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocalBaseline(const size_t jStart, const size_t jEnd,
         const algorithmFPType *KiBlock, const algorithmFPType GMax, const algorithmFPType Kii, const algorithmFPType tau,
         int &Bj, algorithmFPType &GMin, algorithmFPType &GMin2, algorithmFPType &delta) const
 {
@@ -479,8 +479,8 @@ void SVMTrainTask<algorithmFPType, cpu>::WSSjLocalBaseline(const size_t jStart, 
     }
 }
 
-template <typename algorithmFPType, CpuType cpu>
-void SVMTrainTask<algorithmFPType, cpu>::WSSjLocal(const size_t jStart, const size_t jEnd,
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocal(const size_t jStart, const size_t jEnd,
         const algorithmFPType *KiBlock, const algorithmFPType GMax, const algorithmFPType Kii, const algorithmFPType tau,
         int &Bj, algorithmFPType &GMin, algorithmFPType &GMin2, algorithmFPType &delta) const
 {
@@ -504,8 +504,8 @@ void SVMTrainTask<algorithmFPType, cpu>::WSSjLocal(const size_t jStart, const si
  * \return The function returns M(alpha) where
  *              M(alpha) = min(-y[i]*grad[i]): i belongs to I_low(alpha)
  */
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::WSSj(size_t nActiveVectors,
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVectors,
     algorithmFPType tau, int Bi, algorithmFPType GMax, int& Bj, algorithmFPType& delta, algorithmFPType& res) const
 {
     Bj = -1;
@@ -550,8 +550,8 @@ Status SVMTrainTask<algorithmFPType, cpu>::WSSj(size_t nActiveVectors,
     return s;
 }
 
-template <typename algorithmFPType, CpuType cpu>
-bool SVMTrainTask<algorithmFPType, cpu>::findMaximumViolatingPair(
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+bool SVMTrainTask<algorithmFPType, ParameterType, cpu>::findMaximumViolatingPair(
     size_t nActiveVectors, algorithmFPType tau, int& Bi, int& Bj,
     algorithmFPType& delta, algorithmFPType& ma, algorithmFPType& Ma,
     algorithmFPType& curEps, Status& s) const
@@ -567,8 +567,8 @@ bool SVMTrainTask<algorithmFPType, cpu>::findMaximumViolatingPair(
     return (Bj != -1);
 }
 
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::update(
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(
             size_t nActiveVectors, algorithmFPType C, int Bi, int Bj, algorithmFPType delta)
 {
     /* Update alpha */
@@ -618,8 +618,8 @@ Status SVMTrainTask<algorithmFPType, cpu>::update(
  * \param[out] newDeltai Resulting difference between old and new value of the Bi-th classification coefficient
  * \param[out] newDeltaj Resulting difference between old and new value of the Bj-th classification coefficient
  */
-template <typename algorithmFPType, CpuType cpu>
-inline void SVMTrainTask<algorithmFPType, cpu>::updateAlpha(
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateAlpha(
             algorithmFPType C, int Bi, int Bj, algorithmFPType delta,
             algorithmFPType& newDeltai, algorithmFPType& newDeltaj)
 {
@@ -657,8 +657,8 @@ inline void SVMTrainTask<algorithmFPType, cpu>::updateAlpha(
  *                           in sequential minimum optimization at the current iteration
  * \return Number of observations that remain active (not shrunk) after shrinking
  */
-template <typename algorithmFPType, CpuType cpu>
-size_t SVMTrainTask<algorithmFPType, cpu>::doShrink(size_t nActiveVectors)
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::doShrink(size_t nActiveVectors)
 {
     size_t i = 0;
     size_t j = nActiveVectors - 1;
@@ -691,8 +691,8 @@ size_t SVMTrainTask<algorithmFPType, cpu>::doShrink(size_t nActiveVectors)
  * \param[in] Ma             Value of M(alpha) = min(-y[i]*grad[i]): i belongs to I_LOW (alpha)
  * \return Number of observations to be shrunk
  */
-template <typename algorithmFPType, CpuType cpu>
-size_t SVMTrainTask<algorithmFPType, cpu>::updateShrinkingFlags(
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+size_t SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateShrinkingFlags(
             size_t nActiveVectors, algorithmFPType C, algorithmFPType ma, algorithmFPType Ma)
 {
     const algorithmFPType* y = _y.get();
@@ -725,8 +725,8 @@ size_t SVMTrainTask<algorithmFPType, cpu>::updateShrinkingFlags(
  * \param[in] nActiveVectors Number of observations in a training data set that are used
  *                           in sequential minimum optimization at the current iteration
  */
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::reconstructGradient(size_t& nActiveVectors)
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructGradient(size_t& nActiveVectors)
 {
     size_t nBlocks = _nVectors / kernelFunctionBlockSize;
     if (nBlocks * kernelFunctionBlockSize < _nVectors) { nBlocks++; }
@@ -764,8 +764,8 @@ Status SVMTrainTask<algorithmFPType, cpu>::reconstructGradient(size_t& nActiveVe
  * \param[in] xTable        Pointer to numeric table that contains input data set
  * \param[in] yTable        Pointer to numeric table that contains class labels
  */
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::setup(const Parameter& svmPar, const NumericTablePtr& xTable, NumericTable& yTable)
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterType& svmPar, const NumericTablePtr& xTable, NumericTable& yTable)
 {
     _alpha.reset(_nVectors);
     daal::services::internal::service_memset<algorithmFPType, cpu>(_alpha.get(), algorithmFPType(0.0), _nVectors);
@@ -798,8 +798,8 @@ Status SVMTrainTask<algorithmFPType, cpu>::setup(const Parameter& svmPar, const 
     return Status();
 }
 
-template <typename algorithmFPType, CpuType cpu>
-SVMTrainTask<algorithmFPType, cpu>::~SVMTrainTask()
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+SVMTrainTask<algorithmFPType, ParameterType, cpu>::~SVMTrainTask()
 {
     delete _cache;
 }
@@ -809,8 +809,8 @@ SVMTrainTask<algorithmFPType, cpu>::~SVMTrainTask()
  *
  * \param[in] C     Upper bound in constraints of the quadratic optimization problem
  */
-template <typename algorithmFPType, CpuType cpu>
-Status SVMTrainTask<algorithmFPType, cpu>::init(algorithmFPType C)
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::init(algorithmFPType C)
 {
     const algorithmFPType negOne(-1.0);
     algorithmFPType* grad = _grad.get();
@@ -837,8 +837,8 @@ Status SVMTrainTask<algorithmFPType, cpu>::init(algorithmFPType C)
  * \param[in] C     Upper bound in constraints of the quadratic optimization problem
  * \param[in] index Index of the feature vector
  */
-template <typename algorithmFPType, CpuType cpu>
-inline void SVMTrainTask<algorithmFPType, cpu>::updateI(algorithmFPType C, size_t index)
+template <typename algorithmFPType, typename ParameterType, CpuType cpu>
+inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateI(algorithmFPType C, size_t index)
 {
     const algorithmFPType zero(0.0);
     const algorithmFPType one(1.0);

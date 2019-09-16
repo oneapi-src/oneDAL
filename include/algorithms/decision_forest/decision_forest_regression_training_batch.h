@@ -136,6 +136,17 @@ public:
     ResultPtr getResult() { return ResultType::cast(_result); }
 
     /**
+     * Resets the results of Decision forest model training algorithm
+     */
+    services::Status resetResult() DAAL_C11_OVERRIDE
+    {
+        _result.reset(new ResultType());
+        DAAL_CHECK(_result, services::ErrorNullResult);
+        _res = NULL;
+        return services::Status();
+    }
+
+    /**
      * Returns a pointer to a newly allocated decision forest training algorithm
      * with a copy of the input objects and parameters for this decision forest training algorithm
      * in the batch processing mode

@@ -62,6 +62,50 @@ namespace interface1
  * \snippet multi_class_classifier/multi_class_classifier_model.h ParameterBase source code
  */
 /* [ParameterBase source code] */
+struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::interface1::Parameter
+{
+    ParameterBase(size_t nClasses): daal::algorithms::classifier::interface1::Parameter(nClasses), training(), prediction() {}
+    services::SharedPtr<algorithms::classifier::training::interface1::Batch> training;          /*!< Two-class classifier training stage */
+    services::SharedPtr<algorithms::classifier::prediction::interface1::Batch> prediction;      /*!< Two-class classifier prediction stage */
+};
+/* [ParameterBase source code] */
+
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PARAMETER"></a>
+ * \brief Optional multi-class classifier algorithm  parameters that are used with the MultiClassClassifierWu prediction method
+ *
+ * \snippet multi_class_classifier/multi_class_classifier_model.h Parameter source code
+ */
+/* [Parameter source code] */
+struct DAAL_EXPORT Parameter : public ParameterBase
+{
+    Parameter(size_t nClasses, size_t maxIterations = 100, double accuracyThreshold = 1.0e-12) :
+        ParameterBase(nClasses), maxIterations(maxIterations), accuracyThreshold(accuracyThreshold) {}
+
+    size_t maxIterations;     /*!< Maximum number of iterations */
+    double accuracyThreshold; /*!< Convergence threshold */
+
+    services::Status check() const DAAL_C11_OVERRIDE;
+};
+/* [Parameter source code] */
+}
+
+/**
+ * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+/**
+ * @ingroup multi_class_classifier
+ * @{
+ */
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PARAMETERBASE"></a>
+ * \brief Parameters of the multi-class classifier algorithm
+ *
+ * \snippet multi_class_classifier/multi_class_classifier_model.h ParameterBase source code
+ */
+/* [ParameterBase source code] */
 struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::Parameter
 {
     ParameterBase(size_t nClasses): daal::algorithms::classifier::Parameter(nClasses), training(), prediction() {}
@@ -88,6 +132,12 @@ struct DAAL_EXPORT Parameter : public ParameterBase
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
+}
+using interface2::ParameterBase;
+using interface2::Parameter;
+
+namespace interface1
+{
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTI_CLASS_CLASSIFIER__MODEL"></a>
@@ -104,7 +154,15 @@ public:
      * \param[in] par       Parameters of the multi-class classifier algorithm
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model(size_t nFeatures, const ParameterBase *par);
+    Model(size_t nFeatures, const interface1::ParameterBase *par);
+
+    /**
+     * Constructs multi-class classifier model
+     * \param[in] nFeatures Number of features in the dataset
+     * \param[in] par       Parameters of the multi-class classifier algorithm
+     * \DAAL_DEPRECATED_USE{ Model::create }
+     */
+    Model(size_t nFeatures, const interface2::ParameterBase *par);
 
     /**
      * Empty constructor for deserialization
@@ -119,7 +177,16 @@ public:
      * \param[out] stat     Status of the model construction
      * \return Multi-class classifier model
      */
-    static services::SharedPtr<Model> create(size_t nFeatures, const ParameterBase *par, services::Status* stat = NULL);
+    static services::SharedPtr<Model> create(size_t nFeatures, const interface1::ParameterBase *par, services::Status* stat = NULL);
+
+    /**
+     * Constructs multi-class classifier model
+     * \param[in] nFeatures Number of features in the dataset
+     * \param[in] par       Parameters of the multi-class classifier algorithm
+     * \param[out] stat     Status of the model construction
+     * \return Multi-class classifier model
+     */
+    static services::SharedPtr<Model> create(size_t nFeatures, const interface2::ParameterBase *par, services::Status* stat = NULL);
 
     virtual ~Model();
 
@@ -173,7 +240,8 @@ protected:
     data_management::DataCollectionPtr _models;              /* Collection of two-class classifiers associated with the model */
     classifier::ModelPtr *_modelsArray;
 
-    Model(size_t nFeatures, const ParameterBase *par, services::Status &st);
+    Model(size_t nFeatures, const interface1::ParameterBase *par, services::Status &st);
+    Model(size_t nFeatures, const interface2::ParameterBase *par, services::Status &st);
 
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
@@ -189,8 +257,6 @@ protected:
 };
 typedef services::SharedPtr<Model> ModelPtr;
 } // namespace interface1
-using interface1::ParameterBase;
-using interface1::Parameter;
 using interface1::Model;
 using interface1::ModelPtr;
 

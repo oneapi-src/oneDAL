@@ -135,90 +135,71 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute(HostAp
     daal::algorithms::engines::internal::BatchBaseImpl* engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&engine);
 
     services::internal::HostAppHelper host(pHost, 10);
-    if(useWolfeConditions)
+    for(; t < nLIterations;)
     {
-        daal_memcpy_s(argumentLCur, task.argumentSize * sizeof(algorithmFPType), argument, task.argumentSize * sizeof(algorithmFPType));
-        for(; t < nLIterations; ++epoch, ++curIteration)
+        for(; epoch < (t + 1) * L; ++epoch, ++curIteration)
         {
-            daal_memcpy_s(argumentLPrev, task.argumentSize * sizeof(algorithmFPType), argumentLCur, task.argumentSize * sizeof(algorithmFPType));
-            bool bContinue = true;
+            for (size_t j = 0; j < task.argumentSize; j++)
+            {
+                argumentLCur[j] += argument[j];
+            }
 
+            bool bContinue = true;
             DAAL_CHECK_STATUS(s, task.updateArgument(curIteration, t, epoch, m, correctionIndex, nTerms, batchSize,
                 accuracyThreshold, gradientFunction, ntGradient, ntValue, argument, bContinue, engineImpl, useWolfeConditions));
-
-            daal_memcpy_s(argumentLCur, task.argumentSize * sizeof(algorithmFPType), argument, task.argumentSize * sizeof(algorithmFPType));
-
             if(!bContinue)
             {
                 s |= task.setToResult(correctionIndicesResult, nIterationsNT, optionalArgumentResult, curIteration, epoch, correctionIndex);
                 return s;
             }
+        }
 
+        for (size_t j = 0; j < task.argumentSize; j++)
+        {
+            argumentLCur[j] *= invL;
+        }
 
-            t++;
+        t++;
+        if (t >= 2)
+        {
             /* Compute new correction pair */
             correctionIndex = mod(correctionIndex + 1, m);
+
+            if(!useWolfeConditions)
+            {
+                DAAL_CHECK_STATUS(s, task.updateCorrectionPairBatchIndices(iPredefinedIndicesCorrectionRow, nTerms, correctionPairBatchSize, engineImpl));
+            }
+            iPredefinedIndicesCorrectionRow++;
+            if(!useWolfeConditions)
+            {
+                s = hessianFunction->computeNoThrow();
+            }
             if(!s || host.isCancelled(s, 1))
             {
                 s |= task.setToResult(correctionIndicesResult, nIterationsNT, optionalArgumentResult, curIteration, epoch, correctionIndex);
                 return s;
             }
-            DAAL_CHECK_STATUS(s, task.computeCorrectionPair(correctionIndex, ntHessian.get(), useWolfeConditions));
-        }
-    }
-    else
-    {
-        for(; t < nLIterations;)
-        {
-            for(; epoch < (t + 1) * L; ++epoch, ++curIteration)
+            if (task.correctionPairBatchIndicesStatus == user) { task.mtCorrectionPairBatchIndices.release(); }
+
+            if(!useWolfeConditions)
             {
-                for (size_t j = 0; j < task.argumentSize; j++)
-                {
-                    argumentLCur[j] += argument[j];
-                }
-
-                bool bContinue = true;
-                DAAL_CHECK_STATUS(s, task.updateArgument(curIteration, t, epoch, m, correctionIndex, nTerms, batchSize,
-                    accuracyThreshold, gradientFunction, ntGradient, ntValue, argument, bContinue, engineImpl, useWolfeConditions));
-                if(!bContinue)
-                {
-                    s |= task.setToResult(correctionIndicesResult, nIterationsNT, optionalArgumentResult, curIteration, epoch, correctionIndex);
-                    return s;
-                }
-            }
-
-            for (size_t j = 0; j < task.argumentSize; j++)
-            {
-                argumentLCur[j] *= invL;
-            }
-
-            t++;
-            if (t >= 2)
-            {
-                /* Compute new correction pair */
-                correctionIndex = mod(correctionIndex + 1, m);
-
-                DAAL_CHECK_STATUS(s, task.updateCorrectionPairBatchIndices(iPredefinedIndicesCorrectionRow, nTerms, correctionPairBatchSize, engineImpl));
-                iPredefinedIndicesCorrectionRow++;
-                s = hessianFunction->computeNoThrow();
-
-                if(!s || host.isCancelled(s, 1))
-                {
-                    s |= task.setToResult(correctionIndicesResult, nIterationsNT, optionalArgumentResult, curIteration, epoch, correctionIndex);
-                    return s;
-                }
-                if (task.correctionPairBatchIndicesStatus == user) { task.mtCorrectionPairBatchIndices.release(); }
-
                 ntHessian = hessianFunction->getResult()->get(objective_function::hessianIdx);
                 DAAL_CHECK_STATUS(s, task.computeCorrectionPair(correctionIndex, ntHessian.get(), useWolfeConditions));
             }
-            for (size_t j = 0; j < task.argumentSize; j++)
+            else
             {
-                argumentLPrev[j] = argumentLCur[j];
-                argumentLCur[j] = 0.0;
+                algorithmFPType *gradientPrev = (algorithmFPType *)task._gradientPrevPtr.get();
+                algorithmFPType *gradientCurr = (algorithmFPType *)task._gradientCurrPtr.get();
+                DAAL_CHECK_STATUS(s, task.computeCorrectionPair(correctionIndex, ntHessian.get(), useWolfeConditions));
             }
         }
+        for (size_t j = 0; j < task.argumentSize; j++)
+        {
+            argumentLPrev[j] = argumentLCur[j];
+            argumentLCur[j] = 0.0;
+        }
     }
+
     for(; epoch < maxEpoch; ++epoch, ++curIteration)
     {
         bool bContinue = true;
@@ -416,7 +397,7 @@ algorithmFPType dotProduct(size_t n, const algorithmFPType *x, const algorithmFP
  * Line-search
  */
 template<typename algorithmFPType, CpuType cpu>
-algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch(algorithmFPType* x, NumericTablePtr &ntValue, algorithmFPType* previousGrad, NumericTablePtr &ntGradient, algorithmFPType* dx, sum_of_functions::BatchPtr &gradientFunction, bool& continueSearch)
+algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch(algorithmFPType* x, NumericTablePtr &ntValue, NumericTablePtr &ntGradient, algorithmFPType* dx, sum_of_functions::BatchPtr &gradientFunction, bool& continueSearch)
 {
     continueSearch = false;
     algorithmFPType stepLength = 1.0;
@@ -445,7 +426,7 @@ algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch(algorithmFPType* x, 
     ReadRows<algorithmFPType, cpu> fv(*ntValue, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(fv);
 
-    algorithmFPType term1 = dotProduct<algorithmFPType,cpu>(n, previousGrad, dn);
+    algorithmFPType term1 = dotProduct<algorithmFPType,cpu>(n, fg.get(), dn);
     algorithmFPType oldFv = fv.get()[0];
 
     NumericTablePtr ntNewGradient;
@@ -606,49 +587,51 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument(size_t iIteration,
     bContinue = true;
 
     Status s;
+
+    algorithmFPType *gradientPrev = (algorithmFPType *)_gradientPrevPtr.get();
+    algorithmFPType *gradientCurr = (algorithmFPType *)_gradientCurrPtr.get();
+    if(!useWolfeConditions)
+    {
+        DAAL_CHECK_STATUS(s, updateBatchIndices(iIteration, nTerms, batchSize, batchIndices, batchIndicesStatus,
+                       mtBatchIndices, ntBatchIndices, engine));
+    }
+    else
+    {
+        daal_memcpy_s(gradientPrev, this->argumentSize * sizeof(algorithmFPType), gradientCurr, this->argumentSize * sizeof(algorithmFPType));
+    }
+    DAAL_CHECK_STATUS(s, gradientFunction->compute());
+    if (batchIndicesStatus == user) { mtBatchIndices.release(); }
+
+    ntGradient = gradientFunction->getResult()->get(objective_function::gradientIdx);
     if(useWolfeConditions)
     {
-        ReadRows<algorithmFPType, cpu> fg;
+        ntValue = gradientFunction->getResult()->get(objective_function::valueIdx);
+    }
+    mtGradient.set(*ntGradient, 0, this->argumentSize);
+    DAAL_CHECK_BLOCK_STATUS(mtGradient);
+    algorithmFPType *gradient = mtGradient.get();
+    if(useWolfeConditions)
+    {
+        daal_memcpy_s(gradientCurr, this->argumentSize * sizeof(algorithmFPType), gradient, this->argumentSize * sizeof(algorithmFPType));
+    }
+    /* Check accuracy */
+    if(dotProduct<algorithmFPType, cpu>(this->argumentSize, gradient, gradient) <
+        accuracyThreshold * daal::internal::Math<algorithmFPType,cpu>::sMax(one, dotProduct<algorithmFPType, cpu>(this->argumentSize, argument, argument)))
+    {
+        mtGradient.release();
+        bContinue = false;
+        return s;
+    }
 
-        algorithmFPType *gradientPrev = (algorithmFPType *)_gradientPrevPtr.get();
-        algorithmFPType *gradientCurr = (algorithmFPType *)_gradientCurrPtr.get();
-        algorithmFPType* gradient;
-        if(t == 0)
-        {
-            daal_memcpy_s(gradientPrev, this->argumentSize * sizeof(algorithmFPType), gradientCurr, this->argumentSize * sizeof(algorithmFPType));
-
-            DAAL_CHECK_STATUS(s, gradientFunction->compute());
-
-            ntGradient = gradientFunction->getResult()->get(objective_function::gradientIdx);
-            ntValue = gradientFunction->getResult()->get(objective_function::valueIdx);
-            fg.set(*ntGradient, 0, this->argumentSize);
-            DAAL_CHECK_BLOCK_STATUS(fg);
-            gradient = const_cast<algorithmFPType*>(fg.get());
-            if(useWolfeConditions)
-            {
-                daal_memcpy_s(gradientCurr, this->argumentSize * sizeof(algorithmFPType), gradient, this->argumentSize * sizeof(algorithmFPType));
-            }
-            /* Check accuracy */
-            if(dotProduct<algorithmFPType, cpu>(this->argumentSize, gradient, gradient) <
-                accuracyThreshold * daal::internal::Math<algorithmFPType,cpu>::sMax(one, dotProduct<algorithmFPType, cpu>(this->argumentSize, argument, argument)))
-            {
-                mtGradient.release();
-                bContinue = false;
-                return s;
-            }
-        }
-        else
-        {
-            fg.set(*ntGradient, 0, this->argumentSize);
-            DAAL_CHECK_BLOCK_STATUS(fg);
-            gradient = const_cast<algorithmFPType*>(fg.get());
-        }
-        /* Get step length on this iteration */
-        algorithmFPType stepLengthVal = 0;
-        if (t >= 1)
-        {
-            twoLoopRecursion(m, correctionIndex, gradient, useWolfeConditions);
-        }
+    /* Get step length on this iteration */
+    algorithmFPType stepLengthVal = 0;
+    if (t >= 2)
+    {
+        /* Compute H * gradient */
+        twoLoopRecursion(m, correctionIndex, gradient);
+    }
+    if(useWolfeConditions)
+    {
         for (size_t j = 0; j < this->argumentSize; j++)
         {
             gradient[j] *= -1;
@@ -657,77 +640,22 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument(size_t iIteration,
         if(this->continueLineSearch)
         {
             bool continueSearch = true;
-            alpha = lineSearch(argument,ntValue, gradientCurr, ntGradient, gradient, gradientFunction, continueSearch);
+            alpha = lineSearch(argument,ntValue, ntGradient, gradient, gradientFunction, continueSearch);
             this->continueLineSearch = continueSearch;
         }
-        else
-        {
-            gradientFunction->sumOfFunctionsParameter->resultsToCompute = objective_function::gradient;
-        }
         stepLengthVal = -alpha;
-
-        /* Update argument */
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < this->argumentSize; j++)
-        {
-            argument[j] -= stepLengthVal * gradient[j];
-        }
-
-        daal_memcpy_s(gradientPrev, this->argumentSize * sizeof(algorithmFPType), gradientCurr, this->argumentSize * sizeof(algorithmFPType));
-        DAAL_CHECK_STATUS(s, gradientFunction->compute());
-
-        ntGradient = gradientFunction->getResult()->get(objective_function::gradientIdx);
-        ntValue = gradientFunction->getResult()->get(objective_function::valueIdx);
-
-        fg.set(*ntGradient, 0, this->argumentSize);
-        DAAL_CHECK_BLOCK_STATUS(fg);
-        gradient = const_cast<algorithmFPType*>(fg.get());
-        daal_memcpy_s(gradientCurr, this->argumentSize * sizeof(algorithmFPType), gradient, this->argumentSize * sizeof(algorithmFPType));
-        /* Check accuracy */
-        if(dotProduct<algorithmFPType, cpu>(this->argumentSize, gradient, gradient) <
-            accuracyThreshold * daal::internal::Math<algorithmFPType,cpu>::sMax(one, dotProduct<algorithmFPType, cpu>(this->argumentSize, argument, argument)))
-        {
-            mtGradient.release();
-            bContinue = false;
-            return s;
-        }
     }
     else
     {
-        DAAL_CHECK_STATUS(s, updateBatchIndices(iIteration, nTerms, batchSize, batchIndices, batchIndicesStatus,
-                           mtBatchIndices, ntBatchIndices, engine));
-        DAAL_CHECK_STATUS(s, gradientFunction->compute());
-        if (batchIndicesStatus == user) { mtBatchIndices.release(); }
-
-        ntGradient = gradientFunction->getResult()->get(objective_function::gradientIdx);
-        mtGradient.set(*ntGradient, 0, this->argumentSize);
-        DAAL_CHECK_BLOCK_STATUS(mtGradient);
-        algorithmFPType *gradient = mtGradient.get();
-        /* Check accuracy */
-        if(dotProduct<algorithmFPType, cpu>(this->argumentSize, gradient, gradient) <
-            accuracyThreshold * daal::internal::Math<algorithmFPType,cpu>::sMax(one, dotProduct<algorithmFPType, cpu>(this->argumentSize, argument, argument)))
-        {
-            mtGradient.release();
-            bContinue = false;
-            return s;
-        }
-
-        /* Get step length on this iteration */
-        algorithmFPType stepLengthVal = 0;
-        if (t >= 2)
-        {
-            /* Compute H * gradient */
-            twoLoopRecursion(m, correctionIndex, gradient, useWolfeConditions);
-        }
         stepLengthVal = ((nStepLength > 1) ? stepLength[epoch] : stepLength[0]);
-
-        /* Update argument */
-        for (size_t j = 0; j < this->argumentSize; j++)
-        {
-            argument[j] -= stepLengthVal * gradient[j];
-        }
     }
+
+    /* Update argument */
+    for (size_t j = 0; j < this->argumentSize; j++)
+    {
+        argument[j] -= stepLengthVal * gradient[j];
+    }
+
     mtGradient.release();
     return s;
 }
@@ -786,7 +714,7 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument1(size_t iIteration,
     if (t >= 2)
     {
         /* Compute H * gradient */
-        twoLoopRecursion(m, correctionIndex, gradient, false);
+        twoLoopRecursion(m, correctionIndex, gradient);
     }
     if(useWolfeConditions)
     {
@@ -870,50 +798,9 @@ Status LBFGSTask<algorithmFPType, cpu>::updateBatchIndices(size_t iPredefinedInd
  *                             On output: iterative_solver::Result of two-loop recursion.
  */
 template<typename algorithmFPType, CpuType cpu>
-void LBFGSTask<algorithmFPType, cpu>::twoLoopRecursion(size_t m, size_t correctionIndex, algorithmFPType *gradient, bool useWolfeConditions)
+void LBFGSTask<algorithmFPType, cpu>::twoLoopRecursion(size_t m, size_t correctionIndex, algorithmFPType *gradient)
 {
     size_t index = 0;
-if(useWolfeConditions)
-{
-    for (size_t k = 0; k < m; k++)
-    {
-        index = mod(correctionIndex + m - k, m);
-        const algorithmFPType *correctionSPtr = correctionS + index * this->argumentSize;
-        const algorithmFPType *correctionYPtr = correctionY + index * this->argumentSize;
-
-        alpha[index] = rho[index] * dotProduct<algorithmFPType, cpu>(this->argumentSize, correctionSPtr, gradient);
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for(size_t j = 0; j < this->argumentSize; j++)
-        {
-            gradient[j] -= alpha[index] * correctionYPtr[j];
-        }
-    }
-    const size_t disp = correctionIndex * this->argumentSize;
-    const algorithmFPType gamma = dotProduct<algorithmFPType, cpu>(this->argumentSize, correctionS + disp, correctionY + disp)/dotProduct<algorithmFPType, cpu>(this->argumentSize, correctionY + disp, correctionY + disp);
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
-    for(size_t i = 0; i < this->argumentSize; ++i)
-        gradient[i] = gradient[i]*gamma;
-    for (size_t k = 0; k < m; k++)
-    {
-        index = mod(correctionIndex + m + 1 + k, m);
-        const algorithmFPType *correctionSPtr = correctionS + index * this->argumentSize;
-        const algorithmFPType *correctionYPtr = correctionY + index * this->argumentSize;
-
-        algorithmFPType beta = rho[index] * dotProduct<algorithmFPType, cpu>(this->argumentSize, correctionYPtr, gradient);
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for(size_t j = 0; j < this->argumentSize; j++)
-        {
-            gradient[j] += correctionSPtr[j] * (alpha[index] - beta);
-        }
-    }
-}
-else
-{
 
     for (size_t k = 0; k < m; k++)
     {
@@ -942,7 +829,6 @@ else
             gradient[j] += correctionSPtr[j] * (alpha[index] - beta);
         }
     }
-}
 }
 
 /**

@@ -55,7 +55,7 @@ namespace interface1
 class OnlineContainerIface : public daal::algorithms::AnalysisContainerIface<online>
 {
 public:
-    OnlineContainerIface() {};
+    OnlineContainerIface() {}
     virtual ~OnlineContainerIface() {}
 
     /**

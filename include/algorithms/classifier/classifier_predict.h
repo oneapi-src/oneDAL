@@ -61,6 +61,104 @@ namespace interface1
 class Batch : public daal::algorithms::Prediction
 {
 public:
+    typedef algorithms::classifier::prediction::interface1::Input  InputType;
+    typedef algorithms::classifier::interface1::Parameter ParameterType;
+    typedef algorithms::classifier::prediction::interface1::Result ResultType;
+
+    Batch()
+    {
+        initialize();
+    }
+
+    /**
+     * Constructs a classifier prediction algorithm by copying input objects and parameters
+     * of another classifier prediction algorithm
+     * \param[in] other An algorithm to be used as the source to initialize the input objects
+     *                  and parameters of the algorithm
+     */
+    Batch(const Batch &other)
+    {
+        initialize();
+    }
+
+    virtual ~Batch() {}
+
+    /**
+     * Get input objects for the classifier prediction algorithm
+     * \return %Input objects for the classifier prediction algorithm
+     */
+    virtual InputType * getInput() = 0;
+
+    /**
+     * Returns the structure that contains computed prediction results
+     * \return Structure that contains computed prediction results
+     */
+    interface1::ResultPtr getResult()
+    {
+        return _result;
+    }
+
+    /**
+     * Registers user-allocated memory for storing the prediction results
+     * \param[in] result Structure for storing the prediction results
+     *
+     * \return Status of computation
+     */
+    services::Status setResult(const interface1::ResultPtr &result)
+    {
+        DAAL_CHECK(result, services::ErrorNullResult)
+        _result = result;
+        _res = _result.get();
+        return services::Status();
+    }
+
+    /**
+     * Returns a pointer to the newly allocated classifier prediction algorithm with a copy of input objects
+     * and parameters of this classifier prediction algorithm
+     * \return Pointer to the newly allocated algorithm
+     */
+    services::SharedPtr<Batch> clone() const
+    {
+        return services::SharedPtr<Batch>(cloneImpl());
+    }
+
+protected:
+
+    void initialize()
+    {
+        _result.reset(new ResultType());
+    }
+    virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
+    interface1::ResultPtr _result;
+};
+/** @} */
+} // namespace interface1
+
+namespace interface2
+{
+/**
+ * @defgroup classifier_prediction_batch Batch
+ * @ingroup prediction
+ * @{
+ */
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__CLASSIFIER__PREDICTION__BATCH"></a>
+ *  \brief Base class for making predictions based on the model of the classification algorithms
+ *
+ *  \par Enumerations
+ *      - \ref classifier::prediction::NumericTableInputId  Identifiers of input NumericTable objects
+ *                                                          of the classifier prediction algorithm
+ *      - \ref classifier::prediction::ModelInputId         Identifiers of input Model objects
+ *                                                          of the classifier prediction algorithm
+ *      - \ref classifier::prediction::ResultId             Identifiers of prediction results of the classifier algorithm
+ *
+ * \par References
+ *      - \ref interface1::Parameter "Parameter" class
+ *      - \ref interface1::Model "Model" class
+ */
+class Batch : public daal::algorithms::Prediction
+{
+public:
     typedef algorithms::classifier::prediction::Input  InputType;
     typedef algorithms::classifier::Parameter          ParameterType;
     typedef algorithms::classifier::prediction::Result ResultType;
@@ -87,7 +185,19 @@ public:
      * Get input objects for the classifier prediction algorithm
      * \return %Input objects for the classifier prediction algorithm
      */
+
     virtual InputType * getInput() = 0;
+    /**
+     * Gets parameter objects for the classifier model prediction algorithm
+     * \return %Parameter objects for the classifier model prediction algorithm
+     */
+    ParameterType& parameter() { return *static_cast<ParameterType*>(this->getBaseParameter()); }
+
+    /**
+     * Gets parameter objects for the classifier model prediction algorithm
+     * \return %Parameter objects for the classifier model prediction algorithm
+     */
+    // const ParameterType& parameter() const { return *static_cast<const ParameterType*>(this->getBaseParameter()); }
 
     /**
      * Returns the structure that contains computed prediction results
@@ -132,8 +242,8 @@ protected:
     ResultPtr _result;
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
+} // namespace interface2
+using interface2::Batch;
 
 }
 }

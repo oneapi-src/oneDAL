@@ -39,8 +39,8 @@ string testDatasetFileName      = "../data/batch/adaboost_test.csv";
 
 const size_t nFeatures = 20;
 
-adaboost::training::ResultPtr trainingResult;
-classifier::prediction::ResultPtr predictionResult;
+adaboost::training::interface1::ResultPtr trainingResult;
+classifier::prediction::interface1::ResultPtr predictionResult;
 NumericTablePtr testGroundTruth;
 
 void trainModel();
@@ -76,7 +76,7 @@ void trainModel()
     trainDataSource.loadDataBlock(mergedData.get());
 
     /* Create an algorithm object to train the AdaBoost model */
-    adaboost::training::Batch<> algorithm;
+    adaboost::training::interface1::Batch<> algorithm;
 
     /* Pass the training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
@@ -105,7 +105,7 @@ void testModel()
     testDataSource.loadDataBlock(mergedData.get());
 
     /* Create algorithm objects for AdaBoost prediction with the default method */
-    adaboost::prediction::Batch<> algorithm;
+    adaboost::prediction::interface1::Batch<> algorithm;
 
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data,  testData);

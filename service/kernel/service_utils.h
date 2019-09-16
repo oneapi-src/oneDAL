@@ -139,8 +139,14 @@ ForwardIterator upperBound(ForwardIterator first, ForwardIterator last, const T 
 template <CpuType cpu, typename ForwardIterator, typename T, typename Compare>
 ForwardIterator upperBound(ForwardIterator first, ForwardIterator last, const T & value, Compare compare)
 {
-    ForwardIterator it;
     auto count = last - first; // distance.
+    if(count > 0)
+    {
+        if(compare(value, *first)) return first;
+        auto second = first + 1;
+        if(compare(value, *second)) return second;
+    }
+    ForwardIterator it;
     while (count > 0)
     {
         it = first;

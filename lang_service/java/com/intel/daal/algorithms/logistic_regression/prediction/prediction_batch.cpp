@@ -80,5 +80,5 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_predi
 (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
 {
     jniBatch<logistic_regression::prediction::Method, Batch, defaultDense>::
-        setResult<logistic_regression::prediction::Result>(prec, method, algAddr, resultAddr);
+        setResult<classifier::prediction::Result>(prec, method, algAddr, resultAddr);
 }

@@ -97,7 +97,7 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status PredictRegressionTask<algorithmFPType, cpu>::run(const gbt::regression::internal::ModelImpl* m,
     size_t nIterations, services::HostAppIface* pHostApp)
 {
-    DAAL_ASSERT(!nIterations || nIterations <= m->size());
+    DAAL_ASSERT(nIterations || nIterations <= m->size());
     DAAL_CHECK_MALLOC(this->_featHelper.init(*this->_data));
     const auto nTreesTotal = (nIterations ? nIterations : m->size());
     this->_aTree.reset(nTreesTotal);

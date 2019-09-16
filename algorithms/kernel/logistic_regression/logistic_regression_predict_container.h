@@ -35,6 +35,8 @@ namespace logistic_regression
 {
 namespace prediction
 {
+namespace interface2
+{
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : PredictionContainerIface()
@@ -52,22 +54,23 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     Input *input = static_cast<Input *>(_in);
-    logistic_regression::prediction::Result *result = static_cast<logistic_regression::prediction::Result *>(_res);
+    classifier::prediction::Result *result = static_cast<classifier::prediction::Result *>(_res);
 
     NumericTable *a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
     logistic_regression::Model *m = static_cast<logistic_regression::Model *>(input->get(classifier::prediction::model).get());
-    const logistic_regression::prediction::Parameter *par = static_cast<logistic_regression::prediction::Parameter*>(_par);
+    const classifier::Parameter *par = static_cast<classifier::Parameter*>(_par);
 
-    NumericTable *r = ((par->resultsToCompute & computeClassesLabels) ? result->get(classifier::prediction::prediction).get() : nullptr);
-    NumericTable *prob = ((par->resultsToCompute & computeClassesProbabilities) ? result->get(probabilities).get() : nullptr);
-    NumericTable *logProb = ((par->resultsToCompute & computeClassesLogProbabilities) ? result->get(logProbabilities).get() : nullptr);
+    NumericTable *r = ((par->resultsToEvaluate & computeClassesLabels) ? result->get(classifier::prediction::prediction).get() : nullptr);
+    NumericTable *prob = ((par->resultsToEvaluate & computeClassesProbabilities) ? result->get(classifier::prediction::probabilities).get() : nullptr);
+    NumericTable *logProb = ((par->resultsToEvaluate & computeClassesLogProbabilities) ? result->get(classifier::prediction::logProbabilities).get() : nullptr);
 
     daal::services::Environment::env &env = *_env;
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
         daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
 }
 
-}// namespace prediction
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
+}
+}
+}
+}
+} // namespace daal

@@ -296,7 +296,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     Result();
 
-    virtual ~Result() {};
+    virtual ~Result() {}
 
     /**
      * Allocates memory to store final results of the correlation or variance-covariance matrix algorithm

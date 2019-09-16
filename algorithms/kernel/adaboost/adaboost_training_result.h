@@ -26,6 +26,9 @@
 
 #include "algorithms/boosting/adaboost_training_types.h"
 
+using namespace daal::data_management;
+using namespace daal::services;
+
 namespace daal
 {
 namespace algorithms
@@ -34,7 +37,8 @@ namespace adaboost
 {
 namespace training
 {
-
+namespace interface1
+{
 /**
  * Allocates memory to store final results of AdaBoost training
  * \param[in] input         %Input of the AdaBoost training algorithm
@@ -45,11 +49,35 @@ template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
 {
     services::Status s;
+    const classifier::training::interface1::Input *algInput = static_cast<const classifier::training::interface1::Input *>(input);
+    set(classifier::training::model, daal::algorithms::adaboost::interface1::Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
+    return s;
+}
+}
+namespace interface2
+{
+/**
+ * Allocates memory to store final results of AdaBoost training
+ * \param[in] input         %Input of the AdaBoost training algorithm
+ * \param[in] parameter     Parameters of the algorithm
+ * \param[in] method        AdaBoost computation method
+ */
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+{
+    services::Status s;
+    const Parameter *parameter = static_cast<const Parameter *>(par);
     const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
     set(classifier::training::model, Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
+    if(parameter->resultsToCompute & adaboost::computeWeakLearnersErrors)
+    {
+        set(weakLearnersErrors, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(parameter->maxIterations, 1,
+                                                data_management::NumericTable::doAllocate, s)));
+    }
     return s;
 }
 
+}
 } // namespace training
 } // namespace adaboost
 } // namespace algorithms

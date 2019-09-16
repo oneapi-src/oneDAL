@@ -75,6 +75,7 @@ enum InputId
 {
     data                            = algorithms::regression::training::data,               /*!< %Input data table */
     dependentVariables              = algorithms::regression::training::dependentVariables, /*!< Values of the dependent variable for the input data */
+    weights                         = algorithms::regression::training::weights,            /*!< Optional. Weights of the observations in the training data set */
     dataForPruning                  ,        /*!< Pruning data set */
     dependentVariablesForPruning    ,         /*!< Labels of the pruning data set */
     lastInputId = dependentVariablesForPruning

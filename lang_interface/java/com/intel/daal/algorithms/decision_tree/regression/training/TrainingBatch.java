@@ -42,7 +42,7 @@ import com.intel.daal.services.DaalContext;
  *      - com.intel.daal.algorithms.decision_tree.regression.Model class
  *      - com.intel.daal.algorithms.decision_tree.regression.training.TrainingInput class
  */
-public class TrainingBatch extends com.intel.daal.algorithms.TrainingBatch {
+public class TrainingBatch extends com.intel.daal.algorithms.regression.training.TrainingBatch {
     protected Precision  prec;
     public TrainingMethod method; /*!< %Training method for the algorithm */
     public Parameter  parameter; /*!< Parameters of the algorithm */

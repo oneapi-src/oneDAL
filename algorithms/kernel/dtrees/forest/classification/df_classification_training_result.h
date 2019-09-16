@@ -51,7 +51,7 @@ template<typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *prm, const int method)
 {
     services::Status status;
-    const Parameter *parameter = static_cast<const Parameter *>(prm);
+    const daal::algorithms::decision_forest::training::Parameter *parameter = dynamic_cast<const daal::algorithms::decision_forest::training::Parameter *>(prm);
     const classifier::training::Input* inp = static_cast<const classifier::training::Input*>(input);
     const size_t nFeatures = inp->get(classifier::training::data)->getNumberOfColumns();
 

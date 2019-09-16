@@ -46,6 +46,7 @@ template <typename intFPtype, Method method, CpuType cpu>
 class NaiveBayesPredictKernel : public Kernel
 {
 public:
+    services::Status compute(const NumericTable *a, const Model *m, NumericTable *r, const multinomial_naive_bayes::interface1::Parameter *par);
     services::Status compute(const NumericTable *a, const Model *m, NumericTable *r, const Parameter *par);
 };
 

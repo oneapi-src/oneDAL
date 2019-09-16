@@ -39,6 +39,9 @@ import com.intel.daal.algorithms.classifier.training.TrainingResultId;
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
 import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
 import com.intel.daal.algorithms.classifier.prediction.PredictionResultId;
+import com.intel.daal.algorithms.classifier.prediction.PredictionResult;
+import com.intel.daal.algorithms.classifier.ResultsToComputeId;
+import com.intel.daal.algorithms.classifier.Parameter;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.data_management.data.HomogenNumericTable;
 import com.intel.daal.data_management.data.MergedNumericTable;
@@ -130,14 +133,14 @@ class LogRegDenseBatch {
         logisticRegressionPredict.input.set(NumericTableInputId.data, testData);
         logisticRegressionPredict.input.set(ModelInputId.model, model);
 
-        logisticRegressionPredict.parameter.setResultsToCompute(PredictionResultsToComputeId.computeClassesLabels|PredictionResultsToComputeId.computeClassesProbabilities|PredictionResultsToComputeId.computeClassesLogProbabilities);
+        logisticRegressionPredict.parameter.setResultsToEvaluate(ResultsToComputeId.computeClassesLabels|ResultsToComputeId.computeClassesProbabilities|ResultsToComputeId.computeClassesLogProbabilities);
 
         /* Compute prediction results */
         PredictionResult predictionResult = logisticRegressionPredict.compute();
 
         results = predictionResult.get(PredictionResultId.prediction);
-        probabilities = predictionResult.get(PredictionResultNumericTableId.probabilities);
-        logProbabilities = predictionResult.get(PredictionResultNumericTableId.logProbabilities);
+        probabilities = predictionResult.get(PredictionResultId.probabilities);
+        logProbabilities = predictionResult.get(PredictionResultId.logProbabilities);
     }
 
     private static void printResults() {

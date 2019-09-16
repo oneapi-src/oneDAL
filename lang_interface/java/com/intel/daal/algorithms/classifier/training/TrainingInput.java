@@ -60,10 +60,7 @@ public class TrainingInput extends com.intel.daal.algorithms.Input {
      * @param val   Value of the input object
      */
     public void set(InputId id, NumericTable val) {
-        if (id != InputId.data && id != InputId.labels) {
-            throw new IllegalArgumentException("id unsupported");
-        }
-
+        InputId.throwIfInvalid(id);
         cSetInput(cObject, id.getValue(), val.getCObject());
     }
 
@@ -73,10 +70,7 @@ public class TrainingInput extends com.intel.daal.algorithms.Input {
      * @return   Input object that corresponds to the given identifier
      */
     public NumericTable get(InputId id) {
-        if (id != InputId.data && id != InputId.labels) {
-            throw new IllegalArgumentException("id unsupported");
-        }
-
+        InputId.throwIfInvalid(id);
         return (NumericTable)Factory.instance().createObject(getContext(), cGetInput(this.cObject, id.getValue()));
     }
 

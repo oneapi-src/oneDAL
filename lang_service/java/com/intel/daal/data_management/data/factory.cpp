@@ -36,6 +36,7 @@ using namespace daal::services;
 JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_Factory_cGetSerializationTag
   (JNIEnv *env, jobject thisObj, jlong serializableAddr)
 {
+    if (serializableAddr == jlong(0)) { return jint(0); }
     SerializationIfacePtr *object = (SerializationIfacePtr *)serializableAddr;
     int tag = (*object)->getSerializationTag();
     return (jint)tag;

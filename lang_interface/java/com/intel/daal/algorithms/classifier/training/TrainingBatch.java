@@ -24,7 +24,6 @@ package com.intel.daal.algorithms.classifier.training;
 
 import com.intel.daal.utils.*;
 import com.intel.daal.algorithms.Precision;
-import com.intel.daal.algorithms.Result;
 import com.intel.daal.services.DaalContext;
 
 /**
@@ -72,9 +71,9 @@ public abstract class TrainingBatch extends com.intel.daal.algorithms.TrainingBa
      * \return Results of the classifier training algorithm
      */
     @Override
-    public Result compute() {
+    public TrainingResult compute() {
         super.compute();
-        return null;
+        return new TrainingResult(getContext(), cGetResult(this.cObject));
     }
 
     /**
@@ -86,5 +85,7 @@ public abstract class TrainingBatch extends com.intel.daal.algorithms.TrainingBa
      */
     @Override
     public abstract TrainingBatch clone(DaalContext context);
+
+    private native long cGetResult(long selfPtr);
 }
 /** @} */

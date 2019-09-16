@@ -61,9 +61,9 @@ enum Method
 */
 enum ResultToComputeId
 {
-    computeClassesLabels = 0x00000001ULL,
-    computeClassesProbabilities = 0x00000002ULL,
-    computeClassesLogProbabilities = 0x00000004ULL
+    computeClassesLabels = classifier::computeClassesLabels,
+    computeClassesProbabilities = classifier::computeClassesProbabilities,
+    computeClassesLogProbabilities = classifier::computeClassesLogProbabilities
 };
 
 /**
@@ -72,14 +72,14 @@ enum ResultToComputeId
 */
 enum ResultNumericTableId
 {
-    probabilities = classifier::prediction::lastResultId + 1, /*!< Numeric table of size: n x 1, if nClasses = 2, n x nClasses, if nClasses > 2
-                                                                   containing probabilities of classes computed when
-                                                                   computeClassesProbabilities option is enabled.
-                                                                   In case  nClasses = 2 the table contains probabilities of class _1. */
-    logProbabilities,                                         /*!< Numeric table of size: n x 1, if nClasses = 2, n x nClasses, if nClasses > 2
-                                                                   containing logarithms of classes_ probabilities computed when
-                                                                   computeClassesLogProbabilities option is enabled.
-                                                                   In case nClasses = 2 the table contains logarithms of class _1_ probabilities. */
+    probabilities = classifier::prediction::probabilities,      /*!< Numeric table of size: n x 1, if nClasses = 2, n x nClasses, if nClasses > 2
+                                                                     containing probabilities of classes computed when
+                                                                     computeClassesProbabilities option is enabled.
+                                                                     In case  nClasses = 2 the table contains probabilities of class _1. */
+    logProbabilities = classifier::prediction::logProbabilities, /*!< Numeric table of size: n x 1, if nClasses = 2, n x nClasses, if nClasses > 2
+                                                                     containing logarithms of classes_ probabilities computed when
+                                                                     computeClassesLogProbabilities option is enabled.
+                                                                     In case nClasses = 2 the table contains logarithms of class _1_ probabilities. */
     lastResultNumericTableId = logProbabilities
 };
 
@@ -96,10 +96,10 @@ namespace interface1
  * \snippet logistic_regression/logistic_regression_predict_types.h Parameter source code
  */
 /* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
+struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
 {
-    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::Parameter(nClasses), resultsToCompute(computeClassesLabels) {}
-    Parameter(const Parameter& o) : daal::algorithms::classifier::Parameter(o), resultsToCompute(o.resultsToCompute){}
+    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses), resultsToCompute(computeClassesLabels) {}
+    Parameter(const Parameter& o) : daal::algorithms::classifier::interface1::Parameter(o), resultsToCompute(o.resultsToCompute){}
     DAAL_UINT64 resultsToCompute;           /*!< 64 bit integer flag that indicates the results to compute */
 };
 /* [Parameter source code] */
@@ -160,7 +160,7 @@ public:
 * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__RESULT"></a>
 * \brief Provides interface for the result of model-based prediction
 */
-class DAAL_EXPORT Result : public algorithms::classifier::prediction::Result
+class DAAL_EXPORT Result : public algorithms::classifier::prediction::interface1::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
@@ -218,18 +218,14 @@ protected:
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {
-        return daal::algorithms::classifier::prediction::Result::serialImpl<Archive, onDeserialize>(arch);
+        return daal::algorithms::classifier::prediction::interface1::Result::serialImpl<Archive, onDeserialize>(arch);
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<const Result> ResultConstPtr;
 
 } // namespace interface1
-using interface1::Parameter;
 using interface1::Input;
-using interface1::Result;
-using interface1::ResultPtr;
-using interface1::ResultConstPtr;
 }
 /** @} */
 }

@@ -22,7 +22,7 @@
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-BROWNBOOSTBATCH">
+ * <a name="DAAL-EXAMPLE-JAVA-BROWNBOOST_DENSE_BATCH">
  * @example BrownBoostDenseBatch.java
  */
 
