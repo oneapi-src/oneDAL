@@ -25,7 +25,7 @@
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-LOGITBOOST_DENSE_BATCH">
+ * <a name="DAAL-EXAMPLE-JAVA-LOGITBOOSTBATCH">
  * @example LogitBoostDenseBatch.java
  */
 

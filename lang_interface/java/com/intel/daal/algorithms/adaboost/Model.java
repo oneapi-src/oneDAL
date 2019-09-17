@@ -40,7 +40,9 @@ public class Model extends com.intel.daal.algorithms.classifier.Model {
     }
 
     /**
-     *  Returns the number of weak learners constructed during training of the AdaBoost algorithm
+     *  Returns the number of weak learners constructed
+     *  during training of the AdaBoost algorithm.
+     *  The size of the array equals the number of weak learners
      *  @return The number of weak learners
      */
     public long getNumberOfWeakLearners() {

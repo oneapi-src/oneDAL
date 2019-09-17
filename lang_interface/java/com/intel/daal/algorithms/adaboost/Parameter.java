@@ -87,8 +87,8 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
     }
 
     /**
-     * Sets the accuracy of the AdaBoost training algorithm
-     * @param learningRate Accuracy of the AdaBoost training algorithm
+     * Sets the learning rate of the AdaBoost training algorithm
+     * @param learningRate The learning rate of the AdaBoost training algorithm
      */
     public void setLearningRate(double learningRate) {
         cSetLearningRate(this.cObject, learningRate);
