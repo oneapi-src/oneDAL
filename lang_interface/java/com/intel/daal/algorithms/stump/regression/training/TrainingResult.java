@@ -29,7 +29,7 @@ import com.intel.daal.services.DaalContext;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__STUMP__REGRESSION__TRAINING__TRAININGRESULT"></a>
- * @brief Provides methods to access final results obtained with the compute() method of the AdaBoost training algorithm in the batch processing mode
+ * @brief Provides methods to access final results obtained with the compute() method of the stump training algorithm in the batch processing mode
  */
 public final class TrainingResult extends com.intel.daal.algorithms.regression.training.TrainingResult {
     /** @private */
@@ -42,7 +42,7 @@ public final class TrainingResult extends com.intel.daal.algorithms.regression.t
     }
 
     /**
-     * Returns the final result of the AdaBoost training algorithm
+     * Returns the final result of the stump training algorithm
      * @param id       Identifier of the result
      * @return         %Result that corresponds to the given identifier
      */

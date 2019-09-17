@@ -47,13 +47,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_Pre
 {
     SerializationIfacePtr *ptr = new SerializationIfacePtr();
 
-    //    if(cmode == jBatch)
-    //    {
     SharedPtr<Batch> alg =
         staticPointerCast<Batch, AlgorithmIface>
             (*(SharedPtr<AlgorithmIface> *)algAddr);
     *ptr = alg->getResult();
-    //    }
     return (jlong)ptr;
 }
 /*
