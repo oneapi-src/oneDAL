@@ -57,7 +57,7 @@ namespace interface1
  *
  * \snippet boosting/brownboost_model.h Parameter source code
  */
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public boosting::Parameter
 {
     /** Default constructor */
@@ -85,7 +85,7 @@ struct DAAL_EXPORT Parameter : public boosting::Parameter
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGITBOOST__MODEL"></a>

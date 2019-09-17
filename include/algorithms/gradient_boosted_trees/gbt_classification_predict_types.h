@@ -69,14 +69,14 @@ namespace interface1
  *
  * \snippet gradient_boosted_trees/gbt_classification_predict_types.h Parameter source code
  */
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
 {
     Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses), nIterations(0) {}
     Parameter(const Parameter& o) : daal::algorithms::classifier::interface1::Parameter(o), nIterations(o.nIterations){}
     size_t nIterations;        /*!< Number of iterations of the trained model to be used for prediction */
 };
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 }
 
 /**

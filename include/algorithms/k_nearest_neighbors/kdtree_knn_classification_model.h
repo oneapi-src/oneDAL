@@ -70,7 +70,7 @@ namespace interface1
  *
  * \snippet k_nearest_neighbors/kdtree_knn_classification_model.h Parameter source code
  */
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
 {
     /**
@@ -98,7 +98,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::
     DataUseInModel dataUseInModel; /*!< The option to enable/disable an usage of the input dataset in kNN model */
     engines::EnginePtr engine;     /*!< Engine for random choosing elements from training dataset */
 };
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 }
 
 /**

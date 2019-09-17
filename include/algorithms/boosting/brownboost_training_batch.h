@@ -234,7 +234,7 @@ public:
  *
  * \par References
  *      - \ref interface2::Model "Model" class
- *      - \ref classifier::training::interface2::Input "classifier::training::Input" class
+ *      - \ref classifier::training::Input "classifier::training::Input" class
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch

@@ -65,7 +65,7 @@ namespace interface1
  *
  * \snippet classifier/classifier_model.h Parameter source code
  */
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter(size_t nClasses = 2) : nClasses(nClasses) {}
@@ -74,7 +74,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 }
 /**
  * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.

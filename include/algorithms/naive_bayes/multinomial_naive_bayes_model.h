@@ -56,7 +56,7 @@ namespace interface1
  *
  * \snippet naive_bayes/multinomial_naive_bayes_model.h Parameter source code
  */
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
 {
     /**
@@ -74,7 +74,7 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 }
 
 /**
