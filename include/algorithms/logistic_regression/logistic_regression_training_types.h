@@ -153,7 +153,7 @@ namespace interface2
  *
  * \snippet logistic_regression/logistic_regression_training_types.h Parameter source code
  */
-/* [Parameter source code] */
+/* [interface2::Parameter source code] */
 struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
 {
     typedef optimization_solver::iterative_solver::BatchPtr SolverPtr;
@@ -169,7 +169,7 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
     float penaltyL2;     /*!< L2 regularization coefficient. Default is 0 (not applied) */
     SolverPtr optimizationSolver; /*!< Default is sgd momentum solver */
 };
-/* [Parameter source code] */
+/* [interface2::Parameter source code] */
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__TRAINING__RESULT"></a>

@@ -61,14 +61,14 @@ namespace interface1
  *
  * \snippet multi_class_classifier/multi_class_classifier_model.h ParameterBase source code
  */
-/* [ParameterBase source code] */
+/* [interface1::ParameterBase source code] */
 struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::interface1::Parameter
 {
     ParameterBase(size_t nClasses): daal::algorithms::classifier::interface1::Parameter(nClasses), training(), prediction() {}
     services::SharedPtr<algorithms::classifier::training::interface1::Batch> training;          /*!< Two-class classifier training stage */
     services::SharedPtr<algorithms::classifier::prediction::interface1::Batch> prediction;      /*!< Two-class classifier prediction stage */
 };
-/* [ParameterBase source code] */
+/* [interface1::ParameterBase source code] */
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PARAMETER"></a>
@@ -76,7 +76,7 @@ struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::interfac
  *
  * \snippet multi_class_classifier/multi_class_classifier_model.h Parameter source code
  */
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public ParameterBase
 {
     Parameter(size_t nClasses, size_t maxIterations = 100, double accuracyThreshold = 1.0e-12) :
@@ -87,7 +87,7 @@ struct DAAL_EXPORT Parameter : public ParameterBase
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 }
 
 /**

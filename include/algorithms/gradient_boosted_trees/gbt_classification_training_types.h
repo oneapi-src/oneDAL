@@ -80,7 +80,7 @@ namespace interface1
  *
  * \snippet gradient_boosted_trees/gbt_classification_training_types.h Parameter source code
  */
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public daal::algorithms::gbt::training::Parameter
 {
     /** Default constructor */
@@ -88,7 +88,7 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public 
     services::Status check() const DAAL_C11_OVERRIDE;
     LossFunctionType loss; /*!< Loss function type */
 };
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 }
 
 /**
