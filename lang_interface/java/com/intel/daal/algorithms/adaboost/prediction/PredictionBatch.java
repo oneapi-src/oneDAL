@@ -66,12 +66,12 @@ public class PredictionBatch extends com.intel.daal.algorithms.classifier.predic
     }
 
     /**
-     * Constructs the AdaBoost training algorithm
-     * @param context   Context to manage AdaBoost training
+     * Constructs the AdaBoost prediction algorithm
+     * @param context   Context to manage AdaBoost prediction
      * @param nClasses  Number of classes
-     * @param cls       Data type to use in intermediate computations for AdaBoost training,
+     * @param cls       Data type to use in intermediate computations for AdaBoost prediction,
      *                  Double.class or Float.class
-     * @param method    AdaBoost training method, @ref PredictionMethod
+     * @param method    AdaBoost prediction method, @ref PredictionMethod
      */
     public PredictionBatch(DaalContext context, long nClasses, Class<? extends Number> cls, PredictionMethod method) {
         super(context);
@@ -79,8 +79,8 @@ public class PredictionBatch extends com.intel.daal.algorithms.classifier.predic
     }
 
     /**
-     * Constructs the AdaBoost training algorithm
-     * @param context   Context to manage AdaBoost training
+     * Constructs the AdaBoost prediction algorithm
+     * @param context   Context to manage AdaBoost prediction
      * @param nClasses  Number of classes
      */
     public PredictionBatch(DaalContext context, long nClasses) {
