@@ -15,113 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/**
- *  \brief The same sort function as in old stump algorithm.
- */
-template <typename Item, typename SplitCriterion, typename LeavesData, typename IndependentVariableType, typename DependentVariableType, CpuType cpu>
-void stumpQSort(const size_t n, Item* items)
-{
-    int i, ir, j, k, jstack = -1, l = 0;
-    IndependentVariableType a, b;
-    DependentVariableType c;
-    const int M = 7, NSTACK = 128;
-    IndependentVariableType istack[NSTACK];
-
-    ir = n - 1;
-
-    for(;;)
-    {
-        if(ir - l < M)
-        {
-            for(j = l + 1; j <= ir; j++)
-            {
-                a = items[j].x;
-                b = items[j].w;
-                c = items[j].y;
-
-                for(i = j - 1; i >= l; i--)
-                {
-                    if(items[i].x <= a) { break; }
-                    items[i + 1].x = items[i].x;
-                    items[i + 1].w = items[i].w;
-                    items[i + 1].y = items[i].y;
-                }
-
-                items[i + 1].x = a;
-                items[i + 1].w = b;
-                items[i + 1].y = c;
-            }
-
-            if(jstack < 0) { break; }
-
-            ir = istack[jstack--];
-            l = istack[jstack--];
-        }
-        else
-        {
-            k = (l + ir) >> 1;
-            daal::services::internal::swap<cpu, IndependentVariableType>(items[k].x, items[l + 1].x);
-            daal::services::internal::swap<cpu, IndependentVariableType>(items[k].w, items[l + 1].w);
-            daal::services::internal::swap<cpu, DependentVariableType>(items[k].y, items[l + 1].y);
-            if(items[l].x > items[ir].x)
-            {
-                daal::services::internal::swap<cpu, IndependentVariableType>(items[l].x, items[ir].x);
-                daal::services::internal::swap<cpu, IndependentVariableType>(items[l].w, items[ir].w);
-                daal::services::internal::swap<cpu, DependentVariableType>(items[l].y, items[ir].y);
-            }
-            if(items[l + 1].x > items[ir].x)
-            {
-                daal::services::internal::swap<cpu, IndependentVariableType>(items[l + 1].x, items[ir].x);
-                daal::services::internal::swap<cpu, IndependentVariableType>(items[l + 1].w, items[ir].w);
-                daal::services::internal::swap<cpu, DependentVariableType>(items[l + 1].y, items[ir].y);
-            }
-            if(items[l].x > items[l + 1].x)
-            {
-                daal::services::internal::swap<cpu, IndependentVariableType>(items[l].x, items[l + 1].x);
-                daal::services::internal::swap<cpu, IndependentVariableType>(items[l].w, items[l + 1].w);
-                daal::services::internal::swap<cpu, DependentVariableType>(items[l].y, items[l + 1].y);
-            }
-            i = l + 1;
-            j = ir;
-            a = items[l + 1].x;
-            b = items[l + 1].w;
-            c = items[l + 1].y;
-            for(;;)
-            {
-                while(items[++i].x < a);
-                while(items[--j].x > a);
-                if(j < i) { break; }
-                daal::services::internal::swap<cpu, IndependentVariableType>(items[i].x, items[j].x);
-                daal::services::internal::swap<cpu, IndependentVariableType>(items[i].w, items[j].w);
-                daal::services::internal::swap<cpu, DependentVariableType>(items[i].y, items[j].y);
-            }
-            items[l + 1].x = items[j].x;
-            items[l + 1].w = items[j].w;
-            items[l + 1].y = items[j].y;
-
-            items[j].x = a;
-            items[j].w = b;
-            items[j].y = c;
-            jstack += 2;
-
-            if(ir - i + 1 >= j - l)
-            {
-                istack[jstack  ] = ir ;
-                istack[jstack - 1] = i  ;
-                ir = j - 1;
-            }
-            else
-            {
-                istack[jstack  ] = j - 1;
-                istack[jstack - 1] = l  ;
-                l = i;
-            }
-        }
-    }
-
-    return;
-}
-
 template <typename SplitCriterion, typename LeavesData>
 void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const NumericTable &x, const NumericTable &y, const NumericTable *w,
                 size_t numberOfClasses = 0, size_t minLeafObservations = 1, size_t minSplitObservations = 2)
@@ -212,9 +105,6 @@ void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const Nu
     daal::tls<Local *> localTLS([ =, &context]()-> Local *
     {
         Local *const ptr = new Local(context.splitCriterion, xRowCount);
-        // cout << "allocated " << ptr << endl;
-        // cout << "allocated winnerDataStatistics " << &(ptr->winnerDataStatistics) << endl;
-        // cout << "allocated winnerDataStatistics._counters " << &(ptr->winnerDataStatistics._counters) << endl;
         return ptr;
     } );
 
@@ -252,7 +142,6 @@ void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const Nu
             }
         }
 
-        // stumpQSort<Item, SplitCriterion, LeavesData, IndependentVariableType, DependentVariableType, cpu>(xRowCount, items);
         introSort<cpu>(items, &items[xRowCount], [](const Item & v1, const Item & v2) -> bool
         {
             return v1.x < v2.x;
@@ -262,7 +151,6 @@ void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const Nu
             return v1.x < v2.x;
         }));
 
-        // cout << "featureIndex = " << featureIndex << endl;
         Item *next = nullptr;
         const auto i = CutPointFinder<cpu, IndependentVariableType, SplitCriterion>::find(local->splitCriterion, items, &items[xRowCount],
                        local->dataStatistics,
@@ -316,10 +204,6 @@ void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const Nu
             winnerPointsAtLeft = v->winnerPointsAtLeft;
             winnerDataStatistics = v->winnerDataStatistics;
         }
-
-        // cout << "deleted " << v << endl;
-        // cout << "deleted winnerDataStatistics " << &(v->winnerDataStatistics) << endl;
-        // cout << "deleted winnerDataStatistics._counters " << &(v->winnerDataStatistics._counters) << endl;
 
         delete v;
     } );
