@@ -84,7 +84,8 @@ public class Model extends com.intel.daal.algorithms.classifier.Model {
 
     /**
      * Returns the numeric table that contains the array of weights of weak learners constructed
-     * during training of the BrownBoost algorithm. The size of the array equals the number of weak learners
+     * during training of the AdaBoost  algorithm.
+     * The size of the array equals the number of weak learners
      * @return Array of weights of weak learners.
      */
     public NumericTable getAlpha() {
