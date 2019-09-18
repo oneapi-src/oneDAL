@@ -493,7 +493,7 @@ services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostS
     classifier::prediction::ResultPtr predictionRes(new classifier::prediction::Result());
     predictionRes->set(classifier::prediction::probabilities, NumericTablePtr(pTable));
     learnerPredict->setResult(predictionRes);
-    learnerPredict->parameter().resultsToEvaluate = classifier::computeClassesProbabilities;
+    learnerPredict->parameter().resultsToEvaluate = classifier::computeClassProbabilities;
 
     nWeakLearners = 0;
     algorithmFPType maxAlpha = zero;

@@ -61,9 +61,9 @@ enum Method
 */
 enum ResultToComputeId
 {
-    computeClassesLabels = classifier::computeClassesLabels,
-    computeClassesProbabilities = classifier::computeClassesProbabilities,
-    computeClassesLogProbabilities = classifier::computeClassesLogProbabilities
+    computeClassesLabels = classifier::computeClassLabels,
+    computeClassesProbabilities = classifier::computeClassProbabilities,
+    computeClassesLogProbabilities = classifier::computeClassLogProbabilities
 };
 
 /**

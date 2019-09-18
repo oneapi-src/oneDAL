@@ -162,8 +162,8 @@ services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::compute
             classifier::prediction::probabilities;
 
     DAAL_UINT64 resToEvaluate = (method == samme) ?
-                                classifier::computeClassesLabels :
-                                classifier::computeClassesProbabilities;
+                                classifier::computeClassLabels :
+                                classifier::computeClassProbabilities;
 
     learnerPredict->parameter().resultsToEvaluate = resToEvaluate;
 

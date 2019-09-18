@@ -227,11 +227,11 @@ services::Status Result::checkImpl(const daal::algorithms::Input *input, const d
     const Parameter *par = static_cast<const Parameter *>(parameter);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
-    if(par->resultsToEvaluate & computeClassesLabels)
+    if(par->resultsToEvaluate & computeClassLabels)
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(prediction).get(), predictionStr(), data_management::packed_mask, 0, 1, nRows));
-    if(par->resultsToEvaluate & computeClassesProbabilities)
+    if(par->resultsToEvaluate & computeClassProbabilities)
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(probabilities).get(), probabilitiesStr(), data_management::packed_mask, 0, par->nClasses, nRows));
-    if(par->resultsToEvaluate & computeClassesLogProbabilities)
+    if(par->resultsToEvaluate & computeClassLogProbabilities)
         DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(logProbabilities).get(), logProbabilitiesStr(), data_management::packed_mask, 0, par->nClasses, nRows));
 
     return s;

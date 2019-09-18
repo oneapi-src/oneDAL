@@ -125,8 +125,8 @@ class StumpClsGiniDenseBatch {
 
         /* Create algorithm objects to predict values with the fast method */
         PredictionBatch algorithm = new PredictionBatch(context, Float.class, PredictionMethod.defaultDense);
-        algorithm.parameter.setResultsToEvaluate(ResultsToComputeId.computeClassesLabels |
-                                                 ResultsToComputeId.computeClassesProbabilities);
+        algorithm.parameter.setResultsToEvaluate(ResultsToComputeId.computeClassLabels |
+                                                 ResultsToComputeId.computeClassProbabilities);
 
         Model model = trainingResult.get(TrainingResultId.model);
 

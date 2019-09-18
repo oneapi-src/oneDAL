@@ -27,8 +27,8 @@ package com.intel.daal.algorithms.classifier;
  */
 public final class ResultsToComputeId {
 
-    public static final long computeClassesLabels        = 0x0000000000000001L; /*!< Numeric table of size n x 1 with the predicted labels >*/
-    public static final long computeClassesProbabilities = 0x0000000000000002L; /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
-    public static final long computeClassesLogProbabilities = 0x0000000000000004L; /*!< Numeric table of size n x p with the predicted class probabilities logarithm for each observation >*/
+    public static final long computeClassLabels        = 0x0000000000000001L; /*!< Numeric table of size n x 1 with the predicted labels >*/
+    public static final long computeClassProbabilities = 0x0000000000000002L; /*!< Numeric table of size n x p with the predicted class probabilities for each observation >*/
+    public static final long computeClassLogProbabilities = 0x0000000000000004L; /*!< Numeric table of size n x p with the predicted class probabilities logarithm for each observation >*/
 }
 /** @} */

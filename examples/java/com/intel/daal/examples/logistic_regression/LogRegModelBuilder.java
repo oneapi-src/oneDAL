@@ -120,7 +120,7 @@ class LogRegModelBuilder {
         logisticRegressionPredict.input.set(NumericTableInputId.data, testData);
         logisticRegressionPredict.input.set(ModelInputId.model, model);
 
-        logisticRegressionPredict.parameter.setResultsToEvaluate(ResultsToComputeId.computeClassesLabels);
+        logisticRegressionPredict.parameter.setResultsToEvaluate(ResultsToComputeId.computeClassLabels);
 
         /* Compute prediction results */
         PredictionResult predictionResult = logisticRegressionPredict.compute();
