@@ -174,7 +174,7 @@ protected:
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, 0, 0);
+        services::Status s = _result->allocate<algorithmFPType>(&input, _par, 0);
         _res = _result.get();
         return s;
     }

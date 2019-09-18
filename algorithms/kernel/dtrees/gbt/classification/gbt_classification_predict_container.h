@@ -66,7 +66,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const gbt::classification::prediction::interface1::Parameter *par = static_cast<gbt::classification::prediction::interface1::Parameter*>(_par);
 
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, daal::services::internal::hostApp(*input),
-        a, m, r, par->nClasses, par->nIterations);
+        a, m, r, nullptr, par->nClasses, par->nIterations);
 }
 
 }
@@ -93,13 +93,15 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     NumericTable *a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
     gbt::classification::Model *m = static_cast<gbt::classification::Model *>(input->get(classifier::prediction::model).get());
-    NumericTable *r = static_cast<NumericTable *>(result->get(classifier::prediction::prediction).get());
 
     daal::services::Environment::env &env = *_env;
     const gbt::classification::prediction::Parameter *par = static_cast<gbt::classification::prediction::Parameter*>(_par);
 
+    NumericTable *r = (par->resultsToEvaluate & classifier::ResultToComputeId::computeClassLabels ? result->get(classifier::prediction::prediction).get() : nullptr);
+    NumericTable *prob = ((par->resultsToEvaluate & classifier::ResultToComputeId::computeClassProbabilities) ? result->get(classifier::prediction::probabilities).get() : nullptr);
+
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, daal::services::internal::hostApp(*input),
-        a, m, r, par->nClasses, par->nIterations);
+        a, m, r, prob, par->nClasses, par->nIterations);
 }
 
 }
