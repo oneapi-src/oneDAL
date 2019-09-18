@@ -109,7 +109,7 @@ void testModel()
 
     /* Create an algorithm object to predict values */
     prediction::Batch<> algorithm;
-    algorithm.parameter().resultsToEvaluate = classifier::computeClassesLabels | classifier::computeClassesProbabilities;
+    algorithm.parameter().resultsToEvaluate = classifier::computeClassLabels | classifier::computeClassProbabilities;
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data,  testData);

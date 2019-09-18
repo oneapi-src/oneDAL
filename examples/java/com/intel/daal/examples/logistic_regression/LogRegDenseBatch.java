@@ -133,7 +133,7 @@ class LogRegDenseBatch {
         logisticRegressionPredict.input.set(NumericTableInputId.data, testData);
         logisticRegressionPredict.input.set(ModelInputId.model, model);
 
-        logisticRegressionPredict.parameter.setResultsToEvaluate(ResultsToComputeId.computeClassesLabels|ResultsToComputeId.computeClassesProbabilities|ResultsToComputeId.computeClassesLogProbabilities);
+        logisticRegressionPredict.parameter.setResultsToEvaluate(ResultsToComputeId.computeClassLabels|ResultsToComputeId.computeClassProbabilities|ResultsToComputeId.computeClassLogProbabilities);
 
         /* Compute prediction results */
         PredictionResult predictionResult = logisticRegressionPredict.compute();

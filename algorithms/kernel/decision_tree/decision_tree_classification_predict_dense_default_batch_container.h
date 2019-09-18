@@ -91,7 +91,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const classifier::ModelConstPtr m = input->get(classifier::prediction::model);
     const data_management::NumericTablePtr r = result->get(classifier::prediction::prediction);
     data_management::NumericTablePtr prob; // Used to prevent shared pointer release
-    data_management::NumericTable * const p = ((parameter->resultsToEvaluate & classifier::computeClassesProbabilities) != 0)
+    data_management::NumericTable * const p = ((parameter->resultsToEvaluate & classifier::computeClassProbabilities) != 0)
                                               ? (prob = result->get(classifier::prediction::probabilities)).get() : nullptr;
 
     const daal::algorithms::Parameter * const par = _par;
