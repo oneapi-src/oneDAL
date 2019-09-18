@@ -58,7 +58,7 @@ public:
      *  \param nClasses[in]     Number of classes in gradient boosted trees algorithm parameter
      *  \param nIterations[in]  Number of iterations to predict in gradient boosted trees algorithm parameter
      */
-    services::Status compute(services::HostAppIface* pHostApp, const NumericTable *a, const classification::Model *m, NumericTable *r,
+    services::Status compute(services::HostAppIface* pHostApp, const NumericTable *a, const classification::Model *m, NumericTable *r, NumericTable *prob,
         size_t nClasses, size_t nIterations);
 };
 

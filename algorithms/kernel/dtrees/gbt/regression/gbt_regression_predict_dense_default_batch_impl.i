@@ -67,7 +67,7 @@ public:
 
 
 protected:
-    services::Status runInternal(services::HostAppIface* pHostApp);
+    services::Status runInternal(services::HostAppIface* pHostApp, NumericTable* result);
     algorithmFPType predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType* x);
     void predictByTreesVector(size_t iFirstTree, size_t nTrees, const algorithmFPType* x, algorithmFPType* res);
 
@@ -104,16 +104,16 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::run(const gbt::reg
     DAAL_CHECK_MALLOC(this->_aTree.get());
     for(size_t i = 0; i < nTreesTotal; ++i)
         this->_aTree[i] = m->at(i);
-    return runInternal(pHostApp);
+    return runInternal(pHostApp, this->_res);
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(services::HostAppIface* pHostApp)
+services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(services::HostAppIface* pHostApp, NumericTable* result)
 {
     const auto nTreesTotal = this->_aTree.size();
 
     gbt::prediction::internal::TileDimensions<algorithmFPType> dim(*this->_data, nTreesTotal);
-    WriteOnlyRows<algorithmFPType, cpu> resBD(this->_res, 0, 1);
+    WriteOnlyRows<algorithmFPType, cpu> resBD(result, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(resBD);
     services::internal::service_memset<algorithmFPType, cpu>(resBD.get(), 0, dim.nRowsTotal);
     const size_t nThreads = daal::threader_get_threads_number();
