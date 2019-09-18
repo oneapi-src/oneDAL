@@ -44,6 +44,29 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     const Input* inp = static_cast<const Input*>(input);
     const size_t nFeatures = inp->get(data)->getNumberOfColumns();
     set(model, daal::algorithms::gbt::regression::Model::create(nFeatures, &s));
+
+    const Parameter *par = static_cast<const Parameter *>(parameter);
+    if(par->resultsToCompute & gbt::training::computeWeight)
+    {
+        set(variableImportanceWeight, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+    }
+    if(par->resultsToCompute & gbt::training::computeTotalCover)
+    {
+        set(variableImportanceTotalCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+    }
+    if(par->resultsToCompute & gbt::training::computeCover)
+    {
+        set(variableImportanceCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+    }
+    if(par->resultsToCompute & gbt::training::computeTotalGain)
+    {
+        set(variableImportanceTotalGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+    }
+    if(par->resultsToCompute & gbt::training::computeGain)
+    {
+        set(variableImportanceGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+    }
+
     return s;
 }
 
