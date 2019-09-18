@@ -96,6 +96,16 @@ enum ResultId
     lastResultId = model
 };
 
+enum OptionalResultNumericTableId
+{
+    variableImportanceWeight = lastResultId + 1,
+    variableImportanceTotalCover,
+    variableImportanceCover,
+    variableImportanceTotalGain,
+    variableImportanceGain,
+    lastOptionalResultNumericTableId = variableImportanceGain
+};
+
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface
  */
@@ -190,6 +200,20 @@ public:
      * \param[in] value   Result
      */
     void set(ResultId id, const ModelPtr &value);
+
+    /**
+     * Returns the result of model-based training
+     * \param[in] id    Identifier of the result
+     * \return          Result that corresponds to the given identifier
+     */
+    data_management::NumericTablePtr get(OptionalResultNumericTableId id) const;
+
+    /**
+     * Sets the result of model-based training
+     * \param[in] id      Identifier of the result
+     * \param[in] value   Result
+     */
+    void set(OptionalResultNumericTableId id, const data_management::NumericTablePtr &value);
 
     /**
      * Checks the result of model-based training

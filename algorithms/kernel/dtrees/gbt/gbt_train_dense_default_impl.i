@@ -348,9 +348,12 @@ protected:
 };
 
 
-template <typename algorithmFPType, typename RowIndexType, typename BinIndexType, CpuType cpu, typename TaskType>
+template <typename algorithmFPType, typename RowIndexType, typename BinIndexType, CpuType cpu, typename TaskType, typename ResultType>
 services::Status  computeTypeDisp(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y, gbt::internal::ModelImpl& md,
-    const gbt::training::Parameter& par, engines::internal::BatchBaseImpl& engine, size_t nClasses, dtrees::internal::IndexedFeatures& indexedFeatures, dtrees::internal::FeatureTypes& featTypes)
+    const gbt::training::Parameter& par, engines::internal::BatchBaseImpl& engine, size_t nClasses,
+    dtrees::internal::IndexedFeatures& indexedFeatures, dtrees::internal::FeatureTypes& featTypes, ResultType *res,
+    algorithmFPType *ptrWeight, algorithmFPType *ptrCover, algorithmFPType *ptrTotalCover,
+    algorithmFPType *ptrGain, algorithmFPType *ptrTotalGain)
 {
     services::Status s;
 
@@ -454,6 +457,15 @@ services::Status  computeTypeDisp(HostAppIface* pHostApp, const NumericTable *x,
         storage.newFI = newFI;
     }
 
+    size_t *totalCoverFeature  = nullptr;
+    size_t *weightFeature      = nullptr;
+    double *totalGainFeature   = nullptr;
+    algorithmFPType *allWeight = nullptr;
+
+    TVector<algorithmFPType, cpu> allWeightVec(nStor, static_cast<algorithmFPType>(0));
+    DAAL_CHECK_MALLOC(allWeightVec.get());
+    allWeight = allWeightVec.get();
+
     for(size_t i = 0; (i < par.maxIterations) && !algorithms::internal::isCancelled(s, pHostApp); ++i)
     {
         s = task.run(aTbl, aTblImp, aTblSmplCnt, i, storage);
@@ -469,11 +481,62 @@ services::Status  computeTypeDisp(HostAppIface* pHostApp, const NumericTable *x,
             deleteTables<cpu>(aTbl, aTblImp, aTblSmplCnt, nTrees);
             break;
         }
+
         for(iTree = 0; iTree < nTrees; ++iTree)
+        {
+            if ((ptrTotalCover != nullptr) || (ptrCover != nullptr))
+            {
+                totalCoverFeature = (aTbl[iTree]->getArrayCoverFeature());
+            }
+            if ((ptrWeight != nullptr) || (ptrCover != nullptr) || (ptrGain != nullptr))
+            {
+                weightFeature = aTbl[iTree]->getArrayNumSplitFeature();
+            }
+            if ((ptrTotalGain != nullptr) || (ptrGain != nullptr))
+            {
+                totalGainFeature = (aTbl[iTree]->getArrayGainFeature());
+            }
+
+            if (ptrWeight != nullptr)
+                for(size_t kFeature = 0; kFeature < nStor; ++kFeature)
+                    ptrWeight[kFeature] += static_cast<algorithmFPType>(weightFeature[kFeature]);
+
+            if (ptrTotalCover != nullptr)
+                for(size_t kFeature = 0; kFeature < nStor; ++kFeature)
+                    ptrTotalCover[kFeature] += static_cast<algorithmFPType>(totalCoverFeature[kFeature]);
+
+            if (ptrTotalGain != nullptr)
+                for(size_t kFeature = 0; kFeature < nStor; ++kFeature)
+                    ptrTotalGain[kFeature] += static_cast<algorithmFPType>(totalGainFeature[kFeature]);
+
+            if (ptrCover != nullptr)
+                for(size_t kFeature = 0; kFeature < nStor; ++kFeature)
+                    ptrCover[kFeature] += static_cast<algorithmFPType>(totalCoverFeature[kFeature]);
+
+            if (ptrGain != nullptr)
+                for(size_t kFeature = 0; kFeature < nStor; ++kFeature)
+                    ptrGain[kFeature] += static_cast<algorithmFPType>(totalGainFeature[kFeature]);
+
+            if ((ptrWeight != nullptr) || (ptrCover != nullptr) || (ptrGain != nullptr))
+                for(size_t kFeature = 0; kFeature < nStor; ++kFeature)
+                    allWeight[kFeature] += static_cast<algorithmFPType>(weightFeature[kFeature]);
+
             md.add(aTbl[iTree], aTblImp[iTree], aTblSmplCnt[iTree]);
+        }
+
         if((i + 1 < par.maxIterations) && task.done())
             break;
     }
+
+    if (ptrCover != nullptr)
+        for (size_t i = 0; i < nStor; ++i)
+            if (allWeight[i] != 0)
+                ptrCover[i] = ptrCover[i] / allWeight[i];
+
+    if (ptrGain != nullptr)
+        for (size_t i = 0; i < nStor; ++i)
+            if (allWeight[i] != 0)
+                ptrGain[i] = ptrGain[i] / allWeight[i];
 
     return s;
 }
@@ -482,11 +545,16 @@ services::Status  computeTypeDisp(HostAppIface* pHostApp, const NumericTable *x,
 //////////////////////////////////////////////////////////////////////////////////////////
 // compute() implementation
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, CpuType cpu, typename BinIndexType, typename TaskType>
+template <typename algorithmFPType, CpuType cpu, typename BinIndexType, typename TaskType, typename ResultType>
 services::Status computeImpl(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y, gbt::internal::ModelImpl& md,
-    const gbt::training::Parameter& par, engines::internal::BatchBaseImpl& engine, size_t nClasses, dtrees::internal::IndexedFeatures& indexedFeatures, dtrees::internal::FeatureTypes& featTypes)
+    const gbt::training::Parameter& par, engines::internal::BatchBaseImpl& engine, size_t nClasses,
+    dtrees::internal::IndexedFeatures& indexedFeatures, dtrees::internal::FeatureTypes& featTypes, ResultType *res,
+    algorithmFPType *ptrWeight, algorithmFPType *ptrCover, algorithmFPType *ptrTotalCover,
+    algorithmFPType *ptrGain, algorithmFPType *ptrTotalGain)
+
 {
-    return computeTypeDisp<algorithmFPType, int, BinIndexType, cpu, TaskType>( pHostApp, x, y, md, par, engine, nClasses, indexedFeatures, featTypes); // TODO: remove int
+    return computeTypeDisp<algorithmFPType, int, BinIndexType, cpu, TaskType>(pHostApp, x, y, md, par, engine, nClasses, indexedFeatures, featTypes, res,
+        ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain); // TODO: remove int
 }
 
 } /* namespace internal */
