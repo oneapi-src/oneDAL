@@ -80,7 +80,7 @@ namespace interface1
  *
  * \snippet decision_tree/decision_tree_classification_model.h Parameter source code
  */
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
 {
     /**
@@ -101,7 +101,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::
     size_t maxTreeDepth;                /*!< Maximum tree depth. 0 means unlimited depth. */
     size_t minObservationsInLeafNodes;  /*!< Minimum number of observations in the leaf node. Can be any positive number. */
 };
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__CLASSIFICATION__MODEL"></a>
