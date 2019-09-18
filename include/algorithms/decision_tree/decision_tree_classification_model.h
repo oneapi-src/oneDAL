@@ -80,14 +80,14 @@ namespace interface1
  *
  * \snippet decision_tree/decision_tree_classification_model.h Parameter source code
  */
-/* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
+/* [interface1::Parameter source code] */
+struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
 {
     /**
      *  Main constructor
      *  \param[in] nClasses                         Number of classes
      */
-    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::Parameter(nClasses),
+    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses),
                                      pruning(reducedErrorPruning), maxTreeDepth(0), minObservationsInLeafNodes(1),
                                      splitCriterion(infoGain) {}
 
@@ -101,7 +101,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     size_t maxTreeDepth;                /*!< Maximum tree depth. 0 means unlimited depth. */
     size_t minObservationsInLeafNodes;  /*!< Minimum number of observations in the leaf node. Can be any positive number. */
 };
-/* [Parameter source code] */
+/* [interface1::Parameter source code] */
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__CLASSIFICATION__MODEL"></a>
@@ -196,10 +196,52 @@ typedef services::SharedPtr<const Model> ModelConstPtr;
 
 } // namespace interface1
 
-using interface1::Parameter;
 using interface1::Model;
 using interface1::ModelPtr;
 using interface1::ModelConstPtr;
+
+/**
+ * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+/**
+ * @ingroup decision_tree_classification
+ * @{
+ */
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_TREE__CLASSIFICATION__PARAMETER"></a>
+ * \brief Decision tree algorithm parameters
+ *
+ * \snippet decision_tree/decision_tree_classification_model.h Parameter source code
+ */
+/* [Parameter source code] */
+struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
+{
+    /**
+     *  Main constructor
+     *  \param[in] nClasses                         Number of classes
+     */
+    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::Parameter(nClasses),
+                                     pruning(reducedErrorPruning), maxTreeDepth(0), minObservationsInLeafNodes(1),
+                                     nBins(1),
+                                     splitCriterion(infoGain) {}
+
+    /**
+     * Checks a parameter of the Decision tree algorithm
+     */
+    services::Status check() const DAAL_C11_OVERRIDE;
+
+    SplitCriterion splitCriterion;      /*!< Split criterion for Decision tree classification */
+    Pruning pruning;                    /*!< Pruning method for Decision tree */
+    size_t maxTreeDepth;                /*!< Maximum tree depth. 0 means unlimited depth. */
+    size_t minObservationsInLeafNodes;  /*!< Minimum number of observations in the leaf node. Can be any positive number. */
+    size_t nBins;                       /*!< The number of bins used to compute probabilities of the observations belonging to the class.
+                                             The only supported value for current version of the library is 1. */
+};
+/* [Parameter source code] */
+}
+using interface2::Parameter;
 
 /** @} */
 } // namespace classification

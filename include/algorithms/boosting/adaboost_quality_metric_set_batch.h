@@ -68,6 +68,80 @@ public:
      */
     Batch(bool useDefaultMetrics = true) : algorithms::quality_metric_set::Batch(useDefaultMetrics)
     {
+        _inputData = interface1::InputDataCollectionPtr(new interface1::InputDataCollection());
+        if (_useDefaultMetrics)
+        {
+            initializeQualityMetrics();
+        }
+        _resultCollection = interface1::ResultCollectionPtr(new interface1::ResultCollection());
+    }
+
+    virtual ~Batch() {}
+
+    /**
+     * Returns the structure that contains a computed quality metric set
+     * \return Structure that contains a computed quality metric set
+     */
+    interface1::ResultCollectionPtr getResultCollection()
+    {
+        return services::staticPointerCast<interface1::ResultCollection,
+                                           algorithms::quality_metric_set::ResultCollection>(_resultCollection);
+    }
+
+    /**
+     * Returns the collection of input objects for the quality metrics algorithm
+     * \return Collection of input objects for the quality metrics algorithm
+     */
+    interface1::InputDataCollectionPtr getInputDataCollection()
+    {
+        return services::staticPointerCast<interface1::InputDataCollection,
+                                           algorithms::quality_metric_set::InputDataCollection>(_inputData);
+    }
+
+protected:
+    virtual void initializeQualityMetrics()
+    {
+        inputAlgorithms[confusionMatrix] = services::SharedPtr<classifier::quality_metric::binary_confusion_matrix::Batch<> >(
+                new classifier::quality_metric::binary_confusion_matrix::Batch<>());
+        _inputData->add(confusionMatrix, algorithms::InputPtr(
+                new classifier::quality_metric::binary_confusion_matrix::Input));
+    }
+};
+/** @} */
+} // namespace interface1
+
+namespace interface2
+{
+/**
+ * @defgroup adaboost_quality_metric_set_batch Batch
+ * @ingroup adaboost_quality_metric_set
+ * @{
+ */
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__QUALITY_METRIC_SET__BATCH"></a>
+ * \brief Class that represents a set of quality metrics to check the model trained with the AdaBoost algorithm
+ *
+ * \par Enumerations
+ *      - \ref QualityMetricId  Quality metrics provided by the library
+ *
+ * \par References
+ *      - \ref algorithms::quality_metric_set::interface1::InputAlgorithmsCollection "algorithms::quality_metric_set::InputAlgorithmsCollection" class
+ *      - InputDataCollection class
+ *      - ResultCollection class
+ */
+class Batch : public algorithms::quality_metric_set::Batch
+{
+public:
+    Parameter parameter;    /*!< Parameters of the algorithm */
+    /**
+     * Constructs a quality metric set for the model trained with the AdaBoost algorithm
+     * \param[in] nClasses Number of classes
+     * \param[in] useDefaultMetrics Flag. If true, a quality metric set is initialized with the quality metrics provided by the library
+     */
+    Batch(size_t nClasses = 2, bool useDefaultMetrics = true) :
+        algorithms::quality_metric_set::Batch(useDefaultMetrics),
+        parameter(nClasses)
+    {
         _inputData = InputDataCollectionPtr(new InputDataCollection());
         if (_useDefaultMetrics)
         {
@@ -101,15 +175,15 @@ public:
 protected:
     virtual void initializeQualityMetrics()
     {
-        inputAlgorithms[confusionMatrix] = services::SharedPtr<classifier::quality_metric::binary_confusion_matrix::Batch<> >(
-                new classifier::quality_metric::binary_confusion_matrix::Batch<>());
+        inputAlgorithms[confusionMatrix] = services::SharedPtr<classifier::quality_metric::multiclass_confusion_matrix::Batch<> >(
+                                               new classifier::quality_metric::multiclass_confusion_matrix::Batch<>(parameter.nClasses));
         _inputData->add(confusionMatrix, algorithms::InputPtr(
-                new classifier::quality_metric::binary_confusion_matrix::Input));
+                          new classifier::quality_metric::multiclass_confusion_matrix::Input));
     }
 };
 /** @} */
-} // namespace interface1
-using interface1::Batch;
+} // namespace interface2
+using interface2::Batch;
 
 }
 }

@@ -26,15 +26,32 @@
 package com.intel.daal.algorithms.adaboost;
 
 import com.intel.daal.services.DaalContext;
+import com.intel.daal.algorithms.classifier.training.TrainingBatch;
+import com.intel.daal.algorithms.classifier.prediction.PredictionBatch;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__PARAMETER"></a>
  * @brief AdaBoost algorithm parameters
  */
-public class Parameter extends com.intel.daal.algorithms.boosting.Parameter {
-
+public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
     public Parameter(DaalContext context, long cParameter) {
         super(context, cParameter);
+    }
+
+    /**
+     * Sets the algorithm for weak learner model training
+     * @param weakLearnerTraining Algorithm for weak learner model training
+     */
+    public void setWeakLearnerTraining(TrainingBatch weakLearnerTraining) {
+        cSetWeakLearnerTraining(this.cObject, weakLearnerTraining.cObject);
+    }
+
+    /**
+     * Sets the algorithm for prediction based on a weak learner model
+     * @param weakLearnerPrediction Algorithm for prediction based on a weak learner model
+     */
+    public void setWeakLearnerPrediction(PredictionBatch weakLearnerPrediction) {
+        cSetWeakLearnerPrediction(this.cObject, weakLearnerPrediction.cObject);
     }
 
     /**
@@ -69,12 +86,32 @@ public class Parameter extends com.intel.daal.algorithms.boosting.Parameter {
         return cGetMaxIterations(this.cObject);
     }
 
-    private native void cSetAccuracyThreshold(long parAddr, double acc);
+    /**
+     * Sets the learning rate of the AdaBoost training algorithm
+     * @param learningRate The learning rate of the AdaBoost training algorithm
+     */
+    public void setLearningRate(double learningRate) {
+        cSetLearningRate(this.cObject, learningRate);
+    }
 
-    private native double cGetAccuracyThreshold(long parAddr);
+    /**
+     * Retrieves the accuracy of the AdaBoost training algorithm
+     * @return Accuracy of the AdaBoost training algorithm
+     */
+    public double getLearningRate() {
+        return cGetLearningRate(this.cObject);
+    }
 
-    private native void cSetMaxIterations(long parAddr, long nIter);
+    private native void cSetWeakLearnerTraining(long selfPtr, long trainerAddr);
+    private native void cSetWeakLearnerPrediction(long selfPtr, long predictorAddr);
 
-    private native long cGetMaxIterations(long parAddr);
+    private native double cGetAccuracyThreshold(long selfPtr);
+    private native void cSetAccuracyThreshold(long selfPtr, double accuracyThreshold);
+
+    private native long cGetMaxIterations(long selfPtr);
+    private native void cSetMaxIterations(long selfPtr, long maxIterations);
+
+    private native double cGetLearningRate(long selfPtr);
+    private native void cSetLearningRate(long selfPtr, double learningRate);
 }
 /** @} */

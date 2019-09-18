@@ -59,8 +59,26 @@ public class Parameter extends com.intel.daal.algorithms.Parameter {
         return cGetNClasses(this.cObject);
     }
 
-    private native void cSetNClasses(long parAddr, long nClasses);
+    /**
+     * Sets the 64 bit integer flag that indicates the results to compute
+     * @param resultsToEvaluate The 64 bit integer flag that indicates the results to compute
+     */
+    public void setResultsToEvaluate(long resultsToEvaluate) {
+        cSetResultsToEvaluate(this.cObject, resultsToEvaluate);
+    }
 
-    private native long cGetNClasses(long parAddr);
+    /**
+     * Gets the 64 bit integer flag that indicates the results to compute
+     * @return The 64 bit integer flag that indicates the results to compute
+     */
+    public long getResultsToEvaluate() {
+        return cGetResultsToEvaluate(this.cObject);
+    }
+
+    private native long cGetNClasses(long selfPtr);
+    private native void cSetNClasses(long selfPtr, long nClasses);
+
+    private native long cGetResultsToEvaluate(long selfPtr);
+    private native void cSetResultsToEvaluate(long selfPtr, long resultsToEvaluate);
 }
 /** @} */

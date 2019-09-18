@@ -46,10 +46,18 @@ template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
 {
     const classifier::training::InputIface *algInput = static_cast<const classifier::training::InputIface *>(input);
-    Parameter *algPar = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter));
     size_t nFeatures = algInput->getNumberOfFeatures();
     services::Status st;
-    ModelPtr modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
+    ModelPtr modelPtr;
+    {
+        const multinomial_naive_bayes::interface1::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
+    }
+    {
+        const multinomial_naive_bayes::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
+    }
+    DAAL_CHECK(modelPtr, ErrorNullModel);
     DAAL_CHECK_STATUS_VAR(st);
     set(classifier::training::model, modelPtr);
     return st;
@@ -65,10 +73,18 @@ template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method)
 {
     const PartialResult *pres = static_cast<const PartialResult *>(partialResult);
-    Parameter *algPar = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter));
     size_t nFeatures = pres->getNumberOfFeatures();
     services::Status st;
-    ModelPtr modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
+    ModelPtr modelPtr;
+    {
+        const multinomial_naive_bayes::interface1::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
+    }
+    {
+        const multinomial_naive_bayes::Parameter *algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
+    }
+    DAAL_CHECK(modelPtr, ErrorNullModel);
     DAAL_CHECK_STATUS_VAR(st);
     set(classifier::training::model, modelPtr);
     return st;

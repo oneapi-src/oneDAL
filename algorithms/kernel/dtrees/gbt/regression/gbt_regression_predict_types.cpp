@@ -94,14 +94,18 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::regression::prediction::Input::check(parameter, method));
+
     ModelPtr m = get(prediction::model);
     const daal::algorithms::gbt::regression::internal::ModelImpl* pModel =
         static_cast<const daal::algorithms::gbt::regression::internal::ModelImpl*>(m.get());
     DAAL_ASSERT(pModel);
     DAAL_CHECK(pModel->getNumberOfTrees(), services::ErrorNullModel);
-    const Parameter* pPrm = static_cast<const Parameter*>(parameter);
     auto maxNIterations = pModel->getNumberOfTrees();
-    DAAL_CHECK((pPrm->nIterations == 0) || (pPrm->nIterations <= pModel->getNumberOfTrees()), services::ErrorGbtPredictIncorrectNumberOfIterations);
+
+    const gbt::regression::prediction::interface1::Parameter* pPrm = static_cast<const gbt::regression::prediction::interface1::Parameter*>(parameter);
+    size_t nIterations = pPrm->nIterations;
+
+    DAAL_CHECK((nIterations == 0) || (nIterations <= maxNIterations), services::ErrorGbtPredictIncorrectNumberOfIterations);
     return s;
 }
 

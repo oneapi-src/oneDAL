@@ -43,15 +43,17 @@ namespace prediction
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPtype, CpuType cpu>
-class AdaBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cpu>
+class AdaBoostPredictKernelNew : public Kernel
 {
-    using BoostingPredictKernel<algorithmFPtype, cpu>::compute;
 public:
-    services::Status compute(const NumericTablePtr& x, const Model *m, const NumericTablePtr& r, const Parameter *par);
+    services::Status compute(const NumericTablePtr &x, const Model *m, const NumericTablePtr &r, const Parameter *par);
+    services::Status computeImpl(const NumericTablePtr &xTable, const Model *m, size_t nWeakLearners, const algorithmFPtype *alpha, algorithmFPtype *r,
+                                 const Parameter *par);
+    services::Status computeCommon(const NumericTablePtr &xTable,
+                                   const Model *m, size_t nWeakLearners, const algorithmFPtype *alpha, algorithmFPtype *r, const Parameter *par);
+    services::Status computeSammeProbability(const algorithmFPtype *p, size_t nVectors, size_t nClasses, algorithmFPtype *h);
 };
-
 } // namespace daal::algorithms::adaboost::prediction::internal
 }
 }

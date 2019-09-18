@@ -44,13 +44,26 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LOGITBOOST_TRAINING_RE
  * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
  * \return          Model trained with the LogitBoost algorithm
  */
+daal::algorithms::logitboost::interface1::ModelPtr Result::get(classifier::training::ResultId id) const
+{
+    return staticPointerCast<daal::algorithms::logitboost::interface1::Model, data_management::SerializationIface>(Argument::get(id));
+}
+} // namespace interface1
+
+namespace interface2
+{
+
+__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LOGITBOOST_TRAINING_RESULT_ID);
+/**
+ * Returns the model trained with the LogitBoost algorithm
+ * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
+ * \return          Model trained with the LogitBoost algorithm
+ */
 daal::algorithms::logitboost::ModelPtr Result::get(classifier::training::ResultId id) const
 {
     return staticPointerCast<daal::algorithms::logitboost::Model, data_management::SerializationIface>(Argument::get(id));
 }
-
-
-} // namespace interface1
+} // namespace interface2
 } // namespace training
 } // namespace logitboost
 } // namespace algorithms

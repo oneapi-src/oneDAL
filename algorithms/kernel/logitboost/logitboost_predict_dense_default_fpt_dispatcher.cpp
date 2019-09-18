@@ -30,6 +30,39 @@ namespace daal
 {
 namespace algorithms
 {
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(logitboost::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE, logitboost::prediction::defaultDense)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(logitboost::prediction::BatchContainer, batch, DAAL_FPTYPE, logitboost::prediction::defaultDense)
+
+namespace logitboost
+{
+namespace prediction
+{
+namespace interface2
+{
+
+template<typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(size_t nClasses)
+{
+    _par = new ParameterType();
+    initialize();
+    parameter().nClasses = nClasses;
 }
+
+template<typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(const Batch &other) :
+    classifier::prediction::Batch(other),
+    input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
+
+template Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(size_t);
+template Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(const Batch &);
+
+} // namespace interface2
+} // namespace prediction
+} // namespace logitboost
+
+} // namespace algorithms
 } // namespace daal

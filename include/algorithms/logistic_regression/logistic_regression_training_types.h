@@ -67,13 +67,13 @@ namespace interface1
  * \snippet logistic_regression/logistic_regression_training_types.h Parameter source code
  */
 /* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public classifier::Parameter
+struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
 {
     typedef optimization_solver::iterative_solver::interface1::BatchPtr SolverPtr;
 
     /** Default constructor */
     Parameter(size_t nClasses, const SolverPtr& solver = SolverPtr());
-    Parameter(const Parameter& o) : classifier::Parameter(o), interceptFlag(o.interceptFlag),
+    Parameter(const Parameter& o) : classifier::interface1::Parameter(o), interceptFlag(o.interceptFlag),
         penaltyL1(o.penaltyL1), penaltyL2(o.penaltyL2), optimizationSolver(o.optimizationSolver){}
     services::Status check() const DAAL_C11_OVERRIDE;
 
@@ -143,7 +143,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 } // namespace interface1
 
 /**
- * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface2
 {
@@ -153,14 +153,14 @@ namespace interface2
  *
  * \snippet logistic_regression/logistic_regression_training_types.h Parameter source code
  */
-/* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public classifier::Parameter
+/* [interface2::Parameter source code] */
+struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
 {
     typedef optimization_solver::iterative_solver::BatchPtr SolverPtr;
 
     /** Default constructor */
     Parameter(size_t nClasses, const SolverPtr& solver = SolverPtr());
-    Parameter(const Parameter& o) : classifier::Parameter(o), interceptFlag(o.interceptFlag),
+    Parameter(const Parameter& o) : classifier::interface1::Parameter(o), interceptFlag(o.interceptFlag),
         penaltyL1(o.penaltyL1), penaltyL2(o.penaltyL2), optimizationSolver(o.optimizationSolver){}
     services::Status check() const DAAL_C11_OVERRIDE;
 
@@ -169,7 +169,7 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
     float penaltyL2;     /*!< L2 regularization coefficient. Default is 0 (not applied) */
     SolverPtr optimizationSolver; /*!< Default is sgd momentum solver */
 };
-/* [Parameter source code] */
+/* [interface2::Parameter source code] */
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__TRAINING__RESULT"></a>
@@ -228,9 +228,36 @@ protected:
 typedef services::SharedPtr<Result> ResultPtr;
 
 } // namespace interface2
-using interface2::Parameter;
 using interface2::Result;
 using interface2::ResultPtr;
+
+namespace interface3
+{
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__LOGISTIC_REGRESSION__TRAINING__PARAMETER"></a>
+ * \brief logistic regression algorithm parameters
+ *
+ * \snippet logistic_regression/logistic_regression_training_types.h Parameter source code
+ */
+/* [Parameter source code] */
+struct DAAL_EXPORT Parameter : public classifier::Parameter
+{
+    typedef optimization_solver::iterative_solver::BatchPtr SolverPtr;
+
+    /** Default constructor */
+    Parameter(size_t nClasses, const SolverPtr& solver = SolverPtr());
+    Parameter(const Parameter& o) : classifier::Parameter(o), interceptFlag(o.interceptFlag),
+        penaltyL1(o.penaltyL1), penaltyL2(o.penaltyL2), optimizationSolver(o.optimizationSolver){}
+    services::Status check() const DAAL_C11_OVERRIDE;
+
+    bool interceptFlag;  /*!< Whether the intercept needs to be computed */
+    float penaltyL1;     /*!< L1 regularization coefficient. Default is 0 (not applied) */
+    float penaltyL2;     /*!< L2 regularization coefficient. Default is 0 (not applied) */
+    SolverPtr optimizationSolver; /*!< Default is sgd momentum solver */
+};
+/* [Parameter source code] */
+}
+using interface3::Parameter;
 
 } // namespace daal::algorithms::logistic_regression::training
 /** @} */

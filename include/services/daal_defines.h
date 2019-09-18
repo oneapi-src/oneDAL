@@ -210,6 +210,11 @@ const int SERIALIZATION_PCA_QUALITY_METRIC_RESULT_ID                            
 
 const int SERIALIZATION_STUMP_MODEL_ID                                                         = 100300;
 const int SERIALIZATION_STUMP_TRAINING_RESULT_ID                                               = 100310;
+const int SERIALIZATION_STUMP_CLASSIFICATION_MODEL_ID                                          = 100320;
+const int SERIALIZATION_STUMP_CLASSIFICATION_TRAINING_RESULT_ID                                = 100330;
+const int SERIALIZATION_STUMP_REGRESSION_MODEL_ID                                              = 100340;
+const int SERIALIZATION_STUMP_REGRESSION_TRAINING_RESULT_ID                                    = 100350;
+const int SERIALIZATION_STUMP_REGRESSION_PREDICTION_RESULT_ID                                  = 100360;
 
 const int SERIALIZATION_ADABOOST_MODEL_ID                                                      = 100400;
 const int SERIALIZATION_ADABOOST_TRAINING_RESULT_ID                                            = 100410;
@@ -248,6 +253,7 @@ const int SERIALIZATION_CLASSIFIER_TRAINING_PARTIAL_RESULT_ID                   
 const int SERIALIZATION_CLASSIFIER_BINARY_CONFUSION_MATRIX_RESULT_ID                           = 101410;
 const int SERIALIZATION_CLASSIFIER_MULTICLASS_CONFUSION_MATRIX_RESULT_ID                       = 101420;
 const int SERIALIZATION_CLASSIFIER_PREDICTION_RESULT_ID                                        = 101430;
+const int SERIALIZATION_CLASSIFIER_PREDICTION_RESULT_V2_ID                                     = 101431;
 const int SERIALIZATION_CLASSIFIER_TRAINING_RESULT_ID                                          = 101440;
 
 const int SERIALIZATION_MOMENTS_PARTIAL_RESULT_ID                                              = 101500;
@@ -437,6 +443,7 @@ const int SERIALIZATION_LM_PREDICTION_RESULT_ID                                 
 const int SERIALIZATION_LOGISTIC_REGRESSION_MODEL_ID                                           = 110000;
 const int SERIALIZATION_LOGISTIC_REGRESSION_TRAINING_RESULT_ID                                 = 110010;
 const int SERIALIZATION_LOGISTIC_REGRESSION_PREDICTION_RESULT_ID                               = 110020;
+const int SERIALIZATION_LOGISTIC_REGRESSION_PREDICTION_V2_RESULT_ID                            = 110021;
 
 const int SERIALIZATION_DBSCAN_RESULT_ID                                                       = 120000;
 const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP1_ID                             = 120100;

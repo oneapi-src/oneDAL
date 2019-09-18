@@ -89,13 +89,28 @@ services::Status Parameter::check() const
 {
     services::Status s;
     // Inherited.
-    DAAL_CHECK_STATUS(s, daal::algorithms::classifier::Parameter::check());
+    DAAL_CHECK_STATUS(s, daal::algorithms::classifier::interface1::Parameter::check());
 
     DAAL_CHECK_EX(minObservationsInLeafNodes >= 1, services::ErrorIncorrectParameter, services::ParameterName, minObservationsInLeafNodesStr());
     return s;
 }
 
 } // namespace interface1
+
+namespace interface2
+{
+services::Status Parameter::check() const
+{
+    services::Status s;
+    // Inherited.
+    DAAL_CHECK_STATUS(s, daal::algorithms::classifier::Parameter::check());
+
+    DAAL_CHECK_EX(minObservationsInLeafNodes >= 1, services::ErrorIncorrectParameter, services::ParameterName, minObservationsInLeafNodesStr());
+    DAAL_CHECK_EX(nBins == 1, services::ErrorIncorrectParameter, services::ParameterName, nBinsStr());
+    return s;
+}
+
+} // namespace interface2
 } // namespace classification
 } // namespace decision_tree
 } // namespace algorithms

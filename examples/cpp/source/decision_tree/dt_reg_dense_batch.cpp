@@ -134,7 +134,7 @@ void testModel()
 
 void printResults()
 {
-    printNumericTables<int, int>(testGroundTruth,
+    printNumericTables<float, float>(testGroundTruth,
                                  predictionResult->get(decision_tree::regression::prediction::prediction),
                                  "Ground truth", "Regression results",
                                  "Decision tree regression results (first 20 observations):", 20);

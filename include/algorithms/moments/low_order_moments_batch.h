@@ -51,7 +51,7 @@ namespace interface1
 class BatchContainerIface : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
-    BatchContainerIface() {};
+    BatchContainerIface() {}
     virtual ~BatchContainerIface() {}
 
     /**
@@ -102,7 +102,7 @@ public:
     BatchImpl()
     {
         initialize();
-    };
+    }
 
     /**
      * Constructs an algorithm for moments of low order computation
@@ -122,7 +122,7 @@ public:
     ResultPtr getResult()
     {
         return _result;
-    };
+    }
 
     /**
      * Registers user-allocated memory to store results of computation of moments of low order

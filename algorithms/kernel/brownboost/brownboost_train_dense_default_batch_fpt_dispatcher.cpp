@@ -28,6 +28,38 @@ namespace daal
 {
 namespace algorithms
 {
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(brownboost::training::interface1::BatchContainer, batch, DAAL_FPTYPE, brownboost::training::defaultDense)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(brownboost::training::BatchContainer, batch, DAAL_FPTYPE, brownboost::training::defaultDense)
+
+namespace brownboost
+{
+namespace training
+{
+namespace interface2
+{
+
+template<typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch()
+{
+    _par = new ParameterType();
+    initialize();
 }
+
+template<typename algorithmFPType, Method method>
+Batch<algorithmFPType, method>::Batch(const Batch &other) :
+    classifier::training::Batch(other),
+    input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
+
+template Batch<DAAL_FPTYPE, brownboost::training::defaultDense>::Batch();
+template Batch<DAAL_FPTYPE, brownboost::training::defaultDense>::Batch(const Batch &);
+
+} // namespace interface2
+} // namespace training
+} // namespace brownboost
+
+} // namespace algorithms
 } // namespace daal

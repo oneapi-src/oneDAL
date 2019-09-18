@@ -491,6 +491,36 @@ void printPackedNumericTable(NumericTable &dataTable, size_t nFeatures, const ch
     printPackedNumericTable(&dataTable, nFeatures, message);
 }
 
+/**
+ * @brief Class for defining printing precision
+ * @tparam type type name to define presicion value
+ */
+template<typename type>
+struct PrecisionValue
+{
+    static int get() {return 0;}
+};
+
+/**
+ * @brief Partial specialization for float type
+ * @return Pronting precision for float type
+ */
+template<>
+struct PrecisionValue<float>
+{
+    static int get() {return 3;}
+};
+
+/**
+ * @brief Partial specialization for double type
+ * @return Pronting precision for double type
+ */
+template<>
+struct PrecisionValue<double>
+{
+    static int get() {return 3;}
+};
+
 template<typename type1, typename type2>
 void printNumericTables(NumericTable *dataTable1,
                         NumericTable *dataTable2,
@@ -524,12 +554,12 @@ void printNumericTables(NumericTable *dataTable1,
     {
         for (size_t j = 0; j < nCols1; j++)
         {
-            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(3);
+            std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(PrecisionValue<type1>::get());
             std::cout << data1[i * nCols1 + j];
         }
         for (size_t j = 0; j < nCols2; j++)
         {
-            std::cout << std::setprecision(0) << std::setw(interval) << data2[i * nCols2 + j];
+            std::cout << std::setprecision(PrecisionValue<type2>::get()) << std::setw(interval) << data2[i * nCols2 + j];
         }
         std::cout << std::endl;
     }

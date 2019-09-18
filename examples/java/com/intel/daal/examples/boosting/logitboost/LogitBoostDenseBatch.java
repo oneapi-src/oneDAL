@@ -94,7 +94,7 @@ class LogitBoostDenseBatch {
         trainDataSource.loadDataBlock(mergedData);
 
         /* Create algorithm objects to train the LogitBoost model */
-        TrainingBatch algorithm = new TrainingBatch(context, Float.class, TrainingMethod.friedman, nClasses);
+        TrainingBatch algorithm = new TrainingBatch(context, nClasses);
         algorithm.parameter.setMaxIterations(maxIterations);
         algorithm.parameter.setAccuracyThreshold(accuracyThreshold);
 
@@ -122,7 +122,7 @@ class LogitBoostDenseBatch {
         testDataSource.loadDataBlock(mergedData);
 
         /* Create algorithm objects for LogitBoost prediction with the fast method */
-        PredictionBatch algorithm = new PredictionBatch(context, Float.class, PredictionMethod.defaultDense, nClasses);
+        PredictionBatch algorithm = new PredictionBatch(context, nClasses);
 
         /* Pass a testing data set and the trained model to the algorithm */
         Model model = trainingResult.get(TrainingResultId.model);

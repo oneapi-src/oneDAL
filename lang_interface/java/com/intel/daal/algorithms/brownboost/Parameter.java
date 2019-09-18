@@ -24,15 +24,32 @@
 package com.intel.daal.algorithms.brownboost;
 
 import com.intel.daal.services.DaalContext;
+import com.intel.daal.algorithms.classifier.training.TrainingBatch;
+import com.intel.daal.algorithms.classifier.prediction.PredictionBatch;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__BROWNBOOST__PARAMETER"></a>
  * @brief Base class for the parameters of the BrownBoost training algorithm
  */
-public class Parameter extends com.intel.daal.algorithms.boosting.Parameter {
-
+public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
     public Parameter(DaalContext context, long cParameter) {
         super(context, cParameter);
+    }
+
+    /**
+     * Sets the algorithm for weak learner model training
+     * @param weakLearnerTraining Algorithm for weak learner model training
+     */
+    public void setWeakLearnerTraining(TrainingBatch weakLearnerTraining) {
+        cSetWeakLearnerTraining(this.cObject, weakLearnerTraining.cObject);
+    }
+
+    /**
+     * Sets the algorithm for prediction based on a weak learner model
+     * @param weakLearnerPrediction Algorithm for prediction based on a weak learner model
+     */
+    public void setWeakLearnerPrediction(PredictionBatch weakLearnerPrediction) {
+        cSetWeakLearnerPrediction(this.cObject, weakLearnerPrediction.cObject);
     }
 
     /**
@@ -113,25 +130,22 @@ public class Parameter extends com.intel.daal.algorithms.boosting.Parameter {
         return cGetNrMaxIterations(this.cObject);
     }
 
-    private native void cSetAccuracyThreshold(long parAddr, double acc);
+    private native void cSetWeakLearnerTraining(long selfPtr, long trainerAddr);
+    private native void cSetWeakLearnerPrediction(long selfPtr, long predictorAddr);
 
     private native double cGetAccuracyThreshold(long parAddr);
-
-    private native void cSetNrAccuracyThreshold(long parAddr, double acc);
-
-    private native double cGetNrAccuracyThreshold(long parAddr);
-
-    private native void cSetThr(long parAddr, double acc);
-
-    private native double cGetThr(long parAddr);
-
-    private native void cSetMaxIterations(long parAddr, long nIter);
+    private native void cSetAccuracyThreshold(long parAddr, double acc);
 
     private native long cGetMaxIterations(long parAddr);
+    private native void cSetMaxIterations(long parAddr, long nIter);
 
-    private native void cSetNrMaxIterations(long parAddr, long nIter);
+    private native double cGetNrAccuracyThreshold(long parAddr);
+    private native void cSetNrAccuracyThreshold(long parAddr, double acc);
 
     private native long cGetNrMaxIterations(long parAddr);
+    private native void cSetNrMaxIterations(long parAddr, long nIter);
 
+    private native double cGetThr(long parAddr);
+    private native void cSetThr(long parAddr, double acc);
 }
 /** @} */

@@ -94,12 +94,30 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
         static_cast<const daal::algorithms::gbt::classification::internal::ModelImpl*>(m.get());
     DAAL_ASSERT(pModel);
     DAAL_CHECK(pModel->getNumberOfTrees(), services::ErrorNullModel);
-    const Parameter* pPrm = static_cast<const Parameter*>(parameter);
-    DAAL_CHECK((pPrm->nClasses < 3) || (pModel->getNumberOfTrees() % pPrm->nClasses == 0), services::ErrorGbtIncorrectNumberOfTrees);
+
+    size_t nClasses = 0, nIterations = 0;
+    const gbt::classification::prediction::interface1::Parameter* pPrm1 = dynamic_cast<const gbt::classification::prediction::interface1::Parameter*>(parameter);
+    if (pPrm1)
+    {
+        nClasses = pPrm1->nClasses;
+        nIterations = pPrm1->nIterations;
+    }
+    else
+    {
+        const gbt::classification::prediction::interface2::Parameter* pPrm2 = dynamic_cast<const gbt::classification::prediction::interface2::Parameter*>(parameter);
+        if (pPrm2)
+        {
+            nClasses = pPrm2->nClasses;
+            nIterations = pPrm2->nIterations;
+        }
+        else return services::ErrorNullParameterNotSupported;
+    }
+
     auto maxNIterations = pModel->getNumberOfTrees();
-    if(pPrm->nClasses > 2)
-        maxNIterations /= pPrm->nClasses;
-    DAAL_CHECK((pPrm->nIterations == 0) || (pPrm->nIterations <= maxNIterations), services::ErrorGbtPredictIncorrectNumberOfIterations);
+    if(nClasses > 2)
+        maxNIterations /= nClasses;
+    DAAL_CHECK((nClasses < 3) || (pModel->getNumberOfTrees() % nClasses == 0), services::ErrorGbtIncorrectNumberOfTrees);
+    DAAL_CHECK((nIterations == 0) || (nIterations <= maxNIterations), services::ErrorGbtPredictIncorrectNumberOfIterations);
     return s;
 }
 

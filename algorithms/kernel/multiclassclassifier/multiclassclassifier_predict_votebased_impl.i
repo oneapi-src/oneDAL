@@ -44,15 +44,15 @@ using namespace daal::internal;
 using namespace daal::services;
 using namespace daal::services::internal;
 
-template<typename algorithmFPType, CpuType cpu>
-struct MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, cpu> : public Kernel
+template<typename algorithmFPType, typename ClsType, typename MccParam, CpuType cpu>
+struct MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, ClsType, MccParam, cpu> : public Kernel
 {
     Status compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r,
                              const daal::algorithms::Parameter *par);
 };
 
 /** Base class for threading subtask */
-template<typename algorithmFPType, CpuType cpu>
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
 class SubTaskVoteBased
 {
 public:
@@ -163,9 +163,9 @@ protected:
      * \param[out] valid            Flag. True if the task was constructed successfully, false otherwise
      */
     SubTaskVoteBased(size_t nClasses, size_t nRows,
-            const SharedPtr<classifier::prediction::Batch> &simplePrediction, bool &valid) :
+            const SharedPtr<ClsType> &simplePrediction, bool &valid) :
         _nClasses(nClasses), _aY(nRows), _aVotes(nClasses * nRows),
-        _yRes(new classifier::prediction::Result()), _simplePrediction(simplePrediction->clone())
+        _yRes(new typename ClsType::ResultType()), _simplePrediction(simplePrediction->clone())
     {
         if (!_aY.get() || !_aVotes.get() || !_yRes)
         {
@@ -189,16 +189,16 @@ private:
     TArray<algorithmFPType, cpu> _aY;
     TArray<int, cpu> _aVotes;
     NumericTablePtr _yTable;
-    classifier::prediction::ResultPtr _yRes;
-    SharedPtr<classifier::prediction::Batch> _simplePrediction;
+    services::SharedPtr<typename ClsType::ResultType> _yRes;
+    SharedPtr<ClsType> _simplePrediction;
 };
 
 /** Class for threading subtask that works with dense input data */
-template<typename algorithmFPType, CpuType cpu>
-class SubTaskVoteBasedDense : public SubTaskVoteBased<algorithmFPType, cpu>
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+class SubTaskVoteBasedDense : public SubTaskVoteBased<algorithmFPType, ClsType, cpu>
 {
 public:
-    typedef SubTaskVoteBased<algorithmFPType, cpu> super;
+    typedef SubTaskVoteBased<algorithmFPType, ClsType, cpu> super;
     using super::predict;
 
     /**
@@ -209,7 +209,7 @@ public:
      * \return Pointer to the newly constructed subtask in case of success; NULL pointer in case of failure
      */
     static super* create(size_t nClasses, size_t nRows,
-        const SharedPtr<classifier::prediction::Batch> &simplePrediction)
+        const SharedPtr<ClsType> &simplePrediction)
     {
         bool valid = true;
         super* res = new SubTaskVoteBasedDense(nClasses, nRows, simplePrediction, valid);
@@ -232,18 +232,18 @@ protected:
 
 private:
     SubTaskVoteBasedDense(size_t nClasses, size_t nRows,
-        const SharedPtr<classifier::prediction::Batch> &simplePrediction, bool &valid) :
+        const SharedPtr<ClsType> &simplePrediction, bool &valid) :
         super(nClasses, nRows, simplePrediction, valid)
     {}
     ReadRows<algorithmFPType, cpu> _xRows;
 };
 
 /** Class for threading subtask that works with CSR input data */
-template<typename algorithmFPType, CpuType cpu>
-class SubTaskVoteBasedCSR : public SubTaskVoteBased<algorithmFPType, cpu>
+template<typename algorithmFPType, typename ClsType, CpuType cpu>
+class SubTaskVoteBasedCSR : public SubTaskVoteBased<algorithmFPType, ClsType, cpu>
 {
 public:
-    typedef SubTaskVoteBased<algorithmFPType, cpu> super;
+    typedef SubTaskVoteBased<algorithmFPType, ClsType, cpu> super;
     using super::predict;
 
     /**
@@ -254,7 +254,7 @@ public:
      * \return Pointer to the newly constructed subtask in case of success; NULL pointer in case of failure
      */
     static super* create(size_t nClasses, size_t nRows,
-        const SharedPtr<classifier::prediction::Batch> &simplePrediction)
+        const SharedPtr<ClsType> &simplePrediction)
     {
         bool valid = true;
         super* res = new SubTaskVoteBasedCSR(nClasses, nRows, simplePrediction, valid);
@@ -278,19 +278,19 @@ protected:
 
 private:
     SubTaskVoteBasedCSR(size_t nClasses, size_t nRows,
-        const SharedPtr<classifier::prediction::Batch> &simplePrediction, bool &valid) :
+        const SharedPtr<ClsType> &simplePrediction, bool &valid) :
         super(nClasses, nRows, simplePrediction, valid)
     {}
     ReadRowsCSR<algorithmFPType, cpu> _xRows;
 };
 
-template<typename algorithmFPType, CpuType cpu>
-Status MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, cpu>::
+template<typename algorithmFPType, typename ClsType, typename MccParam, CpuType cpu>
+Status MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, ClsType, MccParam, cpu>::
 compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r,
         const daal::algorithms::Parameter *par)
 {
     Model *model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
-    Parameter *mccPar = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+    MccParam *mccPar = static_cast<MccParam *>(const_cast<daal::algorithms::Parameter *>(par));
     size_t nClasses = mccPar->nClasses;
     TArray<size_t, cpu> nonEmptyClassMapBuffer(nClasses);
     DAAL_CHECK_MALLOC(nonEmptyClassMapBuffer.get());
@@ -301,19 +301,19 @@ compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r
 
     const size_t nVectors = a->getNumberOfRows();
 
-    SharedPtr<classifier::prediction::Batch> simplePrediction = mccPar->prediction;
+    SharedPtr<ClsType> simplePrediction = mccPar->prediction;
 
     const size_t nRowsInBlock = 256;
     size_t nBlocks = nVectors / nRowsInBlock;
     if (nBlocks * nRowsInBlock < nVectors)
             nBlocks++;
 
-    typedef SubTaskVoteBased<algorithmFPType, cpu> TSubTask;
+    typedef SubTaskVoteBased<algorithmFPType, ClsType, cpu> TSubTask;
     daal::ls<TSubTask *> lsTask([=, &simplePrediction]()
     {
         if(a->getDataLayout() == NumericTableIface::csrArray)
-            return SubTaskVoteBasedCSR<algorithmFPType, cpu>::create(nClasses, nRowsInBlock, simplePrediction);
-        return SubTaskVoteBasedDense<algorithmFPType, cpu>::create(nClasses, nRowsInBlock, simplePrediction);
+            return SubTaskVoteBasedCSR<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, simplePrediction);
+        return SubTaskVoteBasedDense<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, simplePrediction);
     } );
 
     /* Process input data set block by block */

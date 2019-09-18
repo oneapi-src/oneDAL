@@ -31,7 +31,7 @@ import com.intel.daal.services.DaalContext;
  * <a name="DAAL-CLASS-ALGORITHMS__BROWNBOOST__MODEL"></a>
  * @brief %Model of the classifier trained by the BrownBoost algorithm in the batch processing mode.
  */
-public class Model extends com.intel.daal.algorithms.boosting.Model {
+public class Model extends com.intel.daal.algorithms.classifier.Model {
     /** @private */
     static {
         LibUtils.loadLibrary();
@@ -39,6 +39,47 @@ public class Model extends com.intel.daal.algorithms.boosting.Model {
 
     public Model(DaalContext context, long cModel) {
         super(context, cModel);
+    }
+
+    /**
+     *  Returns the number of weak learners constructed during training of the BrownBoost algorithm
+     *  @return The number of weak learners
+     */
+    public long getNumberOfWeakLearners() {
+        return cGetNumberOfWeakLearners(this.cObject);
+    }
+
+    /**
+     *  Returns weak learner model constructed during training of the BrownBoost algorithm
+     *  @param idx  Index of the model in the collection
+     *  @return Weak Learner model corresponding to the index idx
+     */
+    public com.intel.daal.algorithms.classifier.Model getWeakLearnerModel(long idx) {
+        return new com.intel.daal.algorithms.classifier.Model(getContext(),
+                                                              cGetWeakLearnerModel(this.cObject, idx));
+    }
+
+    /**
+     *  Add weak learner model into the BrownBoost model
+     *  @param model Weak learner model to add into collection
+     */
+    public void addWeakLearnerModel(com.intel.daal.algorithms.classifier.Model model) {
+        cAddWeakLearnerModel(this.cObject, model.getCObject());
+    }
+
+    /**
+     *  Clears the collecion of weak learners
+     */
+    public void clearWeakLearnerModels() {
+        cClearWeakLearnerModels(this.cObject);
+    }
+
+    /**
+     *  Retrieves the number of features in the dataset was used on the training stage
+     *  @return Number of features in the dataset was used on the training stage
+     */
+    public long getNumberOfFeatures() {
+        return cGetNumberOfFeatures(this.cObject);
     }
 
     /**
@@ -51,8 +92,11 @@ public class Model extends com.intel.daal.algorithms.boosting.Model {
         return (NumericTable)Factory.instance().createObject(getContext(), cGetAlpha(this.getCObject()));
     }
 
-    private NumericTable _alpha;
-
-    private native long cGetAlpha(long modelAddr);
+    private native long cGetNumberOfWeakLearners(long selfPtr);
+    private native long cGetWeakLearnerModel(long selfPtr, long idx);
+    private native void cAddWeakLearnerModel(long selfPtr, long modelPtr);
+    private native void cClearWeakLearnerModels(long selfPtr);
+    private native long cGetNumberOfFeatures(long selfPtr);
+    private native long cGetAlpha(long selfPtr);
 }
 /** @} */

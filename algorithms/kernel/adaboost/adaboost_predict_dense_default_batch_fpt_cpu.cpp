@@ -34,13 +34,15 @@ namespace adaboost
 {
 namespace prediction
 {
-namespace interface1
+namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+template class BatchContainer<DAAL_FPTYPE, sammeR, DAAL_CPU>;
 }
 namespace internal
 {
-template class AdaBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
+template class AdaBoostPredictKernelNew<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
+template class AdaBoostPredictKernelNew<sammeR, DAAL_FPTYPE, DAAL_CPU>;
 }
 }
 }

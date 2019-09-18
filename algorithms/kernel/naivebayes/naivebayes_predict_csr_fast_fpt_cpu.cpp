@@ -37,6 +37,10 @@ namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 }
+namespace interface2
+{
+template class BatchContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
+}
 namespace internal
 {
 template class NaiveBayesPredictKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;

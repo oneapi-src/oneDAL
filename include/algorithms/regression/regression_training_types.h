@@ -53,7 +53,8 @@ enum InputId
 {
     data,               /*!< %Input data table */
     dependentVariables,   /*!< Values of the dependent variable for the input data */
-    lastInputId = dependentVariables
+    weights,              /*!< Optional. Weights of the observations in the training data set */
+    lastInputId = weights
 };
 
 /**
@@ -82,7 +83,7 @@ public:
      * Constructs input objects for the regression training algorithm
      * \param[in] nElements Number of input objects
      */
-    Input(size_t nElements);
+    Input(size_t nElements = lastInputId + 1);
     Input(const Input& other);
 
     virtual ~Input() {}

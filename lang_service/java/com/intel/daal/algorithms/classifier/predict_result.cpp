@@ -20,15 +20,14 @@
 
 #include "daal.h"
 #include "com_intel_daal_algorithms_classifier_prediction_PredictionResult.h"
+#include "com_intel_daal_algorithms_classifier_prediction_PredictionResultId.h"
+
 
 #include "common_helpers.h"
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::classifier;
 using namespace daal::algorithms::classifier::prediction;
-
-#include "com_intel_daal_algorithms_classifier_prediction_PredictionResultId.h"
-#define Prediction com_intel_daal_algorithms_classifier_prediction_PredictionResultId_Prediction
 
 /*
  * Class:     com_intel_daal_algorithms_classifier_prediction_PredictionResult
@@ -65,13 +64,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_prediction_Pre
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionResult_cGetResultTable
 (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
 {
-    if (id == Prediction)
-    {
-        return jniArgument<classifier::prediction::Result>::
-            get<classifier::prediction::ResultId, NumericTable>(resAddr, classifier::prediction::prediction);
-    }
-
-    return (jlong)0;
+    return jniArgument<classifier::prediction::Result>::
+        get<classifier::prediction::ResultId, NumericTable>(resAddr, (classifier::prediction::ResultId)id);
 }
 
 /*

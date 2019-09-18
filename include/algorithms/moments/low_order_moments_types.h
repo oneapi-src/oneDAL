@@ -152,7 +152,7 @@ public:
     Input();
     Input(const Input& other);
 
-    virtual ~Input() {};
+    virtual ~Input() {}
 
     /**
      * Get number of columns in the input data set
@@ -287,7 +287,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     Result();
 
-    virtual ~Result() {};
+    virtual ~Result() {}
 
     /**
      * Allocates memory for storing final results of the low order %moments algorithm

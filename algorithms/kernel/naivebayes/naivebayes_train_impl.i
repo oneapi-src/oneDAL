@@ -353,6 +353,16 @@ Status fillModel( const Parameter *nbPar, size_t p, algorithmFPType *n_c, algori
 
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status NaiveBayesBatchTrainKernel<algorithmFPType, method, cpu>::compute(
+    const NumericTable *data, const NumericTable *labels, Model *mdl, const multinomial_naive_bayes::interface1::Parameter *nbPar)
+{
+    Parameter tmpPar(nbPar->nClasses);
+    tmpPar.priorClassEstimates = nbPar->priorClassEstimates;
+    tmpPar.alpha = nbPar->alpha;
+    return compute(data, labels, mdl, &tmpPar);
+}
+
+template<typename algorithmFPType, Method method, CpuType cpu>
+services::Status NaiveBayesBatchTrainKernel<algorithmFPType, method, cpu>::compute(
     const NumericTable *data, const NumericTable *labels, Model *mdl, const Parameter *nbPar)
 {
     NumericTable *ntData  = const_cast<NumericTable *>( data );
@@ -391,6 +401,16 @@ services::Status NaiveBayesBatchTrainKernel<algorithmFPType, method, cpu>::compu
 
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status NaiveBayesOnlineTrainKernel<algorithmFPType, method, cpu>::compute(
+    const NumericTable *data, const NumericTable *labels, PartialModel *mdl, const multinomial_naive_bayes::interface1::Parameter *nbPar)
+{
+    Parameter tmpPar(nbPar->nClasses);
+    tmpPar.priorClassEstimates = nbPar->priorClassEstimates;
+    tmpPar.alpha = nbPar->alpha;
+    return compute(data, labels, mdl, &tmpPar);
+}
+
+template<typename algorithmFPType, Method method, CpuType cpu>
+services::Status NaiveBayesOnlineTrainKernel<algorithmFPType, method, cpu>::compute(
     const NumericTable *data, const NumericTable *labels, PartialModel *mdl, const Parameter *nbPar)
 {
     NumericTable *ntData     = const_cast<NumericTable *>( data );
@@ -418,6 +438,17 @@ services::Status NaiveBayesOnlineTrainKernel<algorithmFPType, method, cpu>::comp
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status NaiveBayesOnlineTrainKernel<algorithmFPType, method, cpu>::finalizeCompute(PartialModel *pMdl,
                                                                                 Model *rMdl,
+                                                                                const multinomial_naive_bayes::interface1::Parameter *nbPar)
+{
+    Parameter tmpPar(nbPar->nClasses);
+    tmpPar.priorClassEstimates = nbPar->priorClassEstimates;
+    tmpPar.alpha = nbPar->alpha;
+    return finalizeCompute(pMdl, rMdl, &tmpPar);
+}
+
+template<typename algorithmFPType, Method method, CpuType cpu>
+services::Status NaiveBayesOnlineTrainKernel<algorithmFPType, method, cpu>::finalizeCompute(PartialModel *pMdl,
+                                                                                Model *rMdl,
                                                                                 const Parameter *nbPar)
 {
     size_t c = nbPar->nClasses;
@@ -430,6 +461,16 @@ services::Status NaiveBayesOnlineTrainKernel<algorithmFPType, method, cpu>::fina
     return fillModel<algorithmFPType, method, cpu>( nbPar, pMdl->getNFeatures(), wrC.get(), wrCi.get(), rMdl );
 }
 
+template<typename algorithmFPType, Method method, CpuType cpu>
+services::Status NaiveBayesDistributedTrainKernel<algorithmFPType, method, cpu>::merge(size_t nModels, PartialModel *const *inPMdls,
+                                                                           PartialModel *outPMdl,
+                                                                           const multinomial_naive_bayes::interface1::Parameter *nbPar)
+{
+    Parameter tmpPar(nbPar->nClasses);
+    tmpPar.priorClassEstimates = nbPar->priorClassEstimates;
+    tmpPar.alpha = nbPar->alpha;
+    return merge(nModels, inPMdls, outPMdl, &tmpPar);
+}
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status NaiveBayesDistributedTrainKernel<algorithmFPType, method, cpu>::merge(size_t nModels, PartialModel *const *inPMdls,
                                                                            PartialModel *outPMdl,

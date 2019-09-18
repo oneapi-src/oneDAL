@@ -35,7 +35,7 @@ namespace adaboost
 {
 namespace prediction
 {
-namespace interface1
+namespace interface2
 {
 
 /**
@@ -97,9 +97,7 @@ Status Input::check(const daal::algorithms::Parameter *parameter, int method) co
     DAAL_CHECK(m->getNumberOfWeakLearners() == m->getAlpha()->getNumberOfRows(), ErrorIncorrectSizeOfModel);
     return s;
 }
-
-
-} // namespace interface1
+} // namespace interface2
 } // namespace prediction
 } // namespace adaboost
 } // namespace algorithms

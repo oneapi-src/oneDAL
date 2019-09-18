@@ -69,6 +69,28 @@ namespace interface1
  *
  * \snippet gradient_boosted_trees/gbt_classification_predict_types.h Parameter source code
  */
+/* [interface1::Parameter source code] */
+struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
+{
+    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses), nIterations(0) {}
+    Parameter(const Parameter& o) : daal::algorithms::classifier::interface1::Parameter(o), nIterations(o.nIterations){}
+    size_t nIterations;        /*!< Number of iterations of the trained model to be used for prediction */
+};
+/* [interface1::Parameter source code] */
+}
+
+/**
+ * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__PARAMETER"></a>
+ * \brief Parameters of the prediction algorithm
+ *
+ * \snippet gradient_boosted_trees/gbt_classification_predict_types.h Parameter source code
+ */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
 {
@@ -77,7 +99,13 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     size_t nIterations;        /*!< Number of iterations of the trained model to be used for prediction */
 };
 /* [Parameter source code] */
+}
 
+/**
+ * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface1
+{
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the GBT_CLASSIFICATION algorithm
@@ -131,7 +159,7 @@ public:
 };
 
 } // namespace interface1
-using interface1::Parameter;
+using interface2::Parameter;
 using interface1::Input;
 }
 /** @} */

@@ -33,7 +33,7 @@ import com.intel.daal.services.DaalContext;
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__MODEL"></a>
  * @brief %Model trained by decision tree regression algorithm in batch processing mode.
  */
-public class Model extends com.intel.daal.algorithms.Model {
+public class Model extends com.intel.daal.algorithms.regression.Model {
     /** @private */
     static {
         LibUtils.loadLibrary();

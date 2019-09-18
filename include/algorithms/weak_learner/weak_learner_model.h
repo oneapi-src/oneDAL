@@ -51,7 +51,7 @@ namespace interface1
  * \snippet weak_learner/weak_learner_model.h Parameter source code
  */
 /* [Parameter source code] */
-class Parameter : public classifier::Parameter
+class Parameter : public classifier::interface1::Parameter
 {
 public:
     Parameter() {}
@@ -63,7 +63,7 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__WEAK_LEARNER__MODEL"></a>
  * \brief %Base class for the weak learner model
  */
-class Model : public classifier::Model
+class Model : public classifier::interface1::Model
 {
 public:
     Model() {}

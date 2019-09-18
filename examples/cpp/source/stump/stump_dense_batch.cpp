@@ -43,8 +43,8 @@ string testDatasetFileName      = "../data/batch/stump_test.csv";
 
 const size_t nFeatures = 20;
 
-training::ResultPtr trainingResult;
-classifier::prediction::ResultPtr predictionResult;
+training::interface1::ResultPtr trainingResult;
+classifier::prediction::interface1::ResultPtr predictionResult;
 NumericTablePtr testGroundTruth;
 
 void trainModel();
@@ -80,7 +80,7 @@ void trainModel()
     trainDataSource.loadDataBlock(mergedData.get());
 
     /* Create an algorithm object to train the stump model */
-    training::Batch<> algorithm;
+    training::interface1::Batch<> algorithm;
 
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data,   trainData);
@@ -108,7 +108,7 @@ void testModel()
     testDataSource.loadDataBlock(mergedData.get());
 
     /* Create an algorithm object to predict values */
-    prediction::Batch<> algorithm;
+    prediction::interface1::Batch<> algorithm;
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data,  testData);

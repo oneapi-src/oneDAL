@@ -57,6 +57,21 @@ struct LogitBoostPredictKernel : public Kernel
     services::Status compute( NumericTablePtr a, const Model *m, NumericTable *r, const Parameter *par );
 };
 
+template <Method method, typename algorithmFPType, CpuType cpu>
+struct LogitBoostPredictKernelNew : public Kernel
+{
+    typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
+    typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
+    /**
+     *  \brief Calculate Logit Boost classification results.
+     *
+     *  \param a[in]    Matrix of input variables X
+     *  \param m[in]    Logit Boost model obtained on training stage
+     *  \param r[out]   Prediction results
+     *  \param par[in]  Logit Boost algorithm parameters
+     */
+    services::Status compute( NumericTablePtr a, const Model *m, NumericTable *r, const Parameter *par );
+};
 } // namespace daal::algorithms::logitboost::prediction::internal
 }
 }

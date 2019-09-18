@@ -69,8 +69,8 @@ template<>
 class DistributedContainerIface<step2Master> : public daal::algorithms::AnalysisContainerIface<distributed>
 {
 public:
-    DistributedContainerIface() {};
-    virtual ~DistributedContainerIface() {};
+    DistributedContainerIface() {}
+    virtual ~DistributedContainerIface() {}
 
     /**
      * Computes a partial result of the correlation or variance-covariance matrix algorithm in the second step
@@ -247,7 +247,7 @@ public:
     DistributedIface()
     {
         initialize();
-    };
+    }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation

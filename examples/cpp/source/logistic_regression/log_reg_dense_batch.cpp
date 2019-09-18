@@ -100,7 +100,7 @@ void testModel(const training::ResultPtr& trainingResult)
 
     /* Create an algorithm object to predict values of logistic regression */
     prediction::Batch<> algorithm(nClasses);
-    algorithm.parameter().resultsToCompute |= prediction::computeClassesProbabilities | prediction::computeClassesLogProbabilities;
+    algorithm.parameter().resultsToEvaluate |= classifier::computeClassProbabilities | classifier::computeClassLogProbabilities;
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
@@ -110,13 +110,13 @@ void testModel(const training::ResultPtr& trainingResult)
     algorithm.compute();
 
     /* Retrieve the algorithm results */
-    logistic_regression::prediction::ResultPtr predictionResult = logistic_regression::prediction::Result::cast(algorithm.getResult());
+    classifier::prediction::ResultPtr predictionResult = algorithm.getResult();
     printNumericTable(predictionResult->get(classifier::prediction::prediction),
         "Logistic regression prediction results (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
-    printNumericTable(predictionResult->get(logistic_regression::prediction::probabilities),
+    printNumericTable(predictionResult->get(classifier::prediction::probabilities),
         "Logistic regression prediction probabilities (first 10 rows):", 10);
-    printNumericTable(predictionResult->get(logistic_regression::prediction::logProbabilities),
+    printNumericTable(predictionResult->get(classifier::prediction::logProbabilities),
         "Logistic regression prediction log probabilities (first 10 rows):", 10);
 }
 

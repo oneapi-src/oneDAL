@@ -29,7 +29,8 @@ namespace algorithms
 {
 namespace adaboost
 {
-
+namespace interface2
+{
 /**
  * Constructs the AdaBoost model
  * \tparam modelFPType  Data type to store AdaBoost model data, double or float
@@ -37,15 +38,19 @@ namespace adaboost
  * \DAAL_DEPRECATED_USE{ Model::create }
  */
 template <typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nFeatures, modelFPType dummy) : boosting::Model(nFeatures)
+DAAL_EXPORT Model::Model(size_t nFeatures, modelFPType dummy) :
+    _nFeatures(nFeatures),
+    _models(new data_management::DataCollection())
 {
     _alpha = data_management::NumericTablePtr(new data_management::HomogenNumericTable<modelFPType>(NULL, 1, 0));
 }
 
 template <typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nFeatures, modelFPType dummy, services::Status &st) : boosting::Model(nFeatures, st)
+DAAL_EXPORT Model::Model(size_t nFeatures, modelFPType dummy, services::Status &st) :
+    _nFeatures(nFeatures),
+    _models(new data_management::DataCollection())
 {
-    if (!st) { return; }
+    if (!_models) { st.add(services::ErrorMemoryAllocationFailed); }
     _alpha = data_management::HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
 }
 
@@ -62,9 +67,10 @@ DAAL_EXPORT ModelPtr Model::create(size_t nFeatures, services::Status *stat)
 }
 
 template DAAL_EXPORT Model::Model(size_t, DAAL_FPTYPE);
-template DAAL_EXPORT Model::Model(size_t, DAAL_FPTYPE, services::Status&);
-template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, services::Status*);
+template DAAL_EXPORT Model::Model(size_t, DAAL_FPTYPE, services::Status &);
+template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, services::Status *);
 
+}// namespace interface2
 }// namespace adaboost
 }// namespace algorithms
 }// namespace daal

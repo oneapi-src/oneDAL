@@ -68,10 +68,10 @@ namespace interface1
  *      - \ref classifier::training::interface1::Input "classifier::training::Input" class
  *      - \ref classifier::training::interface1::Result "classifier::training::Result" class
  */
-class DAAL_EXPORT Batch : public classifier::training::Batch
+class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
 {
 public:
-    typedef classifier::training::Batch super;
+    typedef classifier::training::interface1::Batch super;
 
     typedef super::InputType                InputType;
     typedef algorithms::boosting::Parameter ParameterType;

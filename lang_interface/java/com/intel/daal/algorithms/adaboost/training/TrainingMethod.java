@@ -47,9 +47,15 @@ public final class TrainingMethod {
         return _value;
     }
 
-    private static final int DefaultDense = 0;
+    private static final int Samme = 0;
+    private static final int DefaultDense = Samme;
+    private static final int SammeR = 1;
 
     /** Default AdaBoost training method */
     public static final TrainingMethod defaultDense = new TrainingMethod(DefaultDense);
+    /** SAMME algorithm */
+    public static final TrainingMethod samme = new TrainingMethod(Samme);
+    /** SAMME.R algorithm, need probabilities from weak learner prediction result */
+    public static final TrainingMethod sammeR = new TrainingMethod(SammeR);
 }
 /** @} */

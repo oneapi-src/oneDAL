@@ -51,16 +51,37 @@ public final class TrainingInputId {
 
     private static final int dataId                          = 0;
     private static final int dependentVariablesId            = 1;
-    private static final int dataForPruningId                = 2;
-    private static final int dependentVariablesForPruningId  = 3;
+    private static final int weightsId                       = 2;
+    private static final int dataForPruningId                = 3;
+    private static final int dependentVariablesForPruningId  = 4;
 
     public static final TrainingInputId data                         = new TrainingInputId(dataId);
         /*!< Input data table */
     public static final TrainingInputId dependentVariables           = new TrainingInputId(dependentVariablesId);
         /*!< Values of the dependent variable for the input data */
+    public static final TrainingInputId weights                      = new TrainingInputId(weightsId);
+        /*!< Optional. Weights of the observations in the training data set */
     public static final TrainingInputId dataForPruning               = new TrainingInputId(dataForPruningId);
         /*!< Pruning data set */
     public static final TrainingInputId dependentVariablesForPruning = new TrainingInputId(dependentVariablesForPruningId);
         /*!< Labels of the pruning data set */
+
+    public static boolean validate(TrainingInputId id) {
+        return id == data ||
+               id == dependentVariables ||
+               id == weights ||
+               id == dataForPruning ||
+               id == dependentVariablesForPruning;
+    }
+
+    public static void throwIfInvalid(TrainingInputId id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Null input id");
+        }
+        if (!TrainingInputId.validate(id)) {
+            throw new IllegalArgumentException("Unsupported input id");
+        }
+    }
+
 }
 /** @} */

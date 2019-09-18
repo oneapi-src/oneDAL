@@ -53,11 +53,8 @@ public class PredictionInput extends com.intel.daal.algorithms.classifier.predic
      * @return   Input object that corresponds to the given identifier
      */
     public Model get(ModelInputId id) {
-        if (id == ModelInputId.model) {
-            return new Model(getContext(), cGetInputModel(cObject, id.getValue()));
-        } else {
-            throw new IllegalArgumentException("id unsupported");
-        }
+        ModelInputId.throwIfInvalid(id);
+        return new Model(getContext(), cGetInputModel(cObject, id.getValue()));
     }
 }
 /** @} */

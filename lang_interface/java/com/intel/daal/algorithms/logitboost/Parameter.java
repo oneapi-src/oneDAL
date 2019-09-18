@@ -24,15 +24,32 @@
 package com.intel.daal.algorithms.logitboost;
 
 import com.intel.daal.services.DaalContext;
+import com.intel.daal.algorithms.regression.training.TrainingBatch;
+import com.intel.daal.algorithms.regression.prediction.PredictionBatch;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGITBOOST__PARAMETER"></a>
  * @brief Base class for parameters of the LogitBoost training algorithm
  */
-public class Parameter extends com.intel.daal.algorithms.boosting.Parameter {
-
+public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
     public Parameter(DaalContext context, long cParameter) {
         super(context, cParameter);
+    }
+
+    /**
+     * Sets the algorithm for weak learner model training
+     * @param weakLearnerTraining Algorithm for weak learner model training
+     */
+    public void setWeakLearnerTraining(TrainingBatch weakLearnerTraining) {
+        cSetWeakLearnerTraining(this.cObject, weakLearnerTraining.cObject);
+    }
+
+    /**
+     * Sets the algorithm for prediction based on a weak learner model
+     * @param weakLearnerPrediction Algorithm for prediction based on a weak learner model
+     */
+    public void setWeakLearnerPrediction(PredictionBatch weakLearnerPrediction) {
+        cSetWeakLearnerPrediction(this.cObject, weakLearnerPrediction.cObject);
     }
 
     /**
@@ -98,20 +115,19 @@ public class Parameter extends com.intel.daal.algorithms.boosting.Parameter {
         return cGetMaxIterations(this.cObject);
     }
 
-    private native void cSetAccuracyThreshold(long parAddr, double acc);
+    private native void cSetWeakLearnerTraining(long selfPtr, long trainerAddr);
+    private native void cSetWeakLearnerPrediction(long selfPtr, long predictorAddr);
 
-    private native double cGetAccuracyThreshold(long parAddr);
+    private native double cGetAccuracyThreshold(long selfPtr);
+    private native void cSetAccuracyThreshold(long selfPtr, double acc);
 
-    private native void cSetWeightsThreshold(long parAddr, double acc);
+    private native double cGetWeightsThreshold(long selfPtr);
+    private native void cSetWeightsThreshold(long selfPtr, double acc);
 
-    private native double cGetWeightsThreshold(long parAddr);
+    private native double cGetResponsesThreshold(long selfPtr);
+    private native void cSetResponsesThreshold(long selfPtr, double acc);
 
-    private native void cSetResponsesThreshold(long parAddr, double acc);
-
-    private native double cGetResponsesThreshold(long parAddr);
-
-    private native void cSetMaxIterations(long parAddr, long nIter);
-
-    private native long cGetMaxIterations(long parAddr);
+    private native long cGetMaxIterations(long selfPtr);
+    private native void cSetMaxIterations(long selfPtr, long nIter);
 }
 /** @} */

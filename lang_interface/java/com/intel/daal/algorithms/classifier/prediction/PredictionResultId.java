@@ -47,9 +47,27 @@ public final class PredictionResultId {
     }
 
     @Native private static final int Prediction = 0;
+    private static final int Probabilities = 1;
+    private static final int LogProbabilities = 2;
 
     /** Prediction results */
     public static final PredictionResultId prediction = new PredictionResultId(Prediction);
+    public static final PredictionResultId probabilities = new PredictionResultId(Probabilities);
+    public static final PredictionResultId logProbabilities = new PredictionResultId(LogProbabilities);
 
+    public static boolean validate(PredictionResultId id) {
+        return id.getValue() == prediction.getValue() ||
+               id.getValue() == probabilities.getValue() ||
+               id.getValue() == logProbabilities.getValue();
+    }
+
+    public static void throwIfInvalid(PredictionResultId id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Null result id");
+        }
+        if (!PredictionResultId.validate(id)) {
+            throw new IllegalArgumentException("Unsupported result id");
+        }
+    }
 }
 /** @} */

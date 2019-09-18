@@ -33,15 +33,15 @@ import com.intel.daal.algorithms.Precision;
  * @brief Provides methods to access final results obtained with the compute() method of
  *        the decision_tree regression model-based prediction algorithm in the batch processing mode
  */
-public final class PredictionResult extends com.intel.daal.algorithms.Result {
+public final class PredictionResult extends com.intel.daal.algorithms.regression.prediction.PredictionResult {
     /** @private */
     static {
         LibUtils.loadLibrary();
     }
 
     /** Default constructor */
-    public PredictionResult(DaalContext context, long cObject) {
-        super(context, cObject);
+    public PredictionResult(DaalContext context, long cAlgorithm) {
+        super(context, cAlgorithm);
     }
 
     /**

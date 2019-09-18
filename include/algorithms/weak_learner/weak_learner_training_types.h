@@ -59,7 +59,7 @@ namespace interface1
  * \brief Provides methods to access final results obtained with compute() method of Batch
  *        or finalizeCompute() method of Online and Distributed weak learners algorithms
  */
-class DAAL_EXPORT Result : public daal::algorithms::classifier::training::Result
+class DAAL_EXPORT Result : public daal::algorithms::classifier::training::interface1::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);

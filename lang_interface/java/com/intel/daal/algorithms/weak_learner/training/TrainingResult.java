@@ -34,7 +34,7 @@ import com.intel.daal.services.DaalContext;
  * @brief Provides methods to access final results obtained with the compute() method of the TrainingBatch
  *        weak learner algorithm
  */
-public final class TrainingResult extends com.intel.daal.algorithms.Result {
+public final class TrainingResult extends com.intel.daal.algorithms.classifier.training.TrainingResult {
     /** @private */
     static {
         LibUtils.loadLibrary();

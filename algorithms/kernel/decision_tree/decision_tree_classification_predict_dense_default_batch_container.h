@@ -35,7 +35,8 @@ namespace classification
 {
 namespace prediction
 {
-
+namespace interface1
+{
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
@@ -62,9 +63,44 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::DecisionTreePredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), \
-                       compute, a.get(), m.get(), r.get(), par);
+                       compute, a.get(), m.get(), r.get(), 0, par);
+}
+}
+namespace interface2
+{
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
+{
+    __DAAL_INITIALIZE_KERNELS(internal::DecisionTreePredictKernel, algorithmFPType, method);
 }
 
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
+{
+    __DAAL_DEINITIALIZE_KERNELS();
+}
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
+{
+    const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
+    classifier::prediction::Result * const result = static_cast<classifier::prediction::Result *>(_res);
+    classifier::Parameter * const parameter = static_cast<classifier::Parameter *>(_par);
+
+    const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
+    const classifier::ModelConstPtr m = input->get(classifier::prediction::model);
+    const data_management::NumericTablePtr r = result->get(classifier::prediction::prediction);
+    data_management::NumericTablePtr prob; // Used to prevent shared pointer release
+    data_management::NumericTable * const p = ((parameter->resultsToEvaluate & classifier::computeClassProbabilities) != 0)
+                                              ? (prob = result->get(classifier::prediction::probabilities)).get() : nullptr;
+
+    const daal::algorithms::Parameter * const par = _par;
+    daal::services::Environment::env & env = *_env;
+
+    __DAAL_CALL_KERNEL(env, internal::DecisionTreePredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), \
+                       compute, a.get(), m.get(), r.get(), p, par);
+}
+}
 } // namespace prediction
 } // namespace classification
 } // namespace decision_tree

@@ -64,9 +64,20 @@ struct LogitBoostTrainKernel<friedman, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    services::Status compute(const size_t na, NumericTablePtr a[], Model *r, const Parameter *par);
+    services::Status compute(const size_t na, NumericTablePtr a[], logitboost::interface1::Model *r, const logitboost::interface1::Parameter *par);
 };
 
+/**
+ *  \brief Specialization of the structure that contains kernels for
+ *  Logit Boost model training using Friedman method
+ */
+template<typename algorithmFPType, CpuType cpu>
+struct LogitBoostTrainKernelNew<friedman, algorithmFPType, cpu> : public Kernel
+{
+    typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
+    typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
+    services::Status compute(const size_t na, NumericTablePtr a[], Model *r, const Parameter *par);
+};
 } // namepsace internal
 } // namespace prediction
 } // namespace logitboost

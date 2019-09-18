@@ -64,7 +64,7 @@ template <typename algorithmFpType, CpuType cpu>
 class KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu> : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(NumericTable * x, NumericTable * y, kdtree_knn_classification::Model * r, const kdtree_knn_classification::Parameter& par, engines::BatchBase &engine);
+    services::Status compute(NumericTable * x, NumericTable * y, kdtree_knn_classification::Model * r, engines::BatchBase &engine);
 
 protected:
     Status buildFirstPartOfKDTree(Queue<BuildNode, cpu> & q, BoundingBox<algorithmFpType> * & bboxQ, const NumericTable & x,

@@ -57,12 +57,9 @@ public class PredictionResult extends com.intel.daal.algorithms.Result {
      * @return     Result that corresponds to the given identifier
      */
     public NumericTable get(PredictionResultId id) {
-        if (id == PredictionResultId.prediction) {
-            return (NumericTable)Factory.instance().createObject(getContext(),
-                    cGetResultTable(cObject, PredictionResultId.prediction.getValue()));
-        } else {
-            return null;
-        }
+        PredictionResultId.throwIfInvalid(id);
+        return (NumericTable)Factory.instance().createObject(getContext(),
+                cGetResultTable(cObject, id.getValue()));
     }
 
     /**
@@ -71,9 +68,7 @@ public class PredictionResult extends com.intel.daal.algorithms.Result {
      * @param value Object for storing the final result
      */
     public void set(PredictionResultId id, NumericTable value) {
-        if (id != PredictionResultId.prediction) {
-            throw new IllegalArgumentException("id unsupported");
-        }
+        PredictionResultId.throwIfInvalid(id);
         cSetResultTable(cObject, id.getValue(), value.getCObject());
     }
 

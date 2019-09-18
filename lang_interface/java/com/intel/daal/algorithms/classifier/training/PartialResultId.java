@@ -48,5 +48,18 @@ public final class PartialResultId {
 
     /** Trained model */
     public static final PartialResultId partialModel = new PartialResultId(PartialModel);
+
+    public static boolean validate(PartialResultId id) {
+        return id.getValue() == partialModel.getValue();
+    }
+
+    public static void throwIfInvalid(PartialResultId id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Null result id");
+        }
+        if (!PartialResultId.validate(id)) {
+            throw new IllegalArgumentException("Unsupported result id");
+        }
+    }
 }
 /** @} */

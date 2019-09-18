@@ -53,7 +53,7 @@ Parameter::Parameter(const SharedPtr<weak_learner::training::Batch>& wlTrain,
 Status Parameter::check() const
 {
     Status s;
-    DAAL_CHECK_STATUS(s, classifier::Parameter::check());
+    DAAL_CHECK_STATUS(s, classifier::interface1::Parameter::check());
 
     DAAL_CHECK_EX(weakLearnerTraining, ErrorNullAuxiliaryAlgorithm, ParameterName, weakLearnerTrainingStr());
     DAAL_CHECK_EX(weakLearnerPrediction, ErrorNullAuxiliaryAlgorithm, ParameterName, weakLearnerPredictionStr());

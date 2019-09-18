@@ -746,6 +746,7 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorAprioriIncorrectInputData, "Incorrect input data");
 
     // BrownBoost errors: -5200..-5399
+    add(ErrorInconsistentNumberOfClasses, "Inconsistent number of classes between the boosting algorithm and the weak learner");
 
     // Cholesky errors: -5400..-5599
     add(ErrorCholeskyInternal, "Cholesky internal error");
@@ -825,6 +826,10 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorSVMPredictKernerFunctionCall, "SVM predict: error in kernel function call. Details are as follows.");
 
     // WeakLearner errors: -8800..-8999
+    add(ErrorIncorrectWeakLearnerClassificationAlgorithm, "Weak learner can not be casted to classifier algorithm");
+    add(ErrorIncorrectWeakLearnerRegressionAlgorithm, "Weak learner can not be casted to regression algorithm");
+    add(ErrorIncorrectWeakLearnerClassificationModel, "Weak learner's model can not be casted to classifier model");
+    add(ErrorIncorrectWeakLearnerRegressionModel, "Weak learner's model can not be casted to regression model");
 
     // Compression errors: -9000..-9199
     add(ErrorCompressionNullInputStream, "Null input stream is not supported");

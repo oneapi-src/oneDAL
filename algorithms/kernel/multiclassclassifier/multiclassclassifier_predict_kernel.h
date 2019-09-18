@@ -45,7 +45,7 @@ namespace prediction
 {
 namespace internal
 {
-template<prediction::Method pmethod, training::Method tmethod, typename algorithmFPType, CpuType cpu>
+template<prediction::Method pmethod, training::Method tmethod, typename algorithmFPType, typename ClsType, typename MccParam, CpuType cpu>
 struct MultiClassClassifierPredictKernel : public Kernel
 {
     services::Status compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r,

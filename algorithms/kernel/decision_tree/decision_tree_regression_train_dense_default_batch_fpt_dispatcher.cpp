@@ -29,5 +29,8 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(decision_tree::regression::training::BatchContainer, batch, DAAL_FPTYPE, \
                                       decision_tree::regression::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(decision_tree::regression::training::interface1::BatchContainer, batch, DAAL_FPTYPE, \
+                                      decision_tree::regression::training::defaultDense)
+
 } // namespace algorithms
 } // namespace daal

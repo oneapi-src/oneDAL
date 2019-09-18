@@ -311,6 +311,8 @@
     DECLARE_DAAL_STRING_CONST(nFeatures                          ) \
     DECLARE_DAAL_STRING_CONST(noiseVariance                      ) \
     DECLARE_DAAL_STRING_CONST(minObservations                    ) \
+    DECLARE_DAAL_STRING_CONST(nBins                              ) \
+    DECLARE_DAAL_STRING_CONST(resultsToEvaluate                  ) \
     DECLARE_DAAL_STRING_CONST(coreIndices                        ) \
     DECLARE_DAAL_STRING_CONST(coreObservations                   ) \
     DECLARE_DAAL_STRING_CONST(blockIndex                         ) \

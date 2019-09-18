@@ -39,7 +39,7 @@ import com.intel.daal.services.DaalContext;
  *      - com.intel.daal.algorithms.adaboost.Model class
  *      - com.intel.daal.algorithms.classifier.prediction.PredictionResult class
  */
-public class PredictionBatch extends com.intel.daal.algorithms.boosting.prediction.PredictionBatch {
+public class PredictionBatch extends com.intel.daal.algorithms.classifier.prediction.PredictionBatch {
     public PredictionInput  input;     /*!< %Input data */
     public PredictionMethod method;    /*!< %Prediction method for the algorithm */
     public Parameter        parameter; /*!< Parameters of the algorithm */
@@ -68,32 +68,24 @@ public class PredictionBatch extends com.intel.daal.algorithms.boosting.predicti
     /**
      * Constructs the AdaBoost prediction algorithm
      * @param context   Context to manage AdaBoost prediction
+     * @param nClasses  Number of classes
      * @param cls       Data type to use in intermediate computations for AdaBoost prediction,
      *                  Double.class or Float.class
      * @param method    AdaBoost prediction method, @ref PredictionMethod
      */
-    public PredictionBatch(DaalContext context, Class<? extends Number> cls, PredictionMethod method) {
+    public PredictionBatch(DaalContext context, long nClasses, Class<? extends Number> cls, PredictionMethod method) {
         super(context);
+        init(Precision.fromClass(cls), method, nClasses);
+    }
 
-        this.method = method;
-
-        if (this.method != PredictionMethod.defaultDense) {
-            throw new IllegalArgumentException("method unsupported");
-        }
-
-        if (cls != Double.class && cls != Float.class) {
-            throw new IllegalArgumentException("type unsupported");
-        }
-
-        if (cls == Double.class) {
-            prec = Precision.doublePrecision;
-        } else {
-            prec = Precision.singlePrecision;
-        }
-
-        this.cObject = cInit(prec.getValue(), this.method.getValue());
-        input = new PredictionInput(getContext(), cObject);
-        parameter = new Parameter(getContext(), cInitParameter(this.cObject, prec.getValue(), method.getValue()));
+    /**
+     * Constructs the AdaBoost prediction algorithm
+     * @param context   Context to manage AdaBoost prediction
+     * @param nClasses  Number of classes
+     */
+    public PredictionBatch(DaalContext context, long nClasses) {
+        super(context);
+        init(Precision.singlePrecision, PredictionMethod.defaultDense, nClasses);
     }
 
     /**
@@ -108,7 +100,17 @@ public class PredictionBatch extends com.intel.daal.algorithms.boosting.predicti
         return new PredictionBatch(context, this);
     }
 
-    private native long cInit(int prec, int method);
+    private void init(Precision prec, PredictionMethod method, long nClasses) {
+        this.prec      = prec;
+        this.method    = method;
+        this.cObject   = cInit(prec.getValue(), method.getValue(), nClasses);
+        this.input     = new PredictionInput(getContext(), this.cObject, ComputeMode.batch);
+        this.parameter = new Parameter( getContext(), cInitParameter(this.cObject,
+                                                                     prec.getValue(),
+                                                                     method.getValue()) );
+    }
+
+    private native long cInit(int prec, int method, long nClasses);
 
     private native long cInitParameter(long algAddr, int prec, int method);
 

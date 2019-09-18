@@ -31,7 +31,7 @@ import com.intel.daal.services.DaalContext;
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__TRAINING__TRAININGRESULT"></a>
  * @brief Provides methods to access final results obtained with the compute() method of the AdaBoost training algorithm in the batch processing mode
  */
-public final class TrainingResult extends com.intel.daal.algorithms.boosting.training.TrainingResult {
+public final class TrainingResult extends com.intel.daal.algorithms.classifier.training.TrainingResult {
     /** @private */
     static {
         LibUtils.loadLibrary();
@@ -46,12 +46,11 @@ public final class TrainingResult extends com.intel.daal.algorithms.boosting.tra
      * @param id       Identifier of the result
      * @return         %Result that corresponds to the given identifier
      */
-    @Override
     public Model get(TrainingResultId id) {
-        if (id != TrainingResultId.model) {
-            throw new IllegalArgumentException("type unsupported");
-        }
-        return new Model(getContext(), cGetModel(cObject, TrainingResultId.model.getValue()));
+        TrainingResultId.throwIfInvalid(id);
+        return new Model(getContext(), cGetModel(cObject, id.getValue()));
     }
+
+    private native long cGetModel(long resAddr, int id);
 }
 /** @} */

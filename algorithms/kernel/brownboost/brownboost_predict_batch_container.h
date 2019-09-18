@@ -33,10 +33,41 @@ namespace brownboost
 {
 namespace prediction
 {
+namespace interface1
+{
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::BrownBoostPredictKernel, method, algorithmFPType);
+}
+
+template<typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
+{
+    __DAAL_DEINITIALIZE_KERNELS();
+}
+
+template<typename algorithmFPType, Method method, CpuType cpu>
+services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
+{
+    classifier::prediction::interface1::Result *result = static_cast<classifier::prediction::interface1::Result *>(_res);
+    classifier::prediction::interface1::Input *input = static_cast<classifier::prediction::interface1::Input *>(_in);
+
+    NumericTablePtr a = input->get(classifier::prediction::data);
+    brownboost::interface1::Model *m = static_cast<brownboost::interface1::Model *>(input->get(classifier::prediction::model).get());
+    NumericTablePtr r = result->get(classifier::prediction::prediction);
+    brownboost::interface1::Parameter *par = static_cast<brownboost::interface1::Parameter *>(_par);
+
+    daal::services::Environment::env &env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::BrownBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
+}
+}
+namespace interface2
+{
+template<typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+{
+    __DAAL_INITIALIZE_KERNELS(internal::BrownBoostPredictKernelNew, method, algorithmFPType);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -57,7 +88,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     brownboost::Parameter *par = static_cast<brownboost::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::BrownBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
+    __DAAL_CALL_KERNEL(env, internal::BrownBoostPredictKernelNew, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
+}
 }
 
 } // namespace daal::algorithms::brownboost::prediction

@@ -174,7 +174,68 @@ services::Status Result::checkImpl(const daal::algorithms::Input *input, const d
 
     return data_management::checkNumericTable(resTable.get(), predictionStr(), data_management::packed_mask, 0, 1, nRows);
 }
+}
 
+namespace interface2
+{
+__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CLASSIFIER_PREDICTION_RESULT_V2_ID);
+
+Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
+Result::Result(const size_t n) : daal::algorithms::Result(n) {}
+
+/**
+ * Returns the prediction result of the classification algorithm
+ * \param[in] id   Identifier of the prediction result, \ref ResultId
+ * \return         Prediction result that corresponds to the given identifier
+ */
+data_management::NumericTablePtr Result::get(ResultId id) const
+{
+    return services::staticPointerCast<data_management::NumericTable, data_management::SerializationIface>(Argument::get(id));
+}
+
+/**
+ * Sets the prediction result of the classification algorithm
+ * \param[in] id    Identifier of the prediction result, \ref ResultId
+ * \param[in] value Pointer to the prediction result
+ */
+void Result::set(ResultId id, const data_management::NumericTablePtr &value)
+{
+    Argument::set(id, value);
+}
+
+/**
+ * Checks the correctness of the Result object
+ * \param[in] input     Pointer to the the input object
+ * \param[in] parameter Pointer to the algorithm parameters
+ * \param[in] method    Computation method
+ */
+services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
+           int method) const
+{
+    return checkImpl(input, parameter);
+}
+
+services::Status Result::checkImpl(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter) const
+{
+    services::Status s;
+    size_t nRows = (static_cast<const InputIface *>(input))->getNumberOfRows();
+
+    const Input *in = static_cast<const Input *>(input);
+    classifier::ModelPtr m = in->get(model);
+    DAAL_CHECK(m, services::ErrorNullModel);
+
+    const Parameter *par = static_cast<const Parameter *>(parameter);
+    DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
+
+    if(par->resultsToEvaluate & computeClassLabels)
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(prediction).get(), predictionStr(), data_management::packed_mask, 0, 1, nRows));
+    if(par->resultsToEvaluate & computeClassProbabilities)
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(probabilities).get(), probabilitiesStr(), data_management::packed_mask, 0, par->nClasses, nRows));
+    if(par->resultsToEvaluate & computeClassLogProbabilities)
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(logProbabilities).get(), logProbabilitiesStr(), data_management::packed_mask, 0, par->nClasses, nRows));
+
+    return s;
+}
 }
 }
 }

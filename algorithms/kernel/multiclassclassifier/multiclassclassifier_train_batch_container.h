@@ -37,11 +37,47 @@ namespace multi_class_classifier
 {
 namespace training
 {
+namespace interface1
+{
 
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::MultiClassClassifierTrainKernel, method, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::MultiClassClassifierTrainKernel, method, algorithmFPType, classifier::training::interface1::Batch, multi_class_classifier::interface1::Parameter);
+}
+
+template<typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
+{
+    __DAAL_DEINITIALIZE_KERNELS();
+}
+
+template<typename algorithmFPType, Method method, CpuType cpu>
+services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
+{
+    classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
+    Result *result = static_cast<Result *>(_res);
+
+    NumericTable *a[2];
+    a[0] = static_cast<NumericTable *>(input->get(classifier::training::data).get());
+    a[1] = static_cast<NumericTable *>(input->get(classifier::training::labels).get());
+    multi_class_classifier::Model *r = static_cast<multi_class_classifier::Model *>(result->get(classifier::training::model).get());
+
+    multi_class_classifier::interface1::Parameter *par = static_cast<multi_class_classifier::interface1::Parameter *>(_par);
+    daal::services::Environment::env &env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::MultiClassClassifierTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, classifier::training::interface1::Batch, multi_class_classifier::interface1::Parameter), compute, a[0], a[1], r,
+                       par);
+}
+
+}
+
+namespace interface2
+{
+
+template<typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+{
+    __DAAL_INITIALIZE_KERNELS(internal::MultiClassClassifierTrainKernel, method, algorithmFPType, classifier::training::Batch, multi_class_classifier::Parameter);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -63,8 +99,10 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     multi_class_classifier::Parameter *par = static_cast<multi_class_classifier::Parameter *>(_par);
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::MultiClassClassifierTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r,
+    __DAAL_CALL_KERNEL(env, internal::MultiClassClassifierTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, classifier::training::Batch, multi_class_classifier::Parameter), compute, a[0], a[1], r,
                        par);
+}
+
 }
 
 } // namespace training
