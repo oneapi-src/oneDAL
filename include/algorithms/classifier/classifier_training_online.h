@@ -44,7 +44,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__CLASSIFIER__TRAINING__ONLINE"></a>
- *  \brief Algorithm class for training the classifier model in the online processing mode
+ *  \brief Algorithm class for training the classifier model in the online processing mode    \DAAL_DEPRECATED
  *
  * \par Enumerations
  *      - \ref InputId  %Input objects of the classifier model training algorithm
@@ -64,7 +64,7 @@ public:
 
     InputType input;     /*!< %Input objects of the algorithm */
 
-    Online()
+    DAAL_DEPRECATED Online()
     {
         initialize();
     }
@@ -75,19 +75,19 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online &other) : input(other.input)
+    DAAL_DEPRECATED Online(const Online &other) : input(other.input)
     {
         initialize();
     }
 
-    virtual ~Online() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Online() {}
 
     /**
      * Registers user-allocated memory for storing partial training results
      * \param[in] partialResult Structure for storing partial results
      * \param[in] initFlag Flag if partial result initialized or not
      */
-    services::Status setPartialResult(const PartialResultPtr &partialResult, bool initFlag = false)
+    DAAL_DEPRECATED services::Status setPartialResult(const PartialResultPtr &partialResult, bool initFlag = false)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult)
         _partialResult = partialResult;
@@ -100,7 +100,7 @@ public:
      * Registers user-allocated memory for storing results of the classifier model training algorithm
      * \param[in] res    Structure for storing results of the classifier model training algorithm
      */
-    services::Status setResult(const ResultPtr& res)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr& res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
@@ -112,20 +112,20 @@ public:
      * Returns the structure that contains computed partial results of the classification algorithm
      * \return Structure that contains computed partial results
      */
-    PartialResultPtr getPartialResult() { return _partialResult; }
+    DAAL_DEPRECATED PartialResultPtr getPartialResult() { return _partialResult; }
 
     /**
      * Returns the structure that contains results of the classification algorithm
      * \return Structure that contains computed results
      */
-    ResultPtr getResult() { return _result; }
+    DAAL_DEPRECATED ResultPtr getResult() { return _result; }
 
     /**
      * Returns a pointer to the newly allocated classifier training algorithm with a copy of input objects
      * and parameters of this classifier training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Online> clone() const
+    DAAL_DEPRECATED services::SharedPtr<Online> clone() const
     {
         return services::SharedPtr<Online>(cloneImpl());
     }

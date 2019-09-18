@@ -48,7 +48,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__TRAINING__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of AdaBoost model-based training.
- *        It is associated with daal::algorithms::adaboost::training::Batch class
+ *        It is associated with daal::algorithms::adaboost::training::Batch class     \DAAL_DEPRECATED
  *        and supports method to train AdaBoost model
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the AdaBoost, double or float
@@ -62,18 +62,18 @@ public:
      * Constructs a container for AdaBoost model-based training with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of AdaBoost model-based training in the batch processing mode
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__TRAINING__BATCH"></a>
- * \brief Trains model of the AdaBoost algorithms in batch mode
+ * \brief Trains model of the AdaBoost algorithms in batch mode                    \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-ADABOOST-ALGORITHM">AdaBoost algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the AdaBoost, double or float
@@ -101,7 +101,7 @@ public:
     ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
     InputType input;                /*!< %Input data structure */
 
-    Batch()
+    DAAL_DEPRECATED Batch()
     {
         initialize();
     }
@@ -112,31 +112,31 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : boosting::training::Batch(other),
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) : boosting::training::Batch(other),
         parameter(other.parameter), input(other.input)
     {
         initialize();
     }
 
-    virtual ~Batch() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Batch() {}
 
     /**
      * Get input objects for the AdaBoost training algorithm
      * \return %Input objects for the AdaBoost training algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns the structure that contains results of AdaBoost training
      * \return Structure that contains results of AdaBoost training
      */
-    interface1::ResultPtr getResult()
+    DAAL_DEPRECATED interface1::ResultPtr getResult()
     {
         return ResultType::cast(_result);
     }
@@ -144,7 +144,7 @@ public:
     /**
      * Resets the training results of the classification algorithm
      */
-    services::Status resetResult() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED services::Status resetResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
         DAAL_CHECK(_result, services::ErrorNullResult);
@@ -157,7 +157,7 @@ public:
      * and parameters of this AdaBoost training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }

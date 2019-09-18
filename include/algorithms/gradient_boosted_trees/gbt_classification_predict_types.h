@@ -65,15 +65,15 @@ namespace interface1
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__PARAMETER"></a>
- * \brief Parameters of the prediction algorithm
+ * \brief Parameters of the prediction algorithm   \DAAL_DEPRECATED
  *
  * \snippet gradient_boosted_trees/gbt_classification_predict_types.h Parameter source code
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
 {
-    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses), nIterations(0) {}
-    Parameter(const Parameter& o) : daal::algorithms::classifier::interface1::Parameter(o), nIterations(o.nIterations){}
+    DAAL_DEPRECATED Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses), nIterations(0) {}
+    DAAL_DEPRECATED Parameter(const Parameter& o) : daal::algorithms::classifier::interface1::Parameter(o), nIterations(o.nIterations){}
     size_t nIterations;        /*!< Number of iterations of the trained model to be used for prediction */
 };
 /* [Parameter source code] */

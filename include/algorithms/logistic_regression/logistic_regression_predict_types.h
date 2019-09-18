@@ -91,15 +91,15 @@ namespace interface1
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__PARAMETER"></a>
- * \brief Parameters of the prediction algorithm
+ * \brief Parameters of the prediction algorithm  \DAAL_DEPRECATED
  *
  * \snippet logistic_regression/logistic_regression_predict_types.h Parameter source code
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
 {
-    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses), resultsToCompute(computeClassesLabels) {}
-    Parameter(const Parameter& o) : daal::algorithms::classifier::interface1::Parameter(o), resultsToCompute(o.resultsToCompute){}
+    DAAL_DEPRECATED Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses), resultsToCompute(computeClassesLabels) {}
+    DAAL_DEPRECATED Parameter(const Parameter& o) : daal::algorithms::classifier::interface1::Parameter(o), resultsToCompute(o.resultsToCompute){}
     DAAL_UINT64 resultsToCompute;           /*!< 64 bit integer flag that indicates the results to compute */
 };
 /* [Parameter source code] */
@@ -158,41 +158,41 @@ public:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__RESULT"></a>
-* \brief Provides interface for the result of model-based prediction
+* \brief Provides interface for the result of model-based prediction   \DAAL_DEPRECATED
 */
 class DAAL_EXPORT Result : public algorithms::classifier::prediction::interface1::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
-    Result();
+    DAAL_DEPRECATED Result();
 
     /**
     * Returns the result of model-based prediction
     * \param[in] id    Identifier of the result
     * \return          Result that corresponds to the given identifier
     */
-    data_management::NumericTablePtr get(classifier::prediction::ResultId id) const;
+    DAAL_DEPRECATED data_management::NumericTablePtr get(classifier::prediction::ResultId id) const;
 
     /**
     * Sets the result of model-based prediction
     * \param[in] id      Identifier of the input object
     * \param[in] value   %Input object
     */
-    void set(classifier::prediction::ResultId id, const data_management::NumericTablePtr &value);
+    DAAL_DEPRECATED void set(classifier::prediction::ResultId id, const data_management::NumericTablePtr &value);
 
     /**
     * Returns the result of model-based prediction
     * \param[in] id    Identifier of the result
     * \return          Result that corresponds to the given identifier
     */
-    data_management::NumericTablePtr get(ResultNumericTableId id) const;
+    DAAL_DEPRECATED data_management::NumericTablePtr get(ResultNumericTableId id) const;
 
     /**
     * Sets the result of model-based prediction
     * \param[in] id      Identifier of the input object
     * \param[in] value   %Input object
     */
-    void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
+    DAAL_DEPRECATED void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
 
     /**
     * Allocates memory to store a partial result of model-based prediction
@@ -202,7 +202,7 @@ public:
     * \return Status of allocation
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
 
     /**
     * Checks the result of model-based prediction
@@ -211,7 +211,7 @@ public:
     * \param[in] method  Computation method
     * \return Status of checking
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */

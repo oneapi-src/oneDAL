@@ -56,7 +56,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PREDICTION__BATCHCONTAINER"></a>
- * \brief Provides methods to run implementations of the  multi-class classifier prediction algorithm
+ * \brief Provides methods to run implementations of the  multi-class classifier prediction algorithm   \DAAL_DEPRECATED
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the multi-class classifier algorithm, double or float
  * \tparam pmethod          Computation method for the algorithm, \ref prediction::Method
@@ -71,20 +71,20 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of multi-class classifier model-based prediction in the batch processing mode
      *
      * \return Status of computation
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PREDICTION__BATCH"></a>
- *  \brief Provides methods to run implementations of the multi-class classifier prediction algorithm
+ *  \brief Provides methods to run implementations of the multi-class classifier prediction algorithm   \DAAL_DEPRECATED
  *  <!-- \n<a href="DAAL-REF-MULTICLASSCLASSIFIER-ALGORITHM">Multi-class classifier algorithm description and usage models</a> -->
  *
  *  \tparam algorithmFPType  Data type to use in intermediate computations for multi-class classifier prediction algorithm, double or float
@@ -129,7 +129,7 @@ public:
      * Default constructor
      * \param[in] nClasses                         Number of classes
      */
-    Batch(size_t nClasses) : parameter(nClasses)
+    DAAL_DEPRECATED Batch(size_t nClasses) : parameter(nClasses)
     {
         initialize();
     }
@@ -140,32 +140,32 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, pmethod, tmethod> &other) : classifier::prediction::interface1::Batch(other),
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, pmethod, tmethod> &other) : classifier::prediction::interface1::Batch(other),
         parameter(other.parameter), input(other.input)
     {
         initialize();
     }
 
-    virtual ~Batch() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Batch() {}
 
     /**
      * Get input objects for the multi-class classifier prediction algorithm
      * \return %Input objects for the multi-class classifier prediction algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)pmethod; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)pmethod; }
 
     /**
      * Returns a pointer to the newly allocated multi-class classifier prediction algorithm
      * with a copy of input objects and parameters of this multi-class classifier prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, pmethod, tmethod> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, pmethod, tmethod> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, pmethod, tmethod> >(cloneImpl());
     }

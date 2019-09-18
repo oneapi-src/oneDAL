@@ -115,7 +115,7 @@ struct DAAL_EXPORT Parameter : public sum_of_functions::interface1::Parameter
                                    all terms will be used in the computations.
      * \param[in] resultsToCompute 64 bit integer flag that indicates the results to compute
      */
-    Parameter(size_t numberOfTerms,
+    DAAL_DEPRECATED Parameter(size_t numberOfTerms,
               data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
               const DAAL_UINT64 resultsToCompute = objective_function::gradient);
 
@@ -123,15 +123,15 @@ struct DAAL_EXPORT Parameter : public sum_of_functions::interface1::Parameter
      * Constructs an Parameter by copying input objects and parameters of another Parameter
      * \param[in] other An object to be used as the source to initialize object
      */
-    Parameter(const Parameter &other);
+    DAAL_DEPRECATED Parameter(const Parameter &other);
     /**
      * Checks the correctness of the parameter
      *
      * \return Status of computations
      */
-    virtual services::Status check() const;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check() const;
 
-    virtual ~Parameter() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Parameter() {}
 };
 
 /**
@@ -142,55 +142,55 @@ class DAAL_EXPORT Input : public sum_of_functions::interface1::Input
 {
 public:
     /** Default constructor */
-    Input();
+    DAAL_DEPRECATED Input();
 
     /** Copy constructor */
-    Input(const Input& other);
+    DAAL_DEPRECATED Input(const Input& other);
 
     /** Destructor */
-    virtual ~Input() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     /**
      * Sets one input object for Mean squared error objective function
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(InputId id, const data_management::NumericTablePtr &ptr);
 
     /**
      * Returns the input numeric table for Mean squared error objective function
      * \param[in] id    Identifier of the input numeric table
      * \return          %Input object that corresponds to the given identifier
      */
-    data_management::NumericTablePtr get(InputId id) const;
+    DAAL_DEPRECATED data_management::NumericTablePtr get(InputId id) const;
 
     /**
     * Returns optional input of the iterative solver algorithm
     * \param[in] id    Identifier of the optional input data
     * \return          %Input data that corresponds to the given identifier
     */
-    algorithms::OptionalArgumentPtr get(OptionalInputId id) const;
+    DAAL_DEPRECATED algorithms::OptionalArgumentPtr get(OptionalInputId id) const;
 
     /**
     * Sets optional input for the iterative solver algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    void set(OptionalInputId id, const algorithms::OptionalArgumentPtr &ptr);
+    DAAL_DEPRECATED void set(OptionalInputId id, const algorithms::OptionalArgumentPtr &ptr);
 
     /**
     * Returns input NumericTable containing optional data
     * \param[in] id    Identifier of the input numeric table
     * \return          %Input numeric table that corresponds to the given identifier
     */
-    data_management::NumericTablePtr get(OptionalDataId id) const;
+    DAAL_DEPRECATED data_management::NumericTablePtr get(OptionalDataId id) const;
 
     /**
     * Sets optional input for the algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
 
     /**
      * Checks the correctness of the input
@@ -199,7 +199,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
 } // namespace interface1

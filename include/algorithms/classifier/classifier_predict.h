@@ -45,7 +45,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__CLASSIFIER__PREDICTION__BATCH"></a>
- *  \brief Base class for making predictions based on the model of the classification algorithms
+ *  \brief Base class for making predictions based on the model of the classification algorithms   \DAAL_DEPRECATED
  *
  *  \par Enumerations
  *      - \ref classifier::prediction::NumericTableInputId  Identifiers of input NumericTable objects
@@ -65,6 +65,10 @@ public:
     typedef algorithms::classifier::interface1::Parameter ParameterType;
     typedef algorithms::classifier::prediction::interface1::Result ResultType;
 
+    /**
+     * Constructs a classifier prediction algorithm by default
+     * \DAAL_DEPRECATED
+     */
     Batch()
     {
         initialize();
@@ -75,6 +79,7 @@ public:
      * of another classifier prediction algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch &other)
     {
@@ -87,13 +92,13 @@ public:
      * Get input objects for the classifier prediction algorithm
      * \return %Input objects for the classifier prediction algorithm
      */
-    virtual InputType * getInput() = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual InputType * getInput() = 0;
 
     /**
      * Returns the structure that contains computed prediction results
      * \return Structure that contains computed prediction results
      */
-    interface1::ResultPtr getResult()
+    DAAL_DEPRECATED interface1::ResultPtr getResult()
     {
         return _result;
     }
@@ -104,7 +109,7 @@ public:
      *
      * \return Status of computation
      */
-    services::Status setResult(const interface1::ResultPtr &result)
+    DAAL_DEPRECATED services::Status setResult(const interface1::ResultPtr &result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
@@ -117,7 +122,7 @@ public:
      * and parameters of this classifier prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch> clone() const
     {
         return services::SharedPtr<Batch>(cloneImpl());
     }
