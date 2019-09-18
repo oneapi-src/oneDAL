@@ -95,6 +95,7 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
         const algorithmFPType* pArg = arg + iRow*nCols;
         algorithmFPType* pRes = res + iRow*nCols;
         algorithmFPType maxArg = pArg[0];
+        PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for(size_t i = 1; i < nCols; ++i)
         {
@@ -117,6 +118,7 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
     {
         algorithmFPType* pRes = res + iRow*nCols;
         algorithmFPType sum(0.);
+        PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for(size_t i = 0; i < nCols; ++i)
             sum += pRes[i];
