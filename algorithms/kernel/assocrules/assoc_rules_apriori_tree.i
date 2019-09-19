@@ -110,6 +110,9 @@ struct hash_tree
         daal::services::daal_free(n_nodes_i);
         delete[] root;
         delete[] leaves;
+        n_nodes_i   = nullptr;
+        root        = nullptr;
+        leaves      = nullptr;
     }
 
     /** \brief Hash function that is applied to each item in itemset */
