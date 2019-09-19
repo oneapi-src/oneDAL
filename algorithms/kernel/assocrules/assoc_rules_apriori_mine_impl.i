@@ -85,7 +85,7 @@ template<typename algorithmFPType, CpuType cpu>
 bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::pruneCandidate(size_t iset_size, const size_t *candidate,
                                                                            size_t *subset, hash_tree<cpu> &C_tree)
 {
-    assocrules_itemset<cpu> *iset = NULL;
+    assocrules_itemset<cpu> *iset = nullptr;
     int levelMiss = 0;
     for (size_t i = 1; i < iset_size; i++)
     {
@@ -171,7 +171,7 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::genCandidates(size_t
     else
     {
         /* Here if candidates of size greater than 2 are generated */
-        assocrules_itemset<cpu> *iset = NULL;
+        assocrules_itemset<cpu> *iset = nullptr;
         for (auto first_it = L_prev->start; first_it; first_it = first_it->next())
         {
             auto first_items = first_it->itemSet()->items;
@@ -206,7 +206,7 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::genSubset(size_t tra
                                                                       size_t &large_count)
 {
     int levelMiss;
-    assocrules_itemset<cpu> *iset = NULL;
+    assocrules_itemset<cpu> *iset = nullptr;
     large_count = 0;
 
     size_t h = iset_size;
@@ -304,7 +304,7 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::prune(size_t imin_s,
         }
     } );
 
-    tls.reduce( [&](size_t *idx) { daal::services::daal_free(idx); } );
+    tls.reduce( [&](size_t *idx) { daal::services::daal_free(idx); idx = nullptr; } );
 
     /* Remove candidates that has support less than mininmum support from hash tree */
     for (size_t i = 0; i < C_tree->n_leaves; i++)
