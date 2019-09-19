@@ -213,7 +213,7 @@ namespace interface2
  * \tparam method           Gradient Boosted Trees model training method, \ref Method
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public TrainingContainerIface<batch>
+class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
     /**

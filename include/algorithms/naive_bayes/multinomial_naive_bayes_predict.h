@@ -187,7 +187,7 @@ namespace interface2
  * \tparam method           Multinomial naive Bayes prediction method, \ref Method
  */
 template<typename algorithmFPType, prediction::Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public PredictionContainerIface
+class BatchContainer : public PredictionContainerIface
 {
 public:
     /**

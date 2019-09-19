@@ -212,7 +212,7 @@ namespace interface2
  */
 
 template<typename algorithmFPType, Method method>
-class DAAL_EXPORT BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
+class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
     /**

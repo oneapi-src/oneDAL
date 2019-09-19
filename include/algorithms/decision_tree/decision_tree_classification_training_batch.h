@@ -194,7 +194,7 @@ namespace interface2
  * \brief Class containing methods for Decision tree model-based training using algorithmFPType precision arithmetic
  */
 template <typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public TrainingContainerIface<batch>
+class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
     /**

@@ -213,7 +213,7 @@ namespace interface2
  * \tparam tmethod          Computation method that was used to train the multi-class classifier model, \ref training::Method
  */
 template<typename algorithmFPType, prediction::Method pmethod, training::Method tmethod, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public PredictionContainerIface
+class BatchContainer : public PredictionContainerIface
 {
 public:
     /**

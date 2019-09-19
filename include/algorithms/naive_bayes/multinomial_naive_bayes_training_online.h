@@ -242,7 +242,7 @@ namespace interface2
  * \tparam method           Naive Bayes computation method, \ref Method
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT OnlineContainer : public TrainingContainerIface<online>
+class OnlineContainer : public TrainingContainerIface<online>
 {
 public:
     /**
