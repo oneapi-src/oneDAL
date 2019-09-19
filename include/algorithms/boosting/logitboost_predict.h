@@ -203,7 +203,7 @@ namespace interface2
  * \tparam method           LogitBoost computation method, \ref Method
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public PredictionContainerIface
+class BatchContainer : public PredictionContainerIface
 {
 public:
     /**
@@ -240,7 +240,7 @@ public:
  *      - \ref classifier::prediction::interface2::Result "classifier::prediction::Result" class
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Batch : public classifier::prediction::Batch
+class Batch : public classifier::prediction::Batch
 {
 public:
     typedef classifier::prediction::Batch super;

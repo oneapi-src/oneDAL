@@ -56,7 +56,7 @@ namespace interface1
  * \tparam method           the decision stump training method, \ref Method
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public TrainingContainerIface<batch>
+class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
     /**
