@@ -266,7 +266,13 @@ public:
         if (_parseHeader && !_firstRowRead)
         {
             // Skip header
-            readLine();
+            s = readLine();
+            if(!s)
+            {
+                this->_status.add(services::throwIfPossible(s));
+                return 0;
+            }
+
             _firstRowRead = true;
         }
 
@@ -274,7 +280,13 @@ public:
         for(; j < maxRows && !iseof() ; j++ )
         {
             s = readLine();
-            if(!s || !_rawLineLength)
+            if(!s)
+            {
+                this->_status.add(services::throwIfPossible(s));
+
+                return 0;
+            }
+            if(!_rawLineLength)
             {
                 break;
             }
@@ -320,12 +332,18 @@ public:
         if (_parseHeader)
         {
             s = readLine();
-            if (!s) { return services::throwIfPossible(s); }
+            if (!s)
+            {
+                return services::throwIfPossible(s);
+            }
             _featureManager.parseRowAsHeader(_rawLineBuffer, _rawLineLength);
         }
 
         s = readLine();
-        if (!s) { return services::throwIfPossible(s); }
+        if (!s)
+        {
+            return services::throwIfPossible(s);
+        }
         _featureManager.parseRowAsDictionary(_rawLineBuffer, _rawLineLength, this->_dict.get());
 
         return services::Status();

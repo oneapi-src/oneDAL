@@ -96,8 +96,18 @@ public:
                    DataSourceIface::DictionaryCreationFlag doCreateDictionaryFromContext = DataSource::notDictionaryFromContext,
                    size_t initialMaxRows = 10) :
         DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>(doAllocateNumericTable, doCreateDictionaryFromContext),
-        _dbname(dbname), _port(port), _username(username), _password(password), _tablename(tablename), _idx_last_read(0)
+        _port(port), _idx_last_read(0)
     {
+        if (dbname.find('\0') != std::string::npos || tablename.find('\0') != std::string::npos ||
+            username.find('\0') != std::string::npos || password.find('\0') != std::string::npos)
+        {
+            this->_errors->add(services::throwIfPossible(services::ErrorNullByteInjection));
+            return;
+        }
+        _dbname = dbname;
+        _username = username;
+        _password = password;
+        _tablename = tablename;
         _query = _tablename;
         _initialMaxRows = initialMaxRows;
     }

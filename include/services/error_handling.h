@@ -587,7 +587,9 @@ using interface1::KernelErrorCollectionPtr;
 using interface1::ErrorCollectionPtr;
 using interface1::Status;
 using interface1::throwIfPossible;
-
+namespace internal {
+Status checkForNullByteInjection(const char *begin, const char *const end);
+}
 }
 };
 #endif

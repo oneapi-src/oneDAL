@@ -138,6 +138,12 @@ public:
         super(doAllocateNumericTable,
               doCreateDictionaryFromContext)
     {
+        if (dbname.find('\0') != std::string::npos || tableName.find('\0') != std::string::npos ||
+            userName.find('\0') != std::string::npos || password.find('\0') != std::string::npos)
+        {
+            this->_status.add(services::throwIfPossible(services::ErrorNullByteInjection));
+            return;
+        }
         initialize(initialMaxRows);
         _status |= connectUsingUserNameAndPassword(dbname, userName, password);
         if (!_status) { return; }
@@ -163,6 +169,12 @@ public:
         super(options.getNumericTableAllocationFlag(),
               options.getDictionaryCreationFlag())
     {
+        if (dbname.find('\0') != std::string::npos || tableName.find('\0') != std::string::npos ||
+            userName.find('\0') != std::string::npos || password.find('\0') != std::string::npos)
+        {
+            this->_status.add(services::throwIfPossible(services::ErrorNullByteInjection));
+            return;
+        }
         initialize(initialMaxRows);
         _status |= connectUsingUserNameAndPassword(dbname, userName, password);
         if (!_status) { return; }
@@ -182,6 +194,11 @@ public:
         super(options.getNumericTableAllocationFlag(),
               options.getDictionaryCreationFlag())
     {
+        if (connectionString.find('\0') != std::string::npos)
+        {
+            this->_status.add(services::throwIfPossible(services::ErrorNullByteInjection));
+            return;
+        }
         initialize(initialMaxRows);
         _status |= connectUsingConnectionString(connectionString);
     }
@@ -193,6 +210,11 @@ public:
 
     services::Status executeQuery(const std::string &query)
     {
+        if (query.find('\0') != std::string::npos)
+        {
+            this->_status.add(services::throwIfPossible(services::ErrorNullByteInjection));
+            return _status;
+        }
         _idxLastRead = 0;
 
         if (_autoNumericTableFlag == DataSource::doAllocateNumericTable)
