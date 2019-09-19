@@ -62,14 +62,16 @@ public:
      * Range constructor
      * \param[in]  begin  Pointer to the first character of the string
      * \param[in]  end    Pointer to the last character + 1
+     * \DAAL_DEPRECATED
      */
-    explicit String(const char *begin, const char *end);
+    DAAL_DEPRECATED explicit String(const char *begin, const char *end);
 
     /**
      * Constructor from STL string
      * \param[in]  str The STL string
+     * \DAAL_DEPRECATED
      */
-    String(const std::string &str)
+    DAAL_DEPRECATED String(const std::string &str)
     {
         initialize(str.c_str(), str.size());
     }
@@ -77,7 +79,8 @@ public:
     /**
      * Default constructor
      * \param[in] str       The sequence of characters that forms the string
-     * \param[in] capacity  Number of characters that will be allocated to store the string
+     * \param[in] capacity  Unused
+     *
      */
     String(const char *str, size_t capacity = 0);
 

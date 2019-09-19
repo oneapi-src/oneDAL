@@ -39,6 +39,20 @@ namespace services
     this->_errors->add(services::ErrorIncorrectNumberOfElementsInResultCollection);
 */
 
+namespace internal {
+Status checkForNullByteInjection(const char *begin, const char *const end)
+{
+    for (; begin != end; ++begin)
+    {
+        if (*begin == '\0')
+        {
+            return Status(ErrorNullByteInjection);
+        }
+    }
+    return Status();
+}
+}
+
 namespace
 {
 

@@ -389,6 +389,7 @@ enum ErrorID
     ErrorSQLstmtHandle = -90044,                                        /*!< ErrorSQLstmtHandle */
     ErrorOnFileOpen = -90045,                                           /*!< Error on file open */
     ErrorOnFileRead = -90046,                                           /*!< Error on file read */
+    ErrorNullByteInjection = -90047,                                    /*!< Error null byte injection */
 
     ErrorKDBNoConnection = -90051,                                      /*!< ErrorKDBNoConnection */
     ErrorKDBWrongCredentials = -90052,                                  /*!< ErrorKDBWrongCredentials */
