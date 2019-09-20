@@ -331,7 +331,7 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_CSR(Model& model
     DAAL_CHECK_STATUS(s, svTable->allocateDataMemory(svDataSize));
 
     /* Copy row offsets into the table */
-    size_t* svRowOffsets = NULL;
+    size_t* svRowOffsets = nullptr;
     svTable->getArrays<algorithmFPType>(NULL, NULL, &svRowOffsets);
     for (size_t i = 0; i < nSV + 1; i++)
     {

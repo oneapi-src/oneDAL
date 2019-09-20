@@ -124,6 +124,7 @@ public:
         if(val && val->isValid())
             return val;
         delete val;
+        val = nullptr;
         return nullptr;
     }
 
@@ -167,6 +168,7 @@ public:
         if(val && val->isValid())
             return val;
         delete val;
+        val = nullptr;
         return nullptr;
     }
 

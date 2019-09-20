@@ -107,6 +107,7 @@ public:
         {
             res += *normPtr;
             daal_free( normPtr );
+            normPtr = nullptr;
         });
         res = daal::internal::Math<algorithmFPType, cpu>::sSqrt(res); // change to sqNorm
         return safeStat.detach();
@@ -152,6 +153,7 @@ public:
         {
             res += *normPtr;
             daal_free( normPtr );
+            normPtr = nullptr;
         });
         res = daal::internal::Math<algorithmFPType, cpu>::sSqrt(res); // change to sqNorm
         return safeStat.detach();

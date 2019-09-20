@@ -298,6 +298,13 @@ LowOrderMomentsOnlineTask<algorithmFPType, cpu>::~LowOrderMomentsOnlineTask()
     daal_free(stDev);
     daal_free(variation);
     if (prevSums) { daal_free(prevSums); }
+
+    mean        = nullptr;
+    raw2Mom     = nullptr;
+    variance    = nullptr;
+    stDev       = nullptr;
+    variance    = nullptr;
+    prevSums    = nullptr;
 }
 
 /****************************************************************************************************************************/

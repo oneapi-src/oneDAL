@@ -247,7 +247,7 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::generateRules(double
     {
         ItemSetList<cpu> &L_cur = L[iset_size];
 
-        for (const auto *current = L_cur.start; current != NULL; current = current->next())
+        for (const auto *current = L_cur.start; current != nullptr; current = current->next())
         {
             const size_t *items = current->itemSet()->items;
             size_t itemsSupport = current->itemSet()->support.get();

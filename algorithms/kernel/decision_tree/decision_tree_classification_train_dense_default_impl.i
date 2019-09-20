@@ -69,6 +69,7 @@ public:
     ~REPPruningData() DAAL_C11_OVERRIDE
     {
         daal_free(_counters);
+        _counters = nullptr;
     }
 
     void update(size_t index, size_t classIndex)

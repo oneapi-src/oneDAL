@@ -159,7 +159,10 @@ Status SVDOnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(const size
             if(!step2ntOut[2 + k])
             {
                 for(size_t j = 0; j < k; j++)
+                {
                     delete step2ntOut[2 + j];
+                    step2ntOut[2 + k] = nullptr;
+                }
                 return Status(ErrorMemoryAllocationFailed);
             }
         }
@@ -205,7 +208,10 @@ Status SVDOnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(const size
     if(svdPar->leftSingularMatrix == requiredInPackedForm)
     {
         for(size_t k = 0; k < nBlocks; k++)
+        {
             delete step2ntOut[2 + k];
+            step2ntOut[2 + k] = nullptr;
+        }
     }
 
     return s;

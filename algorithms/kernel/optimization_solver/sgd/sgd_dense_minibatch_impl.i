@@ -191,9 +191,9 @@ SGDMiniBatchTask<algorithmFPType, cpu>::SGDMiniBatchTask(
     argumentSize(argumentSize_),
     mtWorkValue(resultTable, 0, argumentSize),
     mtNIterations(nIterationsTable, 0, 1),
-    nProceededIterations(NULL),
-    learningRateArray(NULL),
-    consCoeffsArray(NULL)
+    nProceededIterations(nullptr),
+    learningRateArray(nullptr),
+    consCoeffsArray(nullptr)
 {
 }
 
@@ -257,9 +257,9 @@ SGDMiniBatchTask<algorithmFPType, cpu>::SGDMiniBatchTask(
     mtConsCoeffs(conservativeSequenceTable, 0, conservativeSequenceTable->getNumberOfRows()),
     mtNIterations(nIterationsTable, 0, 1),
     mtPredefinedBatchIndices(batchIndicesTable),
-    nProceededIterations(NULL),
-    learningRateArray(NULL),
-    consCoeffsArray(NULL),
+    nProceededIterations(nullptr),
+    learningRateArray(nullptr),
+    consCoeffsArray(nullptr),
     prevWorkValue(argumentSize),
     lastIterationResult(lastIterationResultNT, EmptyDeleter()),
     pastWorkValueResult(pastWorkValueResultNT, EmptyDeleter()),

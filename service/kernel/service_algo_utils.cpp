@@ -39,6 +39,7 @@ HostAppIface::HostAppIface() :_impl(nullptr)
 HostAppIface::~HostAppIface()
 {
     delete _impl;
+    _impl = NULL;
 }
 }// namespace interface1
 

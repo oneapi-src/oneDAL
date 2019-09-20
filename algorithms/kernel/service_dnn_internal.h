@@ -48,14 +48,14 @@ class DnnLayout
 public:
     typedef Dnn<algorithmFPType, cpu> dnn;
 
-    DnnLayout() : layout(NULL), err(E_SUCCESS) {}
+    DnnLayout() : layout(nullptr), err(E_SUCCESS) {}
 
-    DnnLayout(size_t dim, size_t *size, size_t *strides) : layout(NULL), err(E_SUCCESS)
+    DnnLayout(size_t dim, size_t *size, size_t *strides) : layout(nullptr), err(E_SUCCESS)
     {
         err = dnn::xLayoutCreate(&layout, dim, size, strides);
     }
 
-    DnnLayout(dnnPrimitive_t primitive, dnnResourceType_t resource) : layout(NULL), err(E_SUCCESS)
+    DnnLayout(dnnPrimitive_t primitive, dnnResourceType_t resource) : layout(nullptr), err(E_SUCCESS)
     {
         err = dnn::xLayoutCreateFromPrimitive(&layout, primitive, resource);
     }
@@ -64,7 +64,7 @@ public:
     {
         free();
         layout = source.layout;
-        source.layout = NULL;
+        source.layout = nullptr;
         return *this;
     }
 

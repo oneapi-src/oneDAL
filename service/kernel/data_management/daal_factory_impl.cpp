@@ -168,6 +168,7 @@ Factory::Factory() : _impl(nullptr)
 Factory::~Factory()
 {
     delete _impl;
+    _impl = NULL;
 }
 
 void Factory::registerObject(AbstractCreator *creator)

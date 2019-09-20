@@ -66,6 +66,7 @@ public:
     ~REPPruningData() DAAL_C11_OVERRIDE
     {
         daal_free(_data);
+        _data = nullptr;
     }
 
     void update(size_t index, algorithmFPType v)

@@ -333,6 +333,7 @@ services::Status computeImpl(HostAppIface* pHostApp, const NumericTable *x, cons
     tlsTask.parallel_reduce([&](TaskType* task)-> void
     {
         delete task;
+        task = nullptr;
     });
     DAAL_CHECK_STATUS_VAR(s);
     DAAL_CHECK_MALLOC(md.size() == par.nTrees);

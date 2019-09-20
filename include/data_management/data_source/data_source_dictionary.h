@@ -119,7 +119,10 @@ public:
     void setCategoricalDictionary(const CategoricalFeatureDictionaryPtr &dictionary)
     {
         if (_catDictPtr.get() != cat_dict)
-        { delete cat_dict; }
+        {
+            delete cat_dict;
+            cat_dict = NULL;
+        }
 
         _catDictPtr = dictionary;
         cat_dict = dictionary.get();

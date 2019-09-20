@@ -89,6 +89,7 @@ public:
     ~FeatureTypesCache()
     {
         daal_free(_types);
+        _types = nullptr;
     }
 
     FeatureTypesCache(const FeatureTypesCache &) = delete;

@@ -144,7 +144,10 @@ public:
     virtual ~AOSNumericTable()
     {
         if (_offsets)
+        {
             daal::services::daal_free(_offsets);
+            _offsets = NULL;
+        }
         freeDataMemoryImpl();
     }
 

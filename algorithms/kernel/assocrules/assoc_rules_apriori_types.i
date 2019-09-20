@@ -285,10 +285,14 @@ struct assocrules_dataset
         for (size_t i = 0; i < numOfTransactions; i++)
         {
             daal::services::daal_free(tran[i].items);
+            tran[i].items = nullptr;
         }
         delete[] tran;
         delete[] large_tran;
         delete[] uniq_items;
+        tran        = nullptr;
+        large_tran  = nullptr;
+        uniq_items  = nullptr;
     }
 
     assocrules_transaction<cpu> *tran;                      /*<! Array of transactions */

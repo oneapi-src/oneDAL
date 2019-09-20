@@ -129,12 +129,12 @@ inline services::Status I1MSEKernel<algorithmFPType, method, cpu>::compute(Numer
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status I1MSEKernel<algorithmFPType, method, cpu>::run(I1MSETask<algorithmFPType, cpu>& task)
 {
-    algorithmFPType *argumentArray = NULL;
+    algorithmFPType *argumentArray = nullptr;
     Status s = task.init(argumentArray);
     if(!s)
         return s;
-    algorithmFPType *dataBlock = NULL, *dependentVariablesBlock = NULL;
-    algorithmFPType *value = NULL, *gradient = NULL, *hessian = NULL;
+    algorithmFPType *dataBlock = nullptr, *dependentVariablesBlock = nullptr;
+    algorithmFPType *value = nullptr, *gradient = nullptr, *hessian = nullptr;
     DAAL_CHECK_STATUS(s, task.getResultValues(value, gradient, hessian));
     task.setResultValuesToZero(value, gradient, hessian);
 

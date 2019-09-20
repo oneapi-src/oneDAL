@@ -98,7 +98,10 @@ void ModelImpl::clear()
 void MemoryManager::destroy()
 {
     for(size_t i = 0; i < _aChunk.size(); ++i)
+    {
         daal_free(_aChunk[i]);
+        _aChunk[i] = nullptr;
+    }
     _aChunk.clear();
     _posInChunk = 0;
     _iCurChunk = -1;

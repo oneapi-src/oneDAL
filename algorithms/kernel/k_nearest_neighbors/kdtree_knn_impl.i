@@ -79,7 +79,7 @@ class Stack
 public:
     Stack() : _data(nullptr) {}
 
-    ~Stack() { services::daal_free(_data); }
+    ~Stack() { services::daal_free(_data); _data = nullptr; }
 
     bool init(size_t size)
     {
@@ -139,9 +139,10 @@ public:
         }
         _sizeMinus1 = _size - 1;
         services::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
-        T * const oldData = _data;
+        T * oldData = _data;
         _data = newData;
         services::daal_free(oldData);
+        oldData = nullptr;
     }
 
 private:

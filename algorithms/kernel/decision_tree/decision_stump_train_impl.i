@@ -29,14 +29,14 @@ void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const Nu
 
     typename SplitCriterion::DataStatistics totalDataStatistics(numberOfClasses, x, y, w), dataStatistics(numberOfClasses, w);
 
-    size_t *const indexes = prepareIndexes(xRowCount);
+    size_t * indexes = prepareIndexes(xRowCount);
 
     clear();
 
     TreeNodeIndex nodeIndex = pushBack();
 
-    BlockDescriptor<IndependentVariableType> *const xBD = new BlockDescriptor<IndependentVariableType>[xColumnCount];
-    const IndependentVariableType **const dx = new const IndependentVariableType * [xColumnCount];
+    BlockDescriptor<IndependentVariableType> * xBD = new BlockDescriptor<IndependentVariableType>[xColumnCount];
+    const IndependentVariableType ** dx = new const IndependentVariableType * [xColumnCount];
     BlockDescriptor<DependentVariableType> yBD;
     const_cast<NumericTable *>(&y)->getBlockOfColumnValues(0, 0, xRowCount, readOnly, yBD);
 
@@ -99,6 +99,7 @@ void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const Nu
         ~Local()
         {
             daal_free(items);
+            items = nullptr;
         }
     };
 
@@ -206,6 +207,7 @@ void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const Nu
         }
 
         delete v;
+        v = nullptr;
     } );
 
     if (winnerIsLeaf || winnerPointsAtLeft < context.minLeafSize || xRowCount - winnerPointsAtLeft < context.minLeafSize)
@@ -236,5 +238,8 @@ void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const Nu
     delete[] dx;
     delete[] xBD;
     daal_free(indexes);
+    dx      = nullptr;
+    xBD     = nullptr;
+    indexes = nullptr;
     return;
 }

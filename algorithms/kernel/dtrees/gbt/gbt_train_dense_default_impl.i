@@ -148,6 +148,7 @@ protected:
     ~TrainBatchTaskBase()
     {
         delete _loss;
+        _loss = nullptr;        
     }
 
     virtual void initLossFunc() = 0;
