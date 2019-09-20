@@ -48,7 +48,7 @@ Result::Result() : algorithms::regression::training::Result(lastResultNumericTab
     _impl = new Result::ResultImpl();
 }
 
-Result::~Result() { delete _impl; }
+Result::~Result() { delete _impl; _impl = nullptr; }
 
 Result::Result( const Result& other ): algorithms::regression::training::Result( other )
 {

@@ -101,6 +101,7 @@ void Compressor<lzo>::initialize()
 Compressor<lzo>::~Compressor()
 {
     if(_p_lzo_state) daal::services::daal_free(_p_lzo_state);
+    _p_lzo_state = NULL;
 }
 
 void Compressor<lzo>::finalizeCompression()
@@ -222,6 +223,7 @@ Decompressor<lzo>::~Decompressor()
     if (_internalBuff != NULL)
     {
         daal::services::daal_free(_internalBuff);
+        _internalBuff = NULL;
     }
 }
 

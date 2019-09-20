@@ -261,6 +261,7 @@ public:
         if (res && valid)
             return res;
         delete res;
+        res = nullptr;
         return nullptr;
     }
 

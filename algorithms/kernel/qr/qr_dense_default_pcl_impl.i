@@ -126,7 +126,7 @@ static void work_alloc(   algorithmFPType*  A,
 
     if( tau == NULL )
     {
-        *work = NULL;
+        *work = nullptr;
         return;
     }
 
@@ -141,7 +141,7 @@ static void work_alloc(   algorithmFPType*  A,
 
     if( mkl_info_q != 0 )
     {
-        *work = NULL;
+        *work = nullptr;
         return;
     };
 
@@ -156,12 +156,12 @@ static void work_alloc(   algorithmFPType*  A,
                        mkl_jobvt,
                        mkl_m_q,
                        mkl_n_q,
-                       static_cast<algorithmFPType*>(NULL),
+                       static_cast<algorithmFPType*>(nullptr),
                        mkl_lda_q,
-                       static_cast<algorithmFPType*>(NULL),
-                       static_cast<algorithmFPType*>(NULL),
+                       static_cast<algorithmFPType*>(nullptr),
+                       static_cast<algorithmFPType*>(nullptr),
                        mkl_lda_q,
-                       static_cast<algorithmFPType*>(NULL),
+                       static_cast<algorithmFPType*>(nullptr),
                        mkl_lda_q,
                        &tmpwork_svd,
                        mkl_lwork,
@@ -169,7 +169,7 @@ static void work_alloc(   algorithmFPType*  A,
 
         if( mkl_info_q != 0 )
         {
-            *work = NULL;
+            *work = nullptr;
             return;
         };
 
@@ -267,7 +267,7 @@ static void tsqr( algorithmFPType*  A,
         size_t start                     = tid * rows_per_thread;
         size_t end                       = (tid == (nthreads-1))?nrows:(start + rows_per_thread );
         algorithmFPType* A_local         = A + start*ncols;
-        algorithmFPType * mkl_work_local = NULL;
+        algorithmFPType * mkl_work_local = nullptr;
         size_t lwork_local;
 
         work_alloc<algorithmFPType,cpu>( a_local,
@@ -1151,8 +1151,8 @@ static int qr_pcl( const algorithmFPType *A_in,       /* nrows * ncols */
 {
     int st                       = PCL_OK;
     size_t nthreads = threader_get_threads_number();
-    algorithmFPType* tau         = NULL;
-    algorithmFPType* work        = NULL;
+    algorithmFPType* tau         = nullptr;
+    algorithmFPType* work        = nullptr;
     size_t lwork;
 
     if( nthreads > 2 )
@@ -1293,11 +1293,11 @@ static int svd_pcl(  algorithmFPType *A_in,      /* nrows * ncols */
 
     if( nBlocks * blockSize < num ) { nBlocks++; }
 
-    algorithmFPType* tstau  = NULL;
-    algorithmFPType* work   = NULL;
-    algorithmFPType* R      = NULL;
-    algorithmFPType* V      = NULL;
-    algorithmFPType* R_out  = NULL;
+    algorithmFPType* tstau  = nullptr;
+    algorithmFPType* work   = nullptr;
+    algorithmFPType* R      = nullptr;
+    algorithmFPType* V      = nullptr;
+    algorithmFPType* R_out  = nullptr;
 
     if(needsU)
     {
@@ -1420,7 +1420,7 @@ static int svd_pcl(  algorithmFPType *A_in,      /* nrows * ncols */
                        R,
                        mkl_lda,
                        S_out,
-                       static_cast<algorithmFPType*>(NULL),
+                       static_cast<algorithmFPType*>(nullptr),
                        mkl_ldu,
                        V,
                        mkl_ldvt,

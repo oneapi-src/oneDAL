@@ -725,12 +725,12 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status MSEKernel<algorithmFPType, method, cpu>::run(MSETask<algorithmFPType, cpu>& task)
 {
-    algorithmFPType *argumentArray = NULL;
+    algorithmFPType *argumentArray = nullptr;
     Status s = task.init(argumentArray);
     if(!s)
         return s;
-    algorithmFPType *dataBlock = NULL, *dependentVariablesBlock = NULL;
-    algorithmFPType *value = NULL, *gradient = NULL, *hessian = NULL;
+    algorithmFPType *dataBlock = nullptr, *dependentVariablesBlock = nullptr;
+    algorithmFPType *value = nullptr, *gradient = NULL, *hessian = nullptr;
     DAAL_CHECK_STATUS(s, task.getResultValues(value, gradient, hessian));
     task.setResultValuesToZero(value, gradient, hessian);
 

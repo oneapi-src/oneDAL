@@ -136,6 +136,7 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::findLargeItemsets(si
     while(bFound && k < maxItemsetSize);
 
     delete C_tree;
+    C_tree = nullptr;
     return L_size > 0;
 }
 

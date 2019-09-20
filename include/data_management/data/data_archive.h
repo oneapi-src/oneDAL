@@ -269,6 +269,7 @@ public:
         for(i = 0; i <= currentWriteBlock; i++)
         {
             daal::services::daal_free( blockPtr[i] );
+            blockPtr[i] = NULL;
         }
         daal::services::daal_free( blockPtr           );
         daal::services::daal_free( blockAllocatedSize );
@@ -277,6 +278,11 @@ public:
         {
             daal::services::daal_free( serializedBuffer );
         }
+
+        blockPtr            = NULL;
+        blockAllocatedSize  = NULL;
+        blockOffset         = NULL;
+        serializedBuffer    = NULL;
     }
 
     void write(byte *ptr, size_t size) DAAL_C11_OVERRIDE

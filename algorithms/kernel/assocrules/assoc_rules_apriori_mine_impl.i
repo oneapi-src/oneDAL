@@ -111,6 +111,7 @@ assocrules_itemset<cpu> *AssociationRulesKernel<apriori, algorithmFPType, cpu>::
     if (pruneCandidate(iset_size + 1, iset->items, subset_buf, *C_tree))
     {
         delete iset;
+        iset = nullptr;
         return nullptr;
     }
     return iset;
@@ -357,6 +358,7 @@ hash_tree<cpu> *AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass(
 {
     bFound = genCandidates(iset_size, L, C_tree, data.numOfUniqueItems, data.uniq_items);
     delete C_tree;
+    C_tree = nullptr;
     if(!bFound)
         return nullptr;
     hash_tree<cpu> *C_tree_new = new hash_tree<cpu>(iset_size + 1, L[iset_size]);

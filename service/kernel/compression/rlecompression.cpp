@@ -185,6 +185,7 @@ Decompressor<rle>::~Decompressor()
     if (_internalBuff != NULL)
     {
         daal::services::daal_free(_internalBuff);
+        _internalBuff = NULL;
     }
 }
 

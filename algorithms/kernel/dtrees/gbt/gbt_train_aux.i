@@ -55,6 +55,9 @@ void deleteTables(gbt::internal::GbtDecisionTree** aTbl, HomogenNumericTable<dou
         delete aTbl[i];
         delete aTblImp[i];
         delete aTblSmplCnt[i];
+        aTbl[i]         = nullptr;
+        aTblImp[i]      = nullptr;
+        aTblSmplCnt[i]  = nullptr;
     }
 }
 

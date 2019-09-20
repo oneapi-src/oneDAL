@@ -216,13 +216,16 @@ public:
     ~TrainBatchTask()
     {
         delete _builder;
+        _builder = nullptr;
         if(_ls)
         {
             _ls->reduce([](TreeBuilderType* ptr)-> void
             {
                 delete ptr;
+                ptr = nullptr;
             });
             delete _ls;
+            _ls = nullptr;
         }
     }
 

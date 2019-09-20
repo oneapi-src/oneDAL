@@ -281,6 +281,7 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeRmsVariance(const 
         for(size_t j = 0; j < nCols; ++j)
             pRms[j] += pRmsPartial[j];
         daal_free(pRmsPartial);
+        pRmsPartial = nullptr;
     });
     DAAL_CHECK_SAFE_STATUS();
 

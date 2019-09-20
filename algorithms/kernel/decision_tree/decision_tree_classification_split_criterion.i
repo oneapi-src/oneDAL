@@ -77,6 +77,7 @@ public:
     ~ClassCounters()
     {
         daal_free(_counters);
+        _counters = nullptr;
     }
 
     size_t sumWeights(size_t firstIndex, size_t lastIndex, NumericTable *w)
@@ -128,9 +129,10 @@ public:
         if (_size != value._size)
         {
             _size = value._size;
-            size_t * const saveCounters = _counters;
+            size_t * saveCounters = _counters;
             _counters = _size ? daal_alloc<size_t>(_size) : nullptr;
             daal_free(saveCounters);
+            saveCounters = nullptr;
         }
         reset();
     }
@@ -237,6 +239,7 @@ public:
     ~ClassWeightsCounters()
     {
         daal_free(_counters);
+        _counters = nullptr;
     }
 
     algorithmFPType sumWeights(size_t firstIndex, size_t lastIndex, NumericTable *w)
@@ -302,9 +305,10 @@ public:
         if (_size != value._size)
         {
             _size = value._size;
-            algorithmFPType * const saveCounters = _counters;
+            algorithmFPType * saveCounters = _counters;
             _counters = _size ? daal_alloc<algorithmFPType>(_size) : nullptr;
             daal_free(saveCounters);
+            saveCounters = nullptr;
         }
         reset();
     }

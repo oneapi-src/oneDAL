@@ -359,7 +359,7 @@ services::Status ImplicitALSTrainBatchKernel<algorithmFPType, fastCSR, cpu>::com
     }
     lhs.reduce([](algorithmFPType* lhsData)
     {
-        if(lhsData) { daal::services::daal_free(lhsData); }
+        if(lhsData) { daal::services::daal_free(lhsData); lhsData = nullptr; }
     });
     return s;
 }
@@ -422,7 +422,7 @@ services::Status ImplicitALSTrainBatchKernel<algorithmFPType, defaultDense, cpu>
     }
     lhs.reduce([](algorithmFPType* lhsData)
     {
-        if(lhsData) { daal::services::daal_free(lhsData); }
+        if(lhsData) { daal::services::daal_free(lhsData); lhsData = nullptr; }
     });
     return s;
 }

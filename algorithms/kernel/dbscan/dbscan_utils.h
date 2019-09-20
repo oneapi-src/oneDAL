@@ -131,6 +131,7 @@ private:
         {
             services::daal_memcpy_s(newData, _tail * sizeof(T), _data, _tail * sizeof(T));
             services::daal_free(_data);
+            _data = nullptr;
         }
 
         _data = newData;
@@ -289,6 +290,7 @@ private:
         {
             services::daal_memcpy_s(newValues, _size * sizeof(size_t), _values, _size * sizeof(size_t));
             services::daal_free(_values);
+            _values = nullptr;
         }
 
         _values = newValues;
@@ -317,6 +319,7 @@ struct TlsNTask
         if (neighs)
         {
             delete [] neighs;
+            neighs = nullptr;
         }
     }
 
@@ -330,6 +333,7 @@ struct TlsNTask
         if (!result->neighs)
         {
             delete result;
+            result = nullptr;
             return nullptr;
         }
         return result;
@@ -357,6 +361,7 @@ struct NTask
             tlsNTask->reduce( [ = ](TlsNTask<FPType, cpu> *tt)-> void
             {
                 delete tt;
+                tt = nullptr;
             } );
             delete tlsNTask;
         }

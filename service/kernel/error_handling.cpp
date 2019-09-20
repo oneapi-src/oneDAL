@@ -407,7 +407,10 @@ void KernelErrorCollection::add(const KernelErrorCollection &o)
 KernelErrorCollection::~KernelErrorCollection()
 {
     if(_description)
+    {
         daal_free(_description);
+        _description = NULL;
+    }
 }
 
 const char *KernelErrorCollection::getDescription() const
@@ -455,9 +458,11 @@ const char *KernelErrorCollection::getDescription() const
     {
         cat(errorDescription[i], _description);
         daal_free(errorDescription[i]);
+        errorDescription[i] = NULL;
     }
 
     daal_free(errorDescription);
+    errorDescription = NULL;
     return _description;
 }
 

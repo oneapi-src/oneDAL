@@ -136,6 +136,7 @@ services::Status GroupOfBetasKernel<method, algorithmFPType, cpu>::compute(
                 pResSS0[j] += pResPartial[2 * nCols + j];
             }
             daal_free(pResPartial);
+            pResPartial = nullptr;
         });
         DAAL_CHECK_SAFE_STATUS();
         for(size_t j = 0; j < k; pErm[j] *= divN, ++j);
@@ -203,6 +204,7 @@ services::Status GroupOfBetasKernel<method, algorithmFPType, cpu>::compute(
                 pRegSS[j] += pResPartial[nCols + j];
             }
             daal_free(pResPartial);
+            pResPartial = nullptr;
         });
 
         DAAL_CHECK_SAFE_STATUS();

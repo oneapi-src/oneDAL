@@ -960,9 +960,9 @@ LBFGSTask<algorithmFPType, cpu>::LBFGSTask(const Parameter *parameter, NumericTa
     super(minimum),
     mtBatchIndices(parameter->batchIndices.get()), mtCorrectionPairBatchIndices(parameter->correctionPairBatchIndices.get()),
     mtStepLength(parameter->stepLengthSequence.get(), 0, 1), correctionPairs(nullptr),
-    correctionS(NULL), correctionY(NULL),
-    batchIndices(NULL), batchIndicesStatus(all),
-    correctionPairBatchIndices(NULL), correctionPairBatchIndicesStatus(all),
+    correctionS(nullptr), correctionY(nullptr),
+    batchIndices(nullptr), batchIndicesStatus(all),
+    correctionPairBatchIndices(nullptr), correctionPairBatchIndicesStatus(all),
     nStepLength(parameter->stepLengthSequence->getNumberOfColumns()), _rng()
 {
 }
@@ -978,9 +978,9 @@ LBFGSTask<algorithmFPType, cpu>::LBFGSTask(const interface1::Parameter *paramete
     super(minimum),
     mtBatchIndices(parameter->batchIndices.get()), mtCorrectionPairBatchIndices(parameter->correctionPairBatchIndices.get()),
     mtStepLength(parameter->stepLengthSequence.get(), 0, 1), correctionPairs(nullptr),
-    correctionS(NULL), correctionY(NULL),
-    batchIndices(NULL), batchIndicesStatus(all),
-    correctionPairBatchIndices(NULL), correctionPairBatchIndicesStatus(all),
+    correctionS(nullptr), correctionY(nullptr),
+    batchIndices(nullptr), batchIndicesStatus(all),
+    correctionPairBatchIndices(nullptr), correctionPairBatchIndicesStatus(all),
     nStepLength(parameter->stepLengthSequence->getNumberOfColumns()), _rng()
 {
 }
@@ -1097,18 +1097,18 @@ Status LBFGSTask<algorithmFPType, cpu>::init(NumericTable *inputArgument, Numeri
 template<typename algorithmFPType, CpuType cpu>
 LBFGSTask<algorithmFPType, cpu>::~LBFGSTask()
 {
-    if(argumentLCur && !argumentLCurRows.get())  { daal_free(argumentLCur); }
-    if(argumentLPrev && !argumentLPrevRows.get()) { daal_free(argumentLPrev); }
-    if (rho)           { daal_free(rho);           }
-    if (alpha)         { daal_free(alpha);         }
+    if(argumentLCur && !argumentLCurRows.get())  { daal_free(argumentLCur); argumentLCur = nullptr; }
+    if(argumentLPrev && !argumentLPrevRows.get()) { daal_free(argumentLPrev); argumentLPrev = nullptr; }
+    if (rho)           { daal_free(rho); rho = nullptr; }
+    if (alpha)         { daal_free(alpha); alpha = nullptr; }
     if(correctionPairs)
     {
         correctionPairs->releaseBlockOfRows(correctionPairsBD);
     }
     else
     {
-        if(correctionS)   { daal_free(correctionS); }
-        if(correctionY)   { daal_free(correctionY); }
+        if(correctionS)   { daal_free(correctionS); correctionS = nullptr; }
+        if(correctionY)   { daal_free(correctionY); correctionY = nullptr; }
     }
     if (stepLength)    { mtStepLength.release();   }
     releaseBatchIndices(batchIndices, batchIndicesStatus);
@@ -1357,7 +1357,10 @@ template<typename algorithmFPType, CpuType cpu>
 void LBFGSTask<algorithmFPType, cpu>::releaseBatchIndices(int *indices, IndicesStatus indicesStatus)
 {
     if (indicesStatus == random)
+    {
         daal_free(indices);
+        indices = nullptr;
+    }
 }
 
 } // namespace daal::internal

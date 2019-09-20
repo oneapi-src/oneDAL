@@ -64,6 +64,7 @@ public:
         {
             byte *tmp_ptr = getPtr();
             daal::services::daal_free(tmp_ptr);
+            tmp_ptr = NULL;
         }
     }
 
@@ -127,6 +128,7 @@ CompressionStream::CompressionStream(CompressorImpl *compr, size_t minSize) : _e
 CompressionStream::~CompressionStream()
 {
     if(_blocks) { delete (CBC *)_blocks; }
+    _blocks = NULL;
 }
 
 void CompressionStream::compressBlock(size_t pos)
@@ -374,6 +376,7 @@ DecompressionStream::DecompressionStream(DecompressorImpl *compr,
 DecompressionStream::~DecompressionStream()
 {
     if(_blocks) { delete (CBC *)_blocks; }
+    _blocks = NULL;
 }
 
 void DecompressionStream::decompressBlock(size_t pos)

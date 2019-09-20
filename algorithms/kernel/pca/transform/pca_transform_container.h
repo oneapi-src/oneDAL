@@ -56,7 +56,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Input *input = static_cast<Input *>(_in);
     Result *result = static_cast<Result *>(_res);
 
-    bool hasTransform = input->get(dataForTransform).get() != NULL;
+    bool hasTransform = input->get(dataForTransform).get() != nullptr;
     NumericTable *pMeans = hasTransform ? input->get(dataForTransform, mean).get() : NULL;
     NumericTable *pVariances = hasTransform ? input->get(dataForTransform, variance).get() : NULL;
     NumericTable *pEigenvalues = hasTransform ? input->get(dataForTransform, eigenvalue).get() : NULL;

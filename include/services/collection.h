@@ -111,6 +111,7 @@ public:
         }
 
         services::daal_free(_array);
+        _array = NULL;
     }
 
     /**
