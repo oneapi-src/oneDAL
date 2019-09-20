@@ -1,4 +1,4 @@
-/* file: AdaBoostSammeMultiClassDenseBatch.java */
+/* file: AdaBoostSammeRMultiClassBatch.java */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -22,8 +22,8 @@
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-ADABOOST_SAMME_MULTI_CLASS_DENSE_BATCH">
- * @example AdaBoostSammeMultiClassDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-ADABOOST_SAMMER_MULTI_CLASS_BATCH">
+ * @example AdaBoostSammeRMultiClassBatch.java
  */
 
 package com.intel.daal.examples.boosting.adaboost;
@@ -45,7 +45,7 @@ import com.intel.daal.data_management.data_source.FileDataSource;
 import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 
-class AdaBoostSammeMultiClassDenseBatch {
+class AdaBoostSammeRMultiClassBatch {
     /* Input data set parameters */
     private static final String trainDataset = "../data/batch/decision_tree_train.csv";
     private static final String testDataset  = "../data/batch/decision_tree_test.csv";
@@ -86,7 +86,7 @@ class AdaBoostSammeMultiClassDenseBatch {
         trainDataSource.loadDataBlock(mergedData);
 
         /* Create algorithm objects to train the AdaBoost model */
-        TrainingBatch algorithm = new TrainingBatch(context, nClasses, Float.class, TrainingMethod.samme);
+        TrainingBatch algorithm = new TrainingBatch(context, nClasses, Float.class, TrainingMethod.sammeR);
         algorithm.parameter.setWeakLearnerTraining(
             new com.intel.daal.algorithms.stump.classification.training.TrainingBatch(context, nClasses));
         algorithm.parameter.setWeakLearnerPrediction(
@@ -116,7 +116,7 @@ class AdaBoostSammeMultiClassDenseBatch {
         testDataSource.loadDataBlock(mergedData);
 
         /* Create algorithm objects for AdaBoost prediction with the fast method */
-        PredictionBatch algorithm = new PredictionBatch(context, nClasses, Float.class, PredictionMethod.samme);
+        PredictionBatch algorithm = new PredictionBatch(context, nClasses, Float.class, PredictionMethod.sammeR);
         algorithm.parameter.setWeakLearnerPrediction(
             new com.intel.daal.algorithms.stump.classification.prediction.PredictionBatch(context, nClasses));
 

@@ -20,10 +20,10 @@ rem      Intel(R) Data Analytics Acceleration Library examples list
 rem ============================================================================
 
 set Java_example_list=association_rules\AssocRulesAprioriBatch ^
-boosting\adaboost\AdaBoostSammeTwoClassDenseBatch ^
-boosting\adaboost\AdaBoostSammeMultiClassDenseBatch ^
-boosting\adaboost\AdaBoostSammeRTwoClassDenseBatch ^
-boosting\adaboost\AdaBoostSammeRMultiClassDenseBatch ^
+boosting\adaboost\AdaBoostSammeTwoClassBatch ^
+boosting\adaboost\AdaBoostSammeMultiClassBatch ^
+boosting\adaboost\AdaBoostSammeRTwoClassBatch ^
+boosting\adaboost\AdaBoostSammeRMultiClassBatch ^
 boosting\brownboost\BrownBoostDenseBatch ^
 boosting\adaboost\AdaBoostDenseBatch ^
 boosting\logitboost\LogitBoostDenseBatch ^
