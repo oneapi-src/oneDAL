@@ -51,7 +51,7 @@ public final class InputId {
 
     private static final int Data               = 0;
     private static final int DependentVariables = 1;
-    private static final int Weights            = 2;
+    private static final int Weights            = 4;
 
     public static final InputId data               = new InputId(Data);    /*!< Data for the training stage */
     public static final InputId dependentVariables = new InputId(DependentVariables);  /*!< Labels for the training stage */
