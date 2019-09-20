@@ -42,7 +42,8 @@ namespace interface2
 template <>
 Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(size_t nClasses)
 {
-    _par = new ParameterType(nClasses);
+    _par = new ParameterType();
+    parameter().nClasses = nClasses;
     initialize();
 }
 
