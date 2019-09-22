@@ -39,20 +39,6 @@ namespace services
     this->_errors->add(services::ErrorIncorrectNumberOfElementsInResultCollection);
 */
 
-namespace internal {
-Status checkForNullByteInjection(const char *begin, const char *const end)
-{
-    for (; begin != end; ++begin)
-    {
-        if (*begin == '\0')
-        {
-            return Status(ErrorNullByteInjection);
-        }
-    }
-    return Status();
-}
-}
-
 namespace
 {
 
@@ -720,6 +706,7 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorUndefinedFeature, "Dictionary contains a undefined feature");
     add(ErrorCloneMethodFailed, "Cloning of algorithm failed");
     add(ErrorDataTypeNotSupported, "Data type not supported");
+    add(ErrorNullByteInjection, "Null byte injection has been detected");
 
     // Environment errors: -2000..-2999
     add(ErrorCpuNotSupported, "CPU not supported");

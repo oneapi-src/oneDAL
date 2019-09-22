@@ -24,15 +24,13 @@
 #ifndef __FILE_DATA_SOURCE_H__
 #define __FILE_DATA_SOURCE_H__
 
-#include <iostream>
+#include <cstdio>
 #include "services/daal_memory.h"
 #include "data_management/data_source/data_source.h"
 #include "data_management/data_source/csv_data_source.h"
 #include "data_management/data/data_dictionary.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
-
-
 
 namespace daal
 {
