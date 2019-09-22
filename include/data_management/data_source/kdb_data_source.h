@@ -101,7 +101,7 @@ public:
         if (dbname.find('\0') != std::string::npos || tablename.find('\0') != std::string::npos ||
             username.find('\0') != std::string::npos || password.find('\0') != std::string::npos)
         {
-            this->_errors->add(services::throwIfPossible(services::ErrorNullByteInjection));
+            this->_errors->add(services::ErrorNullByteInjection);
             return;
         }
         _dbname = dbname;
