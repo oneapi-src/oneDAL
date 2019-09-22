@@ -107,7 +107,7 @@ public:
  *      - \ref classifier::prediction::interface1::Result "classifier::prediction::interface1::Result" class
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class Batch : public boosting::prediction::Batch
+class DAAL_EXPORT Batch : public boosting::prediction::Batch
 {
 public:
     typedef boosting::prediction::Batch super;
@@ -240,7 +240,7 @@ public:
  *      - \ref classifier::prediction::interface2::Result "classifier::prediction::Result" class
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class Batch : public classifier::prediction::Batch
+class DAAL_EXPORT Batch : public classifier::prediction::Batch
 {
 public:
     typedef classifier::prediction::Batch super;
