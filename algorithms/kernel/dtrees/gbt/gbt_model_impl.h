@@ -102,6 +102,21 @@ public:
         return _nNodes;
     }
 
+    size_t* getArrayNumSplitFeature()
+    {
+        return nNodeSplitFeature.data();
+    }
+
+    size_t* getArrayCoverFeature()
+    {
+        return CoverFeature.data();
+    }
+
+    double* getArrayGainFeature()
+    {
+        return GainFeature.data();
+    }
+
     gbt::prediction::internal::FeatureIndexType getMaxLvl() const
     {
         return _maxLvl;
@@ -109,7 +124,8 @@ public:
 
     // recursive build of tree (breadth-first)
     template <typename NodeType, typename NodeBase>
-    static void internalTreeToGbtDecisionTree(const NodeBase& root, const size_t nNodes, const size_t nLvls, GbtDecisionTree* tree, double* impVals, int* nNodeSamplesVals)
+    static void internalTreeToGbtDecisionTree(const NodeBase& root, const size_t nNodes, const size_t nLvls, GbtDecisionTree* tree,
+                                              double* impVals, int* nNodeSamplesVals, size_t countFeature)
     {
         using SplitType = const typename NodeType::Split*;
         services::Collection<SplitType> sonsArr(nNodes + 1);
@@ -127,19 +143,34 @@ public:
             parents[i] = nullptr;
         }
 
+        tree->nNodeSplitFeature.resize(countFeature);
+        tree->CoverFeature.resize(countFeature);
+        tree->GainFeature.resize(countFeature);
+
+        for (size_t i = 0; i < countFeature; ++i)
+        {
+            tree->nNodeSplitFeature[i] = 0;
+            tree->CoverFeature[i] = 0;
+            tree->GainFeature[i] = 0;
+        }
+
         size_t nParents = 1;
         parents[0] = NodeType::castSplit(&root);
         size_t idxInTable = 0;
 
         for(size_t lvl = 0; lvl < nLvls + 1; ++lvl)
         {
-            size_t nSons = 0;
+            size_t nSons = 0, iGain = 0;
             for(size_t iParent = 0; iParent < nParents; ++iParent)
             {
                 const typename NodeType::Split* p = parents[iParent];
 
                 if(p->isSplit())
                 {
+                    tree->nNodeSplitFeature[p->featureIdx] += 1;
+                    tree->CoverFeature[p->featureIdx] += p->count;
+                    tree->GainFeature[p->featureIdx] -= p->impurity - p->left()->impurity - p->right()->impurity;
+
                     sons[nSons++] = NodeType::castSplit(p->left());
                     sons[nSons++] = NodeType::castSplit(p->right());
                     featureIndexes[idxInTable] = p->featureIdx;
@@ -185,6 +216,9 @@ protected:
     size_t _sourceNumOfNodes;
     services::SharedPtr<SplitPointType> _splitPoints;
     services::SharedPtr<FeatureIndexesForSplitType> _featureIndexes;
+    services::Collection<size_t> nNodeSplitFeature;
+    services::Collection<size_t> CoverFeature;
+    services::Collection<double> GainFeature;
 };
 
 template <typename TNodeType, typename TAllocator = dtrees::internal::ChunkAllocator<TNodeType> >
@@ -198,7 +232,7 @@ public:
     typedef TAllocator Allocator;
     typedef TNodeType NodeType;
 
-    bool convertGbtTreeToTable(GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt) const
+    bool convertGbtTreeToTable(GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt, size_t nFeature) const
     {
         size_t nLvls = 1;
         getMaxLvl(*super::top(), nLvls, static_cast<size_t>(-1));
@@ -215,7 +249,7 @@ public:
         if(super::top())
         {
             GbtDecisionTree::internalTreeToGbtDecisionTree<TNodeType, typename TNodeType::Base>(*super::top(), nNodes, nLvls,
-                    *pTbl, (*pTblImp)->getArray(), (*pTblSmplCnt)->getArray());
+                    *pTbl, (*pTblImp)->getArray(), (*pTblSmplCnt)->getArray(), nFeature);
         }
 
         return true;
@@ -272,7 +306,8 @@ public:
     void add(gbt::internal::GbtDecisionTree* pTbl, HomogenNumericTable<double>* pTblImp, HomogenNumericTable<int>* pTblSmplCnt);
     void traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const;
     void traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const;
-    static services::Status treeToTable(TreeType& t, gbt::internal::GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt);
+    static services::Status treeToTable(TreeType& t, gbt::internal::GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp,
+                            HomogenNumericTable<int>** pTblSmplCnt, size_t nFeature);
 
 protected:
     static bool nodeIsDummyLeaf(size_t idx, const GbtDecisionTree& gbtTree);

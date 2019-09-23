@@ -132,7 +132,7 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::findLarg
     /* Find "large" item sets of size k+1 from itemsets of size k */
     size_t k = 1;
     bool bFound = false;
-    hash_tree<cpu> *C_tree = NULL;
+    hash_tree<cpu> *C_tree = nullptr;
     do
     {
         services::Status s;
@@ -142,6 +142,7 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::findLarg
     while(bFound && k < maxItemsetSize);
 
     delete C_tree;
+    C_tree = nullptr;
     return (L_size > 0) ? services::Status() : services::ErrorAprioriIncorrectInputData;
 }
 

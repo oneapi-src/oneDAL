@@ -125,7 +125,7 @@ class Heap
 public:
     Heap() : _elements(nullptr), _count(0) {}
 
-    ~Heap() { services::daal_free(_elements); }
+    ~Heap() { services::daal_free(_elements); _elements = nullptr; }
 
     bool init(size_t size)
     {
@@ -197,9 +197,18 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::
     typedef daal::services::internal::MaxVal<algorithmFpType> MaxVal;
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
 
-    const kdtree_knn_classification::Parameter * const parameter = static_cast<const kdtree_knn_classification::Parameter *>(par);
+    size_t k;
+    {
+        auto par1 = dynamic_cast<const kdtree_knn_classification::interface1::Parameter *>(par);
+        if(par1) k = par1->k;
+
+        auto par2 = dynamic_cast<const kdtree_knn_classification::interface2::Parameter *>(par);
+        if(par2) k = par2->k;
+
+        if(par1 == NULL && par2 == NULL) return Status(ErrorNullParameterNotSupported);
+    }
+
     const Model * const model = static_cast<const Model *>(m);
-    const auto k = parameter->k;
     const auto & kdTreeTable = *(model->impl()->getKDTreeTable());
     const auto rootTreeNodeIndex = model->impl()->getRootNodeIndex();
     const NumericTable & data = *(model->impl()->getData());
@@ -429,7 +438,8 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     };
 
     data_management::BlockDescriptor<algorithmFpType> labelBD;
-    algorithmFpType * const classes = static_cast<algorithmFpType *>(daal_malloc(heapSize * sizeof(*classes)));
+
+    algorithmFpType * classes = static_cast<algorithmFpType *>(daal_malloc(heapSize * sizeof(*classes)));
     DAAL_CHECK_MALLOC(classes)
     for (size_t i = 0; i < heapSize; ++i)
     {
@@ -460,7 +470,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     }
     predictedClass = winnerClass;
     daal_free(classes);
-
+    classes = nullptr;
     return services::Status();
 }
 

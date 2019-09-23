@@ -368,7 +368,7 @@ services::Status TreeBuilder<algorithmFPType, RowIndexType, BinIndexType, cpu>::
     DAAL_CHECK_MALLOC(nd);
 
     _tree.reset(nd, false);
-    services::Status status = gbt::internal::ModelImpl::treeToTable(_tree, &pRes, &pTblImp, &pTblSmplCnt);
+    services::Status status = gbt::internal::ModelImpl::treeToTable(_tree, &pRes, &pTblImp, &pTblSmplCnt, _ctx.nFeatures());
     DAAL_CHECK_STATUS_VAR(status)
 
     if(_ctx.isBagging() && _tree.top())
