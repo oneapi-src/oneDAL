@@ -45,12 +45,30 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
 {
     TCHAR PathBuf[MAX_PATH];
     LPTSTR *FilePart=NULL;
-    int rv;
+    DWORD rv;
+    BOOL rv1;
+    HMODULE rv2;
+
+    // References:
+    // "Dynamic-Link Library Security" - https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-security
+    // "Dynamic-Link Library Search Order" - https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order?redirectedfrom=MSDN
+    // "SearchPath function" - https://docs.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-searchpathw
+    // "SetSearchPathMode function" - https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setsearchpathmode
+    // "SetDllDirectory function" - https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setdlldirectorya
+
+    // Exclude current directory from the serch path
+    SetDllDirectory("");
 
     // Set safe mode for search process
-    SetSearchPathMode(BASE_SEARCH_PATH_ENABLE_SAFE_SEARCHMODE);
+    rv1 = SetSearchPathMode(BASE_SEARCH_PATH_ENABLE_SAFE_SEARCHMODE);
+
+    if(0 == rv1) {
+        printf("Intel DAAL FATAL ERROR: Cannot enable safe process search mode.\n");
+        return NULL;
+    }
+
     // Find dll for LoadLibrary
-    rv=SearchPath(NULL,filename,NULL,MAX_PATH,PathBuf,FilePart);
+    rv = SearchPath(NULL,filename,NULL,MAX_PATH,PathBuf,FilePart);
 
     if(0 == rv) {
         printf("Intel DAAL FATAL ERROR: Cannot find %s.\n",filename);
@@ -130,7 +148,12 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
         return NULL;
     }
 
-    return LoadLibrary(filename);
+    rv2 = LoadLibrary(filename);
+
+    // Restore current directory from the serch path
+    SetDllDirectory(NULL);
+
+    return rv2;
 }
 #endif
 
