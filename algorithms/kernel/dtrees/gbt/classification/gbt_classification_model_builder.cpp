@@ -53,7 +53,9 @@ services::Status ModelBuilder::initialize(size_t nFeatures, size_t nIterations, 
     services::Status s;
     _nClasses = (nClasses == 2) ? 1 : nClasses;
     _nIterations = nIterations;
-    _model.reset(new gbt::classification::internal::ModelImpl(nFeatures));
+    auto modelImpl = new gbt::classification::internal::ModelImpl(nFeatures);
+    DAAL_CHECK_MALLOC(modelImpl)
+    _model.reset(modelImpl);
     gbt::classification::internal::ModelImpl& modelImplRef = daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::classification::internal::ModelImpl,ModelPtr>(_model);
 
     modelImplRef.resize(_nIterations*_nClasses);
@@ -95,6 +97,7 @@ services::Status ModelBuilder::createTreeInternal(size_t nNodes, size_t clasLabe
         services::SharedPtr<DecisionTreeTable> treeTablePtr(new DecisionTreeTable(nNodes));//DecisionTreeTable* const treeTable = new DecisionTreeTable(nNodes);
         const size_t nRows = treeTablePtr->getNumberOfRows();
         DecisionTreeNode* const pNodes = (DecisionTreeNode*)treeTablePtr->getArray();
+        DAAL_CHECK_MALLOC(pNodes)
         pNodes[0].featureIndex = __NODE_RESERVED_ID;
         pNodes[0].leftIndexOrClass = 0;
         pNodes[0].featureValueOrResponse = 0;

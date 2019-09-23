@@ -269,6 +269,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     size_t na = models->size();
 
     PartialModel **a = new PartialModel*[na];
+    DAAL_CHECK_MALLOC(a)
 
     for(size_t i = 0; i < na; i++)
     {

@@ -50,10 +50,10 @@ namespace internal
  *  \param imin_s[in]    minimum support
  *  \param data[in]      input data set
  *  \param L[out]        structure containing "large" itemsets
- *  \return true if added something
+ *  \return Status object
  */
 template<typename algorithmFPType, CpuType cpu>
-bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPass(size_t imin_s,
+services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPass(size_t imin_s,
     assocrules_dataset<cpu> &data, ItemSetList<cpu>& l)
 {
     size_t numOfUniqueItems = data.numOfUniqueItems;
@@ -64,9 +64,12 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPass(size_t imi
     {
         size_t item_id      = uniqueItems[i].itemID;
         size_t item_support = uniqueItems[i].support;
-        l.insert(new assocrules_itemset<cpu>(item_id, item_support));
+        assocrules_itemset<cpu>* ai = new assocrules_itemset<cpu>(item_id, item_support);
+        DAAL_CHECK_MALLOC(ai);
+        DAAL_CHECK_STATUS_OK(ai->ok(), ai->getLastStatus());
+        l.insert(ai);
     }
-    return numOfUniqueItems > 0;
+    return (numOfUniqueItems > 0) ? services::Status() : services::ErrorAprioriIncorrectInputData;
 }
 
 /**
@@ -102,10 +105,25 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::pruneCandidate(size_
 
 template<typename algorithmFPType, CpuType cpu>
 assocrules_itemset<cpu> *AssociationRulesKernel<apriori, algorithmFPType, cpu>::genCandidate(
-            size_t iset_size, size_t *first_items, size_t second_item, size_t *subset_buf, hash_tree<cpu> *C_tree)
+            size_t iset_size, size_t *first_items, size_t second_item, size_t *subset_buf, hash_tree<cpu> *C_tree, services::Status& s)
 {
+    s = services::Status();
     /* Create candidate itemset */
     assocrules_itemset<cpu> *iset = new assocrules_itemset<cpu>(iset_size + 1, first_items, second_item);
+
+    if (!iset)
+    {
+        s = services::ErrorMemoryAllocationFailed;
+        return nullptr;
+    }
+
+    if (!iset->ok())
+    {
+        s = iset->getLastStatus();
+        delete iset;
+        iset = nullptr;
+        return nullptr;
+    }
 
     /* Check apriori property for candidate itemset */
     if (pruneCandidate(iset_size + 1, iset->items, subset_buf, *C_tree))
@@ -141,12 +159,15 @@ size_t AssociationRulesKernel<apriori, algorithmFPType, cpu>::binarySearch(size_
  *  \param iset_size[in]  length of input itemsets
  *  \param L[in]          structure containing "large" itemsets
  *  \return false if no candidates were generated, true otherwise
+ *  \param outputStatus[out]    Status object that indicates tehe result of memory allocation
  */
 template<typename algorithmFPType, CpuType cpu>
 bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::genCandidates(size_t iset_size, ItemSetList<cpu> *L,
                                                                           hash_tree<cpu> *C_tree,
-                                                                          size_t nUniqueItems, assocRulesUniqueItem<cpu> *uniqueItems)
+                                                                          size_t nUniqueItems, assocRulesUniqueItem<cpu> *uniqueItems,
+                                                                          services::Status& outputStatus)
 {
+    outputStatus = services::Status();
     size_t new_iset_size = iset_size + 1;
     ItemSetList<cpu> *L_prev = &(L[iset_size - 1]);
     ItemSetList<cpu> *L_cur  = &(L[iset_size]);
@@ -164,8 +185,25 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::genCandidates(size_t
         {
             for (size_t j = i + 1; j < nUniqueItems; j++)
             {
-                L_cur->insert(new assocrules_itemset<cpu>(new_iset_size,
-                            &(uniqueItems[i].itemID), uniqueItems[j].itemID));
+                services::Status s;
+                assocrules_itemset<cpu> *ai = new assocrules_itemset<cpu>(new_iset_size,
+                            &(uniqueItems[i].itemID), uniqueItems[j].itemID);
+
+                if (!ai)
+                {
+                    outputStatus = services::ErrorMemoryAllocationFailed;
+                    return false;
+                }
+
+                if (!ai->ok())
+                {
+                    delete ai;
+                    ai = nullptr;
+                    outputStatus = ai->getLastStatus();
+                    return false;
+                }
+
+                L_cur->insert(ai);
             }
         }
     }
@@ -180,7 +218,15 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::genCandidates(size_t
             size_t start_item_id = binarySearch(nUniqueItems, uniqueItems, last_item);
             for (size_t k = start_item_id; k < nUniqueItems; k++)
             {
-                iset = genCandidate(iset_size, first_items, uniqueItems[k].itemID, subset_buf, C_tree);
+                services::Status s;
+                iset = genCandidate(iset_size, first_items, uniqueItems[k].itemID, subset_buf, C_tree, s);
+
+                if (!s.ok())
+                {
+                    outputStatus = s;
+                    return false;
+                }
+
                 if (iset) { L_cur->insert(iset); }
             }
         }
@@ -349,20 +395,41 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::prune(size_t imin_s,
  *  \param L_size[out]     size of the array L
  *  \param bFound[out]  flag. true,  if at least 2 "large" item sets of size k+1 were found;
  *                               false, otherwise
+ *  \param s[out]       Status object that indicates the result of memory allocation
  */
 template<typename algorithmFPType, CpuType cpu>
 hash_tree<cpu> *AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass(size_t imin_s, size_t iset_size,
                                                                                 assocrules_dataset<cpu> &data,
                                                                                 ItemSetList<cpu> *L, size_t& L_size, bool& bFound,
-                                                                                hash_tree<cpu> *C_tree)
+                                                                                hash_tree<cpu> *C_tree, services::Status& s)
 {
-    bFound = genCandidates(iset_size, L, C_tree, data.numOfUniqueItems, data.uniq_items);
+    s = services::Status();
+    bFound = genCandidates(iset_size, L, C_tree, data.numOfUniqueItems, data.uniq_items, s);
+
+    if (!s.ok())
+        return nullptr;
+
     delete C_tree;
     C_tree = nullptr;
     if(!bFound)
         return nullptr;
     hash_tree<cpu> *C_tree_new = new hash_tree<cpu>(iset_size + 1, L[iset_size]);
-        prune(imin_s, iset_size, data, L, C_tree_new);
+    if (!C_tree_new)
+    {
+        bFound = false;
+        s = services::ErrorMemoryAllocationFailed;
+        return nullptr;
+    }
+    if (!C_tree_new->ok())
+    {
+        bFound = false;
+        s = C_tree_new->getLastStatus();
+        delete C_tree_new;
+        C_tree_new = nullptr;
+        return nullptr;
+    }
+
+    prune(imin_s, iset_size, data, L, C_tree_new);
     if (L[iset_size].size > 0) { ++L_size; }
     if (L[iset_size].size < 2) { bFound = false; }
     return C_tree_new;
