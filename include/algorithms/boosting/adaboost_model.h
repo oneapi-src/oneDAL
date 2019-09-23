@@ -51,7 +51,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__ADABOOST__PARAMETER"></a>
- * \brief AdaBoost algorithm parameters
+ * \brief AdaBoost algorithm parameters   \DAAL_DEPRECATED
  *
  * \snippet boosting/adaboost_model.h Parameter source code
  */
@@ -59,7 +59,7 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public boosting::Parameter
 {
     /** Default constructor */
-    Parameter();
+    DAAL_DEPRECATED Parameter();
 
     /**
      * Constructs the AdaBoost parameter structure
@@ -68,20 +68,20 @@ struct DAAL_EXPORT Parameter : public boosting::Parameter
      * \param[in] acc                       Accuracy of the AdaBoost training algorithm
      * \param[in] maxIter                   Maximal number of iterations of the AdaBoost training algorithm
      */
-    Parameter(services::SharedPtr<weak_learner::training::Batch>   wlTrainForParameter,
+    DAAL_DEPRECATED Parameter(services::SharedPtr<weak_learner::training::Batch>   wlTrainForParameter,
               services::SharedPtr<weak_learner::prediction::Batch> wlPredictForParameter,
               double acc = 0.0, size_t maxIter = 10);
 
     double accuracyThreshold;       /*!< Accuracy of the AdaBoost training algorithm */
     size_t maxIterations;           /*!< Maximal number of iterations of the AdaBoost training algorithm */
 
-    services::Status check() const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__MODEL"></a>
- * \brief %Model of the classifier trained by the adaboost::training::Batch algorithm.
+ * \brief %Model of the classifier trained by the adaboost::training::Batch algorithm.   \DAAL_DEPRECATED
  *
  * \par References
  *      - \ref training::interface1::Batch "training::Batch" class
@@ -100,13 +100,13 @@ public:
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy);
+    DAAL_EXPORT DAAL_DEPRECATED Model(size_t nFeatures, modelFPType dummy);
 
     /**
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model() : boosting::Model(), _alpha() {}
+    DAAL_DEPRECATED Model() : boosting::Model(), _alpha() {}
 
     /**
      * Constructs the AdaBoost model
@@ -115,7 +115,7 @@ public:
      * \param[out] stat      Status of the model construction
      */
     template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, services::Status *stat = NULL);
+    DAAL_EXPORT DAAL_DEPRECATED static services::SharedPtr<Model> create(size_t nFeatures, services::Status *stat = NULL);
 
     virtual ~Model() { }
 
@@ -125,7 +125,7 @@ public:
      *  The size of the array equals the number of weak learners
      *  \return Array of weights of weak learners.
      */
-    data_management::NumericTablePtr getAlpha() const;
+    DAAL_DEPRECATED data_management::NumericTablePtr getAlpha() const;
 
 protected:
     data_management::NumericTablePtr _alpha;     /* Boosting coefficients table */

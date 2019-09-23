@@ -49,7 +49,7 @@ namespace interface1
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__TRAINING__BATCHCONTAINER"></a>
- * \brief Class containing methods for Decision tree model-based training using algorithmFPType precision arithmetic
+ * \brief Class containing methods for Decision tree model-based training using algorithmFPType precision arithmetic  \DAAL_DEPRECATED
  */
 template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public TrainingContainerIface<batch>
@@ -59,20 +59,20 @@ public:
      * Constructs a container for Decision tree model-based training with a specified environment in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env * daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
 
     /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED ~BatchContainer();
 
     /**
      * Computes the result of Decision tree model-based training in the batch processing mode
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__TRAINING__BATCH"></a>
- * \brief Provides methods for Decision tree model-based training in the batch processing mode
+ * \brief Provides methods for Decision tree model-based training in the batch processing mode   \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-DT-ALGORITHM">Decision tree algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for Decision tree model-based training, double or float
@@ -99,7 +99,7 @@ public:
     ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
 
     /** Default constructor */
-    Batch()
+    DAAL_DEPRECATED Batch()
     {
         initialize();
     }
@@ -109,30 +109,30 @@ public:
      * and parameters of another Decision tree training algorithm in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) :
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other) :
         algorithms::regression::training::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
 
-    virtual algorithms::regression::training::Input* getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED_VIRTUAL virtual algorithms::regression::training::Input* getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns the structure that contains the result of Decision tree model-based training
      * \return Structure that contains the result of Decision tree model-based training
      */
-    ResultPtr getResult() { return ResultType::cast(_result); }
+    DAAL_DEPRECATED ResultPtr getResult() { return ResultType::cast(_result); }
 
     /**
      * Resets the results of Decision tree model training algorithm
      */
-    services::Status resetResult() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED services::Status resetResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
         DAAL_CHECK(_result, services::ErrorNullResult);
@@ -146,7 +146,7 @@ public:
      * in the batch processing mode
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }

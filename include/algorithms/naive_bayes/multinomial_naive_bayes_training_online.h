@@ -47,7 +47,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__TRAINING__ONLINECONTAINER"></a>
- *  \brief Class containing computation methods for naive Bayes training in the online processing mode
+ *  \brief Class containing computation methods for naive Bayes training in the online processing mode  \DAAL_DEPRECATED
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the naive Bayes in the online processing mode, double or float
  * \tparam method           Naive Bayes computation method, \ref Method
@@ -61,9 +61,9 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED OnlineContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    ~OnlineContainer();
+    DAAL_DEPRECATED ~OnlineContainer();
 
     /**
      * Computes a partial result of naive Bayes model-based training
@@ -71,19 +71,19 @@ public:
      *
      * \return Status of computations
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
     /**
      * Computes the result of naive Bayes model-based training
      * in the online processing mode
      *
      * \return Status of computations
      */
-    services::Status finalizeCompute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__TRAINING__ONLINE"></a>
- *  \brief Algorithm class for training naive Bayes model
+ *  \brief Algorithm class for training naive Bayes model   \DAAL_DEPRECATED
  *  <!-- \n<a href="DAAL-REF-MULTINOMNAIVEBAYES-ALGORITHM">Multinomial naive Bayes algorithm description and usage models</a> -->
  *
  *  \tparam algorithmFPType  Data type to use in intermediate computations for multinomial naive Bayes training in the online processing mode,
@@ -109,7 +109,7 @@ public:
      * Default constructor
      * \param nClasses  Number of classes
      */
-    Online(size_t nClasses) : parameter(nClasses)
+    DAAL_DEPRECATED Online(size_t nClasses) : parameter(nClasses)
     {
         initialize();
     }
@@ -120,25 +120,25 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online<algorithmFPType, method> &other) :
+    DAAL_DEPRECATED Online(const Online<algorithmFPType, method> &other) :
         classifier::training::interface1::Online(other), parameter(other.parameter)
     {
         initialize();
     }
 
-    virtual ~Online() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Online() {}
 
     /**
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns the structure that contains results of Naive Bayes training
      * \return Structure that contains results of Naive Bayes training
      */
-    ResultPtr getResult()
+    DAAL_DEPRECATED ResultPtr getResult()
     {
         return services::staticPointerCast<ResultType, classifier::training::Result>(_result);
     }
@@ -149,7 +149,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& result)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr& result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
@@ -160,7 +160,7 @@ public:
     /**
      * Resets the training results of the classification algorithm
      */
-    void resetResult()
+    DAAL_DEPRECATED void resetResult()
     {
         _result.reset(new ResultType());
         _res = NULL;
@@ -170,14 +170,14 @@ public:
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    PartialResultPtr getPartialResult() { return PartialResultType::cast(_partialResult); }
+    DAAL_DEPRECATED PartialResultPtr getPartialResult() { return PartialResultType::cast(_partialResult); }
 
     /**
      * Returns a pointer to the newly allocated multinomial naive Bayes training algorithm
      * with a copy of input objects and parameters of this multinomial naive Bayes training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<interface1::Online<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<interface1::Online<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<interface1::Online<algorithmFPType, method> >(cloneImpl());
     }

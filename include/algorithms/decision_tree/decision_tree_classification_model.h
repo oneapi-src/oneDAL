@@ -76,7 +76,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_TREE__CLASSIFICATION__PARAMETER"></a>
- * \brief Decision tree algorithm parameters
+ * \brief Decision tree algorithm parameters   \DAAL_DEPRECATED
  *
  * \snippet decision_tree/decision_tree_classification_model.h Parameter source code
  */
@@ -87,14 +87,14 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::
      *  Main constructor
      *  \param[in] nClasses                         Number of classes
      */
-    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses),
+    DAAL_DEPRECATED Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses),
                                      pruning(reducedErrorPruning), maxTreeDepth(0), minObservationsInLeafNodes(1),
                                      splitCriterion(infoGain) {}
 
     /**
      * Checks a parameter of the Decision tree algorithm
      */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 
     SplitCriterion splitCriterion;      /*!< Split criterion for Decision tree classification */
     Pruning pruning;                    /*!< Pruning method for Decision tree */

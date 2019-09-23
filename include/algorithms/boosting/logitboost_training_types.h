@@ -68,21 +68,21 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGITBOOST__TRAINING__RESULT"></a>
  * \brief Provides methods to access final results obtained with the compute() method
- *        of the LogitBoost training algorithm in the batch processing mode
+ *        of the LogitBoost training algorithm in the batch processing mode    \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public classifier::training::interface1::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
 
-    virtual ~Result() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
 
     /**
      * Returns the model trained with the LogitBoost algorithm
      * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
      * \return          Model trained with the LogitBoost algorithm
      */
-    daal::algorithms::logitboost::interface1::ModelPtr get(classifier::training::ResultId id) const;
+    DAAL_DEPRECATED daal::algorithms::logitboost::interface1::ModelPtr get(classifier::training::ResultId id) const;
 
     /**
      * Allocates memory to store final results of the LogitBoost training algorithm
@@ -91,7 +91,7 @@ public:
      * \param[in] method        LogitBoost computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
 protected:
     /** \private */

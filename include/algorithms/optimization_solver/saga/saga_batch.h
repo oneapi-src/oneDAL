@@ -62,15 +62,15 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of the Saga algorithm in the batch processing mode
      *
      * \return Status of computations
      */
-    virtual services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -98,7 +98,7 @@ public:
     InputType input;         /*!< %Input data structure */
 
     /** Default constructor */
-    Batch(const sum_of_functions::interface1::BatchPtr& objectiveFunction = sum_of_functions::interface1::BatchPtr());
+    DAAL_DEPRECATED Batch(const sum_of_functions::interface1::BatchPtr& objectiveFunction = sum_of_functions::interface1::BatchPtr());
 
     /**
      * Constructs a Stochastic average gradient descent algorithm by copying input objects
@@ -106,9 +106,9 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other);
 
-    ~Batch()
+    DAAL_DEPRECATED ~Batch()
     {
         delete _par;
     }
@@ -116,38 +116,38 @@ public:
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    DAAL_DEPRECATED ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    DAAL_DEPRECATED const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
 
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     /**
      * Get input objects for the iterative solver algorithm
      * \return %Input objects for the iterative solver algorithm
      */
-    virtual iterative_solver::interface1::Input * getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED_VIRTUAL virtual iterative_solver::interface1::Input * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Get parameters of the iterative solver algorithm
      * \return Parameters of the iterative solver algorithm
      */
-    virtual iterative_solver::interface1::Parameter * getParameter() DAAL_C11_OVERRIDE { return &parameter(); }
+    DAAL_DEPRECATED_VIRTUAL virtual iterative_solver::interface1::Parameter * getParameter() DAAL_C11_OVERRIDE { return &parameter(); }
 
     /**
      * Creates user-allocated memory to store results of the iterative solver algorithm
      *
      * \return Status of computations
      */
-    virtual services::Status createResult() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status createResult() DAAL_C11_OVERRIDE
     {
         _result = iterative_solver::interface1::ResultPtr(new ResultType());
         _res = NULL;
@@ -159,7 +159,7 @@ public:
      * of this Stochastic average gradient descent algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
@@ -168,7 +168,7 @@ public:
     *  Creates the instance of the class
     *  \return     New instance of the class
     */
-    static services::SharedPtr<Batch<algorithmFPType, method> > create();
+    DAAL_DEPRECATED static services::SharedPtr<Batch<algorithmFPType, method> > create();
 
 protected:
     virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
