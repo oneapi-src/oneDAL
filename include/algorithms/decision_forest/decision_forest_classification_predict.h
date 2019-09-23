@@ -63,7 +63,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__PREDICTION__BATCHCONTAINER"></a>
- * \brief Provides methods to run implementations of the decision_forest algorithm.
+ * \brief Provides methods to run implementations of the decision_forest algorithm.   \DAAL_DEPRECATED
  *        This class is associated with daal::algorithms::decision_forest::prediction::interface1::Batch class
  *        and supports method to compute decision_forest prediction
  *
@@ -78,19 +78,19 @@ public:
      * Constructs a container for decision_forest model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of decision_forest model-based prediction
      * \return Status of computations
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__PREDICTION__BATCH"></a>
- * \brief Predicts decision_forest classification results
+ * \brief Predicts decision_forest classification results   \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-decision_forest-ALGORITHM">decision_forest algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the decision_forest algortithm, double or float
@@ -125,7 +125,7 @@ public:
      * Constructs Decision forest prediction algorithm
      * \param[in] nClasses  Number of classes
      */
-    Batch(size_t nClasses): parameter(nClasses)
+    DAAL_DEPRECATED Batch(size_t nClasses): parameter(nClasses)
     {
         initialize();
     };
@@ -136,32 +136,32 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : classifier::prediction::interface1::Batch(other),
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) : classifier::prediction::interface1::Batch(other),
         input(other.input), parameter(other.parameter)
     {
         initialize();
     }
 
-    ~Batch() {}
+    DAAL_DEPRECATED ~Batch() {}
 
     /**
      * Get input objects for the Decision forest prediction algorithm
      * \return %Input objects for the Decision forest prediction algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns a pointer to the newly allocated Decision forest prediction algorithm with a copy of input objects
      * and parameters of this Decision forest prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }

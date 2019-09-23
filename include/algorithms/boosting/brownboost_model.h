@@ -52,7 +52,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__BROWNBOOST__PARAMETER"></a>
- * \brief BrownBoost algorithm parameters
+ * \brief BrownBoost algorithm parameters      \DAAL_DEPRECATED
  *
  * \snippet boosting/brownboost_model.h Parameter source code
  */
@@ -60,7 +60,7 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public boosting::Parameter
 {
     /** Default constructor */
-    Parameter();
+    DAAL_DEPRECATED Parameter();
 
     /**
      * Constructs BrownBoost parameter structure
@@ -72,7 +72,7 @@ struct DAAL_EXPORT Parameter : public boosting::Parameter
      * \param[in] nrMaxIter                 Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm
      * \param[in] dcThreshold               Threshold needed  to avoid degenerate cases in the BrownBoost training algorithm
      */
-    Parameter(services::SharedPtr<weak_learner::training::Batch>   wlTrainForParameter,
+    DAAL_DEPRECATED Parameter(services::SharedPtr<weak_learner::training::Batch>   wlTrainForParameter,
               services::SharedPtr<weak_learner::prediction::Batch> wlPredictForParameter,
               double acc = 0.3, size_t maxIter = 10, double nrAcc = 1.0e-3, size_t nrMaxIter = 100, double dcThreshold = 1.0e-2);
 
@@ -82,13 +82,13 @@ struct DAAL_EXPORT Parameter : public boosting::Parameter
     size_t newtonRaphsonMaxIterations;      /*!< Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm */
     double degenerateCasesThreshold;        /*!< Threshold needed to avoid degenerate cases in the BrownBoost training algorithm */
 
-    services::Status check() const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__BROWNBOOST__MODEL"></a>
- * \brief %Model of the classifier trained by the brownboost::training::Batch algorithm.
+ * \brief %Model of the classifier trained by the brownboost::training::Batch algorithm.   \DAAL_DEPRECATED
  *
  * \par References
  *      - \ref training::interface1::Batch "training::Batch" class
@@ -107,13 +107,13 @@ public:
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy);
+    DAAL_EXPORT DAAL_DEPRECATED Model(size_t nFeatures, modelFPType dummy);
 
     /**
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model() : boosting::Model(), _alpha() { }
+    DAAL_DEPRECATED Model() : boosting::Model(), _alpha() { }
 
 
     /**
@@ -123,9 +123,9 @@ public:
      * \param[out] stat      Status of the model construction
      */
     template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, services::Status *stat = NULL);
+    DAAL_EXPORT DAAL_DEPRECATED static services::SharedPtr<Model> create(size_t nFeatures, services::Status *stat = NULL);
 
-    virtual ~Model() { }
+    DAAL_DEPRECATED_VIRTUAL virtual ~Model() { }
 
     /**
      *  Returns a pointer to the array of weights of weak learners constructed
@@ -133,7 +133,7 @@ public:
      *  The size of the array equals the number of weak learners
      *  \return Array of weights of weak learners.
      */
-    data_management::NumericTablePtr getAlpha();
+    DAAL_DEPRECATED data_management::NumericTablePtr getAlpha();
 
 protected:
     data_management::NumericTablePtr _alpha;     /* Boosting coefficients table */

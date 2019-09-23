@@ -55,7 +55,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the logistic regression algorithm.
  *        This class is associated with daal::algorithms::logistic_regression::prediction::interface1::Batch class
- *        and supports method to compute logistic regression prediction
+ *        and supports method to compute logistic regression prediction       \DAAL_DEPRECATED
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations, double or float
  * \tparam method           logistic regression computation method, \ref Method
@@ -68,19 +68,19 @@ public:
      * Constructs a container for logistic regression model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of logistic regression model-based prediction
      * \return Status of computations
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__BATCH"></a>
- * \brief Predicts logistic regression results
+ * \brief Predicts logistic regression results   \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-LOGISTIC-REGRESSION-ALGORITHM">logistic regression algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the logistic regression algortithm, double or float
@@ -112,7 +112,7 @@ public:
      * Constructs logistic regression prediction algorithm
      * \param[in] nClasses  Number of classes
      */
-    Batch(size_t nClasses);
+    DAAL_DEPRECATED Batch(size_t nClasses);
 
     /**
      * Constructs a logistic regression prediction algorithm by copying input objects and parameters
@@ -120,10 +120,10 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other);
 
     /** Destructor */
-    ~Batch()
+    DAAL_DEPRECATED ~Batch()
     {
         delete _par;
     }
@@ -132,32 +132,32 @@ public:
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    DAAL_DEPRECATED ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    DAAL_DEPRECATED const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
 
     /**
      * Gets input objects for the logistic regression prediction algorithm
      * \return %Input objects for the logistic regression prediction algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns a pointer to the newly allocated logistic regression prediction algorithm with a copy of input objects
      * and parameters of this logistic regression prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
@@ -166,7 +166,7 @@ public:
     * Returns the structure that contains the result of the logistic regression model-based prediction
     * \return Structure that contains the result of the logistic regression model-based prediction
     */
-    interface1::ResultPtr getResult() { return ResultType::cast(_result); }
+    DAAL_DEPRECATED interface1::ResultPtr getResult() { return ResultType::cast(_result); }
 
 public:
     InputType input;                /*!< %Input objects of the algorithm */

@@ -65,15 +65,15 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    virtual ~BatchContainer();
+    DAAL_DEPRECATED_VIRTUAL virtual ~BatchContainer();
     /**
      * Computes the result of cross_entropy_loss objective function in the batch processing mode
      *
      * \return Status of computations
      */
-    virtual services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -105,12 +105,12 @@ public:
     /**
      *  Main constructor
      */
-    Batch(size_t nClasses, size_t numberOfTerms) : sum_of_functions::interface1::Batch(numberOfTerms, &input, new ParameterType(nClasses, numberOfTerms))
+    DAAL_DEPRECATED Batch(size_t nClasses, size_t numberOfTerms) : sum_of_functions::interface1::Batch(numberOfTerms, &input, new ParameterType(nClasses, numberOfTerms))
     {
         initialize();
     }
 
-    virtual ~Batch() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Batch() {}
 
     /**
      * Constructs an the Cross-entropy loss objective function algorithm by copying input objects and parameters
@@ -118,7 +118,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) :
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) :
         sum_of_functions::interface1::Batch(other.parameter().numberOfTerms, &input, new ParameterType(other.parameter())), input(other.input)
     {
         initialize();
@@ -128,14 +128,14 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns a pointer to the newly allocated the Cross-entropy loss objective function algorithm with a copy of input objects
      * of this the Cross-entropy loss objective function algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
@@ -145,7 +145,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status allocate()
+    DAAL_DEPRECATED services::Status allocate()
     {
         return allocateResult();
     }
@@ -154,13 +154,13 @@ public:
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    DAAL_DEPRECATED ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    DAAL_DEPRECATED const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
 
     /**
     *  Creates the instance of the class
@@ -168,7 +168,7 @@ public:
     *  \param[in]  numberOfTerms  Constructor argument
     *  \return     New instance of the class
     */
-    static services::SharedPtr<Batch<algorithmFPType, method> > create(size_t nClasses, size_t numberOfTerms);
+    DAAL_DEPRECATED static services::SharedPtr<Batch<algorithmFPType, method> > create(size_t nClasses, size_t numberOfTerms);
 
 protected:
     virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE

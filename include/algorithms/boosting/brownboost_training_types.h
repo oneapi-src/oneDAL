@@ -66,7 +66,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__BROWNBOOST__TRAINING__RESULT"></a>
- * \brief Provides methods to access final results obtained with the compute() method
+ * \brief Provides methods to access final results obtained with the compute() method \DAAL_DEPRECATED
  *        of the BrownBoost training algorithm in the batch processing mode
  */
 class DAAL_EXPORT Result : public classifier::training::interface1::Result
@@ -74,14 +74,14 @@ class DAAL_EXPORT Result : public classifier::training::interface1::Result
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
 
-    virtual ~Result() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
 
     /**
      * Returns the model trained with the BrownBoost algorithm
      * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
      * \return          Model trained with the BrownBoost algorithm
      */
-    daal::algorithms::brownboost::interface1::ModelPtr get(classifier::training::ResultId id) const;
+    DAAL_DEPRECATED daal::algorithms::brownboost::interface1::ModelPtr get(classifier::training::ResultId id) const;
 
     /**
      * Allocates memory to store final results of BrownBoost training
@@ -90,9 +90,9 @@ public:
      * \param[in] method        BrownBoost computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */

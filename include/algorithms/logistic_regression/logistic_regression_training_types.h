@@ -72,8 +72,8 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
     typedef optimization_solver::iterative_solver::interface1::BatchPtr SolverPtr;
 
     /** Default constructor */
-    Parameter(size_t nClasses, const SolverPtr& solver = SolverPtr());
-    Parameter(const Parameter& o) : classifier::interface1::Parameter(o), interceptFlag(o.interceptFlag),
+    DAAL_DEPRECATED Parameter(size_t nClasses, const SolverPtr& solver = SolverPtr());
+    DAAL_DEPRECATED Parameter(const Parameter& o) : classifier::interface1::Parameter(o), interceptFlag(o.interceptFlag),
         penaltyL1(o.penaltyL1), penaltyL2(o.penaltyL2), optimizationSolver(o.optimizationSolver){}
     services::Status check() const DAAL_C11_OVERRIDE;
 
@@ -94,22 +94,22 @@ class DAAL_EXPORT Result : public classifier::training::Result
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
 
-    Result();
-    virtual ~Result() {}
+    DAAL_DEPRECATED Result();
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
 
     /**
      * Returns the model trained with the logistic regression algorithm
      * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
      * \return          Model trained with the logistic regression algorithm
      */
-    ModelPtr get(classifier::training::ResultId id) const;
+    DAAL_DEPRECATED ModelPtr get(classifier::training::ResultId id) const;
 
     /**
     * Sets the result of model-based training
     * \param[in] id      Identifier of the result
     * \param[in] value   Result
     */
-    void set(classifier::training::ResultId id, const ModelPtr &value);
+    DAAL_DEPRECATED void set(classifier::training::ResultId id, const ModelPtr &value);
 
     /**
      * Allocates memory to store final results of the logistic regression training algorithm
@@ -119,7 +119,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
     /**s
     * Checks the result of model-based training
@@ -128,7 +128,7 @@ public:
     * \param[in] method  Computation method
     * \return Status of checking
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
@@ -149,7 +149,7 @@ namespace interface2
 {
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__LOGISTIC_REGRESSION__TRAINING__PARAMETER"></a>
- * \brief logistic regression algorithm parameters
+ * \brief logistic regression algorithm parameters   \DAAL_DEPRECATED
  *
  * \snippet logistic_regression/logistic_regression_training_types.h Parameter source code
  */
@@ -159,8 +159,8 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
     typedef optimization_solver::iterative_solver::BatchPtr SolverPtr;
 
     /** Default constructor */
-    Parameter(size_t nClasses, const SolverPtr& solver = SolverPtr());
-    Parameter(const Parameter& o) : classifier::interface1::Parameter(o), interceptFlag(o.interceptFlag),
+    DAAL_DEPRECATED Parameter(size_t nClasses, const SolverPtr& solver = SolverPtr());
+    DAAL_DEPRECATED Parameter(const Parameter& o) : classifier::interface1::Parameter(o), interceptFlag(o.interceptFlag),
         penaltyL1(o.penaltyL1), penaltyL2(o.penaltyL2), optimizationSolver(o.optimizationSolver){}
     services::Status check() const DAAL_C11_OVERRIDE;
 

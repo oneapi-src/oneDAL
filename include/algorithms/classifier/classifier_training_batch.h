@@ -45,7 +45,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__CLASSIFIER__TRAINING__BATCH"></a>
- * \brief Algorithm class for training the classifier model
+ * \brief Algorithm class for training the classifier model   \DAAL_DEPRECATED
  *
  * \par Enumerations
  *      - \ref InputId  Identifiers of input objects of the classifier model training algorithm
@@ -69,13 +69,13 @@ public:
      * Get input objects for the classifier model training algorithm
      * \return %Input objects for the classifier model training algorithm
      */
-    virtual InputType * getInput() = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual InputType * getInput() = 0;
 
     /**
      * Registers user-allocated memory for storing results of the classifier model training algorithm
      * \param[in] res    Structure for storing results of the classifier model training algorithm
      */
-    services::Status setResult(const ResultPtr& res)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr& res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
@@ -87,20 +87,20 @@ public:
      * Returns the structure that contains the trained classifier model
      * \return Structure that contains the trained classifier model
      */
-    ResultPtr getResult() { return _result; }
+    DAAL_DEPRECATED ResultPtr getResult() { return _result; }
 
     /**
      * Resets the results of the classifier model training algorithm
      * \return Status of the operation
      */
-    virtual services::Status resetResult() = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status resetResult() = 0;
 
     /**
      * Returns a pointer to the newly allocated classifier training algorithm with a copy of input objects
      * and parameters of this classifier training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch> clone() const
     {
         return services::SharedPtr<Batch>(cloneImpl());
     }
