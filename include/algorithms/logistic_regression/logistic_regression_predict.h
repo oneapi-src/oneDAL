@@ -247,14 +247,14 @@ public:
  *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Batch : public classifier::prediction::interface2::Batch
+class DAAL_EXPORT Batch : public classifier::prediction::Batch
 {
 public:
-    typedef classifier::prediction::interface2::Batch super;
+    typedef classifier::prediction::Batch super;
 
     typedef algorithms::logistic_regression::prediction::Input     InputType;
-    typedef algorithms::classifier::interface2::Parameter          ParameterType;
-    typedef algorithms::classifier::prediction::interface2::Result ResultType;
+    typedef algorithms::classifier::Parameter                      ParameterType;
+    typedef algorithms::classifier::prediction::Result             ResultType;
 
     /**
      * Constructs logistic regression prediction algorithm
