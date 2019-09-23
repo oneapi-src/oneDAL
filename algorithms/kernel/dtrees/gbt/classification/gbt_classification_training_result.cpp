@@ -44,7 +44,7 @@ namespace training
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_GBT_CLASSIFICATION_TRAINING_RESULT_ID);
-Result::Result() : algorithms::classifier::training::Result(classifier::training::lastResultId + 1) {};
+Result::Result() : algorithms::classifier::training::Result(lastOptionalResultNumericTableId + 1) {};
 
 gbt::classification::ModelPtr Result::get(classifier::training::ResultId id) const
 {
@@ -59,6 +59,16 @@ void Result::set(classifier::training::ResultId id, const gbt::classification::M
 services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
 {
     return algorithms::classifier::training::Result::check(input, par, method);
+}
+
+data_management::NumericTablePtr Result::get(OptionalResultNumericTableId id) const
+{
+    return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
+}
+
+void Result::set(OptionalResultNumericTableId id, const data_management::NumericTablePtr &value)
+{
+    Argument::set(id, value);
 }
 
 Status Parameter::check() const

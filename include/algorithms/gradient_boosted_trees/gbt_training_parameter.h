@@ -64,6 +64,15 @@ enum SplitMethod
     defaultSplit = inexact  /*!< Default split finding method */
 };
 
+enum ResultsToCompute
+{
+    computeWeight     = 0x001ULL,
+    computeTotalCover = 0x002ULL,
+    computeCover      = 0x004ULL,
+    computeTotalGain  = 0x008ULL,
+    computeGain       = 0x010ULL,
+};
+
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface
  */
@@ -108,6 +117,7 @@ public:
     size_t minBinSize;                      /*!< Used with 'inexact' split finding method only.
                                                  Minimal number of observations in a bin. Default is 5 */
     int internalOptions;                    /*!< Internal options */
+    DAAL_UINT64 resultsToCompute;           /*!< */
 };
 /* [Parameter source code] */
 } // namespace interface1

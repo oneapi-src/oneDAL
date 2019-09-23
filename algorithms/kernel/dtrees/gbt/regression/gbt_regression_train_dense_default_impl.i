@@ -164,22 +164,55 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
         DAAL_CHECK_STATUS(s, (indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, par.splitMethod == gbt::training::inexact ? &prm : nullptr)));
     }
 
+    WriteOnlyRows<algorithmFPType, cpu> weightsRows, totalCoverRows, coverRows, totalGainRows, gainRows;
+
+    if (par.resultsToCompute & gbt::training::computeWeight)
+    {
+        weightsRows.set(res.get(variableImportanceWeight).get(), 0, 1);
+    }
+    if (par.resultsToCompute & gbt::training::computeTotalCover)
+    {
+        totalCoverRows.set(res.get(variableImportanceTotalCover).get(), 0, 1);
+    }
+    if (par.resultsToCompute & gbt::training::computeCover)
+    {
+        coverRows.set(res.get(variableImportanceCover).get(), 0, 1);
+    }
+    if (par.resultsToCompute & gbt::training::computeTotalGain)
+    {
+        totalGainRows.set(res.get(variableImportanceTotalGain).get(), 0, 1);
+    }
+    if (par.resultsToCompute & gbt::training::computeGain)
+    {
+        gainRows.set(res.get(variableImportanceGain).get(), 0, 1);
+    }
+
+    algorithmFPType* ptrWeight     = weightsRows.get();
+    algorithmFPType* ptrTotalCover = totalCoverRows.get();
+    algorithmFPType* ptrCover      = coverRows.get();
+    algorithmFPType* ptrTotalGain  = totalGainRows.get();
+    algorithmFPType* ptrGain       = gainRows.get();
+
     if(inexactWithHistMethod)
     {
         if (indexedFeatures.maxNumIndices() <= 256)
-            return computeImpl<algorithmFPType, cpu, uint8_t, TrainBatchTask<algorithmFPType, uint8_t, method, cpu >>
-                (pHostApp, x, y, *static_cast<daal::algorithms::gbt::regression::internal::ModelImpl*>(&m), par, engine, 1, indexedFeatures, featTypes);
+            return computeImpl<algorithmFPType, cpu, uint8_t, TrainBatchTask<algorithmFPType, uint8_t, method, cpu >, Result>
+                (pHostApp, x, y, *static_cast<daal::algorithms::gbt::regression::internal::ModelImpl*>(&m), par, engine, 1, indexedFeatures, featTypes,
+                &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
         else if (indexedFeatures.maxNumIndices() <= 65536)
-            return computeImpl<algorithmFPType, cpu, uint16_t, TrainBatchTask<algorithmFPType, uint16_t, method, cpu >>
-                (pHostApp, x, y, *static_cast<daal::algorithms::gbt::regression::internal::ModelImpl*>(&m), par, engine, 1, indexedFeatures, featTypes);
+            return computeImpl<algorithmFPType, cpu, uint16_t, TrainBatchTask<algorithmFPType, uint16_t, method, cpu >, Result>
+                (pHostApp, x, y, *static_cast<daal::algorithms::gbt::regression::internal::ModelImpl*>(&m), par, engine, 1, indexedFeatures, featTypes,
+                &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
         else
-            return computeImpl<algorithmFPType, cpu, uint32_t, TrainBatchTask<algorithmFPType, uint32_t, method, cpu >>
-                (pHostApp, x, y, *static_cast<daal::algorithms::gbt::regression::internal::ModelImpl*>(&m), par, engine, 1, indexedFeatures, featTypes);
+            return computeImpl<algorithmFPType, cpu, uint32_t, TrainBatchTask<algorithmFPType, uint32_t, method, cpu >, Result>
+                (pHostApp, x, y, *static_cast<daal::algorithms::gbt::regression::internal::ModelImpl*>(&m), par, engine, 1, indexedFeatures, featTypes,
+                &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
     }
     else
     {
-        return computeImpl<algorithmFPType, cpu, uint32_t, TrainBatchTask<algorithmFPType, uint32_t, method, cpu >>
-            (pHostApp, x, y, *static_cast<daal::algorithms::gbt::regression::internal::ModelImpl*>(&m), par, engine, 1, indexedFeatures, featTypes);
+        return computeImpl<algorithmFPType, cpu, uint32_t, TrainBatchTask<algorithmFPType, uint32_t, method, cpu >, Result>
+            (pHostApp, x, y, *static_cast<daal::algorithms::gbt::regression::internal::ModelImpl*>(&m), par, engine, 1, indexedFeatures, featTypes,
+            &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
     }
 }
 
