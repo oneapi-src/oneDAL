@@ -146,6 +146,7 @@ Compressor<bzip2>::~Compressor()
 {
     (void)CompressEnd(((bz_stream *)_strmp));
     if(_strmp) daal::services::daal_free(((bz_stream *)_strmp));
+    _strmp = NULL;
 }
 
 void Compressor<bzip2>::finalizeCompression()
@@ -361,6 +362,7 @@ Decompressor<bzip2>::~Decompressor()
 {
     (void)DecompressEnd(((bz_stream *)_strmp));
     daal::services::daal_free(((bz_stream *)_strmp));
+    _strmp = NULL;
 }
 
 void Decompressor<bzip2>::finalizeCompression()

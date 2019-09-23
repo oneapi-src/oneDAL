@@ -109,6 +109,7 @@ Compressor<zlib>::~Compressor()
 {
     (void)deflateEnd(((z_stream *)_strmp));
     if(_strmp) daal::services::daal_free(_strmp);
+    _strmp = NULL;
 }
 
 void Compressor<zlib>::finalizeCompression()
@@ -281,6 +282,7 @@ Decompressor<zlib>::~Decompressor()
 {
     (void)inflateEnd(((z_stream *)_strmp));
     daal::services::daal_free(_strmp);
+    _strmp = NULL;
 }
 
 void Decompressor<zlib>::finalizeCompression()

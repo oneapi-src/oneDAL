@@ -51,7 +51,7 @@ Result::Result() : classifier::training::Result(lastResultId + 1)
     _impl = new Result::ResultImpl();
 }
 
-Result::~Result() { delete _impl; }
+Result::~Result() { delete _impl; _impl = nullptr; }
 
 Result::Result( const Result& other ): classifier::training::Result( other )
 {

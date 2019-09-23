@@ -175,6 +175,7 @@ protected:
         if(_bDataOwner)
             delete node->itemSet();
         delete node;
+        node = nullptr;
         }
 
 public:

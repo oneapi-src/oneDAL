@@ -370,7 +370,8 @@ void SharedPtr<T>::_remove()
     {
         (*_refCount)(_ownedPtr);
         delete _refCount;
-        _ptr = NULL;
+        _refCount   = NULL;
+        _ptr        = NULL;
     }
 }
 

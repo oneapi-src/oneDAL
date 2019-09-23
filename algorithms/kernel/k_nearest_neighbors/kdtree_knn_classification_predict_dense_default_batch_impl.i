@@ -125,7 +125,7 @@ class Heap
 public:
     Heap() : _elements(nullptr), _count(0) {}
 
-    ~Heap() { services::daal_free(_elements); }
+    ~Heap() { services::daal_free(_elements); _elements = nullptr; }
 
     bool init(size_t size)
     {
@@ -433,7 +433,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::
     };
 
     data_management::BlockDescriptor<algorithmFpType> labelBD;
-    algorithmFpType * const classes = static_cast<algorithmFpType *>(daal_malloc(heapSize * sizeof(*classes)));
+    algorithmFpType * classes = static_cast<algorithmFpType *>(daal_malloc(heapSize * sizeof(*classes)));
     for (size_t i = 0; i < heapSize; ++i)
     {
         const_cast<NumericTable &>(labels).getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
@@ -463,6 +463,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::
     }
     predictedClass = winnerClass;
     daal_free(classes);
+    classes = nullptr;
 }
 
 } // namespace internal

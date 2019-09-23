@@ -79,7 +79,11 @@ public:
     THistogramm* hist;  //histogramm
     size_t       size;  //number of classes in histogramm
     ClassifierResponse() : hist(nullptr), value(0){}
-    ~ClassifierResponse() { if(hist) daal::services::daal_free(hist); }
+    ~ClassifierResponse()
+    {
+        if(hist) daal::services::daal_free(hist);
+        hist = nullptr;
+    }
 #else
     ClassifierResponse() : value(0){}
 #endif

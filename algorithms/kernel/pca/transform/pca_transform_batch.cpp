@@ -107,7 +107,7 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
     DAAL_CHECK(nEigenvectors <= nFeaturesInEigen, ErrorIncorrectNumberOfRowsInInputNumericTable);
     DAAL_CHECK(nEigenvectors >= parameter->nComponents, ErrorIncorrectNComponents);
 
-    bool hasTransform = get(dataForTransform).get() != NULL;
+    bool hasTransform = get(dataForTransform).get() != nullptr;
     if(hasTransform)
     {
         NumericTablePtr pMeans = get(dataForTransform, mean);

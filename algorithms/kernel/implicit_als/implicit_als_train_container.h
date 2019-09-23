@@ -151,6 +151,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
 
     crossProductCollection->clear();
     daal::services::daal_free(partialCrossProducts);
+    partialCrossProducts = nullptr;
     return s;
 }
 

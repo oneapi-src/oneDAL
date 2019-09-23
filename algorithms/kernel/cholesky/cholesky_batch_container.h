@@ -51,7 +51,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Input *input = static_cast<Input *>(_in);
     Result *result = static_cast<Result *>(_res);
 
-    daal::algorithms::Parameter *par = NULL;
+    daal::algorithms::Parameter *par = nullptr;
     daal::services::Environment::env &env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::CholeskyKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, input->get(data).get(),

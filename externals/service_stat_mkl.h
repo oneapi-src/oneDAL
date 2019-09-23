@@ -220,6 +220,7 @@ struct MklStatistics<double, cpu>
         __DAAL_VSLFN_CALL(fpk_vsl_sub_kernel, vslSSDeleteTask, (&task), errcode);
 
         daal::services::daal_free(mean);
+        mean = NULL;
         return errcode;
     }
 
@@ -261,6 +262,7 @@ struct MklStatistics<double, cpu>
         *accumWeight = accumWeightsAll[0];
 
         daal::services::daal_free(sum);
+        sum = NULL;
         return errcode;
     }
 
@@ -338,6 +340,8 @@ struct MklStatistics<double, cpu>
 
         daal::services::daal_free(mean);
         daal::services::daal_free(secondOrderRawMoment);
+        mean                    = NULL;
+        secondOrderRawMoment    = NULL;
         return errcode;
     }
 
@@ -566,6 +570,7 @@ struct MklStatistics<float, cpu>
         __DAAL_VSLFN_CALL(fpk_vsl_sub_kernel, vslSSDeleteTask, (&task), errcode);
 
         daal::services::daal_free(mean);
+        mean = NULL;
         return errcode;
     }
 
@@ -607,6 +612,7 @@ struct MklStatistics<float, cpu>
         *accumWeight = accumWeightsAll[0];
 
         daal::services::daal_free(sum);
+        sum = NULL;
         return errcode;
     }
 
@@ -681,6 +687,8 @@ struct MklStatistics<float, cpu>
 
         daal::services::daal_free(mean);
         daal::services::daal_free(secondOrderRawMoment);
+        mean                    = NULL;
+        secondOrderRawMoment    = NULL;
 
         return errcode;
     }

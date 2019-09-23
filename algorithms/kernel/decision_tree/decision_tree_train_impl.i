@@ -544,6 +544,7 @@ public:
     ~Tree()
     {
         daal_free(_nodes);
+        _nodes = nullptr;
     }
 
     size_t nodeCount() const { return _nodeCount; }
@@ -600,12 +601,12 @@ public:
 
         typename SplitCriterion::DataStatistics totalDataStatistics(numberOfClasses, x, y, w), dataStatistics(numberOfClasses, w);
 
-        size_t * const indexes = prepareIndexes(xRowCount);
+        size_t * indexes = prepareIndexes(xRowCount);
 
         clear();
 
-        BlockDescriptor<IndependentVariableType> * const xBD = new BlockDescriptor<IndependentVariableType>[xColumnCount];
-        const IndependentVariableType ** const dx = new const IndependentVariableType * [xColumnCount];
+        BlockDescriptor<IndependentVariableType> * xBD = new BlockDescriptor<IndependentVariableType>[xColumnCount];
+        const IndependentVariableType ** dx = new const IndependentVariableType * [xColumnCount];
         if(x.getDataLayout() == data_management::NumericTableIface::soa)
         {
             for (size_t i = 0; i < xColumnCount; ++i)
@@ -651,6 +652,9 @@ public:
         delete[] dx;
         delete[] xBD;
         daal_free(indexes);
+        indexes = nullptr;
+        dx      = nullptr;
+        xBD     = nullptr;
     }
 
     template <typename SplitCriterion>
@@ -730,6 +734,7 @@ protected:
             swap<cpu>(_nodes, newNodes);
             swap<cpu>(_nodeCapacity, newCapacity);
             daal_free(newNodes);
+            newNodes = nullptr;
         }
     }
 
@@ -856,8 +861,7 @@ protected:
         {
             Local * const local = localTLS.local();
 
-            Item * const items = daal_alloc<Item>(indexCount);
-            Item * const items2 = daal_alloc<Item>(indexCount);
+            Item * items = daal_alloc<Item>(indexCount);
 
             const size_t rowsPerBlock = 512;
             const size_t blockCount = (indexCount + rowsPerBlock - 1) / rowsPerBlock;
@@ -925,8 +929,8 @@ protected:
                 local->winnerDataStatistics = local->bestCutPointDataStatistics;
             }
 
-            daal_free(items2);
             daal_free(items);
+            items = nullptr;
         } );
 
         localTLS.reduce([=, &winnerIsLeaf, &winnerSplitCriterionValue, &winnerFeatureIndex, &winnerCutPoint, &winnerPointsAtLeft,
@@ -945,6 +949,7 @@ protected:
             }
 
             delete v;
+            v = nullptr;
         } );
 
         if (winnerIsLeaf || winnerPointsAtLeft < context.minLeafSize || indexCount - winnerPointsAtLeft < context.minLeafSize)
@@ -1451,7 +1456,7 @@ protected:
         {
             Local * const local = localTLS.local();
 
-            Item * const items = daal_alloc<Item>(indexCount);
+            Item * items = daal_alloc<Item>(indexCount);
 
             const size_t rowsPerBlock = 512;
             const size_t blockCount = (indexCount + rowsPerBlock - 1) / rowsPerBlock;
@@ -1521,6 +1526,7 @@ protected:
             }
 
             daal_free(items);
+            items = nullptr;
         } );
 
         bool winnerIsLeaf = true;
@@ -1540,6 +1546,7 @@ protected:
             }
 
             delete v;
+            v = nullptr;
         } );
         return (!winnerIsLeaf);
     }
@@ -1590,7 +1597,7 @@ protected:
         {
             Local * const local = localTLS.local();
 
-            Item * const items = daal_alloc<Item>(indexCount);
+            Item * items = daal_alloc<Item>(indexCount);
 
             for (size_t i = 0; i < indexCount; ++i)
             {
@@ -1650,6 +1657,7 @@ protected:
             }
 
             daal_free(items);
+            items = nullptr;
         } );
 
         bool winnerIsLeaf = true;
@@ -1669,6 +1677,7 @@ protected:
             }
 
             delete v;
+            v = nullptr;
         } );
         return (!winnerIsLeaf);
     }
@@ -1722,6 +1731,8 @@ public:
     {
         daal_free(_isPrunedValues);
         daal_free(_dependentVariables);
+        _isPrunedValues     = nullptr;
+        _dependentVariables = nullptr;
     }
 
     size_t size() const { return _size; }

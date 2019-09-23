@@ -35,22 +35,22 @@ namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_MULTI_CLASS_CLASSIFIER_MODEL_ID);
 
-Model::Model(size_t nFeatures, const interface1::ParameterBase *par) :
-    _modelsArray(NULL),
+Model::Model(size_t nFeatures, const ParameterBase *par) :
+    _modelsArray(nullptr),
     _models(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2)),
     _nFeatures(nFeatures)
 {
 }
 
 Model::Model(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase *par) :
-    _modelsArray(NULL),
+    _modelsArray(nullptr),
     _models(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2)),
     _nFeatures(nFeatures)
 {
 }
 
 Model::Model(size_t nFeatures, const interface1::ParameterBase *par, services::Status &st) :
-    _modelsArray(NULL),
+    _modelsArray(nullptr),
     _nFeatures(nFeatures)
 {
     _models.reset(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2));
@@ -59,7 +59,7 @@ Model::Model(size_t nFeatures, const interface1::ParameterBase *par, services::S
 }
 
 Model::Model(size_t nFeatures, const multi_class_classifier::interface2::ParameterBase *par, services::Status &st) :
-    _modelsArray(NULL),
+    _modelsArray(nullptr),
     _nFeatures(nFeatures)
 {
     _models.reset(new data_management::DataCollection(par->nClasses * (par->nClasses - 1) / 2));
@@ -67,7 +67,7 @@ Model::Model(size_t nFeatures, const multi_class_classifier::interface2::Paramet
         st.add(services::ErrorMemoryAllocationFailed);
 }
 
-Model::Model() : _modelsArray(NULL), _models(new data_management::DataCollection()), _nFeatures(0)
+Model::Model() : _modelsArray(nullptr), _models(new data_management::DataCollection()), _nFeatures(0)
 {
 }
 

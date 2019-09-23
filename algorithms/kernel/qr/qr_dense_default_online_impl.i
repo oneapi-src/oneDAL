@@ -119,7 +119,10 @@ Status QROnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(const size_
         }
     }
     for(auto k = 0; k < nBlocks; k++)
+    {
         delete step2ntOut[k];
+        step2ntOut[k] = nullptr;
+    }
     return s;
 }
 

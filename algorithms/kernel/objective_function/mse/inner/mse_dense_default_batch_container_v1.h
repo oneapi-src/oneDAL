@@ -62,17 +62,17 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable *dependentVariables = input->get(mse::dependentVariables).get();
     NumericTable *argument           = input->get(mse::argument).get();
 
-    NumericTable *value    = NULL;
-    NumericTable *hessian  = NULL;
-    NumericTable *gradient = NULL;
+    NumericTable *value    = nullptr;
+    NumericTable *hessian  = nullptr;
+    NumericTable *gradient = nullptr;
 
-    NumericTable *nonSmoothTermValue = NULL;
-    NumericTable *proximalProjection = NULL;
-    NumericTable *lipschitzConstant =  NULL;
+    NumericTable *nonSmoothTermValue = nullptr;
+    NumericTable *proximalProjection = nullptr;
+    NumericTable *lipschitzConstant =  nullptr;
 
-    NumericTable *componentOfGradient = NULL;
-    NumericTable *componentOfHessianDiagonal  = NULL;
-    NumericTable *componentOfProximalProjection    = NULL;
+    NumericTable *componentOfGradient = nullptr;
+    NumericTable *componentOfHessianDiagonal  = nullptr;
+    NumericTable *componentOfProximalProjection    = nullptr;
 
 
     bool valueFlag = ((parameter->resultsToCompute & objective_function::value) != 0) ? true : false;

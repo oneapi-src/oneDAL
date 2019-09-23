@@ -479,10 +479,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na
     algorithmFPType *Sigma = sigmaArray.get();
 
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> qBlock;
-    algorithmFPType *Q     = NULL;
+    algorithmFPType *Q     = nullptr;
 
     TArray<algorithmFPType, cpu> vArray;
-    algorithmFPType *V     = NULL;
+    algorithmFPType *V     = nullptr;
 
     bool needsU  = false;
     bool needsVT = false;

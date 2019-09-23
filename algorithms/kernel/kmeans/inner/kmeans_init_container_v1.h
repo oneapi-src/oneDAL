@@ -182,6 +182,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
         finalizeCompute, na, a, ntClusters, &internalPar);
 
     delete[] a;
+    a = nullptr;
 
     dcInput->clear();
     return s;

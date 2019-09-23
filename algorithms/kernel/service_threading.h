@@ -77,7 +77,7 @@ private:
 class task_group
 {
 public:
-    task_group() : _impl(NULL)
+    task_group() : _impl(nullptr)
     {
         _impl = _daal_new_task_group();
     }

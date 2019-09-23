@@ -140,6 +140,7 @@ public:
     virtual ~CsvDataSource()
     {
         daal::services::daal_free(_rawLineBuffer);
+        _rawLineBuffer = NULL;
     }
 
     /**

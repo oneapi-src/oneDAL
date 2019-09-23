@@ -72,7 +72,7 @@ template<>                                                                      
     DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                   \
     DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, __VA_ARGS__)                             \
     DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__) >::                             \
-    ClassName(daal::services::Environment::env *daalEnv) : BaseClassName(daalEnv), _cntr(NULL)   \
+    ClassName(daal::services::Environment::env *daalEnv) : BaseClassName(daalEnv), _cntr(nullptr)   \
 {                                                                                                \
     switch (daalEnv->cpuid)                                                                      \
     {                                                                                            \
@@ -109,7 +109,7 @@ template<>                                                                      
     DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                       \
     DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, __VA_ARGS__)                                 \
     DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__) >::                                 \
-    ClassName(daal::services::Environment::env *daalEnv) : BaseClassName(daalEnv), _cntr(NULL)       \
+    ClassName(daal::services::Environment::env *daalEnv) : BaseClassName(daalEnv), _cntr(nullptr)       \
 {                                                                                                    \
     switch (daalEnv->cpuid)                                                                          \
     {                                                                                                \

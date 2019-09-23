@@ -108,12 +108,15 @@ IndexedFeatures::~IndexedFeatures()
     if(_data)
         daal::services::daal_free(_data);
     delete[] _entries;
+    _data       = nullptr;
+    _entries    = nullptr;
 }
 
 IndexedFeatures::FeatureEntry::~FeatureEntry()
 {
     if(binBorders)
         daal::services::daal_free(binBorders);
+    binBorders = nullptr;
 }
 
 services::Status IndexedFeatures::FeatureEntry::allocBorders()

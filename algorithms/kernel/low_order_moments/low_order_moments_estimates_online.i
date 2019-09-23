@@ -58,7 +58,7 @@ struct common_moments_data_t
             return Status(services::ErrorMemoryAllocationFailed);
 #endif
 
-        prevSums = NULL;
+        prevSums = nullptr;
         if (isOnline)
         {
 #if (defined _SUM_ENABLE_) || (defined _MEAN_ENABLE_)
