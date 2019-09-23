@@ -94,7 +94,9 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(KeyValueDat
         size_t nodeSize = nodeCollection->size();
         nBlocks += nodeSize;
 
-        DataCollectionPtr nodePartialResult(new DataCollection());
+        auto pDataCollection = new DataCollection();
+        DAAL_CHECK_MALLOC(pDataCollection)
+        DataCollectionPtr nodePartialResult(pDataCollection);
         for(size_t j = 0 ; j < nodeSize ; j++)
         {
             nodePartialResult->push_back(HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &st));

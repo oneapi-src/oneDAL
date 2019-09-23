@@ -91,6 +91,8 @@ classifier::ModelPtr *Model::getTwoClassClassifierModels()
     if(!_modelsArray)
     {
         _modelsArray = new classifier::ModelPtr[_models->size()];
+        if (!_modelsArray)
+            return NULL;
         for(size_t i = 0; i < _models->size(); i++)
         {
             _modelsArray[i] = services::staticPointerCast<classifier::Model, data_management::SerializationIface>((*_models)[i]);

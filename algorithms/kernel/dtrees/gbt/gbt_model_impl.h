@@ -198,21 +198,27 @@ public:
     typedef TAllocator Allocator;
     typedef TNodeType NodeType;
 
-    void convertGbtTreeToTable(GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt) const
+    bool convertGbtTreeToTable(GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt) const
     {
         size_t nLvls = 1;
         getMaxLvl(*super::top(), nLvls, static_cast<size_t>(-1));
         const size_t nNodes = getNumberOfNodesByLvls(nLvls);
 
-        *pTbl = new GbtDecisionTree(nNodes, nLvls, super::top()->numChildren() + 1);
+        *pTbl           = new GbtDecisionTree(nNodes, nLvls, super::top()->numChildren() + 1);
+        *pTblImp        = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
+        *pTblSmplCnt    = new HomogenNumericTable<int>(1, nNodes, NumericTable::doAllocate);
 
-        *pTblImp     = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
-        *pTblSmplCnt = new HomogenNumericTable<int>(1, nNodes, NumericTable::doAllocate);
+        DAAL_CHECK_STATUS_VAR(*pTbl)
+        DAAL_CHECK_STATUS_VAR(*pTblImp)
+        DAAL_CHECK_STATUS_VAR(*pTblSmplCnt)
+
         if(super::top())
         {
             GbtDecisionTree::internalTreeToGbtDecisionTree<TNodeType, typename TNodeType::Base>(*super::top(), nNodes, nLvls,
                     *pTbl, (*pTblImp)->getArray(), (*pTblSmplCnt)->getArray());
         }
+
+        return true;
     }
 
 
@@ -266,7 +272,7 @@ public:
     void add(gbt::internal::GbtDecisionTree* pTbl, HomogenNumericTable<double>* pTblImp, HomogenNumericTable<int>* pTblSmplCnt);
     void traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const;
     void traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const;
-    static void treeToTable(TreeType& t, gbt::internal::GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt);
+    static services::Status treeToTable(TreeType& t, gbt::internal::GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt);
 
 protected:
     static bool nodeIsDummyLeaf(size_t idx, const GbtDecisionTree& gbtTree);

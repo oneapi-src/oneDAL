@@ -271,12 +271,12 @@ Status LowOrderMomentsOnlineTask<algorithmFPType, cpu>::init(PartialResult *part
     stDev     = (algorithmFPType *)daal_malloc(rowSize);
     variation = (algorithmFPType *)daal_malloc(rowSize);
 
-    DAAL_CHECK(mean && raw2Mom && variance && stDev &&variation, services::ErrorMemoryAllocationFailed);
+    DAAL_CHECK_MALLOC(mean && raw2Mom && variance && stDev && variation)
 
     if (isOnline)
     {
         prevSums = (algorithmFPType *)daal_malloc(rowSize);
-        DAAL_CHECK(prevSums, services::ErrorMemoryAllocationFailed);
+        DAAL_CHECK_MALLOC(prevSums)
         daal_memcpy_s(prevSums, rowSize, resultArray[(int)partialSum], rowSize);
     }
     return Status();

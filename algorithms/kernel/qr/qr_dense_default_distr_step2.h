@@ -94,7 +94,9 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(data_manage
         size_t nodeSize = nodeCollection->size();
         nBlocks += nodeSize;
 
-        data_management::DataCollectionPtr nodePartialResult(new data_management::DataCollection());
+        auto pDataCollection = new data_management::DataCollection();
+        DAAL_CHECK_MALLOC(pDataCollection)
+        data_management::DataCollectionPtr nodePartialResult(pDataCollection);
 
         for(size_t j = 0 ; j < nodeSize ; j++)
         {

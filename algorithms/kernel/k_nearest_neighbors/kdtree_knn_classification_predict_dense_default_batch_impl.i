@@ -248,7 +248,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::
     const size_t yColumnCount = y->getNumberOfColumns();
     const auto rowsPerBlock = (xRowCount + maxThreads - 1) / maxThreads;
     const auto blockCount = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
-    daal::threader_for(blockCount, blockCount, [=, &localTLS, &kdTreeTable, &data, &labels, &rowsPerBlock, &k](int iBlock)
+    SafeStatus safeStat;
+    daal::threader_for(blockCount, blockCount, [=, &localTLS, &kdTreeTable, &data, &labels, &rowsPerBlock, &k, &safeStat](int iBlock)
     {
         Local * const local = localTLS.local();
         if (local)
@@ -266,12 +267,15 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::
             for (size_t i = 0; i < last - first; ++i)
             {
                 findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data);
-                predict(dy[i * yColumnCount], local->heap, labels, k);
+                services::Status s = predict(dy[i * yColumnCount], local->heap, labels, k);
+                DAAL_CHECK_STATUS_THR(s)
             }
             y->releaseBlockOfRows(yBD);
             const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
         }
     } );
+
+    DAAL_CHECK_SAFE_STATUS()
 
     localTLS.reduce([=](Local * ptr) -> void
     {
@@ -410,11 +414,12 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::
 }
 
 template<typename algorithmFpType, CpuType cpu>
-void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::
+services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::
     predict(algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap, const NumericTable & labels, size_t k)
 {
     const size_t heapSize = heap.size();
-    if (heapSize < 1) { return; }
+    if (heapSize < 1)
+        return services::Status();
 
     struct Voting
     {
@@ -425,6 +430,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::
 
     data_management::BlockDescriptor<algorithmFpType> labelBD;
     algorithmFpType * const classes = static_cast<algorithmFpType *>(daal_malloc(heapSize * sizeof(*classes)));
+    DAAL_CHECK_MALLOC(classes)
     for (size_t i = 0; i < heapSize; ++i)
     {
         const_cast<NumericTable &>(labels).getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
@@ -454,6 +460,8 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::
     }
     predictedClass = winnerClass;
     daal_free(classes);
+
+    return services::Status();
 }
 
 } // namespace internal
