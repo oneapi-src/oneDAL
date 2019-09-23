@@ -61,7 +61,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__QUALITY_METRIC_SET__RESULTCOLLECTION"></a>
- * \brief Class that implements functionality of the collection of result objects of the quality metrics algorithm
+ * \brief Class that implements functionality of the collection of result objects of the quality metrics algorithm  \DAAL_DEPRECATED
  *        specialized for using with the AdaBoost training algorithm
  */
 class DAAL_EXPORT ResultCollection : public algorithms::quality_metric_set::ResultCollection
@@ -81,7 +81,7 @@ typedef services::SharedPtr<ResultCollection> ResultCollectionPtr;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__QUALITY_METRIC_SET__INPUTDATACOLLECTION"></a>
- * \brief Class that implements functionality of the collection of input objects of the quality metrics algorithm
+ * \brief Class that implements functionality of the collection of input objects of the quality metrics algorithm  \DAAL_DEPRECATED
  *        specialized for using with the AdaBoost training algorithm
  */
 class DAAL_EXPORT InputDataCollection : public algorithms::quality_metric_set::InputDataCollection

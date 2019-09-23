@@ -64,14 +64,14 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv) {}
-    virtual ~BatchContainer() {}
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv) {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~BatchContainer() {}
     /**
      * Runs implementations of the objective function with precomputed characteristics in the batch processing mode
      *
      * \return Status of computations
      */
-    virtual services::Status compute()
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status compute()
     {
         /* empty compute */
         return services::Status();
@@ -109,12 +109,12 @@ public:
     /**
      *  Main constructor
      */
-    Batch() : parameter(1), super(1, &input, &parameter)
+    DAAL_DEPRECATED Batch() : parameter(1), super(1, &input, &parameter)
     {
         initialize();
     }
 
-    virtual ~Batch() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Batch() {}
 
     /**
      * Constructs the objective function with precomputed characteristics algorithm by copying input objects and parameters
@@ -122,7 +122,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) :
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) :
         parameter(other.parameter), super(other.parameter.numberOfTerms, &input, &parameter), input(other.input)
     {
         initialize();
@@ -147,14 +147,14 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated objective function with precomputed characteristics algorithm
      * with a copy of input objects of this objective function with precomputed characteristics algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
@@ -164,7 +164,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status allocate()
+    DAAL_DEPRECATED services::Status allocate()
     {
         return allocateResult();
     }

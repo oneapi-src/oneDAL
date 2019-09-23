@@ -52,7 +52,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__PARAMETER"></a>
- * \brief Naive Bayes algorithm parameters
+ * \brief Naive Bayes algorithm parameters    \DAAL_DEPRECATED
  *
  * \snippet naive_bayes/multinomial_naive_bayes_model.h Parameter source code
  */
@@ -65,14 +65,14 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
      *  \param[in] priorClassEstimates_ Prior class estimates, numeric table of size [nClasses x 1]
      *  \param[in] alpha_               Imagined occurrences of the each feature, numeric table of size [1 x nFeatures]
      */
-    Parameter(size_t nClasses, const data_management::NumericTablePtr &priorClassEstimates_ = data_management::NumericTablePtr(),
+    DAAL_DEPRECATED Parameter(size_t nClasses, const data_management::NumericTablePtr &priorClassEstimates_ = data_management::NumericTablePtr(),
               const data_management::NumericTablePtr &alpha_ = data_management::NumericTablePtr()) :
         classifier::interface1::Parameter(nClasses), priorClassEstimates(priorClassEstimates_), alpha(alpha_) {}
 
     data_management::NumericTablePtr priorClassEstimates;   /*!< Prior class estimates */
     data_management::NumericTablePtr alpha;                 /*!< Imagined occurrences of the each word */
 
-    services::Status check() const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
 }

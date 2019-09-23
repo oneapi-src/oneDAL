@@ -63,7 +63,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__PREDICTION__BATCHCONTAINER"></a>
- * \brief Provides methods to run implementations of the AdaBoost algorithm.
+ * \brief Provides methods to run implementations of the AdaBoost algorithm.   \DAAL_DEPRECATED
  *        It is associated with daal::algorithms::adaboost::prediction::interface1::Batch class
  *        and supports method to compute AdaBoost prediction
  *
@@ -78,18 +78,18 @@ public:
      * Constructs a container for AdaBoost model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED~BatchContainer();
     /**
      * Computes the result of AdaBoost model-based prediction
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__PREDICTION__BATCH"></a>
- * \brief Predict AdaBoost classification results
+ * \brief Predict AdaBoost classification results            \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-ADABOOST-ALGORITHM">AdaBoost algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the AdaBoost, double or float
@@ -120,7 +120,7 @@ public:
     InputType input;                /*!< %Input objects of the algorithm */
     ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
 
-    Batch()
+    DAAL_DEPRECATED Batch()
     {
         initialize();
     }
@@ -131,32 +131,32 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : boosting::prediction::Batch(other),
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) : boosting::prediction::Batch(other),
         input(other.input), parameter(other.parameter)
     {
         initialize();
     }
 
-    ~Batch() {}
+    DAAL_DEPRECATED ~Batch() {}
 
     /**
      * Get input objects for the AdaBoost prediction algorithm
      * \return %Input objects for the AdaBoost prediction algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns a pointer to the newly allocated AdaBoost prediction algorithm with a copy of input objects
      * and parameters of this AdaBoost prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }

@@ -89,7 +89,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__TRAINING__PARAMETER"></a>
- * \brief Decision forest algorithm parameters
+ * \brief Decision forest algorithm parameters   \DAAL_DEPRECATED
  *
  * \snippet decision_forest/decision_forest_classification_training_types.h Parameter source code
  */
@@ -97,8 +97,8 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public daal::algorithms::decision_forest::training::Parameter
 {
     /** Default constructor */
-    Parameter(size_t nClasses) : classifier::interface1::Parameter(nClasses) {}
-    services::Status check() const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED Parameter(size_t nClasses) : classifier::interface1::Parameter(nClasses) {}
+    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
 }

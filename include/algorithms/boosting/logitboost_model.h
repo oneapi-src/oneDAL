@@ -53,7 +53,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__LOGITBOOST__PARAMETER"></a>
- * \brief LogitBoost algorithm parameters
+ * \brief LogitBoost algorithm parameters    \DAAL_DEPRECATED
  *
  * \snippet boosting/brownboost_model.h Parameter source code
  */
@@ -61,7 +61,7 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public boosting::Parameter
 {
     /** Default constructor */
-    Parameter();
+    DAAL_DEPRECATED Parameter();
 
     /**
      * Constructs LogitBoost parameter structure
@@ -73,7 +73,7 @@ struct DAAL_EXPORT Parameter : public boosting::Parameter
      * \param[in] wThr                      Threshold to avoid degenerate cases when calculating weights W
      * \param[in] zThr                      Threshold to avoid degenerate cases when calculating responses Z
      */
-    Parameter(const services::SharedPtr<weak_learner::training::Batch>&   wlTrainForParameter,
+    DAAL_DEPRECATED Parameter(const services::SharedPtr<weak_learner::training::Batch>&   wlTrainForParameter,
               const services::SharedPtr<weak_learner::prediction::Batch>& wlPredictForParameter,
               double acc = 0.0, size_t maxIter = 10, size_t nC = 0, double wThr = 1e-10, double zThr = 1e-10);
 
@@ -83,13 +83,13 @@ struct DAAL_EXPORT Parameter : public boosting::Parameter
     double weightsDegenerateCasesThreshold;     /*!< Threshold to avoid degenerate cases when  calculating weights W */
     double responsesDegenerateCasesThreshold;   /*!< Threshold to avoid degenerate cases when  calculating responses Z */
 
-    services::Status check() const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGITBOOST__MODEL"></a>
- * \brief %Model of the classifier trained by the logitboost::training::Batch algorithm.
+ * \brief %Model of the classifier trained by the logitboost::training::Batch algorithm.   \DAAL_DEPRECATED
  *
  * \par References
  *      - \ref training::interface1::Batch "training::Batch" class
@@ -109,13 +109,13 @@ public:
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, const Parameter *par, modelFPType dummy);
+    DAAL_EXPORT DAAL_DEPRECATED Model(size_t nFeatures, const Parameter *par, modelFPType dummy);
 
     /**
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model() : boosting::Model(), _nIterations(0) { }
+    DAAL_DEPRECATED Model() : boosting::Model(), _nIterations(0) { }
 
     /**
      * Constructs the LogitBoost model
@@ -123,22 +123,22 @@ public:
      * \param[in]  par       Pointer to the parameter structure of the LogitBoost algorithm
      * \param[out] stat      Status of the model construction
      */
-    static services::SharedPtr<Model> create(size_t nFeatures, const Parameter *par,
+    DAAL_DEPRECATED static services::SharedPtr<Model> create(size_t nFeatures, const Parameter *par,
                                              services::Status *stat = NULL);
 
-    virtual ~Model() { }
+    DAAL_DEPRECATED_VIRTUAL virtual ~Model() { }
 
     /**
      * Sets the number of iterations for the algorithm
      * @param nIterations   Number of iterations
      */
-    void setIterations(size_t nIterations);
+    DAAL_DEPRECATED void setIterations(size_t nIterations);
 
     /**
      * Returns the number of iterations done by the training algorithm
      * \return The number of iterations done by the training algorithm
      */
-    size_t getIterations() const;
+    DAAL_DEPRECATED size_t getIterations() const;
 
 protected:
     size_t _nIterations;

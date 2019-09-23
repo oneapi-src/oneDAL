@@ -46,7 +46,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__TRAINING__DISTRIBUTEDCONTAINER"></a>
- *  \brief Class containing methods to compute naive Bayes training results in the distributed processing mode
+ *  \brief Class containing methods to compute naive Bayes training results in the distributed processing mode \DAAL_DEPRECATED
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the naive Bayes training algorithm in the distributed processing mode,
  *                          double or float
@@ -57,7 +57,7 @@ class DistributedContainer;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__TRAINING__DISTRIBUTEDCONTAINER_STEP2MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
- * \brief Class containing methods to train naive Bayes in the distributed processing mode
+ * \brief Class containing methods to train naive Bayes in the distributed processing mode  \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
@@ -68,9 +68,9 @@ public:
      * in the second step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED DistributedContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    ~DistributedContainer();
+    DAAL_DEPRECATED ~DistributedContainer();
 
     /**
      * Computes a partial result of naive Bayes model-based training
@@ -78,19 +78,19 @@ public:
      *
      * \return Status of computations
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
     /**
      * Computes the result of naive Bayes model-based training
      * in the second step of the distributed processing mode
      *
      * \return Status of computations
      */
-    services::Status finalizeCompute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__TRAINING__DISTRIBUTED_STEP_ALGORITHMFPTTYPE_METHOD"></a>
- *  \brief Algorithm class for training naive Bayes model in the distributed processing mode
+ *  \brief Algorithm class for training naive Bayes model in the distributed processing mode   \DAAL_DEPRECATED
  *  <!-- \n<a href="DAAL-REF-MULTINOMNAIVEBAYES-ALGORITHM">Multinomial naive Bayes algorithm description and usage models</a> -->
  *
  *  \tparam algorithmFPType  Data type to use in intermediate computations for multinomial naive Bayes training, double or float
@@ -105,7 +105,7 @@ class DAAL_EXPORT Distributed {};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__TRAINING__DISTRIBUTED_STEP1LOCAL_ALGORITHMFPTTYPE_METHOD"></a>
- *  \brief Algorithm class for training Naive Bayes partial model in the distributed processing mode
+ *  \brief Algorithm class for training Naive Bayes partial model in the distributed processing mode   \DAAL_DEPRECATED
  *  <!-- \n<a href="DAAL-REF-MULTINOMNAIVEBAYES-ALGORITHM">Multinomial naive Bayes algorithm description and usage models</a> -->
  *
  *  \tparam algorithmFPType  Data type to use in intermediate computations for the multinomial naive Bayes training on the first step in distributed
@@ -131,7 +131,7 @@ public:
      * Default constructor
      * \param nClasses  Number of classes
      */
-    Distributed(size_t nClasses) : interface1::Online<algorithmFPType, method>::Online(nClasses) {}
+    DAAL_DEPRECATED Distributed(size_t nClasses) : interface1::Online<algorithmFPType, method>::Online(nClasses) {}
 
     /**
      * Constructs multinomial naive Bayes training algorithm by copying input objects and parameters
@@ -139,7 +139,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step1Local, algorithmFPType, method> &other) :
+    DAAL_DEPRECATED Distributed(const Distributed<step1Local, algorithmFPType, method> &other) :
         interface1::Online<algorithmFPType, method>(other)
     {}
 
@@ -148,7 +148,7 @@ public:
      * with a copy of input objects and parameters of this multinomial naive Bayes training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Distributed<step1Local, algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Distributed<step1Local, algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Distributed<step1Local, algorithmFPType, method> >(cloneImpl());
     }
@@ -162,7 +162,7 @@ protected:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__TRAINING__DISTRIBUTED_STEP2MASTER_ALGORITHMFPTTYPE_METHOD"></a>
- *  \brief Algorithm class for training naive Bayes final model on the second step in the distributed processing mode
+ *  \brief Algorithm class for training naive Bayes final model on the second step in the distributed processing mode  \DAAL_DEPRECATED
  *  <!-- \n<a href="DAAL-REF-MULTINOMNAIVEBAYES-ALGORITHM">Multinomial naive Bayes algorithm description and usage models</a> -->
  *
  *  \tparam algorithmFPType  Data type to use in intermediate computations for the multinomial naive Bayes training on the second step in
@@ -189,7 +189,7 @@ public:
      * Default constructor
      * \param nClasses  Number of classes
      */
-    Distributed(size_t nClasses) : parameter(nClasses)
+    DAAL_DEPRECATED Distributed(size_t nClasses) : parameter(nClasses)
     {
         initialize();
     }
@@ -200,25 +200,25 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, method> &other) :
+    DAAL_DEPRECATED Distributed(const Distributed<step2Master, algorithmFPType, method> &other) :
         Training<distributed>(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
 
-    virtual ~Distributed() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Distributed() {}
 
     /**
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Registers user-allocated memory for storing partial training results
      * \param[in] partialResult    Structure for storing partial results
      */
-    services::Status setPartialResult(const PartialResultPtr& partialResult)
+    DAAL_DEPRECATED services::Status setPartialResult(const PartialResultPtr& partialResult)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult);
         _partialResult = partialResult;
@@ -230,7 +230,7 @@ public:
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    PartialResultPtr getPartialResult() { return _partialResult; }
+    DAAL_DEPRECATED PartialResultPtr getPartialResult() { return _partialResult; }
 
     /**
      * Registers user-allocated memory to store results of Naive Bayes training
@@ -238,7 +238,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& result)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr& result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
@@ -250,7 +250,7 @@ public:
      * Returns the structure that contains results of Naive Bayes training
      * \return Structure that contains results of Naive Bayes training
      */
-    ResultPtr getResult()
+    DAAL_DEPRECATED ResultPtr getResult()
     {
         return ResultType::cast(_result);
     }
@@ -260,7 +260,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status checkFinalizeComputeParams() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED services::Status checkFinalizeComputeParams() DAAL_C11_OVERRIDE
     {
         PartialResultPtr partialResult = getPartialResult();
         DAAL_CHECK(partialResult, services::ErrorNullResult);
@@ -277,7 +277,7 @@ public:
      * with a copy of input objects and parameters of this multinomial naive Bayes training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Distributed<step2Master, algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Distributed<step2Master, algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Distributed<step2Master, algorithmFPType, method> >(cloneImpl());
     }

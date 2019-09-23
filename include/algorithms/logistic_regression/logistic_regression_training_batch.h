@@ -59,15 +59,15 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of logistic regression model-based training in the batch processing mode
      * \return Status of computations
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
-    services::Status setupCompute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status setupCompute() DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -105,7 +105,7 @@ public:
      * \param[in] nClasses  Number of classes
      * \param[in] solver    Optimization solver
      */
-    Batch(size_t nClasses, const SolverPtr& solver = SolverPtr());
+    DAAL_DEPRECATED Batch(size_t nClasses, const SolverPtr& solver = SolverPtr());
 
     /**
      * Constructs a logistic regression training algorithm by copying input objects and parameters
@@ -113,10 +113,10 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other);
 
     /** Destructor */
-    ~Batch()
+    DAAL_DEPRECATED ~Batch()
     {
         delete _par;
     }
@@ -125,31 +125,31 @@ public:
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    DAAL_DEPRECATED ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    DAAL_DEPRECATED const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
 
     /**
      * Get input objects for the logistic regression training algorithm
      * \return %Input objects for the logistic regression training algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns the structure that contains results of logistic regression training
      * \return Structure that contains results of logistic regression training
      */
-    interface1::ResultPtr getResult()
+    DAAL_DEPRECATED interface1::ResultPtr getResult()
     {
         return ResultType::cast(_result);
     }
@@ -157,7 +157,7 @@ public:
     /**
      * Resets the training results of the algorithm
      */
-    services::Status resetResult() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED services::Status resetResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
         DAAL_CHECK(_result, services::ErrorNullResult);
@@ -170,7 +170,7 @@ public:
      * and parameters of this logistic regression training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }

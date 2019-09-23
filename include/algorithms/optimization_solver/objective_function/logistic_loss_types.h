@@ -95,7 +95,7 @@ struct DAAL_EXPORT Parameter : public sum_of_functions::interface1::Parameter
                                    all terms will be used in the computations.
      * \param[in] resultsToCompute 64 bit integer flag that indicates the results to compute
      */
-    Parameter(size_t numberOfTerms,
+    DAAL_DEPRECATED Parameter(size_t numberOfTerms,
               data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
               const DAAL_UINT64 resultsToCompute = objective_function::gradient);
 
@@ -103,15 +103,15 @@ struct DAAL_EXPORT Parameter : public sum_of_functions::interface1::Parameter
      * Constructs an Parameter by copying input objects and parameters of another Parameter
      * \param[in] other An object to be used as the source to initialize object
      */
-    Parameter(const Parameter &other);
+    DAAL_DEPRECATED Parameter(const Parameter &other);
     /**
      * Checks the correctness of the parameter
      *
      * \return Status of computations
      */
-    virtual services::Status check() const;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check() const;
 
-    virtual ~Parameter() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Parameter() {}
 
     bool interceptFlag;  /*!< Whether the intercept needs to be computed. Default is true */
     float penaltyL1;     /*!< L1 regularization coefficient. Default is 0 (not applied) */
@@ -127,27 +127,27 @@ class DAAL_EXPORT Input : public sum_of_functions::interface1::Input
 {
 public:
     /** Default constructor */
-    Input();
+    DAAL_DEPRECATED Input();
 
     /** Copy constructor */
-    Input(const Input& other);
+    DAAL_DEPRECATED Input(const Input& other);
 
     /** Destructor */
-    virtual ~Input() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     /**
      * Sets one input object for Logistic loss objective function
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(InputId id, const data_management::NumericTablePtr &ptr);
 
     /**
      * Returns the input numeric table for Logistic loss objective function
      * \param[in] id    Identifier of the input numeric table
      * \return          %Input object that corresponds to the given identifier
      */
-    data_management::NumericTablePtr get(InputId id) const;
+    DAAL_DEPRECATED data_management::NumericTablePtr get(InputId id) const;
 
     /**
      * Checks the correctness of the input
@@ -156,7 +156,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
 } // namespace interface1
