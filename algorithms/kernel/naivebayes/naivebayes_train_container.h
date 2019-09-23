@@ -284,7 +284,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
 
     models->clear();
     delete[] a;
-	a = nullptr;
+    a = nullptr;
     return s;
 }
 

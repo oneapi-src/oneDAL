@@ -262,7 +262,7 @@ struct MklStatistics<double, cpu>
         *accumWeight = accumWeightsAll[0];
 
         daal::services::daal_free(sum);
-        sum = NULL;        
+        sum = NULL;
         return errcode;
     }
 

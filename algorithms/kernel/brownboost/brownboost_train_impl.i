@@ -292,7 +292,7 @@ services::Status BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::compute
     const size_t nVectors  = xTable->getNumberOfRows();
 
     size_t nWeakLearners = 0;               /* Number of weak learners */
-    algorithmFPType *alpha = NULL;          /* BrownBoost coefficients */
+    algorithmFPType *alpha = nullptr;          /* BrownBoost coefficients */
 
     services::Status s;
     HomogenNTPtr hTable = HomogenNT::create(1, nVectors, &s);
@@ -327,7 +327,7 @@ services::Status BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::compute
     }
     }
 
-    if (alpha) 
+    if (alpha)
     {
         daal::services::daal_free(alpha);
         alpha = nullptr;
@@ -360,7 +360,7 @@ services::Status BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::brownBo
     Model *boostModel, Parameter *parameter, size_t& nWeakLearners,
     algorithmFPType* &alpha)
 {
-    alpha = NULL;          /* BrownBoost coefficients */
+    alpha = nullptr;          /* BrownBoost coefficients */
     algorithmFPType *w = static_cast<HomogenNT*>(weakLearnerInputTables[2].get())->getArray();
     algorithmFPType *h = hTable->getArray();
 
