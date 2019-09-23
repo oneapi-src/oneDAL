@@ -425,7 +425,7 @@ public:
     typedef optimization_solver::iterative_solver::BatchPtr SolverPtr;
 
     typedef typename super::InputType                            InputType;
-    typedef algorithms::logistic_regression::training::interface3::Parameter ParameterType;
+    typedef algorithms::logistic_regression::training::Parameter ParameterType;
     typedef algorithms::logistic_regression::training::Result    ResultType;
 
     InputType input;  /*!< %Input data structure */
