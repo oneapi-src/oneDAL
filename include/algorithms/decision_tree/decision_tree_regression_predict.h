@@ -48,7 +48,7 @@ namespace interface1
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__PREDICTION__BATCHCONTAINER"></a>
- *  \brief Class containing computation methods for Decision tree model-based prediction
+ *  \brief Class containing computation methods for Decision tree model-based prediction  \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
@@ -58,19 +58,19 @@ public:
      * Constructs a container for Decision tree model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
 
-    ~BatchContainer();
+    DAAL_DEPRECATED ~BatchContainer();
 
     /**
      *  Computes the result of Decision tree model-based prediction
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__PREDICTION__BATCH"></a>
- * \brief Provides methods to run implementations of the Decision tree model-based prediction
+ * \brief Provides methods to run implementations of the Decision tree model-based prediction  \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-KNN-ALGORITHM">kNN algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for Decision tree model-based prediction
@@ -98,7 +98,7 @@ public:
     ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of prediction */
 
     /** Default constructor */
-    Batch()
+    DAAL_DEPRECATED Batch()
     {
         initialize();
     }
@@ -109,32 +109,32 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) :
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other) :
         algorithms::regression::prediction::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
 
-    virtual algorithms::regression::prediction::Input* getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED_VIRTUAL virtual algorithms::regression::prediction::Input* getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns the structure that contains the result of decision tree model-based prediction
      * \return Structure that contains the result of the decision tree model-based prediction
      */
-    ResultPtr getResult() { return ResultType::cast(_result); }
+    DAAL_DEPRECATED ResultPtr getResult() { return ResultType::cast(_result); }
 
     /**
      * Returns a pointer to the newly allocated Decision tree prediction algorithm with a copy of input objects
      * of this Decision tree prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }

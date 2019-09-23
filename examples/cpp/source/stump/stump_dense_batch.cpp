@@ -25,8 +25,9 @@
 
 /**
  * <a name="DAAL-EXAMPLE-CPP-STUMP_BATCH"></a>
- * \example stump_dense_batch.cpp
+ * \example stump_dense_batch.cpp \DAAL_DEPRECATED
  */
+#define DAAL_HIDE_DEPRECATED
 
 #include "daal.h"
 #include "service.h"

@@ -22,8 +22,9 @@
 
 /**
  * <a name="DAAL-EXAMPLE-CPP-ADABOOST_BATCH"></a>
- * \example adaboost_dense_batch.cpp
+ * \example adaboost_dense_batch.cpp \DAAL_DEPRECATED
  */
+#define DAAL_HIDE_DEPRECATED
 
 #include "daal.h"
 #include "service.h"

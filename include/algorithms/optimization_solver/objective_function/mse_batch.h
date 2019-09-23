@@ -66,15 +66,15 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    virtual ~BatchContainer();
+    DAAL_DEPRECATED_VIRTUAL virtual ~BatchContainer();
     /**
      * Computes the result of the MSE objective function in the batch processing mode
      *
      * \return Status of computations
      */
-    virtual services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -106,12 +106,12 @@ public:
     /**
      *  Main constructor
      */
-    Batch(size_t numberOfTerms) : parameter(numberOfTerms), sum_of_functions::interface1::Batch(numberOfTerms, &input, &parameter)
+    DAAL_DEPRECATED Batch(size_t numberOfTerms) : parameter(numberOfTerms), sum_of_functions::interface1::Batch(numberOfTerms, &input, &parameter)
     {
         initialize();
     }
 
-    virtual ~Batch() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Batch() {}
 
     /**
      * Constructs an the Mean squared error objective function algorithm by copying input objects and parameters
@@ -119,7 +119,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) :
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) :
         parameter(other.parameter), sum_of_functions::interface1::Batch(other.parameter.numberOfTerms, &input, &parameter), input(other.input)
     {
         initialize();
@@ -129,7 +129,7 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns a pointer to the newly allocated the Mean squared error objective function algorithm with a copy of input objects
@@ -146,7 +146,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status allocate()
+    DAAL_DEPRECATED services::Status allocate()
     {
         return allocateResult();
     }

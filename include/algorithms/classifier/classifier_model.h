@@ -61,7 +61,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__CLASSIFIER__PARAMETER"></a>
- * \brief Base class for the parameters of the classification algorithm
+ * \brief Base class for the parameters of the classification algorithm  \DAAL_DEPRECATED
  *
  * \snippet classifier/classifier_model.h Parameter source code
  */

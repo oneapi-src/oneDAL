@@ -52,7 +52,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__PREDICTION__BATCHCONTAINER"></a>
- * \brief Runs the prediction based on the multinomial naive Bayes model
+ * \brief Runs the prediction based on the multinomial naive Bayes model    \DAAL_DEPRECATED
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for prediction based on the multinomial naive Bayes model, double or float
  * \tparam method           Multinomial naive Bayes prediction method, \ref Method
@@ -66,20 +66,20 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
     /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of multinomial naive Bayes model-based prediction in the batch processing mode
      *
      * \return Status of computations
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__PREDICTION__BATCH"></a>
- *  \brief Predicts the results of the multinomial naive Bayes classification
+ *  \brief Predicts the results of the multinomial naive Bayes classification   \DAAL_DEPRECATED
  *  <!-- \n<a href="DAAL-REF-MULTINOMNAIVEBAYES-ALGORITHM">Multinomial naive Bayes algorithm description and usage models</a> -->
  *
  *  \tparam algorithmFPType  Data type to use in intermediate computations for prediction based on the multinomial naive Bayes model, double or float
@@ -104,7 +104,7 @@ public:
      * Default constructor
      * \param nClasses  Number of classes
      */
-    Batch(size_t nClasses) : parameter(nClasses)
+    DAAL_DEPRECATED Batch(size_t nClasses) : parameter(nClasses)
     {
         initialize();
     }
@@ -115,32 +115,32 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) :
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) :
         classifier::prediction::interface1::Batch(other), parameter(other.parameter), input(other.input)
     {
         initialize();
     }
 
-    virtual ~Batch() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Batch() {}
 
     /**
      * Get input objects for the multinomial naive Bayes prediction algorithm
      * \return %Input objects for the multinomial naive Bayes prediction algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
 
     /**
      * Returns a pointer to the newly allocated multinomial naive Bayes prediction algorithm
      * with a copy of input objects and parameters of this multinomial naive Bayes prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
