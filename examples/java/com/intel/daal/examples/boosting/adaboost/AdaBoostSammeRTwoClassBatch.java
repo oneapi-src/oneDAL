@@ -1,4 +1,4 @@
-/* file: AdaBoostSammeTwoClassDenseBatch.java */
+/* file: AdaBoostSammeRTwoClassBatch.java */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -22,8 +22,8 @@
  */
 
 /**
- * <a name="DAAL-EXAMPLE-JAVA-ADABOOST_SAMME_TWO_CLASS_DENSE_BATCH">
- * @example AdaBoostSammeTwoClassDenseBatch.java
+ * <a name="DAAL-EXAMPLE-JAVA-ADABOOST_SAMMER_TWO_CLASS_BATCH">
+ * @example AdaBoostSammeRTwoClassBatch.java
  */
 
 package com.intel.daal.examples.boosting.adaboost;
@@ -45,7 +45,7 @@ import com.intel.daal.data_management.data_source.FileDataSource;
 import com.intel.daal.examples.utils.Service;
 import com.intel.daal.services.DaalContext;
 
-class AdaBoostSammeTwoClassDenseBatch {
+class AdaBoostSammeRTwoClassBatch {
     /* Input data set parameters */
     private static final String trainDataset = "../data/batch/adaboost_train.csv";
     private static final String testDataset  = "../data/batch/adaboost_test.csv";
@@ -86,7 +86,7 @@ class AdaBoostSammeTwoClassDenseBatch {
         trainDataSource.loadDataBlock(mergedData);
 
         /* Create algorithm objects to train the AdaBoost model */
-        TrainingBatch algorithm = new TrainingBatch(context, nClasses);
+        TrainingBatch algorithm = new TrainingBatch(context, nClasses, Float.class, TrainingMethod.sammeR);
 
         /* Pass a training data set and dependent values to the algorithm */
         algorithm.input.set(InputId.data, trainData);
@@ -112,7 +112,7 @@ class AdaBoostSammeTwoClassDenseBatch {
         testDataSource.loadDataBlock(mergedData);
 
         /* Create algorithm objects for AdaBoost prediction with the fast method */
-        PredictionBatch algorithm = new PredictionBatch(context, nClasses);
+        PredictionBatch algorithm = new PredictionBatch(context, nClasses, Float.class, PredictionMethod.sammeR);
 
         /* Pass a testing data set and the trained model to the algorithm */
         Model model = trainingResult.get(TrainingResultId.model);

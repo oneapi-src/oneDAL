@@ -51,9 +51,9 @@ namespace training
  */
 enum InputId
 {
-    data,               /*!< %Input data table */
-    dependentVariables,   /*!< Values of the dependent variable for the input data */
-    weights,              /*!< Optional. Weights of the observations in the training data set */
+    data = 0,                 /*!< %Input data table */
+    dependentVariables = 1,   /*!< Values of the dependent variable for the input data */
+    weights = 4,              /*!< Optional. Weights of the observations in the training data set. Some values are skipped for backward compatibility. */
     lastInputId = weights
 };
 
