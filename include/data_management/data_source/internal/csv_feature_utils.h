@@ -125,7 +125,12 @@ class CSVFeaturesInfo : public Base
 public:
     services::Status addFeatureName(const services::StringView &featureName)
     {
-        const services::String featureNameStr(featureName.begin(), featureName.end());
+        services::Status status = services::internal::checkForNullByteInjection(featureName.begin(), featureName.end());
+        if (!status)
+        {
+            return services::throwIfPossible(services::ErrorNullByteInjection);
+        }
+        const services::String featureNameStr(featureName.begin());
         if ( !_featureNames.safe_push_back(featureNameStr) )
         {
             return services::throwIfPossible(services::ErrorMemoryAllocationFailed);

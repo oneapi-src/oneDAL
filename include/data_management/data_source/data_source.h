@@ -24,7 +24,6 @@
 #ifndef __DATA_SOURCE_H__
 #define __DATA_SOURCE_H__
 
-
 #include "data_management/data/data_dictionary.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"

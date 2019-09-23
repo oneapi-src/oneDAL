@@ -706,6 +706,7 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorUndefinedFeature, "Dictionary contains a undefined feature");
     add(ErrorCloneMethodFailed, "Cloning of algorithm failed");
     add(ErrorDataTypeNotSupported, "Data type not supported");
+    add(ErrorNullByteInjection, "Null byte injection has been detected");
 
     // Environment errors: -2000..-2999
     add(ErrorCpuNotSupported, "CPU not supported");

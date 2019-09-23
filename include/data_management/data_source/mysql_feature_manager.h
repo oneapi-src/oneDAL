@@ -50,6 +50,9 @@ namespace interface1
 class SQLFeatureManager
 {
 public:
+    SQLFeatureManager() : _errors(services::SharedPtr<services::ErrorCollection>(new services::ErrorCollection))
+    {}
+
     /**
      * Adds extended feature modifier
      * \param[in]   featureIds The identifiers of the features to be modified
@@ -170,6 +173,11 @@ public:
      */
     std::string setLimitQuery(std::string &query, size_t idx_last_read, size_t maxRows)
     {
+        if (query.find('\0') != std::string::npos)
+        {
+            this->_errors->add(services::ErrorNullByteInjection);
+            return std::string();
+        }
         std::stringstream ss;
         ss << query << " LIMIT " << idx_last_read << ", " << maxRows << ";";
         return ss.str();
@@ -234,8 +242,13 @@ private:
                 services::internal::tryAssignStatusAndThrow(status, services::ErrorODBC);
                 return internal::SQLFeaturesInfo();
             }
-
-            const services::String labelStr(label, label + labelLenUsed);
+            services::Status internalStatus = services::internal::checkForNullByteInjection(label, label + labelLenUsed);
+            if (!internalStatus)
+            {
+                services::internal::tryAssignStatusAndThrow(status, internalStatus);
+                return internal::SQLFeaturesInfo();
+            }
+            const services::String labelStr(label);
             const bool isSigned = sqlIsUnsigned == SQL_FALSE;
 
             featuresInfo.add( internal::SQLFeatureInfo(labelStr,

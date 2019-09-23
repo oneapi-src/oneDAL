@@ -25,7 +25,6 @@
 #define __FILE_DATA_SOURCE_H__
 
 #include <cstdio>
-
 #include "services/daal_memory.h"
 #include "data_management/data_source/data_source.h"
 #include "data_management/data_source/csv_data_source.h"
@@ -119,7 +118,7 @@ public:
 protected:
     bool iseof() const DAAL_C11_OVERRIDE
     {
-        return ((_fileBufferPos == _fileBufferLen || _fileBuffer[_fileBufferPos] == '\0') && feof(_file));
+        return (_fileBufferPos == _readedFromFileLen && feof(_file));
     }
 
     bool readLine(char *buffer, int count, int& pos)
@@ -128,11 +127,15 @@ protected:
         pos = 0;
         while (pos + 1 < count)
         {
-            if (_fileBufferPos < _fileBufferLen && _fileBuffer[_fileBufferPos] != '\0')
+            if (_fileBufferPos < _readedFromFileLen)
             {
+                if (_fileBuffer[_fileBufferPos] == '\0')
+                {
+                    return false;
+                }
                 buffer[pos] = _fileBuffer[_fileBufferPos];
-                pos++;
-                _fileBufferPos++;
+                ++pos;
+                ++_fileBufferPos;
                 if (buffer[pos - 1] == '\n')
                     break;
             }
@@ -141,11 +144,7 @@ protected:
                 if (iseof ())
                     break;
                 _fileBufferPos = 0;
-                const int readLen = (int)fread(_fileBuffer, 1, _fileBufferLen, _file);
-                if (readLen < _fileBufferLen)
-                {
-                    _fileBuffer[readLen] = '\0';
-                }
+                _readedFromFileLen = (int)fread(_fileBuffer, 1, _fileBufferLen, _file);
                 if (ferror(_file))
                 {
                     bRes = false;
@@ -164,7 +163,9 @@ protected:
         {
             int readLen = 0;
             if(!readLine(_rawLineBuffer + _rawLineLength, _rawLineBufferLen - _rawLineLength, readLen))
+            {
                 return services::Status(services::ErrorOnFileRead);
+            }
 
             if (readLen <= 0)
             {
@@ -195,18 +196,25 @@ private:
         _fileBufferLen = (int)INITIAL_FILE_BUFFER_LENGTH;
         _fileBufferPos = _fileBufferLen;
         _fileBuffer    = NULL;
-
+        _readedFromFileLen = 0;
+        if (fileName.find('\0') != std::string::npos)
+        {
+            return services::throwIfPossible(services::ErrorNullByteInjection);
+        }
     #if (defined(_MSC_VER)&&(_MSC_VER >= 1400))
         errno_t error;
         error = fopen_s( &_file, fileName.c_str(), "r" );
         if (error != 0 || !_file)
-        { return services::throwIfPossible(services::ErrorOnFileOpen); }
+        {
+            return services::throwIfPossible(services::ErrorOnFileOpen);
+        }
     #else
         _file = fopen( (char*)(fileName.c_str()), "r" );
         if (!_file)
-        { return services::throwIfPossible(services::ErrorOnFileOpen); }
+        {
+            return services::throwIfPossible(services::ErrorOnFileOpen);
+        }
     #endif
-
         _fileBuffer    = (char *)daal::services::daal_malloc(_fileBufferLen);
         if (!_fileBuffer)
         {
@@ -214,7 +222,6 @@ private:
             _file = NULL;
             return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
         }
-
         return services::Status();
     }
 
@@ -226,6 +233,7 @@ protected:
     char *_fileBuffer;
     int   _fileBufferLen;
     int   _fileBufferPos;
+    int   _readedFromFileLen;
 
 private:
     static const size_t INITIAL_FILE_BUFFER_LENGTH = 1048576;
