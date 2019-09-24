@@ -98,7 +98,7 @@ struct assocrules_itemset
 protected:
     void allocItems(size_t n)
     {
-        items = (size_t*)daal::services::daal_malloc(sizeof(size_t)*n);
+        items = (size_t *)daal::services::internal::service_calloc<size_t, cpu>(sizeof(size_t)*n);
         size = n;
     }
 };

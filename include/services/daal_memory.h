@@ -47,6 +47,14 @@ namespace services
 DAAL_EXPORT void *daal_malloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAULT_ALIGNMENT);
 
 /**
+ * Allocates and initializes with zero an aligned block of memory
+ * \param[in] size      Size of the block of memory in bytes
+ * \param[in] alignment Alignment constraint. Must be a power of two
+ * \return Pointer to the beginning of a newly allocated block of memory
+ */
+DAAL_EXPORT void *daal_calloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAULT_ALIGNMENT);
+
+/**
  * Deallocates the space previously allocated by daal_malloc
  * \param[in] ptr   Pointer to the beginning of a block of memory to deallocate
  */

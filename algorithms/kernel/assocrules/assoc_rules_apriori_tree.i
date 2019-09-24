@@ -85,7 +85,7 @@ struct hash_tree
         if (logOrder < minLogOrder) { logOrder = minLogOrder; }
         order = (1 << logOrder);
         order_m1 = order - 1;
-        n_nodes_i = (int *)daal::services::daal_malloc(height * sizeof(int));
+        n_nodes_i = (int *)daal::services::internal::service_calloc<int, cpu>(height * sizeof(int));
 
         n_nodes_i[0] = 1;
         n_nodes = 1;

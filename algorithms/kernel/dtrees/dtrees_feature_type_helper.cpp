@@ -76,7 +76,7 @@ void FeatureTypes::allocBuf(size_t n)
     if(n)
     {
         _nNoOrderedFeat = n;
-        _aFeat = (bool*)daal::services::daal_malloc(_nNoOrderedFeat);
+        _aFeat = (bool*)daal::services::daal_calloc(_nNoOrderedFeat);
         if(!_aFeat)
             _nNoOrderedFeat = 0;
     }
@@ -126,7 +126,7 @@ services::Status IndexedFeatures::FeatureEntry::allocBorders()
         daal::services::daal_free(binBorders);
         binBorders = nullptr;
     }
-    binBorders = (ModelFPType*)services::daal_malloc(sizeof(ModelFPType)*numIndices);
+    binBorders = (ModelFPType*)daal::services::daal_calloc(sizeof(ModelFPType)*numIndices);
     return binBorders ? services::Status() : services::Status(services::ErrorMemoryAllocationFailed);
 }
 
@@ -140,14 +140,14 @@ services::Status IndexedFeatures::alloc(size_t nC, size_t nR)
             services::daal_free(_data);
             _data = nullptr;
             _capacity = 0;
-            _data = (IndexType*)services::daal_malloc(sizeof(IndexType)*newCapacity);
+            _data = (IndexType*)daal::services::daal_calloc(sizeof(IndexType)*newCapacity);
             DAAL_CHECK_MALLOC(_data);
             _capacity = newCapacity;
         }
     }
     else
     {
-        _data = (IndexType*)services::daal_malloc(sizeof(IndexType)*newCapacity);
+        _data = (IndexType*)daal::services::daal_calloc(sizeof(IndexType)*newCapacity);
         DAAL_CHECK_MALLOC(_data);
         _capacity = newCapacity;
     }

@@ -45,7 +45,7 @@ class allocation
 public:
     static DAAL_FORCEINLINE T * malloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAULT_ALIGNMENT)
     {
-        return static_cast<T *>(daal_malloc(size * sizeof(T), alignment));
+        return static_cast<T *>(daal::services::daal_calloc(size * sizeof(T), alignment));
     }
 };
 
@@ -55,7 +55,7 @@ class allocation<void>
 public:
     static DAAL_FORCEINLINE void * malloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAULT_ALIGNMENT)
     {
-        return daal_malloc(size, alignment);
+        return daal::services::daal_calloc(size, alignment);
     }
 };
 

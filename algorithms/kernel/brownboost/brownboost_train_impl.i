@@ -268,7 +268,7 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 algorithmFPType* BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocateAlpha(
             size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha)
 {
-    algorithmFPType *alpha = (algorithmFPType *)daal::services::daal_malloc(alphaSize * sizeof(algorithmFPType));
+    algorithmFPType *alpha = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(alphaSize * sizeof(algorithmFPType));
     if(alpha && oldAlpha)
     daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
     if (oldAlpha)
@@ -496,7 +496,7 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 algorithmFPType* BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::reallocateAlpha(
             size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha)
 {
-    algorithmFPType *alpha = (algorithmFPType *)daal::services::daal_malloc(alphaSize * sizeof(algorithmFPType));
+    algorithmFPType *alpha = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(alphaSize * sizeof(algorithmFPType));
     if(alpha && oldAlpha)
     daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
     if (oldAlpha)
