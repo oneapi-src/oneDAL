@@ -144,7 +144,7 @@ public:
         T * oldData = _data;
         _data = newData;
         services::daal_free(oldData);
-	oldData = nullptr;
+        oldData = nullptr;
         return true;
     }
 
