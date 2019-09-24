@@ -188,7 +188,7 @@ void ImageBlobDatasetReader<DataType>::open(const std::string &datasetPath)
     _dataFile.open(datasetPath.c_str(), std::fstream::in | std::fstream::binary);
     if (!_dataFile.is_open())
     {
-        throw std::runtime_error("Can't open dataset " + datasetPath);
+        throw std::runtime_error("Can't open dataset");
     }
 
     _imagesNumber  = readDWORD(_dataFile);
