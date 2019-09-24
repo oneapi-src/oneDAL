@@ -28,7 +28,7 @@ import com.intel.daal.services.DaalContext;
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PARAMETER"></a>
  * @brief k nearest neighbors algorithm parameters
  */
-public class Parameter extends com.intel.daal.algorithms.Parameter {
+public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
     /** @private */
     static {
         LibUtils.loadLibrary();

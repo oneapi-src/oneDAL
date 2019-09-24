@@ -51,7 +51,8 @@ class KDTreeKNNDenseBatch {
 
     private static final String testDatasetFileName  = "../data/batch/k_nearest_neighbors_test.csv";
 
-    private static final int nFeatures           = 5;
+    private static final int nFeatures            = 5;
+    private static final long nClasses            = 5;
 
     static Model        model;
     static NumericTable results;
@@ -92,6 +93,7 @@ class KDTreeKNNDenseBatch {
 
         kNearestNeighborsTrain.input.set(InputId.data, trainData);
         kNearestNeighborsTrain.input.set(InputId.labels, trainGroundTruth);
+        kNearestNeighborsTrain.parameter.setNClasses(nClasses);
 
         /* Build the k nearest neighbors model */
         TrainingResult trainingResult = kNearestNeighborsTrain.compute();
