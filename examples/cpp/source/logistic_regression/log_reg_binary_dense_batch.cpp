@@ -79,7 +79,7 @@ training::ResultPtr trainModel()
 
     /* Retrieve the algorithm results */
     training::ResultPtr trainingResult = algorithm.getResult();
-    logistic_regression::interface1::ModelPtr modelptr = trainingResult->get(classifier::training::model);
+    logistic_regression::ModelPtr modelptr = trainingResult->get(classifier::training::model);
     if(modelptr.get())
     {
         printNumericTable(modelptr->getBeta(), "Logistic Regression coefficients:");
