@@ -176,9 +176,11 @@ services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::compute
 
     services::SharedPtr<HomoNTCPU > curClassScoreTable = HomoNTCPU::create(1, nVectors, &s);
     algorithmFPType *curClassScore = curClassScoreTable->getArray();
+    DAAL_CHECK(curClassScore, services::ErrorMemoryAllocationFailed);
 
     services::SharedPtr<HomoNTCPU > maxClassScoreTable = HomoNTCPU::create(1, nVectors, &s);
     algorithmFPType *maxClassScore = maxClassScoreTable->getArray();
+    DAAL_CHECK(maxClassScore, services::ErrorMemoryAllocationFailed);
 
     /* Initialize array of prediction results */
     service_memset<algorithmFPType, cpu>(r, zero, nVectors);
