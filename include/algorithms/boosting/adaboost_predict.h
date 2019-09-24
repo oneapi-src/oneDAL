@@ -108,7 +108,7 @@ public:
  *      - \ref classifier::prediction::interface1::Result "classifier::prediction::interface1::Result" class
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class Batch : public boosting::prediction::Batch
+class DAAL_EXPORT Batch : public boosting::prediction::Batch
 {
 public:
     typedef boosting::prediction::Batch super;
@@ -198,7 +198,7 @@ namespace interface2
  * \tparam method           AdaBoost computation method, \ref Method
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public PredictionContainerIface
+class BatchContainer : public PredictionContainerIface
 {
 public:
     /**
@@ -245,6 +245,10 @@ public:
 
     InputType input;                /*!< %Input objects of the algorithm */
 
+    /**
+     * Constructs AdaBoost prediction algorithm
+     * \param[in] nClasses  Number of classes
+     */
     Batch(size_t nClasses);
 
     /**

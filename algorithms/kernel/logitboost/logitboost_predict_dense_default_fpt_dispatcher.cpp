@@ -39,27 +39,21 @@ namespace prediction
 {
 namespace interface2
 {
-
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(size_t nClasses)
+template <>
+Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(size_t nClasses)
 {
     _par = new ParameterType();
-    initialize();
     parameter().nClasses = nClasses;
+    initialize();
 }
 
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other) :
-    classifier::prediction::Batch(other),
-    input(other.input)
+using BatchType = Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>;
+template <>
+Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(const BatchType &other) : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
-
-template Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(size_t);
-template Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(const Batch &);
-
 } // namespace interface2
 } // namespace prediction
 } // namespace logitboost
