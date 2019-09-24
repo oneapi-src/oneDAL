@@ -91,9 +91,18 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     const daal::algorithms::logistic_regression::internal::ModelImpl* pModel =
         static_cast<const daal::algorithms::logistic_regression::internal::ModelImpl*>(m.get());
     DAAL_ASSERT(pModel);
-    const daal::algorithms::logistic_regression::prediction::interface1::Parameter* pPrm = static_cast<const daal::algorithms::logistic_regression::prediction::interface1::Parameter*>(parameter);
+    size_t nClasses;
+    {
+        auto par1 = dynamic_cast<const logistic_regression::prediction::interface1::Parameter *>(parameter);
+        if(par1) nClasses = par1->nClasses;
+
+        auto par2 = dynamic_cast<const classifier::Parameter *>(parameter);
+        if(par2) nClasses = par2->nClasses;
+
+        if(par1 == nullptr && par2 == nullptr) return services::Status(ErrorNullParameterNotSupported);
+    }
     const size_t nBetaPerClass = get(classifier::prediction::data)->getNumberOfColumns() + 1;
-    return checkNumericTable(pModel->getBeta().get(), betaStr(), 0, 0, nBetaPerClass, pPrm->nClasses == 2 ? 1 : pPrm->nClasses);
+    return checkNumericTable(pModel->getBeta().get(), betaStr(), 0, 0, nBetaPerClass, nClasses == 2 ? 1 : nClasses);
 }
 
 } // namespace interface1

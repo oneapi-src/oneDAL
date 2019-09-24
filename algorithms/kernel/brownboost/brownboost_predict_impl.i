@@ -26,6 +26,7 @@
 
 #include "service_math.h"
 #include "service_numeric_table.h"
+#include "service_memory.h"
 
 namespace daal
 {
@@ -38,6 +39,7 @@ namespace prediction
 namespace internal
 {
 using namespace daal::internal;
+using namespace daal::services::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
@@ -99,14 +101,11 @@ services::Status BrownBoostPredictKernelNew<method, algorithmFPType, cpu>::compu
     DAAL_CHECK_STATUS(s, learnerPredict->setResult(predictionRes));
 
     const algorithmFPType zero = (algorithmFPType)0.0;
+    const algorithmFPType one = (algorithmFPType)1.0;
 
     /* Initialize array of prediction results */
-    for (size_t j = 0; j < nVectors; j++)
-    {
-        r[j] = zero;
-    }
+    service_memset<algorithmFPType, cpu>(r, zero, nVectors);
 
-    const algorithmFPType one = (algorithmFPType)1.0;
     for(size_t i = 0; i < nWeakLearners; i++)
     {
         /* Get  weak learner's classification results */

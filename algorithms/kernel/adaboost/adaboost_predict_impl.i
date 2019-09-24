@@ -28,6 +28,7 @@
 #include "collection.h"
 #include "service_math.h"
 #include "service_data_utils.h"
+#include "service_memory.h"
 
 namespace daal
 {
@@ -39,7 +40,10 @@ namespace prediction
 {
 namespace internal
 {
+
 using namespace daal::internal;
+using namespace daal::services::internal;
+
 template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::computeImpl(const NumericTablePtr &xTable,
         const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par)
@@ -64,12 +68,7 @@ services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::compute
     DAAL_CHECK_STATUS(s, learnerPredict->setResult(predictionRes));
 
     const algorithmFPType zero = (algorithmFPType)0.0;
-
-    /* Initialize array of prediction results */
-    for (size_t j = 0; j < nVectors; j++)
-    {
-        r[j] = zero;
-    }
+    service_memset<algorithmFPType, cpu>(r, zero, nVectors);
 
     const algorithmFPType one = (algorithmFPType)1.0;
     for(size_t i = 0; i < nWeakLearners; i++)
@@ -104,10 +103,7 @@ services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::compute
     TArray<algorithmFPType, cpu> pSumLogArray(nVectors);
     DAAL_CHECK(pSumLogArray.get(), services::ErrorMemoryAllocationFailed);
     algorithmFPType *pSumLog = pSumLogArray.get();
-    for(size_t i = 0; i < nVectors; i++)
-    {
-        pSumLog[i] = 0;
-    }
+    service_memset<algorithmFPType, cpu>(pSumLog, 0, nVectors);
 
     algorithmFPType eps = services::internal::EpsilonVal<algorithmFPType>::get();
     for(size_t i = 0; i < nVectors * nClasses; i++)
@@ -185,12 +181,9 @@ services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::compute
     algorithmFPType *maxClassScore = maxClassScoreTable->getArray();
 
     /* Initialize array of prediction results */
-    for (size_t j = 0; j < nVectors; j++)
-    {
-        r[j] = 0;
-        curClassScore[j] = 0;
-        maxClassScore[j] = 0;
-    }
+    service_memset<algorithmFPType, cpu>(r, zero, nVectors);
+    service_memset<algorithmFPType, cpu>(curClassScore, zero, nVectors);
+    service_memset<algorithmFPType, cpu>(maxClassScore, zero, nVectors);
 
     if(method == sammeR)
     {
