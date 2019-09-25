@@ -28,7 +28,7 @@ CORE.SERV.COMPILER.icc = generic
 -Zl.icc = $(if $(OS_is_win),-Zl,) -mGLOB_freestanding=TRUE -mCG_no_libirc=TRUE
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
-COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc -i )icc -Werror -qopenmp-simd -Wreturn-type -fstack-security-check -check-pointers
+COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc -i )icc -Werror -qopenmp-simd -Wreturn-type -check-pointers=rw
 COMPILER.lnx.icc += $(if $(COVFILE), $(if $(IA_is_ia32), $(-Q)m32, $(-Q)m64))
 COMPILER.win.icc = icl -nologo -WX -Qopenmp-simd
 COMPILER.mac.icc = icc -Werror -stdlib=libc++ -mmacosx-version-min=10.11 -Wreturn-type -fstack-security-check
