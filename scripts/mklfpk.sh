@@ -18,7 +18,7 @@
 
 
 MKLFPK_URL_ROOT="https://github.com/intel/daal/releases/download/2019_u4/"
-MKLFPK_VERSION="20180112_7"
+MKLFPK_VERSION="20180112_10"
 MKLFPK_ARCH=32e
 
 while [ 1 ] ; do
@@ -72,7 +72,7 @@ if [ ! -e "${DST}/license.txt" ]; then
     echo "Download from ${MKLFPK_URL} to ${DST} failed"
     exit 1
   fi
-  set -x 
+  set -x
 
   echo tar -xf "${DST}/${MKLFPK_PACKAGE}.tgz" -C $DST
   tar -xf "${DST}/${MKLFPK_PACKAGE}.tgz" -C $DST
