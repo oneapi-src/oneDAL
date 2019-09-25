@@ -171,10 +171,10 @@ void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisito
     traverseGbtDF(0, 0, gbtTree, onSplitNodeFunc, onLeafNodeFunc);
 }
 
-void ModelImpl::treeToTable(TreeType& t,
+services::Status ModelImpl::treeToTable(TreeType& t,
     gbt::internal::GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt, size_t nFeat)
 {
-    t.convertGbtTreeToTable(pTbl, pTblImp, pTblSmplCnt, nFeat);
+    return (t.convertGbtTreeToTable(pTbl, pTblImp, pTblSmplCnt, nFeat)) ? services::Status() : services::ErrorMemoryAllocationFailed;
 }
 
 void ModelImpl::add(gbt::internal::GbtDecisionTree* pTbl, HomogenNumericTable<double>* pTblImp, HomogenNumericTable<int>* pTblSmplCnt)
@@ -314,6 +314,7 @@ services::Status ModelImpl::convertDecisionTreesToGbtTrees(data_management::Data
     services::Status s;
     const size_t size = serializationData->size();
     data_management::DataCollection* newTrees = new data_management::DataCollection();
+    DAAL_CHECK_MALLOC(newTrees)
     for(size_t i = 0; i < size; ++i)
     {
         const DecisionTreeTable& tree = *(DecisionTreeTable*)(*(serializationData))[i].get();

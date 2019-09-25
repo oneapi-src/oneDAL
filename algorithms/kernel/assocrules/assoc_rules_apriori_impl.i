@@ -58,6 +58,7 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::compute(const Nume
 
     /* Create association rules data set from input numeric table */
     assocrules_dataset<cpu> data(dataTable, parameter->nTransactions, parameter->nUniqueItems, minSupport);
+    DAAL_CHECK_STATUS_OK(data.ok(), data.getLastStatus());
 
     TArray<ItemSetList<cpu>, cpu> L(data.numOfUniqueItems);
     DAAL_CHECK(L.get(), ErrorMemoryAllocationFailed);
@@ -67,8 +68,10 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::compute(const Nume
     /* Find "large" itemsets */
     size_t L_size = 0;
     size_t maxItemsetSize    = ((parameter->maxItemsetSize == 0) ? (size_t) - 1 : parameter->maxItemsetSize);
-    DAAL_CHECK(findLargeItemsets((size_t)daal::internal::Math<double, cpu>::sCeil(minSupport * data.numOfTransactions),
-        maxItemsetSize, data, L.get(), L_size), ErrorAprioriIncorrectInputData);
+    services::Status statLargeItemset = findLargeItemsets((size_t)daal::internal::Math<double,
+                                                            cpu>::sCeil(minSupport * data.numOfTransactions),
+                                                            maxItemsetSize, data, L.get(), L_size);
+    DAAL_CHECK_STATUS_OK(statLargeItemset.ok(), statLargeItemset);
     DAAL_ASSERT(L_size > 0);
 
     /* Allocate memory to store "large" itemsets */
@@ -99,7 +102,8 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::compute(const Nume
         size_t nLeft  = 0;            /*<! Number of items in left parts of the rules */
         size_t nRight = 0;            /*<! Number of items in right parts of the rules */
         double minConfidence = parameter->minConfidence;
-        DAAL_CHECK(generateRules(minConfidence, minItemsetSize, L_size, L.get(), R.get(), nRules, nLeft, nRight) && !!nRules, ErrorMemoryAllocationFailed);
+        services::Status statGenRules = generateRules(minConfidence, minItemsetSize, L_size, L.get(), R.get(), nRules, nLeft, nRight);
+        DAAL_CHECK_STATUS_OK(statGenRules.ok() && !!nRules, statGenRules);
 
         NumericTable *leftItemsTable    = r[2];
         NumericTable *rightItemsTable   = r[3];
@@ -115,14 +119,14 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::compute(const Nume
 }
 
 template <typename algorithmFPType, CpuType cpu>
-bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::findLargeItemsets(size_t minSupport, size_t maxItemsetSize,
+services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::findLargeItemsets(size_t minSupport, size_t maxItemsetSize,
                                                                               assocrules_dataset<cpu> &data,
                                                                               ItemSetList<cpu> *L, size_t& L_size)
 {
     /* Form list of "large" item sets of size 1 from the unique items
        which count is not less than minimum count 'imin_s' */
-    if(!firstPass(minSupport, data, *L))
-        return false;
+    services::Status statFirstPass = firstPass(minSupport, data, *L);
+    DAAL_CHECK_STATUS_OK(statFirstPass.ok(), statFirstPass);
 
     L_size = 1;
     /* Find "large" item sets of size k+1 from itemsets of size k */
@@ -131,13 +135,14 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::findLargeItemsets(si
     hash_tree<cpu> *C_tree = NULL;
     do
     {
-        C_tree = nextPass(minSupport, k++, data, L, L_size, bFound, C_tree);
+        services::Status s;
+        C_tree = nextPass(minSupport, k++, data, L, L_size, bFound, C_tree, s);
+        DAAL_CHECK_STATUS_OK(s.ok(), s);
     }
     while(bFound && k < maxItemsetSize);
 
     delete C_tree;
-    C_tree = nullptr;
-    return L_size > 0;
+    return (L_size > 0) ? services::Status() : services::ErrorAprioriIncorrectInputData;
 }
 
 template <typename algorithmFPType, CpuType cpu>

@@ -473,6 +473,7 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::doStumpRegressi
     daal::tls<TGroupRes *> tls( [ = ]()-> TGroupRes *
     {
         TGroupRes *g = new TGroupRes();
+        DAAL_CHECK_STATUS_VAR(g)
         g->groupMinS = daal::services::internal::MaxVal<algorithmFPtype>::get();
         return g;
     } );

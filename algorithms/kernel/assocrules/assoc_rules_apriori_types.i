@@ -204,6 +204,7 @@ struct assocrules_dataset
     assocrules_dataset(NumericTable *dataTable, size_t _numOfTransactions, size_t _numOfUniqueItems, double minSupport) :
         tran(nullptr), large_tran(nullptr), uniq_items(nullptr), numOfTransactions(0)
     {
+        _status = services::Status();
         size_t data_len = dataTable->getNumberOfRows();
         size_t itemsFullNumber;
 
@@ -226,6 +227,13 @@ struct assocrules_dataset
         }
 
         size_t *supportVals = (size_t *)daal::services::internal::service_calloc<size_t, cpu>(itemsFullNumber);
+
+        if (!supportVals)
+        {
+            _status = services::ErrorMemoryAllocationFailed;
+            return;
+        }
+
         for (size_t i = 0; i < data_len; i++)
         {
             supportVals[itemID[i]]++;
@@ -237,6 +245,16 @@ struct assocrules_dataset
             if (supportVals[i] >= iMinSupport) { numOfUniqueItems++; }
         }
         uniq_items = new assocRulesUniqueItem<cpu>[numOfUniqueItems];
+
+        if (!uniq_items)
+        {
+            daal::services::daal_free(supportVals);
+            supportVals = nullptr;
+
+            _status = services::ErrorMemoryAllocationFailed;
+            return;
+        }
+
         numOfUniqueItems = 0;
         for (size_t i = 0; i < itemsFullNumber; i++)
         {
@@ -250,8 +268,48 @@ struct assocrules_dataset
         tran = new assocrules_transaction<cpu>[numOfTransactions];
         large_tran = new assocrules_transaction<cpu> *[numOfTransactions];
 
+        if (!tran)
+        {
+            daal::services::daal_free(supportVals);
+            delete[] uniq_items;
+            supportVals = nullptr;
+            uniq_items = nullptr;
+
+            _status = services::ErrorMemoryAllocationFailed;
+            return;
+        }
+
+        if (!large_tran)
+        {
+            daal::services::daal_free(supportVals);
+            delete[] tran;
+            delete[] uniq_items;
+            supportVals = nullptr;
+            tran        = nullptr;
+            uniq_items  = nullptr;
+
+            _status = services::ErrorMemoryAllocationFailed;
+            return;
+        }
+
         size_t numItems = 0;
         size_t *items = (size_t *)daal::services::daal_malloc(numOfUniqueItems * sizeof(size_t));
+
+        if (!items)
+        {
+            daal::services::daal_free(supportVals);
+            delete[] tran;
+            delete[] large_tran;
+            delete[] uniq_items;
+
+            supportVals = nullptr;
+            tran        = nullptr;
+            large_tran  = nullptr;
+            uniq_items  = nullptr;
+
+            _status = services::ErrorMemoryAllocationFailed;
+            return;
+        }
 
         for (size_t i = 0; i < data_len; i++)
         {
@@ -303,8 +361,17 @@ struct assocrules_dataset
     assocRulesUniqueItem<cpu> *uniq_items;                  /*<! Array of unique items */
     size_t numOfUniqueItems;                                /*<! Number of unique items */
 
+    bool ok() const { return _status.ok(); }
+    services::Status getLastStatus() const { return _status; }
+
+protected:
+    services::Status _status;
+
 private:
-    assocrules_dataset(const assocrules_dataset &) {};
+    assocrules_dataset(const assocrules_dataset &)
+    {
+        _status = services::Status();
+    };
 };
 
 } // namespace internal

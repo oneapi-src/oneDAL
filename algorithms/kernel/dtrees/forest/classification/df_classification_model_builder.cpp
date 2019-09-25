@@ -43,15 +43,16 @@ namespace interface1
 
 services::Status ModelBuilder::initialize(size_t nClasses, size_t nTrees)
 {
-    services::Status s;
-    _model.reset(new decision_forest::classification::internal::ModelImpl());
+    auto modelImpl = new decision_forest::classification::internal::ModelImpl();
+    DAAL_CHECK_MALLOC(modelImpl)
+    _model.reset(modelImpl);
     decision_forest::classification::internal::ModelImpl& modelImplRef = daal::algorithms::dtrees::internal::getModelRef<decision_forest::classification::internal::ModelImpl,ModelPtr>(_model);
 
     modelImplRef.resize(nTrees);
     modelImplRef._impurityTables.reset();
     modelImplRef._nNodeSampleTables.reset();
     modelImplRef._nTree.set(nTrees);
-    return s;
+    return Status();
 }
 
 services::Status ModelBuilder::createTreeInternal(size_t nNodes, TreeId& resId)

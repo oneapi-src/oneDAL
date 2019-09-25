@@ -137,6 +137,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
 
     size_t na = nPartials * 2;
     NumericTable **a = new NumericTable*[na];
+    DAAL_CHECK_MALLOC(a)
     for(size_t i = 0; i < nPartials; i++)
     {
         PartialResult *inPres = static_cast<PartialResult *>((*dcInput)[i].get());

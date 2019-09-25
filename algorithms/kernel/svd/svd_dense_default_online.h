@@ -49,8 +49,11 @@ using namespace daal::services;
 template <typename algorithmFPType>
 DAAL_EXPORT Status OnlinePartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
 {
-    set(outputOfStep1ForStep3, DataCollectionPtr(new DataCollection()));
-    set(outputOfStep1ForStep2, DataCollectionPtr(new DataCollection()));
+    auto pDataCollection13 = new DataCollection();
+    auto pDataCollection12 = new DataCollection();
+    DAAL_CHECK_MALLOC(pDataCollection13 && pDataCollection12)
+    set(outputOfStep1ForStep3, DataCollectionPtr(pDataCollection13));
+    set(outputOfStep1ForStep2, DataCollectionPtr(pDataCollection12));
     return Status();
 }
 
