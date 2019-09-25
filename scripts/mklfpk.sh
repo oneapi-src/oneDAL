@@ -17,7 +17,7 @@
 
 
 
-MKLFPK_URL_ROOT="https://github.com/intel/daal/releases/download/2019_u4/"
+MKLFPK_URL_ROOT="https://github.com/intel/daal/releases/download/2020/"
 MKLFPK_VERSION="20180112_10"
 MKLFPK_ARCH=32e
 
