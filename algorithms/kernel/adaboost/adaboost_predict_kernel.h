@@ -44,7 +44,7 @@ namespace prediction
 namespace internal
 {
 template <Method method, typename algorithmFPtype, CpuType cpu>
-class AdaBoostPredictKernelNew : public Kernel
+class AdaBoostPredictKernel : public Kernel
 {
 public:
     services::Status compute(const NumericTablePtr &x, const Model *m, const NumericTablePtr &r, const Parameter *par);

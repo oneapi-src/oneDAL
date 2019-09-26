@@ -42,7 +42,7 @@ namespace internal
 using namespace daal::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
+services::Status I1AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
     const daal::algorithms::adaboost::interface1::Model *m, const NumericTablePtr& rTable, const daal::algorithms::adaboost::interface1::Parameter *par)
 {
     const size_t nVectors = xTable->getNumberOfRows();

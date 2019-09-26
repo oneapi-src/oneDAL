@@ -45,7 +45,7 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::computeImpl(const NumericTablePtr &xTable,
+services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeImpl(const NumericTablePtr &xTable,
         const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par)
 {
     const size_t nVectors  = xTable->getNumberOfRows();
@@ -96,7 +96,7 @@ services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::compute
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::computeSammeProbability(
+services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeSammeProbability(
     const algorithmFPType *p, const size_t nVectors, const size_t nClasses, algorithmFPType *h)
 {
     algorithmFPType *pLog = h;
@@ -131,7 +131,7 @@ services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::compute
 
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::computeCommon(const NumericTablePtr &xTable,
+services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCommon(const NumericTablePtr &xTable,
         const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par)
 {
     const size_t nClasses = par->nClasses;
@@ -236,7 +236,7 @@ services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::compute
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostPredictKernelNew<method, algorithmFPType, cpu>::compute(const NumericTablePtr &xTable,
+services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr &xTable,
         const Model *m, const NumericTablePtr &rTable, const Parameter *par)
 {
     const size_t nVectors = xTable->getNumberOfRows();
