@@ -217,7 +217,7 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
+services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(NumericTablePtr *a,
         adaboost::interface1::Model *r,
         const adaboost::interface1::Parameter *parameter)
 {
@@ -584,7 +584,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
 
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
+services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(NumericTablePtr *a,
         Model *r, NumericTable *weakLearnersErrorsTable, const Parameter *parameter)
 {
     NumericTablePtr xTable = a[0];

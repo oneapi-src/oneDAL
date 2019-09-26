@@ -46,7 +46,7 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 class I1AdaBoostTrainKernel : public Kernel
 {
 public:
-    services::Status compute(size_t n, NumericTablePtr *a, adaboost::interface1::Model *r, const adaboost::interface1::Parameter *par);
+    services::Status compute(NumericTablePtr *a, adaboost::interface1::Model *r, const adaboost::interface1::Parameter *par);
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
 
@@ -59,7 +59,7 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 class AdaBoostTrainKernel : public Kernel
 {
 public:
-    services::Status compute(size_t n, NumericTablePtr *a, Model *r, NumericTable *weakLearnersErrorsTable, const Parameter *par);
+    services::Status compute(NumericTablePtr *a, Model *r, NumericTable *weakLearnersErrorsTable, const Parameter *par);
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
 
