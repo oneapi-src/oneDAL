@@ -42,7 +42,7 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
+services::Status I1BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
     const brownboost::interface1::Model *m, const NumericTablePtr& rTable, const brownboost::interface1::Parameter *par)
 {
     const size_t nVectors  = xTable->getNumberOfRows();
@@ -79,7 +79,7 @@ services::Status BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status BrownBoostPredictKernelNew<method, algorithmFPType, cpu>::computeImpl(const NumericTablePtr& xTable,
+services::Status BrownBoostPredictKernel<method, algorithmFPType, cpu>::computeImpl(const NumericTablePtr& xTable,
     const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par)
 {
     const size_t nVectors  = xTable->getNumberOfRows();
@@ -125,7 +125,7 @@ services::Status BrownBoostPredictKernelNew<method, algorithmFPType, cpu>::compu
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status BrownBoostPredictKernelNew<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
+services::Status BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
     const Model *m, const NumericTablePtr& rTable, const Parameter *par)
 {
     const size_t nVectors  = xTable->getNumberOfRows();

@@ -45,7 +45,7 @@ namespace internal
 {
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
-class BrownBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cpu>
+class I1BrownBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cpu>
 {
     using BoostingPredictKernel<algorithmFPtype, cpu>::compute;
 public:
@@ -54,7 +54,7 @@ public:
 };
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
-class BrownBoostPredictKernelNew : public Kernel
+class BrownBoostPredictKernel : public Kernel
 {
 public:
     services::Status compute(const NumericTablePtr &x, const Model *m, const NumericTablePtr &r, const Parameter *par);

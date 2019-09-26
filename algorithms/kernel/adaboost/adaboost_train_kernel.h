@@ -43,7 +43,7 @@ namespace internal
 {
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class AdaBoostTrainKernel : public Kernel
+class I1AdaBoostTrainKernel : public Kernel
 {
 public:
     services::Status compute(size_t n, NumericTablePtr *a, adaboost::interface1::Model *r, const adaboost::interface1::Parameter *par);
@@ -56,7 +56,7 @@ private:
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class AdaBoostTrainKernelNew : public Kernel
+class AdaBoostTrainKernel : public Kernel
 {
 public:
     services::Status compute(size_t n, NumericTablePtr *a, Model *r, NumericTable *weakLearnersErrorsTable, const Parameter *par);

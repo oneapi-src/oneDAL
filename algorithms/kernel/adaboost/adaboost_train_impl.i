@@ -84,7 +84,7 @@ using namespace daal::internal;
  *
  */
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFreundKernel(
+services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFreundKernel(
     size_t nVectors, NumericTablePtr weakLearnerInputTables[],
     const HomogenNTPtr &hTable, const algorithmFPType *y,
     adaboost::interface1::Model *boostModel, const adaboost::interface1::Parameter *parameter, size_t &nWeakLearners,
@@ -217,7 +217,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFreu
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
+services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
         adaboost::interface1::Model *r,
         const adaboost::interface1::Parameter *parameter)
 {
@@ -284,7 +284,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(size
  *
  */
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostSAMME(
+services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMME(
     size_t nVectors, NumericTablePtr weakLearnerInputTables[],
     const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsArray, const Parameter *parameter, size_t &nWeakLearners,
     algorithmFPType *alpha)
@@ -423,7 +423,7 @@ services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostS
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-void AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::convertLabelToVector(
+void AdaBoostTrainKernel<method, algorithmFPType, cpu>::convertLabelToVector(
     size_t nClasses, algorithmFPType *Y)
 {
     const algorithmFPType nonClassValue = -1.0 / (nClasses - 1.0);
@@ -442,7 +442,7 @@ void AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::convertLabelToVector(
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostSAMME_R(
+services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMME_R(
     size_t nVectors, NumericTablePtr weakLearnerInputTables[],
     const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsArray, const Parameter *parameter, size_t &nWeakLearners,
     algorithmFPType *alpha)
@@ -584,7 +584,7 @@ services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostS
 
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
+services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
         Model *r, NumericTable *weakLearnersErrorsTable, const Parameter *parameter)
 {
     NumericTablePtr xTable = a[0];
