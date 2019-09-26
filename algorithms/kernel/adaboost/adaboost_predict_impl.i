@@ -46,11 +46,9 @@ using namespace daal::services::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeImpl(const NumericTablePtr &xTable,
-        const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par)
+        const Model *boostModel, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *parameter)
 {
     const size_t nVectors  = xTable->getNumberOfRows();
-    Model *boostModel = const_cast<Model *>(m);
-    Parameter *parameter = const_cast<Parameter *>(par);
 
     services::Status s;
     services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > rWeakTable =
@@ -132,13 +130,11 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeSam
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCommon(const NumericTablePtr &xTable,
-        const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par)
+        const Model *boostModel, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *parameter)
 {
-    const size_t nClasses = par->nClasses;
+    const size_t nClasses = parameter->nClasses;
     typedef daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomoNTCPU;
     const size_t nVectors  = xTable->getNumberOfRows();
-    Model *boostModel = const_cast<Model *>(m);
-    Parameter *parameter = const_cast<Parameter *>(par);
 
     daal::services::Collection<services::SharedPtr<HomoNTCPU> > weakPredictions;
 
@@ -237,11 +233,9 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr &xTable,
-        const Model *m, const NumericTablePtr &rTable, const Parameter *par)
+        const Model *boostModel, const NumericTablePtr &rTable, const Parameter *par)
 {
     const size_t nVectors = xTable->getNumberOfRows();
-
-    Model *boostModel = const_cast<Model *>(m);
     const size_t nWeakLearners = boostModel->getNumberOfWeakLearners();
     services::Status s;
     WriteOnlyColumns<algorithmFPType, cpu> mtR(*rTable, 0, 0, nVectors);
@@ -256,11 +250,11 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(co
         DAAL_ASSERT(mtAlpha.get());
         if(method == samme && nClasses == 2)
         {
-            DAAL_CHECK_STATUS(s, this->computeImpl(xTable, m, nWeakLearners, mtAlpha.get(), r, par));
+            DAAL_CHECK_STATUS(s, this->computeImpl(xTable, boostModel, nWeakLearners, mtAlpha.get(), r, par));
         }
         else
         {
-            DAAL_CHECK_STATUS(s, this->computeCommon(xTable, m, nWeakLearners, mtAlpha.get(), r, par));
+            DAAL_CHECK_STATUS(s, this->computeCommon(xTable, boostModel, nWeakLearners, mtAlpha.get(), r, par));
         }
     }
 

@@ -43,11 +43,10 @@ using namespace daal::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status I1AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
-    const daal::algorithms::adaboost::interface1::Model *m, const NumericTablePtr& rTable, const daal::algorithms::adaboost::interface1::Parameter *par)
+    const daal::algorithms::adaboost::interface1::Model *boostModel, const NumericTablePtr& rTable, const daal::algorithms::adaboost::interface1::Parameter *par)
 {
     const size_t nVectors = xTable->getNumberOfRows();
 
-    daal::algorithms::adaboost::interface1::Model *boostModel = const_cast<daal::algorithms::adaboost::interface1::Model *>(m);
     const size_t nWeakLearners = boostModel->getNumberOfWeakLearners();
     services::Status s;
     WriteOnlyColumns<algorithmFPType, cpu> mtR(*rTable, 0, 0, nVectors);
@@ -59,7 +58,7 @@ services::Status I1AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(
         ReadColumns<algorithmFPType, cpu> mtAlpha(*boostModel->getAlpha(), 0, 0, nWeakLearners);
         DAAL_CHECK_BLOCK_STATUS(mtAlpha);
         DAAL_ASSERT(mtAlpha.get());
-        DAAL_CHECK_STATUS(s, this->compute(xTable, m, nWeakLearners, mtAlpha.get(), r, par));
+        DAAL_CHECK_STATUS(s, this->compute(xTable, boostModel, nWeakLearners, mtAlpha.get(), r, par));
     }
 
     const algorithmFPType zero = (algorithmFPType)0.0;
