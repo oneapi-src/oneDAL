@@ -143,7 +143,7 @@ protected:
         if (iFeature >= 0)
         {
             // now calculate full impurity decrease
-            split.impurityDecrease -= _node.imp.value(_data.ctx.par().lambda);
+            split.impurityDecrease -= node.imp.value(_data.ctx.par().lambda);
             if(split.impurityDecrease < _data.ctx.par().minSplitLoss)
                 iFeature = -1; //not found
         }
@@ -324,8 +324,8 @@ protected:
         if(featureSample)
             _data.memHelper->releaseFeatureSampleBuf(const_cast<IndexType*>(featureSample));
 
-        this->computeFullImpurityDecrease(split1, _node1, iFeature1);
-        this->computeFullImpurityDecrease(split2, _node2, iFeature2);
+        this->computeFullImpurityDecrease(split1, node1, iFeature1);
+        this->computeFullImpurityDecrease(split2, node2, iFeature2);
     }
 
 
