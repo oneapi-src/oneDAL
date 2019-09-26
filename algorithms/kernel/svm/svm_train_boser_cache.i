@@ -231,7 +231,9 @@ protected:
         _kernel->getInput()->set(kernel_function::X, xTable);
         _kernel->getInput()->set(kernel_function::Y, xTable);
 
-        kernel_function::ResultPtr shRes(new kernel_function::Result());
+        auto kfResultPtr = new kernel_function::Result();
+        DAAL_CHECK_MALLOC(kfResultPtr)
+        kernel_function::ResultPtr shRes(kfResultPtr);
         shRes->set(kernel_function::values, _cacheTable);
         _kernel->setResult(shRes);
         return _kernel->computeNoThrow();
@@ -338,7 +340,9 @@ protected:
         _kernel->getInput()->set(kernel_function::X, xTable);
         _kernel->getInput()->set(kernel_function::Y, xTable);
 
-        kernel_function::ResultPtr shRes(new kernel_function::Result());
+        auto kfResultPtr = new kernel_function::Result();
+        DAAL_CHECK_MALLOC(kfResultPtr)
+        kernel_function::ResultPtr shRes(kfResultPtr);
         shRes->set(kernel_function::values, _cacheTable);
         _kernel->setResult(shRes);
         return s;

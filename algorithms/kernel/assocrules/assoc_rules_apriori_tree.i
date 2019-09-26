@@ -87,21 +87,45 @@ struct hash_tree
         order_m1 = order - 1;
         n_nodes_i = (int *)daal::services::daal_malloc(height * sizeof(int));
 
-        n_nodes_i[0] = 1;
-        n_nodes = 1;
-        for (int i = 1; i < height; i++)
+        if (n_nodes_i)
         {
-            n_nodes_i[i] = n_nodes_i[i - 1] * order;
-            n_nodes += n_nodes_i[i];
+            n_nodes_i[0] = 1;
+            n_nodes = 1;
+            for (int i = 1; i < height; i++)
+            {
+                n_nodes_i[i] = n_nodes_i[i - 1] * order;
+                n_nodes += n_nodes_i[i];
+            }
+            n_leaves = n_nodes_i[height - 1] * order;
+
+            root = new hash_tree_node<cpu>[n_nodes];
+            leaves = new hash_tree_leaf<cpu>[n_leaves];
+
+            if (root && leaves)
+            {
+                for (auto *current = L_cur.start; current; current = current->next())
+                {
+                    insert_itemset(current->itemSet());
+                }
+
+                _status = services::Status();
+            }
+            else
+            {
+                if (root)
+                    delete[] root;
+
+                if (leaves)
+                    delete[] leaves;
+
+                root    = NULL;
+                leaves  = NULL;
+                _status = services::ErrorMemoryAllocationFailed;
+            }
         }
-        n_leaves = n_nodes_i[height - 1] * order;
-
-        root = new hash_tree_node<cpu>[n_nodes];
-        leaves = new hash_tree_leaf<cpu>[n_leaves];
-
-        for (auto *current = L_cur.start; current; current = current->next())
+        else
         {
-            insert_itemset(current->itemSet());
+            _status = services::ErrorMemoryAllocationFailed;
         }
     }
 
@@ -219,6 +243,12 @@ struct hash_tree
     static const int maxLogOrder = 12;
     static const int minLogOrder = 3;
     static const int maxHeight = 10;
+
+    bool ok() const { return _status.ok(); }
+    services::Status getLastStatus() const { return _status; }
+
+protected:
+    services::Status _status;
 
 private:
     hash_tree(const hash_tree &) {};

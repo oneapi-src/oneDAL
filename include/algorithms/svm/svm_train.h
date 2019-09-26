@@ -206,7 +206,7 @@ namespace interface2
  * \tparam method           SVM training computation method, \ref daal::algorithms::svm::training::Method
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public TrainingContainerIface<batch>
+class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
     /**

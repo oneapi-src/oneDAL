@@ -112,7 +112,7 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::setIntersection(cons
  *
   */
 template<typename algorithmFPType, CpuType cpu>
-void AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPass(
+services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPass(
     double minConfidence, ItemSetList<cpu> *L, size_t itemSetSize,
     const size_t *items, size_t itemsSupport,
     size_t *leftItems, AssocRule<cpu> *R, size_t& numRules,
@@ -128,7 +128,13 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPass(
         for (size_t j = i + 1; j <= itemSetSize; ++j) { leftItems[j - 1] = items[j]; }
 
         const assocrules_itemset<cpu> *left_iset  = findItemSet(itemSetSize, leftItems,  L_prev);
+        DAAL_CHECK(left_iset, services::ErrorNullInput);
+        DAAL_CHECK_STATUS_OK(left_iset->ok(), left_iset->getLastStatus());
+
         const assocrules_itemset<cpu> *right_iset = findItemSet(1, &items[i], L_0);
+        DAAL_CHECK(right_iset, services::ErrorNullInput);
+        DAAL_CHECK_STATUS_OK(right_iset->ok(), right_iset->getLastStatus());
+
         double confidence = (double)itemsSupport / (double)(left_iset->support.get());
         if (confidence >= minConfidence)
         {
@@ -138,6 +144,7 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPass(
         }
     }
     numRulesFound = numRules - oldNumRules;
+    return services::Status();
 }
 
 /**
@@ -158,7 +165,7 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPass(
  *
   */
 template<typename algorithmFPType, CpuType cpu>
-void AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass(double minConfidence, ItemSetList<cpu> *L,
+services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass(double minConfidence, ItemSetList<cpu> *L,
                                                                      size_t right_size, size_t itemsSupport, size_t *leftItems, AssocRule<cpu> *R,
     size_t& numRules, size_t& numLeft, size_t& numRight, size_t& numRulesFound,
     bool& found)
@@ -189,6 +196,8 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass(double minC
             }
 
             assocrules_itemset<cpu> iset(right_size, first_items, second_items[right_size - 2]);
+            DAAL_CHECK_STATUS_OK(iset.ok(), iset.getLastStatus());
+
             const assocrules_itemset<cpu> *right_iset = findItemSet(right_size, iset.items, L[right_size - 1]);
             first_items  = R[firstIdx ].left->items;
             second_items = R[secondIdx].left->items;
@@ -211,6 +220,7 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass(double minC
         }
     }
     numRulesFound = numRules - oldNumRules;
+    return services::Status();
 }
 
 /**
@@ -227,7 +237,7 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass(double minC
  *
  */
 template<typename algorithmFPType, CpuType cpu>
-bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::generateRules(double minConfidence, size_t minItemsetSize,
+services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::generateRules(double minConfidence, size_t minItemsetSize,
     size_t L_size, ItemSetList<cpu> *L,
     AssocRule<cpu> *R, size_t& numRules, size_t& numLeft, size_t& numRight)
 {
@@ -238,7 +248,7 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::generateRules(double
     TArray<size_t, cpu> leftItemsAr(L_size);
     size_t *leftItems = leftItemsAr.get();
     if(!leftItems)
-        return false;
+        return services::ErrorMemoryAllocationFailed;
 
     /* Generate all association rules */
     size_t startItemsetSize = 1;
@@ -254,19 +264,22 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::generateRules(double
             size_t n_rules_prev = 0;
 
             /* Find rules that have 1 item in the right part */
-            firstPass(minConfidence, L, iset_size, items, itemsSupport,
+            services::Status statFirstPass = firstPass(minConfidence, L, iset_size, items, itemsSupport,
                       leftItems, R, numRules, numLeft, numRight, n_rules_prev);
+            DAAL_CHECK_STATUS_OK(statFirstPass.ok(), statFirstPass);
 
             bool found = (n_rules_prev > 0);
             for (size_t right_size = 2; right_size <= iset_size && found; ++right_size)
             {
                 /* Find rules that have right_size items in the right part */
-                nextPass(minConfidence, L, right_size, itemsSupport,
+                services::Status statNextPass = nextPass(minConfidence, L, right_size, itemsSupport,
                          leftItems, R, numRules, numLeft, numRight, n_rules_prev, found);
+
+                DAAL_CHECK_STATUS_OK(statNextPass.ok(), statNextPass);
             }
         }
     }
-    return true;
+    return services::Status();
 }
 
 template<typename algorithmFPType, CpuType cpu>

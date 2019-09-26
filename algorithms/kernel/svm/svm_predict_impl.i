@@ -94,7 +94,9 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         NumericTablePtr shResNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(buf, nSV, nVectors, &s);
         DAAL_CHECK_STATUS_VAR(s);
 
-        kernel_function::ResultPtr shRes(new kernel_function::Result());
+        auto kfResultPtr = new kernel_function::Result();
+        DAAL_CHECK_MALLOC(kfResultPtr)
+        kernel_function::ResultPtr shRes(kfResultPtr);
         shRes->set(kernel_function::values, shResNT);
         kernel->setResult(shRes);
         kernel->getInput()->set(kernel_function::X, xTable);

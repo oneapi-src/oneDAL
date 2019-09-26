@@ -105,16 +105,18 @@ public:
         _count = 0;
     }
 
-    DAAL_FORCEINLINE void push(const T & value)
+    DAAL_FORCEINLINE services::Status push(const T & value)
     {
         if (_count >= _size)
         {
-            grow();
+            DAAL_CHECK(grow(), services::ErrorMemoryAllocationFailed);
         }
 
         _top = (_top + 1) & _sizeMinus1;
         _data[_top] = value;
         ++_count;
+
+        return services::Status();
     }
 
     DAAL_FORCEINLINE T pop()
@@ -129,7 +131,7 @@ public:
 
     size_t size() const { return _count; }
 
-    void grow()
+    bool grow()
     {
         _size *= 2;
         T * const newData = static_cast<T *>(services::daal_malloc(_size * sizeof(T)));
@@ -143,6 +145,7 @@ public:
         _data = newData;
         services::daal_free(oldData);
         oldData = nullptr;
+        return true;
     }
 
 private:

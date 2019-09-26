@@ -50,6 +50,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
     lasso_regression::internal::ModelImpl* mImpl = new lasso_regression::internal::ModelImpl(in->getNumberOfFeatures(),
                                                                                     in->getNumberOfDependentVariables(),
                                                                                     *parameter, dummy, s);
+    DAAL_CHECK_MALLOC(mImpl)
     set(model, lasso_regression::ModelPtr(mImpl));
 
     if(parameter->optResultToCompute & computeGramMatrix)

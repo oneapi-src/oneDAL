@@ -49,15 +49,16 @@ services::Status ModelBuilder::convertModelInternal()
 
 services::Status ModelBuilder::initialize(size_t nFeatures, size_t nIterations)
 {
-    services::Status s;
-    _model.reset(new gbt::regression::internal::ModelImpl(nFeatures));
+    auto modelImpl = new gbt::regression::internal::ModelImpl(nFeatures);
+    DAAL_CHECK_MALLOC(modelImpl)
+    _model.reset(modelImpl);
     gbt::regression::internal::ModelImpl& modelImplRef = daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::regression::internal::ModelImpl,ModelPtr>(_model);
 
     modelImplRef.resize(nIterations);
     modelImplRef._impurityTables.reset();
     modelImplRef._nNodeSampleTables.reset();
     modelImplRef._nTree.set(nIterations);
-    return s;
+    return services::Status();
 }
 
 services::Status ModelBuilder::createTreeInternal(size_t nNodes, TreeId& resId)

@@ -70,7 +70,7 @@ namespace interface1
  * \tparam method           Decision stump model-based prediction method, \ref Method
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public PredictionContainerIface
+class BatchContainer : public PredictionContainerIface
 {
 public:
     /**

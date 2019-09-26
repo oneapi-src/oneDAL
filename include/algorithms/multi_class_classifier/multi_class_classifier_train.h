@@ -228,7 +228,7 @@ namespace interface2
  * \tparam method           Computation method of the algprithm, \ref daal::algorithms::multi_class_classifier::training::Method
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public TrainingContainerIface<batch>
+class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
     /**

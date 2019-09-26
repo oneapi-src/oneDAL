@@ -175,7 +175,7 @@ namespace interface2
  *  \brief Class containing computation methods for Decision tree model-based prediction
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public PredictionContainerIface
+class BatchContainer : public PredictionContainerIface
 {
 public:
     /**

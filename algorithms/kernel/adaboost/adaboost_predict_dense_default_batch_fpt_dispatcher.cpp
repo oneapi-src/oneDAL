@@ -38,30 +38,36 @@ namespace prediction
 {
 namespace interface2
 {
-
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(size_t nClasses)
+template <>
+Batch<DAAL_FPTYPE, adaboost::prediction::defaultDense>::Batch(size_t nClasses)
 {
     _par = new ParameterType(nClasses);
+    parameter().nClasses = nClasses;
     initialize();
 }
 
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other) :
-    classifier::prediction::Batch(other),
-    input(other.input)
+using BatchTypeDefault = Batch<DAAL_FPTYPE, adaboost::prediction::defaultDense>;
+template <>
+Batch<DAAL_FPTYPE, adaboost::prediction::defaultDense>::Batch(const BatchTypeDefault &other) : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
+template <>
+Batch<DAAL_FPTYPE, adaboost::prediction::sammeR>::Batch(size_t nClasses)
+{
+    _par = new ParameterType(nClasses);
+    parameter().nClasses = nClasses;
+    initialize();
+}
 
-#define INSTANTIATE_CONSTRUCTORS(algorithmFPType, method) \
-    template Batch<algorithmFPType, method>::Batch(size_t); \
-    template Batch<algorithmFPType, method>::Batch(const Batch &);
-
-INSTANTIATE_CONSTRUCTORS(DAAL_FPTYPE, adaboost::prediction::defaultDense);
-INSTANTIATE_CONSTRUCTORS(DAAL_FPTYPE, adaboost::prediction::sammeR);
-
+using BatchTypeSammeR = Batch<DAAL_FPTYPE, adaboost::prediction::sammeR>;
+template <>
+Batch<DAAL_FPTYPE, adaboost::prediction::sammeR>::Batch(const BatchTypeSammeR &other) : classifier::prediction::Batch(other), input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
 } // namespace interface2
 } // namespace prediction
 } // namespace adaboost
