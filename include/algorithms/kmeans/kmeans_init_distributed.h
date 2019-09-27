@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of the interface for initializing the K-Means algorithm
+//  Implementation of the interface for initializing K-Means algorithm
 //  in the distributed processing mode
 //--
 */
@@ -48,11 +48,11 @@ namespace interface2
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDCONTAINER"></a>
- * \brief Provides methods to run implementations of initialization of the K-Means algorithm.
+ * \brief Provides methods to run implementations of initialization of K-Means algorithm.
  *        This class is associated with the daal::algorithms::kmeans::init::Distributed class
- *        and supports the method of computing initial clusters for the K-Means algorithm in the distributed processing mode.
+ *        and supports the method of computing initial clusters for K-Means algorithm in the distributed processing mode.
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for the K-Means algorithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for K-Means algorithm, double or float
  * \tparam method           Method of computing initial clusters for the algorithm, \ref daal::algorithms::kmeans::init::Method
  */
 template<ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
@@ -60,7 +60,7 @@ class DistributedContainer;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDCONTAINER_STEP1LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
- * \brief Class containing methods for computing initial clusters for the K-Means algorithm in the first step of the distributed processing mode
+ * \brief Class containing methods for computing initial clusters for K-Means algorithm in the first step of the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public
@@ -68,7 +68,7 @@ class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public
 {
 public:
     /**
-     * Constructs a container for initializing the K-Means algorithm with a specified environment
+     * Constructs a container for initializing K-Means algorithm with a specified environment
      * in the first step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
@@ -76,12 +76,12 @@ public:
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
-     * Computes a partial result of the K-Means initialization algorithm in the first step of the
+     * Computes a partial result of K-Means initialization algorithm in the first step of the
      * distributed processing mode
      */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
     /**
-     * Computes the result of the K-Means initialization algorithm in the first step of the
+     * Computes the result of K-Means initialization algorithm in the first step of the
      * distributed processing mode
      */
     virtual services::Status finalizeCompute() DAAL_C11_OVERRIDE;
@@ -89,7 +89,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDCONTAINER_STEP2MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
- * \brief Class containing methods for computing initial clusters for the K-Means algorithm in the 2nd step of the distributed processing mode
+ * \brief Class containing methods for computing initial clusters for K-Means algorithm in the 2nd step of the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public
@@ -97,7 +97,7 @@ class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public
 {
 public:
     /**
-     * Constructs a container for initializing the K-Means algorithm with a specified environment
+     * Constructs a container for initializing K-Means algorithm with a specified environment
      * in the 2nd step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
@@ -105,12 +105,12 @@ public:
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
-     * Computes a partial result of the K-Means initialization algorithm in the 2nd step of the
+     * Computes a partial result of K-Means initialization algorithm in the 2nd step of the
      * distributed processing mode
      */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
     /**
-     * Computes the result of the K-Means initialization algorithm in the 2nd step of the
+     * Computes the result of K-Means initialization algorithm in the 2nd step of the
      * distributed processing mode
      */
     virtual services::Status finalizeCompute() DAAL_C11_OVERRIDE;
@@ -118,7 +118,7 @@ public:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDCONTAINER_STEP2LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
-* \brief Class containing methods for computing initial clusters for the K-Means algorithm in the 2nd step of the distributed processing mode
+* \brief Class containing methods for computing initial clusters for K-Means algorithm in the 2nd step of the distributed processing mode
 *        performed on a local node
 */
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -127,7 +127,7 @@ class DistributedContainer<step2Local, algorithmFPType, method, cpu> : public
 {
 public:
     /**
-    * Constructs a container for initializing the K-Means algorithm with a specified environment
+    * Constructs a container for initializing K-Means algorithm with a specified environment
     * in the 2nd step of the distributed processing mode
     * \param[in] daalEnv   Environment object
     */
@@ -135,12 +135,12 @@ public:
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
-    * Computes a partial result of the K-Means initialization algorithm in the 2nd step of the
+    * Computes a partial result of K-Means initialization algorithm in the 2nd step of the
     * distributed processing mode
     */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
     /**
-    * Computes the result of the K-Means initialization algorithm in the 2nd step of the
+    * Computes the result of K-Means initialization algorithm in the 2nd step of the
     * distributed processing mode
     */
     virtual services::Status finalizeCompute() DAAL_C11_OVERRIDE;
@@ -148,7 +148,7 @@ public:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDCONTAINER_STEP3MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
-* \brief Class containing methods for computing initial clusters for the K-Means algorithm in the 3rd step of the distributed processing mode
+* \brief Class containing methods for computing initial clusters for K-Means algorithm in the 3rd step of the distributed processing mode
 *        performed on the master mode
 */
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -157,7 +157,7 @@ class DistributedContainer<step3Master, algorithmFPType, method, cpu> : public
 {
 public:
     /**
-    * Constructs a container for initializing the K-Means algorithm with a specified environment
+    * Constructs a container for initializing K-Means algorithm with a specified environment
     * in the 3rd step of the distributed processing mode
     * \param[in] daalEnv   Environment object
     */
@@ -165,12 +165,12 @@ public:
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
-    * Computes a partial result of the K-Means initialization algorithm in the 3rd step of the
+    * Computes a partial result of K-Means initialization algorithm in the 3rd step of the
     * distributed processing mode
     */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
     /**
-    * Computes the result of the K-Means initialization algorithm in the 3rd step of the
+    * Computes the result of K-Means initialization algorithm in the 3rd step of the
     * distributed processing mode
     */
     virtual services::Status finalizeCompute() DAAL_C11_OVERRIDE;
@@ -178,7 +178,7 @@ public:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDCONTAINER_STEP4LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
-* \brief Class containing methods for computing initial clusters for the K-Means algorithm in the 4th step of the distributed processing mode
+* \brief Class containing methods for computing initial clusters for K-Means algorithm in the 4th step of the distributed processing mode
 *        performed on a local node
 */
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -187,7 +187,7 @@ class DistributedContainer<step4Local, algorithmFPType, method, cpu> : public
 {
 public:
     /**
-    * Constructs a container for initializing the K-Means algorithm with a specified environment
+    * Constructs a container for initializing K-Means algorithm with a specified environment
     * in the 4th step of the distributed processing mode
     * \param[in] daalEnv   Environment object
     */
@@ -195,12 +195,12 @@ public:
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
-    * Computes a partial result of the K-Means initialization algorithm in the 4th step of the
+    * Computes a partial result of K-Means initialization algorithm in the 4th step of the
     * distributed processing mode
     */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
     /**
-    * Computes the result of the K-Means initialization algorithm in the 4th step of the
+    * Computes the result of K-Means initialization algorithm in the 4th step of the
     * distributed processing mode
     */
     virtual services::Status finalizeCompute() DAAL_C11_OVERRIDE;
@@ -208,7 +208,7 @@ public:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDCONTAINER_STEP5MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
-* \brief Class containing methods for computing initial clusters for the K-Means algorithm in the 5th step of the distributed processing mode
+* \brief Class containing methods for computing initial clusters for K-Means algorithm in the 5th step of the distributed processing mode
 *        performed on the master node
 */
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -217,7 +217,7 @@ class DistributedContainer<step5Master, algorithmFPType, method, cpu> : public
 {
 public:
     /**
-    * Constructs a container for initializing the K-Means algorithm with a specified environment
+    * Constructs a container for initializing K-Means algorithm with a specified environment
     * in the 5th step of the distributed processing mode
     * \param[in] daalEnv   Environment object
     */
@@ -225,12 +225,12 @@ public:
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
-    * Computes a partial result of the K-Means initialization algorithm in the 5th step of the
+    * Computes a partial result of K-Means initialization algorithm in the 5th step of the
     * distributed processing mode
     */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
     /**
-    * Computes the result of the K-Means initialization algorithm in the 5th step of the
+    * Computes the result of K-Means initialization algorithm in the 5th step of the
     * distributed processing mode
     */
     virtual services::Status finalizeCompute() DAAL_C11_OVERRIDE;
@@ -238,7 +238,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTED"></a>
- *  \brief Base class representing an K-Means algorithm initialization in the distributed processing mode
+ *  \brief Base class representing K-Means algorithm initialization in the distributed processing mode
  */
 class DAAL_EXPORT DistributedBase : public daal::algorithms::Analysis<distributed>
 {
@@ -258,16 +258,16 @@ protected:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTED"></a>
- * \brief Computes initial clusters for the K-Means algorithm in the distributed processing mode
+ * \brief Computes initial clusters for K-Means algorithm in the distributed processing mode
  * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm initialization description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for the K-Means algorithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for K-Means algorithm, double or float
  * \tparam method           Method of computing initial clusters for the algorithm, \ref Method
  *
  * \par Enumerations
- *      - \ref Method   Methods of computing initial clusters for the K-Means algorithm
- *      - \ref InputId  Identifiers of input objects for computing initial clusters for the K-Means algorithm
- *      - \ref ResultId Identifiers of results of computing initial clusters for the K-Means algorithm
+ *      - \ref Method   Methods of computing initial clusters for K-Means algorithm
+ *      - \ref InputId  Identifiers of input objects for computing initial clusters for K-Means algorithm
+ *      - \ref ResultId Identifiers of results of computing initial clusters for K-Means algorithm
  *
  * \par References
  *      - Input  class
@@ -278,16 +278,16 @@ class DAAL_EXPORT Distributed;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTED_STEP1LOCAL_ALGORITHMFPTYPE_METHOD"></a>
- * \brief Computes initial clusters for the K-Means algorithm in the first step of the distributed processing mode
+ * \brief Computes initial clusters for K-Means algorithm in the first step of the distributed processing mode
  * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm initialization description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for the K-Means algorithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for K-Means algorithm, double or float
  * \tparam method            Method of computing initial clusters for the algorithm, \ref Method
  *
  * \par Enumerations
- *      - \ref Method   Methods of computing initial clusters for the K-Means algorithm
- *      - \ref InputId  Identifiers of input objects for computing initial clusters for the K-Means algorithm
- *      - \ref ResultId Identifiers of results of computing initial clusters for the K-Means algorithm
+ *      - \ref Method   Methods of computing initial clusters for K-Means algorithm
+ *      - \ref InputId  Identifiers of input objects for computing initial clusters for K-Means algorithm
+ *      - \ref ResultId Identifiers of results of computing initial clusters for K-Means algorithm
  *
  * \par References
  *      - Input  class
@@ -322,8 +322,8 @@ public:
     virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     /**
-     * Returns the structure that contains the results of computing initial clusters for the K-Means algorithm
-     * \return Structure that contains the results of computing initial clusters for the K-Means algorithm
+     * Returns the structure that contains the results of computing initial clusters for K-Means algorithm
+     * \return Structure that contains the results of computing initial clusters for K-Means algorithm
      */
     ResultPtr getResult()
     {
@@ -331,8 +331,8 @@ public:
     }
 
     /**
-     * Registers user-allocated memory to store the results of computing initial clusters for the K-Means algorithm
-     * \param[in] result  Structure to store the results of computing initial clusters for the K-Means algorithm
+     * Registers user-allocated memory to store the results of computing initial clusters for K-Means algorithm
+     * \param[in] result  Structure to store the results of computing initial clusters for K-Means algorithm
      */
     services::Status setResult(const ResultPtr& result)
     {
@@ -352,8 +352,8 @@ public:
     }
 
     /**
-     * Registers user-allocated memory to store partial results of computing initial clusters for the K-Means algorithm
-     * \param[in] partialRes  Structure to store partial results of computing initial clusters for the K-Means algorithm
+     * Registers user-allocated memory to store partial results of computing initial clusters for K-Means algorithm
+     * \param[in] partialRes  Structure to store partial results of computing initial clusters for K-Means algorithm
      */
     services::Status setPartialResult(const PartialResultPtr& partialRes)
     {
@@ -372,7 +372,7 @@ public:
     }
 
     /**
-     * Returns a pointer to the newly allocated algorithm that computes initial clusters for the K-Means algorithm
+     * Returns a pointer to the newly allocated algorithm that computes initial clusters for K-Means algorithm
      * with a copy of input objects and parameters of this algorithm
      * \return Pointer to the newly allocated algorithm
      */
@@ -425,16 +425,16 @@ private:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTED_STEP2MASTER_ALGORITHMFPTYPE_METHOD"></a>
- * \brief Computes initial clusters for the K-Means algorithm in the 2nd step of the distributed processing mode
+ * \brief Computes initial clusters for K-Means algorithm in the 2nd step of the distributed processing mode
  * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm initialization description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for the K-Means algorithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for K-Means algorithm, double or float
  * \tparam method           Method of computing initial clusters for the algorithm, \ref Method
  *
  * \par Enumerations
- *      - \ref Method   Methods of computing initial clusters for the K-Means algorithm
- *      - \ref InputId  Identifiers of input objects for computing initial clusters for the K-Means algorithm
- *      - \ref ResultId Identifiers of results of computing initial clusters for the K-Means algorithm
+ *      - \ref Method   Methods of computing initial clusters for K-Means algorithm
+ *      - \ref InputId  Identifiers of input objects for computing initial clusters for K-Means algorithm
+ *      - \ref ResultId Identifiers of results of computing initial clusters for K-Means algorithm
  *
  * \par References
  *      - Input  class
@@ -462,8 +462,8 @@ public:
     virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     /**
-     * Returns the structure that contains the results of computing initial clusters for the K-Means algorithm
-     * \return Structure that contains the results of computing initial clusters for the K-Means algorithm
+     * Returns the structure that contains the results of computing initial clusters for K-Means algorithm
+     * \return Structure that contains the results of computing initial clusters for K-Means algorithm
      */
     ResultPtr getResult()
     {
@@ -471,8 +471,8 @@ public:
     }
 
     /**
-     * Registers user-allocated memory to store the results of computing initial clusters for the K-Means algorithm
-     * \param[in] result  Structure to store the results of computing initial clusters for the K-Means algorithm */
+     * Registers user-allocated memory to store the results of computing initial clusters for K-Means algorithm
+     * \param[in] result  Structure to store the results of computing initial clusters for K-Means algorithm */
     services::Status setResult(const ResultPtr& result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
@@ -491,8 +491,8 @@ public:
     }
 
     /**
-     * Registers user-allocated memory to store partial results of computing initial clusters for the K-Means algorithm
-     * \param[in] partialRes  Structure to store partial results of computing initial clusters for the K-Means algorithm
+     * Registers user-allocated memory to store partial results of computing initial clusters for K-Means algorithm
+     * \param[in] partialRes  Structure to store partial results of computing initial clusters for K-Means algorithm
      */
     services::Status setPartialResult(const PartialResultPtr& partialRes)
     {
@@ -530,7 +530,7 @@ public:
     }
 
     /**
-     * Returns a pointer to the newly allocated algorithm that computes initial clusters for the K-Means algorithm
+     * Returns a pointer to the newly allocated algorithm that computes initial clusters for K-Means algorithm
      * with a copy of input objects and parameters of this algorithm
      * \return Pointer to the newly allocated algorithm
      */
@@ -590,7 +590,7 @@ private:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDPLUSPLUS"></a>
- *  \brief Base class representing an K-Means algorithm initialization in the distributed processing mode
+ *  \brief Base class representing K-Means algorithm initialization in the distributed processing mode
  */
 class DAAL_EXPORT DistributedStep2LocalPlusPlusBase : public daal::algorithms::Analysis<distributed>
 {
@@ -610,19 +610,19 @@ protected:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTED_STEP2LOCAL_ALGORITHMFPTYPE_METHOD"></a>
-* \brief Computes initial clusters for the K-Means algorithm in the 2nd step of the distributed processing mode.
+* \brief Computes initial clusters for K-Means algorithm in the 2nd step of the distributed processing mode.
 *        Used with plusPlus and parallelPlus methods only on a local node.
 * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm initialization description and usage models</a> -->
 *
-* \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for the K-Means algorithm, double or float
+* \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for K-Means algorithm, double or float
 * \tparam method            Method of computing initial clusters for the algorithm, \ref Method
 *
 * \par Enumerations
-*      - \ref Method   Methods of computing initial clusters for the K-Means algorithm
+*      - \ref Method   Methods of computing initial clusters for K-Means algorithm
 *      - \ref DistributedStep2LocalPlusPlusInputId
-*      - \ref DistributedLocalPlusPlusInputDataId Identifiers of input objects for computing initial clusters for the K-Means algorithm
+*      - \ref DistributedLocalPlusPlusInputDataId Identifiers of input objects for computing initial clusters for K-Means algorithm
 *             used with plusPlus and parallelPlus methods only.
-*      - \ref DistributedStep2LocalPlusPlusPartialResultId Identifiers of results of computing initial clusters for the K-Means algorithm
+*      - \ref DistributedStep2LocalPlusPlusPartialResultId Identifiers of results of computing initial clusters for K-Means algorithm
 *             used with plusPlus and parallelPlus methods only.
 *
 * \par References
@@ -666,8 +666,8 @@ public:
     }
 
     /**
-    * Registers user-allocated memory to store partial results of computing initial clusters for the K-Means algorithm
-    * \param[in] partialRes  Structure to store partial results of computing initial clusters for the K-Means algorithm
+    * Registers user-allocated memory to store partial results of computing initial clusters for K-Means algorithm
+    * \param[in] partialRes  Structure to store partial results of computing initial clusters for K-Means algorithm
     */
     services::Status setPartialResult(const DistributedStep2LocalPlusPlusPartialResultPtr& partialRes)
     {
@@ -686,7 +686,7 @@ public:
     }
 
     /**
-    * Returns a pointer to the newly allocated algorithm that computes initial clusters for the K-Means algorithm
+    * Returns a pointer to the newly allocated algorithm that computes initial clusters for K-Means algorithm
     * with a copy of input objects and parameters of this algorithm
     * \return Pointer to the newly allocated algorithm
     */
@@ -736,18 +736,18 @@ private:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTED_STEP3MASTER_ALGORITHMFPTYPE_METHOD"></a>
-* \brief Computes initial clusters for the K-Means algorithm in the 3rd step of the distributed processing mode.
+* \brief Computes initial clusters for K-Means algorithm in the 3rd step of the distributed processing mode.
 *        Used with plusPlus and parallelPlus methods only on the master node.
 * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm initialization description and usage models</a> -->
 *
-* \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for the K-Means algorithm, double or float
+* \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for K-Means algorithm, double or float
 * \tparam method            Method of computing initial clusters for the algorithm, \ref Method
 *
 * \par Enumerations
-*      - \ref Method   Methods of computing initial clusters for the K-Means algorithm
-*      - \ref DistributedStep3MasterPlusPlusInputId  Identifiers of input objects for computing initial clusters for the K-Means algorithm
+*      - \ref Method   Methods of computing initial clusters for K-Means algorithm
+*      - \ref DistributedStep3MasterPlusPlusInputId  Identifiers of input objects for computing initial clusters for K-Means algorithm
 *             used with plusPlus and parallelPlus methods only.
-*      - \ref DistributedStep3MasterPlusPlusPartialResultId Identifiers of results of computing initial clusters for the K-Means algorithm
+*      - \ref DistributedStep3MasterPlusPlusPartialResultId Identifiers of results of computing initial clusters for K-Means algorithm
 *             used with plusPlus and parallelPlus methods only.
 *
 * \par References
@@ -789,8 +789,8 @@ public:
     }
 
     /**
-    * Registers user-allocated memory to store partial results of computing initial clusters for the K-Means algorithm
-    * \param[in] partialRes  Structure to store partial results of computing initial clusters for the K-Means algorithm
+    * Registers user-allocated memory to store partial results of computing initial clusters for K-Means algorithm
+    * \param[in] partialRes  Structure to store partial results of computing initial clusters for K-Means algorithm
     */
     services::Status setPartialResult(const DistributedStep3MasterPlusPlusPartialResultPtr& partialRes)
     {
@@ -809,7 +809,7 @@ public:
     }
 
     /**
-    * Returns a pointer to the newly allocated algorithm that computes initial clusters for the K-Means algorithm
+    * Returns a pointer to the newly allocated algorithm that computes initial clusters for K-Means algorithm
     * with a copy of input objects and parameters of this algorithm
     * \return Pointer to the newly allocated algorithm
     */
@@ -859,18 +859,18 @@ private:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTED_STEP4LOCAL_ALGORITHMFPTYPE_METHOD"></a>
-* \brief Computes initial clusters for the K-Means algorithm in the 4th step of the distributed processing mode.
+* \brief Computes initial clusters for K-Means algorithm in the 4th step of the distributed processing mode.
 *        Used with plusPlus and parallelPlus methods only on a local node.
 * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm initialization description and usage models</a> -->
 *
-* \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for the K-Means algorithm, double or float
+* \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for K-Means algorithm, double or float
 * \tparam method            Method of computing initial clusters for the algorithm, \ref Method
 *
 * \par Enumerations
-*      - \ref Method   Methods of computing initial clusters for the K-Means algorithm
-*      - \ref DistributedStep4LocalPlusPlusInputId  Identifiers of input objects for computing initial clusters for the K-Means algorithm
+*      - \ref Method   Methods of computing initial clusters for K-Means algorithm
+*      - \ref DistributedStep4LocalPlusPlusInputId  Identifiers of input objects for computing initial clusters for K-Means algorithm
 *             used with plusPlus and parallelPlus methods only.
-*      - \ref DistributedStep4LocalPlusPlusPartialResultId Identifiers of results of computing initial clusters for the K-Means algorithm
+*      - \ref DistributedStep4LocalPlusPlusPartialResultId Identifiers of results of computing initial clusters for K-Means algorithm
 *             used with plusPlus and parallelPlus methods only.
 *
 * \par References
@@ -912,8 +912,8 @@ public:
     }
 
     /**
-    * Registers user-allocated memory to store partial results of computing initial clusters for the K-Means algorithm
-    * \param[in] partialRes  Structure to store partial results of computing initial clusters for the K-Means algorithm
+    * Registers user-allocated memory to store partial results of computing initial clusters for K-Means algorithm
+    * \param[in] partialRes  Structure to store partial results of computing initial clusters for K-Means algorithm
     */
     services::Status setPartialResult(const DistributedStep4LocalPlusPlusPartialResultPtr& partialRes)
     {
@@ -932,7 +932,7 @@ public:
     }
 
     /**
-    * Returns a pointer to the newly allocated algorithm that computes initial clusters for the K-Means algorithm
+    * Returns a pointer to the newly allocated algorithm that computes initial clusters for K-Means algorithm
     * with a copy of input objects and parameters of this algorithm
     * \return Pointer to the newly allocated algorithm
     */
@@ -981,18 +981,18 @@ private:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTED_STEP5MASTER_ALGORITHMFPTYPE_METHOD"></a>
-* \brief Computes initial clusters for the K-Means algorithm in the 5th step of the distributed processing mode.
+* \brief Computes initial clusters for K-Means algorithm in the 5th step of the distributed processing mode.
 *        Used with parallelPlus method only.
 * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm initialization description and usage models</a> -->
 *
-* \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for the K-Means algorithm, double or float
+* \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for K-Means algorithm, double or float
 * \tparam method            Method of computing initial clusters for the algorithm, \ref Method
 *
 * \par Enumerations
-*      - \ref Method   Methods of computing initial clusters for the K-Means algorithm
-*      - \ref DistributedStep5MasterPlusPlusInputId  Identifiers of input objects for computing initial clusters for the K-Means algorithm
+*      - \ref Method   Methods of computing initial clusters for K-Means algorithm
+*      - \ref DistributedStep5MasterPlusPlusInputId  Identifiers of input objects for computing initial clusters for K-Means algorithm
 *             used with plusPlus and parallelPlus methods only.
-*      - \ref DistributedStep5MasterPlusPlusPartialResultId Identifiers of results of computing initial clusters for the K-Means algorithm
+*      - \ref DistributedStep5MasterPlusPlusPartialResultId Identifiers of results of computing initial clusters for K-Means algorithm
 *             used with plusPlus and parallelPlus methods only.
 *
 * \par References
@@ -1027,8 +1027,8 @@ public:
     virtual int getMethod() const DAAL_C11_OVERRIDE{ return(int)method; }
 
     /**
-    * Returns the structure that contains the results of computing initial clusters for the K-Means algorithm
-    * \return Structure that contains the results of computing initial clusters for the K-Means algorithm
+    * Returns the structure that contains the results of computing initial clusters for K-Means algorithm
+    * \return Structure that contains the results of computing initial clusters for K-Means algorithm
     */
     ResultPtr getResult()
     {
@@ -1036,8 +1036,8 @@ public:
     }
 
     /**
-    * Registers user-allocated memory to store the results of computing initial clusters for the K-Means algorithm
-    * \param[in] result  Structure to store the results of computing initial clusters for the K-Means algorithm
+    * Registers user-allocated memory to store the results of computing initial clusters for K-Means algorithm
+    * \param[in] result  Structure to store the results of computing initial clusters for K-Means algorithm
     */
     services::Status setResult(const ResultPtr& result)
     {
@@ -1057,8 +1057,8 @@ public:
     }
 
     /**
-    * Registers user-allocated memory to store partial results of computing initial clusters for the K-Means algorithm
-    * \param[in] partialRes  Structure to store partial results of computing initial clusters for the K-Means algorithm
+    * Registers user-allocated memory to store partial results of computing initial clusters for K-Means algorithm
+    * \param[in] partialRes  Structure to store partial results of computing initial clusters for K-Means algorithm
     */
     services::Status setPartialResult(const DistributedStep5MasterPlusPlusPartialResultPtr& partialRes)
     {
@@ -1077,7 +1077,7 @@ public:
     }
 
     /**
-    * Returns a pointer to the newly allocated algorithm that computes initial clusters for the K-Means algorithm
+    * Returns a pointer to the newly allocated algorithm that computes initial clusters for K-Means algorithm
     * with a copy of input objects and parameters of this algorithm
     * \return Pointer to the newly allocated algorithm
     */
