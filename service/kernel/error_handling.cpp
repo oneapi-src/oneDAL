@@ -107,7 +107,7 @@ public:
 
         if (this->size() == 0)
         {
-            return SharedPtr<Message<IDType>>(new Message<IDType>(_noMessageFound, "NoErrorMessageFound"));
+            return services::SharedPtr<Message<IDType>>(new Message<IDType>(_noMessageFound, "NoErrorMessageFound"));
         }
 
         for (size_t i = 0; i < this->size() && found == false; i++)
@@ -119,7 +119,14 @@ public:
             }
         }
 
-        return found ? (*this)[index] : SharedPtr<Message<IDType>>(new Message<IDType>(_noMessageFound, "NoErrorMessageFound"));
+        if (found)
+        {
+            return (*this)[index];
+        }
+        else
+        {
+            return services::SharedPtr<Message<IDType>>(new Message<IDType>(_noMessageFound, "NoErrorMessageFound"));
+        }
     }
 
     /**
