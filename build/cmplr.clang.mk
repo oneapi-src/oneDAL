@@ -28,7 +28,7 @@ CORE.SERV.COMPILER.clang = generic
 -Zl.clang =
 -DEBC.clang = -g
 
-COMPILER.mac.clang = clang++ -D__int64="long long" -D__int32="int" -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.11
+COMPILER.mac.clang = clang++ -D__int64="long long" -D__int32="int" -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.11 -fwrapv
 COMPILER.fbsd.clang = clang++ -D__int64="long long" -D__int32="int" $(if $(IA_is_ia32),-m32,-m64) -fgnu-runtime -Wno-inconsistent-missing-override -nostdinc++ -I/usr/include/c++/v1 -I/usr/local/include
 
 link.dynamic.mac.clang = clang++ -m64
