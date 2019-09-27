@@ -106,7 +106,7 @@ public:
         size_t index = 0;
 
         if (this->size() == 0)
-        { 
+        {
             return SharedPtr<Message<IDType>>(new Message<IDType>(_noMessageFound, "No error message found"));
         }
 
