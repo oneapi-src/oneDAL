@@ -66,7 +66,7 @@ class Exception : public std::exception
 public:
     virtual ~Exception() throw() { }
 
-    void add(const Error &e)
+    void add(const SQLINTEGER &e)
     {
         _errors.push_back(e);
     }
@@ -80,7 +80,7 @@ public:
         }
     }
 
-    const std::vector<Error> &errors() const
+    const std::vector<SQLINTEGER> &errors() const
     {
         return _errors;
     }
@@ -91,16 +91,16 @@ private:
 inline Exception formatException(SQLSMALLINT handleType, SQLHANDLE handle)
 {
     Exception ex;
-
+    static const int SQL_STATE_SIZE = 6;
     SQLRETURN ret = SQL_SUCCESS;
     for (SQLRETURN i = 1; ret != SQL_NO_DATA; i++)
     {
-        Error e;
+        SQLINTEGER e;
         SQLCHAR state[SQL_STATE_SIZE];
         SQLCHAR text[SQL_MAX_MESSAGE_LENGTH];
         SQLSMALLINT messageActualSize;
         ret = SQLGetDiagRec(handleType, handle, i,
-                            state, &e.nativeErrorRef(),
+                            state, &e,
                             text, sizeof(text), &messageActualSize);
         if (SQL_SUCCEEDED(ret))
         {
