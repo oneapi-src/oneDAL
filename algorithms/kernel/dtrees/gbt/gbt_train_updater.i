@@ -151,7 +151,7 @@ protected:
 
     virtual void findBestSplit(SplitDataType& split, DAAL_INT& iFeature, DAAL_INT& idxFeatureValueBestSplit)
     {
-        _result = new (services::internal::service_scalable_malloc<MergedResultType, cpu>(1)) MergedResultType(_data.ctx.nFeaturesPerNode());
+        _result = new (services::internal::service_scalable_calloc<MergedResultType, cpu>(1)) MergedResultType(_data.ctx.nFeaturesPerNode());
 
         const IndexType* featureSample = chooseFeatures();
         iFeature = -1;
@@ -221,7 +221,7 @@ protected:
             task.execute();
         });
 
-        algorithmFPType** ptrs = services::internal::service_scalable_malloc<algorithmFPType*, cpu>(nBlocks);
+        algorithmFPType** ptrs = services::internal::service_scalable_calloc<algorithmFPType*, cpu>(nBlocks);
         size_t size;
         tls->reduceTo(ptrs, size);
 
@@ -264,8 +264,8 @@ public:
 
     virtual GbtTask* execute() DAAL_C11_OVERRIDE
     {
-        _result1 = new (services::internal::service_scalable_malloc<MergedResult<ResultType, cpu>, cpu>(1))MergedResult<ResultType, cpu>(_data.ctx.nFeaturesPerNode());
-        _result2 = new (services::internal::service_scalable_malloc<MergedResult<ResultType, cpu>, cpu>(1))MergedResult<ResultType, cpu>(_data.ctx.nFeaturesPerNode());
+        _result1 = new (services::internal::service_scalable_calloc<MergedResult<ResultType, cpu>, cpu>(1))MergedResult<ResultType, cpu>(_data.ctx.nFeaturesPerNode());
+        _result2 = new (services::internal::service_scalable_calloc<MergedResult<ResultType, cpu>, cpu>(1))MergedResult<ResultType, cpu>(_data.ctx.nFeaturesPerNode());
 
         DAAL_INT idxFeatureValueBestSplit1;
         DAAL_INT idxFeatureValueBestSplit2;
@@ -345,7 +345,7 @@ protected:
             task.execute();
         });
 
-        algorithmFPType** ptrs = services::internal::service_scalable_malloc<algorithmFPType*, cpu>(nBlocks);
+        algorithmFPType** ptrs = services::internal::service_scalable_calloc<algorithmFPType*, cpu>(nBlocks);
         size_t size;
         tls->reduceTo(ptrs, size);
 

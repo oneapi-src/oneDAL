@@ -82,7 +82,7 @@ public:
         res = 0;
         daal::tls<algorithmFPType *> normTls( [ = ]()-> algorithmFPType*
         {
-            algorithmFPType *normPtr = (algorithmFPType *)daal_malloc(sizeof(algorithmFPType));
+            algorithmFPType *normPtr = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(sizeof(algorithmFPType));
             DAAL_CHECK_STATUS_VAR(normPtr)
             *normPtr = 0;
             return normPtr;
@@ -131,7 +131,7 @@ public:
         }
         daal::tls<algorithmFPType *> normTls( [ = ]()-> algorithmFPType*
         {
-            algorithmFPType *normPtr = (algorithmFPType *)daal_malloc(sizeof(algorithmFPType));
+            algorithmFPType *normPtr = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(sizeof(algorithmFPType));
             DAAL_CHECK_STATUS_VAR(normPtr)
             *normPtr = 0;
             return normPtr;

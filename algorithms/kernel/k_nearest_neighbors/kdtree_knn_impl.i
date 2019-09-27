@@ -83,7 +83,7 @@ public:
 
     bool init(size_t size)
     {
-        _data = static_cast<T *>(services::daal_malloc(size * sizeof(T)));
+        _data = static_cast<T *>(services::internal::service_calloc<T, cpu>(size * sizeof(T)));
         _size = size;
         _top = _sizeMinus1 = size - 1;
         _count = 0;
@@ -134,7 +134,7 @@ public:
     bool grow()
     {
         _size *= 2;
-        T * const newData = static_cast<T *>(services::daal_malloc(_size * sizeof(T)));
+        T * const newData = static_cast<T *>(services::internal::service_calloc<T, cpu>(_size * sizeof(T)));
         if (_top == _sizeMinus1)
         {
             _top = _size - 1;

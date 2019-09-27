@@ -178,7 +178,7 @@ static void work_alloc(   algorithmFPType*  A,
     }
 
     *lwork = (size_t)tmpwork_q;
-    *work  = service_scalable_malloc<algorithmFPType,cpu>( *lwork );
+    *work  = service_scalable_calloc<algorithmFPType,cpu>( *lwork );
 
     return;
 
@@ -247,7 +247,7 @@ static void tsqr( algorithmFPType*  A,
 
     QR_CHECK_RETURN(nrows >= Rda, PCL_PARAMETER_ERROR);
 
-    algorithmFPType* R = service_scalable_malloc<algorithmFPType,cpu>( nthreads * ncols * ncols );
+    algorithmFPType* R = service_scalable_calloc<algorithmFPType,cpu>( nthreads * ncols * ncols );
     QR_CHECK_RETURN(R, PCL_MEMORY_ERROR);
 
     daal::threader_for( nthreads, nthreads, [&]( size_t tid )
@@ -261,7 +261,7 @@ static void tsqr( algorithmFPType*  A,
         algorithmFPType* R_local   = R   + tid*ncols;
         algorithmFPType* tau_local = tau + tid*tiles_per_thread*ncols + ncols;
 
-        algorithmFPType* a_local   = service_scalable_malloc<algorithmFPType,cpu>( local_tiles * ncols * ncols );
+        algorithmFPType* a_local   = service_scalable_calloc<algorithmFPType,cpu>( local_tiles * ncols * ncols );
         QR_CHECK_RETURN(a_local, PCL_MEMORY_ERROR);
 
         size_t start                     = tid * rows_per_thread;
@@ -527,7 +527,7 @@ static void tsgetq( algorithmFPType*  A,
 
     QR_CHECK_RETURN(nrows >= Rda, PCL_PARAMETER_ERROR);
 
-    algorithmFPType* R = service_scalable_malloc<algorithmFPType,cpu>( nthreads * ncols * ncols );
+    algorithmFPType* R = service_scalable_calloc<algorithmFPType,cpu>( nthreads * ncols * ncols );
     QR_CHECK_RETURN(R, PCL_MEMORY_ERROR);
 
     daal::threader_for( nthreads, nthreads, [&]( size_t tid )
@@ -591,8 +591,8 @@ static void tsgetq( algorithmFPType*  A,
         size_t start               = tid * rows_per_thread;
         size_t end                 = (tid == (nthreads-1))?nrows:(start + rows_per_thread );
 
-        algorithmFPType* a = service_scalable_malloc<algorithmFPType,cpu>( local_tiles * ncols * ncols );
-        algorithmFPType* b = service_scalable_malloc<algorithmFPType,cpu>( local_tiles * ncols * ncols );
+        algorithmFPType* a = service_scalable_calloc<algorithmFPType,cpu>( local_tiles * ncols * ncols );
+        algorithmFPType* b = service_scalable_calloc<algorithmFPType,cpu>( local_tiles * ncols * ncols );
 
         QR_CHECK_RETURN_FREE2(a && b, PCL_MEMORY_ERROR, a, b);
 
@@ -848,8 +848,8 @@ static void tsapplyq(  algorithmFPType*  A,
 
     QR_CHECK_RETURN(nrows >= Rda, PCL_PARAMETER_ERROR);
 
-    algorithmFPType* R  = service_scalable_malloc<algorithmFPType,cpu>( nthreads * ncols * ncols );
-    algorithmFPType* R2 = service_scalable_malloc<algorithmFPType,cpu>( nthreads * ncols * ncols );
+    algorithmFPType* R  = service_scalable_calloc<algorithmFPType,cpu>( nthreads * ncols * ncols );
+    algorithmFPType* R2 = service_scalable_calloc<algorithmFPType,cpu>( nthreads * ncols * ncols );
 
     QR_CHECK_RETURN_FREE2(R && R2, PCL_MEMORY_ERROR, R, R2);
 
@@ -951,8 +951,8 @@ static void tsapplyq(  algorithmFPType*  A,
         size_t start               = tid * rows_per_thread;
         size_t end                 = (tid == (nthreads-1))?nrows:(start + rows_per_thread );
 
-        algorithmFPType* a = service_scalable_malloc<algorithmFPType,cpu>( local_tiles * ncols * ncols );
-        algorithmFPType* b = service_scalable_malloc<algorithmFPType,cpu>( local_tiles * ncols * ncols );
+        algorithmFPType* a = service_scalable_calloc<algorithmFPType,cpu>( local_tiles * ncols * ncols );
+        algorithmFPType* b = service_scalable_calloc<algorithmFPType,cpu>( local_tiles * ncols * ncols );
 
         QR_CHECK_RETURN_FREE2(a && b, PCL_MEMORY_ERROR, a, b);
 
@@ -1172,7 +1172,7 @@ static int qr_pcl( const algorithmFPType *A_in,       /* nrows * ncols */
 
     do
     {
-        tau = service_scalable_malloc<algorithmFPType,cpu>( tau_size );
+        tau = service_scalable_calloc<algorithmFPType,cpu>( tau_size );
         QR_CHECK_BREAK(tau, PCL_MEMORY_ERROR);
 
         size_t num       = nrows * ncols;
@@ -1331,9 +1331,9 @@ static int svd_pcl(  algorithmFPType *A_in,      /* nrows * ncols */
     do
     {
         // memory allocators
-        V = service_scalable_malloc<algorithmFPType,cpu>( ncols * ncols );
-        R = service_scalable_malloc<algorithmFPType,cpu>( ncols * ncols );
-        tstau = service_scalable_malloc<algorithmFPType,cpu>( tau_size );
+        V = service_scalable_calloc<algorithmFPType,cpu>( ncols * ncols );
+        R = service_scalable_calloc<algorithmFPType,cpu>( ncols * ncols );
+        tstau = service_scalable_calloc<algorithmFPType,cpu>( tau_size );
         work_alloc<algorithmFPType,cpu>( R_out, ncols*nthreads, ncols, tstau, &lwork, &work, true /* is_svd */ );
 
         // allocator checks

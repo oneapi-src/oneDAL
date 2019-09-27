@@ -87,7 +87,7 @@ Compressor<bzip2>::Compressor() :
     data_management::CompressorImpl()
 {
     _strmp = NULL;
-    _strmp = (void *)daal::services::daal_malloc(sizeof(bz_stream));
+    _strmp = (void *)daal::services::daal_calloc(sizeof(bz_stream));
     if (_strmp == NULL)
     {
         this->_errors->add(services::ErrorMemoryAllocationFailed);
@@ -329,7 +329,7 @@ Decompressor<bzip2>::Decompressor() :
     data_management::DecompressorImpl()
 {
     _strmp = NULL;
-    _strmp = (void *)daal::services::daal_malloc(sizeof(bz_stream));
+    _strmp = (void *)daal::services::daal_calloc(sizeof(bz_stream));
     if (_strmp == NULL)
     {
         this->_errors->add(services::ErrorMemoryAllocationFailed);

@@ -29,6 +29,21 @@ void *daal::services::daal_malloc(size_t size, size_t alignment)
     return daal::internal::Service<>::serv_malloc(size, alignment);
 }
 
+void *daal::services::daal_calloc(size_t size, size_t alignment)
+{
+    void *ptr = daal::services::daal_malloc(size, alignment);
+    if( ptr == NULL ) { return NULL; }
+
+    char *cptr = (char *)ptr;
+
+    for (size_t i = 0; i < size; i++)
+    {
+        cptr[i] = '\0';
+    }
+
+    return ptr;
+}
+
 void daal::services::daal_free(void *ptr)
 {
     daal::internal::Service<>::serv_free(ptr);
