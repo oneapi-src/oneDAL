@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of the K-Means algorithm interface.
+//  Implementation of K-Means algorithm interface.
 //--
 */
 
@@ -39,12 +39,12 @@ namespace algorithms
  * @ingroup kmeans
  * @{
  */
-/** \brief Contains classes of the K-Means algorithm */
+/** \brief Contains classes of K-Means algorithm */
 namespace kmeans
 {
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__METHOD"></a>
- * Available methods of the K-Means algorithm
+ * Available methods of K-Means algorithm
  */
 enum Method
 {
@@ -65,7 +65,7 @@ enum DistanceType
 
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INPUTID"></a>
- * \brief Available identifiers of input objects for the K-Means algorithm
+ * \brief Available identifiers of input objects for K-Means algorithm
  */
 enum InputId
 {
@@ -76,7 +76,7 @@ enum InputId
 
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__MASTERINPUTID"></a>
- * \brief Available identifiers of input objects for the K-Means algorithm in the distributed processing mode
+ * \brief Available identifiers of input objects for K-Means algorithm in the distributed processing mode
  */
 enum MasterInputId
 {
@@ -86,7 +86,7 @@ enum MasterInputId
 
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__PARTIALRESULTID"></a>
- * \brief Available identifiers of partial results of the K-Means algorithm in the distributed processing mode
+ * \brief Available identifiers of partial results of K-Means algorithm in the distributed processing mode
  */
 enum PartialResultId
 {
@@ -102,7 +102,7 @@ enum PartialResultId
 
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__RESULTID"></a>
- * \brief Available identifiers of results of the K-Means algorithm
+ * \brief Available identifiers of results of K-Means algorithm
  */
 enum ResultId
 {
@@ -121,7 +121,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__PARAMETER"></a>
- * \brief Parameters for the K-Means algorithm
+ * \brief Parameters for K-Means algorithm
  * \par Enumerations
  *      - \ref DistanceType Methods for distance computation
  *
@@ -131,15 +131,15 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     /**
-     *  Constructs parameters of the K-Means algorithm
+     *  Constructs parameters of K-Means algorithm
      *  \param[in] _nClusters   Number of clusters
      *  \param[in] _maxIterations Number of iterations
      */
     Parameter(size_t _nClusters, size_t _maxIterations);
 
     /**
-     *  Constructs parameters of the K-Means algorithm by copying another parameters of the K-Means algorithm
-     *  \param[in] other    Parameters of the K-Means algorithm
+     *  Constructs parameters of K-Means algorithm by copying another parameters of K-Means algorithm
+     *  \param[in] other    Parameters of K-Means algorithm
      */
     Parameter(const Parameter &other);
 
@@ -156,7 +156,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INPUTIFACE"></a>
- * \brief Interface for input objects for the the K-Means algorithm in the batch and distributed processing modes
+ * \brief Interface for input objects for K-Means algorithm in the batch and distributed processing modes
  */
 class DAAL_EXPORT InputIface : public daal::algorithms::Input
 {
@@ -168,7 +168,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INPUT"></a>
- * \brief %Input objects for the K-Means algorithm
+ * \brief %Input objects for K-Means algorithm
  */
 class DAAL_EXPORT Input : public InputIface
 {
@@ -177,14 +177,14 @@ public:
     virtual ~Input() {}
 
     /**
-     * Returns an input object for the K-Means algorithm
+     * Returns an input object for K-Means algorithm
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
     data_management::NumericTablePtr get(InputId id) const;
 
     /**
-     * Sets an input object for the K-Means algorithm
+     * Sets an input object for K-Means algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
@@ -198,7 +198,7 @@ public:
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
 
     /**
-     * Checks input objects for the K-Means algorithm
+     * Checks input objects for K-Means algorithm
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method of the algorithm
      */
@@ -207,7 +207,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__PARTIALRESULT"></a>
- * \brief Partial results obtained with the compute() method of the K-Means algorithm in the batch processing mode
+ * \brief Partial results obtained with the compute() method of K-Means algorithm in the batch processing mode
  */
 class DAAL_EXPORT PartialResult : public daal::algorithms::PartialResult
 {
@@ -218,7 +218,7 @@ public:
     virtual ~PartialResult() {};
 
     /**
-     * Allocates memory to store partial results of the K-Means algorithm
+     * Allocates memory to store partial results of K-Means algorithm
      * \param[in] input        Pointer to the structure of the input objects
      * \param[in] parameter    Pointer to the structure of the algorithm parameters
      * \param[in] method       Computation method of the algorithm
@@ -227,14 +227,14 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
     /**
-     * Returns a partial result of the K-Means algorithm
+     * Returns a partial result of K-Means algorithm
      * \param[in] id   Identifier of the partial result
      * \return         Partial result that corresponds to the given identifier
      */
     data_management::NumericTablePtr get(PartialResultId id) const;
 
     /**
-     * Sets a partial result of the K-Means algorithm
+     * Sets a partial result of K-Means algorithm
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the object
      */
@@ -248,7 +248,7 @@ public:
     size_t getNumberOfFeatures() const;
 
     /**
-     * Checks partial results of the K-Means algorithm
+     * Checks partial results of K-Means algorithm
      * \param[in] input   %Input object of the algorithm
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
@@ -256,7 +256,7 @@ public:
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
-     * Checks partial results of the K-Means algorithm
+     * Checks partial results of K-Means algorithm
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
      */
@@ -274,7 +274,7 @@ typedef services::SharedPtr<PartialResult> PartialResultPtr;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__RESULT"></a>
- * \brief Results obtained with the compute() method of the K-Means algorithm in the batch processing mode
+ * \brief Results obtained with the compute() method of K-Means algorithm in the batch processing mode
  */
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
@@ -285,7 +285,7 @@ public:
     virtual ~Result() {};
 
     /**
-     * Allocates memory to store the results of the K-Means algorithm
+     * Allocates memory to store the results of K-Means algorithm
      * \param[in] input     Pointer to the structure of the input objects
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
@@ -294,7 +294,7 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
     /**
-     * Allocates memory to store the results of the K-Means algorithm
+     * Allocates memory to store the results of K-Means algorithm
      * \param[in] partialResult Pointer to the partial result structure
      * \param[in] parameter     Pointer to the structure of the algorithm parameters
      * \param[in] method        Computation method
@@ -303,21 +303,21 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method);
 
     /**
-     * Returns the result of the K-Means algorithm
+     * Returns the result of K-Means algorithm
      * \param[in] id   Result identifier
      * \return         Result that corresponds to the given identifier
      */
     data_management::NumericTablePtr get(ResultId id) const;
 
     /**
-     * Sets the result of the K-Means algorithm
+     * Sets the result of K-Means algorithm
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the object
      */
     void set(ResultId id, const data_management::NumericTablePtr &ptr);
 
     /**
-     * Checks the result of the K-Means algorithm
+     * Checks the result of K-Means algorithm
      * \param[in] input   %Input objects for the algorithm
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
@@ -325,7 +325,7 @@ public:
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
-     * Checks the results of the K-Means algorithm
+     * Checks the results of K-Means algorithm
      * \param[in] pres    Partial results of the algorithm
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
@@ -344,7 +344,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__DISTRIBUTEDSTEP2MASTERINPUT"></a>
- * \brief %Input objects for the K-Means algorithm in the distributed processing mode
+ * \brief %Input objects for K-Means algorithm in the distributed processing mode
  */
 class DAAL_EXPORT DistributedStep2MasterInput : public InputIface
 {
@@ -354,21 +354,21 @@ public:
     virtual ~DistributedStep2MasterInput() {}
 
     /**
-     * Returns an input object for the K-Means algorithm in the second step of the distributed processing mode
+     * Returns an input object for K-Means algorithm in the second step of the distributed processing mode
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
     data_management::DataCollectionPtr get(MasterInputId id) const;
 
     /**
-     * Sets an input object for the K-Means algorithm in the second step of the distributed processing mode
+     * Sets an input object for K-Means algorithm in the second step of the distributed processing mode
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
     void set(MasterInputId id, const data_management::DataCollectionPtr &ptr);
 
     /**
-     * Adds partial results computed on local nodes to the input for the K-Means algorithm
+     * Adds partial results computed on local nodes to the input for K-Means algorithm
      * in the second step of the distributed processing mode
      * \param[in] id    Identifier of the input object
      * \param[in] value Pointer to the object
@@ -383,7 +383,7 @@ public:
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
 
     /**
-     * Checks an input object for the K-Means algorithm in the second step of the distributed processing mode
+     * Checks an input object for K-Means algorithm in the second step of the distributed processing mode
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
      */

@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of the interface for the K-Means algorithm in the batch
+//  Implementation of the interface for K-Means algorithm in the batch
 //  processing mode
 //--
 */
@@ -46,7 +46,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__BATCHCONTAINER"></a>
- * \brief Provides methods to run implementations of the K-Means algorithm.
+ * \brief Provides methods to run implementations of K-Means algorithm.
  *        This class is associated with the daal::algorithms::kmeans::Batch class
  *        and supports the method of K-Means computation in the batch processing mode
  *
@@ -58,7 +58,7 @@ class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
     /**
-     * Constructs a container for the K-Means algorithm with a specified environment
+     * Constructs a container for K-Means algorithm with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
@@ -66,23 +66,23 @@ public:
     /** Default destructor */
     virtual ~BatchContainer();
     /**
-     * Computes the result of the K-Means algorithm in the batch processing mode
+     * Computes the result of K-Means algorithm in the batch processing mode
      */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__BATCH"></a>
- * \brief Computes the results of the K-Means algorithm in the batch processing mode
+ * \brief Computes the results of K-Means algorithm in the batch processing mode
  * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of K-Means, double or float
  * \tparam method           Computation method of the algorithm, \ref Method
  *
  * \par Enumerations
- *      - \ref Method   Computation methods for the K-Means algorithm
- *      - \ref InputId  Identifiers of input objects for the K-Means algorithm
- *      - \ref ResultId Identifiers of results of the K-Means algorithm
+ *      - \ref Method   Computation methods for K-Means algorithm
+ *      - \ref InputId  Identifiers of input objects for K-Means algorithm
+ *      - \ref ResultId Identifiers of results of K-Means algorithm
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = lloydDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
@@ -103,7 +103,7 @@ public:
     }
 
     /**
-     * Constructs a K-Means algorithm by copying input objects and parameters
+     * Constructs K-Means algorithm by copying input objects and parameters
      * of another K-Means algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
@@ -122,8 +122,8 @@ public:
     virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     /**
-     * Returns the structure that contains the results of the K-Means algorithm
-     * \return Structure that contains the results of the K-Means algorithm
+     * Returns the structure that contains the results of K-Means algorithm
+     * \return Structure that contains the results of K-Means algorithm
      */
     ResultPtr getResult()
     {
@@ -131,8 +131,8 @@ public:
     }
 
     /**
-     * Registers user-allocated  memory  to store the results of the K-Means algorithm
-     * \param[in] result  Structure to store the results of the K-Means algorithm
+     * Registers user-allocated  memory  to store the results of K-Means algorithm
+     * \param[in] result  Structure to store the results of K-Means algorithm
      */
     services::Status setResult(const ResultPtr& result)
     {
