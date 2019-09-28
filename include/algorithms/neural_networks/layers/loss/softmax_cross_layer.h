@@ -69,12 +69,17 @@ namespace interface1
  * \par References
  *      - \ref forward::interface1::Batch "forward::Batch" class
  *      - \ref backward::interface1::Batch "backward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public loss::Batch
 {
 public:
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED_USE{ prediction::Result::get(ResultId id)  }
+     */
     Batch()
     {
         forward::Batch<algorithmFPType, method> *forwardLayerObject = new forward::Batch<algorithmFPType, method>(parameter);

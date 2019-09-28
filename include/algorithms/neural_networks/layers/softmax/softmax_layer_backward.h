@@ -54,6 +54,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SOFTMAX__BACKWARD__BATCHCONTAINER"></a>
  * \brief Class containing methods for the backward softmax layer using algorithmFPType precision arithmetic
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
@@ -63,10 +64,14 @@ public:
     * Constructs a container for the backward softmax layer with a specified environment
     * in the batch processing mode
     * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
     */
-    BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    /**
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of the backward softmax layer in the batch processing mode
      *
@@ -91,6 +96,8 @@ public:
  *
  * \par References
  *      - \ref forward::interface1::Batch "forward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public layers::backward::LayerIfaceImpl
@@ -105,8 +112,11 @@ public:
     ParameterType &parameter; /*!< softmax layer \ref interface1::Parameter "parameters" structure */
     InputType input;         /*!< %Input objects of the layer */
 
-    /** Default constructor */
-    Batch() : parameter(_defaultParameter)
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Batch() : parameter(_defaultParameter)
     {
         initialize();
     }
@@ -115,8 +125,9 @@ public:
      * Constructs a backward softmax layer in the batch processing mode
      * and initializes its parameter with the provided parameter
      * \param[in] parameter Parameter to initialize the parameter of the layer
+     * \DAAL_DEPRECATED
      */
-    Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
+    DAAL_DEPRECATED Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
     {
         initialize();
     }
@@ -126,6 +137,7 @@ public:
      * and parameters of another backward softmax layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
+     * \DAAL_DEPRECATED_USE{ cloneImpl() }
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)

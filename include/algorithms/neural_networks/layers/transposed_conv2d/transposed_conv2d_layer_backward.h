@@ -60,6 +60,8 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations of backward 2D transposed convolution layer, double or float
  * \tparam method           Computation method of the layer, \ref daal::algorithms::neural_networks::layers::transposed_conv2d::Method
  * \tparam cpu              Version of the cpu-specific implementation of the layer, \ref daal::CpuType
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public AnalysisContainerIface<batch>
@@ -69,10 +71,14 @@ public:
      * Constructs a container for the backward 2D transposed convolution layer with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    /**
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of the backward 2D transposed convolution layer in the batch processing mode
      *
@@ -99,6 +105,8 @@ public:
  *      - Input class
  *      - Result class
  *      - forward::interface1::Batch class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public layers::backward::LayerIfaceImpl
@@ -113,8 +121,11 @@ public:
     ParameterType &parameter; /*!< \ref interface1::Parameter "Parameters" of the layer */
     InputType input;          /*!< %Input objects of the layer */
 
-    /** Default constructor */
-    Batch() : parameter(_defaultParameter)
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Batch() : parameter(_defaultParameter)
     {
         initialize();
     };
@@ -123,8 +134,9 @@ public:
      * Constructs a backward 2D transposed convolution layer in the batch processing mode
      * and initializes its parameter with the provided parameter
      * \param[in] parameter Parameter to initialize the parameter of the layer
+     * \DAAL_DEPRECATED
      */
-    Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
+    DAAL_DEPRECATED Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
     {
         initialize();
     }
@@ -133,6 +145,7 @@ public:
      * Constructs a backward 2D transposed convolution layer by copying input objects and parameters of another 2D transposed convolution layer
      * \param[in] other A layer to be used as the source to initialize the input objects
      *                  and parameters of this layer
+     * \DAAL_DEPRECATED_USE{ cloneImpl() }
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)

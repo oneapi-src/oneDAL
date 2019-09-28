@@ -78,12 +78,14 @@ namespace interface1
  * \brief Parameters for the abs layer
  *
  * \snippet neural_networks/layers/abs/abs_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
 {
     /**
      * Constructs the parameters of the abs layer
+     * \DAAL_DEPRECATED_USE{ forward::Batch() }
      */
     Parameter();
 };

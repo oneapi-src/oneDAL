@@ -40,6 +40,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__PREDICTION__TOPOLOGY"></a>
  * \brief Class defining a neural network topology - a set of layers and connection between them -
  *        on the prediction stage
+ * \DAAL_DEPRECATED
  */
 class Topology: public Base
 {
@@ -47,14 +48,18 @@ protected:
     typedef services::Collection<layers::forward::LayerDescriptor> Descriptors;
 
 public:
-    /** Default constructor */
-    Topology() {}
+    /*
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Topology() {}
 
     /**
      * Constructs neural network topology for prediction algorithm by copying layers of topology used for training algoritnm
      * \param[in] t  Neural network topology to be used as the source to initialize layers
+     * \DAAL_DEPRECATED
      */
-    Topology(const training::Topology &t) : _config(t.size())
+    DAAL_DEPRECATED Topology(const training::Topology &t) : _config(t.size())
     {
         for(size_t i = 0; i < _config.size(); ++i)
         {
@@ -68,8 +73,9 @@ public:
     /**
      * Constructs neural network topology by copying layers of another topology
      * \param[in] t  Neural network topology to be used as the source to initialize layers
+     * \DAAL_DEPRECATED
      */
-    Topology(const Topology &t) : _config(t.size())
+    DAAL_DEPRECATED Topology(const Topology &t) : _config(t.size())
     {
         for(size_t i = 0; i < t.size(); i++)
         {
@@ -80,13 +86,15 @@ public:
     /**
      * Number of layers in the topology
      * \return Size of the collection
+     * \DAAL_DEPRECATED_USE{ Topology(const Topology &t) }
      */
     size_t size() const { return _config.size(); }
 
     /**
-     *  Adds an element to the collection of layers and assigns the next available id to it
-     *  \param[in] layer Element to add
-     *  \return Index of the element
+     * Adds an element to the collection of layers and assigns the next available id to it
+     * \param[in] layer Element to add
+     * \return Index of the element
+     * \DAAL_DEPRECATED_USE{ Topology::add(const layers::forward::LayerIfacePtr &layer) }
      */
     size_t push_back(const layers::forward::LayerIfacePtr &layer)
     {
@@ -96,22 +104,24 @@ public:
     }
 
     /**
-    *  Adds an element to the collection of layers and assigns the next available id to it
-    *  \param[in] layer Element to add
-    *  \return    Index of the element
-    */
-    size_t add(const layers::forward::LayerIfacePtr &layer)
+     * Adds an element to the collection of layers and assigns the next available id to it
+     * \param[in] layer Element to add
+     * \return    Index of the element
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED size_t add(const layers::forward::LayerIfacePtr &layer)
     {
         return push_back(layer);
     }
 
     /**
-    *  Adds a block of elements to the collection of layers
-    *  \param[in] topologyBlock Block to add
-    *  \param[in] startIndex    Index of the first element of the block in topology
-    *  \return    Index of the last element of the block in topology
-    */
-    size_t add(const Topology &topologyBlock, size_t &startIndex)
+     * Adds a block of elements to the collection of layers
+     * \param[in] topologyBlock Block to add
+     * \param[in] startIndex    Index of the first element of the block in topology
+     * \return    Index of the last element of the block in topology
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED size_t add(const Topology &topologyBlock, size_t &startIndex)
     {
         size_t size = _config.size();
         startIndex = size;
@@ -133,8 +143,9 @@ public:
      *  Clears a topology: removes all layer descriptors and sets size to 0
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status clear()
+    DAAL_DEPRECATED services::Status clear()
     {
         _config.clear();
         return services::Status();
@@ -144,13 +155,15 @@ public:
      * Element access
      * \param[in] index Index of an accessed element
      * \return    Reference to the element
+     * \DAAL_DEPRECATED
      */
-    layers::forward::LayerDescriptor& operator [] (size_t index) { return _config[index]; }
+    DAAL_DEPRECATED layers::forward::LayerDescriptor& operator [] (size_t index) { return _config[index]; }
 
     /**
      * Const element access
      * \param[in] index Index of an accessed element
      * \return    Reference to the element
+     * \DAAL_DEPRECATED_USE{ Topology(const Topology &t) }
      */
     const layers::forward::LayerDescriptor& operator [] (size_t index) const { return _config[index]; }
 
@@ -158,25 +171,28 @@ public:
      * Element access
      * \param[in] index Index of an accessed element
      * \return    Reference to the element
+     * \DAAL_DEPRECATED
      */
-    layers::forward::LayerDescriptor& get(size_t index) { return _config[index]; }
+    DAAL_DEPRECATED layers::forward::LayerDescriptor& get(size_t index) { return _config[index]; }
 
     /**
      * Const element access
      * \param[in] index Index of an accessed element
      * \return    Reference to the element
+     * \DAAL_DEPRECATED
      */
-    const layers::forward::LayerDescriptor& get(size_t index) const { return _config[index]; }
+    DAAL_DEPRECATED const layers::forward::LayerDescriptor& get(size_t index) const { return _config[index]; }
 
 
     /**
-    * Adds next layer to the given layer
-    * \param[in] index Index of the layer to add next layer
-    * \param[in] next Index of the next layer
-    * \DAAL_DEPRECATED_USE{ Topology::get } Following with LayerDescriptor::addNext method.
-    *
-    * \return Status of computations
-    */
+     * Adds next layer to the given layer
+     * \param[in] index Index of the layer to add next layer
+     * \param[in] next Index of the next layer
+     * \DAAL_DEPRECATED_USE{ Topology::get } Following with LayerDescriptor::addNext method.
+     *
+     * \return Status of computations
+     * \DAAL_DEPRECATED_USE{ Topology::add(const Topology &topologyBlock, size_t &startIndex) }
+     */
     services::Status addNext(size_t index, size_t next)
     {
         _config[index].addNext(next);

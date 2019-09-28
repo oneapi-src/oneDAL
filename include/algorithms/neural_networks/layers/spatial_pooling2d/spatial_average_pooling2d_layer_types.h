@@ -76,10 +76,14 @@ namespace interface1
  * \brief Parameters for the spatial pyramid average 2D pooling layer
  *
  * \snippet neural_networks/layers/spatial_pooling2d/spatial_average_pooling2d_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public spatial_pooling2d::Parameter
 {
+    /*
+     * \DAAL_DEPRECATED_USE{ Batch(size_t pyramidHeight, size_t nDimensions) }
+     */
     Parameter(size_t pyramidHeight, size_t firstIndex, size_t secondIndex);
 };
 /* [Parameter source code] */

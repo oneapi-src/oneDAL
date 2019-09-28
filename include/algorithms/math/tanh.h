@@ -47,6 +47,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MATH__TANH__BATCHCONTAINER"></a>
  * \brief Class containing methods for the hyperbolic tangent function computing using algorithmFPType precision arithmetic
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
@@ -56,10 +57,14 @@ public:
      * Constructs a container for the hyperbolic tangent function with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    /**
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of the hyperbolic tangent function in the batch processing mode
      *
@@ -81,6 +86,8 @@ public:
  *      - \ref Method   Computation methods for the hyperbolic tangent function
  *      - \ref InputId  Identifiers of input objects for the hyperbolic tangent function
  *      - \ref ResultId %Result identifiers for the the hyperbolic tangent function
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
@@ -89,8 +96,11 @@ public:
     typedef algorithms::math::tanh::Input  InputType;
     typedef algorithms::math::tanh::Result ResultType;
 
-    /** Default constructor */
-    Batch()
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Batch()
     {
         initialize();
     }
@@ -98,6 +108,7 @@ public:
     /**
      * Constructs the hyperbolic tangent function by copying input objects of another hyperbolic tangent function
      * \param[in] other function to be used as the source to initialize the input objects of the hyperbolic tangent function
+     * \DAAL_DEPRECATED_USE{ cloneImpl() }
      */
     Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
     {

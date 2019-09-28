@@ -73,6 +73,7 @@ enum LayerDataId
 
 /**
  * \brief Data structure representing the indices of the two dimensions on which local contrast normalization is performed
+ * \DAAL_DEPRECATED
  */
 struct Indices
 {
@@ -80,8 +81,9 @@ struct Indices
     * Constructs the structure representing the indices of the two dimensions on which local contrast normalization is performed
     * \param[in]  first  The first dimension index
     * \param[in]  second The second dimension index
+    * \DAAL_DEPRECATED
     */
-    Indices(size_t first, size_t second) { dims[0] = first; dims[1] = second; }
+    DAAL_DEPRECATED Indices(size_t first, size_t second) { dims[0] = first; dims[1] = second; }
     size_t dims[2];
 };
 
@@ -90,12 +92,14 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__LCN__PARAMETER"></a>
  * \brief local contrast normalization layer parameters
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Parameter: public layers::Parameter
 {
 public:
     /**
      *  Default constructor
+     * \DAAL_DEPRECATED_USE{ Batch() }
      */
     Parameter();
 
@@ -108,8 +112,9 @@ public:
      * Checks the correctness of the parameter
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface1

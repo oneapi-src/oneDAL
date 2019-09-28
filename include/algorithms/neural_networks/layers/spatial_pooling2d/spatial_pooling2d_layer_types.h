@@ -57,6 +57,7 @@ namespace interface1
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING2D__SPATIALDIMENSIONS"></a>
  * \brief Data structure representing the indices of the two dimensions on which pooling is performed
+ * \DAAL_DEPRECATED
  */
 struct Indices
 {
@@ -64,8 +65,9 @@ struct Indices
      * Constructs the structure representing the indices of the two dimensions on which pooling is performed
      * \param[in]  first  The first dimension index
      * \param[in]  second The second dimension index
+     * \DAAL_DEPRECATED
      */
-    Indices(size_t first = 2, size_t second = 3) { size[0] = first; size[1] = second; }
+    DAAL_DEPRECATED Indices(size_t first = 2, size_t second = 3) { size[0] = first; size[1] = second; }
     size_t size[2];
 };
 
@@ -74,6 +76,7 @@ struct Indices
  * \brief Parameters for the forward and backward two-dimensional spatial layers
  *
  * \snippet neural_networks/layers/spatial_pooling2d/spatial_pooling2d_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
@@ -83,6 +86,7 @@ struct DAAL_EXPORT Parameter: public layers::Parameter
      * \param[in] _pyramidHeight     The value of pyramid height
      * \param[in] firstIndex         Index of the first of two dimensions on which the spatial is performed
      * \param[in] secondIndex        Index of the second of two dimensions on which the spatial is performed
+     * \DAAL_DEPRECATED_USE{ layers::spatial_stochastic_pooling2d::Parameter() }
      */
     Parameter(size_t _pyramidHeight, size_t firstIndex, size_t secondIndex);
 

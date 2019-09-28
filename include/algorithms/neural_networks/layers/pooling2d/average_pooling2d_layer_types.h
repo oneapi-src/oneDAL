@@ -101,6 +101,7 @@ struct DAAL_EXPORT Parameter: public pooling2d::Parameter
      *                              of the 2D subtensor on which the pooling is performed
      * \param[in] secondPadding     Number of data elements to implicitly add to the the second dimension
      *                              of the 2D subtensor on which the pooling is performed
+     * \DAAL_DEPRECATED_USE{ forward::Batch(size_t nDimensions) }
      */
     Parameter(size_t firstIndex, size_t secondIndex, size_t firstKernelSize = 2, size_t secondKernelSize = 2,
               size_t firstStride = 2, size_t secondStride = 2, size_t firstPadding = 0, size_t secondPadding = 0);

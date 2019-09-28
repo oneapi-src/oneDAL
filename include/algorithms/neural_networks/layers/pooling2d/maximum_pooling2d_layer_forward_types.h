@@ -62,6 +62,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__MAXIMUM_POOLING2D__FORWARD__INPUT"></a>
  * \brief %Input objects for the forward maximum 2D pooling layer
  * See \ref pooling2d::forward::interface1::Input "pooling2d::forward::Input"
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public pooling2d::forward::Input
 {};
@@ -70,14 +71,21 @@ class DAAL_EXPORT Input : public pooling2d::forward::Input
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__MAXIMUM_POOLING2D__FORWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
  *        of the forward maximum 2D pooling layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public pooling2d::forward::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED_USE{ initialize() }
+     */
     Result();
-    virtual ~Result() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
 
     using layers::forward::Result::get;
     using layers::forward::Result::set;
@@ -89,6 +97,7 @@ public:
      * \param[in] method Computation method for the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -97,29 +106,33 @@ public:
      * Returns the result of the forward maximum 2D pooling layer
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(LayerDataId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(LayerDataId id) const;
 
     /**
      * Returns the result of the forward maximum 2D pooling layer
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::NumericTablePtr get(LayerDataNumericTableId id) const;
+    DAAL_DEPRECATED data_management::NumericTablePtr get(LayerDataNumericTableId id) const;
 
     /**
      * Sets the result of the forward maximum 2D pooling layer
      * \param[in] id Identifier of the result
      * \param[in] ptr Result
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataId id, const data_management::TensorPtr &ptr);
+    DAAL_DEPRECATED void set(LayerDataId id, const data_management::TensorPtr &ptr);
 
     /**
      * Sets the result of the forward maximum 2D pooling layer
      * \param[in] id Identifier of the result
      * \param[in] ptr Result
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataNumericTableId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(LayerDataNumericTableId id, const data_management::NumericTablePtr &ptr);
 
     /**
      * Checks the result of the forward maximum 2D pooling layer
@@ -128,11 +141,15 @@ public:
      * \param[in] method    Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {

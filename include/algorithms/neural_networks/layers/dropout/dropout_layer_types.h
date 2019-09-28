@@ -78,6 +78,7 @@ namespace interface1
  * \brief Parameters for the dropout layer
  *
  * \snippet neural_networks/layers/dropout/dropout_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 class DAAL_EXPORT Parameter: public layers::Parameter
@@ -87,6 +88,7 @@ public:
     *  Constructs parameters of the dropout layer
     *  \param[in] retainRatio_ Probability that any particular element is retained
     *  \param[in] seed_        Seed for mask elements random generation \DAAL_DEPRECATED_USE{ engine }
+    * \DAAL_DEPRECATED_USE{ Batch() }
     */
     Parameter(const double retainRatio_ = 0.5, const size_t seed_ = 777);
 
@@ -97,8 +99,9 @@ public:
      * Checks the correctness of the parameter
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status check() const;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check() const;
 };
 /* [Parameter source code] */
 

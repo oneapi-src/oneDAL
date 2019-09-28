@@ -66,6 +66,8 @@ namespace interface1
  * \par References
  *      - \ref forward::interface1::Batch  "forward::Batch" class
  *      - \ref backward::interface1::Batch "backward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public LayerIface
@@ -74,8 +76,9 @@ public:
     Parameter parameter; /*!< Parameters of the layer */
     /**
      *  \param[in] nOutputs A number of layer outputs
+     * \DAAL_DEPRECATED
      */
-    Batch(size_t nOutputs): parameter(nOutputs)
+    DAAL_DEPRECATED Batch(size_t nOutputs): parameter(nOutputs)
     {
         forward::Batch<algorithmFPType, method> *forwardLayerObject = new forward::Batch<algorithmFPType, method>(parameter);
         backward::Batch<algorithmFPType, method> *backwardLayerObject = new backward::Batch<algorithmFPType, method>(parameter);

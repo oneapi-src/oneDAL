@@ -60,15 +60,22 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__DROPOUT__FORWARD__INPUT"></a>
  * \brief %Input objects for the forward dropout layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::forward::Input
 {
 public:
     typedef layers::forward::Input super;
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED_USE{ Batch() }
+     */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     */
     Input(const Input& other);
 
     /**
@@ -84,14 +91,16 @@ public:
     /**
      * Returns dimensions of weights tensor
      * \return Dimensions of weights tensor
+     * \DAAL_DEPRECATED
      */
-    virtual const services::Collection<size_t> getWeightsSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getWeightsSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
 
     /**
      * Returns dimensions of biases tensor
      * \return Dimensions of biases tensor
+     * \DAAL_DEPRECATED
      */
-    virtual const services::Collection<size_t> getBiasesSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getBiasesSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks input object of the forward dropout layer
@@ -99,24 +108,35 @@ public:
      * \param[in] method  Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
-    virtual ~Input() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__DROPOUT__FORWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
  *        of the forward dropout layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::forward::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED_USE{ initialize() }
+     */
     Result();
-    virtual ~Result() {};
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
 
     /**
      * Returns the result of the forward dropout layer
@@ -132,15 +152,17 @@ public:
      * Returns the result of the forward dropout layer
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(LayerDataId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(LayerDataId id) const;
 
     /**
      * Sets the result of the forward dropout layer
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(LayerDataId id, const data_management::TensorPtr &value);
 
     /**
      * Checks the result of the forward dropout layer
@@ -149,8 +171,9 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Allocates memory to store the result of the forward dropout layer
@@ -159,6 +182,7 @@ public:
      * \param[in] parameter %Parameter of the forward dropout layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -166,12 +190,16 @@ public:
     /**
      * Returns dimensions of value tensor
      * \return Dimensions of value tensor
+     * \DAAL_DEPRECATED
      */
-    virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
+    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
                                                             const daal::algorithms::Parameter *par, const int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    /** \private */
+    /**
+     * \DAAL_DEPRECATED\private
+     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {

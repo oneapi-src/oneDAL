@@ -71,13 +71,17 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__LOSS__FORWARD__INPUT"></a>
  * \brief %Input objects for the forward loss layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::forward::Input
 {
 public:
     typedef layers::forward::Input super;
-    /** Default constructor */
-    Input(size_t nElements = lastInputId + 1);
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Input(size_t nElements = lastInputId + 1);
 
     /**
      * Returns an input object for the forward loss layer
@@ -93,25 +97,29 @@ public:
      * Returns input Tensor of the loss layer algorithm
      * \param[in] id    Identifier of the input tensor
      * \return          %Input tensor that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(forward::InputId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(forward::InputId id) const;
 
     /**
      * Sets input for the loss layer algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
+     * \DAAL_DEPRECATED
      */
-    void set(InputId id, const data_management::TensorPtr &ptr);
+    DAAL_DEPRECATED void set(InputId id, const data_management::TensorPtr &ptr);
 
     /**
      * Returns dimensions of weights tensor
      * \return Dimensions of weights tensor
+     * \DAAL_DEPRECATED
      */
-    virtual const services::Collection<size_t> getWeightsSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getWeightsSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
 
     /**
      * Returns dimensions of biases tensor
      * \return Dimensions of biases tensor
+     * \DAAL_DEPRECATED
      */
     virtual const services::Collection<size_t> getBiasesSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
 
@@ -122,13 +130,20 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__LOSS__FORWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
  *        of the forward loss layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::forward::Result
 {
 public:
-    /** Default constructor */
-    Result();
-    virtual ~Result() {};
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Result();
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
 
     /**
      * Returns the result of the forward loss layer
@@ -147,6 +162,7 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::forward::Result::check() }
      */
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
@@ -157,6 +173,7 @@ public:
      * \param[in] parameter %Parameter of the forward loss layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -164,6 +181,7 @@ public:
     /**
      * Returns dimensions of value tensor
      * \return Dimensions of value tensor
+     * \DAAL_DEPRECATED
      */
     virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
             const daal::algorithms::Parameter *par, const int method) const DAAL_C11_OVERRIDE;

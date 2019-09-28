@@ -81,6 +81,7 @@ namespace interface1
  * \brief Parameters for the prelu layer
  *
  * \snippet neural_networks/layers/prelu/prelu_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 class DAAL_EXPORT Parameter: public layers::Parameter
@@ -90,6 +91,7 @@ public:
     *  Constructs parameters of the prelu layer
     *  \param[in] _dataDimension    Starting data dimension index to apply weight
     *  \param[in] _weightsDimension Number of weight dimensions
+    * \DAAL_DEPRECATED_USE{ forward::Batch() }
     */
     Parameter(const size_t _dataDimension = 0, const size_t _weightsDimension = 1);
 
@@ -100,8 +102,9 @@ public:
      * Checks the correctness of the parameter
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status check() const;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check() const;
 };
 /* [Parameter source code] */
 

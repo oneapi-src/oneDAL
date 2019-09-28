@@ -77,6 +77,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__CONCAT__PARAMETER"></a>
  * \brief concat layer parameters
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Parameter: public layers::Parameter
 {
@@ -84,6 +85,7 @@ public:
     /**
     *  Constructs parameters of the forward concat layer
     *  \param[in] concatDimension   Index of dimension along which concatenation is implemented
+    * \DAAL_DEPRECATED_USE{ forward::Batch(size_t concatDimension = 0) }
     */
     Parameter(size_t concatDimension = 0);
 

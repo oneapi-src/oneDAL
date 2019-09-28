@@ -80,6 +80,7 @@ namespace interface1
  * \brief Parameters for the forward and backward batch normalization layers
  *
  * \snippet neural_networks/layers/batch_normalization/batch_normalization_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
@@ -89,6 +90,7 @@ struct DAAL_EXPORT Parameter: public layers::Parameter
      * \param[in] alpha             Smoothing factor that is used in population mean and population variance computations
      * \param[in] epsilon           A constant added to the mini-batch variance for numerical stability
      * \param[in] dimension         Index of the dimension for which the normalization is performed
+     * \DAAL_DEPRECATED_USE{ forward::Batch() }
      */
     Parameter(double alpha = 0.01, double epsilon = 0.00001, size_t dimension = 1);
 

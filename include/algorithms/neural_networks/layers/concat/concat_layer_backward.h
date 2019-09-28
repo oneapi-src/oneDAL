@@ -65,6 +65,8 @@ namespace interface1
 * \tparam algorithmFPType  Data type to use in intermediate computations of backward concat layer, double or float
 * \tparam method           Computation method of the layer, \ref daal::algorithms::neural_networks::layers::concat::Method
 * \tparam cpu              Version of the cpu-specific implementation of the layer, \ref daal::CpuType
+*
+* \DAAL_DEPRECATED
 */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public AnalysisContainerIface<batch>
@@ -74,16 +76,21 @@ public:
     * Constructs a container for the backward concat layer with a specified environment
     * in the batch processing mode
     * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
     */
-    BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    /**
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of the backward concat layer in the batch processing mode
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -102,6 +109,8 @@ public:
  *
  * \par References
  *      - \ref forward::interface1::Batch "forward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public layers::backward::LayerIfaceImpl
@@ -119,8 +128,9 @@ public:
     /**
     * Constructs backward concat layer
     * \param[in] concatDimension   Index of dimension along which concatenation is implemented
+    * \DAAL_DEPRECATED
     */
-    Batch(size_t concatDimension = 0) : _defaultParameter(concatDimension), parameter(_defaultParameter)
+    DAAL_DEPRECATED Batch(size_t concatDimension = 0) : _defaultParameter(concatDimension), parameter(_defaultParameter)
     {
         initialize();
     };
@@ -130,8 +140,9 @@ public:
      * Constructs a backward concat layer in the batch processing mode
      * and initializes its parameter with the provided parameter
      * \param[in] parameter Parameter to initialize the parameter of the layer
+     * \DAAL_DEPRECATED
      */
-    Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
+    DAAL_DEPRECATED Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
     {
         initialize();
     }
@@ -141,6 +152,7 @@ public:
      * another backward concat layer in the batch processing mode
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  of the backward concat layer
+     * \DAAL_DEPRECATED_USE{ cloneImpl() }
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -151,26 +163,30 @@ public:
     /**
     * Returns method of the backward concat layer
     * \return Method of the backward concat layer
+     * \DAAL_DEPRECATED
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     /**
      * Returns the structure that contains input objects of concat layer
      * \return Structure that contains input objects of concat layer
+     * \DAAL_DEPRECATED
      */
-    virtual InputType *getLayerInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED_VIRTUAL virtual InputType *getLayerInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
     * Returns the structure that contains parameters of the backward concat layer
     * \return Structure that contains parameters of the backward concat layer
+    * \DAAL_DEPRECATED
     */
-    virtual ParameterType *getLayerParameter() DAAL_C11_OVERRIDE { return &parameter; };
+    DAAL_DEPRECATED_VIRTUAL virtual ParameterType *getLayerParameter() DAAL_C11_OVERRIDE { return &parameter; };
 
     /**
      * Returns the structure that contains the result of the backward concat layer
      * \return Structure that contains the result of the backward concat layer
+     * \DAAL_DEPRECATED
      */
-    layers::backward::ResultPtr getLayerResult() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED layers::backward::ResultPtr getLayerResult() DAAL_C11_OVERRIDE
     {
         return _result;
     }
@@ -178,8 +194,9 @@ public:
     /**
      * Returns the structure that contains the result of the backward concat layer
      * \return Structure that contains the result of backward concat layer
+     * \DAAL_DEPRECATED
      */
-    ResultPtr getResult()
+    DAAL_DEPRECATED ResultPtr getResult()
     {
         return _result;
     }
@@ -189,8 +206,9 @@ public:
      * \param[in] result  Structure to store  results of the backward concat layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status setResult(const ResultPtr& result)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr& result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
@@ -202,8 +220,9 @@ public:
      * Returns a pointer to a newly allocated backward concat layer
      * with a copy of input objects of this backward concat layer
      * \return Pointer to the newly allocated algorithm
+     * \DAAL_DEPRECATED
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
@@ -212,8 +231,9 @@ public:
     * Allocates memory to store the result of the backward concat layer
     *
      * \return Status of computations
+     * \DAAL_DEPRECATED
     */
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = this->_result->template allocate<algorithmFPType>(&(this->input), &parameter, (int) method);
         this->_res = this->_result.get();
@@ -221,12 +241,18 @@ public:
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, method>(*this);
     }
 
-    void initialize()
+    /*
+     * \DAAL_DEPRECATED_USE{ Batch(size_t concatDimension = 0) }
+     */
+   void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _in = &input;

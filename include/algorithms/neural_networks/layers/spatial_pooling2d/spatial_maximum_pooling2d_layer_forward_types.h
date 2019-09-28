@@ -62,6 +62,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPATIAL_MAXIMUM_POOLING2D__FORWARD__INPUT"></a>
  * \brief %Input objects for the forward spatial pyramid maximum 2D pooling layer
  * See \ref pooling2d::forward::interface1::Input "pooling2d::forward::Input"
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public spatial_pooling2d::forward::Input
 {};
@@ -70,14 +71,21 @@ class DAAL_EXPORT Input : public spatial_pooling2d::forward::Input
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPATIAL_MAXIMUM_POOLING2D__FORWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
  *        of the forward spatial pyramid maximum 2D pooling layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public spatial_pooling2d::forward::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED_USE{ initialize() }
+     */
     Result();
-    virtual ~Result() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
 
     using layers::forward::Result::get;
     using layers::forward::Result::set;

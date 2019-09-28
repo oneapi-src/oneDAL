@@ -47,6 +47,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MATH__RELU__BATCHCONTAINER"></a>
  * \brief Class containing methods for the rectified linear function computing using algorithmFPType precision arithmetic
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
@@ -56,14 +57,19 @@ public:
      * Constructs a container for the rectified linear function with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
     BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
+    /**
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
     ~BatchContainer();
     /**
      * Computes the result of the rectified linear function in the batch processing mode
      *
      * \return Status of computation
+     * \DAAL_DEPRECATED
      */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
 };
@@ -81,6 +87,8 @@ public:
  *      - \ref Method   Computation methods for the rectified linear function
  *      - \ref InputId  Identifiers of input objects for the rectified linear function
  *      - \ref ResultId %Result identifiers for the rectified linear function
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
@@ -89,7 +97,10 @@ public:
     typedef algorithms::math::relu::Input  InputType;
     typedef algorithms::math::relu::Result ResultType;
 
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     */
     Batch()
     {
         initialize();
@@ -98,6 +109,7 @@ public:
     /**
      * Constructs the rectified linear function by copying input objects of another rectified linear function
      * \param[in] other function to be used as the source to initialize the input objects of the rectified linear function
+     * \DAAL_DEPRECATED_USE{ cloneImpl() }
      */
     Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
     {

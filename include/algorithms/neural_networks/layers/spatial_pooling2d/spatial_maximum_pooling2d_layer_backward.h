@@ -66,6 +66,8 @@ class BatchContainer : public AnalysisContainerIface<batch>
  * \tparam algorithmFPType  Data type to use in intermediate computations of backward spatial pyramid maximum 2D pooling layer, double or float
  * \tparam method           Computation method of the layer, spatial_maximum_pooling2d::Method
  * \tparam cpu              Version of the cpu-specific implementation of the layer, \ref daal::CpuType
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, CpuType cpu>
 class BatchContainer<algorithmFPType, defaultDense, cpu> : public AnalysisContainerIface<batch>
@@ -75,10 +77,14 @@ public:
      * Constructs a container for the backward spatial pyramid maximum 2D pooling layer with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    /**
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of the backward spatial pyramid maximum 2D pooling layer in the batch processing mode
      *
@@ -104,6 +110,8 @@ public:
  *
  * \par References
  *      - \ref forward::interface1::Batch "forward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public layers::backward::LayerIfaceImpl
@@ -122,8 +130,9 @@ public:
      * Constructs backward spatial pyramid maximum 2D pooling layer with the provided parameters
      * \param[in] nDimensions    Number of dimensions in input data tensor
      * \param[in] pyramidHeight  The value of pyramid height
+     * \DAAL_DEPRECATED
      */
-    Batch(size_t pyramidHeight, size_t nDimensions) : _defaultParameter(pyramidHeight, nDimensions - 2, nDimensions - 1), parameter(_defaultParameter)
+    DAAL_DEPRECATED Batch(size_t pyramidHeight, size_t nDimensions) : _defaultParameter(pyramidHeight, nDimensions - 2, nDimensions - 1), parameter(_defaultParameter)
     {
         initialize();
     }
@@ -132,8 +141,9 @@ public:
      * Constructs a backward spatial pyramid maximum 2D pooling layer in the batch processing mode
      * and initializes its parameter with the provided parameter
      * \param[in] parameter Parameter to initialize the parameter of the layer
+     * \DAAL_DEPRECATED
      */
-    Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
+    DAAL_DEPRECATED Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
     {
         initialize();
     }
@@ -143,6 +153,7 @@ public:
      * and parameters of another backward spatial pyramid maximum 2D pooling layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the layer
+     * \DAAL_DEPRECATED_USE{ cloneImpl() }
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)

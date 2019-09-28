@@ -68,6 +68,8 @@ namespace interface1
  * \par References
  *      - \ref forward::interface1::Batch "forward::Batch" class
  *      - \ref backward::interface1::Batch "backward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public LayerIface
@@ -77,8 +79,9 @@ public:
     /**
      * Constructs the maximum 1D pooling layer
      * \param[in] nDimensions Number of dimensions in input gradient tensor
+     * \DAAL_DEPRECATED
      */
-    Batch(size_t nDimensions) : parameter(nDimensions - 1)
+    DAAL_DEPRECATED Batch(size_t nDimensions) : parameter(nDimensions - 1)
     {
         forward::Batch<algorithmFPType, method> *forwardLayerObject = new forward::Batch<algorithmFPType, method>(parameter);
         backward::Batch<algorithmFPType, method> *backwardLayerObject = new backward::Batch<algorithmFPType, method>(parameter);

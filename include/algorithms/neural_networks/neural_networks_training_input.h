@@ -98,58 +98,74 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__TRAINING__INPUT"></a>
  * \brief Input objects of the neural network training algorithm
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
+    /**
+     * \DAAL_DEPRECATED_USE{ Batch(SharedPtr<optimization_solver::iterative_solver::Batch > optimizationSolver_) }
+     */
     Input(size_t nElements = lastInputCollectionId + 1);
+    /**
+     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     */
     Input(const Input& other);
 
-    virtual ~Input() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     /**
      * Returns %input object for the neural network training algorithm
      * \param[in] id    Identifier of the %input object
      * \return          %Input object that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(InputId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(InputId id) const;
 
     /**
      * Returns %input object for the neural network training algorithm
      * \param[in] id    Identifier of the %input object
      * \return          %Input object that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::KeyValueDataCollectionPtr get(InputCollectionId id) const;
+    DAAL_DEPRECATED data_management::KeyValueDataCollectionPtr get(InputCollectionId id) const;
 
     /**
      * Returns %input object for the neural network training algorithm
      * \param[in] id    Identifier of the %input object
      * \param[in] key   Key to use to retrieve data
      * \return          %Input object that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(InputCollectionId id, size_t key) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(InputCollectionId id, size_t key) const;
 
     /**
      * Sets %input object for the neural network training algorithm
      * \param[in] id      Identifier of the %input object
      * \param[in] value   Pointer to the %input object
+     * \DAAL_DEPRECATED
      */
-    void set(InputId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(InputId id, const data_management::TensorPtr &value);
 
     /**
      * Sets %input object for the neural network training algorithm
      * \param[in] id      Identifier of the %input object
      * \param[in] value   Pointer to the %input object
+     * \DAAL_DEPRECATED
      */
-    void set(InputCollectionId id, const data_management::KeyValueDataCollectionPtr &value);
+    DAAL_DEPRECATED void set(InputCollectionId id, const data_management::KeyValueDataCollectionPtr &value);
 
     /**
      * Sets %input object for the neural network training algorithm
      * \param[in] id      Identifier of the %input object
      * \param[in] key     Key to use to retrieve data
      * \param[in] value   Pointer to the %input object
+     * \DAAL_DEPRECATED
      */
-    void add(InputCollectionId id, size_t key, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void add(InputCollectionId id, size_t key, const data_management::TensorPtr &value);
 
     /**
      * Checks %input object for the neural network algorithm
@@ -157,16 +173,21 @@ public:
      * \param[in] method  Computatiom method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED_USE{ DistributedInput<step1Local>::check() }
      */
     services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    services::Status checkImpl(const daal::algorithms::Parameter *par, int method) const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status checkImpl(const daal::algorithms::Parameter *par, int method) const;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__TRAINING__DISTRIBUTEDINPUT"></a>
  * \brief Input objects of the neural network training algorithm in the distributed processing mode
+ * \DAAL_DEPRECATED
  */
 template<ComputeStep step>
 class DAAL_EXPORT DistributedInput
@@ -175,15 +196,25 @@ class DAAL_EXPORT DistributedInput
 /**
  * <a name="DAAL-CLASS-NEURAL_NETWORKS__TRAINING__DISTRIBUTEDINPUT_STEP1LOCAL"></a>
  * \brief Input objects of the neural network training algorithm in the distributed processing mode
+ * \DAAL_DEPRECATED
  */
 template<>
 class DAAL_EXPORT DistributedInput<step1Local> : public Input
 {
 public:
+    /*
+     * \DAAL_DEPRECATED_USE{ Distributed<step1Local>::Distributed() }
+     */
     DistributedInput(size_t nElements = lastStep1LocalInputId + 1);
+    /*
+     * \DAAL_DEPRECATED_USE{ Distributed(const Distributed<step1Local, algorithmFPType, method> &other) }
+     */
     DistributedInput(const DistributedInput& other);
 
-    virtual ~DistributedInput() {};
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~DistributedInput() {};
 
     using Input::set;
     using Input::get;
@@ -192,15 +223,17 @@ public:
      * Returns %input object for the neural network training algorithm
      * \param[in] id    Identifier of the %input object
      * \return          %Input object that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    ModelPtr get(Step1LocalInputId id) const;
+    DAAL_DEPRECATED ModelPtr get(Step1LocalInputId id) const;
 
     /**
      * Sets %input object for the neural network training algorithm
      * \param[in] id      Identifier of the %input object
      * \param[in] value   Pointer to the %input object
+     * \DAAL_DEPRECATED
      */
-    void set(Step1LocalInputId id, const ModelPtr &value);
+    DAAL_DEPRECATED void set(Step1LocalInputId id, const ModelPtr &value);
 
     /**
      * Checks %input object for the neural network algorithm
@@ -208,44 +241,55 @@ public:
      * \param[in] method  Computatiom method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-NEURAL_NETWORKS__TRAINING__DISTRIBUTEDINPUT_STEP2MASTER"></a>
  * \brief Input objects of the neural network training algorithm
+ * \DAAL_DEPRECATED
  */
 template<>
 class DAAL_EXPORT DistributedInput<step2Master> : public daal::algorithms::Input
 {
 public:
+    /**
+     * DAAL_DEPRECATED_USE{ Distributed<step2Master>(const SharedPtr<optimization_solver::iterative_solver::Batch >& optimizationSolver_) }
+     */
     DistributedInput();
+    /**
+     * DAAL_DEPRECATED_USE{ Distributed(const Distributed<step2Master, algorithmFPType, method> &other) }
+     */
     DistributedInput(const DistributedInput& other);
 
-    virtual ~DistributedInput() {};
+    DAAL_DEPRECATED_VIRTUAL virtual ~DistributedInput() {};
 
     /**
      * Returns %input object for the neural network training algorithm
      * \param[in] id    Identifier of the %input object
      * \return          %Input object that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::KeyValueDataCollectionPtr get(Step2MasterInputId id) const;
+    DAAL_DEPRECATED data_management::KeyValueDataCollectionPtr get(Step2MasterInputId id) const;
 
     /**
      * Sets %input object for the neural network training algorithm
      * \param[in] id      Identifier of the %input object
      * \param[in] value   Pointer to the %input object
+     * \DAAL_DEPRECATED
      */
-    void set(Step2MasterInputId id, const data_management::KeyValueDataCollectionPtr &value);
+    DAAL_DEPRECATED void set(Step2MasterInputId id, const data_management::KeyValueDataCollectionPtr &value);
 
     /**
      * Adds input object to KeyValueDataCollection of the neural network distributed training algorithm
      * \param[in] id    Identifier of input object
      * \param[in] key   Key to use to retrieve data
      * \param[in] value Pointer to the input object value
+     * \DAAL_DEPRECATED
      */
-    void add(Step2MasterInputId id, size_t key, const PartialResultPtr &value);
+    DAAL_DEPRECATED void add(Step2MasterInputId id, size_t key, const PartialResultPtr &value);
 
     /**
      * Checks %input object for the neural network algorithm
@@ -253,8 +297,9 @@ public:
      * \param[in] method  Computatiom method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface1

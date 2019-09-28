@@ -74,57 +74,67 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__PREDICTION__RESULT"></a>
  * \brief Provides methods to access result obtained with the compute() method of the neural networks prediction algorithm
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
 
+    /*
+     * \DAAL_DEPRECATED_USE{ Batch::initialize() }
+     */
     Result();
 
     /**
      * Returns the result of the neural networks model based prediction
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(ResultId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(ResultId id) const;
 
     /**
      * Returns the result of the neural networks model based prediction
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::KeyValueDataCollectionPtr get(ResultCollectionId id) const;
+    DAAL_DEPRECATED data_management::KeyValueDataCollectionPtr get(ResultCollectionId id) const;
 
     /**
      * Returns the result of the neural networks model based prediction
      * \param[in] id    Identifier of the result
      * \param[in] key   Index of the tensor with partial results in the key-value data collection
      * \return          Result that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(ResultCollectionId id, size_t key) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(ResultCollectionId id, size_t key) const;
 
     /**
      * Sets the result of neural networks model based prediction
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
+     * \DAAL_DEPRECATED
      */
-    void set(ResultId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(ResultId id, const data_management::TensorPtr &value);
 
     /**
      * Sets the result of neural networks model based prediction
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
+     * \DAAL_DEPRECATED
      */
-    void set(ResultCollectionId id, const data_management::KeyValueDataCollectionPtr &value);
+    DAAL_DEPRECATED void set(ResultCollectionId id, const data_management::KeyValueDataCollectionPtr &value);
 
     /**
      * Add the value to the key-value data collection of partial results
      * \param[in] id    Identifier of the result
      * \param[in] key   Key to use to retrieve data
      * \param[in] value Result
+     * \DAAL_DEPRECATED
      */
-    void add(ResultCollectionId id, size_t key, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void add(ResultCollectionId id, size_t key, const data_management::TensorPtr &value);
 
     /**
      * Registers user-allocated memory to store partial results of the neural networks model based prediction
@@ -133,6 +143,7 @@ public:
      * \param[in] parameter %Parameter of the neural networks prediction
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED_USE{ Batch::allocateResult() }
      */
     template<typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -144,11 +155,15 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    /** \private */
+    /*
+     * \private
+     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {

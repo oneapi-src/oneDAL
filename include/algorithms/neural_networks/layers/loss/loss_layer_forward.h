@@ -63,6 +63,8 @@ namespace interface1
  * \par References
  *      - \ref interface1::Parameter "Parameter" class
  *      - \ref backward::interface1::Batch "backward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 class Batch : public layers::forward::LayerIfaceImpl
 {
@@ -72,7 +74,10 @@ public:
     typedef algorithms::neural_networks::layers::loss::forward::Input  InputType;
     typedef algorithms::neural_networks::layers::loss::forward::Result ResultType;
 
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::forward::Batch(ParameterType& parameter) }
+     */
     Batch()
     {
         initialize();
@@ -83,6 +88,7 @@ public:
      * and parameters of another forward loss layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the layer
+     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::backward::Batch(const Batch<algorithmFPType, method> &other) }
      */
     Batch(const Batch &other)
     {
@@ -94,15 +100,22 @@ public:
      * with a copy of the input objects and parameters for this forward loss layer
      * in the batch processing mode
      * \return Pointer to the newly allocated algorithm
+     * \DAAL_DEPRECATED
      */
-    services::SharedPtr<Batch > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch > clone() const
     {
         return services::SharedPtr<Batch >(cloneImpl());
     }
 
 protected:
-    virtual Batch *cloneImpl() const DAAL_C11_OVERRIDE = 0;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual Batch *cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
+    /*
+     * \DAAL_DEPRECATED_USE{ Batch() }
+     */
     void initialize()
     {}
 };

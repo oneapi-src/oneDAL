@@ -97,17 +97,27 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MATH__ABS__INPUT"></a>
  * \brief %Input objects for the absolute value function
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED_USE{ Batch() }
+     */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     */
     Input(const Input& other) : daal::algorithms::Input(other){}
 
-    virtual ~Input() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     /**
      * Returns an input object for the absolute value function
@@ -136,15 +146,22 @@ public:
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MATH__ABS__RESULT"></a>
  * \brief %Result obtained with the compute() method of the absolute value function in the batch processing mode
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED_USE{ allocateResult() }
+     */
     Result();
 
-    virtual ~Result() {};
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
 
     /**
      * Allocates memory to store the result of the absolute value function

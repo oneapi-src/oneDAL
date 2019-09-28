@@ -79,12 +79,14 @@ namespace interface1
  * \brief Parameters for the relu layer
  *
  * \snippet neural_networks/layers/relu/relu_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
 {
     /**
      * Constructs the parameters of the relu layer
+     * \DAAL_DEPRECATED_USE{ forward::Batch() }
      */
     Parameter();
 };

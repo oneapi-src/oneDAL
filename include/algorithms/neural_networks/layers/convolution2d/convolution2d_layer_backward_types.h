@@ -61,16 +61,21 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__CONVOLUTION2D__BACKWARD__INPUT"></a>
  * \brief %Input objects for the backward 2D convolution layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::backward::Input
 {
 public:
     /**
      * Default constructor
+     * \DAAL_DEPRECATED_USE{ Batch() }
      */
     Input();
 
-    virtual ~Input() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     /**
      * Sets an input object for the backward 2D convolution layer
@@ -86,15 +91,17 @@ public:
      * Returns an input object for backward 2D convolution layer
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(LayerDataId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(LayerDataId id) const;
 
     /**
      * Sets input for the backward 2D convolution layer
      * \param[in] id    Identifier of the input  object
      * \param[in] value Input object to set
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(LayerDataId id, const data_management::TensorPtr &value);
 
     /**
      * Checks an input object of the 2D convolution layer
@@ -102,13 +109,15 @@ public:
      * \param[in] method    Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__CONVOLUTION2D__BACKWARD__RESULT"></a>
  * \brief Results obtained with the compute() method of the backward 2D convolution layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::backward::Result
 {
@@ -116,10 +125,14 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * Default constructor
+     * \DAAL_DEPRECATED_USE{ initialize() }
      */
     Result();
 
-    virtual ~Result() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
 
     /**
      * Returns the result of the backward 2D convolution layer
@@ -138,6 +151,7 @@ public:
      * \param[in] method    Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -149,11 +163,15 @@ public:
      * \param[in] method  Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {

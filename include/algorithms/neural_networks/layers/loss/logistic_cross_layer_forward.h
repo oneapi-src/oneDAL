@@ -62,6 +62,8 @@ namespace interface1
 * \tparam algorithmFPType  Data type to use in intermediate computations of forward logistic cross-entropy layer, double or float
 * \tparam method           Computation method of the layer, \ref daal::algorithms::neural_networks::layers::loss::logistic_cross::Method
 * \tparam cpu              Version of the cpu-specific implementation of the layer, \ref daal::CpuType
+*
+* \DAAL_DEPRECATED
 */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public layers::forward::LayerContainerIfaceImpl
@@ -71,16 +73,21 @@ public:
      * Constructs a container for the forward logistic cross-entropy with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    /**
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of the forward logistic cross-entropy layer in the batch processing mode
      *
      * \return Status of computation
+     * \DAAL_DEPRECATED
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -100,6 +107,8 @@ public:
  *
  * \par References
  *      - \ref backward::interface1::Batch "backward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public loss::forward::Batch
@@ -114,8 +123,11 @@ public:
     ParameterType &parameter; /*!< Forward logistic cross-entropy layer \ref interface1::Parameter "parameters" */
     InputType input;          /*!< Forward logistic cross-entropy layer input */
 
-    /** Default constructor */
-    Batch() : parameter(_defaultParameter)
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Batch() : parameter(_defaultParameter)
     {
         initialize();
     };
@@ -124,8 +136,9 @@ public:
      * Constructs a forward logistic cross-entropy layer in the batch processing mode
      * and initializes its parameter with the provided parameter
      * \param[in] parameter Parameter to initialize the parameter of the layer
+     * \DAAL_DEPRECATED
      */
-    Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
+    DAAL_DEPRECATED Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
     {
         initialize();
     }
@@ -135,6 +148,7 @@ public:
      * and parameters of another forward logistic cross-entropy layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the layer
+     * \DAAL_DEPRECATED_USE{ cloneImpl() }
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -145,26 +159,30 @@ public:
     /**
     * Returns the method of the layer
     * \return Method of the layer
+     * \DAAL_DEPRECATED
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     /**
      * Returns the structure that contains the input objects of the forward logistic cross-entropy layer
      * \return Structure that contains the input objects of the forward logistic cross-entropy layer
+     * \DAAL_DEPRECATED
      */
-    virtual InputType *getLayerInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED_VIRTUAL virtual InputType *getLayerInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns the structure that contains the parameters of the forward logistic cross-entropy layer
      * \return Structure that contains the parameters of the forward logistic cross-entropy layer
+     * \DAAL_DEPRECATED
      */
-    virtual ParameterType *getLayerParameter() DAAL_C11_OVERRIDE { return &parameter; };
+    DAAL_DEPRECATED_VIRTUAL virtual ParameterType *getLayerParameter() DAAL_C11_OVERRIDE { return &parameter; };
 
     /**
      * Returns the structure that contains result of the forward logistic cross-entropy layer
      * \return Structure that contains result of the forward logistic cross-entropy layer
+     * \DAAL_DEPRECATED
      */
-    layers::forward::ResultPtr getLayerResult() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED layers::forward::ResultPtr getLayerResult() DAAL_C11_OVERRIDE
     {
         return getResult();
     }
@@ -172,6 +190,7 @@ public:
     /**
      * Returns the structure that contains the result of the forward logistic cross-entropy layer
      * \return Structure that contains the result of the forward logistic cross-entropy layer
+     * \DAAL_DEPRECATED_USE{ getLayerResult() }
      */
     ResultPtr getResult()
     {
@@ -183,8 +202,9 @@ public:
      * \param[in] result Structure to store the result of the forward logistic cross-entropy layer
      *
      * \return Status of computation
+     * \DAAL_DEPRECATED
      */
-    services::Status setResult(const ResultPtr& result)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr& result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
@@ -197,8 +217,9 @@ public:
      * with a copy of the input objects and parameters for this forward logistic cross-entropy layer
      * in the batch processing mode
      * \return Pointer to the newly allocated algorithm
+     * \DAAL_DEPRECATED
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
@@ -207,8 +228,9 @@ public:
      * Allocates memory to store the result of the forward logistic cross-entropy layer
      *
      * \return Status of computation
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = this->_result->template allocate<algorithmFPType>(&(this->input), &parameter, (int) method);
         this->_res = this->_result.get();
@@ -218,19 +240,26 @@ public:
     /**
      * Returns forward logistic layer - the layer that corresponds to this layer on the prediction stage
      * \return Forward logistic layer
+     * \DAAL_DEPRECATED
      */
-    virtual layers::forward::LayerIfacePtr getLayerForPrediction() const DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual layers::forward::LayerIfacePtr getLayerForPrediction() const DAAL_C11_OVERRIDE
     {
         return layers::forward::LayerIfacePtr(
             new layers::logistic::forward::Batch<algorithmFPType>());
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, method>(*this);
     }
 
+    /*
+     * \DAAL_DEPRECATED_USE{ Batch() }
+     */
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_LAYER_CONTAINER(BatchContainer, algorithmFPType, method)(&_env);

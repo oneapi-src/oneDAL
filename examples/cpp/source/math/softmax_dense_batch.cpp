@@ -26,6 +26,8 @@
  * \example softmax_dense_batch.cpp
  */
 
+#define DAAL_HIDE_DEPRECATED
+
 #include "daal.h"
 #include "service.h"
 

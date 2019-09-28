@@ -47,6 +47,7 @@ namespace interface1
 /**
  *  <a name="DAAL-CLASS-SUBTENSORDESCRIPTOR"></a>
  *  \brief %Base class that manages buffer memory for read/write operations required by tensors.
+ * \DAAL_DEPRECATED
  */
 template<typename DataType> class SubtensorDescriptor;
 
@@ -57,6 +58,7 @@ typedef services::SharedPtr<Tensor> TensorPtr;
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__TENSORIFACE"></a>
  *  \brief Abstract interface class for a data management component responsible for representation of data in the numeric format.
  *  This class declares the most general methods for data access.
+ * \DAAL_DEPRECATED
  */
 class TensorIface
 {
@@ -83,7 +85,10 @@ public:
         doAllocate    = 1  /*!< Memory will be allocated by Tensor when needed */
     };
 
-    virtual ~TensorIface()
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~TensorIface()
     {}
     /**
      *  Sets the number of dimensions in the Tensor
@@ -133,11 +138,15 @@ public:
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__TENSORLAYOUTIFACE"></a>
  *  \brief Abstract interface class for a data management component responsible for representation of data layout in the tensor.
  *  This class declares the most general methods for data access.
+ *  \DAAL_DEPRECATED
  */
 class DAAL_EXPORT TensorLayoutIface
 {
 public:
-    virtual ~TensorLayoutIface() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~TensorLayoutIface() {}
 
     /**
      *  Sets the new order of existing dimension in the Tensor
@@ -151,11 +160,15 @@ public:
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__TENSORLAYOUT"></a>
  *  \brief Class for a data management component responsible for representation of data layout in the tensor.
  *  This class implements the most general methods for data layout.
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT TensorLayout : public SerializationIface, public TensorLayoutIface
 {
 public:
-    virtual ~TensorLayout() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~TensorLayout() {}
     /**
      *  Gets the size of dimensions in the Tensor layout
      *
@@ -187,10 +200,14 @@ typedef services::SharedPtr<TensorLayout> TensorLayoutPtr;
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__TENSOROFFSETLAYOUT"></a>
  *  \brief Class for a data management component responsible for representation of data layout in the HomogenTensor.
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT TensorOffsetLayout : public TensorLayout
 {
 public:
+    /*
+     * \DAAL_DEPRECATED_USE{ createDefaultSubtensorLayout() }
+     */
     TensorOffsetLayout(const TensorOffsetLayout& inLayout) : TensorLayout(inLayout.getDimensions()),
         _offsets(inLayout.getOffsets()), _indices(inLayout.getIndices()), _isDefaultLayout(inLayout._isDefaultLayout),
         _isRawLayout(inLayout._isRawLayout)
@@ -199,6 +216,7 @@ public:
     /**
      *  Constructor for TensorOffsetLayout with default layout
      *  \param[in]  dims  The size of dimensions in the Tensor layout
+     *  \DAAL_DEPRECATED_USE{ setDimensions(const services::Collection<size_t>& dimensions) }
      */
     TensorOffsetLayout(const services::Collection<size_t>& dims) : TensorLayout(dims), _offsets(dims.size()), _indices(dims.size()),
                                                                    _isDefaultLayout(true), _isRawLayout(true)
@@ -224,8 +242,9 @@ public:
      *  \param[in]  dims     The size of dimensions in the Tensor layout
      *  \param[in]  offsets  The offsets between adjacent elements in each dimension
      *  \param[in]  indices  Collection with dimensions order
+     *  \DAAL_DEPRECATED
      */
-    TensorOffsetLayout(const services::Collection<size_t>& dims, const services::Collection<size_t>& offsets,
+    DAAL_DEPRECATED TensorOffsetLayout(const services::Collection<size_t>& dims, const services::Collection<size_t>& offsets,
                        const services::Collection<size_t>& indices) : TensorLayout(dims)
     {
         if(_nDims==0) return;
@@ -237,7 +256,10 @@ public:
         checkLayout();
     }
 
-    virtual ~TensorOffsetLayout() {}
+    /*
+     *  \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~TensorOffsetLayout() {}
 
     /**
      *  Gets the offsets between adjacent elements in each dimension
@@ -332,11 +354,15 @@ private:
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__DENSETENSORIFACE"></a>
  *  \brief Abstract interface class for a data management component responsible for accessing data in the numeric format.
  *  This class declares specific methods to access Tensor data in a dense homogeneous form.
+ *  \DAAL_DEPRECATED
  */
 class DenseTensorIface
 {
 public:
-    virtual ~DenseTensorIface()
+    /*
+     *  \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~DenseTensorIface()
     {}
     /**
      *  Gets subtensor from the tensor
@@ -453,6 +479,7 @@ public:
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__TENSOR"></a>
  *  \brief Class for a data management component responsible for representation of data in the n-dimensions numeric format.
  *  This class implements the most general methods for data access.
+ *  \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Tensor : public SerializationIface, public TensorIface, public DenseTensorIface
 {
@@ -462,17 +489,21 @@ public:
     /**
      *  Constructor for a Tensor with predefined layout
      *  \param[in]  layoutPtr      Pointer to the Tensor Layout
-     *  \DAAL_DEPRECATED
+     *  \DAAL_DEPRECATED_USE{ HomogenTensor(const services::Collection<size_t> &dims, AllocationFlag memoryAllocationFlag) }
      */
     Tensor(TensorLayout *layoutPtr) : _layoutPtr(layoutPtr), _memStatus(notAllocated) {}
 
     /**
      *  Constructor for an empty Tenor
+     *  \DAAL_DEPRECATED
      */
-    Tensor() : _layoutPtr(0), _memStatus(notAllocated) {}
+    DAAL_DEPRECATED Tensor() : _layoutPtr(0), _memStatus(notAllocated) {}
 
-    /** \private */
-    virtual ~Tensor() {}
+    /**
+     *  \private
+     *  \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Tensor() {}
 
     /**
      *  Gets the status of the memory used by a data set connected with a Tensor

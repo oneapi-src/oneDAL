@@ -25,6 +25,8 @@
  * \example neural_net_predict_dense_batch.cpp
  */
 
+#define DAAL_HIDE_DEPRECATED
+
 #include "daal.h"
 #include "service.h"
 #include "neural_net_predict_dense_batch.h"

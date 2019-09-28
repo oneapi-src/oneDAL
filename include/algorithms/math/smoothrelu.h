@@ -51,6 +51,8 @@ namespace interface1
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the SmoothReLU algorithm, double or float
  * \tparam method           SmoothReLU computation method, \ref daal::algorithms::math::smoothrelu::Method
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
@@ -60,10 +62,14 @@ public:
      * Constructs a container for the SmoothReLU algorithm with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    /**
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of the SmoothReLU algorithm in the batch processing mode
      *
@@ -85,6 +91,8 @@ public:
  *      - \ref Method   Computation methods for SmoothReLU
  *      - \ref InputId  Identifiers of input objects for SmoothReLU
  *      - \ref ResultId %Result identifiers for the SmoothReLU
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
@@ -93,8 +101,11 @@ public:
     typedef algorithms::math::smoothrelu::Input  InputType;
     typedef algorithms::math::smoothrelu::Result ResultType;
 
-    /** Default constructor */
-    Batch()
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Batch()
     {
         initialize();
     }
@@ -102,6 +113,7 @@ public:
     /**
      * Constructs SmoothReLU algorithm by copying input objects of another SmoothReLU algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects of the algorithm
+     * \DAAL_DEPRECATED_USE{ cloneImpl() }
      */
     Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
     {

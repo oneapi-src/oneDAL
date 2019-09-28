@@ -44,6 +44,7 @@ namespace interface1
  *  \brief Class that provides methods to access data stored as a contiguous array
  *  of homogeneous data in rows-major format.
  *  \tparam DataType Defines the underlying data type that describes a tensor
+ *  \DAAL_DEPRECATED
  */
 template<typename DataType = DAAL_DATA_TYPE>
 class DAAL_EXPORT HomogenTensor : public Tensor
@@ -334,6 +335,9 @@ public:
     }
 
     /** \private */
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~HomogenTensor()
     {
         freeDataMemoryImpl();
@@ -504,11 +508,16 @@ public:
     }
 
 protected:
-
+    /*
+     * \DAAL_DEPRECATED
+     */
     HomogenTensor(services::Status &st) :
         Tensor(&_layout, st), _allocatedSize(0), _layout(services::Collection<size_t>(0, 0))
     {}
 
+    /*
+     * \DAAL_DEPRECATED_USE{ create(size_t nDim, const size_t *dimSizes, const services::SharedPtr<DataType>& data, services::Status *stat = NULL) }
+     */
     HomogenTensor(size_t nDim, const size_t *dimSizes, const services::SharedPtr<DataType>& data, services::Status &st) :
         Tensor(&_layout, st), _layout(services::Collection<size_t>(nDim, dimSizes))
     {
@@ -528,8 +537,14 @@ protected:
         }
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     HomogenTensor(const services::Collection<size_t> &dims, const services::SharedPtr<DataType> &data, services::Status &st);
 
+    /*
+     * \DAAL_DEPRECATED_USE{ create(const services::Collection<size_t> &dims, const services::SharedPtr<DataType> &data, services::Status *stat = NULL) }
+     */
     HomogenTensor(const TensorOffsetLayout &layout, const services::SharedPtr<DataType> &data,
                   services::Status &st) :
         Tensor(&_layout, st), _layout(layout)
@@ -553,6 +568,9 @@ protected:
         }
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     HomogenTensor(const services::Collection<size_t> &dims, AllocationFlag memoryAllocationFlag,
                   services::Status &st) :
         Tensor(&_layout, st), _allocatedSize(0), _layout(dims)
@@ -563,6 +581,9 @@ protected:
         }
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     HomogenTensor(const services::Collection<size_t> &dims, AllocationFlag memoryAllocationFlag, const DataType initValue,
                   services::Status &st):
         Tensor(&_layout, st), _allocatedSize(0), _layout(dims)

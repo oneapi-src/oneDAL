@@ -62,18 +62,28 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPATIAL_POOLING2D__BACKWARD__INPUT"></a>
  * \brief %Input objects for the backward 2D spatial layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::backward::Input
 {
 public:
     typedef layers::backward::Input super;
-    /** Default constructor */
-    Input();
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Input();
 
-    /** Copy constructor */
-    Input(const Input& other);
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Input(const Input& other);
 
-    virtual ~Input() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     using layers::backward::Input::get;
     using layers::backward::Input::set;
@@ -103,13 +113,20 @@ protected:
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPATIAL_POOLING2D__BACKWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
  *        of the backward 2D spatial layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::backward::Result
 {
 public:
-    /** Default constructor */
-    Result();
-    virtual ~Result() {}
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Result();
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
 
     /**
      * Allocates memory to store the result of the backward 2D pooling layer

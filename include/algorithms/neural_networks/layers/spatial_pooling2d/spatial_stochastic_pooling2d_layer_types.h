@@ -87,6 +87,7 @@ namespace interface1
  * \brief Parameters for the spatial pyramid stochastic 2D pooling layer
  *
  * \snippet neural_networks/layers/spatial_pooling2d/spatial_stochastic_pooling2d_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public spatial_pooling2d::Parameter
@@ -96,6 +97,7 @@ struct DAAL_EXPORT Parameter: public spatial_pooling2d::Parameter
      * \param[in] pyramidHeight     Value of the pyramid height.
      * \param[in] firstIndex        First dimension index along which spatial pyramid pooling is performed
      * \param[in] secondIndex       Second dimension index along which spatial pyramid pooling is performed
+     * \DAAL_DEPRECATED_USE{ Batch(size_t pyramidHeight, size_t nDimensions) }
      */
     Parameter(size_t pyramidHeight, size_t firstIndex, size_t secondIndex) :
         spatial_pooling2d::Parameter(pyramidHeight, firstIndex, secondIndex), seed(777), engine(engines::mt19937::Batch<>::create())

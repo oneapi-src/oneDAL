@@ -61,6 +61,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__TRANSPOSED_CONV2D__FORWARD__INPUT"></a>
  * \brief %Input objects for the forward 2D transposed convolution layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::forward::Input
 {
@@ -68,13 +69,20 @@ public:
     typedef layers::forward::Input super;
     /**
      * Default constructor
+     * \DAAL_DEPRECATED_USE{ Batch() }
      */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     */
     Input(const Input& other);
 
-    virtual ~Input() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     /**
      * Sets an input object for the forward 2D transposed convolution layer
@@ -121,6 +129,7 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__TRANSPOSED_CONV2D__FORWARD__RESULT"></a>
  * \brief Results obtained with the compute() method of the forward 2D transposed convolution layer
  *        in the batch processing mode
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::forward::Result
 {
@@ -128,10 +137,14 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * Default constructor
+     * \DAAL_DEPRECATED_USE{ initialize() }
      */
     Result();
 
-    virtual ~Result() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
 
     /**
      * Returns the result of the forward 2D transposed convolution layer

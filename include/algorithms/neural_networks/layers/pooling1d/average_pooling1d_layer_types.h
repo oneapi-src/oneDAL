@@ -75,6 +75,7 @@ namespace interface1
  * \brief Parameters for the average 1D pooling layer
  *
  * \snippet neural_networks/layers/pooling1d/average_pooling1d_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public pooling1d::Parameter
@@ -86,6 +87,7 @@ struct DAAL_EXPORT Parameter: public pooling1d::Parameter
      * \param[in] stride       Interval over the dimension on which the pooling is performed
      * \param[in] padding      Number of data elements to implicitly add to the the dimension
      *                         of the 1D subtensor on which the pooling is performed
+     * \DAAL_DEPRECATED_USE{ forward::Batch(size_t nDimensions) }
      */
     Parameter(size_t index, size_t kernelSize = 2, size_t stride = 2, size_t padding = 0);
 };

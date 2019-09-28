@@ -71,6 +71,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__FULLYCONNECTED__PARAMETER"></a>
  * \brief Fully-connected layer parameters
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Parameter: public layers::Parameter
 {
@@ -78,6 +79,7 @@ public:
     /**
      *  Main constructor
      *  \param[in] _nOutputs A number of layer outputs m. The parameter required to initialize the layer
+     *  \DAAL_DEPRECATED_USE{ layers::fullyconnected::Batch(size_t nOutputs) }
      */
     Parameter(size_t _nOutputs);
 

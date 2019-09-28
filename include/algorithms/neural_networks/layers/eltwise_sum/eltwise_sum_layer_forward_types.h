@@ -73,20 +73,28 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__ELTWISE_SUM__FORWARD__INPUT"></a>
  * \brief %Input objects for the forward element-wise sum layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::forward::Input
 {
 public:
     typedef layers::forward::Input super;
     /**
-     * Default constructor
+     * Default constructo
+     * \DAAL_DEPRECATED_USE{ Batch() }
      */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     */
     Input(const Input& other);
 
-    virtual ~Input() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     /**
      * Sets an input object for the forward element-wise sum layer
@@ -101,31 +109,35 @@ public:
     * Returns an input tensor of the forward element-wise sum layer
     * \param[in] id Identifier of the input tensor
     * \return       Input tensor that corresponds to the given identifier
+    * \DAAL_DEPRECATED
     */
-    data_management::TensorPtr get(InputId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(InputId id) const;
 
     /**
     * Sets an input tensor of the forward element-wise sum layer
     * \param[in] id    Identifier of the input tensor
     * \param[in] value Pointer to the tensor
+    * \DAAL_DEPRECATED
     */
-    void set(InputId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(InputId id, const data_management::TensorPtr &value);
 
     /**
     * Returns an input tensor of the forward element-wise sum layer
     * \param[in] id    Identifier of the input tensor
     * \param[in] index Index of the input tensor
     * \return          Input tensor that corresponds to the given identifier
+    * \DAAL_DEPRECATED
     */
-    data_management::TensorPtr get(layers::forward::InputLayerDataId id, size_t index) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(layers::forward::InputLayerDataId id, size_t index) const;
 
     /**
     * Sets an input tensor for the forward element-wise sum layer
     * \param[in] id    Identifier of the input tensor
     * \param[in] value Pointer to the tensor
     * \param[in] index Index of the input tensor
+    * \DAAL_DEPRECATED
     */
-    void set(layers::forward::InputLayerDataId id, const data_management::TensorPtr &value, size_t index);
+    DAAL_DEPRECATED void set(layers::forward::InputLayerDataId id, const data_management::TensorPtr &value, size_t index);
 
     /**
      * Adds tensor with data to the input object of the forward element-wise sum layer
@@ -133,15 +145,17 @@ public:
      * \param[in] index      Index of the tensor with data
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status addData(const data_management::TensorPtr &dataTensor, size_t index) DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status addData(const data_management::TensorPtr &dataTensor, size_t index) DAAL_C11_OVERRIDE;
 
     /**
      * Erases input data tensor from the input of the forward layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status eraseInputData() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status eraseInputData() DAAL_C11_OVERRIDE;
 
     /**
      * Checks input object of the forward element-wise sum layer
@@ -149,22 +163,32 @@ public:
      * \param[in] method    Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 
 private:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status checkInputTensors(const LayerData &layerData) const;
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status checkCoefficients(const LayerData &layerData) const;
 
-    services::Status checkInputTensors(const LayerData &layerData) const;
-    services::Status checkCoefficients(const LayerData &layerData) const;
-
-    LayerDataPtr getInputLayerDataAllocateIfEmpty();
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED LayerDataPtr getInputLayerDataAllocateIfEmpty();
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__ELTWISE_SUM__FORWARD__RESULT"></a>
  * \brief Results obtained with the compute() method of the forward element-wise sum layer
  *        in the batch processing mode
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::forward::Result
 {
@@ -173,10 +197,11 @@ public:
 
     /**
      * Default constructor
+     * \DAAL_DEPRECATED_USE{ initialize() }
      */
     Result();
 
-    virtual ~Result() {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
 
     /**
      * Returns the result of the forward element-wise sum layer
@@ -195,6 +220,7 @@ public:
      * \param[in] method    Computation method for the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input,
@@ -203,8 +229,9 @@ public:
     /**
      * Returns dimensions of value tensor
      * \return Dimensions of value tensor
+     * \DAAL_DEPRECATED
      */
-    virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
+    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
                                                             const daal::algorithms::Parameter *par, const int method) const DAAL_C11_OVERRIDE;
 
     /**
@@ -213,45 +240,51 @@ public:
     * \param[in] parameter   Parameters of the algorithm
     * \param[in] method      Method of the algorithm
     * \return    Collection of dimensions of element-wise sum layer output
+     * \DAAL_DEPRECATED
     */
-    virtual services::Collection<size_t> getValueSize(const services::Collection< services::Collection<size_t> > &inputSize,
+    DAAL_DEPRECATED_VIRTUAL virtual services::Collection<size_t> getValueSize(const services::Collection< services::Collection<size_t> > &inputSize,
                                                       const daal::algorithms::Parameter *parameter, const int method) DAAL_C11_OVERRIDE;
 
     /**
      * Returns the result tensor of forward element-wise sum layer
      * \param[in] id Identifier of the result tensor
      * \return       Result tensor that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(LayerDataId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(LayerDataId id) const;
 
     /**
      * Returns the result numeric table of the forward element-wise sum layer
      * \param[in] id Identifier of the result numeric table
      * \return       Result numeric table that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::NumericTablePtr get(LayerDataNumericTableId id) const;
+    DAAL_DEPRECATED data_management::NumericTablePtr get(LayerDataNumericTableId id) const;
 
     /**
      * Sets the result tensor of forward element-wise sum layer
      * \param[in] id    Identifier of the result tensor
      * \param[in] value Result tensor
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(LayerDataId id, const data_management::TensorPtr &value);
 
     /**
      * Sets the result numeric table of the forward element-wise sum layer
      * \param[in] id    Identifier of the result numeric table
      * \param[in] value Result numeric tensor
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataNumericTableId id, const data_management::NumericTablePtr &value);
+    DAAL_DEPRECATED void set(LayerDataNumericTableId id, const data_management::NumericTablePtr &value);
 
     /**
      * Sets the result that is used in backward layer
      * \param[in] input  Pointer to an object containing the input data
      *
      * \return Status of operation
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status setResultForBackward(const daal::algorithms::Input *input) DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status setResultForBackward(const daal::algorithms::Input *input) DAAL_C11_OVERRIDE;
 
     /**
      * Checks the result of the forward element-wise sum layer
@@ -260,12 +293,16 @@ public:
      * \param[in] method  Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status check(const daal::algorithms::Input *input,
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Input *input,
                                    const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {
@@ -273,16 +310,30 @@ protected:
     }
 
 private:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status checkValue(const Input *input) const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status checkAuxCoefficients(const Input *input) const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status checkAuxNumberOfCoefficients(const Input *input) const;
 
-    services::Status checkValue(const Input *input) const;
-    services::Status checkAuxCoefficients(const Input *input) const;
-    services::Status checkAuxNumberOfCoefficients(const Input *input) const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED LayerDataPtr getResultLayerDataAllocateIfEmpty();
 
-    LayerDataPtr getResultLayerDataAllocateIfEmpty();
-
+    /*
+     * \DAAL_DEPRECATED
+     */
     template<typename algorithmFPType>
-    services::Status allocateValueTensor(const Input *eltwiseInput);
+    DAAL_DEPRECATED services::Status allocateValueTensor(const Input *eltwiseInput);
 };
 
 typedef services::SharedPtr<Result> ResultPtr;

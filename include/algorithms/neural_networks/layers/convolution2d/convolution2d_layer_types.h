@@ -69,6 +69,7 @@ enum LayerDataId
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__CONVOLUTION2D__KERNELSIZE"></a>
  * \brief Data structure representing the size of the two-dimensional kernel subtensor
+ * \DAAL_DEPRECATED
  */
 struct KernelSizes
 {
@@ -76,14 +77,16 @@ struct KernelSizes
     * Constructs the structure representing the size of the two-dimensional kernel subtensor
     * \param[in]  first  Size of the first dimension of the two-dimensional kernel subtensor
     * \param[in]  second Size of the second dimension of the wto-dimensional kernel subtensor
+    * \DAAL_DEPRECATED
     */
-    KernelSizes(size_t first, size_t second) { size[0] = first; size[1] = second; }
+    DAAL_DEPRECATED KernelSizes(size_t first, size_t second) { size[0] = first; size[1] = second; }
     size_t size[2];
 };
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__CONVOLUTION2D__STRIDE"></a>
  * \brief Data structure representing the intervals on which the subtensors for 2D convolution are selected
+ * \DAAL_DEPRECATED
  */
 struct Strides
 {
@@ -91,8 +94,9 @@ struct Strides
     * Constructs the structure representing the intervals on which the subtensors for 2D convolution are selected
     * \param[in]  first  Interval over the first dimension on which the 2D convolution is performed
     * \param[in]  second Interval over the second dimension on which the 2D convolution is performed
+    * \DAAL_DEPRECATED
     */
-    Strides(size_t first, size_t second) { size[0] = first; size[1] = second; }
+    DAAL_DEPRECATED Strides(size_t first, size_t second) { size[0] = first; size[1] = second; }
     size_t size[2];
 };
 
@@ -100,6 +104,7 @@ struct Strides
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__CONVOLUTION2D__PADDING"></a>
  * \brief Data structure representing the number of data elements to implicitly add
  *        to each size of the two-dimensional subtensor on which 2D convolution is performed
+ * \DAAL_DEPRECATED
  */
 struct Paddings
 {
@@ -108,14 +113,16 @@ struct Paddings
     * to each size of the two-dimensional subtensor on which 2D convolution is performed
     * \param[in]  first  Number of data elements to add to the the first dimension of the two-dimensional subtensor
     * \param[in]  second Number of data elements to add to the the second dimension of the two-dimensional subtensor
+    * \DAAL_DEPRECATED
     */
-    Paddings(int first, int second) { size[0] = first; size[1] = second; }
+    DAAL_DEPRECATED Paddings(int first, int second) { size[0] = first; size[1] = second; }
     int size[2];
 };
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__CONVOLUTION2D__SPATIALDIMENSIONS"></a>
  * \brief Data structure representing the indices of the two dimensions on which 2D convolution is performed
+ * \DAAL_DEPRECATED
  */
 struct Indices
 {
@@ -123,8 +130,9 @@ struct Indices
     * Constructs the structure representing the indices of the two dimensions on which 2D convolution is performed
     * \param[in]  first  The first dimension index
     * \param[in]  second The second dimension index
+    * \DAAL_DEPRECATED
     */
-    Indices(size_t first, size_t second) { dims[0] = first; dims[1] = second; }
+    DAAL_DEPRECATED Indices(size_t first, size_t second) { dims[0] = first; dims[1] = second; }
     size_t dims[2];
 };
 
@@ -133,12 +141,14 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__CONVOLUTION2D__PARAMETER"></a>
  * \brief 2D convolution layer parameters
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Parameter: public layers::Parameter
 {
 public:
     /**
      *  Default constructor
+     * \DAAL_DEPRECATED_USE{ Batch() }
      */
     Parameter();
 

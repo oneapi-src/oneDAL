@@ -79,6 +79,7 @@ namespace interface1
  * \brief Parameters for the softmax cross-entropy layer
  *
  * \snippet neural_networks/layers/loss/softmax_cross_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 class DAAL_EXPORT Parameter: public layers::Parameter
@@ -88,6 +89,7 @@ public:
     *  Constructs parameters of the softmax cross-entropy layer
     *  \param[in] accuracyThreshold_  Value needed to avoid degenerate cases in logarithm computing
     *  \param[in] dimension_          Dimension index to calculate softmax cross-entropy
+    *  \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::Batch() }
     */
     Parameter(const double accuracyThreshold_ = 1.0e-04, const size_t dimension_ = 1);
 
@@ -97,8 +99,9 @@ public:
      * Checks the correctness of the parameter
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status check() const;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check() const;
 };
 /* [Parameter source code] */
 

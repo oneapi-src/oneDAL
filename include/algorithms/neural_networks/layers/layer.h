@@ -55,6 +55,7 @@ namespace interface1
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__LAYERIFACE"></a>
 * \brief Abstract class that specifies the interface of layer
+* \DAAL_DEPRECATED
 */
 class LayerIface: public Base
 {
