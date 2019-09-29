@@ -80,7 +80,7 @@ DAAL_EXPORT Status PartialResult::allocate(const daal::algorithms::Input *input,
     for (size_t i = 0; i < nParts; i++)
     {
         (*dataPartsCollection)[i] = CSRNumericTable::create((algorithmFPType *)NULL, NULL, NULL,
-                algInput->get(data)->getNumberOfRows(), size_t(partitionData[i + 1] - partitionData[i]), CSRNumericTableIface::CSRIndexing::oneBased, &s);
+                algInput->get(data)->getNumberOfRows(), (size_t)partitionData[i + 1] - partitionData[i], CSRNumericTableIface::CSRIndexing::oneBased, &s);
     }
     set(outputOfStep1ForStep2, dataPartsCollection);
     return s;
