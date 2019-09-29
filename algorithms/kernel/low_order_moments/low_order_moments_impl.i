@@ -247,6 +247,7 @@ Status LowOrderMomentsOnlineTask<algorithmFPType, cpu>::init(PartialResult *part
 {
     nVectors  = dataTable->getNumberOfRows();
     nFeatures = dataTable->getNumberOfColumns();
+    int result = 0;
 
     dataTable->getBlockOfRows(0, nVectors, readOnly, dataBD);
     dataBlock = dataBD.getBlockPtr();
@@ -277,9 +278,9 @@ Status LowOrderMomentsOnlineTask<algorithmFPType, cpu>::init(PartialResult *part
     {
         prevSums = (algorithmFPType *)daal_malloc(rowSize);
         DAAL_CHECK_MALLOC(prevSums)
-        daal_memcpy_s(prevSums, rowSize, resultArray[(int)partialSum], rowSize);
+        result = daal_memcpy_s(prevSums, rowSize, resultArray[(int)partialSum], rowSize);
     }
-    return Status();
+    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
 /****************************************************************************************************************************/
@@ -378,6 +379,7 @@ Status retrievePrecomputedStatsIfPossible( const size_t nFeatures,
                                          algorithmFPType *mean)
 {
     NumericTable * const precomputedSumsTable = dataTable->basicStatistics.get(NumericTable::sum).get();
+    int result = 0;
 
     if (!precomputedSumsTable)
         return Status(services::ErrorPrecomputedSumNotAvailable);
@@ -387,7 +389,7 @@ Status retrievePrecomputedStatsIfPossible( const size_t nFeatures,
     const algorithmFPType * const precomputedSums = precomputedSumsBlock.getBlockPtr();
 
     size_t rowSize = nFeatures * sizeof(algorithmFPType);
-    daal_memcpy_s(sums, rowSize, precomputedSums, rowSize);
+    result = daal_memcpy_s(sums, rowSize, precomputedSums, rowSize);
 
     precomputedSumsTable->releaseBlockOfRows(precomputedSumsBlock);
 
@@ -399,7 +401,7 @@ Status retrievePrecomputedStatsIfPossible( const size_t nFeatures,
     {
         mean[i] = sums[i] * invNVectors;
     }
-    return Status();
+    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
 
@@ -475,18 +477,20 @@ Status computeSum_Mean_SecondOrderRawMoment_Variance_Variation( size_t nFeatures
 /****************************************************************************************************************************/
 
 template<typename algorithmFPType, CpuType cpu>
-void computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVectors, const algorithmFPType * const dataBlock, algorithmFPType *min,
-                 algorithmFPType *max, algorithmFPType *sumSq, const bool isOnline)
+Status computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVectors, const algorithmFPType * const dataBlock, algorithmFPType *min,
+                                    algorithmFPType *max, algorithmFPType *sumSq, const bool isOnline)
 {
+    int result = 0;
     if (!isOnline)
     {
         const size_t rowSize = nFeatures * sizeof(algorithmFPType);
 
-        daal_memcpy_s(min, rowSize, dataBlock, rowSize);
-        daal_memcpy_s(max, rowSize, dataBlock, rowSize);
+        result |= daal_memcpy_s(min, rowSize, dataBlock, rowSize);
+        result |= daal_memcpy_s(max, rowSize, dataBlock, rowSize);
 
         const algorithmFPType zero = (algorithmFPType)0.0;
         daal::services::internal::service_memset<algorithmFPType, cpu>(sumSq, zero, nFeatures);
+        DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
 
     /* Split rows by blocks */
@@ -584,7 +588,7 @@ void computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVectors,
 
         delete localTslData;
     } );
-
+    return Status();
 }
 
 /****************************************************************************************************************************/
@@ -707,8 +711,7 @@ void releaseTwoTables( NumericTable *table1,
 }
 /****************************************************************************************************************************/
 template<typename algorithmFPType, CpuType cpu>
-void mergeMinAndMax( data_management::DataCollection *partialResultsCollection,
-                     PartialResult *partialResult )
+Status mergeMinAndMax(data_management::DataCollection *partialResultsCollection, PartialResult *partialResult)
 {
     NumericTable *minTable = partialResult->get(partialMinimum).get();
     NumericTable *maxTable = partialResult->get(partialMaximum).get();
@@ -717,6 +720,7 @@ void mergeMinAndMax( data_management::DataCollection *partialResultsCollection,
 
     BlockDescriptor<algorithmFPType> minBD, maxBD;
     algorithmFPType *min, *max;
+    int result = 0;
 
     getTwoTables<algorithmFPType, cpu>( writeOnly,
                                         minTable,
@@ -742,8 +746,9 @@ void mergeMinAndMax( data_management::DataCollection *partialResultsCollection,
                                         &inputMax );
 
     size_t rowSize = nFeatures * sizeof(algorithmFPType);
-    daal_memcpy_s(min, rowSize, inputMin, rowSize);
-    daal_memcpy_s(max, rowSize, inputMax, rowSize);
+    result |= daal_memcpy_s(min, rowSize, inputMin, rowSize);
+    result |= daal_memcpy_s(max, rowSize, inputMax, rowSize);
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     releaseTwoTables<algorithmFPType, cpu>( inputMinTable,
                                             inputMaxTable,
@@ -782,6 +787,8 @@ void mergeMinAndMax( data_management::DataCollection *partialResultsCollection,
                                             maxTable,
                                             minBD,
                                             maxBD );
+
+    return Status();
 }
 
 /****************************************************************************************************************************/
@@ -821,9 +828,9 @@ void releaseThreeTables( NumericTable *table1,
 
 /****************************************************************************************************************************/
 template<typename algorithmFPType, CpuType cpu>
-void mergeSums( data_management::DataCollection *partialResultsCollection,
-                PartialResult *partialResult,
-                int *partialNObservations )
+Status mergeSums( data_management::DataCollection *partialResultsCollection,
+                  PartialResult *partialResult,
+                  int *partialNObservations )
 {
 
     ///merge first block
@@ -836,6 +843,7 @@ void mergeSums( data_management::DataCollection *partialResultsCollection,
 
     BlockDescriptor<algorithmFPType> sumBD, sumSqBD, sumSqCenBD;
     algorithmFPType *sums, *sumSq, *sumSqCen;
+    int result = 0;
 
     getThreeTables<algorithmFPType, cpu>( writeOnly,
                                           sumTable,
@@ -869,9 +877,10 @@ void mergeSums( data_management::DataCollection *partialResultsCollection,
                                           &inputSumSqCen );
 
     size_t rowSize = nFeatures * sizeof(algorithmFPType);
-    daal_memcpy_s(sums,     rowSize, inputSums,     rowSize);
-    daal_memcpy_s(sumSq,    rowSize, inputSumSq,    rowSize);
-    daal_memcpy_s(sumSqCen, rowSize, inputSumSqCen, rowSize);
+    result |= daal_memcpy_s(sums,     rowSize, inputSums,     rowSize);
+    result |= daal_memcpy_s(sumSq,    rowSize, inputSumSq,    rowSize);
+    result |= daal_memcpy_s(sumSqCen, rowSize, inputSumSqCen, rowSize);
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     releaseThreeTables<algorithmFPType, cpu>( inputSumTable,
                                               inputSumSqTable,
@@ -937,6 +946,7 @@ void mergeSums( data_management::DataCollection *partialResultsCollection,
 
     releaseThreeTables<algorithmFPType, cpu>(sumTable, sumSqTable, sumSqCenTable,
         sumBD, sumSqBD, sumSqCenBD);
+    return Status();
 }
 
 /****************************************************************************************************************************/

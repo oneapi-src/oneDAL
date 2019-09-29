@@ -55,7 +55,7 @@ private:
     void updateWeights(size_t nVectors, algorithmFPType s, algorithmFPType c, algorithmFPType invSqrtC,
                        const algorithmFPType *r, algorithmFPType *nra, algorithmFPType *nre2, algorithmFPType *w);
 
-    algorithmFPType *reallocateAlpha(size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha);
+    algorithmFPType *reallocateAlpha(size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s);
 
     services::Status brownBoostFreundKernel(size_t nVectors,
                                 NumericTablePtr weakLearnerInputTables[],
@@ -77,7 +77,7 @@ private:
     void updateWeights(size_t nVectors, algorithmFPType s, algorithmFPType c, algorithmFPType invSqrtC,
                        const algorithmFPType *r, algorithmFPType *nra, algorithmFPType *nre2, algorithmFPType *w);
 
-    algorithmFPType *reallocateAlpha(size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha);
+    algorithmFPType *reallocateAlpha(size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s);
 
     services::Status brownBoostFreundKernel(size_t nVectors,
                                 NumericTablePtr weakLearnerInputTables[],

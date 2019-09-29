@@ -54,6 +54,7 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
     const size_t p = ntData->getNumberOfColumns();
     const size_t n = ntData->getNumberOfRows();
     const size_t nClusters = par->nClusters;
+    int result = 0;
 
     ReadRows<algorithmFPType, cpu> mtInitClusters(*const_cast<NumericTable*>(a[1]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtInitClusters);
@@ -141,7 +142,7 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
         {
             ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices.get()[i], 1);
             const algorithmFPType *row = mtRow.get();
-            daal::services::daal_memcpy_s(&cCentroids[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
+            result |= daal::services::daal_memcpy_s(&cCentroids[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
         }
         for (size_t i = cNum; i < nClusters; i++)
         {
@@ -150,7 +151,7 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
 
         task->kmeansClearClusters(goalFunc);
     }
-    return s;
+    return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>

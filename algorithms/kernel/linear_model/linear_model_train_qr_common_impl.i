@@ -104,9 +104,9 @@ Status CommonKernel<algorithmFPType, cpu>::computeQRForBlock(DAAL_INT p, DAAL_IN
     /* Copy result into matrix QTY */
     const DAAL_INT qtySize = ny * p * sizeof(algorithmFPType);
     const DAAL_INT yqtOffset = (n - p) * ny;
-    daal_memcpy_s(qty, qtySize, y + yqtOffset, qtySize);
+    int result = daal_memcpy_s(qty, qtySize, y + yqtOffset, qtySize);
 
-    return Status();
+    return (!result) ? Status() : Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -118,18 +118,23 @@ Status CommonKernel<algorithmFPType, cpu>::merge(DAAL_INT nBetas, DAAL_INT nResp
                                                 algorithmFPType *tau, algorithmFPType *work, DAAL_INT lwork)
 {
     /* Copy R1 and R2 into R12. R12 = (R1, R2) */
+    int result = 0;
+    Status status;
+
     size_t rSize = nBetas * nBetas;
     size_t rSizeInBytes = rSize * sizeof(algorithmFPType);
-    daal_memcpy_s(r12        , 2 * rSizeInBytes, r1, rSizeInBytes);
-    daal_memcpy_s(r12 + rSize,     rSizeInBytes, r2, rSizeInBytes);
+    result |= daal_memcpy_s(r12        , 2 * rSizeInBytes, r1, rSizeInBytes);
+    result |= daal_memcpy_s(r12 + rSize,     rSizeInBytes, r2, rSizeInBytes);
     /* Copy QTY1 and QTY2 into QTY12. QTY12 = (QTY1, QTY2) */
     size_t qtySize = nBetas * nResponses;
     size_t qtySizeInBytes  = qtySize * sizeof(algorithmFPType);
-    daal_memcpy_s(qty12          , 2 * qtySizeInBytes, qty1, qtySizeInBytes);
-    daal_memcpy_s(qty12 + qtySize,     qtySizeInBytes, qty2, qtySizeInBytes);
+    result |= daal_memcpy_s(qty12          , 2 * qtySizeInBytes, qty1, qtySizeInBytes);
+    result |= daal_memcpy_s(qty12 + qtySize,     qtySizeInBytes, qty2, qtySizeInBytes);
 
     DAAL_INT n = 2 * nBetas;
-    return CommonKernel<algorithmFPType, cpu>::computeQRForBlock(nBetas, n, r12, nResponses, qty12, r, qty, tau, work, lwork);
+    status = CommonKernel<algorithmFPType, cpu>::computeQRForBlock(nBetas, n, r12, nResponses, qty12, r, qty, tau, work, lwork);
+
+    return (!result) ? status : Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 }

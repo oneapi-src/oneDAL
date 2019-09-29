@@ -123,6 +123,7 @@ Status ImplicitALSTrainKernelBase<algorithmFPType, cpu>::computeFactors(
 {
     SafeStatus safeStat;
     size_t nBlocks, blockSize, tailSize;
+    int result = 0;
 
     getSizes( nRows, nCols, nBlocks, blockSize, tailSize );
 
@@ -137,8 +138,8 @@ Status ImplicitALSTrainKernelBase<algorithmFPType, cpu>::computeFactors(
             algorithmFPType *rhs = rowFactors + (offset + j) * nFactors;
 
             for(int f = 0; f < nFactors; f++){ rhs[f] = 0.0; }
-            daal::services::daal_memcpy_s(lhs_local, nFactors * nFactors * sizeof(algorithmFPType),
-                                      xtx, nFactors * nFactors * sizeof(algorithmFPType));
+            result |= daal::services::daal_memcpy_s(lhs_local, nFactors * nFactors * sizeof(algorithmFPType),
+                                                    xtx, nFactors * nFactors * sizeof(algorithmFPType));
 
             formSystem( offset + j, nCols, data, colIndices, rowOffsets, nFactors, colFactors, alpha, lhs_local, rhs, lambda);
 
@@ -148,7 +149,7 @@ Status ImplicitALSTrainKernelBase<algorithmFPType, cpu>::computeFactors(
         } /* for(size_t j = 0; j < curBlockSize; j++) */
     }); /* daal::threader_for(nBlocks, nBlocks, [ & ](size_t i) */
 
-    return safeStat.detach();
+    return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>

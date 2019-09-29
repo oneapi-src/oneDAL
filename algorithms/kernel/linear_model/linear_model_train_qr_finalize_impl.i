@@ -50,6 +50,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
     const DAAL_INT nBetas    (betaTable.getNumberOfColumns());
     const DAAL_INT nResponses(betaTable.getNumberOfRows());
     const DAAL_INT nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
+    int result = 0;
 
     TArrayScalable<algorithmFPType, cpu> betaBufferArray(nResponses * nBetasIntercept);
     algorithmFPType *betaBuffer = betaBufferArray.get();
@@ -78,8 +79,9 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
                 const size_t   rSizeInBytes(sizeof(algorithmFPType) * nBetasIntercept * nBetasIntercept);
                 const size_t qtySizeInBytes(sizeof(algorithmFPType) * nBetasIntercept * nResponses);
 
-                daal_memcpy_s(  rFinal,   rSizeInBytes,   r,   rSizeInBytes);
-                daal_memcpy_s(qtyFinal, qtySizeInBytes, qty, qtySizeInBytes);
+                result |= daal_memcpy_s(  rFinal,   rSizeInBytes,   r,   rSizeInBytes);
+                result |= daal_memcpy_s(qtyFinal, qtySizeInBytes, qty, qtySizeInBytes);
+                DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
             }
 
             for (size_t i = 0; i < nResponses; i++)
@@ -137,7 +139,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
         }
     }
 
-    return Status();
+    return services::Status();
 }
 
 }

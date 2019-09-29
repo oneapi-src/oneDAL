@@ -183,7 +183,7 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoost
         updateWeights(nVectors, s, nr.c, nr.invSqrtC, r.get(), nr.aNra.get(), nr.aNre2.get(), w);
 
         /* Re-allocate array of weak learners' models and boosting coefficients */
-        alpha = reallocateAlpha(nWeakLearners-1, nWeakLearners, alpha);
+        alpha = reallocateAlpha(nWeakLearners-1, nWeakLearners, alpha, status);
         if (!alpha)
             return services::Status(services::ErrorMemoryAllocationFailed);
 
@@ -266,11 +266,18 @@ void BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 algorithmFPType* BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocateAlpha(
-            size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha)
+            size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s)
 {
     algorithmFPType *alpha = (algorithmFPType *)daal::services::daal_malloc(alphaSize * sizeof(algorithmFPType));
-    if(alpha && oldAlpha)
-    daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
+    if (alpha && oldAlpha)
+    {
+        int result = 0;
+        result = daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
+        if (result)
+        {
+            s |= services::Status(services::ErrorMemoryCopyFailedInternal);
+        }
+    }
     if (oldAlpha)
     {
         daal::services::daal_free(oldAlpha);
@@ -411,7 +418,7 @@ services::Status BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::brownBo
         updateWeights(nVectors, s, nr.c, nr.invSqrtC, r.get(), nr.aNra.get(), nr.aNre2.get(), w);
 
         /* Re-allocate array of weak learners' models and boosting coefficients */
-        alpha = reallocateAlpha(nWeakLearners-1, nWeakLearners, alpha);
+        alpha = reallocateAlpha(nWeakLearners-1, nWeakLearners, alpha, status);
         if (!alpha)
             return services::Status(services::ErrorMemoryAllocationFailed);
 
@@ -494,11 +501,18 @@ void BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::updateWeights(
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 algorithmFPType* BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::reallocateAlpha(
-            size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha)
+            size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s)
 {
     algorithmFPType *alpha = (algorithmFPType *)daal::services::daal_malloc(alphaSize * sizeof(algorithmFPType));
-    if(alpha && oldAlpha)
-    daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
+    if (alpha && oldAlpha)
+    {
+        int result = 0;
+        result = daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
+        if (result)
+        {
+            s |= services::Status(services::ErrorMemoryCopyFailedInternal);
+        }
+    }
     if (oldAlpha)
     {
         daal::services::daal_free(oldAlpha);

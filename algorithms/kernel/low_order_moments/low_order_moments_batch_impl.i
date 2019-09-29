@@ -90,7 +90,7 @@ services::Status LowOrderMomentsBatchKernel<algorithmFPType, method, cpu>::compu
                                                       task.resultArray[(int)variance],
                                                       task.resultArray[(int)standardDeviation] );
 
-    computeMinMaxAndSumOfSquared<algorithmFPType, cpu> (task.nFeatures,
+    s = computeMinMaxAndSumOfSquared<algorithmFPType, cpu> (task.nFeatures,
                                             task.nVectors,
                                             task.dataBlock,
                                             task.resultArray[(int)minimum],

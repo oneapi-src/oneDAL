@@ -148,6 +148,7 @@ enum ErrorID
     ErrorCpuNotSupported = -2000,                                       /*!< CPU not supported */
     ErrorMemoryAllocationFailed = -2001,                                /*!< Memory allocation failed */
     ErrorEmptyDataBlock = -2004,                                        /*!< Empty data block */
+    ErrorMemoryCopyFailedInternal = -2005,                              /*!< Memory copy internal error */
 
     // Workflow errors: -3000..-3999
     ErrorIncorrectCombinationOfComputationModeAndStep = -3002,          /*!< Incorrect combination of computation mode and computation step */

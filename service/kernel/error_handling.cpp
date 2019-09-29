@@ -712,6 +712,7 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorCpuNotSupported, "CPU not supported");
     add(ErrorMemoryAllocationFailed, "Memory allocation failed");
     add(ErrorEmptyDataBlock, "Empty data block");
+    add(ErrorMemoryCopyFailedInternal, "Memory copy internal error");
 
     // Workflow errors: -3000..-3999
     add(ErrorIncorrectCombinationOfComputationModeAndStep, "Incorrect combination of computation mode and computation step");

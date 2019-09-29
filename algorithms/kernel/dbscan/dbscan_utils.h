@@ -123,20 +123,20 @@ public:
 private:
     services::Status grow()
     {
+        int result = 0;
         _capacity = (_capacity == 0 ? defaultSize : _capacity * 2);
         T * const newData = static_cast<T *>(services::daal_malloc(_capacity * sizeof(T)));
         DAAL_CHECK_MALLOC(newData);
 
         if (_data != nullptr)
         {
-            services::daal_memcpy_s(newData, _tail * sizeof(T), _data, _tail * sizeof(T));
+            result = services::daal_memcpy_s(newData, _tail * sizeof(T), _data, _tail * sizeof(T));
             services::daal_free(_data);
             _data = nullptr;
         }
 
         _data = newData;
-
-        return services::Status();
+        return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
     T * _data;
@@ -199,18 +199,19 @@ public:
 private:
     services::Status grow()
     {
+        int result = 0;
         _capacity = (_capacity == 0 ? defaultSize : _capacity * 2);
         T * const newData = static_cast<T *>(services::daal_malloc(_capacity * sizeof(T)));
         DAAL_CHECK_MALLOC(newData);
 
         if (_data != nullptr)
         {
-            services::daal_memcpy_s(newData, _size * sizeof(T), _data, _size * sizeof(T));
+            result = services::daal_memcpy_s(newData, _size * sizeof(T), _data, _size * sizeof(T));
             services::daal_free(_data);
         }
 
         _data = newData;
-        return services::Status();
+        return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
     T * _data;
@@ -281,6 +282,7 @@ public:
 private:
     services::Status grow()
     {
+        int result = 0;
         _capacity = (_capacity == 0 ? defaultSize : _capacity * 2);
         void * ptr = services::daal_malloc(_capacity * sizeof(size_t));
         size_t * const newValues = static_cast<size_t *>(ptr);
@@ -288,14 +290,14 @@ private:
 
         if (_values != nullptr)
         {
-            services::daal_memcpy_s(newValues, _size * sizeof(size_t), _values, _size * sizeof(size_t));
+            result = services::daal_memcpy_s(newValues, _size * sizeof(size_t), _values, _size * sizeof(size_t));
             services::daal_free(_values);
             _values = nullptr;
         }
 
         _values = newValues;
 
-        return services::Status();
+        return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
     size_t *_values;

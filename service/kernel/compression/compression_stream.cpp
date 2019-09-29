@@ -215,7 +215,12 @@ void CompressionStream::push_back(DataBlock *block)
             size_t tmpOffset = (*(CBC *)_blocks)[_writePos]->getWriteOffset();
             byte *blockPtr = block->getPtr();
 
-            daal::services::daal_memcpy_s((void *)(tmpPtr + tmpOffset), inSize, (void *)blockPtr, inSize);
+            int result = daal::services::daal_memcpy_s((void *)(tmpPtr + tmpOffset), inSize, (void *)blockPtr, inSize);
+            if ( block->getPtr() == NULL )
+            {
+                this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+                return;
+            }
 
             (*(CBC *)_blocks)[_writePos]->setWriteOffset(tmpOffset + inSize);
             return;

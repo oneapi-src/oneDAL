@@ -65,6 +65,7 @@ BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
 template <typename algorithmFpType, training::Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
+    services::Status status{services::Status()};
     const classifier::training::Input * const input = static_cast<classifier::training::Input *>(_in);
     Result * const result = static_cast<Result *>(_res);
 
@@ -78,8 +79,12 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     daal::services::Environment::env & env = *_env;
 
     const bool copy = (par->dataUseInModel == doNotUse);
-    r->impl()->setData<algorithmFpType>(x, copy);
-    r->impl()->setLabels<algorithmFpType>(y, copy);
+    status |= r->impl()->setData<algorithmFpType>(x, copy);
+    status |= r->impl()->setLabels<algorithmFpType>(y, copy);
+    if (status != services::Status())
+    {
+        return status;
+    }
 
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method),    \
                        compute, r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par->engine);

@@ -58,6 +58,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
 
     TArray<algorithmFPType, cpu> betaBufferArray;
     algorithmFPType *betaBuffer(nullptr);
+    int result = 0;
     Status st;
     {
         ReadRowsType xtxBlock(const_cast<NumericTable &>(xtxTable), 0, nBetasIntercept);
@@ -83,14 +84,16 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
             betaBuffer = betaBufferArray.get();
             DAAL_CHECK_MALLOC(betaBuffer);
 
-            daal_memcpy_s(betaBuffer, xtySizeInBytes, xty, xtySizeInBytes);
+            result |= daal_memcpy_s(betaBuffer, xtySizeInBytes, xty, xtySizeInBytes);
+            DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
         }
         {
             TArray<algorithmFPType, cpu> xtxCopyArray(nBetasIntercept * nBetasIntercept);
             algorithmFPType *xtxCopy = xtxCopyArray.get();
             DAAL_CHECK_MALLOC(xtxCopy);
 
-            daal_memcpy_s(xtxCopy, xtxSizeInBytes, xtx, xtxSizeInBytes);
+            result |= daal_memcpy_s(xtxCopy, xtxSizeInBytes, xtx, xtxSizeInBytes);
+            DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
             DAAL_CHECK_STATUS(st, helper.computeBetasImpl(nBetasIntercept, xtx, xtxCopy, nResponses,
                                                           betaBuffer, interceptFlag));
@@ -138,8 +141,8 @@ Status FinalizeKernel<algorithmFPType, cpu>::copyDataToTable(const algorithmFPTy
     DAAL_CHECK_BLOCK_STATUS(block);
     algorithmFPType *dst = block.get();
 
-    daal_memcpy_s(dst, dataSizeInBytes, data, dataSizeInBytes);
-    return Status();
+    int result = daal_memcpy_s(dst, dataSizeInBytes, data, dataSizeInBytes);
+    return (!result) ? Status() : Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>

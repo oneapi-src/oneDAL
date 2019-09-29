@@ -136,12 +136,13 @@ services::Status LRNKernel<algorithmFPType, method, cpu>::compute(const Tensor &
 
                 const size_t nElements = inputBlock.getSize();
 
-                daal::services::daal_memcpy_s(resultArray, nElements * sizeof(algorithmFPType), inputArray, nElements * sizeof(algorithmFPType));
+                int result = daal::services::daal_memcpy_s(resultArray, nElements * sizeof(algorithmFPType),
+                                                           inputArray, nElements * sizeof(algorithmFPType));
                 for(size_t j = 0; j < nElements; j++)
                 {
                     sMinusBetaArray[j] = 1;
                 }
-                return Status();
+                return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
             });
         }
 

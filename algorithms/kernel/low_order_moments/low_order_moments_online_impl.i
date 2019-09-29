@@ -73,7 +73,7 @@ services::Status LowOrderMomentsOnlineKernel<algorithmFPType, method, cpu>::comp
     if(!s)
         return s;
 
-    computeMinMaxAndSumOfSquared<algorithmFPType, cpu> (task.nFeatures,
+    s = computeMinMaxAndSumOfSquared<algorithmFPType, cpu> (task.nFeatures,
                                         task.nVectors,
                                         task.dataBlock,
                                         task.resultArray[(int)partialMinimum],

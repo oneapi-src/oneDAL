@@ -59,6 +59,7 @@ services::Status CoordinateDescentKernel<algorithmFPType, method, cpu>::compute(
     optimization_solver::objective_function::ResultPtr& proxResultPtr)
 {
     services::Status s;
+
     const size_t nRowsArgument = inputArgument->getNumberOfRows();
     const size_t nColsArgument = inputArgument->getNumberOfColumns();
     const algorithmFPType accuracyThreshold = parameter->accuracyThreshold;
@@ -73,7 +74,9 @@ services::Status CoordinateDescentKernel<algorithmFPType, method, cpu>::compute(
     DAAL_CHECK_BLOCK_STATUS(initialPointBD);
     const algorithmFPType *initialPoint = initialPointBD.get();
 
-    daal_memcpy_s(workValue, nRowsArgument * nColsArgument * sizeof(algorithmFPType), initialPoint, nRowsArgument * nColsArgument * sizeof(algorithmFPType));
+    int result = daal_memcpy_s(workValue, nRowsArgument * nColsArgument * sizeof(algorithmFPType),
+                               initialPoint, nRowsArgument * nColsArgument * sizeof(algorithmFPType));
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     sum_of_functions::BatchPtr gradientHessianFunction = parameter->function->clone();
     const size_t maxIterations = parameter->nIterations;
