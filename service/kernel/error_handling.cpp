@@ -105,28 +105,19 @@ public:
         bool found = false;
         size_t index = 0;
 
-        if (this->size() == 0)
-        {
-            return services::SharedPtr<Message<IDType>>(new Message<IDType>(_noMessageFound, "NoErrorMessageFound"));
-        }
+        if(this->size() == 0) { return find(_noMessageFound); }
 
-        for (size_t i = 0; i < this->size() && found == false; i++)
+        for(size_t i = 0; i < this->size() && found == false; i++)
         {
-            if ((*this)[i]->id() == id)
+            if((*this)[i]->id() == id)
             {
                 found = true;
                 index = i;
             }
         }
 
-        if (found)
-        {
-            return (*this)[index];
-        }
-        else
-        {
-            return services::SharedPtr<Message<IDType>>(new Message<IDType>(_noMessageFound, "NoErrorMessageFound"));
-        }
+        if(found) { return (*this)[index]; }
+        else { return find(_noMessageFound); }
     }
 
     /**
