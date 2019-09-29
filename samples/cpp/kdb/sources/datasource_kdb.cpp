@@ -36,6 +36,7 @@
 #define KXVER 3
 
 #include <iostream>
+#include <string>
 
 #include "daal.h"
 #include "service.h"
@@ -52,45 +53,50 @@ string dataSourcePassword = "";
 
 string tableName = "test_table";
 
+std::vector<std::string> injectString(const std::vector<std::string>& inputs, size_t numberString, size_t position) {
+    std::vector<std::string> res(inputs);
+    res[numberString].insert(position, 1, '\0');
+    return res;
+}
+
 int main(int argc, char *argv[])
 {
-    I handle=khpu(const_cast<char*>(dataSourceName.c_str()), dataSourcePort,
-                  const_cast<char*>((dataSourceUsername + ":" + dataSourcePassword).c_str()));
-
-    if (handle < 0)
+    std::vector<std::string> inputs{
+        std::string("dbname"),
+        std::string("tablename"),
+        std::string("username"),
+        std::string("password")
+    };
+    for (size_t numberString = 0; numberString < inputs.size(); ++numberString)
     {
-        std::cout << "Cannot connect" << std::endl;
-        exit(-1);
+        for (size_t position = 0; position <= inputs[numberString].size(); ++position)
+        {
+            bool success = false;
+            std::vector<std::string> modifiedInputs(injectString(inputs, numberString, position));
+            try
+            {
+                daal::data_management::KDBDataSource<daal::data_management::KDBFeatureManager>(
+                    modifiedInputs[0], dataSourcePort, modifiedInputs[1], modifiedInputs[2], modifiedInputs[3]);
+            }
+            catch (daal::services::Exception& daalExc)
+            {
+                std::string receivedMessage(daalExc.what());
+                receivedMessage = receivedMessage.substr(0, receivedMessage.find('\n'));
+                if (receivedMessage == "Null byte injection has been detected")
+                {
+                    success = true;
+                }
+                else
+                {
+                    std::cout << "ERR: " << receivedMessage << std::endl;
+                }
+            }
+            if (!success)
+            {
+                std::cout << "EEEERROR" << std::endl;
+                return 1;
+            }
+        }
     }
-
-    if (handle == 0)
-    {
-        std::cout << "Wrong credentials" << std::endl;
-        exit(-1);
-    }
-
-    K result = k(handle,
-                 const_cast<char*>((tableName + ":([]x:1 2 3 4 5 6; y:2.1 3.45 -2.1 4.2 2.1 0.05; z:6 1 5 2 4 3; class:0 1 1 0 1 0)").c_str()),
-                 (K)0);
-
-    KDBDataSource<KDBFeatureManager> dataSource(
-        dataSourceName, dataSourcePort, tableName, dataSourceUsername, dataSourcePassword,
-        DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
-
-    /* Get the number of rows in the data table */
-    size_t nRows = dataSource.getNumberOfAvailableRows();
-
-    printf ("number of rows = %d\n", (int)nRows);
-
-    /* Load the number of rows from the data table */
-    dataSource.loadDataBlock();
-
-    /* Print the numeric table */
-    printNumericTable(dataSource.getNumericTable());
-
-    result = k(handle, const_cast<char*>(("delete " + tableName + " from `.").c_str()), (K)0);
-
-    kclose(handle);
-
     return 0;
 }

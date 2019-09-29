@@ -40,8 +40,17 @@
 
 #include "daal.h"
 #include "data_management/data_source/odbc_data_source.h"
+#include "data_management/data_source/mysql_feature_manager.h"
 
 using namespace daal::data_management;
+
+
+std::vector<std::string> injectString2(const std::vector<std::string>& inputs, size_t numberString, size_t position) {
+    std::vector<std::string> res(inputs);
+    res[numberString].insert(position, 1, '\0');
+    return res;
+}
+
 
 int main(int argc, char const *argv[])
 {
@@ -50,45 +59,182 @@ int main(int argc, char const *argv[])
      * perform basic data selection and loading with ODBCDataSource component.
      */
 
-    std::string connectionString;
 
-    if (argc > 1)
-    { connectionString = argv[1]; }
+    std::vector<std::string> inputs{
+        std::string("dbname"),
+        std::string("tablename"),
+        std::string("username"),
+        std::string("password")
+    };
+    daal::data_management::ODBCDataSourceOptions options;
 
-    if (utils::trim(connectionString).empty())
-    { utils::printHelp(); return 0; }
 
-    /* Example of user's connection string: */
-    // connectionString = "DRIVER=MySQL;"
-    //                    "SERVER=<host_name>;"
-    //                    "USER=<user_name>;"
-    //                    "PASSWORD=<password>;"
-    //                    "DATABASE=<data_base_name>";
 
-    /* Establish connection to MySQL server */
-    odbc_wrapper::Connection connection(connectionString);
 
-    /* Create a table and insert a few rows into it */
-    const std::string tableName = utils::generateTableName(connection.id());
-    connection.execute("CREATE TABLE ? (DoubleColumn1 double, DoubleColumn2 double)", tableName);
-    connection.execute("INSERT INTO ? VALUES (1.23, 4.56), (7.89, 1.56), (2.62, 9.35)", tableName);
 
-    /* Crate ODBC Data Source via connection string */
-    const ODBCDataSourceOptions options = ODBCDataSourceOptions::allocateNumericTable |
-                                          ODBCDataSourceOptions::createDictionaryFromContext;
-    ODBCDataSource<SQLFeatureManager> ds(connectionString, options);
+    for (size_t numberString = 0; numberString < inputs.size(); ++numberString)
+    {
+        for (size_t position = 0; position <= inputs[numberString].size(); ++position)
+        {
+            bool success = false;
+            std::vector<std::string> modifiedInputs(injectString2(inputs, numberString, position));
+            try
+            {
+                daal::data_management::ODBCDataSource<daal::data_management::SQLFeatureManager>(modifiedInputs[0], modifiedInputs[1], modifiedInputs[2], modifiedInputs[3]);
+            }
+            catch (daal::services::Exception& daalExc)
+            {
+                std::string receivedMessage(daalExc.what());
+                receivedMessage = receivedMessage.substr(0, receivedMessage.find('\n'));
+                if (receivedMessage == "Null byte injection has been detected")
+                {
+                    success = true;
+                }
+                else
+                {
+                    std::cout << "ERR: " << receivedMessage << std::endl;
+                }
+            }
+            if (!success)
+            {
+                std::cout << "EEEERROR" << std::endl;
+                return 1;
+            }
 
-    /* Execute SQL query, you can execute arbitrary query supported by your DB */
-    ds.executeQuery("SELECT * FROM " + tableName);
 
-    /* Cause loading data from the table */
-    ds.loadDataBlock();
 
-    /* Print loaded numeric table */
-    utils::printNumericTable(ds.getNumericTable(), "The loaded table:");
 
-    /* Remove created table */
-    connection.execute("DROP TABLE ?", tableName);
+            try
+            {
+                daal::data_management::ODBCDataSource<daal::data_management::SQLFeatureManager>(modifiedInputs[0], modifiedInputs[1], modifiedInputs[2], modifiedInputs[3], options);
+            }
+            catch (daal::services::Exception& daalExc)
+            {
+                std::string receivedMessage(daalExc.what());
+                receivedMessage = receivedMessage.substr(0, receivedMessage.find('\n'));
+                if (receivedMessage == "Null byte injection has been detected")
+                {
+                    success = true;
+                }
+                else
+                {
+                    std::cout << "ERR: " << receivedMessage << std::endl;
+                }
+            }
+            if (!success)
+            {
+                std::cout << "EEEERROR" << std::endl;
+                return 1;
+            }
+        }
+    }
+
+
+    std::string connectionString("connection");
+    for (size_t position = 0; position <= connectionString.size(); ++position)
+    {
+        bool success = false;
+        std::string copy(connectionString);
+        copy.insert(position, 1, '\0');
+        try
+        {
+            daal::data_management::ODBCDataSource<daal::data_management::SQLFeatureManager>(copy, options);
+        }
+        catch (daal::services::Exception& daalExc)
+        {
+            std::string receivedMessage(daalExc.what());
+            receivedMessage = receivedMessage.substr(0, receivedMessage.find('\n'));
+            if (receivedMessage == "Null byte injection has been detected")
+            {
+                success = true;
+            }
+            else
+            {
+                std::cout << "ERR: " << receivedMessage << std::endl;
+            }
+        }
+        if (!success)
+        {
+            std::cout << "EEEERROR" << std::endl;
+            return 1;
+        }
+    }
+
+    std::string str("connection");
+    for (size_t position = 0; position <= str.size(); ++position)
+    {
+        bool success = false;
+        try
+        {
+            std::string copy(str);
+            copy.insert(position, 1, '\0');
+            daal::data_management::SQLFeatureManager sqlfm;
+            sqlfm.setLimitQuery(copy, 0, 0);
+        }
+        catch (daal::services::Exception& daalExc)
+        {
+            std::string receivedMessage(daalExc.what());
+            receivedMessage = receivedMessage.substr(0, receivedMessage.find('\n'));
+            if (receivedMessage == "Null byte injection has been detected")
+            {
+                success = true;
+            }
+            else
+            {
+                std::cout << "ERR: " << receivedMessage << std::endl;
+            }
+        }
+        if (!success)
+        {
+            std::cout << "EEEERROR" << std::endl;
+            return 1;
+        }
+
+
+        try
+        {
+            std::string connectionStringInner;
+
+            if (argc > 1)
+            { connectionStringInner = argv[1]; }
+
+            if (utils::trim(connectionStringInner).empty())
+            { utils::printHelp(); return 0; }
+            odbc_wrapper::Connection connection(connectionStringInner);
+
+
+            /* Create a table and insert a few rows into it */
+            const std::string tableName = utils::generateTableName(connection.id());
+            /* Crate ODBC Data Source via connection string */
+            const ODBCDataSourceOptions options = ODBCDataSourceOptions::allocateNumericTable |
+                                                ODBCDataSourceOptions::createDictionaryFromContext;
+            ODBCDataSource<SQLFeatureManager> ds(connectionStringInner, options);
+
+            std::string copy(str);
+            copy.insert(position, 1, '\0');
+            /* Execute SQL query, you can execute arbitrary query supported by your DB */
+            ds.executeQuery(copy);
+        }
+        catch (daal::services::Exception& daalExc)
+        {
+            std::string receivedMessage(daalExc.what());
+            receivedMessage = receivedMessage.substr(0, receivedMessage.find('\n'));
+            if (receivedMessage == "Null byte injection has been detected")
+            {
+                success = true;
+            }
+            else
+            {
+                std::cout << "ERR: " << receivedMessage << std::endl;
+            }
+        }
+        if (!success)
+        {
+            std::cout << "EEEERROR" << std::endl;
+            return 1;
+        }
+    }
+
 
     return 0;
 }
