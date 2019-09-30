@@ -73,7 +73,7 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
 
     const size_t xRowCount = x->getNumberOfRows();
     const size_t xColumnCount = x->getNumberOfColumns();
-    if(y) DAAL_ASSERT(xRowCount == y->getNumberOfRows());
+    if(y) { DAAL_ASSERT(xRowCount == y->getNumberOfRows()) }
 
     const auto rowsPerBlock = 512;
     const auto blockCount = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
