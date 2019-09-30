@@ -43,7 +43,6 @@ void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const Nu
     BlockDescriptor<IndependentVariableType> wBD;
     if (w) { const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, 0, xRowCount, readOnly, wBD);}
 
-    const size_t depthLimit = 2;//(maxTreeDepth != 0) ? maxTreeDepth : static_cast<size_t>(-1);
     const TrainigContext<SplitCriterion, LeavesData> context{ splitCriterion, leavesData, x, y, w, featureTypesCache, dataStatistics,
               minLeafObservations, minSplitObservations, dx, yBD.getBlockPtr(),
               wBD.getBlockPtr() };
@@ -68,7 +67,7 @@ void trainStump(SplitCriterion &splitCriterion, LeavesData &leavesData, const Nu
 
     FeatureIndex winnerFeatureIndex = 0;
     IndependentVariableType winnerCutPoint;
-    typename SplitCriterion::ValueType winnerSplitCriterionValue, splitCriterionValue;
+    typename SplitCriterion::ValueType winnerSplitCriterionValue;
     size_t winnerPointsAtLeft;
     typename SplitCriterion::DataStatistics winnerDataStatistics;
     bool winnerIsLeaf = true;

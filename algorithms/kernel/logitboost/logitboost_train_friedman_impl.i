@@ -256,7 +256,6 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     const size_t nc = parameter->nClasses;
     const algorithmFPType thrW = (algorithmFPType)(parameter->weightsDegenerateCasesThreshold);
     const algorithmFPType thrZ = (algorithmFPType)(parameter->responsesDegenerateCasesThreshold);
-    const size_t dim = x->getNumberOfColumns();
     const size_t n = x->getNumberOfRows();
 
     TArray<algorithmFPType, cpu> pred(n * nc);
@@ -272,7 +271,6 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     DAAL_CHECK_STATUS_VAR(s);
 
     algorithmFPType *w = wTable->getArray();
-    algorithmFPType *z = zTable->getArray();
 
     const algorithmFPType inv_n = fp_one / (algorithmFPType)n;
     const algorithmFPType inv_nc = fp_one / (algorithmFPType)nc;
@@ -554,7 +552,6 @@ services::Status LogitBoostTrainKernelNew<friedman, algorithmFPType, cpu>::compu
     const size_t nc = parameter->nClasses;
     const algorithmFPType thrW = (algorithmFPType)(parameter->weightsDegenerateCasesThreshold);
     const algorithmFPType thrZ = (algorithmFPType)(parameter->responsesDegenerateCasesThreshold);
-    const size_t dim = x->getNumberOfColumns();
     const size_t n = x->getNumberOfRows();
 
     TArray<algorithmFPType, cpu> pred(n * nc);
@@ -570,7 +567,6 @@ services::Status LogitBoostTrainKernelNew<friedman, algorithmFPType, cpu>::compu
     DAAL_CHECK_STATUS_VAR(s);
 
     algorithmFPType *w = wTable->getArray();
-    algorithmFPType *z = zTable->getArray();
 
     const algorithmFPType inv_n = fp_one / (algorithmFPType)n;
     const algorithmFPType inv_nc = fp_one / (algorithmFPType)nc;
