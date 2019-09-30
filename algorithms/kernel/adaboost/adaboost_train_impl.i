@@ -314,10 +314,10 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
     DAAL_CHECK(aErrFlag.get(), services::ErrorMemoryAllocationFailed);
 
     /* Initialize weights */
-    for (size_t i = 0; i < nVectors; i++)
+    threader_for(nVectors, nVectors, [&](const size_t i)
     {
         w[i] = invNVectors;
-    }
+    } );
 
     services::SharedPtr<classifier::training::Batch> learnerTrain = parameter->weakLearnerTraining->clone();
     const size_t nClasses = parameter->nClasses;

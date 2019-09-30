@@ -89,9 +89,9 @@ class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
 public:
     typedef classifier::training::interface1::Batch super;
 
-    typedef typename super::InputType                               InputType;
+    typedef typename super::InputType                                    InputType;
     typedef algorithms::kdtree_knn_classification::interface1::Parameter ParameterType;
-    typedef algorithms::kdtree_knn_classification::training::Result ResultType;
+    typedef algorithms::kdtree_knn_classification::training::Result      ResultType;
 
     ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
     InputType input;                /*!< %Input objects of the algorithm */

@@ -272,7 +272,6 @@ services::Status I1LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::comput
     DAAL_CHECK_STATUS_VAR(s);
 
     algorithmFPType *w = wTable->getArray();
-    algorithmFPType *z = zTable->getArray();
 
     const algorithmFPType inv_n = fp_one / (algorithmFPType)n;
     const algorithmFPType inv_nc = fp_one / (algorithmFPType)nc;
@@ -570,7 +569,6 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     DAAL_CHECK_STATUS_VAR(s);
 
     algorithmFPType *w = wTable->getArray();
-    algorithmFPType *z = zTable->getArray();
 
     const algorithmFPType inv_n = fp_one / (algorithmFPType)n;
     const algorithmFPType inv_nc = fp_one / (algorithmFPType)nc;

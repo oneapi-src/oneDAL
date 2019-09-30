@@ -65,7 +65,7 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
 namespace interface2
 {
 
-__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_ADABOOST_TRAINING_RESULT_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_MULTICLASS_ADABOOST_TRAINING_RESULT_ID);
 
 Result::Result() : classifier::training::Result(lastResultNumericTableId + 1) {}
 

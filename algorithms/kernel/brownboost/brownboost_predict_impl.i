@@ -52,7 +52,7 @@ services::Status I1BrownBoostPredictKernel<method, algorithmFPType, cpu>::comput
     services::Status s;
     WriteOnlyColumns<algorithmFPType, cpu> mtR(*rTable, 0, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtR);
-    algorithmFPType *r = mtR.get();
+    const algorithmFPType *r = mtR.get();
     DAAL_ASSERT(r);
 
     {
@@ -62,8 +62,7 @@ services::Status I1BrownBoostPredictKernel<method, algorithmFPType, cpu>::comput
         DAAL_CHECK_STATUS(s, this->compute(xTable, m, nWeakLearners, mtAlpha.get(), r, par));
     }
 
-    brownboost::interface1::Parameter *parameter = const_cast<brownboost::interface1::Parameter *>(par);
-    const algorithmFPType error = parameter->accuracyThreshold;
+    const algorithmFPType error = par->accuracyThreshold;
     const algorithmFPType zero = (algorithmFPType)0.0;
     if(error != zero)
     {
@@ -83,8 +82,8 @@ services::Status BrownBoostPredictKernel<method, algorithmFPType, cpu>::computeI
     const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par)
 {
     const size_t nVectors  = xTable->getNumberOfRows();
-    Model *boostModel = const_cast<Model *>(m);
-    Parameter *parameter = const_cast<Parameter *>(par);
+    const Model *boostModel = const_cast<Model *>(m);
+    const Parameter *parameter = const_cast<Parameter *>(par);
 
     services::Status s;
     services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > rWeakTable = daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu>::create(1, nVectors, &s);
