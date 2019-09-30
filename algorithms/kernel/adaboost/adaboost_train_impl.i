@@ -495,7 +495,6 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
     learnerPredict->parameter().resultsToEvaluate = classifier::computeClassProbabilities;
 
     nWeakLearners = 0;
-    algorithmFPType maxAlpha = zero;
 
     /* Clear the collection of weak learners models in the boosting model */
     boostModel->clearWeakLearnerModels();

@@ -167,7 +167,6 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
         learnerInput->set(classifier::prediction::model, boostModel->getWeakLearnerModel(i));
         DAAL_CHECK_STATUS(s, learnerPredict->computeNoThrow());
     }
-    const algorithmFPType zero = (algorithmFPType)0.0;
 
     services::SharedPtr<HomoNTCPU > curClassScoreTable = HomoNTCPU::create(1, nVectors, &s);
     algorithmFPType *curClassScore = curClassScoreTable->getArray();

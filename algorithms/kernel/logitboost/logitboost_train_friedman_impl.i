@@ -256,7 +256,6 @@ services::Status I1LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::comput
     const size_t nc = parameter->nClasses;
     const algorithmFPType thrW = (algorithmFPType)(parameter->weightsDegenerateCasesThreshold);
     const algorithmFPType thrZ = (algorithmFPType)(parameter->responsesDegenerateCasesThreshold);
-    const size_t dim = x->getNumberOfColumns();
     const size_t n = x->getNumberOfRows();
 
     TArray<algorithmFPType, cpu> pred(n * nc);
@@ -553,7 +552,6 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     const size_t nc = parameter->nClasses;
     const algorithmFPType thrW = (algorithmFPType)(parameter->weightsDegenerateCasesThreshold);
     const algorithmFPType thrZ = (algorithmFPType)(parameter->responsesDegenerateCasesThreshold);
-    const size_t dim = x->getNumberOfColumns();
     const size_t n = x->getNumberOfRows();
 
     TArray<algorithmFPType, cpu> pred(n * nc);
