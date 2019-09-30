@@ -287,7 +287,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
             algorithmFPType* val = valL;
             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable*>(_data), iStartRow, nRowsToProcess);
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
-            algorithmFPType* res = resBD.get() + iStartRow;
+            algorithmFPType* res = resBD.get() ? resBD.get() + iStartRow : nullptr;
 
             size_t iRow = 0;
             for(; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
