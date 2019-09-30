@@ -43,7 +43,7 @@ using namespace daal::services::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status I1BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
-    const brownboost::interface1::Model *m, const NumericTablePtr& rTable, const brownboost::interface1::Parameter *par)
+    const brownboost::interface1::Model *m, NumericTablePtr& rTable, const brownboost::interface1::Parameter *par)
 {
     const size_t nVectors  = xTable->getNumberOfRows();
     brownboost::interface1::Model *boostModel = const_cast<brownboost::interface1::Model *>(m);
@@ -52,7 +52,7 @@ services::Status I1BrownBoostPredictKernel<method, algorithmFPType, cpu>::comput
     services::Status s;
     WriteOnlyColumns<algorithmFPType, cpu> mtR(*rTable, 0, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtR);
-    const algorithmFPType *r = mtR.get();
+    algorithmFPType *r = mtR.get();
     DAAL_ASSERT(r);
 
     {

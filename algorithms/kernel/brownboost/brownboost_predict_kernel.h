@@ -50,7 +50,7 @@ class I1BrownBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, 
     using BoostingPredictKernel<algorithmFPtype, cpu>::compute;
 public:
     services::Status compute(const NumericTablePtr &x, const brownboost::interface1::Model *m,
-                             const NumericTablePtr &r, const brownboost::interface1::Parameter *par);
+                             NumericTablePtr &r, const brownboost::interface1::Parameter *par);
 };
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
