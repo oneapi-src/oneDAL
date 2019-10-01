@@ -149,6 +149,15 @@ public:
         _cntr->setArguments(this->_in, this->_res, this->_par);
         return _cntr->initializeInput();
     }
+
+private:
+    AlgorithmDispatchLayerContainer(const AlgorithmDispatchLayerContainer & other) {}
+
+    AlgorithmDispatchLayerContainer & operator=(const AlgorithmDispatchLayerContainer & other)
+    {
+        return *this;
+    }
+
 protected:
     LayerContainerIfaceImpl *_cntr;
 };

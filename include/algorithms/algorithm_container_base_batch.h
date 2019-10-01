@@ -188,6 +188,14 @@ public:
         return _cntr->resetCompute();
     }
 
+private:
+    AlgorithmDispatchContainer(const AlgorithmDispatchContainer & other) {}
+
+    AlgorithmDispatchContainer(const AlgorithmDispatchContainer & other)
+    {
+        return *this;
+    }
+
 protected:
     AlgorithmContainerImpl<batch> *_cntr;
 };

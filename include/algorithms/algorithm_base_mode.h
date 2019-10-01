@@ -75,6 +75,14 @@ public:
      */
     virtual services::Status checkFinalizeComputeParams() = 0;
 
+private:
+    Algorithm(const Algorithm & other) {}
+
+    Algorithm & operator=(const Algorithm & other)
+    {
+        return *this;
+    }
+
 protected:
     PartialResult *allocatePartialResultMemory()
     {
@@ -143,6 +151,14 @@ public:
     virtual services::Status checkComputeParams() = 0;
 
     Parameter * getBaseParameter() { return _par; }
+
+private:
+    Algorithm(const Algorithm & other) {}
+
+    Algorithm & operator=(const Algorithm & other)
+    {
+        return *this;
+    }
 
 protected:
     services::Status allocateResultMemory()

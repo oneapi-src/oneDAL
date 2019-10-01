@@ -422,6 +422,13 @@ private:
         return services::Status();
     }
 
+    Dictionary(const Dictionary & other) {}
+
+    Dictionary & operator=(const Dictionary & other)
+    {
+        return *this;
+    }
+
 protected:
     size_t        _nfeat;
     FeaturesEqual _featuresEqual;

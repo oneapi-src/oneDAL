@@ -947,6 +947,14 @@ public:
         return _errors;
     }
 
+private:
+    InputDataArchive(const InputDataArchive & other) {}
+
+    InputDataArchive & operator=(const InputDataArchive & other)
+    {
+        return *this;
+    }
+
 protected:
     DataArchiveIface *_arch;
     bool        _finalized;
@@ -1204,6 +1212,14 @@ public:
     services::SharedPtr<services::ErrorCollection> getErrors()
     {
         return _errors;
+    }
+
+private:
+    OutputDataArchive(const OutputDataArchive & other) {}
+
+    OutputDataArchive & operator=(const OutputDataArchive & other)
+    {
+        return *this;
     }
 
 protected:
