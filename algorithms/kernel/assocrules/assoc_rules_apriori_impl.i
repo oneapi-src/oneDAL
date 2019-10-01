@@ -68,9 +68,9 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::compute(const Nume
     /* Find "large" itemsets */
     size_t L_size = 0;
     size_t maxItemsetSize    = ((parameter->maxItemsetSize == 0) ? (size_t) - 1 : parameter->maxItemsetSize);
-    services::Status statLargeItemset = findLargeItemsets((size_t)daal::internal::Math<double,
-                                                            cpu>::sCeil(minSupport * data.numOfTransactions),
-                                                            maxItemsetSize, data, L.get(), L_size);
+    double ceil = daal::internal::Math<double, cpu>::sCeil(minSupport * data.numOfTransactions);
+    DAAL_CHECK(ceil >= 0, ErrorIncorrectConversionIntegerType)
+    services::Status statLargeItemset = findLargeItemsets((size_t)ceil, maxItemsetSize, data, L.get(), L_size);
     DAAL_CHECK_STATUS_OK(statLargeItemset.ok(), statLargeItemset);
     DAAL_ASSERT(L_size > 0);
 
@@ -223,6 +223,7 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::writeItemsetsTable
             largeItemsetsData[2 * item_idx + 1] = itemSet->items[j];
         }
         largeItemsetsSupportData[2 * i]     = i;
+        DAAL_CHECK(itemSet->support.get() <= INT_MAX, ErrorIncorrectConversionIntegerType)
         largeItemsetsSupportData[2 * i + 1] = (int)itemSet->support.get();
     }
     return Status();

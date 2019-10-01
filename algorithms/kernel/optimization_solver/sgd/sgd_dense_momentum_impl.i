@@ -122,6 +122,7 @@ services::Status SGDKernel<algorithmFPType, momentum, cpu>::compute(HostAppIface
         const algorithmFPType learningRate = learningRateArray[epoch % learningRateLength];
         DAAL_CHECK_STATUS(s, task.makeStep(gradient, minimum, task.pastUpdate.get(), learningRate, momentum));
     }
+    DAAL_CHECK(task.nProceededIters <= INT_MAX, ErrorIncorrectConversionIntegerType)
     nProceededIterations[0] = (int)task.nProceededIters;
 
     return s;

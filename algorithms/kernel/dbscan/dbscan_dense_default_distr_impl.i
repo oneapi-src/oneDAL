@@ -239,6 +239,7 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
         partialSplitValues[part] = partialSplit[0];
 
+        DAAL_ASSERT(partialSplit[1] >= 0)
         if (part == 0)
         {
             splitDim = (size_t)partialSplit[1];
@@ -531,6 +532,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::processNeighborhood
                                                                                  const Neighborhood<algorithmFPType, cpu> & neigh,
                                                                                  Queue<size_t, cpu> & qu)
 {
+    DAAL_CHECK(clusterId <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(startObs <= INT_MAX, ErrorIncorrectConversionIntegerType)
     for (size_t j = 0; j < neigh.size(); j++)
     {
         const size_t nextObs = neigh.get(j);
@@ -813,6 +816,9 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
         const size_t clusterId = nClusters;
         nClusters++;
 
+        DAAL_ASSERT(clusterId <= INT_MAX)
+        DAAL_ASSERT(blockIndex <= INT_MAX)
+        DAAL_ASSERT(i <= INT_MAX)
         clusterStructure[i * 4 + 0] = (int)(clusterId);
         clusterStructure[i * 4 + 1] = 1;
         clusterStructure[i * 4 + 2] = (int)blockIndex;
@@ -985,6 +991,9 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
         const size_t clusterId = nClusters;
         nClusters++;
 
+        DAAL_ASSERT(clusterId <= INT_MAX)
+        DAAL_ASSERT(blockIndex <= INT_MAX)
+        DAAL_ASSERT(i <= INT_MAX)
         clusterStructure[i * 4 + 0] = (int)(clusterId);
         clusterStructure[i * 4 + 1] = 1;
         clusterStructure[i * 4 + 2] = (int)blockIndex;

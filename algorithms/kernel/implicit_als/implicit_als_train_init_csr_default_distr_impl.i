@@ -66,7 +66,9 @@ public:
         }
         else
         {
-            nParts = (size_t)((_partitionRows.get())[0]);
+            int iparts = (_partitionRows.get())[0];
+            DAAL_CHECK(iparts >= 0, ErrorIncorrectConversionIntegerType)
+            nParts = (size_t)iparts;
             _partitionPtr.reset(nParts + 1);
             DAAL_CHECK_MALLOC(_partitionPtr.get());
             _partition = _partitionPtr.get();
@@ -249,6 +251,7 @@ Status ImplicitALSInitDistrKernelBase<algorithmFPType, fastCSR, cpu>::computeBlo
         {
             if (blockFlags[i * nItems + j])
             {
+                DAAL_ASSERT(j <= INT_MAX)
                 blocksToLocalData[indexId++] = (int)j;
             }
         }

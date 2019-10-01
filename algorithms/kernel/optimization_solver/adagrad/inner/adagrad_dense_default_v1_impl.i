@@ -143,6 +143,7 @@ services::Status I1AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppI
     ReadRows<algorithmFPType, cpu> learningRateBD(*ntlearningRate, 0, 1);
     const algorithmFPType learningRate = *learningRateBD.get();
 
+    DAAL_CHECK(nIter <= INT_MAX, ErrorIncorrectConversionIntegerType)
     *nProceededIterations = (int)nIter;
 
     TArray<algorithmFPType, cpu> smAccumulatedG(nRows);
@@ -171,6 +172,7 @@ services::Status I1AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppI
         }
         if(!s || host.isCancelled(s, 1))
         {
+            DAAL_ASSERT((epoch - startIteration) <= INT_MAX)
             *nProceededIterations = (int)(epoch - startIteration);
             break;
         }
@@ -187,6 +189,7 @@ services::Status I1AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppI
             const algorithmFPType gradientThreshold = parameter->accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(algorithmFPType(1.0), pointNorm);
             if(gradientNorm <= gradientThreshold)
             {
+                DAAL_ASSERT((epoch - startIteration) <= INT_MAX)
                 *nProceededIterations = (int)(epoch - startIteration);
                 if(parameter->optionalResultRequired)
                 {

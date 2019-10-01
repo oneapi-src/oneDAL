@@ -204,6 +204,7 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::generateSelectedSet()
         bool isNumberUnique = false;
         while(isNumberUnique != true)
         {
+            DAAL_ASSERT(nVectors <= INT_MAX)
             DAAL_CHECK_STATUS(s, (distributions::uniform::internal::UniformKernelDefault<int, cpu>::compute(0, (int)nVectors, engine, 1, &number)));
             isNumberUnique = true;
             for(int j = 0; j < i; j++)

@@ -197,6 +197,7 @@ public:
             _predefined += _size;
             return services::Status();
         }
+        DAAL_CHECK(_size <= INT_MAX, ErrorIncorrectConversionIntegerType)
         DAAL_CHECK(!RNGsType().uniformWithoutReplacement((int)_size, _values.get(), _engine->getState(), 0, _maxVal), ErrorIncorrectErrorcodeFromGenerator);
 
         pValues = _values.get();
@@ -210,6 +211,7 @@ public:
             _predefined += _size;
             return services::Status();
         }
+        DAAL_CHECK(_size <= INT_MAX, ErrorIncorrectConversionIntegerType)
         DAAL_CHECK(!RNGsType().uniform((int)_size, _values.get(), _engine->getState(), 0, _maxVal), ErrorIncorrectErrorcodeFromGenerator);
 
         pValues = _values.get();

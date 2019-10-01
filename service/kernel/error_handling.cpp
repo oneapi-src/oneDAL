@@ -950,6 +950,7 @@ void ErrorMessageCollection::parseResourceFile()
 
     add(NoErrorMessageFound, "NoErrorMessageFound");
     add(ErrorMethodNotImplemented, "Method is not implemented");
+    add(ErrorIncorrectConversionIntegerType, "Invalid conversion of integer type");
 }
 
 void ErrorDetailCollection::parseResourceFile()

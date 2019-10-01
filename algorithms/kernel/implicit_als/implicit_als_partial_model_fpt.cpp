@@ -45,6 +45,7 @@ DAAL_EXPORT services::Status PartialModel::initialize(const Parameter &parameter
     DAAL_CHECK_STATUS_VAR(s);
 
     int *indicesData = HomogenNumericTable<int>::cast(_indices)->getArray();
+    DAAL_CHECK(size >= 0, services::ErrorIncorrectConversionIntegerType)
     const int iSize = (int)size;
     for (int i = 0; i < iSize; i++)
     {
@@ -76,6 +77,7 @@ DAAL_EXPORT services::Status PartialModel::initialize(const Parameter &parameter
     DAAL_CHECK_MALLOC(srcIndicesData);
 
     int *dstIndicesData = HomogenNumericTable<int>::cast(_indices)->getArray();
+    DAAL_CHECK(offset >= 0, services::ErrorIncorrectConversionIntegerType)
     const int iOffset = (int)offset;
     for (size_t i = 0; i < size; i++)
     {

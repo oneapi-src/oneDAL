@@ -81,6 +81,7 @@ void Batch::initializeQualityMetrics()
  */
 algorithms::ResultPtr ResultCollection::getResult(QualityMetricId id) const
 {
+    DAAL_ASSERT(id >= 0)
     return staticPointerCast<Result, SerializationIface>((*this)[(size_t)id]);
 }
 
@@ -91,6 +92,7 @@ algorithms::ResultPtr ResultCollection::getResult(QualityMetricId id) const
  */
 algorithms::InputPtr InputDataCollection::getInput(QualityMetricId id) const
 {
+    DAAL_ASSERT(id >= 0)
     return algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id);
 }
 

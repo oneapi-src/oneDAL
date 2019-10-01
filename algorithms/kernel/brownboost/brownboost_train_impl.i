@@ -210,7 +210,7 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoost
             h[j] = ((h[j] > zero) ? one : -one);
             algorithmFPType hy = h[j] * y[j];
             gamma += w[j] * hy;
-            nCorrect += (size_t)(hy > zero);
+            nCorrect += (hy > zero) ? 1 : 0;
         }
 
         if (nCorrect == nVectors)
@@ -438,7 +438,7 @@ services::Status BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::brownBo
             h[j] = ((h[j] > zero) ? one : -one);
             algorithmFPType hy = h[j] * y[j];
             gamma += w[j] * hy;
-            nCorrect += (size_t)(hy > zero);
+            nCorrect += (hy > zero) ? 1 : 0;
         }
 
         if (nCorrect == nVectors)

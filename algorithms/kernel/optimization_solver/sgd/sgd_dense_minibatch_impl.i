@@ -131,6 +131,7 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
         s = function->computeNoThrow();
         if(!s || host.isCancelled(s, 1))
         {
+            DAAL_ASSERT((epoch - task.startIteration) <= INT_MAX)
             task.nProceededIterations[0] = (int)(epoch - task.startIteration);
             break;
         }
@@ -159,6 +160,7 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
         }
         task.makeStep(gradient, learningRate, consCoeff, argumentSize);
     }
+    DAAL_CHECK(task.nProceededIters <= INT_MAX, ErrorIncorrectConversionIntegerType)
     task.nProceededIterations[0] = (int)task.nProceededIters;
     function->sumOfFunctionsParameter->batchIndices = previousBatchIndices;
     function->sumOfFunctionsInput->set(sum_of_functions::argument, previousArgument);

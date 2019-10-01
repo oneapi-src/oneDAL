@@ -109,7 +109,8 @@ public:
     {
         if (_count >= _size)
         {
-            DAAL_CHECK(grow(), services::ErrorMemoryAllocationFailed);
+            services::Status status = grow();
+            DAAL_CHECK_STATUS_VAR(status)
         }
 
         _top = (_top + 1) & _sizeMinus1;
@@ -131,10 +132,11 @@ public:
 
     size_t size() const { return _count; }
 
-    bool grow()
+    services::Status grow()
     {
         _size *= 2;
         T * const newData = static_cast<T *>(services::daal_malloc(_size * sizeof(T)));
+        DAAL_CHECK_MALLOC(newData)
         if (_top == _sizeMinus1)
         {
             _top = _size - 1;
@@ -145,7 +147,7 @@ public:
         _data = newData;
         services::daal_free(oldData);
         oldData = nullptr;
-        return true;
+        return services::Status();
     }
 
 private:

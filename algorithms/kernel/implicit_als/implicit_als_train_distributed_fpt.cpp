@@ -80,8 +80,8 @@ DAAL_EXPORT Status DistributedPartialResultStep3::allocate(const daal::algorithm
     const DistributedInput<step3Local> *algInput = static_cast<const DistributedInput<step3Local> *>(input);
     const Parameter *algParameter = static_cast<const Parameter *>(parameter);
 
-    size_t nBlocks = algInput->getNumberOfBlocks();
-    size_t offset = algInput->getOffset();
+    const size_t nBlocks = algInput->getNumberOfBlocks();
+    const size_t offset = algInput->getOffset();
 
     Collection<size_t> _keys;
     Collection<SerializationIfacePtr> _values;

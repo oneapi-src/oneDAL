@@ -119,6 +119,7 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
 
     WriteRows<int, cpu, NumericTable> nIterationsBD(*nIterations, 0, 1);
     int *nProceededIterations = nIterationsBD.get();
+    DAAL_CHECK(nIter <= INT_MAX, ErrorIncorrectConversionIntegerType)
     *nProceededIterations = (int)nIter;
 
     size_t startIteration = 0, epoch = 0, nProceededIters = 0;
@@ -157,6 +158,7 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
             const algorithmFPType gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(one, pointNorm);
             if(gradientNorm < gradientThreshold)
             {
+                DAAL_ASSERT(nProceededIters <= INT_MAX)
                 nProceededIterations[0] = (int)nProceededIters;
                 break;
             }

@@ -112,6 +112,7 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
     Status s = checkNumericTable(firstNumTableInFirstNodeCollection.get(), QRNodeCollectionNTStr());
     if(!s) { return s; }
     size_t nFeatures = firstNumTableInFirstNodeCollection->getNumberOfColumns();
+    DAAL_CHECK(nNodes <= INT_MAX, ErrorIncorrectConversionIntegerType)
     // check all dataCollection in key-value dataCollection
     for(size_t i = 0 ; i < nNodes ; i++)
     {

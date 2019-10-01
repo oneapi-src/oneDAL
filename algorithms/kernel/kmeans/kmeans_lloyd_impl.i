@@ -309,6 +309,7 @@ Status task_t<algorithmFPType, cpu>::addNTToTaskThreadedDense(const NumericTable
 
             if(ntAssign)
             {
+                DAAL_ASSERT(minIdx <= INT_MAX)
                 assignments[i] = (int)minIdx;
             }
         } /* for (size_t i = 0; i < blockSize; i++) */
@@ -409,6 +410,7 @@ Status task_t<algorithmFPType, cpu>::addNTToTaskThreadedCSR(const NumericTable *
 
             if (ntAssign)
             {
+                DAAL_ASSERT(minIdx <= INT_MAX)
                 assignments[i] = (int)minIdx;
             }
         }
@@ -635,6 +637,7 @@ Status RecalculationObservationsDense(const size_t p, const size_t nClusters, co
             goal += minGoalVal;
             if (ntAssign)
             {
+                DAAL_ASSERT(minIdx <= INT_MAX)
                 assignments[k] = (int)minIdx;
             }
 
@@ -725,6 +728,7 @@ Status RecalculationObservationsCSR(const size_t p, const size_t nClusters, cons
             goal += minGoalVal;
             if (ntAssign)
             {
+                DAAL_ASSERT(minIdx <= INT_MAX)
                 assignments[k] = (int)minIdx;
             }
 

@@ -414,7 +414,8 @@ enum ErrorID
 
     UnknownError = -1000000,                                            /*!< Unknown error */
     NoErrorMessageFound = -1000001,                                     /*!< No error message found */
-    ErrorMethodNotImplemented = -1000002                                /*!< Method is not implemented in the present library version  */
+    ErrorMethodNotImplemented = -1000002,                               /*!< Method is not implemented in the present library version  */
+    ErrorIncorrectConversionIntegerType = -1000003                      /*!< Invalid conversion of integer type  */  
 };
 /** @} */
 }
