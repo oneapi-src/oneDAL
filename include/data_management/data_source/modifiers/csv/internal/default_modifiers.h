@@ -168,6 +168,7 @@ public:
         if ( !_primitives.data() )
         {
             services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+            return;
         }
 
         for (size_t i = 0; i < numberOfInputFeatures; i++)
@@ -220,6 +221,7 @@ public:
             if ( !_primitives.push_back(primitive) )
             {
                 services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+                return;
             }
 
             primitive->initialize(config, i);

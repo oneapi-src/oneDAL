@@ -84,9 +84,14 @@ public:
     {
         if(negativeClassIdx >= positiveClassIdx)
         {
-            _s = services::Status(services::ErrorIncorrectParameter);
+            _s |= services::Status(services::ErrorIncorrectParameter);
         }
-        services::throwIfPossible(_s);
+
+        if(!_s)
+        {
+            services::throwIfPossible(_s);
+            return;
+        }
         size_t imodel = positiveClassIdx * (positiveClassIdx - 1)/2 + negativeClassIdx;
 
         _modelPtr->setTwoClassClassifierModel(imodel, model);
