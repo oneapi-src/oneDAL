@@ -150,7 +150,7 @@ public:
      * Constructs a backward local contrast normalization layer by copying input objects and parameters of another local contrast normalization layer
      * \param[in] other A layer to be used as the source to initialize the input objects
      *                  and parameters of this layer
-     * \DAAL_DEPRECATED{ cloneImpl() }
+     * \DAAL_DEPRECATED_USE{ cloneImpl() }
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
