@@ -280,6 +280,14 @@ public:
         return _cntr->resetCompute();
     }
 
+private:
+    AlgorithmDispatchContainer(const AlgorithmDispatchContainer & other) {}
+
+    AlgorithmDispatchContainer & operator=(const AlgorithmDispatchContainer & other)
+    {
+        return *this;
+    }
+
 protected:
     AlgorithmContainerImpl<mode> *_cntr;
 };
