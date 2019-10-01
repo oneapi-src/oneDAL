@@ -176,6 +176,8 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
     algorithmFPType *maxClassScore = maxClassScoreTable->getArray();
     DAAL_CHECK(maxClassScore, services::ErrorMemoryAllocationFailed);
 
+    const algorithmFPType zero = 0.0;
+
     /* Initialize array of prediction results */
     service_memset<algorithmFPType, cpu>(r, zero, nVectors);
     service_memset<algorithmFPType, cpu>(curClassScore, zero, nVectors);
@@ -219,7 +221,6 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
     if(nClasses == 2)
     {
         const algorithmFPType minusOne = (algorithmFPType) - 1.0;
-        const algorithmFPType zero = (algorithmFPType)0.0;
         threader_for(nVectors, nVectors, [&](const size_t j)
         {
             if(r[j] == zero) { r[j] = minusOne; }
