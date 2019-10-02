@@ -77,7 +77,7 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, checkImpl(input, parameter));
-    const classifier::Parameter *algPar = static_cast<const classifier::Parameter *>(parameter);
+    const classifier::interface1::Parameter *algPar = static_cast<const classifier::interface1::Parameter *>(parameter);
     DAAL_CHECK(algPar->nClasses == 2, services::ErrorModelNotFullInitialized);
     return services::Status();
 }
