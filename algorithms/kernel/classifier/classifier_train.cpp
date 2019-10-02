@@ -101,7 +101,7 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
 services::Status Input::checkImpl(const daal::algorithms::Parameter *parameter) const
 {
     services::Status s;
-    if (parameter != NULL)
+    if (parameter != nullptr)
     {
         auto par1 = dynamic_cast<const classifier::interface1::Parameter *>(parameter);
         if(par1)
@@ -111,7 +111,7 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter *parameter) 
         if(par2)
             DAAL_CHECK_EX(par2->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
 
-        if(par1 == NULL && par2 == NULL) return services::Status(services::ErrorNullParameterNotSupported);
+        if(par1 == nullptr && par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
     }
 
     data_management::NumericTablePtr dataTable = get(data);
