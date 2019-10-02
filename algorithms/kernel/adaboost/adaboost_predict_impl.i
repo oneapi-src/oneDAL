@@ -77,17 +77,18 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeImp
         learnerInput->set(classifier::prediction::model, learnerModel);
         DAAL_CHECK_STATUS(s, learnerPredict->computeNoThrow());
 
-        threader_for(nVectors, nVectors, [&](const size_t j)
+        /* Update boosting classification results */
+        for (size_t j = 0; j < nVectors; j++)
         {
             const algorithmFPType p = ((rWeak[j] > zero) ? one : -one);
             r[j] += p * alpha[i];
-        } );
+        }
     }
 
-    threader_for(nVectors, nVectors, [&](const size_t j)
+    for(size_t j = 0; j < nVectors; j++)
     {
         r[j] = ((r[j] >= zero) ? one : -one);
-    } );
+    }
 
     return s;
 }
@@ -103,11 +104,11 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeSam
     service_memset<algorithmFPType, cpu>(pSumLog, 0, nVectors);
 
     const algorithmFPType eps = services::internal::EpsilonVal<algorithmFPType>::get();
-    threader_for(nVectors * nClasses, nVectors * nClasses, [&](const size_t i)
+    for(size_t i = 0; i < nVectors * nClasses; i++)
     {
         if (p[i] < eps) {pLog[i] = eps;}
         else {pLog[i] = p[i];}
-    } );
+    }
 
     Math<algorithmFPType, cpu>::vLog(nVectors * nClasses, p, pLog);
 
@@ -208,7 +209,7 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
                 }
             }
         }
-        threader_for(nVectors, nVectors, [&](const size_t i)
+        for (size_t i = 0; i < nVectors; i++)
         {
             if(curClassScore[i] > maxClassScore[i])
             {
@@ -216,15 +217,16 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
                 maxClassScore[i] = curClassScore[i];
             }
             curClassScore[i] = 0;
-        } );
+        }
     }
     if(nClasses == 2)
     {
-        const algorithmFPType minusOne = (algorithmFPType) - 1.0;
-        threader_for(nVectors, nVectors, [&](const size_t j)
+        const algorithmFPType minusOne = (algorithmFPType)-1.0;
+        const algorithmFPType zero = (algorithmFPType)0.0;
+        for(size_t j = 0; j < nVectors; j++)
         {
             if(r[j] == zero) { r[j] = minusOne; }
-        } );
+        }
     }
     return s;
 }
