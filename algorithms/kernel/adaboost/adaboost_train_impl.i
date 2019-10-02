@@ -51,6 +51,7 @@
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::algorithms;
+using namespace daal::services::internal;
 
 namespace daal
 {
@@ -314,10 +315,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
     DAAL_CHECK(aErrFlag.get(), services::ErrorMemoryAllocationFailed);
 
     /* Initialize weights */
-    threader_for(nVectors, nVectors, [&](const size_t i)
-    {
-        w[i] = invNVectors;
-    } );
+    service_memset<algorithmFPType, cpu>(w, invNVectors, nVectors);
 
     services::SharedPtr<classifier::training::Batch> learnerTrain = parameter->weakLearnerTraining->clone();
     const size_t nClasses = parameter->nClasses;
