@@ -165,7 +165,7 @@ public:
      * and parameters of another forward batch normalization layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the layer
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -207,7 +207,7 @@ public:
     /**
      * Returns the structure that contains the result of the forward batch normalization layer
      * \return Structure that contains the result of the forward batch normalization layer
-     * \DAAL_DEPRECATED_USE{ getLayerResult() }
+     * \DAAL_DEPRECATED
      */
     ResultPtr getResult()
     {
@@ -234,7 +234,7 @@ public:
      * with a copy of the input objects and parameters for this forward batch normalization layer
      * in the batch processing mode
      * \return Pointer to the newly allocated layer
-     * \DAAL_DEPRECATED_USE{ getLayerForPrediction() }
+     * \DAAL_DEPRECATED
      */
     services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
@@ -280,7 +280,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {

@@ -151,7 +151,7 @@ public:
      * and parameters of another forward average 1D pooling layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the layer
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -193,7 +193,7 @@ public:
     /**
      * Returns the structure that contains the result of the forward average 1D pooling layer
      * \return Structure that contains the result of the forward average 1D pooling layer
-     * \DAAL_DEPRECATED_USE{ getLayerResult() }
+     * \DAAL_DEPRECATED
      */
     ResultPtr getResult()
     {
@@ -250,7 +250,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch(size_t nDimensions) }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {

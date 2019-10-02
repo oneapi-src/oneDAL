@@ -108,7 +108,7 @@ public:
     /**
      * Constructs the logistic function by copying input objects of another logistic function
      * \param[in] other function to be used as the source to initialize the input objects of the logistic function
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
     {

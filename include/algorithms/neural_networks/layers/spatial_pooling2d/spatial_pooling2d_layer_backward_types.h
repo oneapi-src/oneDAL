@@ -83,7 +83,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     using layers::backward::Input::get;
     using layers::backward::Input::set;
@@ -126,7 +126,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
+    virtual ~Result() {}
 
     /**
      * Allocates memory to store the result of the backward 2D pooling layer

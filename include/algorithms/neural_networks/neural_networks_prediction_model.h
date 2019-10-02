@@ -69,7 +69,7 @@ public:
      * Constructs the parameters of neural network prediction algorithm
      * \param[in] batchSize_                Size of the batch to be processed by the neural network
      * \param[in] allocateWeightsAndBiases_ Flag that idicates if weights and biases are allocated or not
-     * \DAAL_DEPRECATED_USE{ prediction::Batch() }
+     * \DAAL_DEPRECATED
      */
     Parameter(size_t batchSize_ = 1, bool allocateWeightsAndBiases_ = false) :
         batchSize(batchSize_), allocateWeightsAndBiases(allocateWeightsAndBiases_)
@@ -108,7 +108,7 @@ public:
      * from the list of forward stages of the layers and the list of connections between the layers
      * \param[in] forwardLayersForModel  List of forward stages of the layers
      * \param[in] nextLayersForModel     List of next layers for each layer with corresponding index
-     * \DAAL_DEPRECATED_USE{ Model::create }
+     * \DAAL_DEPRECATED
      */
     Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
           const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel);
@@ -137,7 +137,7 @@ public:
      * \param[in] storeWeightsInTable           Flag.
      *                                          If true then the storage for weights and biases is allocated as a single piece of memory,
      *                                          otherwise weights and biases are allocated as separate tensors
-     * \DAAL_DEPRECATED_USE{ Model::create }
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
     DAAL_EXPORT Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
@@ -169,7 +169,7 @@ public:
     /**
      * Constructs model object for the prediction stage of neural network from a collection of layer descriptors
      * \param[in] topology  Collection of layer descriptors of every inserted layer
-     * \DAAL_DEPRECATED_USE{ Model::create }
+     * \DAAL_DEPRECATED
      */
     Model(const prediction::Topology &topology);
 
@@ -186,7 +186,7 @@ public:
      * \brief Destructor
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Model() {}
+    virtual ~Model() {}
 
     /**
      * Allocates the buffers needed for the prediction using neural network
@@ -321,7 +321,7 @@ protected:
 
     /*
      * \private
-     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Model) }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

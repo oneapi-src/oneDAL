@@ -86,7 +86,7 @@ struct DAAL_EXPORT Parameter: public layers::Parameter
      * \param[in] _pyramidHeight     The value of pyramid height
      * \param[in] firstIndex         Index of the first of two dimensions on which the spatial is performed
      * \param[in] secondIndex        Index of the second of two dimensions on which the spatial is performed
-     * \DAAL_DEPRECATED_USE{ layers::spatial_stochastic_pooling2d::Parameter() }
+     * \DAAL_DEPRECATED
      */
     Parameter(size_t _pyramidHeight, size_t firstIndex, size_t secondIndex);
 

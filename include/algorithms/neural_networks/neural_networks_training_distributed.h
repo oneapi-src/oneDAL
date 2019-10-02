@@ -209,7 +209,7 @@ public:
      * Constructs neural network by copying input objects and parameters of another neural network
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
-     * \DAAL_DEPRECATED_USE{ Distributed<step1Local>::cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Distributed(const Distributed<step1Local, algorithmFPType, method> &other) : parameter(other.parameter), input(other.input)
     {
@@ -219,7 +219,7 @@ public:
     /**
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Distributed() {}
+    virtual ~Distributed() {}
 
     /**
      * Registers user-allocated memory to store  partial results of the neural network algorithm
@@ -287,7 +287,7 @@ public:
 
 protected:
     /**
-     * \DAAL_DEPRECATED_USE{ Distributed<step1Local>() }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {
@@ -380,7 +380,7 @@ public:
      * Constructs neural network by copying input objects and parameters of another neural network
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
-     * \DAAL_DEPRECATED_USE{ Distributed<step2Master>::cloneImpl() }
+     * \DAAL_DEPRECATED
      */
      Distributed(const Distributed<step2Master, algorithmFPType, method> &other) : parameter(other.parameter), input(other.input)
     {
@@ -390,7 +390,7 @@ public:
     /**
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Distributed() {}
+    virtual ~Distributed() {}
 
     /**
      * Initializes the neural network topology
@@ -435,7 +435,7 @@ public:
     /**
      * Returns the structure that contains the results of the neural network algorithm
      * \return Structure that contains the results of the neural network algorithm
-     * \DAAL_DEPRECATED_USE{ initialize(const services::Collection<size_t> &dataSize, const training::Topology &topology) }
+     * \DAAL_DEPRECATED
      */
     ResultPtr getResult()
     {
@@ -462,7 +462,7 @@ public:
 
 protected:
     /**
-     * \DAAL_DEPRECATED_USE{ Distributed(const SharedPtr<optimization_solver::iterative_solver::Batch >& optimizationSolver_) }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {

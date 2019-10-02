@@ -71,20 +71,20 @@ public:
     typedef spatial_pooling2d::backward::Input super;
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ Batch(size_t pyramidHeight, size_t nDimensions) }
+     * \DAAL_DEPRECATED
      */
     Input();
 
     /**
      * Copy constructor
-     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other);
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     using layers::backward::Input::get;
     using layers::backward::Input::set;
@@ -128,13 +128,13 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ initialize() }
+     * \DAAL_DEPRECATED
      */
     Result();
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
+    virtual ~Result() {}
 
     using layers::backward::Result::get;
     using layers::backward::Result::set;

@@ -69,20 +69,20 @@ public:
     typedef layers::forward::Input super;
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ layers::fullyconnected::forward::Batch(ParameterType& parameter) }
+     * \DAAL_DEPRECATED
      */
     Input();
 
     /**
      * Copy constructor
-     * \DAAL_DEPRECATED_USE{ layers::fullyconnected::forward::Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other);
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     /**
      * Sets an input object for the forward fully-connected layer
@@ -141,14 +141,14 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ layers::fullyconnected::forward::Batch::initialize() }
+     * \DAAL_DEPRECATED
      */
     Result();
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
+    virtual ~Result() {}
 
     /**
      * Returns the result of the forward fully-connected layer
@@ -167,7 +167,7 @@ public:
      * \param[in] method    Computation method for the layer
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ layers::fullyconnected::forward::Batch::allocateResult() }
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -219,7 +219,7 @@ public:
 protected:
     /**
      * \private
-     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

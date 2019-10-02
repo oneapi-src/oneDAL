@@ -108,7 +108,7 @@ struct DAAL_EXPORT Parameter: public layers::pooling3d::Parameter
      *                              of the 3D subtensor on which the pooling is performed
      * \param[in] thirdPadding      Number of data elements to implicitly add to the the third dimension
      *                              of the 3D subtensor on which the pooling is performed
-     * \DAAL_DEPRECATED_USE{ Batch(size_t nDimensions) }
+     * \DAAL_DEPRECATED
      */
     Parameter(size_t firstIndex, size_t secondIndex, size_t thirdIndex,
     size_t firstKernelSize = 2, size_t secondKernelSize = 2, size_t thirdKernelSize = 2,

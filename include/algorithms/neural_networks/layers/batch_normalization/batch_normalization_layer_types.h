@@ -90,7 +90,7 @@ struct DAAL_EXPORT Parameter: public layers::Parameter
      * \param[in] alpha             Smoothing factor that is used in population mean and population variance computations
      * \param[in] epsilon           A constant added to the mini-batch variance for numerical stability
      * \param[in] dimension         Index of the dimension for which the normalization is performed
-     * \DAAL_DEPRECATED_USE{ forward::Batch() }
+     * \DAAL_DEPRECATED
      */
     Parameter(double alpha = 0.01, double epsilon = 0.00001, size_t dimension = 1);
 

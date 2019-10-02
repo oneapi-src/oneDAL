@@ -113,7 +113,7 @@ public:
     /**
      * Constructs SmoothReLU algorithm by copying input objects of another SmoothReLU algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects of the algorithm
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
     {

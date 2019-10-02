@@ -95,13 +95,13 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 public:
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     Input();
 
     /**
      * Copy constructor
-     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other) : daal::algorithms::Input(other){}
 
@@ -145,7 +145,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ BATCH::allocateResult() }
+     * \DAAL_DEPRECATED
      */
     Result();
 

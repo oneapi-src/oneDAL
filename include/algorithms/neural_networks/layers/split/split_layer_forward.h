@@ -150,7 +150,7 @@ public:
      * Constructs the forward split layer by copying input objects of
      * another forward split layer
      * \param[in] other An algorithm to be used as the source to initialize the input objects of the algorithm
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -192,7 +192,7 @@ public:
     /**
      * Returns the structure that contains the result of the forward split layer
      * \return Structure that contains the result of forward split layer
-     * \DAAL_DEPRECATED_USE{ getLayerResult() }
+     * \DAAL_DEPRECATED
      */
     ResultPtr getResult()
     {
@@ -248,7 +248,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {

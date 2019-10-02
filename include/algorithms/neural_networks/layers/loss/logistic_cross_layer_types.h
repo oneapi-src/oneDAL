@@ -87,7 +87,7 @@ class DAAL_EXPORT Parameter: public layers::Parameter
 public:
     /**
     *  Constructs parameters of the logistic cross-entropy layer
-    * \DAAL_DEPRECATED_USE{ forward::Batch() }
+    * \DAAL_DEPRECATED
     */
     Parameter();
     /**

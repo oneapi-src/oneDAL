@@ -153,7 +153,7 @@ public:
      * Constructs forward 2D locally connected layer by copying input objects and parameters of another forward 2D locally connected layer
      * \param[in] other A layer to be used as the source to initialize the input objects
      *                  and parameters of this layer
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -195,7 +195,7 @@ public:
     /**
      * Returns the structure that contains results of 2D locally connected layer
      * \return Structure that contains results of 2D locally connected layer
-     * \DAAL_DEPRECATED_USE{ getLayerResult() }
+     * \DAAL_DEPRECATED
      */
     ResultPtr getResult()
     {
@@ -248,7 +248,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {

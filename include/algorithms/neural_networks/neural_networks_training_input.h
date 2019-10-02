@@ -104,18 +104,18 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     /**
-     * \DAAL_DEPRECATED_USE{ Batch(SharedPtr<optimization_solver::iterative_solver::Batch > optimizationSolver_) }
+     * \DAAL_DEPRECATED
      */
     Input(size_t nElements = lastInputCollectionId + 1);
     /**
-     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other);
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     /**
      * Returns %input object for the neural network training algorithm
@@ -173,7 +173,7 @@ public:
      * \param[in] method  Computatiom method
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ DistributedInput<step1Local>::check() }
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
@@ -203,18 +203,18 @@ class DAAL_EXPORT DistributedInput<step1Local> : public Input
 {
 public:
     /*
-     * \DAAL_DEPRECATED_USE{ Distributed<step1Local>::Distributed() }
+     * \DAAL_DEPRECATED
      */
     DistributedInput(size_t nElements = lastStep1LocalInputId + 1);
     /*
-     * \DAAL_DEPRECATED_USE{ Distributed(const Distributed<step1Local, algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     DistributedInput(const DistributedInput& other);
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~DistributedInput() {};
+    virtual ~DistributedInput() {};
 
     using Input::set;
     using Input::get;
@@ -256,15 +256,15 @@ class DAAL_EXPORT DistributedInput<step2Master> : public daal::algorithms::Input
 {
 public:
     /**
-     * DAAL_DEPRECATED_USE{ Distributed<step2Master>(const SharedPtr<optimization_solver::iterative_solver::Batch >& optimizationSolver_) }
+     * DAAL_DEPRECATED
      */
     DistributedInput();
     /**
-     * DAAL_DEPRECATED_USE{ Distributed(const Distributed<step2Master, algorithmFPType, method> &other) }
+     * DAAL_DEPRECATED
      */
     DistributedInput(const DistributedInput& other);
 
-    DAAL_DEPRECATED_VIRTUAL virtual ~DistributedInput() {};
+    virtual ~DistributedInput() {};
 
     /**
      * Returns %input object for the neural network training algorithm

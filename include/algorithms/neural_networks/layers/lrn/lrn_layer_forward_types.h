@@ -104,7 +104,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 };
 
 /**
@@ -124,7 +124,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
+    virtual ~Result() {};
 
     /**
      * Returns the result of the forward local response normalization layer
@@ -194,7 +194,7 @@ public:
 
 protected:
     /** \private
-     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

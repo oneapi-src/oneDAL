@@ -79,7 +79,7 @@ public:
      */
     Input(const Input& other);
 
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     /**
      * Returns dimensions of weights tensor
@@ -124,7 +124,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
+    virtual ~Result() {}
 
     /**
      * Returns dimensions of value tensor
@@ -152,7 +152,7 @@ public:
      * \param[in] method Computation method
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ layers::average_pooling2d::forward::Result::check() }
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 

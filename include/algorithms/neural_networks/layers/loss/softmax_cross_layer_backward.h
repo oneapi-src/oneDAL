@@ -136,7 +136,7 @@ public:
      * Constructs a backward softmax cross-entropy layer in the batch processing mode
      * and initializes its parameter with the provided parameter
      * \param[in] parameter Parameter to initialize the parameter of the layer
-     * \DAAL_DEPRECATED_USE{ prediction::Result::get(ResultId id) }
+     * \DAAL_DEPRECATED
      */
     Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
     {
@@ -149,7 +149,7 @@ public:
      * and parameters of another backward softmax cross-entropy layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the layer
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -248,7 +248,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch(ParameterType& parameter) }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {

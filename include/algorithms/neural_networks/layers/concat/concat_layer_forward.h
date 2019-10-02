@@ -151,7 +151,7 @@ public:
      * Constructs the forward concat layer by copying input objects of
      * another forward concat layer
      * \param[in] other An algorithm to be used as the source to initialize the input objects of the algorithm
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -193,7 +193,7 @@ public:
     /**
      * Returns the structure that contains the result of the forward concat layer
      * \return Structure that contains the result of forward concat layer
-     * \DAAL_DEPRECATED_USE{ getLayerResult() }
+     * \DAAL_DEPRECATED
      */
     ResultPtr getResult()
     {
@@ -249,7 +249,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch(size_t concatDimension = 0) }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {

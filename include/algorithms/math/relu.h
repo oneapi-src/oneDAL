@@ -99,7 +99,7 @@ public:
 
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch()
     {
@@ -109,7 +109,7 @@ public:
     /**
      * Constructs the rectified linear function by copying input objects of another rectified linear function
      * \param[in] other function to be used as the source to initialize the input objects of the rectified linear function
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
     {

@@ -78,7 +78,7 @@ class Batch : public loss::Batch
 public:
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ prediction::Result::get(ResultId id)  }
+     * \DAAL_DEPRECATED
      */
     Batch()
     {

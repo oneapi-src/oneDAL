@@ -82,7 +82,7 @@ namespace interface1
 struct DAAL_EXPORT Parameter: public spatial_pooling2d::Parameter
 {
     /*
-     * \DAAL_DEPRECATED_USE{ Batch(size_t pyramidHeight, size_t nDimensions) }
+     * \DAAL_DEPRECATED
      */
     Parameter(size_t pyramidHeight, size_t firstIndex, size_t secondIndex);
 };

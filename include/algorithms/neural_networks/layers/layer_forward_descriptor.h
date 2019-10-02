@@ -64,7 +64,7 @@ public:
 
     /**
      * Constructs an empty layer descriptor with zero index
-     * \DAAL_DEPRECATED_USE{ services::Collection::resize(size_t newCapacity) }
+     * \DAAL_DEPRECATED
      */
     LayerDescriptor(): _index(0) {}
 
@@ -74,7 +74,7 @@ public:
      * \param[in] index_        Index of the neural network layer
      * \param[in] layer_        Neural network layer
      * \param[in] nextLayers_   Layers following the current layer in the network
-     * \DAAL_DEPRECATED_USE{ prediction::Topology(const training::Topology &t) }
+     * \DAAL_DEPRECATED
      */
     LayerDescriptor(const size_t index_, const forward::LayerIfacePtr &layer_, const NextLayers &nextLayers_) :
         _index(index_), _layer(layer_), _nextLayers(nextLayers_) {}
@@ -83,7 +83,7 @@ public:
      * Constructs a layer descriptor from the provided layer object and an index to be assigned to this object
      * \param[in] index_        Index of the neural network layer
      * \param[in] layer_        Neural network layer
-     * \DAAL_DEPRECATED_USE{ prediction::Topology::push_back(const layers::forward::LayerIfacePtr &layer) }
+     * \DAAL_DEPRECATED
      */
     LayerDescriptor(const size_t index_, const forward::LayerIfacePtr &layer_) : _index(index_), _layer(layer_) {}
 
@@ -96,7 +96,7 @@ public:
     /**
      * Access to the index of the layer in the network
      * \return Index of the layer in the network
-     * \DAAL_DEPRECATED_USE{ prediction::Model::insertLayer(const layers::forward::LayerDescriptor &layerDescriptor) }
+     * \DAAL_DEPRECATED
      */
     size_t index() const { return _index; }
 
@@ -105,7 +105,7 @@ public:
      * \param[in] index Index to add
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ prediction::Topology::addNext(size_t index, size_t next) }
+     * \DAAL_DEPRECATED
      */
     services::Status addNext(size_t index)
     {
@@ -116,14 +116,14 @@ public:
     /**
      * Access to the layer in the network
      * \return The layer in the network
-     * \DAAL_DEPRECATED_USE{ prediction::Topology(const Topology &t) }
+     * \DAAL_DEPRECATED
      */
     const forward::LayerIfacePtr & layer() const { return _layer; }
 
     /**
      * Access to the collection of indices of the layers following the current layer in the network
      * \return The collection of indices of the layers following the current layer in the network
-     * \DAAL_DEPRECATED_USE{ prediction::Topology(const Topology &t) }
+     * \DAAL_DEPRECATED
      */
     const NextLayers & nextLayers() const { return _nextLayers; }
 

@@ -79,7 +79,7 @@ public:
     /**
      *  Main constructor
      *  \param[in] _nOutputs A number of layer outputs m. The parameter required to initialize the layer
-     *  \DAAL_DEPRECATED_USE{ layers::fullyconnected::Batch(size_t nOutputs) }
+     *  \DAAL_DEPRECATED
      */
     Parameter(size_t _nOutputs);
 

@@ -113,7 +113,7 @@ public:
 
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::forward::Batch::getLayerForPrediction() }
+     * \DAAL_DEPRECATED
      */
     Batch() : parameter(_defaultParameter)
     {
@@ -136,7 +136,7 @@ public:
      * and parameters of another forward softmax layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the layer
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)

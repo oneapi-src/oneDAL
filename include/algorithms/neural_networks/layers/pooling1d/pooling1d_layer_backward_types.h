@@ -81,7 +81,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     /**
      * Return the collection with gradient size
@@ -123,7 +123,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
+    virtual ~Result() {}
 
     /**
      * Allocates memory to store the result of the backward 1D pooling layer
@@ -144,7 +144,7 @@ public:
      * \param[in] method Computation method
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ layers::average_pooling1d::backward::Result::check() }
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 };

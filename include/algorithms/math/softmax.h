@@ -108,7 +108,7 @@ public:
     /**
      * Constructs the softmax function by copying input objects of another softmax function
      * \param[in] other function to be used as the source to initialize the input objects of the softmax function
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
     {

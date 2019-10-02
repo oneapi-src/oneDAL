@@ -122,7 +122,7 @@ class NextLayers
 public:
     /**
      * \brief Constructs empty list of layer indices of layers following the current layer
-     * \DAAL_DEPRECATED_USE{ layers::forward::LayerDescriptor() }
+     * \DAAL_DEPRECATED
      */
     NextLayers() : _indices(0)
     {}
@@ -131,7 +131,7 @@ public:
      * \brief Constructs the list of layer indices by copying the indices from another list of layer indices
      * \param[in] other List of layer indices to use as the source to initialize
      *                  the list of layer indices of layers following the current layer
-     * \DAAL_DEPRECATED_USE{ layers::forward::LayerDescriptor(const LayerDescriptor& other) }
+     * \DAAL_DEPRECATED
      */
      NextLayers(const NextLayers &other) : _indices(other._indices)
     {}
@@ -228,13 +228,16 @@ public:
         _indices.push_back(index6);
     }
 
-    DAAL_DEPRECATED_VIRTUAL virtual ~NextLayers()
+    /*
+     * \DAAL_DEPRECATED
+     */
+    virtual ~NextLayers()
     {}
 
     /**
      * Size of the list of indices
      * \return Size of the list of indices
-     * \DAAL_DEPRECATED_USE{ ModelImpl::connectForwardLayers(size_t layerId) }
+     * \DAAL_DEPRECATED
      */
     size_t size() const { return _indices.size(); }
 
@@ -253,7 +256,7 @@ public:
      * Const element access
      * \param[in] index Index of the element to return
      * \return    Const reference to the element
-     * \DAAL_DEPRECATED_USE{ ModelImpl::connectForwardLayers(size_t layerId) }
+     * \DAAL_DEPRECATED
      */
     const size_t & operator [] (size_t index) const
     {
@@ -263,14 +266,14 @@ public:
     /**
     *  Adds an element to the end of the collection
     *  \param[in] index Element to add
-    *  \DAAL_DEPRECATED_USE{ training::Model:: initialize() }
+    *  \DAAL_DEPRECATED
     */
     void push_back(size_t index) { _indices.push_back(index); }
 
     /**
     *  Adds an element to the end of the collection
     *  \param[in] index Element to add
-    *  \DAAL_DEPRECATED_USE{ layers::forward::LayerDescriptor::addNext(size_t index) }
+    *  \DAAL_DEPRECATED
     */
     void add(size_t index) { _indices.push_back(index); }
 

@@ -145,7 +145,7 @@ public:
      * and parameters of another backward smooth relu layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the layer
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -244,7 +244,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {

@@ -81,14 +81,14 @@ public:
     enum AllocationFlag
     {
         doNotAllocate = 0, /*!< Memory will not be allocated by Tensor */
-        notAllocate   = 0, /*!< Memory will not be allocated by Tensor \DAAL_DEPRECATED_USE{ \ref daal::data_management::interface1::TensorIface::doNotAllocate "doNotAllocate"}*/
+        notAllocate   = 0, /*!< Memory will not be allocated by Tensor \DAAL_DEPRECATED*/
         doAllocate    = 1  /*!< Memory will be allocated by Tensor when needed */
     };
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~TensorIface()
+    virtual ~TensorIface()
     {}
     /**
      *  Sets the number of dimensions in the Tensor
@@ -146,7 +146,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~TensorLayoutIface() {}
+    virtual ~TensorLayoutIface() {}
 
     /**
      *  Sets the new order of existing dimension in the Tensor
@@ -168,7 +168,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~TensorLayout() {}
+    virtual ~TensorLayout() {}
     /**
      *  Gets the size of dimensions in the Tensor layout
      *
@@ -206,7 +206,7 @@ class DAAL_EXPORT TensorOffsetLayout : public TensorLayout
 {
 public:
     /*
-     * \DAAL_DEPRECATED_USE{ createDefaultSubtensorLayout() }
+     * \DAAL_DEPRECATED
      */
     TensorOffsetLayout(const TensorOffsetLayout& inLayout) : TensorLayout(inLayout.getDimensions()),
         _offsets(inLayout.getOffsets()), _indices(inLayout.getIndices()), _isDefaultLayout(inLayout._isDefaultLayout),
@@ -216,7 +216,7 @@ public:
     /**
      *  Constructor for TensorOffsetLayout with default layout
      *  \param[in]  dims  The size of dimensions in the Tensor layout
-     *  \DAAL_DEPRECATED_USE{ setDimensions(const services::Collection<size_t>& dimensions) }
+     *  \DAAL_DEPRECATED
      */
     TensorOffsetLayout(const services::Collection<size_t>& dims) : TensorLayout(dims), _offsets(dims.size()), _indices(dims.size()),
                                                                    _isDefaultLayout(true), _isRawLayout(true)
@@ -259,7 +259,7 @@ public:
     /*
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~TensorOffsetLayout() {}
+    virtual ~TensorOffsetLayout() {}
 
     /**
      *  Gets the offsets between adjacent elements in each dimension
@@ -362,7 +362,7 @@ public:
     /*
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~DenseTensorIface()
+    virtual ~DenseTensorIface()
     {}
     /**
      *  Gets subtensor from the tensor
@@ -489,7 +489,7 @@ public:
     /**
      *  Constructor for a Tensor with predefined layout
      *  \param[in]  layoutPtr      Pointer to the Tensor Layout
-     *  \DAAL_DEPRECATED_USE{ HomogenTensor(const services::Collection<size_t> &dims, AllocationFlag memoryAllocationFlag) }
+     *  \DAAL_DEPRECATED
      */
     Tensor(TensorLayout *layoutPtr) : _layoutPtr(layoutPtr), _memStatus(notAllocated) {}
 
@@ -503,7 +503,7 @@ public:
      *  \private
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Tensor() {}
+    virtual ~Tensor() {}
 
     /**
      *  Gets the status of the memory used by a data set connected with a Tensor

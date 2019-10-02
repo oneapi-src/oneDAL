@@ -70,13 +70,13 @@ public:
     typedef layers::backward::Input super;
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     Input();
 
     /**
      * Copy constructor
-     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other);
 

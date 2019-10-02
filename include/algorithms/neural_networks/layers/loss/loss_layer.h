@@ -72,7 +72,7 @@ class Batch : public LayerIface
 public:
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{layers::loss::softmax_cross::Batch() }
+     * \DAAL_DEPRECATED
      */
     Batch()
     {}

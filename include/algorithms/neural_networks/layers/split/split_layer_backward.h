@@ -146,7 +146,7 @@ public:
      * Constructs the backward split layer by copying input objects of
      * another backward split layer in the batch processing mode
      * \param[in] other An algorithm to be used as the source to initialize the input objects of the backward split layer
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : _defaultParameter(other.parameter), parameter(_defaultParameter)
     {
@@ -244,7 +244,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {

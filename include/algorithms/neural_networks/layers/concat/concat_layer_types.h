@@ -85,7 +85,7 @@ public:
     /**
     *  Constructs parameters of the forward concat layer
     *  \param[in] concatDimension   Index of dimension along which concatenation is implemented
-    * \DAAL_DEPRECATED_USE{ forward::Batch(size_t concatDimension = 0) }
+    * \DAAL_DEPRECATED
     */
     Parameter(size_t concatDimension = 0);
 

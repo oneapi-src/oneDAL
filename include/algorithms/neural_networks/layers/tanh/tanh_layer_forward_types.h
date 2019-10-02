@@ -71,13 +71,13 @@ public:
     typedef layers::forward::Input super;
     /**
      * \brief Default constructor
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     Input();
 
     /**
      * Copy constructor
-     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other);
 
@@ -114,7 +114,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 };
 
 /**
@@ -128,13 +128,13 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * \brief Default constructor
-     * \DAAL_DEPRECATED_USE{ initialize() }
+     * \DAAL_DEPRECATED
      */
     Result();
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
+    virtual ~Result() {};
 
     /**
      * Returns the result of the forward hyperbolic tangent layer

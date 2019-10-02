@@ -75,7 +75,7 @@ public:
     *  Constructs parameters of the forward split layer
     *  \param[in] nOutputs   Number of outputs for forward split layer
     *  \param[in] nInputs    Number of inputs for backward split layer
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
     */
     Parameter(size_t nOutputs = 1, size_t nInputs = 1);
 

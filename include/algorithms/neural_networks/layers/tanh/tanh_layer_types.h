@@ -86,7 +86,7 @@ struct DAAL_EXPORT Parameter: public layers::Parameter
 {
     /**
      * Constructs the parameters of the tanh layer
-     * \DAAL_DEPRECATED_USE{ forward::Batch() }
+     * \DAAL_DEPRECATED
      */
     Parameter();
 };

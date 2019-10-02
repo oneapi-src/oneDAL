@@ -68,13 +68,13 @@ public:
     typedef layers::forward::Input super;
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ layer::softmax::forward::Batch() }
+     * \DAAL_DEPRECATED
      */
     Input();
 
     /**
      * Copy constructor
-     * \DAAL_DEPRECATED_USE{ layers::softmax::forward::Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other);
 
@@ -107,7 +107,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     /**
      * Checks input object of the forward softmax layer
@@ -131,13 +131,13 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ layers::softmax::forward::Batch::initialize() }
+     * \DAAL_DEPRECATED
      */
     Result();
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
+    virtual ~Result() {};
 
     /**
      * Returns result of the forward softmax layer

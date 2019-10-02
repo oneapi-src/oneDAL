@@ -80,13 +80,13 @@ public:
     typedef layers::forward::Input super;
     /**
      * \brief Default constructor
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     Input();
 
     /**
      * Copy constructor
-     * \DAAL_DEPRECATED_USE{ layers::split::forward::Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other);
 
@@ -103,7 +103,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 };
 
 /**
@@ -117,13 +117,13 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * \brief Default constructor
-     * \DAAL_DEPRECATED_USE{ layers::split::forward::Batch::initialize() }
+     * \DAAL_DEPRECATED
      */
     Result();
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
+    virtual ~Result() {};
 
     /**
      * Returns the result of the forward split layer
@@ -224,7 +224,7 @@ public:
     * \param[in] method       Computation method for the algorithm
     *
     * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ layers::split::forward::Batch::allocateResult() }
+     * \DAAL_DEPRECATED
     */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -232,7 +232,7 @@ public:
 protected:
     /**
      * \private
-     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

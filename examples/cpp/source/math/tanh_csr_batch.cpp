@@ -26,6 +26,9 @@
  * \example tanh_csr_batch.cpp
  */
 
+/*
+ * \DAAL_DEPRECATED
+ */
 #define DAAL_HIDE_DEPRECATED
 
 #include "daal.h"

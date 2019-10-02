@@ -97,13 +97,13 @@ struct DAAL_EXPORT Parameter: public spatial_pooling2d::Parameter
      * \param[in] pyramidHeight     Value of the pyramid height.
      * \param[in] firstIndex        First dimension index along which spatial pyramid pooling is performed
      * \param[in] secondIndex       Second dimension index along which spatial pyramid pooling is performed
-     * \DAAL_DEPRECATED_USE{ Batch(size_t pyramidHeight, size_t nDimensions) }
+     * \DAAL_DEPRECATED
      */
     Parameter(size_t pyramidHeight, size_t firstIndex, size_t secondIndex) :
         spatial_pooling2d::Parameter(pyramidHeight, firstIndex, secondIndex), seed(777), engine(engines::mt19937::Batch<>::create())
     {}
 
-    size_t seed;               /*!< Seed for random numbers generation.  \DAAL_DEPRECATED_USE{ engine } */
+    size_t seed;               /*!< Seed for random numbers generation.  \DAAL_DEPRECATED */
     engines::EnginePtr engine; /*!< Engine for random numbers generation. */
 };
 /* [Parameter source code] */

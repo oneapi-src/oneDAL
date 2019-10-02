@@ -71,20 +71,20 @@ public:
     typedef loss::backward::Input super;
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::backward::Batch(ParameterType& parameter) }
+     * \DAAL_DEPRECATED
      */
     Input();
 
     /**
      * Copy constructor
-     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::backward::Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other);
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     /**
      * Returns an input object for the backward softmax cross-entropy layer
@@ -135,14 +135,14 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::backward::Batch::initialize() }
+     * \DAAL_DEPRECATED
      */
     Result();
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
+    virtual ~Result() {};
 
     /**
      * Returns an result object for the backward softmax cross-entropy layer
@@ -172,7 +172,7 @@ public:
      * \param[in] parameter %Parameter of the backward softmax cross-entropy layer
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{  layers::loss::softmax_cross::backward::Result::allocateResult() }
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -180,7 +180,7 @@ public:
 protected:
     /**
      * \private
-     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

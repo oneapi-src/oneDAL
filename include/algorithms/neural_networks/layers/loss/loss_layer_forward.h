@@ -76,7 +76,7 @@ public:
 
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::forward::Batch(ParameterType& parameter) }
+     * \DAAL_DEPRECATED
      */
     Batch()
     {
@@ -88,7 +88,7 @@ public:
      * and parameters of another forward loss layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the layer
-     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::backward::Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch &other)
     {
@@ -114,7 +114,7 @@ protected:
     DAAL_DEPRECATED_VIRTUAL virtual Batch *cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {}

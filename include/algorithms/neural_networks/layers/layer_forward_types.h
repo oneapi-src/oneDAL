@@ -123,7 +123,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~InputIface() {}
+    virtual ~InputIface() {}
 };
 
 /**
@@ -148,13 +148,13 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     /**
      * Returns input Tensor of the layer algorithm
      * \param[in] id    Identifier of the input tensor
      * \return          %Input tensor that corresponds to the given identifier
-     * \DAAL_DEPRECATED_USE{ ModelImpl::checkWeightsAndBiasesAllocation() }
+     * \DAAL_DEPRECATED
      */
     data_management::TensorPtr get(forward::InputId id) const;
 
@@ -162,7 +162,7 @@ public:
      * Sets input for the layer algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
-     * \DAAL_DEPRECATED_USE{ Input::eraseInputData() }
+     * \DAAL_DEPRECATED
      */
     void set(InputId id, const data_management::TensorPtr &ptr);
 
@@ -188,7 +188,7 @@ public:
      * \param[in] method  Computation method of the algorithm
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ layers::pooling1d::forward::Input::check(const daal::algorithms::Parameter *parameter, int method) }
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
@@ -204,14 +204,14 @@ public:
      * \return Dimensions of weights tensor
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getWeightsSizes(const layers::Parameter *parameter) const;
+    virtual const services::Collection<size_t> getWeightsSizes(const layers::Parameter *parameter) const;
 
     /**
      * Returns dimensions of biases tensor
      * \return Dimensions of biases tensor
-     * \DAAL_DEPRECATED
+     * \DAAL_DEPRECATED_UDE{ enableGradientPropagation(size_t nLayers, bool *enabledPropagation) }
      */
-    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getBiasesSizes(const layers::Parameter *parameter) const;
+    virtual const services::Collection<size_t> getBiasesSizes(const layers::Parameter *parameter) const;
 
     /**
      * Adds tensor with data to the input object of the layer algorithm
@@ -255,7 +255,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
+    virtual ~Result() {};
 
     /**
      * Allocates memory to store the results of layer
@@ -339,7 +339,7 @@ public:
 
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
-     * \DAAL_DEPRECATED_USE{ layers::split::forward::Result::serialImpl(Archive *arch) }
+     * \DAAL_DEPRECATED
      */
     int getSerializationTag() const DAAL_C11_OVERRIDE  { return SERIALIZATION_NEURAL_NETWORKS_LAYERS_FORWARD_RESULT_ID; }
 
@@ -385,7 +385,7 @@ public:
 protected:
     /**
      * \private
-     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_IMPL() }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

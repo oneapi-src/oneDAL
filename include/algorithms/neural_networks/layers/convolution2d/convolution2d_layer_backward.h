@@ -152,7 +152,7 @@ public:
      * Constructs a backward 2D convolution layer by copying input objects and parameters of another 2D convolution layer
      * \param[in] other A layer to be used as the source to initialize the input objects
      *                  and parameters of this layer
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -194,7 +194,7 @@ public:
     /**
      * Returns the structure that contains results of 2D convolution layer
      * \return Structure that contains results of 2D convolution layer
-     * \DAAL_DEPRECATED_USE{ getLayerResult() }
+     * \DAAL_DEPRECATED
      */
     ResultPtr getResult()
     {

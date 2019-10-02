@@ -87,14 +87,14 @@ public:
     DECLARE_SERIALIZABLE_CAST(PartialResult);
 
     /*
-     * \DAAL_DEPRECATED_USE{ Distributed<step1Local>::initialize() }
+     * \DAAL_DEPRECATED
     */
     PartialResult();
 
     /*
      * \DAAL_DEPRECATED
     */
-    DAAL_DEPRECATED_VIRTUAL virtual ~PartialResult() {}
+    virtual ~PartialResult() {}
 
     /**
      * Returns partial result of the neural network model based training
@@ -119,7 +119,7 @@ public:
      * \param[in] method Computation method for the algorithm
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ Distributed<step1Local>::allocatePartialResult() }
+     * \DAAL_DEPRECATED
      */
     template<typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -138,7 +138,7 @@ public:
 protected:
     /** \private */
     /*
-     * \DAAL_DEPRECATED_USE{  }
+     * \DAAL_DEPRECATED
     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
@@ -159,7 +159,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(DistributedPartialResult);
 
     /*
-     * \DAAL_DEPRECATED_USE{ Distributed<step2Master>::initialize() }
+     * \DAAL_DEPRECATED
     */
     DistributedPartialResult();
 
@@ -167,7 +167,7 @@ public:
      * Returns the partial result of the neural network model based training
      * \param[in] id    Identifier of the partial result
      * \return          Partial result that corresponds to the given identifier
-     * \DAAL_DEPRECATED_USE{ Distributed<step2Master>::getResult() }
+     * \DAAL_DEPRECATED
      */
     training::ResultPtr get(Step2MasterPartialResultId id) const;
 
@@ -205,7 +205,7 @@ public:
 protected:
     /** \private */
     /*
-     * \DAAL_DEPRECATED_USE{  }
+     * \DAAL_DEPRECATED
     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

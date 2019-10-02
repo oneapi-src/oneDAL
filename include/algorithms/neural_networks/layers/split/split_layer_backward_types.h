@@ -80,14 +80,14 @@ class DAAL_EXPORT Input : public layers::backward::Input
 public:
     /**
      * \brief Default constructor
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     Input();
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     /**
      * Returns an input object for the backward split layer
@@ -179,13 +179,13 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * \brief Default constructor
-     * \DAAL_DEPRECATED_USE{ initialize() }
+     * \DAAL_DEPRECATED
      */
     Result();
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
+    virtual ~Result() {};
 
     /**
      * Returns the result of the backward split layer
@@ -223,7 +223,7 @@ public:
 protected:
     /**
      * \private
-     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

@@ -91,7 +91,7 @@ public:
     *  Constructs parameters of the prelu layer
     *  \param[in] _dataDimension    Starting data dimension index to apply weight
     *  \param[in] _weightsDimension Number of weight dimensions
-    * \DAAL_DEPRECATED_USE{ forward::Batch() }
+    * \DAAL_DEPRECATED
     */
     Parameter(const size_t _dataDimension = 0, const size_t _weightsDimension = 1);
 

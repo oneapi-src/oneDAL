@@ -152,7 +152,7 @@ public:
      * another backward concat layer in the batch processing mode
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  of the backward concat layer
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -250,7 +250,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch(size_t concatDimension = 0) }
+     * \DAAL_DEPRECATED
      */
    void initialize()
     {

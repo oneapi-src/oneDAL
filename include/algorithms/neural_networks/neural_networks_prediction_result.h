@@ -82,7 +82,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch::initialize() }
+     * \DAAL_DEPRECATED
      */
     Result();
 
@@ -143,7 +143,7 @@ public:
      * \param[in] parameter %Parameter of the neural networks prediction
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ Batch::allocateResult() }
+     * \DAAL_DEPRECATED
      */
     template<typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -162,7 +162,7 @@ public:
 protected:
     /*
      * \private
-     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

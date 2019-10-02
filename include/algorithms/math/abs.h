@@ -108,7 +108,7 @@ public:
     /**
      * Constructs the absolute value function by copying input objects of another absolute value function
      * \param[in] other function to be used as the source to initialize the input objects of the absolute value function
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
     {

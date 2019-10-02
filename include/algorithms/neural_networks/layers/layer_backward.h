@@ -69,34 +69,34 @@ public:
     /**
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~LayerIface() {};
+    virtual ~LayerIface() {};
 
     /**
      * Returns the structure that contains results of the layer
      * \return Structure that contains results of the layer
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual backward::ResultPtr getLayerResult() = 0;
+    virtual backward::ResultPtr getLayerResult() = 0;
 
     /**
      * Returns the structure that contains input objects of the layer
      * \return Structure that contains input objects of the layer
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual InputType *getLayerInput() = 0;
+    virtual InputType *getLayerInput() = 0;
 
     /**
      * Returns the structure that contains parameters of the layer
      * \return Structure that contains parameters of the layer
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ParameterType *getLayerParameter() = 0;
+    virtual ParameterType *getLayerParameter() = 0;
 
     /**
      * Returns a pointer to the newly allocated backward neural network layer with a copy of input objects
      * and parameters of this layer
      * \return Pointer to the newly allocated backward layer
-     * \DAAL_DEPRECATED_USE{ training::Model::insertLayer() }
+     * \DAAL_DEPRECATED
      */
     services::SharedPtr<daal::algorithms::neural_networks::layers::backward::interface1::LayerIface> clone() const
     {
@@ -107,7 +107,7 @@ public:
      * Allocates memory buffers needed for the computations
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateResult() = 0;
+    virtual services::Status allocateResult() = 0;
 
     /**
      * Connects two layers in neural network by getting tensor with gradient
@@ -119,13 +119,13 @@ public:
      *                          where the tensor with gradient should be placed
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status addInput(backward::ResultPtr result, size_t resultIndex, size_t inputIndex) = 0;
+    virtual services::Status addInput(backward::ResultPtr result, size_t resultIndex, size_t inputIndex) = 0;
 
 protected:
     /**
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual LayerIface *cloneImpl() const = 0;
+    virtual LayerIface *cloneImpl() const = 0;
 };
 
 typedef services::SharedPtr<LayerIface> LayerIfacePtr;
@@ -152,7 +152,7 @@ public:
     /**
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~LayerIfaceImpl() {};
+    virtual ~LayerIfaceImpl() {};
 
     /**
      * \copydoc LayerIface::addInput

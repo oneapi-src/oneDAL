@@ -124,7 +124,7 @@ public:
     /**
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~InputIface() {}
+    virtual ~InputIface() {}
 };
 
 /**
@@ -148,7 +148,7 @@ public:
     /**
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     /**
      * Returns input Tensor of the layer algorithm
@@ -162,7 +162,7 @@ public:
      * Returns input Tensor of the layer algorithm
      * \param[in] id    Identifier of the input tensor
      * \return          %Input tensor that corresponds to the given identifier
-     * \DAAL_DEPRECATED_USE{ layers::split::backward::Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     LayerDataPtr get(InputLayerDataId id) const;
 
@@ -178,7 +178,7 @@ public:
      * Sets input for the layer algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
-     * \DAAL_DEPRECATED_USE{ layers::split::backward::Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     void set(InputLayerDataId id, const LayerDataPtr &ptr);
 
@@ -199,7 +199,7 @@ public:
      * \return Status of computations
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status setInputFromForward(forward::ResultPtr result);
+    virtual services::Status setInputFromForward(forward::ResultPtr result);
 
     /**
      * Checks an input object for the layer algorithm
@@ -207,7 +207,7 @@ public:
      * \param[in] method  Computation method of the algorithm
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ layers::average_pooling1d::backward::Input::check(const daal::algorithms::Parameter *parameter, int method) }
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
@@ -238,7 +238,7 @@ public:
     /**
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
+    virtual ~Result() {};
 
     /**
      * Allocates memory to store the results of layer
@@ -259,7 +259,7 @@ public:
      * Returns result of the layer algorithm
      * \param[in] id   Identifier of the result
      * \return         Result that corresponds to the given identifier
-     * \DAAL_DEPRECATED_USE{ training::Model::checkWeightsAndBiasesDerivativesAllocation() }
+     * \DAAL_DEPRECATED
      */
     data_management::TensorPtr get(ResultId id) const;
 
@@ -289,7 +289,7 @@ public:
 
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
-     * \DAAL_DEPRECATED_USE{ layers::average_pooling1d::backward::Result::serialImpl(Archive *arch) }
+     * \DAAL_DEPRECATED
      */
     int getSerializationTag() const DAAL_C11_OVERRIDE  { return SERIALIZATION_NEURAL_NETWORKS_LAYERS_BACKWARD_RESULT_ID; }
 
@@ -300,7 +300,7 @@ public:
      * \param[in] method        Computation method of the algorithm
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ layers::pooling1d::backward::Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) }
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
                            int method) const DAAL_C11_OVERRIDE;
@@ -322,7 +322,7 @@ public:
 protected:
     /**
      * \private
-     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_IMPL() }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

@@ -133,14 +133,14 @@ class DAAL_EXPORT AlgorithmDispatchLayerContainer : public LayerContainerIfaceIm
 public:
     /**
      * Default constructor. Constructs empty container
-     * \DAAL_DEPRECATED_USE{ layers::fullyconnected::forward::Batch::initialize() }
+     * \DAAL_DEPRECATED
      */
     AlgorithmDispatchLayerContainer(daal::services::Environment::env *daalEnv);
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~AlgorithmDispatchLayerContainer() { delete _cntr; }
+    virtual ~AlgorithmDispatchLayerContainer() { delete _cntr; }
 
     /*
      * \DAAL_DEPRECATED

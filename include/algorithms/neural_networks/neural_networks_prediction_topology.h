@@ -86,7 +86,7 @@ public:
     /**
      * Number of layers in the topology
      * \return Size of the collection
-     * \DAAL_DEPRECATED_USE{ Topology(const Topology &t) }
+     * \DAAL_DEPRECATED
      */
     size_t size() const { return _config.size(); }
 
@@ -94,7 +94,7 @@ public:
      * Adds an element to the collection of layers and assigns the next available id to it
      * \param[in] layer Element to add
      * \return Index of the element
-     * \DAAL_DEPRECATED_USE{ Topology::add(const layers::forward::LayerIfacePtr &layer) }
+     * \DAAL_DEPRECATED
      */
     size_t push_back(const layers::forward::LayerIfacePtr &layer)
     {
@@ -163,7 +163,7 @@ public:
      * Const element access
      * \param[in] index Index of an accessed element
      * \return    Reference to the element
-     * \DAAL_DEPRECATED_USE{ Topology(const Topology &t) }
+     * \DAAL_DEPRECATED
      */
     const layers::forward::LayerDescriptor& operator [] (size_t index) const { return _config[index]; }
 
@@ -188,10 +188,10 @@ public:
      * Adds next layer to the given layer
      * \param[in] index Index of the layer to add next layer
      * \param[in] next Index of the next layer
-     * \DAAL_DEPRECATED_USE{ Topology::get } Following with LayerDescriptor::addNext method.
+     * \DAAL_DEPRECATED Following with LayerDescriptor::addNext method.
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ Topology::add(const Topology &topologyBlock, size_t &startIndex) }
+     * \DAAL_DEPRECATED
      */
     services::Status addNext(size_t index, size_t next)
     {

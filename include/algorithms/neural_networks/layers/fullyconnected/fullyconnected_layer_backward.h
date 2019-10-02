@@ -132,7 +132,7 @@ public:
      * Constructs a backward fully-connected layer in the batch processing mode
      * and initializes its parameter with the provided parameter
      * \param[in] parameter Parameter to initialize the parameter of the layer
-     * \DAAL_DEPRECATED_USE{ layers::fullyconnected::Batch(size_t nOutputs) }
+     * \DAAL_DEPRECATED
      */
     Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
     {
@@ -143,7 +143,7 @@ public:
      * Constructs backward fully-connected layer by copying input objects and parameters of another fully-connected layer
      * \param[in] other A layer to be used as the source to initialize the input objects
      *                  and parameters of this layer
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -185,7 +185,7 @@ public:
     /**
      * Returns the structure that contains results of fully-connected layer
      * \return Structure that contains results of fully-connected layer
-     * \DAAL_DEPRECATED_USE{ getLayerResult() }
+     * \DAAL_DEPRECATED
      */
     ResultPtr getResult()
     {
@@ -241,7 +241,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Batch(ParameterType& parameter) }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {

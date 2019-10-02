@@ -79,13 +79,13 @@ public:
     typedef layers::forward::Input super;
     /**
      * Default constructor
-     * \DAAL_DEPRECATED_USE{ Batch() }
+     * \DAAL_DEPRECATED
      */
     Input();
 
     /**
      * Copy constructor
-     * \DAAL_DEPRECATED_USE{ Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other);
 
@@ -138,7 +138,7 @@ public:
      * Sets input for the forward batch normalization layer
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Input object to set
-     * \DAAL_DEPRECATED_USE{ getLayerForPrediction() }
+     * \DAAL_DEPRECATED
      */
     void set(InputLayerDataId id, const data_management::TensorPtr &ptr);
 
@@ -169,7 +169,7 @@ public:
      * \DAAL_DEPRECATED
      */
     Result();
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
+    virtual ~Result() {}
 
     using layers::forward::Result::get;
     using layers::forward::Result::set;
@@ -207,7 +207,7 @@ public:
      * Returns the result of the forward batch normalization layer
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
-     * \DAAL_DEPRECATED_USE{ getLayerForPrediction() }
+     * \DAAL_DEPRECATED
      */
     data_management::TensorPtr get(LayerDataId id) const;
 
@@ -233,7 +233,7 @@ public:
 protected:
     /**
      * \private
-     * \DAAL_DEPRECATED_USE{ DECLARE_SERIALIZABLE_CAST(Result) }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

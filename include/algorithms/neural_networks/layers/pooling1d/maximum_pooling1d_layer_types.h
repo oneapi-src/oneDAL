@@ -99,7 +99,7 @@ struct DAAL_EXPORT Parameter: public pooling1d::Parameter
      * \param[in] stride       Interval over the dimension on which the pooling is performed
      * \param[in] padding      Number of data elements to implicitly add to the the dimension
      *                         of the 1D subtensor on which the pooling is performed
-     * \DAAL_DEPRECATED_USE{ forward::Batch(size_t nDimensions) }
+     * \DAAL_DEPRECATED
      */
     Parameter(size_t index, size_t kernelSize = 2, size_t stride = 2, size_t padding = 0);
 };

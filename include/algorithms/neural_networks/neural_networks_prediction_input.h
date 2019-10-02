@@ -81,18 +81,18 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     /*
-     * \DAAL_DEPRECATED_USE{ prediction::Batch() }
+     * \DAAL_DEPRECATED
      */
     Input();
     /*
-     * \DAAL_DEPRECATED_USE{ prediction::Batch(const Batch<algorithmFPType, method> &other) }
+     * \DAAL_DEPRECATED
      */
     Input(const Input& other);
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {};
+    virtual ~Input() {};
 
     /**
      * Returns %input object for the neural networks prediction algorithm

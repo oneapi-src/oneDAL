@@ -89,14 +89,14 @@ public:
     /**
      *  Constructs parameters of the softmax layer
      *  \param[in] _dimension   Dimension index to calculate softmax
-     *  \DAAL_DEPRECATED_USE{ layer::softmax::forward::Batch() }
+     *  \DAAL_DEPRECATED
      */
     Parameter(size_t _dimension = 1);
 
     /**
      *  Constructs parameters of the softmax layer by copying another parameters of the softmax layer
      *  \param[in] other    Parameters of the softmax layer
-     *  \DAAL_DEPRECATED_USE{ layer::softmax::forward::Batch(const Batch<algorithmFPType, method> &other) }
+     *  \DAAL_DEPRECATED
      */
     Parameter(const Parameter &other);
 

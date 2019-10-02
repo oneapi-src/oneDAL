@@ -53,12 +53,12 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~LearnableParametersIface() {}
+    virtual ~LearnableParametersIface() {}
 
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual data_management::NumericTablePtr copyToTable() const = 0;
+    virtual data_management::NumericTablePtr copyToTable() const = 0;
     /*
      * \DAAL_DEPRECATED
      */
@@ -66,7 +66,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status copyFromTable(const data_management::NumericTablePtr &table) = 0;
+    virtual services::Status copyFromTable(const data_management::NumericTablePtr &table) = 0;
     /*
      * \DAAL_DEPRECATED
      */
@@ -88,7 +88,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~ModelImpl() {}
+    virtual ~ModelImpl() {}
 
     /**
      * Returns list of connections between layers
@@ -105,7 +105,7 @@ public:
      * \param[in] weightsAndBiases          Table containing all neural network weights and biases
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ training::getPredictionModel() }
+     * \DAAL_DEPRECATED
      */
     services::Status setWeightsAndBiases(const data_management::NumericTablePtr &weightsAndBiases)
     {
@@ -115,7 +115,7 @@ public:
     /**
      * Returns table containing all neural network weights and biases
      * \return          Table containing all neural network weights and biases
-     * \DAAL_DEPRECATED_USE{ training::Model::getPredictionModel() }
+     * \DAAL_DEPRECATED
      */
     const data_management::NumericTablePtr getWeightsAndBiases() const
     {
@@ -170,7 +170,7 @@ protected:
         _weightsAndBiasesCreated(false), _storeWeightsInTable(storeWeightsInTable) {}
 
     /*
-     * \DAAL_DEPRECATED_USE{ training::Model(const Model &model) }
+     * \DAAL_DEPRECATED
      */
     ModelImpl(const ModelImpl &model) :
         _forwardLayers(model._forwardLayers), _nextLayers(model._nextLayers),
@@ -212,7 +212,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ training::Model::allocate() }
+     * \DAAL_DEPRECATED
      */
     services::Status connectForwardLayers(size_t layerId)
     {
@@ -231,7 +231,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ training::Model::allocate() }
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
     DAAL_EXPORT services::Status createWeightsAndBiases(bool checkAllocation);

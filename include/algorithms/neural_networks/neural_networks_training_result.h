@@ -71,7 +71,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
 
     /**
-     * \DAAL_DEPRECATED_USE{  }
+     * \DAAL_DEPRECATED
      */
     Result();
 
@@ -79,7 +79,7 @@ public:
      * Returns the result of the neural network model based training
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
-       \DAAL_DEPRECATED_USE{  }
+       \DAAL_DEPRECATED
      */
     training::ModelPtr get(ResultId id) const;
 
@@ -116,7 +116,7 @@ public:
 protected:
     /** \private */
     /**
-     * \DAAL_DEPRECATED_USE{  }
+     * \DAAL_DEPRECATED
      */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)

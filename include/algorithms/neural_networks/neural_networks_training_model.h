@@ -66,7 +66,7 @@ public:
      * Constructs the parameters of neural network algorithm
      * \param[in] optimizationSolver_     Optimization solver used in the neural network
      * \param[in] engine_                 Engine to be used for weights and biases initialization
-     * \DAAL_DEPRECATED_USE{ neural_networks::training::Batch }
+     * \DAAL_DEPRECATED
      */
     Parameter(const services::SharedPtr<optimization_solver::iterative_solver::Batch > &optimizationSolver_ = services::SharedPtr<optimization_solver::iterative_solver::Batch>(),
               engines::EnginePtr engine_ = engines::mt19937::Batch<DAAL_ALGORITHM_FP_TYPE>::create()) :
@@ -112,7 +112,7 @@ public:
     {}
 
     /** \brief Destructor */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Model() {}
+    virtual ~Model() {}
 
     /**
      * Initializes neural network
@@ -121,7 +121,7 @@ public:
      * \param[in] parameter  Parameters of the training
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ neural_networks::training::Batch::initialize }
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
     services::Status initialize(const services::Collection<size_t> &sampleSize, const Topology &topology,
@@ -194,7 +194,7 @@ public:
      * Returns the forward stage of a layer with certain index in the network
      * \param[in] index  Index of the layer in the network
      * \return Forward stage of a layer with certain index in the network
-     * \DAAL_DEPRECATED_USE{ Model::initialize }
+     * \DAAL_DEPRECATED
      */
     const layers::forward::LayerIfacePtr getForwardLayer(size_t index) const
     {
@@ -204,7 +204,7 @@ public:
     /**
      * Returns list of backward layers
      * \return          List of backward layers
-     * \DAAL_DEPRECATED_USE{ Model(const Model &model) }
+     * \DAAL_DEPRECATED
      */
     const BackwardLayersPtr getBackwardLayers() const
     {
@@ -215,7 +215,7 @@ public:
      * Returns the backward stage of a layer with certain index in the network
      * \param[in] index  Index of the layer in the network
      * \return Backward stage of a layer with certain index in the network
-     * \DAAL_DEPRECATED_USE{ Model::initialize }
+     * \DAAL_DEPRECATED
      */
     const layers::backward::LayerIfacePtr getBackwardLayer(size_t index) const
     {
@@ -325,7 +325,7 @@ public:
      * \param[in] parameter  Parameters of the training
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ Model::initialize }
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
     services::Status allocate(const services::Collection<size_t> &sampleSize, const Parameter &parameter = Parameter())
@@ -401,7 +401,7 @@ protected:
 
     /** \private */
     /*
-     * \DAAL_DEPRECATED_USE{  }
+     * \DAAL_DEPRECATED
     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
@@ -410,7 +410,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Model::initialize }
+     * \DAAL_DEPRECATED
     */
     void insertLayer(const layers::LayerDescriptor &layerDescriptor)
     {
@@ -420,7 +420,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Model::allocate }
+     * \DAAL_DEPRECATED
     */
     services::Status enableConditionalGradientPropagation()
     {
@@ -447,7 +447,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Model::enableConditionalGradientPropagation() }
+     * \DAAL_DEPRECATED
     */
     services::Status disableGradientPropagationInStartingLayers(size_t nLayers, bool *visited)
     {
@@ -492,7 +492,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Model::enableGradientPropagation }
+     * \DAAL_DEPRECATED
      */
     services::Status enableGradientPropagationInSubsequentLayers(size_t startLayerId, size_t nLayers, bool *enabledPropagation)
     {
@@ -524,7 +524,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Model::enableConditionalGradientPropagation() }
+     * \DAAL_DEPRECATED
      */
     services::Status enableGradientPropagation(size_t nLayers, bool *enabledPropagation)
     {
@@ -569,7 +569,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Model::allocate }
+     * \DAAL_DEPRECATED
      */
     services::Status checkWeightsAndBiasesDerivativesAllocation()
     {
@@ -594,7 +594,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Model::allocate }
+     * \DAAL_DEPRECATED
      */
     services::Status connectBackwardLayers(size_t layerId)
     {
@@ -630,7 +630,7 @@ protected:
     }
 
     /*
-     * \DAAL_DEPRECATED_USE{ Model::allocate }
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
     DAAL_EXPORT services::Status createWeightsAndBiasesDerivatives();

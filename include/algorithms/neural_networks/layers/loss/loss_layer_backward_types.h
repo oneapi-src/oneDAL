@@ -80,7 +80,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     /**
      * Returns an input object for the backward loss layer
@@ -98,7 +98,7 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::backward::Input::check() }
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 };
@@ -121,7 +121,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
+    virtual ~Result() {};
 
     /**
      * Returns an result object for the backward loss layer
@@ -140,7 +140,7 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
-     * \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::backward::Result::check() }
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 };

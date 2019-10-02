@@ -148,7 +148,7 @@ class DAAL_EXPORT Parameter: public layers::Parameter
 public:
     /**
      *  Default constructor
-     * \DAAL_DEPRECATED_USE{ forward::Batch() }
+     * \DAAL_DEPRECATED
      */
     Parameter();
 

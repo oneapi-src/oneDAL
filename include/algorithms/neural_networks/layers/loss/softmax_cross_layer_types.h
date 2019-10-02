@@ -89,7 +89,7 @@ public:
     *  Constructs parameters of the softmax cross-entropy layer
     *  \param[in] accuracyThreshold_  Value needed to avoid degenerate cases in logarithm computing
     *  \param[in] dimension_          Dimension index to calculate softmax cross-entropy
-    *  \DAAL_DEPRECATED_USE{ layers::loss::softmax_cross::Batch() }
+    *  \DAAL_DEPRECATED
     */
     Parameter(const double accuracyThreshold_ = 1.0e-04, const size_t dimension_ = 1);
 

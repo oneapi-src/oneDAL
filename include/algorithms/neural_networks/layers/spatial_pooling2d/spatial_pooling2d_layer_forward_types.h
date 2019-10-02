@@ -82,7 +82,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+    virtual ~Input() {}
 
     using layers::forward::Input::get;
     using layers::forward::Input::set;
@@ -127,7 +127,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {}
+    virtual ~Result() {}
 
     using layers::forward::Result::get;
     using layers::forward::Result::set;

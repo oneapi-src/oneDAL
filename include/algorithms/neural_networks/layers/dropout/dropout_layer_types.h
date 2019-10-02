@@ -87,13 +87,13 @@ public:
     /**
     *  Constructs parameters of the dropout layer
     *  \param[in] retainRatio_ Probability that any particular element is retained
-    *  \param[in] seed_        Seed for mask elements random generation \DAAL_DEPRECATED_USE{ engine }
-    * \DAAL_DEPRECATED_USE{ Batch() }
+    *  \param[in] seed_        Seed for mask elements random generation \DAAL_DEPRECATED
+    * \DAAL_DEPRECATED
     */
     Parameter(const double retainRatio_ = 0.5, const size_t seed_ = 777);
 
     double retainRatio;         /*!< Probability that any particular element is retained. */
-    size_t seed;                /*!< Seed for mask elements random generation. \DAAL_DEPRECATED_USE{ engine } */
+    size_t seed;                /*!< Seed for mask elements random generation. \DAAL_DEPRECATED */
     engines::EnginePtr engine;  /*!< Engine for mask elements random generation. */
     /**
      * Checks the correctness of the parameter

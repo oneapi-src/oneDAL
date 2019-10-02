@@ -108,7 +108,7 @@ public:
     /**
      * Constructs the hyperbolic tangent function by copying input objects of another hyperbolic tangent function
      * \param[in] other function to be used as the source to initialize the input objects of the hyperbolic tangent function
-     * \DAAL_DEPRECATED_USE{ cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
     {

@@ -75,13 +75,13 @@ public:
      *  Main constructor
      *  \param[in] _a     Mean
      *  \param[in] _sigma Standard deviation
-     *  \param[in] _seed  Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine }
+     *  \param[in] _seed  Seed for generating random numbers for the initialization \DAAL_DEPRECATED
      */
     Parameter(double _a = 0, double _sigma = 0.01, size_t _seed = 777): a(_a), sigma(_sigma), seed(_seed) {}
 
     double a;      /*!< The distribution mean */
     double sigma;  /*!< The standard deviation of the distribution */
-    size_t seed;   /*!< Seed for generating random numbers \DAAL_DEPRECATED_USE{ engine } */
+    size_t seed;   /*!< Seed for generating random numbers \DAAL_DEPRECATED */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };

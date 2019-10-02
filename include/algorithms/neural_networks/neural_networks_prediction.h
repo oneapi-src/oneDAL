@@ -125,7 +125,7 @@ public:
      * Constructs neural network by copying input objects and parameters of another neural network
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
-     * \DAAL_DEPRECATED_USE{ Batch::cloneImpl() }
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : parameter(other.parameter), input(other.input)
     {
@@ -135,7 +135,7 @@ public:
     /*
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual ~Batch() {}
+    virtual ~Batch() {}
 
     /**
     * Returns the structure that contains the results of the neural network algorithm
@@ -185,7 +185,7 @@ public:
 
 protected:
     /*
-     * \DAAL_DEPRECATED_USE{ prediction::Batch() }
+     * \DAAL_DEPRECATED
      */
     void initialize()
     {
