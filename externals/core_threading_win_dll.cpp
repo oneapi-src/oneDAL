@@ -45,17 +45,38 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
 {
     TCHAR PathBuf[MAX_PATH];
     LPTSTR *FilePart=NULL;
-    int rv;
+    DWORD rv;
+    BOOL rv1;
+    HMODULE rv2=NULL;
 
-    // Set safe mode for search process
-    SetSearchPathMode(BASE_SEARCH_PATH_ENABLE_SAFE_SEARCHMODE);
-    // Find dll for LoadLibrary
-    rv=SearchPath(NULL,filename,NULL,MAX_PATH,PathBuf,FilePart);
+    // References:
+    // "Dynamic-Link Library Security" - https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-security
+    // "Dynamic-Link Library Search Order" - https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order?redirectedfrom=MSDN
+    // "SearchPath function" - https://docs.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-searchpathw
+    // "SetSearchPathMode function" - https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setsearchpathmode
+    // "SetDllDirectory function" - https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setdlldirectorya
+    // "LoadLibraryExA function" - https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexa
 
-    if(0 == rv) {
-        printf("Intel DAAL FATAL ERROR: Cannot find %s.\n",filename);
+    // Exclude current directory from the serch path
+    rv1 = SetDllDirectoryA("");
+    if(0 == rv1) {
+        printf("Intel DAAL FATAL ERROR: Cannot exclude current directory from serch path.\n");
         return NULL;
     }
+
+    rv2 = LoadLibraryExA(filename, NULL, DONT_RESOLVE_DLL_REFERENCES);
+    if(NULL == rv2) {
+        printf("Intel DAAL FATAL ERROR: Cannot find/load library %s.\n", filename);
+        return NULL;
+    }
+
+    rv = GetModuleFileNameA(rv2, PathBuf, MAX_PATH);
+    if(0 == rv) {
+        printf("Intel DAAL FATAL ERROR: Cannot find module %s in memory.\n", filename);
+        return NULL;
+    }
+
+    FreeLibrary(rv2); rv2=NULL;
 
     size_t strLength = strnlen(PathBuf, MAX_PATH) + 1;
     wchar_t * wPathBuf = new wchar_t[strLength];
@@ -130,7 +151,12 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
         return NULL;
     }
 
-    return LoadLibrary(filename);
+    rv2 = LoadLibraryA(PathBuf);
+
+    // Restore current directory from the serch path
+    SetDllDirectory(NULL);
+
+    return rv2;
 }
 #endif
 

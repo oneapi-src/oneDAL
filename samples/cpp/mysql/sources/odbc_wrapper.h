@@ -61,98 +61,49 @@ std::vector<std::string> split(const std::string &input, char delim)
 
 } // namespace utils
 
-class Error
-{
-public:
-    static const int SQL_STATE_SIZE = 6;
-
-    Error() :
-        _nativeError(0),
-        _state(SQL_STATE_SIZE, '\0'),
-        _message(SQL_MAX_MESSAGE_LENGTH, '\0') { }
-
-    explicit Error(SQLINTEGER nativeError,
-                   const std::string &state,
-                   const std::string &message) :
-        _nativeError(nativeError),
-        _state(state),
-        _message(message) { }
-
-    const std::string &state() const
-    {
-        return _state;
-    }
-
-    const std::string &message() const
-    {
-        return _message;
-    }
-
-    SQLINTEGER nativeError() const
-    {
-        return _nativeError;
-    }
-
-    void shrinkMessageSize(size_t actualSize)
-    {
-        _message.resize(actualSize);
-    }
-
-    SQLINTEGER &nativeErrorRef()
-    {
-        return _nativeError;
-    }
-
-private:
-    SQLINTEGER _nativeError;
-    std::string _state;
-    std::string _message;
-};
-
 class Exception : public std::exception
 {
 public:
     virtual ~Exception() throw() { }
 
-    void add(const Error &e)
+    void add(const SQLINTEGER &e)
     {
         _errors.push_back(e);
     }
 
     virtual const char *what() const throw()
     {
-        return top().message().c_str();
+        if (_errors.empty()) {
+            return "";
+        } else {
+            return "Errors have occurred. Result of method \"errors()\" contains error codes.";
+        }
     }
 
-    const Error &top() const
-    {
-        return _errors.front();
-    }
-
-    const std::vector<Error> &errors() const
+    const std::vector<SQLINTEGER> &errors() const
     {
         return _errors;
     }
 private:
-    std::vector<Error> _errors;
+    std::vector<SQLINTEGER> _errors;
 };
 
 inline Exception formatException(SQLSMALLINT handleType, SQLHANDLE handle)
 {
     Exception ex;
-
+    static const int SQL_STATE_SIZE = 6;
     SQLRETURN ret = SQL_SUCCESS;
     for (SQLRETURN i = 1; ret != SQL_NO_DATA; i++)
     {
-        Error e;
-
+        SQLINTEGER e;
+        SQLCHAR state[SQL_STATE_SIZE];
+        SQLCHAR text[SQL_MAX_MESSAGE_LENGTH];
         SQLSMALLINT messageActualSize;
         ret = SQLGetDiagRec(handleType, handle, i,
-                            (SQLCHAR *)e.state().c_str(), &e.nativeErrorRef(),
-                            (SQLCHAR *)e.message().c_str(), (SQLSMALLINT)e.message().size(), &messageActualSize);
+                            state, &e,
+                            text, sizeof(text), &messageActualSize);
         if (SQL_SUCCEEDED(ret))
         {
-            e.shrinkMessageSize(messageActualSize);
             ex.add(e);
         }
     }
@@ -163,7 +114,9 @@ inline Exception formatException(SQLSMALLINT handleType, SQLHANDLE handle)
 inline SQLRETURN call(SQLSMALLINT handleType, SQLHANDLE handle, SQLRETURN code)
 {
     if (!SQL_SUCCEEDED(code))
-    { throw formatException(handleType, handle); }
+    {
+        throw formatException(handleType, handle);
+    }
     return code;
 }
 

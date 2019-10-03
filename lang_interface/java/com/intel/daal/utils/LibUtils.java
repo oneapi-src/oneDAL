@@ -65,7 +65,7 @@ public final class LibUtils{
             return;
         }
         catch (Throwable e) {
-            logger.log(logLevel, "Error: Can`t load library as resource. " + e);
+            logger.log(logLevel, "Error: Can`t load library as resource.");
         }
     }
 
@@ -80,19 +80,19 @@ public final class LibUtils{
 
         File fileOut = createTempFile(path, FullName);
         if (fileOut == null) {
-            logger.log(logLevel, "DONE: Loading library " + FullName + " as resource.");
+            logger.log(logLevel, "DONE: Loading library as resource.");
             return;
         }
 
         InputStream streamIn = LibUtils.class.getResourceAsStream(LIBRARY_PATH_IN_JAR + "/" + FullName);
         if (streamIn == null)
         {
-            throw new IOException("Error: No resource " + LIBRARY_PATH_IN_JAR + "/" + FullName + " found.");
+            throw new IOException("Error: No resource found.");
         }
 
         try(OutputStream streamOut = new FileOutputStream(fileOut))
         {
-            logger.log(logLevel, "Writing resource " + LIBRARY_PATH_IN_JAR + "/" + FullName + " to temp file " + fileOut.getAbsolutePath());
+            logger.log(logLevel, "Writing resource to temp file.");
 
             byte[] buffer = new byte[32768];
             while (true)
@@ -109,7 +109,7 @@ public final class LibUtils{
         }
         catch (IOException e)
         {
-            throw new IOException("Error:  I/O error occurs from/to temp file " + fileOut.getAbsolutePath());
+            throw new IOException("Error:  I/O error occurs from/to temp file.");
         }
         finally
         {
@@ -117,7 +117,7 @@ public final class LibUtils{
         }
 
         System.load(fileOut.toString());
-        logger.log(logLevel, "DONE: Loading library " + FullName + " as resource.");
+        logger.log(logLevel, "DONE: Loading library as resource.");
     }
 
     /**
@@ -172,7 +172,7 @@ public final class LibUtils{
             boolean createdDirectory = tempSubDirectory.mkdirs();
             if (!createdDirectory)
             {
-                throw new IOException("Error: Can`t create folder for temp file " + tempSubDirectory);
+                throw new IOException("Error: Can`t create folder for temp file.");
             }
         }
 
@@ -181,7 +181,7 @@ public final class LibUtils{
 
         if (tempFile == null)
         {
-            throw new IOException("Error: Can`t create temp file " + tempFile);
+            throw new IOException("Error: Can`t create temp file.");
         }
 
         if (tempFile.exists())

@@ -75,7 +75,7 @@ md5sum.cmd.fbsd = md5 -q
 secure.opts.icc.win = -GS
 secure.opts.icc.lnx = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
                                                                          # disabled due to known issue in compiler. see DPD200371640
-secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 # -fstack-protector
+secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
 secure.opts.icc.fbsd = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
 secure.opts.link.win = -DYNAMICBASE -NXCOMPAT $(if $(IA_is_ia32),-SAFESEH)
 secure.opts.link.lnx = -z relro -z now -z noexecstack

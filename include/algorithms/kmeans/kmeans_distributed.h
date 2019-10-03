@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of the interface for the K-Means algorithm in the distributed
+//  Implementation of the interface for K-Means algorithm in the distributed
 //  processing mode
 //--
 */
@@ -46,7 +46,7 @@ namespace interface1
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__DISTRIBUTEDCONTAINER"></a>
- * \brief Provides methods to run implementations of the K-Means algorithm.
+ * \brief Provides methods to run implementations of K-Means algorithm.
  *        This class is associated with the daal::algorithms::kmeans::Distributed class
  *        and supports the method of K-Means computation in the distributed processing mode.
  *
@@ -58,7 +58,7 @@ class DistributedContainer;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__DISTRIBUTEDCONTAINER_STEP1LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
- * \brief Class containing computation methods for the K-Means algorithm in the first step of the distributed processing mode
+ * \brief Class containing computation methods for K-Means algorithm in the first step of the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public
@@ -66,7 +66,7 @@ class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public
 {
 public:
     /**
-     * Constructs a container for the K-Means algorithm with a specified environment
+     * Constructs a container for K-Means algorithm with a specified environment
      * in the first step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
@@ -74,12 +74,12 @@ public:
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
-     * Computes a partial result of the K-Means algorithm in the first step of the
+     * Computes a partial result of K-Means algorithm in the first step of the
      * distributed processing mode
      */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
     /**
-     * Computes the result of the K-Means algorithm in the first step of the
+     * Computes the result of K-Means algorithm in the first step of the
      * distributed processing mode
      */
     virtual services::Status finalizeCompute() DAAL_C11_OVERRIDE;
@@ -87,7 +87,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__DISTRIBUTEDCONTAINER_STEP2MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
- * \brief Class containing computation methods for the K-Means algorithm in the second step of the distributed processing mode
+ * \brief Class containing computation methods for K-Means algorithm in the second step of the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public
@@ -95,7 +95,7 @@ class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public
 {
 public:
     /**
-     * Constructs a container for the K-Means algorithm with a specified environment
+     * Constructs a container for K-Means algorithm with a specified environment
      * in the second step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
@@ -103,12 +103,12 @@ public:
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
-     * Computes a partial result of the K-Means algorithm in the second step of the
+     * Computes a partial result of K-Means algorithm in the second step of the
      * distributed processing mode
      */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
     /**
-     * Computes the result of the K-Means algorithm in the second step of the
+     * Computes the result of K-Means algorithm in the second step of the
      * distributed processing mode
      */
     virtual services::Status finalizeCompute() DAAL_C11_OVERRIDE;
@@ -116,16 +116,16 @@ public:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__DISTRIBUTED"></a>
- * \brief Computes the results of the K-Means algorithm in the distributed processing mode
+ * \brief Computes the results of K-Means algorithm in the distributed processing mode
  * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of K-Means, double or float
  * \tparam method           Computation method of the algorithm, \ref Method
  *
  * \par Enumerations
- *      - \ref Method   Computation methods for the K-Means algorithm
- *      - \ref InputId  Identifiers of input objects for the K-Means algorithm
- *      - \ref ResultId Identifiers of results of the K-Means algorithm
+ *      - \ref Method   Computation methods for K-Means algorithm
+ *      - \ref InputId  Identifiers of input objects for K-Means algorithm
+ *      - \ref ResultId Identifiers of results of K-Means algorithm
  *
  * \par References
  *      - Input class
@@ -136,16 +136,16 @@ class DAAL_EXPORT Distributed {};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__DISTRIBUTED_STEP1LOCAL_ALGORITHMFPTYPE_METHOD"></a>
- * \brief Computes the results of the K-Means algorithm in the first step of the distributed processing mode
+ * \brief Computes the results of K-Means algorithm in the first step of the distributed processing mode
  * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of K-Means, double or float
  * \tparam method           Computation method of the algorithm, \ref Method
  *
  * \par Enumerations
- *      - \ref Method   Computation methods for the K-Means algorithm
+ *      - \ref Method   Computation methods for K-Means algorithm
  *      - \ref InputId  Identifiers of input objects for the  K-Means algorithm
- *      - \ref ResultId Identifiers of results of the K-Means algorithm
+ *      - \ref ResultId Identifiers of results of K-Means algorithm
  */
 template<typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
@@ -157,7 +157,7 @@ public:
     typedef algorithms::kmeans::PartialResult PartialResultType;
 
     /**
-     * Constructs a K-Means algorithm
+     * Constructs K-Means algorithm
      *  \param[in] nClusters  Number of clusters
      *  \param[in] assignFlag Flag to calculate partial assignment
      */
@@ -168,7 +168,7 @@ public:
     }
 
     /**
-     * Constructs a K-Means algorithm by copying input objects and parameters
+     * Constructs K-Means algorithm by copying input objects and parameters
      * of another K-Means algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
@@ -187,8 +187,8 @@ public:
     virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     /**
-     * Returns the structure that contains the results of the K-Means algorithm
-     * \return Structure that contains the results of the K-Means algorithm
+     * Returns the structure that contains the results of K-Means algorithm
+     * \return Structure that contains the results of K-Means algorithm
      */
     ResultPtr getResult()
     {
@@ -196,8 +196,8 @@ public:
     }
 
     /**
-     * Registers user-allocated memory to store the results of the K-Means algorithm
-     * \param[in] result  Structure to store the results of the K-Means algorithm
+     * Registers user-allocated memory to store the results of K-Means algorithm
+     * \param[in] result  Structure to store the results of K-Means algorithm
      */
     services::Status setResult(const ResultPtr& result)
     {
@@ -290,16 +290,16 @@ private:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__DISTRIBUTED_STEP2MASTER_ALGORITHMFPTYPE_METHOD"></a>
- * \brief Computes the results of the K-Means algorithm in the second step of the distributed processing mode
+ * \brief Computes the results of K-Means algorithm in the second step of the distributed processing mode
  * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm description and usage models</a> -->
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of K-Means, double or float
  * \tparam method           Computation method of the algorithm, \ref Method
  *
  * \par Enumerations
- *      - \ref Method   Computation methods for the K-Means algorithm
- *      - \ref InputId  Identifiers of input objects for the K-Means algorithm
- *      - \ref ResultId Identifiers of results of the K-Means algorithm
+ *      - \ref Method   Computation methods for K-Means algorithm
+ *      - \ref InputId  Identifiers of input objects for K-Means algorithm
+ *      - \ref ResultId Identifiers of results of K-Means algorithm
  *
  * \par References
  *      - Input  class
@@ -325,7 +325,7 @@ public:
     }
 
     /**
-     * Constructs a K-Means algorithm by copying input objects and parameters
+     * Constructs K-Means algorithm by copying input objects and parameters
      * of another K-Means algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
@@ -343,8 +343,8 @@ public:
     virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     /**
-     * Returns the structure that contains the results of the K-Means algorithm
-     * \return Structure that contains the results of the K-Means algorithm
+     * Returns the structure that contains the results of K-Means algorithm
+     * \return Structure that contains the results of K-Means algorithm
      */
     ResultPtr getResult()
     {
@@ -352,8 +352,8 @@ public:
     }
 
     /**
-     * Registers user-allocated memory to store the results of the K-Means algorithm
-     * \param[in] result  Structure to store the results of the K-Means algorithm
+     * Registers user-allocated memory to store the results of K-Means algorithm
+     * \param[in] result  Structure to store the results of K-Means algorithm
      */
     services::Status setResult(const ResultPtr& result)
     {

@@ -92,7 +92,6 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t 
     const NumericTable *wTable = (n >= 3 ? a[2] : 0);
 
     const size_t nFeatures = xTable->getNumberOfColumns();
-    const size_t nVectors  = xTable->getNumberOfRows();
     const size_t nClasses = par->nClasses;
     stumpModel->setNFeatures(nFeatures);
 
