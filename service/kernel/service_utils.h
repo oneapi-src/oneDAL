@@ -143,8 +143,7 @@ ForwardIterator upperBound(ForwardIterator first, ForwardIterator last, const T 
     if(count > 0)
     {
         if(compare(value, *first)) return first;
-        auto second = first;
-        ++second;
+        auto second = first + 1;
         if(compare(value, *second)) return second;
     }
     ForwardIterator it;
