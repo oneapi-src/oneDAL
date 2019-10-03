@@ -223,7 +223,7 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::writeItemsetsTable
             largeItemsetsData[2 * item_idx + 1] = itemSet->items[j];
         }
         largeItemsetsSupportData[2 * i]     = i;
-        DAAL_ASSERT(itemSet->support.get() <= INT_MAX)
+        DAAL_ASSERT(itemSet->support.get() <= services::internal::MaxVal<int>::get())
         largeItemsetsSupportData[2 * i + 1] = (int)itemSet->support.get();
     }
     return Status();

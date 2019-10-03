@@ -24,6 +24,7 @@
 #define __SVD_DENSE_DEFAULT_DISTR_STEP2__
 
 #include "svd_types.h"
+#include "service_data_utils.h"
 
 using namespace daal::services;
 using namespace daal::data_management;
@@ -73,7 +74,7 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(KeyValueDat
     ResultPtr result = staticPointerCast<Result, SerializationIface>(Argument::get(finalResultFromStep2Master));
 
     const size_t inSize = inCollection->size();
-    DAAL_CHECK(inSize <= INT_MAX, ErrorIncorrectNumberOfElementsInInputCollection)
+    DAAL_CHECK(inSize <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfElementsInInputCollection)
 
     DataCollection *fisrtNodeCollection = static_cast<DataCollection *>((*inCollection).getValueByIndex(0).get());
     NumericTable *firstNumericTable     = static_cast<NumericTable *>((*fisrtNodeCollection)[0].get());

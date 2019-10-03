@@ -24,6 +24,7 @@
 #include "algorithms/qr/qr_types.h"
 #include "serialization_utils.h"
 #include "daal_strings.h"
+#include "service_data_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -110,9 +111,9 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
     DAAL_CHECK_EX(firstNumTableInFirstNodeCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, QRNodeCollectionStr());
 
     Status s = checkNumericTable(firstNumTableInFirstNodeCollection.get(), QRNodeCollectionNTStr());
-    if(!s) { return s; }
+    DAAL_CHECK_STATUS_VAR(s)
     size_t nFeatures = firstNumTableInFirstNodeCollection->getNumberOfColumns();
-    DAAL_CHECK(nNodes <= INT_MAX, ErrorIncorrectNumberOfNodes)
+    DAAL_CHECK(nNodes <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfNodes)
     // check all dataCollection in key-value dataCollection
     for(size_t i = 0 ; i < nNodes ; i++)
     {
@@ -129,14 +130,14 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
             DAAL_CHECK_EX(rNumTableInNodeCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, QRNodeCollectionStr());
             int unexpectedLayouts = (int)packed_mask;
             s |= checkNumericTable(rNumTableInNodeCollection.get(), QRNodeCollectionNTStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-            if(!s) { return s; }
+            DAAL_CHECK_STATUS_VAR(s)
         }
     }
     int unexpectedLayouts = (int)packed_mask;
     if(get(finalResultFromStep2Master))
     {
         s |= checkNumericTable(get(finalResultFromStep2Master)->get(matrixR).get(), matrixRStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-        if(!s) { return s; }
+        DAAL_CHECK_STATUS_VAR(s)
     }
     return Status();
 }

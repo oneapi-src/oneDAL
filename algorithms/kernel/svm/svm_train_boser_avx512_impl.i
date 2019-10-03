@@ -62,7 +62,7 @@ void SVMTrainTask<float, daal::algorithms::svm::interface2::Parameter, avx512>::
     for(j_cur = jStart; (j_cur + 16) <= jEnd; j_cur += 16)
     {
         // if (jEnd > jCur)  make mask?
-        DAAL_ASSERT(j_cur <= INT_MAX)
+        DAAL_ASSERT(j_cur <= services::internal::MaxVal<int>::get())
         __m512i Bj_vec_cur = _mm512_set1_epi32((int)(j_cur));
         __m128i vec_I = _mm_load_si128((__m128i*)(&_I[j_cur]));
 
@@ -213,7 +213,7 @@ void SVMTrainTask<double, daal::algorithms::svm::interface2::Parameter, avx512>:
     for(j_cur = jStart; (j_cur + 8) <= jEnd; j_cur += 8)
     {
         // if (jEnd > jCur)  make mask?
-        DAAL_ASSERT(j_cur <= INT_MAX)
+        DAAL_ASSERT(j_cur <= services::internal::MaxVal<int>::get())
         __m256i Bj_vec_cur = _mm256_set1_epi32((int)(j_cur));
 
         if((j_cur + 8) > jEnd) // last iteration

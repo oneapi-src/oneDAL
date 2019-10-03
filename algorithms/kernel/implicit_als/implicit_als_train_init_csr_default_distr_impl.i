@@ -251,7 +251,7 @@ Status ImplicitALSInitDistrKernelBase<algorithmFPType, fastCSR, cpu>::computeBlo
         {
             if (blockFlags[i * nItems + j])
             {
-                DAAL_ASSERT(j <= INT_MAX)
+                DAAL_ASSERT(j <= services::internal::MaxVal<int>::get())
                 blocksToLocalData[indexId++] = (int)j;
             }
         }

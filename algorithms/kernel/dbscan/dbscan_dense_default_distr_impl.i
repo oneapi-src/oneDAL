@@ -532,8 +532,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::processNeighborhood
                                                                                  const Neighborhood<algorithmFPType, cpu> & neigh,
                                                                                  Queue<size_t, cpu> & qu)
 {
-    DAAL_CHECK(clusterId <= INT_MAX, ErrorIncorrectNumberOfPartialClusters)
-    DAAL_CHECK(startObs <= INT_MAX, ErrorIncorrectNumberOfPartialClusters)
+    DAAL_CHECK(clusterId <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfPartialClusters)
+    DAAL_CHECK(startObs <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfPartialClusters)
     for (size_t j = 0; j < neigh.size(); j++)
     {
         const size_t nextObs = neigh.get(j);
@@ -816,9 +816,9 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
         const size_t clusterId = nClusters;
         nClusters++;
 
-        DAAL_ASSERT(clusterId <= INT_MAX)
-        DAAL_ASSERT(blockIndex <= INT_MAX)
-        DAAL_ASSERT(i <= INT_MAX)
+        DAAL_ASSERT(clusterId <= services::internal::MaxVal<int>::get())
+        DAAL_ASSERT(blockIndex <= services::internal::MaxVal<int>::get())
+        DAAL_ASSERT(i <= services::internal::MaxVal<int>::get())
         clusterStructure[i * 4 + 0] = (int)(clusterId);
         clusterStructure[i * 4 + 1] = 1;
         clusterStructure[i * 4 + 2] = (int)blockIndex;
@@ -991,9 +991,9 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
         const size_t clusterId = nClusters;
         nClusters++;
 
-        DAAL_ASSERT(clusterId <= INT_MAX)
-        DAAL_ASSERT(blockIndex <= INT_MAX)
-        DAAL_ASSERT(i <= INT_MAX)
+        DAAL_ASSERT(clusterId <= services::internal::MaxVal<int>::get())
+        DAAL_ASSERT(blockIndex <= services::internal::MaxVal<int>::get())
+        DAAL_ASSERT(i <= services::internal::MaxVal<int>::get())
         clusterStructure[i * 4 + 0] = (int)(clusterId);
         clusterStructure[i * 4 + 1] = 1;
         clusterStructure[i * 4 + 2] = (int)blockIndex;

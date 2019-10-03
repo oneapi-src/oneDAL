@@ -67,7 +67,7 @@ services::Status Result::allocate(const daal::algorithms::Input *input, const da
         NumericTablePtr pTbl = NumericTablePtr(new HomogenNumericTable<int>(1, 1, NumericTable::doAllocate, 0));
         DAAL_CHECK_MALLOC(pTbl)
         pOpt->set(iterative_solver::lastIteration, pTbl);
-        DAAL_ASSERT(momentum <= INT_MAX)
+        DAAL_ASSERT(momentum <= services::internal::MaxVal<int>::get())
         if(method == (int) momentum)
         {
             if(!pOpt->get(pastUpdateVector))
@@ -77,7 +77,7 @@ services::Status Result::allocate(const daal::algorithms::Input *input, const da
                 pOpt->set(pastUpdateVector, pTbl);
             }
         }
-        DAAL_ASSERT(miniBatch <= INT_MAX)
+        DAAL_ASSERT(miniBatch <= services::internal::MaxVal<int>::get())
         if(method == (int) miniBatch)
         {
             if(!pOpt->get(pastWorkValue))

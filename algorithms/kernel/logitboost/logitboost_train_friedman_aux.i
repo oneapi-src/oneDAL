@@ -73,7 +73,7 @@ void initWZ(size_t n, size_t nc, size_t curClass, const int *label, const algori
     const algorithmFPType one = (algorithmFPType)1.0;
     const algorithmFPType three = (algorithmFPType)3.0;
     const algorithmFPType negThree = (algorithmFPType)(-3.0);
-    DAAL_ASSERT(curClass <= INT_MAX)
+    DAAL_ASSERT(curClass <= services::internal::MaxVal<int>::get())
     int iCurClass = (int)curClass;
     const algorithmFPType *Pptr = P + curClass * n;
 

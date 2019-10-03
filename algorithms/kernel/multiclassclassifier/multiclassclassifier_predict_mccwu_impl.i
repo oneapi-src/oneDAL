@@ -249,14 +249,14 @@ services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults
         DAAL_CHECK_BLOCK_STATUS(_mtR);
         int& label = *_mtR.get();
         algorithmFPType maxProb = p[0];
-        DAAL_CHECK(nonEmptyClassMap[0] <= INT_MAX, services::ErrorIncorrectNumberOfClasses)
+        DAAL_CHECK(nonEmptyClassMap[0] <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectNumberOfClasses)
         label = (int)nonEmptyClassMap[0];
         for (int j = 1; j < nClasses; j++)
         {
             if (p[j] > maxProb)
             {
                 maxProb = p[j];
-                DAAL_ASSERT(nonEmptyClassMap[j] <= INT_MAX)
+                DAAL_ASSERT(nonEmptyClassMap[j] <= services::internal::MaxVal<int>::get())
                 label = (int)nonEmptyClassMap[j];
             }
         }
