@@ -225,7 +225,7 @@ Status compute_estimates( NumericTable *dataTable,
     Status s = _cd.init(partialResult, isOnline);
     DAAL_CHECK_STATUS_VAR(s)
 
-    DAAL_CHECK(_cd.resultArray[(int)nObservations][0] >= 0, ErrorIncorrectConversionIntegerType)
+    DAAL_ASSERT(_cd.resultArray[(int)nObservations][0] >= 0)
     const size_t nObs = (size_t)(_cd.resultArray[(int)nObservations][0]);
 
     /* "Short names" for result arrays */

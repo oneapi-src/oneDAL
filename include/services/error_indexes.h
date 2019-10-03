@@ -415,7 +415,14 @@ enum ErrorID
     UnknownError = -1000000,                                            /*!< Unknown error */
     NoErrorMessageFound = -1000001,                                     /*!< No error message found */
     ErrorMethodNotImplemented = -1000002,                               /*!< Method is not implemented in the present library version  */
-    ErrorIncorrectConversionIntegerType = -1000003                      /*!< Invalid conversion of integer type  */  
+
+    // new items for SDL T191 task: Follow best practices when handling primitive data types
+    ErrorIncorrectOffset = -1000003,                                    /*!< Incorrect offset parameter */
+    ErrorAdagradIncorrectMaxNumberOfIterations = -1000004,              /*!< Incorrect maximum number of iterations value in adagrad solver parameter */
+    ErrorLbfgsIncorrectMaxNumberOfIterations = -1000005,                /*!< Incorrect maximum number of iterations value in lbfgs solver parameter */
+    ErrorSgdIncorrectMaxNumberOfIterations = -1000006,                  /*!< Incorrect maximum number of iterations value in sgd solver parameter */
+    ErrorIncorrectNumberOfTerms = -1000007,                             /*!< Incorrect number of summands (terms) in objective function */
+    ErrorIncorrectNumberOfNodes = -1000008                              /*!< Incorrect number of nodes */
 };
 /** @} */
 }

@@ -240,11 +240,7 @@ struct assocrules_dataset
         }
         numOfUniqueItems = 0;
         double ceil = daal::internal::Math<double,cpu>::sCeil(minSupport * numOfTransactions);
-        if (ceil < 0)
-        {
-            _status = services::Status(ErrorIncorrectConversionIntegerType);
-            return;
-        }
+        DAAL_ASSERT(ceil >= 0)
 
         size_t iMinSupport = (size_t)ceil;
         for (size_t i = 0; i < itemsFullNumber; i++)

@@ -160,7 +160,7 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
         }
         task.makeStep(gradient, learningRate, consCoeff, argumentSize);
     }
-    DAAL_CHECK(task.nProceededIters <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(task.nProceededIters <= INT_MAX, ErrorSgdIncorrectMaxNumberOfIterations)
     task.nProceededIterations[0] = (int)task.nProceededIters;
     function->sumOfFunctionsParameter->batchIndices = previousBatchIndices;
     function->sumOfFunctionsInput->set(sum_of_functions::argument, previousArgument);

@@ -206,7 +206,7 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
     }
     DAAL_CHECK(pOpt->size() == lastOptionalData + 1, ErrorIncorrectOptionalInput);
     size_t argumentSize = get(iterative_solver::inputArgument)->getNumberOfRows();
-    DAAL_CHECK(momentum <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_ASSERT(momentum <= INT_MAX)
     if(method == (int)momentum)
     {
         return checkNumericTable(get(pastUpdateVector).get(), pastUpdateVectorStr(), 0, 0, 1, argumentSize);
@@ -249,7 +249,7 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     DAAL_CHECK(pOpt->size() == lastOptionalData + 1, ErrorIncorrectOptionalResult);
     const Input *algInput = static_cast<const Input *>(input);
     size_t argumentSize = algInput->get(iterative_solver::inputArgument)->getNumberOfRows();
-    DAAL_CHECK(momentum <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_ASSERT(momentum <= INT_MAX)
     if(method == (int)momentum)
     {
         DAAL_CHECK_STATUS(s, checkNumericTable(get(pastUpdateVector).get(), pastUpdateVectorStr(), 0, 0, 1, argumentSize));

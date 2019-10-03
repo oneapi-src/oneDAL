@@ -73,7 +73,7 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(KeyValueDat
     ResultPtr result = staticPointerCast<Result, SerializationIface>(Argument::get(finalResultFromStep2Master));
 
     const size_t inSize = inCollection->size();
-    DAAL_CHECK(inSize <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(inSize <= INT_MAX, ErrorIncorrectNumberOfElementsInInputCollection)
 
     DataCollection *fisrtNodeCollection = static_cast<DataCollection *>((*inCollection).getValueByIndex(0).get());
     NumericTable *firstNumericTable     = static_cast<NumericTable *>((*fisrtNodeCollection)[0].get());
@@ -82,8 +82,7 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(KeyValueDat
     if(result->get(singularValues).get() == nullptr)
     {
         Status s = result->allocateImpl<algorithmFPType>(m, 0);
-        if(!s)
-            return s;
+        DAAL_CHECK_STATUS_VAR(s)
     }
 
     nBlocks = 0;

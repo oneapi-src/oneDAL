@@ -532,8 +532,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::processNeighborhood
                                                                                  const Neighborhood<algorithmFPType, cpu> & neigh,
                                                                                  Queue<size_t, cpu> & qu)
 {
-    DAAL_CHECK(clusterId <= INT_MAX, ErrorIncorrectConversionIntegerType)
-    DAAL_CHECK(startObs <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(clusterId <= INT_MAX, ErrorIncorrectNumberOfPartialClusters)
+    DAAL_CHECK(startObs <= INT_MAX, ErrorIncorrectNumberOfPartialClusters)
     for (size_t j = 0; j < neigh.size(); j++)
     {
         const size_t nextObs = neigh.get(j);

@@ -67,7 +67,7 @@ public:
         else
         {
             int iparts = (_partitionRows.get())[0];
-            DAAL_CHECK(iparts >= 0, ErrorIncorrectConversionIntegerType)
+            DAAL_ASSERT(iparts >= 0)
             nParts = (size_t)iparts;
             _partitionPtr.reset(nParts + 1);
             DAAL_CHECK_MALLOC(_partitionPtr.get());

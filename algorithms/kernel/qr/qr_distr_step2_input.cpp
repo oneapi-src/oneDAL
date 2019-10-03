@@ -147,7 +147,7 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter *parameter
     DAAL_CHECK_EX(nFeatures, ErrorIncorrectNumberOfColumns, ArgumentName, QRNodeCollectionNTStr());
 
     size_t nNodes = inputKeyValueDC->size();
-    DAAL_CHECK(nNodes <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(nNodes <= INT_MAX, ErrorIncorrectNumberOfNodes)
     // check all dataCollection in key-value dataCollection
     for(size_t i = 0 ; i < nNodes ; i++)
     {

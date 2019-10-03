@@ -117,7 +117,7 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
     Status s = checkNumericTable(firstNumTableInFirstNodeCollection.get(), SVDNodeCollectionNTStr());
     if(!s) { return s; }
     size_t nFeatures = firstNumTableInFirstNodeCollection->getNumberOfColumns();
-    DAAL_CHECK(nNodes <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(nNodes <= INT_MAX, ErrorIncorrectNumberOfNodes)
     // check all dataCollection in key-value dataCollection
     for(size_t i = 0 ; i < nNodes ; i++)
     {

@@ -119,7 +119,7 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
 
     WriteRows<int, cpu, NumericTable> nIterationsBD(*nIterations, 0, 1);
     int *nProceededIterations = nIterationsBD.get();
-    DAAL_CHECK(nIter <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(nIter <= INT_MAX, ErrorSgdIncorrectMaxNumberOfIterations)
     *nProceededIterations = (int)nIter;
 
     size_t startIteration = 0, epoch = 0, nProceededIters = 0;

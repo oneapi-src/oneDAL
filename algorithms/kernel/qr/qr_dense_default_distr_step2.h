@@ -87,7 +87,7 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(data_manage
 
     nBlocks = 0;
     Status s;
-    DAAL_CHECK(inSize <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(inSize <= INT_MAX, ErrorIncorrectNumberOfElementsInInputCollection)
     for(size_t i = 0 ; i < inSize ; i++)
     {
         data_management::DataCollection *nodeCollection = static_cast<data_management::DataCollection *>((*inCollection).getValueByIndex((int)i).get());

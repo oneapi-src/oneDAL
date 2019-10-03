@@ -781,7 +781,7 @@ Status LBFGSTask<algorithmFPType, cpu>::updateBatchIndices(size_t iPredefinedInd
     }
     else // if (batchIndicesStatus == random)
     {
-        DAAL_CHECK(nTerms <= INT_MAX, ErrorIncorrectConversionIntegerType)
+        DAAL_CHECK(nTerms <= INT_MAX, ErrorIncorrectNumberOfTerms)
         DAAL_CHECK(_rng.uniformWithoutReplacement(batchSize, batchIndices, engine->getState(), 0, (int)nTerms) == 0, ErrorIncorrectErrorcodeFromGenerator);
     }
     return Status();
@@ -937,7 +937,7 @@ Status LBFGSTaskBase<algorithmFPType, cpu>::setToResult(NumericTable *correction
 {
     WriteRows<int, cpu> mtNIterations(nIterationsNT, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(mtNIterations);
-    DAAL_CHECK(nIterations <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(nIterations <= INT_MAX, ErrorLbfgsIncorrectMaxNumberOfIterations)
     *mtNIterations.get() = (int)nIterations;
 
     if(correctionIndicesResult)

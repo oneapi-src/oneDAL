@@ -229,10 +229,10 @@ Status initDistrPlusPlus(const NumericTable* pData, const Parameter *par,
     int index = 0;
 
     Status s;
-    DAAL_CHECK(par->nRowsTotal <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(par->nRowsTotal <= INT_MAX, ErrorIncorrectNumberOfRows)
     DAAL_CHECK_STATUS(s, (UniformKernelDefault<int, cpu>::compute(0, (int)par->nRowsTotal, engine, 1, &index)));
 
-    DAAL_CHECK(index <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_ASSERT(index >= 0)
     size_t c(index);
     if(c < par->offset)
         return Status(); //ok
@@ -274,7 +274,7 @@ services::Status KMeansInitStep1LocalKernel<method, algorithmFPType, cpu>::compu
         return s;
     WriteOnlyRows<int, cpu> npcBD(*pNumPartialClusters, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(npcBD);
-    DAAL_CHECK(nClustersFound <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(nClustersFound <= INT_MAX, ErrorIncorrectNumberOfPartialClusters)
     *npcBD.get() = (int)nClustersFound;
     return s;
 }

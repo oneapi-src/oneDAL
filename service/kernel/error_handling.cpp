@@ -950,7 +950,14 @@ void ErrorMessageCollection::parseResourceFile()
 
     add(NoErrorMessageFound, "NoErrorMessageFound");
     add(ErrorMethodNotImplemented, "Method is not implemented");
-    add(ErrorIncorrectConversionIntegerType, "Invalid conversion of integer type");
+
+    // new items for SDL T191 task: Follow best practices when handling primitive data types
+    add(ErrorIncorrectOffset, "Incorrect offset parameter");
+    add(ErrorAdagradIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in adagrad solver parameter");
+    add(ErrorLbfgsIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in lbfgs parameter");
+    add(ErrorSgdIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in lbfgs parameter");
+    add(ErrorIncorrectNumberOfTerms, "Incorrect number of summands (terms) in objective function");
+    add(ErrorIncorrectNumberOfNodes, "Incorrect number of nodes");
 }
 
 void ErrorDetailCollection::parseResourceFile()

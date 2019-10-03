@@ -143,7 +143,7 @@ services::Status I1AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppI
     ReadRows<algorithmFPType, cpu> learningRateBD(*ntlearningRate, 0, 1);
     const algorithmFPType learningRate = *learningRateBD.get();
 
-    DAAL_CHECK(nIter <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(nIter <= INT_MAX, ErrorAdagradIncorrectMaxNumberOfIterations)
     *nProceededIterations = (int)nIter;
 
     TArray<algorithmFPType, cpu> smAccumulatedG(nRows);

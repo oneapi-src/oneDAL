@@ -79,7 +79,6 @@ services::Status LowOrderMomentsOnlineKernel<algorithmFPType, method, cpu>::comp
                                         task.resultArray[(int)partialSumSquares],
                                         true);
 
-    DAAL_CHECK(task.resultArray[(int)nObservations][0] >= 0, ErrorIncorrectConversionIntegerType)
     computeSumOfSquaredDiffsFromMean<algorithmFPType, cpu>(task.nFeatures, task.nVectors,
                                         (size_t)(task.resultArray[(int)nObservations][0]),
                                         task.variance, task.resultArray[(int)partialSum], task.prevSums,

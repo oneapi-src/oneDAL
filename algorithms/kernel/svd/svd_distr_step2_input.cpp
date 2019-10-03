@@ -147,7 +147,7 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter *parameter
     if(nFeatures == 0) { return s; }
 
     const size_t nNodes = inputKeyValueDC->size();
-    DAAL_CHECK(nNodes <= INT_MAX, ErrorIncorrectConversionIntegerType)
+    DAAL_CHECK(nNodes <= INT_MAX, ErrorIncorrectNumberOfNodes)
     // check all dataCollection in key-value dataCollection
     for(size_t i = 0 ; i < nNodes ; i++)
     {
