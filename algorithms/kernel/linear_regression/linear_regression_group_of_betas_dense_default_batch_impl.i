@@ -82,7 +82,7 @@ services::Status GroupOfBetasKernel<method, algorithmFPType, cpu>::compute(
         daal::tls<algorithmFPType *> resPartial([=]()-> algorithmFPType*
         {
             const size_t size = 3 * k;
-            algorithmFPType* ptr = (algorithmFPType *)daal_malloc(size * sizeof(algorithmFPType));
+            algorithmFPType* ptr = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(size * sizeof(algorithmFPType));
             if(ptr)
                 for(size_t j = 0; j < size; ptr[j] = 0, ++j);
             return ptr;
@@ -157,7 +157,7 @@ services::Status GroupOfBetasKernel<method, algorithmFPType, cpu>::compute(
         daal::tls<algorithmFPType *> resPartial([=]()-> algorithmFPType*
         {
             const size_t size = 2 * k;
-            algorithmFPType* ptr = (algorithmFPType *)daal_malloc(size * sizeof(algorithmFPType));
+            algorithmFPType* ptr = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(size * sizeof(algorithmFPType));
             if(ptr)
                 for(size_t j = 0; j < size; ptr[j] = 0, ++j);
             return ptr;

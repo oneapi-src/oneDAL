@@ -71,7 +71,7 @@ public:
         if (_size == size)
         { return services::Status(); }
 
-        T *buffer = (T *)services::daal_malloc( sizeof(T) * size );
+        T *buffer = (T *)services::daal_calloc( sizeof(T) * size );
         if (!buffer)
         { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
 

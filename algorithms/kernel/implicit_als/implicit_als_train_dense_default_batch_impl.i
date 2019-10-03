@@ -332,7 +332,8 @@ services::Status ImplicitALSTrainBatchKernel<algorithmFPType, fastCSR, cpu>::com
 #endif
     daal::tls<algorithmFPType *> lhs([=]() -> algorithmFPType*
     {
-        return (algorithmFPType *)daal::services::daal_malloc(parameter->nFactors * parameter->nFactors * sizeof(algorithmFPType));
+        return (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(
+            parameter->nFactors * parameter->nFactors * sizeof(algorithmFPType));
     });
 
     algorithmFPType beta = 0.0;
@@ -396,7 +397,8 @@ services::Status ImplicitALSTrainBatchKernel<algorithmFPType, defaultDense, cpu>
 
     daal::tls<algorithmFPType *> lhs([=]() -> algorithmFPType*
     {
-        return (algorithmFPType *)daal::services::daal_malloc(parameter->nFactors * parameter->nFactors * sizeof(algorithmFPType));
+        return (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(
+            parameter->nFactors * parameter->nFactors * sizeof(algorithmFPType));
     });
     algorithmFPType beta = 0.0;
     for(size_t i = 0; i < parameter->maxIterations; i++)
