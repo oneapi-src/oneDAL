@@ -44,7 +44,9 @@ public:
         changeZeroToMinusOne(false),
         splitFeature(0),
         splitValue(0),
-        isOneLeaf(true)
+        isOneLeaf(true),
+        leftValue(0),
+        rightValue(0)
     {
         if (nClasses == 2)
         {

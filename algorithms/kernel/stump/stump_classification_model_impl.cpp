@@ -46,6 +46,8 @@ using namespace daal::services;
 
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_STUMP_CLASSIFICATION_MODEL_ID);
 
+Model::Model() : _nClasses(0) {}
+
 Model::~Model() {}
 
 Model::Model(size_t nFeatures, size_t nClasses, services::Status &st) : decision_tree::classification::Model(nFeatures)
