@@ -589,7 +589,8 @@ public:
     {
         if(maxTreeDepth == 2) // stump with weights
         {
-            return trainStump(splitCriterion, leavesData, x, y, w, numberOfClasses, minLeafObservations, minSplitObservations);
+            trainStump(splitCriterion, leavesData, x, y, w, numberOfClasses, minLeafObservations, minSplitObservations);
+            return;
         }
         const size_t xRowCount = x.getNumberOfRows();
         const size_t xColumnCount = x.getNumberOfColumns();
