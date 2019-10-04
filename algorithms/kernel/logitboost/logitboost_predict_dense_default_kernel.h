@@ -47,7 +47,7 @@ namespace internal
  *  for Logit Boost prediction calculation using Fast method
  */
 template<typename algorithmFPType, CpuType cpu>
-struct LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu> : public Kernel
+struct I1LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
@@ -59,7 +59,7 @@ struct LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu> : public Kern
  *  for Logit Boost prediction calculation using Fast method
  */
 template<typename algorithmFPType, CpuType cpu>
-struct LogitBoostPredictKernelNew<defaultDense, algorithmFPType, cpu> : public Kernel
+struct LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;

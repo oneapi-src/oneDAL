@@ -43,32 +43,32 @@ namespace internal
 {
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class AdaBoostTrainKernel : public Kernel
+class I1AdaBoostTrainKernel : public Kernel
 {
 public:
-    services::Status compute(size_t n, NumericTablePtr *a, adaboost::interface1::Model *r, const adaboost::interface1::Parameter *par);
+    services::Status compute(NumericTablePtr *a, adaboost::interface1::Model *r, const adaboost::interface1::Parameter *par);
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
 
 private:
     services::Status adaBoostFreundKernel(size_t nVectors, NumericTablePtr weakLearnerInputTables[], const HomogenNTPtr& hTable,
-        const algorithmFPType *y, adaboost::interface1::Model *boostModel, adaboost::interface1::Parameter *parameter, size_t& nWeakLearners, algorithmFPType *alpha);
+        const algorithmFPType *y, adaboost::interface1::Model *boostModel, const adaboost::interface1::Parameter *parameter, size_t& nWeakLearners, algorithmFPType *alpha);
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class AdaBoostTrainKernelNew : public Kernel
+class AdaBoostTrainKernel : public Kernel
 {
 public:
-    services::Status compute(size_t n, NumericTablePtr *a, Model *r, NumericTable *weakLearnersErrorsTable, const Parameter *par);
+    services::Status compute(NumericTablePtr *a, Model *r, NumericTable *weakLearnersErrorsTable, const Parameter *par);
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
 
 private:
     services::Status adaboostSAMME(size_t nVectors, NumericTablePtr weakLearnerInputTables[],
-                                   const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsTable, Parameter *parameter, size_t &nWeakLearners, algorithmFPType *alpha);
+                                   const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsTable, const Parameter *parameter, size_t &nWeakLearners, algorithmFPType *alpha);
     services::Status adaboostSAMME_R(
         size_t nVectors, NumericTablePtr weakLearnerInputTables[],
-        const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsTable, Parameter *parameter, size_t &nWeakLearners, algorithmFPType *alpha);
+        const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsTable, const Parameter *parameter, size_t &nWeakLearners, algorithmFPType *alpha);
     void convertLabelToVector(size_t nClasses, algorithmFPType *Y);
 };
 } // namespace daal::algorithms::adaboost::training::internal

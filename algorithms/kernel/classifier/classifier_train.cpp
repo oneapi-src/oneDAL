@@ -101,10 +101,17 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
 services::Status Input::checkImpl(const daal::algorithms::Parameter *parameter) const
 {
     services::Status s;
-    if (parameter != NULL)
+    if (parameter != nullptr)
     {
-        const Parameter *algParameter = static_cast<const Parameter *>(parameter);
-        DAAL_CHECK_EX(algParameter->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+        auto par1 = dynamic_cast<const classifier::interface1::Parameter *>(parameter);
+        if(par1)
+            DAAL_CHECK_EX(par1->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+
+        auto par2 = dynamic_cast<const classifier::interface2::Parameter *>(parameter);
+        if(par2)
+            DAAL_CHECK_EX(par2->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+
+        if(par1 == nullptr && par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
     }
 
     data_management::NumericTablePtr dataTable = get(data);

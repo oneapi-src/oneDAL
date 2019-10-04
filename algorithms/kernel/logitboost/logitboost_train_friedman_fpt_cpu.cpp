@@ -43,8 +43,8 @@ template class BatchContainer<DAAL_FPTYPE, friedman, DAAL_CPU>;
 }
 namespace internal
 {
+template struct I1LogitBoostTrainKernel<friedman, DAAL_FPTYPE, DAAL_CPU>;
 template struct LogitBoostTrainKernel<friedman, DAAL_FPTYPE, DAAL_CPU>;
-template struct LogitBoostTrainKernelNew<friedman, DAAL_FPTYPE, DAAL_CPU>;
 }
 }
 }

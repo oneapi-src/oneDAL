@@ -144,6 +144,9 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
 /* [Parameter source code] */
 }
 
+/**
+ * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
 namespace interface1
 {
 /**

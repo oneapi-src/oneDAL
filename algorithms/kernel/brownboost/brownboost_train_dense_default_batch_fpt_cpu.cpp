@@ -43,8 +43,8 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 namespace internal
 {
+template class I1BrownBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 template class BrownBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
-template class BrownBoostTrainKernelNew<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 template class NewtonRaphsonKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
 }

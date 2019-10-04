@@ -240,7 +240,7 @@ protected:
     data_management::DataCollectionPtr _models;              /* Collection of two-class classifiers associated with the model */
     classifier::ModelPtr *_modelsArray;
 
-    Model(size_t nFeatures, const interface1::ParameterBase *par, services::Status &st);
+    DAAL_DEPRECATED Model(size_t nFeatures, const interface1::ParameterBase *par, services::Status &st); /* \DAAL_DEPRECATED */
     Model(size_t nFeatures, const interface2::ParameterBase *par, services::Status &st);
 
     template<typename Archive, bool onDeserialize>

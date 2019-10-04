@@ -39,7 +39,7 @@ namespace regression
 class StumpNodeVisitor : public daal::algorithms::tree_utils::regression::TreeNodeVisitor
 {
 public:
-    StumpNodeVisitor(): leftIsSet(false), splitFeature(0), isOneLeaf(true) {}
+    StumpNodeVisitor(): leftIsSet(false), splitFeature(0), isOneLeaf(true), leftValue(0), rightValue(0), splitValue(0) {}
     virtual bool onLeafNode(const daal::algorithms::tree_utils::regression::LeafNodeDescriptor &desc)
     {
         if(!leftIsSet)

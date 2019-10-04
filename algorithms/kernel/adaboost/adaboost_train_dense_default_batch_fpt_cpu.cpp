@@ -44,9 +44,9 @@ template class BatchContainer<DAAL_FPTYPE, sammeR, DAAL_CPU>;
 }
 namespace internal
 {
+template class I1AdaBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 template class AdaBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
-template class AdaBoostTrainKernelNew<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
-template class AdaBoostTrainKernelNew<sammeR, DAAL_FPTYPE, DAAL_CPU>;
+template class AdaBoostTrainKernel<sammeR, DAAL_FPTYPE, DAAL_CPU>;
 }
 }
 }

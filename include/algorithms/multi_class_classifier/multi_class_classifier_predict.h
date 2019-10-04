@@ -171,7 +171,6 @@ public:
     }
 
 protected:
-
     virtual Batch<algorithmFPType, pmethod, tmethod> * cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, pmethod, tmethod>(*this);

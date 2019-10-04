@@ -66,7 +66,7 @@ template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
 {
     services::Status s;
-    const Parameter *parameter = static_cast<const Parameter *>(par);
+    const Parameter * const parameter = static_cast<const Parameter *>(par);
     const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
     set(classifier::training::model, Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
     if(parameter->resultsToCompute & adaboost::computeWeakLearnersErrors)
