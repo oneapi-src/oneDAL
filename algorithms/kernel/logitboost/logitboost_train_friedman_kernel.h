@@ -60,7 +60,7 @@ namespace internal
  *  Logit Boost model training using Friedman method
  */
 template<typename algorithmFPType, CpuType cpu>
-struct LogitBoostTrainKernel<friedman, algorithmFPType, cpu> : public Kernel
+struct I1LogitBoostTrainKernel<friedman, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
@@ -72,7 +72,7 @@ struct LogitBoostTrainKernel<friedman, algorithmFPType, cpu> : public Kernel
  *  Logit Boost model training using Friedman method
  */
 template<typename algorithmFPType, CpuType cpu>
-struct LogitBoostTrainKernelNew<friedman, algorithmFPType, cpu> : public Kernel
+struct LogitBoostTrainKernel<friedman, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;

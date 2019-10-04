@@ -45,7 +45,7 @@ namespace internal
 {
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
-class AdaBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cpu>
+class I1AdaBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cpu>
 {
     using BoostingPredictKernel<algorithmFPtype, cpu>::compute;
 public:

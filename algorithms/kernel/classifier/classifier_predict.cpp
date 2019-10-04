@@ -178,7 +178,7 @@ services::Status Result::checkImpl(const daal::algorithms::Input *input, const d
 
 namespace interface2
 {
-__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CLASSIFIER_PREDICTION_RESULT_V2_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CLASSIFIER_PREDICTION_RESULT_ID);
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
 Result::Result(const size_t n) : daal::algorithms::Result(n) {}
@@ -218,13 +218,13 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
 services::Status Result::checkImpl(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter) const
 {
     services::Status s;
-    size_t nRows = (static_cast<const InputIface *>(input))->getNumberOfRows();
+    const size_t nRows = (static_cast<const InputIface *>(input))->getNumberOfRows();
 
-    const Input *in = static_cast<const Input *>(input);
+    const Input * const in = static_cast<const Input *>(input);
     classifier::ModelPtr m = in->get(model);
     DAAL_CHECK(m, services::ErrorNullModel);
 
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * const par = static_cast<const Parameter *>(parameter);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
     if(par->resultsToEvaluate & computeClassLabels)

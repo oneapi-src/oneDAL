@@ -53,16 +53,14 @@ using namespace decision_tree::internal;
 
 template<typename algorithmFPType, CpuType cpu>
 services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
-    compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, NumericTable * p, const daal::algorithms::Parameter * par)
+    compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, NumericTable * p, const size_t numberOfClasses)
 {
     typedef daal::services::internal::SignBit<algorithmFPType, cpu> SignBitType;
 
     DAAL_ASSERT(x);
 
-    const decision_tree::classification::Parameter * const parameter = static_cast<const decision_tree::classification::Parameter *>(par);
     const decision_tree::classification::Model * const model = static_cast<const decision_tree::classification::Model *>(m);
 
-    DAAL_ASSERT(parameter);
     DAAL_ASSERT(model);
 
     FeatureTypesCache featureTypesCache(*x);
@@ -78,7 +76,6 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
     const auto rowsPerBlock = 512;
     const auto blockCount = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
-    const size_t numberOfClasses = parameter->nClasses;
     daal::threader_for(blockCount, blockCount, [=, &featureTypesCache, &treeTable, &modelImpl](int iBlock)
     {
         const size_t first = iBlock * rowsPerBlock;

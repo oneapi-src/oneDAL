@@ -149,8 +149,8 @@ private:
     ReadRows<algorithmFPType, cpu> _mtX;
 };
 
-template<typename algorithmFPType, typename ClsType, typename MccParam, CpuType cpu>
-struct MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, ClsType, MccParam, cpu>
+template<typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
+struct MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam, cpu>
         : public Kernel
 {
     services::Status compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r,

@@ -43,8 +43,8 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 namespace internal
 {
+template struct I1LogitBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 template struct LogitBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
-template struct LogitBoostPredictKernelNew<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
 }
 }

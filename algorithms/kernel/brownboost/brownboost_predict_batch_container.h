@@ -38,7 +38,7 @@ namespace interface1
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::BrownBoostPredictKernel, method, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::I1BrownBoostPredictKernel, method, algorithmFPType);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -59,7 +59,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     brownboost::interface1::Parameter *par = static_cast<brownboost::interface1::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::BrownBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
+    __DAAL_CALL_KERNEL(env, internal::I1BrownBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
 }
 }
 namespace interface2
@@ -67,7 +67,7 @@ namespace interface2
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::BrownBoostPredictKernelNew, method, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::BrownBoostPredictKernel, method, algorithmFPType);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -88,7 +88,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     brownboost::Parameter *par = static_cast<brownboost::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::BrownBoostPredictKernelNew, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
+    __DAAL_CALL_KERNEL(env, internal::BrownBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
 }
 }
 
