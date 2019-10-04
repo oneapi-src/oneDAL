@@ -112,14 +112,14 @@ protected:
     void buildLeftnode(GbtTask** newTasks, size_t& nTask, typename NodeType::Split* res)
     {
         NodeInfoType node(_node.iStart, _split.nLeft, _node.level + 1, _split.left, res->kid[0]);
-        newTasks[nTask++] = new (services::internal::service_scalable_malloc<UpdaterType, cpu>(1))UpdaterType(_data, node);
+        newTasks[nTask++] = new (services::internal::service_scalable_calloc<UpdaterType, cpu>(1))UpdaterType(_data, node);
         if (_prevRes) { _prevRes->release(_data); _prevRes = nullptr; }
     }
 
     void buildRightnode(GbtTask** newTasks, size_t& nTask, typename NodeType::Split* res, ImpurityType& impRight)
     {
         NodeInfoType node(_node.iStart + _split.nLeft, _node.n - _split.nLeft, _node.level + 1, impRight, res->kid[1]);
-        newTasks[nTask++] = new (services::internal::service_scalable_malloc<UpdaterType, cpu>(1)) UpdaterType(_data, node);
+        newTasks[nTask++] = new (services::internal::service_scalable_calloc<UpdaterType, cpu>(1)) UpdaterType(_data, node);
 
         if (_prevRes) { _prevRes->release(_data); _prevRes = nullptr; }
     }
@@ -182,7 +182,7 @@ protected:
     {
         typename super::NodeInfoType node1(super::_node.iStart, super::_split.nLeft, super::_node.level + 1, super::_split.left, res->kid[0]);
         typename super::NodeInfoType node2(super::_node.iStart + super::_split.nLeft, super::_node.n - super::_split.nLeft, super::_node.level + 1, impRight, res->kid[1]);
-        newTasks[nTask++] = new (services::internal::service_scalable_malloc<MergedUpdaterType, cpu>(1)) MergedUpdaterType(super::_data, node1, node2, super::_prevRes);
+        newTasks[nTask++] = new (services::internal::service_scalable_calloc<MergedUpdaterType, cpu>(1)) MergedUpdaterType(super::_data, node1, node2, super::_prevRes);
     }
 
     using super::_data;

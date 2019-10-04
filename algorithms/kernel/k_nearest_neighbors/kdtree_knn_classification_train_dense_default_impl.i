@@ -78,7 +78,7 @@ public:
         clear();
         _first = _count = 0;
         _last = _sizeMinus1 = (_size = size) - 1;
-        return ((_data = static_cast<T *>(daal_malloc(size * sizeof(T)))) != nullptr);
+        return ((_data = static_cast<T *>(service_calloc<T, cpu>(size * sizeof(T)))) != nullptr);
     }
 
     void clear()
@@ -156,7 +156,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     r->impl()->setKDTreeTable(KDTreeTablePtr(new KDTreeTable(maxKDTreeNodeCount, status)));
     DAAL_CHECK_STATUS_VAR(status);
 
-    size_t * indexes  = static_cast<size_t *>(daal_malloc(xRowCount * sizeof(size_t)));
+    size_t * indexes  = static_cast<size_t *>(service_calloc<size_t, cpu>(xRowCount * sizeof(size_t)));
     DAAL_CHECK_MALLOC(indexes)
     for (size_t i = 0; i < xRowCount; ++i)
     {
@@ -196,7 +196,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     const size_t xColumnCount = x.getNumberOfColumns();
     const size_t xRowCount = x.getNumberOfRows();
     const size_t bboxSize = queueSize * xColumnCount;
-    bboxQ = static_cast<BBox *>(daal_malloc(bboxSize * sizeof(BBox), sizeof(BBox)));
+    bboxQ = static_cast<BBox *>(service_calloc<BBox, cpu>(bboxSize * sizeof(BBox), sizeof(BBox)));
     DAAL_CHECK_MALLOC(bboxQ)
     r.impl()->setLastNodeIndex(0);
     r.impl()->setRootNodeIndex(0);
@@ -220,7 +220,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     size_t sophisticatedSampleIndexes[__KDTREE_DIMENSION_SELECTION_SIZE];
     algorithmFpType sophisticatedSampleValues[__KDTREE_DIMENSION_SELECTION_SIZE];
     const size_t subSampleCount = xRowCount / __KDTREE_SEARCH_SKIP + 1;
-    algorithmFpType * subSamples = static_cast<algorithmFpType *>(daal_malloc(subSampleCount * sizeof(algorithmFpType)));
+    algorithmFpType * subSamples = static_cast<algorithmFpType *>(service_calloc<algorithmFpType, cpu>(subSampleCount * sizeof(algorithmFpType)));
     DAAL_CHECK_MALLOC(subSamples)
 
     while (maxNodeCountForCurrentDepth < firstPartLeafNodeCount)
@@ -664,8 +664,8 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     const auto blockCount = (end - start + rowsPerBlock - 1) / rowsPerBlock;
     const auto idxMultiplier = 16; // For cache line separation.
 
-    size_t * leftSegmentStartPerBlock = static_cast<size_t *>(daal_malloc(idxMultiplier * (blockCount + 1) * sizeof(size_t)));
-    size_t * rightSegmentStartPerBlock = static_cast<size_t *>(daal_malloc(idxMultiplier * blockCount * sizeof(size_t)));
+    size_t * leftSegmentStartPerBlock = static_cast<size_t *>(service_calloc<size_t, cpu>(idxMultiplier * (blockCount + 1) * sizeof(size_t)));
+    size_t * rightSegmentStartPerBlock = static_cast<size_t *>(service_calloc<size_t, cpu>(idxMultiplier * blockCount * sizeof(size_t)));
 
     if (!leftSegmentStartPerBlock || !rightSegmentStartPerBlock)
     {
@@ -791,7 +791,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         const algorithmFpType * const rx = columnReadBD.getBlockPtr();
         algorithmFpType * const wx = columnWriteBD.getBlockPtr();
         algorithmFpType * const awx = (rx != wx) ? wx :
-            (buffer ? buffer : (buffer = static_cast<algorithmFpType *>(daal_malloc(xRowCount * sizeof(algorithmFpType)))));
+            (buffer ? buffer : (buffer = static_cast<algorithmFpType *>
+                               (service_calloc<algorithmFpType, cpu>(xRowCount * sizeof(algorithmFpType)))));
         if (!awx)
         {
             status.add(services::ErrorMemoryAllocationFailed);
@@ -878,7 +879,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     const size_t expectedMaxDepth = (Math::sLog(xRowCount) / Math::sLog(base) + 1) * __KDTREE_DEPTH_MULTIPLICATION_FACTOR;
     const size_t stackSize = Math::sPowx(base, Math::sCeil(Math::sLog(expectedMaxDepth) / Math::sLog(base)));
 
-    BuildNode * bnQ = static_cast<BuildNode *>(daal_malloc(q.size() * sizeof(BuildNode)));
+    BuildNode * bnQ = static_cast<BuildNode *>(service_calloc<BuildNode, cpu>(q.size() * sizeof(BuildNode)));
     DAAL_CHECK_MALLOC(bnQ)
     size_t posQ = 0;
     while (q.size() > 0)
@@ -916,7 +917,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     const size_t maxNodeCount = kdTreeTable.getNumberOfRows();
     const size_t emptyNodeCount = maxNodeCount - lastNodeIndex;
     const size_t segment = (emptyNodeCount + maxThreads - 1) / maxThreads;
-    size_t * firstNodeIndex = static_cast<size_t *>(daal_malloc((maxThreads + 1) * sizeof(*firstNodeIndex)));
+    size_t * firstNodeIndex = static_cast<size_t *>(service_calloc<size_t, cpu>((maxThreads + 1) * sizeof(*firstNodeIndex)));
     DAAL_CHECK_MALLOC(firstNodeIndex)
     size_t nodeIndex = lastNodeIndex;
     for (size_t i = 0; i < maxThreads; ++i)
@@ -937,7 +938,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                   ((ptr->bboxes = service_scalable_calloc<BBox, cpu>(ptr->bboxesCapacity * xColumnCount)) != nullptr) &&
                   ((ptr->inSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD)) != nullptr) &&
                   ((ptr->outSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD)) != nullptr) &&
-                  ((ptr->fixupQueue = static_cast<size_t *>(daal_malloc(ptr->fixupQueueCapacity * sizeof(size_t)))) != nullptr) &&
+                  ((ptr->fixupQueue = static_cast<size_t *>(service_calloc<size_t, cpu>(ptr->fixupQueueCapacity * sizeof(size_t))))
+                      != nullptr) &&
                   ptr->buildStack.init(stackSize)))
             {
                 status.add(services::ErrorMemoryAllocationFailed);
@@ -1031,7 +1033,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                             if (local->fixupQueueIndex >= local->fixupQueueCapacity)
                             {
                                 const size_t newCapacity = local->fixupQueueCapacity * 2;
-                                size_t * const newQueue = static_cast<size_t *>(daal_malloc(newCapacity * sizeof(size_t)));
+                                size_t * const newQueue = static_cast<size_t *>(service_calloc<size_t, cpu>(newCapacity * sizeof(size_t)));
                                 DAAL_CHECK_THR(newQueue, services::ErrorMemoryAllocationFailed);
                                 daal_memcpy_s(newQueue, newCapacity * sizeof(size_t), local->fixupQueue, local->fixupQueueIndex * sizeof(size_t));
                                 size_t * oldQueue = local->fixupQueue;
@@ -1069,7 +1071,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                                     const size_t newCapacity = max<cpu>(
                                         local->extraKDTreeNodesCapacity > 0 ? local->extraKDTreeNodesCapacity * 2 : static_cast<size_t>(1024),
                                         extraIndex + 1);
-                                    KDTreeNode * const newNodes = static_cast<KDTreeNode *>(daal_malloc(newCapacity * sizeof(KDTreeNode)));
+                                    KDTreeNode * const newNodes =
+                                        static_cast<KDTreeNode *>(service_calloc<KDTreeNode, cpu>(newCapacity * sizeof(KDTreeNode)));
 
                                     DAAL_CHECK_THR(newNodes, services::ErrorMemoryAllocationFailed);
 
@@ -1085,8 +1088,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                             else
                             {
                                 local->extraKDTreeNodesCapacity = max<cpu>(extraIndex + 1, static_cast<size_t>(1024));
-                                local->extraKDTreeNodes = static_cast<KDTreeNode *>(daal_malloc(local->extraKDTreeNodesCapacity
-                                                                                                * sizeof(KDTreeNode)));
+                                local->extraKDTreeNodes =
+                                    static_cast<KDTreeNode *>(service_calloc<KDTreeNode, cpu>(local->extraKDTreeNodesCapacity * sizeof(KDTreeNode)));
 
                                 DAAL_CHECK_THR(local->extraKDTreeNodes, services::ErrorMemoryAllocationFailed);
                             }
@@ -1291,7 +1294,8 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
 
     if (sampleCount < __KDTREE_MIN_SAMPLES) { sampleCount = __KDTREE_MIN_SAMPLES + 1; }
 
-    algorithmFpType * samples = static_cast<algorithmFpType *>(daal_malloc(sampleCount * sizeof(*samples)));
+    algorithmFpType * samples =
+        static_cast<algorithmFpType *>(service_calloc<algorithmFpType, cpu>(sampleCount * sizeof(*samples)));
     if (!samples)
     {
         status = services::ErrorMemoryAllocationFailed;
@@ -1310,7 +1314,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     samples[i] = upper;
     daal::algorithms::internal::qSort<algorithmFpType, cpu>(sampleCount, samples);
 
-    size_t * hist = static_cast<size_t *>(daal_malloc(sampleCount * sizeof(*hist)));
+    size_t * hist = static_cast<size_t *>(service_calloc<size_t, cpu>(sampleCount * sizeof(*hist)));
     if (!hist)
     {
         status = services::ErrorMemoryAllocationFailed;
@@ -1323,7 +1327,8 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     }
 
     size_t subSampleCount = (end - start) / __KDTREE_SEARCH_SKIP + 1;
-    algorithmFpType * subSamples = static_cast<algorithmFpType *>(daal_malloc(subSampleCount * sizeof(*subSamples)));
+    algorithmFpType * subSamples =
+        static_cast<algorithmFpType *>(service_calloc<algorithmFpType, cpu>(subSampleCount * sizeof(*subSamples)));
     if (!subSamples)
     {
         status = services::ErrorMemoryAllocationFailed;

@@ -32,7 +32,7 @@ void String::initialize(const char *str, const size_t length)
 {
     if(length)
     {
-        _c_str = (char *)daal::services::daal_malloc(sizeof(char) * (length + 1));
+        _c_str = (char *)daal::services::daal_calloc(sizeof(char) * (length + 1));
         if (!_c_str) { return; }
 
         daal::internal::Service<>::serv_strncpy_s(_c_str, length + 1, str, length + 1);
@@ -50,7 +50,7 @@ String::String(size_t length, char placeholder) : _c_str(0)
 {
     if (length)
     {
-        _c_str = (char *)daal::services::daal_malloc(sizeof(char) * (length + 1));
+        _c_str = (char *)daal::services::daal_calloc(sizeof(char) * (length + 1));
         if (!_c_str) { return; }
 
         for (size_t i = 0; i < length; i++)
@@ -108,12 +108,12 @@ size_t String::length() const
 void String::add(const String &str)
 {
     size_t prevLength = length();
-    char *prevStr = (char *)daal::services::daal_malloc(sizeof(char) * (prevLength + 1));
+    char *prevStr = (char *)daal::services::daal_calloc(sizeof(char) * (prevLength + 1));
     daal::internal::Service<>::serv_strncpy_s(prevStr, prevLength + 1, _c_str, prevLength + 1);
 
     size_t newLength = prevLength + str.length() + 1;
     if(_c_str) { daal_free(_c_str); }
-    _c_str = (char *)daal::services::daal_malloc(sizeof(char) * (newLength + 1));
+    _c_str = (char *)daal::services::daal_calloc(sizeof(char) * (newLength + 1));
 
     daal::internal::Service<>::serv_strncpy_s(_c_str, prevLength + 1, prevStr, prevLength + 1);
     daal::internal::Service<>::serv_strncat_s(_c_str, newLength, str.c_str(), newLength - prevLength);

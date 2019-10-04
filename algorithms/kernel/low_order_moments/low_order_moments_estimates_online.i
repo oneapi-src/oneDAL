@@ -52,8 +52,8 @@ struct common_moments_data_t
         size_t rowSize = nFeatures * sizeof(algorithmFPType);
 
 #if (defined _MEAN_ENABLE_) || (defined  _VARC_ENABLE_)
-        mean      = (algorithmFPType *)daal_malloc(rowSize);
-        variance  = (algorithmFPType *)daal_malloc(rowSize);
+        mean      = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+        variance  = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
         if (!mean || !variance )
             return Status(services::ErrorMemoryAllocationFailed);
 #endif
@@ -62,7 +62,7 @@ struct common_moments_data_t
         if (isOnline)
         {
 #if (defined _SUM_ENABLE_) || (defined _MEAN_ENABLE_)
-            prevSums = (algorithmFPType *)daal_malloc(rowSize);
+            prevSums = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
             if (!prevSums)
                 return Status(services::ErrorMemoryAllocationFailed);
 
@@ -152,10 +152,10 @@ struct tls_moments_data_t
         varc = daal::services::internal::service_scalable_calloc<algorithmFPType, cpu>(nFeatures);
 #endif
 #if (defined _MIN_ENABLE_)
-        min  = daal::services::internal::service_scalable_malloc<algorithmFPType, cpu>(nFeatures);
+        min  = daal::services::internal::service_scalable_calloc<algorithmFPType, cpu>(nFeatures);
 #endif
 #if (defined _MAX_ENABLE_)
-        max  = daal::services::internal::service_scalable_malloc<algorithmFPType, cpu>(nFeatures);
+        max  = daal::services::internal::service_scalable_calloc<algorithmFPType, cpu>(nFeatures);
 #endif
 
         if (

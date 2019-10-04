@@ -122,7 +122,7 @@ void* MemoryManager::alloc(size_t nBytes)
         {
             //allocate a new chunk
             DAAL_ASSERT(_aChunk.size() ? _iCurChunk >= 0 : _iCurChunk < 0);
-            byte* ptr = (byte*)services::daal_malloc(_chunkSize);
+            byte* ptr = (byte*)services::daal_calloc(_chunkSize);
             if(!ptr)
                 return nullptr;
             _aChunk.push_back(ptr);

@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of the interface for initializing the K-Means algorithm interface.
+//  Implementation of the interface for initializing K-Means algorithm interface.
 //--
 */
 
@@ -46,12 +46,12 @@ namespace kmeans
  * @ingroup kmeans
  * @{
  */
-/** \brief Contains classes for computing initial centroids for the K-Means algorithm */
+/** \brief Contains classes for computing initial centroids for K-Means algorithm */
 namespace init
 {
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__METHOD"></a>
- * Available methods for computing initial centroids for the K-Means algorithm
+ * Available methods for computing initial centroids for K-Means algorithm
  */
 enum Method
 {
@@ -78,7 +78,7 @@ enum Method
 
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__INPUTID"></a>
- * \brief Available identifiers of input objects for computing initial centroids for the K-Means algorithm
+ * \brief Available identifiers of input objects for computing initial centroids for K-Means algorithm
  */
 enum InputId
 {
@@ -88,7 +88,7 @@ enum InputId
 
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP2MASTERINPUTID"></a>
- * \brief Available identifiers of input objects for computing initial centroids for the K-Means algorithm in the distributed processing mode
+ * \brief Available identifiers of input objects for computing initial centroids for K-Means algorithm in the distributed processing mode
  */
 enum DistributedStep2MasterInputId
 {
@@ -98,7 +98,7 @@ enum DistributedStep2MasterInputId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDLOCALPLUSPLUSINPUTDATAID"></a>
-* \brief Available identifiers of input objects for computing initial centroids for the K-Means algorithm
+* \brief Available identifiers of input objects for computing initial centroids for K-Means algorithm
 *        used with plusPlus and parallelPlus methods only on a local node.
 */
 enum DistributedLocalPlusPlusInputDataId
@@ -109,7 +109,7 @@ enum DistributedLocalPlusPlusInputDataId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP2LOCALPLUSPLUSINPUTID"></a>
-* \brief Available identifiers of input objects for computing initial centroids for the K-Means algorithm
+* \brief Available identifiers of input objects for computing initial centroids for K-Means algorithm
 *        used with plusPlus and parallelPlus methods only on the 2nd step on a local node.
 */
 enum DistributedStep2LocalPlusPlusInputId
@@ -120,7 +120,7 @@ enum DistributedStep2LocalPlusPlusInputId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP3MASTERPLUSPLUSINPUTID"></a>
-* \brief Available identifiers of input objects for computing initial centroids for the K-Means algorithm
+* \brief Available identifiers of input objects for computing initial centroids for K-Means algorithm
 *        used with plusPlus and parallelPlus methods only on the 3rd step on a master node.
 */
 enum DistributedStep3MasterPlusPlusInputId
@@ -131,7 +131,7 @@ enum DistributedStep3MasterPlusPlusInputId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP4LOCALPLUSPLUSINPUTID"></a>
-* \brief Available identifiers of input objects for computing initial centroids for the K-Means algorithm
+* \brief Available identifiers of input objects for computing initial centroids for K-Means algorithm
 *        used with plusPlus and parallelPlus methods only on a local node.
 */
 enum DistributedStep4LocalPlusPlusInputId
@@ -142,7 +142,7 @@ enum DistributedStep4LocalPlusPlusInputId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP5MASTERPLUSPLUSINPUTID"></a>
-* \brief Available identifiers of input objects for computing initial centroids for the K-Means algorithm
+* \brief Available identifiers of input objects for computing initial centroids for K-Means algorithm
 *        used with parallelPlus method only on a master node.
 */
 enum DistributedStep5MasterPlusPlusInputId
@@ -154,7 +154,7 @@ enum DistributedStep5MasterPlusPlusInputId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP5MASTERPLUSPLUSINPUTDATAID"></a>
-* \brief Available identifiers of input objects for computing initial centroids for the K-Means algorithm
+* \brief Available identifiers of input objects for computing initial centroids for K-Means algorithm
 *        used with parallelPlus methods only on the 5th step on a master node.
 */
 enum DistributedStep5MasterPlusPlusInputDataId
@@ -165,7 +165,7 @@ enum DistributedStep5MasterPlusPlusInputDataId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__PARTIALRESULTID"></a>
-* \brief Available identifiers of partial results of computing initial centroids for the K-Means algorithm in the distributed processing mode
+* \brief Available identifiers of partial results of computing initial centroids for K-Means algorithm in the distributed processing mode
 */
 enum PartialResultId
 {
@@ -177,7 +177,7 @@ enum PartialResultId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP2LOCALPLUSPLUSPARTIALRESULTID"></a>
-* \brief Available identifiers of partial results of computing initial centroids for the K-Means algorithm in the distributed processing mode
+* \brief Available identifiers of partial results of computing initial centroids for K-Means algorithm in the distributed processing mode
 *        used with plusPlus and parallelPlus methods only on the 2nd step on a local node.
 */
 enum DistributedStep2LocalPlusPlusPartialResultId
@@ -189,7 +189,7 @@ enum DistributedStep2LocalPlusPlusPartialResultId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP2LOCALPLUSPLUSPARTIALRESULTDATAID"></a>
-* \brief Available identifiers of partial results of computing initial centroids for the K-Means algorithm in the distributed processing mode
+* \brief Available identifiers of partial results of computing initial centroids for K-Means algorithm in the distributed processing mode
 *        used with plusPlus and parallelPlus methods only on the 2nd step on a local node.
 */
 enum DistributedStep2LocalPlusPlusPartialResultDataId
@@ -200,7 +200,7 @@ enum DistributedStep2LocalPlusPlusPartialResultDataId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP3MASTERPLUSPLUSPARTIALRESULTID"></a>
-* \brief Available identifiers of partial results of computing initial centroids for the K-Means algorithm in the distributed processing mode
+* \brief Available identifiers of partial results of computing initial centroids for K-Means algorithm in the distributed processing mode
 *        used with plusPlus and parallelPlus methods only on the 3rd step on a master node.
 */
 enum DistributedStep3MasterPlusPlusPartialResultId
@@ -211,7 +211,7 @@ enum DistributedStep3MasterPlusPlusPartialResultId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP3MASTERPLUSPLUSPARTIALRESULTDATAID"></a>
-* \brief Available identifiers of partial results of computing initial centroids for the K-Means algorithm in the distributed processing mode
+* \brief Available identifiers of partial results of computing initial centroids for K-Means algorithm in the distributed processing mode
 *        used with parallelPlus method only on the 3rd step on a master node.
 */
 enum DistributedStep3MasterPlusPlusPartialResultDataId
@@ -223,7 +223,7 @@ enum DistributedStep3MasterPlusPlusPartialResultDataId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP4LOCALPLUSPLUSPARTIALRESULTID"></a>
-* \brief Available identifiers of partial results of computing initial centroids for the K-Means algorithm in the distributed processing mode
+* \brief Available identifiers of partial results of computing initial centroids for K-Means algorithm in the distributed processing mode
 *        used with plusPlus and parallelPlus methods only on the 4th step on a local node.
 */
 enum DistributedStep4LocalPlusPlusPartialResultId
@@ -234,7 +234,7 @@ enum DistributedStep4LocalPlusPlusPartialResultId
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP5MASTERPLUSPLUSPARTIALRESULTID"></a>
-* \brief Available identifiers of partial results of computing initial centroids for the K-Means algorithm in the distributed processing mode
+* \brief Available identifiers of partial results of computing initial centroids for K-Means algorithm in the distributed processing mode
 *        used with parallelPlus method only on the 5th step on a master node.
 */
 enum DistributedStep5MasterPlusPlusPartialResultId
@@ -246,7 +246,7 @@ enum DistributedStep5MasterPlusPlusPartialResultId
 
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KMEANS__INIT__RESULTID"></a>
- * \brief Available identifiers of the results of computing initial centroids for the K-Means algorithm
+ * \brief Available identifiers of the results of computing initial centroids for K-Means algorithm
  */
 enum ResultId
 {
@@ -262,7 +262,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__INIT__PARAMETER"></a>
- * \brief Base classes parameters for computing initial centroids for the K-Means algorithm
+ * \brief Base classes parameters for computing initial centroids for K-Means algorithm
  *
  * \snippet kmeans/kmeans_init_types.h Parameter source code
  */
@@ -278,9 +278,9 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     Parameter(size_t _nClusters, size_t _offset = 0, size_t _seed = 777777);
 
     /**
-     * Constructs parameters of the algorithm that computes initial centroids for the K-Means algorithm
+     * Constructs parameters of the algorithm that computes initial centroids for K-Means algorithm
      * by copying another parameters object
-     * \param[in] other    Parameters of the K-Means algorithm
+     * \param[in] other    Parameters of K-Means algorithm
      */
     Parameter(const Parameter &other);
 
@@ -290,10 +290,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     size_t seed;               /*!< Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine } */
 
     double oversamplingFactor; /*!< Kmeans|| only. A fraction of nClusters being chosen in each of nRounds of kmeans||.\
-                                                   L = nClusters* oversamplingFactor points are sampled in a round.
-                                                   See section (3.3) of [2] */
-    size_t nRounds;            /*!< Kmeans|| only. Number of rounds for k-means||. (oversamplingFactor*nRounds) > 1 is a requirement.
-                                                   See section (3.3) of [2] */
+                                                   L = nClusters* oversamplingFactor points are sampled in a round. */
+    size_t nRounds;            /*!< Kmeans|| only. Number of rounds for k-means||. (oversamplingFactor*nRounds) > 1 is a requirement.*/
 
     engines::EnginePtr engine; /*!< Engine to be used for generating random numbers for the initialization */
 
@@ -303,7 +301,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__INPUTIFACE"></a>
- * \brief Interface for the K-Means initialization batch and distributed Input classes
+ * \brief Interface for K-Means initialization batch and distributed Input classes
  */
 class DAAL_EXPORT InputIface : public daal::algorithms::Input
 {
@@ -315,7 +313,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__INPUT"></a>
- * \brief %Input objects for computing initial centroids for the K-Means algorithm
+ * \brief %Input objects for computing initial centroids for K-Means algorithm
  */
 class DAAL_EXPORT Input : public InputIface
 {
@@ -324,14 +322,14 @@ public:
     virtual ~Input() {}
 
     /**
-    * Returns input objects for computing initial centroids for the K-Means algorithm
+    * Returns input objects for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \return          %Input object that corresponds to the given identifier
     */
     data_management::NumericTablePtr get(InputId id) const;
 
     /**
-    * Sets an input object for computing initial centroids for the K-Means algorithm
+    * Sets an input object for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
@@ -344,7 +342,7 @@ public:
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
 
     /**
-    * Checks an input object for computing initial centroids for the K-Means algorithm
+    * Checks an input object for computing initial centroids for K-Means algorithm
     * \param[in] par     %Input object
     * \param[in] method  Method of the algorithm
     */
@@ -356,7 +354,7 @@ protected:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__PARTIALRESULT"></a>
- * \brief Partial results obtained with the compute() method of the K-Means algorithm in the batch processing mode
+ * \brief Partial results obtained with the compute() method of K-Means algorithm in the batch processing mode
  */
 class DAAL_EXPORT PartialResult : public daal::algorithms::PartialResult
 {
@@ -367,7 +365,7 @@ public:
     virtual ~PartialResult() {};
 
     /**
-     * Allocates memory to store partial results of computing initial centroids for the K-Means algorithm
+     * Allocates memory to store partial results of computing initial centroids for K-Means algorithm
      * \param[in] input     Pointer to the input structure
      * \param[in] parameter Pointer to the parameter structure
      * \param[in] method    Computation method of the algorithm
@@ -376,27 +374,27 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
     /**
-     * Returns a partial result of computing initial centroids for the K-Means algorithm
+     * Returns a partial result of computing initial centroids for K-Means algorithm
      * \param[in] id   Identifier of the partial result
      * \return         Partial result that corresponds to the given identifier
      */
     data_management::NumericTablePtr get(PartialResultId id) const;
 
     /**
-     * Sets a partial result of computing initial centroids for the K-Means algorithm
+     * Sets a partial result of computing initial centroids for K-Means algorithm
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the object
      */
     void set(PartialResultId id, const data_management::NumericTablePtr &ptr);
 
     /**
-     * Returns the number of features in the result table of the K-Means algorithm
-     * \return Number of features in the result table of the K-Means algorithm
+     * Returns the number of features in the result table of K-Means algorithm
+     * \return Number of features in the result table of K-Means algorithm
      */
     size_t getNumberOfFeatures() const;
 
     /**
-     * Checks a partial result of computing initial centroids for the K-Means algorithm
+     * Checks a partial result of computing initial centroids for K-Means algorithm
      * \param[in] input   %Input object for the algorithm
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method of the algorithm
@@ -404,7 +402,7 @@ public:
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
-     * Checks a partial result of computing initial centroids for the K-Means algorithm
+     * Checks a partial result of computing initial centroids for K-Means algorithm
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method of the algorithm
      */
@@ -423,7 +421,7 @@ typedef services::SharedPtr<PartialResult> PartialResultPtr;
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__RESULT"></a>
  * \brief Results obtained with the compute() method that computes initial centroids
- *  for the K-Means algorithm in the batch processing mode
+ *  for K-Means algorithm in the batch processing mode
  */
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
@@ -434,7 +432,7 @@ public:
     virtual ~Result() {};
 
     /**
-     * Allocates memory to store the results of computing initial centroids for the K-Means algorithm
+     * Allocates memory to store the results of computing initial centroids for K-Means algorithm
      * \param[in] input        Pointer to the input structure
      * \param[in] parameter    Pointer to the parameter structure
      * \param[in] method       Computation method of the algorithm
@@ -443,7 +441,7 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
     /**
-     * Allocates memory to store the results of computing initial centroids for the K-Means algorithm
+     * Allocates memory to store the results of computing initial centroids for K-Means algorithm
      * \param[in] partialResult Pointer to the partial result structure
      * \param[in] parameter     Pointer to the parameter structure
      * \param[in] method        Computation method of the algorithm
@@ -452,21 +450,21 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method);
 
     /**
-     * Returns the result of computing initial centroids for the K-Means algorithm
+     * Returns the result of computing initial centroids for K-Means algorithm
      * \param[in] id   Identifier of the result
      * \return         Result that corresponds to the given identifier
      */
     data_management::NumericTablePtr get(ResultId id) const;
 
     /**
-     * Sets the result of computing initial centroids for the K-Means algorithm
+     * Sets the result of computing initial centroids for K-Means algorithm
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the object
      */
     void set(ResultId id, const data_management::NumericTablePtr &ptr);
 
     /**
-     * Checks the result of computing initial centroids for the K-Means algorithm
+     * Checks the result of computing initial centroids for K-Means algorithm
      * \param[in] input   %Input object for the algorithm
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method of the algorithm
@@ -474,7 +472,7 @@ public:
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
-     * Checks the result of computing initial centroids for the K-Means algorithm
+     * Checks the result of computing initial centroids for K-Means algorithm
      * \param[in] pres    Partial results of the algorithm
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method of the algorithm
@@ -493,7 +491,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP2MASTERINPUT"></a>
- * \brief %Input objects for computing initials clusters for the K-Means
+ * \brief %Input objects for computing initials clusters for K-Means
  *  algorithm in the second step of the distributed processing mode
  */
 class DAAL_EXPORT DistributedStep2MasterInput : public InputIface
@@ -504,7 +502,7 @@ public:
     virtual ~DistributedStep2MasterInput() {}
 
     /**
-     * Returns an input object for computing initial centroids for the K-Means algorithm
+     * Returns an input object for computing initial centroids for K-Means algorithm
      * in the second step of the distributed processing mode
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
@@ -512,7 +510,7 @@ public:
     data_management::DataCollectionPtr get(DistributedStep2MasterInputId id) const;
 
     /**
-     * Sets an input object for computing initial centroids for the K-Means algorithm
+     * Sets an input object for computing initial centroids for K-Means algorithm
      * in the second step of the distributed processing mode
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
@@ -520,7 +518,7 @@ public:
     void set(DistributedStep2MasterInputId id, const data_management::DataCollectionPtr &ptr);
 
     /**
-     * Adds a value to the data collection of input objects for computing initial centroids for the K-Means algorithm
+     * Adds a value to the data collection of input objects for computing initial centroids for K-Means algorithm
      * in the second step of the distributed processing mode
      * \param[in] id    Identifier of the parameter
      * \param[in] value Pointer to the new parameter value
@@ -534,7 +532,7 @@ public:
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
 
     /**
-     * Checks an input object for computing initial centroids for the K-Means algorithm
+     * Checks an input object for computing initial centroids for K-Means algorithm
      * in the second step of the distributed processing mode
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method of the algorithm
@@ -544,7 +542,7 @@ public:
 
 /**
 * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP2LOCALPLUSPLUSPARAMETER"></a>
-* \brief Parameters for computing initial centroids for the K-Means algorithm
+* \brief Parameters for computing initial centroids for K-Means algorithm
 */
 struct DAAL_EXPORT DistributedStep2LocalPlusPlusParameter : public Parameter
 {
@@ -554,9 +552,9 @@ struct DAAL_EXPORT DistributedStep2LocalPlusPlusParameter : public Parameter
     DistributedStep2LocalPlusPlusParameter(size_t _nClusters, bool bFirstIteration);
 
     /**
-    * Constructs parameters of the algorithm that computes initial centroids for the K-Means algorithm
+    * Constructs parameters of the algorithm that computes initial centroids for K-Means algorithm
     * by copying another parameters object
-    * \param[in] other    Parameters of the K-Means algorithm
+    * \param[in] other    Parameters of K-Means algorithm
     */
     DistributedStep2LocalPlusPlusParameter(const DistributedStep2LocalPlusPlusParameter &other);
 
@@ -567,7 +565,7 @@ struct DAAL_EXPORT DistributedStep2LocalPlusPlusParameter : public Parameter
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP2LOCALPLUSPLUSINPUT"></a>
-* \brief Interface for the K-Means initialization distributed Input classes
+* \brief Interface for K-Means initialization distributed Input classes
 *        used with plusPlus and parallelPlus methods only on the 2nd step on a local node.
 */
 class DAAL_EXPORT DistributedStep2LocalPlusPlusInput : public Input
@@ -579,49 +577,49 @@ public:
     virtual ~DistributedStep2LocalPlusPlusInput() {}
 
     /**
-    * Returns input objects for computing initial centroids for the K-Means algorithm
+    * Returns input objects for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \return          %Input object that corresponds to the given identifier
     */
     data_management::NumericTablePtr get(InputId id) const;
 
     /**
-    * Sets an input object for computing initial centroids for the K-Means algorithm
+    * Sets an input object for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
     void set(InputId id, const data_management::NumericTablePtr &ptr);
 
     /**
-    * Returns input objects for computing initial centroids for the K-Means algorithm
+    * Returns input objects for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \return          %Input object that corresponds to the given identifier
     */
     data_management::DataCollectionPtr get(DistributedLocalPlusPlusInputDataId id) const;
 
     /**
-    * Sets an input object for computing initial centroids for the K-Means algorithm
+    * Sets an input object for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
     void set(DistributedLocalPlusPlusInputDataId id, const data_management::DataCollectionPtr &ptr);
 
     /**
-    * Returns input objects for computing initial centroids for the K-Means algorithm
+    * Returns input objects for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \return          %Input object that corresponds to the given identifier
     */
     data_management::NumericTablePtr get(DistributedStep2LocalPlusPlusInputId id) const;
 
     /**
-    * Sets an input object for computing initial centroids for the K-Means algorithm
+    * Sets an input object for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
     void set(DistributedStep2LocalPlusPlusInputId id, const data_management::NumericTablePtr &ptr);
 
     /**
-    * Checks an input object for computing initial centroids for the K-Means algorithm
+    * Checks an input object for computing initial centroids for K-Means algorithm
     * \param[in] par     %Input object
     * \param[in] method  Method of the algorithm
     */
@@ -630,7 +628,7 @@ public:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP3MASTERPLUSPLUSINPUT"></a>
-* \brief Interface for the K-Means distributed Input classes
+* \brief Interface for K-Means distributed Input classes
 *        used with plusPlus and parallelPlus methods only on the 3rd step on a master node.
 */
 class DAAL_EXPORT DistributedStep3MasterPlusPlusInput : public daal::algorithms::Input
@@ -640,21 +638,21 @@ public:
     DistributedStep3MasterPlusPlusInput(const DistributedStep3MasterPlusPlusInput& o);
 
     /**
-    * Returns input objects for computing initial centroids for the K-Means algorithm
+    * Returns input objects for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \return          %Input object that corresponds to the given identifier
     */
     data_management::KeyValueDataCollectionPtr get(DistributedStep3MasterPlusPlusInputId id) const;
 
     /**
-    * Sets an input object for computing initial centroids for the K-Means algorithm
+    * Sets an input object for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
     void set(DistributedStep3MasterPlusPlusInputId id, const data_management::KeyValueDataCollectionPtr &ptr);
 
     /**
-    * Add an input object for computing initial centroids for the K-Means algorithm
+    * Add an input object for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] key   Identifier of the node this object comes from
     * \param[in] ptr   Pointer to the input object
@@ -662,7 +660,7 @@ public:
     void add(DistributedStep3MasterPlusPlusInputId id, size_t key, const data_management::NumericTablePtr &ptr);
 
     /**
-    * Checks an input object for computing initial centroids for the K-Means algorithm
+    * Checks an input object for computing initial centroids for K-Means algorithm
     * \param[in] par     %Input object
     * \param[in] method  Method of the algorithm
     */
@@ -671,7 +669,7 @@ public:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP4LOCALPLUSPLUSINPUT"></a>
-* \brief Interface for the K-Means distributed Input classes
+* \brief Interface for K-Means distributed Input classes
 *        used with plusPlus and parallelPlus methods only on the 4th step on a local node.
 */
 class DAAL_EXPORT DistributedStep4LocalPlusPlusInput : public Input
@@ -681,49 +679,49 @@ public:
     DistributedStep4LocalPlusPlusInput(const DistributedStep4LocalPlusPlusInput& o);
 
     /**
-    * Returns input objects for computing initial centroids for the K-Means algorithm
+    * Returns input objects for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \return          %Input object that corresponds to the given identifier
     */
     data_management::NumericTablePtr get(InputId id) const;
 
     /**
-    * Sets an input object for computing initial centroids for the K-Means algorithm
+    * Sets an input object for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
     void set(InputId id, const data_management::NumericTablePtr &ptr);
 
     /**
-    * Returns input objects for computing initial centroids for the K-Means algorithm
+    * Returns input objects for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \return          %Input object that corresponds to the given identifier
     */
     data_management::DataCollectionPtr get(DistributedLocalPlusPlusInputDataId id) const;
 
     /**
-    * Sets an input object for computing initial centroids for the K-Means algorithm
+    * Sets an input object for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
     void set(DistributedLocalPlusPlusInputDataId id, const data_management::DataCollectionPtr &ptr);
 
     /**
-    * Returns input objects for computing initial centroids for the K-Means algorithm
+    * Returns input objects for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \return          %Input object that corresponds to the given identifier
     */
     data_management::NumericTablePtr get(DistributedStep4LocalPlusPlusInputId id) const;
 
     /**
-    * Sets an input object for computing initial centroids for the K-Means algorithm
+    * Sets an input object for computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
     void set(DistributedStep4LocalPlusPlusInputId id, const data_management::NumericTablePtr &ptr);
 
     /**
-    * Checks an input object for computing initial centroids for the K-Means algorithm
+    * Checks an input object for computing initial centroids for K-Means algorithm
     * \param[in] par     %Input object
     * \param[in] method  Method of the algorithm
     */
@@ -732,7 +730,7 @@ public:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP5MASTERPLUSPLUSINPUT"></a>
-* \brief Interface for the K-Means distributed Input classes
+* \brief Interface for K-Means distributed Input classes
 */
 class DAAL_EXPORT DistributedStep5MasterPlusPlusInput : public daal::algorithms::Input
 {
@@ -743,7 +741,7 @@ public:
     virtual ~DistributedStep5MasterPlusPlusInput() {}
 
     /**
-    * Returns an input object for computing initial centroids for the K-Means algorithm
+    * Returns an input object for computing initial centroids for K-Means algorithm
     * in the 5th step of the distributed processing mode
     * \param[in] id    Identifier of the input object
     * \return          %Input object that corresponds to the given identifier
@@ -751,7 +749,7 @@ public:
     data_management::DataCollectionPtr get(DistributedStep5MasterPlusPlusInputId id) const;
 
     /**
-    * Sets an input object for computing initial centroids for the K-Means algorithm
+    * Sets an input object for computing initial centroids for K-Means algorithm
     * in the 5th step of the distributed processing mode
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
@@ -759,7 +757,7 @@ public:
     void set(DistributedStep5MasterPlusPlusInputId id, const data_management::DataCollectionPtr &ptr);
 
     /**
-    * Adds a value to the data collection of input objects for computing initial centroids for the K-Means algorithm
+    * Adds a value to the data collection of input objects for computing initial centroids for K-Means algorithm
     * in the 5th step of the distributed processing mode
     * \param[in] id    Identifier of the parameter
     * \param[in] value Pointer to the new parameter value
@@ -767,7 +765,7 @@ public:
     void add(DistributedStep5MasterPlusPlusInputId id, const data_management::NumericTablePtr &value);
 
     /**
-    * Returns an input object for computing initial centroids for the K-Means algorithm
+    * Returns an input object for computing initial centroids for K-Means algorithm
     * in the 5th step of the distributed processing mode
     * \param[in] id    Identifier of the input object
     * \return          %Input object that corresponds to the given identifier
@@ -775,7 +773,7 @@ public:
     data_management::SerializationIfacePtr get(DistributedStep5MasterPlusPlusInputDataId id) const;
 
     /**
-    * Sets an input object for computing initial centroids for the K-Means algorithm
+    * Sets an input object for computing initial centroids for K-Means algorithm
     * in the 5th step of the distributed processing mode
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
@@ -783,7 +781,7 @@ public:
     void set(DistributedStep5MasterPlusPlusInputDataId id, const data_management::SerializationIfacePtr &ptr);
 
     /**
-    * Checks an input object for computing initial centroids for the K-Means algorithm
+    * Checks an input object for computing initial centroids for K-Means algorithm
     * in the 5th step of the distributed processing mode
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
@@ -793,7 +791,7 @@ public:
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP2LOCALPLUSPLUSPARTIALRESULT"></a>
-* \brief Partial results obtained with the compute() method of the K-Means algorithm in the distributed processing mode
+* \brief Partial results obtained with the compute() method of K-Means algorithm in the distributed processing mode
 */
 class DAAL_EXPORT DistributedStep2LocalPlusPlusPartialResult : public daal::algorithms::PartialResult
 {
@@ -804,7 +802,7 @@ public:
     virtual ~DistributedStep2LocalPlusPlusPartialResult() {};
 
     /**
-    * Allocates memory to store partial results of computing initial centroids for the K-Means algorithm
+    * Allocates memory to store partial results of computing initial centroids for K-Means algorithm
     * \param[in] input     Pointer to the input structure
     * \param[in] parameter Pointer to the parameter structure
     * \param[in] method    Computation method of the algorithm
@@ -813,35 +811,35 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
     /**
-    * Returns a partial result of computing initial centroids for the K-Means algorithm
+    * Returns a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id   Identifier of the partial result
     * \return         Partial result that corresponds to the given identifier
     */
     data_management::NumericTablePtr get(DistributedStep2LocalPlusPlusPartialResultId id) const;
 
     /**
-    * Sets a partial result of computing initial centroids for the K-Means algorithm
+    * Sets a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the partial result
     * \param[in] ptr   Pointer to the object
     */
     void set(DistributedStep2LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr);
 
     /**
-    * Returns a partial result of computing initial centroids for the K-Means algorithm
+    * Returns a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id   Identifier of the partial result
     * \return         Partial result that corresponds to the given identifier
     */
     data_management::DataCollectionPtr get(DistributedStep2LocalPlusPlusPartialResultDataId id) const;
 
     /**
-    * Sets a partial result of computing initial centroids for the K-Means algorithm
+    * Sets a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the partial result
     * \param[in] ptr   Pointer to the object
     */
     void set(DistributedStep2LocalPlusPlusPartialResultDataId id, const data_management::DataCollectionPtr &ptr);
 
     /**
-    * Checks a partial result of computing initial centroids for the K-Means algorithm
+    * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] input   %Input object for the algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
@@ -849,7 +847,7 @@ public:
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
-    * Checks a partial result of computing initial centroids for the K-Means algorithm
+    * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
@@ -876,7 +874,7 @@ typedef services::SharedPtr<DistributedStep2LocalPlusPlusPartialResult> Distribu
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP3MASTERPLUSPLUSPARTIALRESULT"></a>
-* \brief Partial results obtained with the compute() method of the K-Means algorithm in the distributed processing mode
+* \brief Partial results obtained with the compute() method of K-Means algorithm in the distributed processing mode
 */
 class DAAL_EXPORT DistributedStep3MasterPlusPlusPartialResult : public daal::algorithms::PartialResult
 {
@@ -887,7 +885,7 @@ public:
     virtual ~DistributedStep3MasterPlusPlusPartialResult() {};
 
     /**
-    * Allocates memory to store partial results of computing initial centroids for the K-Means algorithm
+    * Allocates memory to store partial results of computing initial centroids for K-Means algorithm
     * \param[in] input     Pointer to the input structure
     * \param[in] parameter Pointer to the parameter structure
     * \param[in] method    Computation method of the algorithm
@@ -896,14 +894,14 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
     /**
-    * Returns a partial result of computing initial centroids for the K-Means algorithm
+    * Returns a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id   Identifier of the partial result
     * \return         Partial result that corresponds to the given identifier
     */
     data_management::KeyValueDataCollectionPtr get(DistributedStep3MasterPlusPlusPartialResultId id) const;
 
     /**
-    * Returns a partial result of computing initial centroids for the K-Means algorithm
+    * Returns a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id   Identifier of the partial result
     * \param[in] key  Identifier of the node this partial result comes from
     * \return         Partial result that corresponds to the given identifier
@@ -911,14 +909,14 @@ public:
     data_management::NumericTablePtr get(DistributedStep3MasterPlusPlusPartialResultId id, size_t key) const;
 
     /**
-    * Returns a partial result of computing initial centroids for the K-Means algorithm
+    * Returns a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id   Identifier of the partial result
     * \return         Partial result that corresponds to the given identifier
     */
     data_management::SerializationIfacePtr get(DistributedStep3MasterPlusPlusPartialResultDataId id) const;
 
     /**
-    * Sets a partial result of computing initial centroids for the K-Means algorithm
+    * Sets a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the partial result
     * \param[in] key   Identifier of the node this partial result comes from
     * \param[in] ptr   Pointer to the object
@@ -926,7 +924,7 @@ public:
     void add(DistributedStep3MasterPlusPlusPartialResultId id, size_t key, const data_management::NumericTablePtr &ptr);
 
     /**
-    * Checks a partial result of computing initial centroids for the K-Means algorithm
+    * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] input   %Input object for the algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
@@ -934,7 +932,7 @@ public:
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
-    * Checks a partial result of computing initial centroids for the K-Means algorithm
+    * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
@@ -961,7 +959,7 @@ typedef services::SharedPtr<DistributedStep3MasterPlusPlusPartialResult> Distrib
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP4LOCALPLUSPLUSPARTIALRESULT"></a>
-* \brief Partial results obtained with the compute() method of the K-Means algorithm in the distributed processing mode
+* \brief Partial results obtained with the compute() method of K-Means algorithm in the distributed processing mode
 */
 class DAAL_EXPORT DistributedStep4LocalPlusPlusPartialResult : public daal::algorithms::PartialResult
 {
@@ -972,7 +970,7 @@ public:
     virtual ~DistributedStep4LocalPlusPlusPartialResult() {};
 
     /**
-    * Allocates memory to store partial results of computing initial centroids for the K-Means algorithm
+    * Allocates memory to store partial results of computing initial centroids for K-Means algorithm
     * \param[in] input     Pointer to the input structure
     * \param[in] parameter Pointer to the parameter structure
     * \param[in] method    Computation method of the algorithm
@@ -981,21 +979,21 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
     /**
-    * Returns a partial result of computing initial centroids for the K-Means algorithm
+    * Returns a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id   Identifier of the partial result
     * \return         Partial result that corresponds to the given identifier
     */
     data_management::NumericTablePtr get(DistributedStep4LocalPlusPlusPartialResultId id) const;
 
     /**
-    * Sets a partial result of computing initial centroids for the K-Means algorithm
+    * Sets a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the partial result
     * \param[in] ptr   Pointer to the object
     */
     void set(DistributedStep4LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr);
 
     /**
-    * Checks a partial result of computing initial centroids for the K-Means algorithm
+    * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] input   %Input object for the algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
@@ -1003,7 +1001,7 @@ public:
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
-    * Checks a partial result of computing initial centroids for the K-Means algorithm
+    * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
@@ -1022,7 +1020,7 @@ typedef services::SharedPtr<DistributedStep4LocalPlusPlusPartialResult> Distribu
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDSTEP5MASTERPLUSPLUSPARTIALRESULT"></a>
-* \brief Partial results obtained with the compute() method of the K-Means algorithm in the distributed processing mode
+* \brief Partial results obtained with the compute() method of K-Means algorithm in the distributed processing mode
 */
 class DAAL_EXPORT DistributedStep5MasterPlusPlusPartialResult : public daal::algorithms::PartialResult
 {
@@ -1033,7 +1031,7 @@ public:
     virtual ~DistributedStep5MasterPlusPlusPartialResult() {};
 
     /**
-    * Allocates memory to store partial results of computing initial centroids for the K-Means algorithm
+    * Allocates memory to store partial results of computing initial centroids for K-Means algorithm
     * \param[in] input     Pointer to the input structure
     * \param[in] parameter Pointer to the parameter structure
     * \param[in] method    Computation method of the algorithm
@@ -1042,21 +1040,21 @@ public:
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
     /**
-    * Returns a partial result of computing initial centroids for the K-Means algorithm
+    * Returns a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id   Identifier of the partial result
     * \return         Partial result that corresponds to the given identifier
     */
     data_management::NumericTablePtr get(DistributedStep5MasterPlusPlusPartialResultId id) const;
 
     /**
-    * Sets a partial result of computing initial centroids for the K-Means algorithm
+    * Sets a partial result of computing initial centroids for K-Means algorithm
     * \param[in] id    Identifier of the partial result
     * \param[in] ptr   Pointer to the object
     */
     void set(DistributedStep5MasterPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr);
 
     /**
-    * Checks a partial result of computing initial centroids for the K-Means algorithm
+    * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] input   %Input object for the algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
@@ -1064,7 +1062,7 @@ public:
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
-    * Checks a partial result of computing initial centroids for the K-Means algorithm
+    * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
@@ -1087,21 +1085,20 @@ namespace interface2
 {
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__KMEANS__INIT__BATCH__PARAMETER"></a>
- * \brief Parameters for computing initial centroids for the K-Means algorithm of the batch mode
+ * \brief Parameters for computing initial centroids for K-Means algorithm of the batch mode
  */
 struct DAAL_EXPORT Parameter : public interface1::Parameter
 {
     Parameter(size_t _nClusters, size_t _offset = 0, size_t _seed = 777777);
 
     /**
-     * Constructs parameters of the algorithm that computes initial centroids for the K-Means algorithm
+     * Constructs parameters of the algorithm that computes initial centroids for K-Means algorithm
      * by copying another parameters object
-     * \param[in] other    Parameters of the K-Means algorithm
+     * \param[in] other    Parameters of K-Means algorithm
      */
     Parameter(const Parameter &other);
 
-    size_t nTrials;     /*!< Kmeans++ only. The number of trials to generate all clusters but the first initial cluster.
-                                            See section (5) of [1] */
+    size_t nTrials;     /*!< Kmeans++ only. The number of trials to generate all clusters but the first initial cluster. */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };

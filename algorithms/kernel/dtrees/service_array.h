@@ -39,7 +39,7 @@ template <CpuType cpu>
 class DefaultAllocator
 {
 public:
-    static void* alloc(size_t nBytes) { return services::daal_malloc(nBytes); }
+    static void* alloc(size_t nBytes) { return services::daal_calloc(nBytes); }
     static void free(void* ptr) { services::daal_free(ptr); }
 };
 

@@ -1008,7 +1008,7 @@ Status LBFGSTask<algorithmFPType, cpu>::init(NumericTable *inputArgument, Numeri
     /* Initialize work value with a start value provided by user */
     DAAL_CHECK_STATUS(s, this->setStartArgument(inputArgument));
     DAAL_CHECK_STATUS(s, initArgumentL(averageArgLIterInput, averageArgLIterResult, parameter));
-    alpha = (algorithmFPType *)daal_malloc(parameter->m * sizeof(algorithmFPType));
+    alpha = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(parameter->m * sizeof(algorithmFPType));
     DAAL_CHECK_MALLOC(argumentLCur && argumentLPrev && alpha);
 
     DAAL_CHECK_STATUS(s, initCorrectionPairs(correctionPairsInput, parameter, correctionPairsResult));
@@ -1057,7 +1057,7 @@ Status LBFGSTask<algorithmFPType, cpu>::init(NumericTable *inputArgument, Numeri
     /* Initialize work value with a start value provided by user */
     DAAL_CHECK_STATUS(s, this->setStartArgument(inputArgument));
     DAAL_CHECK_STATUS(s, initArgumentL(averageArgLIterInput, averageArgLIterResult, parameter));
-    alpha = (algorithmFPType *)daal_malloc(parameter->m * sizeof(algorithmFPType));
+    alpha = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(parameter->m * sizeof(algorithmFPType));
     DAAL_CHECK_MALLOC(argumentLCur && argumentLPrev && alpha);
 
     DAAL_CHECK_STATUS(s, initCorrectionPairs(correctionPairsInput, parameter, correctionPairsResult));
@@ -1339,7 +1339,7 @@ Status LBFGSTask<algorithmFPType, cpu>::getBatchIndices(
     else
     {
         indicesStatus = random;
-        indices = (int *)daal_malloc(size * sizeof(int));
+        indices = (int *)daal::services::internal::service_calloc<int, cpu>(size * sizeof(int));
         DAAL_CHECK_MALLOC(indices);
     }
 

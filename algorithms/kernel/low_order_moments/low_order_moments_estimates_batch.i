@@ -146,10 +146,10 @@ struct tls_moments_data_t
         varc = daal::services::internal::service_scalable_calloc<algorithmFPType, cpu>(nFeatures);
 #endif
 #ifdef _MIN_ENABLE_
-        min  = daal::services::internal::service_scalable_malloc<algorithmFPType, cpu>(nFeatures);
+        min  = daal::services::internal::service_scalable_calloc<algorithmFPType, cpu>(nFeatures);
 #endif
 #ifdef _MAX_ENABLE_
-        max  = daal::services::internal::service_scalable_malloc<algorithmFPType, cpu>(nFeatures);
+        max  = daal::services::internal::service_scalable_calloc<algorithmFPType, cpu>(nFeatures);
 #endif
 
         if (
