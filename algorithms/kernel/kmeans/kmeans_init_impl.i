@@ -86,7 +86,6 @@ Status init( size_t p, size_t n, size_t nRowsTotal, size_t nClusters, algorithmF
             {
                 if(value == indices[j-1])
                 {
-                    DAAL_ASSERT(j-1 >= 0)
                     c = (size_t)(j-1);
                     value = c;
                 }

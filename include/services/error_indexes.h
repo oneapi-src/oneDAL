@@ -417,11 +417,9 @@ enum ErrorID
     ErrorMethodNotImplemented = -1000002,                               /*!< Method is not implemented in the present library version  */
 
     ErrorIncorrectOffset = -1000003,                                    /*!< Incorrect offset */
-    ErrorAdagradIncorrectMaxNumberOfIterations = -1000004,              /*!< Incorrect maximum number of iterations value in adagrad solver parameter */
-    ErrorLbfgsIncorrectMaxNumberOfIterations = -1000005,                /*!< Incorrect maximum number of iterations value in lbfgs solver parameter */
-    ErrorSgdIncorrectMaxNumberOfIterations = -1000006,                  /*!< Incorrect maximum number of iterations value in sgd solver parameter */
-    ErrorIncorrectNumberOfTerms = -1000007,                             /*!< Incorrect number of summands (terms) in objective function */
-    ErrorIncorrectNumberOfNodes = -1000008                              /*!< Incorrect number of nodes */
+    ErrorIterativeSolverIncorrectMaxNumberOfIterations = -1000004,      /*!< Incorrect maximum number of iterations value in solver */
+    ErrorIncorrectNumberOfTerms = -1000005,                             /*!< Incorrect number of summands (terms) in objective function */
+    ErrorIncorrectNumberOfNodes = -1000006                              /*!< Incorrect number of nodes */
 };
 /** @} */
 }

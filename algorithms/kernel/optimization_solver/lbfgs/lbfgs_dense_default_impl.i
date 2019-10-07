@@ -938,7 +938,7 @@ Status LBFGSTaskBase<algorithmFPType, cpu>::setToResult(NumericTable *correction
 {
     WriteRows<int, cpu> mtNIterations(nIterationsNT, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(mtNIterations);
-    DAAL_CHECK(nIterations <= services::internal::MaxVal<int>::get(), ErrorLbfgsIncorrectMaxNumberOfIterations)
+    DAAL_CHECK(nIterations <= services::internal::MaxVal<int>::get(), ErrorIterativeSolverIncorrectMaxNumberOfIterations)
     *mtNIterations.get() = (int)nIterations;
 
     if(correctionIndicesResult)

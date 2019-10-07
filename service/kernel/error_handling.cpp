@@ -952,9 +952,7 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorMethodNotImplemented, "Method is not implemented");
 
     add(ErrorIncorrectOffset, "Incorrect offset");
-    add(ErrorAdagradIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in adagrad solver parameter");
-    add(ErrorLbfgsIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in lbfgs parameter");
-    add(ErrorSgdIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in sgd parameter");
+    add(ErrorIterativeSolverIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in solver");
     add(ErrorIncorrectNumberOfTerms, "Incorrect number of summands (terms) in objective function");
     add(ErrorIncorrectNumberOfNodes, "Incorrect number of nodes");
 }
