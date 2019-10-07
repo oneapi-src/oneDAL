@@ -22,7 +22,8 @@
 */
 #include "service_math.h"
 #include "objective_function_utils.i"
-
+#include "service_memory.h"
+#include "service_numeric_table.h"
 namespace daal
 {
 namespace algorithms
@@ -321,7 +322,15 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
         if(gradientNT)
         {
             DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
-            const algorithmFPType* s = sgPtr;
+            algorithmFPType* s = sgPtr;
+            algorithmFPType interceptVal = 0;
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for(size_t i = 0; i < n; i++)
+            {
+                s[i] -= y[i];
+                interceptVal += s[i];
+            }
 
             algorithmFPType* g;
             HomogenNumericTable<algorithmFPType>* hmgGrad = dynamic_cast<HomogenNumericTable<algorithmFPType>*>(gradientNT);
@@ -336,46 +345,26 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                 DAAL_CHECK_BLOCK_STATUS(gr);
                 g = gr.get();
             }
-            const size_t nRowsInBlock = (p < 5000 ? 5000/p : 1);
-            const size_t nDataBlocks = n / nRowsInBlock + !!(n%nRowsInBlock);
-            const auto nThreads = daal::threader_get_threads_number();
 
-            if((nThreads > 1) && (nDataBlocks > 1))
-            {
-                TlsSum<algorithmFPType, cpu> tlsData(nBeta);
-                daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock)
-                {
-                    const size_t iStartRow = iBlock*nRowsInBlock;
-                    const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? n - iBlock * nRowsInBlock : nRowsInBlock;
-                    const auto px = x + iStartRow * p;
-                    auto pg = tlsData.local();
-                    for(size_t i = 0; i < nRowsToProcess; ++i)
-                    {
-                        const algorithmFPType d = (s[iStartRow + i] - y[iStartRow + i]);
-                        for(size_t j = 0; j < p; ++j)
-                            pg[j + 1] += d * px[i * p + j];
-                    }
-                });
-                tlsData.reduceTo(g, nBeta);
-            }
-            else
-            {
-                for(size_t i = 0; i < nBeta; ++i)
-                    g[i] = 0.0;
-                for(size_t i = 0; i < n; ++i)
-                {
-                    const algorithmFPType d = (s[i] - y[i]);
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for(size_t j = 0; j < p; ++j)
-                        g[j + 1] += d * x[i * p + j];
-                }
-            }
+            services::internal::service_memset<algorithmFPType, cpu>(g, (algorithmFPType)0, nBeta);
+
+            char trans = 'T';
+            char notrans = 'N';
+            algorithmFPType one = 1.0;
+
+            //algorithmFPType zero = 0.0;
+            DAAL_INT nN   = (DAAL_INT)n;
+            DAAL_INT yDim = 1;
+            DAAL_INT dim = (DAAL_INT)p;
+
+            daal::internal::Blas<algorithmFPType, cpu>::xgemm(&notrans, &trans, &yDim, &dim, &nN, &one, s, &yDim, x,
+                                                                                  &dim, &one, g + 1, &yDim);
 
             if(parameter->interceptFlag)
             {
-                for(size_t i = 0; i < n; ++i)
-                    g[0] += (s[i] - y[i]);
+                //for(size_t i = 0; i < n; ++i)
+                //    g[0] += s[i];
+                g[0] = interceptVal;
             }
             for(size_t i = iFirstBeta; i < nBeta; ++i)
                 g[i] *= div;
@@ -394,6 +383,13 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             algorithmFPType* h = hr.get();
 
             algorithmFPType* s = sgPtr;
+            if(gradientNT)
+            {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for(size_t i = 0; i < n; i++)
+                    s[i] -= y[i];
+            }
             for(size_t i = 0; i < n; ++i)
                 s[i] *= s[i + n]; //sigmoid derivative at x[i]
 
