@@ -951,7 +951,6 @@ void ErrorMessageCollection::parseResourceFile()
     add(NoErrorMessageFound, "NoErrorMessageFound");
     add(ErrorMethodNotImplemented, "Method is not implemented");
 
-    // new items for SDL T191 task: Follow best practices when handling primitive data types
     add(ErrorIncorrectOffset, "Incorrect offset");
     add(ErrorAdagradIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in adagrad solver parameter");
     add(ErrorLbfgsIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in lbfgs parameter");

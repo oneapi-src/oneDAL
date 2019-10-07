@@ -416,7 +416,6 @@ enum ErrorID
     NoErrorMessageFound = -1000001,                                     /*!< No error message found */
     ErrorMethodNotImplemented = -1000002,                               /*!< Method is not implemented in the present library version  */
 
-    // new items for SDL T191 task: Follow best practices when handling primitive data types
     ErrorIncorrectOffset = -1000003,                                    /*!< Incorrect offset */
     ErrorAdagradIncorrectMaxNumberOfIterations = -1000004,              /*!< Incorrect maximum number of iterations value in adagrad solver parameter */
     ErrorLbfgsIncorrectMaxNumberOfIterations = -1000005,                /*!< Incorrect maximum number of iterations value in lbfgs solver parameter */
