@@ -82,9 +82,13 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na,
 
     const size_t  n   = ntAi->getNumberOfColumns();
     const size_t  m   = ntAi->getNumberOfRows();
-
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> QiTPtr(n * m);
     algorithmFPType *QiT = QiTPtr.get();
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> RiTPtr(n * n);
     algorithmFPType *RiT = RiTPtr.get();
     DAAL_CHECK(QiT && RiT, ErrorMemoryAllocationFailed);
@@ -211,11 +215,15 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
 
     size_t brows_last = brows + (rows - blocks * brows); /* last block is generally biggest */
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, blocks);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
     size_t len = blocks * n * n;
     TArray<algorithmFPType, cpu> R_buffPtr(n * n);
     algorithmFPType *R_buff = R_buffPtr.get();
     DAAL_CHECK(R_buff, ErrorMemoryAllocationFailed);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, len, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> RT_buffPtr(len);
     algorithmFPType *RT_buff = RT_buffPtr.get();
     DAAL_CHECK(RT_buff, ErrorMemoryAllocationFailed);
@@ -238,6 +246,8 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
             const size_t brows_local = (k == (blocks - 1)) ? brows_last : brows;
             const size_t cols_local = cols;
 
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, cols_local, brows_local);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, cols_local * brows_local, sizeof(algorithmFPType));
             TArrayScalable<algorithmFPType, cpu> QT_local_Arr(cols_local * brows_local);
             algorithmFPType *QT_local = QT_local_Arr.get();
             TArrayScalable<algorithmFPType, cpu> RT_local_Arr(cols_local * cols_local);
@@ -312,6 +322,8 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
         size_t brows_local = (k==(blocks-1))?brows_last:brows;
         size_t cols_local  = cols;
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, cols_local, brows_local);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, cols_local * brows_local, sizeof(algorithmFPType));
         TArrayScalable<algorithmFPType, cpu> QT_local_Arr(cols_local * brows_local);
         algorithmFPType *QT_local = QT_local_Arr.get();
         TArrayScalable<algorithmFPType, cpu> RT_local_Arr(cols_local * cols_local);

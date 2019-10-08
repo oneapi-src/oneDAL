@@ -72,6 +72,8 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
     /* Last block can be bigger than others */
     size_t numRowsInLastBlock = numRowsInBlock + (nVectors - numBlocks * numRowsInBlock);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
+
     /* TLS data initialization */
     daal::tls<algorithmFPType *> tls_data([&]()
     {

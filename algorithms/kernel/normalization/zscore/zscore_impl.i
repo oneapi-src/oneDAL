@@ -174,6 +174,8 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::compute(NumericTable &inputTable,
 {
     const size_t _nFeatures = inputTable.getNumberOfColumns();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nFeatures, sizeof(algorithmFPType));
+
     /* Internal arrays for mean and variance, initialized by zeros */
     TArrayCalloc<algorithmFPType, cpu> meanTotal(_nFeatures);
     algorithmFPType* mean_total = meanTotal.get();
@@ -199,6 +201,11 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::compute(NumericTable &inputTable,
 
     bool computeMeans = par->resultsToCompute & mean;
     bool computeVariances = par->resultsToCompute & variances;
+
+    if ((computeMeans) || (computeVariances))
+    {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nFeatures, sizeof(algorithmFPType));
+    }
 
     /* Internal arrays for mean and variance, initialized by zeros */
     TArray<algorithmFPType, cpu> meansTotalArray(computeMeans ? 0 : _nFeatures);

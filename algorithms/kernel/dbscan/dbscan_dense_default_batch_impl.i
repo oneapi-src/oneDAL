@@ -150,6 +150,8 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const N
 
     const size_t nRows = ntData->getNumberOfRows();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(Neighborhood<algorithmFPType, cpu>));
+
     TArray<Neighborhood<algorithmFPType, cpu>, cpu> neighs(nRows);
     DAAL_CHECK_MALLOC(neighs.get());
 
@@ -236,6 +238,8 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeMemSave(const Num
     int * const assignments = assignRows.get();
 
     service_memset<int, cpu>(assignments, undefined, nRows);
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(int));
 
     TArray<int, cpu> isCoreArray(nRows);
     DAAL_CHECK_MALLOC(isCoreArray.get());

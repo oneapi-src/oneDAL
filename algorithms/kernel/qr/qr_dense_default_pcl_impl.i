@@ -247,6 +247,11 @@ static void tsqr( algorithmFPType*  A,
 
     QR_CHECK_RETURN(nrows >= Rda, PCL_PARAMETER_ERROR);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols, ncols);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols * ncols, nthreads);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols * ncols, local_tiles);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols * ncols * nthreads, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols * ncols * local_tiles, sizeof(algorithmFPType));
     algorithmFPType* R = service_scalable_calloc<algorithmFPType,cpu>( nthreads * ncols * ncols );
     QR_CHECK_RETURN(R, PCL_MEMORY_ERROR);
 
@@ -527,6 +532,11 @@ static void tsgetq( algorithmFPType*  A,
 
     QR_CHECK_RETURN(nrows >= Rda, PCL_PARAMETER_ERROR);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols, ncols);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols * ncols, nthreads);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols * ncols, local_tiles);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols * ncols * nthreads, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols * ncols * local_tiles, sizeof(algorithmFPType));
     algorithmFPType* R = service_scalable_calloc<algorithmFPType,cpu>( nthreads * ncols * ncols );
     QR_CHECK_RETURN(R, PCL_MEMORY_ERROR);
 

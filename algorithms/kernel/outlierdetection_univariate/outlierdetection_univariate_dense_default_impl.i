@@ -58,6 +58,7 @@ compute(NumericTable &dataTable, NumericTable &resultTable,
         defaultInitialization(locationArray, scatterArray, thresholdArray, nFeatures);
     }
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nFeatures, sizeof(algorithmFPType));
     /* Allocate memory for storing intermediate results */
     TArray<algorithmFPType, cpu> invScatterPtr(nFeatures);
     DAAL_CHECK(invScatterPtr.get(), ErrorMemoryAllocationFailed)

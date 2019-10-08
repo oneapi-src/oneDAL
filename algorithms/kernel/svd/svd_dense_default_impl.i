@@ -146,6 +146,7 @@ template <typename algorithmFPType, CpuType cpu>
 Status compute_QR_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q, DAAL_INT lda_q, algorithmFPType *r,
                                       DAAL_INT ldr )
 {
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
     // .. Local arrays
     // .. Memory allocation block
     TArray<algorithmFPType, cpu> tauPtr(n);
@@ -204,6 +205,7 @@ template <typename algorithmFPType, CpuType cpu>
 Status compute_QR_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q, DAAL_INT lda_q, algorithmFPType *r,
                                           DAAL_INT ldr )
 {
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
     // .. Local arrays
     // .. Memory allocation block
     TArray<algorithmFPType, cpu> tauPtr(n);
