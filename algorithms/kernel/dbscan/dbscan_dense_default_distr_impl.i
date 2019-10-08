@@ -805,7 +805,7 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
         clusterStructure[i * 4 + 3] = -1;         // index of parent observation in union-find structure
     }
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
 
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
