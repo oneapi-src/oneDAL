@@ -68,6 +68,12 @@ Status SVDDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const si
     size_t n   = ntAux2_0->getNumberOfColumns();
     size_t nxb = n * nBlocks;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nBlocks);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nxb);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * nxb, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
+
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> sigmaBlock(ntSigma, 0, 1); /* Sigma [1][n]   */
     DAAL_CHECK_BLOCK_STATUS(sigmaBlock);
     algorithmFPType *Sigma = sigmaBlock.get();
@@ -211,6 +217,11 @@ Status SVDDistributedStep3Kernel<algorithmFPType, method, cpu>::compute(const si
 
         algorithmFPType *Qi = QiBlock.set(r[0], mCalculated, m); /* Qi [m][n] */
         DAAL_CHECK_BLOCK_STATUS(QiBlock);
+
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
 
         TArray<algorithmFPType, cpu> QiTPtr   (n * m);
         TArray<algorithmFPType, cpu> Aux1iTPtr(n * m);

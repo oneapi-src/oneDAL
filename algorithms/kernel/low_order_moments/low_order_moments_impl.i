@@ -264,6 +264,9 @@ Status LowOrderMomentsOnlineTask<algorithmFPType, cpu>::init(PartialResult *part
         resultArray[(int)nObservations][0] = 0.0;
     }
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures * sizeof(algorithmFPType), sizeof(algorithmFPType *));
+
     size_t rowSize = nFeatures * sizeof(algorithmFPType);
     mean      = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
     raw2Mom   = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);

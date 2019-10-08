@@ -478,6 +478,9 @@ Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIfa
         if(dim.nTreeBlocks == 1) //all fit into LL cache
             return predictByAllTrees(nTreesTotal, dim);
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nClasses, dim.nRowsTotal);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nClasses * dim.nRowsTotal, sizeof(ClassIndexType));
+
         services::internal::TArrayCalloc<ClassIndexType, cpu> aClsCounters(dim.nRowsTotal*_nClasses);
         if(!aClsCounters.get())
             return predictByAllTrees(nTreesTotal, dim);

@@ -159,6 +159,9 @@ Status ImplicitALSInitDistrKernel<algorithmFPType, fastCSR, cpu>::transposeAndSp
             const algorithmFPType *tdata, const size_t *rowIndices, const size_t *colOffsets,
             size_t nParts, const int *partition, NumericTable **dataParts)
 {
+    DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, fullNUsers, 1);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, (fullNUsers + 1), sizeof(size_t));
+
     const size_t nValues = colOffsets[nItems] - colOffsets[0];
     TArray<size_t, cpu> rowOffsetsPtr(fullNUsers + 1);
     TArray<size_t, cpu> colIndicesPtr(nValues);
@@ -203,6 +206,9 @@ Status ImplicitALSInitDistrKernelBase<algorithmFPType, fastCSR, cpu>::computeBlo
             const size_t *rowIndices, const size_t *colOffsets,
             size_t nParts, const int *partition, NumericTable **blocksToLocal)
 {
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nItems, nParts);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nItems * nParts, sizeof(bool));
+
     TArray<bool, cpu> blockFlagsPtr(nItems * nParts);
     bool *blockFlags = blockFlagsPtr.get();
     DAAL_CHECK_MALLOC(blockFlags);

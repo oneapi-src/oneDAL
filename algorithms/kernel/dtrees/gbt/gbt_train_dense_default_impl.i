@@ -394,6 +394,8 @@ services::Status  computeTypeDisp(HostAppIface* pHostApp, const NumericTable *x,
         aTblSmplCnt = nodeSampleCountTables.get();
     }
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, x->getNumberOfColumns(), sizeof(size_t));
+
     TVector<size_t, cpu, ScalableAllocator<cpu>> nUniquesArr(x->getNumberOfColumns());
     size_t* UniquesArr = nUniquesArr.get();
     DAAL_CHECK_MALLOC(UniquesArr);

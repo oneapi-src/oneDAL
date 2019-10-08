@@ -184,6 +184,9 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::compute(
     DAAL_CHECK_STATUS(s, computeInverseXtX(xtx, bModelNe, out.inverseOfXtX));
 
     const auto nBetas = xtx->getNumberOfColumns();
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetas, sizeof(algorithmFPType));
+
     //Compute vector V (sqrt of inverse (Xt*X) diagonal elements)
     TArray<algorithmFPType, cpu> aDiagElem(nBetas);
     algorithmFPType* v = aDiagElem.get();
@@ -235,6 +238,8 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeRmsVariance(const 
     algorithmFPType *pVar = varBD.get();
 
     for(size_t j = 0; j < k; pRms[j] = 0, pVar[j] = 0, ++j);
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, k, sizeof(algorithmFPType));
 
     daal::tls<algorithmFPType *> rmsPartial([=]()-> algorithmFPType*
     {

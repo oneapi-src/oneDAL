@@ -68,6 +68,8 @@ Status init( size_t p, size_t n, size_t nRowsTotal, size_t nClusters, algorithmF
     }
     if(method == randomDense || method == randomCSR)
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(int));
+
         TArray<int, cpu> aIndices(nClusters);
         DAAL_CHECK(aIndices.get(), ErrorMemoryAllocationFailed);
         int *indices = aIndices.get();
@@ -157,6 +159,8 @@ Status initDistrDeterministic(const NumericTable* pData, const Parameter *par, s
 template <typename algorithmFPType, CpuType cpu>
 Status generateRandomIndices(const Parameter *par, size_t nRows, size_t& nClustersFound, int* clusters, engines::BatchBase &engine)
 {
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, par->nClusters, sizeof(int));
+
     TArray<int, cpu> aIndices(par->nClusters);
     int* indices = aIndices.get();
     DAAL_CHECK(indices, ErrorMemoryAllocationFailed);
@@ -190,6 +194,8 @@ template <typename algorithmFPType, CpuType cpu>
 Status initDistrRandom(const NumericTable* pData, const Parameter *par,
     size_t& nClustersFound, NumericTablePtr& pRes, engines::BatchBase &engine)
 {
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, par->nClusters, sizeof(int));
+
     TArray<int, cpu> clusters(par->nClusters);
     DAAL_CHECK(clusters.get(), ErrorMemoryAllocationFailed);
     Status s = generateRandomIndices<algorithmFPType, cpu>(par, pData->getNumberOfRows(), nClustersFound, clusters.get(), engine);

@@ -555,6 +555,10 @@ protected:
         size_t nDim = getNumberOfColumns();
         size_t size = (nDim * (nDim + 1)) / 2;
 
+        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nDim, 1);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nDim, (nDim + 1) / 2);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, size, sizeof(DataType));
+
         if( size == 0 )
             return services::Status(getNumberOfColumns() == 0 ? services::ErrorIncorrectNumberOfFeatures :
                 services::ErrorIncorrectNumberOfObservations);

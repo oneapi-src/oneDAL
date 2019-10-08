@@ -836,6 +836,8 @@ protected:
         freeDataMemoryImpl();
 
         size_t size = getNumberOfColumns() * getNumberOfRows();
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, getNumberOfColumns(), getNumberOfRows());
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, size, sizeof(size_t));
 
         if( size == 0 )
         {

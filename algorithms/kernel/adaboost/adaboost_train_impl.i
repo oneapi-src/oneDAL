@@ -592,6 +592,9 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(Nume
 
     size_t nWeakLearners = 0;               /* Number of weak learners */
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, parameter->maxIterations, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors, sizeof(algorithmFPType));
+
     /* Allocate memory for storing weak learners' models and boosting coefficients */
     TArray<algorithmFPType, cpu> alpha(parameter->maxIterations); /* AdaBoost coefficients */
     DAAL_CHECK(alpha.get(), services::ErrorMemoryAllocationFailed);

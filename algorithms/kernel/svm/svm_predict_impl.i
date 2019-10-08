@@ -86,6 +86,9 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
         const algorithmFPType *svCoeff = mtSVCoeff.get();
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nSV, nVectors);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nSV * nVectors, sizeof(algorithmFPType));
+
         TArray<algorithmFPType, cpu> aBuf(nSV * nVectors);
         DAAL_CHECK(aBuf.get(), ErrorMemoryAllocationFailed);
         algorithmFPType *buf = aBuf.get();
