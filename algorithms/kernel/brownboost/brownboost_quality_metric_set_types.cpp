@@ -44,6 +44,7 @@ namespace interface1
  */
 classifier::quality_metric::binary_confusion_matrix::ResultPtr ResultCollection::getResult(QualityMetricId id) const
 {
+    DAAL_ASSERT(id >= 0)
     return staticPointerCast<classifier::quality_metric::binary_confusion_matrix::Result, SerializationIface>((*this)[(size_t)id]);
 }
 
@@ -54,6 +55,7 @@ classifier::quality_metric::binary_confusion_matrix::ResultPtr ResultCollection:
  */
 classifier::quality_metric::binary_confusion_matrix::InputPtr InputDataCollection::getInput(QualityMetricId id) const
 {
+    DAAL_ASSERT(id >= 0)
     return staticPointerCast<classifier::quality_metric::binary_confusion_matrix::Input, algorithms::Input>(
             algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
 }

@@ -223,8 +223,9 @@ Status compute_estimates( NumericTable *dataTable,
 {
     common_moments_data_t<algorithmFPType,cpu> _cd(dataTable);
     Status s = _cd.init(partialResult, isOnline);
-    if(!s) return s;
+    DAAL_CHECK_STATUS_VAR(s)
 
+    DAAL_ASSERT(_cd.resultArray[(int)nObservations][0] >= 0)
     const size_t nObs = (size_t)(_cd.resultArray[(int)nObservations][0]);
 
     /* "Short names" for result arrays */

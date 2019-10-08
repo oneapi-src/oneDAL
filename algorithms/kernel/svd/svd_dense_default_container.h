@@ -58,8 +58,8 @@ Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Input *input = static_cast<Input *>(_in);
     Result *result = static_cast<Result *>(_res);
 
-    size_t na = input->size();
-    size_t nr = result->size();
+    const size_t na = input->size();
+    const size_t nr = result->size();
 
     NumericTable *a0 = static_cast<NumericTable *>(input->get(data).get());
     NumericTable **a = &a0;
@@ -95,7 +95,7 @@ Status OnlineContainer<algorithmFPType, method, cpu>::compute()
     OnlinePartialResult *partialResult = static_cast<OnlinePartialResult *>(_pres);
     Parameter &svdPar = *(static_cast<Parameter *>(_par));
 
-    size_t na = input->size();
+    const size_t na = input->size();
 
     NumericTable *a0 = static_cast<NumericTable *>(input->get(data).get());
     NumericTable **a = &a0;
@@ -104,10 +104,9 @@ Status OnlineContainer<algorithmFPType, method, cpu>::compute()
     size_t n = a0->getNumberOfRows();
 
     Status s = partialResult->addPartialResultStorage<algorithmFPType>(m, n, svdPar);
-    if(!s)
-        return s;
+    DAAL_CHECK_STATUS_VAR(s)
 
-    size_t nr = 2;
+    const size_t nr = 2;
     data_management::DataCollection *rCollection = static_cast<data_management::DataCollection *>(partialResult->get(outputOfStep1ForStep2).get());
     size_t np = rCollection->size();
 
@@ -154,9 +153,9 @@ Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute()
             a[i + np] = 0;
         }
     }
-    size_t na = np * 2;
+    const size_t na = np * 2;
 
-    size_t nr = 3;
+    const size_t nr = 3;
     NumericTable *r[3];
     r[0] = static_cast<NumericTable *>(result->get(singularValues     ).get());
     r[1] = static_cast<NumericTable *>(result->get(leftSingularMatrix ).get());
@@ -197,12 +196,12 @@ Status DistributedContainer<step2Master, algorithmFPType, method, cpu>::compute(
     data_management::KeyValueDataCollection *perNodePartials = static_cast<data_management::KeyValueDataCollection *>(partialResult->get(outputOfStep2ForStep3).get());
     Result                 *results         = static_cast<Result *>(partialResult->get(finalResultFromStep2Master).get());
 
-    size_t na = nBlocks;
+    const size_t na = nBlocks;
 
     daal::internal::TArray<NumericTable *, cpu> aPtr(nBlocks);
     NumericTable **a = aPtr.get();
 
-    size_t nr = nBlocks + 2;
+    const size_t nr = nBlocks + 2;
     daal::internal::TArray<NumericTable *, cpu> rPtr(nBlocks + 2);
     NumericTable **r = rPtr.get();
 
@@ -267,7 +266,7 @@ Status DistributedContainer<step3Local, algorithmFPType, method, cpu>::compute()
 
     size_t nBlocks = qCollection->size();
 
-    size_t na = nBlocks * 2;
+    const size_t na = nBlocks * 2;
 
     daal::internal::TArray<NumericTable *, cpu> aPtr(na);
     NumericTable **a = aPtr.get();

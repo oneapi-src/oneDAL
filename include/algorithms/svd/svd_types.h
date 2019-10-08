@@ -253,6 +253,10 @@ public:
      */
     void add(MasterInputId id, size_t key, const data_management::DataCollectionPtr &value);
 
+    /**
+    * Returns the number of blocks in the input data set
+    * \return Number of blocks in the input data set
+    */
     size_t getNBlocks();
 
     /**

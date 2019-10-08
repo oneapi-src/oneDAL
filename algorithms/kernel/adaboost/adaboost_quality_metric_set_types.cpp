@@ -46,6 +46,7 @@ Parameter::Parameter(size_t nClasses) : nClasses(nClasses) {}
  */
 classifier::quality_metric::multiclass_confusion_matrix::ResultPtr ResultCollection::getResult(QualityMetricId id) const
 {
+    DAAL_ASSERT(id >= 0)
     return staticPointerCast<classifier::quality_metric::multiclass_confusion_matrix::Result, SerializationIface>((*this)[(size_t)id]);
 }
 
@@ -56,6 +57,7 @@ classifier::quality_metric::multiclass_confusion_matrix::ResultPtr ResultCollect
  */
 classifier::quality_metric::multiclass_confusion_matrix::InputPtr InputDataCollection::getInput(QualityMetricId id) const
 {
+    DAAL_ASSERT(id >= 0)
     return staticPointerCast<classifier::quality_metric::multiclass_confusion_matrix::Input, algorithms::Input>(
             algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id));
 }

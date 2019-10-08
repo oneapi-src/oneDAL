@@ -168,7 +168,7 @@ int compareItemsetsBySupport(const void *a, const void *b)
     ItemsetConstPtr bb = *((ItemsetConstPtr*)b);
 
     if(bb->support.get() < aa->support.get()) { return -1; }
-    return (int)(aa->support.get() < bb->support.get());
+    return (aa->support.get() < bb->support.get()) ? 1 : 0;
 }
 
 template <CpuType cpu>
@@ -178,7 +178,7 @@ int compareRulesByConfidence(const void *a, const void *b)
     const AssocRule<cpu> *bb = *((AssocRule<cpu> **)b);
 
     if (bb->confidence < aa->confidence) { return -1; }
-    return (int)(aa->confidence < bb->confidence);
+    return (aa->confidence < bb->confidence) ? 1 : 0;
 }
 
 /**
@@ -197,6 +197,7 @@ struct assocrules_dataset
                 max = elementsArray[i];
             }
         }
+        DAAL_ASSERT(max >= 0)
         return (size_t)max;
     }
 
@@ -206,7 +207,6 @@ struct assocrules_dataset
     {
         _status = services::Status();
         size_t data_len = dataTable->getNumberOfRows();
-        size_t itemsFullNumber;
 
         ReadColumns<int, cpu> mtTransactionID(dataTable, 0, 0, data_len);
         ReadColumns<int, cpu> mtItemID(dataTable, 1, 0, data_len);
@@ -220,7 +220,7 @@ struct assocrules_dataset
             numOfTransactions = getMaxElement(transactionID, data_len) + 1;
         }
 
-        itemsFullNumber = _numOfUniqueItems;
+        size_t itemsFullNumber = _numOfUniqueItems;
         if(itemsFullNumber == 0)
         {
             itemsFullNumber = getMaxElement(itemID, data_len) + 1;
@@ -239,7 +239,10 @@ struct assocrules_dataset
             supportVals[itemID[i]]++;
         }
         numOfUniqueItems = 0;
-        size_t iMinSupport = (size_t)daal::internal::Math<double,cpu>::sCeil(minSupport * numOfTransactions);
+        double ceil = daal::internal::Math<double,cpu>::sCeil(minSupport * numOfTransactions);
+        DAAL_ASSERT(ceil >= 0)
+
+        size_t iMinSupport = (size_t)ceil;
         for (size_t i = 0; i < itemsFullNumber; i++)
         {
             if (supportVals[i] >= iMinSupport) { numOfUniqueItems++; }

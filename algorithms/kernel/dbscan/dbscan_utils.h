@@ -85,7 +85,8 @@ public:
     {
         if (_tail >= _capacity)
         {
-            DAAL_CHECK_STATUS_VAR(grow());
+            services::Status status = grow();
+            DAAL_CHECK_STATUS_VAR(status)
         }
 
         _data[_tail] = value;
@@ -178,7 +179,8 @@ public:
     {
         if (_size >= _capacity)
         {
-            DAAL_CHECK_STATUS_VAR(grow());
+           services::Status status = grow();
+            DAAL_CHECK_STATUS_VAR(status);
         }
 
         _data[_size] = value;
@@ -257,7 +259,8 @@ public:
     {
         if (_size >= _capacity)
         {
-            DAAL_CHECK_STATUS_VAR(grow());
+            services::Status status = grow();
+            DAAL_CHECK_STATUS_VAR(status)
         }
 
         _values[_size] = value;

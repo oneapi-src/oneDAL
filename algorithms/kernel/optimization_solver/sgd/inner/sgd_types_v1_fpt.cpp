@@ -54,6 +54,7 @@ services::Status Result::allocate(const daal::algorithms::Input *input, const da
     else
     {
         pOpt = algorithms::OptionalArgumentPtr(new algorithms::OptionalArgument(lastOptionalData + 1));
+        DAAL_CHECK_MALLOC(pOpt.get())
         set(iterative_solver::optionalResult, pOpt);
     }
 
@@ -63,20 +64,25 @@ services::Status Result::allocate(const daal::algorithms::Input *input, const da
         const Input *algInput = static_cast<const Input *>(input);
         size_t argumentSize = algInput->get(iterative_solver::inputArgument)->getNumberOfRows();
         NumericTablePtr pTbl = NumericTablePtr(new HomogenNumericTable<int>(1, 1, NumericTable::doAllocate, 0));
+        DAAL_CHECK_MALLOC(pTbl.get())
         pOpt->set(iterative_solver::lastIteration, pTbl);
+        DAAL_ASSERT(momentum <= services::internal::MaxVal<int>::get())
         if(method == (int) momentum)
         {
             if(!pOpt->get(pastUpdateVector))
             {
                 pTbl = NumericTablePtr(new HomogenNumericTable<algorithmFPType>(1, argumentSize, NumericTable::doAllocate, 0.0));
+                DAAL_CHECK_MALLOC(pTbl.get())
                 pOpt->set(pastUpdateVector, pTbl);
             }
         }
+        DAAL_ASSERT(miniBatch <= services::internal::MaxVal<int>::get())
         if(method == (int) miniBatch)
         {
             if(!pOpt->get(pastWorkValue))
             {
                 pTbl = NumericTablePtr(new HomogenNumericTable<algorithmFPType>(1, argumentSize, NumericTable::doAllocate, 0.0));
+                DAAL_CHECK_MALLOC(pTbl.get())
                 pOpt->set(pastWorkValue, pTbl);
             }
         }

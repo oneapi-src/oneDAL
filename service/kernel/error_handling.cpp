@@ -950,6 +950,11 @@ void ErrorMessageCollection::parseResourceFile()
 
     add(NoErrorMessageFound, "NoErrorMessageFound");
     add(ErrorMethodNotImplemented, "Method is not implemented");
+
+    add(ErrorIncorrectOffset, "Incorrect offset");
+    add(ErrorIterativeSolverIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in solver");
+    add(ErrorIncorrectNumberOfTerms, "Incorrect number of summands (terms) in objective function");
+    add(ErrorIncorrectNumberOfNodes, "Incorrect number of nodes");
 }
 
 void ErrorDetailCollection::parseResourceFile()
