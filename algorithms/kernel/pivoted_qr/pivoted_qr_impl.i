@@ -140,7 +140,7 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(
     DAAL_INT ldAi = m;
     DAAL_INT ldRi = n;
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> QiTPtr(n * m);
     algorithmFPType *QiT = QiTPtr.get();
@@ -159,7 +159,7 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(
         }
     }
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> RiTPtr(n * n);
     algorithmFPType *RiT = RiTPtr.get();
