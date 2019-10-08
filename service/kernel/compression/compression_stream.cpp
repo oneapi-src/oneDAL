@@ -54,7 +54,7 @@ public:
     {}
     explicit ReadWriteBlock(size_t size) : DataBlock(size), _w_off(0), _r_off(0), _allocState(internallocated)
     {
-        byte *tmp_ptr = (byte *)daal::services::daal_calloc(size);
+        byte *tmp_ptr = (byte *)daal::services::daal_malloc(size);
         setPtr(tmp_ptr);
     }
 

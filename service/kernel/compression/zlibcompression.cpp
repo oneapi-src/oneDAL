@@ -60,7 +60,7 @@ void Compressor<zlib>::initialize()
 
 
     _strmp = NULL;
-    _strmp = (void *)daal::services::daal_calloc(sizeof(z_stream));
+    _strmp = (void *)daal::services::daal_malloc(sizeof(z_stream));
     if(_strmp == NULL)
     {
         this->_errors->add(services::ErrorMemoryAllocationFailed);
@@ -214,7 +214,7 @@ void Compressor<zlib>::run(byte *out, size_t outLen, size_t off)
 Decompressor<zlib>::Decompressor() : data_management::DecompressorImpl()
 {
     _strmp = NULL;
-    _strmp = daal::services::daal_calloc(sizeof(z_stream));
+    _strmp = daal::services::daal_malloc(sizeof(z_stream));
     if(_strmp == NULL)
     {
         this->_errors->add(services::ErrorMemoryAllocationFailed);

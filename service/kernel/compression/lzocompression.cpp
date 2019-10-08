@@ -57,7 +57,7 @@ Compressor<lzo>::Compressor() :
     {
         this->_errors->add(services::ErrorLzoInternal);
     }
-    _p_lzo_state = (void *)daal::services::daal_calloc((size_t)state_size);
+    _p_lzo_state = (void *)daal::services::daal_malloc((size_t)state_size);
     if (_p_lzo_state == NULL)
     {
         this->_errors->add(services::ErrorMemoryAllocationFailed);
@@ -339,7 +339,7 @@ void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
         }
         if (_avail_out < uncompressedBlockSize)
         {
-            _internalBuff = daal::services::daal_calloc(uncompressedBlockSize);
+            _internalBuff = daal::services::daal_malloc(uncompressedBlockSize);
             if (EXPECT(_internalBuff == NULL, 0))
             {
                 finalizeCompression();

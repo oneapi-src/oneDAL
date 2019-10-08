@@ -418,17 +418,17 @@ const char *KernelErrorCollection::getDescription() const
     if(size() == 0)
     {
         if(_description) { daal_free(_description); }
-        _description = (char *)daal::services::daal_calloc(sizeof(char) * 1);
+        _description = (char *)daal::services::daal_malloc(sizeof(char) * 1);
         _description[0] = '\0';
         return _description;
     }
 
     size_t descriptionSize = 0;
-    char **errorDescription = (char **)daal::services::daal_calloc(sizeof(char *) * size());
+    char **errorDescription = (char **)daal::services::daal_malloc(sizeof(char *) * size());
 
     for(size_t i = 0; i < size(); i++)
     {
-        errorDescription[i] = (char *)daal::services::daal_calloc(sizeof(char) * (DAAL_MAX_STRING_SIZE));
+        errorDescription[i] = (char *)daal::services::daal_malloc(sizeof(char) * (DAAL_MAX_STRING_SIZE));
         errorDescription[i][0] = '\0';
 
         services::SharedPtr<Error> e = _array[i];
@@ -451,7 +451,7 @@ const char *KernelErrorCollection::getDescription() const
     }
 
     if(_description) { daal_free(_description); }
-    _description = (char *)daal::services::daal_calloc(sizeof(char) * (descriptionSize + 1));
+    _description = (char *)daal::services::daal_malloc(sizeof(char) * (descriptionSize + 1));
     _description[0] = '\0';
 
     for(size_t i = 0; i < size(); i++)

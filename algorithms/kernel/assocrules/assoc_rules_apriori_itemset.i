@@ -103,7 +103,7 @@ protected:
 
     void allocItems(size_t n)
     {
-        items = (size_t*)daal::services::internal::service_calloc<size_t, cpu>(sizeof(size_t)*n);
+        items = (size_t*)daal::services::internal::service_malloc<size_t, cpu>(sizeof(size_t)*n);
         if (items)
         {
             _status = services::Status();

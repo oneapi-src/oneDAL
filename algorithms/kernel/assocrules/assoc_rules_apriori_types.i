@@ -296,7 +296,7 @@ struct assocrules_dataset
         }
 
         size_t numItems = 0;
-        size_t *items = (size_t *)daal::services::internal::service_calloc<size_t, cpu>(numOfUniqueItems * sizeof(size_t));
+        size_t *items = (size_t *)daal::services::internal::service_malloc<size_t, cpu>(numOfUniqueItems * sizeof(size_t));
 
         if (!items)
         {
@@ -327,7 +327,7 @@ struct assocrules_dataset
                 {
                     qSort<size_t, cpu>(numItems, items);
                     tran[numOfLargeTransactions].size = numItems;
-                    tran[numOfLargeTransactions].items = (size_t *)daal::services::internal::service_calloc<size_t, cpu>(numItems * sizeof(size_t));
+                    tran[numOfLargeTransactions].items = (size_t *)daal::services::internal::service_malloc<size_t, cpu>(numItems * sizeof(size_t));
                     tran[numOfLargeTransactions].is_large = true;
                     daal::services::daal_memcpy_s(tran[numOfLargeTransactions].items, numItems * sizeof(size_t), items, numItems * sizeof(size_t));
                     large_tran[numOfLargeTransactions] = &tran[numOfLargeTransactions];

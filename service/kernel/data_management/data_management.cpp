@@ -87,7 +87,7 @@ bool DataCollection::resize(size_t newCapacity)
 
 MemoryBlock::MemoryBlock(size_t n): _size(n), _value(NULL)
 {
-    _value = (byte*)daal::services::daal_calloc(n);
+    _value = (byte*)daal::services::daal_malloc(n);
 }
 
 MemoryBlock::~MemoryBlock()
@@ -100,7 +100,7 @@ void MemoryBlock::reserve(size_t n)
     if(n > size())
     {
         daal::services::daal_free(_value);
-        _value = (byte*)daal::services::daal_calloc(n);
+        _value = (byte*)daal::services::daal_malloc(n);
         _size = n;
     }
 }
