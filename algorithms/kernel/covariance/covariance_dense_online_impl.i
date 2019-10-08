@@ -84,6 +84,9 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::comp
     algorithmFPType *nObservations = nObservationsBlock.get();
     algorithmFPType *data          = const_cast<algorithmFPType*>(dataBlock.get());
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, nFeatures);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures * nFeatures, sizeof(algorithmFPType));
+
     services::Status status;
     if (method == singlePassDense)
     {

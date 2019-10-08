@@ -77,6 +77,7 @@ public:
             this->_aTree[i] = m->at(i);
         const auto nRows = this->_data->getNumberOfRows();
         services::Status s;
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(algorithmFPType));
         //compute raw boosted values
         if (this->_res && _prob)
         {
@@ -275,6 +276,8 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
     {
         WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(probBD);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nClasses);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows * nClasses, siseof(algorithmFPType));
         TArray<algorithmFPType, cpu> valPtr(nRows*nClasses);
         algorithmFPType* valFull = valPtr.get();
         services::internal::service_memset<algorithmFPType, cpu>(valFull, algorithmFPType(0), nRows*nClasses);

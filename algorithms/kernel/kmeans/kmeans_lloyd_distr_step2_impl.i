@@ -89,6 +89,9 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute( size
         cValues[j] = (algorithmFPType)-1.0;
     }
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(size_t));
+
     TArray<algorithmFPType, cpu> tmpValues(nClusters);
     TArray<size_t, cpu>          tmpIndices(nClusters);
     TArray<size_t, cpu>          cIndices(nClusters);

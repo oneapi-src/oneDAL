@@ -63,6 +63,10 @@ Status QRDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const siz
     const size_t n   = ntAux2_0->getNumberOfColumns(); /* size of observations block */
     const size_t nxb = n * nBlocks;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nxb, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> aAux2T(n * nxb );
     algorithmFPType* Aux2T = aAux2T.get();
     TArray<algorithmFPType, cpu> aRT(n * n);
@@ -151,6 +155,10 @@ Status QRDistributedStep3Kernel<algorithmFPType, method, cpu>::compute(const siz
         const algorithmFPType *Aux3i = mtAux3i.get();/* Aux3i = Ri [n][n] */
         algorithmFPType *Qi = mtQi.get();            /*         Qi [m][n] */
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
         TArray<algorithmFPType, cpu> QiT_Arr(n * m);
         algorithmFPType *QiT = QiT_Arr.get();
         TArray<algorithmFPType, cpu> Aux1iT_Arr(n * m);

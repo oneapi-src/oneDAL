@@ -1008,6 +1008,7 @@ Status LBFGSTask<algorithmFPType, cpu>::init(NumericTable *inputArgument, Numeri
     /* Initialize work value with a start value provided by user */
     DAAL_CHECK_STATUS(s, this->setStartArgument(inputArgument));
     DAAL_CHECK_STATUS(s, initArgumentL(averageArgLIterInput, averageArgLIterResult, parameter));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, parameter->m, sizeof(algorithmFPType));
     alpha = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(parameter->m * sizeof(algorithmFPType));
     DAAL_CHECK_MALLOC(argumentLCur && argumentLPrev && alpha);
 
@@ -1057,6 +1058,7 @@ Status LBFGSTask<algorithmFPType, cpu>::init(NumericTable *inputArgument, Numeri
     /* Initialize work value with a start value provided by user */
     DAAL_CHECK_STATUS(s, this->setStartArgument(inputArgument));
     DAAL_CHECK_STATUS(s, initArgumentL(averageArgLIterInput, averageArgLIterResult, parameter));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, parameter->m, sizeof(algorithmFPType));
     alpha = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(parameter->m * sizeof(algorithmFPType));
     DAAL_CHECK_MALLOC(argumentLCur && argumentLPrev && alpha);
 
@@ -1208,6 +1210,7 @@ template<typename algorithmFPType, CpuType cpu>
 Status LBFGSTask<algorithmFPType, cpu>::initCorrectionPairs(NumericTable* correctionPairsInput, const Parameter* parameter, NumericTable *correctionPairsResult)
 {
     Status s;
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, parameter->m, this->argumentSize);
     const auto cCorrectionPairSize = parameter->m * this->argumentSize;
     NumericTable* correctionPairsOutput = parameter->optionalResultRequired ? correctionPairsResult : nullptr;
     if(correctionPairsOutput)
@@ -1220,6 +1223,7 @@ Status LBFGSTask<algorithmFPType, cpu>::initCorrectionPairs(NumericTable* correc
     }
     else
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, cCorrectionPairSize, sizeof(algorithmFPType));
         correctionS = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(cCorrectionPairSize);
         correctionY = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(cCorrectionPairSize);
     }
@@ -1262,6 +1266,7 @@ template<typename algorithmFPType, CpuType cpu>
 Status LBFGSTask<algorithmFPType, cpu>::initCorrectionPairs(NumericTable* correctionPairsInput, const interface1::Parameter* parameter, NumericTable *correctionPairsResult)
 {
     Status s;
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, parameter->m, this->argumentSize);
     const auto cCorrectionPairSize = parameter->m * this->argumentSize;
     NumericTable* correctionPairsOutput = parameter->optionalResultRequired ? correctionPairsResult : nullptr;
     if(correctionPairsOutput)
@@ -1274,6 +1279,7 @@ Status LBFGSTask<algorithmFPType, cpu>::initCorrectionPairs(NumericTable* correc
     }
     else
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, cCorrectionPairSize, sizeof(algorithmFPType));
         correctionS = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(cCorrectionPairSize);
         correctionY = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(cCorrectionPairSize);
     }

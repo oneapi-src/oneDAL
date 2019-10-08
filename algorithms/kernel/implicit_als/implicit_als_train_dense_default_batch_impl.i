@@ -330,6 +330,10 @@ services::Status ImplicitALSTrainBatchKernel<algorithmFPType, fastCSR, cpu>::com
     computeCostFunction(nUsers, nItems, nFactors, data, colIndices, rowOffsets, itemsFactors, usersFactors,
                         alpha, lambda, &costFunction);
 #endif
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, parameter->nFactors, parameter->nFactors);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, parameter->nFactors * parameter->nFactors, sizeof(algorithmFPType));
+
     daal::tls<algorithmFPType *> lhs([=]() -> algorithmFPType*
     {
         return (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(
@@ -394,6 +398,9 @@ services::Status ImplicitALSTrainBatchKernel<algorithmFPType, defaultDense, cpu>
     computeCostFunction(nUsers, nItems, nFactors, data, NULL, NULL, itemsFactors, usersFactors,
                         alpha, lambda, &costFunction);
 #endif
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, parameter->nFactors, parameter->nFactors);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, parameter->nFactors * parameter->nFactors, sizeof(algorithmFPType));
 
     daal::tls<algorithmFPType *> lhs([=]() -> algorithmFPType*
     {

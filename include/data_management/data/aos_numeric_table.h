@@ -545,6 +545,7 @@ private:
         const size_t ncols = getNumberOfColumns();
         if( ncols > 0 )
         {
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ncols, sizeof(size_t));
             _offsets = (size_t *)daal::services::daal_malloc(sizeof(size_t) * (ncols));
             if(!_offsets)
                 return services::Status(services::ErrorMemoryAllocationFailed);

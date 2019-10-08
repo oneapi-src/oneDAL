@@ -64,6 +64,7 @@ Status compute_QR_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q, DAA
 {
     typedef Lapack<algorithmFPType, cpu> lapack;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
     // .. Local arrays
     // .. Memory allocation block
     TArray<algorithmFPType, cpu> tau(n);
@@ -116,6 +117,7 @@ Status compute_QR_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q,
 {
     typedef Lapack<algorithmFPType, cpu> lapack;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
     // .. Local arrays
     // .. Memory allocation block
     TArrayScalable<algorithmFPType, cpu> tau(n);

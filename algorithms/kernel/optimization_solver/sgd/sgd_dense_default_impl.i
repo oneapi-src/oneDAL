@@ -97,6 +97,7 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
     TArray<int, cpu> aPredefinedBatchIndices(bGenerateAllIndices ? nIter : 0);
     if(bGenerateAllIndices)
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nIter, sizeof(int));
         /*Get random indices for SGD from rng generator*/
         DAAL_CHECK_MALLOC(aPredefinedBatchIndices.get());
         getRandom(0, nTerms, aPredefinedBatchIndices.get(), nIter, engine);

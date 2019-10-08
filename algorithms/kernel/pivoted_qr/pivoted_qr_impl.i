@@ -56,6 +56,7 @@ template <typename algorithmFPType, CpuType cpu>
 ServiceStatus compute_pivoted_QR_on_one_node( const DAAL_INT m, const DAAL_INT n, algorithmFPType *a_q, const DAAL_INT lda_q, algorithmFPType *r,
         const DAAL_INT ldr, DAAL_INT *jpvt)
 {
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
     // .. Local arrays
     // .. Memory allocation block
     TArray<algorithmFPType, cpu> tauPtr(n);
@@ -115,6 +116,7 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(
     const size_t n = dataTable.getNumberOfColumns();
     const size_t m = dataTable.getNumberOfRows();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(DAAL_INT, n, sizeof(DAAL_INT));
     TArray<DAAL_INT, cpu> jpvtPtr(n);
     DAAL_INT *jpvt = jpvtPtr.get();
     DAAL_CHECK_MALLOC(jpvt);
@@ -139,6 +141,8 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(
     DAAL_INT ldAi = m;
     DAAL_INT ldRi = n;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> QiTPtr(n * m);
     algorithmFPType *QiT = QiTPtr.get();
     DAAL_CHECK_MALLOC(QiT);
@@ -156,6 +160,8 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(
         }
     }
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> RiTPtr(n * n);
     algorithmFPType *RiT = RiTPtr.get();
     DAAL_CHECK_MALLOC(RiT);

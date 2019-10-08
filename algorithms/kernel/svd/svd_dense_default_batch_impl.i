@@ -92,6 +92,9 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
     const size_t m = ntA->getNumberOfRows();
     const size_t nComponents = ntSigma->getNumberOfColumns();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> ATPtr(n * m);
     algorithmFPType *AT = ATPtr.get();
     TArray<algorithmFPType, cpu> QTPtr(n * m);
@@ -115,6 +118,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
     }
 
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
         TArray<algorithmFPType, cpu> sigmaPtr(n);
         DAAL_CHECK_MALLOC(sigmaPtr.get());
         algorithmFPType *Sigma = sigmaPtr.get();
@@ -212,6 +216,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
     size_t rows = m;
     size_t cols = n;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
     /* Getting real pointers to output array */
     TArray<algorithmFPType, cpu> aS_output(n);
     DAAL_CHECK_MALLOC(aS_output.get());
@@ -253,6 +258,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
     size_t brows_last = brows + (rows - blocks * brows); /* last block is generally biggest */
 
     size_t len = blocks * n * n;
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, blocks);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, len, sizeof(algorithmFPType));
     TArrayCalloc<algorithmFPType, cpu> R_buffPtr(len); /* zeroing */
     algorithmFPType *R_buff = R_buffPtr.get();
     DAAL_CHECK(R_buff, ErrorMemoryAllocationFailed);
@@ -290,6 +299,9 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             /* Last block size brows_last (generally larger than other blocks) */
             const size_t brows_local = (k==(blocks-1))?brows_last:brows;
             const size_t cols_local  = cols;
+
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, cols_local, brows_local);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, cols_local * brows_local, sizeof(algorithmFPType));
 
             TArrayScalable<algorithmFPType, cpu> QT_local_Arr(cols_local * brows_local);
             algorithmFPType *QT_local = QT_local_Arr.get();
@@ -404,6 +416,9 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             size_t brows_local = (k==(blocks-1))?brows_last:brows;
             size_t cols_local  = cols;
 
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, cols_local, brows_local);
+            DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, cols_local * brows_local, sizeof(algorithmFPType));
+
             TArrayScalable<algorithmFPType, cpu> QT_local_Arr(cols_local * brows_local);
             algorithmFPType *QT_local = QT_local_Arr.get();
             TArrayScalable<algorithmFPType, cpu> RT_local_Arr(cols_local * cols_local);
@@ -473,6 +488,8 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na
     ReadRows<algorithmFPType, cpu, NumericTable> aBlock(ntA, 0, m);
     DAAL_CHECK_BLOCK_STATUS(aBlock);
     algorithmFPType *A     = const_cast<algorithmFPType *>(aBlock.get());
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
 
     TArray<algorithmFPType, cpu> sigmaArray(n);
     DAAL_CHECK_MALLOC(sigmaArray.get());

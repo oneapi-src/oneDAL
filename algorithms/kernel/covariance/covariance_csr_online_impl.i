@@ -141,6 +141,9 @@ services::Status CovarianceCSROnlineKernel<algorithmFPType, method, cpu>::comput
     size_t          *colIndices    = dataBlock.cols();
     size_t          *rowOffsets    = dataBlock.rows();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, nFeatures);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures * nFeatures, sizeof(algorithmFPType));
+
     TArrayCalloc<algorithmFPType, cpu> partialCrossProductArray(nFeatures * nFeatures);
     DAAL_CHECK_MALLOC(partialCrossProductArray.get());
     algorithmFPType *partialCrossProduct = partialCrossProductArray.get();

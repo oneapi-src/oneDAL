@@ -51,6 +51,9 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
     const DAAL_INT nResponses(betaTable.getNumberOfRows());
     const DAAL_INT nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nResponses, nBetasIntercept);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nResponses * nBetasIntercept, sizeof(algorithmFPType));
+
     TArrayScalable<algorithmFPType, cpu> betaBufferArray(nResponses * nBetasIntercept);
     algorithmFPType *betaBuffer = betaBufferArray.get();
     DAAL_CHECK_MALLOC(betaBuffer);

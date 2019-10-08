@@ -136,6 +136,9 @@ services::Status ImplicitALSInitKernel<algorithmFPType, fastCSR, cpu>::compute(
     const size_t nFactors = parameter->nFactors;
 
     const size_t bufSz = (nItems > nFactors ? nItems : nFactors);
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, bufSz, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> itemsSumArr(bufSz);
     algorithmFPType* const itemsSum = itemsSumArr.get();
     DAAL_CHECK_MALLOC(itemsSum);
