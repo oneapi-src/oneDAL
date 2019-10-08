@@ -277,7 +277,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
         WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(probBD);
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nClasses);
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows * nClasses, siseof(algorithmFPType));
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows * nClasses, sizeof(algorithmFPType));
         TArray<algorithmFPType, cpu> valPtr(nRows*nClasses);
         algorithmFPType* valFull = valPtr.get();
         services::internal::service_memset<algorithmFPType, cpu>(valFull, algorithmFPType(0), nRows*nClasses);
