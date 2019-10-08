@@ -40,7 +40,7 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 namespace internal
 {
-template class AdaBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
+template class I1AdaBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
 }
 }

@@ -22,6 +22,7 @@
 */
 
 #include "implicit_als_model.h"
+#include "service_data_utils.h"
 
 namespace daal
 {
@@ -45,6 +46,7 @@ DAAL_EXPORT services::Status PartialModel::initialize(const Parameter &parameter
     DAAL_CHECK_STATUS_VAR(s);
 
     int *indicesData = HomogenNumericTable<int>::cast(_indices)->getArray();
+    DAAL_CHECK(size <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectSizeOfArray)
     const int iSize = (int)size;
     for (int i = 0; i < iSize; i++)
     {
@@ -76,6 +78,7 @@ DAAL_EXPORT services::Status PartialModel::initialize(const Parameter &parameter
     DAAL_CHECK_MALLOC(srcIndicesData);
 
     int *dstIndicesData = HomogenNumericTable<int>::cast(_indices)->getArray();
+    DAAL_CHECK(offset <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectOffset)
     const int iOffset = (int)offset;
     for (size_t i = 0; i < size; i++)
     {

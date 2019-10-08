@@ -41,7 +41,7 @@ namespace interface1
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::AdaBoostPredictKernel, method, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::I1AdaBoostPredictKernel, method, algorithmFPType);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -62,7 +62,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     adaboost::interface1::Parameter *par = static_cast<adaboost::interface1::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::AdaBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
+    __DAAL_CALL_KERNEL(env, internal::I1AdaBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
 }
 }
 } // namespace daal::algorithms::adaboost::prediction

@@ -66,9 +66,7 @@ services::Status LowOrderMomentsBatchKernel<algorithmFPType, method, cpu>::compu
                                                                             task.resultArray[(int)sum],
                                                                             task.resultArray[(int)mean]);
 
-        if(!s)
-            return s;
-
+        DAAL_CHECK_STATUS_VAR(s)
     }
     Status s = computeSum_Mean_SecondOrderRawMoment_Variance_Variation<algorithmFPType, method, cpu>(task.nFeatures,
                                                                                                      task.nVectors,
@@ -80,8 +78,7 @@ services::Status LowOrderMomentsBatchKernel<algorithmFPType, method, cpu>::compu
                                                                                                      task.resultArray[(int)variation]);
 
 
-    if(!s)
-        return s;
+    DAAL_CHECK_STATUS_VAR(s)
 
     const bool isOnline = false;
 

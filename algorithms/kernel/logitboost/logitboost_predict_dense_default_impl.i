@@ -49,7 +49,7 @@ namespace internal
 using namespace daal::internal;
 
 template<typename algorithmFPType, CpuType cpu>
-services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::compute( const NumericTablePtr& a, const logitboost::interface1::Model *m, NumericTable *r, const logitboost::interface1::Parameter *par )
+services::Status I1LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::compute( const NumericTablePtr& a, const logitboost::interface1::Model *m, NumericTable *r, const logitboost::interface1::Parameter *par )
 {
     logitboost::interface1::Parameter *parameter = const_cast<logitboost::interface1::Parameter *>(par);
     const size_t dim = a->getNumberOfColumns();       /* Number of features in input dataset */
@@ -112,7 +112,7 @@ services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::co
 }
 
 template<typename algorithmFPType, CpuType cpu>
-services::Status LogitBoostPredictKernelNew<defaultDense, algorithmFPType, cpu>::compute( const NumericTablePtr& a, const Model *m, NumericTable *r, const Parameter *par )
+services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::compute( const NumericTablePtr& a, const Model *m, NumericTable *r, const Parameter *par )
 {
     Parameter *parameter = const_cast<Parameter *>(par);
     const size_t dim = a->getNumberOfColumns();       /* Number of features in input dataset */

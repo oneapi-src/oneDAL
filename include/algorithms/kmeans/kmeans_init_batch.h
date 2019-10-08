@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of the interface for initializing the K-Means algorithm
+//  Implementation of the interface for initializing K-Means algorithm
 //  in the batch processing mode
 //--
 */
@@ -48,11 +48,11 @@ namespace interface2
  */
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__BATCHCONTAINER"></a>
- * \brief Provides methods to run implementations of initialization of the K-Means algorithm.
+ * \brief Provides methods to run implementations of initialization of K-Means algorithm.
  *        This class is associated with the daal::algorithms::kmeans::init::Batch class
- *        and supports the method of computing initial clusters for the K-Means algorithm in the batch processing mode.
+ *        and supports the method of computing initial clusters for K-Means algorithm in the batch processing mode.
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for the K-Means algorithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for K-Means algorithm, double or float
  * \tparam method           Method of computing initial clusters for the algorithm, \ref daal::algorithms::kmeans::init::Method
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -60,7 +60,7 @@ class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
     /**
-     * Constructs a container for initializing the K-Means algorithm with a specified environment
+     * Constructs a container for initializing K-Means algorithm with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
@@ -68,7 +68,7 @@ public:
     /** Default destructor */
     virtual ~BatchContainer();
     /**
-     * Computes initial values for the K-Means algorithm in the batch processing mode
+     * Computes initial values for K-Means algorithm in the batch processing mode
      */
     virtual services::Status compute() DAAL_C11_OVERRIDE;
 };
@@ -76,7 +76,7 @@ public:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__BATCHBASE"></a>
- *  \brief Base class representing an K-Means algorithm initialization in the batch processing mode
+ *  \brief Base class representing K-Means algorithm initialization in the batch processing mode
  */
 class DAAL_EXPORT BatchBase : public daal::algorithms::Analysis<batch>
 {
@@ -99,16 +99,16 @@ protected:
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__BATCH"></a>
- * \brief Computes initial clusters for the K-Means algorithm in the batch processing mode
+ * \brief Computes initial clusters for K-Means algorithm in the batch processing mode
  * <!-- \n<a href="DAAL-REF-KMEANS-ALGORITHM">K-Means algorithm initialization description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for the K-Means algorithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations of initial clusters for K-Means algorithm, double or float
  * \tparam method           Method of computing initial clusters for the algorithm, \ref Method
  *
  * \par Enumerations
- *      - \ref Method   Methods of computing initial clusters for the K-Means algorithm
- *      - \ref InputId  Identifiers of input objects for computing initial clusters for the K-Means algorithm
- *      - \ref ResultId Identifiers of results of computing initial clusters for the K-Means algorithm
+ *      - \ref Method   Methods of computing initial clusters for K-Means algorithm
+ *      - \ref InputId  Identifiers of input objects for computing initial clusters for K-Means algorithm
+ *      - \ref ResultId Identifiers of results of computing initial clusters for K-Means algorithm
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public BatchBase
@@ -121,7 +121,7 @@ public:
     Batch(size_t nClusters);
 
     /**
-     * Constructs an algorithm that computes initial clusters for the K-Means algorithm
+     * Constructs an algorithm that computes initial clusters for K-Means algorithm
      * by copying input objects and parameters of another algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
@@ -142,8 +142,8 @@ public:
     virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     /**
-     * Returns the structure that contains the results of computing initial clusters for the K-Means algorithm
-     * \return Structure that contains the results of computing initial clusters for the K-Means algorithm
+     * Returns the structure that contains the results of computing initial clusters for K-Means algorithm
+     * \return Structure that contains the results of computing initial clusters for K-Means algorithm
      */
     ResultPtr getResult()
     {
@@ -151,8 +151,8 @@ public:
     }
 
     /**
-     * Registers user-allocated memory to store the results of computing initial clusters for the K-Means algorithm
-     * \param[in] result  Structure to store the results of computing initial clusters for the K-Means algorithm
+     * Registers user-allocated memory to store the results of computing initial clusters for K-Means algorithm
+     * \param[in] result  Structure to store the results of computing initial clusters for K-Means algorithm
      */
     services::Status setResult(const ResultPtr& result)
     {
@@ -163,7 +163,7 @@ public:
     }
 
     /**
-     * Returns a pointer to the newly allocated algorithm that computes initial clusters for the K-Means algorithm
+     * Returns a pointer to the newly allocated algorithm that computes initial clusters for K-Means algorithm
      * with a copy of input objects and parameters of this algorithm
      * \return Pointer to the newly allocated algorithm
      */

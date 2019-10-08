@@ -192,7 +192,7 @@ struct TlsData
     DAAL_NEW_DELETE();
     TlsData(size_t n, const NumericTable* ntX) : x(const_cast<NumericTable*>(ntX))
     {
-        raw = services::internal::service_scalable_malloc<algorithmFPType, cpu>(n);
+        raw = services::internal::service_scalable_calloc<algorithmFPType, cpu>(n);
     }
 
     ~TlsData()

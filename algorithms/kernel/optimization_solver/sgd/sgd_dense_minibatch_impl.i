@@ -29,6 +29,7 @@
 #include "service_numeric_table.h"
 #include "service_math.h"
 #include "service_utils.h"
+#include "service_data_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -132,6 +133,7 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
         s = function->computeNoThrow();
         if(!s || host.isCancelled(s, 1))
         {
+            DAAL_ASSERT((epoch - task.startIteration) <= services::internal::MaxVal<int>::get())
             task.nProceededIterations[0] = (int)(epoch - task.startIteration);
             break;
         }
@@ -161,6 +163,7 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
         }
         task.makeStep(gradient, learningRate, consCoeff, argumentSize);
     }
+    DAAL_CHECK(task.nProceededIters <= services::internal::MaxVal<int>::get(), ErrorIterativeSolverIncorrectMaxNumberOfIterations)
     task.nProceededIterations[0] = (int)task.nProceededIters;
     function->sumOfFunctionsParameter->batchIndices = previousBatchIndices;
     function->sumOfFunctionsInput->set(sum_of_functions::argument, previousArgument);

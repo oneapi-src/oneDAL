@@ -51,6 +51,7 @@
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::algorithms;
+using namespace daal::services::internal;
 
 namespace daal
 {
@@ -84,10 +85,10 @@ using namespace daal::internal;
  *
  */
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFreundKernel(
+services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFreundKernel(
     size_t nVectors, NumericTablePtr weakLearnerInputTables[],
     const HomogenNTPtr &hTable, const algorithmFPType *y,
-    adaboost::interface1::Model *boostModel, adaboost::interface1::Parameter *parameter, size_t &nWeakLearners,
+    adaboost::interface1::Model *boostModel, const adaboost::interface1::Parameter *parameter, size_t &nWeakLearners,
     algorithmFPType *alpha)
 {
     algorithmFPType *w = static_cast<HomogenNT *>(weakLearnerInputTables[2].get())->getArray();
@@ -217,13 +218,12 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFreu
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
+services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(NumericTablePtr *a,
         adaboost::interface1::Model *r,
-        const adaboost::interface1::Parameter *par)
+        const adaboost::interface1::Parameter *parameter)
 {
     NumericTablePtr xTable = a[0];
     NumericTablePtr yTable = a[1];
-    adaboost::interface1::Parameter *parameter = const_cast<adaboost::interface1::Parameter *>(par);
     r->setNFeatures(xTable->getNumberOfColumns());
 
     const size_t nVectors = xTable->getNumberOfRows();
@@ -285,9 +285,9 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(size
  *
  */
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostSAMME(
+services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMME(
     size_t nVectors, NumericTablePtr weakLearnerInputTables[],
-    const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsArray, Parameter *parameter, size_t &nWeakLearners,
+    const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsArray, const Parameter *parameter, size_t &nWeakLearners,
     algorithmFPType *alpha)
 {
     algorithmFPType *w = static_cast<HomogenNT *>(weakLearnerInputTables[2].get())->getArray();
@@ -315,10 +315,7 @@ services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostS
     DAAL_CHECK(aErrFlag.get(), services::ErrorMemoryAllocationFailed);
 
     /* Initialize weights */
-    for (size_t i = 0; i < nVectors; i++)
-    {
-        w[i] = invNVectors;
-    }
+    service_memset<algorithmFPType, cpu>(w, invNVectors, nVectors);
 
     services::SharedPtr<classifier::training::Batch> learnerTrain = parameter->weakLearnerTraining->clone();
     const size_t nClasses = parameter->nClasses;
@@ -424,7 +421,7 @@ services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostS
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-void AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::convertLabelToVector(
+void AdaBoostTrainKernel<method, algorithmFPType, cpu>::convertLabelToVector(
     size_t nClasses, algorithmFPType *Y)
 {
     const algorithmFPType nonClassValue = -1.0 / (nClasses - 1.0);
@@ -443,9 +440,9 @@ void AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::convertLabelToVector(
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostSAMME_R(
+services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMME_R(
     size_t nVectors, NumericTablePtr weakLearnerInputTables[],
-    const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsArray, Parameter *parameter, size_t &nWeakLearners,
+    const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsArray, const Parameter *parameter, size_t &nWeakLearners,
     algorithmFPType *alpha)
 {
     services::Status s;
@@ -496,7 +493,6 @@ services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostS
     learnerPredict->parameter().resultsToEvaluate = classifier::computeClassProbabilities;
 
     nWeakLearners = 0;
-    algorithmFPType maxAlpha = zero;
 
     /* Clear the collection of weak learners models in the boosting model */
     boostModel->clearWeakLearnerModels();
@@ -585,12 +581,11 @@ services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::adaboostS
 
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostTrainKernelNew<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
-        Model *r, NumericTable *weakLearnersErrorsTable, const Parameter *par)
+services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(NumericTablePtr *a,
+        Model *r, NumericTable *weakLearnersErrorsTable, const Parameter *parameter)
 {
     NumericTablePtr xTable = a[0];
     NumericTablePtr yTable = a[1];
-    Parameter *parameter = const_cast<Parameter *>(par);
     r->setNFeatures(xTable->getNumberOfColumns());
 
     const size_t nVectors = xTable->getNumberOfRows();

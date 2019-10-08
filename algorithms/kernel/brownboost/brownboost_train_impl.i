@@ -58,7 +58,7 @@ using namespace daal::internal;
 using namespace daal::data_management;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
+services::Status I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
                                                                               brownboost::interface1::Model *r, const brownboost::interface1::Parameter *par)
 {
     NumericTablePtr xTable = a[0];
@@ -131,7 +131,7 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::compute(si
  *
   */
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoostFreundKernel(
+services::Status I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoostFreundKernel(
     size_t nVectors, NumericTablePtr weakLearnerInputTables[],
     const HomogenNTPtr& hTable, const algorithmFPType *y,
     brownboost::interface1::Model *boostModel, brownboost::interface1::Parameter *parameter, size_t& nWeakLearners,
@@ -210,7 +210,7 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoost
             h[j] = ((h[j] > zero) ? one : -one);
             algorithmFPType hy = h[j] * y[j];
             gamma += w[j] * hy;
-            nCorrect += (size_t)(hy > zero);
+            nCorrect += (hy > zero) ? 1 : 0;
         }
 
         if (nCorrect == nVectors)
@@ -240,7 +240,7 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoost
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-void BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(
+void I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(
             size_t nVectors, algorithmFPType s, algorithmFPType c, algorithmFPType invSqrtC,
             const algorithmFPType *r, algorithmFPType *nra, algorithmFPType *nre2, algorithmFPType *w)
 {
@@ -265,7 +265,7 @@ void BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-algorithmFPType* BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocateAlpha(
+algorithmFPType* I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocateAlpha(
             size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s)
 {
     algorithmFPType *alpha = (algorithmFPType *)daal::services::daal_malloc(alphaSize * sizeof(algorithmFPType));
@@ -288,7 +288,7 @@ algorithmFPType* BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocate
 
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
+services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
                                                                               Model *r, const Parameter *par)
 {
     NumericTablePtr xTable = a[0];
@@ -361,7 +361,7 @@ services::Status BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::compute
  *
   */
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::brownBoostFreundKernel(
+services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoostFreundKernel(
     size_t nVectors, NumericTablePtr weakLearnerInputTables[],
     const HomogenNTPtr& hTable, const algorithmFPType *y,
     Model *boostModel, Parameter *parameter, size_t& nWeakLearners,
@@ -445,7 +445,7 @@ services::Status BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::brownBo
             h[j] = ((h[j] > zero) ? one : -one);
             algorithmFPType hy = h[j] * y[j];
             gamma += w[j] * hy;
-            nCorrect += (size_t)(hy > zero);
+            nCorrect += (hy > zero) ? 1 : 0;
         }
 
         if (nCorrect == nVectors)
@@ -475,7 +475,7 @@ services::Status BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::brownBo
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-void BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::updateWeights(
+void BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(
             size_t nVectors, algorithmFPType s, algorithmFPType c, algorithmFPType invSqrtC,
             const algorithmFPType *r, algorithmFPType *nra, algorithmFPType *nre2, algorithmFPType *w)
 {
@@ -500,7 +500,7 @@ void BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::updateWeights(
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-algorithmFPType* BrownBoostTrainKernelNew<method, algorithmFPType, cpu>::reallocateAlpha(
+algorithmFPType* BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocateAlpha(
             size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s)
 {
     algorithmFPType *alpha = (algorithmFPType *)daal::services::daal_malloc(alphaSize * sizeof(algorithmFPType));

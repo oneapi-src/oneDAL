@@ -151,7 +151,8 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute
     {
         tls.reset(new daal::tls<algorithmFPType *>([=]()
         {
-            return (algorithmFPType *)daal_malloc(numRowsInBlock * numFeatures * sizeof(algorithmFPType));
+            return (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(numRowsInBlock * numFeatures *
+                sizeof(algorithmFPType));
         }));
         DAAL_CHECK_MALLOC(tls.get());
     }

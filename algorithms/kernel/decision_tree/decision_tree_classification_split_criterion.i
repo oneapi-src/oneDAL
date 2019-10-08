@@ -562,8 +562,8 @@ protected:
 
         deallocateTempData();
         _tempSize = size;
-        _tempP = services::internal::service_scalable_malloc<ValueType, cpu>(size);
-        _tempLg = services::internal::service_scalable_malloc<ValueType, cpu>(size);
+        _tempP = services::internal::service_scalable_calloc<ValueType, cpu>(size);
+        _tempLg = services::internal::service_scalable_calloc<ValueType, cpu>(size);
         return _tempP != nullptr && _tempLg != nullptr;
     }
 
@@ -698,8 +698,8 @@ protected:
 
         deallocateTempData();
         _tempSize = size;
-        _tempP = services::internal::service_scalable_malloc<ValueType, cpu>(size);
-        _tempLg = services::internal::service_scalable_malloc<ValueType, cpu>(size);
+        _tempP = services::internal::service_scalable_calloc<ValueType, cpu>(size);
+        _tempLg = services::internal::service_scalable_calloc<ValueType, cpu>(size);
         return _tempP != nullptr && _tempLg != nullptr;
     }
 

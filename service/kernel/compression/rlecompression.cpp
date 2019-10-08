@@ -320,7 +320,7 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
             }
             if (_avail_out < uncompressedBlockSize)
             {
-                _internalBuff = daal::services::daal_malloc(uncompressedBlockSize);
+                _internalBuff = daal::services::daal_calloc(uncompressedBlockSize);
                 if (EXPECT(_internalBuff == NULL,0))
                 {
                     this->_errors->add(services::ErrorMemoryAllocationFailed);

@@ -89,7 +89,7 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     services::Status s = classifier::prediction::interface1::Input::check(parameter, method);
     if(!s) return s;
 
-    brownboost::interface1::ModelPtr m =
+    const brownboost::interface1::ModelPtr m =
         staticPointerCast<brownboost::interface1::Model, classifier::Model>(get(classifier::prediction::model));
     DAAL_CHECK(m->getNumberOfWeakLearners() > 0, ErrorModelNotFullInitialized);
 

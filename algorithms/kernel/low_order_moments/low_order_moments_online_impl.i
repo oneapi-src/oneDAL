@@ -63,15 +63,13 @@ services::Status LowOrderMomentsOnlineKernel<algorithmFPType, method, cpu>::comp
         s = retrievePrecomputedStatsIfPossible<algorithmFPType, cpu>(task.nFeatures, task.nVectors,
             dataTable, task.resultArray[(int)partialSum], task.mean);
 
-        if(!s)
-            return s;
+        DAAL_CHECK_STATUS_VAR(s)
     }
 
     s = computeSumAndVariance<algorithmFPType, method, cpu>(task.nFeatures, task.nVectors, task.dataBlock,
         task.resultArray[(int)partialSum], task.prevSums, task.mean, task.raw2Mom, task.variance, isOnline);
 
-    if(!s)
-        return s;
+    DAAL_CHECK_STATUS_VAR(s)
 
     s = computeMinMaxAndSumOfSquared<algorithmFPType, cpu> (task.nFeatures,
                                         task.nVectors,

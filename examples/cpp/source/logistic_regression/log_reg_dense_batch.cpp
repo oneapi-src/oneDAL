@@ -78,7 +78,7 @@ training::ResultPtr trainModel()
 
     /* Retrieve the algorithm results */
     training::ResultPtr trainingResult = algorithm.getResult();
-    logistic_regression::interface1::ModelPtr modelptr = trainingResult->get(classifier::training::model);
+    logistic_regression::ModelPtr modelptr = trainingResult->get(classifier::training::model);
     if(modelptr.get())
     {
         printNumericTable(modelptr->getBeta(), "Logistic Regression coefficients:");
@@ -110,7 +110,7 @@ void testModel(const training::ResultPtr& trainingResult)
     algorithm.compute();
 
     /* Retrieve the algorithm results */
-    classifier::prediction::ResultPtr predictionResult = algorithm.getResult();
+    logistic_regression::prediction::ResultPtr predictionResult = algorithm.getResult();
     printNumericTable(predictionResult->get(classifier::prediction::prediction),
         "Logistic regression prediction results (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);

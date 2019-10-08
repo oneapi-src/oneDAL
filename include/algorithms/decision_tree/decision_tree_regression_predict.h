@@ -140,7 +140,6 @@ public:
     }
 
 protected:
-
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, method>(*this);
@@ -266,7 +265,6 @@ public:
     }
 
 protected:
-
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, method>(*this);

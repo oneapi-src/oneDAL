@@ -38,6 +38,7 @@ string trainDatasetFileName            = "../data/batch/k_nearest_neighbors_trai
 string testDatasetFileName             = "../data/batch/k_nearest_neighbors_test.csv";
 
 size_t nFeatures = 5;
+size_t nClasses  = 5;
 
 kdtree_knn_classification::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
@@ -79,6 +80,7 @@ void trainModel()
     /* Pass the training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
+    algorithm.parameter.nClasses = nClasses;
 
     /* Train the KD-tree based kNN model */
     algorithm.compute();

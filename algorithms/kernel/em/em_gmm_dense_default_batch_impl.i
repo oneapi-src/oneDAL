@@ -671,7 +671,7 @@ Status GmmModelFull<algorithmFPType, cpu>::computeSigmaInverse(size_t iteration)
 
     daal::tls<algorithmFPType *> sigma_buff( [ = ]()-> algorithmFPType*
     {
-        return service_scalable_malloc<algorithmFPType, cpu>(nFeatures * nFeatures);
+        return service_scalable_calloc<algorithmFPType, cpu>(nFeatures * nFeatures);
     } );
 
     SafeStatus safeStat;

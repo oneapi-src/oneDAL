@@ -54,13 +54,13 @@ namespace prediction
 namespace internal
 {
 
-template<typename algorithmFPType, typename ClsType, typename MccParam, CpuType cpu>
-services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, ClsType, MccParam, cpu>::
+template<typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
+services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam, cpu>::
 compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r,
         const daal::algorithms::Parameter *par)
 {
     Model *model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
-    MccParam *mccPar = static_cast<MccParam *>(const_cast<daal::algorithms::Parameter *>(par));
+    MultiClsParam *mccPar = static_cast<MultiClsParam *>(const_cast<daal::algorithms::Parameter *>(par));
     size_t nClasses = mccPar->nClasses;
     TArray<size_t, cpu> nonEmptyClassMapBuffer(nClasses);
     DAAL_CHECK_MALLOC(nonEmptyClassMapBuffer.get());
@@ -249,12 +249,14 @@ services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults
         DAAL_CHECK_BLOCK_STATUS(_mtR);
         int& label = *_mtR.get();
         algorithmFPType maxProb = p[0];
+        DAAL_CHECK(nonEmptyClassMap[0] <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectNumberOfClasses)
         label = (int)nonEmptyClassMap[0];
         for (int j = 1; j < nClasses; j++)
         {
             if (p[j] > maxProb)
             {
                 maxProb = p[j];
+                DAAL_ASSERT(nonEmptyClassMap[j] <= services::internal::MaxVal<int>::get())
                 label = (int)nonEmptyClassMap[j];
             }
         }

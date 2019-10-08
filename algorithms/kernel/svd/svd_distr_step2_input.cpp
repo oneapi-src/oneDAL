@@ -23,6 +23,7 @@
 
 #include "algorithms/svd/svd_types.h"
 #include "daal_strings.h"
+#include "service_data_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -85,6 +86,7 @@ size_t DistributedStep2Input::getNBlocks()
 {
     KeyValueDataCollectionPtr kvDC = get(inputOfStep2FromStep1);
     size_t nNodes = kvDC->size();
+    DAAL_ASSERT(nNodes <= services::internal::MaxVal<int>::get())
     size_t nBlocks = 0;
     for(size_t i = 0 ; i < nNodes ; i++)
     {
@@ -145,7 +147,8 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter *parameter
     if(!s) { return s; }
     if(nFeatures == 0) { return s; }
 
-    size_t nNodes = inputKeyValueDC->size();
+    const size_t nNodes = inputKeyValueDC->size();
+    DAAL_CHECK(nNodes <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfNodes)
     // check all dataCollection in key-value dataCollection
     for(size_t i = 0 ; i < nNodes ; i++)
     {

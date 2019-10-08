@@ -42,7 +42,7 @@ namespace prediction
 namespace internal
 {
 template <Method method, typename algorithmFPType, CpuType cpu>
-struct LogitBoostPredictKernel : public Kernel
+struct I1LogitBoostPredictKernel : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
@@ -58,7 +58,7 @@ struct LogitBoostPredictKernel : public Kernel
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-struct LogitBoostPredictKernelNew : public Kernel
+struct LogitBoostPredictKernel : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;

@@ -23,6 +23,7 @@
 
 #include "algorithms/qr/qr_types.h"
 #include "daal_strings.h"
+#include "service_data_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -85,6 +86,7 @@ size_t DistributedStep2Input::getNBlocks()
 {
     KeyValueDataCollectionPtr kvDC = get(inputOfStep2FromStep1);
     size_t nNodes = kvDC->size();
+    DAAL_ASSERT(nNodes <= services::internal::MaxVal<int>::get())
     size_t nBlocks = 0;
     for(size_t i = 0 ; i < nNodes ; i++)
     {
@@ -141,11 +143,12 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter *parameter
     KeyValueDataCollectionPtr inputKeyValueDC = get(inputOfStep2FromStep1);
     size_t nFeatures = 0;
     Status s = getNumberOfColumns(&nFeatures);
-    if(!s) { return s; }
+    DAAL_CHECK_STATUS_VAR(s)
 
     DAAL_CHECK_EX(nFeatures, ErrorIncorrectNumberOfColumns, ArgumentName, QRNodeCollectionNTStr());
 
     size_t nNodes = inputKeyValueDC->size();
+    DAAL_CHECK(nNodes <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfNodes)
     // check all dataCollection in key-value dataCollection
     for(size_t i = 0 ; i < nNodes ; i++)
     {
@@ -163,7 +166,7 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter *parameter
             DAAL_CHECK_EX(numTableInNodeCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, QRNodeCollectionStr());
             int unexpectedLayouts = (int)packed_mask;
             s |= checkNumericTable(numTableInNodeCollection.get(), QRNodeCollectionNTStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-            if(!s) { return s; }
+            DAAL_CHECK_STATUS_VAR(s)
         }
     }
     return Status();

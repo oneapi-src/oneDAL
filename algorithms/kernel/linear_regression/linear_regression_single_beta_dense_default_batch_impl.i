@@ -242,7 +242,7 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeRmsVariance(const 
     daal::tls<algorithmFPType *> rmsPartial([=]()-> algorithmFPType*
     {
         const size_t nCols = k;
-        algorithmFPType* ptr = (algorithmFPType *)daal_malloc(nCols * sizeof(algorithmFPType));
+        algorithmFPType* ptr = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(nCols * sizeof(algorithmFPType));
         if(ptr)
             for(size_t j = 0; j < nCols; ptr[j] = 0, ++j);
         return ptr;

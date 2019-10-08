@@ -30,6 +30,7 @@
 #include "service_numeric_table.h"
 #include "iterative_solver_kernel.h"
 #include "threading.h"
+#include "service_data_utils.h"
 
 using namespace daal::algorithms::optimization_solver::iterative_solver::internal;
 
@@ -122,6 +123,7 @@ services::Status SGDKernel<algorithmFPType, momentum, cpu>::compute(HostAppIface
         const algorithmFPType learningRate = learningRateArray[epoch % learningRateLength];
         DAAL_CHECK_STATUS(s, task.makeStep(gradient, minimum, task.pastUpdate.get(), learningRate, momentum));
     }
+    DAAL_CHECK(task.nProceededIters <= services::internal::MaxVal<int>::get(), ErrorIterativeSolverIncorrectMaxNumberOfIterations)
     nProceededIterations[0] = (int)task.nProceededIters;
 
     return s;

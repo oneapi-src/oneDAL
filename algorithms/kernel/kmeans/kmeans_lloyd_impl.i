@@ -51,7 +51,7 @@ struct tls_task_t
 
     tls_task_t(int dim, int clNum, int max_block_size)
     {
-        mkl_buff = service_scalable_malloc<algorithmFPType, cpu>(max_block_size * clNum);
+        mkl_buff = service_scalable_calloc<algorithmFPType, cpu>(max_block_size * clNum);
         cS1      = service_scalable_calloc<algorithmFPType, cpu>(clNum * dim);
         cS0      = service_scalable_calloc<int,cpu>(clNum);
         cValues  = service_scalable_calloc<algorithmFPType, cpu>(clNum);
@@ -129,7 +129,7 @@ struct task_t
             return tls_task_t<algorithmFPType, cpu>::create(dim, clNum, max_block_size);
         } ); /* Allocate memory for all arrays inside TLS: end */
 
-        clSq = service_scalable_malloc<algorithmFPType, cpu>(clNum);
+        clSq = service_scalable_calloc<algorithmFPType, cpu>(clNum);
         if(clSq)
         {
             for(size_t k=0;k<clNum;k++)
@@ -309,6 +309,7 @@ Status task_t<algorithmFPType, cpu>::addNTToTaskThreadedDense(const NumericTable
 
             if(ntAssign)
             {
+                DAAL_ASSERT(minIdx <= services::internal::MaxVal<int>::get())
                 assignments[i] = (int)minIdx;
             }
         } /* for (size_t i = 0; i < blockSize; i++) */
@@ -409,6 +410,7 @@ Status task_t<algorithmFPType, cpu>::addNTToTaskThreadedCSR(const NumericTable *
 
             if (ntAssign)
             {
+                DAAL_ASSERT(minIdx <= services::internal::MaxVal<int>::get())
                 assignments[i] = (int)minIdx;
             }
         }
@@ -636,6 +638,7 @@ Status RecalculationObservationsDense(const size_t p, const size_t nClusters, co
             goal += minGoalVal;
             if (ntAssign)
             {
+                DAAL_ASSERT(minIdx <= services::internal::MaxVal<int>::get())
                 assignments[k] = (int)minIdx;
             }
 
@@ -726,6 +729,7 @@ Status RecalculationObservationsCSR(const size_t p, const size_t nClusters, cons
             goal += minGoalVal;
             if (ntAssign)
             {
+                DAAL_ASSERT(minIdx <= services::internal::MaxVal<int>::get())
                 assignments[k] = (int)minIdx;
             }
 

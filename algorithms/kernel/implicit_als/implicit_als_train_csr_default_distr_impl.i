@@ -316,6 +316,7 @@ Status AlsTls<algorithmFPType, cpu>::formSystem(
     {
         algorithmFPType c1 = algorithmFPType(_prm.alpha) * mtData.values()[j];
         algorithmFPType c = c1 + 1.0;
+        DAAL_ASSERT(mtData.cols()[j] <= services::internal::MaxVal<int>::get())
         int colIndex = (int)mtData.cols()[j] - 1;
 
         int blockIndex = -1;

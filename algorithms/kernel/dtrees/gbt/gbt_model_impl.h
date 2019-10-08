@@ -162,7 +162,7 @@ public:
 
         for(size_t lvl = 0; lvl < nLvls + 1; ++lvl)
         {
-            size_t nSons = 0, iGain = 0;
+            size_t nSons = 0;
             for(size_t iParent = 0; iParent < nParents; ++iParent)
             {
                 const typename NodeType::Split* p = parents[iParent];

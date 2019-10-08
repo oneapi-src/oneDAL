@@ -122,7 +122,7 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
     size_t nCols = nt->getNumberOfColumns();
     double *data = nt->getArray();
 
-    jobject byteBuffer = env->NewDirectByteBuffer(data, (jlong)(nRows * nCols * sizeof(double)));
+    jobject byteBuffer = env->NewDirectByteBuffer(data, ((jlong)nRows * nCols * sizeof(double)));
     return byteBuffer;
 }
 
@@ -141,7 +141,7 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
     size_t nCols = nt->getNumberOfColumns();
     float *data = nt->getArray();
 
-    jobject byteBuffer = env->NewDirectByteBuffer(data, (jlong)(nRows * nCols * sizeof(float)));
+    jobject byteBuffer = env->NewDirectByteBuffer(data, ((jlong)nRows * nCols * sizeof(float)));
     return byteBuffer;
 }
 
@@ -160,7 +160,7 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
     size_t nCols = nt->getNumberOfColumns();
     __int64 *data = nt->getArray();
 
-    jobject byteBuffer = env->NewDirectByteBuffer(data, (jlong)(nRows * nCols * sizeof(__int64)));
+    jobject byteBuffer = env->NewDirectByteBuffer(data, ((jlong)nRows * nCols * sizeof(__int64)));
     return byteBuffer;
 }
 
@@ -179,7 +179,7 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
     size_t nCols = nt->getNumberOfColumns();
     int *data = nt->getArray();
 
-    jobject byteBuffer = env->NewDirectByteBuffer(data, (jlong)(nRows * nCols * sizeof(int)));
+    jobject byteBuffer = env->NewDirectByteBuffer(data, ((jlong)nRows * nCols * sizeof(int)));
     return byteBuffer;
 }
 
