@@ -56,7 +56,6 @@ template <typename algorithmFPType, CpuType cpu>
 ServiceStatus compute_pivoted_QR_on_one_node( const DAAL_INT m, const DAAL_INT n, algorithmFPType *a_q, const DAAL_INT lda_q, algorithmFPType *r,
         const DAAL_INT ldr, DAAL_INT *jpvt)
 {
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
     // .. Local arrays
     // .. Memory allocation block
     TArray<algorithmFPType, cpu> tauPtr(n);
