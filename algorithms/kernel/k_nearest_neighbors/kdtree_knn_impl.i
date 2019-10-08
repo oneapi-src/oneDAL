@@ -83,7 +83,7 @@ public:
 
     bool init(size_t size)
     {
-        _data = static_cast<T *>(services::internal::service_calloc<T, cpu>(size * sizeof(T)));
+        _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(size * sizeof(T)));
         _size = size;
         _top = _sizeMinus1 = size - 1;
         _count = 0;

@@ -296,7 +296,7 @@ struct assocrules_dataset
         }
 
         size_t numItems = 0;
-        size_t *items = (size_t *)daal::services::internal::service_calloc<size_t, cpu>(numOfUniqueItems * sizeof(size_t));
+        size_t *items = (size_t *)daal::services::internal::service_malloc<size_t, cpu>(numOfUniqueItems * sizeof(size_t));
 
         if (!items)
         {

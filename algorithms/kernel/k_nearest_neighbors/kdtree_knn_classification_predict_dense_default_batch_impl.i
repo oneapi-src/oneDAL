@@ -130,7 +130,7 @@ public:
     bool init(size_t size)
     {
         _count = 0;
-        _elements = static_cast<T *>(daal::services::internal::service_calloc<T, cpu>(size * sizeof(T)));
+        _elements = static_cast<T *>(daal::services::internal::service_malloc<T, cpu>(size * sizeof(T)));
         return _elements;
     }
 
@@ -439,7 +439,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 
     data_management::BlockDescriptor<algorithmFpType> labelBD;
     algorithmFpType * classes =
-        static_cast<algorithmFpType *>(daal::services::internal::service_calloc<algorithmFpType, cpu>(heapSize * sizeof(*classes)));
+        static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize * sizeof(*classes)));
     DAAL_CHECK_MALLOC(classes)
     for (size_t i = 0; i < heapSize; ++i)
     {
