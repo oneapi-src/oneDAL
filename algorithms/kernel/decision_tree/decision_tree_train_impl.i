@@ -828,7 +828,7 @@ public:
             auto lni = context.leavesData.add(totalDataStatistics, statAdd);
             DAAL_CHECK_STATUS_VAR(statAdd)
             makeLeaf(nodeIndex, totalDataStatistics.getBestDependentVariableValue(), lni,
-                     static_cast<double>(context.splitCriterion(totalDataStatistics, xRowCount)), static_cast<int>(xRowCount));            
+                     static_cast<double>(context.splitCriterion(totalDataStatistics, xRowCount)), static_cast<int>(xRowCount));
             return services::Status();
         }
 
