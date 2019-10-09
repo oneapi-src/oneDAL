@@ -61,7 +61,7 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::compute(const Nume
     DAAL_CHECK_STATUS_OK(data.ok(), data.getLastStatus());
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, data.numOfUniqueItems, sizeof(ItemSetList<cpu>));
-    
+
     TArray<ItemSetList<cpu>, cpu> L(data.numOfUniqueItems);
     DAAL_CHECK(L.get(), ErrorMemoryAllocationFailed);
     for(size_t i = 0, n = L.size(); i < n; ++i)
