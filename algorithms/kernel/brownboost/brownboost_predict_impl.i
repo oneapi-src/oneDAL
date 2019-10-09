@@ -95,7 +95,9 @@ services::Status BrownBoostPredictKernel<method, algorithmFPType, cpu>::computeI
     DAAL_CHECK(learnerInput, services::ErrorNullInput);
     learnerInput->set(classifier::prediction::data, xTable);
 
-    classifier::prediction::ResultPtr predictionRes(new classifier::prediction::Result());
+    classifier::prediction::Result* cpr = new classifier::prediction::Result();
+    DAAL_CHECK_MALLOC(cpr)
+    classifier::prediction::ResultPtr predictionRes(cpr);
     predictionRes->set(classifier::prediction::prediction, rWeakTable);
     DAAL_CHECK_STATUS(s, learnerPredict->setResult(predictionRes));
 

@@ -85,7 +85,9 @@ public:
             if (!wArray) wArray = HomogenNT::create(1, _nRows, &status);
             if (!zArray) zArray = HomogenNT::create(1, _nRows, &status);
 
-            _predictionRes.reset(new classifier::prediction::interface1::Result());
+            auto cpir = new classifier::prediction::interface1::Result();
+            DAAL_CHECK_MALLOC(cpir)
+            _predictionRes.reset(cpir);
 
             classifier::training::interface1::Input *input = _learnerTrain->getInput();
             classifier::prediction::interface1::Input *predInput = _learnerPredict->getInput();
@@ -384,7 +386,9 @@ public:
             if (!wArray) wArray = HomogenNT::create(1, _nRows, &status);
             if (!zArray) zArray = HomogenNT::create(1, _nRows, &status);
 
-            _predictionRes.reset(new regression::prediction::Result());
+            auto rpr = new regression::prediction::Result();
+            DAAL_CHECK_MALLOC(rpr)
+            _predictionRes.reset(rpr);
 
             regression::training::Input *input = _learnerTrain->getInput();
             regression::prediction::Input *predInput = _learnerPredict->getInput();

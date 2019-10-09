@@ -78,7 +78,9 @@ services::Status I1LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::
         {
             HomogenNTPtr predTable = HomogenNT::create(pred.get() + j * n, 1, n, &s);
             DAAL_CHECK_STATUS_VAR(s);
-            classifier::prediction::interface1::ResultPtr predictionRes(new classifier::prediction::interface1::Result());
+            auto cpir = new classifier::prediction::interface1::Result();
+            DAAL_CHECK_MALLOC(cpir)
+            classifier::prediction::interface1::ResultPtr predictionRes(cpir);
             predictionRes->set(classifier::prediction::prediction, predTable);
             DAAL_CHECK_STATUS(s, learnerPredict->setResult(predictionRes));
             weak_learner::ModelPtr learnerModel = boostModel->getWeakLearnerModel(m * nc + j);
@@ -141,7 +143,9 @@ services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::co
         {
             HomogenNTPtr predTable = HomogenNT::create(pred.get() + j * n, 1, n, &s);
             DAAL_CHECK_STATUS_VAR(s);
-            regression::prediction::ResultPtr predictionRes(new regression::prediction::Result());
+            auto rpr = new regression::prediction::Result();
+            DAAL_CHECK_MALLOC(rpr)
+            regression::prediction::ResultPtr predictionRes(rpr);
             predictionRes->set(regression::prediction::prediction, predTable);
             DAAL_CHECK_STATUS(s, learnerPredict->setResult(predictionRes));
             regression::ModelPtr learnerModel = boostModel->getWeakLearnerModel(m * nc + j);
