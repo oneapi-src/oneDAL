@@ -73,6 +73,11 @@ Status SVDOnlineKernel<algorithmFPType, method, cpu>::compute(const size_t na, c
     DAAL_CHECK_BLOCK_STATUS(Aux2iBlock);
     algorithmFPType *Aux2i = Aux2iBlock.get();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> Aux1iTPtr(n * m);
     TArray<algorithmFPType, cpu> Aux2iTPtr(n * n);
     algorithmFPType *Aux1iT = Aux1iTPtr.get();

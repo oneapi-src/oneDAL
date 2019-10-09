@@ -49,6 +49,13 @@ Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable **parti
     size_t nBetas2   (2 * nBetas);
     size_t nResponses(qtyTable.getNumberOfRows());
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetas, 2);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetas, nBetas2);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetas * nBetas2, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nResponses, nBetas2);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nResponses * nBetas2, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBetas, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> rMerge(nBetas * nBetas2);
     DAAL_CHECK_MALLOC(rMerge.get());
 

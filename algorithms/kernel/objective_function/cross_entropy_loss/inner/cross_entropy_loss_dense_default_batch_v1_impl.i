@@ -187,6 +187,10 @@ services::Status I1CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompu
     NumericTable *lipschitzConstant, interface1::Parameter *parameter)
 {
     const size_t nClasses = parameter->nClasses;
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nClasses);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * nClasses, sizeof(algorithmFPType));
+
     TArrayScalable<algorithmFPType, cpu> f(n*nClasses);
     const size_t nBetaPerClass = p + 1;
     DAAL_ASSERT(betaNT->getNumberOfColumns() == 1);
@@ -443,6 +447,10 @@ services::Status I1CrossEntropyLossKernel<algorithmFPType, method, cpu>::compute
     if(ntInd)
     {
         const size_t n = ntInd->getNumberOfColumns();
+
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, p);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * p, sizeof(algorithmFPType));
 
         TArrayScalable<algorithmFPType, cpu> aX(n*p);
         TArrayScalable<algorithmFPType, cpu> aY(n);

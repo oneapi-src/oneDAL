@@ -836,6 +836,12 @@ protected:
         freeDataMemoryImpl();
 
         size_t size = getNumberOfColumns() * getNumberOfRows();
+        DAAL_CHECK(!(getNumberOfColumns() == size / getNumberOfRows()),
+            services::throwIfPossible(services::Status(services::ErrorBufferSizeIntegerOverflow)));
+
+        size_t sizeEx = size * sizeof(DataType);
+        DAAL_CHECK(!(size == sizeEx / sizeof(DataType)),
+            services::throwIfPossible(services::Status(services::ErrorBufferSizeIntegerOverflow)));
 
         if( size == 0 )
         {

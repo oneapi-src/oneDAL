@@ -58,6 +58,9 @@ services::Status I1LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::
     const size_t M   = m->getIterations();            /* Number of terms of additive regression in the model */
     logitboost::interface1::Model *boostModel = const_cast<logitboost::interface1::Model *>(m);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nc);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * nc, sizeof(algorithmFPType));
+
     /* Allocate memory */
     TArray<algorithmFPType, cpu> pred(n * nc);
     TArray<algorithmFPType, cpu> F(n * nc); /* Additive function values */
@@ -120,6 +123,9 @@ services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::co
     const size_t nc  = parameter->nClasses;           /* Number of classes */
     const size_t M   = m->getIterations();            /* Number of terms of additive regression in the model */
     Model *boostModel = const_cast<Model *>(m);
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nc);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * nc, sizeof(algorithmFPType));
 
     /* Allocate memory */
     TArray<algorithmFPType, cpu> pred(n * nc);
