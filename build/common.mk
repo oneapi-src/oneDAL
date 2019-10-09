@@ -78,9 +78,6 @@ secure.opts.icc.lnx = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack
 secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
 secure.opts.icc.fbsd = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
 
-secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
-secure.opts.icc.fbsd = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
-
 secure.opts.link.win = -DYNAMICBASE -NXCOMPAT $(if $(IA_is_ia32),-SAFESEH)
 secure.opts.link.lnx = -z relro -z now -z noexecstack
 secure.opts.link.mac =
