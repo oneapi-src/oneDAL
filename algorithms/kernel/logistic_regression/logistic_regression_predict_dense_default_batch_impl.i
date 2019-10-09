@@ -88,16 +88,22 @@ public:
                 predictLabels(aRaw, resBD.get(), nRowsTotal);
             }
             ll::internal::LogLossKernel<algorithmFPType, ll::defaultDense, cpu>::sigmoid(aRaw, aRaw, nRowsTotal);
+            if (pRaw->getNumberOfColumns() == 2)
+            {
+                stretchProbaOnTwoColumns(aRaw, nRowsTotal);
+            }
             if(_logProb)
             {
                 if(_prob)
                 {
                     WriteOnlyRows<algorithmFPType, cpu> logBD(_logProb, 0, nRowsTotal);
                     DAAL_CHECK_BLOCK_STATUS(logBD);
-                    daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsTotal, aRaw, logBD.get());
+                    daal::internal::Math<algorithmFPType, cpu>::vLog(_logProb->getNumberOfRows() * _logProb->getNumberOfColumns(), aRaw, logBD.get());
                 }
                 else
-                    daal::internal::Math<algorithmFPType, cpu>::vLog(nRowsTotal, aRaw, aRaw);
+                {
+                    daal::internal::Math<algorithmFPType, cpu>::vLog(_logProb->getNumberOfRows() * _logProb->getNumberOfColumns(), aRaw, aRaw);
+                }
             }
             return s;
         }
@@ -118,6 +124,16 @@ protected:
             //probablity is a sigmoid(f) hence sign(f) can be checked
             pRes[iRow] = label[services::internal::SignBit<algorithmFPType, cpu>::get(pRaw[iRow])];
         }
+    }
+    void stretchProbaOnTwoColumns(algorithmFPType* const data, const size_t numberRows)
+    {
+        for (size_t index = 2 * numberRows - 1; index >= 3; index -= 2)
+        {
+            data[index] = data[index / 2];
+            data[index - 1] = algorithmFPType(1.) - data[index];
+        }
+        data[1] = data[0];
+        data[0] = algorithmFPType(1.) - data[1];
     }
 
 protected:
