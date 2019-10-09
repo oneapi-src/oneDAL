@@ -522,7 +522,7 @@ static services::SharedPtr<DstClassName> downCast(const services::SharedPtr<SrcC
 
 #define DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(type, op1, op2)               \
 {                                                                           \
-    if (!(op1 == 0) && !(op2 == 0))                                         \
+    if (!(0 == op1) && !(0 == op2))                                         \
     {                                                                       \
       type r = op1 * op2;                                                   \
       r /= op1;                                                             \
