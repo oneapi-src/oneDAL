@@ -528,7 +528,7 @@ static services::SharedPtr<DstClassName> downCast(const services::SharedPtr<SrcC
       r /= op1;                                                             \
       if (!(r == op2))                                                      \
         return services::Status(services::ErrorBufferSizeIntegerOverflow);  \
-    }                                                                       \                                                                         \
+    }                                                                                                                                                \
 }
 
 #define DAAL_OVERFLOW_CHECK_BY_ADDING(type, op1, op2)                       \
