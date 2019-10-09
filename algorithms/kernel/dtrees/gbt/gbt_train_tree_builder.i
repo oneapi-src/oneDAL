@@ -243,19 +243,19 @@ protected:
         {
             using Mode = MemorySafetySplitMode<algorithmFPType, RowIndexType, BinIndexType, cpu>;
             using Updater = UpdaterByColumns<algorithmFPType, RowIndexType, BinIndexType, Mode, cpu>;
-            buildSplit(new (service_scalable_malloc<Updater, cpu>(1)) Updater(data, job));
+            buildSplit(new (service_scalable_calloc<Updater, cpu>(1)) Updater(data, job));
         }
         else if (_ctx.par().splitMethod == gbt::training::exact || _ctx.nFeatures() != _ctx.nFeaturesPerNode())
         {
             using Mode = ExactSplitMode<algorithmFPType, RowIndexType, BinIndexType, cpu>;
             using Updater = UpdaterByColumns<algorithmFPType, RowIndexType, BinIndexType, Mode, cpu>;
-            buildSplit(new (service_scalable_malloc<Updater, cpu>(1)) Updater(data, job));
+            buildSplit(new (service_scalable_calloc<Updater, cpu>(1)) Updater(data, job));
         }
         else
         {
             using Mode = InexactSplitMode<algorithmFPType, RowIndexType, BinIndexType, cpu>;
             using Updater = UpdaterByRows<algorithmFPType, RowIndexType, BinIndexType, Mode, cpu>;
-            buildSplit(new (service_scalable_malloc<Updater, cpu>(1)) Updater(data, job));
+            buildSplit(new (service_scalable_calloc<Updater, cpu>(1)) Updater(data, job));
         }
 
         if(taskGroup())
@@ -368,7 +368,8 @@ services::Status TreeBuilder<algorithmFPType, RowIndexType, BinIndexType, cpu>::
     DAAL_CHECK_MALLOC(nd);
 
     _tree.reset(nd, false);
-    gbt::internal::ModelImpl::treeToTable(_tree, &pRes, &pTblImp, &pTblSmplCnt, _ctx.nFeatures());
+    services::Status status = gbt::internal::ModelImpl::treeToTable(_tree, &pRes, &pTblImp, &pTblSmplCnt, _ctx.nFeatures());
+    DAAL_CHECK_STATUS_VAR(status)
 
     if(_ctx.isBagging() && _tree.top())
         _ctx.updateOOB(iTree, _tree);

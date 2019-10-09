@@ -22,6 +22,7 @@
 //--
 */
 
+#include "adaboost_training_batch.h"
 #include "adaboost_train_batch_container.h"
 
 namespace daal

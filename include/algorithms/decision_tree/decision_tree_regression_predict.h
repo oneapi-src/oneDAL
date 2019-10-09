@@ -140,7 +140,6 @@ public:
     }
 
 protected:
-
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, method>(*this);
@@ -177,7 +176,7 @@ namespace interface2
  *  \brief Class containing computation methods for Decision tree model-based prediction
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public PredictionContainerIface
+class BatchContainer : public PredictionContainerIface
 {
 public:
     /**
@@ -266,7 +265,6 @@ public:
     }
 
 protected:
-
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, method>(*this);

@@ -44,8 +44,8 @@ using namespace daal::internal;
 using namespace daal::services;
 using namespace daal::services::internal;
 
-template<typename algorithmFPType, typename ClsType, typename MccParam, CpuType cpu>
-struct MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, ClsType, MccParam, cpu> : public Kernel
+template<typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
+struct MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam, cpu> : public Kernel
 {
     Status compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r,
                              const daal::algorithms::Parameter *par);
@@ -285,13 +285,13 @@ private:
     ReadRowsCSR<algorithmFPType, cpu> _xRows;
 };
 
-template<typename algorithmFPType, typename ClsType, typename MccParam, CpuType cpu>
-Status MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, ClsType, MccParam, cpu>::
+template<typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
+Status MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam, cpu>::
 compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r,
         const daal::algorithms::Parameter *par)
 {
     Model *model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
-    MccParam *mccPar = static_cast<MccParam *>(const_cast<daal::algorithms::Parameter *>(par));
+    MultiClsParam *mccPar = static_cast<MultiClsParam *>(const_cast<daal::algorithms::Parameter *>(par));
     size_t nClasses = mccPar->nClasses;
     TArray<size_t, cpu> nonEmptyClassMapBuffer(nClasses);
     DAAL_CHECK_MALLOC(nonEmptyClassMapBuffer.get());

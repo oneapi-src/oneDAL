@@ -328,7 +328,7 @@ class MemHelperThr : public MemHelperBase<algorithmFPType, cpu>
 public:
     typedef MemHelperBase<algorithmFPType, cpu> super;
     MemHelperThr(size_t nFeaturesIdx) : super(nFeaturesIdx),
-        _lsFeatureSample([=]()->IndexType*{ return services::internal::service_scalable_malloc<IndexType, cpu>(this->_nFeaturesIdx); })
+        _lsFeatureSample([=]()->IndexType*{ return services::internal::service_scalable_calloc<IndexType, cpu>(this->_nFeaturesIdx); })
     {
     }
     ~MemHelperThr()
@@ -581,7 +581,7 @@ public:
 
         T* allocate(size_t nBlocks)
         {
-            alloc.pushBack(service_scalable_malloc<T, cpu>(nBlocks * _bufferSize));
+            alloc.pushBack(service_scalable_calloc<T, cpu>(nBlocks * _bufferSize));
             return alloc[alloc.size() - 1];
         }
 
@@ -662,7 +662,7 @@ protected:
     {
         for(size_t i = 0; i < nBlocks; ++i)
         {
-            alloc.pushBack( new (service_scalable_malloc<T, cpu>(1)) T(_nGH) );
+            alloc.pushBack( new (service_scalable_calloc<T, cpu>(1)) T(_nGH) );
         }
     }
 
@@ -703,7 +703,7 @@ public:
 
     TlsGHSumMerge(size_t n) : super([=]()-> T*
     {
-        return new (service_scalable_malloc<T,cpu>(1)) T(Allocator::allocate(n));
+        return new (service_scalable_calloc<T,cpu>(1)) T(Allocator::allocate(n));
     })
     {}
 

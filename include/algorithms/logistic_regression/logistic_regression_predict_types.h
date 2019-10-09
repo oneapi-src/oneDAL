@@ -226,6 +226,9 @@ typedef services::SharedPtr<const Result> ResultConstPtr;
 
 } // namespace interface1
 using interface1::Input;
+using classifier::Parameter;             /* Support of static backward compatibility */
+using classifier::prediction::Result;    /* Support of static backward compatibility */
+using classifier::prediction::ResultPtr; /* Support of static backward compatibility */
 }
 /** @} */
 }

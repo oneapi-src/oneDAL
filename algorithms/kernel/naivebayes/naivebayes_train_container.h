@@ -218,7 +218,6 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::compute()
 {
     classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
     PartialResult *partialResult = static_cast<PartialResult *>(_pres);
-    size_t na = input->size();
 
     const NumericTable *data   = input->get(classifier::training::data).get();
     const NumericTable *labels = input->get(classifier::training::labels).get();
@@ -269,6 +268,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     size_t na = models->size();
 
     PartialModel **a = new PartialModel*[na];
+    DAAL_CHECK_MALLOC(a)
 
     for(size_t i = 0; i < na; i++)
     {

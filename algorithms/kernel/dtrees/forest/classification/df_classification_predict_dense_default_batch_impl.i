@@ -77,7 +77,7 @@ protected:
     public:
         ClassesCounterTls(size_t nClasses) : ClassesCounterTlsBase([=]()-> ClassIndexType*
         {
-            return service_scalable_malloc<ClassIndexType, cpu>(nClasses);
+            return service_scalable_calloc<ClassIndexType, cpu>(nClasses);
         })
         {}
         ~ClassesCounterTls()

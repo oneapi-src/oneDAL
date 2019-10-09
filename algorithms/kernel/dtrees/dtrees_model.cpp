@@ -122,7 +122,7 @@ void* MemoryManager::alloc(size_t nBytes)
         {
             //allocate a new chunk
             DAAL_ASSERT(_aChunk.size() ? _iCurChunk >= 0 : _iCurChunk < 0);
-            byte* ptr = (byte*)services::daal_malloc(_chunkSize);
+            byte* ptr = (byte*)services::daal_calloc(_chunkSize);
             if(!ptr)
                 return nullptr;
             _aChunk.push_back(ptr);
@@ -168,6 +168,7 @@ services::Status createTreeInternal(data_management::DataCollectionPtr& serializ
     services::SharedPtr<DecisionTreeTable> treeTablePtr(new DecisionTreeTable(nNodes));
     const size_t nRows = treeTablePtr->getNumberOfRows();
     DecisionTreeNode* const pNodes = (DecisionTreeNode*)treeTablePtr->getArray();
+    DAAL_CHECK_MALLOC(pNodes)
     pNodes[0].featureIndex = __NODE_RESERVED_ID;
     pNodes[0].leftIndexOrClass = 0;
     pNodes[0].featureValueOrResponse = 0;

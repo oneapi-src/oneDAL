@@ -178,11 +178,13 @@ bool ModelImpl::add(const TreeType& tree)
     size_t i = _nTree.inc();
     const size_t nNode = tree.getNumberOfNodes();
 
-    Status st;
-
     auto pTbl           = new DecisionTreeTable(nNode);
     auto impTbl         = new HomogenNumericTable<double>(1, nNode, NumericTable::doAllocate);
     auto nodeSamplesTbl = new HomogenNumericTable<int>(1, nNode, NumericTable::doAllocate);
+
+    DAAL_CHECK_STATUS_VAR(pTbl)
+    DAAL_CHECK_STATUS_VAR(impTbl)
+    DAAL_CHECK_STATUS_VAR(nodeSamplesTbl)
 
     tree.convertToTable(pTbl, impTbl, nodeSamplesTbl);
 

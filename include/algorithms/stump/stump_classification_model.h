@@ -112,7 +112,7 @@ public:
     /**
      * Default constructor for Model to creator
      */
-    Model() {}
+    Model();
 
     virtual ~Model();
 

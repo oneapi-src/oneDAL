@@ -92,9 +92,9 @@ class Batch : public classifier::prediction::interface1::Batch
 public:
     typedef classifier::prediction::interface1::Batch super;
 
-    typedef algorithms::decision_tree::classification::prediction::Input InputType;
+    typedef algorithms::decision_tree::classification::prediction::Input     InputType;
     typedef algorithms::decision_tree::classification::interface1::Parameter ParameterType;
-    typedef typename super::ResultType                                   ResultType;
+    typedef typename super::ResultType                                       ResultType;
 
     InputType input; /*!< %Input data structure */
     ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of prediction */
@@ -175,7 +175,7 @@ namespace interface2
  *  \brief Class containing computation methods for Decision tree model-based prediction
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public PredictionContainerIface
+class BatchContainer : public PredictionContainerIface
 {
 public:
     /**

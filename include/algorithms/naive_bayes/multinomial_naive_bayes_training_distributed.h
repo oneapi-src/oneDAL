@@ -341,14 +341,14 @@ namespace interface2
  * \tparam method           Naive Bayes training method on the first step in distributed processing mode, \ref Method
  */
 template<ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer;
+class DistributedContainer;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__TRAINING__DISTRIBUTEDCONTAINER_STEP2MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing methods to train naive Bayes in the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer<step2Master, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
+class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**

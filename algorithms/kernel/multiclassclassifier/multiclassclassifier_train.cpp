@@ -59,14 +59,30 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     services::Status s;
     DAAL_CHECK_STATUS(s, checkImpl(input, parameter));
 
-    const Parameter *par = static_cast<const Parameter *>(parameter);
-    DAAL_CHECK_EX(par->training.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, trainingStr());
+    size_t nClasses;
+    {
+        auto par1 = dynamic_cast<const multi_class_classifier::interface1::Parameter *>(parameter);
+        if(par1)
+        {
+            nClasses = par1->nClasses;
+            DAAL_CHECK_EX(par1->training.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, trainingStr());
+        }
+
+        auto par2 = dynamic_cast<const multi_class_classifier::Parameter *>(parameter);
+        if(par2)
+        {
+            nClasses = par2->nClasses;
+            DAAL_CHECK_EX(par2->training.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, trainingStr());
+        }
+
+        if(par1 == nullptr && par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
+    }
     daal::algorithms::multi_class_classifier::ModelPtr m = get(classifier::training::model);
     if(m->getNumberOfTwoClassClassifierModels() == 0)
     {
         return services::Status(services::ErrorModelNotFullInitialized);
     }
-    if(m->getNumberOfTwoClassClassifierModels() != par->nClasses * (par->nClasses - 1) / 2)
+    if(m->getNumberOfTwoClassClassifierModels() != nClasses * (nClasses - 1) / 2)
     {
         return services::Status(services::ErrorModelNotFullInitialized);
     }

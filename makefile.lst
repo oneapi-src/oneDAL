@@ -251,7 +251,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
 
 
 CORE.ALGORITHMS := $(if $(CORE.ALGORITHMS.CUSTOM), $(CORE.ALGORITHMS.CUSTOM), $(CORE.ALGORITHMS.FULL))
-CORE.ALGORITHMS := $(sort $(foreach alg,$(CORE.ALGORITHMS),$(foreach alg1,$($(alg)),$($(alg1)) $(alg1)) $(alg)))
+CORE.ALGORITHMS := $(sort $(foreach alg,$(CORE.ALGORITHMS),$(foreach alg1,$($(alg)),$(foreach alg2,$($(alg1)),$($(alg2)) $(alg2)) $(alg1)) $(alg)))
 
 CORE.ALGORITHMS.INC :=                                                        \
     association_rules                                                         \

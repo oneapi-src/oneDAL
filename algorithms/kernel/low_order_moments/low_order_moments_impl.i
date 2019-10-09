@@ -265,18 +265,18 @@ Status LowOrderMomentsOnlineTask<algorithmFPType, cpu>::init(PartialResult *part
     }
 
     size_t rowSize = nFeatures * sizeof(algorithmFPType);
-    mean      = (algorithmFPType *)daal_malloc(rowSize);
-    raw2Mom   = (algorithmFPType *)daal_malloc(rowSize);
-    variance  = (algorithmFPType *)daal_malloc(rowSize);
-    stDev     = (algorithmFPType *)daal_malloc(rowSize);
-    variation = (algorithmFPType *)daal_malloc(rowSize);
+    mean      = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+    raw2Mom   = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+    variance  = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+    stDev     = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+    variation = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
 
-    DAAL_CHECK(mean && raw2Mom && variance && stDev &&variation, services::ErrorMemoryAllocationFailed);
+    DAAL_CHECK_MALLOC(mean && raw2Mom && variance && stDev && variation)
 
     if (isOnline)
     {
-        prevSums = (algorithmFPType *)daal_malloc(rowSize);
-        DAAL_CHECK(prevSums, services::ErrorMemoryAllocationFailed);
+        prevSums = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+        DAAL_CHECK_MALLOC(prevSums)
         daal_memcpy_s(prevSums, rowSize, resultArray[(int)partialSum], rowSize);
     }
     return Status();

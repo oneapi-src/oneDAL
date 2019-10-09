@@ -167,7 +167,7 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
     nt->getArrays<double>(&ptr, &column_indices, &row_offsets);
 
     size_t dataSize = nt->getDataSize();
-    jobject byteBuffer = env->NewDirectByteBuffer(ptr, (jlong)(dataSize * sizeof(double)));
+    jobject byteBuffer = env->NewDirectByteBuffer(ptr, ((jlong)dataSize * sizeof(double)));
     return byteBuffer;
 }
 
@@ -190,7 +190,7 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
     nt->getArrays<float>(&ptr, &column_indices, &row_offsets);
 
     size_t dataSize = nt->getDataSize();
-    jobject byteBuffer = env->NewDirectByteBuffer(ptr, (jlong)(dataSize * sizeof(float)));
+    jobject byteBuffer = env->NewDirectByteBuffer(ptr, ((jlong)dataSize * sizeof(float)));
     return byteBuffer;
 }
 
@@ -213,6 +213,6 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
     nt->getArrays<int>(&ptr, &column_indices, &row_offsets);
 
     size_t dataSize = nt->getDataSize();
-    jobject byteBuffer = env->NewDirectByteBuffer(ptr, (jlong)(dataSize * sizeof(int)));
+    jobject byteBuffer = env->NewDirectByteBuffer(ptr, ((jlong)dataSize * sizeof(int)));
     return byteBuffer;
 }

@@ -76,7 +76,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     const size_t nClasses = par->nClasses;
 
     if(par->resultsToEvaluate & computeClassLabels)
-        set(prediction, HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTableIface::doAllocate, &st));
+        set(prediction, HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTableIface::doAllocate, 0, &st));
     if(par->resultsToEvaluate & computeClassProbabilities)
         set(probabilities, HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, NumericTableIface::doAllocate, 0, &st));
     if(par->resultsToEvaluate & computeClassLogProbabilities)

@@ -171,7 +171,6 @@ public:
     }
 
 protected:
-
     virtual Batch<algorithmFPType, pmethod, tmethod> * cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, pmethod, tmethod>(*this);
@@ -213,7 +212,7 @@ namespace interface2
  * \tparam tmethod          Computation method that was used to train the multi-class classifier model, \ref training::Method
  */
 template<typename algorithmFPType, prediction::Method pmethod, training::Method tmethod, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public PredictionContainerIface
+class BatchContainer : public PredictionContainerIface
 {
 public:
     /**

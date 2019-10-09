@@ -218,6 +218,8 @@ const int SERIALIZATION_STUMP_REGRESSION_PREDICTION_RESULT_ID                   
 
 const int SERIALIZATION_ADABOOST_MODEL_ID                                                      = 100400;
 const int SERIALIZATION_ADABOOST_TRAINING_RESULT_ID                                            = 100410;
+const int SERIALIZATION_MULTICLASS_ADABOOST_MODEL_ID                                           = 100420;
+const int SERIALIZATION_MULTICLASS_ADABOOST_TRAINING_RESULT_ID                                 = 100430;
 
 const int SERIALIZATION_BROWNBOOST_MODEL_ID                                                    = 100500;
 const int SERIALIZATION_BROWNBOOST_TRAINING_RESULT_ID                                          = 100510;
@@ -253,7 +255,6 @@ const int SERIALIZATION_CLASSIFIER_TRAINING_PARTIAL_RESULT_ID                   
 const int SERIALIZATION_CLASSIFIER_BINARY_CONFUSION_MATRIX_RESULT_ID                           = 101410;
 const int SERIALIZATION_CLASSIFIER_MULTICLASS_CONFUSION_MATRIX_RESULT_ID                       = 101420;
 const int SERIALIZATION_CLASSIFIER_PREDICTION_RESULT_ID                                        = 101430;
-const int SERIALIZATION_CLASSIFIER_PREDICTION_RESULT_V2_ID                                     = 101431;
 const int SERIALIZATION_CLASSIFIER_TRAINING_RESULT_ID                                          = 101440;
 
 const int SERIALIZATION_MOMENTS_PARTIAL_RESULT_ID                                              = 101500;
@@ -443,7 +444,6 @@ const int SERIALIZATION_LM_PREDICTION_RESULT_ID                                 
 const int SERIALIZATION_LOGISTIC_REGRESSION_MODEL_ID                                           = 110000;
 const int SERIALIZATION_LOGISTIC_REGRESSION_TRAINING_RESULT_ID                                 = 110010;
 const int SERIALIZATION_LOGISTIC_REGRESSION_PREDICTION_RESULT_ID                               = 110020;
-const int SERIALIZATION_LOGISTIC_REGRESSION_PREDICTION_V2_RESULT_ID                            = 110021;
 
 const int SERIALIZATION_DBSCAN_RESULT_ID                                                       = 120000;
 const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP1_ID                             = 120100;
@@ -467,11 +467,11 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID             
 #define DAAL_NEW_DELETE()                                \
 static void *operator new(std::size_t sz)                \
 {                                                        \
-    return daal::services::daal_malloc(sz);              \
+    return daal::services::daal_calloc(sz);              \
 }                                                        \
 static void *operator new[](std::size_t sz)              \
 {                                                        \
-    return daal::services::daal_malloc(sz);              \
+    return daal::services::daal_calloc(sz);              \
 }                                                        \
 static void *operator new(std::size_t sz, void *where)   \
 {                                                        \

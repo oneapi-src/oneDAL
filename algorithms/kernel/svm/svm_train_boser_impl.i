@@ -241,6 +241,7 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSVIndices(size_t nS
     {
         if (_alpha[i] != zero)
         {
+            DAAL_ASSERT(_cache->getDataRowIndex(i) <= services::internal::MaxVal<int>::get())
             svIndices[iSV++] = (int)_cache->getDataRowIndex(i);
         }
     }

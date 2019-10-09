@@ -91,9 +91,9 @@ class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
 public:
     typedef classifier::training::interface1::Batch super;
 
-    typedef algorithms::decision_tree::classification::training::Input  InputType;
+    typedef algorithms::decision_tree::classification::training::Input       InputType;
     typedef algorithms::decision_tree::classification::interface1::Parameter ParameterType;
-    typedef algorithms::decision_tree::classification::training::Result ResultType;
+    typedef algorithms::decision_tree::classification::training::Result      ResultType;
 
     InputType     input;     /*!< %Input objects of the algorithm */
     ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
@@ -194,7 +194,7 @@ namespace interface2
  * \brief Class containing methods for Decision tree model-based training using algorithmFPType precision arithmetic
  */
 template <typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public TrainingContainerIface<batch>
+class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
     /**

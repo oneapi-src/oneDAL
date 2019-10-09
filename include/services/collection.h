@@ -228,7 +228,7 @@ public:
     bool resize(size_t newCapacity)
     {
         if(newCapacity <= _capacity) { return true; }
-        T *newArray = (T *)services::daal_malloc(sizeof(T) * newCapacity);
+        T *newArray = (T *)services::daal_calloc(sizeof(T) * newCapacity);
         if(!newArray) {return false;}
         for(size_t i = 0; i < newCapacity; i++)
         {

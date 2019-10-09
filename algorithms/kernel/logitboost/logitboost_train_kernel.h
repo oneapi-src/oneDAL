@@ -53,7 +53,7 @@ namespace internal
  *  \param par[in]  Logit Boost algorithm parameters
  */
 template <Method method, typename algorithmFPType, CpuType cpu>
-struct LogitBoostTrainKernel : public Kernel
+struct I1LogitBoostTrainKernel : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
@@ -70,7 +70,7 @@ struct LogitBoostTrainKernel : public Kernel
  *  \param par[in]  Logit Boost algorithm parameters
  */
 template <Method method, typename algorithmFPType, CpuType cpu>
-struct LogitBoostTrainKernelNew : public Kernel
+struct LogitBoostTrainKernel : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;

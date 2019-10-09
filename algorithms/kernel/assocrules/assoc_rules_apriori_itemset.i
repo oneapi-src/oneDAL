@@ -95,11 +95,24 @@ struct assocrules_itemset
     size_t *items;              /*<! Array of items */
     size_t size;                /*<! Itemset size */
 
+    bool ok() const { return _status.ok(); }
+    services::Status getLastStatus() const { return _status; }
+
 protected:
+    services::Status _status;
+
     void allocItems(size_t n)
     {
-        items = (size_t*)daal::services::daal_malloc(sizeof(size_t)*n);
-        size = n;
+        items = (size_t*)daal::services::internal::service_calloc<size_t, cpu>(sizeof(size_t)*n);
+        if (items)
+        {
+            _status = services::Status();
+            size = n;
+        }
+        else
+        {
+            _status = services::ErrorMemoryAllocationFailed;
+        }
     }
 };
 

@@ -43,7 +43,7 @@ namespace internal
 {
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class BrownBoostTrainKernel : public Kernel
+class I1BrownBoostTrainKernel : public Kernel
 {
 public:
     services::Status compute(size_t n, NumericTablePtr *a, brownboost::interface1::Model *r, const brownboost::interface1::Parameter *par);
@@ -65,7 +65,7 @@ private:
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class BrownBoostTrainKernelNew : public Kernel
+class BrownBoostTrainKernel : public Kernel
 {
 public:
     services::Status compute(size_t n, NumericTablePtr *a, Model *r, const Parameter *par);

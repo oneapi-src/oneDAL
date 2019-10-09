@@ -414,7 +414,12 @@ enum ErrorID
 
     UnknownError = -1000000,                                            /*!< Unknown error */
     NoErrorMessageFound = -1000001,                                     /*!< No error message found */
-    ErrorMethodNotImplemented = -1000002                                /*!< Method is not implemented in the present library version  */
+    ErrorMethodNotImplemented = -1000002,                               /*!< Method is not implemented in the present library version  */
+
+    ErrorIncorrectOffset = -1000003,                                    /*!< Incorrect offset */
+    ErrorIterativeSolverIncorrectMaxNumberOfIterations = -1000004,      /*!< Incorrect maximum number of iterations value in solver */
+    ErrorIncorrectNumberOfTerms = -1000005,                             /*!< Incorrect number of summands (terms) in objective function */
+    ErrorIncorrectNumberOfNodes = -1000006                              /*!< Incorrect number of nodes */
 };
 /** @} */
 }

@@ -41,7 +41,7 @@ namespace interface1
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::LogitBoostTrainKernel, method, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::I1LogitBoostTrainKernel, method, algorithmFPType);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -65,7 +65,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     logitboost::interface1::Parameter *par = static_cast<logitboost::interface1::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::LogitBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, r, par);
+    __DAAL_CALL_KERNEL(env, internal::I1LogitBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, r, par);
 }
 }
 
@@ -74,7 +74,7 @@ namespace interface2
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::LogitBoostTrainKernelNew, method, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::LogitBoostTrainKernel, method, algorithmFPType);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -98,7 +98,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     logitboost::Parameter *par = static_cast<logitboost::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::LogitBoostTrainKernelNew, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, r, par);
+    __DAAL_CALL_KERNEL(env, internal::LogitBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, r, par);
 }
 }
 

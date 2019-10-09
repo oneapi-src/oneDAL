@@ -89,9 +89,9 @@ class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
 public:
     typedef classifier::training::interface1::Batch super;
 
-    typedef typename super::InputType                               InputType;
+    typedef typename super::InputType                                    InputType;
     typedef algorithms::kdtree_knn_classification::interface1::Parameter ParameterType;
-    typedef algorithms::kdtree_knn_classification::training::Result ResultType;
+    typedef algorithms::kdtree_knn_classification::training::Result      ResultType;
 
     ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
     InputType input;                /*!< %Input objects of the algorithm */
@@ -194,7 +194,7 @@ namespace interface2
  * \brief Class containing methods for KD-tree based kNN model-based training using algorithmFPType precision arithmetic
  */
 template <typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public TrainingContainerIface<batch>
+class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
     /**

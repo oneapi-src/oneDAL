@@ -82,7 +82,7 @@ protected:
     DAAL_FORCEINLINE size_t computeBucketID(algorithmFpType * samples, size_t sampleCount, algorithmFpType * subSamples,
                                                 size_t subSampleCount, size_t subSampleCount16, algorithmFpType value);
 
-    size_t adjustIndexesInParallel(size_t start, size_t end, size_t dimension, algorithmFpType median, const NumericTable & x, size_t * indexes);
+    size_t adjustIndexesInParallel(size_t start, size_t end, size_t dimension, algorithmFpType median, const NumericTable & x, size_t * indexes, services::Status& status);
 
     void copyBBox(BoundingBox<algorithmFpType> * dest, const BoundingBox<algorithmFpType> * src, size_t n);
 
@@ -96,7 +96,8 @@ protected:
                                                       IndexValuePair<algorithmFpType, cpu> * outSortValues,
                                                       size_t sortValueCount,
                                                       const NumericTable & x,
-                                                      size_t * indexes, engines::BatchBase *engine);
+                                                      size_t * indexes, engines::BatchBase *engine,
+                                                      services::Status& status);
 
     size_t adjustIndexesInSerial(size_t start, size_t end, size_t dimension, algorithmFpType median, const NumericTable & x, size_t * indexes);
 

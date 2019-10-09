@@ -32,6 +32,7 @@
 #include "threading.h"
 #include "uniform_kernel.h"
 #include "uniform_impl.i"
+#include "service_data_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;
@@ -82,7 +83,8 @@ public:
         res = 0;
         daal::tls<algorithmFPType *> normTls( [ = ]()-> algorithmFPType*
         {
-            algorithmFPType *normPtr = (algorithmFPType *)daal_malloc(sizeof(algorithmFPType));
+            algorithmFPType *normPtr = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(sizeof(algorithmFPType));
+            DAAL_CHECK_STATUS_VAR(normPtr)
             *normPtr = 0;
             return normPtr;
         } );
@@ -130,7 +132,8 @@ public:
         }
         daal::tls<algorithmFPType *> normTls( [ = ]()-> algorithmFPType*
         {
-            algorithmFPType *normPtr = (algorithmFPType *)daal_malloc(sizeof(algorithmFPType));
+            algorithmFPType *normPtr = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(sizeof(algorithmFPType));
+            DAAL_CHECK_STATUS_VAR(normPtr)
             *normPtr = 0;
             return normPtr;
         } );
@@ -195,6 +198,7 @@ public:
             _predefined += _size;
             return services::Status();
         }
+        DAAL_CHECK(_size <= services::internal::MaxVal<int>::get(), ErrorInconsistenceModelAndBatchSizeInParameter)
         DAAL_CHECK(!RNGsType().uniformWithoutReplacement((int)_size, _values.get(), _engine->getState(), 0, _maxVal), ErrorIncorrectErrorcodeFromGenerator);
 
         pValues = _values.get();
@@ -208,6 +212,7 @@ public:
             _predefined += _size;
             return services::Status();
         }
+        DAAL_CHECK(_size <= services::internal::MaxVal<int>::get(), ErrorInconsistenceModelAndBatchSizeInParameter)
         DAAL_CHECK(!RNGsType().uniform((int)_size, _values.get(), _engine->getState(), 0, _maxVal), ErrorIncorrectErrorcodeFromGenerator);
 
         pValues = _values.get();
