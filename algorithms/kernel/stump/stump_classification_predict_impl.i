@@ -78,6 +78,7 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
     treeAlgorithm.input.set(classifier::prediction::model, decision_tree::classification::ModelPtr(static_cast<decision_tree::classification::Model*>(const_cast<stump::classification::Model*>(m)), EmptyDeleter()));
     treeAlgorithm.parameter.resultsToEvaluate = par->resultsToEvaluate;
     classifier::prediction::ResultPtr treeResult(new classifier::prediction::Result());
+    DAAL_CHECK_MALLOC(treeResult.get())
     treeResult->set(daal::algorithms::classifier::prediction::prediction, NumericTablePtr(rTableLabels, EmptyDeleter()));
     treeResult->set(daal::algorithms::classifier::prediction::probabilities, NumericTablePtr(rTableProb, EmptyDeleter()));
     treeAlgorithm.setResult(treeResult);

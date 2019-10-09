@@ -258,8 +258,11 @@ static services::Status pruneAndConvertTree(const NumericTable * px, const Numer
         DecisionTreeTablePtr treeTable(new DecisionTreeTable(nodeCapacity, status));
         DAAL_CHECK_STATUS_VAR(status);
         SharedPtr<HomogenNumericTableCPU<double, cpu> > impTbl(new HomogenNumericTableCPU<double, cpu>(1, nodeCapacity, status));
+        DAAL_CHECK_STATUS_VAR(status)
         SharedPtr<HomogenNumericTableCPU<int, cpu> > smplCntTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCapacity, status));
+        DAAL_CHECK_STATUS_VAR(status)
         SharedPtr<HomogenNumericTableCPU<int, cpu> > probIndicesTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCapacity, status));
+        DAAL_CHECK_STATUS_VAR(status)
         SharedPtr<HomogenNumericTableCPU<double, cpu> > probTbl(new HomogenNumericTableCPU<double, cpu>(parameter.nClasses, leafNodeCount, status));
         DAAL_CHECK_STATUS_VAR(status);
         DecisionTreeNode * const nodes = static_cast<DecisionTreeNode *>(treeTable->getArray());
@@ -287,8 +290,11 @@ static services::Status pruneAndConvertTree(const NumericTable * px, const Numer
         DecisionTreeTablePtr treeTable(new DecisionTreeTable(nodeCount, status));
         DAAL_CHECK_STATUS_VAR(status);
         SharedPtr<HomogenNumericTableCPU<double, cpu> > impTbl(new HomogenNumericTableCPU<double, cpu>(1, nodeCount, status));
+        DAAL_CHECK_STATUS_VAR(status)
         SharedPtr<HomogenNumericTableCPU<int, cpu> > smplCntTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCount, status));
+        DAAL_CHECK_STATUS_VAR(status)
         SharedPtr<HomogenNumericTableCPU<int, cpu> > probIndicesTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCount, status));
+        DAAL_CHECK_STATUS_VAR(status)
         SharedPtr<HomogenNumericTableCPU<double, cpu> > probTbl(new HomogenNumericTableCPU<double, cpu>(parameter.nClasses, leafNodeCount, status));
         DAAL_CHECK_STATUS_VAR(status);
 
@@ -351,14 +357,18 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
         if (parameter->splitCriterion == gini)
         {
             Gini<algorithmFPType, cpu> splitCriterion;
-            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            DAAL_CHECK_STATUS_VAR(status)
             status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+            DAAL_CHECK_STATUS_VAR(status)
         }
         else
         {
             InfoGain<algorithmFPType, cpu> splitCriterion;
-            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            DAAL_CHECK_STATUS_VAR(status)
             status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+            DAAL_CHECK_STATUS_VAR(status)
         }
     }
     else
@@ -367,14 +377,18 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
         if (parameter->splitCriterion == gini)
         {
             GiniWeighted<algorithmFPType, cpu> splitCriterion;
-            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            DAAL_CHECK_STATUS_VAR(status)
             status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+            DAAL_CHECK_STATUS_VAR(status)
         }
         else
         {
             InfoGainWeighted<algorithmFPType, cpu> splitCriterion;
-            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            DAAL_CHECK_STATUS_VAR(status)
             status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+            DAAL_CHECK_STATUS_VAR(status)
         }
     }
     return status;

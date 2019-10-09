@@ -114,6 +114,7 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t 
     treeAlgorithm.input.set(classifier::training::labels, NumericTablePtr(const_cast<NumericTable *>(yTable), EmptyDeleter()));
 
     decision_tree::classification::training::ResultPtr treeResult(new decision_tree::classification::training::Result());
+    DAAL_CHECK_MALLOC(treeResult.get())
     treeResult->set(daal::algorithms::classifier::training::model, decision_tree::classification::ModelPtr(static_cast<decision_tree::classification::Model*>(const_cast<stump::classification::Model*>(stumpModel)), EmptyDeleter()));
     treeAlgorithm.setResult(treeResult);
     /* Train the Decision tree model */

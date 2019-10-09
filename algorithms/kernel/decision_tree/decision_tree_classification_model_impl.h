@@ -84,6 +84,7 @@ class Model::ModelImpl : public classifier::internal::ModelImpl
     {
         const DecisionTreeNode& n                       = aNode[iRowInTable];
         if(imp)              descSplit.impurity         = imp[iRowInTable];
+        DAAL_ASSERT(nodeSamplesCount[iRowInTable] >= 0)
         if(nodeSamplesCount) descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
         descSplit.featureIndex                          = n.dimension;
         descSplit.featureValue                          = n.cutPoint;
@@ -96,6 +97,7 @@ class Model::ModelImpl : public classifier::internal::ModelImpl
     {
         const DecisionTreeNode& n                      = aNode[iRowInTable];
         if(imp)              descLeaf.impurity         = imp[iRowInTable];
+        DAAL_ASSERT(nodeSamplesCount[iRowInTable] >= 0)
         if(nodeSamplesCount) descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
         descLeaf.level                                 = level;
         descLeaf.label                                 = n.leftIndexOrClass;
