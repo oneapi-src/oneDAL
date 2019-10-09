@@ -54,6 +54,8 @@ Status MinMaxKernel<algorithmFPType, method, cpu>::compute(const NumericTable &i
     const size_t nRows = inputTable.getNumberOfRows();
     const size_t nColumns = inputTable.getNumberOfColumns();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nColumns, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> scaleFactorsPtr(nColumns);
     TArray<algorithmFPType, cpu> shiftFactorsPtr(nColumns);
 

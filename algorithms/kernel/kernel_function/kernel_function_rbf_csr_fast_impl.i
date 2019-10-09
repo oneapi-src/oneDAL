@@ -209,6 +209,9 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
         const size_t *colIndicesA2 = mtA2.cols();
         const size_t *rowOffsetsA2 = mtA2.rows();
 
+        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
+
         daal::internal::TArray<algorithmFPType, cpu> aBuf((nVectors1 + nVectors2));
         DAAL_CHECK(aBuf.get(), services::ErrorMemoryAllocationFailed);
         algorithmFPType *buffer = aBuf.get();

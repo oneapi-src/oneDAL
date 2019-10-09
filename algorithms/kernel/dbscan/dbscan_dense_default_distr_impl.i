@@ -135,6 +135,9 @@ Status DBSCANDistrStep3Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
     const size_t nFeatures = NumericTable::cast((*dcPartialData)[0])->getNumberOfColumns();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, 2);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, 2 * nFeatures, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> boundingBoxArray(2 * nFeatures);
     DAAL_CHECK_MALLOC(boundingBoxArray.get());
     algorithmFPType * const boundingBox = boundingBoxArray.get();
@@ -180,6 +183,8 @@ Status DBSCANDistrStep3Kernel<algorithmFPType, method, cpu>::compute(const DataC
         NumericTablePtr ntData = NumericTable::cast((*dcPartialData)[part]);
         totalNRows += ntData->getNumberOfRows();
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, totalNRows, sizeof(algorithmFPType));
 
     TArray<algorithmFPType, cpu> splitColumnArray(totalNRows);
     DAAL_CHECK_MALLOC(splitColumnArray.get());
@@ -227,6 +232,8 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
     const size_t nFeatures = NumericTable::cast((*dcPartialData)[0])->getNumberOfColumns();
     const size_t nBlocks = dcPartialSplits->size();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> partialSplitValuesArray(nBlocks);
     DAAL_CHECK_MALLOC(partialSplitValuesArray.get());
     algorithmFPType * const partialSplitValues = partialSplitValuesArray.get();
@@ -255,6 +262,8 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
     }
 
     algorithmFPType splitValue = findKthStatistic<algorithmFPType, cpu>(partialSplitValues, nBlocks, nBlocks / 2);
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(int));
 
     TArray<int, cpu> partitionedDataNRowsArray(nBlocks);
     DAAL_CHECK_MALLOC(partitionedDataNRowsArray.get());
@@ -393,6 +402,8 @@ Status DBSCANDistrStep5Kernel<algorithmFPType, method, cpu>::compute(const DataC
     const size_t defaultBlockSize = 256;
 
     int result = 0;
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(int));
 
     TArray<int, cpu> partitionedHaloDataNRowsArray(nBlocks);
     DAAL_CHECK_MALLOC(partitionedHaloDataNRowsArray.get());
@@ -720,6 +731,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
     const size_t blockIndex   = par->blockIndex;
     const size_t nBlocks = par->nBlocks;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nHaloRows, sizeof(int));
+
     TArray<int, cpu> haloBlocksArray(nHaloRows);
     if (nHaloRows)
     {
@@ -748,6 +761,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
         DAAL_CHECK_BLOCK_STATUS(haloDataIndicesRows);
     }
     const int * const haloDataIndices = haloDataIndicesRows.get();
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(Neighborhood<algorithmFPType, cpu>));
 
     TArray<Neighborhood<algorithmFPType, cpu>, cpu> neighs(nRows);
     if (nRows)
@@ -794,6 +809,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
         clusterStructure[i * 4 + 2] = blockIndex;  // partition of parent observation in union-find structure
         clusterStructure[i * 4 + 3] = -1;         // index of parent observation in union-find structure
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
 
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
@@ -901,6 +918,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
     const size_t blockIndex   = par->blockIndex;
     const size_t nBlocks = par->nBlocks;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nHaloRows, sizeof(int));
+
     TArray<int, cpu> haloBlocksArray(nHaloRows);
     if (nHaloRows)
     {
@@ -967,6 +986,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
         clusterStructure[i * 4 + 2] = blockIndex;  // partition of parent observation in union-find structure
         clusterStructure[i * 4 + 3] = -1;         // index of parent observation in union-find structure
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
 
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
@@ -1283,6 +1304,8 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
 
     size_t nClusters = ntInputNClusters->getValue<int>(0, 0);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
+
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
     Vector<int, cpu> *queries = queriesArray.get();
@@ -1543,6 +1566,8 @@ Status DBSCANDistrStep10Kernel<algorithmFPType, method, cpu>::compute(const Nume
     const size_t offset = ntClusterOffset->getValue<int>(0, 0);
     const size_t nRows = ntInputClusterStructure->getNumberOfRows();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
+
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
     Vector<int, cpu> *queries = queriesArray.get();
@@ -1640,6 +1665,8 @@ Status DBSCANDistrStep11Kernel<algorithmFPType, method, cpu>::compute(const Nume
     const size_t nBlocks = par->nBlocks;
 
     const size_t nRows = ntInputClusterStructure->getNumberOfRows();
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
 
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
@@ -1806,6 +1833,8 @@ Status DBSCANDistrStep12Kernel<algorithmFPType, method, cpu>::compute(      Nume
             inputClusterStructure[id * 4 + 0] = clusterId;
         }
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(int));
 
     TArray<int, cpu> initialBlocksNRowsArray(nBlocks);
     DAAL_CHECK_MALLOC(initialBlocksNRowsArray.get());

@@ -172,6 +172,9 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
                                               dataR, (DAAL_INT *)&nVectors2);
         }
 
+        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
+
         daal::internal::TArray<algorithmFPType, cpu> aBuf((nVectors1 + nVectors2));
         DAAL_CHECK(aBuf.get(), services::ErrorMemoryAllocationFailed);
         algorithmFPType *buffer = aBuf.get();

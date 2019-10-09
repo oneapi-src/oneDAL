@@ -42,6 +42,9 @@ services::Status LowOrderMomentsDistributedKernel<algorithmFPType, method, cpu>:
             PartialResult *partialResult, const Parameter *parameter)
 {
     services::Status status{services::Status()};
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, partialResultsCollection->size(), sizeof(int));
+
     TArray<int, cpu> partialNObservations(partialResultsCollection->size());
     if (!partialNObservations.get())
         return Status(services::ErrorMemoryAllocationFailed);

@@ -172,6 +172,8 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
     DAAL_CHECK_BLOCK_STATUS(normalizedBlock);
     algorithmFPType *normalizedDataArray = normalizedBlock.get();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
+
     TArrayCalloc<algorithmFPType, cpu> mean_total(nFeatures);
     TArrayCalloc<algorithmFPType, cpu> inv_sigma_total(nFeatures);
     DAAL_CHECK_MALLOC(mean_total.get() && inv_sigma_total.get());

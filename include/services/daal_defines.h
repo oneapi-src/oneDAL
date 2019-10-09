@@ -520,6 +520,25 @@ static services::SharedPtr<DstClassName> downCast(const services::SharedPtr<SrcC
     #define DAAL_ASSERT(cond)
 #endif
 
+#define DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(type, op1, op2)               \
+{                                                                           \
+    if (!(0 == op1) && !(0 == op2))                                         \
+    {                                                                       \
+      type r = op1 * op2;                                                   \
+      r /= op1;                                                             \
+      if (!(r == op2))                                                      \
+        return services::Status(services::ErrorBufferSizeIntegerOverflow);  \
+    }                                                                                                                                                \
+}
+
+#define DAAL_OVERFLOW_CHECK_BY_ADDING(type, op1, op2)                       \
+{                                                                           \
+    type r = op1 + op2;                                                     \
+    r -= op1;                                                               \
+    if (!(r == op2))                                                        \
+      return services::Status(services::ErrorBufferSizeIntegerOverflow);    \
+}
+
 #define DAAL_CHECK(cond, error) if(!(cond)) return services::Status(error);
 #define DAAL_CHECK_EX(cond, error, detailType, detailValue) if(!(cond)) return services::Status(services::Error::create(error, detailType, detailValue));
 #define DAAL_CHECK_THR(cond, error) {using namespace services; if(!(cond)) { safeStat.add(error); return; } }

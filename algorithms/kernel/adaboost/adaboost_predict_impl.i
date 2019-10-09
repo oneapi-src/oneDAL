@@ -236,6 +236,9 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(co
         const Model *boostModel, const NumericTablePtr &rTable, const Parameter *par)
 {
     const size_t nVectors = xTable->getNumberOfRows();
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors, sizeof(algorithmFPType));
+
     const size_t nWeakLearners = boostModel->getNumberOfWeakLearners();
     services::Status s;
     WriteOnlyColumns<algorithmFPType, cpu> mtR(*rTable, 0, 0, nVectors);

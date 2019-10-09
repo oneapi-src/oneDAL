@@ -87,6 +87,9 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
             break;
         }
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> catCoef(catFlag ? p : 0);
     if(catFlag)
     {
@@ -103,6 +106,8 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
             }
         }
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(size_t));
 
     TArray<size_t, cpu> cIndices(nClusters);
     DAAL_CHECK_MALLOC(cIndices.get());
@@ -127,6 +132,8 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
             task->kmeansClearClusters(&oldTargetFunc);
             return s;
         }
+
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, sizeof(double));
 
         TArray<double, cpu> dS1(method == defaultDense ? p : 0);
         if (method == defaultDense)

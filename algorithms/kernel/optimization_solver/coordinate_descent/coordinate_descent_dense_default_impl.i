@@ -81,6 +81,10 @@ services::Status CoordinateDescentKernel<algorithmFPType, method, cpu>::compute(
     sum_of_functions::BatchPtr gradientHessianFunction = parameter->function->clone();
     const size_t maxIterations = parameter->nIterations;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nColsArgument, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsArgument, nColsArgument);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRowsArgument * nColsArgument, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> argumentForProximalT(nRowsArgument * nColsArgument);
     algorithmFPType* const argumentForProximal = argumentForProximalT.get();
     DAAL_CHECK_MALLOC(argumentForProximal);

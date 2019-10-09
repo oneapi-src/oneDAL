@@ -148,6 +148,8 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
         size_t nBlocks = nRows/blockSize;
         nBlocks += (nBlocks*blockSize != nRows);
 
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
+
         TlsMem<algorithmFPType,cpu,services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(nFeatures);
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock)
         {

@@ -57,6 +57,8 @@ services::Status GroupOfBetasKernel<method, algorithmFPType, cpu>::compute(
     const auto nInputRows = y->getNumberOfRows();
     const auto k = y->getNumberOfColumns();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, k, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> aResSS0(k);
     DAAL_CHECK_MALLOC(aResSS0.get());
 
@@ -152,6 +154,9 @@ services::Status GroupOfBetasKernel<method, algorithmFPType, cpu>::compute(
         DAAL_CHECK_BLOCK_STATUS(regSSBD);
         algorithmFPType *pRegSS = regSSBD.get();
         for(size_t j = 0; j < k; pRegSS[j] = 0, pTSS[j] = 0, ++j);
+
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, k, 2);
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, 2 * k, sizeof(algorithmFPType));
 
         const algorithmFPType *pErm = ermBD.get();
         daal::tls<algorithmFPType *> resPartial([=]()-> algorithmFPType*

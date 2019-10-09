@@ -92,6 +92,11 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
     const size_t m = ntA->getNumberOfRows();
     const size_t nComponents = ntSigma->getNumberOfColumns();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, m);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * m, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> ATPtr(n * m);
     algorithmFPType *AT = ATPtr.get();
     TArray<algorithmFPType, cpu> QTPtr(n * m);
@@ -212,6 +217,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
     size_t rows = m;
     size_t cols = n;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
     /* Getting real pointers to output array */
     TArray<algorithmFPType, cpu> aS_output(n);
     DAAL_CHECK_MALLOC(aS_output.get());
@@ -252,6 +258,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
 
     size_t brows_last = brows + (rows - blocks * brows); /* last block is generally biggest */
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, blocks);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n * blocks, sizeof(algorithmFPType));
     size_t len = blocks * n * n;
     TArrayCalloc<algorithmFPType, cpu> R_buffPtr(len); /* zeroing */
     algorithmFPType *R_buff = R_buffPtr.get();
@@ -474,6 +484,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na
     DAAL_CHECK_BLOCK_STATUS(aBlock);
     algorithmFPType *A     = const_cast<algorithmFPType *>(aBlock.get());
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(algorithmFPType));
     TArray<algorithmFPType, cpu> sigmaArray(n);
     DAAL_CHECK_MALLOC(sigmaArray.get());
     algorithmFPType *Sigma = sigmaArray.get();

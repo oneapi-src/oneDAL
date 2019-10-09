@@ -148,6 +148,8 @@ services::Status I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoo
     NewtonRaphsonKernel<method, algorithmFPType, cpu> nr(nVectors, parameter);
     DAAL_CHECK(nr.isValid(), services::ErrorMemoryAllocationFailed);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors, sizeof(algorithmFPType));
+
     /* Allocate memory for storing intermediate results */
     daal::internal::TArray<algorithmFPType, cpu> r(nVectors);/* Weak classifier's classification margin */
     DAAL_CHECK(r.get(), services::ErrorMemoryAllocationFailed);

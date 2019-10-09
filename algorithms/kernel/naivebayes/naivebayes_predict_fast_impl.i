@@ -126,6 +126,9 @@ services::Status NaiveBayesPredictKernel<algorithmFPType, method, cpu>::compute(
     size_t nBlocks = n / blockSizeDeafult;
     nBlocks += (nBlocks * blockSizeDeafult != n);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSizeDeafult, c);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, blockSizeDeafult * c, sizeof(algorithmFPType));
+
     daal::tls<algorithmFPType *> mkl_buff( [ = ]()-> algorithmFPType* { return _CALLOC_<algorithmFPType, cpu>(blockSizeDeafult * c); } );
 
     SafeStatus safeStat;
