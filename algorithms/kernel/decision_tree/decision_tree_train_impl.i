@@ -810,13 +810,14 @@ public:
     }
 
     template <typename SplitCriterion, typename LeavesData>
-    void train(SplitCriterion & splitCriterion, LeavesData & leavesData, const NumericTable & x, const NumericTable & y, const NumericTable * w,
-               size_t numberOfClasses = 0, size_t maxTreeDepth = 0, size_t minLeafObservations = 1, size_t minSplitObservations = 2)
+    services::Status train(SplitCriterion & splitCriterion, LeavesData & leavesData, const NumericTable & x, const NumericTable & y,
+                           const NumericTable * w, size_t numberOfClasses = 0, size_t maxTreeDepth = 0, size_t minLeafObservations = 1,
+                           size_t minSplitObservations = 2)
     {
         if(maxTreeDepth == 2) // stump with weights
         {
             trainStump(splitCriterion, leavesData, x, y, w, numberOfClasses, minLeafObservations, minSplitObservations);
-            return;
+            return getLastStatus();
         }
         const size_t xRowCount = x.getNumberOfRows();
         const size_t xColumnCount = x.getNumberOfColumns();
@@ -882,14 +883,16 @@ public:
         indexes = nullptr;
         dx      = nullptr;
         xBD     = nullptr;
+
+        return getLastStatus();
     }
 
     template <typename SplitCriterion>
-    void train(SplitCriterion & splitCriterion, const NumericTable & x, const NumericTable & y, const NumericTable * w,
-               size_t numberOfClasses = 0, size_t maxTreeDepth = 0, size_t minLeafObservations = 1, size_t minSplitObservations = 2)
+    services::Status train(SplitCriterion & splitCriterion, const NumericTable & x, const NumericTable & y, const NumericTable * w,
+                           size_t numberOfClasses = 0, size_t maxTreeDepth = 0, size_t minLeafObservations = 1, size_t minSplitObservations = 2)
     {
         LeavesData<cpu, void> leavesData;
-        train(splitCriterion, leavesData, x, y, w, numberOfClasses, maxTreeDepth, minLeafObservations, minSplitObservations);
+        return train(splitCriterion, leavesData, x, y, w, numberOfClasses, maxTreeDepth, minLeafObservations, minSplitObservations);
     }
 
     template <typename Data>
@@ -951,13 +954,22 @@ public:
         }
     }
 
+    bool ok() const { return _status.ok(); }
+    services::Status getLastStatus() const { return _status; }
+
 protected:
+
+    services::Status _status;
+
     void reserve(size_t newCapacity)
     {
         if (newCapacity > _nodeCapacity)
         {
+            int result = 0;
             TreeNodeType * newNodes = daal_alloc<TreeNodeType>(newCapacity);
-            daal_memcpy_s(newNodes, newCapacity * sizeof(TreeNodeType), _nodes, _nodeCount * sizeof(TreeNodeType));
+            result = daal_memcpy_s(newNodes, newCapacity * sizeof(TreeNodeType), _nodes, _nodeCount * sizeof(TreeNodeType));
+            if (result)
+                _status |= services::Status(services::ErrorMemoryCopyFailedInternal);
             swap<cpu>(_nodes, newNodes);
             swap<cpu>(_nodeCapacity, newCapacity);
             daal_free(newNodes);

@@ -343,6 +343,7 @@ Status ImplicitALSInitDistrStep2Kernel<algorithmFPType, fastCSR, cpu>::mergeCSRT
     TArray<const size_t*, cpu> rowOffsetsPart(nParts);
     TArray<const size_t*, cpu> colIndicesPart(nParts);
     DAAL_CHECK_MALLOC(dataPartTables.get() && dataPart.get() && rowOffsetsPart.get() && colIndicesPart.get());
+    int result = 0;
 
     for (size_t p = 0; p < nParts; p++)
     {
@@ -397,12 +398,12 @@ Status ImplicitALSInitDistrStep2Kernel<algorithmFPType, fastCSR, cpu>::mergeCSRT
         colIndicesBuffer = colIndicesBufferPtr.get();
         dataBuffer = dataBufferPtr.get();
         algorithms::internal::qSort<size_t, algorithmFPType, cpu>(fullNValues, colIndicesBuffer, dataBuffer);
-        daal_memcpy_s(colIndices + rowOffsets[i - 1] - 1, fullNValues * sizeof(size_t),
-                      colIndicesBuffer,                   fullNValues * sizeof(size_t));
-        daal_memcpy_s(data + rowOffsets[i - 1] - 1, fullNValues * sizeof(algorithmFPType),
-                      dataBuffer,                   fullNValues * sizeof(algorithmFPType));
+        result |= daal_memcpy_s(colIndices + rowOffsets[i - 1] - 1, fullNValues * sizeof(size_t),
+                                colIndicesBuffer,                   fullNValues * sizeof(size_t));
+        result |= daal_memcpy_s(data + rowOffsets[i - 1] - 1, fullNValues * sizeof(algorithmFPType),
+                                dataBuffer,                   fullNValues * sizeof(algorithmFPType));
     }
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 }

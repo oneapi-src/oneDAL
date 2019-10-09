@@ -525,8 +525,9 @@ Status task_t<algorithmFPType, cpu>::kmeansComputeCentroidsCandidates(algorithmF
 
     algorithmFPType *tmpValuesPtr = tmpValues.get();
     size_t *tmpIndicesPtr = tmpIndices.get();
+    int result = 0;
 
-    tls_task->reduce( [&](tls_task_t<algorithmFPType, cpu> *tt)-> void
+    tls_task->reduce( [ & ](tls_task_t<algorithmFPType, cpu> *tt)-> void
     {
         size_t lcNum = tt->cNum;
         algorithmFPType *lcValues = tt->cValues;
@@ -551,11 +552,11 @@ Status task_t<algorithmFPType, cpu>::kmeansComputeCentroidsCandidates(algorithmF
             }
         }
         cNum = cPos + lcPos;
-        daal::services::daal_memcpy_s(cValues, cNum * sizeof(algorithmFPType), tmpValuesPtr, cNum * sizeof(algorithmFPType));
-        daal::services::daal_memcpy_s(cIndices, cNum * sizeof(size_t), tmpIndicesPtr, cNum * sizeof(size_t));
+        result |= daal::services::daal_memcpy_s(cValues, cNum * sizeof(algorithmFPType), tmpValuesPtr, cNum * sizeof(algorithmFPType));
+        result |= daal::services::daal_memcpy_s(cIndices, cNum * sizeof(size_t), tmpIndicesPtr, cNum * sizeof(size_t));
     } );
 
-    return services::Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template<typename algorithmFPType, CpuType cpu>

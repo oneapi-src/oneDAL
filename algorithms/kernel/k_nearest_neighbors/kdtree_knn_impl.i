@@ -107,9 +107,10 @@ public:
 
     DAAL_FORCEINLINE services::Status push(const T & value)
     {
+        services::Status status;
         if (_count >= _size)
         {
-            services::Status status = grow();
+            status = grow();
             DAAL_CHECK_STATUS_VAR(status)
         }
 
@@ -117,7 +118,7 @@ public:
         _data[_top] = value;
         ++_count;
 
-        return services::Status();
+        return status;
     }
 
     DAAL_FORCEINLINE T pop()
@@ -142,12 +143,12 @@ public:
             _top = _size - 1;
         }
         _sizeMinus1 = _size - 1;
-        services::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
+        int result = services::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
         T * oldData = _data;
         _data = newData;
         services::daal_free(oldData);
         oldData = nullptr;
-        return services::Status();
+        return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
 private:

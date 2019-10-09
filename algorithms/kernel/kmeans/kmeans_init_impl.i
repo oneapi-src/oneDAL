@@ -131,6 +131,7 @@ template <typename algorithmFPType, CpuType cpu>
 Status initDistrDeterministic(const NumericTable* pData, const Parameter *par, size_t& nClustersFound, NumericTablePtr& pRes)
 {
     nClustersFound = 0;
+    int result = 0;
     if(par->nClusters <= par->offset)
         return Status(); //ok
 
@@ -150,8 +151,8 @@ Status initDistrDeterministic(const NumericTable* pData, const Parameter *par, s
     ReadRows<algorithmFPType, cpu> dataBD(*const_cast<NumericTable*>(pData), 0, nClustersFound);
     DAAL_CHECK_BLOCK_STATUS(dataBD);
     const size_t sz = pData->getNumberOfColumns()*nClustersFound*sizeof(algorithmFPType);
-    daal::services::daal_memcpy_s(resBD.get(), sz, dataBD.get(), sz);
-    return st;
+    result = daal::services::daal_memcpy_s(resBD.get(), sz, dataBD.get(), sz);
+    return (!result) ? st : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -227,6 +228,7 @@ Status initDistrPlusPlus(const NumericTable* pData, const Parameter *par,
 {
     nClustersFound = 0;
     int index = 0;
+    int result = 0;
 
     Status s;
     DAAL_CHECK(par->nRowsTotal <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfRows)
@@ -252,8 +254,8 @@ Status initDistrPlusPlus(const NumericTable* pData, const Parameter *par,
     const size_t p = pData->getNumberOfColumns();
     WriteOnlyRows<algorithmFPType, cpu> resBD(*pRes, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(resBD);
-    daal::services::daal_memcpy_s(resBD.get(), sizeof(algorithmFPType)*p, dataBD.get(), sizeof(algorithmFPType)*p);
-    return s;
+    result = daal::services::daal_memcpy_s(resBD.get(), sizeof(algorithmFPType)*p, dataBD.get(), sizeof(algorithmFPType)*p);
+    return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>

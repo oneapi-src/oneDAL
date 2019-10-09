@@ -165,6 +165,8 @@ services::Status KMeansInitStep2LocalKernel<method, algorithmFPType, cpu>::compu
     const auto nRows = ntData->getNumberOfRows();
     bool bInitial = false;
     const size_t iFirstOfNewCandidates = numClustersBD.get()[0];
+    int result = 0;
+
     if(iFirstOfNewCandidates == 0)
     {
         WriteOnlyRows<algorithmFPType, cpu> minDistBD(aLocalData[internal::closestClusterDistance], 0, 1);
@@ -225,9 +227,9 @@ services::Status KMeansInitStep2LocalKernel<method, algorithmFPType, cpu>::compu
         DAAL_CHECK_BLOCK_STATUS(candidateRatingBD);
         WriteRows<int, cpu> outputForStep5BD(pOutputForStep5, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(outputForStep5BD);
-        daal::services::daal_memcpy_s(outputForStep5BD.get(), sizeof(int)*nCols, candidateRatingBD.get(), sizeof(int)*nCols);
+        result = daal::services::daal_memcpy_s(outputForStep5BD.get(), sizeof(int)*nCols, candidateRatingBD.get(), sizeof(int)*nCols);
     }
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -266,13 +268,16 @@ template <typename algorithmFPType, CpuType cpu>
 Status createTableSingleRow(SerializationIfacePtr& pRes, size_t nCols, const algorithmFPType* aVal)
 {
     Status st;
+    int result = 0;
+
     NumericTablePtr pTbl = HomogenNumericTableCPU<algorithmFPType, cpu>::create(nCols, 1, &st);
     DAAL_CHECK_STATUS_VAR(st);
     WriteOnlyRows<algorithmFPType, cpu> tblBD(pTbl.get(), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(tblBD);
-    daal::services::daal_memcpy_s(tblBD.get(), sizeof(algorithmFPType)*nCols, aVal, sizeof(algorithmFPType)*nCols);
+    result = daal::services::daal_memcpy_s(tblBD.get(), sizeof(algorithmFPType)*nCols, aVal, sizeof(algorithmFPType)*nCols);
     pRes = staticPointerCast<SerializationIface, NumericTable>(pTbl);
-    return st;
+
+    return (!result) ? st : services::Status(services::ErrorMemoryCopyFailedInternal);
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
@@ -383,6 +388,7 @@ services::Status KMeansInitStep4LocalKernel<method, algorithmFPType, cpu>::compu
     WriteRows<algorithmFPType, cpu> inputBD(const_cast<NumericTable*>(pInput), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(inputBD);
     const auto outputSize = pInput->getNumberOfColumns();
+    int result = 0;
     if(outputSize > 1)
         daal::algorithms::internal::qSort<algorithmFPType, cpu>(outputSize, inputBD.get());
 
@@ -404,13 +410,13 @@ services::Status KMeansInitStep4LocalKernel<method, algorithmFPType, cpu>::compu
         DAAL_CHECK_BLOCK_STATUS(outputBD);
         dataBD.set(const_cast<NumericTable*>(pData), iRow, 1);
         DAAL_CHECK_BLOCK_STATUS(dataBD);
-        daal::services::daal_memcpy_s(outputBD.get(), sizeof(algorithmFPType)*nFeatures, dataBD.get(), sizeof(algorithmFPType)*nFeatures);
+        result |= daal::services::daal_memcpy_s(outputBD.get(), sizeof(algorithmFPType)*nFeatures, dataBD.get(), sizeof(algorithmFPType)*nFeatures);
         if((i + 1) == outputSize)
             break;
         sample += aSamples[i + 1] - aSamples[i];
         iInputStart = iRow;
     }
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
@@ -419,6 +425,8 @@ services::Status KMeansInitStep5MasterKernel<method, algorithmFPType, cpu>::comp
     NumericTable* pResCand, NumericTable* pResWeights)
 {
     size_t iRow = 0;
+    int result = 0;
+
     for(size_t i = 0; i < pCandidates->size(); ++i)
     {
         NumericTable* pTbl = static_cast<NumericTable*>((*pCandidates)[i].get());
@@ -428,7 +436,7 @@ services::Status KMeansInitStep5MasterKernel<method, algorithmFPType, cpu>::comp
         WriteRows<algorithmFPType, cpu> resCandBD(pResCand, iRow, nRows);
         DAAL_CHECK_BLOCK_STATUS(resCandBD);
         const size_t sz = sizeof(algorithmFPType)*pTbl->getNumberOfColumns()*nRows;
-        daal::services::daal_memcpy_s(resCandBD.get(), sz, tblBD.get(), sz);
+        result |= daal::services::daal_memcpy_s(resCandBD.get(), sz, tblBD.get(), sz);
         iRow += nRows;
     }
     const size_t nCols = pResWeights->getNumberOfColumns();
@@ -457,7 +465,7 @@ services::Status KMeansInitStep5MasterKernel<method, algorithmFPType, cpu>::comp
     total = algorithmFPType(1.) / total;
     for(size_t j = 0; j < nCols; ++j)
         aWt[j] *= total;
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>

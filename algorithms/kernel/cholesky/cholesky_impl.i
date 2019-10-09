@@ -89,17 +89,16 @@ Status CholeskyKernel<algorithmFPType, method, cpu>::copyMatrix(NumericTableIfac
 {
     if(isFull<algorithmFPType, cpu>(rLayout))
     {
-        if(!copyToFullMatrix(iLayout, pA, pL, dim))
+        if (!copyToFullMatrix(iLayout, pA, pL, dim))
             return Status(ErrorIncorrectTypeOfInputNumericTable);
+        else
+            return Status();
 
     }
     else
     {
-        if(!copyToLowerTrianglePacked(iLayout, pA, pL, dim))
-            return Status(ErrorIncorrectTypeOfOutputNumericTable);
-
+        return copyToLowerTrianglePacked(iLayout, pA, pL, dim);
     }
-    return Status();
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -232,9 +231,10 @@ bool CholeskyKernel<algorithmFPType, method, cpu>::copyToFullMatrix(NumericTable
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-bool CholeskyKernel<algorithmFPType, method, cpu>::copyToLowerTrianglePacked(NumericTableIface::StorageLayout iLayout,
+services::Status CholeskyKernel<algorithmFPType, method, cpu>::copyToLowerTrianglePacked(NumericTableIface::StorageLayout iLayout,
     const algorithmFPType *pA, algorithmFPType *pL, size_t dim) const
 {
+    Status status = Status();
     const size_t blockSize = 512;
     const size_t n = dim;
     size_t nBlocks = n / blockSize;
@@ -266,7 +266,12 @@ bool CholeskyKernel<algorithmFPType, method, cpu>::copyToLowerTrianglePacked(Num
     else if (iLayout == NumericTableIface::lowerPackedSymmetricMatrix)
     {
         size_t size = (dim * (dim + 1) / 2) * sizeof(algorithmFPType);
-        services::daal_memcpy_s(pL, size, pA, size);
+        int result = 0;
+        result = services::daal_memcpy_s(pL, size, pA, size);
+        if (result)
+        {
+            status |= Status(ErrorMemoryCopyFailedInternal);
+        }
     }
     else if (iLayout == NumericTableIface::upperPackedSymmetricMatrix)
     {
@@ -290,9 +295,9 @@ bool CholeskyKernel<algorithmFPType, method, cpu>::copyToLowerTrianglePacked(Num
     }
     else
     {
-        return false;
+        status |= Status(ErrorIncorrectTypeOfInputNumericTable);
     }
-    return true;
+    return status;
 }
 
 } // namespace daal::internal

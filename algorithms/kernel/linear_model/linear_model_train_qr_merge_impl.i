@@ -48,6 +48,8 @@ Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable **parti
     size_t nBetas    (rTable.getNumberOfRows());
     size_t nBetas2   (2 * nBetas);
     size_t nResponses(qtyTable.getNumberOfRows());
+    Status st;
+    int result = 0;
 
     TArray<algorithmFPType, cpu> rMerge(nBetas * nBetas2);
     DAAL_CHECK_MALLOC(rMerge.get());
@@ -76,11 +78,11 @@ Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable **parti
 
     const size_t rSizeInBytes   =     nBetas * nBetas * sizeof(algorithmFPType);
     const size_t qtySizeInBytes = nResponses * nBetas * sizeof(algorithmFPType);
-    daal_memcpy_s(rFinal, rSizeInBytes, r, rSizeInBytes);
-    daal_memcpy_s(qtyFinal, qtySizeInBytes, qty, qtySizeInBytes);
+    result |= daal_memcpy_s(rFinal, rSizeInBytes, r, rSizeInBytes);
+    result |= daal_memcpy_s(qtyFinal, qtySizeInBytes, qty, qtySizeInBytes);
 
     DAAL_INT lwork;
-    Status st = CommonKernel<algorithmFPType, cpu>::computeWorkSize(nBetas2, nBetas, nResponses, lwork);
+    st = (!result) ? CommonKernel<algorithmFPType, cpu>::computeWorkSize(nBetas2, nBetas, nResponses, lwork) : Status(ErrorMemoryCopyFailedInternal);
     DAAL_CHECK_STATUS_VAR(st);
 
     TArray<algorithmFPType, cpu> work(lwork);

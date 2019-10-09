@@ -109,6 +109,7 @@ Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, 
     _xBlock.set(const_cast<NumericTable &>(xTable), startRow, nRows);
     DAAL_CHECK_BLOCK_STATUS(_xBlock);
     const algorithmFPType *x = _xBlock.get();
+    int result = 0;
 
     if (nRows > _nRows)
     {
@@ -119,7 +120,7 @@ Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, 
     if (nFeatures == _nBetasIntercept)
     {
         const size_t xSize = nFeatures * nRows * sizeof(algorithmFPType);
-        daal_memcpy_s(qrBuffer.get(), xSize, x, xSize);
+        result |= daal_memcpy_s(qrBuffer.get(), xSize, x, xSize);
     }
     else
     {
@@ -127,7 +128,7 @@ Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, 
         algorithmFPType *qr = qrBuffer.get();
         for (size_t i = 0; i < nRows; i++)
         {
-            daal_memcpy_s(qr + i * _nBetasIntercept, rowSize, x + i * nFeatures, rowSize);
+            result |= daal_memcpy_s(qr + i * _nBetasIntercept, rowSize, x + i * nFeatures, rowSize);
             qr[i * _nBetasIntercept + _nBetasIntercept - 1] = 1.0;
         }
     }
@@ -138,9 +139,9 @@ Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, 
 
     /* Copy matrix Y to temporary buffer in order not to damage it */
     const size_t ySize = _nResponses * nRows * sizeof(algorithmFPType);
-    daal_memcpy_s(qtyBuffer.get(), ySize, y, ySize);
+    result |= daal_memcpy_s(qtyBuffer.get(), ySize, y, ySize);
 
-    return Status();
+    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>

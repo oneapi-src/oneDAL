@@ -124,6 +124,7 @@ template<Method method, typename algorithmFPType, CpuType cpu>
 Status SingleBetaKernel<method, algorithmFPType, cpu>::computeInverseXtX(const NumericTable* xtx, bool bModelNe, NumericTable* xtxInv)
 {
     const auto nBetas = xtx->getNumberOfColumns();
+    int result = 0;
 
     ReadRows<algorithmFPType, cpu> xtxBD(*const_cast<NumericTable*>(xtx), 0, nBetas);
     DAAL_CHECK_BLOCK_STATUS(xtxBD);
@@ -141,7 +142,8 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeInverseXtX(const N
 
     //Copy xtx to xtxInv
     const auto dataSize = nBetas * nBetas * sizeof(algorithmFPType);
-    services::daal_memcpy_s(pXtXInv, dataSize, pXtX, dataSize);
+    result |= services::daal_memcpy_s(pXtXInv, dataSize, pXtX, dataSize);
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     DAAL_INT nBeta(nBetas);
     DAAL_INT info = 0;
@@ -158,7 +160,8 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeInverseXtX(const N
         return Status();
     if(info < 0)
         return Status(ErrorLinRegXtXInvFailed);
-    services::daal_memcpy_s(pXtXInv, dataSize, pXtX, dataSize);
+    result |= services::daal_memcpy_s(pXtXInv, dataSize, pXtX, dataSize);
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     if (bModelNe)
     {
         Lapack<algorithmFPType, cpu>::xpotrf(&uplo, &nBeta, pXtXInv, &nBeta, &info);

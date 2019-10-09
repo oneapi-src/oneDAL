@@ -120,6 +120,7 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(
         algorithmFPType * const coreObservations = coreObservationsRows.get();
 
         size_t pos = 0;
+        int result = 0;
         for (size_t i = 0; i < nRows; i++)
         {
             if (!isCore[i])
@@ -130,8 +131,12 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(
             DAAL_CHECK_BLOCK_STATUS(dataRows);
             const algorithmFPType * const data = dataRows.get();
 
-            daal_memcpy_s(&(coreObservations[pos * nFeatures]), sizeof(algorithmFPType) * nFeatures, data, sizeof(algorithmFPType) * nFeatures);
+            result |= daal_memcpy_s(&(coreObservations[pos * nFeatures]), sizeof(algorithmFPType) * nFeatures, data, sizeof(algorithmFPType) * nFeatures);
             pos++;
+        }
+        if (result)
+        {
+            return Status(services::ErrorMemoryCopyFailedInternal);
         }
     }
 

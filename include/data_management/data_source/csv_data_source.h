@@ -207,6 +207,7 @@ public:
 
         BlockDescriptor<DAAL_DATA_TYPE> blockCurrent, block;
         size_t pos = 0;
+        int result = 0;
         for (size_t i = 0; i < tables.size(); i++)
         {
             NumericTable *ntCurrent = (NumericTable*)(tables[i].get());
@@ -218,7 +219,13 @@ public:
             ntCurrent->getBlockOfRows(0, rows, readOnly, blockCurrent);
             nt->getBlockOfRows(pos, rows, writeOnly, block);
 
-            services::daal_memcpy_s(block.getBlockPtr(), rows * ncols * sizeof(DAAL_DATA_TYPE), blockCurrent.getBlockPtr(), rows * ncols * sizeof(DAAL_DATA_TYPE));
+            result |= services::daal_memcpy_s(block.getBlockPtr(), rows * ncols * sizeof(DAAL_DATA_TYPE),
+                                              blockCurrent.getBlockPtr(), rows * ncols * sizeof(DAAL_DATA_TYPE));
+            if (result)
+            {
+                this->_status.add(services::throwIfPossible(services::Status(services::ErrorMemoryCopyFailedInternal)));
+                break;
+            }
 
             ntCurrent->releaseBlockOfRows(blockCurrent);
             nt->releaseBlockOfRows(block);

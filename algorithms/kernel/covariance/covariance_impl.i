@@ -53,6 +53,7 @@ template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status prepareSums(NumericTable *dataTable, algorithmFPType *sums)
 {
     const size_t nFeatures = dataTable->getNumberOfColumns();
+    int result = 0;
 
     if (method == sumDense || method == sumCSR)
     {
@@ -60,7 +61,7 @@ services::Status prepareSums(NumericTable *dataTable, algorithmFPType *sums)
         DEFINE_TABLE_BLOCK( ReadRows, userSumsBlock, dataSumsTable );
 
         const size_t nFeaturesSize = nFeatures * sizeof(algorithmFPType);
-        daal_memcpy_s(sums, nFeaturesSize, userSumsBlock.get(), nFeaturesSize);
+        result = daal_memcpy_s(sums, nFeaturesSize, userSumsBlock.get(), nFeaturesSize);
     }
     else
     {
@@ -68,7 +69,7 @@ services::Status prepareSums(NumericTable *dataTable, algorithmFPType *sums)
         services::internal::service_memset<algorithmFPType, cpu>(sums, zero, nFeatures);
     }
 
-    return services::Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 
