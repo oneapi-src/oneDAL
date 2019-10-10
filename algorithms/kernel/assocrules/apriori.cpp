@@ -108,6 +108,7 @@ Status Input::check(const daal::algorithms::Parameter *par, int method) const
     DAAL_CHECK_EX(algParameter->nTransactions <= nRows, ErrorIncorrectParameter, ParameterName, nTransactionsStr());
     DAAL_CHECK_EX((algParameter->maxItemsetSize <= nRows) && (algParameter->nUniqueItems <= 0 || algParameter->maxItemsetSize <= algParameter->nUniqueItems),
         ErrorIncorrectParameter, ParameterName, maxItemsetSizeStr());
+
     return s;
 }
 
