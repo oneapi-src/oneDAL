@@ -59,6 +59,7 @@ Status Parameter::check() const
     DAAL_CHECK_EX(minSupport >= 0 && minSupport < 1, ErrorIncorrectParameter, ParameterName, minSupportStr());
     DAAL_CHECK_EX(minConfidence >= 0 && minConfidence < 1, ErrorIncorrectParameter, ParameterName, minConfidenceStr());
     DAAL_CHECK_EX(minItemsetSize <= maxItemsetSize, ErrorIncorrectParameter, ParameterName, minItemsetSizeStr());
+
     return Status();
 }
 
