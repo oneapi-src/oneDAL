@@ -258,6 +258,9 @@ services::Status I1LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::comput
     const algorithmFPType thrZ = (algorithmFPType)(parameter->responsesDegenerateCasesThreshold);
     const size_t n = x->getNumberOfRows();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nc);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * nc, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> pred(n * nc);
     TArray<algorithmFPType, cpu> F(n * nc);
     TArray<algorithmFPType, cpu> P(n * nc);
@@ -553,6 +556,9 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     const algorithmFPType thrW = (algorithmFPType)(parameter->weightsDegenerateCasesThreshold);
     const algorithmFPType thrZ = (algorithmFPType)(parameter->responsesDegenerateCasesThreshold);
     const size_t n = x->getNumberOfRows();
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nc);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * nc, sizeof(algorithmFPType));
 
     TArray<algorithmFPType, cpu> pred(n * nc);
     TArray<algorithmFPType, cpu> F(n * nc);

@@ -142,6 +142,7 @@ enum ErrorID
     ErrorUndefinedFeature = -77,                                        /*!< Dictionary contains a undefined feature */
     ErrorCloneMethodFailed = -78,                                       /*!< Cloning of algorithm failed */
     ErrorDataTypeNotSupported = -79,                                    /*!< Data type not supported */
+    ErrorBufferSizeIntegerOverflow = -80,                               /*!< Integer oveflow is occured during buffer size calculation */
 
     // Environment errors: -2000..-2999
     ErrorCpuIsInvalid = -1,                                             /*!< Invalid CPU value used */

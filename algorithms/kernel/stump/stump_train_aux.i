@@ -68,6 +68,7 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t 
     }
     else
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors, sizeof(algorithmFPtype));
         DAAL_CHECK(wArray.get(), services::ErrorMemoryAllocationFailed);
         /* Here if array of weight is not provided */
         const algorithmFPtype weight = 1.0 / algorithmFPtype(nVectors);

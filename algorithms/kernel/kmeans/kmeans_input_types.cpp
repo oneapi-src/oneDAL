@@ -82,6 +82,7 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(), dataStr(), 0, expectedLayout));
     const size_t inputFeatures = get(data)->getNumberOfColumns();
     const size_t inputRows = get(data)->getNumberOfRows();
+
     if (kmPar->maxIterations > 0)
     {
         DAAL_CHECK(inputRows >= kmPar->nClusters, ErrorKMeansNumberOfClustersIsTooLarge);

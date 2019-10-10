@@ -156,7 +156,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     r->impl()->setKDTreeTable(KDTreeTablePtr(new KDTreeTable(maxKDTreeNodeCount, status)));
     DAAL_CHECK_STATUS_VAR(status);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xRowCount, sizeof(size_t));
+
     size_t * indexes  = static_cast<size_t *>(service_calloc<size_t, cpu>(xRowCount * sizeof(size_t)));
+
     DAAL_CHECK_MALLOC(indexes)
     for (size_t i = 0; i < xRowCount; ++i)
     {
@@ -196,7 +199,12 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     const size_t xColumnCount = x.getNumberOfColumns();
     const size_t xRowCount = x.getNumberOfRows();
     const size_t bboxSize = queueSize * xColumnCount;
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, queueSize, xColumnCount);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, bboxSize, sizeof(BBox));
+
     bboxQ = static_cast<BBox *>(service_calloc<BBox, cpu>(bboxSize * sizeof(BBox), sizeof(BBox)));
+
     DAAL_CHECK_MALLOC(bboxQ)
     r.impl()->setLastNodeIndex(0);
     r.impl()->setRootNodeIndex(0);

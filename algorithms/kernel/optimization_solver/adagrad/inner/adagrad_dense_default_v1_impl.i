@@ -152,6 +152,8 @@ services::Status I1AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppI
     DAAL_CHECK(nIter <= services::internal::MaxVal<int>::get(), ErrorIterativeSolverIncorrectMaxNumberOfIterations)
     *nProceededIterations = (int)nIter;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> smAccumulatedG(nRows);
     DAAL_CHECK_MALLOC(smAccumulatedG.get());
     algorithmFPType *accumulatedG = (algorithmFPType *)smAccumulatedG.get();

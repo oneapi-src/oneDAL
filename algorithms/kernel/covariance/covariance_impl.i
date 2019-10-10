@@ -300,6 +300,8 @@ services::Status updateCSRCrossProductAndSums( size_t           nFeatures,
 
     if (method != sumCSR)
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors, sizeof(algorithmFPType));
+
         TArray<algorithmFPType, cpu> onesArray(nVectors);
         DAAL_CHECK_MALLOC(onesArray.get());
 
