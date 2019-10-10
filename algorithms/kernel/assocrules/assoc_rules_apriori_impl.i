@@ -31,6 +31,8 @@
 #include "assoc_rules_apriori_mine_impl.i"
 #include "assoc_rules_apriori_discover_impl.i"
 
+#include "service_data_utils.h"
+
 using namespace daal::algorithms::internal;
 using namespace daal::services;
 

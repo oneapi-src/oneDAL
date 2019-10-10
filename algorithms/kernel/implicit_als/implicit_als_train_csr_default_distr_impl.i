@@ -28,6 +28,7 @@
 #include "service_memory.h"
 #include "service_error_handling.h"
 #include "service_blas.h"
+#include "service_data_utils.h"
 
 namespace daal
 {

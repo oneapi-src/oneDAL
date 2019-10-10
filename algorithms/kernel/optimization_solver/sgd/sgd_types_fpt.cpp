@@ -23,6 +23,7 @@
 
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
 #include "algorithms/optimization_solver/sgd/sgd_types.h"
+#include "service_data_utils.h"
 
 using namespace daal::data_management;
 
