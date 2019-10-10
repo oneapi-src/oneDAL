@@ -52,15 +52,17 @@ using namespace daal::algorithms::optimization_solver::iterative_solver::interna
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status AdagradKernel<algorithmFPType, method, cpu>::initAccumulatedGrad(algorithmFPType *accumulatedG, size_t nRows, NumericTable *pOptInput)
 {
+    int result = 0;
     if(pOptInput)
     {
         /* Initialize accumulatedG and invAccumGrad from optional input data */
         ReadRows<algorithmFPType, cpu> optInputBD(*pOptInput, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(optInputBD);
         const algorithmFPType *optInputArray = optInputBD.get();
-        processByBlocks<cpu>(nRows, [ = ](size_t startOffset, size_t nRowsInBlock)
+        processByBlocks<cpu>(nRows, [ =, &result ](size_t startOffset, size_t nRowsInBlock)
         {
-            daal_memcpy_s(&accumulatedG[startOffset], nRowsInBlock * sizeof(algorithmFPType), &optInputArray[startOffset], nRowsInBlock * sizeof(algorithmFPType));
+            result |= daal_memcpy_s(&accumulatedG[startOffset], nRowsInBlock * sizeof(algorithmFPType),
+                                    &optInputArray[startOffset], nRowsInBlock * sizeof(algorithmFPType));
         },
         _blockSize, _threadStart);
     }
@@ -75,7 +77,7 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::initAccumulatedGra
         },
         _blockSize, _threadStart);
     }
-    return Status();
+    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
 /**
@@ -88,6 +90,7 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppIfa
     OptionalArgument *optionalArgument, OptionalArgument *optionalResult, Parameter *parameter, engines::BatchBase &engine)
 {
     const size_t nRows = inputArgument->getNumberOfRows();
+    int result = 0;
 
     WriteRows<algorithmFPType, cpu> workValueBD(*minimum, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(workValueBD);
@@ -98,12 +101,14 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppIfa
         ReadRows<algorithmFPType, cpu> startValueBD(*inputArgument, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(startValueBD);
         const algorithmFPType *startValueArray = startValueBD.get();
-        processByBlocks<cpu>(nRows, [ = ](size_t startOffset, size_t nRowsInBlock)
+        processByBlocks<cpu>(nRows, [ =, &result ](size_t startOffset, size_t nRowsInBlock)
         {
-            daal_memcpy_s(&workValue[startOffset], nRowsInBlock * sizeof(algorithmFPType), &startValueArray[startOffset], nRowsInBlock * sizeof(algorithmFPType));
+            result |= daal_memcpy_s(&workValue[startOffset], nRowsInBlock * sizeof(algorithmFPType),
+                                    &startValueArray[startOffset], nRowsInBlock * sizeof(algorithmFPType));
         },
         _blockSize, _threadStart);
     }
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     const size_t nIter = parameter->nIterations;
     WriteRows<int, cpu> nIterationsBD(*nIterations, 0, 1);
@@ -146,6 +151,8 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppIfa
 
     DAAL_CHECK(nIter <= services::internal::MaxVal<int>::get(), ErrorIterativeSolverIncorrectMaxNumberOfIterations)
     *nProceededIterations = (int)nIter;
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(algorithmFPType));
 
     TArray<algorithmFPType, cpu> smAccumulatedG(nRows);
     DAAL_CHECK_MALLOC(smAccumulatedG.get());
@@ -229,14 +236,14 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppIfa
     /* Copy accumulatedG to output */
     WriteRows<algorithmFPType, cpu> optResultBD(*pOptResult, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(optResultBD);
-    daal_memcpy_s(optResultBD.get(), nRows * sizeof(algorithmFPType), accumulatedG, nRows * sizeof(algorithmFPType));
+    result |= daal_memcpy_s(optResultBD.get(), nRows * sizeof(algorithmFPType), accumulatedG, nRows * sizeof(algorithmFPType));
     if(lastIterationResult)
     {
         WriteRows<int, cpu, NumericTable> lastIterationResultBD(lastIterationResult, 0, 1);
         int *lastIterationResultArray = lastIterationResultBD.get();
         lastIterationResultArray[0] = startIteration + nProceededIters;
     }
-    return s;
+    return (!result) ? s : Status(ErrorMemoryCopyFailedInternal);
 }
 
 } // namespace daal::internal

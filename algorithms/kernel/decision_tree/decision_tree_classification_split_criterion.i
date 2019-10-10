@@ -52,7 +52,9 @@ public:
 
     ClassCounters(const ClassCounters & value) : _size(value._size), _counters(value._size ? daal_alloc<size_t>(value._size) : nullptr)
     {
-        daal_memcpy_s(_counters, _size * sizeof(size_t), value._counters, value._size * sizeof(size_t));
+        int result = daal_memcpy_s(_counters, _size * sizeof(size_t), value._counters, value._size * sizeof(size_t));
+        if (result)
+            _status |= services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
     ClassCounters(size_t size, const NumericTable * w = nullptr ) : _size(size), _counters(size ? daal_alloc<size_t>(size) : nullptr) { reset(); }
@@ -92,7 +94,8 @@ public:
             _counters = daal_alloc<size_t>(rhs._size);
             _size = rhs._size;
         }
-        daal_memcpy_s(_counters, _size * sizeof(size_t), rhs._counters, rhs._size * sizeof(size_t));
+        int result = daal_memcpy_s(_counters, _size * sizeof(size_t), rhs._counters, rhs._size * sizeof(size_t));
+        _status |= services::Status(services::ErrorMemoryCopyFailedInternal);
         return *this;
     }
 
@@ -193,6 +196,12 @@ public:
         }
     }
 
+    bool ok() const { return _status.ok(); }
+    services::Status getLastStatus() const { return _status; }
+
+protected:
+    services::Status _status;
+
 private:
     size_t _size;
     size_t * _counters;
@@ -206,7 +215,9 @@ public:
 
     ClassWeightsCounters(const ClassWeightsCounters & value) : _size(value._size), _counters(value._size ? daal_alloc<algorithmFPType>(value._size) : nullptr)
     {
-        daal_memcpy_s(_counters, _size * sizeof(algorithmFPType), value._counters, value._size * sizeof(algorithmFPType));
+        int result = daal_memcpy_s(_counters, _size * sizeof(algorithmFPType), value._counters, value._size * sizeof(algorithmFPType));
+        if (result)
+            _status |= services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
     ClassWeightsCounters(size_t size, const NumericTable * w) : _size(size), _counters(size ? daal_alloc<algorithmFPType>(size) : nullptr)
@@ -268,7 +279,9 @@ public:
             _counters = daal_alloc<algorithmFPType>(rhs._size);
             _size = rhs._size;
         }
-        daal_memcpy_s(_counters, _size * sizeof(algorithmFPType), rhs._counters, rhs._size * sizeof(algorithmFPType));
+        int result = daal_memcpy_s(_counters, _size * sizeof(algorithmFPType), rhs._counters, rhs._size * sizeof(algorithmFPType));
+        if (result)
+            _status |= services::Status(services::ErrorMemoryCopyFailedInternal);
         return *this;
     }
 
@@ -368,6 +381,12 @@ public:
             }
         }
     }
+
+    bool ok() const { return _status.ok(); }
+    services::Status getLastStatus() const { return _status; }
+
+protected:
+    services::Status _status;
 
 private:
     size_t _size;

@@ -135,6 +135,9 @@ Status DBSCANDistrStep3Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
     const size_t nFeatures = NumericTable::cast((*dcPartialData)[0])->getNumberOfColumns();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, 2);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, 2 * nFeatures, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> boundingBoxArray(2 * nFeatures);
     DAAL_CHECK_MALLOC(boundingBoxArray.get());
     algorithmFPType * const boundingBox = boundingBoxArray.get();
@@ -181,11 +184,14 @@ Status DBSCANDistrStep3Kernel<algorithmFPType, method, cpu>::compute(const DataC
         totalNRows += ntData->getNumberOfRows();
     }
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, totalNRows, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> splitColumnArray(totalNRows);
     DAAL_CHECK_MALLOC(splitColumnArray.get());
     algorithmFPType * const splitColumn = splitColumnArray.get();
 
     size_t pos = 0;
+    int result = 0;
     for (size_t part = 0; part < dcPartialData->size(); part++)
     {
         NumericTablePtr ntData = NumericTable::cast((*dcPartialData)[part]);
@@ -194,10 +200,11 @@ Status DBSCANDistrStep3Kernel<algorithmFPType, method, cpu>::compute(const DataC
         ReadColumns<algorithmFPType, cpu> dataColumns(ntData.get(), splitDim, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(dataColumns);
         const algorithmFPType * const data = dataColumns.get();
-        daal_memcpy_s(&(splitColumn[pos]), sizeof(algorithmFPType) * nRows, data, sizeof(algorithmFPType) * nRows);
+        result |= daal_memcpy_s(&(splitColumn[pos]), sizeof(algorithmFPType) * nRows, data, sizeof(algorithmFPType) * nRows);
 
         pos += nRows;
     }
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     const size_t splitPosition = (size_t)(totalNRows * ((double)leftBlocks / (leftBlocks + rightBlocks)));
     const algorithmFPType splitValue = findKthStatistic<algorithmFPType, cpu>(splitColumn, totalNRows, splitPosition);
@@ -225,9 +232,13 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
     const size_t nFeatures = NumericTable::cast((*dcPartialData)[0])->getNumberOfColumns();
     const size_t nBlocks = dcPartialSplits->size();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> partialSplitValuesArray(nBlocks);
     DAAL_CHECK_MALLOC(partialSplitValuesArray.get());
     algorithmFPType * const partialSplitValues = partialSplitValuesArray.get();
+
+    int result = 0;
 
     size_t splitDim = -1;
     for (size_t part = 0; part < nBlocks; part++)
@@ -251,6 +262,8 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
     }
 
     algorithmFPType splitValue = findKthStatistic<algorithmFPType, cpu>(partialSplitValues, nBlocks, nBlocks / 2);
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(int));
 
     TArray<int, cpu> partitionedDataNRowsArray(nBlocks);
     DAAL_CHECK_MALLOC(partitionedDataNRowsArray.get());
@@ -315,7 +328,6 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
     curLeftBlock = 0;
     curRightBlock = 0;
-
     for (size_t part = 0; part < dcPartialData->size(); part++)
     {
         NumericTablePtr ntData = NumericTable::cast((*dcPartialData)[part]);
@@ -367,13 +379,12 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
                 DAAL_CHECK_BLOCK_STATUS(partitionedPartialOrdersRows);
                 int * const partitionedPartialOrders = partitionedPartialOrdersRows.get();
 
-                daal_memcpy_s(partitionedData, sizeof(algorithmFPType) * nFeatures, &(data[i * nFeatures]), sizeof(algorithmFPType) * nFeatures);
-                daal_memcpy_s(partitionedPartialOrders, sizeof(int) * 2, &(partialOrders[i * 2]), sizeof(int) * 2);
+                result |= daal_memcpy_s(partitionedData, sizeof(algorithmFPType) * nFeatures, &(data[i * nFeatures]), sizeof(algorithmFPType) * nFeatures);
+                result |= daal_memcpy_s(partitionedPartialOrders, sizeof(int) * 2, &(partialOrders[i * 2]), sizeof(int) * 2);
             }
         }
     }
-
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -389,6 +400,10 @@ Status DBSCANDistrStep5Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
     const size_t nFeatures = NumericTable::cast((*dcPartialData)[0])->getNumberOfColumns();
     const size_t defaultBlockSize = 256;
+
+    int result = 0;
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(int));
 
     TArray<int, cpu> partitionedHaloDataNRowsArray(nBlocks);
     DAAL_CHECK_MALLOC(partitionedHaloDataNRowsArray.get());
@@ -510,7 +525,7 @@ Status DBSCANDistrStep5Kernel<algorithmFPType, method, cpu>::compute(const DataC
                         DAAL_CHECK_BLOCK_STATUS(partitionedHaloDataIndicesRows);
                         int * const partitionedHaloDataIndices = partitionedHaloDataIndicesRows.get();
 
-                        daal_memcpy_s(partitionedHaloData, sizeof(algorithmFPType) * nFeatures, &(data[i * nFeatures]), sizeof(algorithmFPType) * nFeatures);
+                        result |= daal_memcpy_s(partitionedHaloData, sizeof(algorithmFPType) * nFeatures, &(data[i * nFeatures]), sizeof(algorithmFPType) * nFeatures);
                         partitionedHaloDataIndices[0] = ind + i;
 
                         partitionedHaloDataPos[extPart]++;
@@ -522,7 +537,7 @@ Status DBSCANDistrStep5Kernel<algorithmFPType, method, cpu>::compute(const DataC
         }
     }
 
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -623,6 +638,7 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::repackIntoSingleNT(
 {
     size_t nRows = 0;
     size_t nFeatures = 0;
+    int result = 0;
 
     for (size_t i = 0; i < dcInput->size(); i++)
     {
@@ -675,13 +691,13 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::repackIntoSingleNT(
             DAAL_CHECK_BLOCK_STATUS(outRows);
             T * const out = outRows.get();
 
-            daal_memcpy_s(out, sizeof(T) * iSize * nFeatures, in, sizeof(T) * iSize * nFeatures);
+            result |= daal_memcpy_s(out, sizeof(T) * iSize * nFeatures, in, sizeof(T) * iSize * nFeatures);
         }
 
         pos += nInputRows;
     }
 
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -715,6 +731,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
     const size_t blockIndex   = par->blockIndex;
     const size_t nBlocks = par->nBlocks;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nHaloRows, sizeof(int));
+
     TArray<int, cpu> haloBlocksArray(nHaloRows);
     if (nHaloRows)
     {
@@ -743,6 +761,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
         DAAL_CHECK_BLOCK_STATUS(haloDataIndicesRows);
     }
     const int * const haloDataIndices = haloDataIndicesRows.get();
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(Neighborhood<algorithmFPType, cpu>));
 
     TArray<Neighborhood<algorithmFPType, cpu>, cpu> neighs(nRows);
     if (nRows)
@@ -789,6 +809,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
         clusterStructure[i * 4 + 2] = blockIndex;  // partition of parent observation in union-find structure
         clusterStructure[i * 4 + 3] = -1;         // index of parent observation in union-find structure
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
 
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
@@ -896,6 +918,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
     const size_t blockIndex   = par->blockIndex;
     const size_t nBlocks = par->nBlocks;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nHaloRows, sizeof(int));
+
     TArray<int, cpu> haloBlocksArray(nHaloRows);
     if (nHaloRows)
     {
@@ -962,6 +986,8 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
         clusterStructure[i * 4 + 2] = blockIndex;  // partition of parent observation in union-find structure
         clusterStructure[i * 4 + 3] = -1;         // index of parent observation in union-find structure
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
 
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
@@ -1272,10 +1298,13 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
 {
     const size_t blockIndex   = par->blockIndex;
     const size_t nBlocks = par->nBlocks;
+    int result = 0;
 
     const size_t nRows = ntInputClusterStructure->getNumberOfRows();
 
     size_t nClusters = ntInputNClusters->getValue<int>(0, 0);
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
 
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
@@ -1295,7 +1324,8 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
     }
     int * const clusterStructure = clusterStructureRows.get();
 
-    daal_memcpy_s(clusterStructure, sizeof(int) * 4 * nRows, inputClusterStructure, sizeof(int) * 4 * nRows);
+    result |= daal_memcpy_s(clusterStructure, sizeof(int) * 4 * nRows, inputClusterStructure, sizeof(int) * 4 * nRows);
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     for (size_t part = 0; part < dcPartialQueries->size(); part++)
     {
@@ -1453,7 +1483,7 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
         WriteRows<int, cpu> curQueriesRows(ntCurQueries.get(), 0, nCurQueries);
         DAAL_CHECK_BLOCK_STATUS(curQueriesRows);
         int * const curQueries = curQueriesRows.get();
-        daal_memcpy_s(curQueries, sizeof(int) * 3 * nCurQueries, queries[part].ptr(), sizeof(int) * 3 * nCurQueries);
+        result |= daal_memcpy_s(curQueries, sizeof(int) * 3 * nCurQueries, queries[part].ptr(), sizeof(int) * 3 * nCurQueries);
     }
 
     {
@@ -1470,7 +1500,7 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
         finishedFlag[0] = int(totalFinishedFlag);
     }
 
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -1536,6 +1566,8 @@ Status DBSCANDistrStep10Kernel<algorithmFPType, method, cpu>::compute(const Nume
     const size_t offset = ntClusterOffset->getValue<int>(0, 0);
     const size_t nRows = ntInputClusterStructure->getNumberOfRows();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
+
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
     Vector<int, cpu> *queries = queriesArray.get();
@@ -1544,6 +1576,7 @@ Status DBSCANDistrStep10Kernel<algorithmFPType, method, cpu>::compute(const Nume
     const size_t nInputBlocks = nRows / defaultBlockSize + int(nRows % defaultBlockSize > 0);
 
     size_t nClusters = 0;
+    int result = 0;
 
     for (size_t block = 0; block < nInputBlocks; block++)
     {
@@ -1559,7 +1592,7 @@ Status DBSCANDistrStep10Kernel<algorithmFPType, method, cpu>::compute(const Nume
         DAAL_CHECK_BLOCK_STATUS(clusterStructureRows);
         int * const clusterStructure = clusterStructureRows.get();
 
-        daal_memcpy_s(clusterStructure, sizeof(int) * 4 * iSize, inputClusterStructure, sizeof(int) * 4 * iSize);
+        result |= daal_memcpy_s(clusterStructure, sizeof(int) * 4 * iSize, inputClusterStructure, sizeof(int) * 4 * iSize);
 
         for (size_t i = 0; i < iSize; i++)
         {
@@ -1617,7 +1650,7 @@ Status DBSCANDistrStep10Kernel<algorithmFPType, method, cpu>::compute(const Nume
         finishedFlag[0] = int(totalFinishedFlag);
     }
 
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -1633,9 +1666,13 @@ Status DBSCANDistrStep11Kernel<algorithmFPType, method, cpu>::compute(const Nume
 
     const size_t nRows = ntInputClusterStructure->getNumberOfRows();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(Vector<int, cpu>));
+
     TArray<Vector<int, cpu>, cpu> queriesArray(nBlocks);
     DAAL_CHECK_MALLOC(queriesArray.get());
     Vector<int, cpu> *queries = queriesArray.get();
+
+    int result = 0;
 
     ReadRows<int, cpu> inputClusterStructureRows(const_cast<NumericTable *>(ntInputClusterStructure), 0, nRows);
     if (nRows)
@@ -1651,7 +1688,7 @@ Status DBSCANDistrStep11Kernel<algorithmFPType, method, cpu>::compute(const Nume
     }
     int * const clusterStructure = clusterStructureRows.get();
 
-    daal_memcpy_s(clusterStructure, sizeof(int) * 4 * nRows, inputClusterStructure, sizeof(int) * 4 * nRows);
+    result |= daal_memcpy_s(clusterStructure, sizeof(int) * 4 * nRows, inputClusterStructure, sizeof(int) * 4 * nRows);
 
     for (size_t part = 0; part < dcPartialQueries->size(); part++)
     {
@@ -1742,7 +1779,7 @@ Status DBSCANDistrStep11Kernel<algorithmFPType, method, cpu>::compute(const Nume
         DAAL_CHECK_BLOCK_STATUS(curQueriesRows);
         int * const curQueries = curQueriesRows.get();
 
-        daal_memcpy_s(curQueries, sizeof(int) * 4 * nCurQueries, queries[part].ptr(), sizeof(int) * 4 * nCurQueries);
+        result |= daal_memcpy_s(curQueries, sizeof(int) * 4 * nCurQueries, queries[part].ptr(), sizeof(int) * 4 * nCurQueries);
     }
 
     {
@@ -1752,7 +1789,7 @@ Status DBSCANDistrStep11Kernel<algorithmFPType, method, cpu>::compute(const Nume
         finishedFlag[0] = int(totalFinishedFlag);
     }
 
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -1796,6 +1833,8 @@ Status DBSCANDistrStep12Kernel<algorithmFPType, method, cpu>::compute(      Nume
             inputClusterStructure[id * 4 + 0] = clusterId;
         }
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocks, sizeof(int));
 
     TArray<int, cpu> initialBlocksNRowsArray(nBlocks);
     DAAL_CHECK_MALLOC(initialBlocksNRowsArray.get());
@@ -1900,6 +1939,7 @@ Status DBSCANDistrStep13Kernel<algorithmFPType, method, cpu>::compute(const Data
                                                                       const Parameter      *par)
 {
     SafeStatus safeStat;
+    int result = 0;
 
     const size_t nBlocks = dcPartialAssignmentQueries->size();
     size_t nRows = 0;
@@ -1936,13 +1976,12 @@ Status DBSCANDistrStep13Kernel<algorithmFPType, method, cpu>::compute(const Data
             DAAL_CHECK_BLOCK_STATUS_THR(assignmentQueriesRows);
             int * const assignmentQueries = assignmentQueriesRows.get();
 
-            daal_memcpy_s(assignmentQueries, sizeof(int) * iSize * 2, curQueries, sizeof(int) * iSize * 2);
+            result |= daal_memcpy_s(assignmentQueries, sizeof(int) * iSize * 2, curQueries, sizeof(int) * iSize * 2);
         });
 
         pos += nCurQueries;
     }
-    Status status = safeStat.detach();
-    return status;
+return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>

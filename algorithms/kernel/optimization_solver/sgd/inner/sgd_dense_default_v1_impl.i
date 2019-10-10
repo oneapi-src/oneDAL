@@ -58,9 +58,10 @@ services::Status I1SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAp
 {
     const size_t nRows = inputArgument->getNumberOfRows();
     SafeStatus safeStat;
+    int result = 0;
     //init workValue
     {
-        processByBlocks<cpu>(minimum->getNumberOfRows(), [=, &safeStat](size_t startOffset, size_t nRowsInBlock)
+        processByBlocks<cpu>(minimum->getNumberOfRows(), [=, &result, &safeStat](size_t startOffset, size_t nRowsInBlock)
         {
             WriteRows<algorithmFPType, cpu, NumericTable> workValueBD(*minimum, startOffset, nRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS_THR(workValueBD);
@@ -70,10 +71,12 @@ services::Status I1SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAp
             const algorithmFPType *startValueArray = startValueBD.get();
             if( minArray != startValueArray )
             {
-                daal_memcpy_s(minArray, nRowsInBlock * sizeof(algorithmFPType), startValueArray, nRowsInBlock * sizeof(algorithmFPType));
+                result |= daal_memcpy_s(minArray, nRowsInBlock * sizeof(algorithmFPType),
+                                        startValueArray, nRowsInBlock * sizeof(algorithmFPType));
             }
         });
         DAAL_CHECK_SAFE_STATUS();
+        DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
 
     const size_t nIter = parameter->nIterations;
@@ -97,6 +100,7 @@ services::Status I1SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAp
     TArray<int, cpu> aPredefinedBatchIndices(bGenerateAllIndices ? nIter : 0);
     if(bGenerateAllIndices)
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nIter, sizeof(int));
         /*Get random indices for SGD from rng generator*/
         DAAL_CHECK_MALLOC(aPredefinedBatchIndices.get());
         getRandom(0, nTerms, aPredefinedBatchIndices.get(), nIter, engine);

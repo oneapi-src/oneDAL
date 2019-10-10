@@ -58,7 +58,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
     const HostAppIfacePtr& pHost, const NumericTablePtr& x, const NumericTablePtr& y,
     lasso_regression::Model& m, Result& res, const Parameter& par, services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> >& objFunc)
 {
-    services::Status s;
+    services::Status s{services::Status()};
     const size_t nFeatures = x->getNumberOfColumns();
     const size_t nRows = x->getNumberOfRows();
     const size_t p = nFeatures + 1;
@@ -77,6 +77,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
     {
         if(par.dataUseInComputation == doNotUse)
         {
+            int result = 0;
             xTrain = daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu>::create(nFeatures, nRows, &s);
             DAAL_CHECK_STATUS_VAR(s);
             yTrain = daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu>::create(nDependentVariables, nRows, &s);
@@ -94,8 +95,10 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
             DAAL_CHECK_BLOCK_STATUS(yBD);
             algorithmFPType* xPtr = xBD.get();
             algorithmFPType* yPtr = yBD.get();
-            daal_memcpy_s(xTrainPtr, nFeatures * nRows * sizeof(algorithmFPType), xPtr, nFeatures * nRows * sizeof(algorithmFPType));
-            daal_memcpy_s(yTrainPtr, nDependentVariables * nRows * sizeof(algorithmFPType), yPtr, nDependentVariables * nRows * sizeof(algorithmFPType));
+            result |= daal_memcpy_s(xTrainPtr, nFeatures * nRows * sizeof(algorithmFPType), xPtr, nFeatures * nRows * sizeof(algorithmFPType));
+            result |= daal_memcpy_s(yTrainPtr, nDependentVariables * nRows * sizeof(algorithmFPType), yPtr,
+                                    nDependentVariables * nRows * sizeof(algorithmFPType));
+            DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
         }
 
         daal::internal::WriteRows<algorithmFPType, cpu> xBD(xTrain.get(), 0, nRows);
@@ -144,6 +147,8 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
         const size_t blockSize = 256;
         size_t nBlocks = nRows/blockSize;
         nBlocks += (nBlocks*blockSize != nRows);
+
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
 
         TlsMem<algorithmFPType,cpu,services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(nFeatures);
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock)

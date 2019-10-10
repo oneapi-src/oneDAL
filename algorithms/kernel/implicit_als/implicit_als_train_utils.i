@@ -48,9 +48,12 @@ services::Status csr2csc(size_t nItems, size_t nUsers,
     TArray<size_t, cpu> cooColIndicesPtr(dataSize);
     size_t *cooColIndices = cooColIndicesPtr.get();
     DAAL_CHECK_MALLOC(cooColIndices);
+    int result = 0;
 
-    daal_memcpy_s(cscdata, dataSize * sizeof(algorithmFPType), csrdata, dataSize * sizeof(algorithmFPType));
-    daal_memcpy_s(cooColIndices, dataSize * sizeof(size_t), colIndices, dataSize * sizeof(size_t));
+    result |= daal_memcpy_s(cscdata, dataSize * sizeof(algorithmFPType), csrdata, dataSize * sizeof(algorithmFPType));
+    result |= daal_memcpy_s(cooColIndices, dataSize * sizeof(size_t), colIndices, dataSize * sizeof(size_t));
+
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     /* Create array of row indices for COO data */
     for (size_t i = 1; i <= nUsers; i++)

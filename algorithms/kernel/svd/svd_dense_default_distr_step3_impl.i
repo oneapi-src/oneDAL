@@ -72,6 +72,11 @@ Status SVDDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const si
     DAAL_CHECK_BLOCK_STATUS(sigmaBlock);
     algorithmFPType *Sigma = sigmaBlock.get();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nxb);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, n);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * n, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * nxb, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> Aux2TPtr(n * nxb);
     TArray<algorithmFPType, cpu> VTPtr   (n * n  );
     TArray<algorithmFPType, cpu> Aux3TPtr(n * nxb);

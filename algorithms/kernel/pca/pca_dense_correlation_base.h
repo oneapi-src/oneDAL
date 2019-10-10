@@ -75,6 +75,7 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovarianceTable(NumericTable& covariance) const
 {
     size_t nFeatures = covariance.getNumberOfRows();
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
     /* Calculate resulting correlation matrix */
     TArray<algorithmFPType, cpu> diagInvSqrtsArray(nFeatures);
     DAAL_CHECK_MALLOC(diagInvSqrtsArray.get());
@@ -144,6 +145,9 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::computeCorrelationEig
     ReadRows<algorithmFPType, cpu> correlationBlock(const_cast<data_management::NumericTable&>(correlation), 0, nFeatures);
     DAAL_CHECK_BLOCK_STATUS(correlationBlock);
     const algorithmFPType *correlationArray = correlationBlock.get();
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, nFeatures);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures * nFeatures, sizeof(algorithmFPType));
 
     TArray<algorithmFPType, cpu> fullEigenvectors(nFeatures * nFeatures);
     DAAL_CHECK_MALLOC(fullEigenvectors.get());

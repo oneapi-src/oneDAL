@@ -149,6 +149,7 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute
     UniquePtr<daal::tls<algorithmFPType *>, cpu> tls;
     if (isNormalize)
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, numRowsInBlock * numFeatures * sizeof(algorithmFPType), sizeof(algorithmFPType));
         tls.reset(new daal::tls<algorithmFPType *>([=]()
         {
             return (algorithmFPType *)daal::services::internal::service_malloc<algorithmFPType, cpu>(numRowsInBlock * numFeatures *

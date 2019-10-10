@@ -142,12 +142,14 @@ enum ErrorID
     ErrorUndefinedFeature = -77,                                        /*!< Dictionary contains a undefined feature */
     ErrorCloneMethodFailed = -78,                                       /*!< Cloning of algorithm failed */
     ErrorDataTypeNotSupported = -79,                                    /*!< Data type not supported */
+    ErrorBufferSizeIntegerOverflow = -80,                               /*!< Integer oveflow is occured during buffer size calculation */
 
     // Environment errors: -2000..-2999
     ErrorCpuIsInvalid = -1,                                             /*!< Invalid CPU value used */
     ErrorCpuNotSupported = -2000,                                       /*!< CPU not supported */
     ErrorMemoryAllocationFailed = -2001,                                /*!< Memory allocation failed */
     ErrorEmptyDataBlock = -2004,                                        /*!< Empty data block */
+    ErrorMemoryCopyFailedInternal = -2005,                              /*!< Memory copy internal error */
 
     // Workflow errors: -3000..-3999
     ErrorIncorrectCombinationOfComputationModeAndStep = -3002,          /*!< Incorrect combination of computation mode and computation step */

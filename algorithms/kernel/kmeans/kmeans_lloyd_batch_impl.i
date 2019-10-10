@@ -50,6 +50,12 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     const size_t nIter = par->maxIterations;
     const size_t p = ntData->getNumberOfColumns();
     const size_t nClusters = par->nClusters;
+    int result = 0;
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(int));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, p);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters * p, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, sizeof(algorithmFPType));
 
     TArray<int, cpu> clusterS0(nClusters);
     TArray<algorithmFPType, cpu> clusterS1(nClusters*p);
@@ -90,11 +96,16 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     algorithmFPType *inClusters = const_cast<algorithmFPType*>(mtInClusters.get());
     algorithmFPType *clusters = mtClusters.get();
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, sizeof(double));
+
     TArray<double, cpu> dS1(method == defaultDense ? p : 0);
     if (method == defaultDense)
     {
         DAAL_CHECK(dS1.get(), services::ErrorMemoryAllocationFailed);
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(size_t));
 
     TArray<algorithmFPType, cpu> cValues(nClusters);
     TArray<size_t, cpu> cIndices(nClusters);
@@ -142,7 +153,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                 newCentersGoalFunc += cValues[cPos];
                 ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices[cPos], 1);
                 const algorithmFPType *row = mtRow.get();
-                daal::services::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
+                result |= daal::services::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
                 cPos++;
             }
         }
@@ -188,7 +199,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     DAAL_CHECK_BLOCK_STATUS(mtTarget);
     *mtTarget.get() = targetFunc;
 
-    return s;
+    return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 } // namespace daal::algorithms::kmeans::internal

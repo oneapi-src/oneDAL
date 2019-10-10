@@ -148,6 +148,8 @@ services::Status I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoo
     NewtonRaphsonKernel<method, algorithmFPType, cpu> nr(nVectors, parameter);
     DAAL_CHECK(nr.isValid(), services::ErrorMemoryAllocationFailed);
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors, sizeof(algorithmFPType));
+
     /* Allocate memory for storing intermediate results */
     daal::internal::TArray<algorithmFPType, cpu> r(nVectors);/* Weak classifier's classification margin */
     DAAL_CHECK(r.get(), services::ErrorMemoryAllocationFailed);
@@ -183,7 +185,7 @@ services::Status I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoo
         updateWeights(nVectors, s, nr.c, nr.invSqrtC, r.get(), nr.aNra.get(), nr.aNre2.get(), w);
 
         /* Re-allocate array of weak learners' models and boosting coefficients */
-        alpha = reallocateAlpha(nWeakLearners-1, nWeakLearners, alpha);
+        alpha = reallocateAlpha(nWeakLearners-1, nWeakLearners, alpha, status);
         if (!alpha)
             return services::Status(services::ErrorMemoryAllocationFailed);
 
@@ -266,12 +268,18 @@ void I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 algorithmFPType* I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocateAlpha(
-            size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha)
+            size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s)
 {
-    algorithmFPType *alpha =
-        (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(alphaSize * sizeof(algorithmFPType));
-    if(alpha && oldAlpha)
-    daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
+    algorithmFPType *alpha = (algorithmFPType *)daal::services::daal_malloc(alphaSize * sizeof(algorithmFPType));
+    if (alpha && oldAlpha)
+    {
+        int result = 0;
+        result = daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
+        if (result)
+        {
+            s |= services::Status(services::ErrorMemoryCopyFailedInternal);
+        }
+    }
     if (oldAlpha)
     {
         daal::services::daal_free(oldAlpha);
@@ -412,7 +420,7 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoost
         updateWeights(nVectors, s, nr.c, nr.invSqrtC, r.get(), nr.aNra.get(), nr.aNre2.get(), w);
 
         /* Re-allocate array of weak learners' models and boosting coefficients */
-        alpha = reallocateAlpha(nWeakLearners-1, nWeakLearners, alpha);
+        alpha = reallocateAlpha(nWeakLearners-1, nWeakLearners, alpha, status);
         if (!alpha)
             return services::Status(services::ErrorMemoryAllocationFailed);
 
@@ -495,11 +503,18 @@ void BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 algorithmFPType* BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocateAlpha(
-            size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha)
+            size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s)
 {
-    algorithmFPType *alpha = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(alphaSize * sizeof(algorithmFPType));
-    if(alpha && oldAlpha)
-    daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
+    algorithmFPType *alpha = (algorithmFPType *)daal::services::daal_malloc(alphaSize * sizeof(algorithmFPType));
+    if (alpha && oldAlpha)
+    {
+        int result = 0;
+        result = daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
+        if (result)
+        {
+            s |= services::Status(services::ErrorMemoryCopyFailedInternal);
+        }
+    }
     if (oldAlpha)
     {
         daal::services::daal_free(oldAlpha);

@@ -189,6 +189,7 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::stumpRegression
     splitPoint = 0.0;
     lMean = 0.0;
     rMean = 0.0;
+    int result = 0;
 
     algorithmFPtype lw, rw;  /* sums of weights in the left and right regions */
     algorithmFPtype lm, rm;  /* weighted means of the responses z of the left and right
@@ -209,9 +210,10 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::stumpRegression
 
     DAAL_CHECK(xx && ww && zz, services::ErrorMemoryAllocationFailed);
 
-    daal::services::daal_memcpy_s(ww, nVectors * sizeof(algorithmFPtype), w, nVectors * sizeof(algorithmFPtype));
-    daal::services::daal_memcpy_s(zz, nVectors * sizeof(algorithmFPtype), z, nVectors * sizeof(algorithmFPtype));
-    daal::services::daal_memcpy_s(xx, nVectors * sizeof(algorithmFPtype), x, nVectors * sizeof(algorithmFPtype));
+    result |= daal::services::daal_memcpy_s(ww, nVectors * sizeof(algorithmFPtype), w, nVectors * sizeof(algorithmFPtype));
+    result |= daal::services::daal_memcpy_s(zz, nVectors * sizeof(algorithmFPtype), z, nVectors * sizeof(algorithmFPtype));
+    result |= daal::services::daal_memcpy_s(xx, nVectors * sizeof(algorithmFPtype), x, nVectors * sizeof(algorithmFPtype));
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     StumpQSort(nVectors, xx, ww, zz);
 

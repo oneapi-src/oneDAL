@@ -222,6 +222,9 @@ Status DistributedContainer<step2Master, algorithmFPType, method, cpu>::compute(
 
     DataCollectionPtr collection = input->get(partialModels);
     size_t n = collection->size();
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, sizeof(NumericTable *));
+
     Status s;
     if (method == training::normEqDense)
     {

@@ -62,6 +62,9 @@ compute(const NumericTable *a, const daal::algorithms::Model *m, NumericTable *r
     Model *model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
     MultiClsParam *mccPar = static_cast<MultiClsParam *>(const_cast<daal::algorithms::Parameter *>(par));
     size_t nClasses = mccPar->nClasses;
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClasses, sizeof(size_t));
+
     TArray<size_t, cpu> nonEmptyClassMapBuffer(nClasses);
     DAAL_CHECK_MALLOC(nonEmptyClassMapBuffer.get());
 

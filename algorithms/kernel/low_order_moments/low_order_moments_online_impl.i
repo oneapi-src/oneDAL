@@ -71,7 +71,7 @@ services::Status LowOrderMomentsOnlineKernel<algorithmFPType, method, cpu>::comp
 
     DAAL_CHECK_STATUS_VAR(s)
 
-    computeMinMaxAndSumOfSquared<algorithmFPType, cpu> (task.nFeatures,
+    s = computeMinMaxAndSumOfSquared<algorithmFPType, cpu> (task.nFeatures,
                                         task.nVectors,
                                         task.dataBlock,
                                         task.resultArray[(int)partialMinimum],

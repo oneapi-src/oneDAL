@@ -343,7 +343,7 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
 
     r->setNFeatures(x->getNumberOfColumns());
 
-    services::Status status;
+    services::Status status{services::Status()};
     Tree<cpu, algorithmFPType, int> tree;
     if (w == nullptr)
     {
@@ -351,14 +351,16 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
         if (parameter->splitCriterion == gini)
         {
             Gini<algorithmFPType, cpu> splitCriterion;
-            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status |= tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses,
+                                parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
             status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
         }
         else
         {
             InfoGain<algorithmFPType, cpu> splitCriterion;
-            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
-            status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+            status |= tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses,
+                                parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status |= pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
         }
     }
     else
@@ -367,14 +369,16 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
         if (parameter->splitCriterion == gini)
         {
             GiniWeighted<algorithmFPType, cpu> splitCriterion;
-            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
-            status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+            status |= tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses,
+                                 parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status |= pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
         }
         else
         {
             InfoGainWeighted<algorithmFPType, cpu> splitCriterion;
-            tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
-            status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
+            status |= tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses,
+                                 parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status |= pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
         }
     }
     return status;

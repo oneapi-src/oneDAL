@@ -28,6 +28,7 @@ struct common_moments_data_t
     {
         nVectors  = dataTable->getNumberOfRows();
         nFeatures = dataTable->getNumberOfColumns();
+        int result = 0;
 
         dataTable->getBlockOfRows(0, 1, readOnly, dataBD);
         firstRow = dataBD.getBlockPtr();
@@ -66,10 +67,10 @@ struct common_moments_data_t
             if (!prevSums)
                 return Status(services::ErrorMemoryAllocationFailed);
 
-            daal_memcpy_s(prevSums, rowSize, resultArray[(int)partialSum], rowSize);
+            result = daal_memcpy_s(prevSums, rowSize, resultArray[(int)partialSum], rowSize);
 #endif
         }
-        return Status();
+        return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
     }
 
     ~common_moments_data_t()

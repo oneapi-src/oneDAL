@@ -80,7 +80,7 @@ public:
      * \param[in] blockSize     Number of requested values in each block
      * \param[out] block1       Pointer to the first  block of values
      * \param[out] block2       Pointer to the second block of values
-    * \return status of the call
+     * \return status of the call
      */
     virtual Status getTwoRowsBlock(size_t rowIndex1, size_t rowIndex2, size_t startColIndex, size_t blockSize,
         const algorithmFPType*& block1, const algorithmFPType*& block2) = 0;
@@ -91,8 +91,9 @@ public:
      * \param[in] nActiveVectors Number of observations in a training data set that are used
      *                           in sequential minimum optimization at the current iteration
      * \param[in] I              Array of flags that describe the status of feature vectors
+     * \return status of the call
      */
-    virtual void updateShrinkingRowIndices(size_t nActiveVectors, const char *I) = 0;
+    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char *I) = 0;
 };
 
 /**
@@ -206,7 +207,7 @@ public:
         return Status();
     }
 
-    virtual void updateShrinkingRowIndices(size_t nActiveVectors, const char *I) DAAL_C11_OVERRIDE;
+    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char *I) DAAL_C11_OVERRIDE;
 
     ~SVMCache(){}
 
@@ -309,7 +310,7 @@ public:
         return s;
     }
 
-    virtual void updateShrinkingRowIndices(size_t nActiveVectors, const char *I) DAAL_C11_OVERRIDE;
+    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char *I) DAAL_C11_OVERRIDE;
 
     ~SVMCache()
     {

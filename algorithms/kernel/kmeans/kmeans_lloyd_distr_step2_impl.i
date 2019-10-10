@@ -45,11 +45,12 @@ namespace internal
 #define __DAAL_FABS(a) (((a)>(algorithmFPType)0.0)?(a):(-(a)))
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute( size_t na, const NumericTable *const *a,
-                                                                                      size_t nr, const NumericTable *const *r, const Parameter *par)
+Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute(size_t na, const NumericTable *const *a,
+                                                                           size_t nr, const NumericTable *const *r, const Parameter *par)
 {
     const size_t nClusters = par->nClusters;
     const size_t p = r[1]->getNumberOfColumns();
+    int result = 0;
 
     WriteOnlyRows<int, cpu> mtClusterS0(*const_cast<NumericTable*>(r[0]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtClusterS0);
@@ -88,6 +89,9 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute( size
     {
         cValues[j] = (algorithmFPType)-1.0;
     }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(size_t));
 
     TArray<algorithmFPType, cpu> tmpValues(nClusters);
     TArray<size_t, cpu>          tmpIndices(nClusters);
@@ -144,8 +148,8 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute( size
                 clPos++;
             }
         }
-        daal::services::daal_memcpy_s(cValues, cNum * sizeof(algorithmFPType), tmpValues.get(), cNum * sizeof(algorithmFPType));
-        daal::services::daal_memcpy_s(cIndices.get(), cNum * sizeof(size_t), tmpIndices.get(), cNum * sizeof(size_t));
+        result |= daal::services::daal_memcpy_s(cValues, cNum * sizeof(algorithmFPType), tmpValues.get(), cNum * sizeof(algorithmFPType));
+        result |= daal::services::daal_memcpy_s(cIndices.get(), cNum * sizeof(size_t), tmpIndices.get(), cNum * sizeof(size_t));
     }
 
     for (size_t i = 0; i < nClusters; i++)
@@ -160,19 +164,20 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute( size
         ReadRows<algorithmFPType, cpu> mtInCCentroids(*const_cast<NumericTable*>(a[block * 5 + 4]), posInBlock, 1);
         DAAL_CHECK_BLOCK_STATUS(mtInCCentroids);
         const algorithmFPType *inCCentroids = mtInCCentroids.get();
-        daal::services::daal_memcpy_s(&cCentroids[i * p], p * sizeof(algorithmFPType), inCCentroids, p * sizeof(algorithmFPType));
+        result |= daal::services::daal_memcpy_s(&cCentroids[i * p], p * sizeof(algorithmFPType), inCCentroids, p * sizeof(algorithmFPType));
     }
 
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::finalizeCompute( size_t na, const NumericTable *const *a,
-                                                                                              size_t nr, const NumericTable *const *r, const Parameter *par)
+Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::finalizeCompute(size_t na, const NumericTable *const *a,
+                                                                                   size_t nr, const NumericTable *const *r, const Parameter *par)
 {
     const size_t nBlocks = na / 3;
     const size_t p = a[1]->getNumberOfColumns();
     const size_t nClusters = par->nClusters;
+    int result = 0;
 
     ReadRows<int, cpu> mtInClusterS0(*const_cast<NumericTable*>(a[0]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtInClusterS0);
@@ -221,12 +226,13 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::finalizeCompu
         {
             DAAL_CHECK(!(cValues[cPos] < (algorithmFPType)0.0), services::ErrorKMeansNumberOfClustersIsTooLarge);
             outTarget[0] -= cValues[cPos];
-            daal::services::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), &cCentroids[cPos * p], p * sizeof(algorithmFPType));
+            result |=
+                daal::services::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), &cCentroids[cPos * p], p * sizeof(algorithmFPType));
             cPos++;
         }
     }
 
-    return Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 } // namespace daal::algorithms::kmeans::internal

@@ -276,6 +276,7 @@ void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
     Ipp32u compressedBlockSize = 0;
     this->_isOutBlockFull = 0;
     this->_usedOutBlockSize = 0;
+    int result = 0;
 
     checkOutputParams(out, outLen);
     if(this->_errors->size() != 0)
@@ -291,7 +292,13 @@ void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
         if (_avail_out < _internalBuffLen - _internalBuffOff)
         {
 
-            daal::services::daal_memcpy_s((void *)(_next_out), _avail_out, (void *)(((byte *)_internalBuff) + _internalBuffOff), _avail_out);
+            result |=
+                daal::services::daal_memcpy_s((void *)(_next_out), _avail_out, (void *)(((byte *)_internalBuff) + _internalBuffOff), _avail_out);
+            if (result)
+            {
+                this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+                return;
+            }
 
             _internalBuffOff += _avail_out;
             this->_usedOutBlockSize += _avail_out;
@@ -302,8 +309,13 @@ void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
         else
         {
 
-            daal::services::daal_memcpy_s((void *)(_next_out), _internalBuffLen - _internalBuffOff,
-                                          (void *)(((byte *)_internalBuff) + _internalBuffOff), _internalBuffLen - _internalBuffOff);
+            result |= daal::services::daal_memcpy_s((void *)(_next_out), _internalBuffLen - _internalBuffOff,
+                                                    (void *)(((byte *)_internalBuff) + _internalBuffOff), _internalBuffLen - _internalBuffOff);
+            if (result)
+            {
+                this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+                return;
+            }
 
             this->_usedOutBlockSize += _internalBuffLen - _internalBuffOff;
             _avail_out = _avail_out - (_internalBuffLen - _internalBuffOff);
@@ -366,7 +378,13 @@ void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
                 }
             }
 
-            daal::services::daal_memcpy_s((void *)(_next_out), _avail_out, (void *)(((byte *)_internalBuff) + _internalBuffOff), _avail_out);
+            result |=
+                daal::services::daal_memcpy_s((void *)(_next_out), _avail_out, (void *)(((byte *)_internalBuff) + _internalBuffOff), _avail_out);
+            if (result)
+            {
+                this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+                return;
+            }
 
             _internalBuffOff += _avail_out;
             this->_usedOutBlockSize += _avail_out;

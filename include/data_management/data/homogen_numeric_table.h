@@ -837,6 +837,16 @@ protected:
 
         size_t size = getNumberOfColumns() * getNumberOfRows();
 
+        if (!(0 == getNumberOfColumns()) && !(0 == getNumberOfRows()))
+        {
+            DAAL_CHECK((getNumberOfColumns() == size / getNumberOfRows()),
+                services::throwIfPossible(services::Status(services::ErrorBufferSizeIntegerOverflow)));
+
+            size_t sizeEx = size * sizeof(DataType);
+            DAAL_CHECK((size == sizeEx / sizeof(DataType)),
+                services::throwIfPossible(services::Status(services::ErrorBufferSizeIntegerOverflow)));
+        }
+
         if( size == 0 )
         {
             return services::Status(getNumberOfColumns() == 0 ? services::ErrorIncorrectNumberOfFeatures :
@@ -941,7 +951,8 @@ protected:
             {
                 if( (T*)block.getBlockPtr() != (T *)location )
                 {
-                    daal::services::daal_memcpy_s(location, nrows * ncols * sizeof(T), block.getBlockPtr(), nrows * ncols * sizeof(T));
+                    int result = daal::services::daal_memcpy_s(location, nrows * ncols * sizeof(T), block.getBlockPtr(), nrows * ncols * sizeof(T));
+                    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
                 }
             }
             else

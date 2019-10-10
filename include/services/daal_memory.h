@@ -66,8 +66,9 @@ DAAL_EXPORT void  daal_free(void *ptr);
  * \param[in]  numberOfElements   Size of new buffer
  * \param[in]  src                Pointer to source buffer
  * \param[in]  count              Number of bytes to copy.
+ * \return Status of memory copy, memory copy is successful if zero is returned
  */
-DAAL_EXPORT void  daal_memcpy_s(void *dest, size_t numberOfElements, const void *src, size_t count);
+DAAL_EXPORT int daal_memcpy_s(void *dest, size_t numberOfElements, const void *src, size_t count);
 /** @} */
 
 DAAL_EXPORT float daal_string_to_float(const char * nptr, char ** endptr);

@@ -140,8 +140,9 @@ public:
      * \param[in]  copy   Flag indicating necessary of data deep copying to avoid direct usage and modification of input data.
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_FORCEINLINE void setData(const data_management::NumericTablePtr & value, bool copy)
+    DAAL_EXPORT DAAL_FORCEINLINE services::Status setData(const data_management::NumericTablePtr & value, bool copy)
     {
+        int result = 0;
         if (!copy)
         {
             _data = value;
@@ -158,12 +159,13 @@ public:
             data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
             tbl->getBlockOfRows(0, tbl->getNumberOfRows(), data_management::writeOnly, destBD);
             value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD);
-            services::daal_memcpy_s(destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
-                                    srcBD.getBlockPtr(), srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
+            result = services::daal_memcpy_s(destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
+                                             srcBD.getBlockPtr(), srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
             tbl->releaseBlockOfRows(destBD);
             value->releaseBlockOfRows(srcBD);
             _data = tbl;
         }
+        return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
     /**
@@ -184,8 +186,9 @@ public:
      * \param[in]  copy   Flag indicating necessary of data deep copying to avoid direct usage and modification of input labels.
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_FORCEINLINE void setLabels(const data_management::NumericTablePtr & value, bool copy)
+    DAAL_EXPORT DAAL_FORCEINLINE services::Status setLabels(const data_management::NumericTablePtr & value, bool copy)
     {
+        int result = 0;
         if (!copy)
         {
             _labels = value;
@@ -203,12 +206,13 @@ public:
             data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
             tbl->getBlockOfRows(0, tbl->getNumberOfRows(), data_management::writeOnly, destBD);
             value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD);
-            services::daal_memcpy_s(destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
-                                    srcBD.getBlockPtr(), srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
+            result = services::daal_memcpy_s(destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
+                                             srcBD.getBlockPtr(), srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
             tbl->releaseBlockOfRows(destBD);
             value->releaseBlockOfRows(srcBD);
             _labels = tbl;
         }
+        return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
     /**

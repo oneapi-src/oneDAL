@@ -707,11 +707,13 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorCloneMethodFailed, "Cloning of algorithm failed");
     add(ErrorDataTypeNotSupported, "Data type not supported");
     add(ErrorNullByteInjection, "Null byte injection has been detected");
+    add(ErrorBufferSizeIntegerOverflow, "Integer overflow is occured");
 
     // Environment errors: -2000..-2999
     add(ErrorCpuNotSupported, "CPU not supported");
     add(ErrorMemoryAllocationFailed, "Memory allocation failed");
     add(ErrorEmptyDataBlock, "Empty data block");
+    add(ErrorMemoryCopyFailedInternal, "Memory copy internal error");
 
     // Workflow errors: -3000..-3999
     add(ErrorIncorrectCombinationOfComputationModeAndStep, "Incorrect combination of computation mode and computation step");

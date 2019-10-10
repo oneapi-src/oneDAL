@@ -41,14 +41,18 @@ services::Status LowOrderMomentsDistributedKernel<algorithmFPType, method, cpu>:
             data_management::DataCollection *partialResultsCollection,
             PartialResult *partialResult, const Parameter *parameter)
 {
+    services::Status status{services::Status()};
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, partialResultsCollection->size(), sizeof(int));
+
     TArray<int, cpu> partialNObservations(partialResultsCollection->size());
     if (!partialNObservations.get())
         return Status(services::ErrorMemoryAllocationFailed);
 
     mergeNObservations<algorithmFPType, cpu>(partialResultsCollection, partialResult, partialNObservations.get());
-    mergeMinAndMax<algorithmFPType, cpu>(partialResultsCollection, partialResult);
-    mergeSums<algorithmFPType, cpu>(partialResultsCollection, partialResult, partialNObservations.get());
-    return Status();
+    status |= mergeMinAndMax<algorithmFPType, cpu>(partialResultsCollection, partialResult);
+    status |= mergeSums<algorithmFPType, cpu>(partialResultsCollection, partialResult, partialNObservations.get());
+    return status;
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>

@@ -77,6 +77,8 @@ include build/deps.mk
 # Common macros
 #===============================================================================
 
+AR_is_$(subst $(space),_,$(origin AR)) := yes
+
 OSList          := lnx win mac fbsd
 
 o      := $(if $(OS_is_win),obj,o)

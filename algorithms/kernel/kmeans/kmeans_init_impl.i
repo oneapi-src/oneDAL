@@ -68,6 +68,8 @@ Status init( size_t p, size_t n, size_t nRowsTotal, size_t nClusters, algorithmF
     }
     if(method == randomDense || method == randomCSR)
     {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(int));
+
         TArray<int, cpu> aIndices(nClusters);
         DAAL_CHECK(aIndices.get(), ErrorMemoryAllocationFailed);
         int *indices = aIndices.get();
@@ -131,6 +133,7 @@ template <typename algorithmFPType, CpuType cpu>
 Status initDistrDeterministic(const NumericTable* pData, const Parameter *par, size_t& nClustersFound, NumericTablePtr& pRes)
 {
     nClustersFound = 0;
+    int result = 0;
     if(par->nClusters <= par->offset)
         return Status(); //ok
 
@@ -150,13 +153,15 @@ Status initDistrDeterministic(const NumericTable* pData, const Parameter *par, s
     ReadRows<algorithmFPType, cpu> dataBD(*const_cast<NumericTable*>(pData), 0, nClustersFound);
     DAAL_CHECK_BLOCK_STATUS(dataBD);
     const size_t sz = pData->getNumberOfColumns()*nClustersFound*sizeof(algorithmFPType);
-    daal::services::daal_memcpy_s(resBD.get(), sz, dataBD.get(), sz);
-    return st;
+    result = daal::services::daal_memcpy_s(resBD.get(), sz, dataBD.get(), sz);
+    return (!result) ? st : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>
 Status generateRandomIndices(const Parameter *par, size_t nRows, size_t& nClustersFound, int* clusters, engines::BatchBase &engine)
 {
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, par->nClusters, sizeof(int));
+
     TArray<int, cpu> aIndices(par->nClusters);
     int* indices = aIndices.get();
     DAAL_CHECK(indices, ErrorMemoryAllocationFailed);
@@ -190,6 +195,8 @@ template <typename algorithmFPType, CpuType cpu>
 Status initDistrRandom(const NumericTable* pData, const Parameter *par,
     size_t& nClustersFound, NumericTablePtr& pRes, engines::BatchBase &engine)
 {
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, par->nClusters, sizeof(int));
+
     TArray<int, cpu> clusters(par->nClusters);
     DAAL_CHECK(clusters.get(), ErrorMemoryAllocationFailed);
     Status s = generateRandomIndices<algorithmFPType, cpu>(par, pData->getNumberOfRows(), nClustersFound, clusters.get(), engine);
@@ -227,6 +234,7 @@ Status initDistrPlusPlus(const NumericTable* pData, const Parameter *par,
 {
     nClustersFound = 0;
     int index = 0;
+    int result = 0;
 
     Status s;
     DAAL_CHECK(par->nRowsTotal <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfRows)
@@ -252,8 +260,8 @@ Status initDistrPlusPlus(const NumericTable* pData, const Parameter *par,
     const size_t p = pData->getNumberOfColumns();
     WriteOnlyRows<algorithmFPType, cpu> resBD(*pRes, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(resBD);
-    daal::services::daal_memcpy_s(resBD.get(), sizeof(algorithmFPType)*p, dataBD.get(), sizeof(algorithmFPType)*p);
-    return s;
+    result = daal::services::daal_memcpy_s(resBD.get(), sizeof(algorithmFPType)*p, dataBD.get(), sizeof(algorithmFPType)*p);
+    return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>

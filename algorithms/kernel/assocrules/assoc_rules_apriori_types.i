@@ -313,7 +313,7 @@ struct assocrules_dataset
             _status = services::ErrorMemoryAllocationFailed;
             return;
         }
-
+        int result = 0;
         for (size_t i = 0; i < data_len; i++)
         {
             if (supportVals[itemID[i]] >= iMinSupport)
@@ -329,12 +329,17 @@ struct assocrules_dataset
                     tran[numOfLargeTransactions].size = numItems;
                     tran[numOfLargeTransactions].items = (size_t *)daal::services::internal::service_malloc<size_t, cpu>(numItems * sizeof(size_t));
                     tran[numOfLargeTransactions].is_large = true;
-                    daal::services::daal_memcpy_s(tran[numOfLargeTransactions].items, numItems * sizeof(size_t), items, numItems * sizeof(size_t));
+                    result |= daal::services::daal_memcpy_s(
+                        tran[numOfLargeTransactions].items, numItems * sizeof(size_t), items, numItems * sizeof(size_t));
                     large_tran[numOfLargeTransactions] = &tran[numOfLargeTransactions];
                     numOfLargeTransactions++;
                 }
                 numItems = 0;
             }
+        }
+        if (result)
+        {
+            _status |= services::Status(services::ErrorMemoryCopyFailedInternal);
         }
 
         daal::services::daal_free(items);

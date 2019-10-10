@@ -371,6 +371,10 @@ services::Status NaiveBayesBatchTrainKernel<algorithmFPType, method, cpu>::compu
     size_t p = ntData->getNumberOfColumns();
     size_t c = nbPar->nClasses;
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, c, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, c, p);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, c * p, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> t_n_c ( c     );
     TArray<algorithmFPType, cpu> t_n_ci( c * p );
     algorithmFPType *n_c  = t_n_c .get();

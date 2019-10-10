@@ -54,6 +54,10 @@ services::Status ImplicitALSInitKernel<algorithmFPType, defaultDense, cpu>::comp
     const size_t nFactors = parameter->nFactors;
 
     const size_t bufSz = (nItems > nFactors ? nItems : nFactors);
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nUsers, sizeof(algorithmFPType));
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, bufSz, sizeof(algorithmFPType));
+
     TArray<algorithmFPType, cpu> ones(nUsers);
     TArray<algorithmFPType, cpu> itemsSum(bufSz);
     DAAL_CHECK_MALLOC(ones.get() && itemsSum.get());

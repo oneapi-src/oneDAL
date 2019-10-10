@@ -110,13 +110,13 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const Paramete
             if(!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s))
                 break;
             s = update(nActiveVectors, C, Bi, Bj, delta);
-                }
+        }
         return s;
     }
 
     bool unshrink = false;
     for(size_t iter = 0, shrinkingIter = 1; (iter < svmPar.maxIterations) && (eps < curEps); ++iter, ++shrinkingIter)
-                {
+    {
         int Bi, Bj;
         algorithmFPType delta, ma, Ma;
         if(!findMaximumViolatingPair(nActiveVectors, tau, Bi, Bj, delta, ma, Ma, curEps, s))
@@ -131,29 +131,31 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const Paramete
                 return s;
             if(curEps < eps)
                 return s; /* Here if the optimality condition holds for the excluded variables */
-                shrinkingIter = 0;
-            }
+            shrinkingIter = 0;
+        }
         s = update(nActiveVectors, C, Bi, Bj, delta);
         if((shrinkingIter % svmPar.shrinkingStep) == 0)
-            {
+        {
             if((!unshrink) && (curEps < 10.0 * eps))
-                {
+            {
                     unshrink = true;
                 if(nActiveVectors < _nVectors)
-                    {
+                {
                     s = reconstructGradient(nActiveVectors);
                     if(!s)
                         return s;
-                    }
-                }
-            /* Update shrinking flags and do shrinking if needed*/
-            if(updateShrinkingFlags(nActiveVectors, C, ma, Ma) > 0)
-                {
-                _cache->updateShrinkingRowIndices(nActiveVectors, _I.get());
-                nActiveVectors = doShrink(nActiveVectors);
                 }
             }
+            /* Update shrinking flags and do shrinking if needed*/
+            if(updateShrinkingFlags(nActiveVectors, C, ma, Ma) > 0)
+            {
+                s = _cache->updateShrinkingRowIndices(nActiveVectors, _I.get());
+                if(s)
+                    return s;
+                nActiveVectors = doShrink(nActiveVectors);
+            }
         }
+    }
     if(nActiveVectors < _nVectors)
         s = reconstructGradient(nActiveVectors);
     return s;
@@ -795,8 +797,8 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterT
     DAAL_ASSERT(_cache);
     ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, 0, _nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtY);
-    daal::services::daal_memcpy_s(_y.get(), _nVectors * sizeof(algorithmFPType), mtY.get(), _nVectors * sizeof(algorithmFPType));
-    return Status();
+    int result = daal::services::daal_memcpy_s(_y.get(), _nVectors * sizeof(algorithmFPType), mtY.get(), _nVectors * sizeof(algorithmFPType));
+    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
@@ -860,9 +862,10 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateI(algorithm
  * \param[in] nActiveVectors Number of observations in a training data set that are used
  *                           in sequential minimum optimization at the current iteration
  * \param[in] I              Array of flags that describe the status of feature vectors
+ * \return                   Status of the call
  */
 template<typename algorithmFPType, CpuType cpu>
-void SVMCache<noCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
+Status SVMCache<noCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
         size_t nActiveVectors, const char *I)
 {
     size_t i = 0;
@@ -876,6 +879,7 @@ void SVMCache<noCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
         i++;
         j--;
     }
+    return Status();
 }
 
 /**
@@ -885,13 +889,15 @@ void SVMCache<noCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
  * \param[in] nActiveVectors Number of observations in a training data set that are used
  *                           in sequential minimum optimization at the current iteration
  * \param[in] I              Array of flags that describe the status of feature vectors
+ * \return                   Status of the call
  */
 template<typename algorithmFPType, CpuType cpu>
-void SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
+Status SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
         size_t nActiveVectors, const char *I)
 {
     size_t i = 0;
     size_t j = nActiveVectors-1;
+    int result = 0;
     while(i < j)
     {
         while (!(I[i] & shrink) && i < nActiveVectors - 1) i++;
@@ -905,9 +911,10 @@ void SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
 
         /* Swap i-th and j-th row in cache */
         size_t lineSizeInBytes = _lineSize * sizeof(algorithmFPType);
-        daal::services::daal_memcpy_s(_tmp.get(), lineSizeInBytes, _cache.get() + i * _lineSize, lineSizeInBytes);
-        daal::services::daal_memcpy_s(_cache.get() + i * _lineSize, lineSizeInBytes, _cache.get() + j * _lineSize, lineSizeInBytes);
-        daal::services::daal_memcpy_s(_cache.get() + j * _lineSize, lineSizeInBytes, _tmp.get(), lineSizeInBytes);
+        result |= daal::services::daal_memcpy_s(_tmp.get(), lineSizeInBytes, _cache.get() + i * _lineSize, lineSizeInBytes);
+        result |= daal::services::daal_memcpy_s(_cache.get() + i * _lineSize, lineSizeInBytes, _cache.get() + j * _lineSize, lineSizeInBytes);
+        result |= daal::services::daal_memcpy_s(_cache.get() + j * _lineSize, lineSizeInBytes, _tmp.get(), lineSizeInBytes);
+        DAAL_CHECK(!result, ErrorMemoryCopyFailedInternal);
 
         /* Swap i-th and j-th column in cache */
         for (size_t k = 0; k < _nLines; k++)
@@ -923,6 +930,7 @@ void SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
         i++;
         j--;
     }
+    return Status();
 }
 } // namespace internal
 } // namespace training
