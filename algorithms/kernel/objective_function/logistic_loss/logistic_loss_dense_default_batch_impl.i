@@ -23,6 +23,8 @@
 #include "service_math.h"
 #include "objective_function_utils.i"
 #include "service_memory.h"
+#include "service_data_utils.h"
+
 namespace daal
 {
 namespace algorithms
@@ -344,6 +346,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             char notrans = 'N';
             algorithmFPType one = 1.0;
             DAAL_INT yDim = 1;
+            DAAL_ASSERT(p <= services::internal::MaxVal<DAAL_INT>::get());
             DAAL_INT dim = (DAAL_INT)p;
 
             const size_t nRowsInBlock = 1024;
@@ -359,8 +362,9 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                     const size_t iStartRow = iBlock*nRowsInBlock;
                     const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? n - iBlock * nRowsInBlock : nRowsInBlock;
                     const auto px = x + iStartRow * p;
-                    auto ps = s + iStartRow;
+                    const auto ps = s + iStartRow;
                     const auto py = y + iStartRow;
+                    DAAL_ASSERT(nRowsToProcess <= services::internal::MaxVal<DAAL_INT>::get());
                     DAAL_INT nN   = (DAAL_INT)nRowsToProcess;
                     auto pg = gradsPtr + iBlock*p;
                     PRAGMA_IVDEP
