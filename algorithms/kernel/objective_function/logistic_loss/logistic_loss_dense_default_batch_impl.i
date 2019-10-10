@@ -355,14 +355,14 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             if((nThreads > 1) && (nDataBlocks > 1))
             {
                 TArray<algorithmFPType, cpu> grads(nDataBlocks*p);
-                algorithmFPType* gradsPtr = grads.get();
+                algorithmFPType* const gradsPtr = grads.get();
                 daal::services::internal::service_memset<algorithmFPType, cpu>(gradsPtr, algorithmFPType(0), nDataBlocks*p);
                 daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock)
                 {
                     const size_t iStartRow = iBlock*nRowsInBlock;
                     const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? n - iBlock * nRowsInBlock : nRowsInBlock;
                     const auto px = x + iStartRow * p;
-                    const auto ps = s + iStartRow;
+                    auto ps = s + iStartRow;
                     const auto py = y + iStartRow;
                     DAAL_ASSERT(nRowsToProcess <= services::internal::MaxVal<DAAL_INT>::get());
                     DAAL_INT nN   = (DAAL_INT)nRowsToProcess;
@@ -373,7 +373,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                     {
                         ps[i] -= py[i];
                     }
-                    daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &nN, &one, s + iStartRow, &yDim, px,
+                    daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &nN, &one, ps, &yDim, px,
                                                                                       &dim, &one, pg, &yDim);
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
