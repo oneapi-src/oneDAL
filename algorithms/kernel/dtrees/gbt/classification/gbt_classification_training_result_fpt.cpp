@@ -44,25 +44,25 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     set(classifier::training::model, daal::algorithms::gbt::classification::Model::create(nFeatures, &s));
 
     const Parameter *par = static_cast<const Parameter *>(parameter);
-    if(par->resultsToCompute & gbt::training::computeGain)
+    if(par->varImportance & gbt::training::gain)
     {
-        set(variableImportanceGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        set(variableImportanceByGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
     }
-    if(par->resultsToCompute & gbt::training::computeTotalGain)
+    if(par->varImportance & gbt::training::totalGain)
     {
-        set(variableImportanceTotalGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        set(variableImportanceByTotalGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
     }
-    if(par->resultsToCompute & gbt::training::computeCover)
+    if(par->varImportance & gbt::training::cover)
     {
-        set(variableImportanceCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        set(variableImportanceByCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
     }
-    if(par->resultsToCompute & gbt::training::computeTotalCover)
+    if(par->varImportance & gbt::training::totalCover)
     {
-        set(variableImportanceTotalCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        set(variableImportanceByTotalCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
     }
-    if(par->resultsToCompute & gbt::training::computeWeight)
+    if(par->varImportance & gbt::training::weight)
     {
-        set(variableImportanceWeight, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        set(variableImportanceByWeight, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
     }
 
     return s;
