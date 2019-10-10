@@ -346,7 +346,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             DAAL_INT yDim = 1;
             DAAL_INT dim = (DAAL_INT)p;
 
-            const size_t nRowsInBlock = 1024;//(p < 5000 ? 5000/p : 1);
+            const size_t nRowsInBlock = 1024;
             const size_t nDataBlocks = n / nRowsInBlock + !!(n%nRowsInBlock);
             const auto nThreads = daal::threader_get_threads_number();
             if((nThreads > 1) && (nDataBlocks > 1))
@@ -354,7 +354,6 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                 TArray<algorithmFPType, cpu> grads(nDataBlocks*p);
                 algorithmFPType* gradsPtr = grads.get();
                 daal::services::internal::service_memset<algorithmFPType, cpu>(gradsPtr, algorithmFPType(0), nDataBlocks*p);
-                //TlsSum<algorithmFPType, cpu> tlsData(nBeta);
                 daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock)
                 {
                     const size_t iStartRow = iBlock*nRowsInBlock;
@@ -363,7 +362,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                     auto ps = s + iStartRow;
                     const auto py = y + iStartRow;
                     DAAL_INT nN   = (DAAL_INT)nRowsToProcess;
-                    auto pg = gradsPtr + iBlock*p;//tlsData.local();
+                    auto pg = gradsPtr + iBlock*p;
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
                     for(size_t i = 0; i < nRowsToProcess; ++i)
@@ -379,7 +378,6 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                         ps[i] += py[i];
                     }
                 });
-                //tlsData.reduceTo(g, nBeta);
                 for(size_t i = 0; i < nDataBlocks; i++)
                     for(size_t j = 0; j < p; j++)
                         g[j + 1] += gradsPtr[i*p + j];
