@@ -174,7 +174,7 @@ void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisito
 services::Status ModelImpl::treeToTable(TreeType& t,
     gbt::internal::GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt, size_t nFeat)
 {
-    return (t.convertGbtTreeToTable(pTbl, pTblImp, pTblSmplCnt, nFeat)) ? services::Status() : services::ErrorMemoryAllocationFailed;
+    return t.convertGbtTreeToTable(pTbl, pTblImp, pTblSmplCnt, nFeat);
 }
 
 void ModelImpl::add(gbt::internal::GbtDecisionTree* pTbl, HomogenNumericTable<double>* pTblImp, HomogenNumericTable<int>* pTblSmplCnt)

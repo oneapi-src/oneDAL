@@ -55,8 +55,8 @@ private:
     services::Status performCholesky(NumericTableIface::StorageLayout rLayout, algorithmFPType *pL, size_t dim);
     bool copyToFullMatrix(NumericTableIface::StorageLayout iLayout, const algorithmFPType *pA, algorithmFPType *pL,
                           size_t dim) const;
-    bool copyToLowerTrianglePacked(NumericTableIface::StorageLayout iLayout, const algorithmFPType *pA, algorithmFPType *pL,
-                                   size_t dim) const;
+    services::Status copyToLowerTrianglePacked(NumericTableIface::StorageLayout iLayout, const algorithmFPType *pA, algorithmFPType *pL,
+                                               size_t dim) const;
 };
 
 } // namespace daal::internal

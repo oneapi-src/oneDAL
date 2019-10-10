@@ -55,6 +55,7 @@ services::Status I1SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIf
     NumericTable *batchIndices, OptionalArgument *optionalArgument, OptionalArgument *optionalResult, engines::BatchBase &engine)
 {
     services::Status s;
+    int result = 0;
     const size_t argumentSize = inputArgument->getNumberOfRows();
     const size_t nIter = parameter->nIterations;
     const size_t L = parameter->innerNIterations;
@@ -133,6 +134,7 @@ services::Status I1SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIf
         s = function->computeNoThrow();
         if(!s || host.isCancelled(s, 1))
         {
+            DAAL_ASSERT((epoch - task.startIteration) <= services::internal::MaxVal<int>::get())
             task.nProceededIterations[0] = (int)(epoch - task.startIteration);
             break;
         }
@@ -157,15 +159,16 @@ services::Status I1SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIf
                 double gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(1.0, pointNorm);
                 DAAL_CHECK_BREAK(gradientNorm < gradientThreshold);
             }
-            daal_memcpy_s(task.prevWorkValue.get(), argumentSize * sizeof(algorithmFPType), workValue, argumentSize * sizeof(algorithmFPType));
+            result |= daal_memcpy_s(task.prevWorkValue.get(), argumentSize * sizeof(algorithmFPType), workValue, argumentSize * sizeof(algorithmFPType));
         }
         task.makeStep(gradient, learningRate, consCoeff, argumentSize);
     }
+    DAAL_CHECK(task.nProceededIters <= services::internal::MaxVal<int>::get(), ErrorIterativeSolverIncorrectMaxNumberOfIterations)
     task.nProceededIterations[0] = (int)task.nProceededIters;
     function->sumOfFunctionsParameter->batchIndices = previousBatchIndices;
     function->sumOfFunctionsInput->set(sum_of_functions::argument, previousArgument);
 
-    return s;
+    return (!result) ? s : Status(ErrorMemoryCopyFailedInternal);
  }
 
 template<typename algorithmFPType, CpuType cpu>
@@ -231,8 +234,8 @@ Status I1SGDMiniBatchTask<algorithmFPType, cpu>::setStartValue(NumericTable *sta
     DAAL_CHECK_BLOCK_STATUS(mtWorkValue);
     ReadRows<algorithmFPType, cpu> mtStartValue(startValueTable, 0, argumentSize);
     DAAL_CHECK_BLOCK_STATUS(mtStartValue);
-    daal_memcpy_s(mtWorkValue.get(), argumentSize * sizeof(algorithmFPType), mtStartValue.get(), argumentSize * sizeof(algorithmFPType));
-    return Status();
+    int result = daal_memcpy_s(mtWorkValue.get(), argumentSize * sizeof(algorithmFPType), mtStartValue.get(), argumentSize * sizeof(algorithmFPType));
+    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
 template<typename algorithmFPType, CpuType cpu>
@@ -279,6 +282,7 @@ Status I1SGDMiniBatchTask<algorithmFPType, cpu>::init(NumericTable *startValueTa
     OptionalArgument *optionalArgument)
 {
     Status s = setStartValue(startValueTable);
+    int result = 0;
     DAAL_CHECK_STATUS_VAR(s);
     algorithmFPType* workValue = mtWorkValue.get();
     ntWorkValue.reset(new HomogenNumericTableCPU<algorithmFPType, cpu>(workValue, 1, argumentSize, s));
@@ -320,9 +324,10 @@ Status I1SGDMiniBatchTask<algorithmFPType, cpu>::init(NumericTable *startValueTa
         ReadRows<algorithmFPType, cpu, NumericTable> pastWorkValueInputBD(pastWorkValueInput, 0, pastWorkValueInput->getNumberOfRows());
         DAAL_CHECK_BLOCK_STATUS(pastWorkValueInputBD);
         const algorithmFPType *pastWorkValueInputArray = pastWorkValueInputBD.get();
-        daal_memcpy_s(prevWorkValue.get(), argumentSize * sizeof(algorithmFPType), pastWorkValueInputArray, argumentSize * sizeof(algorithmFPType));
+        result = daal_memcpy_s(prevWorkValue.get(), argumentSize * sizeof(algorithmFPType),
+                               pastWorkValueInputArray, argumentSize * sizeof(algorithmFPType));
     }
-    return Status();
+    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
 } // namespace daal::internal

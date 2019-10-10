@@ -124,8 +124,8 @@ public:
 
     // recursive build of tree (breadth-first)
     template <typename NodeType, typename NodeBase>
-    static void internalTreeToGbtDecisionTree(const NodeBase& root, const size_t nNodes, const size_t nLvls, GbtDecisionTree* tree,
-                                              double* impVals, int* nNodeSamplesVals, size_t countFeature)
+    static services::Status internalTreeToGbtDecisionTree(const NodeBase& root, const size_t nNodes, const size_t nLvls, GbtDecisionTree* tree,
+                                                          double* impVals, int* nNodeSamplesVals, size_t countFeature)
     {
         using SplitType = const typename NodeType::Split*;
         services::Collection<SplitType> sonsArr(nNodes + 1);
@@ -133,6 +133,8 @@ public:
 
         SplitType* sons = sonsArr.data();
         SplitType* parents = parentsArr.data();
+
+        int result = 0;
 
         gbt::prediction::internal::ModelFPType* const spitPoints = tree->getSplitPoints();
         gbt::prediction::internal::FeatureIndexType* const featureIndexes = tree->getFeatureIndexesForSplit();
@@ -190,10 +192,12 @@ public:
             }
 
             const size_t size = nSons*sizeof(SplitType);
-            daal::services::daal_memcpy_s(parents, size, sons, size);
+            result |= daal::services::daal_memcpy_s(parents, size, sons, size);
 
             nParents = nSons;
         }
+
+        return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
 protected:
@@ -232,9 +236,10 @@ public:
     typedef TAllocator Allocator;
     typedef TNodeType NodeType;
 
-    bool convertGbtTreeToTable(GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt, size_t nFeature) const
+    services::Status convertGbtTreeToTable(GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt, size_t nFeature) const
     {
         size_t nLvls = 1;
+        services::Status status{services::Status()};
         getMaxLvl(*super::top(), nLvls, static_cast<size_t>(-1));
         const size_t nNodes = getNumberOfNodesByLvls(nLvls);
 
@@ -242,17 +247,18 @@ public:
         *pTblImp        = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
         *pTblSmplCnt    = new HomogenNumericTable<int>(1, nNodes, NumericTable::doAllocate);
 
-        DAAL_CHECK_STATUS_VAR(*pTbl)
-        DAAL_CHECK_STATUS_VAR(*pTblImp)
-        DAAL_CHECK_STATUS_VAR(*pTblSmplCnt)
-
-        if(super::top())
+        if (!(*pTbl) || !(*pTblImp) || !(*pTblSmplCnt))
         {
-            GbtDecisionTree::internalTreeToGbtDecisionTree<TNodeType, typename TNodeType::Base>(*super::top(), nNodes, nLvls,
-                    *pTbl, (*pTblImp)->getArray(), (*pTblSmplCnt)->getArray(), nFeature);
+            status = services::Status(services::ErrorMemoryAllocationFailed);
         }
 
-        return true;
+        if (super::top())
+        {
+            status |= GbtDecisionTree::internalTreeToGbtDecisionTree<TNodeType, typename TNodeType::Base>(*super::top(), nNodes, nLvls,
+                *pTbl, (*pTblImp)->getArray(), (*pTblSmplCnt)->getArray(), nFeature);
+        }
+
+        return status;
     }
 
 

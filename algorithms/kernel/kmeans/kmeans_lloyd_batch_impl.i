@@ -50,6 +50,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     const size_t nIter = par->maxIterations;
     const size_t p = ntData->getNumberOfColumns();
     const size_t nClusters = par->nClusters;
+    int result = 0;
 
     TArray<int, cpu> clusterS0(nClusters);
     TArray<algorithmFPType, cpu> clusterS1(nClusters*p);
@@ -142,7 +143,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                 newCentersGoalFunc += cValues[cPos];
                 ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices[cPos], 1);
                 const algorithmFPType *row = mtRow.get();
-                daal::services::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
+                result |= daal::services::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
                 cPos++;
             }
         }
@@ -188,7 +189,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     DAAL_CHECK_BLOCK_STATUS(mtTarget);
     *mtTarget.get() = targetFunc;
 
-    return s;
+    return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 } // namespace daal::algorithms::kmeans::internal

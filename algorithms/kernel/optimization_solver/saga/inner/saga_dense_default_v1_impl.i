@@ -55,6 +55,7 @@ services::Status I1SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIfac
     interface1::Parameter *parameter, engines::BatchBase &engine)
 {
     services::Status s;
+    int result = 0;
     const size_t sizeArgument = inputArgument->getNumberOfRows();
 
     WriteRows<algorithmFPType, cpu> workValueBD(*minimum, 0, sizeArgument);
@@ -65,7 +66,8 @@ services::Status I1SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIfac
     DAAL_CHECK_BLOCK_STATUS(initialPointBD);
     const algorithmFPType *initialPoint = initialPointBD.get();
 
-    daal_memcpy_s(workValue, sizeArgument * sizeof(algorithmFPType), initialPoint, sizeArgument * sizeof(algorithmFPType));
+    result = daal_memcpy_s(workValue, sizeArgument * sizeof(algorithmFPType), initialPoint, sizeArgument * sizeof(algorithmFPType));
+    DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     const size_t maxIterations = parameter->nIterations;
     const algorithmFPType tolerance = parameter->accuracyThreshold;
@@ -281,7 +283,7 @@ services::Status I1SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIfac
         }
 
         /* TBD use Parallel for */
-        daal_memcpy_s(previous, sizeArgument * sizeof(algorithmFPType), workValue, sizeArgument * sizeof(algorithmFPType));
+        result |= daal_memcpy_s(previous, sizeArgument * sizeof(algorithmFPType), workValue, sizeArgument * sizeof(algorithmFPType));
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
@@ -333,13 +335,13 @@ services::Status I1SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIfac
             break;
         }
 
-        daal_memcpy_s(savedGradients + displacement, sizeArgument * sizeof(algorithmFPType), gradient, sizeArgument * sizeof(algorithmFPType));
+        result |= daal_memcpy_s(savedGradients + displacement, sizeArgument * sizeof(algorithmFPType), gradient, sizeArgument * sizeof(algorithmFPType));
 
     }
     gradientPtr.release();
     proxPtr.release();
     *nIterationsPerformed.get() = iterationsPerformed + 1;
-    return s;
+    return (!result) ? s : Status(ErrorMemoryCopyFailedInternal);
 }
 
 

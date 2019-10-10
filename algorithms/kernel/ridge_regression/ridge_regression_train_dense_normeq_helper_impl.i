@@ -50,6 +50,7 @@ Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const al
     const DAAL_INT pToFix = (interceptFlag ? p - 1 : p);
 
     Status st;
+    int result = 0;
     if (nRidge == 1)
     {
         for(DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1))
@@ -67,7 +68,7 @@ Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const al
         const size_t aSizeInBytes = p * p * sizeof(algorithmFPType);
         for (DAAL_INT j = 0; j < ny; j++, bPtr += (pToFix + 1))
         {
-            daal::services::daal_memcpy_s(aCopy, aSizeInBytes, a, aSizeInBytes);
+            result |= daal::services::daal_memcpy_s(aCopy, aSizeInBytes, a, aSizeInBytes);
             for(DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1))
             {
                 aCopy[idx] += ridge[j];
@@ -80,7 +81,7 @@ Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const al
             DAAL_CHECK_STATUS_VAR(st);
         }
     }
-    return st;
+    return (!result) ? st : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 } // namespace internal

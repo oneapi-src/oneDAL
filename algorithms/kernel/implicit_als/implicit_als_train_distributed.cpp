@@ -342,7 +342,9 @@ size_t DistributedInput<step3Local>::getOffset() const
     {
         data_management::BlockDescriptor<int> block;
         offsetTable->getBlockOfRows(0, 1, data_management::readOnly, block);
-        size_t offset = (size_t)((block.getBlockPtr())[0]);
+        int iOffset = (block.getBlockPtr())[0];
+        DAAL_ASSERT(iOffset >= 0)
+        size_t offset = (size_t)iOffset;
         offsetTable->releaseBlockOfRows(block);
         return offset;
     }
@@ -401,6 +403,7 @@ services::Status DistributedInput<step3Local>::check(const daal::algorithms::Par
 
     for (size_t i = 0; i < nBlocks; i++)
     {
+        DAAL_ASSERT(i <= services::internal::MaxVal<int>::get())
         DAAL_CHECK_EX(collection->getValueByIndex((int)i), ErrorNullNumericTable, ArgumentName, blockIndicesStr());
         NumericTablePtr blockIndices = NumericTable::cast(collection->getValueByIndex((int)i));
         DAAL_CHECK_EX(blockIndices, ErrorIncorrectElementInNumericTableCollection, ArgumentName, blockIndicesStr());
@@ -477,6 +480,7 @@ services::Status DistributedPartialResultStep3::check(const daal::algorithms::In
     int unexpectedLayouts = (int)packed_mask;
     for (size_t i = 0; i < nBlocks; i++)
     {
+        DAAL_ASSERT(i <= services::internal::MaxVal<int>::get())
         DAAL_CHECK_EX(collection->getValueByIndex((int)i), ErrorNullPartialModel, ArgumentName, outputOfStep3ForStep4Str());
         PartialModelPtr model = PartialModel::cast(collection->getValueByIndex((int)i));
         DAAL_CHECK_EX(model, ErrorIncorrectElementInPartialResultCollection, ArgumentName, outputOfStep3ForStep4Str());
@@ -583,6 +587,7 @@ services::Status DistributedInput<step4Local>::check(const daal::algorithms::Par
     DAAL_CHECK_EX(nBlocks > 0, ErrorIncorrectNumberOfInputNumericTables, ArgumentName, partialModelBlocksToNodeStr());
     for (size_t i = 0; i < nBlocks; i++)
     {
+        DAAL_ASSERT(i <= services::internal::MaxVal<int>::get())
         DAAL_CHECK_EX(collection->getValueByIndex((int)i), ErrorNullPartialModel, ArgumentName, partialModelsStr());
         PartialModelPtr model = PartialModel::cast(collection->getValueByIndex((int)i));
         DAAL_CHECK_EX(model, ErrorIncorrectElementInPartialResultCollection, ArgumentName, partialModelsStr());

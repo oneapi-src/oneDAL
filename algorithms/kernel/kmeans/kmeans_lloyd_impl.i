@@ -309,6 +309,7 @@ Status task_t<algorithmFPType, cpu>::addNTToTaskThreadedDense(const NumericTable
 
             if(ntAssign)
             {
+                DAAL_ASSERT(minIdx <= services::internal::MaxVal<int>::get())
                 assignments[i] = (int)minIdx;
             }
         } /* for (size_t i = 0; i < blockSize; i++) */
@@ -409,6 +410,7 @@ Status task_t<algorithmFPType, cpu>::addNTToTaskThreadedCSR(const NumericTable *
 
             if (ntAssign)
             {
+                DAAL_ASSERT(minIdx <= services::internal::MaxVal<int>::get())
                 assignments[i] = (int)minIdx;
             }
         }
@@ -523,8 +525,9 @@ Status task_t<algorithmFPType, cpu>::kmeansComputeCentroidsCandidates(algorithmF
 
     algorithmFPType *tmpValuesPtr = tmpValues.get();
     size_t *tmpIndicesPtr = tmpIndices.get();
+    int result = 0;
 
-    tls_task->reduce( [&](tls_task_t<algorithmFPType, cpu> *tt)-> void
+    tls_task->reduce( [ & ](tls_task_t<algorithmFPType, cpu> *tt)-> void
     {
         size_t lcNum = tt->cNum;
         algorithmFPType *lcValues = tt->cValues;
@@ -549,11 +552,11 @@ Status task_t<algorithmFPType, cpu>::kmeansComputeCentroidsCandidates(algorithmF
             }
         }
         cNum = cPos + lcPos;
-        daal::services::daal_memcpy_s(cValues, cNum * sizeof(algorithmFPType), tmpValuesPtr, cNum * sizeof(algorithmFPType));
-        daal::services::daal_memcpy_s(cIndices, cNum * sizeof(size_t), tmpIndicesPtr, cNum * sizeof(size_t));
+        result |= daal::services::daal_memcpy_s(cValues, cNum * sizeof(algorithmFPType), tmpValuesPtr, cNum * sizeof(algorithmFPType));
+        result |= daal::services::daal_memcpy_s(cIndices, cNum * sizeof(size_t), tmpIndicesPtr, cNum * sizeof(size_t));
     } );
 
-    return services::Status();
+    return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template<typename algorithmFPType, CpuType cpu>
@@ -635,6 +638,7 @@ Status RecalculationObservationsDense(const size_t p, const size_t nClusters, co
             goal += minGoalVal;
             if (ntAssign)
             {
+                DAAL_ASSERT(minIdx <= services::internal::MaxVal<int>::get())
                 assignments[k] = (int)minIdx;
             }
 
@@ -725,6 +729,7 @@ Status RecalculationObservationsCSR(const size_t p, const size_t nClusters, cons
             goal += minGoalVal;
             if (ntAssign)
             {
+                DAAL_ASSERT(minIdx <= services::internal::MaxVal<int>::get())
                 assignments[k] = (int)minIdx;
             }
 

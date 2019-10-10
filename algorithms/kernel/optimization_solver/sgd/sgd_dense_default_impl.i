@@ -30,6 +30,7 @@
 #include "service_utils.h"
 #include "iterative_solver_kernel.h"
 #include "threading.h"
+#include "service_data_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -57,9 +58,10 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
 {
     const size_t nRows = inputArgument->getNumberOfRows();
     SafeStatus safeStat;
+    int result = 0;
     //init workValue
     {
-        processByBlocks<cpu>(minimum->getNumberOfRows(), [=, &safeStat](size_t startOffset, size_t nRowsInBlock)
+        processByBlocks<cpu>(minimum->getNumberOfRows(), [=, &result, &safeStat](size_t startOffset, size_t nRowsInBlock)
         {
             WriteRows<algorithmFPType, cpu, NumericTable> workValueBD(*minimum, startOffset, nRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS_THR(workValueBD);
@@ -69,10 +71,12 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
             const algorithmFPType *startValueArray = startValueBD.get();
             if( minArray != startValueArray )
             {
-                daal_memcpy_s(minArray, nRowsInBlock * sizeof(algorithmFPType), startValueArray, nRowsInBlock * sizeof(algorithmFPType));
+                result |= daal_memcpy_s(minArray, nRowsInBlock * sizeof(algorithmFPType),
+                                        startValueArray, nRowsInBlock * sizeof(algorithmFPType));
             }
         });
         DAAL_CHECK_SAFE_STATUS();
+        DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
 
     const size_t nIter = parameter->nIterations;
@@ -119,6 +123,7 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
 
     WriteRows<int, cpu, NumericTable> nIterationsBD(*nIterations, 0, 1);
     int *nProceededIterations = nIterationsBD.get();
+    DAAL_CHECK(nIter <= services::internal::MaxVal<int>::get(), ErrorIterativeSolverIncorrectMaxNumberOfIterations)
     *nProceededIterations = (int)nIter;
 
     size_t startIteration = 0, epoch = 0, nProceededIters = 0;
@@ -157,6 +162,7 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
             const algorithmFPType gradientThreshold = accuracyThreshold * daal::internal::Math<algorithmFPType, cpu>::sMax(one, pointNorm);
             if(gradientNorm < gradientThreshold)
             {
+                DAAL_ASSERT(nProceededIters <= services::internal::MaxVal<int>::get())
                 nProceededIterations[0] = (int)nProceededIters;
                 break;
             }

@@ -188,6 +188,7 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::default
     DAAL_ASSERT(x);
     DAAL_ASSERT(y);
     DAAL_ASSERT(r);
+    services::Status status{services::Status()};
     const decision_tree::regression::Parameter * const parameter = static_cast<const decision_tree::regression::Parameter *>(par);
     DAAL_ASSERT(parameter);
 
@@ -198,14 +199,13 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::default
     if(w == nullptr)
     {
         MSE<algorithmFPType, cpu> splitCriterion;
-        tree.train(splitCriterion, *x, *y, w, 0, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+        status = tree.train(splitCriterion, *x, *y, w, 0, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
     }
     else
     {
         MSEWeighted<algorithmFPType, cpu> splitCriterion;
-        tree.train(splitCriterion, *x, *y, w, 0, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+        status = tree.train(splitCriterion, *x, *y, w, 0, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
     }
-    services::Status status;
     if (parameter->pruning == reducedErrorPruning)
     {
         DAAL_ASSERT(px);

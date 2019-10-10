@@ -122,6 +122,7 @@ services::Status I1SGDKernel<algorithmFPType, momentum, cpu>::compute(HostAppIfa
         const algorithmFPType learningRate = learningRateArray[epoch % learningRateLength];
         DAAL_CHECK_STATUS(s, task.makeStep(gradient, minimum, task.pastUpdate.get(), learningRate, momentum));
     }
+    DAAL_CHECK(task.nProceededIters <= services::internal::MaxVal<int>::get(), ErrorIterativeSolverIncorrectMaxNumberOfIterations)
     nProceededIterations[0] = (int)task.nProceededIters;
 
     return s;
@@ -174,7 +175,8 @@ template<typename algorithmFPType, CpuType cpu>
 Status I1SGDmomentumTask<algorithmFPType, cpu>::setStartValue(NumericTable *inputArgument, NumericTable *minimum)
 {
     SafeStatus safeStat;
-    processByBlocks<cpu>(minimum->getNumberOfRows(), [=, &safeStat](size_t startOffset, size_t nRowsInBlock)
+    int result = 0;
+    processByBlocks<cpu>(minimum->getNumberOfRows(), [=, &result, &safeStat](size_t startOffset, size_t nRowsInBlock)
     {
         WriteRows<algorithmFPType, cpu, NumericTable> workValueBD(*minimum, startOffset, nRowsInBlock);
         DAAL_CHECK_BLOCK_STATUS_THR(workValueBD);
@@ -184,10 +186,10 @@ Status I1SGDmomentumTask<algorithmFPType, cpu>::setStartValue(NumericTable *inpu
         const algorithmFPType *startValueArray = startValueBD.get();
         if( workArray != startValueArray )
         {
-            daal_memcpy_s(workArray, nRowsInBlock * sizeof(algorithmFPType), startValueArray, nRowsInBlock * sizeof(algorithmFPType));
+            result |= daal_memcpy_s(workArray, nRowsInBlock * sizeof(algorithmFPType), startValueArray, nRowsInBlock * sizeof(algorithmFPType));
         }
     });
-    return safeStat.detach();
+    return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template<typename algorithmFPType, CpuType cpu>
@@ -265,8 +267,9 @@ Status I1SGDmomentumTask<algorithmFPType, cpu>::init(NumericTable *batchIndicesT
         if(pastUpdateInput != pastUpdate.get())
         {
             SafeStatus safeStat;
+            int result = 0;
             /* copy optional input ot optional result */
-            processByBlocks<cpu>(argumentSize, [=, &safeStat](size_t startOffset, size_t nRowsInBlock)
+            processByBlocks<cpu>(argumentSize, [=, &result, &safeStat](size_t startOffset, size_t nRowsInBlock)
             {
                 WriteOnlyRows<algorithmFPType, cpu, NumericTable> pastUpdateBD(*pastUpdate, startOffset, nRowsInBlock);
                 DAAL_CHECK_BLOCK_STATUS_THR(pastUpdateBD);
@@ -276,10 +279,11 @@ Status I1SGDmomentumTask<algorithmFPType, cpu>::init(NumericTable *batchIndicesT
                 const algorithmFPType *pastUpdateInputArray = pastUpdateInputBD.get();
                 if( pastUpdateArray != pastUpdateInputArray )
                 {
-                    daal_memcpy_s(pastUpdateArray, nRowsInBlock * sizeof(algorithmFPType), pastUpdateInputArray, nRowsInBlock * sizeof(algorithmFPType));
+                    result |= daal_memcpy_s(pastUpdateArray, nRowsInBlock * sizeof(algorithmFPType),
+                                            pastUpdateInputArray, nRowsInBlock * sizeof(algorithmFPType));
                 }
             });
-            return safeStat.detach();
+            return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
         }
     }
     else /* empty optional input, set optional result to zero */
@@ -334,8 +338,9 @@ Status I1SGDmomentumTask<algorithmFPType, cpu>::init(NumericTable *batchIndicesT
         if(pastUpdateInput != pastUpdate.get())
         {
             SafeStatus safeStat;
+            int result = 0;
             /* copy optional input ot optional result */
-            processByBlocks<cpu>(argumentSize, [=, &safeStat](size_t startOffset, size_t nRowsInBlock)
+            processByBlocks<cpu>(argumentSize, [=, &result, &safeStat](size_t startOffset, size_t nRowsInBlock)
             {
                 WriteOnlyRows<algorithmFPType, cpu, NumericTable> pastUpdateBD(*pastUpdate, startOffset, nRowsInBlock);
                 DAAL_CHECK_BLOCK_STATUS_THR(pastUpdateBD);
@@ -345,10 +350,11 @@ Status I1SGDmomentumTask<algorithmFPType, cpu>::init(NumericTable *batchIndicesT
                 const algorithmFPType *pastUpdateInputArray = pastUpdateInputBD.get();
                 if( pastUpdateArray != pastUpdateInputArray )
                 {
-                    daal_memcpy_s(pastUpdateArray, nRowsInBlock * sizeof(algorithmFPType), pastUpdateInputArray, nRowsInBlock * sizeof(algorithmFPType));
+                    result |= daal_memcpy_s(pastUpdateArray, nRowsInBlock * sizeof(algorithmFPType),
+                    pastUpdateInputArray, nRowsInBlock * sizeof(algorithmFPType));
                 }
             });
-            return safeStat.detach();
+            return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
         }
     }
     else /* empty optional input, set optional result to zero */

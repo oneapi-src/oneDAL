@@ -150,8 +150,9 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     r->setNFeatures(xColumnCount);
 
     const algorithmFpType base = 2.0;
-    const size_t maxKDTreeNodeCount = ((size_t)Math::sPowx(base, Math::sCeil(Math::sLog(base * xRowCount - 1) / Math::sLog(base)))
-        * __KDTREE_MAX_NODE_COUNT_MULTIPLICATION_FACTOR) / __KDTREE_LEAF_BUCKET_SIZE + 1;
+    const algorithmFpType baseInPower = Math::sPowx(base, Math::sCeil(Math::sLog(base * xRowCount - 1) / Math::sLog(base)));
+    DAAL_ASSERT(baseInPower > 0)
+    const size_t maxKDTreeNodeCount = ((size_t)baseInPower * __KDTREE_MAX_NODE_COUNT_MULTIPLICATION_FACTOR) / __KDTREE_LEAF_BUCKET_SIZE + 1;
     r->impl()->setKDTreeTable(KDTreeTablePtr(new KDTreeTable(maxKDTreeNodeCount, status)));
     DAAL_CHECK_STATUS_VAR(status);
 
@@ -864,6 +865,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                             kdtree_knn_classification::Model & r, size_t * indexes, engines::BatchBase &engine)
 {
     Status status;
+    int result = 0;
 
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
@@ -962,7 +964,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     SafeStatus safeStat;
 
-    daal::threader_for(blockCount, blockCount, [=, &localTLS, &firstNodeIndex, &kdTreeTable, &x, &r, &rowsPerBlock, &xColumnCount, &safeStat, &engine](int iBlock)
+    daal::threader_for(blockCount, blockCount, [=, &result, &localTLS, &firstNodeIndex, &kdTreeTable, &x, &r, &rowsPerBlock, &xColumnCount, &safeStat, &engine](int iBlock)
     {
         engines::EnginePtr engineLocal = engine.clone();
 
@@ -1001,7 +1003,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
                     DAAL_CHECK_THR(newBboxes, services::ErrorMemoryAllocationFailed);
 
-                    daal_memcpy_s(newBboxes, newCapacity * xColumnCount, local->bboxes, local->bboxesCapacity * xColumnCount);
+                    result |= daal_memcpy_s(newBboxes, newCapacity * xColumnCount, local->bboxes, local->bboxesCapacity * xColumnCount);
                     BBox * const oldBboxes = local->bboxes;
                     local->bboxes = newBboxes;
                     local->bboxesCapacity = newCapacity;
@@ -1034,7 +1036,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                                 const size_t newCapacity = local->fixupQueueCapacity * 2;
                                 size_t * const newQueue = static_cast<size_t *>(service_calloc<size_t, cpu>(newCapacity * sizeof(size_t)));
                                 DAAL_CHECK_THR(newQueue, services::ErrorMemoryAllocationFailed);
-                                daal_memcpy_s(newQueue, newCapacity * sizeof(size_t), local->fixupQueue, local->fixupQueueIndex * sizeof(size_t));
+                                result |= daal_memcpy_s(newQueue, newCapacity * sizeof(size_t),
+                                                        local->fixupQueue, local->fixupQueueIndex * sizeof(size_t));
                                 size_t * oldQueue = local->fixupQueue;
                                 local->fixupQueue = newQueue;
                                 local->fixupQueueCapacity = newCapacity;
@@ -1075,8 +1078,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
                                     DAAL_CHECK_THR(newNodes, services::ErrorMemoryAllocationFailed);
 
-                                    daal_memcpy_s(newNodes, newCapacity * sizeof(KDTreeNode), local->extraKDTreeNodes,
-                                                  local->extraKDTreeNodesCapacity * sizeof(KDTreeNode));
+                                    result |= daal_memcpy_s(newNodes, newCapacity * sizeof(KDTreeNode), local->extraKDTreeNodes,
+                                                            local->extraKDTreeNodesCapacity * sizeof(KDTreeNode));
                                     KDTreeNode * oldNodes = local->extraKDTreeNodes;
                                     local->extraKDTreeNodes = newNodes;
                                     local->extraKDTreeNodesCapacity = newCapacity;
@@ -1118,7 +1121,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
                             DAAL_CHECK_THR(newBboxes, services::ErrorMemoryAllocationFailed);
 
-                            daal_memcpy_s(newBboxes, newCapacity * xColumnCount, local->bboxes, local->bboxesCapacity * xColumnCount);
+                            result |= daal_memcpy_s(newBboxes, newCapacity * xColumnCount, local->bboxes, local->bboxesCapacity * xColumnCount);
                             BBox * const oldBboxes = local->bboxes;
                             local->bboxes = newBboxes;
                             local->bboxesCapacity = newCapacity;
@@ -1135,10 +1138,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             } // for (auto i = first; i < last; ++i)
         } // if (local)
     } );
-    status = safeStat.detach();
+    status = (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
     if(status.ok())
     {
-        status = [&]() -> Status
+        status = [ & ]() -> Status
         {
             bool isNeedToReindex = false;
             localTLS.reduce([=, &isNeedToReindex](Local * ptr) -> void
@@ -1166,10 +1169,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 KDTreeNode * const oldRoot = static_cast<KDTreeNode *>(kdTreeTable.getArray());
                 KDTreeNode * const newRoot = static_cast<KDTreeNode *>(newKDTreeTable->getArray());
 
-                daal_memcpy_s(newRoot, actualNodeCount * sizeof(KDTreeNode), oldRoot, lastNodeIndex * sizeof(KDTreeNode));
+                result |= daal_memcpy_s(newRoot, actualNodeCount * sizeof(KDTreeNode), oldRoot, lastNodeIndex * sizeof(KDTreeNode));
 
                 size_t newNodeIndex = lastNodeIndex;
-                localTLS.reduce([=, &newNodeIndex](Local * ptr) -> void
+                localTLS.reduce([=, &result, &newNodeIndex](Local * ptr) -> void
                 {
                     if (ptr)
                     {
@@ -1179,16 +1182,16 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                             const size_t extraNodeIndex = firstNodeIndex[ptr->threadIndex + 1];
                             if (ptr->nodeIndex > extraNodeIndex)
                             {
-                                daal_memcpy_s(&newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode),
-                                              &oldRoot[oldNodeIndex], (extraNodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
+                                result |= daal_memcpy_s(&newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode),
+                                                        &oldRoot[oldNodeIndex], (extraNodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
                                 const size_t idx = newNodeIndex + (extraNodeIndex - oldNodeIndex);
-                                daal_memcpy_s(&newRoot[idx], (actualNodeCount - idx) * sizeof(KDTreeNode),
-                                              ptr->extraKDTreeNodes, (ptr->nodeIndex - extraNodeIndex) * sizeof(KDTreeNode));
+                                result |= daal_memcpy_s(&newRoot[idx], (actualNodeCount - idx) * sizeof(KDTreeNode),
+                                                        ptr->extraKDTreeNodes, (ptr->nodeIndex - extraNodeIndex) * sizeof(KDTreeNode));
                             }
                             else
                             {
-                                daal_memcpy_s(&newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode),
-                                              &oldRoot[oldNodeIndex], (ptr->nodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
+                                result |= daal_memcpy_s(&newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode),
+                                                        &oldRoot[oldNodeIndex], (ptr->nodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
                             }
                             const long delta = newNodeIndex - oldNodeIndex;
                             for (size_t i = 0; i < ptr->fixupQueueIndex; ++i)
@@ -1212,11 +1215,11 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 r.impl()->setLastNodeIndex(newNodeIndex);
             }
 
-            return Status();
+            return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
         }();
     }
 
-    localTLS.reduce([=](Local * ptr) -> void
+    localTLS.reduce([=, &result](Local * ptr) -> void
     {
         if (ptr)
         {
@@ -1237,7 +1240,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     firstNodeIndex  = nullptr;
     bnQ             = nullptr;
 
-    return status;
+    return (!result) ? status : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFpType, CpuType cpu>

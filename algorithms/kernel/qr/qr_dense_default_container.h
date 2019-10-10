@@ -176,8 +176,8 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     data_management::KeyValueDataCollection *inCollection =
         static_cast<data_management::KeyValueDataCollection *>(input->get(inputOfStep2FromStep1).get());
 
-    size_t nBlocks = input->getNBlocks();
-    size_t nNodes  = inCollection->size();
+    const size_t nBlocks = input->getNBlocks();
+    const size_t nNodes  = inCollection->size();
 
     data_management::KeyValueDataCollection *perNodePartials = static_cast<data_management::KeyValueDataCollection *>(partialResult->get(outputOfStep2ForStep3).get());
     Result *results = static_cast<Result *>(partialResult->get(finalResultFromStep2Master).get());

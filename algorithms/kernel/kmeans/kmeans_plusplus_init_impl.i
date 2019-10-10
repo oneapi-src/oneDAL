@@ -377,9 +377,10 @@ public:
 
 protected:
     //copy _dim*nPt algorithmFPType values from pSrc to pDst
-    void copyPoints(algorithmFPType* pDst, const algorithmFPType* pSrc, size_t nPt) const
+    services::Status copyPoints(algorithmFPType* pDst, const algorithmFPType* pSrc, size_t nPt) const
     {
-        daal::services::daal_memcpy_s(pDst, sizeof(algorithmFPType)*_data.dim*nPt, pSrc, sizeof(algorithmFPType)*_data.dim*nPt);
+        int result = daal::services::daal_memcpy_s(pDst, sizeof(algorithmFPType)*_data.dim*nPt, pSrc, sizeof(algorithmFPType)*_data.dim*nPt);
+        return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
     //get first center at random
     size_t calcFirstCenter();
@@ -532,6 +533,8 @@ private:
 template <typename algorithmFPType, CpuType cpu, typename DataHelper>
 Status TaskPlusPlusBatch<algorithmFPType, cpu, DataHelper>::run()
 {
+    services::Status status{services::Status()};
+
     DAAL_CHECK(this->_aMinDist.get() && this->_aMinDistAcc.get() && this->_lastAddedCenter.get() && this->_aProbability.get(),
         ErrorMemoryAllocationFailed);
     WriteOnlyRows<algorithmFPType, cpu> clustersBD(this->_ntClusters, 0u, this->_nClusters);
@@ -547,7 +550,7 @@ Status TaskPlusPlusBatch<algorithmFPType, cpu, DataHelper>::run()
     this->calcFirstCenter();
 
     //copy it to the result
-    this->copyPoints(&clusters[0u*this->_data.dim], &this->_lastAddedCenter[0u*this->_data.dim], 1u);
+    status |= this->copyPoints(&clusters[0u*this->_data.dim], &this->_lastAddedCenter[0u*this->_data.dim], 1u);
 
     // for first centroids is one trial
     this->updateMinDist(_aWeight, 1u);
@@ -557,9 +560,9 @@ Status TaskPlusPlusBatch<algorithmFPType, cpu, DataHelper>::run()
     {
         calcCenter(iCluster);
         //copy it to the result
-        this->copyPoints(&clusters[iCluster*this->_data.dim], &this->_lastAddedCenter[this->_trialBest*this->_data.dim], 1u);
+        status |= this->copyPoints(&clusters[iCluster*this->_data.dim], &this->_lastAddedCenter[this->_trialBest*this->_data.dim], 1u);
     }
-    return Status();
+    return status;
 }
 
 template <typename algorithmFPType, CpuType cpu, typename DataHelper>
@@ -923,7 +926,7 @@ Status TaskParallelPlusBatch<algorithmFPType, cpu, DataHelper>::getCandidates(Ho
         //add first candidate
         _aCandidateIdx.get()[0] = iCenter;
         _nCandidates = 1;
-        this->copyPoints(candidatesBD.get(), this->_lastAddedCenter.get(), 1);
+        s |= this->copyPoints(candidatesBD.get(), this->_lastAddedCenter.get(), 1);
         //it is nearest for all points
         daal::services::internal::service_memset<int, cpu>(_aNearestCandidateIdx.get(), 0, this->_data.nRows);
         //hence its rating is highest so far
@@ -939,7 +942,7 @@ Status TaskParallelPlusBatch<algorithmFPType, cpu, DataHelper>::getCandidates(Ho
             if(nNewCandidates)
             {
                 //copy them to the candidates table
-                this->copyPoints(candidatesBD.get() + _nCandidates*this->_data.dim, this->_lastAddedCenter.get(), nNewCandidates);
+                s |= this->copyPoints(candidatesBD.get() + _nCandidates*this->_data.dim, this->_lastAddedCenter.get(), nNewCandidates);
                 const size_t iFirstNewCandidate = _nCandidates;
                 _nCandidates += nNewCandidates;
                 bDone = ((iRound + 1 >= _R) && (_nCandidates > this->_nClusters));
@@ -949,7 +952,7 @@ Status TaskParallelPlusBatch<algorithmFPType, cpu, DataHelper>::getCandidates(Ho
     }
     if(_nCandidates < maxNumberOfCandidates)
         pCandidates->resize(_nCandidates);
-    return Status();
+    return s;
 }
 
 template <typename algorithmFPType, CpuType cpu, typename DataHelper>

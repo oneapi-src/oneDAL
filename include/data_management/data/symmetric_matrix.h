@@ -595,13 +595,14 @@ protected:
 
 private:
     template<typename T1, typename T2>
-    void internal_repack( size_t p, size_t n, T1 *src, T2 *dst )
+    services::Status internal_repack( size_t p, size_t n, T1 *src, T2 *dst )
     {
         if( IsSameType<T1, T2>::value )
         {
             if( src != (T1 *)dst )
             {
-                daal::services::daal_memcpy_s(dst, n * p * sizeof(T1), src, n * p * sizeof(T1));
+                int result = daal::services::daal_memcpy_s(dst, n * p * sizeof(T1), src, n * p * sizeof(T1));
+                DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
             }
         }
         else
@@ -616,6 +617,7 @@ private:
                 }
             }
         }
+        return services::Status();
     }
 
     template<typename T1, typename T2>
@@ -1360,13 +1362,14 @@ protected:
 
 private:
     template<typename T1, typename T2>
-    void internal_repack( size_t p, size_t n, T1 *src, T2 *dst )
+    services::Status internal_repack( size_t p, size_t n, T1 *src, T2 *dst )
     {
         if( IsSameType<T1, T2>::value )
         {
             if( src != (T1 *)dst )
             {
-                daal::services::daal_memcpy_s(dst, n * p * sizeof(T1), src, n * p * sizeof(T1));
+                int result = daal::services::daal_memcpy_s(dst, n * p * sizeof(T1), src, n * p * sizeof(T1));
+                DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
             }
         }
         else
@@ -1381,6 +1384,7 @@ private:
                 }
             }
         }
+        return services::Status();
     }
 
     template<typename T1, typename T2>

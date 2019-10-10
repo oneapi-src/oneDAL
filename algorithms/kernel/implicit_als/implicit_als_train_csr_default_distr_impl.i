@@ -128,6 +128,7 @@ Status ImplicitALSTrainDistrStep3Kernel<algorithmFPType, cpu>::compute(
                  data_management::KeyValueDataCollection *dstPartialModels, const Parameter *parameter)
 {
     int offset = 0;
+    int result = 0;
     {
         ReadRows<int, cpu> mtOffset(offsetTable, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(mtOffset);
@@ -170,13 +171,13 @@ Status ImplicitALSTrainDistrStep3Kernel<algorithmFPType, cpu>::compute(
                 DAAL_CHECK_BLOCK_STATUS_THR(mtSrcFactors);
                 const algorithmFPType *srcFactor = mtSrcFactors.get();
 
-                daal::services::daal_memcpy_s(dstFactor + j*nCols, nFactors * sizeof(algorithmFPType),
-                                              srcFactor, nFactors * sizeof(algorithmFPType));
+                result |= daal::services::daal_memcpy_s(dstFactor + j*nCols, nFactors * sizeof(algorithmFPType),
+                                                        srcFactor, nFactors * sizeof(algorithmFPType));
             }
         });
     });
 
-    return safeStat.detach();
+    return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -212,12 +213,18 @@ Status AlsTls<algorithmFPType, cpu>::run(NumericTable& dstFactors, ReadRowsCSR<a
     size_t i, const algorithmFPType *xtx,
     NumericTable** aSrcFactors, const size_t *nColFactorsRows, const int **indices)
 {
+    int result = 0;
+
     _mtDstFactors.set(dstFactors, i, 1);
     DAAL_CHECK_BLOCK_STATUS(_mtDstFactors);
     algorithmFPType *rhs = _mtDstFactors.get();
     service_memset<algorithmFPType, cpu>(rhs, 0.0, _prm.nFactors);
-    daal::services::daal_memcpy_s(_lhs.get(), _prm.nFactors * _prm.nFactors * sizeof(algorithmFPType),
+    result = daal::services::daal_memcpy_s(_lhs.get(), _prm.nFactors * _prm.nFactors * sizeof(algorithmFPType),
         xtx, _prm.nFactors * _prm.nFactors * sizeof(algorithmFPType));
+    if (result)
+    {
+        return services::Status(services::ErrorMemoryCopyFailedInternal);
+    }
 
     Status s = formSystem(mtData, i, aSrcFactors, nColFactorsRows, indices);
 
@@ -309,6 +316,7 @@ Status AlsTls<algorithmFPType, cpu>::formSystem(
     {
         algorithmFPType c1 = algorithmFPType(_prm.alpha) * mtData.values()[j];
         algorithmFPType c = c1 + 1.0;
+        DAAL_ASSERT(mtData.cols()[j] <= services::internal::MaxVal<int>::get())
         int colIndex = (int)mtData.cols()[j] - 1;
 
         int blockIndex = -1;

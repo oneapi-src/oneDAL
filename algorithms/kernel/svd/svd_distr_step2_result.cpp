@@ -24,6 +24,7 @@
 #include "algorithms/svd/svd_types.h"
 #include "serialization_utils.h"
 #include "daal_strings.h"
+#include "service_data_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -115,8 +116,9 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
     DAAL_CHECK_EX(firstNumTableInFirstNodeCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, SVDNodeCollectionStr());
 
     Status s = checkNumericTable(firstNumTableInFirstNodeCollection.get(), SVDNodeCollectionNTStr());
-    if(!s) { return s; }
+    DAAL_CHECK_STATUS_VAR(s)
     size_t nFeatures = firstNumTableInFirstNodeCollection->getNumberOfColumns();
+    DAAL_CHECK(nNodes <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfNodes)
     // check all dataCollection in key-value dataCollection
     for(size_t i = 0 ; i < nNodes ; i++)
     {
@@ -133,19 +135,19 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
             DAAL_CHECK_EX(rNumTableInNodeCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, SVDNodeCollectionStr());
             int unexpectedLayouts = (int)packed_mask;
             s |= checkNumericTable(rNumTableInNodeCollection.get(), SVDNodeCollectionNTStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-            if(!s) { return s; }
+            DAAL_CHECK_STATUS_VAR(s)
         }
     }
     Parameter *svdPar   = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter  ));
     int unexpectedLayouts = (int)packed_mask;
     s |= checkNumericTable(get(finalResultFromStep2Master)->get(singularValues).get(), singularValuesStr(), unexpectedLayouts, 0, nFeatures, 1);
-    if(!s) { return s; }
+    DAAL_CHECK_STATUS_VAR(s)
     if(svdPar->rightSingularMatrix == requiredInPackedForm)
     {
         if(get(finalResultFromStep2Master))
         {
             s |= checkNumericTable(get(finalResultFromStep2Master)->get(rightSingularMatrix).get(), rightSingularMatrixStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-            if(!s) { return s; }
+            DAAL_CHECK_STATUS_VAR(s)
         }
     }
     return Status();

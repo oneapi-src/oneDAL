@@ -24,6 +24,7 @@
 #define __QR_DENSE_DEFAULT_DISTR_STEP2__
 
 #include "qr_types.h"
+#include "service_data_utils.h"
 
 using namespace daal::services;
 
@@ -80,13 +81,14 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(data_manage
     data_management::NumericTable   *firstNumericTable   = static_cast<data_management::NumericTable *>((*fisrtNodeCollection)[0].get());
 
     size_t m = firstNumericTable->getNumberOfColumns();
-    if(result->get(matrixR).get() == NULL)
+    if(result->get(matrixR).get() == nullptr)
     {
         result->allocateImpl<algorithmFPType>(m, 0);
     }
 
     nBlocks = 0;
     Status s;
+    DAAL_CHECK(inSize <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfElementsInInputCollection)
     for(size_t i = 0 ; i < inSize ; i++)
     {
         data_management::DataCollection *nodeCollection = static_cast<data_management::DataCollection *>((*inCollection).getValueByIndex((int)i).get());

@@ -42,6 +42,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                                              NumericTable *componentOfHessianDiagonal, NumericTable *componentOfProximalProjection, Parameter *parameter)
 {
     const size_t nDataRows = dataNT->getNumberOfRows();
+    int result = 0;
     if(componentOfGradient || componentOfHessianDiagonal || componentOfProximalProjection)
     {
         const size_t id = parameter->featureId;
@@ -168,7 +169,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     residual.reset(nDataRows * yDim);
                     residualPtr = residual.get();
 
-                    daal_memcpy_s(residualPtr, n * yDim * sizeof(algorithmFPType), Y, n * yDim * sizeof(algorithmFPType));
+                    result |= daal_memcpy_s(residualPtr, n * yDim * sizeof(algorithmFPType), Y, n * yDim * sizeof(algorithmFPType));
                     size_t compute_matrix = 0;
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
@@ -719,7 +720,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
         return run(task);
     }
     MSETaskAll<algorithmFPType, cpu> task(dataNT, dependentVariablesNT, argumentNT, valueNT, hessianNT, gradientNT, parameter, blockSizeDefault);
-    return run(task);
+    return (!result) ? run(task) : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>

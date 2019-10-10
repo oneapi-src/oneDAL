@@ -29,6 +29,7 @@
 #include "service_numeric_table.h"
 #include "uniform_kernel.h"
 #include "uniform_impl.i"
+#include "service_data_utils.h"
 
 namespace daal
 {
@@ -76,7 +77,9 @@ Status init( size_t p, size_t n, size_t nRowsTotal, size_t nClusters, algorithmF
         Status s;
         for(size_t i = 0; i < nClusters; i++)
         {
+            DAAL_ASSERT(nRowsTotal <= services::internal::MaxVal<int>::get())
             DAAL_CHECK_STATUS(s, (UniformKernelDefault<int, cpu>::compute(i, (int)nRowsTotal, engine, 1, indices + i)));
+            DAAL_ASSERT(indices[i] >= 0)
             size_t c = (size_t)indices[i];
             int value = indices[i];
             for(size_t j = i; j > 0; j--)
@@ -128,6 +131,7 @@ template <typename algorithmFPType, CpuType cpu>
 Status initDistrDeterministic(const NumericTable* pData, const Parameter *par, size_t& nClustersFound, NumericTablePtr& pRes)
 {
     nClustersFound = 0;
+    int result = 0;
     if(par->nClusters <= par->offset)
         return Status(); //ok
 
@@ -147,8 +151,8 @@ Status initDistrDeterministic(const NumericTable* pData, const Parameter *par, s
     ReadRows<algorithmFPType, cpu> dataBD(*const_cast<NumericTable*>(pData), 0, nClustersFound);
     DAAL_CHECK_BLOCK_STATUS(dataBD);
     const size_t sz = pData->getNumberOfColumns()*nClustersFound*sizeof(algorithmFPType);
-    daal::services::daal_memcpy_s(resBD.get(), sz, dataBD.get(), sz);
-    return st;
+    result = daal::services::daal_memcpy_s(resBD.get(), sz, dataBD.get(), sz);
+    return (!result) ? st : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -162,6 +166,7 @@ Status generateRandomIndices(const Parameter *par, size_t nRows, size_t& nCluste
     Status s;
     for(size_t i = 0; i < par->nClusters; i++)
     {
+        DAAL_ASSERT(par->nRowsTotal <= services::internal::MaxVal<int>::get())
         DAAL_CHECK_STATUS(s, (UniformKernelDefault<int, cpu>::compute(i, (int)par->nRowsTotal, engine, 1, indices + i)));
         size_t c = (size_t)indices[i];
         int value = indices[i];
@@ -223,10 +228,13 @@ Status initDistrPlusPlus(const NumericTable* pData, const Parameter *par,
 {
     nClustersFound = 0;
     int index = 0;
+    int result = 0;
 
     Status s;
+    DAAL_CHECK(par->nRowsTotal <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfRows)
     DAAL_CHECK_STATUS(s, (UniformKernelDefault<int, cpu>::compute(0, (int)par->nRowsTotal, engine, 1, &index)));
 
+    DAAL_ASSERT(index >= 0)
     size_t c(index);
     if(c < par->offset)
         return Status(); //ok
@@ -246,8 +254,8 @@ Status initDistrPlusPlus(const NumericTable* pData, const Parameter *par,
     const size_t p = pData->getNumberOfColumns();
     WriteOnlyRows<algorithmFPType, cpu> resBD(*pRes, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(resBD);
-    daal::services::daal_memcpy_s(resBD.get(), sizeof(algorithmFPType)*p, dataBD.get(), sizeof(algorithmFPType)*p);
-    return s;
+    result = daal::services::daal_memcpy_s(resBD.get(), sizeof(algorithmFPType)*p, dataBD.get(), sizeof(algorithmFPType)*p);
+    return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
@@ -268,6 +276,7 @@ services::Status KMeansInitStep1LocalKernel<method, algorithmFPType, cpu>::compu
         return s;
     WriteOnlyRows<int, cpu> npcBD(*pNumPartialClusters, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(npcBD);
+    DAAL_CHECK(nClustersFound <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfPartialClusters)
     *npcBD.get() = (int)nClustersFound;
     return s;
 }

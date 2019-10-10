@@ -867,8 +867,9 @@ public:
     }
 
     template <typename SplitCriterion, typename LeavesData>
-    services::Status train(SplitCriterion & splitCriterion, LeavesData & leavesData, const NumericTable & x, const NumericTable & y, const NumericTable * w,
-               size_t numberOfClasses = 0, size_t maxTreeDepth = 0, size_t minLeafObservations = 1, size_t minSplitObservations = 2)
+    services::Status train(SplitCriterion & splitCriterion, LeavesData & leavesData, const NumericTable & x, const NumericTable & y,
+                           const NumericTable * w, size_t numberOfClasses = 0, size_t maxTreeDepth = 0, size_t minLeafObservations = 1,
+                           size_t minSplitObservations = 2)
     {
         if(maxTreeDepth == 2) // stump with weights
         {
@@ -885,6 +886,7 @@ public:
         typename SplitCriterion::DataStatistics totalDataStatistics(numberOfClasses, x, y, w), dataStatistics(numberOfClasses, w);
 
         size_t * indexes = prepareIndexes(xRowCount);
+        DAAL_CHECK_MALLOC(indexes)
 
         clear();
 
@@ -944,7 +946,7 @@ public:
 
     template <typename SplitCriterion>
     services::Status train(SplitCriterion & splitCriterion, const NumericTable & x, const NumericTable & y, const NumericTable * w,
-               size_t numberOfClasses = 0, size_t maxTreeDepth = 0, size_t minLeafObservations = 1, size_t minSplitObservations = 2)
+                           size_t numberOfClasses = 0, size_t maxTreeDepth = 0, size_t minLeafObservations = 1, size_t minSplitObservations = 2)
     {
         LeavesData<cpu, void> leavesData;
         return train(splitCriterion, leavesData, x, y, w, numberOfClasses, maxTreeDepth, minLeafObservations, minSplitObservations);
@@ -1010,20 +1012,25 @@ public:
     }
 
 protected:
+
     services::Status reserve(size_t newCapacity)
     {
+        services::Status status = services::Status();
         if (newCapacity > _nodeCapacity)
         {
+            int result = 0;
             TreeNodeType * newNodes = daal_alloc<TreeNodeType>(newCapacity);
             DAAL_CHECK_MALLOC(newNodes)
-            daal_memcpy_s(newNodes, newCapacity * sizeof(TreeNodeType), _nodes, _nodeCount * sizeof(TreeNodeType));
+            result = daal_memcpy_s(newNodes, newCapacity * sizeof(TreeNodeType), _nodes, _nodeCount * sizeof(TreeNodeType));
+            if (result)
+                status = services::Status(services::ErrorMemoryCopyFailedInternal);
             swap<cpu>(_nodes, newNodes);
             swap<cpu>(_nodeCapacity, newCapacity);
             daal_free(newNodes);
             newNodes = nullptr;
         }
 
-        return services::Status();
+        return status;
     }
 
     TreeNodeIndex pushBack(services::Status& status)
