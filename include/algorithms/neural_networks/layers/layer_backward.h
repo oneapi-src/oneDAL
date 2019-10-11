@@ -57,6 +57,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__BACKWARD__LAYERIFACE"></a>
  *  \brief Abstract class which defines interface for the layer
+ * \DAAL_DEPRECATED
  */
 class LayerIface : public daal::algorithms::Analysis<batch>
 {
@@ -65,23 +66,29 @@ public:
     typedef algorithms::neural_networks::layers::Parameter        ParameterType;
     typedef algorithms::neural_networks::layers::backward::Result ResultType;
 
+    /**
+     * \DAAL_DEPRECATED
+     */
     virtual ~LayerIface() {};
 
     /**
      * Returns the structure that contains results of the layer
      * \return Structure that contains results of the layer
+     * \DAAL_DEPRECATED
      */
     virtual backward::ResultPtr getLayerResult() = 0;
 
     /**
      * Returns the structure that contains input objects of the layer
      * \return Structure that contains input objects of the layer
+     * \DAAL_DEPRECATED
      */
     virtual InputType *getLayerInput() = 0;
 
     /**
      * Returns the structure that contains parameters of the layer
      * \return Structure that contains parameters of the layer
+     * \DAAL_DEPRECATED
      */
     virtual ParameterType *getLayerParameter() = 0;
 
@@ -89,6 +96,7 @@ public:
      * Returns a pointer to the newly allocated backward neural network layer with a copy of input objects
      * and parameters of this layer
      * \return Pointer to the newly allocated backward layer
+     * \DAAL_DEPRECATED
      */
     services::SharedPtr<daal::algorithms::neural_networks::layers::backward::interface1::LayerIface> clone() const
     {
@@ -97,6 +105,7 @@ public:
 
     /**
      * Allocates memory buffers needed for the computations
+     * \DAAL_DEPRECATED
      */
     virtual services::Status allocateResult() = 0;
 
@@ -108,10 +117,14 @@ public:
      *                          results of the previous layer
      * \param[in] inputIndex    Index in the input object of this layer algorithm
      *                          where the tensor with gradient should be placed
+     * \DAAL_DEPRECATED
      */
-     virtual services::Status addInput(backward::ResultPtr result, size_t resultIndex, size_t inputIndex) = 0;
+    virtual services::Status addInput(backward::ResultPtr result, size_t resultIndex, size_t inputIndex) = 0;
 
 protected:
+    /**
+     * \DAAL_DEPRECATED
+     */
     virtual LayerIface *cloneImpl() const = 0;
 };
 
@@ -125,6 +138,7 @@ typedef services::SharedPtr<LayerIface> LayerIfacePtr;
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__BACKWARD__LAYERIFACE"></a>
  *  \brief Implements the abstract interface LayerIface. LayerIfaceImpl is, in turn, the base class
  *         for the classes interfacing the layers.
+ * \DAAL_DEPRECATED
  */
 class LayerIfaceImpl : public LayerIface
 {
@@ -135,12 +149,16 @@ public:
     typedef super::ParameterType ParameterType;
     typedef super::ResultType    ResultType;
 
+    /**
+     * \DAAL_DEPRECATED
+     */
     virtual ~LayerIfaceImpl() {};
 
     /**
      * \copydoc LayerIface::addInput
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status addInput(backward::ResultPtr result, size_t resultIndex, size_t inputIndex) DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status addInput(backward::ResultPtr result, size_t resultIndex, size_t inputIndex) DAAL_C11_OVERRIDE
     {
         return getLayerInput()->addInputGradient(result->getGradient(resultIndex), inputIndex);
     }

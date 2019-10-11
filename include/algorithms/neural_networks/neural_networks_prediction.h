@@ -54,6 +54,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__PREDICTION__BATCHCONTAINER"></a>
  * \brief Class containing methods to train neural network model using algorithmFPType precision arithmetic
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
@@ -63,16 +64,27 @@ public:
      * Constructs a container for neural network model-based prediction with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    /*
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of neural network model-based prediction in the batch processing mode
+     * \DAAL_DEPRECATED
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
-    services::Status setupCompute() DAAL_C11_OVERRIDE;
-    services::Status resetCompute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status setupCompute() DAAL_C11_OVERRIDE;
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status resetCompute() DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -89,6 +101,8 @@ public:
 * \par References
 *      - \ref neural_networks::prediction::interface1::Model "neural_networks::prediction::Model" class
 *      - \ref prediction::interface1::Batch "prediction::Batch" class
+*
+* \DAAL_DEPRECATED
 */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public daal::algorithms::Prediction
@@ -98,8 +112,11 @@ public:
     typedef algorithms::neural_networks::prediction::Parameter ParameterType;
     typedef algorithms::neural_networks::prediction::Result    ResultType;
 
-    /** Default constructor */
-    Batch()
+    /*
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Batch()
     {
         initialize();
     };
@@ -108,19 +125,24 @@ public:
      * Constructs neural network by copying input objects and parameters of another neural network
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : parameter(other.parameter), input(other.input)
     {
         initialize();
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Batch() {}
 
     /**
     * Returns the structure that contains the results of the neural network algorithm
     * \return Structure that contains the results of the neural network algorithm
+     * \DAAL_DEPRECATED
     */
-    ResultPtr getResult()
+    DAAL_DEPRECATED ResultPtr getResult()
     {
         return _result;
     }
@@ -130,8 +152,9 @@ public:
      * \param[in] res  Structure to store the results of the neural network algorithm
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status setResult(const ResultPtr& res)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr& res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
@@ -143,8 +166,9 @@ public:
      * Returns a pointer to the newly allocated neural network
      * with a copy of input objects and parameters of this neural network
      * \return Pointer to the newly allocated layer
+     * \DAAL_DEPRECATED
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
@@ -152,13 +176,17 @@ public:
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
+     * \DAAL_DEPRECATED
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     InputType input; /*!< %Input data structure */
     ParameterType parameter; /*!< %Prediction parameters */
 
 protected:
+    /*
+     * \DAAL_DEPRECATED
+     */
     void initialize()
     {
         Prediction::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
@@ -167,12 +195,18 @@ protected:
         _result.reset(new ResultType());
     }
 
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int) method);
         _res = _result.get();

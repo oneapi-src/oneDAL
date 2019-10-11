@@ -47,6 +47,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MATH__LOGISTIC__BATCHCONTAINER"></a>
  * \brief Class containing methods for the logistic function computing using algorithmFPType precision arithmetic
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
@@ -56,10 +57,14 @@ public:
      * Constructs a container for the logistic function with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    /**
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of the logistic function in the batch processing mode
      *
@@ -81,6 +86,8 @@ public:
  *      - \ref Method   Computation methods for the logistic function
  *      - \ref InputId  Identifiers of input objects for the logistic function
  *      - \ref ResultId %Result identifiers for the the logistic function
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
@@ -89,8 +96,11 @@ public:
     typedef algorithms::math::logistic::Input  InputType;
     typedef algorithms::math::logistic::Result ResultType;
 
-    /** Default constructor */
-    Batch()
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Batch()
     {
         initialize();
     }
@@ -98,6 +108,7 @@ public:
     /**
      * Constructs the logistic function by copying input objects of another logistic function
      * \param[in] other function to be used as the source to initialize the input objects of the logistic function
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
     {

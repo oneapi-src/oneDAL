@@ -58,6 +58,7 @@ namespace interface1
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING1D__KERNELSIZE"></a>
  * \brief Data structure representing the size of the 1D subtensor
  *        from which the element is computed
+ * \DAAL_DEPRECATED
  */
 struct KernelSize
 {
@@ -65,22 +66,25 @@ struct KernelSize
      * Constructs the structure representing the size of the 1D subtensor
      * from which the element is computed
      * \param[in]  first  Size of the first dimension of the 1D subtensor
+     * \DAAL_DEPRECATED
      */
-    KernelSize(size_t first = 2) { size[0] = first;}
+    DAAL_DEPRECATED KernelSize(size_t first = 2) { size[0] = first;}
     size_t size[1];
 };
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING1D__STRIDE"></a>
  * \brief Data structure representing the intervals on which the subtensors for pooling are computed
+ * \DAAL_DEPRECATED
  */
 struct Stride
 {
     /**
      * Constructs the structure representing the intervals on which the subtensors for pooling are computed
      * \param[in]  first  Interval over the first dimension on which the pooling is performed
+     * \DAAL_DEPRECATED
      */
-    Stride(size_t first = 2) { size[0] = first;}
+    DAAL_DEPRECATED Stride(size_t first = 2) { size[0] = first;}
     size_t size[1];
 };
 
@@ -88,6 +92,7 @@ struct Stride
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING1D__PADDING"></a>
  * \brief Data structure representing the number of data elements to implicitly add
  *        to each side of the 1D subtensor on which pooling is performed
+ * \DAAL_DEPRECATED
  */
 struct Padding
 {
@@ -95,22 +100,25 @@ struct Padding
      * Constructs the structure representing the number of data elements to implicitly add
      * to each side of the 1D subtensor on which pooling is performed
      * \param[in]  first  Number of data elements to add to the the first dimension of the 1D subtensor
+     * \DAAL_DEPRECATED
      */
-    Padding(size_t first = 0) { size[0] = first;}
+    DAAL_DEPRECATED Padding(size_t first = 0) { size[0] = first;}
     size_t size[1];
 };
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING1D__SPATIALDIMENSIONS"></a>
  * \brief Data structure representing the indices of the dimension on which pooling is performed
+ * \DAAL_DEPRECATED
  */
 struct Index
 {
     /**
      * Constructs the structure representing the indices of the dimension on which pooling is performed
      * \param[in]  first  The first dimension index
+     * \DAAL_DEPRECATED
      */
-    Index(size_t first = 2) { size[0] = first;}
+    DAAL_DEPRECATED Index(size_t first = 2) { size[0] = first;}
     size_t size[1];
 };
 
@@ -119,6 +127,7 @@ struct Index
  * \brief Parameters for the forward and backward pooling layers
  *
  * \snippet neural_networks/layers/pooling1d/pooling1d_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
@@ -130,8 +139,9 @@ struct DAAL_EXPORT Parameter: public layers::Parameter
      * \param[in] stride       Interval over the dimension on which the pooling is performed
      * \param[in] padding      Number of data elements to implicitly add to the the dimension
      *                         of the 1D subtensor on which the pooling is performed
+     * \DAAL_DEPRECATED
      */
-    Parameter(size_t index, size_t kernelSize = 2, size_t stride = 2, size_t padding = 0);
+    DAAL_DEPRECATED Parameter(size_t index, size_t kernelSize = 2, size_t stride = 2, size_t padding = 0);
 
     Stride stride;              /*!< Data structure representing the intervals on which the subtensors for pooling are computed */
     Padding padding;            /*!< Data structure representing the number of data elements to implicitly add

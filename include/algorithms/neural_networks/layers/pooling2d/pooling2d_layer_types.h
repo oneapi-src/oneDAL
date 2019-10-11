@@ -58,6 +58,7 @@ namespace interface1
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING2D__KERNELSIZE"></a>
  * \brief Data structure representing the size of the 2D subtensor
  *        from which the element is computed
+ * \DAAL_DEPRECATED
  */
 struct KernelSizes
 {
@@ -66,14 +67,16 @@ struct KernelSizes
      * from which the element is computed
      * \param[in]  first  Size of the first dimension of the 2D subtensor
      * \param[in]  second Size of the second dimension of the 2D subtensor
+     * \DAAL_DEPRECATED
      */
-    KernelSizes(size_t first = 2, size_t second = 2) { size[0] = first; size[1] = second; }
+    DAAL_DEPRECATED KernelSizes(size_t first = 2, size_t second = 2) { size[0] = first; size[1] = second; }
     size_t size[2];
 };
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING2D__STRIDE"></a>
  * \brief Data structure representing the intervals on which the subtensors for pooling are computed
+ * \DAAL_DEPRECATED
  */
 struct Strides
 {
@@ -81,8 +84,9 @@ struct Strides
      * Constructs the structure representing the intervals on which the subtensors for pooling are computed
      * \param[in]  first  Interval over the first dimension on which the pooling is performed
      * \param[in]  second Interval over the second dimension on which the pooling is performed
+     * \DAAL_DEPRECATED
      */
-    Strides(size_t first = 2, size_t second = 2) { size[0] = first; size[1] = second; }
+    DAAL_DEPRECATED Strides(size_t first = 2, size_t second = 2) { size[0] = first; size[1] = second; }
     size_t size[2];
 };
 
@@ -90,6 +94,7 @@ struct Strides
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING2D__PADDING"></a>
  * \brief Data structure representing the number of data elements to implicitly add
  *        to each side of the 2D subtensor on which pooling is performed
+ * \DAAL_DEPRECATED
  */
 struct Paddings
 {
@@ -98,14 +103,16 @@ struct Paddings
      * to each side of the 2D subtensor on which pooling is performed
      * \param[in]  first  Number of data elements to add to the the first dimension of the 2D subtensor
      * \param[in]  second Number of data elements to add to the the second dimension of the 2D subtensor
+     * \DAAL_DEPRECATED
      */
-    Paddings(size_t first = 2, size_t second = 2) { size[0] = first; size[1] = second; }
+    DAAL_DEPRECATED Paddings(size_t first = 2, size_t second = 2) { size[0] = first; size[1] = second; }
     size_t size[2];
 };
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING2D__SPATIALDIMENSIONS"></a>
  * \brief Data structure representing the indices of the two dimensions on which pooling is performed
+ * \DAAL_DEPRECATED
  */
 struct Indices
 {
@@ -113,8 +120,9 @@ struct Indices
      * Constructs the structure representing the indices of the two dimensions on which pooling is performed
      * \param[in]  first  The first dimension index
      * \param[in]  second The second dimension index
+     * \DAAL_DEPRECATED
      */
-    Indices(size_t first = 2, size_t second = 3) { size[0] = first; size[1] = second; }
+    DAAL_DEPRECATED Indices(size_t first = 2, size_t second = 3) { size[0] = first; size[1] = second; }
     size_t size[2];
 };
 
@@ -123,6 +131,8 @@ struct Indices
  * \brief Parameters for the forward and backward two-dimensional pooling layers
  *
  * \snippet neural_networks/layers/pooling2d/pooling2d_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
@@ -139,8 +149,9 @@ struct DAAL_EXPORT Parameter: public layers::Parameter
      *                              of the 2D subtensor on which the pooling is performed
      * \param[in] secondPadding     Number of data elements to implicitly add to the the second dimension
      *                              of the 2D subtensor on which the pooling is performed
+     * \DAAL_DEPRECATED
      */
-    Parameter(size_t firstIndex, size_t secondIndex, size_t firstKernelSize = 2, size_t secondKernelSize = 2,
+    DAAL_DEPRECATED Parameter(size_t firstIndex, size_t secondIndex, size_t firstKernelSize = 2, size_t secondKernelSize = 2,
               size_t firstStride = 2, size_t secondStride = 2, size_t firstPadding = 0, size_t secondPadding = 0);
 
     Strides strides;            /*!< Data structure representing the intervals on which the subtensors for pooling are computed */

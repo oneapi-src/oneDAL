@@ -64,11 +64,16 @@ namespace interface1
  *      - \ref interface1::Parameter "Parameter" class
  *      - \ref forward::interface1::Batch "forward::Batch" class
  *      - \ref backward::interface1::Batch "backward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 class Batch : public LayerIface
 {
 public:
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
     Batch()
     {}
 

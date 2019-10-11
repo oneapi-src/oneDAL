@@ -63,6 +63,8 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations of forward stochastic 2D pooling layer, double or float
  * \tparam method           Computation method of the layer, stochastic_pooling2d::Method
  * \tparam cpu              Version of the cpu-specific implementation of the layer, \ref daal::CpuType
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public layers::forward::LayerContainerIfaceImpl
@@ -72,16 +74,21 @@ public:
      * Constructs a container for the forward stochastic 2D pooling layer with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    /**
+     * Default destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~BatchContainer();
     /**
      * Computes the result of the forward stochastic 2D pooling layer in the batch processing mode
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -101,6 +108,8 @@ public:
  *
  * \par References
  *      - \ref backward::interface1::Batch "backward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public layers::forward::LayerIfaceImpl
@@ -118,8 +127,9 @@ public:
     /**
      * Constructs forward stochastic 2D pooling layer with the provided parameters
      * \param[in] nDimensions Number of dimensions in input data tensor
+     * \DAAL_DEPRECATED
      */
-    Batch(size_t nDimensions) : _defaultParameter(nDimensions - 2, nDimensions - 1),parameter(_defaultParameter)
+    DAAL_DEPRECATED Batch(size_t nDimensions) : _defaultParameter(nDimensions - 2, nDimensions - 1),parameter(_defaultParameter)
     {
         initialize();
     }
@@ -128,8 +138,9 @@ public:
      * Constructs a forward stochastic 2D pooling layer in the batch processing mode
      * and initializes its parameter with the provided parameter
      * \param[in] parameter Parameter to initialize the parameter of the layer
+     * \DAAL_DEPRECATED
      */
-    Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
+    DAAL_DEPRECATED Batch(ParameterType& parameter) : parameter(parameter), _defaultParameter(parameter)
     {
         initialize();
     }
@@ -139,6 +150,7 @@ public:
      * and parameters of another forward stochastic 2D pooling layer in the batch processing mode
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the layer
+     * \DAAL_DEPRECATED
      */
     Batch(const Batch<algorithmFPType, method> &other) : super(other),
         _defaultParameter(other.parameter), parameter(_defaultParameter), input(other.input)
@@ -149,26 +161,30 @@ public:
     /**
      * Returns the method of the layer
      * \return Method of the layer
+     * \DAAL_DEPRECATED
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
     /**
      * Returns the structure that contains the input objects of the forward stochastic 2D pooling layer
      * \return Structure that contains the input objects of the forward stochastic 2D pooling layer
+     * \DAAL_DEPRECATED
      */
-    virtual InputType *getLayerInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED_VIRTUAL virtual InputType *getLayerInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns the structure that contains the parameters of the forward stochastic 2D pooling layer
      * \return Structure that contains the parameters of the forward stochastic 2D pooling layer
+     * \DAAL_DEPRECATED
      */
-    virtual ParameterType *getLayerParameter() DAAL_C11_OVERRIDE { return &parameter; };
+    DAAL_DEPRECATED_VIRTUAL virtual ParameterType *getLayerParameter() DAAL_C11_OVERRIDE { return &parameter; };
 
     /**
      * Returns the structure that contains result of the forward stochastic 2D pooling layer
      * \return Structure that contains result of the forward stochastic 2D pooling layer
+     * \DAAL_DEPRECATED
      */
-    layers::forward::ResultPtr getLayerResult() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED layers::forward::ResultPtr getLayerResult() DAAL_C11_OVERRIDE
     {
         return getResult();
     }
@@ -176,6 +192,7 @@ public:
     /**
      * Returns the structure that contains the result of the forward stochastic 2D pooling layer
      * \return Structure that contains the result of the forward stochastic 2D pooling layer
+     * \DAAL_DEPRECATED
      */
     ResultPtr getResult()
     {
@@ -187,8 +204,9 @@ public:
      * \param[in] result Structure to store the result of the forward stochastic 2D pooling layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status setResult(const ResultPtr& result)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr& result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
@@ -201,8 +219,9 @@ public:
      * with a copy of the input objects and parameters for this forward stochastic 2D pooling layer
      * in the batch processing mode
      * \return Pointer to the newly allocated layer
+     * \DAAL_DEPRECATED
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Batch<algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
@@ -211,8 +230,9 @@ public:
      * Allocates memory to store the result of the forward stochastic 2D pooling layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = this->_result->template allocate<algorithmFPType>(&(this->input), &parameter, (int) method);
         this->_res = this->_result.get();
@@ -220,11 +240,17 @@ public:
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, method>(*this);
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_LAYER_CONTAINER(BatchContainer, algorithmFPType, method)(&_env);

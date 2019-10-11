@@ -58,37 +58,50 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__FORWARD__LAYERCONTAINERIFACEIMPL"></a>
  * \brief Provides methods of base container for forward layers.
  *        This class is associated with the daal::algorithms::neural_networks::layers::forward::LayerContainerIfaceImpl class
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT LayerContainerIfaceImpl : public AnalysisContainerIface<batch>
 {
 public:
-    LayerContainerIfaceImpl(daal::services::Environment::env *daalEnv = 0) : AnalysisContainerIface<batch>(daalEnv) {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED LayerContainerIfaceImpl(daal::services::Environment::env *daalEnv = 0) : AnalysisContainerIface<batch>(daalEnv) {}
 
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status setupCompute()
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status setupCompute()
     {
         return services::Status();
     }
 
-    virtual services::Status resetCompute()
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status resetCompute()
     {
         return services::Status();
     }
 
     /**
      * Allocates weights and biases tensors if they exist
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status allocateInput();
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateInput();
 
     /**
      * Initializes values of weights and biases
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status initializeInput();
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status initializeInput();
 
 protected:
-    virtual services::Status completeInput();
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status completeInput();
 };
 
 /**
@@ -104,6 +117,7 @@ protected:
  * \tparam avx512_micContainer  Implementation for Intel(R) Xeon Phi(TM) processors/coprocessors based on Intel(R) Advanced Vector
  *                              Extensions 512 (Intel(R) AVX512)
  * \tparam avx512Container      Implementation for Intel(R) Xeon(R) processors based on Intel AVX-512
+ * \DAAL_DEPRECATED
  */
 template<ComputeMode mode,
          typename sse2Container
@@ -117,34 +131,56 @@ template<ComputeMode mode,
 class DAAL_EXPORT AlgorithmDispatchLayerContainer : public LayerContainerIfaceImpl
 {
 public:
-    /** Default constructor. Constructs empty container */
+    /**
+     * Default constructor. Constructs empty container
+     * \DAAL_DEPRECATED
+     */
     AlgorithmDispatchLayerContainer(daal::services::Environment::env *daalEnv);
+
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~AlgorithmDispatchLayerContainer() { delete _cntr; }
 
-    virtual services::Status compute() DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status compute() DAAL_C11_OVERRIDE
     {
         _cntr->setArguments(this->_in, this->_res, this->_par);
         return _cntr->compute();
     }
 
-    virtual services::Status setupCompute() DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status setupCompute() DAAL_C11_OVERRIDE
     {
         _cntr->setArguments(this->_in, this->_res, this->_par);
         return _cntr->setupCompute();
     }
 
-    virtual services::Status resetCompute() DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status resetCompute() DAAL_C11_OVERRIDE
     {
         return _cntr->resetCompute();
     }
 
-    virtual services::Status allocateInput() DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateInput() DAAL_C11_OVERRIDE
     {
         _cntr->setArguments(this->_in, this->_res, this->_par);
         return _cntr->allocateInput();
     }
 
-    virtual services::Status initializeInput() DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status initializeInput() DAAL_C11_OVERRIDE
     {
         _cntr->setArguments(this->_in, this->_res, this->_par);
         return _cntr->initializeInput();

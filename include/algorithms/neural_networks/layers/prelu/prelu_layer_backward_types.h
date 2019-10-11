@@ -63,17 +63,27 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__PRELU__BACKWARD__INPUT"></a>
  * \brief %Input parameters for the backward prelu layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::backward::Input
 {
 public:
     typedef layers::backward::Input super;
-    /** \brief Default constructor */
+    /**
+     * \brief Default constructor
+     * \DAAL_DEPRECATED
+     */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     /**
@@ -89,15 +99,17 @@ public:
      * Returns an input object for the backward prelu layer
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(LayerDataId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(LayerDataId id) const;
 
     /**
      * Sets an input object for the backward prelu layer
      * \param[in] id     Identifier of the input object
      * \param[in] value  Pointer to the input object
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(LayerDataId id, const data_management::TensorPtr &value);
 
     /**
      * Checks an input object of the backward prelu layer
@@ -105,24 +117,35 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 protected:
-    /** \private */
-    services::Collection<size_t> getAuxWeightsSizes(const layers::Parameter *par) const;
+    /**
+     * \private
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Collection<size_t> getAuxWeightsSizes(const layers::Parameter *par) const;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__PRELU__BACKWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of the backward prelu layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::backward::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    /** \brief Default constructor */
+    /**
+     * \brief Default constructor
+     * \DAAL_DEPRECATED
+     */
     Result();
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {};
 
     /**
@@ -141,8 +164,9 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Allocates memory to store the result of the backward prelu layer
@@ -151,12 +175,16 @@ public:
      * \param[in] par %Parameter of the backward prelu layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
 
 protected:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {

@@ -79,12 +79,14 @@ namespace interface1
  * \brief Parameters for the logistic layer
  *
  * \snippet neural_networks/layers/logistic/logistic_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
 {
     /**
      * Constructs the parameters of the logistic layer
+     * \DAAL_DEPRECATED
      */
     Parameter();
 };

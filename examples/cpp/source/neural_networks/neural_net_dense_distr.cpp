@@ -25,6 +25,11 @@
  * \example neural_net_dense_distr.cpp
  */
 
+/*
+ * \DAAL_DEPRECATED
+ */
+#define DAAL_HIDE_DEPRECATED
+
 #include "daal.h"
 #include "service.h"
 #include "neural_net_dense_distr.h"

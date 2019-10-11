@@ -63,15 +63,22 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__TANH__FORWARD__INPUT"></a>
  * \brief %Input objects for the forward hyperbolic tangent layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::forward::Input
 {
 public:
     typedef layers::forward::Input super;
-    /** \brief Default constructor */
+    /**
+     * \brief Default constructor
+     * \DAAL_DEPRECATED
+     */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other);
 
     /**
@@ -104,19 +111,29 @@ public:
      */
     services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__TANH__FORWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of the forward hyperbolic tangent layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::forward::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    /** \brief Default constructor */
+    /**
+     * \brief Default constructor
+     * \DAAL_DEPRECATED
+     */
     Result();
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {};
 
     /**

@@ -61,6 +61,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__FULLYCONNECTED__FORWARD__INPUT"></a>
  * \brief %Input objects for the forward fully-connected layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::forward::Input
 {
@@ -68,12 +69,19 @@ public:
     typedef layers::forward::Input super;
     /**
      * Default constructor
+     * \DAAL_DEPRECATED
      */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     /**
@@ -91,6 +99,7 @@ public:
      * \param[in] method    Computation method for the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Parameter *parameter, const int method);
@@ -98,14 +107,16 @@ public:
     /**
      * Returns dimensions of weights tensor
      * \return Dimensions of weights tensor
+     * \DAAL_DEPRECATED
      */
-    virtual const services::Collection<size_t> getWeightsSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getWeightsSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
 
     /**
      * Returns dimensions of biases tensor
      * \return Dimensions of biases tensor
+     * \DAAL_DEPRECATED
      */
-    virtual const services::Collection<size_t> getBiasesSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getBiasesSizes(const layers::Parameter *parameter) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks input object of the forward fully-connected layer
@@ -113,14 +124,16 @@ public:
      * \param[in] method    Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__FULLYCONNECTED__FORWARD__RESULT"></a>
  * \brief Results obtained with the compute() method of the forward fully-connected layer
  *        in the batch processing mode
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::forward::Result
 {
@@ -128,9 +141,13 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * Default constructor
+     * \DAAL_DEPRECATED
      */
     Result();
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {}
 
     /**
@@ -150,6 +167,7 @@ public:
      * \param[in] method    Computation method for the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -159,29 +177,33 @@ public:
      * \param[in] input     Pointer to an object containing the input data
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status setResultForBackward(const daal::algorithms::Input *input) DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status setResultForBackward(const daal::algorithms::Input *input) DAAL_C11_OVERRIDE;
 
     /**
      * Returns dimensions of value tensor
      * \return Dimensions of value tensor
+     * \DAAL_DEPRECATED
      */
-    virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
+    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
                                                             const daal::algorithms::Parameter *par, const int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Returns the result of forward fully-connected layer
      * \param[in] id   Identifier of the result
      * \return         Result that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(LayerDataId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(LayerDataId id) const;
 
     /**
      * Sets the result of forward fully-connected layer
      * \param[in] id     Identifier of the result
      * \param[in] value  Result
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(LayerDataId id, const data_management::TensorPtr &value);
 
     /**
      * Checks the result of the forward fully-connected layer
@@ -190,11 +212,15 @@ public:
      * \param[in] method  Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {

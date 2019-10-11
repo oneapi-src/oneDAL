@@ -57,6 +57,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__TRAINING__PARAMETER"></a>
  * \brief Class representing the parameters of neural network
+ * \DAAL_DEPRECATED
  */
 class Parameter : public daal::algorithms::Parameter
 {
@@ -65,6 +66,7 @@ public:
      * Constructs the parameters of neural network algorithm
      * \param[in] optimizationSolver_     Optimization solver used in the neural network
      * \param[in] engine_                 Engine to be used for weights and biases initialization
+     * \DAAL_DEPRECATED
      */
     Parameter(const services::SharedPtr<optimization_solver::iterative_solver::Batch > &optimizationSolver_ = services::SharedPtr<optimization_solver::iterative_solver::Batch>(),
               engines::EnginePtr engine_ = engines::mt19937::Batch<DAAL_ALGORITHM_FP_TYPE>::create()) :
@@ -78,6 +80,7 @@ public:
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__TRAINING__MODEL"></a>
  *  \brief Class representing the model of neural network
+ *  \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Model : public neural_networks::ModelImpl
 {
@@ -88,12 +91,21 @@ public:
     using neural_networks::ModelImpl::setWeightsAndBiases;
 
     /** \brief Constructor */
-    Model();
+    /*
+     * \DAAL_DEPRECATED
+    */
+    DAAL_DEPRECATED Model();
 
-    static services::SharedPtr<Model> create(services::Status *stat = NULL);
+    /*
+     * \DAAL_DEPRECATED
+    */
+    DAAL_DEPRECATED static services::SharedPtr<Model> create(services::Status *stat = NULL);
 
     /** \brief Copy constructor */
-    Model(const Model &model) :
+    /*
+     * \DAAL_DEPRECATED
+    */
+    DAAL_DEPRECATED Model(const Model &model) :
         ModelImpl(model),
         _backwardLayers(model.getBackwardLayers()),
         _storeWeightDerivativesInTable(model._storeWeightDerivativesInTable)
@@ -109,10 +121,11 @@ public:
      * \param[in] parameter  Parameters of the training
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
     services::Status initialize(const services::Collection<size_t> &sampleSize, const Topology &topology,
-                                const Parameter &parameter = Parameter())
+                                                const Parameter &parameter = Parameter())
     {
         using namespace layers;
         using namespace services;
@@ -170,8 +183,9 @@ public:
     /**
      * Returns list of forward layers
      * \return          List of forward layers
+     * \DAAL_DEPRECATED
      */
-    const ForwardLayersPtr getForwardLayers() const
+    DAAL_DEPRECATED const ForwardLayersPtr getForwardLayers() const
     {
         return _forwardLayers;
     }
@@ -180,6 +194,7 @@ public:
      * Returns the forward stage of a layer with certain index in the network
      * \param[in] index  Index of the layer in the network
      * \return Forward stage of a layer with certain index in the network
+     * \DAAL_DEPRECATED
      */
     const layers::forward::LayerIfacePtr getForwardLayer(size_t index) const
     {
@@ -189,6 +204,7 @@ public:
     /**
      * Returns list of backward layers
      * \return          List of backward layers
+     * \DAAL_DEPRECATED
      */
     const BackwardLayersPtr getBackwardLayers() const
     {
@@ -199,6 +215,7 @@ public:
      * Returns the backward stage of a layer with certain index in the network
      * \param[in] index  Index of the layer in the network
      * \return Backward stage of a layer with certain index in the network
+     * \DAAL_DEPRECATED
      */
     const layers::backward::LayerIfacePtr getBackwardLayer(size_t index) const
     {
@@ -208,6 +225,7 @@ public:
     /**
      * Returns list of forward layers and their parameters organised in the prediction::Model
      * \return          List of forward layers and their parameters organised in the prediction::Model
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
     const prediction::ModelPtr getPredictionModel()
@@ -240,8 +258,9 @@ public:
      * Returns weights and biases storage status
      * \return Weights and biases storage status.
      * True if weights and biases of all layers stored in one numeric table. False otherwise.
+     * \DAAL_DEPRECATED
      */
-    bool getWeightsAndBiasesStorageStatus() const
+    DAAL_DEPRECATED bool getWeightsAndBiasesStorageStatus() const
     {
         return _storeWeightsInTable;
     }
@@ -252,28 +271,32 @@ public:
      * \param[in] table Table containing weights and biases of one forward layer of neural network
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status setWeightsAndBiases(size_t idx, const data_management::NumericTablePtr &table);
+    DAAL_DEPRECATED services::Status setWeightsAndBiases(size_t idx, const data_management::NumericTablePtr &table);
 
     /**
      * Returns the weights and biases of the forward layer of neural network as numeric table
      * \param[in] idx Index of the backward layer
      * \return   Weights and biases derivatives container
+     * \DAAL_DEPRECATED
      */
-    data_management::NumericTablePtr getWeightsAndBiases(size_t idx) const;
+    DAAL_DEPRECATED data_management::NumericTablePtr getWeightsAndBiases(size_t idx) const;
 
     /**
      * Returns the weights and biases derivatives of all backward layers of neural network as numeric table
      * \return   Weights and biases derivatives container
+     * \DAAL_DEPRECATED
      */
-    data_management::NumericTablePtr getWeightsAndBiasesDerivatives() const;
+    DAAL_DEPRECATED data_management::NumericTablePtr getWeightsAndBiasesDerivatives() const;
 
     /**
      * Returns the weights and biases derivatives of the backward layer of neural network as numeric table
      * \param[in] idx Index of the backward layer
      * \return   Weights and biases derivatives container
+     * \DAAL_DEPRECATED
      */
-    data_management::NumericTablePtr getWeightsAndBiasesDerivatives(size_t idx) const;
+    DAAL_DEPRECATED data_management::NumericTablePtr getWeightsAndBiasesDerivatives(size_t idx) const;
 
     /**
      * Sets the error collection to the Model
@@ -281,6 +304,7 @@ public:
      * \DAAL_DEPRECATED
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     DAAL_DEPRECATED services::Status setErrors(services::ErrorCollection &errors)
     {
@@ -291,6 +315,7 @@ public:
      * Returns the errors of the Model
      * \DAAL_DEPRECATED
      * \return   Collection of errors
+     * \DAAL_DEPRECATED
      */
     DAAL_DEPRECATED const services::ErrorCollection &getErrors() const { return _errors; }
 
@@ -300,6 +325,7 @@ public:
      * \param[in] parameter  Parameters of the training
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
     services::Status allocate(const services::Collection<size_t> &sampleSize, const Parameter &parameter = Parameter())
@@ -368,15 +394,24 @@ public:
 
 protected:
     /** \brief Constructor */
-    Model(services::Status &st);
+    /*
+     * \DAAL_DEPRECATED
+    */
+    DAAL_DEPRECATED Model(services::Status &st);
 
     /** \private */
+    /*
+     * \DAAL_DEPRECATED
+    */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {
         return services::Status();
     }
 
+    /*
+     * \DAAL_DEPRECATED
+    */
     void insertLayer(const layers::LayerDescriptor &layerDescriptor)
     {
         _forwardLayers->insert(layerDescriptor.index(), layerDescriptor.layer()->forwardLayer->clone());
@@ -384,6 +419,9 @@ protected:
         _nextLayers->insert(layerDescriptor.index(), layerDescriptor.nextLayers());
     }
 
+    /*
+     * \DAAL_DEPRECATED
+    */
     services::Status enableConditionalGradientPropagation()
     {
         using namespace services;
@@ -408,6 +446,9 @@ protected:
         return s;
     }
 
+    /*
+     * \DAAL_DEPRECATED
+    */
     services::Status disableGradientPropagationInStartingLayers(size_t nLayers, bool *visited)
     {
         using namespace services;
@@ -450,6 +491,9 @@ protected:
         return services::Status();
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     services::Status enableGradientPropagationInSubsequentLayers(size_t startLayerId, size_t nLayers, bool *enabledPropagation)
     {
         using namespace services;
@@ -479,6 +523,9 @@ protected:
         return services::Status();
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     services::Status enableGradientPropagation(size_t nLayers, bool *enabledPropagation)
     {
         using namespace services;
@@ -521,6 +568,9 @@ protected:
         return services::Status();
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     services::Status checkWeightsAndBiasesDerivativesAllocation()
     {
         using namespace services;
@@ -543,6 +593,9 @@ protected:
         return services::Status();
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     services::Status connectBackwardLayers(size_t layerId)
     {
         using namespace services;
@@ -576,6 +629,9 @@ protected:
         return services::Status();
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     template<typename modelFPType>
     DAAL_EXPORT services::Status createWeightsAndBiasesDerivatives();
 
@@ -584,8 +640,9 @@ public:
      * Return the OptionalArgument from the neural netowrk model that stores intermediate status of solver between epochs by index
      * \param index Index in collection of required OptionalArgument
      * \return the OptionalArgument from the neural netowrk model that stores intermediate status of solver between epochs
+     * \DAAL_DEPRECATED
      */
-    algorithms::OptionalArgumentPtr getSolverOptionalArgument(size_t index)
+    DAAL_DEPRECATED algorithms::OptionalArgumentPtr getSolverOptionalArgument(size_t index)
     {
         return services::dynamicPointerCast<algorithms::OptionalArgument, data_management::SerializationIface>(_solverOptionalArgumentCollection[index]);
     }
@@ -596,8 +653,9 @@ public:
      * \param index Index in collection of required OptionalArgument
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status setSolverOptionalArgument(const algorithms::OptionalArgumentPtr& solverOptionalArgument, size_t index)
+    DAAL_DEPRECATED services::Status setSolverOptionalArgument(const algorithms::OptionalArgumentPtr& solverOptionalArgument, size_t index)
     {
         _solverOptionalArgumentCollection[index] = solverOptionalArgument;
         return services::Status();
@@ -606,8 +664,9 @@ public:
     /**
      * Return the OptionalArgument from the neural netowrk model that stores intermediate status of solver between epochs
      * \return the OptionalArgument from the neural netowrk model that stores intermediate status of solver between epochs
+     * \DAAL_DEPRECATED
      */
-    data_management::DataCollection getSolverOptionalArgumentCollection()
+    DAAL_DEPRECATED data_management::DataCollection getSolverOptionalArgumentCollection()
     {
         return _solverOptionalArgumentCollection;
     }
@@ -617,8 +676,9 @@ public:
      * \param solverOptionalArgumentCollection Structure to store intermediate status of solver
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status setSolverOptionalArgumentCollection(const data_management::DataCollection &solverOptionalArgumentCollection)
+    DAAL_DEPRECATED services::Status setSolverOptionalArgumentCollection(const data_management::DataCollection &solverOptionalArgumentCollection)
     {
         _solverOptionalArgumentCollection = solverOptionalArgumentCollection;
         return services::Status();

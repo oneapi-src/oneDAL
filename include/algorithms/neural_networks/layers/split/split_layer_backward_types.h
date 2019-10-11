@@ -73,13 +73,20 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPLIT__BACKWARD__INPUT"></a>
  * \brief %Input parameters for the backward split layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::backward::Input
 {
 public:
-    /** \brief Default constructor */
+    /**
+     * \brief Default constructor
+     * \DAAL_DEPRECATED
+     */
     Input();
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     /**
@@ -97,30 +104,34 @@ public:
      * \param[in] id    Identifier of the collection of input tensors
      * \param[in] index Index of the tensor to be returned
      * \return          Pointer to the table with the input tensor
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(InputLayerDataId id, size_t index) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(InputLayerDataId id, size_t index) const;
 
     /**
      * Returns input Tensor of the layer algorithm
      * \param[in] id    Identifier of the input tensor
      * \return          %Input tensor that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    LayerDataPtr get(InputLayerDataId id) const;
+    DAAL_DEPRECATED LayerDataPtr get(InputLayerDataId id) const;
 
     /**
      * Sets an input object for the backward split layer
      * \param[in] id     Identifier of the input object
      * \param[in] value  Pointer to the input object
      * \param[in] index  Index of the tensor to be set
+     * \DAAL_DEPRECATED
      */
-    void set(InputLayerDataId id, const data_management::TensorPtr &value, size_t index);
+    DAAL_DEPRECATED void set(InputLayerDataId id, const data_management::TensorPtr &value, size_t index);
 
     /**
     * Sets input for the layer algorithm
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
+     * \DAAL_DEPRECATED
     */
-    void set(InputLayerDataId id, const LayerDataPtr &ptr);
+    DAAL_DEPRECATED void set(InputLayerDataId id, const LayerDataPtr &ptr);
 
     /**
      * Adds tensor with input gradient to the input object of the backward split layer
@@ -128,14 +139,16 @@ public:
      * \param[in] index     Index of the tensor with input gradient
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status addInputGradient(const data_management::TensorPtr &igTensor, size_t index) DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status addInputGradient(const data_management::TensorPtr &igTensor, size_t index) DAAL_C11_OVERRIDE;
 
     /**
      * Sets input structure retrieved from the result of the forward layer
      * \param[in] result Result of the forward layer
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status setInputFromForward(layers::forward::ResultPtr result) DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status setInputFromForward(layers::forward::ResultPtr result) DAAL_C11_OVERRIDE;
 
     /**
      * Checks an input object of the backward split layer
@@ -143,26 +156,35 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Returns the layout of the input object for the layer algorithm
     * \return Layout of the input object for the layer algorithm
+     * \DAAL_DEPRECATED
     */
-    virtual LayerInputLayout getLayout() const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual LayerInputLayout getLayout() const DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPLIT__BACKWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of the backward split layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::backward::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    /** \brief Default constructor */
+    /**
+     * \brief Default constructor
+     * \DAAL_DEPRECATED
+     */
     Result();
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {};
 
     /**
@@ -182,8 +204,9 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Allocates memory to store the result of the backward split layer
@@ -192,12 +215,16 @@ public:
      * \param[in] parameter %Parameter of the backward split layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
 protected:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {

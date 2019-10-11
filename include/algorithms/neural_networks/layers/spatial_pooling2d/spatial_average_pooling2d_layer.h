@@ -71,6 +71,8 @@ namespace interface1
  * \par References
  *      - \ref forward::interface1::Batch "forward::Batch" class
  *      - \ref backward::interface1::Batch "backward::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public LayerIface
@@ -82,8 +84,9 @@ public:
      * Constructs the spatial pyramid average 2D pooling layer
      * \param[in] nDimensions  Number of dimensions in input gradient tensor
      * \param[in] pyramidHeight The value of pyramid height
+     * \DAAL_DEPRECATED
      */
-    Batch(size_t pyramidHeight, size_t nDimensions) : parameter(pyramidHeight, nDimensions - 2, nDimensions - 1)
+    DAAL_DEPRECATED Batch(size_t pyramidHeight, size_t nDimensions) : parameter(pyramidHeight, nDimensions - 2, nDimensions - 1)
     {
         forward::Batch<algorithmFPType, method> *forwardLayerObject = new forward::Batch<algorithmFPType, method>(parameter);
         backward::Batch<algorithmFPType, method> *backwardLayerObject = new backward::Batch<algorithmFPType, method>(parameter);

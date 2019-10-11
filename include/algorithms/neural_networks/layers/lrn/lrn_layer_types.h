@@ -90,8 +90,9 @@ public:
     *  \param[in] alpha_     Value of hyper-parameter alpha
     *  \param[in] beta_      Value of hyper-parameter beta
     *  \param[in] nAdjust_   Value of hyper-parameter n
+    * \DAAL_DEPRECATED
     */
-    Parameter(
+    DAAL_DEPRECATED Parameter(
         data_management::NumericTablePtr dimension_ = data_management::HomogenNumericTable<size_t>::create(1, 1, data_management::NumericTableIface::doAllocate, 1),
         const double kappa_ = 2,
         const double alpha_ = 1.0e-04,
@@ -109,8 +110,9 @@ public:
      * Checks the correctness of the parameter
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status check() const;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check() const;
 };
 /* [Parameter source code] */
 

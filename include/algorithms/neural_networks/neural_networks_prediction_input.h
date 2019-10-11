@@ -75,51 +75,66 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__PREDICTION__INPUT"></a>
  * \brief Input objects of the neural networks prediction algorithm
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
+    /*
+     * \DAAL_DEPRECATED
+     */
     Input();
+    /*
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {};
 
     /**
      * Returns %input object for the neural networks prediction algorithm
      * \param[in] id    Identifier of the %input object
      * \return          %Input object that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(TensorInputId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(TensorInputId id) const;
 
     /**
      * Sets %input object for the neural networks prediction algorithm
      * \param[in] id      Identifier of the %input object
      * \param[in] value   Pointer to the parameter
+     * \DAAL_DEPRECATED
      */
-    void set(TensorInputId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(TensorInputId id, const data_management::TensorPtr &value);
 
     /**
      * Returns %input object for the neural networks prediction algorithm
      * \param[in] id    Identifier of the %input object
      * \return          %Input object that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    ModelPtr get(ModelInputId id) const;
+    DAAL_DEPRECATED ModelPtr get(ModelInputId id) const;
 
     /**
      * Sets %input object for the neural networks prediction algorithm
      * \param[in] id      Identifier of the %input object
      * \param[in] value   Pointer to the parameter
+     * \DAAL_DEPRECATED
      */
-    void set(ModelInputId id, const ModelPtr &value);
+    DAAL_DEPRECATED void set(ModelInputId id, const ModelPtr &value);
 
     /**
     * Checks %input object for the neural networks algorithm
     * \param[in] par     Algorithm %parameter
     * \param[in] method  Computatiom method
     *
-     * \return Status of computations
+    * \return Status of computations
+    * \DAAL_DEPRECATED
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 };
 } // namespace interface1
 using interface1::Input;

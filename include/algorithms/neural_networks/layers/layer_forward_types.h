@@ -105,22 +105,31 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__FORWARD__INPUTIFACE"></a>
- * \brief Abstract class that specifies interface of the input objects for the neural network layer algorithm
+ * \brief Abstract class that specifies interface of the input objects for the neural network layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT InputIface : public daal::algorithms::Input
 {
 public:
     /** \brief Constructor
-    * \param[in] nElements    Number of elements in Input structure
-    */
-    InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
-    InputIface(const InputIface& other);
+     * \param[in] nElements    Number of elements in Input structure
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED InputIface(const InputIface& other);
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~InputIface() {}
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__FORWARD__INPUT"></a>
  * \brief %Input objects for layer algorithm
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public InputIface
 {
@@ -128,16 +137,24 @@ public:
     /**
      * Constructs input objects for the forward layer of neural network
      * \param[in] nElements     Number of input objects for the forward layer
+     * \DAAL_DEPRECATED
      */
-    Input(size_t nElements = lastInputLayerDataId + 1);
-    Input(const Input& other);
+    DAAL_DEPRECATED Input(size_t nElements = lastInputLayerDataId + 1);
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     /**
      * Returns input Tensor of the layer algorithm
      * \param[in] id    Identifier of the input tensor
      * \return          %Input tensor that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
     data_management::TensorPtr get(forward::InputId id) const;
 
@@ -145,6 +162,7 @@ public:
      * Sets input for the layer algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
+     * \DAAL_DEPRECATED
      */
     void set(InputId id, const data_management::TensorPtr &ptr);
 
@@ -152,15 +170,17 @@ public:
     * Returns input InputLayerData of the layer algorithm
     * \param[in] id    Identifier of the input object
     * \return          %Input InputLayerData that corresponds to the given identifier
+    * \DAAL_DEPRECATED
     */
-    LayerDataPtr get(forward::InputLayerDataId id) const;
+    DAAL_DEPRECATED LayerDataPtr get(forward::InputLayerDataId id) const;
 
     /**
      * Sets input for the layer algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
+     * \DAAL_DEPRECATED
      */
-    void set(InputLayerDataId id, const LayerDataPtr &ptr);
+    DAAL_DEPRECATED void set(InputLayerDataId id, const LayerDataPtr &ptr);
 
     /**
      * Checks an input object for the layer algorithm
@@ -168,24 +188,28 @@ public:
      * \param[in] method  Computation method of the algorithm
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Returns the layout of the input object for the layer algorithm
      * \return Layout of the input object for the layer algorithm
+     * \DAAL_DEPRECATED
      */
-    virtual LayerInputLayout getLayout();
+    DAAL_DEPRECATED_VIRTUAL virtual LayerInputLayout getLayout();
 
     /**
      * Returns dimensions of weights tensor
      * \return Dimensions of weights tensor
+     * \DAAL_DEPRECATED
      */
     virtual const services::Collection<size_t> getWeightsSizes(const layers::Parameter *parameter) const;
 
     /**
      * Returns dimensions of biases tensor
      * \return Dimensions of biases tensor
+     * \DAAL_DEPRECATED_UDE{ enableGradientPropagation(size_t nLayers, bool *enabledPropagation) }
      */
     virtual const services::Collection<size_t> getBiasesSizes(const layers::Parameter *parameter) const;
 
@@ -195,15 +219,17 @@ public:
      * \param[in] index         Index of the tensor with data
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status addData(const data_management::TensorPtr &dataTensor, size_t index);
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status addData(const data_management::TensorPtr &dataTensor, size_t index);
 
     /**
      * Erases input data tensor from the input of the forward layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status eraseInputData()
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status eraseInputData()
     {
         set(layers::forward::data, data_management::TensorPtr());
         return services::Status();
@@ -213,15 +239,22 @@ public:
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__FORWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of the layer algorithm
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
     DECLARE_SERIALIZABLE_IMPL();
 public:
     DAAL_CAST_OPERATOR(Result);
-    /** \brief Constructor */
-    Result();
+    /**
+     * \brief Constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Result();
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {};
 
     /**
@@ -231,6 +264,7 @@ public:
      * \param[in] method Computation method of the algorithm
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
@@ -244,8 +278,9 @@ public:
     * \param[in] par         Parameters of the algorithm
     * \param[in] method      Method of the algorithm
     * \return    Collection of dimensions of layer output
+    * \DAAL_DEPRECATED
     */
-    virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
+    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
                                                             const daal::algorithms::Parameter *par, const int method) const = 0;
 
     /**
@@ -254,8 +289,9 @@ public:
     * \param[in] par       Parameters of the algorithm
     * \param[in] method    Method of the algorithm
     * \return    Collection of dimensions of layer output
+    * \DAAL_DEPRECATED
     */
-    virtual services::Collection<size_t> getValueSize(const services::Collection< services::Collection<size_t> > &inputSize,
+    DAAL_DEPRECATED_VIRTUAL virtual services::Collection<size_t> getValueSize(const services::Collection< services::Collection<size_t> > &inputSize,
                                                       const daal::algorithms::Parameter *par, const int method);
 
     /**
@@ -264,40 +300,46 @@ public:
     * \param[in] par         Parameters of the algorithm
     * \param[in] method      Method of the algorithm
     * \return    Collection of dimensions of layer output
+    * \DAAL_DEPRECATED
     */
-    virtual services::Collection< services::Collection<size_t> > getValueCollectionSize(const services::Collection<size_t> &inputSize,
+    DAAL_DEPRECATED_VIRTUAL virtual services::Collection< services::Collection<size_t> > getValueCollectionSize(const services::Collection<size_t> &inputSize,
                                                                                         const daal::algorithms::Parameter *par, const int method);
 
     /**
      * Returns result of the layer algorithm
      * \param[in] id   Identifier of the result
      * \return         Result that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(ResultId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(ResultId id) const;
 
     /**
      * Returns result of the layer algorithm
      * \param[in] id   Identifier of the result
      * \return         Result that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    LayerDataPtr get(ResultLayerDataId id) const;
+    DAAL_DEPRECATED LayerDataPtr get(ResultLayerDataId id) const;
 
     /**
      * Sets the result of the layer algorithm
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the result
+     * \DAAL_DEPRECATED
      */
-    void set(ResultId id, const data_management::TensorPtr &ptr);
+    DAAL_DEPRECATED void set(ResultId id, const data_management::TensorPtr &ptr);
 
     /**
     * Sets the result of the layer algorithm
     * \param[in] id    Identifier of the result
     * \param[in] ptr   Pointer to the result
+    * \DAAL_DEPRECATED
     */
-    void set(ResultLayerDataId id, const LayerDataPtr &ptr);
+    DAAL_DEPRECATED void set(ResultLayerDataId id, const LayerDataPtr &ptr);
 
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
+     * \DAAL_DEPRECATED
      */
     int getSerializationTag() const DAAL_C11_OVERRIDE  { return SERIALIZATION_NEURAL_NETWORKS_LAYERS_FORWARD_RESULT_ID; }
 
@@ -308,23 +350,26 @@ public:
      * \param[in] method        Computation method of the algorithm
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
                                    int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Returns the layout of the result object for the layer algorithm
      * \return Layout of the result object for the layer algorithm
+     * \DAAL_DEPRECATED
      */
-    virtual LayerResultLayout getLayout();
+    DAAL_DEPRECATED_VIRTUAL virtual LayerResultLayout getLayout();
 
     /**
      * Sets the result that is used in backward layer
      * \param[in] input     Pointer to an object containing the input data
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status setResultForBackward(const daal::algorithms::Input *input)
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status setResultForBackward(const daal::algorithms::Input *input)
     {
         return services::Status();
     }
@@ -333,11 +378,15 @@ public:
      * Returns resulting value of the layer algorithm
      * \param[in] index Index of the tensor with value
      * \return Resulting value that corresponds to the given index
+     * \DAAL_DEPRECATED
      */
-    virtual data_management::TensorPtr getValue(size_t index) const;
+    DAAL_DEPRECATED_VIRTUAL virtual data_management::TensorPtr getValue(size_t index) const;
 
 protected:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {

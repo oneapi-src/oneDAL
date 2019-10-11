@@ -63,6 +63,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPATIAL_AVERAGE_POOLING2D__BACKWARD__INPUT"></a>
  * \brief %Input objects for the backward spatial pyramid average 2D pooling layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public spatial_pooling2d::backward::Input
 {
@@ -70,12 +71,19 @@ public:
     typedef spatial_pooling2d::backward::Input super;
     /**
      * Default constructor
+     * \DAAL_DEPRECATED
      */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     using layers::backward::Input::get;
@@ -112,6 +120,7 @@ protected:
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPATIAL_AVERAGE_POOLING2D__BACKWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
  *        of the backward spatial pyramid average 2D pooling layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public spatial_pooling2d::backward::Result
 {
@@ -119,8 +128,12 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * Default constructor
+     * \DAAL_DEPRECATED
      */
     Result();
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {}
 
     using layers::backward::Result::get;

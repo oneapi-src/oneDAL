@@ -55,6 +55,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__TRAINING__DISTRIBUTEDCONTAINER"></a>
  * \brief Class containing methods to train neural network model in the distributed processing mode
  *        using algorithmFPType precision arithmetic
+ * \DAAL_DEPRECATED
  */
 template<ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer
@@ -63,6 +64,7 @@ class DistributedContainer
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__TRAINING__DISTRIBUTEDCONTAINER_STEP1LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing methods to train neural network model using algorithmFPType precision arithmetic
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
@@ -72,26 +74,38 @@ public:
      * Constructs a container for neural network model-based training with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
-    /** Destructor */
-    ~DistributedContainer();
+    DAAL_DEPRECATED DistributedContainer(daal::services::Environment::env *daalEnv);
+    /** Destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~DistributedContainer();
     /**
      * Computes a partial result of neural network model-based training in the distributed processing mode
+     * \DAAL_DEPRECATED
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
-    services::Status setupCompute() DAAL_C11_OVERRIDE;
-    services::Status resetCompute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status setupCompute() DAAL_C11_OVERRIDE;
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status resetCompute() DAAL_C11_OVERRIDE;
     /**
      * Computes the result of neural network model-based training
      * in the first step of the distributed processing mode
+     * \DAAL_DEPRECATED
      */
-    services::Status finalizeCompute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__TRAINING__DISTRIBUTEDCONTAINER_STEP2MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing methods to train neural network model using algorithmFPType precision arithmetic
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
@@ -101,21 +115,32 @@ public:
      * Constructs a container for neural network model-based training with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
+     * \DAAL_DEPRECATED
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
-    /** Destructor */
-    ~DistributedContainer();
+    DAAL_DEPRECATED DistributedContainer(daal::services::Environment::env *daalEnv);
+    /** Destructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ~DistributedContainer();
     /**
      * Computes a partial result of neural network model-based training in the distributed processing mode
+     * \DAAL_DEPRECATED
      */
-    services::Status compute() DAAL_C11_OVERRIDE;
-    services::Status setupCompute() DAAL_C11_OVERRIDE;
-    services::Status resetCompute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status compute() DAAL_C11_OVERRIDE;
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status setupCompute() DAAL_C11_OVERRIDE;
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status resetCompute() DAAL_C11_OVERRIDE;
     /**
      * Computes the result of neural network model-based training
      * in the first step of the distributed processing mode
+     * \DAAL_DEPRECATED
      */
-    services::Status finalizeCompute() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
 
 
@@ -135,6 +160,8 @@ public:
  *      - \ref interface1::Parameter "Parameter" class
  *      - \ref neural_networks::training::interface1::Model "neural_networks::training::Model" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Distributed
@@ -155,6 +182,8 @@ class DAAL_EXPORT Distributed
  * \par References
  *      - \ref neural_networks::training::interface1::Model "neural_networks::training::Model" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Training<distributed>
@@ -168,8 +197,10 @@ public:
     DistributedInput<step1Local> input;            /*!< %Input data structure */
     ParameterType parameter;    /*!< %Training parameters */
 
-    /** Default constructor */
-    Distributed()
+    /** Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Distributed()
     {
         initialize();
     };
@@ -178,12 +209,16 @@ public:
      * Constructs neural network by copying input objects and parameters of another neural network
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
+     * \DAAL_DEPRECATED
      */
     Distributed(const Distributed<step1Local, algorithmFPType, method> &other) : parameter(other.parameter), input(other.input)
     {
         initialize();
     }
 
+    /**
+     * \DAAL_DEPRECATED
+     */
     virtual ~Distributed() {}
 
     /**
@@ -191,8 +226,9 @@ public:
      * \param[in] partialResult    Structure for storing partial results of the neural network algorithm
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status setPartialResult(const PartialResultPtr& partialResult)
+    DAAL_DEPRECATED services::Status setPartialResult(const PartialResultPtr& partialResult)
     {
         _partialResult = partialResult;
         _pres = _partialResult.get();
@@ -202,14 +238,16 @@ public:
     /**
      * Returns structure that contains computed partial results of the neural network algorithm
      * \return Structure that contains partial results of the neural network algorithm
+     * \DAAL_DEPRECATED
      */
-    PartialResultPtr getPartialResult() { return _partialResult; }
+    DAAL_DEPRECATED PartialResultPtr getPartialResult() { return _partialResult; }
 
     /**
      * Returns the structure that contains the results of the neural network algorithm
      * \return Structure that contains the results of the neural network algorithm
+     * \DAAL_DEPRECATED
      */
-    ResultPtr getResult()
+    DAAL_DEPRECATED ResultPtr getResult()
     {
         return _result;
     }
@@ -219,8 +257,9 @@ public:
      * \param[in] res    Structure for storing results of the neural network algorithm
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status setResult(const ResultPtr& res)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr& res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
@@ -232,8 +271,9 @@ public:
      * Returns a pointer to the newly allocated neural network
      * with a copy of input objects and parameters of this neural network
      * \return Pointer to the newly allocated layer
+     * \DAAL_DEPRECATED
      */
-    services::SharedPtr<Distributed<step1Local, algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Distributed<step1Local, algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Distributed<step1Local, algorithmFPType, method> >(cloneImpl());
     }
@@ -241,10 +281,14 @@ public:
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
+     * \DAAL_DEPRECATED
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
 protected:
+    /**
+     * \DAAL_DEPRECATED
+     */
     void initialize()
     {
         _ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step1Local, algorithmFPType, method)(&_env);
@@ -254,26 +298,38 @@ protected:
         _result.reset(new ResultType());
     }
 
-    virtual Distributed<step1Local, algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual Distributed<step1Local, algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int) method);
         _res = _result.get();
         return s;
     }
 
-    services::Status allocatePartialResult() DAAL_C11_OVERRIDE
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->allocate<algorithmFPType>(&input, &parameter, method);
         _pres = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
     {
         _pres = _partialResult.get();
         return services::Status();
@@ -297,6 +353,8 @@ private:
  * \par References
  *      - \ref neural_networks::training::interface1::Model "neural_networks::training::Model" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *
+ * \DAAL_DEPRECATED
  */
 template<typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
@@ -310,7 +368,10 @@ public:
     DistributedInput<step2Master> input;            /*!< %Input data structure */
     ParameterType parameter;    /*!< %Training parameters */
 
-    Distributed(const services::SharedPtr<optimization_solver::iterative_solver::Batch >& optimizationSolver_) : parameter(optimizationSolver_)
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Distributed(const services::SharedPtr<optimization_solver::iterative_solver::Batch >& optimizationSolver_) : parameter(optimizationSolver_)
     {
         initialize();
     };
@@ -319,12 +380,16 @@ public:
      * Constructs neural network by copying input objects and parameters of another neural network
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
+     * \DAAL_DEPRECATED
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, method> &other) : parameter(other.parameter), input(other.input)
+     Distributed(const Distributed<step2Master, algorithmFPType, method> &other) : parameter(other.parameter), input(other.input)
     {
         initialize();
     }
 
+    /**
+     * \DAAL_DEPRECATED
+     */
     virtual ~Distributed() {}
 
     /**
@@ -333,8 +398,9 @@ public:
      * \param[in] topology Neural network topology
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status initialize(const services::Collection<size_t> &dataSize, const training::Topology &topology)
+    DAAL_DEPRECATED services::Status initialize(const services::Collection<size_t> &dataSize, const training::Topology &topology)
     {
         ResultPtr result = getResult();
         if (!result || !result->get(neural_networks::training::model))
@@ -350,8 +416,9 @@ public:
      * \param[in] partialResult    Structure for storing partial results of the neural network algorithm
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status setPartialResult(const DistributedPartialResultPtr& partialResult)
+    DAAL_DEPRECATED services::Status setPartialResult(const DistributedPartialResultPtr& partialResult)
     {
         _partialResult = partialResult;
         _pres = _partialResult.get();
@@ -361,12 +428,14 @@ public:
     /**
      * Returns structure that contains computed partial results of the neural network algorithm
      * \return Structure that contains partial results of the neural network algorithm
+     * \DAAL_DEPRECATED
      */
-    DistributedPartialResultPtr getPartialResult() { return _partialResult; }
+    DAAL_DEPRECATED DistributedPartialResultPtr getPartialResult() { return _partialResult; }
 
     /**
      * Returns the structure that contains the results of the neural network algorithm
      * \return Structure that contains the results of the neural network algorithm
+     * \DAAL_DEPRECATED
      */
     ResultPtr getResult()
     {
@@ -377,8 +446,9 @@ public:
      * Returns a pointer to the newly allocated neural network
      * with a copy of input objects and parameters of this neural network
      * \return Pointer to the newly allocated layer
+     * \DAAL_DEPRECATED
      */
-    services::SharedPtr<Distributed<step2Master, algorithmFPType, method> > clone() const
+    DAAL_DEPRECATED services::SharedPtr<Distributed<step2Master, algorithmFPType, method> > clone() const
     {
         return services::SharedPtr<Distributed<step2Master, algorithmFPType, method> >(cloneImpl());
     }
@@ -386,10 +456,14 @@ public:
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
+     * \DAAL_DEPRECATED
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
 
 protected:
+    /**
+     * \DAAL_DEPRECATED
+     */
     void initialize()
     {
         _ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, method)(&_env);
@@ -398,24 +472,36 @@ protected:
         _partialResult = DistributedPartialResultPtr(new PartialResultType());
     }
 
-    virtual Distributed<step2Master, algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual Distributed<step2Master, algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Distributed<step2Master, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         return services::Status();
     }
 
-    services::Status allocatePartialResult() DAAL_C11_OVERRIDE
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->allocate<algorithmFPType>(&input, &parameter, method);
         _pres = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
+    /**
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
     {
         _pres = _partialResult.get();
         return services::Status();

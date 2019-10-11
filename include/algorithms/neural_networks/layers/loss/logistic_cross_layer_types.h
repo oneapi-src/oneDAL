@@ -79,6 +79,7 @@ namespace interface1
  * \brief Parameters for the logistic cross-entropy layer
  *
  * \snippet neural_networks/layers/loss/logistic_cross_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 class DAAL_EXPORT Parameter: public layers::Parameter
@@ -86,14 +87,16 @@ class DAAL_EXPORT Parameter: public layers::Parameter
 public:
     /**
     *  Constructs parameters of the logistic cross-entropy layer
+    * \DAAL_DEPRECATED
     */
     Parameter();
     /**
      * Checks the correctness of the parameter
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status check() const;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check() const;
 };
 /* [Parameter source code] */
 

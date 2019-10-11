@@ -86,6 +86,7 @@ namespace interface1
  * \brief Parameters for the maximum 3D pooling layer
  *
  * \snippet neural_networks/layers/pooling3d/maximum_pooling3d_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::pooling3d::Parameter
@@ -107,6 +108,7 @@ struct DAAL_EXPORT Parameter: public layers::pooling3d::Parameter
      *                              of the 3D subtensor on which the pooling is performed
      * \param[in] thirdPadding      Number of data elements to implicitly add to the the third dimension
      *                              of the 3D subtensor on which the pooling is performed
+     * \DAAL_DEPRECATED
      */
     Parameter(size_t firstIndex, size_t secondIndex, size_t thirdIndex,
     size_t firstKernelSize = 2, size_t secondKernelSize = 2, size_t thirdKernelSize = 2,

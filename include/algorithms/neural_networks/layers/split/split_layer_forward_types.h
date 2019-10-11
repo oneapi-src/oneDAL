@@ -72,15 +72,22 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPLIT__FORWARD__INPUT"></a>
  * \brief %Input objects for the forward split layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::forward::Input
 {
 public:
     typedef layers::forward::Input super;
-    /** \brief Default constructor */
+    /**
+     * \brief Default constructor
+     * \DAAL_DEPRECATED
+     */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other);
 
     /**
@@ -93,19 +100,29 @@ public:
     */
     using layers::forward::Input::set;
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPLIT__FORWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of the forward split layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::forward::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    /** \brief Default constructor */
+    /**
+     * \brief Default constructor
+     * \DAAL_DEPRECATED
+     */
     Result();
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {};
 
     /**
@@ -123,43 +140,49 @@ public:
      * \param[in] id    Identifier of the collection of input tensors
      * \param[in] index Index of the tensor to be returned
      * \return          Pointer to the table with the input tensor
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(ResultLayerDataId id, size_t index) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(ResultLayerDataId id, size_t index) const;
 
     /**
      * Returns result of the layer algorithm
      * \param[in] id   Identifier of the result
      * \return         Result that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    LayerDataPtr get(ResultLayerDataId id) const;
+    DAAL_DEPRECATED LayerDataPtr get(ResultLayerDataId id) const;
 
     /**
      * Sets the result of the forward split layer
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
+     * \DAAL_DEPRECATED
      */
-    void set(ResultLayerDataId id, const LayerDataPtr &value);
+    DAAL_DEPRECATED void set(ResultLayerDataId id, const LayerDataPtr &value);
 
     /**
      * Sets the result of the forward split layer
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
      * \param[in] index   Index of the result
+     * \DAAL_DEPRECATED
      */
-    void set(ResultLayerDataId id, const data_management::TensorPtr &value, size_t index);
+    DAAL_DEPRECATED void set(ResultLayerDataId id, const data_management::TensorPtr &value, size_t index);
 
     /**
      * Returns the layout of the result object for the layer algorithm
      * \return Layout of the result object for the layer algorithm
+     * \DAAL_DEPRECATED
      */
-    LayerResultLayout getLayout() DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED LayerResultLayout getLayout() DAAL_C11_OVERRIDE;
 
     /**
      * Returns resulting value of the forward split layer
      * \param[in] index Index of the tensor with value
      * \return Resulting value that corresponds to the given index
+     * \DAAL_DEPRECATED
      */
-    virtual data_management::TensorPtr getValue(size_t index) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual data_management::TensorPtr getValue(size_t index) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks the result of the forward split layer
@@ -168,8 +191,9 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Returns collection of dimensions of split layer output
@@ -177,8 +201,9 @@ public:
     * \param[in] par         Parameters of the algorithm
     * \param[in] method      Method of the algorithm
     * \return    Collection of dimensions of split layer output
+     * \DAAL_DEPRECATED
     */
-    virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
+    DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
                                                             const daal::algorithms::Parameter *par, const int method) const DAAL_C11_OVERRIDE;
 
     /**
@@ -187,8 +212,9 @@ public:
     * \param[in] parameter   Parameters of the algorithm
     * \param[in] method      Method of the algorithm
     * \return    Collection of dimensions of split layer output
+     * \DAAL_DEPRECATED
     */
-    services::Collection< services::Collection<size_t> > getValueCollectionSize(const services::Collection<size_t> &inputSize,
+    DAAL_DEPRECATED services::Collection< services::Collection<size_t> > getValueCollectionSize(const services::Collection<size_t> &inputSize,
                                                                                 const daal::algorithms::Parameter *parameter, const int method) DAAL_C11_OVERRIDE;
 
     /**
@@ -198,12 +224,16 @@ public:
     * \param[in] method       Computation method for the algorithm
     *
     * \return Status of computations
+     * \DAAL_DEPRECATED
     */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
 
 protected:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {

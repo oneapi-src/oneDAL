@@ -61,6 +61,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPATIAL_POOLING2D__FORWARD__INPUT"></a>
  * \brief %Input objects for the forward 2D spatial layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::forward::Input
 {
@@ -68,12 +69,19 @@ public:
     typedef layers::forward::Input super;
     /**
      * Default constructor
+     * \DAAL_DEPRECATED
      */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     using layers::forward::Input::get;
@@ -106,12 +114,19 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPATIAL_POOLING2D__FORWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
  *        of the forward 2D spatial layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::forward::Result
 {
 public:
-    /** Default constructor */
-    Result();
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Result();
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {}
 
     using layers::forward::Result::get;

@@ -60,6 +60,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__PREDICTION__PARAMETER"></a>
  *  \brief Class representing the parameters of neural network prediction
+ * \DAAL_DEPRECATED
  */
 class Parameter : public daal::algorithms::Parameter
 {
@@ -68,6 +69,7 @@ public:
      * Constructs the parameters of neural network prediction algorithm
      * \param[in] batchSize_                Size of the batch to be processed by the neural network
      * \param[in] allocateWeightsAndBiases_ Flag that idicates if weights and biases are allocated or not
+     * \DAAL_DEPRECATED
      */
     Parameter(size_t batchSize_ = 1, bool allocateWeightsAndBiases_ = false) :
         batchSize(batchSize_), allocateWeightsAndBiases(allocateWeightsAndBiases_)
@@ -80,28 +82,33 @@ public:
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__PREDICTION__MODEL"></a>
  * \brief Class Model object for the prediction stage of neural network algorithm
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Model : public neural_networks::ModelImpl
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Model);
 
-    /** Default constructor */
-    Model();
+    /*
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Model();
 
     /**
      * Constructs empty model for the prediction stage of neural network
      * \param[out] stat Status of the model construction
      * \return Empty model for the prediction stage of neural network
+     * \DAAL_DEPRECATED
      */
-    static services::SharedPtr<Model> create(services::Status *stat = NULL);
+    DAAL_DEPRECATED static services::SharedPtr<Model> create(services::Status *stat = NULL);
 
     /**
      * Constructs model object for the prediction stage of neural network
      * from the list of forward stages of the layers and the list of connections between the layers
      * \param[in] forwardLayersForModel  List of forward stages of the layers
      * \param[in] nextLayersForModel     List of next layers for each layer with corresponding index
-     * \DAAL_DEPRECATED_USE{ Model::create }
+     * \DAAL_DEPRECATED
      */
     Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
           const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel);
@@ -113,8 +120,9 @@ public:
      * \param[in] nextLayersForModel     List of next layers for each layer with corresponding index
      * \param[out] stat                  Status of the model construction
      * \return Model object for the prediction stage of neural network
+     * \DAAL_DEPRECATED
      */
-    static services::SharedPtr<Model> create(
+    DAAL_DEPRECATED static services::SharedPtr<Model> create(
         const neural_networks::ForwardLayersPtr &forwardLayersForModel,
         const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel,
         services::Status *stat = NULL);
@@ -129,7 +137,7 @@ public:
      * \param[in] storeWeightsInTable           Flag.
      *                                          If true then the storage for weights and biases is allocated as a single piece of memory,
      *                                          otherwise weights and biases are allocated as separate tensors
-     * \DAAL_DEPRECATED_USE{ Model::create }
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
     DAAL_EXPORT Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
@@ -145,19 +153,23 @@ public:
      *                                   If true then the storage for weights and biases is allocated as a single piece of memory,
      * \param[out] stat                  Status of the model construction
      * \return Model object for the prediction stage of neural network
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
+    DAAL_EXPORT DAAL_DEPRECATED static services::SharedPtr<Model> create(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
                                                          const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel,
                                                          bool storeWeightsInTable, services::Status *stat = NULL);
 
-    /** Copy constructor */
-    Model(const Model &model);
+    /*
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Model(const Model &model);
 
     /**
      * Constructs model object for the prediction stage of neural network from a collection of layer descriptors
      * \param[in] topology  Collection of layer descriptors of every inserted layer
-     * \DAAL_DEPRECATED_USE{ Model::create }
+     * \DAAL_DEPRECATED
      */
     Model(const prediction::Topology &topology);
 
@@ -166,10 +178,14 @@ public:
      * \param[in] topology  Collection of layer descriptors of every inserted layer
      * \param[out] stat     Status of the model construction
      * \return Model object for the prediction stage of neural network
+     * \DAAL_DEPRECATED
      */
-    static services::SharedPtr<Model> create(const prediction::Topology &topology, services::Status *stat = NULL);
+    DAAL_DEPRECATED static services::SharedPtr<Model> create(const prediction::Topology &topology, services::Status *stat = NULL);
 
-    /** \brief Destructor */
+    /*
+     * \brief Destructor
+     * \DAAL_DEPRECATED
+     */
     virtual ~Model() {}
 
     /**
@@ -178,6 +194,7 @@ public:
      * \param[in] parameter  Prediction model parameter
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template<typename modelFPType>
     services::Status allocate(const services::Collection<size_t> &sampleSize, const daal::algorithms::Parameter *parameter = NULL)
@@ -243,8 +260,9 @@ public:
      * \param[in] nextLayers     List of next layers for each layer with corresponding index
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status setLayers(const neural_networks::ForwardLayersPtr &forwardLayers,
+    DAAL_DEPRECATED services::Status setLayers(const neural_networks::ForwardLayersPtr &forwardLayers,
                    const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayers)
     {
         _forwardLayers = forwardLayers;
@@ -255,8 +273,9 @@ public:
     /**
      * Returns the list of forward stages of the layers
      * \return List of forward stages of the layers
+     * \DAAL_DEPRECATED
      */
-    const neural_networks::ForwardLayersPtr getLayers() const
+    DAAL_DEPRECATED const neural_networks::ForwardLayersPtr getLayers() const
     {
         return _forwardLayers;
     }
@@ -265,8 +284,9 @@ public:
      * Returns the forward stage of a layer with certain index in the network
      * \param[in] index  Index of the layer in the network
      * \return Forward stage of a layer with certain index in the network
+     * \DAAL_DEPRECATED
      */
-    const layers::forward::LayerIfacePtr getLayer(size_t index) const
+    DAAL_DEPRECATED const layers::forward::LayerIfacePtr getLayer(size_t index) const
     {
         return _forwardLayers->get(index);
     }
@@ -274,27 +294,45 @@ public:
 protected:
     size_t _allocatedBatchSize;  /** Batch size that was used during the model allocation */
 
-    Model(services::Status &st);
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Model(services::Status &st);
 
-    Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
           const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel,
           services::Status &st);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     template<typename modelFPType>
-    DAAL_EXPORT Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
+    DAAL_EXPORT DAAL_DEPRECATED Model(const neural_networks::ForwardLayersPtr &forwardLayersForModel,
                       const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayersForModel,
                       modelFPType dummy, bool storeWeightsInTable, services::Status &st);
 
-    Model(const prediction::Topology &topology, services::Status &st);
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Model(const prediction::Topology &topology, services::Status &st);
 
-    /** \private */
+    /*
+     * \private
+     * \DAAL_DEPRECATED
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {
         return services::Status();
     }
 
-    services::Status insertLayer(const layers::forward::LayerDescriptor &layerDescriptor)
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status insertLayer(const layers::forward::LayerDescriptor &layerDescriptor)
     {
         layers::forward::LayerIfacePtr forwardLayer = layerDescriptor.layer()->clone();
         _forwardLayers->insert(layerDescriptor.index(), forwardLayer);

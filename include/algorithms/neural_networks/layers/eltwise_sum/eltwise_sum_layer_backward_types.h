@@ -62,6 +62,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__ELTWISE_SUM__BACKWARD__INPUT"></a>
  * \brief %Input objects for the backward element-wise sum layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::backward::Input
 {
@@ -69,12 +70,19 @@ public:
     typedef layers::backward::Input super;
     /**
      * Default constructor
+     * \DAAL_DEPRECATED
      */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     /**
@@ -91,29 +99,33 @@ public:
      * Returns an input tensor for backward element-twise sum layer
      * \param[in] id Identifier of the input tensor
      * \return       Input tensor that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(LayerDataId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(LayerDataId id) const;
 
     /**
      * Returns an input numeric table for backward element-wise sum layer
      * \param[in] id Identifier of the input numeric table
      * \return       Input numeric table that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::NumericTablePtr get(LayerDataNumericTableId id) const;
+    DAAL_DEPRECATED data_management::NumericTablePtr get(LayerDataNumericTableId id) const;
 
     /**
      * Sets an input tensor for the backward element-twise sum layer
      * \param[in] id    Identifier of the input tensor
      * \param[in] value Input tensor to set
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(LayerDataId id, const data_management::TensorPtr &value);
 
     /**
      * Sets an input numeric table for the backward element-wise sum layer
      * \param[in] id    Identifier of the input numeric table
      * \param[in] value Input numeric table
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataNumericTableId id, const data_management::NumericTablePtr &value);
+    DAAL_DEPRECATED void set(LayerDataNumericTableId id, const data_management::NumericTablePtr &value);
 
     /**
      * Checks an input object of the element-wise sum layer
@@ -121,22 +133,36 @@ public:
      * \param[in] method    Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Gets number of coefficients (or number of input tensors on the forward pass)
      *
      * \return Number of coefficients
+     * \DAAL_DEPRECATED
      */
-    size_t getNumberOfCoefficients() const;
+    DAAL_DEPRECATED size_t getNumberOfCoefficients() const;
 
 private:
-    size_t getNumberOfAuxCoefficientsFromTable() const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED size_t getNumberOfAuxCoefficientsFromTable() const;
 
-    services::Status checkInputGradient() const;
-    services::Status checkAuxCoefficients() const;
-    services::Status checkAuxNumberOfCoefficients() const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status checkInputGradient() const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status checkAuxCoefficients() const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status checkAuxNumberOfCoefficients() const;
 };
 
 /**

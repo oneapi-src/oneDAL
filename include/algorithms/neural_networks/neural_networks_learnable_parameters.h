@@ -45,33 +45,57 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LEARNABLEPARAMETERSIFACE"></a>
  * \brief Learnable parameters for the prediction stage of neural network algorithm
+ * \DAAL_DEPRECATED
  */
 class LearnableParametersIface : public data_management::SerializationIface
 {
 public:
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~LearnableParametersIface() {}
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual data_management::NumericTablePtr copyToTable() const = 0;
-    virtual data_management::NumericTablePtr copyToTable(size_t idx) const = 0;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual data_management::NumericTablePtr copyToTable(size_t idx) const = 0;
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual services::Status copyFromTable(const data_management::NumericTablePtr &table) = 0;
-    virtual services::Status copyFromTable(const data_management::NumericTablePtr &table, size_t idx) = 0;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status copyFromTable(const data_management::NumericTablePtr &table, size_t idx) = 0;
+    /*
+     * \DAAL_DEPRECATED
+     */
 };
 typedef services::SharedPtr<LearnableParametersIface> LearnableParametersIfacePtr;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__PREDICTION__MODEL"></a>
  * \brief Class Model object for the prediction stage of neural network algorithm
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT ModelImpl : public daal::algorithms::Model
 {
 public:
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~ModelImpl() {}
 
     /**
      * Returns list of connections between layers
      * \return          List of next layers for each layer with corresponding index
+     * \DAAL_DEPRECATED
      */
-    const services::SharedPtr<services::Collection<layers::NextLayers> > getNextLayers() const
+    DAAL_DEPRECATED const services::SharedPtr<services::Collection<layers::NextLayers> > getNextLayers() const
     {
         return _nextLayers;
     }
@@ -81,6 +105,7 @@ public:
      * \param[in] weightsAndBiases          Table containing all neural network weights and biases
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     services::Status setWeightsAndBiases(const data_management::NumericTablePtr &weightsAndBiases)
     {
@@ -90,6 +115,7 @@ public:
     /**
      * Returns table containing all neural network weights and biases
      * \return          Table containing all neural network weights and biases
+     * \DAAL_DEPRECATED
      */
     const data_management::NumericTablePtr getWeightsAndBiases() const
     {
@@ -97,13 +123,19 @@ public:
     }
 
 protected:
-    ModelImpl() :
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ModelImpl() :
         _forwardLayers(new neural_networks::ForwardLayers),
         _nextLayers(new services::Collection<layers::NextLayers>),
         _weightsAndBiasesCreated(false), _storeWeightsInTable(false)
     {}
 
-    ModelImpl(services::Status &st) :
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ModelImpl(services::Status &st) :
         _weightsAndBiasesCreated(false), _storeWeightsInTable(false)
     {
         _forwardLayers.reset(new neural_networks::ForwardLayers);
@@ -120,33 +152,46 @@ protected:
      * \param[in] forwardLayers           List of forward stages of the layers
      * \param[in] nextLayers              List of next layers for each layer with corresponding index
      * \param[in] storeWeightsInTable     Weights and biases storage status. True if weights and biases of all layers stored in one numeric table. False otherwise
+     * \DAAL_DEPRECATED
      */
-    ModelImpl(const neural_networks::ForwardLayersPtr &forwardLayers,
+    DAAL_DEPRECATED ModelImpl(const neural_networks::ForwardLayersPtr &forwardLayers,
               const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayers,
               bool storeWeightsInTable = false) :
         _forwardLayers(forwardLayers), _nextLayers(nextLayers),
         _weightsAndBiasesCreated(false), _storeWeightsInTable(storeWeightsInTable) {}
 
-    ModelImpl(const neural_networks::ForwardLayersPtr &forwardLayers,
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ModelImpl(const neural_networks::ForwardLayersPtr &forwardLayers,
               const services::SharedPtr<services::Collection<layers::NextLayers> > &nextLayers,
               bool storeWeightsInTable, services::Status &st) :
         _forwardLayers(forwardLayers), _nextLayers(nextLayers),
         _weightsAndBiasesCreated(false), _storeWeightsInTable(storeWeightsInTable) {}
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     ModelImpl(const ModelImpl &model) :
         _forwardLayers(model._forwardLayers), _nextLayers(model._nextLayers),
         _storeWeightsInTable(model._storeWeightsInTable),
         _weightsAndBiasesCreated(model._weightsAndBiasesCreated)/*,
          _weightsAndBiases(model._weightsAndBiases->clone()) */   {}
 
-    /** Copy constructor */
-    ModelImpl(const ModelImpl &model, services::Status &st) :
+    /*
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED ModelImpl(const ModelImpl &model, services::Status &st) :
         _forwardLayers(model._forwardLayers), _nextLayers(model._nextLayers),
         _storeWeightsInTable(model._storeWeightsInTable),
         _weightsAndBiasesCreated(model._weightsAndBiasesCreated)/*,
          _weightsAndBiases(model._weightsAndBiases->clone()) */   {}
 
-    services::Status checkWeightsAndBiasesAllocation()
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED services::Status checkWeightsAndBiasesAllocation()
     {
         using namespace services;
         using namespace layers;
@@ -166,6 +211,9 @@ protected:
         return services::Status();
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     services::Status connectForwardLayers(size_t layerId)
     {
         using namespace services;
@@ -182,6 +230,9 @@ protected:
         return services::Status();
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     template<typename modelFPType>
     DAAL_EXPORT services::Status createWeightsAndBiases(bool checkAllocation);
 
