@@ -51,6 +51,16 @@ struct MaxVal<int>
     }
 };
 
+
+template<>
+struct MaxVal<long long>
+{
+    DAAL_FORCEINLINE static long long get()
+    {
+        return LLONG_MAX;
+    }
+};
+
 template<>
 struct MaxVal<double>
 {

@@ -22,6 +22,8 @@
 */
 #include "service_math.h"
 #include "objective_function_utils.i"
+#include "service_memory.h"
+#include "service_data_utils.h"
 
 namespace daal
 {
@@ -268,9 +270,12 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             fPtr = fScalable.get();
             sgPtr = sgScalable.get();
         }
+
         //f = X*b + b0
         applyBetaThreaded(x, b, fPtr, n, p, parameter->interceptFlag);
+
         //s = exp(-f)
+
         vexp<algorithmFPType, cpu>(fPtr, sgPtr, n);
 
         //s = sigm(f), s1 = 1 - s
@@ -321,7 +326,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
         if(gradientNT)
         {
             DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
-            const algorithmFPType* s = sgPtr;
+            algorithmFPType* s = sgPtr;
 
             algorithmFPType* g;
             HomogenNumericTable<algorithmFPType>* hmgGrad = dynamic_cast<HomogenNumericTable<algorithmFPType>*>(gradientNT);
@@ -336,27 +341,50 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                 DAAL_CHECK_BLOCK_STATUS(gr);
                 g = gr.get();
             }
-            const size_t nRowsInBlock = (p < 5000 ? 5000/p : 1);
+
+            char trans = 'T';
+            char notrans = 'N';
+            algorithmFPType one = 1.0;
+            DAAL_INT yDim = 1;
+            DAAL_ASSERT(p <= services::internal::MaxVal<DAAL_INT>::get());
+            DAAL_INT dim = (DAAL_INT)p;
+
+            const size_t nRowsInBlock = 1024;
             const size_t nDataBlocks = n / nRowsInBlock + !!(n%nRowsInBlock);
             const auto nThreads = daal::threader_get_threads_number();
-
             if((nThreads > 1) && (nDataBlocks > 1))
             {
-                TlsSum<algorithmFPType, cpu> tlsData(nBeta);
+                TArray<algorithmFPType, cpu> grads(nDataBlocks*p);
+                algorithmFPType* const gradsPtr = grads.get();
+                daal::services::internal::service_memset<algorithmFPType, cpu>(gradsPtr, algorithmFPType(0), nDataBlocks*p);
                 daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock)
                 {
                     const size_t iStartRow = iBlock*nRowsInBlock;
                     const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? n - iBlock * nRowsInBlock : nRowsInBlock;
                     const auto px = x + iStartRow * p;
-                    auto pg = tlsData.local();
+                    auto ps = s + iStartRow;
+                    const auto py = y + iStartRow;
+                    DAAL_ASSERT(nRowsToProcess <= services::internal::MaxVal<DAAL_INT>::get());
+                    DAAL_INT nN   = (DAAL_INT)nRowsToProcess;
+                    auto pg = gradsPtr + iBlock*p;
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
                     for(size_t i = 0; i < nRowsToProcess; ++i)
                     {
-                        const algorithmFPType d = (s[iStartRow + i] - y[iStartRow + i]);
-                        for(size_t j = 0; j < p; ++j)
-                            pg[j + 1] += d * px[i * p + j];
+                        ps[i] -= py[i];
+                    }
+                    daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &nN, &one, ps, &yDim, px,
+                                                                                      &dim, &one, pg, &yDim);
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for(size_t i = 0; i < nRowsToProcess; ++i)
+                    {
+                        ps[i] += py[i];
                     }
                 });
-                tlsData.reduceTo(g, nBeta);
+                for(size_t i = 0; i < nDataBlocks; i++)
+                    for(size_t j = 0; j < p; j++)
+                        g[j + 1] += gradsPtr[i*p + j];
             }
             else
             {
@@ -386,6 +414,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                     g[i] += 2. * b[i] * parameter->penaltyL2;
             }
         }
+
         if(hessianNT)
         {
             DAAL_ASSERT(hessianNT->getNumberOfRows() == nBeta);
@@ -395,7 +424,9 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
 
             algorithmFPType* s = sgPtr;
             for(size_t i = 0; i < n; ++i)
+            {
                 s[i] *= s[i + n]; //sigmoid derivative at x[i]
+            }
 
             h[0] = 0;
             if(parameter->interceptFlag)
