@@ -42,7 +42,7 @@ daal::algorithms::neural_networks::internal::LastLayerIndices::LastLayerIndices(
         }
     }
 
-    buffer = (size_t *)daal_calloc(2 * nLastLayers * sizeof(size_t));
+    buffer = (size_t *)daal_malloc(2 * nLastLayers * sizeof(size_t));
     if (!buffer)
         return;
 

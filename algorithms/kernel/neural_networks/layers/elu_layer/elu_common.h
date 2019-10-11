@@ -49,7 +49,7 @@ public:
     explicit ScalableTlsBuffer(size_t size)
     {
         _tls.reset(new daal::tls<T *>([ = ]() -> T * {
-            return services::internal::service_scalable_calloc<T, cpu>(size);
+            return services::internal::service_scalable_malloc<T, cpu>(size);
         }));
     }
 
