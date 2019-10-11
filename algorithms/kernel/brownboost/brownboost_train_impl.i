@@ -165,9 +165,8 @@ services::Status I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoo
     DAAL_CHECK(predictInput, services::ErrorNullInput);
     predictInput->set(classifier::prediction::data, weakLearnerInputTables[0]);
 
-    classifier::prediction::interface1::Result* cpir = new classifier::prediction::interface1::Result();
-    DAAL_CHECK_MALLOC(cpir)
-    classifier::prediction::interface1::ResultPtr predictionRes(cpir);
+    classifier::prediction::interface1::ResultPtr predictionRes(new classifier::prediction::interface1::Result());
+    DAAL_CHECK_MALLOC(predictionRes.get())
     predictionRes->set(classifier::prediction::prediction, hTable);
     learnerPredict->setResult(predictionRes);
 
@@ -402,9 +401,8 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoost
     DAAL_CHECK(predictInput, services::ErrorNullInput);
     predictInput->set(classifier::prediction::data, weakLearnerInputTables[0]);
 
-    classifier::prediction::Result* cpr = new classifier::prediction::Result();
-    DAAL_CHECK_MALLOC(cpr)
-    classifier::prediction::ResultPtr predictionRes(cpr);
+    classifier::prediction::ResultPtr predictionRes(new classifier::prediction::Result());
+    DAAL_CHECK_MALLOC(predictionRes.get())
     predictionRes->set(classifier::prediction::prediction, hTable);
     learnerPredict->setResult(predictionRes);
 
