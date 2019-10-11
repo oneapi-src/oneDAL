@@ -96,6 +96,7 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const Paramete
     const algorithmFPType eps(svmPar.accuracyThreshold);
     const algorithmFPType tau(svmPar.tau);
     Status s = init(C);
+    Status status;
     if(!s)
         return s;
 
@@ -149,13 +150,13 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::compute(const Paramete
             /* Update shrinking flags and do shrinking if needed*/
             if(updateShrinkingFlags(nActiveVectors, C, ma, Ma) > 0)
             {
-                s = _cache->updateShrinkingRowIndices(nActiveVectors, _I.get());
-                if(s)
-                    return s;
+                status |= _cache->updateShrinkingRowIndices(nActiveVectors, _I.get());
                 nActiveVectors = doShrink(nActiveVectors);
             }
         }
     }
+    if (status)
+        return status;
     if(nActiveVectors < _nVectors)
         s = reconstructGradient(nActiveVectors);
     return s;
@@ -914,7 +915,6 @@ Status SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
         result |= daal::services::daal_memcpy_s(_tmp.get(), lineSizeInBytes, _cache.get() + i * _lineSize, lineSizeInBytes);
         result |= daal::services::daal_memcpy_s(_cache.get() + i * _lineSize, lineSizeInBytes, _cache.get() + j * _lineSize, lineSizeInBytes);
         result |= daal::services::daal_memcpy_s(_cache.get() + j * _lineSize, lineSizeInBytes, _tmp.get(), lineSizeInBytes);
-        DAAL_CHECK(!result, ErrorMemoryCopyFailedInternal);
 
         /* Swap i-th and j-th column in cache */
         for (size_t k = 0; k < _nLines; k++)
@@ -930,7 +930,7 @@ Status SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
         i++;
         j--;
     }
-    return Status();
+    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 } // namespace internal
 } // namespace training
