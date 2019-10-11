@@ -31,6 +31,7 @@
 #include "implicit_als_train_dense_default_batch_common.i"
 #include "implicit_als_train_utils.h"
 #include "daal_strings.h"
+#include "service_data_utils.h"
 
 namespace daal
 {

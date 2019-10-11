@@ -30,6 +30,7 @@
 #include "threading.h"
 #include "service_blas.h"
 #include "service_spblas.h"
+#include "service_data_utils.h"
 
 namespace daal
 {

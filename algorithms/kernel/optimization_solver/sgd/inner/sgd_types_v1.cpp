@@ -26,6 +26,7 @@
 #include "numeric_table.h"
 #include "serialization_utils.h"
 #include "daal_strings.h"
+#include "service_data_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
