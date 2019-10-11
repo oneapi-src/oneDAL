@@ -64,13 +64,17 @@ enum SplitMethod
     defaultSplit = inexact  /*!< Default split finding method */
 };
 
-enum ResultsToCompute
+/**
+ * <a name="DAAL-ENUM-ALGORITHMS__GBT__TRAINING__VARIABLE_IMPORTANCE_MODES"></a>
+ * \brief Variable importance computation modes
+ */
+enum VariableImportanceModes
 {
-    computeWeight     = 0x001ULL,
-    computeTotalCover = 0x002ULL,
-    computeCover      = 0x004ULL,
-    computeTotalGain  = 0x008ULL,
-    computeGain       = 0x010ULL,
+    weight     = 0x001ULL,
+    totalCover = 0x002ULL,
+    cover      = 0x004ULL,
+    totalGain  = 0x008ULL,
+    gain       = 0x010ULL,
 };
 
 /**
@@ -117,7 +121,7 @@ public:
     size_t minBinSize;                      /*!< Used with 'inexact' split finding method only.
                                                  Minimal number of observations in a bin. Default is 5 */
     int internalOptions;                    /*!< Internal options */
-    DAAL_UINT64 resultsToCompute;           /*!< */
+    DAAL_UINT64 varImportance;              /*!< 64 bit integer flag that indicates the variable importance computation modes */
 };
 /* [Parameter source code] */
 } // namespace interface1
