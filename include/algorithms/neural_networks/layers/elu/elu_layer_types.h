@@ -80,12 +80,14 @@ namespace interface1
  * \brief Parameters for the ELU layer
  *
  * \snippet neural_networks/layers/elu/elu_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
 {
     /**
      * Constructs the parameters of the ELU layer
+     * \DAAL_DEPRECATED
      */
     Parameter(double alpha = 1.0);
 

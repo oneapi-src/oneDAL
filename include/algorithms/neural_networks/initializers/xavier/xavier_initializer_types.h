@@ -73,11 +73,11 @@ class DAAL_EXPORT Parameter : public initializers::Parameter
 public:
     /**
      *  Main constructor
-     *  \param[in] _seed Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine }
+     *  \param[in] _seed Seed for generating random numbers for the initialization \DAAL_DEPRECATED
      */
     Parameter(size_t _seed = 777): seed(_seed) {}
 
-    size_t seed; /*!< Seed for generating random numbers \DAAL_DEPRECATED_USE{ engine } */
+    size_t seed; /*!< Seed for generating random numbers \DAAL_DEPRECATED */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };

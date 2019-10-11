@@ -76,7 +76,7 @@ public:
      *  Main constructor
      *  \param[in] _mean   Mean
      *  \param[in] _sigma  Standard deviation
-     *  \param[in] _seed   Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine }
+     *  \param[in] _seed   Seed for generating random numbers for the initialization \DAAL_DEPRECATED
      */
     Parameter(double _mean = 0, double _sigma = 1.0, size_t _seed = 777);
 

@@ -61,31 +61,51 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING2D__BACKWARD__INPUT"></a>
  * \brief %Input objects for the backward 2D pooling layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::backward::Input
 {
 public:
     typedef layers::backward::Input super;
-    /** Default constructor */
-    Input();
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Input();
 
-    /** Copy constructor */
-    Input(const Input& other);
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     /**
      * Return the collection with gradient size
      * \return The collection with gradient size
+     * \DAAL_DEPRECATED
      */
-    virtual services::Collection<size_t> getGradientSize() const;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Collection<size_t> getGradientSize() const;
 
 protected:
-    virtual data_management::NumericTablePtr getAuxInputDimensions() const = 0;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual data_management::NumericTablePtr getAuxInputDimensions() const = 0;
 
-    virtual services::Collection<size_t> getInputGradientSize(const pooling2d::Parameter *parameter) const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual services::Collection<size_t> getInputGradientSize(const pooling2d::Parameter *parameter) const;
 
-    size_t computeInputDimension(size_t maskDim, size_t kernelSize, size_t padding, size_t stride) const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED size_t computeInputDimension(size_t maskDim, size_t kernelSize, size_t padding, size_t stride) const;
 };
 
 /**
@@ -96,8 +116,14 @@ protected:
 class DAAL_EXPORT Result : public layers::backward::Result
 {
 public:
-    /** Default constructor */
-    Result();
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Result();
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {}
 
     /**
@@ -107,6 +133,7 @@ public:
      * \param[in] parameter %Parameter of the backward 2D pooling layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -118,6 +145,7 @@ public:
      * \param[in] method Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 };

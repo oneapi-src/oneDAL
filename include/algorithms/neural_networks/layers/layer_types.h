@@ -82,12 +82,16 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__PARAMETER"></a>
  * Parameters of the neural network layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Parameter: public daal::algorithms::Parameter
 {
 public:
-    /** Default constructor */
-    Parameter();
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Parameter();
 
     /** Layer weights initializer */
     initializers::InitializerIfacePtr weightsInitializer;
@@ -118,6 +122,7 @@ class NextLayers
 public:
     /**
      * \brief Constructs empty list of layer indices of layers following the current layer
+     * \DAAL_DEPRECATED
      */
     NextLayers() : _indices(0)
     {}
@@ -126,15 +131,17 @@ public:
      * \brief Constructs the list of layer indices by copying the indices from another list of layer indices
      * \param[in] other List of layer indices to use as the source to initialize
      *                  the list of layer indices of layers following the current layer
+     * \DAAL_DEPRECATED
      */
-    NextLayers(const NextLayers &other) : _indices(other._indices)
+     NextLayers(const NextLayers &other) : _indices(other._indices)
     {}
 
     /**
      * \brief Constructs the list of layer indices from one index of the next layer
      * \param[in] index1    First index of the next layer
+     * \DAAL_DEPRECATED
      */
-    NextLayers(const size_t index1) : _indices()
+    DAAL_DEPRECATED NextLayers(const size_t index1) : _indices()
     {
         _indices.push_back(index1);
     }
@@ -143,8 +150,9 @@ public:
      * \brief Constructs the list of layer indices from two indices of the next layers
      * \param[in] index1    First index of the next layer
      * \param[in] index2    Second index of the next layer
+     * \DAAL_DEPRECATED
      */
-    NextLayers(const size_t index1, const size_t index2) : _indices()
+    DAAL_DEPRECATED NextLayers(const size_t index1, const size_t index2) : _indices()
     {
         _indices.push_back(index1);
         _indices.push_back(index2);
@@ -155,8 +163,9 @@ public:
      * \param[in] index1    First index of the next layer
      * \param[in] index2    Second index of the next layer
      * \param[in] index3    Third index of the next layer
+     * \DAAL_DEPRECATED
      */
-    NextLayers(const size_t index1, const size_t index2, const size_t index3) : _indices()
+    DAAL_DEPRECATED NextLayers(const size_t index1, const size_t index2, const size_t index3) : _indices()
     {
         _indices.push_back(index1);
         _indices.push_back(index2);
@@ -169,8 +178,9 @@ public:
      * \param[in] index2    Second index of the next layer
      * \param[in] index3    Third index of the next layer
      * \param[in] index4    Fourth index of the next layer
+     * \DAAL_DEPRECATED
      */
-    NextLayers(const size_t index1, const size_t index2, const size_t index3, const size_t index4) : _indices()
+    DAAL_DEPRECATED NextLayers(const size_t index1, const size_t index2, const size_t index3, const size_t index4) : _indices()
     {
         _indices.push_back(index1);
         _indices.push_back(index2);
@@ -185,8 +195,9 @@ public:
      * \param[in] index3    Third index of the next layer
      * \param[in] index4    Fourth index of the next layer
      * \param[in] index5    Fifth index of the next layer
+     * \DAAL_DEPRECATED
      */
-    NextLayers(const size_t index1, const size_t index2, const size_t index3, const size_t index4,
+    DAAL_DEPRECATED NextLayers(const size_t index1, const size_t index2, const size_t index3, const size_t index4,
                const size_t index5) : _indices()
     {
         _indices.push_back(index1);
@@ -204,8 +215,9 @@ public:
      * \param[in] index4    Fourth index of the next layer
      * \param[in] index5    Fifth index of the next layer
      * \param[in] index6    Sixth index of the next layer
+     * \DAAL_DEPRECATED
      */
-    NextLayers(const size_t index1, const size_t index2, const size_t index3, const size_t index4, const size_t index5,
+    DAAL_DEPRECATED NextLayers(const size_t index1, const size_t index2, const size_t index3, const size_t index4, const size_t index5,
                const size_t index6) : _indices()
     {
         _indices.push_back(index1);
@@ -216,12 +228,16 @@ public:
         _indices.push_back(index6);
     }
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~NextLayers()
     {}
 
     /**
      * Size of the list of indices
      * \return Size of the list of indices
+     * \DAAL_DEPRECATED
      */
     size_t size() const { return _indices.size(); }
 
@@ -229,8 +245,9 @@ public:
      * Element access
      * \param[in] index Index of an accessed element
      * \return    Reference to the element
+     * \DAAL_DEPRECATED
      */
-    size_t & operator [] (size_t index)
+    DAAL_DEPRECATED size_t & operator [] (size_t index)
     {
         return _indices[index];
     }
@@ -239,6 +256,7 @@ public:
      * Const element access
      * \param[in] index Index of the element to return
      * \return    Const reference to the element
+     * \DAAL_DEPRECATED
      */
     const size_t & operator [] (size_t index) const
     {
@@ -248,12 +266,14 @@ public:
     /**
     *  Adds an element to the end of the collection
     *  \param[in] index Element to add
+    *  \DAAL_DEPRECATED
     */
     void push_back(size_t index) { _indices.push_back(index); }
 
     /**
     *  Adds an element to the end of the collection
     *  \param[in] index Element to add
+    *  \DAAL_DEPRECATED
     */
     void add(size_t index) { _indices.push_back(index); }
 

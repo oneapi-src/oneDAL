@@ -58,6 +58,7 @@ namespace interface1
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING3D__KERNELSIZE"></a>
  * \brief Data structure representing the size of the 3D subtensor
  *        from which the element is computed
+ * \DAAL_DEPRECATED
  */
 struct KernelSizes
 {
@@ -67,6 +68,7 @@ struct KernelSizes
      * \param[in]  first  Size of the first dimension of the 3D subtensor
      * \param[in]  second Size of the second dimension of the 3D subtensor
      * \param[in]  third  Size of the third dimension of the 3D subtensor
+     * \DAAL_DEPRECATED
      */
     KernelSizes(size_t first = 2, size_t second = 2, size_t third = 2)
     {
@@ -80,6 +82,7 @@ struct KernelSizes
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING3D__STRIDE"></a>
  * \brief Data structure representing the intervals on which the subtensors for pooling are computed
+ * \DAAL_DEPRECATED
  */
 struct Strides
 {
@@ -88,6 +91,7 @@ struct Strides
      * \param[in]  first  Interval over the first dimension on which the pooling is performed
      * \param[in]  second Interval over the second dimension on which the pooling is performed
      * \param[in]  third  Interval over the third dimension on which the pooling is performed
+     * \DAAL_DEPRECATED
      */
     Strides(size_t first = 2, size_t second = 2, size_t third = 2)
     {
@@ -102,6 +106,7 @@ struct Strides
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING3D__PADDING"></a>
  * \brief Data structure representing the number of data elements to implicitly add
  *        to each size of the three-dimensional subtensor on which pooling is performed
+ * \DAAL_DEPRECATED
  */
 struct Paddings
 {
@@ -111,8 +116,9 @@ struct Paddings
      * \param[in]  first  Number of data elements to add to the the first dimension of the three-dimensional subtensor
      * \param[in]  second Number of data elements to add to the the second dimension of the three-dimensional subtensor
      * \param[in]  third  Number of data elements to add to the the third dimension of the three-dimensional subtensor
+     * \DAAL_DEPRECATED
      */
-    Paddings(size_t first = 2, size_t second = 2, size_t third = 2)
+    DAAL_DEPRECATED Paddings(size_t first = 2, size_t second = 2, size_t third = 2)
     {
         size[0] = first;
         size[1] = second;
@@ -124,6 +130,7 @@ struct Paddings
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__NEURAL_NETWORKS__LAYERS__POOLING3D__SPATIALDIMENSIONS"></a>
  * \brief Data structure representing the indices of the three dimensions on which pooling is performed
+ * \DAAL_DEPRECATED
  */
 struct Indices
 {
@@ -132,6 +139,7 @@ struct Indices
      * \param[in]  first  The first dimension index
      * \param[in]  second The second dimension index
      * \param[in]  third  The third dimension index
+     * \DAAL_DEPRECATED
      */
     Indices(size_t first = 0, size_t second = 1, size_t third = 2)
     {
@@ -147,6 +155,7 @@ struct Indices
  * \brief Parameters for the forward and backward pooling layers
  *
  * \snippet neural_networks/layers/pooling3d/pooling3d_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
@@ -168,8 +177,9 @@ struct DAAL_EXPORT Parameter: public layers::Parameter
      *                              of the three-dimensional subtensor on which the pooling is performed
      * \param[in] thirdPadding      Number of data elements to implicitly add to the the third dimension
      *                              of the three-dimensional subtensor on which the pooling is performed
+     * \DAAL_DEPRECATED
      */
-    Parameter(size_t firstIndex, size_t secondIndex, size_t thirdIndex,
+    DAAL_DEPRECATED Parameter(size_t firstIndex, size_t secondIndex, size_t thirdIndex,
     size_t firstKernelSize = 2, size_t secondKernelSize = 2, size_t thirdKernelSize = 2,
               size_t firstStride = 2, size_t secondStride = 2, size_t thirdStride = 2,
               size_t firstPadding = 0, size_t secondPadding = 0, size_t thirdPadding = 0);

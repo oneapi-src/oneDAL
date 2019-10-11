@@ -75,13 +75,13 @@ public:
      *  Main constructor
      *  \param[in] _a    Left bound a
      *  \param[in] _b    Right bound b
-     *  \param[in] _seed Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine }
+     *  \param[in] _seed Seed for generating random numbers for the initialization \DAAL_DEPRECATED
      */
     Parameter(double _a = -0.5, double _b = 0.5, size_t _seed = 777): a(_a), b(_b), seed(_seed) {}
 
     double a;    /*!< Left bound a */
     double b;    /*!< Right bound b */
-    size_t seed; /*!< Seed for generating random numbers \DAAL_DEPRECATED_USE{ engine } */
+    size_t seed; /*!< Seed for generating random numbers \DAAL_DEPRECATED */
 };
 
 } // namespace interface1

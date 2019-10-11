@@ -61,17 +61,27 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SOFTMAX__BACKWARD__INPUT"></a>
  * \brief %Input objects for the backward softmax layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::backward::Input
 {
 public:
     typedef layers::backward::Input super;
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     /**
@@ -116,12 +126,19 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SOFTMAX__BACKWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
  *        of the backward softmax layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::backward::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
+    /*
+     * \DAAL_DEPRECATED
+     */
     Result();
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {};
 
     /**

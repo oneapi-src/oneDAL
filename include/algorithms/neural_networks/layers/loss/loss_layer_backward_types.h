@@ -59,17 +59,27 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__LOSS__BACKWARD__INPUT"></a>
  * \brief %Input objects for the backward loss layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::backward::Input
 {
 public:
     typedef layers::backward::Input super;
-    /** Default constructor */
-    Input();
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Input();
 
-    /** Copy constructor */
-    Input(const Input& other);
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     /**
@@ -88,6 +98,7 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 };
@@ -96,13 +107,20 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__LOSS__BACKWARD__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method
  *        of the backward loss layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::backward::Result
 {
 public:
-    /** Default constructor */
-    Result();
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Result();
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {};
 
     /**
@@ -122,6 +140,7 @@ public:
      * \param[in] method  Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 };

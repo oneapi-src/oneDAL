@@ -58,6 +58,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__FORWARD__LAYERIFACE"></a>
  *  \brief Abstract class which defines interface for the layer
+ * \DAAL_DEPRECATED
  */
 class LayerIface : public daal::algorithms::Analysis<batch>
 {
@@ -66,23 +67,29 @@ public:
     typedef algorithms::neural_networks::layers::Parameter       ParameterType;
     typedef algorithms::neural_networks::layers::forward::Result ResultType;
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~LayerIface() {};
 
     /**
      * Returns the structure that contains results of the layer
      * \return Structure that contains results of the layer
+     * \DAAL_DEPRECATED
      */
     virtual forward::ResultPtr getLayerResult() = 0;
 
     /**
      * Returns the structure that contains input objects of the layer
      * \return Structure that contains input objects of the layer
+     * \DAAL_DEPRECATED
      */
     virtual InputType *getLayerInput() = 0;
 
     /**
      * Returns the structure that contains parameters of the layer
      * \return Structure that contains parameters of the layer
+     * \DAAL_DEPRECATED
      */
     virtual ParameterType *getLayerParameter() = 0;
 
@@ -90,6 +97,7 @@ public:
      * Returns a pointer to the newly allocated forward neural network layer with a copy of input objects
      * and parameters of this layer
      * \return Pointer to the newly allocated forward layer
+     * \DAAL_DEPRECATED
      */
     daal::algorithms::neural_networks::layers::forward::LayerIfacePtr clone() const
     {
@@ -98,18 +106,21 @@ public:
 
     /**
      * Allocates memory buffers needed for the computations
+     * \DAAL_DEPRECATED
      */
     virtual services::Status allocateResult() = 0;
 
     /**
      * Allocates memory buffers needed for the computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status allocateInput() = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateInput() = 0;
 
     /**
      * Initializes values of weights and biases if needed
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status initializeInput() = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status initializeInput() = 0;
     /**
      * Connects two layers in neural network by getting tensor with value
      * from the result of the previous layer and adding it to the input object of this layer algorithm
@@ -118,16 +129,21 @@ public:
      *                          results of the previous layer
      * \param[in] inputIndex    Index in the input object of this layer algorithm
      *                          where the tensor with value should be placed
+     * \DAAL_DEPRECATED
      */
     virtual services::Status addInput(forward::ResultPtr result, size_t resultIndex, size_t inputIndex) = 0;
 
     /**
      * Returns the layer that corresponds to this layer on the prediction stage
      * \return The layer that corresponds to this layer on the prediction stage
+     * \DAAL_DEPRECATED
      */
-    virtual layers::forward::LayerIfacePtr getLayerForPrediction() const = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual layers::forward::LayerIfacePtr getLayerForPrediction() const = 0;
 
 protected:
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual LayerIface *cloneImpl() const = 0;
 };
 
@@ -141,6 +157,7 @@ typedef services::SharedPtr<LayerIface> LayerIfacePtr;
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__FORWARD__LAYERIFACEIMPL"></a>
  *  \brief Implements the abstract interface LayerIface. LayerIfaceImpl is, in turn, the base class
  *         for the classes interfacing the layers.
+ * \DAAL_DEPRECATED
  */
 class LayerIfaceImpl : public LayerIface
 {
@@ -151,12 +168,16 @@ public:
     typedef super::ParameterType ParameterType;
     typedef super::ResultType    ResultType;
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~LayerIfaceImpl() {};
 
     /**
      * Allocates memory buffers needed for the computations
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status allocateInput() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status allocateInput() DAAL_C11_OVERRIDE
     {
         this->_ac->setArguments(this->_in, this->_res, this->_par);
         LayerContainerIfaceImpl *ac = dynamic_cast<LayerContainerIfaceImpl *>(_ac);
@@ -165,8 +186,9 @@ public:
 
     /**
      * Initializes values of weights and biases if needed
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status initializeInput() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status initializeInput() DAAL_C11_OVERRIDE
     {
         this->_ac->setArguments(this->_in, this->_res, this->_par);
         setParameter();
@@ -176,8 +198,9 @@ public:
 
     /**
      * \copydoc LayerIface::addInput
+     * \DAAL_DEPRECATED
      */
-    virtual services::Status addInput(forward::ResultPtr result, size_t resultIndex, size_t inputIndex) DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status addInput(forward::ResultPtr result, size_t resultIndex, size_t inputIndex) DAAL_C11_OVERRIDE
     {
         return getLayerInput()->addData(result->getValue(resultIndex), inputIndex);
     }
@@ -185,14 +208,18 @@ public:
     /**
      * Returns the layer that corresponds to this layer on the prediction stage
      * \return The layer that corresponds to this layer on the prediction stage
+     * \DAAL_DEPRECATED
      */
-    virtual layers::forward::LayerIfacePtr getLayerForPrediction() const DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual layers::forward::LayerIfacePtr getLayerForPrediction() const DAAL_C11_OVERRIDE
     {
         return this->clone();
     }
 
 protected:
-    virtual void setParameter() DAAL_C11_OVERRIDE
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual void setParameter() DAAL_C11_OVERRIDE
     {
         if(this->getLayerParameter())
         {

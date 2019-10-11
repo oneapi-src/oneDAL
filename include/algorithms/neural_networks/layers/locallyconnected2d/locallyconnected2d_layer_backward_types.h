@@ -61,6 +61,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__LOCALLYCONNECTED2D__BACKWARD__INPUT"></a>
  * \brief %Input objects for the backward 2D locally connected layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public layers::backward::Input
 {
@@ -68,12 +69,19 @@ public:
     typedef layers::backward::Input super;
     /**
      * Default constructor
+     * \DAAL_DEPRECATED
      */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other);
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Input() {}
 
     /**
@@ -90,15 +98,17 @@ public:
      * Returns an input object for backward 2D locally connected layer
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
+     * \DAAL_DEPRECATED
      */
-    data_management::TensorPtr get(LayerDataId id) const;
+    DAAL_DEPRECATED data_management::TensorPtr get(LayerDataId id) const;
 
     /**
      * Sets input for the backward 2D locally connected layer
      * \param[in] id    Identifier of the input  object
      * \param[in] value Input object to set
+     * \DAAL_DEPRECATED
      */
-    void set(LayerDataId id, const data_management::TensorPtr &value);
+    DAAL_DEPRECATED void set(LayerDataId id, const data_management::TensorPtr &value);
 
     /**
      * Checks an input object of the 2D locally connected layer
@@ -106,13 +116,15 @@ public:
      * \param[in] method    Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__LOCALLYCONNECTED2D__BACKWARD__RESULT"></a>
  * \brief Results obtained with the compute() method of the backward 2D locally connected layer
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public layers::backward::Result
 {
@@ -120,9 +132,13 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     /**
      * Default constructor
+     * \DAAL_DEPRECATED
      */
     Result();
 
+    /*
+     * \DAAL_DEPRECATED
+     */
     virtual ~Result() {}
 
     /**
@@ -142,6 +158,7 @@ public:
      * \param[in] method    Computation method
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -153,17 +170,24 @@ public:
      * \param[in] method  Computation method of the layer
      *
      * \return Status of computations
+     * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    /** \private */
+    /**
+     * \private
+     * \DAAL_DEPRECATED
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
-    void getBiasesDims(const Input *algInput, const Parameter *param, services::Collection<size_t> &bDims) const;
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED void getBiasesDims(const Input *algInput, const Parameter *param, services::Collection<size_t> &bDims) const;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 

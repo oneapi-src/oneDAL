@@ -88,17 +88,27 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MATH__RELU__INPUT"></a>
  * \brief %Input objects for the rectified linear function
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
     Input();
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     * \DAAL_DEPRECATED
+     */
     Input(const Input& other) : daal::algorithms::Input(other){}
 
-    virtual ~Input() {}
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     /**
      * Returns an input object for the rectified linear function
@@ -127,15 +137,22 @@ public:
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MATH__RELU__RESULT"></a>
  * \brief Results obtained with the compute() method of the rectified linear function in the batch processing mode
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    /** Default constructor */
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
     Result();
 
-    virtual ~Result() {};
+    /*
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual ~Result() {};
 
     /**
      * Allocates memory to store the result of the rectified linear function

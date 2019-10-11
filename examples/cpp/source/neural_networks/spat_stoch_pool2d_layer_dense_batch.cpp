@@ -26,6 +26,11 @@
  * \example spat_stoch_pool2d_layer_dense_batch.cpp
  */
 
+/*
+ * \DAAL_DEPRECATED
+ */
+#define DAAL_HIDE_DEPRECATED
+
 #include "daal.h"
 #include "service.h"
 

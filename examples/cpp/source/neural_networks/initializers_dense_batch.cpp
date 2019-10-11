@@ -25,6 +25,11 @@
  * \example initializers_dense_batch.cpp
  */
 
+/*
+ * \DAAL_DEPRECATED
+ */
+#define DAAL_HIDE_DEPRECATED
+
 #include "daal.h"
 #include "service.h"
 

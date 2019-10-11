@@ -79,6 +79,7 @@ namespace interface1
  * \brief Parameters for the softmax layer
  *
  * \snippet neural_networks/layers/softmax/softmax_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  *
  */
 /* [Parameter source code] */
@@ -88,12 +89,14 @@ public:
     /**
      *  Constructs parameters of the softmax layer
      *  \param[in] _dimension   Dimension index to calculate softmax
+     *  \DAAL_DEPRECATED
      */
     Parameter(size_t _dimension = 1);
 
     /**
      *  Constructs parameters of the softmax layer by copying another parameters of the softmax layer
      *  \param[in] other    Parameters of the softmax layer
+     *  \DAAL_DEPRECATED
      */
     Parameter(const Parameter &other);
 

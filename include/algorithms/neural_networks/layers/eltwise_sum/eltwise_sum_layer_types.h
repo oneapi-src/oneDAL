@@ -85,12 +85,14 @@ namespace interface1
  * \brief Parameters for the element-wise sum layer
  *
  * \snippet neural_networks/layers/eltwise_sum/eltwise_sum_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
 {
     /**
      * Constructs the parameters of the element-wise sum layer
+     * \DAAL_DEPRECATED
      */
     Parameter();
 };

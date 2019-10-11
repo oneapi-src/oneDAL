@@ -63,18 +63,23 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__TRAINING__RESULT"></a>
  * \brief Provides methods to access result obtained with the compute() method of the neural network training algorithm
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
 
+    /**
+     * \DAAL_DEPRECATED
+     */
     Result();
 
     /**
      * Returns the result of the neural network model based training
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
+       \DAAL_DEPRECATED
      */
     training::ModelPtr get(ResultId id) const;
 
@@ -82,8 +87,9 @@ public:
      * Sets the result of neural network model based training
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
+       \DAAL_DEPRECATED
      */
-    void set(ResultId id, const training::ModelPtr &value);
+    DAAL_DEPRECATED void set(ResultId id, const training::ModelPtr &value);
 
     /**
      * Registers user-allocated memory to store partial results of the neural network model based training
@@ -92,6 +98,7 @@ public:
      * \param[in] parameter %Parameter of the neural network training
      *
      * \return Status of computations
+       \DAAL_DEPRECATED
      */
     template<typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
@@ -104,10 +111,13 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
+    /**
+     * \DAAL_DEPRECATED
+     */
     template<typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive *arch)
     {

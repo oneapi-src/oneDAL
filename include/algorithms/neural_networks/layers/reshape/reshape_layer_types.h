@@ -84,12 +84,14 @@ namespace interface1
  * \brief Parameters for the reshape layer
  *
  * \snippet neural_networks/layers/reshape/reshape_layer_types.h Parameter source code
+ * \DAAL_DEPRECATED
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter: public layers::Parameter
 {
     /**
      * Constructs the parameters of the reshape layer
+     * \DAAL_DEPRECATED
      */
     Parameter();
 

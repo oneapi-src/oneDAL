@@ -66,6 +66,7 @@ namespace interface1
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NEURAL_NETWORKS__LAYERS__SPLIT__PARAMETER"></a>
  * \brief split layer parameters
+ * \DAAL_DEPRECATED
  */
 class DAAL_EXPORT Parameter: public layers::Parameter
 {
@@ -74,6 +75,7 @@ public:
     *  Constructs parameters of the forward split layer
     *  \param[in] nOutputs   Number of outputs for forward split layer
     *  \param[in] nInputs    Number of inputs for backward split layer
+     * \DAAL_DEPRECATED
     */
     Parameter(size_t nOutputs = 1, size_t nInputs = 1);
 
