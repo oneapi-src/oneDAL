@@ -152,7 +152,7 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, numRowsInBlock * numFeatures * sizeof(algorithmFPType), sizeof(algorithmFPType));
         tls.reset(new daal::tls<algorithmFPType *>([=]()
         {
-            return (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(numRowsInBlock * numFeatures *
+            return (algorithmFPType *)daal::services::internal::service_malloc<algorithmFPType, cpu>(numRowsInBlock * numFeatures *
                 sizeof(algorithmFPType));
         }));
         DAAL_CHECK_MALLOC(tls.get());
