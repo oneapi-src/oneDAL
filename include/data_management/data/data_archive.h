@@ -243,7 +243,7 @@ public:
      *  \param[in]  ptr  Pointer to the array that represents the data
      *  \param[in]  size Size of the data array
      */
-    DataArchive( byte *ptr, size_t size ) : minBlockSize(1024 * 16), minBlocksNum(16)
+    DataArchive( byte *ptr, size_t size ) : minBlockSize(1024 * 16), minBlocksNum(16), _errors(new services::ErrorCollection())
     {
         blockPtr           = 0;
         blockAllocatedSize = 0;
