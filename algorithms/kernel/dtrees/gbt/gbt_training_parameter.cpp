@@ -49,7 +49,7 @@ Parameter::Parameter() : splitMethod(defaultSplit), maxIterations(50), maxTreeDe
     minBinSize(5),
     maxBins(256),
     internalOptions(gbt::internal::parallelAll),
-    resultsToCompute(0)
+    varImportance(0)
 {
 }
 

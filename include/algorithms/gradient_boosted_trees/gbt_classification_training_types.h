@@ -69,14 +69,14 @@ enum LossFunctionType
     custom        /* custom function type */
 };
 
-enum OptionalResultNumericTableId
+enum ResultNumericTableId
 {
-    variableImportanceWeight = classifier::training::lastResultId + 1,
-    variableImportanceTotalCover,
-    variableImportanceCover,
-    variableImportanceTotalGain,
-    variableImportanceGain,
-    lastOptionalResultNumericTableId = variableImportanceGain
+    variableImportanceByWeight = classifier::training::lastResultId + 1,
+    variableImportanceByTotalCover,
+    variableImportanceByCover,
+    variableImportanceByTotalGain,
+    variableImportanceByGain,
+    lastResultNumericTableId = variableImportanceByGain
 };
 
 
@@ -158,14 +158,14 @@ public:
      * \param[in] id    Identifier of the result
      * \return          Result that corresponds to the given identifier
      */
-    data_management::NumericTablePtr get(OptionalResultNumericTableId id) const;
+    data_management::NumericTablePtr get(ResultNumericTableId id) const;
 
     /**
      * Sets the result of model-based training
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
      */
-    void set(OptionalResultNumericTableId id, const data_management::NumericTablePtr &value);
+    void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
 
     /**
      * Allocates memory to store final results of the LogitBoost training algorithm

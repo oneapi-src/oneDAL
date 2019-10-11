@@ -41,7 +41,7 @@ namespace training
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_GBT_REGRESSION_TRAINING_RESULT_ID);
-Result::Result() : algorithms::regression::training::Result(lastOptionalResultNumericTableId  + 1) {};
+Result::Result() : algorithms::regression::training::Result(lastResultNumericTableId  + 1) {};
 
 gbt::regression::ModelPtr Result::get(ResultId id) const
 {
@@ -54,12 +54,12 @@ void Result::set(ResultId id, const gbt::regression::ModelPtr &value)
     algorithms::regression::training::Result::set(algorithms::regression::training::ResultId(id), value);
 }
 
-data_management::NumericTablePtr Result::get(OptionalResultNumericTableId id) const
+data_management::NumericTablePtr Result::get(ResultNumericTableId id) const
 {
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void Result::set(OptionalResultNumericTableId id, const data_management::NumericTablePtr &value)
+void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr &value)
 {
     Argument::set(id, value);
 }
