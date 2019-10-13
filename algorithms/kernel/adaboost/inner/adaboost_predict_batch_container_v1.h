@@ -59,6 +59,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTablePtr a = input->get(classifier::prediction::data);
     adaboost::interface1::Model *m = static_cast<adaboost::interface1::Model *>(input->get(classifier::prediction::model).get());
     NumericTablePtr r = result->get(classifier::prediction::prediction);
+    DAAL_CHECK_MALLOC(_par)
     adaboost::interface1::Parameter *par = static_cast<adaboost::interface1::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
