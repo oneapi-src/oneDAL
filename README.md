@@ -5,6 +5,7 @@ Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) helps speed up big 
 
 ## Transition to Open Development model
 The development model for Intel(R) DAAL has changed, and now the public github.com repository is where the product development takes place. From now on, we will have transparent commit history, public CI and public review process. You will see more changes going forward! 
+
 Previous repository structure can be shared on request. Existing forks can be reused and will require only pull-down for master branch. Details on branching schema will be updated in the future.
 
 - [How to contribute](#how-to-contribute)
@@ -23,15 +24,14 @@ See [Intel(R) DAAL Release Notes](https://software.intel.com/en-us/articles/inte
 With the introduction of [daal4py](https://intelpython.github.io/daal4py/index.html), a package that supersedes PyDAAL, Intel is deprecating PyDAAL and will discontinue support starting with Intel(R) DAAL 2021 and Intel(R) Distribution for Python 2021. Until then Intel will continue to provide compatible pyDAAL [pip](https://pypi.org/project/pydaal/) and [conda](https://anaconda.org/intel/pydaal) packages for newer releases of Intel DAAL and make it available in open source. However, Intel will not add the new features of Intel DAAL to pyDAAL. Intel recommends developers switch to and use [daal4py](https://github.com/IntelPython/daal4py).
 
 ## How to Contribute
-We welcome community contributions to Intel DAAL. 
-If you have an idea how to improve the product, you can:
+We welcome community contributions to Intel DAAL. If you have an idea how to improve the product, you can:
 
 * Let us know about your proposal via [Issues on Intel(R) DAAL GitHub\*](https://github.com/intel/daal/issues) or [Intel(R) DAAL Forum](https://software.intel.com/en-us/forums/intel-data-analytics-acceleration-library).
 * Contribute your changes directly to the repository through [pull request](#pull-requests). 
 
 ### Pull Requests
 
-If you want to contribute directly, do the following:
+To contribute your changes directly to the repository, do the following:
 - Make sure you can build the product and run all the examples with your patch.
 - For a larger feature, provide a relevant example.
 - [Submit](https://github.com/intel/daal/pulls) a pull request.
@@ -43,14 +43,14 @@ Intel DAAL is licensed under [Apache License, Version 2.0](http://www.apache.org
 ## System Requirements
 Intel DAAL supports the IA-32 and Intel(R) 64 architectures. For a detailed explanation of these architecture names, read the [Intel Architecture Platform Terminology for Development Tools](https://software.intel.com/en-us/articles/intel-architecture-platform-terminology-for-development-tools) article.
 
-The list of supported Operating Systems and tools may be found at [Intel DAAL web site](https://software.intel.com/en-us/articles/intel-daal-2019-system-requirements). It contains system requirements necessary to support application development with Intel DAAL. We tested Intel DAAL on the operating systems and with the compilers listed there, but Intel DAAL is expected to work on many more Linux\* distributions as well.
+The list of supported operating systems and tools may be found at [Intel DAAL web site](https://software.intel.com/en-us/articles/intel-daal-2019-system-requirements). It contains system requirements necessary to support application development with Intel DAAL. We tested Intel DAAL on the operating systems and with the compilers listed there, but Intel DAAL is expected to work on many more Linux\* distributions as well.
 
-Let us know if you have any troubles with the distribution you are using.
+Let us know if you have any problems with the distribution you are using.
 
 ## Installation
 You can install Intel DAAL from the provided binary packages or from the GitHub\* sources.
 
-For platform-specific getting started documents, see the following pages:
+For platform-specific get started guides, see the following pages:
 
 * [Get Started with Intel(R) Data Analytics Acceleration Library for Windows*](https://software.intel.com/en-us/get-started-with-daal-for-windows)
 * [Get Started with Intel(R) Data Analytics Acceleration Library for Linux*](https://software.intel.com/en-us/get-started-with-daal-for-linux)
@@ -130,12 +130,12 @@ Required Software:
 
     - **Windows\***:
         - Download and install free Community License Intel TBB (see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2)) or build your own Intel TBB from [Intel(R) TBB GitHub repository](https://github.com/intel/tbb).
-        - Set an environment variables for Intel TBB. For example:
+        - Set environment variables for Intel TBB. For example:
 
                 call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\tbb\bin\tbbvars.bat" intel64 all
 
     - **Linux/macOS\***:
-        - Use pre-build package or build TBB on your own. Or simply use scripts to dothis for you:
+        - Use pre-build package or build Intel TBB on your own. Alternatively, you can use scripts to do this for you:
 
                 scripts/tbb.sh [32|32e]
 
@@ -165,7 +165,7 @@ Required Software:
 
             make -f makefile daal PLAT=win32e COMPILER=vc
 
-It is possible to build Intel DAAL libraries with selected set of algorithms and/or CPU optimizations. `CORE.ALGORITHMS.CUSTOM` and `REQCPU` makefile defines are used for it.
+It is possible to build Intel DAAL libraries with the pre-selected set of algorithms and/or CPU optimizations. To do this, use `CORE.ALGORITHMS.CUSTOM` and `REQCPU` flags defined in makefile. See examples below.
 
 - To build DAAL with Linear Regression and Support Vector Machine algorithms, run:
 
@@ -181,8 +181,10 @@ It is possible to build Intel DAAL libraries with selected set of algorithms and
 
             make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=low_order_moments REQCPU=avx2 -j16
 
+---
+**NOTE:** Built libraries are located in the `__release_{os_name}/daal` directory.
 
-Built libraries are located in the `__release_{os_name}/daal` directory.
+---
 
 ## Python*
 Intel DAAL can also be used with Python\* interfaces. Use [daal4py conda package](https://anaconda.org/intel/daal4py). See [PyDAAL Deprecation Notice](#deprecation-notice) for more information.
