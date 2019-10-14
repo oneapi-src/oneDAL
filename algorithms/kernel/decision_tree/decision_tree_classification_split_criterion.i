@@ -571,6 +571,8 @@ protected:
     {
         services::internal::service_scalable_free<ValueType, cpu>(_tempP);
         services::internal::service_scalable_free<ValueType, cpu>(_tempLg);
+        _tempP = nullptr;
+        _tempLg = nullptr;
     }
 
 private:
@@ -707,6 +709,8 @@ protected:
     {
         services::internal::service_scalable_free<ValueType, cpu>(_tempP);
         services::internal::service_scalable_free<ValueType, cpu>(_tempLg);
+        _tempP = nullptr;
+        _tempLg = nullptr;
     }
 
 private:

@@ -62,6 +62,7 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeImp
     learnerInput->set(classifier::prediction::data, xTable);
 
     classifier::prediction::ResultPtr predictionRes(new classifier::prediction::Result());
+    DAAL_CHECK_MALLOC(predictionRes.get())
     predictionRes->set(classifier::prediction::prediction, rWeakTable);
     DAAL_CHECK_STATUS(s, learnerPredict->setResult(predictionRes));
 
@@ -146,6 +147,7 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
     learnerInput->set(classifier::prediction::data, xTable);
 
     classifier::prediction::ResultPtr predictionRes(new classifier::prediction::Result());
+    DAAL_CHECK_MALLOC(predictionRes.get())
     DAAL_CHECK_STATUS(s, learnerPredict->setResult(predictionRes));
 
     const size_t nCols = (method == samme) ? 1 : nClasses;
