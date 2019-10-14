@@ -240,7 +240,11 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeRmsVariance(const 
     DAAL_CHECK_BLOCK_STATUS(varBD);
     algorithmFPType *pVar = varBD.get();
 
-    for(size_t j = 0; j < k; pRms[j] = 0, pVar[j] = 0, ++j);
+    for (size_t j = 0; j < k; ++j)
+    {
+        pRms[j] = 0;
+        pVar[j] = 0;
+    }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, k, sizeof(algorithmFPType));
 
