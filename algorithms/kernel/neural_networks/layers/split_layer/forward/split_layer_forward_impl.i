@@ -59,7 +59,6 @@ services::Status SplitKernel<algorithmFPType, method, cpu>::compute(Tensor *inpu
     nBlocks += (nBlocks * _nRowsInBlock != nInputRows);
 
     SafeStatus safeStat;
-    int result = 0;
     for(int i = 0; i < nOutputs; i++)
     {
         Tensor *resultTensor = resultTensors[i];
@@ -85,7 +84,7 @@ services::Status SplitKernel<algorithmFPType, method, cpu>::compute(Tensor *inpu
                 algorithmFPType *resultArray = resultMklTensor->getDnnArray();
 
                 size_t inputSize = dnn::xLayoutGetMemorySize(inputLayout);
-                result |= services::daal_memcpy_s(resultArray, inputSize, inputArray, inputSize);
+                daal::services::internal::daal_memcpy_s(resultArray, inputSize, inputArray, inputSize);
 
                 dnn::xDelete(splitPrim);
             }
@@ -108,7 +107,7 @@ services::Status SplitKernel<algorithmFPType, method, cpu>::compute(Tensor *inpu
             }
         }
     }
-    return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
+    return Status();
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>

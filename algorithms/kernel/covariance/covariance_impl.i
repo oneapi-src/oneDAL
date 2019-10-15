@@ -61,7 +61,7 @@ services::Status prepareSums(NumericTable *dataTable, algorithmFPType *sums)
         DEFINE_TABLE_BLOCK( ReadRows, userSumsBlock, dataSumsTable );
 
         const size_t nFeaturesSize = nFeatures * sizeof(algorithmFPType);
-        result = daal_memcpy_s(sums, nFeaturesSize, userSumsBlock.get(), nFeaturesSize);
+        result = daal::services::internal::daal_memcpy_s(sums, nFeaturesSize, userSumsBlock.get(), nFeaturesSize);
     }
     else
     {

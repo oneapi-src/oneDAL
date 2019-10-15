@@ -951,7 +951,8 @@ protected:
             {
                 if( (T*)block.getBlockPtr() != (T *)location )
                 {
-                    int result = daal::services::daal_memcpy_s(location, nrows * ncols * sizeof(T), block.getBlockPtr(), nrows * ncols * sizeof(T));
+                    int result = daal::services::internal::daal_memcpy_s(location, nrows * ncols * sizeof(T),
+                                                                         block.getBlockPtr(), nrows * ncols * sizeof(T));
                     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
                 }
             }

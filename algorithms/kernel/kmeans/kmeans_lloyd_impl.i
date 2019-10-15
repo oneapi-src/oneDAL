@@ -553,8 +553,8 @@ Status task_t<algorithmFPType, cpu>::kmeansComputeCentroidsCandidates(algorithmF
             }
         }
         cNum = cPos + lcPos;
-        result |= daal::services::daal_memcpy_s(cValues, cNum * sizeof(algorithmFPType), tmpValuesPtr, cNum * sizeof(algorithmFPType));
-        result |= daal::services::daal_memcpy_s(cIndices, cNum * sizeof(size_t), tmpIndicesPtr, cNum * sizeof(size_t));
+        result |= daal::services::internal::daal_memcpy_s(cValues, cNum * sizeof(algorithmFPType), tmpValuesPtr, cNum * sizeof(algorithmFPType));
+        result |= daal::services::internal::daal_memcpy_s(cIndices, cNum * sizeof(size_t), tmpIndicesPtr, cNum * sizeof(size_t));
     } );
 
     return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);

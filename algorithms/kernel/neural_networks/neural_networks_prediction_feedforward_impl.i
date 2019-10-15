@@ -79,7 +79,6 @@ template<typename algorithmFPType, Method method, CpuType cpu>
 Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::compute(const Input *input, Result *result)
 {
     Status s;
-    int resultMemcpy = 0;
     ForwardLayersPtr forwardLayers = input->get(prediction::model)->getLayers();
     TensorPtr data = input->get(prediction::data);
     if (nSamples < batchSize) { return s; }
@@ -125,10 +124,10 @@ Status NeuralNetworksFeedforwardPredictionKernel<algorithmFPType, method, cpu>::
             DAAL_CHECK_BLOCK_STATUS(predictions[j])
 
             size_t blockSize = lastLayerResults[j].getSize() * sizeof(algorithmFPType);
-            resultMemcpy |= daal_memcpy_s(predictionArray, blockSize, lastLayerResultArray, blockSize);
+            daal::services::internal::daal_memcpy_s(predictionArray, blockSize, lastLayerResultArray, blockSize);
         }
     }
-    return (!resultMemcpy) ? s : Status(ErrorMemoryCopyFailedInternal);
+    return s;
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>

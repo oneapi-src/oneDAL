@@ -58,7 +58,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
     const HostAppIfacePtr& pHost, const NumericTablePtr& x, const NumericTablePtr& y,
     lasso_regression::Model& m, Result& res, const Parameter& par, services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> >& objFunc)
 {
-    services::Status s{services::Status()};
+    services::Status s;
     const size_t nFeatures = x->getNumberOfColumns();
     const size_t nRows = x->getNumberOfRows();
     const size_t p = nFeatures + 1;
@@ -95,8 +95,9 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
             DAAL_CHECK_BLOCK_STATUS(yBD);
             algorithmFPType* xPtr = xBD.get();
             algorithmFPType* yPtr = yBD.get();
-            result |= daal_memcpy_s(xTrainPtr, nFeatures * nRows * sizeof(algorithmFPType), xPtr, nFeatures * nRows * sizeof(algorithmFPType));
-            result |= daal_memcpy_s(yTrainPtr, nDependentVariables * nRows * sizeof(algorithmFPType), yPtr,
+            result |= daal::services::internal::daal_memcpy_s(xTrainPtr, nFeatures * nRows * sizeof(algorithmFPType),
+                                              xPtr, nFeatures * nRows * sizeof(algorithmFPType));
+            result |= daal::services::internal::daal_memcpy_s(yTrainPtr, nDependentVariables * nRows * sizeof(algorithmFPType), yPtr,
                                     nDependentVariables * nRows * sizeof(algorithmFPType));
             DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
         }

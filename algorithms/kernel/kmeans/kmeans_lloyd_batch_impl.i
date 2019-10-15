@@ -153,7 +153,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                 newCentersGoalFunc += cValues[cPos];
                 ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices[cPos], 1);
                 const algorithmFPType *row = mtRow.get();
-                result |= daal::services::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
+                result |= daal::services::internal::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
                 cPos++;
             }
         }

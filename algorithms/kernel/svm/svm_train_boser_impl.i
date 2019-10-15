@@ -798,7 +798,8 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterT
     DAAL_ASSERT(_cache);
     ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, 0, _nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtY);
-    int result = daal::services::daal_memcpy_s(_y.get(), _nVectors * sizeof(algorithmFPType), mtY.get(), _nVectors * sizeof(algorithmFPType));
+    int result = daal::services::internal::daal_memcpy_s(_y.get(), _nVectors * sizeof(algorithmFPType),
+                                                         mtY.get(), _nVectors * sizeof(algorithmFPType));
     return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
@@ -912,9 +913,10 @@ Status SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(
 
         /* Swap i-th and j-th row in cache */
         size_t lineSizeInBytes = _lineSize * sizeof(algorithmFPType);
-        result |= daal::services::daal_memcpy_s(_tmp.get(), lineSizeInBytes, _cache.get() + i * _lineSize, lineSizeInBytes);
-        result |= daal::services::daal_memcpy_s(_cache.get() + i * _lineSize, lineSizeInBytes, _cache.get() + j * _lineSize, lineSizeInBytes);
-        result |= daal::services::daal_memcpy_s(_cache.get() + j * _lineSize, lineSizeInBytes, _tmp.get(), lineSizeInBytes);
+        result |= daal::services::internal::daal_memcpy_s(_tmp.get(), lineSizeInBytes, _cache.get() + i * _lineSize, lineSizeInBytes);
+        result |= daal::services::internal::daal_memcpy_s(_cache.get() + i * _lineSize,
+                                                          lineSizeInBytes, _cache.get() + j * _lineSize, lineSizeInBytes);
+        result |= daal::services::internal::daal_memcpy_s(_cache.get() + j * _lineSize, lineSizeInBytes, _tmp.get(), lineSizeInBytes);
 
         /* Swap i-th and j-th column in cache */
         for (size_t k = 0; k < _nLines; k++)

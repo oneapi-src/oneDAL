@@ -41,7 +41,7 @@ services::Status LowOrderMomentsDistributedKernel<algorithmFPType, method, cpu>:
             data_management::DataCollection *partialResultsCollection,
             PartialResult *partialResult, const Parameter *parameter)
 {
-    services::Status status{services::Status()};
+    services::Status status;
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, partialResultsCollection->size(), sizeof(int));
 

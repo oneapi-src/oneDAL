@@ -71,12 +71,13 @@ services::Status I1SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAp
             const algorithmFPType *startValueArray = startValueBD.get();
             if( minArray != startValueArray )
             {
-                result |= daal_memcpy_s(minArray, nRowsInBlock * sizeof(algorithmFPType),
-                                        startValueArray, nRowsInBlock * sizeof(algorithmFPType));
+                int result = daal::services::internal::daal_memcpy_s(minArray, nRowsInBlock * sizeof(algorithmFPType),
+                                           startValueArray, nRowsInBlock * sizeof(algorithmFPType));
+                if (result)
+                    safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
             }
         });
         DAAL_CHECK_SAFE_STATUS();
-        DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
 
     const size_t nIter = parameter->nIterations;

@@ -30,6 +30,7 @@
 #include <sqlext.h>
 
 #include "services/daal_memory.h"
+
 #include "data_management/data_source/data_source.h"
 #include "data_management/data/data_dictionary.h"
 #include "data_management/data/numeric_table.h"
@@ -391,19 +392,18 @@ public:
             ntCurrent->getBlockOfRows(0, rows, readOnly, blockCurrent);
             nt->getBlockOfRows(pos, rows, writeOnly, block);
 
-            result |= services::daal_memcpy_s(block.getBlockPtr(),        rows * ncols * sizeof(DAAL_DATA_TYPE),
-                                    blockCurrent.getBlockPtr(), rows * ncols * sizeof(DAAL_DATA_TYPE));
-            if (result)
-            {
-                this->_status.add(services::throwIfPossible(services::ErrorMemoryCopyFailedInternal));
-                break;
-            }
+            result |= services::internal::daal_memcpy_s(block.getBlockPtr(),        rows * ncols * sizeof(DAAL_DATA_TYPE),
+                                                        blockCurrent.getBlockPtr(), rows * ncols * sizeof(DAAL_DATA_TYPE));
 
             ntCurrent->releaseBlockOfRows(blockCurrent);
             nt->releaseBlockOfRows(block);
 
             super::combineStatistics( ntCurrent, nt, pos == 0);
             pos += rows;
+        }
+        if (result)
+        {
+            this->_status.add(services::throwIfPossible(services::ErrorMemoryCopyFailedInternal));
         }
 
         NumericTableDictionaryPtr ntDict = nt->getDictionarySharedPtr();

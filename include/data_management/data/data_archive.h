@@ -28,6 +28,7 @@
 #include "services/library_version_info.h"
 #include "services/daal_memory.h"
 #include "services/collection.h"
+
 #include "data_management/data/data_block.h"
 #include "data_management/data/factory.h"
 #include "data_management/data/data_serialize.h"
@@ -258,7 +259,7 @@ public:
 
         addBlock( size );
 
-        int result = daal::services::daal_memcpy_s(blockPtr[currentWriteBlock], size, ptr, size);
+        int result = daal::services::internal::daal_memcpy_s(blockPtr[currentWriteBlock], size, ptr, size);
         if (result)
         {
             this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -299,7 +300,7 @@ public:
 
         size_t offset = blockOffset[currentWriteBlock];
 
-        int result = daal::services::daal_memcpy_s(&(blockPtr[currentWriteBlock][offset]), alignedSize, ptr, size);
+        int result = daal::services::internal::daal_memcpy_s(&(blockPtr[currentWriteBlock][offset]), alignedSize, ptr, size);
         if (result)
         {
             this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -322,7 +323,7 @@ public:
             return;
         }
 
-        int result = daal::services::daal_memcpy_s(ptr, size, &(blockPtr[currentReadBlock][currentReadBlockOffset]), size);
+        int result = daal::services::internal::daal_memcpy_s(ptr, size, &(blockPtr[currentReadBlock][currentReadBlockOffset]), size);
         if (result)
         {
             this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -399,7 +400,7 @@ public:
         {
             size_t blockSize = blockOffset[i];
 
-            result |= daal::services::daal_memcpy_s(&(ptr[offset]), blockSize, blockPtr[i], blockSize);
+            result |= daal::services::internal::daal_memcpy_s(&(ptr[offset]), blockSize, blockPtr[i], blockSize);
 
             offset += blockSize;
         }
@@ -438,10 +439,10 @@ protected:
 
             if( blockPtr == 0 || blockAllocatedSize == 0 || blockOffset == 0 ) { return; }
 
-            result |= daal::services::daal_memcpy_s(blockPtr, arraysSize * sizeof(byte *), oldBlockPtr, arraysSize * sizeof(byte *));
-            result |= daal::services::daal_memcpy_s(blockAllocatedSize, arraysSize * sizeof(size_t),
-                                                    oldBlockAllocatedSize, arraysSize * sizeof(size_t));
-            result |= daal::services::daal_memcpy_s(blockOffset, arraysSize * sizeof(size_t), oldBlockOffset, arraysSize * sizeof(size_t));
+            result |= daal::services::internal::daal_memcpy_s(blockPtr, arraysSize * sizeof(byte *), oldBlockPtr, arraysSize * sizeof(byte *));
+            result |= daal::services::internal::daal_memcpy_s(blockAllocatedSize, arraysSize * sizeof(size_t),
+                                                              oldBlockAllocatedSize, arraysSize * sizeof(size_t));
+            result |= daal::services::internal::daal_memcpy_s(blockOffset, arraysSize * sizeof(size_t), oldBlockOffset, arraysSize * sizeof(size_t));
             if (result)
             {
                 this->_errors->add(services::ErrorMemoryCopyFailedInternal);

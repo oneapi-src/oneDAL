@@ -120,7 +120,7 @@ Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, 
     if (nFeatures == _nBetasIntercept)
     {
         const size_t xSize = nFeatures * nRows * sizeof(algorithmFPType);
-        result |= daal_memcpy_s(qrBuffer.get(), xSize, x, xSize);
+        result |= daal::services::internal::daal_memcpy_s(qrBuffer.get(), xSize, x, xSize);
     }
     else
     {
@@ -128,7 +128,7 @@ Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, 
         algorithmFPType *qr = qrBuffer.get();
         for (size_t i = 0; i < nRows; i++)
         {
-            result |= daal_memcpy_s(qr + i * _nBetasIntercept, rowSize, x + i * nFeatures, rowSize);
+            result |= daal::services::internal::daal_memcpy_s(qr + i * _nBetasIntercept, rowSize, x + i * nFeatures, rowSize);
             qr[i * _nBetasIntercept + _nBetasIntercept - 1] = 1.0;
         }
     }
@@ -139,7 +139,7 @@ Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, 
 
     /* Copy matrix Y to temporary buffer in order not to damage it */
     const size_t ySize = _nResponses * nRows * sizeof(algorithmFPType);
-    result |= daal_memcpy_s(qtyBuffer.get(), ySize, y, ySize);
+    result |= daal::services::internal::daal_memcpy_s(qtyBuffer.get(), ySize, y, ySize);
 
     return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }

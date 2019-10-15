@@ -188,7 +188,7 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::default
     DAAL_ASSERT(x);
     DAAL_ASSERT(y);
     DAAL_ASSERT(r);
-    services::Status status{services::Status()};
+    services::Status status;
     const decision_tree::regression::Parameter * const parameter = static_cast<const decision_tree::regression::Parameter *>(par);
     DAAL_ASSERT(parameter);
 
