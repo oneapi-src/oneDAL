@@ -50,7 +50,6 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
     const DAAL_INT nBetas    (betaTable.getNumberOfColumns());
     const DAAL_INT nResponses(betaTable.getNumberOfRows());
     const DAAL_INT nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
-    int result = 0;
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nResponses, nBetasIntercept);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nResponses * nBetasIntercept, sizeof(algorithmFPType));
@@ -71,6 +70,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
 
             if (&rTable != &rFinalTable || &qtyTable != &qtyFinalTable)
             {
+                int result = 0;
                 WriteOnlyRowsType rFinalBlock(rFinalTable, 0, nBetasIntercept);
                 DAAL_CHECK_BLOCK_STATUS(rFinalBlock);
                 algorithmFPType *rFinal = rFinalBlock.get();
@@ -82,8 +82,8 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &rTable,
                 const size_t   rSizeInBytes(sizeof(algorithmFPType) * nBetasIntercept * nBetasIntercept);
                 const size_t qtySizeInBytes(sizeof(algorithmFPType) * nBetasIntercept * nResponses);
 
-                result |= daal_memcpy_s(  rFinal,   rSizeInBytes,   r,   rSizeInBytes);
-                result |= daal_memcpy_s(qtyFinal, qtySizeInBytes, qty, qtySizeInBytes);
+                result |= daal::services::internal::daal_memcpy_s(  rFinal,   rSizeInBytes,   r,   rSizeInBytes);
+                result |= daal::services::internal::daal_memcpy_s(qtyFinal, qtySizeInBytes, qty, qtySizeInBytes);
                 DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
             }
 

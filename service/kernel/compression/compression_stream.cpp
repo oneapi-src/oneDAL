@@ -215,8 +215,8 @@ void CompressionStream::push_back(DataBlock *block)
             size_t tmpOffset = (*(CBC *)_blocks)[_writePos]->getWriteOffset();
             byte *blockPtr = block->getPtr();
 
-            int result = daal::services::daal_memcpy_s((void *)(tmpPtr + tmpOffset), inSize, (void *)blockPtr, inSize);
-            if ( block->getPtr() == NULL )
+            int result = daal::services::internal::daal_memcpy_s((void *)(tmpPtr + tmpOffset), inSize, (void *)blockPtr, inSize);
+            if (result)
             {
                 this->_errors->add(services::ErrorMemoryCopyFailedInternal);
                 return;
@@ -244,7 +244,12 @@ void CompressionStream::push_back(DataBlock *block)
         byte *tmpPtr = tmpBlock->getPtr();
         byte *blockPtr = block->getPtr();
 
-        daal::services::daal_memcpy_s((void *)tmpPtr, inSize, (void *)blockPtr, inSize);
+        int result = daal::services::internal::daal_memcpy_s((void *)tmpPtr, inSize, (void *)blockPtr, inSize);
+        if (result)
+        {
+            this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+            return;
+        }
 
         tmpBlock->setWriteOffset(inSize);
         (*(CBC *)_blocks).push_back(CompressionBlockPtr(tmpBlock));
@@ -309,12 +314,12 @@ size_t CompressionStream::copyCompressedArray(byte *ptr, size_t size)
     size_t readSize = 0;
     size_t leftSize = size;
     byte *tmpPtr;
+    int result = 0;
 
     if(_readPos == (*(CBC *)_blocks).size())
     {
         return readSize;
     }
-
     do
     {
         compressBlock(_readPos);
@@ -330,7 +335,7 @@ size_t CompressionStream::copyCompressedArray(byte *ptr, size_t size)
 
         size_t rs = leftSize > availSize ? availSize : leftSize;
 
-        daal::services::daal_memcpy_s((void *)(ptr + readSize), rs, (void *)tmpPtr, rs);
+        result |= daal::services::internal::daal_memcpy_s((void *)(ptr + readSize), rs, (void *)tmpPtr, rs);
 
         (*(CBC *)_blocks)[_readPos]->setReadOffset((*(CBC *)_blocks)[_readPos]->getReadOffset() + rs);
 
@@ -345,6 +350,11 @@ size_t CompressionStream::copyCompressedArray(byte *ptr, size_t size)
 
     }
     while(readSize < size && _readPos < (*(CBC *)_blocks).size());
+
+    if (result)
+    {
+        this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+    }
 
     if((*(CBC *)_blocks).size())
     {
@@ -494,6 +504,7 @@ size_t DecompressionStream::copyDecompressedArray(byte *ptr, size_t size)
     size_t readSize = 0;
     size_t leftSize = size;
     byte *tmpPtr;
+    int result = 0;
 
     if(_readPos == (*(CBC *)_blocks).size())
     {
@@ -515,7 +526,7 @@ size_t DecompressionStream::copyDecompressedArray(byte *ptr, size_t size)
 
         size_t rs = leftSize > availSize ? availSize : leftSize;
 
-        daal::services::daal_memcpy_s((void *)(ptr + readSize), rs, (void *)tmpPtr, rs);
+        result |= daal::services::internal::daal_memcpy_s((void *)(ptr + readSize), rs, (void *)tmpPtr, rs);
 
         (*(CBC *)_blocks)[_readPos]->setReadOffset((*(CBC *)_blocks)[_readPos]->getReadOffset() + rs);
 
@@ -530,6 +541,11 @@ size_t DecompressionStream::copyDecompressedArray(byte *ptr, size_t size)
 
     }
     while(readSize < size && _readPos < (*(CBC *)_blocks).size());
+
+    if (result)
+    {
+        this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+    }
 
     return readSize;
 }

@@ -149,7 +149,7 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
         {
             ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices.get()[i], 1);
             const algorithmFPType *row = mtRow.get();
-            result |= daal::services::daal_memcpy_s(&cCentroids[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
+            result |= daal::services::internal::daal_memcpy_s(&cCentroids[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
         }
         for (size_t i = cNum; i < nClusters; i++)
         {

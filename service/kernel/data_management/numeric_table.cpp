@@ -145,7 +145,7 @@ daal::data_management::NumericTablePtr                                          
                                                                                                                                               \
     BlockDescriptor<T> block;                                                                                                                 \
     src.getBlockOfRows(0, nrows, readOnly, block);                                                                                            \
-    daal_memcpy_s(dst->getArray(), nrows * ncols * sizeof(T), block.getBlockPtr(), nrows * ncols * sizeof(T));                                \
+    daal::services::internal::daal_memcpy_s(dst->getArray(), nrows * ncols * sizeof(T), block.getBlockPtr(), nrows * ncols * sizeof(T));      \
     src.releaseBlockOfRows(block);                                                                                                            \
                                                                                                                                               \
     return dst;                                                                                                                               \

@@ -117,6 +117,8 @@ struct SGDMiniBatchTask
     size_t startIteration;
     size_t nProceededIters;
 
+    services::Status _status;
+
     int             *nProceededIterations;
     const algorithmFPType *learningRateArray;
     const algorithmFPType *consCoeffsArray;

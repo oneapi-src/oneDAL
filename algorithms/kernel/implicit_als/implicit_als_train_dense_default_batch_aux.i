@@ -62,7 +62,7 @@ services::Status ImplicitALSTrainTaskBase<algorithmFPType, cpu>::init(const Nume
     DAAL_CHECK_BLOCK_STATUS(mtInitItemsFactors);
     if(mtItemsFactors.get() != mtInitItemsFactors.get())
     {
-        result = daal::services::daal_memcpy_s(mtItemsFactors.get(), nItems * nFactors * sizeof(algorithmFPType),
+        result = daal::services::internal::daal_memcpy_s(mtItemsFactors.get(), nItems * nFactors * sizeof(algorithmFPType),
             mtInitItemsFactors.get(), nItems * nFactors * sizeof(algorithmFPType));
     }
     return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);

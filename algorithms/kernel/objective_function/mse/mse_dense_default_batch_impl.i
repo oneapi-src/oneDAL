@@ -169,7 +169,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     residual.reset(nDataRows * yDim);
                     residualPtr = residual.get();
 
-                    result |= daal_memcpy_s(residualPtr, n * yDim * sizeof(algorithmFPType), Y, n * yDim * sizeof(algorithmFPType));
+                    result |= daal::services::internal::daal_memcpy_s(residualPtr, n * yDim * sizeof(algorithmFPType), Y, n * yDim * sizeof(algorithmFPType));
                     size_t compute_matrix = 0;
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
