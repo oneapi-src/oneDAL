@@ -109,9 +109,7 @@ public:
         else
         {
             _s = services::Status(services::ErrorIncorrectParameter);
-            _modelPtr->getBeta()->releaseBlockOfRows(pBlock);
             services::throwIfPossible(_s);
-            return;
         }
         _modelPtr->getBeta()->releaseBlockOfRows(pBlock);
     }

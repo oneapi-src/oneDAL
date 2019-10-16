@@ -153,7 +153,11 @@ services::Status GroupOfBetasKernel<method, algorithmFPType, cpu>::compute(
         WriteRows<algorithmFPType, cpu> regSSBD(*out[regSS], 0, 1);
         DAAL_CHECK_BLOCK_STATUS(regSSBD);
         algorithmFPType *pRegSS = regSSBD.get();
-        for(size_t j = 0; j < k; pRegSS[j] = 0, pTSS[j] = 0, ++j);
+        for (size_t j = 0; j < k; ++j)
+        {
+            pRegSS[j] = 0;
+            pTSS[j] = 0;
+        }
 
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, k, 2);
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, 2 * k, sizeof(algorithmFPType));

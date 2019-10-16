@@ -56,6 +56,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     classifier::prediction::Input *input = static_cast<classifier::prediction::Input *>(_in);
     classifier::prediction::Result *result = static_cast<classifier::prediction::Result *>(_res);
+    DAAL_CHECK_MALLOC(_par)
     const Parameter *par = static_cast<Parameter *>(_par);
 
     NumericTable *a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
