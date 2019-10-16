@@ -4,9 +4,9 @@
 Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) helps speed up big data analysis by providing highly optimized algorithmic building blocks for all stages of data analytics (preprocessing, transformation, analysis, modeling, validation, and decision making) in batch, online, and distributed processing modes of computation.
 
 ## Transition to Open Development model
-The development model for Intel(R) DAAL has changed, and now the public github.com repository is where the product development takes place. From now on, we will have transparent commit history, public CI and public review process. You will see more changes going forward! 
+The development model for Intel(R) DAAL has changed, and now the public GitHub* repository is where the product development takes place. From now on, we will have transparent commit history, public CI and public review process. You will see more changes going forward! 
 
-Previous repository structure can be shared on request. Existing forks can be reused and will require only pull-down for master branch. Details on branching schema will be updated in the future.
+We can share previous repository structure with you on request. Existing forks can be reused and only require pull-down for master branch. Details on branching schema will be updated in the future.
 
 - [How to contribute](#how-to-contribute)
 - [System Requirements](#system-requirements)
@@ -15,7 +15,7 @@ Previous repository structure can be shared on request. Existing forks can be re
     - [Installation from Sources](#installation-from-sources)
 
 ## License
-Intel DAAL is licensed under Apache License 2.0.
+Intel(R) DAAL is licensed under Apache License 2.0.
 
 ## Online Release Notes and Documentation
 See [Intel(R) DAAL Release Notes](https://software.intel.com/en-us/articles/intel-daal-release-notes-and-new-features) to find information on what's new in each release. Go to [Intel(R) Data Analytics Acceleration Library Documentation](https://software.intel.com/en-us/intel-daal-support/documentation) web page to find the latest documentation.
@@ -36,14 +36,14 @@ To contribute your changes directly to the repository, do the following:
 - For a larger feature, provide a relevant example.
 - [Submit](https://github.com/intel/daal/pulls) a pull request.
 
-Public and private CIs are enabled for Intel DAAL repository. Your PR should pass all of our checks. We will review your contribution and, if any additional fixes or modifications are necessary, may give some feedback to guide you. When accepted, your pull request will be merged into GitHub* repository.
+Public and private CIs are enabled for Intel DAAL repository. Your PR should pass all of our checks. We will review your contribution and, if any additional fixes or modifications are necessary, we may give some feedback to guide you. When accepted, your pull request will be merged into GitHub* repository.
 
 Intel DAAL is licensed under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). By contributing to the project, you agree to the license and copyright terms therein and release your contribution under these terms.
 
 ## System Requirements
 Intel DAAL supports the IA-32 and Intel(R) 64 architectures. For a detailed explanation of these architecture names, read the [Intel Architecture Platform Terminology for Development Tools](https://software.intel.com/en-us/articles/intel-architecture-platform-terminology-for-development-tools) article.
 
-The list of supported operating systems and tools may be found at [Intel DAAL web site](https://software.intel.com/en-us/articles/intel-daal-2019-system-requirements). It contains system requirements necessary to support application development with Intel DAAL. We tested Intel DAAL on the operating systems and with the compilers listed there, but Intel DAAL is expected to work on many more Linux\* distributions as well.
+Go to the [Intel DAAL System Requirements](https://software.intel.com/en-us/articles/intel-daal-2019-system-requirements) page to find the list of supported operating systems and tools. The list contains system requirements necessary to support application development with Intel DAAL. We tested Intel DAAL on the operating systems and with the compilers listed there, but Intel DAAL is expected to work on many more Linux\* distributions as well.
 
 Let us know if you have any problems with the distribution you are using.
 
@@ -78,7 +78,7 @@ Required Software:
         git clone --recursive https://github.com/intel/daal.git
 
 
-2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only); for example:
+2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only). For example:
 
         set PATH=C:\msys64\usr\bin;%PATH%
 
@@ -192,3 +192,21 @@ Intel DAAL can also be used with Python\* interfaces. Use [daal4py conda package
 ## See Also
 * [Intel(R) DAAL Product Page](https://software.intel.com/en-us/intel-daal)
 * [Intel(R) DAAL Forum](https://software.intel.com/en-us/forums/intel-data-analytics-acceleration-library)
+
+## Legal Information
+
+No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document. Intel disclaims all express and implied warranties, including without limitation, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement, as well as any warranty arising from course of performance, course of dealing, or usage in trade.
+
+This document contains information on products, services and/or processes in development. All information provided here is subject to change without notice. Contact your Intel representative to obtain the latest forecast, schedule, specifications and roadmaps.
+
+The products and services described may contain defects or errors known as errata which may cause deviations from published specifications. Current characterized errata are available on request.
+
+Intel, and the Intel logo are trademarks of Intel Corporation in the U.S. and/or other countries.
+
+\*Other names and brands may be claimed as the property of others.
+
+© 2019 Intel Corporation.
+
+|Optimization Notice|
+|:------------------|
+|Intel's compilers may or may not optimize to the same degree for non-Intel microprocessors for optimizations that are not unique to Intel microprocessors. These optimizations include SSE2, SSE3, and SSSE3 instruction sets and other optimizations. Intel does not guarantee the availability, functionality, or effectiveness of any optimization on microprocessors not manufactured by Intel. Microprocessor-dependent optimizations in this product are intended for use with Intel microprocessors. Certain optimizations not specific to Intel microarchitecture are reserved for Intel microprocessors. Please refer to the applicable product User and Reference Guides for more information regarding the specific instruction sets covered by this notice. <br><br> Notice revision #20110804|
