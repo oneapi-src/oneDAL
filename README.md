@@ -8,7 +8,7 @@ The development model for Intel(R) DAAL has changed, and now the public GitHub* 
 
 We can share previous repository structure with you on request. Existing forks can be reused and only require pull-down for master branch. Details on branching schema will be updated in the future.
 
-- [How to contribute](#how-to-contribute)
+- [How to Contribute](#how-to-contribute)
 - [System Requirements](#system-requirements)
 - [Installation](#installation)
     - [Installation from Binaries](#installation-from-binaries)
