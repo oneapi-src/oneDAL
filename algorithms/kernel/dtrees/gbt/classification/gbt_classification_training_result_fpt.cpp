@@ -43,26 +43,29 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     const size_t nFeatures = inp->get(classifier::training::data)->getNumberOfColumns();
     set(classifier::training::model, daal::algorithms::gbt::classification::Model::create(nFeatures, &s));
 
-    const Parameter *par = static_cast<const Parameter *>(parameter);
-    if(par->varImportance & gbt::training::gain)
+    const interface2::Parameter *par = dynamic_cast<const interface2::Parameter *>(parameter);
+    if(par != nullptr)
     {
-        set(variableImportanceByGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
-    }
-    if(par->varImportance & gbt::training::totalGain)
-    {
-        set(variableImportanceByTotalGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
-    }
-    if(par->varImportance & gbt::training::cover)
-    {
-        set(variableImportanceByCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
-    }
-    if(par->varImportance & gbt::training::totalCover)
-    {
-        set(variableImportanceByTotalCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
-    }
-    if(par->varImportance & gbt::training::weight)
-    {
-        set(variableImportanceByWeight, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        if(par->varImportance & gbt::training::gain)
+        {
+            set(variableImportanceByGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        }
+        if(par->varImportance & gbt::training::totalGain)
+        {
+            set(variableImportanceByTotalGain, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        }
+        if(par->varImportance & gbt::training::cover)
+        {
+            set(variableImportanceByCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        }
+        if(par->varImportance & gbt::training::totalCover)
+        {
+            set(variableImportanceByTotalCover, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        }
+        if(par->varImportance & gbt::training::weight)
+        {
+            set(variableImportanceByWeight, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTable::doAllocate, 0, &s));
+        }
     }
 
     return s;
