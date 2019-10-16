@@ -56,6 +56,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     daal::algorithms::regression::training::Input *input = static_cast<daal::algorithms::regression::training::Input *>(_in);
     stump::regression::training::Result *result = static_cast<stump::regression::training::Result *>(_res);
+    DAAL_CHECK_MALLOC(_par)
     const Parameter *par = static_cast<Parameter *>(_par);
     size_t n = input->size();
     NumericTable *a[3];

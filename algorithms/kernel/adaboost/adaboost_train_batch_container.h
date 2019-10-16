@@ -62,6 +62,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     a[1] = services::staticPointerCast<NumericTable>(input->get(classifier::training::labels));
 
     adaboost::interface1::Model *r = static_cast<adaboost::interface1::Model *>(result->get(classifier::training::model).get());
+    DAAL_CHECK_MALLOC(_par)
     const adaboost::interface1::Parameter *par = static_cast<adaboost::interface1::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
@@ -94,6 +95,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     adaboost::Model *r = static_cast<adaboost::Model *>(result->get(classifier::training::model).get());
     NumericTable *weakLearnersErrorsTable = result->get(adaboost::training::weakLearnersErrors).get();
+    DAAL_CHECK_MALLOC(_par)
     const adaboost::Parameter *par = static_cast<adaboost::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;

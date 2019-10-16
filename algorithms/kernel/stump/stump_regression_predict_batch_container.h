@@ -56,6 +56,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     daal::algorithms::regression::prediction::Input *input = static_cast<daal::algorithms::regression::prediction::Input *>(_in);
     daal::algorithms::regression::prediction::Result *result = static_cast<daal::algorithms::regression::prediction::Result *>(_res);
+    DAAL_CHECK_MALLOC(_par)
     const Parameter *par = static_cast<Parameter *>(_par);
 
     NumericTable *a = static_cast<NumericTable *>(input->get(daal::algorithms::regression::prediction::data).get());

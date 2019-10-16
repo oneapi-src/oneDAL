@@ -129,6 +129,7 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
     predictInput->set(classifier::prediction::data, weakLearnerInputTables[0]);
 
     classifier::prediction::interface1::ResultPtr predictionRes(new classifier::prediction::interface1::Result());
+    DAAL_CHECK_MALLOC(predictionRes.get())
     predictionRes->set(classifier::prediction::prediction, NumericTablePtr(hTable));
     learnerPredict->setResult(predictionRes);
 
@@ -331,6 +332,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
     predictInput->set(classifier::prediction::data, weakLearnerInputTables[0]);
 
     classifier::prediction::ResultPtr predictionRes(new classifier::prediction::Result());
+    DAAL_CHECK_MALLOC(predictionRes.get())
     predictionRes->set(classifier::prediction::prediction, NumericTablePtr(hTable));
     learnerPredict->setResult(predictionRes);
 
@@ -488,6 +490,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
     predictInput->set(classifier::prediction::data, weakLearnerInputTables[0]);
 
     classifier::prediction::ResultPtr predictionRes(new classifier::prediction::Result());
+    DAAL_CHECK_MALLOC(predictionRes.get())
     predictionRes->set(classifier::prediction::probabilities, NumericTablePtr(pTable));
     learnerPredict->setResult(predictionRes);
     learnerPredict->parameter().resultsToEvaluate = classifier::computeClassProbabilities;

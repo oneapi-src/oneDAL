@@ -215,7 +215,9 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::default
 
         const size_t nodeCapacity = countNodes(0, tree, repData);
         DecisionTreeTablePtr treeTable(new DecisionTreeTable(nodeCapacity, status));
+        DAAL_CHECK_STATUS_VAR(status)
         services::SharedPtr<HomogenNumericTableCPU<double, cpu> > impTbl(new HomogenNumericTableCPU<double, cpu>(1, nodeCapacity, status));
+        DAAL_CHECK_STATUS_VAR(status)
         services::SharedPtr<HomogenNumericTableCPU<int, cpu> > smplCntTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCapacity, status));
         DAAL_CHECK_STATUS_VAR(status);
         DecisionTreeNode * const nodes = static_cast<DecisionTreeNode *>(treeTable->getArray());
@@ -231,9 +233,10 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::default
     {
         const size_t nodeCount = tree.nodeCount();
         DecisionTreeTablePtr treeTable(new DecisionTreeTable(nodeCount, status));
+        DAAL_CHECK_STATUS_VAR(status)
         services::SharedPtr<HomogenNumericTableCPU<double, cpu> > impTbl(new HomogenNumericTableCPU<double, cpu>(1, nodeCount, status));
+        DAAL_CHECK_STATUS_VAR(status)
         services::SharedPtr<HomogenNumericTableCPU<int, cpu> > smplCntTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCount, status));
-
         DAAL_CHECK_STATUS_VAR(status);
         DecisionTreeNode * const nodes = static_cast<DecisionTreeNode *>(treeTable->getArray());
         double *impVals = impTbl->getArray();
