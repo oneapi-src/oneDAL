@@ -3,7 +3,7 @@
 
 Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) helps speed up big data analysis by providing highly optimized algorithmic building blocks for all stages of data analytics (preprocessing, transformation, analysis, modeling, validation, and decision making) in batch, online, and distributed processing modes of computation.
 
-## Transition to Open Development model
+## Transition to Open Development Model
 The development model for Intel(R) DAAL has changed, and now the public GitHub* repository is where the product development takes place. From now on, we will have transparent commit history, public CI and public review process. You will see more changes going forward! 
 
 We can share previous repository structure with you on request. Existing forks can be reused and only require pull-down for master branch. Details on branching schema will be updated in the future.
