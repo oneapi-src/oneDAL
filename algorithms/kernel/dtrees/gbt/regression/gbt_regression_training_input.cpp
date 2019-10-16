@@ -42,7 +42,7 @@ namespace training
 namespace interface1
 {
 
-Parameter::Parameter() : loss(squared){}
+Parameter::Parameter() : loss(squared), varImportance(0){}
 Status Parameter::check() const
 {
     return gbt::training::checkImpl(*this);
