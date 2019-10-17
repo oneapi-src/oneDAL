@@ -164,17 +164,13 @@ namespace interface2
 class DAAL_EXPORT Online : public Training<online>
 {
 public:
-    typedef algorithms::classifier::training::Input         InputType;
+    typedef algorithms::classifier::training::Input  InputType;
     typedef algorithms::classifier::Parameter               ParameterType;
     typedef algorithms::classifier::training::Result        ResultType;
     typedef algorithms::classifier::training::PartialResult PartialResultType;
 
-    InputType input;     /*!< %Input objects of the algorithm */
-
     Online()
-    {
-        initialize();
-    }
+    {}
 
     /**
      * Constructs a classifier training algorithm by copying input objects and parameters
@@ -182,12 +178,16 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online &other) : input(other.input)
-    {
-        initialize();
-    }
+    Online(const Online &other)
+    {}
 
     virtual ~Online() {}
+
+    /**
+     * Get input objects for the classifier model training algorithm
+     * \return %Input objects for the classifier model training algorithm
+     */
+    DAAL_DEPRECATED_VIRTUAL virtual InputType * getInput() = 0;
 
     /**
      * Registers user-allocated memory for storing partial training results
@@ -241,10 +241,6 @@ protected:
     PartialResultPtr _partialResult;
     ResultPtr _result;
 
-    void initialize()
-    {
-        _in = &input;
-    }
     virtual Online * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };
 /** @} */

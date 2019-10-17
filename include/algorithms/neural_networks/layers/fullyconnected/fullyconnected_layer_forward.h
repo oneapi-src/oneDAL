@@ -180,7 +180,7 @@ public:
     /**
      * Returns the structure that contains parameters of the forward fully-connected layer
      * \return Structure that contains parameters of the forward fully-connected layer
-     * \DAAL_DEPRECATEDs
+     * \DAAL_DEPRECATED
      */
     DAAL_DEPRECATED_VIRTUAL virtual ParameterType *getLayerParameter() DAAL_C11_OVERRIDE { return &parameter; };
 

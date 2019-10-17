@@ -107,7 +107,7 @@ struct localDataCollector<algorithmFPType, defaultDense, cpu>
         for( size_t j=0; j<blockSize; j++ )
         {
             int  cl   = predefClass[j];
-
+            DAAL_ASSERT(cl < _c);
           PRAGMA_VECTOR_ALWAYS
             for( size_t i=0 ; i<_p; i++ )
             {
@@ -158,6 +158,7 @@ struct localDataCollector<algorithmFPType, fastCSR, cpu>
         for( size_t j=0; j<blockSize; j++ )
         {
             size_t cl = predefClass[j];
+            DAAL_ASSERT(cl < _c);
             size_t jn = rowIdx[j+1] - rowIdx[j];
 
           PRAGMA_VECTOR_ALWAYS
