@@ -2354,4 +2354,3 @@ GENERATE_LEGEND        = YES
 DOT_CLEANUP            = YES
 
 ALIASES += DAAL_DEPRECATED="\deprecated This item will be removed in a future release.\n"
-ALIASES += DAAL_DEPRECATED_USE{1}="\deprecated This item will be removed in a future release. Use \1 instead.\n"
