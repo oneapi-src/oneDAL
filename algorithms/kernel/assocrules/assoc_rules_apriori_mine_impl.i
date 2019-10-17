@@ -197,9 +197,9 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::genCandidates(size_t
 
                 if (!ai->ok())
                 {
-                    outputStatus = ai->getLastStatus();
                     delete ai;
                     ai = nullptr;
+                    outputStatus = ai->getLastStatus();
                     return false;
                 }
 
