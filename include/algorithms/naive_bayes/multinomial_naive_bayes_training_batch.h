@@ -245,7 +245,7 @@ class DAAL_EXPORT Batch : public classifier::training::Batch
 public:
     typedef classifier::training::Batch super;
 
-    typedef typename super::InputType                             InputType;
+    typedef algorithms::multinomial_naive_bayes::training::Input InputType;
     typedef algorithms::multinomial_naive_bayes::Parameter        ParameterType;
     typedef algorithms::multinomial_naive_bayes::training::Result ResultType;
 

@@ -56,7 +56,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_training_Train
         SharedPtr<Online> alg =
             staticPointerCast<Online, AlgorithmIface>
                 (*(SharedPtr<AlgorithmIface> *)algAddr);
-        inputPtr = &(alg->input);
+        inputPtr = alg->getInput();
     }
 
     return (jlong)inputPtr;
