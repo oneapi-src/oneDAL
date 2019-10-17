@@ -117,9 +117,10 @@ namespace interface2
 struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algorithms::gbt::training::Parameter
 {
     /** Default constructor */
-    Parameter(size_t nClasses) : classifier::Parameter(nClasses), loss(crossEntropy) {}
+    Parameter(size_t nClasses) : classifier::Parameter(nClasses), loss(crossEntropy), varImportance(0) {}
     services::Status check() const DAAL_C11_OVERRIDE;
     LossFunctionType loss; /*!< Loss function type */
+    DAAL_UINT64 varImportance; /*!< 64 bit integer flag VariableImportanceModes that indicates the variable importance computation modes */
 };
 /* [Parameter source code] */
 }

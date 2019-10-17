@@ -121,7 +121,6 @@ public:
     size_t minBinSize;                      /*!< Used with 'inexact' split finding method only.
                                                  Minimal number of observations in a bin. Default is 5 */
     int internalOptions;                    /*!< Internal options */
-    DAAL_UINT64 varImportance;              /*!< 64 bit integer flag that indicates the variable importance computation modes */
 };
 /* [Parameter source code] */
 } // namespace interface1
