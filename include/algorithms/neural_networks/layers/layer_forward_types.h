@@ -209,7 +209,7 @@ public:
     /**
      * Returns dimensions of biases tensor
      * \return Dimensions of biases tensor
-     * \DAAL_DEPRECATED_UDE{ enableGradientPropagation(size_t nLayers, bool *enabledPropagation) }
+     * \DAAL_DEPRECATED
      */
     virtual const services::Collection<size_t> getBiasesSizes(const layers::Parameter *parameter) const;
 

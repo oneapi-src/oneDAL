@@ -138,6 +138,49 @@ Status DistributedInput::check(const daal::algorithms::Parameter *parameter, int
     }
     return status;
 }
+
+
+Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+{
+    services::Status s; // Error status
+
+    data_management::NumericTablePtr dataTable = get(classifier::training::data);
+    DAAL_CHECK_STATUS(s, data_management::checkNumericTable(dataTable.get(), dataStr()));
+
+    const size_t nRows = dataTable->getNumberOfRows();
+    data_management::NumericTablePtr labelsTable = get(classifier::training::labels);
+    DAAL_CHECK_STATUS(s, data_management::checkNumericTable(labelsTable.get(), labelsStr(), 0, 0, 1, nRows));
+
+    data_management::NumericTablePtr weightsTable = get(classifier::training::weights);
+    if (weightsTable)
+    {
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(weightsTable.get(), weightsStr(), 0, 0, 1, nRows));
+    }
+
+    if (parameter != NULL)
+    {
+        const daal::algorithms::classifier::interface1::Parameter *algParameter1 =
+            dynamic_cast<const daal::algorithms::classifier::interface1::Parameter *>(parameter);
+        const daal::algorithms::classifier::interface2::Parameter *algParameter2 =
+            dynamic_cast<const daal::algorithms::classifier::interface2::Parameter *>(parameter);
+        if (algParameter1 != NULL)
+        {
+            DAAL_CHECK_EX(algParameter1->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+        }
+        else if (algParameter2 != NULL)
+        {
+            DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX),
+                          services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+        }
+        else
+        {
+            s = services::Status(services::ErrorNullParameterNotSupported);
+        }
+    }
+
+    return s;
+}
+
 } // namespace interface1
 } // namespace training
 } // namespace multinomial_naive_bayes
