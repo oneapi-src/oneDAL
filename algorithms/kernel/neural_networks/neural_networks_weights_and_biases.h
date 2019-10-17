@@ -69,7 +69,7 @@ public:
         }
         modelFPType *resultArray = resultTable->getArray();
         size_t resultSize = nRows * sizeof(modelFPType);
-        daal_memcpy_s(resultArray, resultSize, wbArray + _wOffsets[idx], resultSize);
+        daal::services::internal::daal_memcpy_s(resultArray, resultSize, wbArray + _wOffsets[idx], resultSize);
         return resultTable;
     }
 
@@ -107,7 +107,7 @@ protected:
         const modelFPType *inputArray = tableRows.get();
         modelFPType *wbArray = _wbTable->getArray();
         size_t dataSizeInBytes = dataSize * sizeof(modelFPType);
-        daal_memcpy_s(wbArray + offset, dataSizeInBytes, inputArray, dataSizeInBytes);
+        daal::services::internal::daal_memcpy_s(wbArray + offset, dataSizeInBytes, inputArray, dataSizeInBytes);
         return Status();
     }
 
@@ -222,7 +222,8 @@ protected:
                 return HomogenNumericTablePtr();
             const modelFPType *tensorArray = subtensor.get();
 
-            daal_memcpy_s(tableArray + tableOffset, tensorSize * sizeof(modelFPType), tensorArray, tensorSize * sizeof(modelFPType));
+            daal::services::internal::daal_memcpy_s(tableArray + tableOffset, tensorSize * sizeof(modelFPType),
+                                                    tensorArray, tensorSize * sizeof(modelFPType));
             tableOffset += tensorSize;
         }
         return table;
@@ -248,7 +249,8 @@ protected:
             DAAL_CHECK_BLOCK_STATUS(subtensor)
             modelFPType *tensorArray = subtensor.get();
 
-            daal_memcpy_s(tensorArray, tensorSize * sizeof(modelFPType), tableArray + tableOffset, tensorSize * sizeof(modelFPType));
+            daal::services::internal::daal_memcpy_s(tensorArray, tensorSize * sizeof(modelFPType),
+                                                    tableArray + tableOffset, tensorSize * sizeof(modelFPType));
             tableOffset += tensorSize;
         }
         return Status();

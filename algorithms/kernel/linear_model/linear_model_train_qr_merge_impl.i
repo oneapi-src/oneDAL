@@ -85,8 +85,8 @@ Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable **parti
 
     const size_t rSizeInBytes   =     nBetas * nBetas * sizeof(algorithmFPType);
     const size_t qtySizeInBytes = nResponses * nBetas * sizeof(algorithmFPType);
-    result |= daal_memcpy_s(rFinal, rSizeInBytes, r, rSizeInBytes);
-    result |= daal_memcpy_s(qtyFinal, qtySizeInBytes, qty, qtySizeInBytes);
+    result |= daal::services::internal::daal_memcpy_s(rFinal, rSizeInBytes, r, rSizeInBytes);
+    result |= daal::services::internal::daal_memcpy_s(qtyFinal, qtySizeInBytes, qty, qtySizeInBytes);
 
     DAAL_INT lwork;
     st = (!result) ? CommonKernel<algorithmFPType, cpu>::computeWorkSize(nBetas2, nBetas, nResponses, lwork) : Status(ErrorMemoryCopyFailedInternal);

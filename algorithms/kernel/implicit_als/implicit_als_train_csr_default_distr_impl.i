@@ -129,7 +129,6 @@ Status ImplicitALSTrainDistrStep3Kernel<algorithmFPType, cpu>::compute(
                  data_management::KeyValueDataCollection *dstPartialModels, const Parameter *parameter)
 {
     int offset = 0;
-    int result = 0;
     {
         ReadRows<int, cpu> mtOffset(offsetTable, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(mtOffset);
@@ -154,6 +153,7 @@ Status ImplicitALSTrainDistrStep3Kernel<algorithmFPType, cpu>::compute(
         daal::threader_for(nBlocks, 0, [ & ](size_t i)
         {
             const size_t nRows = i < nBlocks-1 ? sizeOfBlock : dstNRows - (i * sizeOfBlock);
+            int result = 0;
 
             ReadRows<algorithmFPType, cpu> mtSrcFactors;
 
@@ -172,13 +172,15 @@ Status ImplicitALSTrainDistrStep3Kernel<algorithmFPType, cpu>::compute(
                 DAAL_CHECK_BLOCK_STATUS_THR(mtSrcFactors);
                 const algorithmFPType *srcFactor = mtSrcFactors.get();
 
-                result |= daal::services::daal_memcpy_s(dstFactor + j*nCols, nFactors * sizeof(algorithmFPType),
-                                                        srcFactor, nFactors * sizeof(algorithmFPType));
+                result |= daal::services::internal::daal_memcpy_s(dstFactor + j*nCols, nFactors * sizeof(algorithmFPType),
+                                                                  srcFactor, nFactors * sizeof(algorithmFPType));
             }
+            if (result)
+                safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
         });
     });
 
-    return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
+    return safeStat.detach();
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -220,14 +222,11 @@ Status AlsTls<algorithmFPType, cpu>::run(NumericTable& dstFactors, ReadRowsCSR<a
     DAAL_CHECK_BLOCK_STATUS(_mtDstFactors);
     algorithmFPType *rhs = _mtDstFactors.get();
     service_memset<algorithmFPType, cpu>(rhs, 0.0, _prm.nFactors);
-    result = daal::services::daal_memcpy_s(_lhs.get(), _prm.nFactors * _prm.nFactors * sizeof(algorithmFPType),
+    result = daal::services::internal::daal_memcpy_s(_lhs.get(), _prm.nFactors * _prm.nFactors * sizeof(algorithmFPType),
         xtx, _prm.nFactors * _prm.nFactors * sizeof(algorithmFPType));
-    if (result)
-    {
-        return services::Status(services::ErrorMemoryCopyFailedInternal);
-    }
 
     Status s = formSystem(mtData, i, aSrcFactors, nColFactorsRows, indices);
+    s |= (result) ? services::Status(services::ErrorMemoryCopyFailedInternal) : s;
 
     /* Solve system of normal equations */
     if(s.ok() && !ImplicitALSTrainKernelBase<algorithmFPType, cpu>::solve(_prm.nFactors, _lhs.get(), rhs))

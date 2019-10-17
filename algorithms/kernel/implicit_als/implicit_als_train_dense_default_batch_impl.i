@@ -123,7 +123,6 @@ Status ImplicitALSTrainKernelBase<algorithmFPType, cpu>::computeFactors(
 {
     SafeStatus safeStat;
     size_t nBlocks, blockSize, tailSize;
-    int result = 0;
 
     getSizes( nRows, nCols, nBlocks, blockSize, tailSize );
 
@@ -131,6 +130,7 @@ Status ImplicitALSTrainKernelBase<algorithmFPType, cpu>::computeFactors(
     {
         const size_t curBlockSize = ( i < tailSize ) ? blockSize + 1 : blockSize;
         const size_t offset = ( i < tailSize ) ? i * blockSize + i : i * blockSize + tailSize;
+        int result = 0;
 
         for( size_t j = 0; j < curBlockSize; j++ )
         {
@@ -138,8 +138,8 @@ Status ImplicitALSTrainKernelBase<algorithmFPType, cpu>::computeFactors(
             algorithmFPType *rhs = rowFactors + (offset + j) * nFactors;
 
             for(int f = 0; f < nFactors; f++){ rhs[f] = 0.0; }
-            result |= daal::services::daal_memcpy_s(lhs_local, nFactors * nFactors * sizeof(algorithmFPType),
-                                                    xtx, nFactors * nFactors * sizeof(algorithmFPType));
+            result |= daal::services::internal::daal_memcpy_s(lhs_local, nFactors * nFactors * sizeof(algorithmFPType),
+                                                              xtx, nFactors * nFactors * sizeof(algorithmFPType));
 
             formSystem( offset + j, nCols, data, colIndices, rowOffsets, nFactors, colFactors, alpha, lhs_local, rhs, lambda);
 
@@ -147,9 +147,11 @@ Status ImplicitALSTrainKernelBase<algorithmFPType, cpu>::computeFactors(
             if(!solve(nFactors, lhs_local, rhs))
                 safeStat.add(ErrorALSInternal);
         } /* for(size_t j = 0; j < curBlockSize; j++) */
+        if (result)
+            safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
     }); /* daal::threader_for(nBlocks, nBlocks, [ & ](size_t i) */
 
-    return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
+    return safeStat.detach();
 }
 
 template <typename algorithmFPType, CpuType cpu>

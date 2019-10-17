@@ -329,7 +329,7 @@ struct assocrules_dataset
                     tran[numOfLargeTransactions].size = numItems;
                     tran[numOfLargeTransactions].items = (size_t *)daal::services::daal_malloc(numItems * sizeof(size_t));
                     tran[numOfLargeTransactions].is_large = true;
-                    result |= daal::services::daal_memcpy_s(
+                    result |= daal::services::internal::daal_memcpy_s(
                         tran[numOfLargeTransactions].items, numItems * sizeof(size_t), items, numItems * sizeof(size_t));
                     large_tran[numOfLargeTransactions] = &tran[numOfLargeTransactions];
                     numOfLargeTransactions++;

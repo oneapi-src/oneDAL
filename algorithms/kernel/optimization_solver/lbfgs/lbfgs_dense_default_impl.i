@@ -599,8 +599,8 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument(size_t iIteration,
     }
     else
     {
-        result |= daal_memcpy_s(gradientPrev, this->argumentSize * sizeof(algorithmFPType),
-                                gradientCurr, this->argumentSize * sizeof(algorithmFPType));
+        result |= daal::services::internal::daal_memcpy_s(gradientPrev, this->argumentSize * sizeof(algorithmFPType),
+                                          gradientCurr, this->argumentSize * sizeof(algorithmFPType));
         DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
     DAAL_CHECK_STATUS(s, gradientFunction->compute());
@@ -616,8 +616,8 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument(size_t iIteration,
     algorithmFPType *gradient = mtGradient.get();
     if(useWolfeConditions)
     {
-        result |= daal_memcpy_s(gradientCurr, this->argumentSize * sizeof(algorithmFPType),
-                                gradient, this->argumentSize * sizeof(algorithmFPType));
+        result |= daal::services::internal::daal_memcpy_s(gradientCurr, this->argumentSize * sizeof(algorithmFPType),
+                                          gradient, this->argumentSize * sizeof(algorithmFPType));
         DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
     /* Check accuracy */
@@ -690,8 +690,8 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument1(size_t iIteration,
     }
     else
     {
-        result |= daal_memcpy_s(gradientPrev, this->argumentSize * sizeof(algorithmFPType),
-                                gradientCurr, this->argumentSize * sizeof(algorithmFPType));
+        result |= daal::services::internal::daal_memcpy_s(gradientPrev, this->argumentSize * sizeof(algorithmFPType),
+                                          gradientCurr, this->argumentSize * sizeof(algorithmFPType));
         DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
     DAAL_CHECK_STATUS(s, gradientFunction->compute());
@@ -707,8 +707,8 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument1(size_t iIteration,
     algorithmFPType *gradient = mtGradient.get();
     if(useWolfeConditions)
     {
-        result |= daal_memcpy_s(gradientCurr, this->argumentSize * sizeof(algorithmFPType),
-                                gradient, this->argumentSize * sizeof(algorithmFPType));
+        result |= daal::services::internal::daal_memcpy_s(gradientCurr, this->argumentSize * sizeof(algorithmFPType),
+                                          gradient, this->argumentSize * sizeof(algorithmFPType));
         DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
     /* Check accuracy */
@@ -938,7 +938,8 @@ Status LBFGSTaskBase<algorithmFPType, cpu>::setStartArgument(NumericTable *start
     argument = mtArgument.get();
     ReadRows<algorithmFPType, cpu> mtStartValue(startValueTable, 0, argumentSize);
     DAAL_CHECK_BLOCK_STATUS(mtStartValue);
-    int result = daal_memcpy_s(argument, argumentSize * sizeof(algorithmFPType), mtStartValue.get(), argumentSize * sizeof(algorithmFPType));
+    int result = daal::services::internal::daal_memcpy_s(argument, argumentSize * sizeof(algorithmFPType),
+                                         mtStartValue.get(), argumentSize * sizeof(algorithmFPType));
     return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
@@ -1165,9 +1166,9 @@ Status LBFGSTask<algorithmFPType, cpu>::initArgumentL(NumericTable* averageArgLI
             ReadRows<algorithmFPType, cpu> rr(averageArgLIterInput, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(rr);
             const auto cMemSize = sizeof(algorithmFPType)*averageArgLIterInput->getNumberOfColumns();
-            result |= daal_memcpy_s(argumentLPrev, cMemSize, rr.get(), cMemSize);
+            result |= daal::services::internal::daal_memcpy_s(argumentLPrev, cMemSize, rr.get(), cMemSize);
             rr.next(1, 1);
-            result |= daal_memcpy_s(argumentLCur, cMemSize, rr.get(), cMemSize);
+            result |= daal::services::internal::daal_memcpy_s(argumentLCur, cMemSize, rr.get(), cMemSize);
         }
     }
     else if(pOptRes)
@@ -1205,9 +1206,9 @@ Status LBFGSTask<algorithmFPType, cpu>::initArgumentL(NumericTable* averageArgLI
             ReadRows<algorithmFPType, cpu> rr(averageArgLIterInput, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(rr);
             const auto cMemSize = sizeof(algorithmFPType)*averageArgLIterInput->getNumberOfColumns();
-            result |= daal_memcpy_s(argumentLPrev, cMemSize, rr.get(), cMemSize);
+            result |= daal::services::internal::daal_memcpy_s(argumentLPrev, cMemSize, rr.get(), cMemSize);
             rr.next(1, 1);
-            result |= daal_memcpy_s(argumentLCur, cMemSize, rr.get(), cMemSize);
+            result |= daal::services::internal::daal_memcpy_s(argumentLCur, cMemSize, rr.get(), cMemSize);
         }
     }
     else if(pOptRes)
@@ -1252,8 +1253,8 @@ Status LBFGSTask<algorithmFPType, cpu>::initCorrectionPairs(NumericTable* correc
             DAAL_CHECK_BLOCK_STATUS(correctionPairsInputBD);
             const auto cMemSize = sizeof(algorithmFPType)*cCorrectionPairSize;
             int result = 0;
-            result |= daal_memcpy_s(correctionS, cMemSize, correctionPairsInputBD.get(), cMemSize);
-            result |= daal_memcpy_s(correctionY, cMemSize, correctionPairsInputBD.get() + cMemSize, cMemSize);
+            result |= daal::services::internal::daal_memcpy_s(correctionS, cMemSize, correctionPairsInputBD.get(), cMemSize);
+            result |= daal::services::internal::daal_memcpy_s(correctionY, cMemSize, correctionPairsInputBD.get() + cMemSize, cMemSize);
             DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
         }
         /* initialize rho form S and Y */
@@ -1310,8 +1311,8 @@ Status LBFGSTask<algorithmFPType, cpu>::initCorrectionPairs(NumericTable* correc
             DAAL_CHECK_BLOCK_STATUS(correctionPairsInputBD);
             const auto cMemSize = sizeof(algorithmFPType)*cCorrectionPairSize;
             int result = 0;
-            result |= daal_memcpy_s(correctionS, cMemSize, correctionPairsInputBD.get(), cMemSize);
-            result |= daal_memcpy_s(correctionY, cMemSize, correctionPairsInputBD.get() + cMemSize, cMemSize);
+            result |= daal::services::internal::daal_memcpy_s(correctionS, cMemSize, correctionPairsInputBD.get(), cMemSize);
+            result |= daal::services::internal::daal_memcpy_s(correctionY, cMemSize, correctionPairsInputBD.get() + cMemSize, cMemSize);
             DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
         }
         /* initialize rho form S and Y */

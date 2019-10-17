@@ -175,8 +175,7 @@ template<typename algorithmFPType, CpuType cpu>
 Status SGDmomentumTask<algorithmFPType, cpu>::setStartValue(NumericTable *inputArgument, NumericTable *minimum)
 {
     SafeStatus safeStat;
-    int result = 0;
-    processByBlocks<cpu>(minimum->getNumberOfRows(), [=, &result, &safeStat](size_t startOffset, size_t nRowsInBlock)
+    processByBlocks<cpu>(minimum->getNumberOfRows(), [=, &safeStat](size_t startOffset, size_t nRowsInBlock)
     {
         WriteRows<algorithmFPType, cpu, NumericTable> workValueBD(*minimum, startOffset, nRowsInBlock);
         DAAL_CHECK_BLOCK_STATUS_THR(workValueBD);
@@ -186,10 +185,13 @@ Status SGDmomentumTask<algorithmFPType, cpu>::setStartValue(NumericTable *inputA
         const algorithmFPType *startValueArray = startValueBD.get();
         if( workArray != startValueArray )
         {
-            result |= daal_memcpy_s(workArray, nRowsInBlock * sizeof(algorithmFPType), startValueArray, nRowsInBlock * sizeof(algorithmFPType));
+            int result = daal::services::internal::daal_memcpy_s(workArray, nRowsInBlock * sizeof(algorithmFPType),
+                                                 startValueArray, nRowsInBlock * sizeof(algorithmFPType));
+            if (result)
+                safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
         }
     });
-    return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
+    return safeStat.detach();
 }
 
 template<typename algorithmFPType, CpuType cpu>
@@ -247,9 +249,8 @@ Status SGDmomentumTask<algorithmFPType, cpu>::init(NumericTable *batchIndicesTab
         if(pastUpdateInput != pastUpdate.get())
         {
             SafeStatus safeStat;
-            int result = 0;
             /* copy optional input ot optional result */
-            processByBlocks<cpu>(argumentSize, [=, &result, &safeStat](size_t startOffset, size_t nRowsInBlock)
+            processByBlocks<cpu>(argumentSize, [=, &safeStat](size_t startOffset, size_t nRowsInBlock)
             {
                 WriteOnlyRows<algorithmFPType, cpu, NumericTable> pastUpdateBD(*pastUpdate, startOffset, nRowsInBlock);
                 DAAL_CHECK_BLOCK_STATUS_THR(pastUpdateBD);
@@ -259,11 +260,13 @@ Status SGDmomentumTask<algorithmFPType, cpu>::init(NumericTable *batchIndicesTab
                 const algorithmFPType *pastUpdateInputArray = pastUpdateInputBD.get();
                 if( pastUpdateArray != pastUpdateInputArray )
                 {
-                    result |= daal_memcpy_s(pastUpdateArray, nRowsInBlock * sizeof(algorithmFPType),
-                                            pastUpdateInputArray, nRowsInBlock * sizeof(algorithmFPType));
+                    int result = daal::services::internal::daal_memcpy_s(pastUpdateArray, nRowsInBlock * sizeof(algorithmFPType),
+                                                         pastUpdateInputArray, nRowsInBlock * sizeof(algorithmFPType));
+                    if (result)
+                        safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
                 }
             });
-            return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
+            return safeStat.detach();
         }
     }
     else /* empty optional input, set optional result to zero */

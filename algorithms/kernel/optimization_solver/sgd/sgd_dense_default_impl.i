@@ -58,10 +58,9 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
 {
     const size_t nRows = inputArgument->getNumberOfRows();
     SafeStatus safeStat;
-    int result = 0;
     //init workValue
     {
-        processByBlocks<cpu>(minimum->getNumberOfRows(), [=, &result, &safeStat](size_t startOffset, size_t nRowsInBlock)
+        processByBlocks<cpu>(minimum->getNumberOfRows(), [=, &safeStat](size_t startOffset, size_t nRowsInBlock)
         {
             WriteRows<algorithmFPType, cpu, NumericTable> workValueBD(*minimum, startOffset, nRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS_THR(workValueBD);
@@ -71,12 +70,13 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
             const algorithmFPType *startValueArray = startValueBD.get();
             if( minArray != startValueArray )
             {
-                result |= daal_memcpy_s(minArray, nRowsInBlock * sizeof(algorithmFPType),
-                                        startValueArray, nRowsInBlock * sizeof(algorithmFPType));
+                int result = daal::services::internal::daal_memcpy_s(minArray, nRowsInBlock * sizeof(algorithmFPType),
+                                                     startValueArray, nRowsInBlock * sizeof(algorithmFPType));
+                if (result)
+                    safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
             }
         });
         DAAL_CHECK_SAFE_STATUS();
-        DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
 
     const size_t nIter = parameter->nIterations;

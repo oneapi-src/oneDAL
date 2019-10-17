@@ -25,10 +25,11 @@
 #ifndef __SYMMETRIC_MATRIX_H__
 #define __SYMMETRIC_MATRIX_H__
 
-#include "data_management/data/numeric_table.h"
 #include "services/daal_memory.h"
 #include "services/daal_defines.h"
+
 #include "data_management/data/data_serialize.h"
+#include "data_management/data/numeric_table.h"
 
 namespace daal
 {
@@ -601,7 +602,7 @@ private:
         {
             if( src != (T1 *)dst )
             {
-                int result = daal::services::daal_memcpy_s(dst, n * p * sizeof(T1), src, n * p * sizeof(T1));
+                int result = daal::services::internal::daal_memcpy_s(dst, n * p * sizeof(T1), src, n * p * sizeof(T1));
                 DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
             }
         }
@@ -1368,7 +1369,7 @@ private:
         {
             if( src != (T1 *)dst )
             {
-                int result = daal::services::daal_memcpy_s(dst, n * p * sizeof(T1), src, n * p * sizeof(T1));
+                int result = daal::services::internal::daal_memcpy_s(dst, n * p * sizeof(T1), src, n * p * sizeof(T1));
                 DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
             }
         }

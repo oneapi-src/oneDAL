@@ -763,7 +763,7 @@ services::Status EMKernelTask<algorithmFPType, method, cpu>::setStartValues()
     if(initialWeightsArray != alpha)
     {
         size_t nCopy = nComponents * sizeof(algorithmFPType);
-        result |= daal_memcpy_s(alpha, nCopy, initialWeightsArray, nCopy);
+        result |= daal::services::internal::daal_memcpy_s(alpha, nCopy, initialWeightsArray, nCopy);
     }
 
     const algorithmFPType *initialMeansArray = bd.set(initialMeans, 0, nComponents);
@@ -771,7 +771,7 @@ services::Status EMKernelTask<algorithmFPType, method, cpu>::setStartValues()
     if(initialMeansArray != means)
     {
         size_t nCopy = nComponents * nFeatures * sizeof(algorithmFPType);
-        result |= daal_memcpy_s(means, nCopy, initialMeansArray, nCopy);
+        result |= daal::services::internal::daal_memcpy_s(means, nCopy, initialMeansArray, nCopy);
     }
 
     size_t nCopy = covs->getOneCovSize() * sizeof(algorithmFPType);
@@ -782,7 +782,7 @@ services::Status EMKernelTask<algorithmFPType, method, cpu>::setStartValues()
         DAAL_CHECK(initCov, ErrorMemoryAllocationFailed);
         if(initCov != sigma[i])
         {
-            result |= daal_memcpy_s(sigma[i], nCopy, initCov, nCopy);
+            result |= daal::services::internal::daal_memcpy_s(sigma[i], nCopy, initCov, nCopy);
         }
     }
     return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
