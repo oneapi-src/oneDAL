@@ -234,7 +234,7 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CholeskyKernel<algorithmFPType, method, cpu>::copyToLowerTrianglePacked(NumericTableIface::StorageLayout iLayout,
     const algorithmFPType *pA, algorithmFPType *pL, size_t dim) const
 {
-    Status status = Status();
+    Status status;
     const size_t blockSize = 512;
     const size_t n = dim;
     size_t nBlocks = n / blockSize;
@@ -267,7 +267,7 @@ services::Status CholeskyKernel<algorithmFPType, method, cpu>::copyToLowerTriang
     {
         size_t size = (dim * (dim + 1) / 2) * sizeof(algorithmFPType);
         int result = 0;
-        result = services::daal_memcpy_s(pL, size, pA, size);
+        result = services::internal::daal_memcpy_s(pL, size, pA, size);
         if (result)
         {
             status |= Status(ErrorMemoryCopyFailedInternal);

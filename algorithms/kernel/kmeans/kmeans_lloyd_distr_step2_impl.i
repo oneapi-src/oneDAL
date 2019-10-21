@@ -148,8 +148,8 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute(size_
                 clPos++;
             }
         }
-        result |= daal::services::daal_memcpy_s(cValues, cNum * sizeof(algorithmFPType), tmpValues.get(), cNum * sizeof(algorithmFPType));
-        result |= daal::services::daal_memcpy_s(cIndices.get(), cNum * sizeof(size_t), tmpIndices.get(), cNum * sizeof(size_t));
+        result |= daal::services::internal::daal_memcpy_s(cValues, cNum * sizeof(algorithmFPType), tmpValues.get(), cNum * sizeof(algorithmFPType));
+        result |= daal::services::internal::daal_memcpy_s(cIndices.get(), cNum * sizeof(size_t), tmpIndices.get(), cNum * sizeof(size_t));
     }
 
     for (size_t i = 0; i < nClusters; i++)
@@ -164,7 +164,8 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute(size_
         ReadRows<algorithmFPType, cpu> mtInCCentroids(*const_cast<NumericTable*>(a[block * 5 + 4]), posInBlock, 1);
         DAAL_CHECK_BLOCK_STATUS(mtInCCentroids);
         const algorithmFPType *inCCentroids = mtInCCentroids.get();
-        result |= daal::services::daal_memcpy_s(&cCentroids[i * p], p * sizeof(algorithmFPType), inCCentroids, p * sizeof(algorithmFPType));
+        result |= daal::services::internal::daal_memcpy_s(&cCentroids[i * p], p * sizeof(algorithmFPType),
+                                                          inCCentroids, p * sizeof(algorithmFPType));
     }
 
     return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
@@ -227,7 +228,8 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::finalizeCompu
             DAAL_CHECK(!(cValues[cPos] < (algorithmFPType)0.0), services::ErrorKMeansNumberOfClustersIsTooLarge);
             outTarget[0] -= cValues[cPos];
             result |=
-                daal::services::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), &cCentroids[cPos * p], p * sizeof(algorithmFPType));
+                daal::services::internal::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType),
+                                                        &cCentroids[cPos * p], p * sizeof(algorithmFPType));
             cPos++;
         }
     }

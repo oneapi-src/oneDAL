@@ -1021,7 +1021,8 @@ protected:
             int result = 0;
             TreeNodeType * newNodes = daal_alloc<TreeNodeType>(newCapacity);
             DAAL_CHECK_MALLOC(newNodes)
-            result = daal_memcpy_s(newNodes, newCapacity * sizeof(TreeNodeType), _nodes, _nodeCount * sizeof(TreeNodeType));
+            result = daal::services::internal::daal_memcpy_s(newNodes, newCapacity * sizeof(TreeNodeType),
+                                                             _nodes, _nodeCount * sizeof(TreeNodeType));
             if (result)
                 status = services::Status(services::ErrorMemoryCopyFailedInternal);
             swap<cpu>(_nodes, newNodes);

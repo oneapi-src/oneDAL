@@ -97,7 +97,8 @@ services::Status PCACorrelationKernel<online, algorithmFPType, cpu>::copyIfNeede
     algorithmFPType *dstArray = dstBlock.get();
 
     const size_t nDataElements = nRows * nCols;
-    int result = daal::services::daal_memcpy_s(dstArray, nDataElements * sizeof(algorithmFPType), srcArray, nDataElements * sizeof(algorithmFPType));
+    int result = daal::services::internal::daal_memcpy_s(dstArray, nDataElements * sizeof(algorithmFPType),
+                                                         srcArray, nDataElements * sizeof(algorithmFPType));
     return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 

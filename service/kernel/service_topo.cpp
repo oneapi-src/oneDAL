@@ -47,7 +47,7 @@
 #define _INTERNAL_DAAL_MALLOC(x)           daal_malloc((x),64)
 #define _INTERNAL_DAAL_FREE(x)             daal_free((x))
 #define _INTERNAL_DAAL_MEMSET(a1,a2,a3)    __internal_daal_memset((a1),(a2),(a3))
-#define _INTERNAL_DAAL_MEMCPY(a1,a2,a3,a4) daal_memcpy_s((a1),(a2),(a3),(a4))
+#define _INTERNAL_DAAL_MEMCPY(a1,a2,a3,a4) daal::services::internal::daal_memcpy_s((a1),(a2),(a3),(a4))
 
 
 namespace daal

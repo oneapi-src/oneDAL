@@ -349,7 +349,7 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
 
     r->setNFeatures(x->getNumberOfColumns());
 
-    services::Status status{services::Status()};
+    services::Status status;
     Tree<cpu, algorithmFPType, int> tree;
     if (w == nullptr)
     {

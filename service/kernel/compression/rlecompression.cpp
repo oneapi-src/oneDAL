@@ -260,7 +260,8 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
             if (_avail_out < _internalBuffLen - _internalBuffOff)
             {
 
-                result |= daal::services::daal_memcpy_s((void*)(_next_out),_avail_out,(void*)(((byte *)_internalBuff)+_internalBuffOff),_avail_out);
+                result |= daal::services::internal::daal_memcpy_s((void*)(_next_out),_avail_out,
+                                                                  (void*)(((byte *)_internalBuff)+_internalBuffOff),_avail_out);
                 if (result)
                 {
                     this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -276,8 +277,8 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
             else
             {
 
-                result |= daal::services::daal_memcpy_s((void*)(_next_out),_internalBuffLen - _internalBuffOff,
-                                                        (void*)(((byte *)_internalBuff)+_internalBuffOff),_internalBuffLen - _internalBuffOff);
+                result |= daal::services::internal::daal_memcpy_s((void*)(_next_out),_internalBuffLen - _internalBuffOff,
+                                                                  (void*)(((byte *)_internalBuff)+_internalBuffOff),_internalBuffLen - _internalBuffOff);
                 if (result)
                 {
                     this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -348,7 +349,8 @@ void Decompressor<rle>::run(byte *out, size_t outLen, size_t off)
                     }
                 }
 
-                result |= daal::services::daal_memcpy_s((void*)(_next_out),_avail_out,(void*)(((byte *)_internalBuff)+_internalBuffOff),_avail_out);
+                result |= daal::services::internal::daal_memcpy_s((void*)(_next_out),_avail_out,
+                                                                  (void*)(((byte *)_internalBuff)+_internalBuffOff),_avail_out);
                 if (result)
                 {
                     this->_errors->add(services::ErrorMemoryCopyFailedInternal);

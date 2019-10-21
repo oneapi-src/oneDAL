@@ -66,7 +66,7 @@ services::Status I1SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIfac
     DAAL_CHECK_BLOCK_STATUS(initialPointBD);
     const algorithmFPType *initialPoint = initialPointBD.get();
 
-    result = daal_memcpy_s(workValue, sizeArgument * sizeof(algorithmFPType), initialPoint, sizeArgument * sizeof(algorithmFPType));
+    result = daal::services::internal::daal_memcpy_s(workValue, sizeArgument * sizeof(algorithmFPType), initialPoint, sizeArgument * sizeof(algorithmFPType));
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     const size_t maxIterations = parameter->nIterations;
@@ -283,7 +283,7 @@ services::Status I1SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIfac
         }
 
         /* TBD use Parallel for */
-        result |= daal_memcpy_s(previous, sizeArgument * sizeof(algorithmFPType), workValue, sizeArgument * sizeof(algorithmFPType));
+        result |= daal::services::internal::daal_memcpy_s(previous, sizeArgument * sizeof(algorithmFPType), workValue, sizeArgument * sizeof(algorithmFPType));
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
@@ -335,7 +335,7 @@ services::Status I1SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIfac
             break;
         }
 
-        result |= daal_memcpy_s(savedGradients + displacement, sizeArgument * sizeof(algorithmFPType), gradient, sizeArgument * sizeof(algorithmFPType));
+        result |= daal::services::internal::daal_memcpy_s(savedGradients + displacement, sizeArgument * sizeof(algorithmFPType), gradient, sizeArgument * sizeof(algorithmFPType));
 
     }
     gradientPtr.release();

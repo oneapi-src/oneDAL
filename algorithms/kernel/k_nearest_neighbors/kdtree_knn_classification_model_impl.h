@@ -159,8 +159,10 @@ public:
             data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
             tbl->getBlockOfRows(0, tbl->getNumberOfRows(), data_management::writeOnly, destBD);
             value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD);
-            result = services::daal_memcpy_s(destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
-                                             srcBD.getBlockPtr(), srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
+            result = services::internal::daal_memcpy_s(destBD.getBlockPtr(),
+                                                       destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
+                                                       srcBD.getBlockPtr(),
+                                                       srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
             tbl->releaseBlockOfRows(destBD);
             value->releaseBlockOfRows(srcBD);
             _data = tbl;
@@ -206,8 +208,10 @@ public:
             data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
             tbl->getBlockOfRows(0, tbl->getNumberOfRows(), data_management::writeOnly, destBD);
             value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD);
-            result = services::daal_memcpy_s(destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
-                                             srcBD.getBlockPtr(), srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
+            result = services::internal::daal_memcpy_s(destBD.getBlockPtr(),
+                                                       destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
+                                                       srcBD.getBlockPtr(),
+                                                       srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
             tbl->releaseBlockOfRows(destBD);
             value->releaseBlockOfRows(srcBD);
             _labels = tbl;

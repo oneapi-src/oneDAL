@@ -131,7 +131,7 @@ private:
 
         if (_data != nullptr)
         {
-            result = services::daal_memcpy_s(newData, _tail * sizeof(T), _data, _tail * sizeof(T));
+            result = services::internal::daal_memcpy_s(newData, _tail * sizeof(T), _data, _tail * sizeof(T));
             services::daal_free(_data);
             _data = nullptr;
         }
@@ -208,7 +208,7 @@ private:
 
         if (_data != nullptr)
         {
-            result = services::daal_memcpy_s(newData, _size * sizeof(T), _data, _size * sizeof(T));
+            result = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, _size * sizeof(T));
             services::daal_free(_data);
         }
 
@@ -293,7 +293,7 @@ private:
 
         if (_values != nullptr)
         {
-            result = services::daal_memcpy_s(newValues, _size * sizeof(size_t), _values, _size * sizeof(size_t));
+            result = services::internal::daal_memcpy_s(newValues, _size * sizeof(size_t), _values, _size * sizeof(size_t));
             services::daal_free(_values);
             _values = nullptr;
         }
