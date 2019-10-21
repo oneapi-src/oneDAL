@@ -48,8 +48,7 @@ Parameter::Parameter() : splitMethod(defaultSplit), maxIterations(50), maxTreeDe
     engine(engines::mt19937::Batch<>::create()),
     minBinSize(5),
     maxBins(256),
-    internalOptions(gbt::internal::parallelAll),
-    varImportance(0)
+    internalOptions(gbt::internal::parallelAll)
 {
 }
 
