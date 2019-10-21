@@ -269,8 +269,31 @@ public:
     services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__TRAINING__INPUT"></a>
+ * \brief Input objects of the naive Bayes training algorithm in the batch and online processing mode
+ */
+class DAAL_EXPORT Input : public classifier::training::Input
+{
+public:
+    Input(size_t nElements = classifier::training::lastInputId + 1): classifier::training::Input(nElements)
+    {}
+    Input(const Input& other) : classifier::training::Input(other)
+    {}
+
+    virtual ~Input() {}
+
+    /**
+     * Checks input parameters in the training stage of the classification algorithm
+     * \param[in] parameter %Parameter of the algorithm
+     * \param[in] method    Algorithm method
+     */
+    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+};
+
 } // namespace interface1
 using interface1::DistributedInput;
+using interface1::Input;
 using interface1::PartialResult;
 using interface1::PartialResultPtr;
 using interface1::Result;
