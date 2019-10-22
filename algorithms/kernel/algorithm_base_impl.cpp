@@ -253,8 +253,8 @@ services::Status AlgorithmImpl<batch>::computeNoThrow()
         if(!s)
             return s;
     }
-
     s = setupCompute();
+
     if(s)
     {
 #if !(defined DAAL_THREAD_PINNING_DISABLED)

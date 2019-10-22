@@ -137,6 +137,10 @@ public:
         DAAL_ASSERT(n > 0);
         node.count = n;
         node.impurity = imp.var;
+        for (size_t i = 0; i<_nClasses; ++i)
+        {
+            node.hist[i] = imp.hist[i];
+        }
 #ifdef DEBUG_CHECK_IMPURITY
         {
             Histogramm res(_nClasses, 0);

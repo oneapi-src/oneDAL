@@ -51,6 +51,7 @@ services::Status ModelBuilder::initialize(size_t nClasses, size_t nTrees)
     modelImplRef.resize(nTrees);
     modelImplRef._impurityTables.reset();
     modelImplRef._nNodeSampleTables.reset();
+    modelImplRef._probTbl.reset();
     modelImplRef._nTree.set(nTrees);
     return Status();
 }
