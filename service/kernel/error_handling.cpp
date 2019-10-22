@@ -931,11 +931,12 @@ void ErrorMessageCollection::parseResourceFile()
     // Quality metrics errors -90201..-90301
     add(ErrorEmptyInputAlgorithmsCollection, "Quality metric set: Input algorithms collection is empty");
 
-    // Group of execution context errors -999999
-    add(ErrorExecutionContext, "Execution context error");
+    // Group of USM-related errors -90900..-90999
+    add(ErrorAccessUSMPointerOnOtherDevice, "Cannot access USM pointer on the other device");
 
     // Other errors: -100000..
     add(ErrorObjectDoesNotSupportSerialization, "SerializationIface is not implemented or implemented incorrectly");
+    add(ErrorExecutionContext, "Execution context error");
 
     add(ErrorCouldntAttachCurrentThreadToJavaVM, "Couldn't attach current thread to Java VM");
     add(ErrorCouldntCreateGlobalReferenceToJavaObject, "Couldn't create global reference to Java object");

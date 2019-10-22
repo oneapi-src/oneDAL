@@ -27,7 +27,7 @@
 #include <map>
 #include <string>
 
-#include "services/internal/buffer.h"
+#include "services/internal/collection.h"
 #include "data_management/features/defines.h"
 #include "data_management/data/data_dictionary.h"
 
@@ -199,7 +199,7 @@ public:
             if (onDeserialize)
             {
                 const size_t initialBuffSize = 10;
-                services::internal::Buffer<char> buff(initialBuffSize, &status);
+                services::internal::PrimitiveCollection<char> buff(initialBuffSize, &status);
                 DAAL_CHECK_STATUS_VAR(status);
 
                 for (size_t i = 0; i < size; i++)

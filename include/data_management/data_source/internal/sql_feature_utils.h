@@ -20,7 +20,7 @@
 
 #include <string>
 #include "services/collection.h"
-#include "services/internal/buffer.h"
+#include "services/internal/collection.h"
 #include "services/internal/utilities.h"
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -303,9 +303,9 @@ private:
 
 private:
     const SQLFetchMode::Value _mode;
-    services::internal::Buffer<char> _buffer;
-    services::internal::Buffer<SQLLEN> _bufferOffsets;
-    services::internal::Buffer<SQLLEN> _actualDataSizes;
+    services::internal::PrimitiveCollection<char> _buffer;
+    services::internal::PrimitiveCollection<SQLLEN> _bufferOffsets;
+    services::internal::PrimitiveCollection<SQLLEN> _actualDataSizes;
 };
 typedef services::SharedPtr<SQLFetchBuffer> SQLFetchBufferPtr;
 

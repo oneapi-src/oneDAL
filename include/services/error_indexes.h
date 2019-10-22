@@ -396,11 +396,12 @@ enum ErrorID
     // Quality metrics errors -90201..-90301
     ErrorEmptyInputAlgorithmsCollection = -90201,                       /*!< Input algorithms collection is empty */
 
-    // Group of execution context errors -99999
-    ErrorExecutionContext = -99999,                                      /*!< Execution context errors*/
+    // Group of USM-related errors -90900..-90999
+    ErrorAccessUSMPointerOnOtherDevice = -90900,                        /*!< C */
 
     // Other errors: -100000..
     ErrorObjectDoesNotSupportSerialization = -100000,                   /*!< SerializationIface is not implemented or implemented incorrectly */
+    ErrorExecutionContext = -100001,                                    /*!< Execution context errors*/
 
     ErrorCouldntAttachCurrentThreadToJavaVM = -110001,                  /*!< Couldn't attach current thread to Java VM */
     ErrorCouldntCreateGlobalReferenceToJavaObject = -110002,            /*!< Couldn't create global reference to Java object */
