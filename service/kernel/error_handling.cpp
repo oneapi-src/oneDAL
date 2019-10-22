@@ -710,6 +710,7 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorBufferSizeIntegerOverflow, "Integer overflow is occured");
 
     // Environment errors: -2000..-2999
+    add(ErrorCpuIsInvalid, "CPU is invalid");
     add(ErrorCpuNotSupported, "CPU not supported");
     add(ErrorMemoryAllocationFailed, "Memory allocation failed");
     add(ErrorEmptyDataBlock, "Empty data block");
