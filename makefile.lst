@@ -74,7 +74,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
     adaboost                                                                  \
     adaboost/inner                                                            \
     assocrules                                                                \
-    boosting                                                                  \
+    boosting/inner                                                            \
     brownboost                                                                \
     cholesky                                                                  \
     classifier                                                                \
