@@ -36,9 +36,9 @@ template <typename T> class SyclBufferIface;
 template <typename T>
 class BufferVisitor : public Base {
  public:
-  virtual void operator()(const HostBuffer<T> &bufferImpl) = 0;
-  virtual void operator()(const UsmBufferIface<T> &bufferImpl) = 0;
-  virtual void operator()(const SyclBufferIface<T> &bufferImpl) = 0;
+  virtual void operator()(const HostBuffer<T> &buffer) = 0;
+  virtual void operator()(const UsmBufferIface<T> &buffer) = 0;
+  virtual void operator()(const SyclBufferIface<T> &buffer) = 0;
 };
 
 template <typename T>
@@ -63,7 +63,10 @@ public:
 
 template <typename T>
 class UsmBufferIface : public BufferIface<T>,
-                       public ConvertableToHostIface<T> { };
+                       public ConvertableToHostIface<T> {
+public:
+    virtual const SharedPtr<T> &get() const = 0;
+};
 
 template <typename T>
 class SyclBufferIface : public BufferIface<T>,
@@ -100,7 +103,6 @@ private:
     size_t _size;
 };
 
-
 template<typename T>
 class ConvertToHostSharedPtr : public BufferVisitor<T>
 {
@@ -108,24 +110,24 @@ public:
     explicit ConvertToHostSharedPtr(const data_management::ReadWriteMode& rwFlag)
         : _rwFlag(rwFlag) { }
 
-    void operator()(const HostBuffer<T> &bufferImpl) DAAL_C11_OVERRIDE
-    { _hostSharedPtr = bufferImpl.get(); }
+    void operator()(const HostBuffer<T> &buffer) DAAL_C11_OVERRIDE
+    { _hostSharedPtr = buffer.get(); }
 
-    void operator()(const UsmBufferIface<T> &bufferImpl) DAAL_C11_OVERRIDE
-    { _hostSharedPtr = convertToHost(bufferImpl); }
+    void operator()(const UsmBufferIface<T> &buffer) DAAL_C11_OVERRIDE
+    { _hostSharedPtr = convertToHost(buffer); }
 
-    void operator()(const SyclBufferIface<T> &bufferImpl) DAAL_C11_OVERRIDE
-    { _hostSharedPtr = convertToHost(bufferImpl); }
+    void operator()(const SyclBufferIface<T> &buffer) DAAL_C11_OVERRIDE
+    { _hostSharedPtr = convertToHost(buffer); }
 
-    const SharedPtr<T> &getHostPtr() const
+    const SharedPtr<T> &get() const
     { return _hostSharedPtr; }
 
     Status getStatus() const
     { return _status; }
 
 private:
-    template <typename BufferImpl>
-    SharedPtr<T> convertToHost(const BufferImpl &buffer)
+    template <typename Buffer>
+    SharedPtr<T> convertToHost(const Buffer &buffer)
     {
         using namespace daal::data_management;
         switch (_rwFlag)
@@ -147,14 +149,14 @@ template <typename T>
 class HostBufferConverter
 {
 public:
-    SharedPtr<T> toHost(const internal::BufferIface<T> &bufferImpl,
+    SharedPtr<T> toHost(const internal::BufferIface<T> &buffer,
                         const data_management::ReadWriteMode& rwMode,
                         Status *status = NULL)
     {
         ConvertToHostSharedPtr<T> action(rwMode);
-        bufferImpl.apply(action);
+        buffer.apply(action);
         tryAssignStatusAndThrow(status, action.getStatus());
-        return action.getHostPtr();
+        return action.get();
     }
 };
 

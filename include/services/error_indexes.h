@@ -397,7 +397,7 @@ enum ErrorID
     ErrorEmptyInputAlgorithmsCollection = -90201,                       /*!< Input algorithms collection is empty */
 
     // Group of USM-related errors -90900..-90999
-    ErrorAccessUSMPointerOnOtherDevice = -90900,                        /*!< C */
+    ErrorAccessUSMPointerOnOtherDevice = -90900,                        /*!< Cannot access USM pointer from the other device */
 
     // Other errors: -100000..
     ErrorObjectDoesNotSupportSerialization = -100000,                   /*!< SerializationIface is not implemented or implemented incorrectly */

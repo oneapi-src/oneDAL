@@ -29,26 +29,7 @@ namespace services
 namespace internal
 {
 
-// template <typename T>
-// class UsmDeleter : public Base
-// {
-// public:
-//     typedef cl::sycl::accessor<T, 1, mode,
-//         cl::sycl::access::target::host_buffer> HostAccessorType;
-
-// public:
-//     explicit UsmDeleter(HostAccessorType* accessor)
-//         : _hostAccessor(accessor) { }
-
-//     void operator() (const void *ptr)
-//     { delete cl::sycl::free(); }
-
-// private:
-//     HostAccessorType* _hostAccessor;
-// };
-
 #ifdef DAAL_SYCL_INTERFACE_USM
-
 template<typename T>
 class UsmBuffer : public Base,
                   public UsmBufferIface<T>
@@ -56,6 +37,9 @@ class UsmBuffer : public Base,
 public:
     UsmBuffer(const SharedPtr<T> &data, size_t size, cl::sycl::usm::alloc allocType) :
         _data(data), _size(size), _allocType(allocType) { }
+
+    UsmBuffer(T *data, size_t size, cl::sycl::usm::alloc allocType) :
+        _data(data, EmptyDeleter()), _size(size), _allocType(allocType) { }
 
     size_t size() const DAAL_C11_OVERRIDE
     { return _size; }
@@ -65,7 +49,7 @@ public:
 
     UsmBuffer<T> *getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT( offset + size <= _size );
+        DAAL_ASSERT(offset + size <= _size);
         return new UsmBuffer<T>(SharedPtr<T>(_data, _data.get() + offset), size, _allocType);
     }
 
@@ -78,7 +62,7 @@ public:
     SharedPtr<T> getHostReadWrite(Status *status = nullptr) const DAAL_C11_OVERRIDE
     { return getHostPtr(status); }
 
-    const SharedPtr<T> &get() const
+    const SharedPtr<T> &get() const DAAL_C11_OVERRIDE
     { return _data; }
 
     cl::sycl::usm::alloc getAllocType() const
@@ -103,7 +87,6 @@ private:
     size_t _size;
     cl::sycl::usm::alloc _allocType;
 };
-
 #endif
 
 template <typename T, cl::sycl::access::mode mode>
@@ -114,14 +97,17 @@ public:
         cl::sycl::access::target::host_buffer> HostAccessorType;
 
 public:
-    explicit SyclHostDeleter(HostAccessorType* accessor)
+    explicit SyclHostDeleter(HostAccessorType *accessor)
         : _hostAccessor(accessor) { }
 
     void operator() (const void *ptr)
-    { delete _hostAccessor; }
+    {
+        delete _hostAccessor;
+        _hostAccessor = nullptr;
+    }
 
 private:
-    HostAccessorType* _hostAccessor;
+    HostAccessorType *_hostAccessor;
 };
 
 template<typename T>
@@ -186,26 +172,23 @@ private:
     BufferType _syclBuffer;
 };
 
-template<typename T>
+template <typename T>
 class ConvertToSycl : public BufferVisitor<T>
 {
 private:
     typedef cl::sycl::buffer<T, 1> SyclBufferType;
 
 public:
-    void operator()(const HostBuffer<T> &bufferImpl) DAAL_C11_OVERRIDE
-    { _syclBuffer = wrap(bufferImpl.get(), bufferImpl.size()); }
+    void operator()(const HostBuffer<T> &buffer) DAAL_C11_OVERRIDE
+    { _syclBuffer = wrap(buffer.get(), buffer.size()); }
 
-    void operator()(const UsmBufferIface<T> &bufferImpl) DAAL_C11_OVERRIDE
-    {
-        const auto &usmBuffer = static_cast<const UsmBuffer<T>&>(bufferImpl);
-        _syclBuffer = wrap(usmBuffer.get(), usmBuffer.size(), true);
-    }
+    void operator()(const UsmBufferIface<T> &buffer) DAAL_C11_OVERRIDE
+    { _syclBuffer = wrap(buffer.get(), buffer.size(), true); }
 
-    void operator()(const SyclBufferIface<T> &bufferImpl) DAAL_C11_OVERRIDE
-    { _syclBuffer = static_cast<const SyclBuffer<T>&>(bufferImpl).get(); }
+    void operator()(const SyclBufferIface<T> &buffer) DAAL_C11_OVERRIDE
+    { _syclBuffer = static_cast<const SyclBuffer<T>&>(buffer).get(); }
 
-    const SyclBufferType &getSyclBuffer() const
+    const SyclBufferType &get() const
     { return _syclBuffer.get<SyclBufferType>(); }
 
 private:
@@ -218,20 +201,58 @@ private:
         return SyclBufferType(ptr.get(), cl::sycl::range<1>(size), bufferProperties);
     }
 
-    Status _status;
     services::internal::Any _syclBuffer;
 };
+
+#ifdef DAAL_SYCL_INTERFACE_USM
+template <typename T>
+class ConvertToUsm : public BufferVisitor<T>
+{
+public:
+    void operator()(const HostBuffer<T> &buffer) DAAL_C11_OVERRIDE
+    { _data = buffer.get(); }
+
+    void operator()(const UsmBufferIface<T> &buffer) DAAL_C11_OVERRIDE
+    { _data = buffer.get(); }
+
+    void operator()(const SyclBufferIface<T> &buffer) DAAL_C11_OVERRIDE
+    {
+      /* NOTE: Performance might be not quite satisfactory. If the SYCL* buffer
+       * is a wrapper over pointer (e.g., was created using `use_host_ptr`
+       * property), `getHostReadWrite` will not create overhead. Otherwise,
+       * getting host pointer will result in graph synchronization and potential
+       * data copy. */
+      // TODO: Report error or warning, if `buffer` does not has property `use_host_ptr`
+      _data = buffer.getHostReadWrite();
+    }
+
+    const SharedPtr<T> &get() const
+    { return _data; }
+
+private:
+    SharedPtr<T> _data;
+};
+#endif
 
 template<typename T>
 class SyclBufferConverter
 {
 public:
-    cl::sycl::buffer<T, 1> toSycl(const internal::BufferIface<T> &bufferImpl)
+    cl::sycl::buffer<T, 1> toSycl(const internal::BufferIface<T> &buffer)
     {
         ConvertToSycl<T> action;
-        bufferImpl.apply(action);
-        return action.getSyclBuffer();
+        buffer.apply(action);
+        return action.get();
     }
+
+#ifdef DAAL_SYCL_INTERFACE_USM
+    SharedPtr<T> toUSM(const internal::BufferIface<T> &buffer)
+    {
+        ConvertToUsm<T> action;
+        buffer.apply(action);
+        return action.get();
+    }
+#endif
 };
 
 } // namespace internal

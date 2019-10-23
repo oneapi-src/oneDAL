@@ -932,7 +932,7 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorEmptyInputAlgorithmsCollection, "Quality metric set: Input algorithms collection is empty");
 
     // Group of USM-related errors -90900..-90999
-    add(ErrorAccessUSMPointerOnOtherDevice, "Cannot access USM pointer on the other device");
+    add(ErrorAccessUSMPointerOnOtherDevice, "Cannot access USM pointer from the other device");
 
     // Other errors: -100000..
     add(ErrorObjectDoesNotSupportSerialization, "SerializationIface is not implemented or implemented incorrectly");

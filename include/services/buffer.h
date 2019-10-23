@@ -73,6 +73,16 @@ public:
      *  \param[in] size       Number of elements of type T stored in USM memory block
      *  \param[in] allocType  USM allocation type
      */
+    Buffer(T *usmData, size_t size, cl::sycl::usm::alloc allocType) :
+        _impl(new internal::UsmBuffer<T>(usmData, size, allocType)) { }
+
+    /**
+     *  Creates a Buffer object referencing a USM pointer.
+     *  Does not copy the data from the USM pointer.
+     *  \param[in] usmData    USM pointer
+     *  \param[in] size       Number of elements of type T stored in USM memory block
+     *  \param[in] allocType  USM allocation type
+     */
     Buffer(const SharedPtr<T> &usmData, size_t size, cl::sycl::usm::alloc allocType) :
         _impl(new internal::UsmBuffer<T>(usmData, size, allocType)) { }
 #endif
