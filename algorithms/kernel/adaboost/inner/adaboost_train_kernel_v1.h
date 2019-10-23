@@ -1,4 +1,4 @@
-/* file: adaboost_train_kernel.h */
+/* file: adaboost_train_kernel_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __ADABOOST_TRAIN_KERNEL_H__
-#define __ADABOOST_TRAIN_KERNEL_H__
+#ifndef __ADABOOST_TRAIN_KERNEL_V1_H__
+#define __ADABOOST_TRAIN_KERNEL_V1_H__
 
 #include "adaboost_model.h"
 #include "adaboost_training_types.h"
@@ -43,20 +43,16 @@ namespace internal
 {
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class AdaBoostTrainKernel : public Kernel
+class I1AdaBoostTrainKernel : public Kernel
 {
 public:
-    services::Status compute(NumericTablePtr *a, Model *r, NumericTable *weakLearnersErrorsTable, const Parameter *par);
+    services::Status compute(NumericTablePtr *a, adaboost::interface1::Model *r, const adaboost::interface1::Parameter *par);
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
 
 private:
-    services::Status adaboostSAMME(size_t nVectors, NumericTablePtr weakLearnerInputTables[],
-                                   const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsTable, const Parameter *parameter, size_t &nWeakLearners, algorithmFPType *alpha);
-    services::Status adaboostSAMME_R(
-        size_t nVectors, NumericTablePtr weakLearnerInputTables[],
-        const algorithmFPType *y, Model *boostModel, algorithmFPType *weakLearnersErrorsTable, const Parameter *parameter, size_t &nWeakLearners, algorithmFPType *alpha);
-    void convertLabelToVector(size_t nClasses, algorithmFPType *Y);
+    services::Status adaBoostFreundKernel(size_t nVectors, NumericTablePtr weakLearnerInputTables[], const HomogenNTPtr& hTable,
+        const algorithmFPType *y, adaboost::interface1::Model *boostModel, const adaboost::interface1::Parameter *parameter, size_t& nWeakLearners, algorithmFPType *alpha);
 };
 } // namespace daal::algorithms::adaboost::training::internal
 }

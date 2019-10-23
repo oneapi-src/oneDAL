@@ -1,4 +1,4 @@
-/* file: adaboost_training_result_fpt.cpp */
+/* file: adaboost_train_dense_default_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,11 +17,13 @@
 
 /*
 //++
-//  Implementation of Ada Boost training algorithm interface.
+//  Implementation of Freund method for Ada Boost training algorithm.
 //--
 */
 
-#include "adaboost_training_result.h"
+#include "adaboost_train_batch_container_v1.h"
+#include "adaboost_train_kernel_v1.h"
+#include "adaboost_train_impl_v1.i"
 
 namespace daal
 {
@@ -31,8 +33,15 @@ namespace adaboost
 {
 namespace training
 {
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-}// namespace training
-}// namespace adaboost
-}// namespace algorithms
-}// namespace daal
+namespace interface1
+{
+template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+}
+namespace internal
+{
+template class I1AdaBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
+}
+}
+}
+}
+}

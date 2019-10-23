@@ -1,4 +1,4 @@
-/* file: adaboost_training_result_fpt.cpp */
+/* file: adaboost_training_result_fpt_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,7 +21,7 @@
 //--
 */
 
-#include "adaboost_training_result.h"
+#include "adaboost_training_result_v1.h"
 
 namespace daal
 {
@@ -31,7 +31,10 @@ namespace adaboost
 {
 namespace training
 {
+namespace interface1
+{
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+}
 }// namespace training
 }// namespace adaboost
 }// namespace algorithms

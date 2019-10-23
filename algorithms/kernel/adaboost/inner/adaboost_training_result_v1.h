@@ -1,4 +1,4 @@
-/* file: adaboost_training_result.h */
+/* file: adaboost_training_result_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __ADABOOST_TRAINING_RESULT_
-#define __ADABOOST_TRAINING_RESULT_
+#ifndef __ADABOOST_TRAINING_RESULT_V1_H__
+#define __ADABOOST_TRAINING_RESULT_V1_H__
 
 #include "algorithms/boosting/adaboost_training_types.h"
 
@@ -37,7 +37,7 @@ namespace adaboost
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 /**
  * Allocates memory to store final results of AdaBoost training
@@ -46,20 +46,13 @@ namespace interface2
  * \param[in] method        AdaBoost computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
 {
     services::Status s;
-    const Parameter * const parameter = static_cast<const Parameter *>(par);
-    const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
-    set(classifier::training::model, Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
-    if(parameter->resultsToCompute & adaboost::computeWeakLearnersErrors)
-    {
-        set(weakLearnersErrors, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(parameter->maxIterations, 1,
-                                                data_management::NumericTable::doAllocate, s)));
-    }
+    const classifier::training::interface1::Input *algInput = static_cast<const classifier::training::interface1::Input *>(input);
+    set(classifier::training::model, daal::algorithms::adaboost::interface1::Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
     return s;
 }
-
 }
 } // namespace training
 } // namespace adaboost

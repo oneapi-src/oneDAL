@@ -1,4 +1,4 @@
-/* file: adaboost_train_batch_container.h */
+/* file: adaboost_train_batch_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -22,11 +22,11 @@
 //--
 */
 
-#ifndef __ADABOOST_TRAIN_BATCH_CONTAINER_H__
-#define __ADABOOST_TRAIN_BATCH_CONTAINER_H__
+#ifndef __ADABOOST_TRAIN_BATCH_CONTAINER_V1_H__
+#define __ADABOOST_TRAIN_BATCH_CONTAINER_V1_H__
 
 #include "adaboost_training_batch.h"
-#include "adaboost_train_kernel.h"
+#include "adaboost_train_kernel_v1.h"
 #include "kernel.h"
 
 namespace daal
@@ -37,12 +37,12 @@ namespace adaboost
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::AdaBoostTrainKernel, method, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::I1AdaBoostTrainKernel, method, algorithmFPType);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -54,20 +54,19 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
-    adaboost::training::Result *result = static_cast<adaboost::training::Result *>(_res);
+    classifier::training::interface1::Input *input = static_cast<classifier::training::interface1::Input *>(_in);
+    adaboost::training::interface1::Result *result = static_cast<adaboost::training::interface1::Result *>(_res);
 
     NumericTablePtr a[2];
     a[0] = services::staticPointerCast<NumericTable>(input->get(classifier::training::data));
     a[1] = services::staticPointerCast<NumericTable>(input->get(classifier::training::labels));
 
-    adaboost::Model *r = static_cast<adaboost::Model *>(result->get(classifier::training::model).get());
-    NumericTable *weakLearnersErrorsTable = result->get(adaboost::training::weakLearnersErrors).get();
+    adaboost::interface1::Model *r = static_cast<adaboost::interface1::Model *>(result->get(classifier::training::model).get());
     DAAL_CHECK_MALLOC(_par)
-    const adaboost::Parameter *par = static_cast<adaboost::Parameter *>(_par);
+    const adaboost::interface1::Parameter *par = static_cast<adaboost::interface1::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::AdaBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, weakLearnersErrorsTable, par);
+    __DAAL_CALL_KERNEL(env, internal::I1AdaBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, par);
 }
 }
 } // namespace daal::algorithms::adaboost::training
@@ -75,4 +74,4 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 }
 } // namespace daal
 
-#endif // __ADABOOST_TRAINING_BATCH_CONTAINER_H__
+#endif // __ADABOOST_TRAINING_BATCH_CONTAINER_V1_H__

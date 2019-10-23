@@ -1,4 +1,4 @@
-/* file: adaboost_training_batch.cpp */
+/* file: adaboost_training_batch_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -35,42 +35,32 @@ namespace adaboost
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 
-__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_MULTICLASS_ADABOOST_TRAINING_RESULT_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_ADABOOST_TRAINING_RESULT_ID);
 
-Result::Result() : classifier::training::Result(lastResultNumericTableId + 1) {}
-
-NumericTablePtr Result::get(ResultNumericTableId id) const
+/**
+ * Returns the model trained with the AdaBoost algorithm
+ * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
+ * \return          Model trained with the AdaBoost algorithm
+ */
+daal::algorithms::adaboost::interface1::ModelPtr Result::get(classifier::training::ResultId id) const
 {
-    return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
-}
-
-void Result::set(ResultNumericTableId id, const NumericTablePtr &value)
-{
-    Argument::set(id, value);
-}
-
-daal::algorithms::adaboost::ModelPtr Result::get(classifier::training::ResultId id) const
-{
-    return staticPointerCast<daal::algorithms::adaboost::Model, SerializationIface>(Argument::get(id));
-}
-
-void Result::set(classifier::training::ResultId id, const ModelPtr &value)
-{
-    Argument::set(id, value);
+    return staticPointerCast<daal::algorithms::adaboost::interface1::Model, SerializationIface>(Argument::get(id));
 }
 
 services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
 {
-    Status s = classifier::training::Result::check(input, parameter, method);
+    Status s = classifier::training::interface1::Result::check(input, parameter, method);
     if(!s) return s;
-    daal::algorithms::adaboost::ModelPtr m = get(classifier::training::model);
+    daal::algorithms::adaboost::interface1::ModelPtr m = get(classifier::training::model);
     DAAL_CHECK(m->getAlpha(), ErrorModelNotFullInitialized);
     return s;
 }
-} // namespace interface2
+
+
+} // namespace interface1
 } // namespace training
 } // namespace adaboost
 } // namespace algorithms
