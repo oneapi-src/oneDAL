@@ -1,4 +1,4 @@
-/* file: logitboost_predict_dense_default_kernel.h */
+/* file: logitboost_train_friedman_kernel_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,19 +17,32 @@
 
 /*
 //++
-//  Common functions for Logit Boost predictions calculation
+//  Common functions for Logit Boost model training
 //--
 */
+/*
+//
+//  REFERENCES
+//
+//  1. J. Friedman, T. Hastie, R. Tibshirani.
+//     Additive logistic regression: a statistical view of boosting,
+//     The annals of Statistics, 2000, v28 N2, pp. 337-407
+//  2. J. Friedman, T. Hastie, R. Tibshirani.
+//     The Elements of Statistical Learning:
+//     Data Mining, Inference, and Prediction,
+//     Springer, 2001.
+//
+*/
 
-#ifndef __LOGITBOOST_PREDICT_DENSE_DEFAULT_KERNEL_H__
-#define __LOGITBOOST_PREDICT_DENSE_DEFAULT_KERNEL_H__
+#ifndef __LOGITBOOST_TRAIN_FRIEDMAN_KERNEL_V1_H__
+#define __LOGITBOOST_TRAIN_FRIEDMAN_KERNEL_V1_H__
 
-#include "algorithm.h"
+#include "threading.h"
+#include "service_memory.h"
 #include "service_numeric_table.h"
-#include "logitboost_model.h"
-#include "daal_defines.h"
+#include "service_data_utils.h"
 
-#include "logitboost_predict_kernel.h"
+#include "logitboost_train_kernel_v1.h"
 
 namespace daal
 {
@@ -37,20 +50,21 @@ namespace algorithms
 {
 namespace logitboost
 {
-namespace prediction
+namespace training
 {
 namespace internal
 {
+
 /**
- *  \brief Specialization of the structure that contains kernels
- *  for Logit Boost prediction calculation using Fast method
+ *  \brief Specialization of the structure that contains kernels for
+ *  Logit Boost model training using Friedman method
  */
 template<typename algorithmFPType, CpuType cpu>
-struct LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu> : public Kernel
+struct I1LogitBoostTrainKernel<friedman, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    services::Status compute(const NumericTablePtr& a, const Model *m, NumericTable *r, const Parameter *par);
+    services::Status compute(const size_t na, NumericTablePtr a[], logitboost::interface1::Model *r, const logitboost::interface1::Parameter *par);
 };
 } // namepsace internal
 } // namespace prediction

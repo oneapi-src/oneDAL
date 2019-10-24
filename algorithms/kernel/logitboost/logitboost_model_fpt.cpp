@@ -29,21 +29,6 @@ namespace algorithms
 {
 namespace logitboost
 {
-namespace interface1
-{
-/**
- *  Constructs the logitBoost %Model
- * \tparam modelFPType  Data type to store logitBoost model data, double or float
- * \param[in] dummy     Dummy variable for the templated constructor
- * \DAAL_DEPRECATED_USE{ Model::create }
- */
-template <typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nFeatures, const Parameter *par, modelFPType dummy) :
-    boosting::Model(nFeatures), _nIterations(par->maxIterations) {}
-
-template DAAL_EXPORT Model::Model(size_t, const Parameter *, DAAL_FPTYPE);
-}
-
 namespace interface2
 {
 /**

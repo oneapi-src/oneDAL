@@ -1,4 +1,4 @@
-/* file: logitboost_predict_dense_default_fpt_cpu.cpp */
+/* file: logitboost_train_friedman_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,13 +17,13 @@
 
 /*
 //++
-//  Implementation of prediction stage of Logit Boost algorithm.
+//  Implementation of Logit Boost training functions.
 //--
 */
 
-#include "logitboost_predict_batch_container.h"
-#include "logitboost_predict_dense_default_kernel.h"
-#include "logitboost_predict_dense_default_impl.i"
+#include "logitboost_train_batch_container_v1.h"
+#include "logitboost_train_friedman_kernel_v1.h"
+#include "logitboost_train_friedman_impl_v1.i"
 
 namespace daal
 {
@@ -31,15 +31,15 @@ namespace algorithms
 {
 namespace logitboost
 {
-namespace prediction
+namespace training
 {
-namespace interface2
+namespace interface1
 {
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+template class BatchContainer<DAAL_FPTYPE, friedman, DAAL_CPU>;
 }
 namespace internal
 {
-template struct LogitBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
+template struct I1LogitBoostTrainKernel<friedman, DAAL_FPTYPE, DAAL_CPU>;
 }
 }
 }

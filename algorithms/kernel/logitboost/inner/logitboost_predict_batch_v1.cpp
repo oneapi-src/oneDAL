@@ -1,4 +1,4 @@
-/* file: logitboost_predict_batch.cpp */
+/* file: logitboost_predict_batch_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -34,7 +34,7 @@ namespace logitboost
 {
 namespace prediction
 {
-namespace interface2
+namespace interface1
 {
 
 /**
@@ -52,9 +52,9 @@ NumericTablePtr Input::get(classifier::prediction::NumericTableInputId id) const
  * \param[in] id    Identifier of the input Model object
  * \return          %Input object that corresponds to the given identifier
  */
-logitboost::ModelPtr Input::get(classifier::prediction::ModelInputId id) const
+logitboost::interface1::ModelPtr Input::get(classifier::prediction::ModelInputId id) const
 {
-    return staticPointerCast<logitboost::Model, SerializationIface>(Argument::get(id));
+    return staticPointerCast<logitboost::interface1::Model, SerializationIface>(Argument::get(id));
 }
 
 /**
@@ -72,7 +72,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const NumericTab
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const logitboost::ModelPtr &ptr)
+void Input::set(classifier::prediction::ModelInputId id, const logitboost::interface1::ModelPtr &ptr)
 {
     Argument::set(id, ptr);
 }
@@ -84,15 +84,16 @@ void Input::set(classifier::prediction::ModelInputId id, const logitboost::Model
  */
 services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
 {
-    services::Status s = classifier::prediction::Input::check(parameter, method);
+    services::Status s = classifier::prediction::interface1::Input::check(parameter, method);
     if(!s) return s;
 
-    logitboost::ModelPtr m =
-        staticPointerCast<logitboost::Model, classifier::Model>(get(classifier::prediction::model));
+    logitboost::interface1::ModelPtr m =
+        staticPointerCast<logitboost::interface1::Model, classifier::Model>(get(classifier::prediction::model));
     DAAL_CHECK(m->getNumberOfWeakLearners() > 0, ErrorModelNotFullInitialized);
     return s;
 }
-} // namespace interface2
+} // namespace interface1
+
 } // namespace prediction
 } // namespace logitboost
 } // namespace algorithms

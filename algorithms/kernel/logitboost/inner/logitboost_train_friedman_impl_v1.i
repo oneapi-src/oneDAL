@@ -1,4 +1,4 @@
-/* file: logitboost_train_friedman_impl.i */
+/* file: logitboost_train_friedman_impl_v1.i */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -34,8 +34,8 @@
 //
 */
 
-#ifndef __LOGITBOOST_TRAIN_FRIEDMAN_IMPL_I__
-#define __LOGITBOOST_TRAIN_FRIEDMAN_IMPL_I__
+#ifndef __LOGITBOOST_TRAIN_FRIEDMAN_IMPL_V1_I__
+#define __LOGITBOOST_TRAIN_FRIEDMAN_IMPL_V1_I__
 
 #include "threading.h"
 #include "service_memory.h"
@@ -62,17 +62,17 @@ namespace internal
 {
 
 template<typename algorithmFPType, CpuType cpu>
-class LogitBoostLs
+class I1LogitBoostLs
 {
 private:
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    typedef typename daal::services::SharedPtr<daal::algorithms::regression::training::Batch> TrainLernerPtr;
-    typedef typename daal::services::SharedPtr<daal::algorithms::regression::prediction::Batch> PredictLernerPtr;
+    typedef typename daal::services::SharedPtr<daal::algorithms::weak_learner::training::Batch> TrainLernerPtr;
+    typedef typename daal::services::SharedPtr<daal::algorithms::weak_learner::prediction::Batch> PredictLernerPtr;
 
 public:
-    LogitBoostLs(const size_t n): _nRows(n), _isInit(false) {}
-    ~LogitBoostLs() {}
+    I1LogitBoostLs(const size_t n): _nRows(n), _isInit(false) {}
+    ~I1LogitBoostLs() {}
     DAAL_NEW_DELETE();
 
     services::Status allocate(NumericTablePtr& x, TrainLernerPtr& train, PredictLernerPtr& predict)
@@ -85,19 +85,19 @@ public:
             if (!wArray) wArray = HomogenNT::create(1, _nRows, &status);
             if (!zArray) zArray = HomogenNT::create(1, _nRows, &status);
 
-            auto rpr = new regression::prediction::Result();
-            DAAL_CHECK_MALLOC(rpr)
-            _predictionRes.reset(rpr);
+            auto cpir = new classifier::prediction::interface1::Result();
+            DAAL_CHECK_MALLOC(cpir)
+            _predictionRes.reset(cpir);
 
-            regression::training::Input *input = _learnerTrain->getInput();
-            regression::prediction::Input *predInput = _learnerPredict->getInput();
+            classifier::training::interface1::Input *input = _learnerTrain->getInput();
+            classifier::prediction::interface1::Input *predInput = _learnerPredict->getInput();
             if (!input || !predInput) status.add(services::ErrorNullInput);
             else
             {
-                input->set(regression::training::dependentVariables, zArray);
-                input->set(regression::training::weights, wArray);
-                input->set(regression::training::data, x);
-                predInput->set(regression::prediction::data, x);
+                input->set(classifier::training::labels,  zArray);
+                input->set(classifier::training::weights, wArray);
+                input->set(classifier::training::data,    x);
+                predInput->set(classifier::prediction::data, x);
             }
         }
 
@@ -120,17 +120,19 @@ public:
         services::Status status = _learnerTrain->computeNoThrow();
         DAAL_CHECK_STATUS_VAR(status);
 
-        regression::ModelPtr learnerModel = _learnerTrain->getResult()->get(regression::training::model);
+        classifier::training::interface1::ResultPtr trainingRes = _learnerTrain->getResult();
+        weak_learner::ModelPtr learnerModel =
+                services::staticPointerCast<weak_learner::Model, classifier::Model>(trainingRes->get(classifier::training::model));
         models[classIdx] = learnerModel;
 
-        regression::prediction::Input *predInput = _learnerPredict->getInput();
+        classifier::prediction::interface1::Input *predInput = _learnerPredict->getInput();
         DAAL_CHECK(predInput, services::ErrorNullInput);
-        predInput->set(regression::prediction::model, learnerModel);
+        predInput->set(classifier::prediction::model, learnerModel);
 
         HomogenNTPtr predTable(HomogenNT::create(pred.get() + classIdx * _nRows, 1, _nRows, &status));
         DAAL_CHECK_STATUS_VAR(status);
 
-        _predictionRes->set(regression::prediction::prediction, predTable);
+        _predictionRes->set(classifier::prediction::prediction, predTable);
         status = _learnerPredict->setResult(_predictionRes);
         DAAL_CHECK_STATUS_VAR(status);
 
@@ -147,14 +149,14 @@ public:
 private:
     TrainLernerPtr _learnerTrain;
     PredictLernerPtr _learnerPredict;
-    regression::prediction::ResultPtr _predictionRes;
+    classifier::prediction::interface1::ResultPtr _predictionRes;
     const size_t _nRows;
     bool _isInit;
 };
 
 template<typename algorithmFPType, CpuType cpu>
-services::Status UpdateFPNew( size_t nc, size_t n, algorithmFPType *F, algorithmFPType *P, const algorithmFPType *pred,
-    daal::ls<LogitBoostLs<algorithmFPType, cpu> *>& lsData)
+services::Status UpdateFP( size_t nc, size_t n, algorithmFPType *F, algorithmFPType *P, const algorithmFPType *pred,
+    daal::ls<I1LogitBoostLs<algorithmFPType, cpu> *>& lsData)
 {
     const size_t minBlockSize = 768;
     const size_t nThreads = threader_get_threads_number();
@@ -192,7 +194,7 @@ services::Status UpdateFPNew( size_t nc, size_t n, algorithmFPType *F, algorithm
             }
         }
 
-        struct LogitBoostLs<algorithmFPType, cpu> *lsLocal = lsData.local();
+        struct I1LogitBoostLs<algorithmFPType, cpu> *lsLocal = lsData.local();
         if (!lsLocal)
         {
             safeStat.add(services::ErrorMemoryAllocationFailed);
@@ -241,11 +243,12 @@ services::Status UpdateFPNew( size_t nc, size_t n, algorithmFPType *F, algorithm
 }
 
 template<typename algorithmFPType, CpuType cpu>
-services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(const size_t na, NumericTablePtr a[], Model *r, const Parameter *par)
+services::Status I1LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(const size_t na, NumericTablePtr a[], logitboost::interface1::Model *r,
+ const logitboost::interface1::Parameter *par)
 {
     const algorithmFPType zero(0.0);
     const algorithmFPType fp_one(1.0);
-    Parameter *parameter = const_cast<Parameter *>(par);
+    logitboost::interface1::Parameter *parameter = const_cast<logitboost::interface1::Parameter *>(par);
     NumericTablePtr x = a[0];
     NumericTablePtr y = a[1];
     r->setNFeatures(x->getNumberOfColumns());
@@ -294,17 +297,17 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     const int *y_label = yCols.get();
     DAAL_ASSERT(y_label);
 
-    services::SharedPtr<regression::training::Batch> learnerTrain = parameter->weakLearnerTraining;
-    services::SharedPtr<regression::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction;
+    services::SharedPtr<weak_learner::training::Batch> learnerTrain = parameter->weakLearnerTraining;
+    services::SharedPtr<weak_learner::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction;
 
     /* Clear the collection of weak learners models in the boosting model */
     r->clearWeakLearnerModels();
     data_management::DataCollection models(nc);
 
     SafeStatus safeStat;
-    daal::ls<LogitBoostLs<algorithmFPType, cpu> *> lsData([&]()
+    daal::ls<I1LogitBoostLs<algorithmFPType, cpu> *> lsData([&]()
     {
-        auto ptr = new LogitBoostLs<algorithmFPType, cpu>(n);
+        auto ptr = new I1LogitBoostLs<algorithmFPType, cpu>(n);
         if(!ptr)
         {
             safeStat.add(services::ErrorMemoryAllocationFailed);
@@ -320,7 +323,7 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
            Step 2.a) of the Algorithm 6 from [1] */
         daal::threader_for(nc, nc, [&] (size_t j)
         {
-            struct LogitBoostLs<algorithmFPType, cpu> *lsLocal = lsData.local();
+            struct I1LogitBoostLs<algorithmFPType, cpu> *lsLocal = lsData.local();
             if(!lsLocal)
                 return;
 
@@ -337,12 +340,12 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
 
         for(size_t j =0; j < nc; ++j)
         {
-            r->addWeakLearnerModel(services::staticPointerCast<regression::Model, SerializationIface>(models[j]));
+            r->addWeakLearnerModel(services::staticPointerCast<weak_learner::Model, SerializationIface>(models[j]));
         }
 
         /* Update additive function's values and probabilities
            Step 2.b and 2.c) of the Algorithm 6 from [1] */
-        s |= UpdateFPNew<algorithmFPType, cpu>(nc, n, F.get(), P.get(), pred.get(), lsData);
+        s |= UpdateFP<algorithmFPType, cpu>(nc, n, F.get(), P.get(), pred.get(), lsData);
         DAAL_CHECK_STATUS_VAR(s);
         /* Calculate model accuracy */
         calculateAccuracy<algorithmFPType, cpu>(n, nc, y_label, P.get(), logL, accCur);
@@ -355,14 +358,12 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     }
     s |= safeStat.detach();
 
-    lsData.reduce([ = ](LogitBoostLs<algorithmFPType, cpu> *logitBoostLs)
+    lsData.reduce([ = ](I1LogitBoostLs<algorithmFPType, cpu> *logitBoostLs)
     {
         delete logitBoostLs;
     });
     return s;
 }
-
-
 } // namepsace internal
 } // namespace prediction
 } // namespace logitboost

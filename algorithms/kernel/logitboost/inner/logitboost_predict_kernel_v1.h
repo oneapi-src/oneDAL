@@ -1,4 +1,4 @@
-/* file: logitboost_predict_kernel.h */
+/* file: logitboost_predict_kernel_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -22,8 +22,8 @@
 //--
 */
 
-#ifndef __LOGITBOOST_PREDICT_KERNEL_H__
-#define __LOGITBOOST_PREDICT_KERNEL_H__
+#ifndef __LOGITBOOST_PREDICT_KERNEL_V1_H__
+#define __LOGITBOOST_PREDICT_KERNEL_V1_H__
 
 #include "logitboost_predict.h"
 #include "kernel.h"
@@ -42,7 +42,7 @@ namespace prediction
 namespace internal
 {
 template <Method method, typename algorithmFPType, CpuType cpu>
-struct LogitBoostPredictKernel : public Kernel
+struct I1LogitBoostPredictKernel : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;

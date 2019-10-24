@@ -1,4 +1,4 @@
-/* file: logitboost_predict_batch_container.h */
+/* file: logitboost_predict_batch_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -23,11 +23,11 @@
 //--
 */
 
-#ifndef __LOGITBOOST_PREDICT_BATCH_CONTAINER__
-#define __LOGITBOOST_PREDICT_BATCH_CONTAINER__
+#ifndef __LOGITBOOST_PREDICT_BATCH_CONTAINER_V1__
+#define __LOGITBOOST_PREDICT_BATCH_CONTAINER_V1__
 
 #include "logitboost_predict.h"
-#include "logitboost_predict_dense_default_kernel.h"
+#include "logitboost_predict_dense_default_kernel_v1.h"
 
 namespace daal
 {
@@ -37,12 +37,12 @@ namespace logitboost
 {
 namespace prediction
 {
-namespace interface2
+namespace interface1
 {
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::LogitBoostPredictKernel, method, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::I1LogitBoostPredictKernel, method, algorithmFPType);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -54,16 +54,16 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::prediction::Input *input = static_cast<classifier::prediction::Input *>(_in);
-    classifier::prediction::Result *result = static_cast<classifier::prediction::Result *>(_res);
+    classifier::prediction::interface1::Input *input = static_cast<classifier::prediction::interface1::Input *>(_in);
+    classifier::prediction::interface1::Result *result = static_cast<classifier::prediction::interface1::Result *>(_res);
 
     NumericTablePtr a = input->get(classifier::prediction::data);
-    logitboost::Model *m = static_cast<logitboost::Model *>(input->get(classifier::prediction::model).get());
+    logitboost::interface1::Model *m = static_cast<logitboost::interface1::Model *>(input->get(classifier::prediction::model).get());
     NumericTable *r = static_cast<NumericTable *>(result->get(classifier::prediction::prediction).get());
-    logitboost::Parameter *par = static_cast<logitboost::Parameter *>(_par);
+    logitboost::interface1::Parameter *par = static_cast<logitboost::interface1::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::LogitBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
+    __DAAL_CALL_KERNEL(env, internal::I1LogitBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
 }
 }
 } // namespace daal::algorithms::logitboost::prediction

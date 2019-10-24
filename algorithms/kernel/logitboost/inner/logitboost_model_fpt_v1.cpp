@@ -1,4 +1,4 @@
-/* file: logitboost_predict_dense_default_fpt_cpu.cpp */
+/* file: logitboost_model_fpt_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,13 +17,11 @@
 
 /*
 //++
-//  Implementation of prediction stage of Logit Boost algorithm.
+//  Implementation of class defining LogitBoost model.
 //--
 */
 
-#include "logitboost_predict_batch_container.h"
-#include "logitboost_predict_dense_default_kernel.h"
-#include "logitboost_predict_dense_default_impl.i"
+#include "algorithms/boosting/logitboost_model.h"
 
 namespace daal
 {
@@ -31,17 +29,20 @@ namespace algorithms
 {
 namespace logitboost
 {
-namespace prediction
+namespace interface1
 {
-namespace interface2
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+/**
+ *  Constructs the logitBoost %Model
+ * \tparam modelFPType  Data type to store logitBoost model data, double or float
+ * \param[in] dummy     Dummy variable for the templated constructor
+ * \DAAL_DEPRECATED_USE{ Model::create }
+ */
+template <typename modelFPType>
+DAAL_EXPORT Model::Model(size_t nFeatures, const Parameter *par, modelFPType dummy) :
+    boosting::Model(nFeatures), _nIterations(par->maxIterations) {}
+
+template DAAL_EXPORT Model::Model(size_t, const Parameter *, DAAL_FPTYPE);
 }
-namespace internal
-{
-template struct LogitBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
-}
-}
-}
-}
-}
+}// namespace logitboost
+}// namespace algorithms
+}// namespace daal

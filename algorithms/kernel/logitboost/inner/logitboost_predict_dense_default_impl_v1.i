@@ -1,4 +1,4 @@
-/* file: logitboost_predict_dense_default_impl.i */
+/* file: logitboost_predict_dense_default_impl_v1.i */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __LOGITBOOST_PREDICT_DENSE_DEFAULT_IMPL_I__
-#define __LOGITBOOST_PREDICT_DENSE_DEFAULT_IMPL_I__
+#ifndef __LOGITBOOST_PREDICT_DENSE_DEFAULT_IMPL_V1_I__
+#define __LOGITBOOST_PREDICT_DENSE_DEFAULT_IMPL_V1_I__
 
 #include "algorithm.h"
 #include "numeric_table.h"
@@ -49,14 +49,14 @@ namespace internal
 using namespace daal::internal;
 
 template<typename algorithmFPType, CpuType cpu>
-services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::compute( const NumericTablePtr& a, const Model *m, NumericTable *r, const Parameter *par )
+services::Status I1LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::compute( const NumericTablePtr& a, const logitboost::interface1::Model *m, NumericTable *r, const logitboost::interface1::Parameter *par )
 {
-    Parameter *parameter = const_cast<Parameter *>(par);
+    logitboost::interface1::Parameter *parameter = const_cast<logitboost::interface1::Parameter *>(par);
     const size_t dim = a->getNumberOfColumns();       /* Number of features in input dataset */
     const size_t n   = a->getNumberOfRows();          /* Number of observations in input dataset */
     const size_t nc  = parameter->nClasses;           /* Number of classes */
     const size_t M   = m->getIterations();            /* Number of terms of additive regression in the model */
-    Model *boostModel = const_cast<Model *>(m);
+    logitboost::interface1::Model *boostModel = const_cast<logitboost::interface1::Model *>(m);
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nc);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * nc, sizeof(algorithmFPType));
@@ -69,10 +69,10 @@ services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::co
     daal::services::internal::service_memset<algorithmFPType, cpu>(F.get(), 0, n * nc);
 
     services::Status s;
-    services::SharedPtr<regression::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction;
-    regression::prediction::Input *predictInput = learnerPredict->getInput();
+    services::SharedPtr<weak_learner::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction;
+    classifier::prediction::interface1::Input *predictInput = learnerPredict->getInput();
     DAAL_CHECK(predictInput, services::ErrorNullInput);
-    predictInput->set(regression::prediction::data, a);
+    predictInput->set(classifier::prediction::data, a);
 
     /* Calculate additive function values */
     for ( size_t m = 0; m < M; m++ )
@@ -81,12 +81,12 @@ services::Status LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::co
         {
             HomogenNTPtr predTable = HomogenNT::create(pred.get() + j * n, 1, n, &s);
             DAAL_CHECK_STATUS_VAR(s);
-            regression::prediction::ResultPtr predictionRes(new regression::prediction::Result());
+            classifier::prediction::interface1::ResultPtr predictionRes(new classifier::prediction::interface1::Result());
             DAAL_CHECK_MALLOC(predictionRes.get())
-            predictionRes->set(regression::prediction::prediction, predTable);
+            predictionRes->set(classifier::prediction::prediction, predTable);
             DAAL_CHECK_STATUS(s, learnerPredict->setResult(predictionRes));
-            regression::ModelPtr learnerModel = boostModel->getWeakLearnerModel(m * nc + j);
-            predictInput->set(regression::prediction::model, learnerModel);
+            weak_learner::ModelPtr learnerModel = boostModel->getWeakLearnerModel(m * nc + j);
+            predictInput->set(classifier::prediction::model, learnerModel);
             DAAL_CHECK_STATUS(s, learnerPredict->computeNoThrow());
         }
         UpdateF<algorithmFPType, cpu>(dim, n, nc, pred.get(), F.get());

@@ -1,4 +1,4 @@
-/* file: logitboost_train_friedman_fpt_dispatcher.cpp */
+/* file: logitboost_training_batch_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,48 +17,39 @@
 
 /*
 //++
-//  Implementation of Logit Boost container.
+//  Implementation of the interface for LogitBoost model-based training
 //--
 */
 
-#include "logitboost_train_batch_container.h"
+#include "algorithms/boosting/logitboost_training_types.h"
+#include "serialization_utils.h"
+
+using namespace daal::data_management;
+using namespace daal::services;
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(logitboost::training::BatchContainer, batch, DAAL_FPTYPE, logitboost::training::friedman)
-
 namespace logitboost
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(size_t nClasses)
+__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LOGITBOOST_TRAINING_RESULT_ID);
+/**
+ * Returns the model trained with the LogitBoost algorithm
+ * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
+ * \return          Model trained with the LogitBoost algorithm
+ */
+daal::algorithms::logitboost::interface1::ModelPtr Result::get(classifier::training::ResultId id) const
 {
-    _par = new ParameterType();
-    initialize();
-    parameter().nClasses = nClasses;
+    return staticPointerCast<daal::algorithms::logitboost::interface1::Model, data_management::SerializationIface>(Argument::get(id));
 }
-
-template<typename algorithmFPType, Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other) :
-    classifier::training::Batch(other),
-    input(other.input)
-{
-    _par = new ParameterType(other.parameter());
-    initialize();
-}
-
-template Batch<DAAL_FPTYPE, logitboost::training::friedman>::Batch(size_t);
-template Batch<DAAL_FPTYPE, logitboost::training::friedman>::Batch(const Batch &);
-
-} // namespace interface2
+} // namespace interface1
 } // namespace training
 } // namespace logitboost
-
 } // namespace algorithms
 } // namespace daal

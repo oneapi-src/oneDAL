@@ -1,4 +1,4 @@
-/* file: logitboost_predict_batch_container.h */
+/* file: logitboost_train_batch_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,17 +17,16 @@
 
 /*
 //++
-//  Implementation of Logit Boost algorithm container -- a class
-//  that contains fast Logit Boost prediction kernels
-//  for supported architectures.
+//  Implementation of Logit Boost container.
 //--
 */
 
-#ifndef __LOGITBOOST_PREDICT_BATCH_CONTAINER__
-#define __LOGITBOOST_PREDICT_BATCH_CONTAINER__
+#ifndef __LOGITBOOST_TRAIN_BATCH_CONTAINER_V1_H__
+#define __LOGITBOOST_TRAIN_BATCH_CONTAINER_V1_H__
 
-#include "logitboost_predict.h"
-#include "logitboost_predict_dense_default_kernel.h"
+#include "logitboost_training_batch.h"
+#include "logitboost_train_friedman_kernel_v1.h"
+#include "kernel.h"
 
 namespace daal
 {
@@ -35,14 +34,14 @@ namespace algorithms
 {
 namespace logitboost
 {
-namespace prediction
+namespace training
 {
-namespace interface2
+namespace interface1
 {
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::LogitBoostPredictKernel, method, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::I1LogitBoostTrainKernel, method, algorithmFPType);
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -54,21 +53,24 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::prediction::Input *input = static_cast<classifier::prediction::Input *>(_in);
-    classifier::prediction::Result *result = static_cast<classifier::prediction::Result *>(_res);
+    classifier::training::interface1::Input *input = static_cast<classifier::training::interface1::Input *>(_in);
+    classifier::training::interface1::Result *result = static_cast<classifier::training::interface1::Result *>(_res);
 
-    NumericTablePtr a = input->get(classifier::prediction::data);
-    logitboost::Model *m = static_cast<logitboost::Model *>(input->get(classifier::prediction::model).get());
-    NumericTable *r = static_cast<NumericTable *>(result->get(classifier::prediction::prediction).get());
-    logitboost::Parameter *par = static_cast<logitboost::Parameter *>(_par);
+    size_t na = input->size();
+
+    NumericTablePtr a[2];
+    a[0] = services::staticPointerCast<NumericTable>(input->get(classifier::training::data));
+    a[1] = services::staticPointerCast<NumericTable>(input->get(classifier::training::labels));
+    logitboost::interface1::Model *r = static_cast<logitboost::interface1::Model *>(result->get(classifier::training::model).get());
+    logitboost::interface1::Parameter *par = static_cast<logitboost::interface1::Parameter *>(_par);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::LogitBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
+    __DAAL_CALL_KERNEL(env, internal::I1LogitBoostTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, r, par);
 }
 }
-} // namespace daal::algorithms::logitboost::prediction
+} // namespace daal::algorithms::logitboost::training
 }
 }
 } // namespace daal
 
-#endif // __LOGITBOOST_PREDICT_CONTAINER__
+#endif // __LOGITBOOST_TRAIN_BATCH_CONTAINER_V1_H__

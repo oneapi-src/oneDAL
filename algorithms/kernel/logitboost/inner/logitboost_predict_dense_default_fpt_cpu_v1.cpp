@@ -1,4 +1,4 @@
-/* file: logitboost_predict_dense_default_fpt_cpu.cpp */
+/* file: logitboost_predict_dense_default_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,9 +21,9 @@
 //--
 */
 
-#include "logitboost_predict_batch_container.h"
-#include "logitboost_predict_dense_default_kernel.h"
-#include "logitboost_predict_dense_default_impl.i"
+#include "logitboost_predict_batch_container_v1.h"
+#include "logitboost_predict_dense_default_kernel_v1.h"
+#include "logitboost_predict_dense_default_impl_v1.i"
 
 namespace daal
 {
@@ -33,13 +33,13 @@ namespace logitboost
 {
 namespace prediction
 {
-namespace interface2
+namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 namespace internal
 {
-template struct LogitBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
+template struct I1LogitBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
 }
 }

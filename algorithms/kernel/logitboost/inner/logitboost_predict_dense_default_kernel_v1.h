@@ -1,4 +1,4 @@
-/* file: logitboost_predict_kernel.h */
+/* file: logitboost_predict_dense_default_kernel_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,19 +17,19 @@
 
 /*
 //++
-//  Declaration of template function that computes Logit Boost
-//  classification results.
+//  Common functions for Logit Boost predictions calculation
 //--
 */
 
-#ifndef __LOGITBOOST_PREDICT_KERNEL_H__
-#define __LOGITBOOST_PREDICT_KERNEL_H__
+#ifndef __LOGITBOOST_PREDICT_DENSE_DEFAULT_KERNEL_V1_H__
+#define __LOGITBOOST_PREDICT_DENSE_DEFAULT_KERNEL_V1_H__
 
-#include "logitboost_predict.h"
-#include "kernel.h"
+#include "algorithm.h"
 #include "service_numeric_table.h"
+#include "logitboost_model.h"
+#include "daal_defines.h"
 
-using namespace daal::data_management;
+#include "logitboost_predict_kernel_v1.h"
 
 namespace daal
 {
@@ -41,25 +41,22 @@ namespace prediction
 {
 namespace internal
 {
-template <Method method, typename algorithmFPType, CpuType cpu>
-struct LogitBoostPredictKernel : public Kernel
+
+/**
+ *  \brief Specialization of the structure that contains kernels
+ *  for Logit Boost prediction calculation using Fast method
+ */
+template<typename algorithmFPType, CpuType cpu>
+struct I1LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    /**
-     *  \brief Calculate Logit Boost classification results.
-     *
-     *  \param a[in]    Matrix of input variables X
-     *  \param m[in]    Logit Boost model obtained on training stage
-     *  \param r[out]   Prediction results
-     *  \param par[in]  Logit Boost algorithm parameters
-     */
-    services::Status compute( NumericTablePtr a, const Model *m, NumericTable *r, const Parameter *par );
+    services::Status compute(const NumericTablePtr& a, const logitboost::interface1::Model *m, NumericTable *r, const logitboost::interface1::Parameter *par);
 };
-} // namespace daal::algorithms::logitboost::prediction::internal
-}
-}
-}
+} // namepsace internal
+} // namespace prediction
+} // namespace logitboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

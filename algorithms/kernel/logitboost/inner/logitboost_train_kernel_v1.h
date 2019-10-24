@@ -1,4 +1,4 @@
-/* file: logitboost_predict_kernel.h */
+/* file: logitboost_train_kernel_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,17 +17,18 @@
 
 /*
 //++
-//  Declaration of template function that computes Logit Boost
-//  classification results.
+//  Declaration of structure containing kernels for logit boost model
+//  training.
 //--
 */
 
-#ifndef __LOGITBOOST_PREDICT_KERNEL_H__
-#define __LOGITBOOST_PREDICT_KERNEL_H__
+#ifndef __LOGITBOOST_TRAIN_KERNEL_V1_H__
+#define __LOGITBOOST_TRAIN_KERNEL_V1_H__
 
-#include "logitboost_predict.h"
+#include "logitboost_model.h"
+#include "logitboost_training_types.h"
 #include "kernel.h"
-#include "service_numeric_table.h"
+#include "numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -37,26 +38,28 @@ namespace algorithms
 {
 namespace logitboost
 {
-namespace prediction
+namespace training
 {
 namespace internal
 {
+
+/**
+ *  \brief Construct Logit Boost classifier model.
+ *
+ *  \param a[in]    Array of numeric tables contating input data
+ *                  a[0] holds input matrix of features X
+ *                  a[1] holds input matrix of class labels Y
+ *  \param r[out]   Resulting model
+ *  \param par[in]  Logit Boost algorithm parameters
+ */
 template <Method method, typename algorithmFPType, CpuType cpu>
-struct LogitBoostPredictKernel : public Kernel
+struct I1LogitBoostTrainKernel : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    /**
-     *  \brief Calculate Logit Boost classification results.
-     *
-     *  \param a[in]    Matrix of input variables X
-     *  \param m[in]    Logit Boost model obtained on training stage
-     *  \param r[out]   Prediction results
-     *  \param par[in]  Logit Boost algorithm parameters
-     */
-    services::Status compute( NumericTablePtr a, const Model *m, NumericTable *r, const Parameter *par );
+    services::Status compute(const size_t na, NumericTablePtr a[], Model *r, const Parameter *par);
 };
-} // namespace daal::algorithms::logitboost::prediction::internal
+} // namespace daal::algorithms::logitboost::training::internal
 }
 }
 }

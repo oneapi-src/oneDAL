@@ -1,4 +1,4 @@
-/* file: logitboost_training_result.h */
+/* file: logitboost_training_result_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __LOGITBOOST_TRAINING_RESULT_
-#define __LOGITBOOST_TRAINING_RESULT_
+#ifndef __LOGITBOOST_TRAINING_RESULT_V1_H__
+#define __LOGITBOOST_TRAINING_RESULT_V1_H__
 
 #include "algorithms/boosting/logitboost_training_types.h"
 
@@ -34,7 +34,7 @@ namespace logitboost
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 /**
  * Allocates memory to store final results of the LogitBoost training algorithm
@@ -45,11 +45,11 @@ namespace interface2
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
 {
-    const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
+    const classifier::training::interface1::Input *algInput = static_cast<const classifier::training::interface1::Input *>(input);
 
     services::Status s;
-    ModelPtr model = Model::create(algInput->getNumberOfFeatures(),
-                                   static_cast<const Parameter *>(parameter), &s);
+    logitboost::interface1::ModelPtr model = logitboost::interface1::Model::create(algInput->getNumberOfFeatures(),
+                                   static_cast<const logitboost::interface1::Parameter *>(parameter), &s);
     set(classifier::training::model, model);
     return s;
 }
