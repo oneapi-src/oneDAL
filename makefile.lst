@@ -79,6 +79,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
     brownboost/inner                                                          \
     cholesky                                                                  \
     classifier                                                                \
+    classifier/inner                                                          \
     cordistance                                                               \
     cosdistance                                                               \
     covariance                                                                \
@@ -113,6 +114,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
     logistic_regression                                                       \
     logistic_regression/inner                                                 \
     logitboost                                                                \
+    logitboos/inner                                                           \
     low_order_moments                                                         \
     math/abs                                                                  \
     math/logistic                                                             \
