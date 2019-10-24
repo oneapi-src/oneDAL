@@ -1,4 +1,4 @@
-/* file: kdtree_knn_classification_predict_dense_default_batch_container.h */
+/* file: kdtree_knn_classification_predict_dense_default_batch_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -33,7 +33,7 @@ namespace kdtree_knn_classification
 {
 namespace prediction
 {
-namespace interface2
+namespace interface1
 {
 
 template <typename algorithmFpType, Method method, CpuType cpu>
@@ -52,7 +52,7 @@ template <typename algorithmFpType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
     const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
-    classifier::prediction::Result * const result = static_cast<classifier::prediction::Result *>(_res);
+    classifier::prediction::interface1::Result * const result = static_cast<classifier::prediction::interface1::Result *>(_res);
 
     const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
     const classifier::ModelConstPtr m = input->get(classifier::prediction::model);

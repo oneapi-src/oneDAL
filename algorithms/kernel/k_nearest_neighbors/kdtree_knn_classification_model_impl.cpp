@@ -76,15 +76,6 @@ size_t Model::getNumberOfFeatures() const
     return _impl->getNumberOfFeatures();
 }
 
-services::Status Parameter::check() const
-{
-    // Inherited.
-    services::Status s = daal::algorithms::classifier::interface1::Parameter::check();
-
-    DAAL_CHECK_EX(k >= 1, services::ErrorIncorrectParameter, services::ParameterName, kStr());
-    return s;
-}
-
 } // namespace interface1
 
 namespace interface2

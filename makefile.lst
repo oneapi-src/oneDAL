@@ -60,7 +60,7 @@ brownboost += brownboost/inner boosting/inner weak_learner classifier decision_t
 logitboost += logitboost/inner boosting/inner weak_learner classifier regression decision_tree stump
 svm +=  svm/inner classifier kernel_function multiclassclassifier
 multiclassclassifier += classifier
-k_nearest_neighbors += engines classifier
+k_nearest_neighbors += k_nearest_neighbors/inner engines classifier
 logistic_regression += logistic_regression/inner classifier optimization_solver objective_function engines
 implicit_als += engines distributions
   neural_networks_layers := $(addprefix neural_networks/layers/,abs_layer batch_normalization_layer concat_layer convolution2d_layer dropout_layer eltwise_sum_layer elu_layer fullyconnected_layer lcn_layer locallyconnected2d_layer logistic_layer loss_layer loss_layer/logistic_cross_layer loss_layer/softmax_cross_layer lrn_layer pooling1d_layer pooling2d_layer pooling3d_layer prelu_layer relu_layer reshape_layer smoothrelu_layer softmax_layer spatial_pooling2d_layer split_layer tanh_layer transposed_conv2d_layer)
@@ -109,6 +109,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
     kmeans/inner                                                              \
     kmeans                                                                    \
     k_nearest_neighbors                                                       \
+    k_nearest_neighbors/inner                                                 \
     lbfgs                                                                     \
     linear_model                                                              \
     lasso_regression                                                          \
