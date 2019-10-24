@@ -1,4 +1,4 @@
-/* file: brownboost_training_batch.cpp */
+/* file: brownboost_training_batch_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -35,7 +35,7 @@ namespace brownboost
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_BROWNBOOST_TRAINING_RESULT_ID);
 
@@ -44,21 +44,20 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_BROWNBOOST_TRAINING_RE
  * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
  * \return          Model trained with the BrownBoost algorithm
  */
-daal::algorithms::brownboost::ModelPtr Result::get(classifier::training::ResultId id) const
+daal::algorithms::brownboost::interface1::ModelPtr Result::get(classifier::training::ResultId id) const
 {
-    return staticPointerCast<daal::algorithms::brownboost::Model, SerializationIface>(Argument::get(id));
+    return staticPointerCast<daal::algorithms::brownboost::interface1::Model, SerializationIface>(Argument::get(id));
 }
 
 services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
 {
-    services::Status s = classifier::training::Result::check(input, parameter, method);
+    services::Status s = classifier::training::interface1::Result::check(input, parameter, method);
     if(!s) return s;
-    daal::algorithms::brownboost::ModelPtr m = get(classifier::training::model);
+    daal::algorithms::brownboost::interface1::ModelPtr m = get(classifier::training::model);
     DAAL_CHECK(m->getAlpha(), ErrorModelNotFullInitialized);
     return s;
 }
-} // namespace interface2
-
+} // namespace interface1
 } // namespace training
 } // namespace brownboost
 } // namespace algorithms

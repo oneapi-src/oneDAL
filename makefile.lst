@@ -56,7 +56,7 @@ ridge_regression += linear_model regression
 naivebayes += classifier
 stump += classifier 
 adaboost += classifier decision_tree stump boosting weak_learner adaboost/inner
-brownboost += classifier decision_tree stump
+brownboost += brownboost/inner boosting/inner weak_learner classifier decision_tree stump
 logitboost += regression decision_tree stump
 svm +=  svm/inner classifier kernel_function multiclassclassifier
 multiclassclassifier += classifier
@@ -76,6 +76,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
     assocrules                                                                \
     boosting/inner                                                            \
     brownboost                                                                \
+    brownboost/inner                                                          \
     cholesky                                                                  \
     classifier                                                                \
     cordistance                                                               \

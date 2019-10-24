@@ -1,4 +1,4 @@
-/* file: brownboost_model_fpt.cpp */
+/* file: brownboost_model_fpt_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *

@@ -1,4 +1,4 @@
-/* file: brownboost_training_result.h */
+/* file: brownboost_training_result_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __BROWNBOOST_TRAINING_RESULT_
-#define __BROWNBOOST_TRAINING_RESULT_
+#ifndef __BROWNBOOST_TRAINING_RESULT_V1__
+#define __BROWNBOOST_TRAINING_RESULT_V1__
 
 #include "algorithms/boosting/brownboost_training_types.h"
 
@@ -35,7 +35,7 @@ namespace brownboost
 namespace training
 {
 
-namespace interface2
+namespace interface1
 {
 /**
  * Allocates memory to store final results of BrownBoost training
@@ -47,12 +47,11 @@ template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
 {
     services::Status s;
-    const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
-    set(classifier::training::model, Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
+    const classifier::training::interface1::Input *algInput = static_cast<const classifier::training::interface1::Input *>(input);
+    set(classifier::training::model, brownboost::interface1::Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
     return s;
 }
 }
-
 } // namespace training
 } // namespace brownboost
 } // namespace algorithms

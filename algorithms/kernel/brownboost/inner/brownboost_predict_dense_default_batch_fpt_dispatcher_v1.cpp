@@ -1,4 +1,4 @@
-/* file: brownboost_train_dense_default_batch_fpt_cpu.cpp */
+/* file: brownboost_predict_dense_default_batch_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,32 +17,18 @@
 
 /*
 //++
-//  Implementation of Freund method for Brown Boost training algorithm.
+//  Implementation of Brown Boost prediction algorithm container --
+//  a class that contains Fast Brown Boost kernels for supported architectures.
 //--
 */
 
-#include "brownboost_train_batch_container.h"
-#include "brownboost_train_kernel.h"
-#include "brownboost_train_impl.i"
+#include "brownboost_predict.h"
+#include "brownboost_predict_batch_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-namespace brownboost
-{
-namespace training
-{
-namespace interface2
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
-namespace internal
-{
-template class BrownBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
-template class NewtonRaphsonKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
-}
-}
-}
-}
-}
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(brownboost::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE, brownboost::prediction::defaultDense)
+} // namespace algorithms
+} // namespace daal

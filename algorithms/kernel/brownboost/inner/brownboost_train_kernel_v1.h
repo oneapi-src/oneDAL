@@ -1,4 +1,4 @@
-/* file: brownboost_train_kernel.h */
+/* file: brownboost_train_kernel_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,13 +21,14 @@
 //--
 */
 
-#ifndef __BROWN_BOOST_TRAIN_KERNEL_H__
-#define __BROWN_BOOST_TRAIN_KERNEL_H__
+#ifndef __BROWN_BOOST_TRAIN_KERNEL_V1_H___
+#define __BROWN_BOOST_TRAIN_KERNEL_V1_H___
 
 #include "brownboost_model.h"
 #include "brownboost_training_types.h"
 #include "kernel.h"
 #include "service_numeric_table.h"
+#include "brownboost_train_kernel_v1.h"
 
 using namespace daal::data_management;
 
@@ -43,10 +44,10 @@ namespace internal
 {
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class BrownBoostTrainKernel : public Kernel
+class I1BrownBoostTrainKernel : public Kernel
 {
 public:
-    services::Status compute(size_t n, NumericTablePtr *a, Model *r, const Parameter *par);
+    services::Status compute(size_t n, NumericTablePtr *a, brownboost::interface1::Model *r, const brownboost::interface1::Parameter *par);
 
 private:
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
@@ -60,46 +61,8 @@ private:
     services::Status brownBoostFreundKernel(size_t nVectors,
                                 NumericTablePtr weakLearnerInputTables[],
                                 const HomogenNTPtr& hTable, const algorithmFPType *y,
-                                Model *boostModel, Parameter *parameter, size_t& nWeakLearners,
+                                brownboost::interface1::Model *boostModel, brownboost::interface1::Parameter *parameter, size_t& nWeakLearners,
                                 algorithmFPType *&alpha);
-};
-
-template <Method method, typename algorithmFPType, CpuType cpu>
-struct NewtonRaphsonKernel
-{
-    NewtonRaphsonKernel(size_t nVectors, brownboost::interface1::Parameter *parameter);
-    NewtonRaphsonKernel(size_t nVectors,
-        double parAccuracyThreshold,
-        double parNewtonRaphsonAccuracyThreshold,
-        double parNewtonRaphsonMaxIterations,
-        double parDegenerateCasesThreshold);
-    bool isValid() const
-    {
-        return (aNrd.get() && aNrw.get() && aNra.get() && aNrb.get() && aNre1.get() && aNre2.get());
-    }
-
-    void compute(algorithmFPType gamma, algorithmFPType s, const algorithmFPType *h, const algorithmFPType *y);
-
-    size_t nVectors;
-    algorithmFPType nrT;
-    algorithmFPType nrAlpha;
-
-    algorithmFPType c;
-    daal::internal::TArray<algorithmFPType, cpu> aNrd;
-    daal::internal::TArray<algorithmFPType, cpu> aNrw;
-    daal::internal::TArray<algorithmFPType, cpu> aNra;
-    daal::internal::TArray<algorithmFPType, cpu> aNrb;
-    daal::internal::TArray<algorithmFPType, cpu> aNre1;
-    daal::internal::TArray<algorithmFPType, cpu> aNre2;
-
-    const size_t nrMaxIter;
-    const algorithmFPType error;
-    const algorithmFPType nrAccuracy;
-    algorithmFPType nu;
-    algorithmFPType invC;
-    algorithmFPType sqrtC;
-    algorithmFPType invSqrtC;
-    algorithmFPType sqrtPiC;
 };
 
 } // namespace daal::algorithms::brownboost::training::internal

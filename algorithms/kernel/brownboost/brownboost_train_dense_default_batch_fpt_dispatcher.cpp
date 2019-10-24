@@ -28,7 +28,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(brownboost::training::interface1::BatchContainer, batch, DAAL_FPTYPE, brownboost::training::defaultDense)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(brownboost::training::BatchContainer, batch, DAAL_FPTYPE, brownboost::training::defaultDense)
 
 namespace brownboost

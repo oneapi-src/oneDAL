@@ -1,4 +1,4 @@
-/* file: brownboost_model.cpp */
+/* file: brownboost_model_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -36,15 +36,12 @@ namespace algorithms
 {
 namespace brownboost
 {
-namespace interface2
+namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_BROWNBOOST_MODEL_ID);
 
 /** Default constructor */
-Parameter::Parameter() :
-    weakLearnerTraining(new stump::classification::training::Batch<>),
-    weakLearnerPrediction(new stump::classification::prediction::Batch<>),
-    accuracyThreshold(0.3), maxIterations(10),
+Parameter::Parameter() : boosting::Parameter(), accuracyThreshold(0.3), maxIterations(10),
     newtonRaphsonAccuracyThreshold(1.0e-3), newtonRaphsonMaxIterations(100), degenerateCasesThreshold(1.0e-2) {}
 
 /**
@@ -57,21 +54,16 @@ Parameter::Parameter() :
  * \param[in] nrMaxIter     Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm
  * \param[in] dcThreshold          Threshold needed  to avoid degenerate cases in the BrownBoost training algorithm
  */
-Parameter::Parameter(services::SharedPtr<classifier::training::Batch>   wlTrain,
-          services::SharedPtr<classifier::prediction::Batch> wlPredict,
+Parameter::Parameter(services::SharedPtr<weak_learner::training::Batch>   wlTrain,
+          services::SharedPtr<weak_learner::prediction::Batch> wlPredict,
           double acc, size_t maxIter, double nrAcc, size_t nrMaxIter, double dcThreshold) :
-    weakLearnerTraining(wlTrain), weakLearnerPrediction(wlPredict), accuracyThreshold(acc), maxIterations(maxIter),
+    boosting::Parameter(wlTrain, wlPredict), accuracyThreshold(acc), maxIterations(maxIter),
     newtonRaphsonAccuracyThreshold(nrAcc), newtonRaphsonMaxIterations(nrMaxIter), degenerateCasesThreshold(dcThreshold) {}
 
 services::Status Parameter::check() const
 {
-    services::Status s;
-    DAAL_CHECK_STATUS(s, classifier::Parameter::check());
-    DAAL_CHECK_EX(nClasses >= 2, ErrorIncorrectParameter, ParameterName, nClassesStr());
-    DAAL_CHECK_EX(weakLearnerTraining, ErrorNullAuxiliaryAlgorithm, ParameterName, weakLearnerTrainingStr());
-    DAAL_CHECK_EX(nClasses == weakLearnerTraining->parameter().nClasses, ErrorInconsistentNumberOfClasses, ParameterName, weakLearnerTrainingStr());
-    DAAL_CHECK_EX(weakLearnerPrediction, ErrorNullAuxiliaryAlgorithm, ParameterName, weakLearnerPredictionStr());
-    DAAL_CHECK_EX(nClasses == weakLearnerPrediction->parameter().nClasses, ErrorInconsistentNumberOfClasses, ParameterName, weakLearnerPredictionStr());
+    services::Status s = boosting::Parameter::check();
+    if(!s) return s;
     DAAL_CHECK_EX(accuracyThreshold > 0 && accuracyThreshold < 1, ErrorIncorrectParameter, ParameterName, accuracyThresholdStr());
     DAAL_CHECK_EX(maxIterations > 0, ErrorIncorrectParameter, ParameterName, maxIterationsStr());
     DAAL_CHECK_EX(newtonRaphsonAccuracyThreshold > 0 && newtonRaphsonAccuracyThreshold < 1, ErrorIncorrectParameter, ParameterName, newtonRaphsonAccuracyThresholdStr());
@@ -91,32 +83,7 @@ NumericTablePtr Model::getAlpha()
     return _alpha;
 }
 
-size_t Model::getNumberOfWeakLearners() const
-{
-    return _models->size();
-}
-
-classifier::ModelPtr Model::getWeakLearnerModel(size_t idx) const
-{
-    if(idx < _models->size())
-    {
-        return staticPointerCast<classifier::Model, SerializationIface>((*_models)[idx]);
-    }
-    return classifier::ModelPtr();
-}
-
-void Model::addWeakLearnerModel(classifier::ModelPtr model)
-{
-    (*_models) << model;
-}
-
-void Model::clearWeakLearnerModels()
-{
-    _models->clear();
-}
-
-} // namespace interface2
-
+} // namespace interface1
 } // namespace brownboost
 } // namespace algorithms
 } // namespace daal

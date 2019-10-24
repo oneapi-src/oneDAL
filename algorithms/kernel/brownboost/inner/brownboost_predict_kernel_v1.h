@@ -1,4 +1,4 @@
-/* file: brownboost_predict_kernel.h */
+/* file: brownboost_predict_kernel_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __BROWNBOOST_PREDICT_KERNEL_H__
-#define __BROWNBOOST_PREDICT_KERNEL_H__
+#ifndef __BROWNBOOST_PREDICT_KERNEL_V1_H___
+#define __BROWNBOOST_PREDICT_KERNEL_V1_H___
 
 #include "brownboost_model.h"
 #include "brownboost_predict.h"
@@ -43,14 +43,16 @@ namespace prediction
 {
 namespace internal
 {
+
 template <Method method, typename algorithmFPtype, CpuType cpu>
-class BrownBoostPredictKernel : public Kernel
+class I1BrownBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cpu>
 {
+    using BoostingPredictKernel<algorithmFPtype, cpu>::compute;
 public:
-    services::Status compute(const NumericTablePtr &x, const Model *m, const NumericTablePtr &r, const Parameter *par);
-    services::Status computeImpl(const NumericTablePtr &xTable, const Model *m, size_t nWeakLearners, const algorithmFPtype *alpha, algorithmFPtype *r,
-                                 const Parameter *par);
+    services::Status compute(const NumericTablePtr &x, const brownboost::interface1::Model *m,
+                             NumericTablePtr &r, const brownboost::interface1::Parameter *par);
 };
+
 } // namespace daal::algorithms::brownboost::prediction::internal
 }
 }
