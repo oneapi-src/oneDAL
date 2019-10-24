@@ -54,10 +54,10 @@ linear_regression += linear_model regression
 lasso_regression += linear_model regression optimization_solver objective_function engines
 ridge_regression += linear_model regression
 naivebayes += classifier
-stump += classifier 
-adaboost += classifier decision_tree stump boosting weak_learner adaboost/inner
-brownboost += brownboost/inner boosting/inner weak_learner classifier decision_tree stump
-logitboost += logitboost/inner boosting/inner weak_learner classifier regression decision_tree stump
+stump += stump/inner classifier weak_learner/inner
+adaboost += classifier decision_tree stump boosting weak_learner/inner adaboost/inner
+brownboost += brownboost/inner boosting/inner weak_learner/inner classifier decision_tree stump stump/inner
+logitboost += logitboost/inner boosting/inner weak_learner/inner classifier regression decision_tree stump stump/inner
 svm +=  svm/inner classifier kernel_function multiclassclassifier multiclassclassifier/inner
 multiclassclassifier += multiclassclassifier/inner classifier
 k_nearest_neighbors += k_nearest_neighbors/inner engines classifier
@@ -251,10 +251,11 @@ CORE.ALGORITHMS.FULL :=                                                       \
     sgd                                                                       \
     sorting                                                                   \
     stump                                                                     \
+    stump/inner                                                               \
     svd                                                                       \
     svm                                                                       \
     svm/inner                                                                 \
-    weak_learner
+    weak_learner/inner
 
 
 CORE.ALGORITHMS := $(if $(CORE.ALGORITHMS.CUSTOM), $(CORE.ALGORITHMS.CUSTOM), $(CORE.ALGORITHMS.FULL))
