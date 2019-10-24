@@ -1,4 +1,4 @@
-/* file: df_classification_predict_dense_default_batch_fpt_dispatcher.cpp */
+/* file: df_classification_predict_dense_default_batch_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -29,7 +29,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::prediction::BatchContainer, batch,\
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::prediction::interface1::BatchContainer, batch,\
     DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense)
 }
 } // namespace daal
