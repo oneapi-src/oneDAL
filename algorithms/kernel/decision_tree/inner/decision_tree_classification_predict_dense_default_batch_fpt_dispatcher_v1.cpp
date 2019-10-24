@@ -1,4 +1,4 @@
-/* file: decision_tree_regression_train_dense_default_batch_fpt_dispatcher.cpp */
+/* file: decision_tree_classification_predict_dense_default_batch_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,18 +17,19 @@
 
 /*
 //++
-//  Implementation of Decision tree container.
+//  Implementation of Decision tree algorithm container - a class that contains fast Decision tree prediction kernels for supported
+//  architectures.
 //--
 */
 
-#include "decision_tree_regression_train_container.h"
+#include "decision_tree_classification_predict_dense_default_batch_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_tree::regression::training::BatchContainer, batch, DAAL_FPTYPE, \
-                                      decision_tree::regression::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_tree::classification::prediction::BatchContainer, batch, DAAL_FPTYPE, \
+                                      decision_tree::classification::prediction::defaultDense)
 
 } // namespace algorithms
 } // namespace daal

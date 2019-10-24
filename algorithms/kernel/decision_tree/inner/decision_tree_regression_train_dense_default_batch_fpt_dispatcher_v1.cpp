@@ -1,4 +1,4 @@
-/* file: decision_tree_regression_train_dense_default_batch_fpt_dispatcher.cpp */
+/* file: decision_tree_regression_train_dense_default_batch_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,13 +21,13 @@
 //--
 */
 
-#include "decision_tree_regression_train_container.h"
+#include "decision_tree_regression_train_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_tree::regression::training::BatchContainer, batch, DAAL_FPTYPE, \
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_tree::regression::training::interface1::BatchContainer, batch, DAAL_FPTYPE, \
                                       decision_tree::regression::training::defaultDense)
 
 } // namespace algorithms

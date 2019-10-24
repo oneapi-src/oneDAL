@@ -1,4 +1,4 @@
-/* file: decision_tree_regression_train_dense_default_batch_fpt_dispatcher.cpp */
+/* file: decision_tree_classification_training_result_fpt_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,18 +17,27 @@
 
 /*
 //++
-//  Implementation of Decision tree container.
+//  Implementation of the class defining the Decision tree model
 //--
 */
 
-#include "decision_tree_regression_train_container.h"
+#include "decision_tree_classification_training_result.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_tree::regression::training::BatchContainer, batch, DAAL_FPTYPE, \
-                                      decision_tree::regression::training::defaultDense)
+namespace decision_tree
+{
+namespace classification
+{
+namespace training
+{
 
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const decision_tree::classification::interface1::Parameter * parameter, int method);
+
+} // namespace training
+} // namespace classification
+} // namespace decision_tree
 } // namespace algorithms
 } // namespace daal
