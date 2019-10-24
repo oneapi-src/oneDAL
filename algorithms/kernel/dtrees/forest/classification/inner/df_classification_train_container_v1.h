@@ -1,4 +1,4 @@
-/* file: df_classification_train_container.h */
+/* file: df_classification_train_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __DF_CLASSIFICATION_TRAIN_CONTAINER_H__
-#define __DF_CLASSIFICATION_TRAIN_CONTAINER_H__
+#ifndef __DF_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
+#define __DF_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 
 #include "kernel.h"
 #include "decision_forest_classification_training_types.h"
@@ -41,7 +41,7 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -67,8 +67,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     decision_forest::classification::Model *m = result->get(classifier::training::model).get();
 
-    const decision_forest::classification::training::Parameter *par =
-        static_cast<decision_forest::classification::training::Parameter*>(_par);
+    const decision_forest::classification::training::interface1::Parameter *par =
+        static_cast<decision_forest::classification::training::interface1::Parameter*>(_par);
     daal::services::Environment::env &env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel,
@@ -85,8 +85,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     pImpl->clear();
     return services::Status();
 }
-
 }
+
 }
 }
 }

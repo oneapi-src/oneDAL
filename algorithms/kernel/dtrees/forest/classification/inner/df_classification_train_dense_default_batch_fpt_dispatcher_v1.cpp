@@ -1,4 +1,4 @@
-/* file: df_classification_train_dense_default_batch_fpt_dispatcher.cpp */
+/* file: df_classification_train_dense_default_batch_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,14 +21,14 @@
 //--
 */
 
-#include "df_classification_train_container.h"
+#include "df_classification_train_container_v1.h"
 #include "daal_strings.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::training::BatchContainer, batch, DAAL_FPTYPE, \
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::training::interface1::BatchContainer, batch, DAAL_FPTYPE, \
     decision_forest::classification::training::defaultDense)
 namespace decision_forest
 {
@@ -36,12 +36,12 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 template<>
-DAAL_EXPORT services::Status Batch<DAAL_FPTYPE, decision_forest::classification::training::defaultDense>::checkComputeParams()
+DAAL_EXPORT services::Status interface1::Batch<DAAL_FPTYPE, decision_forest::classification::training::defaultDense>::checkComputeParams()
 {
-    services::Status s = classifier::training::Batch::checkComputeParams();
+    services::Status s = classifier::training::interface1::Batch::checkComputeParams();
     if(!s)
         return s;
     const auto x = input.get(classifier::training::data);

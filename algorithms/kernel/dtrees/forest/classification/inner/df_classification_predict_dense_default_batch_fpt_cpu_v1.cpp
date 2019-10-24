@@ -1,4 +1,4 @@
-/* file: df_classification_train_dense_default_batch_fpt_cpu.cpp */
+/* file: df_classification_predict_dense_default_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,12 +17,13 @@
 
 /*
 //++
-//  Implementation of decision forest training functions for the default method
+//  Implementation of prediction stage of decision forest algorithm.
 //--
 */
 
-#include "df_classification_train_container.h"
-#include "df_classification_train_dense_default_impl.i"
+#include "df_classification_predict_dense_default_batch.h"
+#include "df_classification_predict_dense_default_batch_impl.i"
+#include "df_classification_predict_dense_default_batch_container_v1.h"
 
 namespace daal
 {
@@ -32,16 +33,11 @@ namespace decision_forest
 {
 namespace classification
 {
-namespace training
+namespace prediction
 {
-namespace interface2
+namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
-
-namespace internal
-{
-template class ClassificationTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 }
 }

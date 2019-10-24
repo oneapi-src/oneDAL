@@ -1,4 +1,4 @@
-/* file: df_classification_predict_dense_default_batch_container.h */
+/* file: df_classification_predict_dense_default_batch_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -37,7 +37,7 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface2
+namespace interface1
 {
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -62,13 +62,12 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     decision_forest::classification::Model *m = static_cast<decision_forest::classification::Model *>(input->get(classifier::prediction::model).get());
     NumericTable *r = static_cast<NumericTable *>(result->get(classifier::prediction::prediction).get());
 
-    const classifier::Parameter *par = static_cast<classifier::Parameter*>(_par);
+    const classifier::interface1::Parameter *par = static_cast<classifier::interface1::Parameter*>(_par);
     daal::services::Environment::env &env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
         daal::services::internal::hostApp(*input), a, m, r, par->nClasses);
 }
-
 }
 }
 }

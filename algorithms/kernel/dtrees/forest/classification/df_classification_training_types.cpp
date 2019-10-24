@@ -110,14 +110,6 @@ engines::EnginePtr Result::get(ResultEngineId id) const
 {
     return _impl->getEngine();
 }
-
-services::Status Parameter::check() const
-{
-    services::Status s;
-    DAAL_CHECK_STATUS(s, classifier::interface1::Parameter::check());
-    DAAL_CHECK_STATUS(s, decision_forest::training::checkImpl(*this));
-    return s;
-}
 }
 
 namespace interface2

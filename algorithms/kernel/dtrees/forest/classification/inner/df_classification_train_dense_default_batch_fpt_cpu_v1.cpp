@@ -1,4 +1,4 @@
-/* file: df_classification_train_dense_default_batch_fpt_cpu.cpp */
+/* file: df_classification_train_dense_default_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,7 +21,7 @@
 //--
 */
 
-#include "df_classification_train_container.h"
+#include "df_classification_train_container_v1.h"
 #include "df_classification_train_dense_default_impl.i"
 
 namespace daal
@@ -34,14 +34,9 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
-
-namespace internal
-{
-template class ClassificationTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 }
 }
