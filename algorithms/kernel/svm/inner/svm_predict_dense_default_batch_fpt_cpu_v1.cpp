@@ -1,4 +1,4 @@
-/* file: svm_train_boser_batch_fpt_cpu.cpp */
+/* file: svm_predict_dense_default_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,13 +17,13 @@
 
 /*
 //++
-//  Implementation of SVM boser training algorithm.
+//  Implementation of SVM Fast prediction algorithm.
 //--
 */
 
-#include "svm_train_batch_container.h"
-#include "svm_train_boser_kernel.h"
-#include "svm_train_boser_impl.i"
+#include "svm_predict_batch_container_v1.h"
+#include "svm_predict_kernel.h"
+#include "svm_predict_impl.i"
 
 namespace daal
 {
@@ -31,23 +31,19 @@ namespace algorithms
 {
 namespace svm
 {
-namespace training
+namespace prediction
 {
-namespace interface2
+namespace interface1
 {
-template class BatchContainer<DAAL_FPTYPE, boser, DAAL_CPU>;
+template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 namespace internal
 {
 
-template struct SVMTrainImpl<boser, DAAL_FPTYPE, svm::interface2::Parameter, DAAL_CPU>;
+template struct SVMPredictImpl<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 
 } // namespace internal
-
-} // namespace training
-
+} // namespace prediction
 } // namespace svm
-
 } // namespace algorithms
-
 } // namespace daal

@@ -1,4 +1,4 @@
-/* file: svm_train_batch_container.h */
+/* file: svm_predict_batch_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,14 +17,13 @@
 
 /*
 //++
-//  Implementation of SVM training algorithm container.
+//  Implementation of SVM prediction algorithm container.
 //--
 */
 
-#include "svm_train.h"
-#include "svm_train_kernel.h"
-#include "svm_train_boser_kernel.h"
-#include "classifier_training_types.h"
+#include "svm_predict.h"
+#include "svm_predict_kernel.h"
+#include "classifier_predict_types.h"
 
 namespace daal
 {
@@ -32,42 +31,42 @@ namespace algorithms
 {
 namespace svm
 {
-namespace training
+namespace prediction
 {
 namespace interface2
 {
 /**
 *  \brief Initialize list of SVM kernels with implementations for supported architectures
 */
-template <typename algorithmFPType, Method method, CpuType cpu>
+template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, svm::interface1::Parameter, algorithmFPType);
+    __DAAL_INITIALIZE_KERNELS(internal::SVMPredictImpl, method, algorithmFPType);
 }
 
-template <typename algorithmFPType, Method method, CpuType cpu>
+template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template <typename algorithmFPType, Method method, CpuType cpu>
+template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
-    svm::training::Result *result = static_cast<svm::training::Result *>(_res);
+    classifier::prediction::Input *input = static_cast<classifier::prediction::Input *>(_in);
+    classifier::prediction::Result *result = static_cast<classifier::prediction::Result *>(_res);
 
-    NumericTablePtr x = input->get(classifier::training::data);
-    NumericTablePtr y = input->get(classifier::training::labels);
+    NumericTablePtr a = input->get(classifier::prediction::data);
+    daal::algorithms::Model *m = static_cast<daal::algorithms::Model *>(input->get(classifier::prediction::model).get());
+    NumericTablePtr r = result->get(classifier::prediction::prediction);
 
-    daal::algorithms::Model *r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
-
-    svm::interface2::Parameter *par = static_cast<svm::interface2::Parameter *>(_par);
+    daal::algorithms::Parameter *par = _par;
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x, *y, r, par);
+
+    __DAAL_CALL_KERNEL(env, internal::SVMPredictImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, *r, par);
 }
 }
-} // namespace training
+} // namespace prediction
 } // namespace svm
 } // namespace algorithms
 } // namespace daal

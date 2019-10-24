@@ -1,4 +1,4 @@
-/* file: svm_train_batch_container.h */
+/* file: svm_train_batch_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -34,7 +34,7 @@ namespace svm
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 /**
 *  \brief Initialize list of SVM kernels with implementations for supported architectures
@@ -56,15 +56,16 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
     svm::training::Result *result = static_cast<svm::training::Result *>(_res);
+    size_t na = input->size();
 
     NumericTablePtr x = input->get(classifier::training::data);
     NumericTablePtr y = input->get(classifier::training::labels);
 
     daal::algorithms::Model *r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
 
-    svm::interface2::Parameter *par = static_cast<svm::interface2::Parameter *>(_par);
+    svm::interface1::Parameter *par = static_cast<svm::interface1::Parameter *>(_par);
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface2::Parameter), compute, x, *y, r, par);
+    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, svm::interface1::Parameter), compute, x, *y, r, par);
 }
 }
 } // namespace training

@@ -1,4 +1,4 @@
-/* file: svm_train_boser_batch_fpt_cpu.cpp */
+/* file: svm_train_boser_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,7 +21,7 @@
 //--
 */
 
-#include "svm_train_batch_container.h"
+#include "svm_train_batch_container_v1.h"
 #include "svm_train_boser_kernel.h"
 #include "svm_train_boser_impl.i"
 
@@ -33,15 +33,13 @@ namespace svm
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, boser, DAAL_CPU>;
 }
 namespace internal
 {
-
-template struct SVMTrainImpl<boser, DAAL_FPTYPE, svm::interface2::Parameter, DAAL_CPU>;
-
+template struct SVMTrainImpl<boser, DAAL_FPTYPE, svm::interface1::Parameter, DAAL_CPU>;
 } // namespace internal
 
 } // namespace training
