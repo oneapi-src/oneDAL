@@ -1,4 +1,4 @@
-/* file: decision_tree_regression_predict_dense_default_batch_fpt_cpu.cpp */
+/* file: decision_tree_classification_train_dense_default_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,13 +17,12 @@
 
 /*
 //++
-//  Implementation of prediction stage of Decision tree algorithm.
+//  Implementation of Decision tree training functions for the defaultDense method.
 //--
 */
 
-#include "decision_tree_regression_predict_dense_default_batch.h"
-#include "decision_tree_regression_predict_dense_default_batch_impl.i"
-#include "decision_tree_regression_predict_dense_default_batch_container.h"
+#include "decision_tree_classification_train_container_v1.h"
+#include "decision_tree_classification_train_dense_default_impl.i"
 
 namespace daal
 {
@@ -31,22 +30,20 @@ namespace algorithms
 {
 namespace decision_tree
 {
-namespace regression
+namespace classification
 {
-namespace prediction
+namespace training
 {
-
-namespace interface2
+namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface2
-
+}
 namespace internal
 {
-template class DecisionTreePredictKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+template class DecisionTreeTrainBatchKernel<DAAL_FPTYPE, decision_tree::classification::interface1::Parameter, defaultDense, DAAL_CPU>;
 } // namespace internal
-} // namespace prediction
-} // namespace regression
+} // namespace training
+} // namespace classification
 } // namespace decision_tree
 } // namespace algorithms
 } // namespace daal

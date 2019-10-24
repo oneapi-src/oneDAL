@@ -85,16 +85,6 @@ void Model::traverseDFS(tree_utils::classification::TreeNodeVisitor& visitor) co
 
 void Model::traverseBFS(tree_utils::classification::TreeNodeVisitor& visitor) const { _impl->traverseBFS(visitor); }
 
-services::Status Parameter::check() const
-{
-    services::Status s;
-    // Inherited.
-    DAAL_CHECK_STATUS(s, daal::algorithms::classifier::interface1::Parameter::check());
-
-    DAAL_CHECK_EX(minObservationsInLeafNodes >= 1, services::ErrorIncorrectParameter, services::ParameterName, minObservationsInLeafNodesStr());
-    return s;
-}
-
 } // namespace interface1
 
 namespace interface2

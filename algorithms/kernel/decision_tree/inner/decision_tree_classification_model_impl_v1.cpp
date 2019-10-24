@@ -1,4 +1,4 @@
-/* file: decision_tree_regression_predict_dense_default_batch_fpt_cpu.cpp */
+/* file: decision_tree_classification_model_impl_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,13 +17,13 @@
 
 /*
 //++
-//  Implementation of prediction stage of Decision tree algorithm.
+//  Implementation of the class defining the Decision tree model
 //--
 */
 
-#include "decision_tree_regression_predict_dense_default_batch.h"
-#include "decision_tree_regression_predict_dense_default_batch_impl.i"
-#include "decision_tree_regression_predict_dense_default_batch_container.h"
+#include "decision_tree_classification_model_impl.h"
+#include "serialization_utils.h"
+#include "daal_strings.h"
 
 namespace daal
 {
@@ -31,22 +31,26 @@ namespace algorithms
 {
 namespace decision_tree
 {
-namespace regression
+namespace classification
 {
-namespace prediction
+namespace interface1
 {
 
-namespace interface2
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface2
+using namespace daal::data_management;
+using namespace daal::services;
 
-namespace internal
+services::Status Parameter::check() const
 {
-template class DecisionTreePredictKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace internal
-} // namespace prediction
-} // namespace regression
+    services::Status s;
+    // Inherited.
+    DAAL_CHECK_STATUS(s, daal::algorithms::classifier::interface1::Parameter::check());
+
+    DAAL_CHECK_EX(minObservationsInLeafNodes >= 1, services::ErrorIncorrectParameter, services::ParameterName, minObservationsInLeafNodesStr());
+    return s;
+}
+
+} // namespace interface1
+} // namespace classification
 } // namespace decision_tree
 } // namespace algorithms
 } // namespace daal

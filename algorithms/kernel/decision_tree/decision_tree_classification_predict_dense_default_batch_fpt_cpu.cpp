@@ -35,10 +35,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace interface1
 
 namespace interface2
 {
@@ -47,10 +43,9 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 namespace internal
 {
-
 template class DecisionTreePredictKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-
 } // namespace internal
+
 } // namespace prediction
 } // namespace classification
 } // namespace decision_tree

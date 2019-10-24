@@ -1,4 +1,4 @@
-/* file: decision_tree_classification_train_container.h */
+/* file: decision_tree_classification_train_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __DECISION_TREE_CLASSIFICATION_TRAIN_CONTAINER_H__
-#define __DECISION_TREE_CLASSIFICATION_TRAIN_CONTAINER_H__
+#ifndef __DECISION_TREE_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
+#define __DECISION_TREE_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 
 #include "kernel.h"
 #include "data_management/data/numeric_table.h"
@@ -41,7 +41,7 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 using namespace daal::data_management;
 
@@ -51,7 +51,7 @@ using namespace daal::data_management;
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::DecisionTreeTrainBatchKernel, decision_tree::classification::Parameter, algorithmFPType, method);
+    __DAAL_INITIALIZE_KERNELS(internal::DecisionTreeTrainBatchKernel, algorithmFPType, decision_tree::classification::interface1::Parameter, method);
 }
 
 template <typename algorithmFPType, training::Method method, CpuType cpu>
@@ -71,17 +71,16 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     const NumericTableConstPtr x = input->get(classifier::training::data);
     const NumericTableConstPtr y = input->get(classifier::training::labels);
-    const NumericTableConstPtr w = input->get(classifier::training::weights);
     const NumericTableConstPtr px = input->get(dataForPruning);
     const NumericTableConstPtr py = input->get(labelsForPruning);
 
     const ModelPtr r = result->get(classifier::training::model);
 
-    const Parameter * const par = static_cast<Parameter*>(_par);
+    const decision_tree::classification::interface1::Parameter * const par = static_cast<decision_tree::classification::interface1::Parameter*>(_par);
     daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::DecisionTreeTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, decision_tree::classification::Parameter,method),    \
-                       compute, x.get(), y.get(), w.get(), px.get(), py.get(), r.get(), par);
+    __DAAL_CALL_KERNEL(env, internal::DecisionTreeTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, decision_tree::classification::interface1::Parameter, method),    \
+                       compute, x.get(), y.get(), 0, px.get(), py.get(), r.get(), par);
 }
 }
 } // namespace training
