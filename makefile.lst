@@ -58,8 +58,8 @@ stump += classifier
 adaboost += classifier decision_tree stump boosting weak_learner adaboost/inner
 brownboost += brownboost/inner boosting/inner weak_learner classifier decision_tree stump
 logitboost += logitboost/inner boosting/inner weak_learner classifier regression decision_tree stump
-svm +=  svm/inner classifier kernel_function multiclassclassifier
-multiclassclassifier += classifier
+svm +=  svm/inner classifier kernel_function multiclassclassifier multiclassclassifier/inner
+multiclassclassifier += multiclassclassifier/inner classifier
 k_nearest_neighbors += k_nearest_neighbors/inner engines classifier
 logistic_regression += logistic_regression/inner classifier optimization_solver objective_function engines
 implicit_als += engines distributions
@@ -126,6 +126,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
     math/softmax                                                              \
     math/tanh                                                                 \
     multiclassclassifier                                                      \
+    multiclassclassifier/inner                                                \
     naivebayes                                                                \
     neural_networks                                                           \
     neural_networks/initializers                                              \

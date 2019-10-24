@@ -1,4 +1,4 @@
-/* file: multiclassclassifier_predict_votebased_batch_fpt_cpu.cpp */
+/* file: multiclassclassifier_predict_mccwu_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -22,9 +22,10 @@
 //--
 */
 
-#include "multiclassclassifier_predict_batch_container.h"
+#include "multiclassclassifier_predict_batch_container_v1.h"
 #include "multiclassclassifier_predict_kernel.h"
-#include "multiclassclassifier_predict_votebased_impl.i"
+#include "multiclassclassifier_predict_mccwu_kernel.h"
+#include "multiclassclassifier_predict_mccwu_impl.i"
 
 namespace daal
 {
@@ -34,13 +35,13 @@ namespace multi_class_classifier
 {
 namespace prediction
 {
-namespace interface2
+namespace interface1
 {
-template class BatchContainer<DAAL_FPTYPE, voteBased, training::oneAgainstOne, DAAL_CPU>;
+template class BatchContainer<DAAL_FPTYPE, multiClassClassifierWu, training::oneAgainstOne, DAAL_CPU>;
 }
 namespace internal
 {
-template class MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, DAAL_FPTYPE, classifier::prediction::Batch, multi_class_classifier::Parameter, DAAL_CPU>;
+template class MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, DAAL_FPTYPE, classifier::prediction::interface1::Batch, multi_class_classifier::interface1::Parameter, DAAL_CPU>;
 } // namespace internal
 } // namespace prediction
 } // namespace multi_class_classifier

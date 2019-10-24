@@ -1,4 +1,4 @@
-/* file: multiclassclassifier_predict_votebased_batch_fpt_cpu.cpp */
+/* file: multiclassclassifier_model_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,14 +17,13 @@
 
 /*
 //++
-//  Implementation of Wu method for Multi-class classifier
-//  prediction algorithm.
+//  Implementation of multi class classifier model.
 //--
 */
 
-#include "multiclassclassifier_predict_batch_container.h"
-#include "multiclassclassifier_predict_kernel.h"
-#include "multiclassclassifier_predict_votebased_impl.i"
+#include "multi_class_classifier_model.h"
+#include "serialization_utils.h"
+#include "daal_strings.h"
 
 namespace daal
 {
@@ -32,17 +31,17 @@ namespace algorithms
 {
 namespace multi_class_classifier
 {
-namespace prediction
+namespace interface1
 {
-namespace interface2
+services::Status Parameter::check() const
 {
-template class BatchContainer<DAAL_FPTYPE, voteBased, training::oneAgainstOne, DAAL_CPU>;
+    services::Status s;
+    DAAL_CHECK_STATUS(s, interface1::ParameterBase::check());
+    DAAL_CHECK_EX((accuracyThreshold > 0) && (accuracyThreshold < 1), services::ErrorIncorrectParameter, services::ParameterName, accuracyThresholdStr());
+    DAAL_CHECK_EX(maxIterations, services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr());
+    return s;
 }
-namespace internal
-{
-template class MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, DAAL_FPTYPE, classifier::prediction::Batch, multi_class_classifier::Parameter, DAAL_CPU>;
-} // namespace internal
-} // namespace prediction
-} // namespace multi_class_classifier
-} // namespace algorithms
-} // namespace daal
+}
+}
+}
+}
