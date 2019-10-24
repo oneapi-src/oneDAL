@@ -1,4 +1,4 @@
-/* file: gbt_classification_train_container.h */
+/* file: gbt_classification_train_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __GBT_CLASSIFICATION_TRAIN_CONTAINER_H__
-#define __GBT_CLASSIFICATION_TRAIN_CONTAINER_H__
+#ifndef __GBT_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
+#define __GBT_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 
 #include "kernel.h"
 #include "gbt_classification_training_types.h"
@@ -41,7 +41,7 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
@@ -66,8 +66,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     gbt::classification::Model *m = result->get(classifier::training::model).get();
 
-    const gbt::classification::training::Parameter *par =
-        static_cast<gbt::classification::training::Parameter*>(_par);
+    const gbt::classification::training::interface1::Parameter *par =
+        static_cast<gbt::classification::training::interface1::Parameter*>(_par);
     daal::services::Environment::env &env = *_env;
     daal::algorithms::engines::internal::BatchBaseImpl* engine = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(par->engine.get());
 
@@ -86,7 +86,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
     return services::Status();
 }
 }
-
 }
 }
 }

@@ -1,4 +1,4 @@
-/* file: gbt_classification_predict_dense_default_batch_fpt_cpu.cpp */
+/* file: gbt_classification_train_dense_default_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,13 +17,12 @@
 
 /*
 //++
-//  Implementation of prediction stage of gradient boosted trees classification algorithm.
+//  Implementation of gradient boosted trees classification training functions for the default method
 //--
 */
 
-#include "gbt_classification_predict_kernel.h"
-#include "gbt_classification_predict_dense_default_batch_impl.i"
-#include "gbt_classification_predict_container.h"
+#include "gbt_classification_train_container_v1.h"
+#include "gbt_classification_train_dense_default_impl.i"
 
 namespace daal
 {
@@ -33,15 +32,11 @@ namespace gbt
 {
 namespace classification
 {
-namespace prediction
+namespace training
 {
-namespace interface2
+namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
-namespace internal
-{
-template class PredictKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 }
 }

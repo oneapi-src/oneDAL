@@ -34,9 +34,6 @@ namespace algorithms
 {
 namespace decision_forest
 {
-
-namespace training { services::Status checkImpl(const decision_forest::training::Parameter& prm); }
-
 namespace classification
 {
 namespace training

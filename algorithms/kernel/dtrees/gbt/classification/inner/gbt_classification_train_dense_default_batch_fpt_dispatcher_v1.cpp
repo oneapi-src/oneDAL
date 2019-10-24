@@ -1,4 +1,4 @@
-/* file: gbt_classification_train_dense_default_batch_fpt_dispatcher.cpp */
+/* file: gbt_classification_train_dense_default_batch_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -21,14 +21,14 @@
 //--
 */
 
-#include "gbt_classification_train_container.h"
+#include "gbt_classification_train_container_v1.h"
 #include "daal_strings.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::classification::training::BatchContainer, batch, DAAL_FPTYPE, \
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::classification::training::interface1::BatchContainer, batch, DAAL_FPTYPE, \
     gbt::classification::training::defaultDense)
 namespace gbt
 {
@@ -36,7 +36,7 @@ namespace classification
 {
 namespace training
 {
-namespace interface2
+namespace interface1
 {
 template <>
 Batch<DAAL_FPTYPE, gbt::classification::training::defaultDense>::Batch(size_t nClasses)
@@ -47,7 +47,7 @@ Batch<DAAL_FPTYPE, gbt::classification::training::defaultDense>::Batch(size_t nC
 
 using BatchType = Batch<DAAL_FPTYPE, gbt::classification::training::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, gbt::classification::training::defaultDense>::Batch(const BatchType &other) : classifier::training::Batch(other), input(other.input)
+Batch<DAAL_FPTYPE, gbt::classification::training::defaultDense>::Batch(const BatchType &other) : classifier::training::interface1::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
@@ -56,7 +56,7 @@ Batch<DAAL_FPTYPE, gbt::classification::training::defaultDense>::Batch(const Bat
 template<>
 DAAL_EXPORT services::Status Batch<DAAL_FPTYPE, gbt::classification::training::defaultDense>::checkComputeParams()
 {
-    services::Status s = classifier::training::Batch::checkComputeParams();
+    services::Status s = classifier::training::interface1::Batch::checkComputeParams();
     if(!s)
         return s;
     const auto x = input.get(classifier::training::data);

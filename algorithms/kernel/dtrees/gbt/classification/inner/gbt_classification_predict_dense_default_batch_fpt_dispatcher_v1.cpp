@@ -1,4 +1,4 @@
-/* file: gbt_classification_predict_dense_default_batch_fpt_dispatcher.cpp */
+/* file: gbt_classification_predict_dense_default_batch_fpt_dispatcher_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -23,13 +23,13 @@
 //--
 */
 
-#include "gbt_classification_predict_container.h"
+#include "gbt_classification_predict_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::classification::prediction::BatchContainer, batch,\
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::classification::prediction::interface1::BatchContainer, batch,\
     DAAL_FPTYPE, gbt::classification::prediction::defaultDense)
 
 namespace gbt
@@ -38,7 +38,7 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface2
+namespace interface1
 {
 template <>
 Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(size_t nClasses)
@@ -49,7 +49,7 @@ Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(size_t 
 
 using BatchType = Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(const BatchType &other) : classifier::prediction::Batch(other), input(other.input)
+Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(const BatchType &other) : classifier::prediction::interface1::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

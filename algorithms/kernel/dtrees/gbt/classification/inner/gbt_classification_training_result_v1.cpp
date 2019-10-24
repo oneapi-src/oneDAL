@@ -1,4 +1,4 @@
-/* file: df_classification_training_types_result.h */
+/* file: gbt_classification_training_result_v1.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -17,11 +17,14 @@
 
 /*
 //++
-//  Implementation of decision forest algorithm classes.
+//  Implementation of gradient boosted trees algorithm classes.
 //--
 */
 
-#include "algorithms/decision_forest/decision_forest_classification_training_types.h"
+#include "algorithms/gradient_boosted_trees/gbt_classification_training_types.h"
+#include "gbt/gbt_training_parameter.h"
+#include "serialization_utils.h"
+#include "daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -30,10 +33,8 @@ namespace daal
 {
 namespace algorithms
 {
-namespace decision_forest
+namespace gbt
 {
-namespace training { services::Status checkImpl(const decision_forest::training::Parameter& prm); }
-
 namespace classification
 {
 namespace training
@@ -41,28 +42,14 @@ namespace training
 namespace interface1
 {
 
-class Result::ResultImpl
+Status Parameter::check() const
 {
-public:
-    ResultImpl() {}
-    ResultImpl(const ResultImpl& other)
-    {
-        if(other._engine) _engine = other._engine->clone();
-    }
-
-    void setEngine(engines::EnginePtr engine) { _engine = engine; }
-    engines::EnginePtr getEngine()
-    {
-        if(!_engine) _engine = engines::mt2203::Batch<>::create();
-        return _engine;
-    }
-private:
-    engines::EnginePtr _engine;
-};
+    return gbt::training::checkImpl(*this);
+}
 
 } // namespace interface1
 } // namespace training
 } // namespace classification
-} // namespace decision_forest
+} // namespace gbt
 } // namespace algorithms
 } // namespace daal

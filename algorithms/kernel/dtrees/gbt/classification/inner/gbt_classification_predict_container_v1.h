@@ -1,4 +1,4 @@
-/* file: gbt_classification_predict_container.h */
+/* file: gbt_classification_predict_container_v1.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -37,7 +37,7 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface2
+namespace interface1
 {
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -60,15 +60,13 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     NumericTable *a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
     gbt::classification::Model *m = static_cast<gbt::classification::Model *>(input->get(classifier::prediction::model).get());
+    NumericTable *r = static_cast<NumericTable *>(result->get(classifier::prediction::prediction).get());
 
     daal::services::Environment::env &env = *_env;
-    const gbt::classification::prediction::Parameter *par = static_cast<gbt::classification::prediction::Parameter*>(_par);
-
-    NumericTable *r = (par->resultsToEvaluate & classifier::ResultToComputeId::computeClassLabels ? result->get(classifier::prediction::prediction).get() : nullptr);
-    NumericTable *prob = ((par->resultsToEvaluate & classifier::ResultToComputeId::computeClassProbabilities) ? result->get(classifier::prediction::probabilities).get() : nullptr);
+    const gbt::classification::prediction::interface1::Parameter *par = static_cast<gbt::classification::prediction::interface1::Parameter*>(_par);
 
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, daal::services::internal::hostApp(*input),
-        a, m, r, prob, par->nClasses, par->nIterations);
+        a, m, r, nullptr, par->nClasses, par->nIterations);
 }
 
 }
