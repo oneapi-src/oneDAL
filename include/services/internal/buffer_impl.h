@@ -104,10 +104,10 @@ private:
 };
 
 template<typename T>
-class ConvertToHostSharedPtr : public BufferVisitor<T>
+class ConvertToHost : public BufferVisitor<T>
 {
 public:
-    explicit ConvertToHostSharedPtr(const data_management::ReadWriteMode& rwFlag)
+    explicit ConvertToHost(const data_management::ReadWriteMode& rwFlag)
         : _rwFlag(rwFlag) { }
 
     void operator()(const HostBuffer<T> &buffer) DAAL_C11_OVERRIDE
@@ -136,7 +136,7 @@ private:
             case writeOnly: return buffer.getHostWrite(&_status);
             case readWrite: return buffer.getHostReadWrite(&_status);
         }
-        DAAL_ASSERT(!"Not implemented read-write mode");
+        DAAL_ASSERT(!"Unexpected read/write flag");
         return SharedPtr<T>();
     }
 
@@ -153,7 +153,7 @@ public:
                         const data_management::ReadWriteMode& rwMode,
                         Status *status = NULL)
     {
-        ConvertToHostSharedPtr<T> action(rwMode);
+        ConvertToHost<T> action(rwMode);
         buffer.apply(action);
         tryAssignStatusAndThrow(status, action.getStatus());
         return action.get();

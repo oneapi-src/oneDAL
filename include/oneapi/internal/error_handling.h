@@ -17,6 +17,8 @@
 
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
+
+#include "services/internal/error_handling_helpers.h"
 #include "services/error_indexes.h"
 #include "services/daal_string.h"
 

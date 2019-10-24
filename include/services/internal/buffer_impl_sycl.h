@@ -75,9 +75,8 @@ private:
         if (_allocType == alloc::host || _allocType == alloc::shared)
         { return _data; }
 
-        const auto error = Error::create(
-            ErrorAccessUSMPointerOnOtherDevice, Sycl,
-            "Cannot access device pointer on host");
+        const auto error = Error::create(ErrorAccessUSMPointerOnOtherDevice, Sycl,
+                                         "Cannot access device pointer on host");
         tryAssignStatusAndThrow(status, error);
 
         return SharedPtr<T>();

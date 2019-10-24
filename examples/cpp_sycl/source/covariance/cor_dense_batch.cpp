@@ -70,15 +70,16 @@ int main(int argc, char *argv[])
             data->releaseBlockOfRows(block);
         }
 
-        const auto dataBuffer = services::Buffer<float>(dataDevice, dataSize, cl::sycl::usm::alloc::device);
         const auto dataTable = data_management::SyclHomogenNumericTable<float>::create(
-            dataBuffer, data->getNumberOfColumns(), data->getNumberOfRows());
+            dataDevice, cl::sycl::usm::alloc::device,
+            data->getNumberOfColumns(), data->getNumberOfRows());
 
         covariance::Batch<> algorithm;
         algorithm.input.set(covariance::data, dataTable);
 
         algorithm.parameter.outputMatrixType = covariance::correlationMatrix;
 
+        algorithm.compute();
         algorithm.compute();
 
         covariance::ResultPtr res = algorithm.getResult();

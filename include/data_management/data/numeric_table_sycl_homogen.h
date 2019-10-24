@@ -18,6 +18,10 @@
 #ifndef __SYCL_HOMOGEN_NUMERIC_TABLE_H__
 #define __SYCL_HOMOGEN_NUMERIC_TABLE_H__
 
+#ifdef DAAL_SYCL_INTERFACE
+#include <CL/sycl.hpp>
+#endif
+
 #include "data_management/data/numeric_table_sycl.h"
 #include "data_management/data/internal/conversion.h"
 #include "data_management/data/homogen_numeric_table.h"
@@ -67,6 +71,30 @@ public:
                                              DictionaryIface::notEqual, buffer,
                                              nColumns, nRows);
     }
+
+#ifdef DAAL_SYCL_INTERFACE_USM
+    static services::SharedPtr<SyclHomogenNumericTable<DataType> >
+        create(const services::SharedPtr<DataType> &usmData,
+               const cl::sycl::usm::alloc &usmAllocType,
+               size_t nColumns, size_t nRows,
+               services::Status *stat = NULL)
+    {
+        const size_t bufferSize = nColumns * nRows;
+        return create(services::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
+    }
+#endif
+
+#ifdef DAAL_SYCL_INTERFACE_USM
+    static services::SharedPtr<SyclHomogenNumericTable<DataType> >
+        create(DataType *usmData,
+               const cl::sycl::usm::alloc &usmAllocType,
+               size_t nColumns, size_t nRows,
+               services::Status *stat = NULL)
+    {
+        const size_t bufferSize = nColumns * nRows;
+        return create(services::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
+    }
+#endif
 
     /**
      *  Constructs a Numeric Table
@@ -162,25 +190,9 @@ public:
 
 
 protected:
-    explicit SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
-                                     const services::Buffer<DataType> &buffer,
-                                     size_t nColumns, size_t nRows, services::Status &st) :
-        SyclNumericTable(nColumns, nRows, featuresEqual, st),
-        _buffer(buffer)
-    {
-        // TODO: Check nColumns * nRows == buffer size
-        _layout = NumericTableIface::aos;
-        _memStatus = userAllocated;
-
-        NumericTableFeature df;
-        df.setType<DataType>();
-        st |= _ddict->setAllFeatures(df);
-    }
-
-    explicit SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
-                                     size_t nColumns, size_t nRows,
-                                     NumericTable::AllocationFlag memoryAllocationFlag,
-                                     services::Status &st) :
+    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
+                            size_t nColumns, size_t nRows,
+                            services::Status &st) :
         SyclNumericTable(nColumns, nRows, featuresEqual, st)
     {
         _layout = NumericTableIface::aos;
@@ -188,31 +200,45 @@ protected:
         NumericTableFeature df;
         df.setType<DataType>();
         st |= _ddict->setAllFeatures(df);
+    }
 
+    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
+                            const services::Buffer<DataType> &buffer,
+                            size_t nColumns, size_t nRows, services::Status &st) :
+        SyclHomogenNumericTable(featuresEqual, nColumns, nRows, st)
+    {
+        if (nColumns * nRows < buffer.size())
+        {
+            st |= services::Error::create(services::ErrorIncorrectSizeOfArray, services::Row,
+                                          "Buffer size is not enough to represent the table");
+            services::throwIfPossible(st);
+        }
+
+        if (st)
+        {
+            _buffer = buffer;
+            _memStatus = userAllocated;
+        }
+    }
+
+    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
+                            size_t nColumns, size_t nRows,
+                            NumericTable::AllocationFlag memoryAllocationFlag,
+                            services::Status &st) :
+        SyclHomogenNumericTable(featuresEqual, nColumns, nRows, st)
+    {
         if (memoryAllocationFlag == NumericTableIface::doAllocate)
         {
             st |= allocateDataMemoryImpl();
         }
     }
 
-    explicit SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
-                                     size_t nColumns, size_t nRows,
-                                     NumericTable::AllocationFlag memoryAllocationFlag,
-                                     const DataType &constValue, services::Status &st) :
-        SyclNumericTable(nColumns, nRows, featuresEqual, st)
+    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
+                            size_t nColumns, size_t nRows,
+                            NumericTable::AllocationFlag memoryAllocationFlag,
+                            const DataType &constValue, services::Status &st) :
+        SyclHomogenNumericTable(featuresEqual, nColumns, nRows, memoryAllocationFlag, st)
     {
-        _layout = NumericTableIface::aos;
-
-        NumericTableFeature df;
-        df.setType<DataType>();
-
-        st |= _ddict->setAllFeatures(df);
-
-        if (memoryAllocationFlag == doAllocate)
-        {
-            st |= allocateDataMemoryImpl();
-        }
-
         st |= assignImpl<DataType>(constValue);
     }
 
@@ -231,16 +257,23 @@ protected:
             const size_t size = getNumberOfColumns() * getNumberOfRows();
             if (!size)
             {
-                return services::Status(
+                status |= services::Status(
                     getNumberOfColumns() == 0
                         ? services::ErrorIncorrectNumberOfFeatures
                         : services::ErrorIncorrectNumberOfObservations
                 );
+                services::throwIfPossible(status);
+                return status;
             }
 
-            _buffer = oneapi::internal::getDefaultContext()
-                .allocate(oneapi::internal::TypeIds::id<DataType>(), size, &status)
-                .template get<DataType>();
+            const auto universalBuffer = oneapi::internal::getDefaultContext()
+                .allocate(oneapi::internal::TypeIds::id<DataType>(), size, &status);
+            services::throwIfPossible(status);
+
+            if (status)
+            {
+                _buffer = universalBuffer.template get<DataType>();
+            }
         }
 
         if (status)
@@ -309,15 +342,20 @@ protected:
         services::Status status;
 
         if (_memStatus == notAllocated)
-            return services::Status(services::ErrorEmptyHomogenNumericTable);
+        {
+            status |= services::Status(services::ErrorEmptyHomogenNumericTable);
+            services::throwIfPossible(status);
+            return status;
+        }
 
         if (isCpuTable())
         {
             return _cpuTable->assign(value);
         }
 
-        auto &ctx = services::Environment::getInstance()->getDefaultExecutionContext();
-        ctx.fill(_buffer, (double)value, &status);
+        oneapi::internal::getDefaultContext().fill(_buffer, (double)value, &status);
+        services::throwIfPossible(status);
+
         return status;
     }
 
@@ -331,7 +369,11 @@ private:
             DAAL_ASSERT(buffer.size() == nRows * nCols);
 
             if (!block.resizeBuffer(nCols, nRows))
-            { return services::Status(services::ErrorMemoryAllocationFailed); }
+            {
+                services::Status status(services::ErrorMemoryAllocationFailed);
+                services::throwIfPossible(status);
+                return status;
+            }
 
             // TODO: Figure out how to convert the data without fallback to host
             auto hostPtr = buffer.toHost(data_management::readOnly);
@@ -448,6 +490,7 @@ private:
                 columnIndex, rowOffset, nRowsBlockDesired, rwFlag, block);
         }
 
+        services::throwIfPossible(services::ErrorMethodNotImplemented);
         return services::ErrorMethodNotImplemented;
     }
 
@@ -459,6 +502,7 @@ private:
             return _cpuTable->releaseBlockOfColumnValues(block);
         }
 
+        services::throwIfPossible(services::ErrorMethodNotImplemented);
         return services::ErrorMethodNotImplemented;
     }
 
