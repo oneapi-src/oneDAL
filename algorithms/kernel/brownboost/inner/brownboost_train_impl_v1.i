@@ -43,6 +43,7 @@
 #include "classifier_model.h"
 #include "brownboost_model.h"
 #include "brownboost_train_kernel_v1.h"
+#include "brownboost_train_kernel.h"
 
 namespace daal
 {
