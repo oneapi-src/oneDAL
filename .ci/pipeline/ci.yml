@@ -19,7 +19,7 @@ jobs:
         platform.type : 'lnx32e'
     maxParallel: 2
   steps:
-  - script: sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
+  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
       scripts/mklfpk.sh ${$(platform.type):3}
