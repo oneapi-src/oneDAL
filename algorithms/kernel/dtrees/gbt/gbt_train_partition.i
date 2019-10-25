@@ -135,6 +135,104 @@ public:
         : super(iFeature, idxFeatureValueBestSplit, sharedData, nodeInfo, bestSplit)
     {}
 
+    static DAAL_INT doPartitionIdxWithStride(IndexType n, RowIndexType* aIdx, const BinIndexType* indexedFeature, bool featureUnordered,
+        RowIndexType idxFeatureValueBestSplit, RowIndexType* buffer, RowIndexType &nLeft, size_t nFeatures = 1, size_t featureIndex = 0)
+    {
+        DAAL_INT iRowSplitVal = -1;
+
+        const size_t maxNBlocks = 56;
+        size_t sizeOfBlock = 2048;
+        size_t nBlocks = n/sizeOfBlock;
+        nBlocks += !!(n - nBlocks*sizeOfBlock);
+
+        if (nBlocks > maxNBlocks)
+        {
+            nBlocks = maxNBlocks;
+            sizeOfBlock = n/nBlocks + !!(n%nBlocks);
+        }
+
+        RowIndexType part_high_left[maxNBlocks];
+        RowIndexType part_high_right[maxNBlocks];
+
+        LoopHelper<cpu>::run(true, nBlocks, [&](size_t iBlock)
+        {
+            RowIndexType iLeft = 0;
+            RowIndexType iRight = 0;
+            const size_t iStart = iBlock*sizeOfBlock;
+            const size_t iEnd = (((iBlock+1) * sizeOfBlock > n) ?  n : iStart + sizeOfBlock);
+
+            RowIndexType* bestSplitIdx = buffer + 2*iStart;
+            RowIndexType* bestSplitIdxRight = bestSplitIdx + iEnd-iStart;
+
+            RowIndexType i = iStart;
+
+            if (featureUnordered)
+            {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for(IndexType i = iStart; i < iEnd; ++i)
+                {
+                    if(indexedFeature[aIdx[i] * nFeatures + featureIndex] != idxFeatureValueBestSplit)
+                        bestSplitIdxRight[iRight++] = aIdx[i];
+                    else
+                        bestSplitIdx[iLeft++] = aIdx[i];
+                }
+            }
+            else
+            {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for(IndexType i = iStart; i < iEnd; ++i)
+                {
+                    if(indexedFeature[aIdx[i] * nFeatures + featureIndex] > idxFeatureValueBestSplit)
+                        bestSplitIdxRight[iRight++] = aIdx[i];
+                    else
+                        bestSplitIdx[iLeft++] = aIdx[i];
+                }
+            }
+
+            part_high_left[iBlock] = iLeft;
+            part_high_right[iBlock] = iRight;
+        });
+
+        nLeft = 0;
+
+        for (size_t iBlock = 0; iBlock < nBlocks; iBlock++)
+        {
+            nLeft += part_high_left[iBlock];
+        }
+
+        LoopHelper<cpu>::run(true, nBlocks, [&](size_t iBlock)
+        {
+            const size_t iStart = iBlock*sizeOfBlock;
+            const size_t iEnd = (((iBlock+1) * sizeOfBlock > n) ?  n : iStart + sizeOfBlock);
+
+            const RowIndexType sizeL = part_high_left[iBlock];
+            const RowIndexType sizeR = part_high_right[iBlock];
+
+            RowIndexType offsetLeft = 0;
+            RowIndexType offsetRight = 0;
+
+            for(IndexType i = 0; i < iBlock; ++i)
+            {
+                offsetLeft  += part_high_left[i];
+                offsetRight += part_high_right[i];
+            }
+
+            RowIndexType* bestSplitIdx = buffer + 2*iStart;
+            RowIndexType* bestSplitIdxRight = bestSplitIdx + iEnd-iStart;
+
+            services::internal::tmemcpy<IndexType, cpu>(aIdx + nLeft + offsetRight, bestSplitIdxRight, sizeR);
+            services::internal::tmemcpy<IndexType, cpu>(aIdx + offsetLeft, bestSplitIdx, sizeL);
+        });
+
+        RowIndexType i = 0;
+        while(indexedFeature[aIdx[i] * nFeatures + featureIndex] != idxFeatureValueBestSplit) i++;
+        iRowSplitVal = aIdx[i];
+
+        return iRowSplitVal;
+    }
+
 protected:
     virtual void finalizeBestSplit(size_t n, size_t iStart)
     {

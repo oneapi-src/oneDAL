@@ -682,10 +682,10 @@ protected:
 template <typename GHSumType, CpuType cpu>
 struct GHSumForTLS
 {
-    GHSumForTLS(GHSumType * p) : ghSum(p), isInitilized(false) {}
+    GHSumForTLS(GHSumType * p) : ghSum(p), isInitialized(false) {}
 
-    GHSumType * ghSum;
-    bool isInitilized;
+    GHSumType* ghSum;
+    bool isInitialized;
 };
 
 template <typename T, typename algorithmFPType, CpuType cpu,
@@ -711,7 +711,7 @@ public:
     {
         size = 0;
         this->reduce([&](T * ptr) -> void {
-            if (!ptr->isInitilized)
+            if (!ptr->isInitialized)
             {
                 return;
             }
@@ -722,7 +722,7 @@ public:
 
     void release()
     {
-        this->reduce([](T * ptr) -> void { ptr->isInitilized = false; });
+        this->reduce([](T * ptr) -> void { ptr->isInitialized = false; });
     }
 };
 

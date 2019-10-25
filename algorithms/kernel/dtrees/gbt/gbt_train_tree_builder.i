@@ -83,16 +83,20 @@ public:
                 iFeature = _iFeature;
             }
         }
-        void update(const SplitDataType & split, int iIndexedFeatureSplitValue, int iFeature)
+        bool update(const SplitDataType & split, int iIndexedFeatureSplitValue, int iFeature)
         {
-            if (_mt)
+            bool updated = false;
+
+            if(_mt)
             {
                 _mt->lock();
-                updateImpl(split, iIndexedFeatureSplitValue, iFeature);
+                updated = updateImpl(split, iIndexedFeatureSplitValue, iFeature);
                 _mt->unlock();
             }
             else
-                updateImpl(split, iIndexedFeatureSplitValue, iFeature);
+                updated = updateImpl(split, iIndexedFeatureSplitValue, iFeature);
+
+            return updated;
         }
 
         void update(const SplitDataType & split, int iFeature, int * bestSplitIdx, const int * aIdx, size_t n)

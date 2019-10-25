@@ -371,7 +371,14 @@
     DECLARE_DAAL_STRING_CONST(step13Assignments)                 \
     DECLARE_DAAL_STRING_CONST(step13AssignmentQueries)           \
     DECLARE_DAAL_STRING_CONST(gramMatrix)                        \
-    DECLARE_DAAL_STRING_CONST(lassoParameters)
+    DECLARE_DAAL_STRING_CONST(lassoParameters)                   \
+    DECLARE_DAAL_STRING_CONST(gbtStep1binnedData)                \
+    DECLARE_DAAL_STRING_CONST(gbtStep1binSizes)                  \
+    DECLARE_DAAL_STRING_CONST(gbtStep1binOffsets)                \
+    DECLARE_DAAL_STRING_CONST(gbtStep1InputTreeOrder)            \
+    DECLARE_DAAL_STRING_CONST(gbtStep1DependentVariable)         \
+    DECLARE_DAAL_STRING_CONST(gbtStep1optCoeffs)                 \
+    DECLARE_DAAL_STRING_CONST(gbtStep1updatedOptCoeffs)
 
 /**
  *  Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) namespace

@@ -50,7 +50,7 @@ namespace interface1
  *  \brief Class containing computation methods for model-based prediction
  */
 template <typename algorithmFPType, Method method, CpuType cpu>
-class BatchContainer : public PredictionContainerIface
+class DAAL_EXPORT BatchContainer : public PredictionContainerIface
 {
 public:
     /**

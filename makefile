@@ -649,6 +649,7 @@ daal: $(if $(CORE.ALGORITHMS.CUSTOM),                                           
           _daal _release_c,                                                        \
           _daal _daal_jj _release _release_doc                                     \
       )
+#          _daal _daal_jj _release _release_doc $(if $(PLAT_is_lnx32e),_release_p)  \
 
 _daal:    _daal_core _daal_thr
 _daal_jj: _daal_jar _daal_jni

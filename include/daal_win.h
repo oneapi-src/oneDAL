@@ -291,6 +291,8 @@
 #include "algorithms/gradient_boosted_trees/gbt_classification_predict.h"
 #include "algorithms/gradient_boosted_trees/gbt_classification_training_batch.h"
 #include "algorithms/gradient_boosted_trees/gbt_classification_training_types.h"
+#include "algorithms/gradient_boosted_trees/gbt_regression_init_types.h"
+#include "algorithms/gradient_boosted_trees/gbt_regression_init_distributed.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_model.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_model_builder.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_predict.h"

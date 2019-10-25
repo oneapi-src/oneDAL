@@ -151,8 +151,8 @@ services::Status createTreeInternal(data_management::DataCollectionPtr & seriali
     const size_t nTrees      = (*(serializationData)).size();
     while (isNotEmptyTreeTable && (treeId < nTrees))
     {
+        treeId++;
         isNotEmptyTreeTable = ((*(serializationData))[treeId].get()) != nullptr;
-        if (isNotEmptyTreeTable) treeId++;
     }
     if (treeId == nTrees)
     {

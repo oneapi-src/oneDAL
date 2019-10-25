@@ -278,6 +278,7 @@ JJ.ALGORITHMS       := adaboost                                                 
                        gbt/regression                                            \
                        gbt/regression/prediction                                 \
                        gbt/regression/training                                   \
+                       gbt/regression/init                                       \
                        gbt/training                                              \
                        implicit_als                                              \
                        implicit_als/prediction                                   \

@@ -116,6 +116,7 @@ public:
 
         if (_iFeature >= 0) // best split has been found
         {
+            // algorithmFPType impDec = _bestSplit.impurityDecrease;
             PartitionTaskType partion(_iFeature, idxFeatureValueBestSplit, _data, _node, _bestSplit);
             partion.execute();
         }

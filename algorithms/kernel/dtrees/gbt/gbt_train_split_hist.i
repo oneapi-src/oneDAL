@@ -92,9 +92,8 @@ public:
         SplitDataType split(bestImpDec, featureUnordered);
 
         DAAL_INT idxFeatureBestSplit = -1;
-        auto & par                   = _data.ctx.par();
-        MaxImpurityDecrease::find(_node.n, par.minObservationsInLeafNode, par.lambda, split, _res, idxFeatureBestSplit, featureUnordered, _data,
-                                  _iFeature);
+        auto& par = _data.ctx.par();
+        MaxImpurityDecrease::find(_node.n, par.minObservationsInLeafNode, par.lambda, split, _res, idxFeatureBestSplit, featureUnordered, _iFeature);
 
         if (idxFeatureBestSplit >= 0)
         {
@@ -196,9 +195,8 @@ public:
                 SplitDataType split(bestImpDec, featureUnordered);
 
                 DAAL_INT idxFeatureBestSplit = -1;
-                auto & par                   = _data.ctx.par();
-                MaxImpurityDecrease::find(_node1.n, par.minObservationsInLeafNode, par.lambda, split, _res1, idxFeatureBestSplit, featureUnordered,
-                                          _data, _iFeature);
+                auto& par = _data.ctx.par();
+                MaxImpurityDecrease::find(_node1.n, par.minObservationsInLeafNode, par.lambda, split, _res1, idxFeatureBestSplit, featureUnordered, _iFeature);
 
                 if (idxFeatureBestSplit >= 0)
                 {
@@ -232,9 +230,7 @@ public:
 
                 DAAL_INT idxFeatureBestSplit = -1;
                 auto & par                   = _data.ctx.par();
-
-                MaxImpurityDecrease::find(_node2.n, par.minObservationsInLeafNode, par.lambda, split, _res2, idxFeatureBestSplit, featureUnordered,
-                                          _data, _iFeature);
+                MaxImpurityDecrease::find(_node2.n, par.minObservationsInLeafNode, par.lambda, split, _res2, idxFeatureBestSplit, featureUnordered, _iFeature);
 
                 if (idxFeatureBestSplit >= 0)
                 {
@@ -314,9 +310,8 @@ public:
         SplitDataType split(bestImpDec, featureUnordered);
 
         DAAL_INT idxFeatureBestSplit = -1;
-        auto & par                   = _data.ctx.par();
-        MaxImpurityDecrease::find(_node1.n, par.minObservationsInLeafNode, par.lambda, split, _res1, idxFeatureBestSplit, featureUnordered, _data,
-                                  _iFeature);
+        auto& par = _data.ctx.par();
+        MaxImpurityDecrease::find(_node1.n, par.minObservationsInLeafNode, par.lambda, split, _res1, idxFeatureBestSplit, featureUnordered, _iFeature);
 
         if (idxFeatureBestSplit >= 0)
         {
@@ -365,10 +360,10 @@ public:
         GHSumType * aGHSum         = local->ghSum;
         algorithmFPType * aGHSumFP = (algorithmFPType *)local->ghSum;
 
-        if (!local->isInitilized)
+        if (!local->isInitialized)
         {
             GHSums::fillByZero(_data.GH_SUMS_BUF->nDiffFeatMax, aGHSum);
-            local->isInitilized = true;
+            local->isInitialized = true;
         }
 
         algorithmFPType * pgh = (algorithmFPType *)_data.ctx.grad(_data.iTree);

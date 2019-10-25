@@ -74,6 +74,8 @@ DAAL  = assoc_rules_apriori_batch             \
         gbt_reg_dense_batch                   \
         gbt_cls_traversed_model_builder       \
         gbt_reg_traversed_model_builder       \
+        gbt_reg_init_distr                    \
+        gbt_reg_dense_distr                   \
         host_cancel_compute                   \
         impl_als_csr_batch                    \
         impl_als_csr_distr                    \

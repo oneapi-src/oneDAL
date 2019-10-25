@@ -27,11 +27,13 @@
 
 #include "gbt_regression_train_kernel.h"
 #include "gbt_regression_model_impl.h"
+#include "gbt_regression_loss_impl.h"
 #include "gbt_train_dense_default_impl.i"
 #include "gbt_train_tree_builder.i"
 
 using namespace daal::algorithms::dtrees::training::internal;
 using namespace daal::algorithms::gbt::training::internal;
+using namespace daal::algorithms::gbt::regression::internal;
 
 namespace daal
 {
@@ -45,49 +47,6 @@ namespace training
 {
 namespace internal
 {
-//////////////////////////////////////////////////////////////////////////////////////////
-// Squared loss function, L(y,f)=1/2([y-f(x)]^2)
-//////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, CpuType cpu>
-class SquaredLoss : public LossFunction<algorithmFPType, cpu>
-{
-public:
-    virtual void getGradients(size_t n, size_t nRows, const algorithmFPType * y, const algorithmFPType * f, const IndexType * sampleInd,
-                              algorithmFPType * gh) DAAL_C11_OVERRIDE
-    {
-        const size_t nThreads  = daal::threader_get_threads_number();
-        const size_t nBlocks   = getNBlocksForOpt<cpu>(nThreads, n);
-        const size_t nPerBlock = n / nBlocks;
-        const size_t nSurplus  = n % nBlocks;
-        const bool inParallel  = nBlocks > 1;
-        LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
-            const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-            const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
-            if (sampleInd)
-            {
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t i = start; i < end; i++)
-                {
-                    gh[2 * sampleInd[i]]     = f[sampleInd[i]] - y[sampleInd[i]]; //gradient
-                    gh[2 * sampleInd[i] + 1] = 1;                                 //hessian
-                }
-            }
-            else
-            {
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t i = start; i < end; i++)
-                {
-                    gh[2 * i]     = f[i] - y[i]; //gradient
-                    gh[2 * i + 1] = 1;           //hessian
-                }
-            }
-        });
-    }
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////
 // TrainBatchTask for regression
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, typename BinIndexType, gbt::regression::training::Method method, CpuType cpu>

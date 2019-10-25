@@ -69,19 +69,28 @@ template <typename algorithmFPType, typename RowIndexType, typename BinIndexType
 class MaxImpurityDecreaseHelper
 {
 public:
-    static void find(size_t n, size_t minObservationsInLeafNode, algorithmFPType lambda, SplitType & split, const ResultType & res,
-                     DAAL_INT & idxFeatureBestSplit, bool featureUnordered,
-                     SharedDataForTree<algorithmFPType, RowIndexType, BinIndexType, cpu> & data, size_t iFeature)
+    static void find(
+            size_t n,
+            size_t minObservationsInLeafNode,
+            algorithmFPType lambda,
+            SplitType& split,
+            const ResultType& res,
+            DAAL_INT& idxFeatureBestSplit,
+            bool featureUnordered, size_t iFeature)
     {
         if (featureUnordered)
             findCategorical(n, minObservationsInLeafNode, lambda, split, res, idxFeatureBestSplit);
         else
-            findOrdered(n, minObservationsInLeafNode, lambda, split, res, idxFeatureBestSplit, data, iFeature);
+            findOrdered(n, minObservationsInLeafNode, lambda, split, res, idxFeatureBestSplit, iFeature);
     }
 
-    static void findOrdered(size_t n, size_t minObservationsInLeafNode, algorithmFPType lambda, SplitType & split, const ResultType & res,
-                            DAAL_INT & idxFeatureBestSplit, SharedDataForTree<algorithmFPType, RowIndexType, BinIndexType, cpu> & data,
-                            size_t iFeature)
+    static void findOrdered(
+            size_t n,
+            size_t minObservationsInLeafNode,
+            algorithmFPType lambda,
+            SplitType& split,
+            const ResultType& res,
+            DAAL_INT& idxFeatureBestSplit, size_t iFeature)
     {
         const size_t nUnique = res.nUnique;
         auto * aGHSum        = res.ghSums;

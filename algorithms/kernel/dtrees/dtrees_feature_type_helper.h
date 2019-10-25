@@ -26,6 +26,7 @@
 
 #include "service_memory.h"
 #include "service_numeric_table.h"
+#include "service_array.h"
 
 typedef double ModelFPType;
 
@@ -124,6 +125,8 @@ public:
         return _entries[iCol].binBorders[iBin];
     }
 
+    ModelFPType minFeatureValue(size_t iCol) { return _minFeatureValues[iCol]; }
+
     //for low-level optimization
     const IndexType * data(size_t iFeature) const { return (IndexType *)(((char *)_data) + _nRows * iFeature * _sizeOfIndex); }
 
@@ -134,13 +137,32 @@ protected:
     services::Status alloc(size_t nCols, size_t nRows);
 
 protected:
-    IndexType * _data;
-    FeatureEntry * _entries;
+    IndexType* _data;
+    FeatureEntry* _entries;
+    ModelFPType* _minFeatureValues;
     size_t _sizeOfIndex;
     size_t _nRows;
     size_t _nCols;
     size_t _capacity;
     size_t _maxNumIndices;
+};
+
+template <typename algorithmFPType, CpuType cpu>
+class IndexedFeaturesCPU: public IndexedFeatures
+{
+public:
+    IndexedFeaturesCPU(): IndexedFeatures() {}
+    ~IndexedFeaturesCPU() {}
+
+    services::Status init(const NumericTable& nt, const FeatureTypes* featureTypes = nullptr,
+        const BinParams* pBimPrm = nullptr);
+
+    size_t binSize(size_t iCol, size_t iBin) const
+    {
+        return ((_bins->get())[iCol]->get())[iBin];
+    }
+protected:
+    TVector<TVector<size_t, cpu, DefaultAllocator<cpu>>*, cpu, DefaultAllocator<cpu>> *_bins;
 };
 
 } /* namespace internal */
