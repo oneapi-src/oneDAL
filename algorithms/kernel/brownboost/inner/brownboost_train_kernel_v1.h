@@ -28,7 +28,6 @@
 #include "brownboost_training_types.h"
 #include "kernel.h"
 #include "service_numeric_table.h"
-#include "brownboost_train_kernel_v1.h"
 
 using namespace daal::data_management;
 
