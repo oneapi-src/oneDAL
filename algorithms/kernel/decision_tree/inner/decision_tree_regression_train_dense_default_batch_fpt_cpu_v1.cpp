@@ -21,7 +21,7 @@
 //--
 */
 
-#include "decision_tree_regression_train_container.h"
+#include "decision_tree_regression_train_container_v1.h"
 #include "decision_tree_regression_train_dense_default_impl.i"
 
 namespace daal
