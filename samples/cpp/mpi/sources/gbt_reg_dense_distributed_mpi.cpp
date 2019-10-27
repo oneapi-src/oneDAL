@@ -2,9 +2,7 @@
 #include "daal.h"
 #include "service.h"
 #include <cassert>
-#include <chrono>
 #include <iostream>
-#include <cmath>
 
 using namespace std;
 using namespace daal;
@@ -28,17 +26,11 @@ const string testDatasetFileName[nBlocks] =
     "./data/distributed/df_regression_test_4.csv"
 };
 
-const size_t categoricalFeaturesIndices[] = { 3 };
 const size_t nFeatures = 13;
+const size_t localMaxBins = 256;
 const size_t maxBins = 256;
 const size_t minBinSize = 5;
 const size_t maxIterations = 40;
-
-// const size_t categoricalFeaturesIndices[] = {  };
-// const size_t nFeatures = 16;
-// const size_t maxBins = 256;
-// const size_t minBinSize = 5;
-// const size_t maxIterations = 40;
 
 typedef float algorithmFPType;
 
@@ -95,24 +87,8 @@ void initModel();
 void trainModel();
 void testModel();
 
-std::chrono::high_resolution_clock::time_point startTime1;
-std::chrono::high_resolution_clock::time_point endTime1;
-
-double tStep1 = 0;
-double tStep2 = 0;
-double tStep3 = 0;
-double tStep4 = 0;
-double tStep5 = 0;
-double tStep6 = 0;
-double tComm1 = 0;
-double tComm2 = 0;
-
 int commTag1 = 1;
 int commTag2 = 2;
-size_t sendingSize1 = 0;
-size_t sendingSize2 = 0;
-size_t sizeOfFeaturePack = 0;
-size_t sizeOfBestLocalSplits = 0;
 
 int main(int argc, char *argv[])
 {
@@ -122,82 +98,20 @@ int main(int argc, char *argv[])
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rankId);
 
-    if (rankId == mpi_root)
-        printf("nRanks = %d\n", comm_size);
-
     loadData(trainDataFileNames[rankId], trainData, trainDependentVariable);
-    std::chrono::high_resolution_clock::time_point startTime;
-    std::chrono::high_resolution_clock::time_point endTime;
-    size_t tInit;
-    size_t tTrain;
 
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (rankId == mpi_root)
-    {
-        startTime = std::chrono::high_resolution_clock::now();
-    }
     initModel();
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (rankId == mpi_root)
-    {
-        endTime = std::chrono::high_resolution_clock::now();
-        tInit = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        printf("init: %.10f seconds\n", tInit / 1000000000.0);
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (rankId == mpi_root)
-    {
-        startTime = std::chrono::high_resolution_clock::now();
-    }
 
     trainModel();
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (rankId == mpi_root)
-    {
-        endTime = std::chrono::high_resolution_clock::now();
-        tTrain = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        printf("train: %.10f seconds\n", tTrain / 1000000000.0);
-    }
 
-    MPI_Barrier(MPI_COMM_WORLD);
     loadData(testDatasetFileName[rankId], testData, testGroundTruth);
 
     testModel();
-    MPI_Barrier(MPI_COMM_WORLD);
-    for (int i = 0; i < comm_size; i++)
-    {
-       if (rankId == i)
-       {
-           printf("\nRANK %d\n", rankId);
-           printf("tStep1 = %lf\n", tStep1);
-           printf("tStep2 = %lf\n", tStep2);
-           printf("tStep3 = %lf\n", tStep3);
-           printf("tComm1 = %lf\n", tComm1);
-           printf("tStep4 = %lf\n", tStep4);
-           printf("tComm2 = %lf\n", tComm2);
-           printf("tStep5 = %lf\n", tStep5);
-           printf("tStep6 = %lf\n", tStep6);
-
-       }
-       MPI_Barrier(MPI_COMM_WORLD);
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    for (int i = 0; i < comm_size; i++)
-    {
-        if (rankId == i)
-        {
-            printf("\nRANK %d\n", rankId);
-            printf("sizeComm1 = %zu\n", sendingSize1);
-            printf("sizeComm2 = %zu\n", sendingSize2);
-        }
-        MPI_Barrier(MPI_COMM_WORLD);
-    }
-
 
     MPI_Finalize();
+
     return 0;
-} // end main
+}
 
 void initModel()
 {
@@ -217,7 +131,7 @@ void initModel()
     NumericTablePtr _binSizes;
     DataCollectionPtr _binValues;
 
-    init::Distributed<step1Local, algorithmFPType, init::defaultDense> step1Algorithm(maxBins);
+    init::Distributed<step1Local, algorithmFPType, init::defaultDense> step1Algorithm(localMaxBins);
 
     step1Algorithm.input.set(init::step1LocalData, trainData);
     step1Algorithm.input.set(init::step1LocalDependentVariables, trainDependentVariable);
@@ -315,10 +229,7 @@ void trainModel()
         step1.input.set(training::step1InputTreeStructure,treeStructure    );
         step1.input.set(training::step1InputTreeOrder,    treeOrder        );
 
-        startTime1 = std::chrono::high_resolution_clock::now();
         step1.compute();
-        endTime1 = std::chrono::high_resolution_clock::now();
-        tStep1 += static_cast<size_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(endTime1 - startTime1).count())/1000000000.0;
 
         response = step1.getPartialResult()->get(training::response);
         optCoeffs = step1.getPartialResult()->get(training::optCoeffs);
@@ -351,10 +262,7 @@ void trainModel()
 
             step3.input.set(training::step3ParentHistograms,  parentHistograms);
 
-            startTime1 = std::chrono::high_resolution_clock::now();
             step3.compute();
-            endTime1 = std::chrono::high_resolution_clock::now();
-            tStep3 += static_cast<size_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(endTime1 - startTime1).count())/1000000000.0;
 
             histograms = step3.getPartialResult()->get(training::histograms);
 
@@ -392,12 +300,7 @@ void trainModel()
                     }
                     else
                     {
-                        startTime1 = std::chrono::high_resolution_clock::now();
-
                         sendRecvCollection(histForLocalFeatures, rankId, destCollection, partner, commTag1);
-
-                        endTime1 = std::chrono::high_resolution_clock::now();
-                        tComm1 += static_cast<size_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(endTime1 - startTime1).count())/1000000000.0;
                         gatherHist1->push_back(destCollection);
                     }
                 }
@@ -429,12 +332,7 @@ void trainModel()
             step4.input.set(training::step4ParentTotalHistograms, parentTotalHistogramsForFeatures);
             step4.input.set(training::step4PartialHistograms, partialHistogramsForFeatures);
 
-            startTime1 = std::chrono::high_resolution_clock::now();
-
             step4.compute();
-
-            endTime1 = std::chrono::high_resolution_clock::now();
-            tStep4 += static_cast<size_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(endTime1 - startTime1).count())/1000000000.0;
 
             DataCollectionPtr totalHistogramsForFeatures = step4.getPartialResult()->get(training::totalHistograms);
             bestLocalSplits = step4.getPartialResult()->get(training::bestSplits);
@@ -465,12 +363,7 @@ void trainModel()
                     }
                     else
                     {
-                        startTime1 = std::chrono::high_resolution_clock::now();
-
                         sendRecvCollection(bestLocalSplits, rankId, destSplit, partner, commTag2);
-
-                        endTime1 = std::chrono::high_resolution_clock::now();
-                        tComm2 += static_cast<size_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(endTime1 - startTime1).count())/1000000000.0;
 
                         for (size_t f = 0; f < nFeaturesRationPartner; f++)
                         {
@@ -489,11 +382,7 @@ void trainModel()
             step5.input.set(training::step5InputTreeOrder,      treeOrder           );
             step5.input.set(training::step5PartialBestSplits,   bestSplits          );
 
-            startTime1 = std::chrono::high_resolution_clock::now();
             step5.compute();
-            endTime1 = std::chrono::high_resolution_clock::now();
-            tStep5 += static_cast<size_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(endTime1 - startTime1).count())/1000000000.0;
-
 
             treeStructure = step5.getPartialResult()->get(training::step5TreeStructure);
             treeOrder     = step5.getPartialResult()->get(training::step5TreeOrder    );
@@ -511,10 +400,7 @@ void trainModel()
     step6.input.set(training::step6BinValues,       binValues      );
     step6.input.set(training::step6FinalizedTrees,  finalizedTrees );
 
-    startTime1 = std::chrono::high_resolution_clock::now();
     step6.compute();
-    endTime1 = std::chrono::high_resolution_clock::now();
-    tStep6 += static_cast<size_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(endTime1 - startTime1).count())/1000000000.0;
 
     partialModel = step6.getPartialResult()->get(training::partialModel);
 }
@@ -525,10 +411,7 @@ int computeFinishedFlag(NumericTablePtr treeStructure)
     training::Distributed<step2Local, algorithmFPType> step_2;
     step_2.input.set(training::step2InputTreeStructure, treeStructure);
 
-    startTime1 = std::chrono::high_resolution_clock::now();
     step_2.compute();
-    endTime1 = std::chrono::high_resolution_clock::now();
-    tStep2 += static_cast<size_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(endTime1 - startTime1).count())/1000000000.0;
 
     NumericTablePtr res = step_2.getPartialResult()->get(training::finishedFlag);
     return res->getValue<int>(0,0);
@@ -538,10 +421,6 @@ void sendCollection(DataCollectionPtr &collection, int recpnt, int tag)
 {
     ByteBuffer buff;
     size_t size = serializeDAALObject(collection.get(), buff);
-   if (tag == 1)
-       sendingSize1 += size;
-   if (tag == 2)
-       sendingSize2 += size;
 
     MPI_Send(&size, sizeof(size_t), MPI_BYTE, recpnt, tag * 2 + 0, MPI_COMM_WORLD);
     if(size)
@@ -579,10 +458,6 @@ void sendRecvCollection(DataCollectionPtr &sendingCollection, int sender, DataCo
             &destBuff[0], destSize, MPI_BYTE, recpnt, 0, MPI_COMM_WORLD, &status);
             destCollection = DataCollection::cast(deserializeDAALObject(&destBuff[0], destSize));
     }
-    if (tag == 1)
-       sendingSize1 += sendingSize;
-    if (tag == 2)
-        sendingSize2 += sendingSize;
 }
 
 void sendCollectionAllToMaster(size_t beginId, size_t endId, size_t rankId, size_t masterId, int tag, DataCollectionPtr & collection, DataCollectionPtr & destCollection)
@@ -728,9 +603,6 @@ void sendTableMasterToAll(size_t beginId, size_t endId, size_t rankId, size_t ma
 void testModel()
 {
     NumericTablePtr prediction;
-    float maxAcc = .0f;
-    size_t maxAccRow = 0;
-    float MSE = 0.f;
 
     /* Create an algorithm object to predict values of gradient boosted trees regression */
     prediction::Batch<> algorithm;
@@ -744,30 +616,14 @@ void testModel()
 
     /* Retrieve the algorithm results */
     prediction::ResultPtr predictionResult = algorithm.getResult();
+
     for (int i = 0; i < comm_size; i++)
     {
         if (rankId == i)
         {
-            printf("RANK %d\n", rankId);
-
-            prediction = predictionResult->get(prediction::prediction);
-            maxAcc = .0f;
-
-            size_t nRows = prediction->getNumberOfRows();
-            BlockDescriptor<float> blockPred;
-            BlockDescriptor<float> blockTruth;
-            prediction->getBlockOfRows(0, nRows, readOnly, blockPred);
-            testGroundTruth->getBlockOfRows(0, nRows, readOnly, blockTruth);
-            float * dataPred = blockPred.getBlockPtr();
-            float * dataTruth = blockTruth.getBlockPtr();
-            for (size_t j = 0; j < nRows; j++)
-            {
-                MSE += (dataPred[j] - dataTruth[j])*(dataPred[j] - dataTruth[j]);
-            }
-
-            printf("MSE = %f\n", (MSE/nRows));
-            prediction->releaseBlockOfRows(blockPred);
-            testGroundTruth->releaseBlockOfRows(blockTruth);
+            printNumericTable(predictionResult->get(prediction::prediction),
+                "Gradient Boosted Trees prediction results: (first 10 rows):", 10);
+            printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
         }
         MPI_Barrier(MPI_COMM_WORLD);
     }

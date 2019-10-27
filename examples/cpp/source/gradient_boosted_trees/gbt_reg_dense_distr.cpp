@@ -54,9 +54,9 @@ const string testDatasetFileName[nBlocks] =
     "../data/distributed/df_regression_test_4.csv"
 };
 
-const size_t categoricalFeaturesIndices[] = { 3 };
 const size_t nFeatures = 13;
-const size_t maxBins = 66000;
+const size_t localMaxBins = 256;
+const size_t maxBins = 256;
 const size_t minBinSize = 5;
 const size_t maxIterations = 40;
 
@@ -120,7 +120,7 @@ void initModel()
 
     for (size_t i = 0; i < nBlocks; ++i)
     {
-        init::Distributed<step1Local, algorithmFPType, init::defaultDense> step1Algorithm(maxBins);
+        init::Distributed<step1Local, algorithmFPType, init::defaultDense> step1Algorithm(localMaxBins);
 
         step1Algorithm.input.set(init::step1LocalData, trainData[i]);
         step1Algorithm.input.set(init::step1LocalDependentVariables, trainDependentVariable[i]);
