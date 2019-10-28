@@ -33,7 +33,7 @@ namespace svm
 {
 namespace prediction
 {
-namespace interface2
+namespace interface1
 {
 /**
 *  \brief Initialize list of SVM kernels with implementations for supported architectures
