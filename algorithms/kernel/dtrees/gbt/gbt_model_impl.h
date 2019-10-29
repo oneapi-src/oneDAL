@@ -192,7 +192,7 @@ public:
             }
 
             const size_t size = nSons*sizeof(SplitType);
-            result |= daal::services::daal_memcpy_s(parents, size, sons, size);
+            result |= daal::services::internal::daal_memcpy_s(parents, size, sons, size);
 
             nParents = nSons;
         }
@@ -239,7 +239,7 @@ public:
     services::Status convertGbtTreeToTable(GbtDecisionTree** pTbl, HomogenNumericTable<double>** pTblImp, HomogenNumericTable<int>** pTblSmplCnt, size_t nFeature) const
     {
         size_t nLvls = 1;
-        services::Status status{services::Status()};
+        services::Status status;
         getMaxLvl(*super::top(), nLvls, static_cast<size_t>(-1));
         const size_t nNodes = getNumberOfNodesByLvls(nLvls);
 

@@ -61,7 +61,7 @@ struct assocrules_itemset
                        support(_support), items(nullptr), size(0)
     {
         allocItems(iset_size);
-        int result = daal::services::daal_memcpy_s(items, iset_size*sizeof(size_t), first_items, (iset_size - 1)*sizeof(size_t));
+        int result = daal::services::internal::daal_memcpy_s(items, iset_size*sizeof(size_t), first_items, (iset_size - 1)*sizeof(size_t));
         if (result)
         {
             _status |= services::Status(services::ErrorMemoryCopyFailedInternal);
@@ -82,7 +82,7 @@ struct assocrules_itemset
     {
         allocItems(iset.size);
         support.set(iset.support.get());
-        int result = daal::services::daal_memcpy_s(items, size * sizeof(size_t), iset.items, size * sizeof(size_t));
+        int result = daal::services::internal::daal_memcpy_s(items, size * sizeof(size_t), iset.items, size * sizeof(size_t));
         if (result)
         {
             _status |= services::Status(services::ErrorMemoryCopyFailedInternal);
@@ -97,7 +97,7 @@ struct assocrules_itemset
             items = nullptr;
             allocItems(iset.size);
             support.set(iset.support.get());
-            int result = daal::services::daal_memcpy_s(items, size * sizeof(size_t), iset.items, size * sizeof(size_t));
+            int result = daal::services::internal::daal_memcpy_s(items, size * sizeof(size_t), iset.items, size * sizeof(size_t));
             if (result)
             {
                 _status |= services::Status(services::ErrorMemoryCopyFailedInternal);

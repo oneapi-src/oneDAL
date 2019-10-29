@@ -61,8 +61,8 @@ services::Status I1AdagradKernel<algorithmFPType, method, cpu>::initAccumulatedG
         const algorithmFPType *optInputArray = optInputBD.get();
         processByBlocks<cpu>(nRows, [ =, &result ](size_t startOffset, size_t nRowsInBlock)
         {
-            result= daal_memcpy_s(&accumulatedG[startOffset], nRowsInBlock * sizeof(algorithmFPType),
-                                  &optInputArray[startOffset], nRowsInBlock * sizeof(algorithmFPType));
+            result = daal::services::internal::daal_memcpy_s(&accumulatedG[startOffset], nRowsInBlock * sizeof(algorithmFPType),
+                                             &optInputArray[startOffset], nRowsInBlock * sizeof(algorithmFPType));
         },
         _blockSize, _threadStart);
     }
@@ -103,8 +103,8 @@ services::Status I1AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppI
         const algorithmFPType *startValueArray = startValueBD.get();
         processByBlocks<cpu>(nRows, [ =, &result ](size_t startOffset, size_t nRowsInBlock)
         {
-            result |= daal_memcpy_s(&workValue[startOffset], nRowsInBlock * sizeof(algorithmFPType),
-                                    &startValueArray[startOffset], nRowsInBlock * sizeof(algorithmFPType));
+            result |= daal::services::internal::daal_memcpy_s(&workValue[startOffset], nRowsInBlock * sizeof(algorithmFPType),
+                                              &startValueArray[startOffset], nRowsInBlock * sizeof(algorithmFPType));
         },
         _blockSize, _threadStart);
     }
@@ -236,7 +236,7 @@ services::Status I1AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppI
     /* Copy accumulatedG to output */
     WriteRows<algorithmFPType, cpu> optResultBD(*pOptResult, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(optResultBD);
-    result |= daal_memcpy_s(optResultBD.get(), nRows * sizeof(algorithmFPType), accumulatedG, nRows * sizeof(algorithmFPType));
+    result |= daal::services::internal::daal_memcpy_s(optResultBD.get(), nRows * sizeof(algorithmFPType), accumulatedG, nRows * sizeof(algorithmFPType));
     if(lastIterationResult)
     {
         WriteRows<int, cpu, NumericTable> lastIterationResultBD(lastIterationResult, 0, 1);

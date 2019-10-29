@@ -241,9 +241,9 @@ services::Status LRNKernel<algorithmFPType, method, cpu>::compute(const Tensor &
 
                 const size_t nElements = inputGradientBlock.getSize();
 
-                int result =
-                    daal_memcpy_s(gradientArray, nElements * sizeof(algorithmFPType), inputGradientArray, nElements * sizeof(algorithmFPType));
-                return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
+                daal::services::internal::daal_memcpy_s(gradientArray, nElements * sizeof(algorithmFPType),
+                                                        inputGradientArray, nElements * sizeof(algorithmFPType));
+                return Status();
             });
         }
 

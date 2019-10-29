@@ -67,7 +67,7 @@ struct common_moments_data_t
             if (!prevSums)
                 return Status(services::ErrorMemoryAllocationFailed);
 
-            result = daal_memcpy_s(prevSums, rowSize, resultArray[(int)partialSum], rowSize);
+            result = daal::services::internal::daal_memcpy_s(prevSums, rowSize, resultArray[(int)partialSum], rowSize);
 #endif
         }
         return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);

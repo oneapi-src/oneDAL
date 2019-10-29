@@ -131,7 +131,8 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(
             DAAL_CHECK_BLOCK_STATUS(dataRows);
             const algorithmFPType * const data = dataRows.get();
 
-            result |= daal_memcpy_s(&(coreObservations[pos * nFeatures]), sizeof(algorithmFPType) * nFeatures, data, sizeof(algorithmFPType) * nFeatures);
+            result |= daal::services::internal::daal_memcpy_s(&(coreObservations[pos * nFeatures]), sizeof(algorithmFPType) * nFeatures,
+                                              data, sizeof(algorithmFPType) * nFeatures);
             pos++;
         }
         if (result)

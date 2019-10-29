@@ -379,7 +379,8 @@ protected:
     //copy _dim*nPt algorithmFPType values from pSrc to pDst
     services::Status copyPoints(algorithmFPType* pDst, const algorithmFPType* pSrc, size_t nPt) const
     {
-        int result = daal::services::daal_memcpy_s(pDst, sizeof(algorithmFPType)*_data.dim*nPt, pSrc, sizeof(algorithmFPType)*_data.dim*nPt);
+        int result = daal::services::internal::daal_memcpy_s(pDst, sizeof(algorithmFPType)*_data.dim*nPt,
+                                                             pSrc, sizeof(algorithmFPType)*_data.dim*nPt);
         return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
     //get first center at random
@@ -533,7 +534,7 @@ private:
 template <typename algorithmFPType, CpuType cpu, typename DataHelper>
 Status TaskPlusPlusBatch<algorithmFPType, cpu, DataHelper>::run()
 {
-    services::Status status{services::Status()};
+    services::Status status;
 
     DAAL_CHECK(this->_aMinDist.get() && this->_aMinDistAcc.get() && this->_lastAddedCenter.get() && this->_aProbability.get(),
         ErrorMemoryAllocationFailed);

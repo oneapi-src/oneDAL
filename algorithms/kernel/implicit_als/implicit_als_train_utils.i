@@ -50,8 +50,8 @@ services::Status csr2csc(size_t nItems, size_t nUsers,
     DAAL_CHECK_MALLOC(cooColIndices);
     int result = 0;
 
-    result |= daal_memcpy_s(cscdata, dataSize * sizeof(algorithmFPType), csrdata, dataSize * sizeof(algorithmFPType));
-    result |= daal_memcpy_s(cooColIndices, dataSize * sizeof(size_t), colIndices, dataSize * sizeof(size_t));
+    result |= daal::services::internal::daal_memcpy_s(cscdata, dataSize * sizeof(algorithmFPType), csrdata, dataSize * sizeof(algorithmFPType));
+    result |= daal::services::internal::daal_memcpy_s(cooColIndices, dataSize * sizeof(size_t), colIndices, dataSize * sizeof(size_t));
 
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 

@@ -200,7 +200,7 @@ Status DBSCANDistrStep3Kernel<algorithmFPType, method, cpu>::compute(const DataC
         ReadColumns<algorithmFPType, cpu> dataColumns(ntData.get(), splitDim, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(dataColumns);
         const algorithmFPType * const data = dataColumns.get();
-        result |= daal_memcpy_s(&(splitColumn[pos]), sizeof(algorithmFPType) * nRows, data, sizeof(algorithmFPType) * nRows);
+        result |= daal::services::internal::daal_memcpy_s(&(splitColumn[pos]), sizeof(algorithmFPType) * nRows, data, sizeof(algorithmFPType) * nRows);
 
         pos += nRows;
     }
@@ -379,8 +379,9 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
                 DAAL_CHECK_BLOCK_STATUS(partitionedPartialOrdersRows);
                 int * const partitionedPartialOrders = partitionedPartialOrdersRows.get();
 
-                result |= daal_memcpy_s(partitionedData, sizeof(algorithmFPType) * nFeatures, &(data[i * nFeatures]), sizeof(algorithmFPType) * nFeatures);
-                result |= daal_memcpy_s(partitionedPartialOrders, sizeof(int) * 2, &(partialOrders[i * 2]), sizeof(int) * 2);
+                result |= daal::services::internal::daal_memcpy_s(partitionedData, sizeof(algorithmFPType) * nFeatures,
+                                                  &(data[i * nFeatures]), sizeof(algorithmFPType) * nFeatures);
+                result |= daal::services::internal::daal_memcpy_s(partitionedPartialOrders, sizeof(int) * 2, &(partialOrders[i * 2]), sizeof(int) * 2);
             }
         }
     }
@@ -525,7 +526,8 @@ Status DBSCANDistrStep5Kernel<algorithmFPType, method, cpu>::compute(const DataC
                         DAAL_CHECK_BLOCK_STATUS(partitionedHaloDataIndicesRows);
                         int * const partitionedHaloDataIndices = partitionedHaloDataIndicesRows.get();
 
-                        result |= daal_memcpy_s(partitionedHaloData, sizeof(algorithmFPType) * nFeatures, &(data[i * nFeatures]), sizeof(algorithmFPType) * nFeatures);
+                        result |= daal::services::internal::daal_memcpy_s(partitionedHaloData, sizeof(algorithmFPType) * nFeatures,
+                                                          &(data[i * nFeatures]), sizeof(algorithmFPType) * nFeatures);
                         partitionedHaloDataIndices[0] = ind + i;
 
                         partitionedHaloDataPos[extPart]++;
@@ -691,7 +693,7 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::repackIntoSingleNT(
             DAAL_CHECK_BLOCK_STATUS(outRows);
             T * const out = outRows.get();
 
-            result |= daal_memcpy_s(out, sizeof(T) * iSize * nFeatures, in, sizeof(T) * iSize * nFeatures);
+            result |= daal::services::internal::daal_memcpy_s(out, sizeof(T) * iSize * nFeatures, in, sizeof(T) * iSize * nFeatures);
         }
 
         pos += nInputRows;
@@ -1324,7 +1326,7 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
     }
     int * const clusterStructure = clusterStructureRows.get();
 
-    result |= daal_memcpy_s(clusterStructure, sizeof(int) * 4 * nRows, inputClusterStructure, sizeof(int) * 4 * nRows);
+    result |= daal::services::internal::daal_memcpy_s(clusterStructure, sizeof(int) * 4 * nRows, inputClusterStructure, sizeof(int) * 4 * nRows);
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     for (size_t part = 0; part < dcPartialQueries->size(); part++)
@@ -1483,7 +1485,7 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
         WriteRows<int, cpu> curQueriesRows(ntCurQueries.get(), 0, nCurQueries);
         DAAL_CHECK_BLOCK_STATUS(curQueriesRows);
         int * const curQueries = curQueriesRows.get();
-        result |= daal_memcpy_s(curQueries, sizeof(int) * 3 * nCurQueries, queries[part].ptr(), sizeof(int) * 3 * nCurQueries);
+        result |= daal::services::internal::daal_memcpy_s(curQueries, sizeof(int) * 3 * nCurQueries, queries[part].ptr(), sizeof(int) * 3 * nCurQueries);
     }
 
     {
@@ -1592,7 +1594,7 @@ Status DBSCANDistrStep10Kernel<algorithmFPType, method, cpu>::compute(const Nume
         DAAL_CHECK_BLOCK_STATUS(clusterStructureRows);
         int * const clusterStructure = clusterStructureRows.get();
 
-        result |= daal_memcpy_s(clusterStructure, sizeof(int) * 4 * iSize, inputClusterStructure, sizeof(int) * 4 * iSize);
+        result |= daal::services::internal::daal_memcpy_s(clusterStructure, sizeof(int) * 4 * iSize, inputClusterStructure, sizeof(int) * 4 * iSize);
 
         for (size_t i = 0; i < iSize; i++)
         {
@@ -1688,7 +1690,7 @@ Status DBSCANDistrStep11Kernel<algorithmFPType, method, cpu>::compute(const Nume
     }
     int * const clusterStructure = clusterStructureRows.get();
 
-    result |= daal_memcpy_s(clusterStructure, sizeof(int) * 4 * nRows, inputClusterStructure, sizeof(int) * 4 * nRows);
+    result |= daal::services::internal::daal_memcpy_s(clusterStructure, sizeof(int) * 4 * nRows, inputClusterStructure, sizeof(int) * 4 * nRows);
 
     for (size_t part = 0; part < dcPartialQueries->size(); part++)
     {
@@ -1779,7 +1781,7 @@ Status DBSCANDistrStep11Kernel<algorithmFPType, method, cpu>::compute(const Nume
         DAAL_CHECK_BLOCK_STATUS(curQueriesRows);
         int * const curQueries = curQueriesRows.get();
 
-        result |= daal_memcpy_s(curQueries, sizeof(int) * 4 * nCurQueries, queries[part].ptr(), sizeof(int) * 4 * nCurQueries);
+        result |= daal::services::internal::daal_memcpy_s(curQueries, sizeof(int) * 4 * nCurQueries, queries[part].ptr(), sizeof(int) * 4 * nCurQueries);
     }
 
     {
@@ -1939,7 +1941,6 @@ Status DBSCANDistrStep13Kernel<algorithmFPType, method, cpu>::compute(const Data
                                                                       const Parameter      *par)
 {
     SafeStatus safeStat;
-    int result = 0;
 
     const size_t nBlocks = dcPartialAssignmentQueries->size();
     size_t nRows = 0;
@@ -1967,6 +1968,7 @@ Status DBSCANDistrStep13Kernel<algorithmFPType, method, cpu>::compute(const Data
             const size_t i1    = block * defaultBlockSize;
             const size_t i2    = (block + 1 == nQueriesBlocks ? nCurQueries : i1 + defaultBlockSize);
             const size_t iSize = i2 - i1;
+            int result = 0;
 
             ReadRows<int, cpu> curQueriesRows(ntCurQueries.get(), i1, iSize);
             DAAL_CHECK_BLOCK_STATUS_THR(curQueriesRows);
@@ -1976,12 +1978,14 @@ Status DBSCANDistrStep13Kernel<algorithmFPType, method, cpu>::compute(const Data
             DAAL_CHECK_BLOCK_STATUS_THR(assignmentQueriesRows);
             int * const assignmentQueries = assignmentQueriesRows.get();
 
-            result |= daal_memcpy_s(assignmentQueries, sizeof(int) * iSize * 2, curQueries, sizeof(int) * iSize * 2);
+            result |= daal::services::internal::daal_memcpy_s(assignmentQueries, sizeof(int) * iSize * 2, curQueries, sizeof(int) * iSize * 2);
+            if (result)
+                safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
         });
 
         pos += nCurQueries;
     }
-return (!result) ? safeStat.detach() : services::Status(services::ErrorMemoryCopyFailedInternal);
+return safeStat.detach();
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>

@@ -210,9 +210,9 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::stumpRegression
 
     DAAL_CHECK(xx && ww && zz, services::ErrorMemoryAllocationFailed);
 
-    result |= daal::services::daal_memcpy_s(ww, nVectors * sizeof(algorithmFPtype), w, nVectors * sizeof(algorithmFPtype));
-    result |= daal::services::daal_memcpy_s(zz, nVectors * sizeof(algorithmFPtype), z, nVectors * sizeof(algorithmFPtype));
-    result |= daal::services::daal_memcpy_s(xx, nVectors * sizeof(algorithmFPtype), x, nVectors * sizeof(algorithmFPtype));
+    result |= daal::services::internal::daal_memcpy_s(ww, nVectors * sizeof(algorithmFPtype), w, nVectors * sizeof(algorithmFPtype));
+    result |= daal::services::internal::daal_memcpy_s(zz, nVectors * sizeof(algorithmFPtype), z, nVectors * sizeof(algorithmFPtype));
+    result |= daal::services::internal::daal_memcpy_s(xx, nVectors * sizeof(algorithmFPtype), x, nVectors * sizeof(algorithmFPtype));
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     StumpQSort(nVectors, xx, ww, zz);

@@ -143,7 +143,7 @@ public:
             _top = _size - 1;
         }
         _sizeMinus1 = _size - 1;
-        int result = services::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
+        int result = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
         T * oldData = _data;
         _data = newData;
         services::daal_free(oldData);

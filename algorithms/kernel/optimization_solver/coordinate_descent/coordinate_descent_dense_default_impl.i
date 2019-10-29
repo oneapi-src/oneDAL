@@ -74,8 +74,8 @@ services::Status CoordinateDescentKernel<algorithmFPType, method, cpu>::compute(
     DAAL_CHECK_BLOCK_STATUS(initialPointBD);
     const algorithmFPType *initialPoint = initialPointBD.get();
 
-    int result = daal_memcpy_s(workValue, nRowsArgument * nColsArgument * sizeof(algorithmFPType),
-                               initialPoint, nRowsArgument * nColsArgument * sizeof(algorithmFPType));
+    int result = daal::services::internal::daal_memcpy_s(workValue, nRowsArgument * nColsArgument * sizeof(algorithmFPType),
+                                         initialPoint, nRowsArgument * nColsArgument * sizeof(algorithmFPType));
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     sum_of_functions::BatchPtr gradientHessianFunction = parameter->function->clone();

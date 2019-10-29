@@ -142,7 +142,7 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeInverseXtX(const N
 
     //Copy xtx to xtxInv
     const auto dataSize = nBetas * nBetas * sizeof(algorithmFPType);
-    result |= services::daal_memcpy_s(pXtXInv, dataSize, pXtX, dataSize);
+    result |= services::internal::daal_memcpy_s(pXtXInv, dataSize, pXtX, dataSize);
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
     DAAL_INT nBeta(nBetas);
@@ -160,7 +160,7 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeInverseXtX(const N
         return Status();
     if(info < 0)
         return Status(ErrorLinRegXtXInvFailed);
-    result |= services::daal_memcpy_s(pXtXInv, dataSize, pXtX, dataSize);
+    result |= services::internal::daal_memcpy_s(pXtXInv, dataSize, pXtX, dataSize);
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     if (bModelNe)
     {
