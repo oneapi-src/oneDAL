@@ -23,8 +23,13 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.linalg._
 import org.apache.spark.mllib.clustering.KMeansModel
 
+import org.apache.spark.SparkContext
+import org.apache.spark.util.AccumulatorV2
+import scala.collection.JavaConverters._
+
 import scala.Tuple2
 import scala.collection.mutable.ArrayBuffer
+import org.apache.spark.storage.StorageLevel
 
 import com.intel.daal.algorithms.kmeans._
 import com.intel.daal.algorithms.kmeans.init._
@@ -50,10 +55,18 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
 
     def this() = this(10, 10)
 
+    private var initialModel: Option[KMeansModel] = None
+
     def getNClusters: Int = nClusters
 
     def setNClusters(nClusters: Int): this.type = {
         this.nClusters = nClusters
+        this
+    }
+
+    def setInitialModel(model: DAALKMeansModel): this.type = {
+        require(model.k == nClusters, "mismatched cluster count")
+        initialModel = Some(model)
         this
     }
 
@@ -71,18 +84,20 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
     def train(data: RDD[Vector], nClusters: Int, nIterations: Int) : DAALKMeansModel = {
 
         val internRDD = getAsPairRDD(data)
-
         val tupleRes = computeOffsets(internRDD)
+
         val offsets = tupleRes._1          
         val numVectors = tupleRes._2
 
-        var centroids = computeInit(nClusters, numVectors, offsets, internRDD)
+        var centroids = initialModel match {
+            case Some(kMeansCenters) => getCentroids(kMeansCenters.clusterCenters)
+            case None => computeInit(nClusters, numVectors, offsets, internRDD)
+        }
 
         val it: Int = 0
         for(it <- 1 to nIterations) {
             centroids = computeIter(nClusters, centroids, internRDD)
         }
-
         internRDD.unpersist(true)
 
         val context = new DaalContext()
@@ -104,65 +119,63 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         new DAALKMeansModel(resArray)
     }
 
-    def getAsPairRDD(data: RDD[Vector]): RDD[Tuple2[HomogenNumericTable, Long]] = {
-
-        val tablesRDD = data.mapPartitions(
-            (it: Iterator[Vector]) => {
-                val maxRows: Int = 100000
-                var curRow: Int = 0
-                val tables = new ArrayBuffer[HomogenNumericTable]()
-
-                var arrays = new ArrayBuffer[Array[Double]]()
-                    
-                var hasNext = it.hasNext
-                while (hasNext) {
-                    val curVector = it.next
-                    hasNext = it.hasNext
-                    val rowData = curVector.toArray
-                    arrays += rowData
-
-                    curRow += 1
-                    if (curRow == maxRows || !hasNext) {
-                        val numCols: Int = rowData.length
-                        val arrData = new Array[Double](curRow * numCols)
-                        var i: Int = 0
-                        for (i <- 0 to (curRow - 1)) {
-                            arrays(i).copyToArray(arrData, i * numCols)
-                        }
-                        val context = new DaalContext()
-                        val table = new HomogenNumericTable(context, arrData, numCols, curRow)
-
-                        table.pack()
-                        tables += table
-
-                        context.dispose()
-                        curRow = 0
-                        arrays.clear
-                    }
-                }
-                tables.iterator
-            }
-        )
-
-        tablesRDD.zipWithIndex.cache
+    def getCentroids(clusterCenters: Array[Vector]): HomogenNumericTable = {
+        val nRows = clusterCenters.length
+        val nCols = clusterCenters(0).toArray.length
+        val arrData = new Array[Double](nRows * nCols)
+        for (i <- 0 to (nRows - 1)) {
+            clusterCenters(i).toArray.copyToArray(arrData, i * nCols)
+        }
+        val context = new DaalContext()
+        val centroids = new HomogenNumericTable(context, arrData, nCols, nRows)
+        centroids.pack()
+        context.dispose()
+        centroids
     }
 
-    def computeOffsets(internRDD: RDD[Tuple2[HomogenNumericTable, Long]]) : Tuple2[Array[Long], Long] = {
+    def getAsPairRDD(data: RDD[Vector]): RDD[HomogenNumericTable] = {
+        
+        val tablesRDD = data.mapPartitions(
+            (it: Iterator[Vector]) => {
 
-        val tmpOffsetRDD = internRDD.mapPartitions(
-            (it: Iterator[Tuple2[HomogenNumericTable, Long]]) => {
-                val res = new ArrayBuffer[Tuple2[Long, Long]]()
-                while(it.hasNext) {
-                    val context = new DaalContext()
-                    val tup = it.next
-                    tup._1.unpack(context)
-                    val numRows = tup._1.getNumberOfRows()
-                    tup._1.pack()
-                    context.dispose
-                    res += new Tuple2(tup._2, numRows)
+                val tables = new ArrayBuffer[HomogenNumericTable]()
+                var arrays = new ArrayBuffer[Array[Double]]()
+                it.foreach{curVector => 
+                    val rowData = curVector.toArray
+                    arrays += rowData
                 }
+                val numCols: Int = arrays(0).length
+                val numRows: Int = arrays.length
 
-                res.iterator
+                val arrData = new Array[Double](numRows * numCols)
+                var i: Int = 0
+                for (i <- 0 to (numRows - 1)) {
+                    arrays(i).copyToArray(arrData, i * numCols)
+                }
+                val context = new DaalContext()
+                val table = new HomogenNumericTable(context, arrData, numCols, numRows)
+                table.pack()
+                tables += table
+
+                context.dispose()
+                arrays.clear
+                tables.iterator
+            }
+        ).persist(StorageLevel.MEMORY_AND_DISK)
+        tablesRDD
+    }
+
+    def computeOffsets(internRDD: RDD[HomogenNumericTable]) : Tuple2[Array[Long], Long] = {
+        val tmpOffsetRDD = internRDD.mapPartitions(
+            (it: Iterator[HomogenNumericTable]) => {
+                val table = it.next
+                val context = new DaalContext()
+                table.unpack(context)
+                val numRows = table.getNumberOfRows()
+                table.pack()
+                context.dispose
+ 
+                Iterator(numRows)
             })
 
         val numbersOfRows = tmpOffsetRDD.collect
@@ -173,13 +186,13 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
 
         val i: Int = 0
         for (i <- 0 to (numbersOfRows.size - 1)) {
-            numVectors = numVectors + numbersOfRows(i)._2
+            numVectors = numVectors + numbersOfRows(i)
         }
 
         val partition = new Array[Long](numbersOfRows.size + 1)
         partition(0) = 0
         for(i <- 0 to (numbersOfRows.size - 1)) {
-            partition(i + 1) = partition(i) + numbersOfRows(i)._2
+            partition(i + 1) = partition(i) + numbersOfRows(i)
         }
         new Tuple2(partition, numVectors)
     }
@@ -198,47 +211,35 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         cost
     }
 
-    def computeInit(nClusters: Int, nV: Long, offsets: Array[Long], internRDD: RDD[Tuple2[HomogenNumericTable, Long]]) : HomogenNumericTable = {
- 
+    def computeInit(nClusters: Int, nV: Long, offsets: Array[Long], internRDD: RDD[HomogenNumericTable]) : HomogenNumericTable = {
         val contextM = new DaalContext()
-
         /* Create an algorithm to compute k-means on the master node */
         val kmeansMasterInit = new InitDistributedStep2Master(contextM,
                                                               classOf[java.lang.Double],
                                                               InitMethod.randomDense,
                                                               nClusters.asInstanceOf[Long])
+        val tmpInitRDD = internRDD.mapPartitionsWithIndex(
+            (index, it: Iterator[HomogenNumericTable]) => {
+                val table = it.next
+                val context = new DaalContext()
+                /* Create an algorithm to initialize the K-Means algorithm on local nodes */
+                val kmeansLocalInit = new InitDistributedStep1Local(context,
+                                                                    classOf[java.lang.Double],
+                                                                    InitMethod.randomDense,
+                                                                    nClusters,
+                                                                    nV,
+                                                                    offsets(index))
+                /* Set the input data on local nodes */
+                table.unpack(context)
+                kmeansLocalInit.input.set(InitInputId.data, table)
 
-        val tmpInitRDD = internRDD.mapPartitions(
-            (it: Iterator[Tuple2[HomogenNumericTable, Long]]) => {
-                val res = new ArrayBuffer[Tuple2[Int, InitPartialResult]]
+                /* Initialize the K-Means algorithm on local nodes */
+                val pres = kmeansLocalInit.compute()
+                pres.pack()
+                table.pack()
+                context.dispose()
 
-                while(it.hasNext) {
-                    val tup = it.next
-                    val context = new DaalContext()
-
-                    /* Create an algorithm to initialize the K-Means algorithm on local nodes */
-                    val kmeansLocalInit = new InitDistributedStep1Local(context,
-                                                                        classOf[java.lang.Double],
-                                                                        InitMethod.randomDense,
-                                                                        nClusters,
-                                                                        nV,
-                                                                        offsets(tup._2.asInstanceOf[Int]))
-
-                    /* Set the input data on local nodes */
-                    tup._1.unpack(context)
-                    kmeansLocalInit.input.set(InitInputId.data, tup._1)
-
-                    /* Initialize the K-Means algorithm on local nodes */
-                    val pres = kmeansLocalInit.compute()
-                    pres.pack()
-                    tup._1.pack()
-                    
-                    context.dispose()
-
-                    res += new Tuple2(tup._2.asInstanceOf[Int], pres)
-                }
-
-                res.iterator
+                Iterator(pres)
             })
 
         val partsList = tmpInitRDD.collect
@@ -248,8 +249,8 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         /* Add partial results computed on local nodes to the algorithm on the master node */
         val i: Int = 0
         for (i <- 0 to (partsList.size - 1)) {
-            partsList(i)._2.unpack(contextM)
-            kmeansMasterInit.input.add(InitDistributedStep2MasterInputId.partialResults, partsList(i)._2)
+            partsList(i).unpack(contextM)
+            kmeansMasterInit.input.add(InitDistributedStep2MasterInputId.partialResults, partsList(i))
         }
 
         /* Compute k-means on the master node */
@@ -265,38 +266,33 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         ret
     }
 
-    def computeLocal(nClusters: Long, centroids: HomogenNumericTable, internRDD: RDD[Tuple2[HomogenNumericTable, Long]]) : RDD[Tuple2[Int, PartialResult]] = {
+    def computeLocal(nClusters: Long, centroids: HomogenNumericTable, internRDD: RDD[HomogenNumericTable]) : RDD[PartialResult] = {
 
         val partsRDDcompute = internRDD.mapPartitions(
-            (it: Iterator[Tuple2[HomogenNumericTable, Long]]) => {
-                val res = new ArrayBuffer[Tuple2[Int, PartialResult]];
-                while(it.hasNext) {
-                    val tup = it.next
-                    val context = new DaalContext()
+            (it: Iterator[HomogenNumericTable]) => {
+                val table = it.next
+                val context = new DaalContext()
 
-                    /* Create an algorithm to compute k-means on local nodes */
-                    val kmeansLocal = new DistributedStep1Local(context, classOf[java.lang.Double], Method.defaultDense, nClusters)
-                    kmeansLocal.parameter.setAssignFlag(false)
+                /* Create an algorithm to compute k-means on local nodes */
+                val kmeansLocal = new DistributedStep1Local(context, classOf[java.lang.Double], Method.defaultDense, nClusters)
+                kmeansLocal.parameter.setAssignFlag(false)
 
-                    /* Set the input data on local nodes */
-                    tup._1.unpack(context)
-                    centroids.unpack(context)
-                    kmeansLocal.input.set(InputId.data, tup._1)
-                    kmeansLocal.input.set(InputId.inputCentroids, centroids)
+                /* Set the input data on local nodes */
+                table.unpack(context)
+                centroids.unpack(context)
+                kmeansLocal.input.set(InputId.data, table)
+                kmeansLocal.input.set(InputId.inputCentroids, centroids)
 
-                    /* Compute k-means on local nodes */
-                    val pres = kmeansLocal.compute()
-                    pres.pack()
+                /* Compute k-means on local nodes */
+                val pres = kmeansLocal.compute()
+                pres.pack()
 
-                    tup._1.pack()
-                    centroids.pack()
-                    context.dispose()
+                table.pack()
+                centroids.pack()
+                context.dispose()
 
-                    res += new Tuple2(tup._2.asInstanceOf[Int], pres)
-                }
-
-                res.iterator
-            }).cache
+                Iterator(pres)
+            }).persist(StorageLevel.MEMORY_AND_DISK)
 
         partsRDDcompute
     }
@@ -332,42 +328,29 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         centroids
     }
 
-    def computeIter(nClusters: Long, centroids: HomogenNumericTable, internRDD: RDD[Tuple2[HomogenNumericTable, Long]]) : HomogenNumericTable = {
-        val contextI = new DaalContext()
+    def computeIter(nClusters: Long, centroids: HomogenNumericTable, internRDD: RDD[HomogenNumericTable]) : HomogenNumericTable = {
 
+        val contextI = new DaalContext()
         /* Create an algorithm to compute k-means on the master node */
         val kmeansMaster = new DistributedStep2Master(contextI, classOf[java.lang.Double], Method.defaultDense, nClusters)
 
         val tmpIterRDD = internRDD.mapPartitions(
-            (it: Iterator[Tuple2[HomogenNumericTable, Long]]) => {
-                val res = new ArrayBuffer[PartialResult]
-                while(it.hasNext) {
-                    val tup = it.next()
-                    val context = new DaalContext()
-
-                    /* Create an algorithm to compute k-means on local nodes */
-                    val kmeansLocal = new DistributedStep1Local(context, classOf[java.lang.Double], Method.defaultDense, nClusters)
-                    kmeansLocal.parameter.setAssignFlag(false)
-
-                    /* Set the input data on local nodes */
-                    tup._1.unpack(context)
-                    centroids.unpack(context)
-                    kmeansLocal.input.set(InputId.data, tup._1)
-                    kmeansLocal.input.set(InputId.inputCentroids, centroids)
-
-                    /* Compute k-means on local nodes */
-                    val pres = kmeansLocal.compute()
-
-                    pres.pack()
-                    tup._1.pack()
-                    centroids.pack()
-
-                    context.dispose()
-
-                    res += pres
-                }
-
-                res.iterator
+            (it: Iterator[HomogenNumericTable]) => {
+                val table = it.next
+                val context = new DaalContext()
+                val kmeansLocal = new DistributedStep1Local(context, classOf[java.lang.Double], Method.defaultDense, nClusters)
+                kmeansLocal.parameter.setAssignFlag(false)
+                table.unpack(context)
+                centroids.unpack(context)
+                kmeansLocal.input.set(InputId.data, table)
+                kmeansLocal.input.set(InputId.inputCentroids, centroids)
+                val pres = kmeansLocal.compute()
+                pres.pack()
+                table.pack()
+                centroids.pack()
+                context.dispose()
+                
+                Iterator(pres)
             })
 
         val reducedPartialResult = tmpIterRDD.treeReduce(
@@ -408,7 +391,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         centroidsI
     }
 
-    def computeMasterCost(nClusters: Long, partsRDDcompute: RDD[Tuple2[Int, PartialResult]]) : Double = {
+    def computeMasterCost(nClusters: Long, partsRDDcompute: RDD[PartialResult]) : Double = {
         val context = new DaalContext()
         /* Create an algorithm to compute k-means on the master node */
         val kmeansMaster = new DistributedStep2Master(context, classOf[java.lang.Double], Method.defaultDense, nClusters)
@@ -418,8 +401,8 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         /* Add partial results computed on local nodes to the algorithm on the master node */
         val i: Int = 0
         for (i <- 0 to (partsList.size - 1)) {
-            partsList(i)._2.unpack(context)
-            kmeansMaster.input.add(DistributedStep2MasterInputId.partialResults, partsList(i)._2)
+            partsList(i).unpack(context)
+            kmeansMaster.input.add(DistributedStep2MasterInputId.partialResults, partsList(i))
         }
 
         /* Compute k-means on the master node */
