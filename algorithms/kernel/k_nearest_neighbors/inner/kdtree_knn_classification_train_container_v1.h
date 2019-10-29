@@ -65,7 +65,7 @@ BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
 template <typename algorithmFpType, training::Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
-    services::Status status{services::Status()};
+    services::Status status;
     const classifier::training::Input * const input = static_cast<classifier::training::Input *>(_in);
     Result * const result = static_cast<Result *>(_res);
 

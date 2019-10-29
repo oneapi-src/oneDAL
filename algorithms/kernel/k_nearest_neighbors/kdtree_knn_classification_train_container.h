@@ -42,7 +42,6 @@ namespace training
 
 using namespace daal::data_management;
 
-
 namespace interface2
 {
 /**

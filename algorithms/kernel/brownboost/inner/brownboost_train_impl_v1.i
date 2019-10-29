@@ -276,7 +276,8 @@ algorithmFPType* I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::realloca
     if (alpha && oldAlpha)
     {
         int result = 0;
-        result = daal::services::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
+        result = daal::services::internal::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType),
+                                                         oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
         if (result)
         {
             s |= services::Status(services::ErrorMemoryCopyFailedInternal);
