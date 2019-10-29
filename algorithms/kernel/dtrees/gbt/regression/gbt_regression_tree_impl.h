@@ -24,6 +24,7 @@
 
 #include "data_management/data/aos_numeric_table.h"
 #include "gbt_model_impl.h"
+#include "gbt_train_aux.i"
 
 namespace daal
 {
