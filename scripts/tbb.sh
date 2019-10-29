@@ -72,7 +72,7 @@ if [ ! -e "${DST}/${TBB_PACKAGE}/license.txt" ]; then
     exit 1
   fi
 
-  if [ \! $? ]; then
+  if [ $? -ne 0 -o ! -e "${DST}/${TBB_PACKAGE}.tgz" ]; then
     echo "Download from ${TBB_URL} to ${DST} failed"
     exit 1
   fi
