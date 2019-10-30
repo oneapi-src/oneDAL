@@ -28,7 +28,7 @@
  */
 
 #include "daal_sycl.h"
-#include "service.h"
+#include "service_sycl.h"
 
 using namespace daal;
 using namespace daal::services;
@@ -68,7 +68,7 @@ NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table)
     using namespace daal::algorithms;
 
     covariance::Batch<> covAlg;
-    covAlg.input.set(covariance::data, dataTable);
+    covAlg.input.set(covariance::data, table);
     covAlg.parameter.outputMatrixType = covariance::correlationMatrix;
     covAlg.compute();
 
@@ -77,81 +77,39 @@ NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table)
 
 int main(int argc, char *argv[])
 {
-    constexpr size_t nRows = 100000;
-    constexpr size_t nCols = 5;
+    constexpr size_t nCols = 10;
+    constexpr size_t nRows = 10000;
 
-    cl::sycl::queue queue{cl::sycl::gpu_selector{}};
-    Environment::getInstance()->setDefaultExecutionContext(
-        SyclExecutionContext{queue}
-    );
+    for (const auto &deviceDescriptor : getListOfDevices())
+    {
+        const auto &device = deviceDescriptor.second;
+        if (device.is_host()) {
+            /* Shared memory allocations do not work on host */
+            continue;
+        }
 
-    float *dataDevice = (float *)cl::sycl::malloc_device(
-        sizeof(float) * nRows * nCols, queue.get_device(), queue.get_context());
+        const auto &deviceName = deviceDescriptor.first;
+        std::cout << "Running on " << deviceName << std::endl << std::endl;
 
-    cl::sycl::event event = generateData(queue, dataDevice, nRows, nCols);
+        cl::sycl::queue queue{device};
+        Environment::getInstance()->setDefaultExecutionContext(
+            SyclExecutionContext{queue}
+        );
 
-    NumericTablePtr dataTable = SyclHomogenNumericTable<float>::create(
-        dataDevice, cl::sycl::usm::alloc::device, nCols, nRows, event);
+        float *dataDevice = (float *)cl::sycl::malloc_shared(
+            sizeof(float) * nRows * nCols, queue.get_device(), queue.get_context());
 
-    NumericTablePtr covariance = computeCorrelationMatrix(dataTable);
+        generateData(queue, dataDevice, nRows, nCols).wait();
 
-    printNumericTable(covariance, "Covariance matrix:");
+        NumericTablePtr dataTable = SyclHomogenNumericTable<float>::create(
+            dataDevice, cl::sycl::usm::alloc::shared, nCols, nRows);
 
-    // {
-    //     float *dataHost = (float *)cl::sycl::malloc_host(sizeof(float) * nRows * nCols,
-    //                                                      queue.get_context());
-    //     queue.memcpy(dataHost, dataDevice, sizeof(float) * nRows * nCols).wait();
-    //     for (size_t i = 0; i < nRows; i++)
-    //     {
-    //         for (size_t j = 0; j < nCols; j++)
-    //         {
-    //             std::cout << dataHost[i * nCols + j] << " ";
-    //         }
-    //         std::cout << std::endl;
-    //     }
-    //     cl::sycl::free(dataHost, queue.get_context());
-    // }
+        NumericTablePtr covariance = computeCorrelationMatrix(dataTable);
 
-    cl::sycl::free(dataDevice, queue.get_context());
+        printNumericTable(covariance, "Covariance matrix:");
 
-    // for (const auto& device : { cl::sycl::gpu_selector() })
-    // {
-    //     // const auto& nameDevice = deviceSelector.first;
-    //     // const auto& device = deviceSelector.second;
-    //     // std::cout << "Running on " << nameDevice << "\n\n";
+        cl::sycl::free(dataDevice, queue.get_context());
+    }
 
-    //     daal::services::SyclExecutionContext ctx(queue);
-    //     services::Environment::getInstance()->setDefaultExecutionContext(ctx);
-
-    //     FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
-    //                                                  DataSource::doAllocateNumericTable,
-    //                                                  DataSource::doDictionaryFromContext);
-    //     dataSource.loadDataBlock();
-    //     const auto data = dataSource.getNumericTable();
-
-    //     const size_t dataSize = data->getNumberOfRows() * data->getNumberOfColumns();
-
-    //     {
-    //         BlockDescriptor<> block;
-    //         data->getBlockOfRows(0, data->getNumberOfRows(), readOnly, block);
-    //         queue.memcpy(dataDevice, block.getBlockPtr(), sizeof(float) * dataSize).wait();
-    //         data->releaseBlockOfRows(block);
-    //     }
-
-    //     const auto dataTable = data_management::SyclHomogenNumericTable<float>::create(
-    //         dataDevice, cl::sycl::usm::alloc::device,
-    //         data->getNumberOfColumns(), data->getNumberOfRows());
-
-    //     covariance::Batch<> algorithm;
-    //     algorithm.input.set(covariance::data, dataTable);
-
-    //     algorithm.parameter.outputMatrixType = covariance::correlationMatrix;
-
-    //     algorithm.compute();
-    //     algorithm.compute();
-
-
-
-    // }
     return 0;
 }
