@@ -19,6 +19,7 @@
 #define __DAAL_SERVICES_INTERNAL_BUFFER_SYCL_H__
 
 #include <CL/sycl.hpp>
+#include "oneapi/internal/utils.h"
 #include "services/internal/any.h"
 #include "services/internal/buffer_impl.h"
 
@@ -75,8 +76,16 @@ private:
         if (_allocType == alloc::host || _allocType == alloc::shared)
         { return _data; }
 
+        /* Note: `cl::sycl::get_pointer_info` is not implemented right now. With
+         * the `get_pointer_info` logic shall be the following: If device is
+         * host or CPU, return `_data`, otherwise throw exception.
+         * Workaround: */
+        auto &ctx = oneapi::internal::getDefaultContext();
+        if (ctx.getInfoDevice().isCpu)
+        { return _data; }
+
         const auto error = Error::create(ErrorAccessUSMPointerOnOtherDevice, Sycl,
-                                         "Cannot access device pointer on host");
+                                        "Cannot access device pointer on host");
         tryAssignStatusAndThrow(status, error);
 
         return SharedPtr<T>();
