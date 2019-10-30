@@ -73,7 +73,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         val internRDD = getAsPairRDD(data)
 
         val tupleRes = computeOffsets(internRDD)
-        val offsets = tupleRes._1          
+        val offsets = tupleRes._1
         val numVectors = tupleRes._2
 
         var centroids = computeInit(nClusters, numVectors, offsets, internRDD)
@@ -113,7 +113,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
                 val tables = new ArrayBuffer[HomogenNumericTable]()
 
                 var arrays = new ArrayBuffer[Array[Double]]()
-                    
+
                 var hasNext = it.hasNext
                 while (hasNext) {
                     val curVector = it.next
@@ -199,7 +199,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
     }
 
     def computeInit(nClusters: Int, nV: Long, offsets: Array[Long], internRDD: RDD[Tuple2[HomogenNumericTable, Long]]) : HomogenNumericTable = {
- 
+
         val contextM = new DaalContext()
 
         /* Create an algorithm to compute k-means on the master node */
@@ -232,7 +232,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
                     val pres = kmeansLocalInit.compute()
                     pres.pack()
                     tup._1.pack()
-                    
+
                     context.dispose()
 
                     res += new Tuple2(tup._2.asInstanceOf[Int], pres)
@@ -261,7 +261,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         ret.pack()
 
         contextM.dispose()
-        
+
         ret
     }
 
@@ -402,7 +402,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
 
         val centroidsI = res.get(ResultId.centroids).asInstanceOf[HomogenNumericTable]
         centroidsI.pack()
-        
+
         contextI.dispose()
 
         centroidsI
