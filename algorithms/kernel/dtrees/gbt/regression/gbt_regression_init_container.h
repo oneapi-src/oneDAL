@@ -106,7 +106,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     const DataCollectionPtr dcMeanDependentVariable = input->get(step2MeanDependentVariable);
     const DataCollectionPtr dcNumberOfRows = input->get(step2NumberOfRows);
 
-    const size_t nNodes = dcBinBorders->size();
+    size_t nNodes = dcBinBorders->size();
 
     HomogenNumericTable<algorithmFPType> *binBorders[nNodes];
     HomogenNumericTable<size_t> *binSizes[nNodes];

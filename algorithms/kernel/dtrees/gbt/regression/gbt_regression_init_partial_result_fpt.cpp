@@ -104,11 +104,11 @@ DAAL_EXPORT services::Status DistributedPartialResultStep3::allocate(const daal:
     services::Status status;
     // need fixes in java interfaces to work
      if (maxBins <= 256) {
-         set(step3TransposedBinnedData, HomogenNumericTable<uint8_t>::create(nRows, nFeatures, NumericTable::doAllocate, &status));
-         set(step3BinnedData, HomogenNumericTable<uint8_t>::create(nFeatures, nRows, NumericTable::doAllocate, &status));
+         set(step3TransposedBinnedData, HomogenNumericTable<unsigned char>::create(nRows, nFeatures, NumericTable::doAllocate, &status));
+         set(step3BinnedData, HomogenNumericTable<unsigned char>::create(nFeatures, nRows, NumericTable::doAllocate, &status));
      } else if (maxBins <= 65536) {
-         set(step3TransposedBinnedData, HomogenNumericTable<uint16_t>::create(nRows, nFeatures, NumericTable::doAllocate, &status));
-         set(step3BinnedData, HomogenNumericTable<uint16_t>::create(nFeatures, nRows, NumericTable::doAllocate, &status));
+         set(step3TransposedBinnedData, HomogenNumericTable<unsigned short int>::create(nRows, nFeatures, NumericTable::doAllocate, &status));
+         set(step3BinnedData, HomogenNumericTable<unsigned short int>::create(nFeatures, nRows, NumericTable::doAllocate, &status));
      } else {
          set(step3TransposedBinnedData, HomogenNumericTable<int>::create(nRows, nFeatures, NumericTable::doAllocate, &status));
          set(step3BinnedData, HomogenNumericTable<int>::create(nFeatures, nRows, NumericTable::doAllocate, &status));
