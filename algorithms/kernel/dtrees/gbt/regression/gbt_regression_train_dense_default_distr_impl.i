@@ -1139,7 +1139,7 @@ services::Status RegressionTrainDistrStep6Kernel<algorithmFPType, method, cpu>::
         HomogenNumericTable<double> *pTblImp     = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
         HomogenNumericTable<int>    *pTblSmplCnt = new HomogenNumericTable<int>(1, nNodes, NumericTable::doAllocate);
 
-        connector.convertToGbtDecisionTree<cpu>(binValues.get(), nNodes, maxLevel, pTbl, pTblImp->getArray(), pTblSmplCnt->getArray(), initialF, par);
+        connector.template convertToGbtDecisionTree<cpu>(binValues.get(), nNodes, maxLevel, pTbl, pTblImp->getArray(), pTblSmplCnt->getArray(), initialF, par);
         modelImpl.add(pTbl, pTblImp, pTblSmplCnt);
 
         initialF = 0.0;
