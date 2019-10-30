@@ -251,36 +251,31 @@ protected:
         if (isCpuContext())
         {
             status |= allocateDataMemoryOnCpu();
+            DAAL_CHECK_STATUS_VAR(status);
         }
         else
         {
-            const size_t size = getNumberOfColumns() * getNumberOfRows();
-            if (!size)
+            if (!getNumberOfColumns())
             {
-                status |= services::Status(
-                    getNumberOfColumns() == 0
-                        ? services::ErrorIncorrectNumberOfFeatures
-                        : services::ErrorIncorrectNumberOfObservations
-                );
-                services::throwIfPossible(status);
-                return status;
+                status |= services::Status(services::ErrorIncorrectNumberOfFeatures);
+                return services::throwIfPossible(status);
             }
 
-            const auto universalBuffer = oneapi::internal::getDefaultContext()
-                .allocate(oneapi::internal::TypeIds::id<DataType>(), size, &status);
-            services::throwIfPossible(status);
-
-            if (status)
+            if (getNumberOfRows())
             {
+                const size_t size = getNumberOfColumns() * getNumberOfRows();
+
+                const auto universalBuffer = oneapi::internal::getDefaultContext()
+                    .allocate(oneapi::internal::TypeIds::id<DataType>(), size, &status);
+
+                services::throwIfPossible(status);
+                DAAL_CHECK_STATUS_VAR(status);
+
                 _buffer = universalBuffer.template get<DataType>();
             }
         }
 
-        if (status)
-        {
-            _memStatus = internallyAllocated;
-        }
-
+        _memStatus = internallyAllocated;
         return status;
     }
 
