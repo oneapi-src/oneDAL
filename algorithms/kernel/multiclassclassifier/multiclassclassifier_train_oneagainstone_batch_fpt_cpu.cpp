@@ -35,10 +35,6 @@ namespace multi_class_classifier
 {
 namespace training
 {
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, oneAgainstOne,    DAAL_CPU>;
-}
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, oneAgainstOne,    DAAL_CPU>;
@@ -46,7 +42,6 @@ template class BatchContainer<DAAL_FPTYPE, oneAgainstOne,    DAAL_CPU>;
 namespace internal
 {
 
-template class MultiClassClassifierTrainKernel<oneAgainstOne,    DAAL_FPTYPE, classifier::training::interface1::Batch, multi_class_classifier::interface1::Parameter, DAAL_CPU>;
 template class MultiClassClassifierTrainKernel<oneAgainstOne,    DAAL_FPTYPE, classifier::training::Batch, multi_class_classifier::Parameter, DAAL_CPU>;
 
 } // namespace internal

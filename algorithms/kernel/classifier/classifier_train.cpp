@@ -33,18 +33,6 @@ namespace algorithms
 {
 namespace classifier
 {
-
-namespace interface1
-{
-services::Status Parameter::check() const
-{
-    if(nClasses == 0)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, nClassesStr()));
-    }
-    return services::Status();
-}
-}
 namespace interface2
 {
 Parameter::Parameter(size_t nClasses) : nClasses(nClasses), resultsToEvaluate(computeClassLabels) {}
@@ -56,6 +44,7 @@ services::Status Parameter::check() const
     return services::Status();
 }
 }
+
 namespace training
 {
 namespace interface1

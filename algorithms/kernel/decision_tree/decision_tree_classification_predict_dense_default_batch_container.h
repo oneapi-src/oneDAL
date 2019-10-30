@@ -35,37 +35,6 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface1
-{
-template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
-{
-    __DAAL_INITIALIZE_KERNELS(internal::DecisionTreePredictKernel, algorithmFPType, method);
-}
-
-template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
-{
-    __DAAL_DEINITIALIZE_KERNELS();
-}
-
-template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
-{
-    const classifier::prediction::Input * const input = static_cast<const classifier::prediction::Input *>(_in);
-    classifier::prediction::interface1::Result * const result = static_cast<classifier::prediction::interface1::Result *>(_res);
-    classifier::interface1::Parameter * const parameter = static_cast<classifier::interface1::Parameter *>(_par);
-
-    const data_management::NumericTableConstPtr a = input->get(classifier::prediction::data);
-    const classifier::ModelConstPtr m = input->get(classifier::prediction::model);
-    const data_management::NumericTablePtr r = result->get(classifier::prediction::prediction);
-
-    daal::services::Environment::env & env = *_env;
-
-    __DAAL_CALL_KERNEL(env, internal::DecisionTreePredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), \
-                       compute, a.get(), m.get(), r.get(), 0, parameter->nClasses);
-}
-}
 namespace interface2
 {
 template <typename algorithmFPType, Method method, CpuType cpu>

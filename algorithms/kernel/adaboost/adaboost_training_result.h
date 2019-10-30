@@ -37,23 +37,6 @@ namespace adaboost
 {
 namespace training
 {
-namespace interface1
-{
-/**
- * Allocates memory to store final results of AdaBoost training
- * \param[in] input         %Input of the AdaBoost training algorithm
- * \param[in] parameter     Parameters of the algorithm
- * \param[in] method        AdaBoost computation method
- */
-template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
-{
-    services::Status s;
-    const classifier::training::interface1::Input *algInput = static_cast<const classifier::training::interface1::Input *>(input);
-    set(classifier::training::model, daal::algorithms::adaboost::interface1::Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
-    return s;
-}
-}
 namespace interface2
 {
 /**

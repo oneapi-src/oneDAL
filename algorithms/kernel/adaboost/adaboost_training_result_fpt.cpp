@@ -31,12 +31,7 @@ namespace adaboost
 {
 namespace training
 {
-namespace interface1
-{
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-}
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-
 }// namespace training
 }// namespace adaboost
 }// namespace algorithms

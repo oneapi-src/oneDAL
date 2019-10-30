@@ -39,37 +39,6 @@ namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_SVM_MODEL_ID);
 
-services::Status Parameter::check() const
-{
-    services::Status s;
-    DAAL_CHECK_STATUS(s, classifier::interface1::Parameter::check());
-    if(C <= 0)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, cBoundStr()));
-    }
-    if(accuracyThreshold <= 0 || accuracyThreshold >= 1)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, accuracyThresholdStr()));
-    }
-    if(tau <= 0)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, tauStr()));
-    }
-    if(maxIterations == 0)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr()));
-    }
-    if(!kernel.get())
-    {
-        return services::Status(services::Error::create(services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, kernelFunctionStr()));
-    }
-    if(shrinkingStep == 0)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, shrinkingStepStr()));
-    }
-    return s;
-}
-
 }
 
 namespace interface2

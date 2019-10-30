@@ -33,17 +33,12 @@ namespace logitboost
 {
 namespace prediction
 {
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 namespace internal
 {
-template struct I1LogitBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 template struct LogitBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
 }

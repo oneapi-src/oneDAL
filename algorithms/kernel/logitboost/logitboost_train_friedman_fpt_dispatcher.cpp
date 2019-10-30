@@ -27,7 +27,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(logitboost::training::interface1::BatchContainer, batch, DAAL_FPTYPE, logitboost::training::friedman)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(logitboost::training::BatchContainer, batch, DAAL_FPTYPE, logitboost::training::friedman)
 
 namespace logitboost

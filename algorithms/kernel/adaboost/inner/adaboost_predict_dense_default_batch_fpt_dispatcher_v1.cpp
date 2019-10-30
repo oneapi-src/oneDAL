@@ -23,12 +23,12 @@
 */
 
 #include "adaboost_predict.h"
-#include "adaboost_predict_batch_container.h"
+#include "adaboost_predict_batch_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(adaboost::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE, adaboost::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(adaboost::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE, adaboost::prediction::defaultDense)
 } // namespace algorithms
 } // namespace daal

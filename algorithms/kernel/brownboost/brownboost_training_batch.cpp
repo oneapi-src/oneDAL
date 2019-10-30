@@ -35,30 +35,6 @@ namespace brownboost
 {
 namespace training
 {
-namespace interface1
-{
-__DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_BROWNBOOST_TRAINING_RESULT_ID);
-
-/**
- * Returns the model trained with the BrownBoost algorithm
- * \param[in] id    Identifier of the result, \ref classifier::training::ResultId
- * \return          Model trained with the BrownBoost algorithm
- */
-daal::algorithms::brownboost::interface1::ModelPtr Result::get(classifier::training::ResultId id) const
-{
-    return staticPointerCast<daal::algorithms::brownboost::interface1::Model, SerializationIface>(Argument::get(id));
-}
-
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
-{
-    services::Status s = classifier::training::interface1::Result::check(input, parameter, method);
-    if(!s) return s;
-    daal::algorithms::brownboost::interface1::ModelPtr m = get(classifier::training::model);
-    DAAL_CHECK(m->getAlpha(), ErrorModelNotFullInitialized);
-    return s;
-}
-} // namespace interface1
-
 namespace interface2
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_BROWNBOOST_TRAINING_RESULT_ID);

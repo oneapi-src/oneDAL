@@ -33,10 +33,6 @@ namespace svm
 {
 namespace training
 {
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, boser, DAAL_CPU>;
-}
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, boser, DAAL_CPU>;
@@ -44,7 +40,6 @@ template class BatchContainer<DAAL_FPTYPE, boser, DAAL_CPU>;
 namespace internal
 {
 
-template struct SVMTrainImpl<boser, DAAL_FPTYPE, svm::interface1::Parameter, DAAL_CPU>;
 template struct SVMTrainImpl<boser, DAAL_FPTYPE, svm::interface2::Parameter, DAAL_CPU>;
 
 } // namespace internal

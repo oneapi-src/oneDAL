@@ -22,6 +22,7 @@
 */
 
 #include "algorithms/gradient_boosted_trees/gbt_training_parameter.h"
+#include "gbt/gbt_training_parameter.h"
 #include "daal_strings.h"
 #include "gbt_internal.h"
 #include "algorithms/engines/mt19937/mt19937.h"

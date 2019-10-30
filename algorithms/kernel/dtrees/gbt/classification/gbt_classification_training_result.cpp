@@ -70,13 +70,6 @@ void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr
 {
     Argument::set(id, value);
 }
-
-Status Parameter::check() const
-{
-    return gbt::training::checkImpl(*this);
-}
-
-
 } // namespace interface1
 
 namespace interface2

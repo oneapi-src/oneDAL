@@ -29,7 +29,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(adaboost::training::interface1::BatchContainer, batch, DAAL_FPTYPE, adaboost::training::defaultDense)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(adaboost::training::BatchContainer, batch, DAAL_FPTYPE, adaboost::training::defaultDense)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(adaboost::training::BatchContainer, batch, DAAL_FPTYPE, adaboost::training::sammeR)
 
@@ -39,7 +38,6 @@ namespace training
 {
 namespace interface2
 {
-
 template<typename algorithmFPType, Method method>
 Batch<algorithmFPType, method>::Batch(size_t nClasses)
 {
@@ -66,6 +64,5 @@ INSTANTIATE_CONSTRUCTORS(DAAL_FPTYPE, adaboost::training::sammeR);
 } // namespace interface2
 } // namespace training
 } // namespace adaboost
-
 } // namespace algorithms
 } // namespace daal

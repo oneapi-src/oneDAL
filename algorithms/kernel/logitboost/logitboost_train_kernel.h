@@ -42,24 +42,6 @@ namespace training
 {
 namespace internal
 {
-
-/**
- *  \brief Construct Logit Boost classifier model.
- *
- *  \param a[in]    Array of numeric tables contating input data
- *                  a[0] holds input matrix of features X
- *                  a[1] holds input matrix of class labels Y
- *  \param r[out]   Resulting model
- *  \param par[in]  Logit Boost algorithm parameters
- */
-template <Method method, typename algorithmFPType, CpuType cpu>
-struct I1LogitBoostTrainKernel : public Kernel
-{
-    typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
-    typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    services::Status compute(const size_t na, NumericTablePtr a[], Model *r, const Parameter *par);
-};
-
 /**
  *  \brief Construct Logit Boost classifier model.
  *

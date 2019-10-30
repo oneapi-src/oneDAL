@@ -34,26 +34,6 @@ namespace logitboost
 {
 namespace training
 {
-namespace interface1
-{
-/**
- * Allocates memory to store final results of the LogitBoost training algorithm
- * \param[in] input         %Input of the LogitBoost training algorithm
- * \param[in] parameter     Parameters of the algorithm
- * \param[in] method        LogitBoost computation method
- */
-template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
-{
-    const classifier::training::interface1::Input *algInput = static_cast<const classifier::training::interface1::Input *>(input);
-
-    services::Status s;
-    logitboost::interface1::ModelPtr model = logitboost::interface1::Model::create(algInput->getNumberOfFeatures(),
-                                   static_cast<const logitboost::interface1::Parameter *>(parameter), &s);
-    set(classifier::training::model, model);
-    return s;
-}
-}
 namespace interface2
 {
 /**

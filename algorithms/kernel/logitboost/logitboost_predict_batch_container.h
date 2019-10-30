@@ -37,35 +37,6 @@ namespace logitboost
 {
 namespace prediction
 {
-namespace interface1
-{
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
-{
-    __DAAL_INITIALIZE_KERNELS(internal::I1LogitBoostPredictKernel, method, algorithmFPType);
-}
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
-{
-    __DAAL_DEINITIALIZE_KERNELS();
-}
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
-{
-    classifier::prediction::interface1::Input *input = static_cast<classifier::prediction::interface1::Input *>(_in);
-    classifier::prediction::interface1::Result *result = static_cast<classifier::prediction::interface1::Result *>(_res);
-
-    NumericTablePtr a = input->get(classifier::prediction::data);
-    logitboost::interface1::Model *m = static_cast<logitboost::interface1::Model *>(input->get(classifier::prediction::model).get());
-    NumericTable *r = static_cast<NumericTable *>(result->get(classifier::prediction::prediction).get());
-    logitboost::interface1::Parameter *par = static_cast<logitboost::interface1::Parameter *>(_par);
-
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::I1LogitBoostPredictKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, m, r, par);
-}
-}
 namespace interface2
 {
 template<typename algorithmFPType, Method method, CpuType cpu>

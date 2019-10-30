@@ -28,6 +28,5 @@ namespace daal
 namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(svm::prediction::BatchContainer, batch, DAAL_FPTYPE, svm::prediction::defaultDense)
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(svm::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE, svm::prediction::defaultDense)
 } // namespace algorithms
 } // namespace daal

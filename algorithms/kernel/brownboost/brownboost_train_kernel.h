@@ -43,28 +43,6 @@ namespace internal
 {
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class I1BrownBoostTrainKernel : public Kernel
-{
-public:
-    services::Status compute(size_t n, NumericTablePtr *a, brownboost::interface1::Model *r, const brownboost::interface1::Parameter *par);
-
-private:
-    typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
-    typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-
-    void updateWeights(size_t nVectors, algorithmFPType s, algorithmFPType c, algorithmFPType invSqrtC,
-                       const algorithmFPType *r, algorithmFPType *nra, algorithmFPType *nre2, algorithmFPType *w);
-
-    algorithmFPType *reallocateAlpha(size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s);
-
-    services::Status brownBoostFreundKernel(size_t nVectors,
-                                NumericTablePtr weakLearnerInputTables[],
-                                const HomogenNTPtr& hTable, const algorithmFPType *y,
-                                brownboost::interface1::Model *boostModel, brownboost::interface1::Parameter *parameter, size_t& nWeakLearners,
-                                algorithmFPType *&alpha);
-};
-
-template <Method method, typename algorithmFPType, CpuType cpu>
 class BrownBoostTrainKernel : public Kernel
 {
 public:

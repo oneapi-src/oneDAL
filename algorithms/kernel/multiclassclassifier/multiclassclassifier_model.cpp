@@ -115,14 +115,6 @@ classifier::ModelPtr Model::getTwoClassClassifierModel(size_t idx) const
     return classifier::ModelPtr();
 }
 
-services::Status Parameter::check() const
-{
-    services::Status s;
-    DAAL_CHECK_STATUS(s, interface1::ParameterBase::check());
-    DAAL_CHECK_EX((accuracyThreshold > 0) && (accuracyThreshold < 1), services::ErrorIncorrectParameter, services::ParameterName, accuracyThresholdStr());
-    DAAL_CHECK_EX(maxIterations, services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr());
-    return s;
-}
 }
 namespace interface2
 {

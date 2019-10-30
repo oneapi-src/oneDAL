@@ -34,9 +34,6 @@ namespace algorithms
 {
 namespace decision_forest
 {
-
-namespace training { services::Status checkImpl(const decision_forest::training::Parameter& prm); }
-
 namespace classification
 {
 namespace training
@@ -109,14 +106,6 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
 engines::EnginePtr Result::get(ResultEngineId id) const
 {
     return _impl->getEngine();
-}
-
-services::Status Parameter::check() const
-{
-    services::Status s;
-    DAAL_CHECK_STATUS(s, classifier::interface1::Parameter::check());
-    DAAL_CHECK_STATUS(s, decision_forest::training::checkImpl(*this));
-    return s;
 }
 }
 

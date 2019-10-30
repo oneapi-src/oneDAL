@@ -52,7 +52,7 @@ class ClassificationTrainBatchKernel : public daal::algorithms::Kernel
 public:
     services::Status compute(HostAppIface* pHost, const NumericTable *x, const NumericTable *y,
         gbt::classification::Model& m, Result& res, const interface1::Parameter& par,
-        engines::internal::BatchBaseImpl& engine);
+        engines::internal::BatchBaseImpl& engine); // remove this function when interface1::Parameter becomes deprecated
     services::Status compute(HostAppIface* pHost, const NumericTable *x, const NumericTable *y,
         gbt::classification::Model& m, Result& res, const interface2::Parameter& par,
         engines::internal::BatchBaseImpl& engine);
