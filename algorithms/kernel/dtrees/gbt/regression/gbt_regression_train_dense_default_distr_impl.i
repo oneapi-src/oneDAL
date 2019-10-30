@@ -674,7 +674,7 @@ services::Status RegressionTrainDistrStep4Kernel<algorithmFPType, method, cpu>::
         const size_t featureIndex = ntFeatureIndex->getValue<int>(0, 0);
 
         const size_t nCollections = dcPartialHistograms->size();
-        
+
         dcTotalHistograms->clear();
         dcBestSplits->clear();
 
@@ -705,10 +705,10 @@ services::Status RegressionTrainDistrStep4Kernel<algorithmFPType, method, cpu>::
             services::SharedPtr<HomogenNumericTable<algorithmFPType> > ntHistogram = HomogenNumericTable<algorithmFPType>::create(4, curBins, NumericTable::doAllocate, &s);
 //            DAAL_CHECK_STATUS_VAR(s);
             algorithmFPType *histogram = ntHistogram->getArray();
-        
+
             TArray<ReadRows<algorithmFPType, cpu>, cpu> partialHistogramRowsArray(nCollections);
 //            DAAL_CHECK_MALLOC(partialHistogramRowsArray.get());
-        
+
             TArray<algorithmFPType*, cpu> ptrs(nCollections);
 //            DAAL_CHECK_MALLOC(ptrs.get());
 
@@ -1060,7 +1060,7 @@ services::Status RegressionTrainDistrStep5Kernel<algorithmFPType, method, cpu>::
             {
                 PartitionTaskType::doPartitionIdxWithStride(record->n, treeOrder + record->iStart, transposedBinnedData + featureIndex * nRows, false /* featureUnordered */, idxFeatureBestSplit,
                                                   bestSplitIdxBuf.get() + 2 * record->iStart, nLeft, 1, 0);
-                
+
                 record->featureValue = idxFeatureBestSplit;
                 record->featureIdx = featureIndex;
                 record->featureUnordered = false;

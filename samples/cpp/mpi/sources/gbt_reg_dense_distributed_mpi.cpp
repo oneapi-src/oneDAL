@@ -1,3 +1,31 @@
+/* file: gbt_reg_dense_distributed_mpi.cpp */
+/*******************************************************************************
+* Copyright 2017-2019 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+/*
+!  Content:
+!    C++ example of the gradient boosting trees (GBT) regression
+!    algorithm in the distributed processing mode.
+!******************************************************************************/
+
+/**
+ * <a name="DAAL-EXAMPLE-CPP-GBT_REG_DENSE_DISTRIBUTED"></a>
+ * \example gbt_reg_dense_distributed_mpi.cpp
+ */
+
 #include "mpi.h"
 #include "daal.h"
 #include "service.h"

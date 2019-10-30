@@ -242,7 +242,7 @@ class GbtRegDenseDistr {
                         histogramsForFeature[i].pushBack(histogramsForBlocks);
                     }
                 }
-                
+
                 System.out.println("Before 4");
                 DataCollection bestSplits = new DataCollection(context);
 
@@ -292,7 +292,7 @@ class GbtRegDenseDistr {
                         // }
                         partialHistogramsForFeatures.pushBack(histogramsForFeature[processedFeatures+j]);
                     }
-                    
+
                     DataCollection tmp = (DataCollection)(parentTotalHistogramsForFeatures.get(0));
                     System.out.print("tmp.size() = ");
                     System.out.println(tmp.size());
