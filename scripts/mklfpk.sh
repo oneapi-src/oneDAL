@@ -67,7 +67,7 @@ if [ ! -e "${DST}/license.txt" ]; then
     exit 1
   fi
 
-  if [ \! $? ]; then
+  if [ $? -ne 0 -o ! -e "${DST}/${MKLFPK_PACKAGE}.tgz" ]; then
     echo "Download from ${MKLFPK_URL} to ${DST} failed"
     exit 1
   fi
