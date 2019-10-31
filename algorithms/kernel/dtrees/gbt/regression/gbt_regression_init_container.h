@@ -108,19 +108,6 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
 
     size_t nNodes = dcBinBorders->size();
 
-    HomogenNumericTable<algorithmFPType> *binBorders[nNodes];
-    HomogenNumericTable<size_t> *binSizes[nNodes];
-    algorithmFPType meanDependentVariable[nNodes];
-    size_t numberOfRows[nNodes];
-
-    for (size_t i = 0; i < nNodes; ++i)
-    {
-        binBorders[i] = HomogenNumericTable<algorithmFPType>::cast((*dcBinBorders)[i]).get();
-        binSizes[i] = static_cast<HomogenNumericTable<size_t>*>(((*dcBinSizes)[i]).get());
-        meanDependentVariable[i] = (NumericTable::cast((*dcMeanDependentVariable)[i]))->getValue<algorithmFPType>(0, 0);
-        numberOfRows[i] = static_cast<size_t>((NumericTable::cast((*dcNumberOfRows)[i]))->getValue<int>(0, 0));
-    }
-
     HomogenNumericTable<algorithmFPType> *ntInitialResponse = dynamic_cast<HomogenNumericTable<algorithmFPType>*>((partialResult->get(step2InitialResponse)).get());
     const HomogenNumericTable<algorithmFPType> *ntMergedBinBorders = dynamic_cast<HomogenNumericTable<algorithmFPType>*>((partialResult->get(step2MergedBinBorders)).get());
     const HomogenNumericTable<size_t> *ntBinQuantities = dynamic_cast<HomogenNumericTable<size_t>*>((partialResult->get(step2BinQuantities)).get());
@@ -130,7 +117,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     daal::services::Environment::env &env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::RegressionInitStep2MasterKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-                       compute, nNodes, numberOfRows, meanDependentVariable, binBorders, binSizes, ntInitialResponse, ntMergedBinBorders, ntBinQuantities,
+                       compute, nNodes, dcNumberOfRows, dcMeanDependentVariable, dcBinBorders, dcBinSizes, ntInitialResponse, ntMergedBinBorders, ntBinQuantities,
                        dcBinValues.get(), *par);
 }
 

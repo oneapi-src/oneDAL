@@ -131,8 +131,8 @@ struct BinsMergingTask
     BinsMergingTask(size_t maxBins, size_t nNodes, size_t minBinSize) : _maxBins(maxBins), _nNodes(nNodes), _minBinSize(minBinSize) {}
 public:
     bool isValid() const { return true; }
-    services::Status merge(const HomogenNumericTable<algorithmFPType> *const *localBinBordersTables,
-        const HomogenNumericTable<size_t> *const *localBinSizesTables, size_t iCol, const size_t nCols, algorithmFPType * resultBorders, size_t * binsPerFeature)
+    services::Status merge(HomogenNumericTable<algorithmFPType> **localBinBordersTables,
+        HomogenNumericTable<size_t> **localBinSizesTables, size_t iCol, size_t nCols, algorithmFPType * resultBorders, size_t * binsPerFeature)
     {
         services::Status s;
         size_t localMaxBins = localBinSizesTables[0]->getNumberOfRows();
@@ -289,24 +289,37 @@ private:
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status RegressionInitStep2MasterKernel<algorithmFPType, method, cpu>::compute(
-    size_t nNodes, size_t * nRowsPerNode, algorithmFPType * localMeanDepVars,
-    const HomogenNumericTable<algorithmFPType> *const *localBinBordersTables,
-    const HomogenNumericTable<size_t> *const *localBinSizesTables,
+    size_t nNodes, const DataCollectionPtr localNumberOfRows, const DataCollectionPtr localMeanDepVars,
+    const DataCollectionPtr localBinBorders, const DataCollectionPtr localBinSizes,
     HomogenNumericTable<algorithmFPType> * ntInitialResponse, const HomogenNumericTable<algorithmFPType> * mergedBinBorders,
     const HomogenNumericTable<size_t> * binQuantities,
     DataCollection *dcBinValues, const Parameter& par)
 {
     const size_t maxBins = par.maxBins;
     const size_t minBinSize = par.minBinSize;
-    const size_t nCols = localBinBordersTables[0]->getNumberOfColumns();
+
+    daal::services::internal::TArray<HomogenNumericTable<algorithmFPType>*, cpu> localBinBordersTablesArr(nNodes);
+    daal::services::internal::TArray<HomogenNumericTable<size_t>*, cpu> localBinSizesTablesArr(nNodes);
+    HomogenNumericTable<algorithmFPType> ** localBinBordersTables = localBinBordersTablesArr.get();
+    HomogenNumericTable<size_t> ** localBinSizesTables = localBinSizesTablesArr.get();
+    for (size_t iNode = 0; iNode < nNodes; ++iNode)
+    {
+        localBinBordersTables[iNode] = HomogenNumericTable<algorithmFPType>::cast((*localBinBorders)[iNode]).get();
+        localBinSizesTables[iNode] = static_cast<HomogenNumericTable<size_t>*>(((*localBinSizes)[iNode]).get());
+    }
+
+    size_t nCols = localBinBordersTables[0]->getNumberOfColumns();
 
     // find global mean
     double mean = 0;
     size_t nRows = 0;
     for (size_t iNode = 0; iNode < nNodes; iNode++)
     {
-        mean += localMeanDepVars[iNode]*nRowsPerNode[iNode];
-        nRows += nRowsPerNode[iNode];
+        algorithmFPType localMean = (NumericTable::cast((*localMeanDepVars)[iNode]))->getValue<algorithmFPType>(0, 0);
+        size_t localNRows = static_cast<size_t>((NumericTable::cast((*localNumberOfRows)[iNode]))->getValue<int>(0, 0));
+
+        mean += localMean*localNRows;
+        nRows += localNRows;
     }
     mean /= nRows;
 
@@ -327,8 +340,10 @@ services::Status RegressionInitStep2MasterKernel<algorithmFPType, method, cpu>::
         return res;
     });
 
-    algorithmFPType * bordersPtrs[nCols];
-    size_t * binQuantitiesPtrs[nCols];
+    daal::services::internal::TArray<algorithmFPType*, cpu> bordersArray(nCols);
+    daal::services::internal::TArray<size_t*, cpu> binQuantitiesArray(nCols);
+    algorithmFPType ** bordersPtrs = bordersArray.get();
+    size_t ** binQuantitiesPtrs = binQuantitiesArray.get();
     for (size_t iCol = 0; iCol < nCols; iCol++)
     {
         bordersPtrs[iCol] = mergedBinBorders->getArray() + iCol;

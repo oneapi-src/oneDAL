@@ -56,9 +56,8 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 class RegressionInitStep2MasterKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(size_t nNodes, size_t * nRowsPerNode, algorithmFPType * localMeanDepVars,
-                             const HomogenNumericTable<algorithmFPType> *const *localBinBordersTables,
-                             const HomogenNumericTable<size_t> *const *localBinSizesTables,
+    services::Status compute(size_t nNodes, const DataCollectionPtr localNumberOfRows, const DataCollectionPtr localMeanDepVars,
+                             const DataCollectionPtr localBinBorders, const DataCollectionPtr localBinSizes,
                              HomogenNumericTable<algorithmFPType> * ntInitialResponse, const HomogenNumericTable<algorithmFPType> * mergedBinBorders,
                              const HomogenNumericTable<size_t> * binQuantities,
                              DataCollection *dcBinValues,
