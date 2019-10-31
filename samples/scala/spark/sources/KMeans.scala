@@ -86,7 +86,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         val internRDD = getAsPairRDD(data)
         val tupleRes = computeOffsets(internRDD)
 
-        val offsets = tupleRes._1          
+        val offsets = tupleRes._1
         val numVectors = tupleRes._2
 
         var centroids = initialModel match {
@@ -134,13 +134,13 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
     }
 
     def getAsPairRDD(data: RDD[Vector]): RDD[HomogenNumericTable] = {
-        
+
         val tablesRDD = data.mapPartitions(
             (it: Iterator[Vector]) => {
 
                 val tables = new ArrayBuffer[HomogenNumericTable]()
                 var arrays = new ArrayBuffer[Array[Double]]()
-                it.foreach{curVector => 
+                it.foreach{curVector =>
                     val rowData = curVector.toArray
                     arrays += rowData
                 }
@@ -174,7 +174,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
                 val numRows = table.getNumberOfRows()
                 table.pack()
                 context.dispose
- 
+
                 Iterator(numRows)
             })
 
@@ -262,7 +262,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
         ret.pack()
 
         contextM.dispose()
-        
+
         ret
     }
 
@@ -349,7 +349,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
                 table.pack()
                 centroids.pack()
                 context.dispose()
-                
+
                 Iterator(pres)
             })
 
@@ -385,7 +385,7 @@ class KMeans private (private var nClusters: Int, private var nIterations: Int) 
 
         val centroidsI = res.get(ResultId.centroids).asInstanceOf[HomogenNumericTable]
         centroidsI.pack()
-        
+
         contextI.dispose()
 
         centroidsI
