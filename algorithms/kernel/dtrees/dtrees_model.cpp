@@ -67,6 +67,9 @@ bool ModelImpl::reserve(const size_t nTrees)
     _nNodeSampleTables.reset(new DataCollection());
     _nNodeSampleTables->resize(nTrees);
 
+    _probTbl.reset(new DataCollection());
+    _probTbl->resize(nTrees);
+
     return _serializationData.get();
 }
 
@@ -78,6 +81,7 @@ bool ModelImpl::resize(const size_t nTrees)
     _serializationData.reset(new DataCollection(nTrees));
     _impurityTables.reset(new DataCollection(nTrees));
     _nNodeSampleTables.reset(new DataCollection(nTrees));
+    _probTbl.reset(new DataCollection(nTrees));
     return _serializationData.get();
 }
 
@@ -91,6 +95,9 @@ void ModelImpl::clear()
 
     if(_nNodeSampleTables.get())
         _nNodeSampleTables.reset();
+
+    if(_probTbl.get())
+        _probTbl.reset();
 
     _nTree.set(0);
 }

@@ -253,7 +253,6 @@ services::Status computeImpl(HostAppIface* pHostApp, const NumericTable *x, cons
     DAAL_CHECK(md.resize(par.nTrees), ErrorMemoryAllocationFailed);
     dtrees::internal::FeatureTypes featTypes;
     DAAL_CHECK(featTypes.init(*x), ErrorMemoryAllocationFailed);
-
     dtrees::internal::IndexedFeatures indexedFeatures;
     services::Status s;
     if(!par.memorySavingMode)
@@ -317,7 +316,9 @@ services::Status computeImpl(HostAppIface* pHostApp, const NumericTable *x, cons
         DAAL_CHECK_THR(engineImpl, ErrorEngineNotSupported);
         services::Status s = task->run(engineImpl, pTree, numElems[i]);
         if(pTree)
-            md.add((typename ModelType::TreeType&)*pTree);
+        {
+            md.add((typename ModelType::TreeType&)*pTree, nClasses);
+        }
         DAAL_CHECK_STATUS_THR(s);
     });
     s = safeStat.detach();
@@ -396,7 +397,7 @@ protected:
 
     size_t nFeatures() const { return _data->getNumberOfColumns(); }
     typename DataHelper::NodeType::Base* build(services::Status& s, size_t iStart, size_t n, size_t level,
-        typename DataHelper::ImpurityData& curImpurity, bool& bUnorderedFeaturesUsed);
+        typename DataHelper::ImpurityData& curImpurity, bool& bUnorderedFeaturesUsed, size_t nClasses);
     algorithmFPType* featureBuf(size_t iBuf) const { DAAL_ASSERT(iBuf < _nFeatureBufs); return _aFeatureBuf[iBuf].get(); }
     IndexType* featureIndexBuf(size_t iBuf) const { DAAL_ASSERT(iBuf < _nFeatureBufs); return _aFeatureIndexBuf[iBuf].get(); }
     bool terminateCriteria(size_t nSamples, size_t level, typename DataHelper::ImpurityData& imp) const
@@ -408,7 +409,7 @@ protected:
     ThreadCtxType& threadCtx() { return _threadCtx; }
     typename DataHelper::NodeType::Split* makeSplit(size_t iFeature, algorithmFPType featureValue, bool bUnordered,
         typename DataHelper::NodeType::Base* left, typename DataHelper::NodeType::Base* right, algorithmFPType imp);
-    typename DataHelper::NodeType::Leaf* makeLeaf(const IndexType* idx, size_t n, typename DataHelper::ImpurityData& imp);
+    typename DataHelper::NodeType::Leaf* makeLeaf(const IndexType* idx, size_t n, typename DataHelper::ImpurityData& imp, size_t makeLeaf);
 
     bool findBestSplit(size_t iStart, size_t n, const typename DataHelper::ImpurityData& curImpurity,
         IndexType& iBestFeature, typename DataHelper::TSplitData& split);
@@ -531,7 +532,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::run(engin
     _helper.calcImpurity(_aSample.get(), _nSamples, initialImpurity);
     bool bUnorderedFeaturesUsed = false;
     services::Status s;
-    typename DataHelper::NodeType::Base* nd = build(s, 0, _nSamples, 0, initialImpurity, bUnorderedFeaturesUsed);
+    typename DataHelper::NodeType::Base* nd = build(s, 0, _nSamples, 0, initialImpurity, bUnorderedFeaturesUsed, _nClasses);
     if(nd)
     {
         //to prevent memory leak in case of general allocator
@@ -561,22 +562,22 @@ typename DataHelper::NodeType::Split* TrainBatchTaskBase<algorithmFPType, DataHe
 
 template <typename algorithmFPType, typename DataHelper, CpuType cpu>
 typename DataHelper::NodeType::Leaf* TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::makeLeaf(const IndexType* idx,
-    size_t n, typename DataHelper::ImpurityData& imp)
+    size_t n, typename DataHelper::ImpurityData& imp, size_t nClasses)
 {
-    typename DataHelper::NodeType::Leaf* pNode = _tree.allocator().allocLeaf();
+    typename DataHelper::NodeType::Leaf* pNode = _tree.allocator().allocLeaf(_nClasses);
     _helper.setLeafData(*pNode, idx, n, imp);
     return pNode;
 }
 
 template <typename algorithmFPType, typename DataHelper, CpuType cpu>
 typename DataHelper::NodeType::Base* TrainBatchTaskBase<algorithmFPType, DataHelper, cpu>::build(services::Status& s,
-    size_t iStart, size_t n, size_t level, typename DataHelper::ImpurityData& curImpurity, bool& bUnorderedFeaturesUsed)
+    size_t iStart, size_t n, size_t level, typename DataHelper::ImpurityData& curImpurity, bool& bUnorderedFeaturesUsed, size_t nClasses)
 {
     if(_hostApp.isCancelled(s, n))
         return nullptr;
 
     if(terminateCriteria(n, level, curImpurity))
-        return makeLeaf(_aSample.get() + iStart, n, curImpurity);
+        return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
 
     typename DataHelper::TSplitData split;
     IndexType iFeature;
@@ -584,10 +585,10 @@ typename DataHelper::NodeType::Base* TrainBatchTaskBase<algorithmFPType, DataHel
     {
         if(_par.varImportance == training::MDI)
             addImpurityDecrease(iFeature, n, curImpurity, split);
-        typename DataHelper::NodeType::Base* left = build(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed);
+        typename DataHelper::NodeType::Base* left = build(s, iStart, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses);
         const size_t nLeft = split.nLeft;
         _helper.convertLeftImpToRight(n, curImpurity, split);
-        typename DataHelper::NodeType::Base* right = s.ok() ? build(s, iStart + nLeft, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed) : nullptr;
+        typename DataHelper::NodeType::Base* right = s.ok() ? build(s, iStart + nLeft, split.nLeft, level + 1, split.left, bUnorderedFeaturesUsed, nClasses) : nullptr;
         typename DataHelper::NodeType::Base* res = nullptr;
         if(!left || !right || !(res = makeSplit(iFeature, split.featureValue, split.featureUnordered, left, right, curImpurity.var)))
         {
@@ -603,7 +604,7 @@ typename DataHelper::NodeType::Base* TrainBatchTaskBase<algorithmFPType, DataHel
         DAAL_ASSERT(split.nLeft == right->count);
         return res;
     }
-    return makeLeaf(_aSample.get() + iStart, n, curImpurity);
+    return makeLeaf(_aSample.get() + iStart, n, curImpurity, nClasses);
 }
 
 template <typename algorithmFPType, typename DataHelper, CpuType cpu>

@@ -107,13 +107,12 @@ int main(int argc, char *argv[])
     if(trainedAccurcy == buildModelAccurcy)
     {
         std::cout << "Model was built successfully" << std::endl;
-        return 0;
     }
     else
     {
         std::cout << "Model was built not correctly" << std::endl;
-        return 1;
     }
+    return 0;
 }
 
 daal::algorithms::decision_forest::classification::ModelPtr buildModel(Tree* trees)

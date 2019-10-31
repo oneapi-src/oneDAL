@@ -39,7 +39,8 @@ template <typename NodeLeaf>
 void writeLeaf(const NodeLeaf& l, DecisionTreeNode& row);
 
 template <typename NodeType, typename NodeBase>
-void nodeToTable(const NodeBase& node, size_t iRow, size_t& iCur, DecisionTreeNode* aRow, double *impVals, int *nNodeSamplesVals)
+void nodeToTable(const NodeBase& node, size_t iRow, size_t& iCur, DecisionTreeNode* aRow, double *impVals, int *nNodeSamplesVals,
+    double* probVals, size_t nClasses)
 {
     DecisionTreeNode& row = aRow[iRow];
     impVals[iRow] = node.impurity;
@@ -53,12 +54,19 @@ void nodeToTable(const NodeBase& node, size_t iRow, size_t& iCur, DecisionTreeNo
         row.featureValueOrResponse = s.featureValue;
         row.leftIndexOrClass = iCur++; //+1 for left kid
         ++iCur;//+1 for right kid
-        nodeToTable<NodeType, NodeBase>(*s.kid[0], row.leftIndexOrClass, iCur, aRow, impVals, nNodeSamplesVals);
-        nodeToTable<NodeType, NodeBase>(*s.kid[1], row.leftIndexOrClass + 1, iCur, aRow, impVals, nNodeSamplesVals);
+        nodeToTable<NodeType, NodeBase>(*s.kid[0], row.leftIndexOrClass, iCur, aRow, impVals, nNodeSamplesVals, probVals, nClasses);
+        nodeToTable<NodeType, NodeBase>(*s.kid[1], row.leftIndexOrClass + 1, iCur, aRow, impVals, nNodeSamplesVals, probVals, nClasses);
     }
     else
     {
         const typename NodeType::Leaf& l = *NodeType::castLeaf(&node);
+        if (nClasses > 1)
+        {
+            for (size_t i = 0; i < nClasses; ++i)
+            {
+                probVals[iRow * nClasses + i] = double(l.hist[i]) / double(node.count);
+            }
+        }
         row.featureIndex = -1;
         writeLeaf<typename NodeType::Leaf>(l, row);
     }
@@ -67,16 +75,18 @@ void nodeToTable(const NodeBase& node, size_t iRow, size_t& iCur, DecisionTreeNo
 template <typename TNodeType, typename TAllocator>
 void TreeImpl<TNodeType, TAllocator>::convertToTable(DecisionTreeTable *treeTable,
     data_management::HomogenNumericTable<double> *impurities,
-    data_management::HomogenNumericTable<int> *nNodeSamples) const
+    data_management::HomogenNumericTable<int> *nNodeSamples, data_management::HomogenNumericTable<double> *prob, size_t nClasses) const
 {
     const size_t nNode    = treeTable->getNumberOfRows();
     double *impVals       = impurities->getArray();
     int *nNodeSamplesVals = nNodeSamples->getArray();
+    double *probVals      = prob->getArray();
+
     if(nNode)
     {
         DecisionTreeNode* aNode = (DecisionTreeNode*)treeTable->getArray();
         size_t iRow = 0; //index of the current available row in the table
-        nodeToTable<TNodeType, typename TNodeType::Base>(*top(), iRow++, iRow, aNode, impVals, nNodeSamplesVals);
+        nodeToTable<TNodeType, typename TNodeType::Base>(*top(), iRow++, iRow, aNode, impVals, nNodeSamplesVals, probVals, nClasses);
     }
 }
 

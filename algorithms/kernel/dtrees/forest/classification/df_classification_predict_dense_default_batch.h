@@ -59,7 +59,7 @@ public:
      *  \param par[in]  decision forest algorithm parameters
      */
     services::Status compute(services::HostAppIface* pHostApp, const NumericTable *a,
-        const decision_forest::classification::Model *m, NumericTable *r, size_t nClasses);
+        const decision_forest::classification::Model *m, NumericTable *r, NumericTable *prob, size_t nClasses);
 };
 
 } // namespace internal

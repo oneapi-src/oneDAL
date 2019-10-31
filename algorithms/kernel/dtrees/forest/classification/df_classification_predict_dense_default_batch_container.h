@@ -57,16 +57,17 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     Input *input = static_cast<Input *>(_in);
     classifier::prediction::Result *result = static_cast<classifier::prediction::Result *>(_res);
+    const classifier::Parameter *par = static_cast<classifier::Parameter*>(_par);
+    decision_forest::classification::Model *m = static_cast<decision_forest::classification::Model *>(input->get(classifier::prediction::model).get());
 
     NumericTable *a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
-    decision_forest::classification::Model *m = static_cast<decision_forest::classification::Model *>(input->get(classifier::prediction::model).get());
-    NumericTable *r = static_cast<NumericTable *>(result->get(classifier::prediction::prediction).get());
+    NumericTable *r = ((par->resultsToEvaluate & classifier::ResultToComputeId::computeClassLabels) ? result->get(classifier::prediction::prediction).get() : nullptr);
+    NumericTable *prob = ((par->resultsToEvaluate & classifier::ResultToComputeId::computeClassProbabilities) ? result->get(classifier::prediction::probabilities).get() : nullptr);
 
-    const classifier::Parameter *par = static_cast<classifier::Parameter*>(_par);
     daal::services::Environment::env &env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        daal::services::internal::hostApp(*input), a, m, r, par->nClasses);
+        daal::services::internal::hostApp(*input), a, m, r, prob, par->nClasses);
 }
 
 }

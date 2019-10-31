@@ -132,8 +132,21 @@ template <typename TResponseType>
 struct TreeNodeLeaf: public TreeNodeBase
 {
     TResponseType response;
+    double* hist;
 
-    TreeNodeLeaf(){}
+    TreeNodeLeaf() {}
+
+    // nCLasses = 0 for regression
+    TreeNodeLeaf(size_t nClasses)
+    {
+        hist = (double*) daal::threaded_scalable_malloc(nClasses*sizeof(double), 64);
+    }
+
+    virtual ~TreeNodeLeaf()
+    {
+        services::daal_free(hist);
+    }
+
     virtual bool isSplit() const { return false; }
     virtual size_t numChildren() const { return 0; }
 };
@@ -207,8 +220,9 @@ template <typename NodeType>
 class ChunkAllocator
 {
 public:
-    ChunkAllocator(size_t nNodesInChunk) :
+     ChunkAllocator(size_t nNodesInChunk, size_t nClasses = 0) :
         _man(nNodesInChunk*(sizeof(typename NodeType::Leaf) + sizeof(typename NodeType::Split))){}
+    typename NodeType::Leaf* allocLeaf(size_t nClasses);
     typename NodeType::Leaf* allocLeaf();
     typename NodeType::Split* allocSplit();
     void free(typename NodeType::Base* n);
@@ -218,6 +232,12 @@ public:
 private:
     MemoryManager _man;
 };
+template <typename NodeType>
+typename NodeType::Leaf* ChunkAllocator<NodeType>::allocLeaf(size_t nClasses)
+{
+    return new (_man.alloc(sizeof(typename NodeType::Leaf))) typename NodeType::Leaf(nClasses);
+}
+
 template <typename NodeType>
 typename NodeType::Leaf* ChunkAllocator<NodeType>::allocLeaf()
 {
@@ -281,7 +301,7 @@ public:
     size_t getNumberOfNodes() const { return top() ? top()->numChildren() + 1 : 0; }
     void convertToTable(DecisionTreeTable *treeTable,
         data_management::HomogenNumericTable<double> *impurities,
-        data_management::HomogenNumericTable<int> *nNodeSamples) const;
+        data_management::HomogenNumericTable<int> *nNodeSamples, data_management::HomogenNumericTable<double> *prob, size_t nClasses) const;
 
 private:
     static const size_t _cNumNodesHint = 512; //number of nodes as a hint for allocator to grow by
@@ -455,6 +475,11 @@ public:
         return _nNodeSampleTables ? ((const data_management::HomogenNumericTable<int>*)(*_nNodeSampleTables)[i].get())->getArray() : nullptr;
     }
 
+    const double* getProbas(size_t i) const
+    {
+        return _probTbl ? ((const data_management::HomogenNumericTable<double>*)(*_probTbl)[i].get())->getArray() : nullptr;
+    }
+
 protected:
     void destroy();
     template<typename Archive, bool onDeserialize>
@@ -466,6 +491,10 @@ protected:
         {
             arch->setSharedPtrObj(_impurityTables);
             arch->setSharedPtrObj(_nNodeSampleTables);
+        }
+        if((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0)))
+        {
+            arch->setSharedPtrObj(_probTbl);
         }
 
         if(onDeserialize)
@@ -480,6 +509,7 @@ protected:
 
     data_management::DataCollectionPtr _impurityTables;
     data_management::DataCollectionPtr _nNodeSampleTables;
+    data_management::DataCollectionPtr _probTbl;
 };
 
 template <typename NodeType, typename Allocator>
