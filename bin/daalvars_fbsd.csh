@@ -60,13 +60,13 @@ if ( ${?LIBRARY_PATH} ) then
     if ( ${?TBBROOT} ) then
         setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${LIBRARY_PATH}"
     else
-        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4:${LIBRARY_PATH}"
+        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.8:${LIBRARY_PATH}"
     endif
 else
     if ( ${?TBBROOT} ) then
         setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre"
     else
-        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4"
+        setenv LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.8"
     endif
 endif
 
@@ -74,13 +74,13 @@ if ( ${?LD_LIBRARY_PATH} ) then
     if ( ${?TBBROOT} ) then
         setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${LD_LIBRARY_PATH}"
     else
-        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4:${LD_LIBRARY_PATH}"
+        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.8:${LD_LIBRARY_PATH}"
     endif
 else
     if ( ${?TBBROOT} ) then
         setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre"
     else
-        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4"
+        setenv LD_LIBRARY_PATH "${DAALROOT}/lib/${__daal_tmp_target_arch}_fre:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4:${DAALROOT}/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.8"
     endif
 endif
 

@@ -53,8 +53,8 @@ set_daal_env() {
             export DAALROOT=$__daal_tmp_dir
             export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
             if [ -z "$TBBROOT" ]; then
-                export LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre:$__daal_tmp_dir/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4${LIBRARY_PATH+:${LIBRARY_PATH}}
-                export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre:$__daal_tmp_dir/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
+                export LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre:$__daal_tmp_dir/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4:$__daal_tmp_dir/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.8${LIBRARY_PATH+:${LIBRARY_PATH}}
+                export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre:$__daal_tmp_dir/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4:$__daal_tmp_dir/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.8${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
             else
                 export LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre${LIBRARY_PATH+:${LIBRARY_PATH}}
                 export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
