@@ -38,56 +38,38 @@ using namespace daal::algorithms;
 /* Input data set parameters */
 const string datasetFileName = "../data/batch/covcormoments_dense.csv";
 
+
 int main(int argc, char *argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
-    for (const auto& device : { cl::sycl::gpu_selector() })
+    for (const auto& deviceSelector : getListOfDevices())
     {
-        // const auto& nameDevice = deviceSelector.first;
-        // const auto& device = deviceSelector.second;
-        // std::cout << "Running on " << nameDevice << "\n\n";
+        const auto& nameDevice = deviceSelector.first;
+        const auto& device = deviceSelector.second;
         cl::sycl::queue queue(device);
+        std::cout << "Running on " << nameDevice << "\n\n";
 
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
-        FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
-                                                     DataSource::doAllocateNumericTable,
+        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable,
                                                      DataSource::doDictionaryFromContext);
-        dataSource.loadDataBlock();
-        const auto data = dataSource.getNumericTable();
 
-        const size_t dataSize = data->getNumberOfRows() * data->getNumberOfColumns();
-        float *dataDevice = (float *)cl::sycl::malloc_device(sizeof(float) * dataSize,
-                                                             queue.get_device(),
-                                                             queue.get_context());
-        {
-            using namespace daal::data_management;
-            BlockDescriptor<> block;
-            data->getBlockOfRows(0, data->getNumberOfRows(), readOnly, block);
-            queue.memcpy(dataDevice, block.getBlockPtr(), sizeof(float) * dataSize).wait();
-            data->releaseBlockOfRows(block);
-        }
-
-        const auto dataTable = data_management::SyclHomogenNumericTable<float>::create(
-            dataDevice, cl::sycl::usm::alloc::device,
-            data->getNumberOfColumns(), data->getNumberOfRows());
+        auto data = SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);
+        dataSource.loadDataBlock(data.get());
 
         covariance::Batch<> algorithm;
-        algorithm.input.set(covariance::data, dataTable);
+        algorithm.input.set(covariance::data, data);
 
         algorithm.parameter.outputMatrixType = covariance::correlationMatrix;
 
-        algorithm.compute();
         algorithm.compute();
 
         covariance::ResultPtr res = algorithm.getResult();
 
         printNumericTable(res->get(covariance::correlation), "Correlation matrix:");
         printNumericTable(res->get(covariance::mean),        "Mean vector:");
-
-        cl::sycl::free(dataDevice, queue.get_context());
     }
     return 0;
 }
