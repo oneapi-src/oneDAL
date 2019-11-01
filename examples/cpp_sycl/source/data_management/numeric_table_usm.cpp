@@ -42,6 +42,7 @@ uint32_t generateMinStd(uint32_t x)
     return (a * x + c) % m;
 }
 
+/* Fill the buffer with pseudo random numbers generated with MinStd engine */
 cl::sycl::event generateData(cl::sycl::queue &q, float *deviceData,
                              size_t nRows, size_t nCols)
 {
@@ -63,6 +64,7 @@ cl::sycl::event generateData(cl::sycl::queue &q, float *deviceData,
     });
 }
 
+/* Compute correlation matrix */
 NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table)
 {
     using namespace daal::algorithms;
@@ -92,24 +94,32 @@ int main(int argc, char *argv[])
         const auto &deviceName = deviceDescriptor.first;
         std::cout << "Running on " << deviceName << std::endl << std::endl;
 
+        /* Crate SYCL* queue with desired device */
         cl::sycl::queue queue{device};
 
+        /* Set the queue to default execution context */
         Environment::getInstance()->setDefaultExecutionContext(
             SyclExecutionContext{queue}
         );
 
+        /* Allocate shared memory to store input data */
         float *dataDevice = (float *)cl::sycl::malloc_shared(
             sizeof(float) * nRows * nCols, queue.get_device(), queue.get_context());
 
+        /* Fill allocated memory block with generated numbers */
         generateData(queue, dataDevice, nRows, nCols).wait();
 
+        /* Create numeric table from shared memory */
         NumericTablePtr dataTable = SyclHomogenNumericTable<float>::create(
             dataDevice, cl::sycl::usm::alloc::shared, nCols, nRows);
 
+        /* Compute correlation matrix of generated dataset */
         NumericTablePtr covariance = computeCorrelationMatrix(dataTable);
 
+        /* Print the results */
         printNumericTable(covariance, "Covariance matrix:");
 
+        /* Free USM data */
         cl::sycl::free(dataDevice, queue.get_context());
     }
 
