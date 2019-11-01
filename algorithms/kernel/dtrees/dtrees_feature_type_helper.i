@@ -126,7 +126,7 @@ struct ColIndexTaskBins : public ColIndexTask<IndexType, algorithmFPType, cpu>
     ColIndexTaskBins(size_t nRows, const BinParams& prm) : super(nRows), _prm(prm), _bins(_prm.maxBins){}
     virtual services::Status makeIndex(NumericTable& nt, IndexedFeatures::FeatureEntry& entry,
         IndexType* aRes, size_t iCol, size_t nRows, bool bUnorderedFeature, double * minValue, bool forceBinsAssignment) DAAL_C11_OVERRIDE;
-    size_t *getBins() { return _bins.get(); }
+    size_t *getBins() DAAL_C11_OVERRIDE { return _bins.get(); }
 
 private:
     services::Status assignIndexAccordingToBins(IndexedFeatures::FeatureEntry & entry, IndexType * aRes, size_t nBins, size_t nRows);
