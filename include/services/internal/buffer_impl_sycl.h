@@ -79,7 +79,7 @@ private:
          * the `get_pointer_info` logic shall be the following: If device is
          * host or CPU, return `_data`, otherwise throw exception. */
         const auto error = Error::create(ErrorAccessUSMPointerOnOtherDevice, Sycl,
-                                        "Cannot access device pointer on host");
+                                         "Cannot access device pointer on host");
         tryAssignStatusAndThrow(status, error);
 
         return SharedPtr<T>();

@@ -396,8 +396,9 @@ enum ErrorID
     // Quality metrics errors -90201..-90301
     ErrorEmptyInputAlgorithmsCollection = -90201,                       /*!< Input algorithms collection is empty */
 
-    // Group of USM-related errors -90900..-90999
-    ErrorAccessUSMPointerOnOtherDevice = -90900,                        /*!< Cannot access USM pointer from the other device */
+    // Group of SYCL-related errors -90900..-90999
+    ErrorEmptyBuffer = -90900,                                          /*!< Buffer is empty */
+    ErrorAccessUSMPointerOnOtherDevice = -90901,                        /*!< Cannot access USM pointer from the other device */
 
     // Other errors: -100000..
     ErrorObjectDoesNotSupportSerialization = -100000,                   /*!< SerializationIface is not implemented or implemented incorrectly */

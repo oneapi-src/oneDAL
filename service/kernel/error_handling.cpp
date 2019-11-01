@@ -931,7 +931,8 @@ void ErrorMessageCollection::parseResourceFile()
     // Quality metrics errors -90201..-90301
     add(ErrorEmptyInputAlgorithmsCollection, "Quality metric set: Input algorithms collection is empty");
 
-    // Group of USM-related errors -90900..-90999
+    // Group of SYCL-related errors -90900..-90999
+    add(ErrorEmptyBuffer, "Cannot access empty buffer");
     add(ErrorAccessUSMPointerOnOtherDevice, "Cannot access USM pointer from the other device");
 
     // Other errors: -100000..

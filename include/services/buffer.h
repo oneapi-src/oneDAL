@@ -69,18 +69,20 @@ public:
     /**
      *  Creates a Buffer object referencing a USM pointer.
      *  Does not copy the data from the USM pointer.
-     *  \param[in] usmData    USM pointer
+     *  \param[in] usmData    Pointer to the USM-allocated data
      *  \param[in] size       Number of elements of type T stored in USM memory block
      *  \param[in] allocType  USM allocation type
      */
     Buffer(T *usmData, size_t size, cl::sycl::usm::alloc allocType) :
         _impl(new internal::UsmBuffer<T>(usmData, size, allocType)) { }
+#endif
 
+#ifdef DAAL_SYCL_INTERFACE_USM
     /**
      *  Creates a Buffer object referencing a USM pointer.
      *  Does not copy the data from the USM pointer.
-     *  \param[in] usmData    USM pointer
-     *  \param[in] size       Number of elements of type T stored in USM memory block
+     *  \param[in] usmData    Shared pointer to the USM-allocated data
+     *  \param[in] size       Number of elements of type T stored in USM block
      *  \param[in] allocType  USM allocation type
      */
     Buffer(const SharedPtr<T> &usmData, size_t size, cl::sycl::usm::alloc allocType) :
@@ -129,27 +131,47 @@ public:
      *  \param[in] rwFlag  Access flag to the data
      *  \return host-allocated shared pointer to the data.
      */
-    inline SharedPtr<T> toHost(const data_management::ReadWriteMode& rwFlag) const
+    inline SharedPtr<T> toHost(const data_management::ReadWriteMode& rwFlag, Status *status = NULL) const
     {
-        return internal::HostBufferConverter<T>().toHost(*_impl, rwFlag);
+        if (!_impl)
+        {
+            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            return SharedPtr<T>();
+        }
+
+        return internal::HostBufferConverter<T>().toHost(*_impl, rwFlag, status);
     }
 
 #ifdef DAAL_SYCL_INTERFACE
     /**
-     *  Converts data to the SYCL* buffer.
+     *  Converts buffer to the SYCL* buffer.
      *  \return one-dimensional SYCL* buffer.
      */
-    inline cl::sycl::buffer<T, 1> toSycl() const
+    inline cl::sycl::buffer<T, 1> toSycl(Status *status = NULL) const
     {
-        // TODO: Handle the case if _impl is empty
+        if (!_impl)
+        {
+            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            return cl::sycl::buffer<T, 1>(cl::sycl::range<1>(1));
+        }
         return internal::SyclBufferConverter<T>().toSycl(*_impl);
     }
 #endif
 
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    inline SharedPtr<T> toUSM() const
+    /**
+     *  Converts buffer to the USM shared pointer.
+     *  \return USM shared pointer.
+     */
+    inline SharedPtr<T> toUSM(Status *status = NULL) const
     {
+        if (!_impl)
+        {
+            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            return SharedPtr<T>();
+        }
+
         return internal::SyclBufferConverter<T>().toUSM(*_impl);
     }
 #endif
@@ -159,7 +181,8 @@ public:
      */
     inline size_t size() const
     {
-        // TODO: Handle the case if _impl is empty
+        if (!_impl)
+        { return 0; }
         return _impl->size();
     }
 
@@ -176,8 +199,13 @@ public:
      *   \param[in] offset Offset in elements from start of the parent buffer
      *   \param[in] size   Number of elements in the sub-buffer
      */
-    inline Buffer<T> getSubBuffer(size_t offset, size_t size) const
+    inline Buffer<T> getSubBuffer(size_t offset, size_t size, Status *status = NULL) const
     {
+        if (!_impl)
+        {
+            internal::tryAssignStatusAndThrow(status, ErrorEmptyBuffer);
+            return Buffer<T>();
+        }
         return Buffer<T>(_impl->getSubBuffer(offset, size));
     }
 

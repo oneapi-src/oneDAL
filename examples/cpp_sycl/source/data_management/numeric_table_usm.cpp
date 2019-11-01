@@ -83,7 +83,8 @@ int main(int argc, char *argv[])
     for (const auto &deviceDescriptor : getListOfDevices())
     {
         const auto &device = deviceDescriptor.second;
-        if (device.is_host()) {
+        if (device.is_host())
+        {
             /* Shared memory allocations do not work on host */
             continue;
         }
@@ -92,6 +93,7 @@ int main(int argc, char *argv[])
         std::cout << "Running on " << deviceName << std::endl << std::endl;
 
         cl::sycl::queue queue{device};
+
         Environment::getInstance()->setDefaultExecutionContext(
             SyclExecutionContext{queue}
         );
