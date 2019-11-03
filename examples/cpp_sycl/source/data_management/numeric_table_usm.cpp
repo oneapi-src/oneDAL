@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
         const auto &device = deviceDescriptor.second;
         if (device.is_host())
         {
-            /* Shared memory allocations do not work on host */
+            /* Shared memory allocations do not work on host by design */
             continue;
         }
 
@@ -112,13 +112,18 @@ int main(int argc, char *argv[])
         /* Allocate shared memory to store input data */
         float *dataDevice = (float *)cl::sycl::malloc_shared(
             sizeof(float) * nRows * nCols, queue.get_device(), queue.get_context());
+        if (!dataDevice)
+        {
+            std::cout << "USM allocation failed on " << deviceName << std::endl;
+            continue;
+        }
 
         /* Fill allocated memory block with generated numbers */
         generateData(queue, dataDevice, nRows, nCols).wait();
 
         /* Create numeric table from shared memory */
         NumericTablePtr dataTable = SyclHomogenNumericTable<float>::create(
-            dataDevice, cl::sycl::usm::alloc::shared, nCols, nRows);
+            dataDevice, nCols, nRows, cl::sycl::usm::alloc::shared);
 
         /* Compute correlation matrix of generated dataset */
         NumericTablePtr covariance = computeCorrelationMatrix(dataTable);

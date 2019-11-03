@@ -75,8 +75,8 @@ public:
 #ifdef DAAL_SYCL_INTERFACE_USM
     static services::SharedPtr<SyclHomogenNumericTable<DataType> >
         create(const services::SharedPtr<DataType> &usmData,
-               const cl::sycl::usm::alloc &usmAllocType,
                size_t nColumns, size_t nRows,
+               const cl::sycl::usm::alloc &usmAllocType,
                services::Status *stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
@@ -87,8 +87,8 @@ public:
 #ifdef DAAL_SYCL_INTERFACE_USM
     static services::SharedPtr<SyclHomogenNumericTable<DataType> >
         create(DataType *usmData,
-               const cl::sycl::usm::alloc &usmAllocType,
                size_t nColumns, size_t nRows,
+               const cl::sycl::usm::alloc &usmAllocType,
                services::Status *stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
