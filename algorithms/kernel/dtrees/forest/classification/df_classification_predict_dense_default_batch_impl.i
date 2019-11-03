@@ -652,6 +652,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(
     DAAL_CHECK_BLOCK_STATUS(resBD);
     WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(probBD);
+    algorithmFPType* const probBDPtr = probBD.get();
 
     const size_t nThreads = daal::threader_get_threads_number();
     daal::SafeStatus safeStat;
@@ -671,9 +672,9 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(
             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable*>(_data), iStartRow, nRowsToProcess);
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
             algorithmFPType* res = resBD.get() + iStartRow;
-            algorithmFPType* prob = probBD.get() + iStartRow * _nClasses;
+            algorithmFPType* prob = probBDPtr + iStartRow * _nClasses;
 
-            if(prob != nullptr)
+            if(probBDPtr != nullptr)
             {
                 if(nRowsToProcess < 2 * nThreads || cpu == __avx512_mic__)
                 {
