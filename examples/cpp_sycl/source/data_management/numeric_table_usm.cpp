@@ -34,6 +34,10 @@ using namespace daal;
 using namespace daal::services;
 using namespace daal::data_management;
 
+#define IS_USM_SUPPORTED \
+    (defined(__SYCL_COMPILER_VERSION)) && \
+    (__SYCL_COMPILER_VERSION >= 20191001)
+
 uint32_t generateMinStd(uint32_t x)
 {
     constexpr uint32_t a = 16807;
@@ -41,6 +45,22 @@ uint32_t generateMinStd(uint32_t x)
     constexpr uint32_t m = 2147483647;
     return (a * x + c) % m;
 }
+
+/* Compute correlation matrix */
+NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table)
+{
+    using namespace daal::algorithms;
+
+    covariance::Batch<> covAlg;
+    covAlg.input.set(covariance::data, table);
+    covAlg.parameter.outputMatrixType = covariance::correlationMatrix;
+    covAlg.compute();
+
+    return covAlg.getResult()->get(covariance::correlation);
+}
+
+/* Detect wether USM extensions are supported */
+#if IS_USM_SUPPORTED
 
 /* Fill the buffer with pseudo random numbers generated with MinStd engine */
 cl::sycl::event generateData(cl::sycl::queue &q, float *deviceData,
@@ -62,19 +82,6 @@ cl::sycl::event generateData(cl::sycl::queue &q, float *deviceData,
             }
         });
     });
-}
-
-/* Compute correlation matrix */
-NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table)
-{
-    using namespace daal::algorithms;
-
-    covariance::Batch<> covAlg;
-    covAlg.input.set(covariance::data, table);
-    covAlg.parameter.outputMatrixType = covariance::correlationMatrix;
-    covAlg.compute();
-
-    return covAlg.getResult()->get(covariance::correlation);
 }
 
 int main(int argc, char *argv[])
@@ -125,3 +132,15 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+#else /* USM is not supported */
+
+int main(int argc, char *argv[])
+{
+    std::cout << "USM extensions are not available, make sure "
+              << "the compiler and runtime support USM"
+              << std::endl;
+    return 0;
+}
+
+#endif // IS_USM_SUPPORTED
