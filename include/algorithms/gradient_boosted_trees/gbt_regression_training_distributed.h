@@ -20,8 +20,8 @@
 //--
 */
 
-#ifndef __GBT_REGRESSSION_TRAINING_DISTRIBUTED_H__
-#define __GBT_REGRESSSION_TRAINING_DISTRIBUTED_H__
+#ifndef __GBT_REGRESSION_TRAINING_DISTRIBUTED_H__
+#define __GBT_REGRESSION_TRAINING_DISTRIBUTED_H__
 
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
@@ -29,7 +29,6 @@
 #include "services/daal_memory.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_training_types.h"
 #include "algorithms/gradient_boosted_trees/gbt_regression_model.h"
-#include "algorithms/regression/regression_training_batch.h"
 
 namespace daal
 {

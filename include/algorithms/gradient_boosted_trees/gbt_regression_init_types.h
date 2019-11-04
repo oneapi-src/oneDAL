@@ -37,7 +37,6 @@ namespace regression
 /**
  * @defgroup gbt_regression_training_init Training
  * \copydoc daal::algorithms::gbt::regression::training
- * @ingroup gbt_regression_training_init
  * @{
  */
 /**

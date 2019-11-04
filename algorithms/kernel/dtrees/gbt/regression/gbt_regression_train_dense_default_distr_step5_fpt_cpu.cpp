@@ -19,6 +19,7 @@
 //--
 */
 
+#include "gbt_regression_train_kernel.h"
 #include "gbt_regression_train_container.h"
 #include "gbt_regression_train_dense_default_distr_impl.i"
 
