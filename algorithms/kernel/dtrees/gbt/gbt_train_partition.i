@@ -227,7 +227,7 @@ public:
         });
 
         RowIndexType i = 0;
-        while(indexedFeature[aIdx[i] * nFeatures + featureIndex] != idxFeatureValueBestSplit) i++;
+        while(i < n && indexedFeature[aIdx[i] * nFeatures + featureIndex] != idxFeatureValueBestSplit) i++;
         iRowSplitVal = aIdx[i];
 
         return iRowSplitVal;
