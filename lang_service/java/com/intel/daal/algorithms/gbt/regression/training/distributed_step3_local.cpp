@@ -18,6 +18,7 @@
 #include <jni.h>
 #include "daal.h"
 #include "com_intel_daal_algorithms_gbt_regression_training_DistributedStep3Local.h"
+#include "algorithms/gradient_boosted_trees/gbt_regression_training_distributed.h"
 
 #include "common_helpers.h"
 
