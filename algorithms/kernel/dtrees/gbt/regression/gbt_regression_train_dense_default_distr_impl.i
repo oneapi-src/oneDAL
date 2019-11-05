@@ -1061,7 +1061,7 @@ services::Status RegressionTrainDistrStep5Kernel<algorithmFPType, method, cpu>::
             if(impDec >= par.minSplitLoss)
             {
                 PartitionTaskType::doPartitionIdxWithStride(record->n, treeOrder + record->iStart, transposedBinnedData + featureIndex * nRows, false /* featureUnordered */, idxFeatureBestSplit,
-                                                  bestSplitIdxBuf.get() + 2 * record->iStart, nLeft, 1, 0);
+                                                  bestSplitIdxBuf.get() + 2 * record->iStart, nLeft, 1, 0, true);
 
                 record->featureValue = idxFeatureBestSplit;
                 record->featureIdx = featureIndex;

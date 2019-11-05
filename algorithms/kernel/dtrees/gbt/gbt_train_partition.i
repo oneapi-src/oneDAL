@@ -136,7 +136,8 @@ public:
     {}
 
     static DAAL_INT doPartitionIdxWithStride(IndexType n, RowIndexType* aIdx, const BinIndexType* indexedFeature, bool featureUnordered,
-        RowIndexType idxFeatureValueBestSplit, RowIndexType* buffer, RowIndexType &nLeft, size_t nFeatures = 1, size_t featureIndex = 0)
+        RowIndexType idxFeatureValueBestSplit, RowIndexType* buffer, RowIndexType &nLeft, size_t nFeatures = 1, size_t featureIndex = 0,
+        bool isDistributed = false)
     {
         DAAL_INT iRowSplitVal = -1;
 
@@ -226,9 +227,16 @@ public:
             services::internal::tmemcpy<IndexType, cpu>(aIdx + offsetLeft, bestSplitIdx, sizeL);
         });
 
-        RowIndexType i = 0;
-        while(i < n && indexedFeature[aIdx[i] * nFeatures + featureIndex] != idxFeatureValueBestSplit) i++;
-        iRowSplitVal = aIdx[i];
+        if (isDistributed)
+        {
+            iRowSplitVal = 0;
+        }
+        else
+        {
+            RowIndexType i = 0;
+            while(indexedFeature[aIdx[i] * nFeatures + featureIndex] != idxFeatureValueBestSplit) i++;
+            iRowSplitVal = aIdx[i];
+        }
 
         return iRowSplitVal;
     }
