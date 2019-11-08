@@ -56,7 +56,7 @@ namespace interface1
  *        model-based training using algorithmFPType precision arithmetic in the first step of the distributed processing mode
  */
 template<ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer
+class DistributedContainer
 {};
 
 /**
@@ -65,7 +65,7 @@ class DAAL_EXPORT DistributedContainer
  *        model-based training using algorithmFPType precision arithmetic in the first step of the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer<step1Local, algorithmFPType, method, cpu> : public
+class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public
     TrainingContainerIface<distributed>
 {
 public:
@@ -96,7 +96,7 @@ public:
  *        model-based training using algorithmFPType precision arithmetic in the second step of the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer<step2Local, algorithmFPType, method, cpu> : public
+class DistributedContainer<step2Local, algorithmFPType, method, cpu> : public
     TrainingContainerIface<distributed>
 {
 public:
@@ -127,7 +127,7 @@ public:
  *        model-based training using algorithmFPType precision arithmetic in the third step of the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer<step3Local, algorithmFPType, method, cpu> : public
+class DistributedContainer<step3Local, algorithmFPType, method, cpu> : public
     TrainingContainerIface<distributed>
 {
 public:
@@ -158,7 +158,7 @@ public:
  *        model-based training using algorithmFPType precision arithmetic in the fourth step of the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer<step4Local, algorithmFPType, method, cpu> : public
+class DistributedContainer<step4Local, algorithmFPType, method, cpu> : public
     TrainingContainerIface<distributed>
 {
 public:
@@ -189,7 +189,7 @@ public:
  *        model-based training using algorithmFPType precision arithmetic in the fifth step of the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer<step5Local, algorithmFPType, method, cpu> : public
+class DistributedContainer<step5Local, algorithmFPType, method, cpu> : public
     TrainingContainerIface<distributed>
 {
 public:
@@ -220,7 +220,7 @@ public:
  *        model-based training using algorithmFPType precision arithmetic in the sixth step of the distributed processing mode
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer<step6Local, algorithmFPType, method, cpu> : public
+class DistributedContainer<step6Local, algorithmFPType, method, cpu> : public
     TrainingContainerIface<distributed>
 {
 public:

@@ -49,8 +49,8 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__GBT__PREDICTION__BATCHCONTAINER"></a>
  *  \brief Class containing computation methods for model-based prediction
  */
-template <typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public PredictionContainerIface
+template<typename algorithmFPType, Method method, CpuType cpu>
+class BatchContainer : public PredictionContainerIface
 {
 public:
     /**

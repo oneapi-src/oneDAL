@@ -68,14 +68,14 @@ namespace interface1
  * \tparam method           Method of computing initial clusters for the algorithm, \ref daal::algorithms::gbt::regression::trianing::init::Method
  */
 template<ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer;
+class DistributedContainer;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__GBT_REGRESSION_TRAINING_INIT__DISTRIBUTEDCONTAINER_STEP1LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer<step1Local, algorithmFPType, method, cpu> : public
+class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public
     TrainingContainerIface<distributed>
 {
 public:
@@ -105,7 +105,7 @@ public:
  * \brief
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer<step2Master, algorithmFPType, method, cpu> : public
+class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public
     TrainingContainerIface<distributed>
 {
 public:
@@ -135,7 +135,7 @@ public:
  * \brief
  */
 template<typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT DistributedContainer<step3Local, algorithmFPType, method, cpu> : public
+class DistributedContainer<step3Local, algorithmFPType, method, cpu> : public
     TrainingContainerIface<distributed>
 {
 public:

@@ -55,8 +55,8 @@ namespace interface1
  * \brief Class containing methods for gradient boosted trees regression
  *        model-based training using algorithmFPType precision arithmetic
  */
-template <typename algorithmFPType, Method method, CpuType cpu>
-class DAAL_EXPORT BatchContainer : public TrainingContainerIface<batch>
+template<typename algorithmFPType, Method method, CpuType cpu>
+class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
     /**
