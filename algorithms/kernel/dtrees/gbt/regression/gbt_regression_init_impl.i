@@ -317,8 +317,13 @@ services::Status RegressionInitStep2MasterKernel<algorithmFPType, method, cpu>::
     size_t nRows = 0;
     for (size_t iNode = 0; iNode < nNodes; iNode++)
     {
-        algorithmFPType localMean = (NumericTable::cast((*localMeanDepVars)[iNode]))->getValue<algorithmFPType>(0, 0);
-        size_t localNRows = static_cast<size_t>((NumericTable::cast((*localNumberOfRows)[iNode]))->getValue<int>(0, 0));
+        NumericTable *localMeanNTPtr = (NumericTable::cast((*localMeanDepVars)[iNode])).get();
+        daal::internal::ReadRows<algorithmFPType, cpu> localMeanRows(localMeanNTPtr, 0, 1);
+        algorithmFPType localMean = localMeanRows.get()[0];
+
+        NumericTable *localNRowsNTPtr = (NumericTable::cast((*localNumberOfRows)[iNode])).get();
+        daal::internal::ReadRows<int, cpu> localNRowsRows(localNRowsNTPtr, 0, 1);
+        size_t localNRows = static_cast<size_t>(localNRowsRows.get()[0]);
 
         mean += localMean*localNRows;
         nRows += localNRows;

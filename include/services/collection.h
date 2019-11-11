@@ -47,13 +47,13 @@ public:
     /**
      *  Default constructor. Sets the size and capacity to 0.
      */
-    Collection() : _array(NULL), _size(0), _capacity(0) {}
+    DAAL_FORCEINLINE Collection() : _array(NULL), _size(0), _capacity(0) {}
 
     /**
      *  Constructor. Creates a collection with n empty elements
      *  \param[in] n Number of elements
      */
-    explicit Collection(size_t n) : _array(NULL), _size(0), _capacity(0)
+    DAAL_FORCEINLINE explicit Collection(size_t n) : _array(NULL), _size(0), _capacity(0)
     {
         if (!resize(n))
         {
@@ -67,7 +67,7 @@ public:
      *  \param[in] n     Number of elements
      *  \param[in] array Array with elements
      */
-    Collection(size_t n, const T * array) : _array(NULL), _size(0), _capacity(0)
+    DAAL_FORCEINLINE Collection(size_t n, const T * array) : _array(NULL), _size(0), _capacity(0)
     {
         if (!resize(n))
         {
@@ -84,7 +84,7 @@ public:
      *  Copy constructor
      *  \param[in] other Copied collection
      */
-    Collection(const Collection<T> & other) : _array(NULL), _size(0), _capacity(0)
+    DAAL_FORCEINLINE Collection(const Collection<T> &other) : _array(NULL), _size(0), _capacity(0)
     {
         if (!resize(other.capacity()))
         {
@@ -95,8 +95,7 @@ public:
             this->push_back(other[i]);
         }
     }
-
-    Collection & operator=(const Collection<T> & other)
+    DAAL_FORCEINLINE Collection & operator=(const Collection<T> & other)
     {
         if (!resize(other.capacity()))
         {
@@ -180,7 +179,7 @@ public:
      *  Adds an element to the end of a collection
      *  \param[in] x Element to add
      */
-    Collection & push_back(const T & x)
+    DAAL_FORCEINLINE Collection & push_back(const T & x)
     {
         safe_push_back(x);
         return *this;
@@ -191,7 +190,7 @@ public:
      *  \param[in] x The element to add
      *  \return True if the element was successfully added
      */
-    bool safe_push_back(const T & x)
+    DAAL_FORCEINLINE bool safe_push_back(const T & x)
     {
         if (_size >= _capacity)
         {
@@ -210,13 +209,13 @@ public:
      *  Adds an element to the end of a collection
      *  \param[in] x Element to add
      */
-    Collection & operator<<(const T & x) { return this->push_back(x); }
+    DAAL_FORCEINLINE Collection & operator<<(const T & x) { return this->push_back(x); }
 
     /**
      *  Changes the size of a storage
      *  \param[in] newCapacity Size of a new storage.
      */
-    bool resize(size_t newCapacity)
+    DAAL_FORCEINLINE bool resize(size_t newCapacity)
     {
         if (newCapacity <= _capacity)
         {
@@ -354,7 +353,7 @@ public:
 
 private:
     static const size_t _default_capacity = 16;
-    bool _resize()
+    DAAL_FORCEINLINE bool _resize()
     {
         size_t newCapacity = 2 * _capacity;
         if (_capacity == 0)

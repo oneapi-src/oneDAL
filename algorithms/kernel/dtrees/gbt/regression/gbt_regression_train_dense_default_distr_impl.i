@@ -673,7 +673,8 @@ services::Status RegressionTrainDistrStep4Kernel<algorithmFPType, method, cpu>::
         DataCollectionPtr dcTotalHistograms = DataCollection::cast((*dcTotalHistogramsForFeatures)[id]);
         DataCollectionPtr dcBestSplits = DataCollection::cast((*dcBestSplitsForFeatures)[id]);
 
-        const size_t featureIndex = ntFeatureIndex->getValue<int>(0, 0);
+        daal::internal::ReadRows<int, cpu> featureIndexRows(ntFeatureIndex.get(), 0, 1);
+        const size_t featureIndex = static_cast<size_t>(featureIndexRows.get()[0]);
 
         const size_t nCollections = dcPartialHistograms->size();
 
@@ -1123,7 +1124,9 @@ services::Status RegressionTrainDistrStep6Kernel<algorithmFPType, method, cpu>::
 
     if (ntInitialResponse)
     {
-        initialF = ntInitialResponse->getValue<algorithmFPType>(0, 0);
+        NumericTable *initialResponseNTPtr = const_cast<NumericTable*>(ntInitialResponse);
+        daal::internal::ReadRows<algorithmFPType, cpu> initialResponseRows(initialResponseNTPtr, 0, 1);
+        initialF = initialResponseRows.get()[0];
     }
 
     for (size_t i = 0; i < nTrees; i++)
