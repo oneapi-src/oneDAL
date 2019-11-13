@@ -115,8 +115,17 @@ void initModel();
 void trainModel();
 void testModel();
 
-int commTag1 = 1;
-int commTag2 = 2;
+int initStep1ResultDepVariableTag        = 1;
+int initStep1ResultNumberOfRowsTag       = 2;
+int initStep1ResultBinBordersTag         = 3;
+int initStep1ResultBinSizesTag           = 4;
+int initStep2ResultInitialResponseTag    = 5;
+int initStep2ResultBinSizesTag           = 6;
+int initStep2ResultMergedBinBordersTag   = 7;
+int initStep2ResultbinValuesTag          = 8;
+int trainStep3ResultHistForLocalFeatures = 9;
+int trainStep4ResultBestLocalSplits      = 10;
+
 
 int main(int argc, char *argv[])
 {
@@ -154,11 +163,6 @@ void initModel()
     DataCollectionPtr binBordersCollection;
     DataCollectionPtr binSizesCollection;
 
-    NumericTablePtr _mergedBinBorders;
-    NumericTablePtr _initialResponse;
-    NumericTablePtr _binSizes;
-    DataCollectionPtr _binValues;
-
     init::Distributed<step1Local, algorithmFPType, init::defaultDense> step1Algorithm(localMaxBins);
 
     step1Algorithm.input.set(init::step1LocalData, trainData);
@@ -178,10 +182,10 @@ void initModel()
     binBorders = step1Result->get(init::step1BinBorders);
     binSizes = step1Result->get(init::step1BinSizes);
 
-    sendTableAllToMaster(0,comm_size, rankId, mpi_root, 0, meanDependentVariable, meanDependentVariableCollection);
-    sendTableAllToMaster(0,comm_size, rankId, mpi_root, 0, numberOfRows, numberOfRowsCollection);
-    sendTableAllToMaster(0,comm_size, rankId, mpi_root, 0, binBorders, binBordersCollection);
-    sendTableAllToMaster(0,comm_size, rankId, mpi_root, 0, binSizes, binSizesCollection);
+    sendTableAllToMaster(0,comm_size, rankId, mpi_root, initStep1ResultDepVariableTag, meanDependentVariable, meanDependentVariableCollection);
+    sendTableAllToMaster(0,comm_size, rankId, mpi_root, initStep1ResultNumberOfRowsTag, numberOfRows, numberOfRowsCollection);
+    sendTableAllToMaster(0,comm_size, rankId, mpi_root, initStep1ResultBinBordersTag, binBorders, binBordersCollection);
+    sendTableAllToMaster(0,comm_size, rankId, mpi_root, initStep1ResultBinSizesTag, binSizes, binSizesCollection);
 
     if (rankId == mpi_root)
     {
@@ -196,16 +200,16 @@ void initModel()
 
         init::DistributedPartialResultStep2Ptr step2Result = step2Algorithm.getPartialResult();
 
-        _initialResponse = step2Result->get(init::step2InitialResponse);
-        _binValues = step2Result->get(init::step2BinValues);
-        _binSizes = step2Result->get(init::step2BinQuantities);
-        _mergedBinBorders = step2Result->get(init::step2MergedBinBorders);
+        initialResponse = step2Result->get(init::step2InitialResponse);
+        binValues = step2Result->get(init::step2BinValues);
+        binSizes = step2Result->get(init::step2BinQuantities);
+        mergedBinBorders = step2Result->get(init::step2MergedBinBorders);
     }
 
-    sendTableMasterToAll(0, comm_size, rankId, mpi_root, 0, _initialResponse,  initialResponse );
-    sendTableMasterToAll(0, comm_size, rankId, mpi_root, 0, _binSizes,         binSizes        );
-    sendTableMasterToAll(0, comm_size, rankId, mpi_root, 0, _mergedBinBorders, mergedBinBorders);
-    sendCollectionMasterToAll(0, comm_size, rankId, mpi_root, 0, _binValues,   binValues       );
+    sendTableMasterToAll(0, comm_size, rankId, mpi_root, initStep2ResultInitialResponseTag, initialResponse,  initialResponse );
+    sendTableMasterToAll(0, comm_size, rankId, mpi_root, initStep2ResultBinSizesTag,        binSizes,         binSizes        );
+    sendTableMasterToAll(0, comm_size, rankId, mpi_root, initStep2ResultMergedBinBordersTag,mergedBinBorders, mergedBinBorders);
+    sendCollectionMasterToAll(0, comm_size, rankId, mpi_root, initStep2ResultbinValuesTag,  binValues,        binValues       );
 
     init::Distributed<step3Local, algorithmFPType, init::defaultDense> step3Algorithm(maxBins);
 
@@ -238,13 +242,13 @@ void trainModel()
     parentHistograms = DataCollectionPtr(new DataCollection());
 
     int degreeForComm = 0;
-            int cloneNRanks = comm_size;
-            while(cloneNRanks > 0)
-            {
-                cloneNRanks = cloneNRanks >> 1;
-                degreeForComm++;
-            }
-            int nShift = 1 << degreeForComm;
+    int cloneNRanks = comm_size;
+    while(cloneNRanks > 0)
+    {
+        cloneNRanks = cloneNRanks >> 1;
+        degreeForComm++;
+    }
+    int nShift = 1 << degreeForComm;
 
     for (size_t iter = 0; iter < maxIterations + 1; iter++)
     {
@@ -307,7 +311,7 @@ void trainModel()
             for (int shift = 0; shift < nShift; shift++)
             {
                 int partner = rankId ^ shift;
-                if (partner < comm_size)
+                if (partner < comm_size && ((rankId < nFeatures) || (partner < nFeatures)))
                 {
                     histForLocalFeatures = DataCollectionPtr(new DataCollection());
                     destCollection = DataCollectionPtr(new DataCollection());
@@ -328,7 +332,7 @@ void trainModel()
                     }
                     else
                     {
-                        sendRecvCollection(histForLocalFeatures, rankId, destCollection, partner, commTag1);
+                        sendRecvCollection(histForLocalFeatures, rankId, destCollection, partner, trainStep3ResultHistForLocalFeatures);
                         gatherHist1->push_back(destCollection);
                     }
                 }
@@ -377,7 +381,7 @@ void trainModel()
             for (int shift = 0; shift < nShift; shift++)
             {
                 int partner = rankId ^ shift;
-                if (partner < comm_size)
+                if (partner < comm_size && ((rankId < nFeatures) || (partner < nFeatures)))
                 {
                     destSplit = DataCollectionPtr(new DataCollection());
                     size_t nFeaturesRationPartner = (partner < (nFeatures%comm_size)) + (nFeatures/comm_size);
@@ -391,7 +395,7 @@ void trainModel()
                     }
                     else
                     {
-                        sendRecvCollection(bestLocalSplits, rankId, destSplit, partner, commTag2);
+                        sendRecvCollection(bestLocalSplits, rankId, destSplit, partner, trainStep4ResultBestLocalSplits);
 
                         for (size_t f = 0; f < nFeaturesRationPartner; f++)
                         {
@@ -436,12 +440,12 @@ void trainModel()
 int computeFinishedFlag(NumericTablePtr treeStructure)
 {
 
-    training::Distributed<step2Local, algorithmFPType> step_2;
-    step_2.input.set(training::step2InputTreeStructure, treeStructure);
+    training::Distributed<step2Local, algorithmFPType> step2;
+    step2.input.set(training::step2InputTreeStructure, treeStructure);
 
-    step_2.compute();
+    step2.compute();
 
-    NumericTablePtr res = step_2.getPartialResult()->get(training::finishedFlag);
+    NumericTablePtr res = step2.getPartialResult()->get(training::finishedFlag);
     return res->getValue<int>(0,0);
 }
 
@@ -477,13 +481,13 @@ void sendRecvCollection(DataCollectionPtr &sendingCollection, int sender, DataCo
     size_t sendingSize = serializeDAALObject(sendingCollection.get(), sendingBuff);
     size_t destSize = 0;
     if (sendingSize)
-        MPI_Sendrecv(&sendingSize, sizeof(size_t) , MPI_BYTE, recpnt, 0,
-            &destSize, sizeof(size_t), MPI_BYTE, recpnt, 0, MPI_COMM_WORLD, &status);
+        MPI_Sendrecv(&sendingSize, sizeof(size_t) , MPI_BYTE, recpnt, tag,
+            &destSize, sizeof(size_t), MPI_BYTE, recpnt, tag, MPI_COMM_WORLD, &status);
     if (destSize)
     {
         ByteBuffer destBuff(destSize);
-        MPI_Sendrecv(&sendingBuff[0], sendingSize, MPI_BYTE, recpnt, 0,
-            &destBuff[0], destSize, MPI_BYTE, recpnt, 0, MPI_COMM_WORLD, &status);
+        MPI_Sendrecv(&sendingBuff[0], sendingSize, MPI_BYTE, recpnt, tag,
+            &destBuff[0], destSize, MPI_BYTE, recpnt, tag, MPI_COMM_WORLD, &status);
             destCollection = DataCollection::cast(deserializeDAALObject(&destBuff[0], destSize));
     }
 }
