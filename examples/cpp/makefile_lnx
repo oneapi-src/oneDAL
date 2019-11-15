@@ -24,7 +24,7 @@ help:
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
 	@echo
-	@echo "compiler_name     - can be gnu or intel. Default value is intel."
+	@echo "compiler_name     - can be intel, gnu or clang. Default value is intel."
 	@echo "                    Intel(R) C++ Compiler as default"
 	@echo
 	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
@@ -66,7 +66,9 @@ ifndef example
 endif
 
 ifneq ($(compiler),gnu)
-    override compiler = intel
+    ifneq ($(compiler),clang)
+        override compiler = intel
+    endif
 endif
 
 ifneq ($(mode),build)
@@ -76,12 +78,12 @@ endif
 ifndef DAALROOT
     DAALROOT = ./../..
 endif
-DAAL_PATH = "$(DAALROOT)/lib/$(_IA)_lin"
+DAAL_PATH = "$(DAALROOT)/lib/$(_IA)"
 
 ifndef TBBROOT
-    TBBROOT = ./../../../tbb
+    TBBROOT = ./../../../../tbb/latest
 endif
-TBB_PATH = "$(TBBROOT)/lib/$(_IA)_lin/gcc4.4" "$(TBBROOT)/lib/$(_IA)_lin/gcc4.8"
+TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
 
 EXT_LIB := -lpthread -ldl
 
@@ -111,6 +113,10 @@ ifeq ($(compiler),gnu)
     COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
 endif
 
+ifeq ($(compiler),clang)
+    CC = clang++
+    COPTS += $(if $(filter ia32, $(_IA)), -m32, -m64)
+endif
 
 CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
 
@@ -125,14 +131,13 @@ sointel64:
 	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
 
 
-
 _make_ex: $(RES)
 
 vpath
 vpath %.cpp $(addprefix ./source/,association_rules boosting cholesky compression covariance datasource decision_forest distance em \
                                   gradient_boosted_trees host_app kernel_function kmeans linear_regression logistic_regression \
                                   moments naive_bayes outlier_detection qr quality_metrics serialization stump svd svm utils services  \
-                                  quantiles pivoted_qr pca implicit_als set_number_of_threads neural_networks math sorting error_handling \
+                                  quantiles pivoted_qr pca implicit_als set_number_of_threads sorting error_handling \
                                   optimization_solvers optimization_solver/objective_function normalization ridge_regression \
                                   k_nearest_neighbors decision_tree distributions enable_thread_pinning pca_transform dbscan lasso_regression)
 

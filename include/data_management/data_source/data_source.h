@@ -576,10 +576,12 @@ protected:
         return services::Status();
     }
 
-    services::Status updateStatistics(size_t ntRowIndex, NumericTable *nt, size_t offset = 0)
+    services::Status updateStatistics(size_t ntRowIndex, NumericTable *nt, DAAL_DATA_TYPE *row, size_t offset = 0)
     {
         if(!nt)
             return services::Status(services::ErrorNullInputNumericTable);
+        if(!row)
+            return services::Status(services::ErrorNullPtr);
 
         NumericTablePtr ntMin   = nt->basicStatistics.get(NumericTable::minimum   );
         NumericTablePtr ntMax   = nt->basicStatistics.get(NumericTable::maximum   );
@@ -612,9 +614,7 @@ protected:
             return services::Status(services::ErrorIncorrectInputNumericTable);
         }
 
-        BlockDescriptor<_summaryStatisticsType> block;
-        nt->getBlockOfRows( ntRowIndex + offset, 1, readOnly, block );
-        _summaryStatisticsType *row = block.getBlockPtr();
+        row += (ntRowIndex + offset) * nt->getNumberOfColumns();
 
         if( ntRowIndex != 0 )
         {
@@ -637,7 +637,6 @@ protected:
             }
         }
 
-        nt->releaseBlockOfRows( block );
         ntMin->releaseBlockOfRows( blockMin );
         ntMax->releaseBlockOfRows( blockMax );
         ntSum->releaseBlockOfRows( blockSum );

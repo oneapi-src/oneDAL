@@ -15,6 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "data_management/data/numeric_table_sycl_homogen.h"
 #include "linear_model_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 
@@ -33,7 +34,18 @@ ModelInternal::ModelInternal(size_t nFeatures, size_t nResponses, const Paramete
     _interceptFlag(par.interceptFlag)
 {
     services::Status st;
-    _beta = HomogenNumericTable<modelFPType>::create(nFeatures + 1, nResponses, NumericTable::doAllocate, 0, &st);
+
+    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if(deviceInfo.isCpu)
+    {
+        _beta = HomogenNumericTable<modelFPType>::create(nFeatures + 1, nResponses, NumericTable::doAllocate, 0, &st);
+    }
+    else
+    {
+        _beta = SyclHomogenNumericTable<modelFPType>::create(nFeatures + 1, nResponses, NumericTable::doAllocate, 0, &st);
+    }
     if (!st) return;
 }
 

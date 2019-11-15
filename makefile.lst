@@ -20,10 +20,10 @@
 
 CORE.ALGORITHMS.CUSTOM.AVAILABLE := low_order_moments quantiles covariance cosdistance cordistance kmeans pca cholesky \
                 svd assocrules qr em outlierdetection_bacon outlierdetection_multivariate outlierdetection_univariate  \
-                kernel_function sorting normalization math optimization_solver objective_function decision_tree        \
+                kernel_function sorting normalization optimization_solver objective_function decision_tree             \
                 dtrees/gbt dtrees/forest linear_regression ridge_regression naivebayes stump adaboost brownboost       \
                 logitboost svm multiclassclassifier k_nearest_neighbors logistic_regression implicit_als               \
-                neural_networks coordinate_descent
+                coordinate_descent
 
 low_order_moments +=
 quantiles +=
@@ -43,25 +43,24 @@ outlierdetection_univariate +=
 kernel_function +=
 sorting +=
 normalization += normalization/minmax normalization/zscore normalization/zscore/inner low_order_moments
-math += math/abs math/logistic math/relu math/smoothrelu math/softmax math/tanh
 optimization_solver += optimization_solver/adagrad optimization_solver/adagrad/inner optimization_solver/lbfgs optimization_solver/lbfgs/inner optimization_solver/sgd optimization_solver/sgd/inner optimization_solver/saga optimization_solver/saga/inner optimization_solver/inner optimization_solver/coordinate_descent objective_function engines distributions
 coordinate_descent += optimization_solver/coordinate_descent objective_function engines distributions
 objective_function += objective_function/inner objective_function/cross_entropy_loss objective_function/cross_entropy_loss/inner objective_function/logistic_loss objective_function/logistic_loss/inner objective_function/mse objective_function/mse/inner
-decision_tree += decision_tree/inner regression classifier
-dtrees/gbt += dtrees dtrees/gbt/classification dtrees/gbt/classification/inner dtrees/gbt/regression engines classifier regression objective_function
+decision_tree += decision_tree/inner regression classifier classifier/inner
+dtrees/gbt += dtrees dtrees/gbt/classification dtrees/gbt/classification/inner dtrees/gbt/regression engines classifier classifier/inner regression objective_function
 dtrees/forest += dtrees dtrees/regression dtrees/forest/classification dtrees/forest/classification/inner dtrees/forest/regression engines classifier classifier/inner regression distributions
 linear_regression += linear_model regression
 lasso_regression += linear_model regression optimization_solver objective_function engines
 ridge_regression += linear_model regression
-naivebayes += classifier
-stump += stump/inner classifier weak_learner/inner
+naivebayes += classifier classifier/inner
+stump += stump/inner classifier classifier/inner weak_learner/inner
 adaboost += classifier classifier/inner decision_tree stump boosting weak_learner/inner adaboost/inner
-brownboost += brownboost/inner boosting/inner weak_learner/inner classifier decision_tree stump stump/inner
-logitboost += logitboost/inner boosting/inner weak_learner/inner classifier regression decision_tree stump stump/inner
-svm +=  svm/inner classifier kernel_function multiclassclassifier multiclassclassifier/inner
-multiclassclassifier += multiclassclassifier/inner classifier
-k_nearest_neighbors += k_nearest_neighbors/inner engines classifier
-logistic_regression += logistic_regression/inner classifier optimization_solver objective_function engines
+brownboost += brownboost/inner boosting/inner weak_learner/inner classifier classifier/inner decision_tree stump stump/inner
+logitboost += logitboost/inner boosting/inner weak_learner/inner classifier classifier/inner regression decision_tree stump stump/inner
+svm +=  svm/inner classifier classifier/inner kernel_function multiclassclassifier multiclassclassifier/inner
+multiclassclassifier += multiclassclassifier/inner classifier classifier/inner
+k_nearest_neighbors += k_nearest_neighbors/inner engines classifier classifier/inner
+logistic_regression += logistic_regression/inner classifier classifier/inner optimization_solver objective_function engines
 implicit_als += engines distributions
   neural_networks_layers := $(addprefix neural_networks/layers/,abs_layer batch_normalization_layer concat_layer convolution2d_layer dropout_layer eltwise_sum_layer elu_layer fullyconnected_layer lcn_layer locallyconnected2d_layer logistic_layer loss_layer loss_layer/logistic_cross_layer loss_layer/softmax_cross_layer lrn_layer pooling1d_layer pooling2d_layer pooling3d_layer prelu_layer relu_layer reshape_layer smoothrelu_layer softmax_layer spatial_pooling2d_layer split_layer tanh_layer transposed_conv2d_layer)
 neural_networks += engines optimization_solver distributions \
@@ -119,101 +118,9 @@ CORE.ALGORITHMS.FULL :=                                                       \
     logitboost                                                                \
     logitboos/inner                                                           \
     low_order_moments                                                         \
-    math/abs                                                                  \
-    math/logistic                                                             \
-    math/relu                                                                 \
-    math/smoothrelu                                                           \
-    math/softmax                                                              \
-    math/tanh                                                                 \
     multiclassclassifier                                                      \
     multiclassclassifier/inner                                                \
     naivebayes                                                                \
-    neural_networks                                                           \
-    neural_networks/initializers                                              \
-    neural_networks/initializers/uniform                                      \
-    neural_networks/initializers/xavier                                       \
-    neural_networks/initializers/gaussian                                     \
-    neural_networks/initializers/truncated_gaussian                           \
-    neural_networks/layers                                                    \
-    neural_networks/layers/abs_layer                                          \
-    neural_networks/layers/abs_layer/backward                                 \
-    neural_networks/layers/abs_layer/forward                                  \
-    neural_networks/layers/batch_normalization_layer                          \
-    neural_networks/layers/batch_normalization_layer/backward                 \
-    neural_networks/layers/batch_normalization_layer/forward                  \
-    neural_networks/layers/concat_layer                                       \
-    neural_networks/layers/concat_layer/backward                              \
-    neural_networks/layers/concat_layer/forward                               \
-    neural_networks/layers/convolution2d_layer                                \
-    neural_networks/layers/convolution2d_layer/backward                       \
-    neural_networks/layers/convolution2d_layer/forward                        \
-    neural_networks/layers/dropout_layer                                      \
-    neural_networks/layers/dropout_layer/backward                             \
-    neural_networks/layers/dropout_layer/forward                              \
-    neural_networks/layers/eltwise_sum_layer                                  \
-    neural_networks/layers/eltwise_sum_layer/backward                         \
-    neural_networks/layers/eltwise_sum_layer/forward                          \
-    neural_networks/layers/fullyconnected_layer                               \
-    neural_networks/layers/fullyconnected_layer/backward                      \
-    neural_networks/layers/fullyconnected_layer/forward                       \
-    neural_networks/layers/lcn_layer                                          \
-    neural_networks/layers/lcn_layer/backward                                 \
-    neural_networks/layers/lcn_layer/forward                                  \
-    neural_networks/layers/locallyconnected2d_layer                           \
-    neural_networks/layers/locallyconnected2d_layer/backward                  \
-    neural_networks/layers/locallyconnected2d_layer/forward                   \
-    neural_networks/layers/logistic_layer                                     \
-    neural_networks/layers/logistic_layer/backward                            \
-    neural_networks/layers/logistic_layer/forward                             \
-    neural_networks/layers/reshape_layer                                      \
-    neural_networks/layers/reshape_layer/backward                             \
-    neural_networks/layers/reshape_layer/forward                              \
-    neural_networks/layers/lrn_layer                                          \
-    neural_networks/layers/lrn_layer/backward                                 \
-    neural_networks/layers/lrn_layer/forward                                  \
-    neural_networks/layers/pooling1d_layer                                    \
-    neural_networks/layers/pooling1d_layer/backward                           \
-    neural_networks/layers/pooling1d_layer/forward                            \
-    neural_networks/layers/pooling2d_layer                                    \
-    neural_networks/layers/pooling2d_layer/backward                           \
-    neural_networks/layers/pooling2d_layer/forward                            \
-    neural_networks/layers/pooling3d_layer                                    \
-    neural_networks/layers/pooling3d_layer/backward                           \
-    neural_networks/layers/pooling3d_layer/forward                            \
-    neural_networks/layers/spatial_pooling2d_layer                            \
-    neural_networks/layers/spatial_pooling2d_layer/backward                   \
-    neural_networks/layers/spatial_pooling2d_layer/forward                    \
-    neural_networks/layers/prelu_layer                                        \
-    neural_networks/layers/prelu_layer/backward                               \
-    neural_networks/layers/prelu_layer/forward                                \
-    neural_networks/layers/elu_layer                                          \
-    neural_networks/layers/elu_layer/backward                                 \
-    neural_networks/layers/elu_layer/forward                                  \
-    neural_networks/layers/relu_layer                                         \
-    neural_networks/layers/relu_layer/backward                                \
-    neural_networks/layers/relu_layer/forward                                 \
-    neural_networks/layers/smoothrelu_layer                                   \
-    neural_networks/layers/smoothrelu_layer/backward                          \
-    neural_networks/layers/smoothrelu_layer/forward                           \
-    neural_networks/layers/loss_layer                                         \
-    neural_networks/layers/loss_layer/logistic_cross_layer                    \
-    neural_networks/layers/loss_layer/logistic_cross_layer/backward           \
-    neural_networks/layers/loss_layer/logistic_cross_layer/forward            \
-    neural_networks/layers/loss_layer/softmax_cross_layer                     \
-    neural_networks/layers/loss_layer/softmax_cross_layer/backward            \
-    neural_networks/layers/loss_layer/softmax_cross_layer/forward             \
-    neural_networks/layers/softmax_layer                                      \
-    neural_networks/layers/softmax_layer/backward                             \
-    neural_networks/layers/softmax_layer/forward                              \
-    neural_networks/layers/split_layer                                        \
-    neural_networks/layers/split_layer/backward                               \
-    neural_networks/layers/split_layer/forward                                \
-    neural_networks/layers/tanh_layer                                         \
-    neural_networks/layers/tanh_layer/backward                                \
-    neural_networks/layers/tanh_layer/forward                                 \
-    neural_networks/layers/transposed_conv2d_layer                            \
-    neural_networks/layers/transposed_conv2d_layer/backward                   \
-    neural_networks/layers/transposed_conv2d_layer/forward                    \
     normalization/minmax                                                      \
     normalization/zscore                                                      \
     normalization/zscore/inner                                                \
@@ -283,42 +190,9 @@ CORE.ALGORITHMS.INC :=                                                        \
     linear_model                                                              \
     linear_regression                                                         \
     logistic_regression                                                       \
-    math                                                                      \
     moments                                                                   \
     multi_class_classifier                                                    \
     naive_bayes                                                               \
-    neural_networks                                                           \
-    neural_networks/initializers                                              \
-    neural_networks/initializers/gaussian                                     \
-    neural_networks/initializers/truncated_gaussian                           \
-    neural_networks/initializers/uniform                                      \
-    neural_networks/initializers/xavier                                       \
-    neural_networks/layers                                                    \
-    neural_networks/layers/abs                                                \
-    neural_networks/layers/batch_normalization                                \
-    neural_networks/layers/concat                                             \
-    neural_networks/layers/convolution2d                                      \
-    neural_networks/layers/dropout                                            \
-    neural_networks/layers/fullyconnected                                     \
-    neural_networks/layers/lcn                                                \
-    neural_networks/layers/locallyconnected2d                                 \
-    neural_networks/layers/logistic                                           \
-    neural_networks/layers/loss                                               \
-    neural_networks/layers/lrn                                                \
-    neural_networks/layers/pooling1d                                          \
-    neural_networks/layers/pooling2d                                          \
-    neural_networks/layers/pooling3d                                          \
-    neural_networks/layers/prelu                                              \
-    neural_networks/layers/elu                                                \
-    neural_networks/layers/relu                                               \
-    neural_networks/layers/reshape                                            \
-    neural_networks/layers/smoothrelu                                         \
-    neural_networks/layers/softmax                                            \
-    neural_networks/layers/spatial_pooling2d                                  \
-    neural_networks/layers/split                                              \
-    neural_networks/layers/tanh                                               \
-    neural_networks/layers/transposed_conv2d                                  \
-    neural_networks/layers/eltwise_sum                                        \
     normalization                                                             \
     optimization_solver                                                       \
     optimization_solver/adagrad                                               \
@@ -438,12 +312,6 @@ JJ.ALGORITHMS       := adaboost                                                 
                        logitboost/quality_metric_set                             \
                        logitboost/training                                       \
                        low_order_moments                                         \
-                       math/abs                                                  \
-                       math/logistic                                             \
-                       math/relu                                                 \
-                       math/smoothrelu                                           \
-                       math/softmax                                              \
-                       math/tanh                                                 \
                        multi_class_classifier                                    \
                        multi_class_classifier/prediction                         \
                        multi_class_classifier/quality_metric_set                 \
@@ -455,52 +323,6 @@ JJ.ALGORITHMS       := adaboost                                                 
                        multivariate_outlier_detection                            \
                        multivariate_outlier_detection/defaultdense               \
                        multivariate_outlier_detection/bacondense                 \
-                       neural_networks                                           \
-                       neural_networks/initializers                              \
-                       neural_networks/initializers/uniform                      \
-                       neural_networks/initializers/xavier                       \
-                       neural_networks/initializers/gaussian                     \
-                       neural_networks/initializers/truncated_gaussian           \
-                       neural_networks/layers                                    \
-                       neural_networks/layers/abs                                \
-                       neural_networks/layers/average_pooling1d                  \
-                       neural_networks/layers/average_pooling2d                  \
-                       neural_networks/layers/average_pooling3d                  \
-                       neural_networks/layers/batch_normalization                \
-                       neural_networks/layers/concat                             \
-                       neural_networks/layers/convolution2d                      \
-                       neural_networks/layers/transposed_conv2d                  \
-                       neural_networks/layers/dropout                            \
-                       neural_networks/layers/eltwise_sum                        \
-                       neural_networks/layers/fullyconnected                     \
-                       neural_networks/layers/logistic                           \
-                       neural_networks/layers/loss                               \
-                       neural_networks/layers/lrn                                \
-                       neural_networks/layers/maximum_pooling1d                  \
-                       neural_networks/layers/maximum_pooling2d                  \
-                       neural_networks/layers/maximum_pooling3d                  \
-                       neural_networks/layers/reshape                            \
-                       neural_networks/layers/stochastic_pooling2d               \
-                       neural_networks/layers/spatial_pooling2d                  \
-                       neural_networks/layers/spatial_average_pooling2d          \
-                       neural_networks/layers/spatial_maximum_pooling2d          \
-                       neural_networks/layers/spatial_stochastic_pooling2d       \
-                       neural_networks/layers/pooling1d                          \
-                       neural_networks/layers/pooling2d                          \
-                       neural_networks/layers/pooling3d                          \
-                       neural_networks/layers/prelu                              \
-                       neural_networks/layers/elu                                \
-                       neural_networks/layers/relu                               \
-                       neural_networks/layers/logistic_cross                     \
-                       neural_networks/layers/smoothrelu                         \
-                       neural_networks/layers/softmax                            \
-                       neural_networks/layers/softmax_cross                      \
-                       neural_networks/layers/split                              \
-                       neural_networks/layers/tanh                               \
-                       neural_networks/layers/lcn                                \
-                       neural_networks/layers/locallyconnected2d                 \
-                       neural_networks/prediction                                \
-                       neural_networks/training                                  \
                        normalization/minmax                                      \
                        normalization/zscore                                      \
                        optimization_solver                                       \

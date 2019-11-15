@@ -305,10 +305,14 @@ protected:
 
             return true;
         }
-        _arrays.resize(nColumns);
-        _memStatus = notAllocated;
 
-        return true;
+        bool is_resized = _arrays.resize(nColumns);
+        if (is_resized)
+        {
+            _memStatus = notAllocated;
+        }
+
+        return is_resized;
     }
 
     services::Status setNumberOfColumnsImpl(size_t ncol) DAAL_C11_OVERRIDE

@@ -31,9 +31,9 @@
 #include "symmetric_matrix.h"
 #include "matrix.h"
 #include "data_collection.h"
-#include "homogen_tensor.h"
-#include "service_mkl_tensor.h"
 #include "serialization_utils.h"
+
+#include "numeric_table_sycl_homogen.h"
 
 #include "memory_block.h"
 
@@ -142,7 +142,8 @@ Factory::Factory() : _impl(nullptr)
 
     __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, HomogenNumericTable, );
     __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, Matrix, );
-    __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, HomogenTensor, );
+
+    __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, SyclHomogenNumericTable, );
 
     __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, PackedSymmetricMatrix,  NumericTableIface::upperPackedSymmetricMatrix, );
     __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, PackedSymmetricMatrix,  NumericTableIface::lowerPackedSymmetricMatrix, );
@@ -157,9 +158,6 @@ Factory::Factory() : _impl(nullptr)
     registerObject(new Creator<NumericTableDictionary>());
     registerObject(new Creator<data_management::DataCollection >());
     registerObject(new Creator<data_management::KeyValueDataCollection >());
-
-    registerObject(new Creator<daal::internal::MklTensor<float> >());
-    registerObject(new Creator<daal::internal::MklTensor<double> >());
 
     registerObject(new Creator<algorithms::OptionalArgument >());
     registerObject(new Creator<data_management::MemoryBlock >());

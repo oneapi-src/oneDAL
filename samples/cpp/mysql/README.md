@@ -19,14 +19,14 @@ You can download and install the MySQL\* application from [the official web page
 If your ODBC connector on Windows\* is installed in a directory different from `C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\`, make sure to update the `ODBC_PATH` variable in the `launcher.bat` script with the correct path before running the script.
 
 ### Setting Up the Build Environment
-Before you build the sample, you must set certain environment variables that define the location of related libraries. The Intel(R) DAAL includes the `daalvars` scripts that you can run to set environment variables:
+Before you build the sample, you must set certain environment variables that define the location of related libraries. The Intel(R) DAAL includes the `vars` scripts that you can run to set environment variables:
 
-- On Windows\*, you can find the `daalvars.bat` batch file at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:
-daalvars.bat {ia32|intel64}`
-- On Linux\*, you can find the `daalvars.sh|daalvars.csh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:
-source daalvars.sh|csh {ia32|intel64}`
-- On macOS\*, you can find the `daalvars.sh|daalvars.csh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
-source daalvars.sh|csh`
+- On Windows\*, you can find the `vars.bat` batch file at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:
+vars.bat {ia32|intel64}`
+- On Linux\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:
+source vars.sh {ia32|intel64}`
+- On macOS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
+source vars.sh`
 
 For more information about setting environment variables and configuring Intel(R) DAAL, refer to Getting Started guides for the library.
 
@@ -63,11 +63,11 @@ cd <sample_dir>/cpp/mysql
 make {libia32|soia32|libintel64|sointel64} compiler={intel|gnu} mode=build
 ```
 
-From the `{libia32|soia32|libintel64|sointel64}` parameters, select the one that matches the architecture parameter you provided to the `daalvars.sh` script and that has the prefix that matches the type of executables you want to build: `lib` for static and `so` for dynamic executables.
+From the `{libia32|soia32|libintel64|sointel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script and that has the prefix that matches the type of executables you want to build: `lib` for static and `so` for dynamic executables.
 
 The command creates a directory for the chosen compiler, architecture, and library extension (`a` or `so`). For example: `_results/intel_intel64_a`.
 
-To run Intel(R) DAAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command in the run mode. For example, if you run the `daalvars` script with the `intel64` target:
+To run Intel(R) DAAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command in the run mode. For example, if you run the `vars` script with the `intel64` target:
 
 ```
 cd <sample_dir>/cpp/mysql
@@ -86,11 +86,11 @@ cd <sample_dir>/cpp/mysql
 make {libia32|dylibia32|libintel64|dylibintel64} compiler={intel|gnu|clang} mode=build
 ```
 
-From the `{libia32|dylibia32|libintel64|dylibintel64}` parameters, select the one that matches the architecture parameter you provided to the `daalvars.sh` script and that has the prefix that matches the type of executables you want to build: `lib` for static and `dylib` for dynamic executables.
+From the `{libia32|dylibia32|libintel64|dylibintel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script and that has the prefix that matches the type of executables you want to build: `lib` for static and `dylib` for dynamic executables.
 
 The command creates a directory for the chosen compiler, architecture, and library extension (`a` or `dylib`). For example: `_results/intel_intel64_a`.
 
-To run Intel(R) DAAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command in the run mode. For example, if you run the `daalvars` script with the `intel64` target:
+To run Intel(R) DAAL MySQL C++ samples, go to the C++ MySQL samples directory and execute the `make` command in the run mode. For example, if you run the `vars` script with the `intel64` target:
 
 ```
 cd <sample_dir>/cpp/mysql

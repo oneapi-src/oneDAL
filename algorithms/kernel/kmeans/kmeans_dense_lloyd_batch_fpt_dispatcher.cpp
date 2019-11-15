@@ -28,6 +28,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::BatchContainer, batch, DAAL_FPTYPE, kmeans::lloydDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kmeans::BatchContainer, batch, DAAL_FPTYPE, kmeans::lloydDense)
 } // namespace daal::algorithms
 } // namespace daal

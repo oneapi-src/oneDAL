@@ -22,6 +22,7 @@
 */
 
 #include "pca_result_impl.h"
+#include "data_management/data/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -74,6 +75,25 @@ services::Status ResultImpl::allocate(const daal::algorithms::PartialResult *par
 template <typename algorithmFPType>
 services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL_UINT64 resultsToCompute)
 {
+    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        return __allocate__impl<algorithmFPType,
+                                data_management::HomogenNumericTable<algorithmFPType>>(nFeatures, nComponents, resultsToCompute);
+    }
+    else
+    {
+        return __allocate__impl<algorithmFPType,
+                                data_management::SyclHomogenNumericTable<algorithmFPType>>(nFeatures, nComponents, resultsToCompute);
+    }
+    return services::Status();
+}
+
+template <typename algorithmFPType, typename NumericTableType>
+services::Status ResultImpl::__allocate__impl(size_t nFeatures, size_t nComponents, DAAL_UINT64 resultsToCompute)
+{
     services::Status status;
 
     if (nComponents == 0)
@@ -81,10 +101,10 @@ services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL
         nComponents = nFeatures;
     }
 
-    setTable(eigenvalues, data_management::HomogenNumericTable<algorithmFPType>::create(nComponents, 1, data_management::NumericTableIface::doAllocate, 0, &status));
+    setTable(eigenvalues, NumericTableType::create(nComponents, 1, data_management::NumericTableIface::doAllocate, 0, &status));
     DAAL_CHECK_STATUS_VAR(status);
 
-    setTable(eigenvectors, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, nComponents, data_management::NumericTableIface::doAllocate, 0, &status));
+    setTable(eigenvectors, NumericTableType::create(nFeatures, nComponents, data_management::NumericTableIface::doAllocate, 0, &status));
     DAAL_CHECK_STATUS_VAR(status);
     if (resultsToCompute & eigenvalue)
     {
@@ -92,12 +112,12 @@ services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL
     }
     if (resultsToCompute & mean)
     {
-        setTable(means, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTableIface::doAllocate, 0, &status));
+        setTable(means, NumericTableType::create(nFeatures, 1, data_management::NumericTableIface::doAllocate, 0, &status));
         DAAL_CHECK_STATUS_VAR(status);
     }
     if (resultsToCompute & variance)
     {
-        setTable(variances, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTableIface::doAllocate, 0, &status));
+        setTable(variances, NumericTableType::create(nFeatures, 1, data_management::NumericTableIface::doAllocate, 0, &status));
         DAAL_CHECK_STATUS_VAR(status);
     }
     return status;

@@ -19,7 +19,7 @@
 #  Clang defenitions for makefile
 #--
 
-PLATs.clang = mac32e fbsd32e fbsd32
+PLATs.clang = lnx32e lnx32 mac32e fbsd32e fbsd32
 
 CMPLRDIRSUFF.clang = _clang
 
@@ -30,9 +30,11 @@ CORE.SERV.COMPILER.clang = generic
 
 COMPILER.mac.clang = clang++ -D__int64="long long" -D__int32="int" -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.11 -fwrapv
 COMPILER.fbsd.clang = clang++ -D__int64="long long" -D__int32="int" $(if $(IA_is_ia32),-m32,-m64) -fgnu-runtime -Wno-inconsistent-missing-override -nostdinc++ -I/usr/include/c++/v1 -I/usr/local/include
+COMPILER.lnx.clang = clang++ -D__int64="long long" -D__int32="int" $(if $(IA_is_ia32),-m32,-m64)
 
 link.dynamic.mac.clang = clang++ -m64
 link.dynamic.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.lnx.clang = clang++ $(if $(IA_is_ia32),-m32,-m64)
 
 p4_OPT.clang   = $(-Q)march=nocona
 mc_OPT.clang   = $(-Q)march=core2

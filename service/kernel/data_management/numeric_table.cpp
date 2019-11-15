@@ -17,6 +17,12 @@
 
 #include "algorithms/algorithm_types.h"
 #include "data_management/data/numeric_table.h"
+
+
+#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "data_management/data/numeric_table_sycl_soa.h"
+
+
 #include "data_management/data/homogen_numeric_table.h"
 #include "data_management/data/merged_numeric_table.h"
 #include "data_management/data/row_merged_numeric_table.h"
@@ -27,7 +33,6 @@
 #include "data_management/data/memory_block.h"
 #include "data_management/data/matrix.h"
 #include "data_management/data/internal/base_arrow_numeric_table.h"
-#include "service_mkl_tensor.h"
 #include "service_numeric_table.h"
 #include "service_defines.h"
 
@@ -212,6 +217,7 @@ DAAL_INSTANTIATE_SLOW(long          )
 
 
 IMPLEMENT_SERIALIZABLE_TAG(SOANumericTable,SERIALIZATION_SOA_NT_ID)
+IMPLEMENT_SERIALIZABLE_TAG(SyclSOANumericTable,SERIALIZATION_SYCL_SOA_NT_ID)
 IMPLEMENT_SERIALIZABLE_TAG(BaseArrowImmutableNumericTable,SERIALIZATION_ARROW_IMMUTABLE_NT_ID)
 IMPLEMENT_SERIALIZABLE_TAG(CSRNumericTable,SERIALIZATION_CSR_NT_ID)
 IMPLEMENT_SERIALIZABLE_TAG(AOSNumericTable,SERIALIZATION_AOS_NT_ID)
@@ -228,6 +234,7 @@ IMPLEMENT_SERIALIZABLE_TAG1T_SPECIALIZATION(SerializableKeyValueCollection,Seria
 #define DAAL_INSTANTIATE_SER_TAG(T)                                                                                                             \
 IMPLEMENT_SERIALIZABLE_TAG1T(HomogenNumericTable,T,SERIALIZATION_HOMOGEN_NT_ID)                                                                 \
 IMPLEMENT_SERIALIZABLE_TAG1T(Matrix,T,SERIALIZATION_MATRIX_NT_ID)                                                                               \
+IMPLEMENT_SERIALIZABLE_TAG1T(SyclHomogenNumericTable,T,SERIALIZATION_SYCL_HOMOGEN_NT_ID)                                                        \
 IMPLEMENT_SERIALIZABLE_TAG2T(PackedSymmetricMatrix,NumericTableIface::upperPackedSymmetricMatrix,T,SERIALIZATION_PACKEDSYMMETRIC_NT_ID)         \
 IMPLEMENT_SERIALIZABLE_TAG2T(PackedSymmetricMatrix,NumericTableIface::lowerPackedSymmetricMatrix,T,SERIALIZATION_PACKEDSYMMETRIC_NT_ID + 20)    \
 IMPLEMENT_SERIALIZABLE_TAG2T(PackedTriangularMatrix,NumericTableIface::upperPackedTriangularMatrix,T,SERIALIZATION_PACKEDTRIANGULAR_NT_ID)      \
@@ -367,9 +374,6 @@ Status createSparseTable<float>(const NumericTablePtr &inputTable, CSRNumericTab
 {
     return createSparseTableImpl<float>(inputTable, resTable);
 }
-
-IMPLEMENT_SERIALIZABLE_TAG1T(MklTensor,float,SERIALIZATION_MKL_TENSOR_ID)
-IMPLEMENT_SERIALIZABLE_TAG1T(MklTensor,double,SERIALIZATION_MKL_TENSOR_ID)
 
 } // internal
 

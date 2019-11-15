@@ -56,13 +56,13 @@ endif
 ifndef TBBROOT
     TBBROOT = ./../../../tbb
 endif
-TBB_PATH = "$(TBBROOT)/lib/$(_IA)_lin/gcc4.4" "$(TBBROOT)/lib/$(_IA)_lin/gcc4.8"
+TBB_PATH = "$(TBBROOT)/lib/$(_IA)/gcc4.8"
 
 ifndef sample
     sample = $(ARROW)
 endif
 
-DAAL_PATH = "$(DAALROOT)/lib/$(_IA)_lin"
+DAAL_PATH = "$(DAALROOT)/lib/$(_IA)"
 DAAL_LIB := $(DAAL_PATH)/libdaal_core.$(RES_EXT) $(DAAL_PATH)/libdaal_thread.$(RES_EXT)
 
 ifneq ($(mode),build)

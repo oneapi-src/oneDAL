@@ -33,10 +33,13 @@
 #include "algorithms/optimization_solver/objective_function/cross_entropy_loss_batch.h"
 #include "service_numeric_table.h"
 #include "service_math.h"
+#include "service_ittnotify.h"
 
 using namespace daal::algorithms::logistic_regression::training::internal;
 using namespace daal::algorithms::optimization_solver;
 using namespace daal;
+
+DAAL_ITTNOTIFY_DOMAIN(logistic_regression.train.dense.default);
 
 namespace daal
 {
@@ -57,6 +60,8 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
     const HostAppIfacePtr& pHost, const NumericTablePtr& x, const NumericTablePtr& y,
     logistic_regression::Model& m, Result& res, const Parameter& par)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
+
     const size_t p = x->getNumberOfColumns() + 1;
     DAAL_ASSERT(p == m.getNumberOfBetas());
     services::SharedPtr<optimization_solver::iterative_solver::Batch > pSolver = par.optimizationSolver->clone();

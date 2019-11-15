@@ -28,6 +28,8 @@
 #include "logistic_regression_predict_kernel.h"
 #include "service_algo_utils.h"
 
+#include "oneapi/logistic_regression_predict_kernel_oneapi_instance.h"
+
 namespace daal
 {
 namespace algorithms
@@ -42,7 +44,19 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : PredictionContainerIface()
 {
-    __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method);
+    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method);
+
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::PredictBatchKernelOneAPI, algorithmFPType, method);
+    }
+
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -66,12 +80,26 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable *logProb = ((par->resultsToEvaluate & classifier::computeClassLogProbabilities) ? result->get(classifier::prediction::logProbabilities).get() : nullptr);
 
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
+
+    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+            daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL(env, internal::PredictBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+            daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
+    }
+
 }
 
 }
-}
-}
-}
-} // namespace daal
+
+}// namespace prediction
+}// namespace logistic_regression
+}// namespace algorithms
+}// namespace daal

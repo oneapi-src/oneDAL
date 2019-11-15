@@ -39,6 +39,10 @@
 #define DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, ...) ContainerTemplate<__VA_ARGS__, cpuType>
 #define DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, cpuType,...)\
     case cpuType: _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, __VA_ARGS__)(daalEnv)); break;
+#define DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, cpuType,...)\
+    case cpuType: {using contTemplType = DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, __VA_ARGS__); \
+         static volatile daal::services::internal::GpuSupportRegistrar<contTemplType> registrar;               \
+         _cntr = (new contTemplType(daalEnv)); break;}
 
     #define DAAL_KERNEL_SSE2_ONLY(something) , something
     #define DAAL_KERNEL_SSE2_ONLY_CODE(...) __VA_ARGS__
@@ -52,12 +56,14 @@
     #define DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__)
     #define DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__) ;
     #define DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, ssse3, __VA_ARGS__)
+    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE_SYCL(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, ssse3, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_SSSE3_ONLY(something)
     #define DAAL_KERNEL_SSSE3_ONLY_CODE(...)
     #define DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, ...)
     #define DAAL_KERNEL_SSSE3_CONTAINER1(ContainerTemplate, ...)
     #define DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, ...)
+    #define DAAL_KERNEL_SSSE3_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
 #if defined(DAAL_KERNEL_SSE42)
@@ -66,12 +72,14 @@
     #define DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__)
     #define DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__) ;
     #define DAAL_KERNEL_SSE42_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, sse42, __VA_ARGS__)
+    #define DAAL_KERNEL_SSE42_CONTAINER_CASE_SYCL(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, sse42, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_SSE42_ONLY(something)
     #define DAAL_KERNEL_SSE42_ONLY_CODE(...)
     #define DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, ...)
     #define DAAL_KERNEL_SSE42_CONTAINER1(ContainerTemplate, ...)
     #define DAAL_KERNEL_SSE42_CONTAINER_CASE(ContainerTemplate, ...)
+    #define DAAL_KERNEL_SSE42_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
 #if defined(DAAL_KERNEL_AVX)
@@ -80,12 +88,14 @@
     #define DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__)
     #define DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__) ;
     #define DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, avx, __VA_ARGS__)
+    #define DAAL_KERNEL_AVX_CONTAINER_CASE_SYCL(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, avx, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_AVX_ONLY(something)
     #define DAAL_KERNEL_AVX_ONLY_CODE(...)
     #define DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX_CONTAINER1(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, ...)
+    #define DAAL_KERNEL_AVX_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
 #if defined(DAAL_KERNEL_AVX2)
@@ -94,12 +104,14 @@
     #define DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__)
     #define DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__) ;
     #define DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, avx2, __VA_ARGS__)
+    #define DAAL_KERNEL_AVX2_CONTAINER_CASE_SYCL(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, avx2, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_AVX2_ONLY(something)
     #define DAAL_KERNEL_AVX2_ONLY_CODE(...)
     #define DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX2_CONTAINER1(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, ...)
+    #define DAAL_KERNEL_AVX2_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
 #if defined(DAAL_KERNEL_AVX512_MIC)
@@ -108,12 +120,14 @@
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__)
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__) ;
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, avx512_mic, __VA_ARGS__)
+    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE_SYCL(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, avx512_mic, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_AVX512_MIC_ONLY(something)
     #define DAAL_KERNEL_AVX512_MIC_ONLY_CODE(...)
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER1(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, ...)
+    #define DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
 #if defined(DAAL_KERNEL_AVX512)
@@ -122,12 +136,14 @@
     #define DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512, __VA_ARGS__)
     #define DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, ...) extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512, __VA_ARGS__) ;
     #define DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, avx512, __VA_ARGS__)
+    #define DAAL_KERNEL_AVX512_CONTAINER_CASE_SYCL(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, avx512, __VA_ARGS__)
 #else
     #define DAAL_KERNEL_AVX512_ONLY(something)
     #define DAAL_KERNEL_AVX512_ONLY_CODE(...)
     #define DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, ...)
+    #define DAAL_KERNEL_AVX512_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 /** @} */
 

@@ -72,18 +72,27 @@ export CLASSPATH=${SCALA_JARS}:$CLASSPATH
 os_name=`uname -s`
 if [ "${os_name}" == "Darwin" ]; then
     export DYLD_LIBRARY_PATH=${DAALROOT}/lib/:${DAALROOT}/../tbb/lib/:$DYLD_LIBRARY_PATH
-    #Comma-separated list of shared libs
-    export SHAREDLIBS=${DAALROOT}/lib/libJavaAPI.dylib,${DAALROOT}/../tbb/lib/libtbb.dylib,${DAALROOT}/../tbb/lib/libtbbmalloc.dylib
-else
-    #Comma-separated list of shared libs
-    gcc_runtimes=
-    if [ -d ${DAALROOT}/../tbb/lib/${daal_ia}_lin/gcc4.4 ]; then gcc_runtimes=gcc4.4; fi
-    if [ -d ${DAALROOT}/../tbb/lib/${daal_ia}_lin/gcc4.8 ]; then gcc_runtimes=gcc4.8; fi
-    if [ -z ${gcc_runtimes} ]; then
-        echo Can not find TBB runtimes neither for gcc4.4 nor gcc4.8
+
+    TBBLIBS=
+    if [ -d ${TBBROOT}/lib ]; then TBBLIBS=${TBBROOT}/lib; fi
+    if ! [ -z {$TBBROOT} ] && [ -d ${TBBROOT}/lib ]; then TBBLIBS=${TBBROOT}/lib; fi
+    if [ -z ${TBBLIBS} ]; then
+        echo Can not find TBB runtimes
         exit 1
     fi
-    export SHAREDLIBS=${DAALROOT}/lib/${daal_ia}_lin/libJavaAPI.so,${DAALROOT}/../tbb/lib/${daal_ia}_lin/${gcc_runtimes}/libtbb.so.2,${DAALROOT}/../tbb/lib/${daal_ia}_lin/${gcc_runtimes}/libtbbmalloc.so.2
+
+    #Comma-separated list of shared libs
+    export SHAREDLIBS=${DAALROOT}/lib/libJavaAPI.dylib,${TBBLIBS}/libtbb.dylib,${TBBLIBS}/libtbbmalloc.dylib
+else
+    TBBLIBS=
+    if [ -d ${TBBROOT}/lib/${daal_ia}/gcc4.8 ]; then TBBLIBS=${TBBROOT}/lib/${daal_ia}/gcc4.8; fi
+    if [ -z ${TBBLIBS} ]; then
+        echo Can not find TBB runtimes
+        exit 1
+    fi
+
+    #Comma-separated list of shared libs
+    export SHAREDLIBS=${DAALROOT}/lib/${daal_ia}/libJavaAPI.so,${TBBLIBS}/libtbb.so.2,${TBBLIBS}/libtbbmalloc.so.2
 fi
 
 # Setting list of Spark samples to process

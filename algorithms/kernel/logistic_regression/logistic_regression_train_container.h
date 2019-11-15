@@ -32,6 +32,8 @@
 #include "algorithms/optimization_solver/sgd/sgd_batch.h"
 #include "service_algo_utils.h"
 
+#include "oneapi/logistic_regression_train_kernel_oneapi.h"
+
 namespace daal
 {
 namespace algorithms
@@ -47,7 +49,17 @@ namespace interface3
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::TrainBatchKernel, algorithmFPType, method);
+    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::TrainBatchKernel, algorithmFPType, method);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::TrainBatchKernelOneAPI, algorithmFPType, method);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -66,8 +78,20 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     logistic_regression::Model *m = result->get(classifier::training::model).get();
     const logistic_regression::training::Parameter *par = static_cast<logistic_regression::training::Parameter*>(_par);
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::TrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-        compute, daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
+
+    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL(env, internal::TrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
+            compute, daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, internal::TrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
+            compute, daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -83,7 +107,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
         auto solver = optimization_solver::sgd::Batch<algorithmFPType, optimization_solver::sgd::momentum>::create();
         par->optimizationSolver = solver;
         const size_t nIterations = 1000;
-        const algorithmFPType  learningRate = 1e-3;
+        const algorithmFPType learningRate = 1e-3;
         const algorithmFPType accuracyThreshold = 1e-4;
         solver->parameter.learningRateSequence = HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, learningRate);
         solver->parameter.accuracyThreshold = accuracyThreshold;

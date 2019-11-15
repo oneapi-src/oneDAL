@@ -225,10 +225,16 @@ public:
            nt->basicStatistics.get(NumericTableIface::sum       ).get() != NULL &&
            nt->basicStatistics.get(NumericTableIface::sumSquares).get() != NULL)
         {
+            BlockDescriptor<DAAL_DATA_TYPE> blockNt;
+            nt->getBlockOfRows(0, nt->getNumberOfRows(), readOnly, blockNt );
+            DAAL_DATA_TYPE *row = blockNt.getBlockPtr();
+
             for(size_t i = 0; i < nRows; i++)
             {
-                DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>::updateStatistics( i, nt );
+                DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>::updateStatistics(i, nt, row);
             }
+
+            nt->releaseBlockOfRows(blockNt);
         }
 
         NumericTableDictionaryPtr ntDict = nt->getDictionarySharedPtr();

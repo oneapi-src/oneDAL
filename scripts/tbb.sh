@@ -17,8 +17,8 @@
 
 
 
-TBB_URL_ROOT="https://github.com/intel/tbb/releases/download/2019_U8/"
-TBB_VERSION="tbb2019_20190605oss"
+TBB_URL_ROOT="https://github.com/intel/tbb/releases/download/2019_U9/"
+TBB_VERSION="tbb2019_20191006oss"
 TBB_TARGET_ARCH=32e
 TBB_TARGET_PLATFORM=linux
 

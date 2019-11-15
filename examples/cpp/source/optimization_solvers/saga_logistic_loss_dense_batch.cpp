@@ -44,7 +44,7 @@ const size_t nIterations = 100000;
     also it can be set by user at any value.
 */
 
-const float tol = 0.00000001;
+const float tol = 0.00000001f;
 
 int main(int argc, char *argv[])
 {
@@ -71,12 +71,12 @@ int main(int argc, char *argv[])
     float argument[nParameters];
 
     for(int i = 0; i < nParameters; i++)
-        argument[i] = 0;
-    argument[0] = 0;
-    argument[1] = 0;
+        argument[i] = 0.f;
+    argument[0] = 0.f;
+    argument[1] = 0.f;
 
-    func->parameter().penaltyL1 = 0.06;
-    func->parameter().penaltyL2 = 0;    /* penalty L2 is set to zero value as sklearn doesn`t support l1 and l2 similtaniously in curent moment */
+    func->parameter().penaltyL1 = 0.06f;
+    func->parameter().penaltyL2 = 0.f;    /* penalty L2 is set to zero value as sklearn doesn`t support l1 and l2 similtaniously in curent moment */
     func->parameter().interceptFlag = false;
     func->parameter().resultsToCompute = optimization_solver::objective_function::gradient;
 
@@ -105,8 +105,8 @@ int main(int argc, char *argv[])
     func_check->input.set(optimization_solver::logistic_loss::dependentVariables, dependentVariables);
 
 
-    func_check->parameter().penaltyL1 = 0.06;
-    func_check->parameter().penaltyL2 = 0;//float(1.0)/float((2*100.0*4096));
+    func_check->parameter().penaltyL1 = 0.06f;
+    func_check->parameter().penaltyL2 = 0.f;//float(1.0)/float((2*100.0*4096));
     func_check->parameter().interceptFlag = false;
 
     func_check->parameter().resultsToCompute = optimization_solver::objective_function::value; /*contains the smooth and not smooth part */

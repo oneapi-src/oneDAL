@@ -21,7 +21,11 @@
 //--
 */
 #include "service_math.h"
-#include "objective_function_utils.i"
+#include "service_ittnotify.h"
+
+DAAL_ITTNOTIFY_DOMAIN(logistic_loss.dense.default.batch);
+
+#include "common/objective_function_utils.i"
 
 namespace daal
 {

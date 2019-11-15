@@ -19,7 +19,6 @@
 #include "daal.h"
 
 #include "java_numeric_table.h"
-#include "java_tensor.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -174,7 +173,6 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_SerializableBas
         return;
     }
     daal::JavaNumericTableBase::setJavaVM(jvm);
-    daal::JavaTensorBase::setJavaVM(jvm);
 }
 
 /*
@@ -186,7 +184,6 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_SerializableBas
 (JNIEnv *env, jobject thisObj, jobject context)
 {
     daal::JavaNumericTableBase::setDaalContext(env->NewGlobalRef(context));
-    daal::JavaTensorBase::setDaalContext(env->NewGlobalRef(context));
 }
 
 /*
@@ -199,6 +196,4 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_SerializableBas
 {
     env->DeleteGlobalRef(daal::JavaNumericTableBase::getDaalContext());
     daal::JavaNumericTableBase::setDaalContext(NULL);
-    env->DeleteGlobalRef(daal::JavaTensorBase::getDaalContext());
-    daal::JavaTensorBase::setDaalContext(NULL);
 }

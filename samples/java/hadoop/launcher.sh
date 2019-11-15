@@ -64,19 +64,29 @@ if [ "${os_name}" == "Linux" ]; then
     export LIBJAVAAPI=libJavaAPI.so
     export LIBTBB=libtbb.so.2
     export LIBTBBMALLOC=libtbbmalloc.so.2
-    gcc_runtimes=
-    if [ -d ${DAALROOT}/../tbb/lib/${daal_ia}_lin/gcc4.4 ]; then gcc_runtimes=gcc4.4; fi
-    if [ -d ${DAALROOT}/../tbb/lib/${daal_ia}_lin/gcc4.8 ]; then gcc_runtimes=gcc4.8; fi
-    if [ -z ${gcc_runtimes} ]; then
-        echo Can not find TBB runtimes neither for gcc4.4 nor gcc4.8
+
+    TBBLIBS=
+    if [ -d ${TBBROOT}/lib/${daal_ia}/gcc4.8 ]; then TBBLIBS=${TBBROOT}/lib/${daal_ia}/gcc4.8; fi
+    if [ -z ${TBBLIBS} ]; then
+        echo Can not find TBB runtimes
         exit 1
     fi
-    hdfs dfs -put -f ${DAALROOT}/lib/${daal_ia}_lin/${LIBJAVAAPI} ${DAALROOT}/../tbb/lib/${daal_ia}_lin/${gcc_runtimes}/${LIBTBB} ${DAALROOT}/../tbb/lib/${daal_ia}_lin/${gcc_runtimes}/${LIBTBBMALLOC} /Hadoop/Libraries/   >> ${result_folder}/hdfs.log 2>&1
+
+    hdfs dfs -put -f ${DAALROOT}/lib/${daal_ia}/${LIBJAVAAPI} ${TBBLIBS}/${LIBTBB} ${TBBLIBS}/${LIBTBBMALLOC} /Hadoop/Libraries/   >> ${result_folder}/hdfs.log 2>&1
 elif [ "${os_name}" == "Darwin" ]; then
     export LIBJAVAAPI=libJavaAPI.dylib
     export LIBTBB=libtbb.dylib
     export LIBTBBMALLOC=libtbbmalloc.dylib
-    hdfs dfs -put -f ${DAALROOT}/lib/${LIBJAVAAPI} ${DAALROOT}/../tbb/lib/${LIBTBB} ${DAALROOT}/../tbb/lib/${LIBTBBMALLOC} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
+
+    TBBLIBS=
+    if [ -d ${TBBROOT}/lib ]; then TBBLIBS=${TBBROOT}/lib; fi
+    if ! [ -z {$TBBROOT} ] && [ -d ${TBBROOT}/lib ]; then TBBLIBS=${TBBROOT}/lib; fi
+    if [ -z ${TBBLIBS} ]; then
+        echo Can not find TBB runtimes
+        exit 1
+    fi
+
+    hdfs dfs -put -f ${DAALROOT}/lib/${LIBJAVAAPI} ${TBBLIBS}/${LIBTBB} ${TBBLIBS}/${LIBTBBMALLOC} /Hadoop/Libraries/ >> ${result_folder}/hdfs.log 2>&1
 fi
 
 # Setting envs

@@ -26,6 +26,7 @@
 
 #include "services/base.h"
 #include "services/daal_defines.h"
+#include "services/execution_context.h"
 
 namespace daal
 {
@@ -163,6 +164,23 @@ public:
      */
     int setMemoryLimit(MemType type, size_t limit);
 
+    /**
+     *  Sets execution context globally for all algorithms.
+     *  After this method is called, all computations inside algorithms are performed
+     *  using device information from execution context.
+     *  \param[in] ctx Execution context with information on how to perform computations inside the library
+     */
+    void setDefaultExecutionContext(const ExecutionContext &ctx)
+    {
+        _executionContext = internal::ImplAccessor::getImplPtr<oneapi::internal::ExecutionContextIface>(ctx);
+    }
+
+    // TODO: remove internal from public API
+    oneapi::internal::ExecutionContextIface &getDefaultExecutionContext()
+    {
+        return *_executionContext;
+    }
+
 private:
     Environment();
     Environment(const Environment &e);
@@ -172,8 +190,8 @@ private:
     void initNumberOfThreads();
 
     env _env;
-
     void *_init;
+    SharedPtr<oneapi::internal::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
 

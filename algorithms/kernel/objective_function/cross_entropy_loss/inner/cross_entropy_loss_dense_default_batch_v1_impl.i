@@ -23,7 +23,12 @@
 #include "service_math.h"
 #include "service_utils.h"
 #include "service_environment.h"
-#include "objective_function_utils.i"
+
+#include "service_ittnotify.h"
+
+DAAL_ITTNOTIFY_DOMAIN(cross_entropy_loss.dense.default.batch);
+
+#include "common/objective_function_utils.i"
 
 namespace daal
 {

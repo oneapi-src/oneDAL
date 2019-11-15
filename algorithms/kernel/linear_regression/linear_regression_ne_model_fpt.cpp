@@ -23,6 +23,8 @@
 
 #include "linear_regression_ne_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
+#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "oneapi/internal/utils.h"
 
 namespace daal
 {
@@ -50,10 +52,25 @@ ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const line
     {
         dimWithoutBeta--;
     }
-    _xtxTable = HomogenNumericTable<modelFPType>::create(dimWithoutBeta, dimWithoutBeta, NumericTable::doAllocate, 0, &st);
-    if (!st) return;
-    _xtyTable = HomogenNumericTable<modelFPType>::create(dimWithoutBeta, nrhs, NumericTable::doAllocate, 0, &st);
-    if (!st) return;
+
+    auto &context = oneapi::internal::getDefaultContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if(deviceInfo.isCpu)
+    {
+        _xtxTable = HomogenNumericTable<modelFPType>::create(dimWithoutBeta, dimWithoutBeta, NumericTable::doAllocate, 0, &st);
+        if (!st) return;
+        _xtyTable = HomogenNumericTable<modelFPType>::create(dimWithoutBeta, nrhs, NumericTable::doAllocate, 0, &st);
+        if (!st) return;
+    }
+    else
+    {
+        _xtxTable = SyclHomogenNumericTable<modelFPType>::create(dimWithoutBeta, dimWithoutBeta, NumericTable::doAllocate, 0, &st);
+        if (!st) return;
+        _xtyTable = SyclHomogenNumericTable<modelFPType>::create(dimWithoutBeta, nrhs, NumericTable::doAllocate, 0, &st);
+        if (!st) return;
+    }
+
 }
 
 template ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter &par, DAAL_FPTYPE dummy, Status &st);

@@ -24,12 +24,9 @@
 #ifndef __ALGORITHM_CONTAINER_BASE_COMMON_H__
 #define __ALGORITHM_CONTAINER_BASE_COMMON_H__
 
-#include "services/daal_memory.h"
-#include "services/daal_kernel_defines.h"
+#include "algorithms/algorithm_container_base.h"
 #include "services/error_handling.h"
-#include "services/env_detect.h"
-#include "algorithms/algorithm_types.h"
-#include "algorithms/algorithm_kernel.h"
+#include "services/internal/gpu_support_checker.h"
 
 namespace daal
 {
@@ -45,180 +42,6 @@ namespace algorithms
 */
 namespace interface1
 {
-
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__ALGORITHMCONTAINERIFACE"></a>
- * \brief Implements the abstract interface AlgorithmContainerIface. It is associated with the Algorithm class
- *        and supports the methods for computation and finalization of the algorithm results
- *        in the batch, distributed, and online modes.
- */
-class AlgorithmContainerIface
-{
-public:
-    DAAL_NEW_DELETE();
-
-    virtual ~AlgorithmContainerIface() {}
-};
-
-/**
- * <a name="ALGORITHMS__ALGORITHMCONTAINERIFACEIMPL"></a>
- * \brief Implements the abstract interface AlgorithmContainerIfaceImpl. It is associated with the Algorithm class
- *        and supports the methods for computation and finalization of the algorithm results
- *        in the batch, distributed, and online modes.
- */
-class AlgorithmContainerIfaceImpl : public AlgorithmContainerIface
-{
-public:
-    /**
-     * Default constructor
-     * \param[in] daalEnv   Pointer to the structure that contains information about the environment
-     */
-    AlgorithmContainerIfaceImpl(daal::services::Environment::env *daalEnv) : _env(daalEnv), _kernel(NULL) {}
-
-    virtual ~AlgorithmContainerIfaceImpl() {}
-
-    /**
-     * Sets the information about the environment
-     * \param[in] daalEnv   Pointer to the structure that contains information about the environment
-     */
-    void setEnvironment(daal::services::Environment::env *daalEnv)
-    {
-        _env = daalEnv;
-    }
-
-protected:
-    daal::services::Environment::env     *_env;
-    Kernel *_kernel;
-};
-
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__ALGORITHMCONTAINER"></a>
- * \brief Abstract interface class that provides virtual methods to access and run implementations
- *        of the algorithms. It is associated with the Algorithm class
- *        and supports the methods for computation and finalization of the algorithm results
- *        in the batch, distributed, and online modes.
- *        The methods of the container are defined in derivative containers defined for each algorithm.
- * \tparam mode Computation mode of the algorithm, \ref ComputeMode
- */
-template<ComputeMode mode> class AlgorithmContainer : public AlgorithmContainerIfaceImpl
-{
-public:
-    /**
-     * Default constructor
-     * \param[in] daalEnv   Pointer to the structure that contains information about the environment
-     */
-    AlgorithmContainer(daal::services::Environment::env *daalEnv) : AlgorithmContainerIfaceImpl(daalEnv) {}
-
-    virtual ~AlgorithmContainer() {}
-
-    /**
-     * Computes final results of the algorithm in the %batch mode,
-     * or partial results of the algorithm in %online and %distributed modes.
-     * This method behaves similarly to compute method of the Algorithm class.
-     */
-    virtual services::Status compute() = 0;
-
-    /**
-     * Computes final results of the algorithm using partial results in %online and %distributed modes.
-     * This method behaves similarly to finalizeCompute method of the Algorithm class.
-     */
-    virtual services::Status finalizeCompute() = 0;
-
-    /**
-     * Setups internal datastructures for compute function.
-     */
-    virtual services::Status setupCompute() = 0;
-
-    /**
-     * Resets internal datastructures for compute function.
-     */
-    virtual services::Status resetCompute() = 0;
-
-    /**
-     * Setups internal datastructures for finalizeCompute function.
-     */
-    virtual services::Status setupFinalizeCompute() = 0;
-
-    /**
-     * Resets internal datastructures for finalizeCompute function.
-     */
-    virtual services::Status resetFinalizeCompute() = 0;
-};
-
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__ALGORITHMCONTAINERIMPL"></a>
- * \brief Abstract interface class that provides virtual methods to access and run implementations
- *        of the algorithms. It is associated with the Algorithm class
- *        and supports the methods for computation and finalization of the algorithm results
- *        in the batch, distributed, and online modes.
- *        The methods of the container are defined in derivative containers defined for each algorithm.
- * \tparam mode Computation mode of the algorithm, \ref ComputeMode
- */
-template<ComputeMode mode> class AlgorithmContainerImpl : public AlgorithmContainer<mode>
-{
-public:
-    /**
-     * Default constructor
-     * \param[in] daalEnv   Pointer to the structure that contains information about the environment
-     */
-    AlgorithmContainerImpl(daal::services::Environment::env *daalEnv = 0) : AlgorithmContainer<mode>(daalEnv), _in(0), _pres(0), _res(0), _par(0) {}
-
-    virtual ~AlgorithmContainerImpl() {}
-
-    /**
-     * Sets arguments of the algorithm
-     * \param[in] in    Pointer to the input arguments of the algorithm
-     * \param[in] pres  Pointer to the partial results of the algorithm
-     * \param[in] par   Pointer to the parameters of the algorithm
-     */
-    void setArguments(Input *in, PartialResult *pres, Parameter *par)
-    {
-        _in   = in;
-        _pres = pres;
-        _par  = par;
-    }
-
-    /**
-     * Sets partial results of the algorithm
-     * \param[in] pres   Pointer to the partial results of the algorithm
-     */
-    void setPartialResult(PartialResult *pres)
-    {
-        _pres = pres;
-    }
-
-    /**
-     * Sets final results of the algorithm
-     * \param[in] res   Pointer to the final results of the algorithm
-     */
-    void setResult(Result *res)
-    {
-        _res = res;
-    }
-
-    /**
-     * Retrieves final results of the algorithm
-     * \return   Pointer to the final results of the algorithm
-     */
-    Result *getResult() const
-    {
-        return _res;
-    }
-
-    virtual services::Status setupCompute() DAAL_C11_OVERRIDE { return services::Status();  }
-
-    virtual services::Status resetCompute() DAAL_C11_OVERRIDE { return services::Status(); }
-
-    virtual services::Status setupFinalizeCompute() DAAL_C11_OVERRIDE { return services::Status(); }
-
-    virtual services::Status resetFinalizeCompute() DAAL_C11_OVERRIDE { return services::Status(); }
-
-protected:
-    Input                                *_in;
-    PartialResult                        *_pres;
-    Result                               *_res;
-    Parameter                            *_par;
-};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ALGORITHMDISPATCHCONTAINER"></a>
@@ -257,6 +80,10 @@ public:
 
     virtual services::Status compute() DAAL_C11_OVERRIDE
     {
+        oneapi::internal::ExecutionContextIface& context = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::InfoDevice& deviceInfo = context.getInfoDevice();
+        if (!daal::services::internal::isImplementedForDevice(deviceInfo, _cntr))
+            return services::Status(services::ErrorDeviceSupportNotImplemented);
         _cntr->setArguments(this->_in, this->_pres, this->_par);
         return _cntr->compute();
     }
@@ -296,7 +123,6 @@ protected:
 
 /** @} */
 } // namespace interface1
-using interface1::AlgorithmContainerImpl;
 using interface1::AlgorithmDispatchContainer;
 
 }

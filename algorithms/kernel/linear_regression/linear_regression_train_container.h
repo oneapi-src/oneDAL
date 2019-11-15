@@ -32,6 +32,9 @@
 #include "linear_regression_ne_model.h"
 #include "linear_regression_qr_model.h"
 #include "service_numeric_table.h"
+#include "oneapi/internal/utils.h"
+
+#include "oneapi/linear_regression_train_kernel_oneapi.h"
 
 namespace daal
 {
@@ -52,7 +55,17 @@ using namespace daal::internal;
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::BatchKernel, algorithmFPType, method);
+    auto &context = oneapi::internal::getDefaultContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if ((method == training::normEqDense) && (!deviceInfo.isCpu))
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::BatchKernelOneAPI, algorithmFPType, training::normEqDense);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::BatchKernel, algorithmFPType, method);
+    }
 }
 
 template <typename algorithmFPType, training::Method method, CpuType cpu>
@@ -78,13 +91,26 @@ Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     Environment::env &env = *_env;
 
+    auto &context = oneapi::internal::getDefaultContext();
+    auto &deviceInfo = context.getInfoDevice();
+
     if (method == training::normEqDense)
     {
         linear_regression::ModelNormEqPtr m = linear_regression::ModelNormEq::cast(result->get(model));
 
-        __DAAL_CALL_KERNEL(env, internal::BatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), \
+        if(deviceInfo.isCpu)
+        {
+            __DAAL_CALL_KERNEL(env, internal::BatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), \
                            compute, *(input->get(data)), *(input->get(dependentVariables)),                             \
                            *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()), par->interceptFlag);
+        }
+        else
+        {
+            __DAAL_CALL_KERNEL_SYCL(env, internal::BatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), \
+                            compute, *(input->get(data)), *(input->get(dependentVariables)),                             \
+                           *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()), par->interceptFlag);
+        }
+
     }
     else
     {
@@ -308,9 +334,9 @@ Status DistributedContainer<step2Master, algorithmFPType, method, cpu>::finalize
     }
 }
 
-}
-}
-}
-}
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

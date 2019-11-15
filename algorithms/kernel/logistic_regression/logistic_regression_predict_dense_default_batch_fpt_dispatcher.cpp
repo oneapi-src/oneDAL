@@ -29,7 +29,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(logistic_regression::prediction::BatchContainer, batch,\
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(logistic_regression::prediction::BatchContainer, batch,\
     DAAL_FPTYPE, logistic_regression::prediction::defaultDense)
 namespace logistic_regression
 {
@@ -51,8 +51,9 @@ Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(const B
     _par = new ParameterType(other.parameter());
     initialize();
 }
+
 }
-}
-}
-}
-} // namespace daal
+}// namespace prediction
+}// namespace logistic_regression
+}// namespace algorithms
+}// namespace daal

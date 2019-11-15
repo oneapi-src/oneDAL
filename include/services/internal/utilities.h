@@ -18,6 +18,8 @@
 #ifndef __SERVICES_INTERNAL_UTILITIES_H__
 #define __SERVICES_INTERNAL_UTILITIES_H__
 
+#include "services/daal_shared_ptr.h"
+
 namespace daal
 {
 namespace services
@@ -25,11 +27,33 @@ namespace services
 namespace internal
 {
 
+/** @ingroup services_internal
+ * @{
+ */
+
 template <typename T>
 inline const T & minValue(const T & a, const T & b) { return !(b < a) ? a : b; }
 
 template <typename T>
 inline const T & maxValue(const T & a, const T & b) { return (a < b) ? b : a; }
+
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__IMPLACCESSOR"></a>
+ *  \brief Implements method to access implementation object
+ *         for PIMPL template
+ */
+class ImplAccessor
+{
+public:
+    template<typename Impl, typename Class>
+    static const SharedPtr<Impl> &getImplPtr(const Class &object)
+    { return object.getImplPtr(); }
+
+private:
+    ImplAccessor() { }
+};
+
+/** @} */
 
 } // namespace internal
 } // namespace services

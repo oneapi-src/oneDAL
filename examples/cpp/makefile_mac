@@ -46,7 +46,7 @@ help:
 ##                                 Intel(R) 64 processor family applications,
 ##                                 dynamic linking
 ##
-## make libintel64 compiler=gnu  - build by GNU C++ compiler and 
+## make libintel64 compiler=gnu  - build by GNU C++ compiler and
 ##                                 run all examples of Intel(R) DAAL for
 ##                                 Intel(R) 64 processor family applications,
 ##                                 static linking
@@ -132,7 +132,7 @@ vpath
 vpath %.cpp $(addprefix ./source/,association_rules boosting cholesky compression covariance datasource decision_forest distance em \
                                   gradient_boosted_trees host_app kernel_function kmeans linear_regression logistic_regression \
                                   moments naive_bayes outlier_detection qr quality_metrics serialization stump svd svm utils services  \
-                                  quantiles pivoted_qr pca implicit_als set_number_of_threads neural_networks math sorting error_handling \
+                                  quantiles pivoted_qr pca implicit_als set_number_of_threads sorting error_handling \
                                   optimization_solvers optimization_solver/objective_function normalization ridge_regression \
                                   k_nearest_neighbors decision_tree distributions enable_thread_pinning pca_transform dbscan lasso_regression)
 

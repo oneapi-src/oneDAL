@@ -26,6 +26,7 @@
 #define __NUMERIC_TABLE_H__
 
 #include "services/base.h"
+#include "services/buffer.h"
 #include "services/daal_defines.h"
 #include "services/daal_memory.h"
 #include "services/error_handling.h"
@@ -70,11 +71,18 @@ public:
      */
     inline DataType *getBlockPtr() const
     {
-        if(_rawPtr)
+        if (_rawPtr)
         {
             return (DataType *)_rawPtr;
         }
-        return _ptr.get();
+        else if (_xBuffer)
+        {
+            return getCachedHostSharedPtr().get();
+        }
+        else
+        {
+            return _ptr.get();
+        }
     }
 
     /**
@@ -83,11 +91,38 @@ public:
      */
     inline services::SharedPtr<DataType> getBlockSharedPtr() const
     {
-        if(_rawPtr)
+        if (_rawPtr)
         {
             return services::SharedPtr<DataType>(services::reinterpretPointerCast<DataType, byte>(*_pPtr), (DataType *)_rawPtr);
         }
-        return _ptr;
+        else if (_xBuffer)
+        {
+            return _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag);
+        }
+        else
+        {
+            return _ptr;
+        }
+    }
+
+    /**
+     *  Gets a Buffer object to the data block
+     *  \return Buffer to the block
+     */
+    inline daal::services::Buffer<DataType> getBuffer() const
+    {
+        if (_rawPtr)
+        {
+            return daal::services::Buffer<DataType>((DataType *)_rawPtr, _ncols * _nrows);
+        }
+        else if (_xBuffer)
+        {
+            return _xBuffer;
+        }
+        else
+        {
+            return daal::services::Buffer<DataType>(_ptr, _ncols * _nrows);
+        }
     }
 
     /**
@@ -103,7 +138,7 @@ public:
     inline size_t getNumberOfRows() const { return _nrows; }
 
     /**
-     * Reset internal values and pointers to zero values
+     * Resets internal values and pointers to zero values
      */
     inline void reset()
     {
@@ -112,6 +147,7 @@ public:
         _rwFlag = 0;
         _pPtr = NULL;
         _rawPtr = NULL;
+        _hostSharedPtr.reset();
     }
 
 public:
@@ -121,8 +157,10 @@ public:
      *  \param[in] nColumns Number of columns
      *  \param[in] nRows    Number of rows
      */
-    inline void setPtr( DataType *ptr, size_t nColumns, size_t nRows )
+    inline void setPtr(DataType *ptr, size_t nColumns, size_t nRows)
     {
+        _xBuffer.reset();
+        _hostSharedPtr.reset();
         _ptr   = services::SharedPtr<DataType>(ptr, services::EmptyDeleter());
         _ncols = nColumns;
         _nrows = nRows;
@@ -130,12 +168,14 @@ public:
 
     /**
      *  \param[in] pPtr Pointer to the shared pointer that handles the memory
-     *  \param[in] rawPtr Pointer to she shifted memory
+     *  \param[in] rawPtr Pointer to the shifted memory
      *  \param[in] nColumns Number of columns
      *  \param[in] nRows Number of rows
      */
-    void setPtr(services::SharedPtr<byte> *pPtr, byte *rawPtr, size_t nColumns, size_t nRows )
+    inline void setPtr(services::SharedPtr<byte> *pPtr, byte *rawPtr, size_t nColumns, size_t nRows)
     {
+        _xBuffer.reset();
+        _hostSharedPtr.reset();
         _pPtr = pPtr;
         _rawPtr = rawPtr;
         _ncols = nColumns;
@@ -143,15 +183,34 @@ public:
     }
 
     /**
-     *  Allocates memory of (nColumns * nRows + auxMemorySize) size
+     *  Sets data buffer to the table
+     *  \param[in] buffer Buffer object that contains the memory
+     *  \param[in] nColumns Number of columns
+     *  \param[in] nRows Number of rows
+     */
+    inline void setBuffer(const daal::services::Buffer<DataType> &buffer, size_t nColumns, size_t nRows)
+    {
+        _xBuffer = buffer;
+        _hostSharedPtr.reset();
+        _pPtr = NULL;
+        _rawPtr = NULL;
+        _ncols = nColumns;
+        _nrows = nRows;
+    }
+
+    /**
+     *  Allocates memory of (\p nColumns * \p nRows + \p auxMemorySize) size
      *  \param[in] nColumns      Number of columns
      *  \param[in] nRows         Number of rows
      *  \param[in] auxMemorySize Memory size
      *
-     *  \return true if memory of (nColumns * nRows + auxMemorySize) size is allocated successfully
+     *  \return true if memory of (\p nColumns * \p nRows + \p auxMemorySize) size is allocated successfully
      */
     inline bool resizeBuffer( size_t nColumns, size_t nRows, size_t auxMemorySize = 0 )
     {
+        // TOOD: Resize _xBuffer
+        _xBuffer.reset();
+        _hostSharedPtr.reset();
         _ncols = nColumns;
         _nrows = nRows;
 
@@ -199,6 +258,8 @@ public:
         _colsOffset = columnIdx;
         _rowsOffset = rowIdx;
         _rwFlag     = rwFlag;
+
+        _hostSharedPtr.reset(); // need to reallocate cached pointer when rwFlag is changed
     }
 
     /**
@@ -220,7 +281,7 @@ public:
     inline size_t getRWFlag() const { return _rwFlag; }
 
     /**
-     *  Gets a pointer o the additional memory buffer
+     *  Gets a pointer to the additional memory buffer
      *  \return pointer
      */
     inline void  *getAdditionalBufferPtr() const { return _aux_ptr.get(); }
@@ -239,6 +300,20 @@ protected:
         _capacity = 0;
     }
 
+    /**
+     *  Gets cached shared pointer to the block of memory from the Buffer object
+     * \return shared pointer
+     */
+
+    inline services::SharedPtr<DataType> getCachedHostSharedPtr() const
+    {
+        if (!_hostSharedPtr)
+        {
+            _hostSharedPtr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag);
+        }
+        return _hostSharedPtr;
+    }
+
 private:
     services::SharedPtr<DataType> _ptr;
     size_t    _nrows;
@@ -255,6 +330,9 @@ private:
 
     services::SharedPtr<byte> *_pPtr;
     byte *_rawPtr;
+
+    daal::services::Buffer<DataType> _xBuffer;
+    mutable services::SharedPtr<DataType> _hostSharedPtr; // owns pointer returned from getBlockPtr() method
 };
 
 /**

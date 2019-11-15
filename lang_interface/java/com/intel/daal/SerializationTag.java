@@ -100,15 +100,6 @@ public final class SerializationTag {
     private static final int SERIALIZATION_LOWERPACKEDTRIANGULAR_INT64_U_NT_ID_VALUE               = 12025;
     private static final int SERIALIZATION_MERGE_NT_ID_VALUE                                       = 13000;
     private static final int SERIALIZATION_ROWMERGE_NT_ID_VALUE                                    = 14000;
-    private static final int SERIALIZATION_HOMOGEN_FLOAT32_TENSOR_ID_VALUE                         = 20000;
-    private static final int SERIALIZATION_HOMOGEN_FLOAT64_TENSOR_ID_VALUE                         = 20001;
-    private static final int SERIALIZATION_HOMOGEN_INT32_S_TENSOR_ID_VALUE                         = 20002;
-    private static final int SERIALIZATION_HOMOGEN_INT32_U_TENSOR_ID_VALUE                         = 20003;
-    private static final int SERIALIZATION_HOMOGEN_INT64_S_TENSOR_ID_VALUE                         = 20004;
-    private static final int SERIALIZATION_HOMOGEN_INT64_U_TENSOR_ID_VALUE                         = 20005;
-    private static final int SERIALIZATION_MKL_FLOAT32_TENSOR_ID_VALUE                             = 24000;
-    private static final int SERIALIZATION_MKL_FLOAT64_TENSOR_ID_VALUE                             = 24001;
-    private static final int SERIALIZATION_JAVANIO_HOMOGEN_TENSOR_ID_VALUE                         = 21000;
 
     public static final SerializationTag SERIALIZATION_HOMOGEN_FLOAT32_NT_ID     = new SerializationTag(SERIALIZATION_HOMOGEN_FLOAT32_NT_ID_VALUE);
     public static final SerializationTag SERIALIZATION_HOMOGEN_FLOAT64_NT_ID     = new SerializationTag(SERIALIZATION_HOMOGEN_FLOAT64_NT_ID_VALUE);
@@ -158,14 +149,5 @@ public final class SerializationTag {
     public static final SerializationTag SERIALIZATION_LOWERPACKEDTRIANGULAR_INT64_U_NT_ID = new SerializationTag(SERIALIZATION_LOWERPACKEDTRIANGULAR_INT64_U_NT_ID_VALUE);
     public static final SerializationTag SERIALIZATION_MERGE_NT_ID                         = new SerializationTag(SERIALIZATION_MERGE_NT_ID_VALUE);
     public static final SerializationTag SERIALIZATION_ROWMERGE_NT_ID                      = new SerializationTag(SERIALIZATION_ROWMERGE_NT_ID_VALUE);
-    public static final SerializationTag SERIALIZATION_HOMOGEN_FLOAT32_TENSOR_ID           = new SerializationTag(SERIALIZATION_HOMOGEN_FLOAT32_TENSOR_ID_VALUE);
-    public static final SerializationTag SERIALIZATION_HOMOGEN_FLOAT64_TENSOR_ID           = new SerializationTag(SERIALIZATION_HOMOGEN_FLOAT64_TENSOR_ID_VALUE);
-    public static final SerializationTag SERIALIZATION_HOMOGEN_INT32_S_TENSOR_ID           = new SerializationTag(SERIALIZATION_HOMOGEN_INT32_S_TENSOR_ID_VALUE);
-    public static final SerializationTag SERIALIZATION_HOMOGEN_INT32_U_TENSOR_ID           = new SerializationTag(SERIALIZATION_HOMOGEN_INT32_U_TENSOR_ID_VALUE);
-    public static final SerializationTag SERIALIZATION_HOMOGEN_INT64_S_TENSOR_ID           = new SerializationTag(SERIALIZATION_HOMOGEN_INT64_S_TENSOR_ID_VALUE);
-    public static final SerializationTag SERIALIZATION_HOMOGEN_INT64_U_TENSOR_ID           = new SerializationTag(SERIALIZATION_HOMOGEN_INT64_U_TENSOR_ID_VALUE);
-    public static final SerializationTag SERIALIZATION_MKL_FLOAT32_TENSOR_ID               = new SerializationTag(SERIALIZATION_MKL_FLOAT32_TENSOR_ID_VALUE);
-    public static final SerializationTag SERIALIZATION_MKL_FLOAT64_TENSOR_ID               = new SerializationTag(SERIALIZATION_MKL_FLOAT64_TENSOR_ID_VALUE);
-    public static final SerializationTag SERIALIZATION_JAVANIO_HOMOGEN_TENSOR_ID           = new SerializationTag(SERIALIZATION_JAVANIO_HOMOGEN_TENSOR_ID_VALUE);
 }
 /** @} */

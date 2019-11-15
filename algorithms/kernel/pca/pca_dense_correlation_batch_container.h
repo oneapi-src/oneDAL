@@ -27,6 +27,11 @@
 #include "kernel.h"
 #include "pca_batch.h"
 #include "pca_dense_correlation_batch_kernel.h"
+#include "oneapi/pca_dense_correlation_batch_kernel_ucapi.h"
+#include "execution_context.h"
+
+
+using namespace daal::services::internal;
 
 namespace daal
 {
@@ -40,7 +45,18 @@ namespace interface3
 template <typename algorithmFPType, CpuType cpu>
 BatchContainer<algorithmFPType, correlationDense, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, batch, algorithmFPType);
+    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto& deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, batch, algorithmFPType);
+    }
+    else
+    {
+         services::SharedPtr<internal::PCACorrelationBaseIface<algorithmFPType>> hostImpl(new internal::PCACorrelationBase<algorithmFPType, cpu>());
+        _kernel = new internal::PCACorrelationKernelUCAPI<algorithmFPType>(hostImpl);
+    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -52,6 +68,9 @@ BatchContainer<algorithmFPType, correlationDense, cpu>::~BatchContainer()
 template <typename algorithmFPType, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute()
 {
+    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto& deviceInfo = context.getInfoDevice();
+
     Input *input = static_cast<Input *>(_in);
     Result *result = static_cast<Result *>(_res);
     interface3::BatchParameter<algorithmFPType, correlationDense> *parameter = static_cast<interface3::BatchParameter
@@ -72,9 +91,19 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
         covarianceAlgorithm->getResult()->set(covariance::mean, means);
     }
 
-    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute,
-                       input->isCorrelation(), parameter->isDeterministic, *data, covarianceAlgorithm.get(),
-                       parameter->resultsToCompute, *eigenvectors, *eigenvalues, *means, *variances);
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute,
+                           input->isCorrelation(), parameter->isDeterministic, *data, covarianceAlgorithm.get(),
+                           parameter->resultsToCompute, *eigenvectors, *eigenvalues, *means, *variances);
+    }
+    else
+    {
+
+        return ((internal::PCACorrelationKernelUCAPI<algorithmFPType>*)(_kernel))->compute(
+                           input->isCorrelation(), parameter->isDeterministic, *data, covarianceAlgorithm.get(),
+                           parameter->resultsToCompute, *eigenvectors, *eigenvalues, *means, *variances);
+    }
 }
 
 } // namespace interface3

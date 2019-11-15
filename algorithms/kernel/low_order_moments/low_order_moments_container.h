@@ -29,6 +29,9 @@
 #include "low_order_moments_online.h"
 #include "low_order_moments_distributed.h"
 #include "low_order_moments_kernel.h"
+#include "oneapi/low_order_moments_kernel_batch_oneapi.h"
+#include "oneapi/low_order_moments_kernel_online_oneapi.h"
+#include "oneapi/internal/utils.h"
 
 namespace daal
 {
@@ -40,7 +43,17 @@ namespace low_order_moments
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsBatchKernel, algorithmFPType, method);
+    auto &context = daal::oneapi::internal::getDefaultContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if(method != defaultDense || deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsBatchKernel, algorithmFPType, method);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::LowOrderMomentsBatchKernelOneAPI, algorithmFPType, method);
+    }
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -60,15 +73,36 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Parameter *par = static_cast<Parameter *>(_par);
     daal::services::Environment::env &env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), \
-            compute, dataTable, result, par);
+    auto &context = daal::oneapi::internal::getDefaultContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if(method != defaultDense || deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), \
+                compute, dataTable, result, par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::LowOrderMomentsBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), \
+                compute, dataTable, result, par);
+    }
 }
 
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 OnlineContainer<algorithmFPType, method, cpu>::OnlineContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsOnlineKernel, algorithmFPType, method);
+    auto &context = daal::oneapi::internal::getDefaultContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if(method != defaultDense || deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsOnlineKernel, algorithmFPType, method);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::LowOrderMomentsOnlineKernelOneAPI, algorithmFPType, method);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -89,8 +123,19 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::compute()
     Parameter *par = static_cast<Parameter *>(_par);
     daal::services::Environment::env &env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),    \
-            compute, dataTable, partialResult, par, isOnline);
+    auto &context = daal::oneapi::internal::getDefaultContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if(method != defaultDense || deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),    \
+                compute, dataTable, partialResult, par, isOnline);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::LowOrderMomentsOnlineKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),    \
+                compute, dataTable, partialResult, par, isOnline);
+    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -99,30 +144,41 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute(
     PartialResult *partialResult = static_cast<PartialResult *>(_pres);
     Result *result = static_cast<Result *>(_res);
 
-    NumericTable *nObservationsTable = partialResult->get(nObservations).get();
-    NumericTable *sumTable           = partialResult->get(partialSum).get();
-    NumericTable *sumSqTable         = partialResult->get(partialSumSquares).get();
-    NumericTable *sumSqCenTable      = partialResult->get(partialSumSquaresCentered).get();
-
-    NumericTable *meanTable      = result->get(mean).get();
-    NumericTable *raw2MomTable   = result->get(secondOrderRawMoment).get();
-    NumericTable *varianceTable  = result->get(variance).get();
-    NumericTable *stDevTable     = result->get(standardDeviation).get();
-    NumericTable *variationTable = result->get(variation).get();
-
     Parameter *par = static_cast<Parameter *>(_par);
     daal::services::Environment::env &env = *_env;
 
-    services::Status s = __DAAL_CALL_KERNEL_STATUS(env, internal::LowOrderMomentsOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),    \
-            finalizeCompute, nObservationsTable, sumTable, sumSqTable, sumSqCenTable,
-            meanTable, raw2MomTable, varianceTable, stDevTable, variationTable, par);
+    // for other methods oneapi isn't implemented yet
+    auto &context = daal::oneapi::internal::getDefaultContext();
+    auto &deviceInfo = context.getInfoDevice();
 
     result->set(minimum,            partialResult->get(partialMinimum));
     result->set(maximum,            partialResult->get(partialMaximum));
     result->set(sum,                partialResult->get(partialSum));
     result->set(sumSquares,         partialResult->get(partialSumSquares));
     result->set(sumSquaresCentered, partialResult->get(partialSumSquaresCentered));
-    return s;
+
+    if(method != defaultDense || deviceInfo.isCpu)
+    {
+        NumericTable *nObservationsTable = partialResult->get(nObservations).get();
+        NumericTable *sumTable           = partialResult->get(partialSum).get();
+        NumericTable *sumSqTable         = partialResult->get(partialSumSquares).get();
+        NumericTable *sumSqCenTable      = partialResult->get(partialSumSquaresCentered).get();
+
+        NumericTable *meanTable      = result->get(mean).get();
+        NumericTable *raw2MomTable   = result->get(secondOrderRawMoment).get();
+        NumericTable *varianceTable  = result->get(variance).get();
+        NumericTable *stDevTable     = result->get(standardDeviation).get();
+        NumericTable *variationTable = result->get(variation).get();
+
+        __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),    \
+                finalizeCompute, nObservationsTable, sumTable, sumSqTable, sumSqCenTable,
+                meanTable, raw2MomTable, varianceTable, stDevTable, variationTable, par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::LowOrderMomentsOnlineKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),    \
+                finalizeCompute, partialResult, result, par);
+    }
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>

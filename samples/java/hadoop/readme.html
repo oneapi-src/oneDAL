@@ -940,14 +940,14 @@ notes for the version of Intel® DAAL you are using.</p>
 	as well. Let us know if you have any troubles with the distribution you are using.</p>
 <h2><a name="Preparation_before_build">Preparation Before Build and Run</a></h2>
     <h3> Setting Up the Build Environment&nbsp;</h3>
-<p> Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel® DAAL includes the <span class="filepath">daalvars</span> scripts that you can run to set environment variables:</p>
+<p> Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel® DAAL includes the <span class="filepath">vars</span> scripts that you can run to set environment variables:</p>
     <ul id="GUID-2FEE5E18-4507-402C-806D-F3C422B0D085">
-        <li>On Linux*, you can find the <span class="filepath">daalvars.sh|daalvars.csh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:</span><samp class="codeph"><br />
-            source daalvars.sh|csh {ia32|intel64}
+        <li>On Linux*, you can find the <span class="filepath">vars.sh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:</span><samp class="codeph"><br />
+            source vars.sh {ia32|intel64}
             </samp>
         </li>
-        <li>On macOS*, you can find the <span class="filepath">daalvars.sh|daalvars.csh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:</span><samp class="codeph"><br />
-            source daalvars.sh|csh
+        <li>On macOS*, you can find the <span class="filepath">vars.sh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:</span><samp class="codeph"><br />
+            source vars.sh
             </samp>
         </li>
     </ul>
@@ -1017,7 +1017,7 @@ to run the following algorithms on your Hadoop cluster: </p>
 the <samp class="codeph">./launcher.sh</samp> script. </p>
       <p> From the 
         <samp class="codeph">{ia32|intel64}</samp> parameters, select the one that matches the architecture parameter you provided to the 
-        <span class="filepath">daalvars</span><span class="filepath">.sh</span> script. If no parameters are defined, 
+        <span class="filepath">vars</span><span class="filepath">.sh</span> script. If no parameters are defined, 
 	  the Intel® 64 architecture is used by default. 
       </p>
  

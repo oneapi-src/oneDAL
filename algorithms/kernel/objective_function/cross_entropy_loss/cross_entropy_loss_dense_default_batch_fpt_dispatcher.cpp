@@ -26,7 +26,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::cross_entropy_loss::interface2::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::cross_entropy_loss::defaultDense);
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(optimization_solver::cross_entropy_loss::interface2::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::cross_entropy_loss::defaultDense)
 
 namespace optimization_solver
 {

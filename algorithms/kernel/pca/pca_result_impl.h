@@ -86,6 +86,9 @@ protected:
     */
     template <typename algorithmFPType>
     services::Status allocate(size_t nFeatures, size_t nComponents, DAAL_UINT64 resultsToCompute);
+
+    template <typename algorithmFPType, typename NumericTableType>
+    services::Status __allocate__impl(size_t nFeatures, size_t nComponents, DAAL_UINT64 resultsToCompute);
 };
 
 } // interface3
