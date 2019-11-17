@@ -30,6 +30,10 @@
 #include "service_error_handling.h"
 #include "threading.h"
 
+#include "service_ittnotify.h"
+
+DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.batch);
+
 namespace daal
 {
 namespace algorithms
@@ -72,9 +76,12 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute
          data_management::NumericTable& means,
          data_management::NumericTable& variances)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
+
     services::Status status;
     if (isCorrelation)
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation);
         if (resultsToCompute & mean)
         {
             DAAL_CHECK_STATUS(status, this->fillTable(means, (algorithmFPType)0));
@@ -84,30 +91,50 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute
         {
             DAAL_CHECK_STATUS(status, this->fillTable(variances, (algorithmFPType)1));
         }
-        DAAL_CHECK_STATUS(status, this->computeCorrelationEigenvalues(dataTable, eigenvectors, eigenvalues));
+
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlation.computeEigenvalues);
+            DAAL_CHECK_STATUS(status, this->computeCorrelationEigenvalues(dataTable, eigenvectors, eigenvalues));
+        }
     }
     else
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.full);
+
         DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
-        DAAL_CHECK_STATUS(status, covarianceAlg->computeNoThrow());
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.covariance);
+            DAAL_CHECK_STATUS(status, covarianceAlg->computeNoThrow());
+        }
+
         auto pCovarianceTable = covarianceAlg->getResult()->get(covariance::covariance);
         NumericTable& covarianceTable = *pCovarianceTable;
         if (resultsToCompute & mean)
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyMeans);
             DAAL_CHECK_STATUS(status, this->copyTable(*covarianceAlg->getResult()->get(covariance::mean), means));
         }
 
         if (resultsToCompute & variance)
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyVariances);
             DAAL_CHECK_STATUS(status, this->copyVarianceFromCovarianceTable(covarianceTable, variances));
         }
 
-        DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));
-        DAAL_CHECK_STATUS(status, this->computeCorrelationEigenvalues(covarianceTable, eigenvectors, eigenvalues));
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.correlationFromCovariance);
+            DAAL_CHECK_STATUS(status, this->correlationFromCovarianceTable(covarianceTable));
+        }
+
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.computeEigenvalues);
+            DAAL_CHECK_STATUS(status, this->computeCorrelationEigenvalues(covarianceTable, eigenvectors, eigenvalues));
+        }
     }
 
     if (isDeterministic)
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.signFlipEigenvectors);
         DAAL_CHECK_STATUS(status, this->signFlipEigenvectors(eigenvectors));
     }
 

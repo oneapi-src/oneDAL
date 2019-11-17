@@ -73,7 +73,7 @@ if [ -z ${Java_example_list} ]; then
 fi
 
 # Setting path for JavaAPI library
-Djava_library_path=${DAALROOT}/lib/${full_ia}_lin
+Djava_library_path=${DAALROOT}/lib/${full_ia}
 
 # Setting a path for result folder to put results of examples in
 if [ "${full_ia}"!="" ]; then

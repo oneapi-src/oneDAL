@@ -45,6 +45,8 @@ services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compu
     NumericTable *meanTable,
     const Parameter *parameter)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseBatch);
+
     algorithmFPType nObservations = 0.0;
 
     const size_t nFeatures  = dataTable->getNumberOfColumns();

@@ -16,12 +16,12 @@ You can use Intel(R) DAAL Spark samples on Linux\* and macOS\* operating systems
 
 ## Preparation Before Build and Run
 ### Setting Up the Build Environment 
-Before you build the sample, you must set certain environment variables that define the location of related libraries. The Intel(R) DAAL includes the `daalvars` scripts that you can run to set environment variables:
+Before you build the sample, you must set certain environment variables that define the location of related libraries. The Intel(R) DAAL includes the `vars` scripts that you can run to set environment variables:
 
-- On Linux\*, you can find the `daalvars.sh|daalvars.csh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:
-source daalvars.sh|csh {ia32|intel64}`
-- On macOS\*, you can find the `daalvars.sh|daalvars.csh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
-source daalvars.sh|csh`
+- On Linux\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:
+source vars.sh {ia32|intel64}`
+- On macOS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
+source vars.sh`
 
 For more information about setting environment variables and configuring Intel(R) DAAL, refer to Getting Started guides for the library.
 
@@ -40,7 +40,7 @@ Execute the `./launcher.sh {ia32|intel64}` script to run the following algorithm
 
 You can manage the list of running samples by changing the `Spark_samples_list` variable in the `./launcher.sh` script.
 
-From the `{ia32|intel64}` parameters, select the one that matches the architecture parameter you provided to the `daalvars.sh` script. If no parameters are defined for the `make` command, the Intel(R) 64 architecture is used by default.
+From the `{ia32|intel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script. If no parameters are defined for the `make` command, the Intel(R) 64 architecture is used by default.
 
 For each algorithm, the results are stored in the `/_results/<sample_name>/<sample_name>.res` file.
 

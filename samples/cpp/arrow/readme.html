@@ -947,10 +947,10 @@ Make sure to set the environment variables <samp class="codeph">ARROWROOT</samp>
  with the correct path and build type (debug or release, see <a href="https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#building" target=_blank">
 https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#building </a>web page for details.) before running the sample.</p>
 <h3> Setting Up the Build Environment&nbsp;</h3>
-<p> Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel® DAAL includes the <span class="filepath">daalvars</span> scripts that you can run to set environment variables:</p>
+<p> Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel® DAAL includes the <span class="filepath">vars</span> scripts that you can run to set environment variables:</p>
     <ul id="GUID-2FEE5E18-4507-402C-806D-F3C422B0D085">
-        <li>On Linux*, you can find the <span class="filepath">daalvars.sh|daalvars.csh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:</span><samp class="codeph"><br />
-            source daalvars.sh|csh {ia32|intel64}
+        <li>On Linux*, you can find the <span class="filepath">vars.sh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:</span><samp class="codeph"><br />
+            source vars.sh {ia32|intel64}
             </samp>
         </li>
     </ul>
@@ -977,7 +977,7 @@ https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#build
       <p> From the
         <samp class="codeph">{libia32|soia32|libintel64|sointel64}</samp> parameters,
       select the one that matches the architecture parameter you provided to the
-        <span class="filepath">daalvars</span><span class="filepath">.sh</span> script and
+        <span class="filepath">vars</span><span class="filepath">.sh</span> script and
       that has the prefix that matches the type of executables you want to build:
         <samp class="codeph">lib</samp> for static and
         <samp class="codeph">so</samp> for dynamic executables.
@@ -991,7 +991,7 @@ https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#build
 
       <p>To run Intel® DAAL Apache Arrow* C++ samples, go to the C++ Apache Arrow* samples directory and execute the
         <span class="keyword">make</span> command in the run mode. For example, if you run the
-        <span class="filepath">daalvars</span> script with the
+        <span class="filepath">vars</span> script with the
         <span class="keyword">intel64</span> target:
       </p>
 

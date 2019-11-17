@@ -71,7 +71,8 @@ if not defined Java_example_list (
 )
 
 :: Setting path for JavaAPI library
-set Djava_library_path="%DAALROOT%"\..\redist\%full_ia%_win\daal
+set Djava_library_path="%DAALROOT%"\..\redist\%full_ia%\daal
+set Djava_library_path="%DAALROOT%"\redist\%full_ia%;%Djava_library_path%
 
 :: Setting a path for result folder to put results of examples in
 if defined full_ia (

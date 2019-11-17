@@ -19,32 +19,48 @@ rem ============================================================================
 rem req: PowerShell 3.0+
 powershell.exe -command "if ($PSVersionTable.PSVersion.Major -ge 3) {exit 1} else {Write-Host \"The script requires PowerShell 3.0 or above (current version: $($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor))\"}" && goto Error_load
 
-set MKLURLROOT=https://github.com/intel/daal/releases/download/2020/
+set MKLURLROOT=https://github.com/intel/daal/releases/download/Dependencies/
 set MKLVERSION=20180112_10
+set MKLGPUVERSION=20191109
 
 set MKLPACKAGE=mklfpk_win_%MKLVERSION%
+set MKLGPUPACKAGE=mklgpufpk_win_%MKLGPUVERSION%
 
 set MKLURL=%MKLURLROOT%%MKLPACKAGE%.zip
+set MKLGPUURL=%MKLURLROOT%%MKLGPUPACKAGE%.zip
 if /i "%1"=="" (
-	set DST=%~dp0..\externals\mklfpk
+	set CPUDST=%~dp0..\externals\mklfpk
+	set GPUDST=%~dp0..\externals\mklgpufpk
 ) else (
-	set DST=%1\..\externals\mklfpk
+	set CPUDST=%1\..\externals\mklfpk
+	set GPUDST=%1\..\externals\mklgpufpk
 )
+
+CALL :Download_FPK %CPUDST% , %MKLURL% , %MKLPACKAGE%
+CALL :Download_FPK %GPUDST% , %MKLGPUURL% , %MKLGPUPACKAGE%
+
+exit /B 0
+
+:Download_FPK
+
+set DST=%~1
+set SRC=%~2
+set FILENAME=%~3
 
 if not exist %DST% mkdir %DST%
 
 if not exist "%DST%\license.txt" (
-	powershell.exe -command "if (Get-Command Invoke-WebRequest -errorAction SilentlyContinue){[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest %MKLURL% -OutFile %DST%\%MKLPACKAGE%.zip} else {exit 1}" && goto Unpack || goto Error_load
+	powershell.exe -command "if (Get-Command Invoke-WebRequest -errorAction SilentlyContinue){[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest %SRC% -OutFile %DST%\%FILENAME%.zip} else {exit 1}" && goto Unpack || goto Error_load
 
 :Unpack
-	powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%MKLPACKAGE%.zip\", \"%DST%\")}catch{$_.exception ; exit 1}} else {exit 1}" && goto Exit || goto Error_unpack
+	powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%FILENAME%.zip\", \"%DST%\")}catch{$_.exception ; exit 1}} else {exit 1}" && goto Exit || goto Error_unpack
 
 :Error_load
-	echo mklfpk.bat : Error: Failed to load %MKLURL% to %DST%, try to load it manually
+	echo mklfpk.bat : Error: Failed to load %SRC% to %DST%, try to load it manually
 	exit /B 1
 
 :Error_unpack
-	echo mklfpk.bat : Error: Failed to unpack %DST%\%MKLPACKAGE%.zip to %DST%, try unpack the archive manually
+	echo mklfpk.bat : Error: Failed to unpack %DST%\%FILENAME%.zip to %DST%, try unpack the archive manually
 	exit /B 1
 
 :Exit

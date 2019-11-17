@@ -80,7 +80,7 @@ void trainModel()
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(training::data, trainData);
     algorithm.input.set(training::dependentVariables, trainDependentVariables);
-    algorithm.parameter().lassoParameters = NumericTablePtr(new HomogenNumericTable<>(nDependentVariables, 1, NumericTable::doAllocate,0.01));
+    algorithm.parameter().lassoParameters = NumericTablePtr(new HomogenNumericTable<>(nDependentVariables, 1, NumericTable::doAllocate, 0.01f));
     /* Build the multiple lasso regression model */
     algorithm.compute();
 

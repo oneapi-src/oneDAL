@@ -447,19 +447,14 @@ public:
      *  \param[in]  rawRowData   Array of characters with the string that represents the feature vector
      *  \param[in]  rawDataSize  Size of the rawRowData array
      *  \param[in]  dictionary   Pointer to the dictionary
-     *  \param[out] nt           Pointer to a Numeric Table to store the result of parsing
+     *  \param[out] rowBuffer    Pointer to a Buffer View to store the result of parsing
      *  \param[in]  ntRowIndex   Position in the Numeric Table at which to store the result of parsing
      */
     virtual void parseRowIn(char *rawRowData, size_t rawDataSize, DataSourceDictionary *dictionary,
-                            NumericTable *nt, size_t ntRowIndex) DAAL_C11_OVERRIDE
+                            services::BufferView<DAAL_DATA_TYPE> &rowBuffer, size_t ntRowIndex) DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT( nt );
         DAAL_ASSERT( dictionary );
         DAAL_ASSERT( rawRowData );
-
-        nt->getBlockOfRows(ntRowIndex, 1, writeOnly, _currentRowBlock);
-        services::BufferView<DAAL_DATA_TYPE> rowBuffer(_currentRowBlock.getBlockPtr(),
-                                                       _currentRowBlock.getNumberOfColumns());
 
         size_t i = 0;
         internal::CSVRowTokenizer tokenizer(rawRowData, rawDataSize, _delimiter);
@@ -481,8 +476,6 @@ public:
                 funcList[i](token.c_str(), auxVect[i], row);
             }
         }
-
-        nt->releaseBlockOfRows(_currentRowBlock);
     }
 
     /**

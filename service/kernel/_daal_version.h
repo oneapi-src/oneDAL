@@ -21,24 +21,24 @@
 #include "_daal_version_data.h"
 
 #if PRODUCT_STATUS == 'A'
-    #define PRODUCTSTATUS "Alpha"
-    #define PRODUCTSTATUSDLL " Alpha"
+    #define PRODUCTSTATUS "alpha"
+    #define PRODUCTSTATUSDLL " alpha"
     #define SUBBUILD 0
 #endif
 #if PRODUCT_STATUS == 'B'
-    #define PRODUCTSTATUS "Beta"
-    #define PRODUCTSTATUSDLL " Beta"
+    #define PRODUCTSTATUS "beta"
+    #define PRODUCTSTATUSDLL " beta"
     #define SUBBUILD 0
 #endif
 #if PRODUCT_STATUS == 'P'
-    #define PRODUCTSTATUS "Product"
+    #define PRODUCTSTATUS ""
     #define PRODUCTSTATUSDLL ""
     #define SUBBUILD 1
 #endif
 
 /* Intermediate defines */
 #define FILE_VERSION1(a,b,c,d) FILE_VERSION0(a,b,c,d)
-#define FILE_VERSION0(a,b,c,d) #a "." #b "." #c "." #d
+#define FILE_VERSION0(a,b,c,d) #a "." #b "-" #c #d
 
 #define PRODUCT_VERSION1(a,b) PRODUCT_VERSION0(a, b)
 #define PRODUCT_VERSION0(a,b) #a "." #b PRODUCTSTATUSDLL
@@ -47,8 +47,8 @@
 /* instead of symbolic constants like "10.0.2.0" */
 
 #define FILE_VERSION MAJORVERSION, MINORVERSION, UPDATEVERSION, SUBBUILD
-#define FILE_VERSION_STR FILE_VERSION1(MAJORVERSION,MINORVERSION,UPDATEVERSION,SUBBUILD)
-#define PRODUCT_VERSION_STR PRODUCT_VERSION1(MAJORVERSION,MINORVERSION)
+#define FILE_VERSION_STR FILE_VERSION1(MAJORVERSION,MINORVERSION,PRODUCTSTATUS,UPDATEVERSION)
+#define PRODUCT_VERSION_STR FILE_VERSION1(MAJORVERSION,MINORVERSION,PRODUCTSTATUS,UPDATEVERSION)
 
 #define PRODUCT_NAME_STR "Intel(R) Data Analytics Acceleration Library\0"
 

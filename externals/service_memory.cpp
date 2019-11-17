@@ -49,6 +49,11 @@ void daal::services::daal_free(void *ptr)
     daal::internal::Service<>::serv_free(ptr);
 }
 
+void daal::services::daal_memmove_s(void *dest, size_t destSize, const void *src, size_t smax)
+{
+    daal::internal::Service<>::serv_memmove_s(dest, destSize, src, smax);
+}
+
 namespace daal
 {
 namespace services

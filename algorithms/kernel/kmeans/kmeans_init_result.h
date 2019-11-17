@@ -25,6 +25,11 @@
 #define __KMEANS_INIT_RESULT_
 
 #include "algorithms/kmeans/kmeans_init_types.h"
+#include "execution_context.h"
+#include "oneapi/internal/types.h"
+#include "numeric_table_sycl_homogen.h"
+
+using namespace daal::oneapi::internal;
 
 namespace daal
 {
@@ -63,9 +68,24 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     else
         nFeatures = (static_cast<const Input *>(input))->get(data)->getNumberOfColumns();
 
-    Argument::set(centroids, data_management::SerializationIfacePtr(
-        new data_management::HomogenNumericTable<algorithmFPType>(nFeatures, kmPar->nClusters, data_management::NumericTable::doAllocate)));
-    return services::Status();
+    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto& deviceInfo = context.getInfoDevice();
+
+    services::Status status;
+
+    if (deviceInfo.isCpu || (method != deterministicDense && method != randomDense))
+    {
+       Argument::set(centroids, data_management::SerializationIfacePtr(
+            new data_management::HomogenNumericTable<algorithmFPType>(nFeatures, kmPar->nClusters, data_management::NumericTable::doAllocate)));
+    }
+    else
+    {
+       Argument::set(centroids, data_management::SyclHomogenNumericTable<algorithmFPType>::create(nFeatures,
+                                                                                                  kmPar->nClusters,
+                                                                                                  data_management::NumericTable::doAllocate,
+                                                                                                  &status));
+    }
+    return status;
 }
 
 /**

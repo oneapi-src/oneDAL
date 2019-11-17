@@ -77,18 +77,6 @@ public class Factory {
             objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT64_U_NT_ID.getValue()) {
             return new com.intel.daal.data_management.data.HomogenNumericTable(context, cObject);
         }
-        if (objectId == SerializationTag.SERIALIZATION_HOMOGEN_FLOAT32_TENSOR_ID.getValue() ||
-            objectId == SerializationTag.SERIALIZATION_HOMOGEN_FLOAT64_TENSOR_ID.getValue() ||
-            objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT32_S_TENSOR_ID.getValue() ||
-            objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT32_U_TENSOR_ID.getValue() ||
-            objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT64_S_TENSOR_ID.getValue() ||
-            objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT64_U_TENSOR_ID.getValue()) {
-            return new com.intel.daal.data_management.data.HomogenTensor(context, cObject);
-        }
-        if (objectId == SerializationTag.SERIALIZATION_MKL_FLOAT32_TENSOR_ID.getValue() ||
-            objectId == SerializationTag.SERIALIZATION_MKL_FLOAT64_TENSOR_ID.getValue()) {
-            return new com.intel.daal.data_management.data.HomogenTensor(context, cObject);
-        }
         if (objectId == SerializationTag.SERIALIZATION_AOS_NT_ID.getValue()) {
             return new com.intel.daal.data_management.data.HomogenNumericTable(context, cObject);
         }
@@ -150,9 +138,6 @@ public class Factory {
         if (objectId == SerializationTag.SERIALIZATION_JAVANIO_PACKEDTRIANGULAR_NT_ID.getValue()) {
             return new com.intel.daal.data_management.data.PackedTriangularMatrix(context, (PackedTriangularMatrixImpl)cGetJavaNumericTable(cObject));
         }
-        if (objectId == SerializationTag.SERIALIZATION_JAVANIO_HOMOGEN_TENSOR_ID.getValue()) {
-            return new com.intel.daal.data_management.data.HomogenTensor(context, (HomogenTensorImpl)cGetJavaTensor(cObject));
-        }
         if (cObject == 0) {
             return null;
         }
@@ -162,7 +147,5 @@ public class Factory {
     private native int cGetSerializationTag(long cObject);
 
     private native Object cGetJavaNumericTable(long cObject);
-
-    private native Object cGetJavaTensor(long cObject);
 }
 /** @} */

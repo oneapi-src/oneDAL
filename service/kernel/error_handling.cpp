@@ -684,11 +684,6 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorNullInputDataCollection, "Null input data collection is not supported");
     add(ErrorNullOutputDataCollection, "Null output data collection is not supported");
     add(ErrorNullPartialResult, "Partial result not set");
-    add(ErrorIncorrectNumberOfInputNumericTensors, "Incorrect number of elements in input collection");
-    add(ErrorIncorrectNumberOfOutputNumericTensors, "Incorrect number of elements in output collection");
-    add(ErrorNullTensor, "Null input or result tensor is not supported");
-    add(ErrorIncorrectNumberOfDimensionsInTensor, "Number of dimensions in the tensor is incorrect");
-    add(ErrorIncorrectSizeOfDimensionInTensor, "Size of the dimension in input tensor is incorrect");
     add(ErrorNullLayerData, "Null layer data is not supported");
     add(ErrorIncorrectSizeOfLayerData, "Incorrect number of elements in layer data collection");
     add(ErrorNullAuxiliaryAlgorithm, "Null auxiliary algorithm");
@@ -904,10 +899,6 @@ void ErrorMessageCollection::parseResourceFile()
     add(ErrorRidgeRegressionNormEqSystemSolutionFailed, "Failed to solve the system of normal equations");
     add(ErrorRidgeRegressionInvertFailed, "Failed to invert matrix");
 
-    // Neural Networks errors: -18000...18999
-    add(ErrorInconsistenceModelAndBatchSizeInParameter, "Inconsistence of model and batch size parameter in optimization solver");
-    add(ErrorNeuralNetworkLayerCall, "Neural networks: Error in layer call. Details are as follows");
-
     // Pivoted QR errors: -19000..-19199
     add(ErrorPivotedQRInternal, "Pivoted QR internal error");
 
@@ -940,6 +931,9 @@ void ErrorMessageCollection::parseResourceFile()
     // Quality metrics errors -90201..-90301
     add(ErrorEmptyInputAlgorithmsCollection, "Quality metric set: Input algorithms collection is empty");
 
+    // Group of execution context errors -999999
+    add(ErrorExecutionContext, "Execution context error");
+
     // Other errors: -100000..
     add(ErrorObjectDoesNotSupportSerialization, "SerializationIface is not implemented or implemented incorrectly");
 
@@ -953,10 +947,13 @@ void ErrorMessageCollection::parseResourceFile()
     add(NoErrorMessageFound, "NoErrorMessageFound");
     add(ErrorMethodNotImplemented, "Method is not implemented");
 
+    add(ErrorDeviceSupportNotImplemented, "Device support for the algorithm isn't implemented");
+
     add(ErrorIncorrectOffset, "Incorrect offset");
     add(ErrorIterativeSolverIncorrectMaxNumberOfIterations, "Incorrect maximum number of iterations value in solver");
     add(ErrorIncorrectNumberOfTerms, "Incorrect number of summands (terms) in objective function");
     add(ErrorIncorrectNumberOfNodes, "Incorrect number of nodes");
+    add(ErrorInconsistenceModelAndBatchSizeInParameter, "Inconsistence of model and batch size parameter in optimization solver");
 }
 
 void ErrorDetailCollection::parseResourceFile()
@@ -972,13 +969,13 @@ void ErrorDetailCollection::parseResourceFile()
     add(Minor, "Matrix minor");
     add(ArgumentName, "Argument name");
     add(ElementInCollection, "ElementInCollection");
-    add(Dimension, "Tensor dimension");
     add(ParameterName, "Parameter name");
     add(OptionalInput, "Optional input");
     add(OptionalResult, "Optional result");
-    add(Layer, "Neural network layer");
     add(ExpectedValue, "Expected");
     add(ActualValue, "Actual");
+    add(Sycl, "Sycl error");
+    add(OpenCL, "OpenCL error");
 }
 
 }

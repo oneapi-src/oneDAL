@@ -34,11 +34,12 @@
 #include "service_numeric_table.h"
 #include "service_error_handling.h"
 #include "threading.h"
-
+#include "service_ittnotify.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
 
+DAAL_ITTNOTIFY_DOMAIN(covariance.dense.batch);
 
 namespace daal
 {
@@ -52,6 +53,8 @@ namespace internal
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status prepareSums(NumericTable *dataTable, algorithmFPType *sums)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareSums);
+
     const size_t nFeatures = dataTable->getNumberOfColumns();
     int result = 0;
 
@@ -76,6 +79,8 @@ services::Status prepareSums(NumericTable *dataTable, algorithmFPType *sums)
 template<typename algorithmFPType, CpuType cpu>
 services::Status prepareCrossProduct(size_t nFeatures, algorithmFPType *crossProduct)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareCrossProduct);
+
     const algorithmFPType zero = 0.0;
     services::internal::service_memset<algorithmFPType, cpu>(crossProduct, zero, nFeatures * nFeatures);
     return services::Status();
@@ -132,7 +137,7 @@ services::Status updateDenseCrossProductAndSums(bool            isNormalized,
                                                 algorithmFPType *sums,
                                                 algorithmFPType *nObservations)
 {
-
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateDenseCrossProductAndSums);
     if(((isNormalized) || ((!isNormalized) && ( (method == defaultDense) || (method == sumDense)))))
     {
         /* Inverse number of rows (for normalization) */
@@ -172,19 +177,23 @@ services::Status updateDenseCrossProductAndSums(bool            isNormalized,
             algorithmFPType* crossProduct_local =  tls_data_local->crossProduct;
             algorithmFPType* sums_local =  tls_data_local->sums;
 
-            Blas<algorithmFPType, cpu>::xxsyrk( &uplo,
-                                                &trans,
-                                                (DAAL_INT *) &nFeatures_local,
-                                                (DAAL_INT *) &nVectors_local,
-                                                &alpha,
-                                                dataBlock_local,
-                                                (DAAL_INT *) &nFeatures_local,
-                                                &beta,
-                                                crossProduct_local,
-                                                (DAAL_INT *) &nFeatures_local);
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(gemmData);
+                Blas<algorithmFPType, cpu>::xxsyrk( &uplo,
+                                                    &trans,
+                                                    (DAAL_INT *) &nFeatures_local,
+                                                    (DAAL_INT *) &nVectors_local,
+                                                    &alpha,
+                                                    dataBlock_local,
+                                                    (DAAL_INT *) &nFeatures_local,
+                                                    &beta,
+                                                    crossProduct_local,
+                                                    (DAAL_INT *) &nFeatures_local);
+            }
 
             if(!isNormalized && (method == defaultDense) )
             {
+                DAAL_ITTNOTIFY_SCOPED_TASK(cumputeSums.local);
                 /* Sum input array elements in case of non-normalized data */
                 for( int i = 0; i < nVectors_local; i++)
                 {
@@ -202,6 +211,7 @@ services::Status updateDenseCrossProductAndSums(bool            isNormalized,
         /* TLS reduction: sum all partial cross products and sums */
         tls_data.reduce( [ = ]( tls_data_t<algorithmFPType,cpu>* tls_data_local )
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeSums.reduce);
             /* Sum all cross products */
             if(tls_data_local->crossProduct)
             {
@@ -233,6 +243,7 @@ services::Status updateDenseCrossProductAndSums(bool            isNormalized,
         /* If data is not normalized, perform subtractions of(sums[i]*sums[j])/n */
         if(!isNormalized)
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(gemmSums);
             for( int i = 0; i < nFeatures; i++ )
             {
                PRAGMA_IVDEP
@@ -407,6 +418,8 @@ services::Status finalizeCovariance( size_t           nFeatures,
                                      algorithmFPType  *mean,
                                      const Parameter  *parameter)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.finalizeCovariance);
+
     algorithmFPType invNObservations = 1.0 / nObservations;
     algorithmFPType invNObservationsM1 = 1.0;
     if (nObservations > 1.0)

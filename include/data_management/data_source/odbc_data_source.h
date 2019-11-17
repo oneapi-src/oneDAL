@@ -304,6 +304,10 @@ public:
         size_t nRead = nt->getNumberOfRows();
         _idxLastRead += nRead;
 
+        BlockDescriptor<DAAL_DATA_TYPE> blockNt;
+        nt->getBlockOfRows(0, nt->getNumberOfRows(), readOnly, blockNt );
+        DAAL_DATA_TYPE *row = blockNt.getBlockPtr();
+
         if(nt->basicStatistics.get(NumericTableIface::minimum   ).get() != NULL &&
            nt->basicStatistics.get(NumericTableIface::maximum   ).get() != NULL &&
            nt->basicStatistics.get(NumericTableIface::sum       ).get() != NULL &&
@@ -311,9 +315,11 @@ public:
         {
             for(size_t i = 0; i < nRead; i++)
             {
-                super::updateStatistics( i, nt );
+                super::updateStatistics(i, nt, row);
             }
         }
+
+        nt->releaseBlockOfRows(blockNt);
 
         NumericTableDictionaryPtr ntDict = nt->getDictionarySharedPtr();
         size_t nFeatures = _dict->getNumberOfFeatures();

@@ -30,9 +30,12 @@
 #include "service_math.h"
 #include "service_utils.h"
 #include "service_data_utils.h"
+#include "service_ittnotify.h"
 
 using namespace daal::internal;
 using namespace daal::services;
+
+DAAL_ITTNOTIFY_DOMAIN(sgd.dense.minibatch);
 
 namespace daal
 {
@@ -124,6 +127,7 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
             consCoeff = task.consCoeffsArray[(epoch / L) % task.consCoeffsLength];
             if(task.indicesStatus == user || task.indicesStatus == random)
             {
+                DAAL_ITTNOTIFY_SCOPED_TASK(compute.generate_random_indexes);
                 const int* pValues = nullptr;
                 s = rngTask.get(pValues);
                 DAAL_CHECK_BREAK(!s);
@@ -151,6 +155,8 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
         {
             if(nIter > 1)
             {
+                DAAL_ITTNOTIFY_SCOPED_TASK(convergence_check);
+
                 algorithmFPType pointNorm, gradientNorm;
                 s = vectorNorm(workValue, argumentSize, pointNorm);
                 s |= vectorNorm(gradient, argumentSize, gradientNorm);
@@ -178,6 +184,8 @@ void SGDMiniBatchTask<algorithmFPType, cpu>::makeStep(
     algorithmFPType consCoeff,
     size_t argumentSize)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(make_step);
+
     algorithmFPType* workValue = mtWorkValue.get();
     for(size_t j = 0; j < argumentSize; j++)
     {

@@ -666,7 +666,7 @@ public:
      *  \param[in]  value  Constant to initialize entries of the homogeneous numeric table
      */
     template <typename T>
-    services::Status assign(T value)
+    DAAL_EXPORT services::Status assign(T value)
     {
         if( _memStatus == notAllocated )
             return services::Status(services::ErrorEmptyHomogenNumericTable);
@@ -816,20 +816,7 @@ protected:
 
     HomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, size_t nColumns, size_t nRows,
                         NumericTable::AllocationFlag memoryAllocationFlag,
-                        const DataType &constValue, services::Status &st):
-        NumericTable(nColumns, nRows, featuresEqual, st)
-    {
-        _layout = aos;
-
-        NumericTableFeature df;
-        df.setType<DataType>();
-
-        st |= _ddict->setAllFeatures(df);
-
-        if( memoryAllocationFlag == doAllocate ) { st |= allocateDataMemoryImpl(); }
-
-        st |= assign<DataType>(constValue);
-    }
+                        const DataType &constValue, services::Status &st);
 
     services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
     {

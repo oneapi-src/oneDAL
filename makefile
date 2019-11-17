@@ -91,7 +91,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
 -cxx11 := $(if $(COMPILER_is_vc),,$(-Q)std=c++11)
 -fPIC  := $(if $(OS_is_win),,-fPIC)
 -Zl    := $(-Zl.$(COMPILER))
--DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES
+-DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE $(if $(REQPRF), -D__DAAL_ITTNOTIFY_ENABLE__)
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
 -DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
 -sGRP  = $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),-Wl$(comma)--start-group,)
@@ -167,15 +167,16 @@ DAALAY   ?= a y
 DIR:=.
 WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(PLAT)
 RELEASEDIR ?= $(DIR)/__release_$(_OS)$(CMPLRDIRSUFF.$(COMPILER))
-RELEASEDIR.daal    := $(RELEASEDIR)/daal
+RELEASEDIR.daal    := $(RELEASEDIR)/daal/latest
 RELEASEDIR.lib     := $(RELEASEDIR.daal)/lib
-RELEASEDIR.env     := $(RELEASEDIR.daal)/bin
-RELEASEDIR.doc     := $(RELEASEDIR.daal)/../documentation
-RELEASEDIR.samples := $(RELEASEDIR.daal)/../samples
+RELEASEDIR.env     := $(RELEASEDIR.daal)/env
+RELEASEDIR.conf    := $(RELEASEDIR.daal)/config
+RELEASEDIR.doc     := $(RELEASEDIR.daal)/documentation
+RELEASEDIR.samples := $(RELEASEDIR.daal)/samples
 RELEASEDIR.jardir  := $(RELEASEDIR.daal)/lib
-RELEASEDIR.libia   := $(RELEASEDIR.daal)/lib$(if $(OS_is_mac),,/$(_IA)_$(_OSr))
+RELEASEDIR.libia   := $(RELEASEDIR.daal)/lib$(if $(OS_is_mac),,/$(_IA))
 RELEASEDIR.include := $(RELEASEDIR.daal)/include
-RELEASEDIR.soia    := $(if $(OS_is_win),$(RELEASEDIR)/redist/$(_IA)_$(_OSr)/daal,$(RELEASEDIR.libia))
+RELEASEDIR.soia    := $(if $(OS_is_win),$(RELEASEDIR.daal)/redist/$(_IA),$(RELEASEDIR.libia))
 WORKDIR.lib := $(WORKDIR)/daal/lib
 
 COVFILE   := $(subst BullseyeStub,$(RELEASEDIR.daal)/Bullseye_$(_IA).cov,$(COVFILE))
@@ -198,27 +199,35 @@ TBBDIR.include := $(if $(TBBDIR),$(TBBDIR)/include/tbb $(TBBDIR)/include)
 
 TBBDIR.libia.prefix := $(TBBDIR.2)/lib
 TBBDIR.libia.win  := $(if $(OS_is_win),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt)
-TBBDIR.libia.lnx.gcc := $(if $(OS_is_lnx),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/gcc4.4/*),gcc4.4))
-TBBDIR.libia.lnx.gcc := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc),$(TBBDIR.libia.lnx.gcc),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8/*),gcc4.8)))
-TBBDIR.libia.lnx.gcc := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc),$(TBBDIR.libia.lnx.gcc),$(error Can`t find TBB runtimes neither for gcc4.4 nor gcc4.8)))
+TBBDIR.libia.lnx.gcc := $(if $(OS_is_lnx),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8/*),gcc4.8))
+TBBDIR.libia.lnx.gcc := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc),$(TBBDIR.libia.lnx.gcc),$(error Can`t find TBB runtimes neither for gcc4.8)))
 TBBDIR.libia.lnx := $(if $(OS_is_lnx),$(TBBDIR.libia.prefix)/$(_IA)/$(TBBDIR.libia.lnx.gcc))
 TBBDIR.libia.mac  := $(if $(OS_is_mac),$(TBBDIR.libia.prefix))
 TBBDIR.libia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.libia.prefix))
 TBBDIR.libia := $(TBBDIR.libia.$(_OS))
 
 TBBDIR.soia.prefix := $(TBBDIR.2)/
-TBBDIR.soia.win  := $(if $(OS_is_win),$(TBBDIR.soia.prefix)/../redist/$(_IA)/tbb/vc_mt)
+TBBDIR.soia.win  := $(if $(OS_is_win),$(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt)
 TBBDIR.soia.lnx  := $(if $(OS_is_lnx),$(TBBDIR.soia.prefix)/lib/$(_IA)/$(TBBDIR.libia.lnx.gcc))
 TBBDIR.soia.mac  := $(if $(OS_is_mac),$(TBBDIR.soia.prefix)/lib)
 TBBDIR.soia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.soia.prefix)/lib)
 TBBDIR.soia := $(TBBDIR.soia.$(_OS))
 
-RELEASEDIR.tbb       := $(RELEASEDIR)/tbb
-RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,/$(_IA)_$(_OSr)$(if $(OS_is_win),/vc_mt,/$(TBBDIR.libia.lnx.gcc)))
-RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR)/redist/$(_IA)_$(_OSr)/tbb/vc_mt,$(RELEASEDIR.tbb.libia))
+RELEASEDIR.tbb       := $(RELEASEDIR)/tbb/latest
+RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,/$(_IA)$(if $(OS_is_win),/vc_mt,/$(TBBDIR.libia.lnx.gcc)))
+RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR.tbb)/redist/$(_IA)/vc_mt,$(RELEASEDIR.tbb.libia))
 releasetbb.LIBS_A := $(if $(OS_is_win),$(TBBDIR.libia)/tbb.$(a) $(TBBDIR.libia)/tbbmalloc.$(a))
 releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmalloc.$(y) \
                      $(if $(or $(OS_is_lnx),$(OS_is_fbsd)),$(TBBDIR.libia)/$(plib)tbb.so.2 $(TBBDIR.libia)/$(plib)tbbmalloc.so.2,)
+
+RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/oneapi/internal/math
+
+MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/externals/mklgpufpk/*),$(DIR)/externals/mklgpufpk,$(subst \,/,$(MKLGPUFPKROOT)))
+MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
+MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
+
+mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.libia)/$(plib)daal_sycl.$(a)
+mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
 
 #===============================================================================
 # Release library names
@@ -334,19 +343,21 @@ release.HEADERS.COMMON := $(foreach fn,$(release.HEADERS),$(if $(filter $(addpre
 release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC)),$(release.HEADERS.COMMON))
 
 # List examples files to populate release/examples.
-expat = %.java %.cpp %.h %.txt %.csv %.py
-expat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln,%_$(_OS).lst %makefile_$(_OS) %_$(_OS).sh)
-release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/cpp  -type f))
+expat = %.java %.cpp %.h %.txt %.csv
+expat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln %makefile_$(_OS),%_$(_OS).lst %makefile_$(_OS) %_$(_OS).sh)
+release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/cpp  -type f)) $(filter $(expat),$(shell find examples/cpp_sycl -type f))
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/data -type f))
 release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/java -type f))
-release.EXAMPLES.PYTHON:= $(if $(wildcard examples/python/*), $(filter $(expat),$(shell find examples/python -type f)))
 
-# List env files to populate release/bin.
-release.ENV = bin/daalvars_$(_OS).$(scr) $(if $(OS_is_win),,bin/daalvars_$(_OS).csh)
+# List env files to populate release.
+release.ENV = bin/vars_$(_OS).$(scr)
+
+# List config files to populate release.
+release.CONF = bin/config.txt
 
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
-spat = %.scala %.java %.cpp %.h %.txt %.csv %.py %.html %.png %.parquet %.blob
+spat = %.scala %.java %.cpp %.h %.txt %.csv %.html %.png %.parquet %.blob
 spat += $(if $(OS_is_win),%.bat %.vcxproj %.filters %.user %.sln,%_$(_OS).lst %makefile_$(_OS) %.sh)
 release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/cpp/*),                                                        \
                           $(if $(OS_is_mac),                                                                             \
@@ -363,17 +374,6 @@ release.SAMPLES.JAVA := $(if $(wildcard $(SAMPLES.srcdir)/java/*),              
 release.SAMPLES.SCALA := $(if $(wildcard $(SAMPLES.srcdir)/scala/*),                                                     \
                           $(if $(or $(OS_is_lnx),$(OS_is_mac),$(OS_is_fbsd)),                                                          \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/scala -type f))                              \
-                          )                                                                                              \
-                        )
-release.SAMPLES.PY   := $(if $(wildcard $(SAMPLES.srcdir)/python/*),                                                     \
-                          $(if $(OS_is_mac),                                                                             \
-                            $(filter $(spat),$(shell find $(SAMPLES.srcdir)/python -not -wholename '*mpi*' -type f))     \
-                          ,                                                                                              \
-                            $(if $(OS_is_win),                                                                           \
-                              $(filter $(spat),$(shell find $(SAMPLES.srcdir)/python -not -wholename '*spark*' -type f)) \
-                            ,                                                                                            \
-                              $(filter $(spat),$(shell find $(SAMPLES.srcdir)/python -type f))                           \
-                            )                                                                                            \
                           )                                                                                              \
                         )
 
@@ -400,7 +400,9 @@ CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
                  $(if $(DAALTHRS),,$(THR.srcdir))                    \
                  $(addprefix $(CORE.SERV.srcdir)/, $(CORE.SERVICES)) \
                  $(addprefix $(CORE.srcdir)/, $(CORE.ALGORITHMS))    \
-                 $(CORE.SERV.COMPILER.srcdir) $(EXTERNALS.srcdir)
+                 $(CORE.SERV.COMPILER.srcdir) $(EXTERNALS.srcdir)    \
+                 $(CORE.SERV.srcdir)/oneapi
+
 CORE.incdirs.rel  := $(addprefix $(RELEASEDIR.include)/,$(addprefix algorithms/,$(CORE.ALGORITHMS.INC)) algorithms data_management/compression data_management/data_source data_management/data services)
 CORE.incdirs.thr    := $(THR.srcdir)
 CORE.incdirs.core   := $(CORE.SERV.srcdir) $(addprefix $(CORE.SERV.srcdir)/, $(CORE.SERVICES)) $(CORE.srcdir) $(addprefix $(CORE.srcdir)/, $(CORE.ALGORITHMS.FULL)) ## change CORE.ALGORITHMS.FULL --> CORE.ALGORITHMS
@@ -645,12 +647,8 @@ $(JNI.tmpdir)/%.res: %.rc | $(JNI.tmpdir)/. ; $(RC.COMPILE)
 #===============================================================================
 daal: $(if $(CORE.ALGORITHMS.CUSTOM),                                              \
           _daal _release_c,                                                        \
-          _daal _daal_jj _release _release_doc $(if $(PLAT_is_lnx32e),_release_p)  \
+          _daal _daal_jj _release _release_doc                                     \
       )
-
-## TODO: migrate to absolute path!!!
-pydaal: _release _release_doc
-	+cd ./lang_service/python && $(daalmake) -f Makefile pydaal PREFIX=./../../$(RELEASEDIR.daal) BUILD_PREFIX=./../../$(WORKDIR)/pydaal DAALROOT=./../../$(RELEASEDIR.daal) PYDAAL_VERSION=$(MAJOR).$(MINOR).$(UPDATE)$(subst p,.,$(call lcase,$(STATUS)))$(BUILD) && cd ../..
 
 _daal:    _daal_core _daal_thr
 _daal_jj: _daal_jar _daal_jni
@@ -668,7 +666,6 @@ _daal_jni: $(WORKDIR.lib)/$(jni_so)
 _release:    _release_c _release_jj
 _release_c:  _release_c_h _release_common
 _release_jj: _release_common
-_release_p:  $(if $(wildcard lang_service/python/*), pydaal)
 
 #-------------------------------------------------------------------------------
 # Populating RELEASEDIR
@@ -691,17 +688,25 @@ $(foreach j,$(release.LIBS_J),$(eval $(call .release.ay,$j,$(RELEASEDIR.soia),_r
 _release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))
 $(RELEASEDIR.jardir)/%.jar: $(WORKDIR.lib)/%.jar | $(RELEASEDIR.jardir)/. ; $(cpy)
 
-#----- releasing examples, environment scripts
+#----- releasing examples
 define .release.x
 $3: $2/$(subst _$(_OS),,$1)
-$2/$(subst _$(_OS),,$1): $(DIR)/$1 | $(dir $2/$1)/. ; $(value cpy)
+$2/$(subst _$(_OS),,$1): $(DIR)/$1 | $(dir $2/$1)/.
+	$(if $(filter %makefile_win,$1),python ./bin/utils/generate_win_makefile.py $(dir $(DIR)/$1) $(dir $2/$1),$(value cpy))
 	$(if $(filter %.sh %.bat,$1),chmod +x $$@)
 endef
 $(foreach x,$(release.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
-$(foreach x,$(release.ENV),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
 $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_c)))
 $(foreach x,$(release.EXAMPLES.JAVA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_jj)))
-$(foreach x,$(release.EXAMPLES.PYTHON),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_p)))
+
+#----- releasing environment scripts
+define .release.x
+$4: $3/$2
+$3/$2: $(DIR)/$1 | $3/. ; $(value cpy)
+	$(if $(filter %.sh %.bat,$2),chmod +x $$@)
+endef
+$(foreach x,$(release.ENV),$(eval $(call .release.x,$x,$(notdir $(subst _$(_OS),,$x)),$(RELEASEDIR.env),_release_common)))
+$(foreach x,$(release.CONF),$(eval $(call .release.x,$x,$(notdir $(subst _$(_OS),,$x)),$(RELEASEDIR.conf),_release_common)))
 
 #----- releasing documentation
 _release_doc:
@@ -722,7 +727,6 @@ endef
 $(foreach d,$(release.SAMPLES.CPP),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_c)))
 $(foreach d,$(release.SAMPLES.JAVA),  $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
 $(foreach d,$(release.SAMPLES.SCALA), $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_jj)))
-$(foreach d,$(release.SAMPLES.PY),    $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_c)))
 
 $(CORE.incdirs): _release_c_h
 
@@ -745,6 +749,12 @@ endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
 
+#----- releasing MKL GPU FPK libraries
+
+ifneq ($(MKLGPUFPKDIR),)
+$(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.t,$t,$(RELEASEDIR.include.mklgpufpk))))
+$(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.t,$t,$(RELEASEDIR.libia))))
+endif
 
 #===============================================================================
 # Miscellaneous stuff

@@ -207,6 +207,7 @@ public:
         }
 
         BlockDescriptor<DAAL_DATA_TYPE> blockCurrent, block;
+        nt->getBlockOfRows(0, nrows, writeOnly, block);
         size_t pos = 0;
         int result = 0;
         for (size_t i = 0; i < tables.size(); i++)
@@ -218,17 +219,20 @@ public:
                 continue;
 
             ntCurrent->getBlockOfRows(0, rows, readOnly, blockCurrent);
-            nt->getBlockOfRows(pos, rows, writeOnly, block);
 
-            result |= services::internal::daal_memcpy_s(block.getBlockPtr(), rows * ncols * sizeof(DAAL_DATA_TYPE),
-                                                        blockCurrent.getBlockPtr(), rows * ncols * sizeof(DAAL_DATA_TYPE));
+            result |= services::internal::daal_memcpy_s(&(block.getBlockPtr()[pos * ncols]),
+                                                        rows * ncols * sizeof(DAAL_DATA_TYPE),
+                                                        blockCurrent.getBlockPtr(),
+                                                        rows * ncols * sizeof(DAAL_DATA_TYPE));
 
             ntCurrent->releaseBlockOfRows(blockCurrent);
-            nt->releaseBlockOfRows(block);
 
             super::combineStatistics( ntCurrent, nt, pos == 0);
             pos += rows;
         }
+
+        nt->releaseBlockOfRows(block);
+
         if (result)
         {
             this->_status.add(services::throwIfPossible(services::Status(services::ErrorMemoryCopyFailedInternal)));
@@ -285,6 +289,10 @@ public:
         }
 
         size_t j = 0;
+
+        BlockDescriptor<DAAL_DATA_TYPE> ntBlock;
+        nt->getBlockOfRows(0, nt->getNumberOfRows(), readWrite, ntBlock);
+
         for(; j < maxRows && !iseof() ; j++ )
         {
             s = readLine();
@@ -299,10 +307,16 @@ public:
                 break;
             }
 
-            _featureManager.parseRowIn( _rawLineBuffer, _rawLineLength, this->_dict.get(), nt, rowOffset + j );
+            services::BufferView<DAAL_DATA_TYPE> rowBuffer(ntBlock.getBlockPtr() + (rowOffset + j) * nt->getNumberOfColumns(),
+                                                           ntBlock.getNumberOfColumns());
 
-            super::updateStatistics( j, nt, rowOffset );
+            _featureManager.parseRowIn( _rawLineBuffer, _rawLineLength, this->_dict.get(), rowBuffer, rowOffset + j );
+
+            super::updateStatistics(j, nt, ntBlock.getBlockPtr(), rowOffset );
         }
+
+        nt->releaseBlockOfRows(ntBlock);
+
         _featureManager.finalize(this->_dict.get());
 
         return rowOffset + j;

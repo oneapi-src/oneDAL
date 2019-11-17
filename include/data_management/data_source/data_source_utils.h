@@ -61,11 +61,11 @@ public:
      *  \param[in]  rawRowData   Array of characters with a string that represents the feature vector
      *  \param[in]  rawDataSize  Size of the rawRowData array
      *  \param[in]  dict         Pointer to the dictionary
-     *  \param[out] nt           Pointer to a Numeric Table to store the result of parsing
+     *  \param[out] rowBuffer    Pointer to a Buffer View to store the result of parsing
      *  \param[in]  ntRowIndex   Position in the Numeric Table at which to store the result of parsing
      */
-    virtual void parseRowIn ( char *rawRowData, size_t rawDataSize, DataSourceDictionary *dict, NumericTable *nt,
-                              size_t  ntRowIndex  ) = 0;
+    virtual void parseRowIn ( char *rawRowData, size_t rawDataSize, DataSourceDictionary *dict,
+                              services::BufferView<DAAL_DATA_TYPE> &rowBuffer, size_t  ntRowIndex  ) = 0;
 };
 /** @} */
 } // namespace interface1

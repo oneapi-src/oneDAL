@@ -172,21 +172,19 @@ const int SERIALIZATION_HOMOGEN_NT_ID                                           
 const int SERIALIZATION_AOS_NT_ID                                                              = 3000;
 const int SERIALIZATION_SOA_NT_ID                                                              = 3001;
 const int SERIALIZATION_ARROW_IMMUTABLE_NT_ID                                                  = 3002;
+const int SERIALIZATION_SYCL_SOA_NT_ID                                                         = 3500;
 const int SERIALIZATION_DATACOLLECTION_ID                                                      = 4000;
 const int SERIALIZATION_KEYVALUEDATACOLLECTION_ID                                              = 4010;
 const int SERIALIZATION_DATAFEATURE_NT_ID                                                      = 5000;
 const int SERIALIZATION_DATADICTIONARY_NT_ID                                                   = 6000;
 const int SERIALIZATION_DATADICTIONARY_DS_ID                                                   = 6010;
 const int SERIALIZATION_MATRIX_NT_ID                                                           = 7000;
+const int SERIALIZATION_SYCL_HOMOGEN_NT_ID                                                     = 7500;
 const int SERIALIZATION_CSR_NT_ID                                                              = 8000;
 const int SERIALIZATION_PACKEDSYMMETRIC_NT_ID                                                  = 11000;
 const int SERIALIZATION_PACKEDTRIANGULAR_NT_ID                                                 = 12000;
 const int SERIALIZATION_MERGE_NT_ID                                                            = 13000;
 const int SERIALIZATION_ROWMERGE_NT_ID                                                         = 14000;
-
-const int SERIALIZATION_HOMOGEN_TENSOR_ID                                                      = 20000;
-const int SERIALIZATION_TENSOR_OFFSET_LAYOUT_ID                                                = 22000;
-const int SERIALIZATION_MKL_TENSOR_ID                                                          = 24000;
 
 const int SERIALIZATION_OPTIONAL_RESULT_ID                                                     = 30000;
 const int SERIALIZATION_MEMORY_BLOCK_ID                                                        = 40000;
@@ -328,85 +326,6 @@ const int SERIALIZATION_COORDINATE_DESCENT_RESULT_ID                            
 const int SERIALIZATION_NORMALIZATION_ZSCORE_RESULT_ID                                         = 103900;
 const int SERIALIZATION_NORMALIZATION_MINMAX_RESULT_ID                                         = 103910;
 
-const int SERIALIZATION_NEURAL_NETWORKS_TRAINING_MODEL_ID                                      = 104000;
-const int SERIALIZATION_NEURAL_NETWORKS_PREDICTION_MODEL_ID                                    = 104010;
-const int SERIALIZATION_NEURAL_NETWORKS_NUMERIC_TABLE_WEIGHTS_AND_BIASES_ID                    = 104020;
-const int SERIALIZATION_NEURAL_NETWORKS_NUMERIC_TABLE_WEIGHTS_AND_BIASES_DERIVATIVES_ID        = 104030;
-const int SERIALIZATION_NEURAL_NETWORKS_TENSOR_WEIGHTS_AND_BIASES_ID                           = 104040;
-const int SERIALIZATION_NEURAL_NETWORKS_TENSOR_WEIGHTS_AND_BIASES_DERIVATIVES_ID               = 104050;
-
-const int SERIALIZATION_NEURAL_NETWORKS_TRAINING_RESULT_ID                                     = 104100;
-const int SERIALIZATION_NEURAL_NETWORKS_TRAINING_PARTIAL_RESULT_ID                             = 104101;
-const int SERIALIZATION_NEURAL_NETWORKS_TRAINING_DISTRIBUTED_PARTIAL_RESULT_ID                 = 104102;
-const int SERIALIZATION_NEURAL_NETWORKS_PREDICTION_RESULT_ID                                   = 104110;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_BACKWARD_RESULT_ID                              = 104120;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_FORWARD_RESULT_ID                               = 104130;
-
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_ABS_BACKWARD_RESULT_ID                          = 104140;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_ABS_FORWARD_RESULT_ID                           = 104150;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LOGISTIC_BACKWARD_RESULT_ID                     = 104160;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LOGISTIC_FORWARD_RESULT_ID                      = 104170;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_RELU_BACKWARD_RESULT_ID                         = 104180;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_RELU_FORWARD_RESULT_ID                          = 104190;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SMOOTHRELU_BACKWARD_RESULT_ID                   = 104200;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SMOOTHRELU_FORWARD_RESULT_ID                    = 104210;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_TANH_BACKWARD_RESULT_ID                         = 104220;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_TANH_FORWARD_RESULT_ID                          = 104230;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_PRELU_FORWARD_RESULT_ID                         = 104240;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_PRELU_BACKWARD_RESULT_ID                        = 104250;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SOFTMAX_BACKWARD_RESULT_ID                      = 104260;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SOFTMAX_FORWARD_RESULT_ID                       = 104270;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_FULLYCONNECTED_BACKWARD_RESULT_ID               = 104320;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_FULLYCONNECTED_FORWARD_RESULT_ID                = 104330;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_DROPOUT_BACKWARD_RESULT_ID                      = 104340;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_DROPOUT_FORWARD_RESULT_ID                       = 104350;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_BATCH_NORMALIZATION_FORWARD_RESULT_ID           = 104360;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_BATCH_NORMALIZATION_BACKWARD_RESULT_ID          = 104370;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LRN_BACKWARD_RESULT_ID                          = 104380;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LRN_FORWARD_RESULT_ID                           = 104390;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SPLIT_FORWARD_RESULT_ID                         = 104400;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SPLIT_BACKWARD_RESULT_ID                        = 104410;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_CONVOLUTION2D_BACKWARD_RESULT_ID                = 104420;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_CONVOLUTION2D_FORWARD_RESULT_ID                 = 104430;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_CONCAT_BACKWARD_RESULT_ID                       = 104440;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_CONCAT_FORWARD_RESULT_ID                        = 104450;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_MAXIMUM_POOLING1D_FORWARD_RESULT_ID             = 104460;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_AVERAGE_POOLING1D_FORWARD_RESULT_ID             = 104470;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_MAXIMUM_POOLING1D_BACKWARD_RESULT_ID            = 104480;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_AVERAGE_POOLING1D_BACKWARD_RESULT_ID            = 104490;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_MAXIMUM_POOLING2D_FORWARD_RESULT_ID             = 104500;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_AVERAGE_POOLING2D_FORWARD_RESULT_ID             = 104510;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_MAXIMUM_POOLING2D_BACKWARD_RESULT_ID            = 104520;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_AVERAGE_POOLING2D_BACKWARD_RESULT_ID            = 104530;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_MAXIMUM_POOLING3D_FORWARD_RESULT_ID             = 104540;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_AVERAGE_POOLING3D_FORWARD_RESULT_ID             = 104550;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_MAXIMUM_POOLING3D_BACKWARD_RESULT_ID            = 104560;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_AVERAGE_POOLING3D_BACKWARD_RESULT_ID            = 104570;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LOSS_SOFTMAX_CROSS_FORWARD_RESULT_ID            = 104580;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LOSS_SOFTMAX_CROSS_BACKWARD_RESULT_ID           = 104590;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_STOCHASTIC_POOLING2D_FORWARD_RESULT_ID          = 104600;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_STOCHASTIC_POOLING2D_BACKWARD_RESULT_ID         = 104610;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LOCALLYCONNECTED2D_FORWARD_RESULT_ID            = 104620;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LOCALLYCONNECTED2D_BACKWARD_RESULT_ID           = 104625;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LCN_FORWARD_RESULT_ID                           = 104630;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LCN_BACKWARD_RESULT_ID                          = 104635;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SPATIAL_AVERAGE_POOLING2D_FORWARD_RESULT_ID     = 104640;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SPATIAL_AVERAGE_POOLING2D_BACKWARD_RESULT_ID    = 104650;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SPATIAL_MAXIMUM_POOLING2D_FORWARD_RESULT_ID     = 104660;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SPATIAL_MAXIMUM_POOLING2D_BACKWARD_RESULT_ID    = 104670;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SPATIAL_STOCHASTIC_POOLING2D_FORWARD_RESULT_ID  = 104680;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_SPATIAL_STOCHASTIC_POOLING2D_BACKWARD_RESULT_ID = 104690;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_TRANSPOSED_CONV2D_BACKWARD_RESULT_ID            = 104700;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_TRANSPOSED_CONV2D_FORWARD_RESULT_ID             = 104710;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LOSS_LOGISTIC_CROSS_FORWARD_RESULT_ID           = 104720;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_LOSS_LOGISTIC_CROSS_BACKWARD_RESULT_ID          = 104730;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_RESHAPE_BACKWARD_RESULT_ID                      = 104740;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_RESHAPE_FORWARD_RESULT_ID                       = 104750;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_ELTWISE_SUM_FORWARD_RESULT_ID                   = 104760;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_ELTWISE_SUM_BACKWARD_RESULT_ID                  = 104770;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_ELU_FORWARD_RESULT_ID                           = 104780;
-const int SERIALIZATION_NEURAL_NETWORKS_LAYERS_ELU_BACKWARD_RESULT_ID                          = 104790;
-
 const int SERIALIZATION_RIDGE_REGRESSION_MODELNORMEQ_ID                                        = 105000;
 const int SERIALIZATION_RIDGE_REGRESSION_PARTIAL_RESULT_ID                                     = 105010;
 const int SERIALIZATION_RIDGE_REGRESSION_TRAINING_RESULT_ID                                    = 105020;
@@ -546,7 +465,7 @@ static services::SharedPtr<DstClassName> downCast(const services::SharedPtr<SrcC
 #define DAAL_CHECK_MALLOC(cond) DAAL_CHECK(cond, services::ErrorMemoryAllocationFailed)
 #define DAAL_CHECK_MALLOC_THR(cond) DAAL_CHECK_THR(cond, services::ErrorMemoryAllocationFailed)
 
-#define DAAL_CHECK_STATUS(destVar, srcVal) { destVar |= (srcVal); if(!(destVar)) return destVar; }
+#define DAAL_CHECK_STATUS(destVar, srcVal) { destVar.add(srcVal); if(!(destVar)) return destVar; }
 #define DAAL_CHECK_STATUS_VAR(statVal)     { if(!(statVal)) return statVal; }
 #define DAAL_CHECK_STATUS_THR(statVal)     { if(!(statVal)) { safeStat.add(statVal); return; } }
 #define DAAL_CHECK_SAFE_STATUS()           { if(!(safeStat)) return safeStat.detach(); }
@@ -599,13 +518,6 @@ static services::SharedPtr<DstClassName> downCast(const services::SharedPtr<SrcC
     return result;                                                                              \
 }
 
-#define DAAL_ALLOCATE_TENSOR_AND_SET(s, collectionId, tensorDim)                                                                        \
-{                                                                                                                                       \
-    set(collectionId, data_management::HomogenTensor<algorithmFPType>::create(tensorDim, data_management::Tensor::doAllocate, &s));     \
-    DAAL_CHECK_STATUS_VAR(s);                                                                                                           \
-}
-
 #define DAAL_CHECK_NUMERIC_TABLE(destVar, ...) DAAL_CHECK_STATUS(destVar, data_management::checkNumericTable(__VA_ARGS__))
-#define DAAL_CHECK_TENSOR(destVar, ...) DAAL_CHECK_STATUS(destVar, data_management::checkTensor(__VA_ARGS__))
 
 #endif

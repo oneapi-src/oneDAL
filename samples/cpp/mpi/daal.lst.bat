@@ -38,7 +38,4 @@ set MPI_SAMPLE_LIST=svd_fast_distributed_mpi                      ^
                     low_order_moments_dense_distributed_mpi       ^
                     implicit_als_csr_distributed_mpi              ^
                     ridge_regression_norm_eq_distributed_mpi      ^
-                    neural_net_dense_distributed_mpi              ^
-                    neural_net_dense_allgather_distributed_mpi    ^
-                    neural_net_dense_asynch_distributed_mpi       ^
                     dbscan_dense_distributed_mpi

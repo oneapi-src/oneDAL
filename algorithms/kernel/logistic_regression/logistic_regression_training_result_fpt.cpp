@@ -23,6 +23,7 @@
 
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
 #include "logistic_regression_model_impl.h"
+#include "data_management/data/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -39,11 +40,24 @@ ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, mode
 {
     const size_t nRows = nClasses == 2 ? 1 : nClasses;
     const size_t nCols = nFeatures + 1;
-    _beta = data_management::HomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st);
+
+    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto &deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        _beta = data_management::HomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st);
+    }
+    else
+    {
+        _beta = data_management::SyclHomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st);
+    }
 }
 
 template ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, DAAL_FPTYPE dummy, services::Status* st);
+
 }
+
 
 namespace training
 {

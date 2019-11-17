@@ -30,6 +30,10 @@
 
 #include "kmeans_lloyd_impl.i"
 
+#include "service_ittnotify.h"
+
+DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.batch);
+
 using namespace daal::internal;
 using namespace daal::services::internal;
 
@@ -46,6 +50,8 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTable *const *a,
     const NumericTable *const *r, const Parameter *par)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
+
     NumericTable *ntData     = const_cast<NumericTable *>( a[0] );
     const size_t nIter = par->maxIterations;
     const size_t p = ntData->getNumberOfColumns();
@@ -119,14 +125,21 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         DAAL_CHECK(task.get(), services::ErrorMemoryAllocationFailed);
         DAAL_ASSERT(task);
 
-        s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get());
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(addNTToTaskThreaded);
+            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get());
+        }
+
         if(!s)
         {
             task->kmeansClearClusters(&oldTargetFunc);
             break;
         }
 
-        task->template kmeansComputeCentroids<method>(clusterS0.get(), clusterS1.get(), dS1.get());
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(kmeansPartialReduceCentroids);
+            task->template kmeansComputeCentroids<method>(clusterS0.get(), clusterS1.get(), dS1.get());
+        }
 
         size_t cNum;
         DAAL_CHECK_STATUS(s, task->kmeansComputeCentroidsCandidates(cValues.get(), cIndices.get(), cNum));
@@ -134,49 +147,56 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
         algorithmFPType newCentersGoalFunc = (algorithmFPType)0.0;
 
-        for (size_t i = 0; i < nClusters; i++)
         {
-            if ( clusterS0[i] > 0 )
-            {
-                const algorithmFPType coeff = 1.0 / clusterS0[i];
+            DAAL_ITTNOTIFY_SCOPED_TASK(kmeansMergeReduceCentroids);
 
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < p; j++)
+            for (size_t i = 0; i < nClusters; i++)
+            {
+                if ( clusterS0[i] > 0 )
                 {
-                    clusters[i * p + j] = clusterS1[i * p + j] * coeff;
+                    const algorithmFPType coeff = 1.0 / clusterS0[i];
+
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t j = 0; j < p; j++)
+                    {
+                        clusters[i * p + j] = clusterS1[i * p + j] * coeff;
+                    }
                 }
+                else
+                {
+                    DAAL_CHECK(cPos < cNum, services::ErrorKMeansNumberOfClustersIsTooLarge);
+                    newCentersGoalFunc += cValues[cPos];
+                    ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices[cPos], 1);
+                    const algorithmFPType *row = mtRow.get();
+                    result |= daal::services::internal::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
+                    cPos++;
+                }
+            }
+        }
+
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(kmeansUpdateObjectiveFunction);
+            if ( par->accuracyThreshold > (algorithmFPType)0.0 )
+            {
+                algorithmFPType newTargetFunc = (algorithmFPType)0.0;
+
+                task->kmeansClearClusters(&newTargetFunc);
+                newTargetFunc -= newCentersGoalFunc;
+
+                if ( internal::Math<algorithmFPType, cpu>::sFabs(oldTargetFunc - newTargetFunc) < par->accuracyThreshold )
+                {
+                    kIter++;
+                    break;
+                }
+
+                oldTargetFunc = newTargetFunc;
             }
             else
             {
-                DAAL_CHECK(cPos < cNum, services::ErrorKMeansNumberOfClustersIsTooLarge);
-                newCentersGoalFunc += cValues[cPos];
-                ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices[cPos], 1);
-                const algorithmFPType *row = mtRow.get();
-                result |= daal::services::internal::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
-                cPos++;
+                task->kmeansClearClusters(&oldTargetFunc);
+                oldTargetFunc -= newCentersGoalFunc;
             }
-        }
-
-        if ( par->accuracyThreshold > (algorithmFPType)0.0 )
-        {
-            algorithmFPType newTargetFunc = (algorithmFPType)0.0;
-
-            task->kmeansClearClusters(&newTargetFunc);
-            newTargetFunc -= newCentersGoalFunc;
-
-            if ( internal::Math<algorithmFPType, cpu>::sFabs(oldTargetFunc - newTargetFunc) < par->accuracyThreshold )
-            {
-                kIter++;
-                break;
-            }
-
-            oldTargetFunc = newTargetFunc;
-        }
-        else
-        {
-            task->kmeansClearClusters(&oldTargetFunc);
-            oldTargetFunc -= newCentersGoalFunc;
         }
         inClusters = clusters;
     }

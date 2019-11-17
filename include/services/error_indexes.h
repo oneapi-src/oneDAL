@@ -55,10 +55,11 @@ enum ErrorDetailID
     ParameterName = 12,            /*!< Detail about parameter name */
     OptionalInput = 13,            /*!< Detail about optional input name */
     OptionalResult = 14,           /*!< Detail about optional result name */
-    Layer = 15,                    /*!< Detail about neural network layer */
     SerializationTag = 16,         /*!< Detail about serialization tag */
     ExpectedValue = 17,            /*!< Detail about expected value */
-    ActualValue = 18               /*!< Detail about actual value */
+    ActualValue = 18,              /*!< Detail about actual value */
+    Sycl = 19,                     /*!< Detail about Sycl */
+    OpenCL = 20                    /*!< Detail about actual OpenCL */
 };
 
 /**
@@ -105,11 +106,6 @@ enum ErrorID
     ErrorNullInputDataCollection = -40,                                 /*!< Null input data collection is not supported */
     ErrorNullOutputDataCollection = -41,                                /*!< Null output data collection is not supported */
     ErrorNullPartialResult = -42,                                       /*!< Partial result not set */
-    ErrorIncorrectNumberOfInputNumericTensors = -43,                    /*!< Incorrect number of elements in input collection */
-    ErrorIncorrectNumberOfOutputNumericTensors = -44,                   /*!< Incorrect number of elements in output collection */
-    ErrorNullTensor = -45,                                              /*!< Null tensor is not supported */
-    ErrorIncorrectNumberOfDimensionsInTensor = -46,                     /*!< Number of dimensions in tensor is incorrect */
-    ErrorIncorrectSizeOfDimensionInTensor = -47,                        /*!< Size of the dimension in input tensor is incorrect */
     ErrorNullLayerData = -48,                                           /*!< Null layer data is not supported */
     ErrorIncorrectSizeOfLayerData = -49,                                /*!< Incorrect number of elements in layer data collection */
     ErrorNullNumericTable = -50,                                        /*!< Null numeric table is not supported */
@@ -365,11 +361,6 @@ enum ErrorID
     ErrorRidgeRegressionNormEqSystemSolutionFailed = -17001,            /*!< Failed to solve the system of normal equations */
     ErrorRidgeRegressionInvertFailed = -17002,                          /*!< Failed to invert matrix */
 
-    // Neural Networks errors: -18000...18999
-    ErrorInconsistenceModelAndBatchSizeInParameter = -18000,            /*!< Inconsistence of model and batch size parameter in optimization solver */
-    ErrorNeuralNetworkLayerCall                    = -18001,            /*!< Error in neural network layer call */
-    ErrorSplitLayerBackward = -18002,                                   /*!< Error in split layer backward */
-
     // Pivoted QR errors: -19000..-19199
     ErrorPivotedQRInternal = -19000,                                    /*!< Pivoted QR internal error */
 
@@ -405,6 +396,9 @@ enum ErrorID
     // Quality metrics errors -90201..-90301
     ErrorEmptyInputAlgorithmsCollection = -90201,                       /*!< Input algorithms collection is empty */
 
+    // Group of execution context errors -99999
+    ErrorExecutionContext = -99999,                                      /*!< Execution context errors*/
+
     // Other errors: -100000..
     ErrorObjectDoesNotSupportSerialization = -100000,                   /*!< SerializationIface is not implemented or implemented incorrectly */
 
@@ -421,7 +415,10 @@ enum ErrorID
     ErrorIncorrectOffset = -1000003,                                    /*!< Incorrect offset */
     ErrorIterativeSolverIncorrectMaxNumberOfIterations = -1000004,      /*!< Incorrect maximum number of iterations value in solver */
     ErrorIncorrectNumberOfTerms = -1000005,                             /*!< Incorrect number of summands (terms) in objective function */
-    ErrorIncorrectNumberOfNodes = -1000006                              /*!< Incorrect number of nodes */
+    ErrorIncorrectNumberOfNodes = -1000006,                             /*!< Incorrect number of nodes */
+
+    ErrorDeviceSupportNotImplemented = -1000007,                        /*!< GPU support for the method is not implemented in the present library version  */
+    ErrorInconsistenceModelAndBatchSizeInParameter = -1000008           /*!< Inconsistence of model and batch size parameter in optimization solver */
 };
 /** @} */
 }

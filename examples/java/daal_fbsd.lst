@@ -45,7 +45,6 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     covariance/CovDenseOnline                        \
                     datasource/DataSourceFeatureExtraction           \
                     datasource/DataStructuresHomogen                 \
-                    datasource/DataStructuresHomogenTensor           \
                     datasource/DataStructuresAOS                     \
                     datasource/DataStructuresSOA                     \
                     datasource/DataStructuresCSR                     \
@@ -157,15 +156,6 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     datasource/DataStructuresMerged                  \
                     sorting/SortingDenseBatch                        \
                     error_handling/ErrorHandling                     \
-                    math/SoftmaxDenseBatch                           \
-                    math/AbsDenseBatch                               \
-                    math/AbsCSRBatch                                 \
-                    math/SmoothReLUDenseBatch                        \
-                    math/LogisticDenseBatch                          \
-                    math/ReLUCSRBatch                                \
-                    math/ReLUDenseBatch                              \
-                    math/TanhDenseBatch                              \
-                    math/TanhCSRBatch                                \
                     normalization/ZScoreDenseBatch                   \
                     normalization/MinMaxDenseBatch                   \
                     optimization_solvers/CDDenseBatch                \
@@ -180,42 +170,6 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     optimization_solvers/MSEDenseBatch               \
                     optimization_solvers/SAGADenseBatch              \
                     optimization_solvers/SAGALogisticLossDenseBatch  \
-                    neural_networks/ELULayerDenseBatch               \
-                    neural_networks/ReLULayerDenseBatch              \
-                    neural_networks/ReshapeLayerDenseBatch           \
-                    neural_networks/AbsLayerDenseBatch               \
-                    neural_networks/BatchNormLayerDenseBatch         \
-                    neural_networks/DropoutLayerDenseBatch           \
-                    neural_networks/FullyconLayerDenseBatch          \
-                    neural_networks/SplitLayerDenseBatch             \
-                    neural_networks/SmoothReLULayerDenseBatch        \
-                    neural_networks/SoftmaxLayerDenseBatch           \
-                    neural_networks/PReLULayerDenseBatch             \
-                    neural_networks/TanhLayerDenseBatch              \
-                    neural_networks/LRNLayerDenseBatch               \
-                    neural_networks/Conv2DLayerDenseBatch            \
-                    neural_networks/TransConv2DLayerDenseBatch       \
-                    neural_networks/LogisticLayerDenseBatch          \
-                    neural_networks/AvePool1DLayerDenseBatch         \
-                    neural_networks/MaxPool1DLayerDenseBatch         \
-                    neural_networks/AvePool2DLayerDenseBatch         \
-                    neural_networks/MaxPool2DLayerDenseBatch         \
-                    neural_networks/StochPool2DLayerDenseBatch       \
-                    neural_networks/AvePool3DLayerDenseBatch         \
-                    neural_networks/MaxPool3DLayerDenseBatch         \
-                    neural_networks/ConcatLayerDenseBatch            \
-                    neural_networks/LossSoftmaxEntrLayerDenseBatch   \
-                    neural_networks/LossLogisticEntrLayerDenseBatch  \
-                    neural_networks/NeuralNetDenseBatch              \
-                    neural_networks/NeuralNetPredicDenseBatch        \
-                    neural_networks/Locallycon2DLayerDenseBatch      \
-                    neural_networks/LCNLayerDenseBatch               \
-                    neural_networks/SpatAvePool2DLayerDenseBatch     \
-                    neural_networks/SpatMaxPool2DLayerDenseBatch     \
-                    neural_networks/SpatStochPool2DLayerDenseBatch   \
-                    neural_networks/NeuralNetDenseDistr              \
-                    neural_networks/InitializersDenseBatch           \
-                    neural_networks/EltwiseSumLayerDenseBatch        \
                     distributions/UniformDenseBatch                  \
                     distributions/BernoulliDenseBatch                \
                     distributions/NormalDenseBatch                   \

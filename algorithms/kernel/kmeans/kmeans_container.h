@@ -29,6 +29,8 @@
 #include "kmeans_batch.h"
 #include "kmeans_distributed.h"
 #include "kmeans_lloyd_kernel.h"
+#include "oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h"
+#include "execution_context.h"
 
 #include "service_numeric_table.h"
 
@@ -42,7 +44,17 @@ namespace kmeans
 template<typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::KMeansBatchKernel, method, algorithmFPType);
+    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto& deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::KMeansBatchKernel, method, algorithmFPType);
+    }
+    else
+    {
+        _kernel = new internal::KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>();
+    }
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>
@@ -54,7 +66,10 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template<typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input  *input  = static_cast<Input *>(_in );
+    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto& deviceInfo = context.getInfoDevice();
+
+    Input  *input  = static_cast<Input *>(_in);
     Result *result = static_cast<Result *>(_res);
 
     NumericTable *a[lastInputId + 1] =
@@ -73,7 +88,15 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     Parameter *par = static_cast<Parameter *>(_par);
     daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::KMeansBatchKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, par);
+
+    if (deviceInfo.isCpu || method != lloydDense)
+    {
+        __DAAL_CALL_KERNEL(env, internal::KMeansBatchKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, par);
+    }
+    else
+    {
+        return ((internal::KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>*)(_kernel))->compute(a, r, par);
+    }
 }
 
 template<typename algorithmFPType, Method method, CpuType cpu>

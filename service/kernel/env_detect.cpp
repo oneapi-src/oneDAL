@@ -128,13 +128,11 @@ DAAL_EXPORT daal::services::Environment::Environment() : _init(0)
 {
     _env.cpuid_init_flag = false;
     _env.cpuid = -1;
+    this->setDefaultExecutionContext(CpuExecutionContext());
 }
 
-DAAL_EXPORT daal::services::Environment::Environment(const Environment& e) : _init(0)
-{
-    _env.cpuid_init_flag = false;
-    _env.cpuid = -1;
-}
+DAAL_EXPORT daal::services::Environment::Environment(const Environment& e) : daal::services::Environment::Environment()
+{ }
 
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {

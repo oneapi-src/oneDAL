@@ -24,6 +24,7 @@
 #ifndef __PCA_DENSE_CORRELATION_BASE_H__
 #define __PCA_DENSE_CORRELATION_BASE_H__
 
+#include "pca_dense_correlation_base_iface.h"
 #include "pca_types.h"
 #include "service_lapack.h"
 #include "pca_dense_base.h"
@@ -41,16 +42,25 @@ namespace internal
 {
 
 template <typename algorithmFPType, CpuType cpu>
-class PCACorrelationBase : public PCADenseBase<algorithmFPType,cpu>
+class PCACorrelationBase : public PCACorrelationBaseIface<algorithmFPType>,
+                           public PCADenseBase<algorithmFPType, cpu>
 {
 public:
     explicit PCACorrelationBase() {};
 
 protected:
     services::Status computeCorrelationEigenvalues(const data_management::NumericTable& correlation,
-        data_management::NumericTable& eigenvectors, data_management::NumericTable& eigenvalues);
+        data_management::NumericTable& eigenvectors, data_management::NumericTable& eigenvalues) DAAL_C11_OVERRIDE;
     services::Status computeEigenvectorsInplace(size_t nFeatures, algorithmFPType *eigenvectors, algorithmFPType *eigenvalues);
     services::Status sortEigenvectorsDescending(size_t nFeatures, algorithmFPType *eigenvectors, algorithmFPType *eigenvalues);
+    virtual services::Status signFlipEigenvectors(NumericTable& eigenvectors) const DAAL_C11_OVERRIDE
+    {
+        return PCADenseBase<algorithmFPType, cpu>::signFlipEigenvectors(eigenvectors);
+    }
+    virtual services::Status fillTable(NumericTable& table, algorithmFPType val) const DAAL_C11_OVERRIDE
+    {
+        return PCADenseBase<algorithmFPType, cpu>::fillTable(table, val);
+    }
     services::Status copyVarianceFromCovarianceTable(NumericTable& source, NumericTable& dest) const;
     services::Status correlationFromCovarianceTable(NumericTable& source) const;
 

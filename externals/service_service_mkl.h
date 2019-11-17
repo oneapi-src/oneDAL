@@ -58,6 +58,11 @@ struct MklService
         return fpk_serv_memcpy_s(dest, destSize, src, srcSize);
     }
 
+    static int serv_memmove_s(void *dest, size_t destSize, const void *src, size_t smax)
+    {
+        return fpk_serv_memmove_s(dest, destSize, src, smax);
+    }
+
     static int serv_get_ht()
     {
         return fpk_serv_get_ht();

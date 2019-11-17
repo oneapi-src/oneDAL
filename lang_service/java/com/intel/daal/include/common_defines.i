@@ -35,7 +35,6 @@ const int SERIALIZATION_JAVANIO_AOS_NT_ID                                       
 const int SERIALIZATION_JAVANIO_SOA_NT_ID                                                       = 10030;
 const int SERIALIZATION_JAVANIO_PACKEDSYMMETRIC_NT_ID                                           = 10040;
 const int SERIALIZATION_JAVANIO_PACKEDTRIANGULAR_NT_ID                                          = 10050;
-const int SERIALIZATION_JAVANIO_HOMOGEN_TENSOR_ID                                               = 21000;
 
 } // namespace daal
 

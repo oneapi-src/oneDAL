@@ -82,6 +82,15 @@ namespace internal
 */
 DAAL_EXPORT int daal_memcpy_s(void *dest, size_t destSize, const void *src, size_t srcSize);
 }
+
+/**
+ * Copies smax bytes from the region pointed to by src into the region pointed to by dest
+ * \param[out] dest               Pointer that will be replaced by src
+ * \param[in]  destSize           Size of the resulting dest
+ * \param[in]  src                Pointer to source buffer
+ * \param[in]  count              Number of bytes to copy.
+ */
+DAAL_EXPORT void daal_memmove_s(void *dest, size_t destSize, const void *src, size_t count);
 /** @} */
 
 DAAL_EXPORT float daal_string_to_float(const char * nptr, char ** endptr);

@@ -22,6 +22,7 @@
 */
 
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
+#include "data_management/data/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -46,15 +47,31 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     using namespace daal::data_management;
     const Input *algInput = static_cast<const Input *>(input);
     size_t nRows = algInput->get(inputArgument)->getNumberOfRows();
+
+    services::Status status;
+
+    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto &deviceInfo = context.getInfoDevice();
+
     if (!get(minimum))
     {
-        set(minimum, NumericTablePtr(new HomogenNumericTable<algorithmFPType>(1, nRows, NumericTable::doAllocate)));
+        NumericTablePtr nt;
+        if (deviceInfo.isCpu)
+        {
+            nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, &status);
+        }
+        else
+        {
+            nt = SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, &status);
+        }
+        set(minimum, nt);
     }
     if (!get(nIterations))
     {
-        set(nIterations, NumericTablePtr(new HomogenNumericTable<size_t>(1, 1, NumericTable::doAllocate, (size_t)0)));
+        NumericTablePtr nt = HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, int(0));
+        set(nIterations, nt);
     }
-    return services::Status();
+    return status;
 }
 
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);

@@ -954,20 +954,20 @@ for the version of Intel® DAAL you are using. </p>
         </li>
         <li>On Linux*, the Intel® MPI Library includes the<span class="codeph"> mpivars</span> scripts that you can run to set environment variables. You can find the <span class="codeph">mpivars</span>
  scripts at <span class="codeph">&lt;MPI install-dir&gt;/bin64/:</span><samp class="codeph"><br />
-            source mpivars.sh|csh
+            source mpivars.sh
             </samp>
         </li>
     </ul>
     <p>Check the documentation that comes with your MPI implementation for 
 implementation-specific details of linking. </p>
 <h3> Setting Up the Build Environment&nbsp;</h3>
-<p> Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel® DAAL includes the <span class="filepath">daalvars</span> scripts that you can run to set environment variables:</p>
+<p> Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel® DAAL includes the <span class="filepath">vars</span> scripts that you can run to set environment variables:</p>
     <ul id="GUID-2FEE5E18-4507-402C-806D-F3C422B0D085">
-        <li>On Windows*, you can find the <span class="filepath">daalvars.bat</span> batch file at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:</span><samp class="codeph"><br />
-            daalvars.bat intel64 </samp>
+        <li>On Windows*, you can find the <span class="filepath">vars.bat</span> batch file at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:</span><samp class="codeph"><br />
+            vars.bat intel64 </samp>
         </li>
-        <li>On Linux OS*, you can find the <span class="filepath">daalvars.sh|daalvars.csh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin\:</span><samp class="codeph"><br />
-            source daalvars.sh|csh intel64
+        <li>On Linux OS*, you can find the <span class="filepath">vars.sh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin\:</span><samp class="codeph"><br />
+            source vars.sh intel64
             </samp>
 		<br class="Apple-interchange-newline">
 
@@ -1030,7 +1030,7 @@ file.</p>
  
       <p>To run Intel® DAAL MPI C++ samples, go to the C++ MPI samples directory and execute the 
         <span class="keyword">make</span> command in the run mode. For example, if you run the 
-        <span class="filepath">daalvars</span> script with the 
+        <span class="filepath">vars</span> script with the 
         <span class="keyword">intel64</span> target: 
       </p>
  

@@ -18,17 +18,17 @@ To link an application with the Intel(R) MPI library, do the following:
     for example, `%ProgramFiles(x86)%\IntelSWTools\MPI\5.1.x.xxx\intel64\lib`.
     3. Add `impi.lib` and `impicxx.lib` to your link command.
 - On Linux\*, the Intel(R) MPI Library includes the `mpivars` scripts that you can run to set environment variables. You can find the `mpivars` scripts at `<MPI install-dir>/bin64/:
-source mpivars.sh|csh`
+source mpivars.sh`
 
 Check the documentation that comes with your MPI implementation for implementation-specific details of linking.
 
 ### Setting Up the Build Environment 
-Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel(R) DAAL includes the `daalvars` scripts that you can run to set environment variables:
+Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel(R) DAAL includes the `vars` scripts that you can run to set environment variables:
 
-- On Windows\*, you can find the `daalvars.bat` batch file at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:
-daalvars.bat intel64`
-- On Linux OS\*, you can find the `daalvars.sh|daalvars.csh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin\:
-source daalvars.sh|csh intel64`
+- On Windows\*, you can find the `vars.bat` batch file at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:
+vars.bat intel64`
+- On Linux OS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin\:
+source vars.sh intel64`
 
 For more information about setting environment variables and configuring Intel(R) DAAL, refer to Getting Started guides for the library.
 
@@ -69,7 +69,7 @@ The names of the samples are available in the `daal.lst` file. If a sample name 
 
 The command creates a directory for the chosen library extension (`a` or `so`). For example: `_results/intel_intel64_a`.
 
-To run Intel(R) DAAL MPI C++ samples, go to the C++ MPI samples directory and execute the `make` command in the run mode. For example, if you run the `daalvars` script with the `intel64` target:
+To run Intel(R) DAAL MPI C++ samples, go to the C++ MPI samples directory and execute the `make` command in the run mode. For example, if you run the `vars` script with the `intel64` target:
 
 ```
 cd <sample_dir>/cpp/mpi 

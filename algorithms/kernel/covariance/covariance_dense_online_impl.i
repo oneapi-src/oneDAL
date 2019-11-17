@@ -38,11 +38,12 @@ namespace internal
 
 template<typename algorithmFPType, Method method, CpuType cpu, typename SumsArrayType>
 services::Status prepareSums(NumericTable *dataTable,
+                             const bool isNormalized,
                              algorithmFPType *&userSums,
                              ReadRows<algorithmFPType, cpu> &userSumsBlock,
                              SumsArrayType &userSumsArray)
 {
-    if (method == defaultDense)
+    if (method == defaultDense || (method == sumDense && isNormalized))
     {
         userSumsArray.reset(dataTable->getNumberOfColumns());
         DAAL_CHECK_MALLOC(userSumsArray.get());
@@ -102,7 +103,7 @@ services::Status CovarianceDenseOnlineKernel<algorithmFPType, method, cpu>::comp
         ReadRows<algorithmFPType, cpu>     userSumsBlock;
         TArrayCalloc<algorithmFPType, cpu> userSumsArray;
 
-        status |= prepareSums<algorithmFPType, method, cpu>(dataTable, userSums, userSumsBlock, userSumsArray);
+        status |= prepareSums<algorithmFPType, method, cpu>(dataTable, isNormalized, userSums, userSumsBlock, userSumsArray);
         DAAL_CHECK_STATUS_VAR(status);
 
         TArrayCalloc<algorithmFPType, cpu> partialCrossProductArray(nFeatures * nFeatures);

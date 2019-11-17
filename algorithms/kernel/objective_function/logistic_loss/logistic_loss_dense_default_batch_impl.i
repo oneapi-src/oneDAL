@@ -21,9 +21,12 @@
 //--
 */
 #include "service_math.h"
-#include "objective_function_utils.i"
-#include "service_memory.h"
-#include "service_data_utils.h"
+#include "service_utils.h"
+#include "service_ittnotify.h"
+
+DAAL_ITTNOTIFY_DOMAIN(logistic_loss.dense.default.batch);
+
+#include "common/objective_function_utils.i"
 
 namespace daal
 {
@@ -77,6 +80,7 @@ template<typename algorithmFPType, Method method, CpuType cpu>
 void LogLossKernel<algorithmFPType, method, cpu>::applyBetaThreaded(const algorithmFPType* x, const algorithmFPType* beta,
     algorithmFPType* xb, size_t nRows, size_t nCols, bool bIntercept)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(apply_beta);
     applyBetaImpl<algorithmFPType, cpu>(x, beta, xb, nRows, nCols, bIntercept, true);
 }
 
@@ -270,16 +274,17 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             fPtr = fScalable.get();
             sgPtr = sgScalable.get();
         }
-
         //f = X*b + b0
         applyBetaThreaded(x, b, fPtr, n, p, parameter->interceptFlag);
 
-        //s = exp(-f)
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(compute_sigmoids);
+            //s = exp(-f)
+            vexp<algorithmFPType, cpu>(fPtr, sgPtr, n);
 
-        vexp<algorithmFPType, cpu>(fPtr, sgPtr, n);
-
-        //s = sigm(f), s1 = 1 - s
-        sigmoids<algorithmFPType, cpu>(sgPtr, n);
+            //s = sigm(f), s1 = 1 - s
+            sigmoids<algorithmFPType, cpu>(sgPtr, n);
+        }
 
         const bool bL1 = (parameter->penaltyL1 > 0);
         const bool bL2 = (parameter->penaltyL2 > 0);
@@ -325,6 +330,8 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
 
         if(gradientNT)
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(compute_gradient);
+
             DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
             algorithmFPType* s = sgPtr;
 

@@ -24,9 +24,7 @@
 #ifndef __PCA_DENSE_BASE_H__
 #define __PCA_DENSE_BASE_H__
 
-#include "service_defines.h"
-#include "service_numeric_table.h"
-#include "services/error_handling.h"
+#include "pca_dense_base_iface.h"
 
 using namespace daal::internal;
 
@@ -38,8 +36,6 @@ namespace pca
 {
 namespace internal
 {
-
-
 
 template <typename algorithmFPType, CpuType cpu>
 class PCADenseBase: public Kernel
