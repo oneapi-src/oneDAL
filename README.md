@@ -35,7 +35,7 @@ Visit [oneDAL home page](https://software.intel.com/en-us/oneapi/onedal) for mor
 
 ## Documentation
 
-Browse [oneDAL documentation](https://github.com/pages/intel/daal/index.html) on GitHub or refer to the complete list of classical Intel(R) DAAL features and documentation are available at the official [Intel(R) DAAL website](https://software.intel.com/en-us/daal).
+Browse [oneDAL documentation](http://intel.github.io/daal/) on GitHub or refer to the complete list of classical Intel(R) DAAL features and documentation are available at the official [Intel(R) DAAL website](https://software.intel.com/en-us/daal).
 
 ## Installation
 
