@@ -14,16 +14,16 @@ jobs:
   strategy:
     matrix:
       lnx32:
-        platform.type : 'lnx32'
+        platform.type : 'lnx_ia32'
       lnx32e:
-        platform.type : 'lnx32e'
+        platform.type : 'lnx_intel64'
     maxParallel: 2
   steps:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
-      scripts/mklfpk.sh ${$(platform.type):3}
-      scripts/tbb.sh ${$(platform.type):3}
+      scripts/mklfpk.sh ${$(platform.type):4}
+      scripts/tbb.sh
       export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
       export PATH=$JAVA_HOME/bin:$PATH
       export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH 
@@ -43,11 +43,11 @@ jobs:
   strategy:
     matrix:
       mac32e:
-        platform.type : 'mac32e'
+        platform.type : 'mac_intel64'
   steps:
   - script: |
-      scripts/mklfpk.sh ${$(platform.type):3}
-      scripts/tbb.sh ${$(platform.type):3}
+      scripts/mklfpk.sh ${$(platform.type):4}
+      scripts/tbb.sh
       export JAVA_HOME=$(/usr/libexec/java_home -v 12)
       export PATH=$JAVA_HOME/bin:$PATH
       export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
