@@ -159,11 +159,13 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::logLoss(
 }
 
 // sigmoid(x) = 1/(1+exp(-x))
+// if calculateInverse = true, x[i][1] = 1 - sigmoid(x[i][0])
 template <typename algorithmFPType>
 services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(
     const services::Buffer<algorithmFPType>& x,
     services::Buffer<algorithmFPType>& result,
-    const uint32_t n)
+    const uint32_t n,
+    bool calculateInverse)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids);
     services::Status status;
@@ -179,10 +181,11 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(
 
     const algorithmFPType expThreshold = math::expThreshold<algorithmFPType>();
 
-    KernelArguments args(3);
+    KernelArguments args(4);
     args.set(0, x, AccessModeIds::read);
-    args.set(1, result, AccessModeIds::write);
-    args.set(2, expThreshold);
+    args.set(1, expThreshold);
+    args.set(2, uint32_t(calculateInverse));
+    args.set(3, result, AccessModeIds::write);
 
     KernelRange range(n);
     {
