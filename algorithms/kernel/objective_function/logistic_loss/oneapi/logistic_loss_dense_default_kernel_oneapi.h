@@ -81,7 +81,7 @@ public:
 
     // TODO: move in common services
     static services::Status sigmoids(const services::Buffer<algorithmFPType>& x,
-        services::Buffer<algorithmFPType>& result, const uint32_t n);
+        services::Buffer<algorithmFPType>& result, const uint32_t n, bool calculateInverse = false);
 
     static services::Status betaIntercept(const services::Buffer<algorithmFPType> &arg,
         services::Buffer<algorithmFPType> &x, const uint32_t n);

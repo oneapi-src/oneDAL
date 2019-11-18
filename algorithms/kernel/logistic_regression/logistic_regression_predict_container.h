@@ -94,7 +94,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         __DAAL_CALL_KERNEL(env, internal::PredictBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
             daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
     }
-
 }
 
 }

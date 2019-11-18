@@ -123,8 +123,6 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::compute
 
     const bool isBinary = nClasses == 2;
 
-    const size_t k = isBinary ? 1 : nClasses;
-
     NumericTablePtr beta = pModel->getBeta();
 
     // X
@@ -133,7 +131,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::compute
     const services::Buffer<algorithmFPType> xBuff = xBlock.getBuffer();
 
     // Beta
-    DAAL_ASSERT(beta->getNumberOfRows() == k);
+    DAAL_ASSERT(beta->getNumberOfRows() == nClasses);
     DAAL_ASSERT(beta->getNumberOfColumns() == p + 1);
 
     BlockDescriptor<algorithmFPType> betaBlock;
@@ -158,7 +156,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::compute
         services::Buffer<algorithmFPType> oneVectorBuf = _oneVector.get<algorithmFPType>();
         ctx.fill(_oneVector, 1.0, &status);
 
-        DAAL_CHECK_STATUS(status, CrossEntropyLoss::betaIntercept(oneVectorBuf, betaBuff, fBuf, n, k, p + 1));
+        DAAL_CHECK_STATUS(status, CrossEntropyLoss::betaIntercept(oneVectorBuf, betaBuff, fBuf, n, nClasses, p + 1));
     }
 
     if (pProb || pLogProb)
@@ -168,7 +166,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::compute
         NumericTable* pRaw = pProb ? pProb : pLogProb;
 
         DAAL_ASSERT(pRaw->getNumberOfRows() == n);
-        DAAL_ASSERT(pRaw->getNumberOfColumns() == k);
+        DAAL_ASSERT(pRaw->getNumberOfColumns() == nClasses);
 
         BlockDescriptor<algorithmFPType> rawBlock;
         DAAL_CHECK_STATUS(status, pRaw->getBlockOfRows(0, n, ReadWriteMode::writeOnly, rawBlock));
@@ -176,11 +174,12 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::compute
 
         if (isBinary)
         {
-            DAAL_CHECK_STATUS(status, LogisticLoss::sigmoids(fBuf, aRawBuff, n));
+            bool calculateInverse = true;
+            DAAL_CHECK_STATUS(status, LogisticLoss::sigmoids(fBuf, aRawBuff, n, calculateInverse));
         }
         else
         {
-            DAAL_CHECK_STATUS(status, CrossEntropyLoss::softmax(fBuf, aRawBuff, n, k));
+            DAAL_CHECK_STATUS(status, CrossEntropyLoss::softmax(fBuf, aRawBuff, n, nClasses));
         }
 
         if (pLogProb)
@@ -188,20 +187,20 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::compute
             if (pProb)
             {
                 DAAL_ASSERT(pLogProb->getNumberOfRows() == n);
-                DAAL_ASSERT(pLogProb->getNumberOfColumns() == k);
+                DAAL_ASSERT(pLogProb->getNumberOfColumns() == nClasses);
 
                 BlockDescriptor<algorithmFPType> logProbBlock;
                 DAAL_CHECK_STATUS(status, pLogProb->getBlockOfRows(0, n, ReadWriteMode::writeOnly, logProbBlock));
                 services::Buffer<algorithmFPType> logProbBuff = logProbBlock.getBuffer();
 
-                DAAL_CHECK_STATUS(status, math::vLog(aRawBuff, logProbBuff, n*k));
+                DAAL_CHECK_STATUS(status, math::vLog(aRawBuff, logProbBuff, n*nClasses));
 
                 DAAL_CHECK_STATUS(status, pLogProb->releaseBlockOfRows(logProbBlock));
 
             }
             else
             {
-                DAAL_CHECK_STATUS(status, math::vLog(aRawBuff, aRawBuff, n*k));
+                DAAL_CHECK_STATUS(status, math::vLog(aRawBuff, aRawBuff, n*nClasses));
             }
         }
         DAAL_CHECK_STATUS(status, pRaw->releaseBlockOfRows(rawBlock));
@@ -213,7 +212,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::compute
         DAAL_ASSERT(pRes->getNumberOfColumns() == 1);
 
         BlockDescriptor<algorithmFPType> yBlock;
-        DAAL_CHECK_STATUS(status, pRes->getBlockOfRows(0, n, ReadWriteMode::writeOnly, yBlock));
+        DAAL_CHECK_STATUS(status, pRes->getBlockOfRows(0, n, ReadWriteMode::readWrite, yBlock));
         services::Buffer<algorithmFPType> yBuff = yBlock.getBuffer();
 
         if (isBinary)
@@ -222,7 +221,7 @@ services::Status PredictBatchKernelOneAPI<algorithmFPType, method, cpu>::compute
         }
         else
         {
-            DAAL_CHECK_STATUS(status, argMax(fBuf, yBuff, n, k));
+            DAAL_CHECK_STATUS(status, argMax(fBuf, yBuff, n, nClasses));
         }
 
         DAAL_CHECK_STATUS(status, pRes->releaseBlockOfRows(yBlock));
