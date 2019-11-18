@@ -26,9 +26,9 @@ while [ 1 ] ; do
         echo "Usage: $0 [ia32|intel64]"
         echo "Usage example: $0 intel64"
         exit 1
-    elif [ "${1}" = "ia32" ] ; then
+    elif [ "${1}" = "32" ] ; then
         MKLFPK_ARCH=ia32
-    elif [ "${1}" = "intel64" ] ; then
+    elif [ "${1}" = "32e" ] ; then
         MKLFPK_ARCH=intel64
     elif [ -z "$1" ] ; then
         break
