@@ -29,13 +29,13 @@ The current version of oneDAL provides Data Parallel C++ (DPC++) API extensions 
 
 Intel(R) oneAPI Data Analytics Library is an extenstion of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL). 
 
-This repository contains branches corresponding to both oneAPI and classical versions of the library. We encourage you to use oneDAL which is located under the master branch. If you want the gold quality library, use classical Intel(R) DAAL. 
+This repository contains branches corresponding to both oneAPI and classical versions of the library. We encourage you to use oneDAL located under the master branch. If you want the gold quality library, use classical Intel(R) DAAL from the [rls/daal-2020-rls](https://github.com/intel/daal/tree/rls/daal-2020-rls) branch.
 
 Visit [oneDAL home page](https://software.intel.com/en-us/oneapi/onedal) for more information.
 
 ## Documentation
 
-Browse [oneDAL documentation](http://intel.github.io/daal/) on GitHub or refer to the complete list of classical Intel(R) DAAL features and documentation are available at the official [Intel(R) DAAL website](https://software.intel.com/en-us/daal).
+Browse [oneDAL documentation](http://intel.github.io/daal/) on GitHub* or refer to the complete list of classical Intel(R) DAAL features on the official [Intel(R) DAAL website](https://software.intel.com/en-us/daal).
 
 ## Installation
 
