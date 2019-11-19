@@ -24,6 +24,7 @@ import java.io.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.intel.daal.services.Environment;
 
 /**
  * @ingroup libraryUtilities
@@ -40,6 +41,8 @@ public final class LibUtils{
 
     private final static String subDir = "daal_" + new Date().getTime();
 
+    private static volatile boolean loaded;
+
     private static final Logger logger = Logger.getLogger(LibUtils.class.getName());
     private static final Level logLevel = Level.FINE;
 
@@ -48,24 +51,40 @@ public final class LibUtils{
      */
     public static void loadLibrary()
     {
-        try {
-            logger.log(logLevel, "Loading library " + DAALLIB + " as file.");
-            System.loadLibrary(DAALLIB);
-            logger.log(logLevel, "DONE: Loading library " + DAALLIB + " as file.");
-            return;
-        }
-        catch (UnsatisfiedLinkError e) {
-            logger.log(logLevel, "Can`t find library " + DAALLIB + " in java.library.path.");
-        }
+	if(loaded){
+		return;
+	}
+        synchronized(LibUtils.class){
+            if(loaded){
+                return;
+            }
+            String v = System.getProperty("tbb-threads", "1");
+            int numThreads = Integer.valueOf(v);
+            logger.log("tbb-threads: " + numThreads);
 
-        try {
-            loadFromJar(subDir, TBBLIB);
-            loadFromJar(subDir, TBBMALLOCLIB);
-            loadFromJar(subDir, DAALLIB);
-            return;
-        }
-        catch (Throwable e) {
-            logger.log(logLevel, "Error: Can`t load library as resource.");
+            try {
+                logger.log(logLevel, "Loading library " + DAALLIB + " as file.");
+                System.loadLibrary(DAALLIB);
+                logger.log(logLevel, "DONE: Loading library " + DAALLIB + " as file.");
+                loaded = true;
+                Environment.setNumberOfThreads(numThreads);
+                return;
+            }
+            catch (UnsatisfiedLinkError e) {
+                logger.log(logLevel, "Can`t find library " + DAALLIB + " in java.library.path.");
+            }
+
+            try {
+                loadFromJar(subDir, TBBLIB);
+                loadFromJar(subDir, TBBMALLOCLIB);
+                loadFromJar(subDir, DAALLIB);
+                loaded = true;
+                Environment.setNumberOfThreads(numThreads);
+                return;
+            }
+            catch (Throwable e) {
+                logger.log(logLevel, "Error: Can`t load library as resource.");
+            }
         }
     }
 
