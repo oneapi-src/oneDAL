@@ -31,6 +31,7 @@
 #include "decision_tree_model.h"
 #include "decision_tree_classification_training_batch.h"
 #include "classifier_training_types.h"
+#include "daal_memory.h"
 
 using namespace daal::data_management;
 using namespace daal::algorithms;
@@ -51,79 +52,82 @@ namespace internal
 {
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeMinusOneToZero(NumericTable *yTable)
+Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeMinusOneToZero(const algorithmFPtype *yArray, algorithmFPtype *yZeroOne, size_t nVectors)
 {
-    services::Status s;
-    const size_t nVectors  = yTable->getNumberOfRows();
-    WriteColumns<algorithmFPtype, cpu> y(const_cast<NumericTable *>(yTable), 0, 0, nVectors);
-    DAAL_CHECK_STATUS(s, y.status());
-    algorithmFPtype *yArray = y.get();
+    const algorithmFPtype one = 1.0;
+    const algorithmFPtype zero = 0.0;
+    const algorithmFPtype minusOne = -1.0;
     for(size_t i = 0; i < nVectors; i++)
     {
-        if(yArray[i] == -1) { yArray[i] = 0; }
+        if(yArray[i] == minusOne) { yZeroOne[i] = zero; }
+        else { yZeroOne[i] = one; }
     }
-    return s;
-}
-
-template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeZeroToMinusOne(NumericTable *yTable)
-{
-    services::Status s;
-    const size_t nVectors  = yTable->getNumberOfRows();
-    WriteColumns<algorithmFPtype, cpu> y(const_cast<NumericTable *>(yTable), 0, 0, nVectors);
-    DAAL_CHECK_STATUS(s, y.status());
-    algorithmFPtype *yArray = y.get();
-    for(size_t i = 0; i < nVectors; i++)
-    {
-        if(yArray[i] == 0) { yArray[i] = -1; }
-    }
-    return s;
+    return Status();
 }
 
 /**
  *  \brief Perform stump regression for data set X on responses Y with weights W
  */
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t n, const NumericTable *const *a, stump::classification::Model *stumpModel,
+Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t n, const NumericTable *const *a,
+        stump::classification::Model *stumpModel,
         const Parameter *par)
 {
+    Status s;
+
     const NumericTable *xTable = a[0];
     NumericTable *yTable = const_cast<NumericTable *>(a[1]);
     const NumericTable *wTable = (n >= 3 ? a[2] : 0);
 
     const size_t nFeatures = xTable->getNumberOfColumns();
+    const size_t nVectors = xTable->getNumberOfRows();
     const size_t nClasses = par->nClasses;
     stumpModel->setNFeatures(nFeatures);
 
-    services::Status s;
+    SharedPtr<HomogenNumericTableCPU<algorithmFPtype, cpu> > yTableZeroOne;
+    if(nClasses == 2)
+    {
+        yTableZeroOne = HomogenNumericTableCPU<algorithmFPtype, cpu>::create(1, nVectors, &s);
+        DAAL_CHECK_STATUS_VAR(s);
+        algorithmFPtype *yZeroOne = yTableZeroOne->getArray();
+
+        ReadColumns<algorithmFPtype, cpu> y(yTable, 0, 0, nVectors);
+        DAAL_CHECK_STATUS(s, y.status());
+        const algorithmFPtype *yArray = y.get();
+
+        if (yZeroOne && yArray)
+        {
+            int result = 0;
+            result = daal::services::internal::daal_memcpy_s(yZeroOne, nVectors * sizeof(algorithmFPtype), yArray, nVectors * sizeof(algorithmFPtype));
+            if (result)
+            {
+                s |= Status(ErrorMemoryCopyFailedInternal);
+            }
+        }
+        DAAL_CHECK_STATUS(s, changeMinusOneToZero(yArray, yZeroOne, nVectors));
+        yTable = yTableZeroOne.get();
+    }
 
     /* Create an algorithm object to train the Decision tree model */
     decision_tree::classification::training::Batch<algorithmFPtype> treeAlgorithm(par->nClasses);
+    treeAlgorithm.enableChecks(false);
     treeAlgorithm.parameter.splitCriterion = par->splitCriterion;
-    treeAlgorithm.parameter.pruning = daal::algorithms::decision_tree::none;
+    treeAlgorithm.parameter.pruning = decision_tree::none;
     treeAlgorithm.parameter.maxTreeDepth = 2;
     treeAlgorithm.parameter.minObservationsInLeafNodes = 1;
 
     /* Pass the training data set, labels, and pruning dataset with labels to the algorithm */
     treeAlgorithm.input.set(classifier::training::data, NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
     treeAlgorithm.input.set(classifier::training::weights, NumericTablePtr(const_cast<NumericTable *>(wTable), EmptyDeleter()));
-    if(nClasses == 2)
-    {
-        DAAL_CHECK_STATUS(s, changeMinusOneToZero(yTable));
-    }
     treeAlgorithm.input.set(classifier::training::labels, NumericTablePtr(const_cast<NumericTable *>(yTable), EmptyDeleter()));
 
     decision_tree::classification::training::ResultPtr treeResult(new decision_tree::classification::training::Result());
     DAAL_CHECK_MALLOC(treeResult.get())
-    treeResult->set(daal::algorithms::classifier::training::model, decision_tree::classification::ModelPtr(static_cast<decision_tree::classification::Model*>(const_cast<stump::classification::Model*>(stumpModel)), EmptyDeleter()));
+    treeResult->set(classifier::training::model,
+                    decision_tree::classification::ModelPtr(static_cast<decision_tree::classification::Model *>(const_cast<stump::classification::Model *>(stumpModel)), EmptyDeleter()));
     treeAlgorithm.setResult(treeResult);
     /* Train the Decision tree model */
     DAAL_CHECK_STATUS(s, treeAlgorithm.computeNoThrow());
-    if(nClasses == 2)
-    {
-        DAAL_CHECK_STATUS(s, changeZeroToMinusOne(yTable));
-    }
-
     return s;
 }
 

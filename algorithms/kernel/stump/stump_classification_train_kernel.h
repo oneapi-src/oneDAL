@@ -51,8 +51,7 @@ public:
     services::Status compute(size_t n, const NumericTable *const *a, Model *r, const Parameter *par);
 
 private:
-    services::Status changeMinusOneToZero(NumericTable *yTable);
-    services::Status changeZeroToMinusOne(NumericTable *yTable);
+    services::Status changeMinusOneToZero(const algorithmFPtype *yArray, algorithmFPtype *yZeroOne, size_t nVectors);
 };
 
 } // namespace daal::algorithms::stump::classification::training::internal

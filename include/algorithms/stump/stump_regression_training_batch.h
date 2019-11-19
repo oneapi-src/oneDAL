@@ -96,7 +96,7 @@ class DAAL_EXPORT Batch : public daal::algorithms::regression::training::Batch
 public:
     typedef daal::algorithms::regression::training::Batch super;
 
-    typedef typename super::InputType           InputType;
+    typedef typename super::InputType                       InputType;
     typedef algorithms::stump::regression::Parameter        ParameterType;
     typedef algorithms::stump::regression::training::Result ResultType;
 
