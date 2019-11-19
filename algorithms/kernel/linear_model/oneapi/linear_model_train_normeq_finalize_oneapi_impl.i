@@ -103,7 +103,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable &xt
 
         services::Buffer<algorithmFPType> betaBuf = xtyCopyAlloc.get<algorithmFPType>();
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.xtxCopy);
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.betaBufCopy);
             context.copy(betaBuf, 0, xtyBuf, 0, nResponses*nBetasIntercept, &status);
         }
         DAAL_CHECK_STATUS_VAR(status);
