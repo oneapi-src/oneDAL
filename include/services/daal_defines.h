@@ -332,6 +332,7 @@ const int SERIALIZATION_RIDGE_REGRESSION_TRAINING_RESULT_ID                     
 const int SERIALIZATION_RIDGE_REGRESSION_PREDICTION_RESULT_ID                                  = 105030;
 
 const int SERIALIZATION_K_NEAREST_NEIGHBOR_MODEL_ID                                            = 106000;
+const int SERIALIZATION_K_NEAREST_NEIGHBOR_BF_MODEL_ID                                         = 106001;
 const int SERIALIZATION_K_NEAREST_NEIGHBOR_TRAINING_RESULT_ID                                  = 106010;
 
 const int SERIALIZATION_DECISION_FOREST_CLASSIFICATION_MODEL_ID                                = 107000;
