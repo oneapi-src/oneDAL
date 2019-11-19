@@ -98,6 +98,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
     service_memset<algorithmFPType, cpu>(w, invNVectors, nVectors);
 
     services::SharedPtr<classifier::training::Batch> learnerTrain = parameter->weakLearnerTraining->clone();
+    learnerTrain->enableChecks(false);
     const size_t nClasses = parameter->nClasses;
     classifier::training::Input *trainInput = learnerTrain->getInput();
     DAAL_CHECK(trainInput, services::ErrorNullInput);
@@ -106,6 +107,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
     trainInput->set(classifier::training::weights, weakLearnerInputTables[2]);
 
     services::SharedPtr<classifier::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction->clone();
+    learnerPredict->enableChecks(false);
     classifier::prediction::Input *predictInput = learnerPredict->getInput();
     DAAL_CHECK(predictInput, services::ErrorNullInput);
     predictInput->set(classifier::prediction::data, weakLearnerInputTables[0]);
@@ -257,6 +259,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
     }
 
     services::SharedPtr<classifier::training::Batch> learnerTrain = parameter->weakLearnerTraining->clone();
+    learnerTrain->enableChecks(false);
     classifier::training::Input *trainInput = learnerTrain->getInput();
     DAAL_CHECK(trainInput, services::ErrorNullInput);
     trainInput->set(classifier::training::data,    weakLearnerInputTables[0]);
@@ -264,6 +267,7 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
     trainInput->set(classifier::training::weights, weakLearnerInputTables[2]);
 
     services::SharedPtr<classifier::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction->clone();
+    learnerPredict->enableChecks(false);
     classifier::prediction::Input *predictInput = learnerPredict->getInput();
     DAAL_CHECK(predictInput, services::ErrorNullInput);
     predictInput->set(classifier::prediction::data, weakLearnerInputTables[0]);
