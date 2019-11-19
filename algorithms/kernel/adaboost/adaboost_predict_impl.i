@@ -59,7 +59,7 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeImp
 
     services::SharedPtr<classifier::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction->clone();
     learnerPredict->enableChecks(false);
-    classifier::prediction::Input * learnerInput                      = learnerPredict->getInput();
+    classifier::prediction::Input *learnerInput = learnerPredict->getInput();
     DAAL_CHECK(learnerInput, services::ErrorNullInput);
     learnerInput->set(classifier::prediction::data, xTable);
 
