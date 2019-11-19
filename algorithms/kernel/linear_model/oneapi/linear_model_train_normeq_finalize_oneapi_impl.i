@@ -25,6 +25,7 @@
 #include "oneapi/internal/math/types.h"
 #include "oneapi/lapack_gpu.h"
 #include "service_lapack.h"
+#include "service_ittnotify.h"
 
 namespace daal
 {
@@ -50,20 +51,24 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable &xt
                                                                 NumericTable &betaTable, bool interceptFlag,
                                                                 const KernelHelperOneAPIIface<algorithmFPType> &helper)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize);
     services::Status status;
 
     const size_t nBetasIntercept = xtxTable.getNumberOfRows();
     const size_t nBetas = interceptFlag ? nBetasIntercept : (nBetasIntercept + 1);
     const size_t nResponses = xtyTable.getNumberOfRows();
 
-    if(&xtxTable != &xtxFinalTable)
     {
-        DAAL_CHECK_STATUS(status, copyDataToFinalTable(xtxTable, xtxFinalTable));
-    }
+        DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToOnline);
+        if(&xtxTable != &xtxFinalTable)
+        {
+            DAAL_CHECK_STATUS(status, copyDataToFinalTable(xtxTable, xtxFinalTable));
+        }
 
-    if(&xtyTable != &xtyFinalTable)
-    {
-        DAAL_CHECK_STATUS(status, copyDataToFinalTable(xtyTable, xtyFinalTable));
+        if(&xtyTable != &xtyFinalTable)
+        {
+            DAAL_CHECK_STATUS(status, copyDataToFinalTable(xtyTable, xtyFinalTable));
+        }
     }
 
     auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -87,14 +92,20 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable &xt
         DAAL_CHECK_STATUS_VAR(status);
 
         services::Buffer<algorithmFPType> xtxBufCopy = xtxCopyAlloc.get<algorithmFPType>();
-        context.copy(xtxBufCopy, 0, xtxBuf, 0, nBetasIntercept*nBetasIntercept, &status);
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.xtxCopy);
+            context.copy(xtxBufCopy, 0, xtxBuf, 0, nBetasIntercept*nBetasIntercept, &status);
+        }
         DAAL_CHECK_STATUS_VAR(status);
 
         UniversalBuffer xtyCopyAlloc = context.allocate(idType, nResponses*nBetasIntercept, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         services::Buffer<algorithmFPType> betaBuf = xtyCopyAlloc.get<algorithmFPType>();
-        context.copy(betaBuf, 0, xtyBuf, 0, nResponses*nBetasIntercept, &status);
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.xtxCopy);
+            context.copy(betaBuf, 0, xtyBuf, 0, nResponses*nBetasIntercept, &status);
+        }
         DAAL_CHECK_STATUS_VAR(status);
 
         DAAL_CHECK_STATUS(status, helper.computeBetasImpl(nBetasIntercept, xtxBufCopy, nResponses,
@@ -104,6 +115,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable &xt
         DAAL_CHECK_STATUS(status, betaTable.getBlockOfRows(0, nResponses, ReadWriteMode::readWrite, betaBlock));
         services::Buffer<algorithmFPType> betaResBuf = betaBlock.getBuffer();
 
+        DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyBetaToResult);
         DAAL_CHECK_STATUS(status, helper.copyBetaToResult(betaBuf, betaResBuf, nBetas, nResponses, interceptFlag));
         DAAL_CHECK_STATUS(status, betaTable.releaseBlockOfRows(betaBlock));
     }
@@ -141,16 +153,23 @@ template <typename algorithmFPType>
 services::Status FinalizeKernelOneAPI<algorithmFPType>::solveSystem(const size_t p, services::Buffer<algorithmFPType> &a,
                                                                     const size_t ny, services::Buffer<algorithmFPType> &b)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem);
     services::Status status;
 
     math::UpLo uplo = math::UpLo::Upper;
 
-    /* Perform L*L' decomposition of X'*X */
-    status = LapackGpu<algorithmFPType>::xpotrf(uplo, p, a, p);
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrf);
+        /* Perform L*L' decomposition of X'*X */
+        status = LapackGpu<algorithmFPType>::xpotrf(uplo, p, a, p);
+    }
     DAAL_CHECK_STATUS_VAR(status);
 
-    /* Solve L*L'*b=Y */
-    status = LapackGpu<algorithmFPType>::xpotrs(uplo, p, ny, a, p, b, p);
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrs);
+        /* Solve L*L'*b=Y */
+        status = LapackGpu<algorithmFPType>::xpotrs(uplo, p, ny, a, p, b, p);
+    }
     DAAL_CHECK_STATUS_VAR(status);
     return status;
 }
