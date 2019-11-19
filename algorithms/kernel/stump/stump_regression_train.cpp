@@ -64,9 +64,19 @@ void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr
     Argument::set(id, value);
 }
 
-} // namespace interface1
-} // namespace training
-} // namespace regression
-} // namespace stump
-} // namespace algorithms
-} // namespace daal
+Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+{
+    const ModelConstPtr m = get(algorithms::regression::training::model);
+    DAAL_CHECK(m, ErrorNullModel);
+
+    const algorithms::regression::training::Input *algInput = static_cast<const algorithms::regression::training::Input *>(input);
+    const NumericTablePtr dependentVariableTable = algInput->get(algorithms::regression::training::dependentVariables);
+    return checkNumericTable(dependentVariableTable.get(), dependentVariableStr(), 0, 0, 1);
+}
+
+}// namespace interface1
+}// namespace training
+}// namespace regression
+}// namespace stump
+}// namespace algorithms
+}// namespace daal

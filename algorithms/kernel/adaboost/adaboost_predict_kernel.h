@@ -28,6 +28,7 @@
 #include "adaboost_predict.h"
 #include "kernel.h"
 #include "numeric_table.h"
+#include "service_numeric_table.h"
 #include "boosting_predict_kernel.h"
 
 using namespace daal::data_management;
@@ -43,16 +44,36 @@ namespace prediction
 {
 namespace internal
 {
-template <Method method, typename algorithmFPtype, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 class AdaBoostPredictKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTablePtr & x, const Model * m, const NumericTablePtr & r, const Parameter * par);
-    services::Status computeImpl(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPtype * alpha,
-                                 algorithmFPtype * r, const Parameter * par);
-    services::Status computeCommon(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPtype * alpha,
-                                   algorithmFPtype * r, const Parameter * par);
-    services::Status computeSammeProbability(const algorithmFPtype * p, size_t nVectors, size_t nClasses, algorithmFPtype * h);
+    services::Status compute(const NumericTablePtr &x, const Model *m, const NumericTablePtr &r, const Parameter *par);
+    services::Status computeImpl(const NumericTablePtr &xTable, const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r,
+                                 const Parameter *par);
+    services::Status computeCommon(const NumericTablePtr &xTable,
+                                   const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par);
+    services::Status computeSammeProbability(const algorithmFPType *p, size_t nVectors, size_t nClasses, algorithmFPType *h);
+
+    services::Status processBlock(
+        size_t nProcessedRows,
+        size_t nRowsInCurrentBlock,
+        const algorithmFPType *p, const size_t nClasses, algorithmFPType *h, algorithmFPType *pLog, algorithmFPType *pSumLog);
+
+    services::Status computeClassScore(
+        const size_t k, const size_t nVectors, const size_t nClasses,
+        daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > &weakPredictions,
+        algorithmFPType *curClassScore, algorithmFPType *maxClassScore, algorithmFPType *r, const algorithmFPType *alpha, const size_t nWeakLearners);
+
+    services::Status processBlockClassScore(
+        size_t nProcessedRows,
+        size_t nRowsInCurrentBlock,
+        const size_t k, const size_t nClasses,
+        daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > &weakPredictions,
+        algorithmFPType *curClassScore, algorithmFPType *maxClassScore, algorithmFPType *r, const algorithmFPType *alpha, const size_t nWeakLearners);
+
+protected:
+    static const size_t _nRowsInBlock = 5000;
 };
 } // namespace internal
 } // namespace prediction

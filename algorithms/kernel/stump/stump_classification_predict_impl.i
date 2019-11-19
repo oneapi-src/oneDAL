@@ -76,6 +76,7 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
     const size_t nClasses = par->nClasses;
 
     decision_tree::classification::prediction::Batch<algorithmFPtype> treeAlgorithm(nClasses);
+    treeAlgorithm.enableChecks(false);
 
     treeAlgorithm.input.set(classifier::prediction::data, NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
     treeAlgorithm.input.set(classifier::prediction::model,
