@@ -51,15 +51,15 @@ public final class LibUtils{
      */
     public static void loadLibrary()
     {
-	if(loaded){
-		return;
-	}
+        if(loaded){
+            return;
+        }
         synchronized(LibUtils.class){
             if(loaded){
                 return;
             }
-            String v = System.getProperty("tbb-threads", "1");
-            int numThreads = Integer.valueOf(v);
+            String v = System.getProperty("tbb-threads", "");
+            int numThreads = v.length()>0 ? Integer.valueOf(v):Runtime.getRuntime().availableProcessors();
             logger.log("tbb-threads: " + numThreads);
 
             try {
