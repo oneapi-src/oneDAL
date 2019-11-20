@@ -60,7 +60,7 @@ public final class LibUtils{
             }
             String v = System.getProperty("tbb-threads", "");
             int numThreads = v.length()>0 ? Integer.valueOf(v):Runtime.getRuntime().availableProcessors();
-            logger.log("tbb-threads: " + numThreads);
+            logger.log(logLevel, "tbb-threads: " + numThreads);
 
             try {
                 logger.log(logLevel, "Loading library " + DAALLIB + " as file.");
