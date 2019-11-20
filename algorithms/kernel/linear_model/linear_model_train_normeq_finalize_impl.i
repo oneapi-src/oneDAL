@@ -68,7 +68,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
 
         if (&xtxTable != &xtxFinalTable)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToOnline);
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToxtxFinalTable);
             DAAL_CHECK_STATUS(st, copyDataToTable(xtx, xtxSizeInBytes, xtxFinalTable));
         }
 
@@ -79,7 +79,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
 
             if (&xtyTable != &xtyFinalTable)
             {
-                DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToOnline);
+                DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToxtyFinalTable);
                 DAAL_CHECK_STATUS(st, copyDataToTable(xty, xtySizeInBytes, xtyFinalTable));
             }
 

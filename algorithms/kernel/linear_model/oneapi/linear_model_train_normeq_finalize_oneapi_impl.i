@@ -59,14 +59,15 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable &xt
     const size_t nResponses = xtyTable.getNumberOfRows();
 
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToOnline);
         if(&xtxTable != &xtxFinalTable)
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToxtxFinalTable);
             DAAL_CHECK_STATUS(status, copyDataToFinalTable(xtxTable, xtxFinalTable));
         }
 
         if(&xtyTable != &xtyFinalTable)
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToxtyFinalTable);
             DAAL_CHECK_STATUS(status, copyDataToFinalTable(xtyTable, xtyFinalTable));
         }
     }
