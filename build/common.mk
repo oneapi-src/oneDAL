@@ -128,7 +128,6 @@ link.dynamic.post.win =
 link.dynamic.post.mac = install_name_tool -change "libtbb.dylib" "@rpath/libtbb.dylib" $@;             \
                         install_name_tool -change "libtbbmalloc.dylib" "@rpath/libtbbmalloc.dylib" $@; \
                         install_name_tool -add_rpath "@loader_path/../../../tbb/latest/lib" $@;        \
-                        install_name_tool -add_rpath "@loader_path/../../tbb/lib" $@;                  \
                         install_name_tool -add_rpath "@loader_path/" $@;                               \
                         install_name_tool -add_rpath "@executable_path/" $@;                           \
                         install_name_tool -add_rpath "." $@
