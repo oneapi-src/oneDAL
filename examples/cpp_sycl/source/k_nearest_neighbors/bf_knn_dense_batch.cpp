@@ -35,11 +35,11 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-string trainDatasetFileName            = "../data/batch/k_nearest_neighbors_train.csv";
-string testDatasetFileName             = "../data/batch/k_nearest_neighbors_test.csv";
+const string trainDatasetFileName            = "../data/batch/k_nearest_neighbors_train.csv";
+const string testDatasetFileName             = "../data/batch/k_nearest_neighbors_test.csv";
 
-size_t nFeatures = 5;
-size_t nClasses  = 5;
+const size_t nFeatures = 5;
+const size_t nClasses  = 5;
 
 void trainModel(bf_knn_classification::training::ResultPtr& trainingResult);
 void testModel(bf_knn_classification::training::ResultPtr& trainingResult,

@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 #include "oneapi/select_indexed.h"
-#include "services/env_detect.h"
+#include "oneapi/internal/utils.h"
 #include "service_ittnotify.h"
 
 namespace daal
@@ -90,7 +90,7 @@ QuickSelectIndexed::Result QuickSelectIndexed::select(const UniversalBuffer& dat
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
 
-    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto& context = oneapi::internal::getDefaultContext();
     auto& kernelFactory = context.getClKernelFactory();
 
     Result result(context, K, nVectors, dataVectors.type(), indexVectors.type(), status);
@@ -111,7 +111,7 @@ QuickSelectIndexed::Result& QuickSelectIndexed::select(const UniversalBuffer& da
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(QuickSelectIndexed.select);
 
-    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto& context = oneapi::internal::getDefaultContext();
     auto& kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, dataVectors.type());

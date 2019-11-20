@@ -320,11 +320,10 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::initDistances
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.initDistances);
 
-    KernelArguments args(4);
+    KernelArguments args(3);
     args.set(0, dataSq, AccessModeIds::read);
     args.set(1, distances, AccessModeIds::write);
     args.set(2, dataBlockSize);
-    args.set(3, probesBlockSize);
 
     KernelRange global_range(dataBlockSize, probesBlockSize);
 
@@ -372,11 +371,10 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners
 
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.initDistances);
 
-    KernelArguments args(4);
+    KernelArguments args(3);
     args.set(0, categories, AccessModeIds::read);
     args.set(1, classes, AccessModeIds::write);
-    args.set(2, probesBlockSize);
-    args.set(3, nK);
+    args.set(2, nK);
 
     KernelRange local_range(1);
     KernelRange global_range(probesBlockSize);

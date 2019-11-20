@@ -102,9 +102,8 @@ __kernel void quick_select_group( __global  algorithmFPType           *distances
     const int global_id  = get_global_id(0);
     const int local_id = get_local_id(1);
     const int local_size = get_local_size(1);
-    if(get_sub_group_id() > 0 && local_id == 0) 
+    if(get_sub_group_id() > 0) 
     {
-        printf("Unexpected number of subgroups\n");
         return;
     }
     const int offset_in = global_id * BlockOffset;

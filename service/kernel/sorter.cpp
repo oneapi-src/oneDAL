@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 #include "oneapi/sorter.h"
-#include "services/env_detect.h"
+#include "oneapi/internal/utils.h"
 #include "service_ittnotify.h"
 
 namespace daal
@@ -82,7 +82,7 @@ void RadixSort::sort( const UniversalBuffer& input, const UniversalBuffer& outpu
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(RadixSort.sort);
 
-    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto& context = oneapi::internal::getDefaultContext();
     auto& kernelFactory = context.getClKernelFactory();
 
     buildProgram(kernelFactory, input.type());

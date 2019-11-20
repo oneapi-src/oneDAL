@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of sum reduction kernels.
+//  Implementation of radix sort kernels.
 //--
 */
 

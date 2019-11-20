@@ -32,8 +32,7 @@ DECLARE_SOURCE(bf_knn_cl_kernels,
 
 __kernel void init_distances(__global const algorithmFPType *dataSq,
                              __global       algorithmFPType *distances,
-                             int N,
-                             int K) {
+                             int N) {
 
     const int global_id_0  = get_global_id(0);
     const int global_id_1  = get_global_id(1);
@@ -70,7 +69,6 @@ __kernel void gather_partial_selection( __global const algorithmFPType *distance
 
 __kernel void find_max_occurance(   __global const sortedType *data,
                                     __global       sortedType *result,
-                             int N,
                              int K) {
 
     const int global_id_0  = get_global_id(0);
