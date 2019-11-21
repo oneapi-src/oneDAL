@@ -23,6 +23,7 @@
 
 #include "linear_model_train_normeq_kernel.h"
 #include "service_lapack.h"
+#include "service_ittnotify.h"
 
 namespace daal
 {
@@ -49,6 +50,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
                                                      NumericTable &betaTable, bool interceptFlag,
                                                      const KernelHelperIface<algorithmFPType, cpu> &helper)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize);
     const size_t nBetas    (betaTable.getNumberOfColumns());
     const size_t nResponses(betaTable.getNumberOfRows());
     const size_t nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
@@ -66,6 +68,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
 
         if (&xtxTable != &xtxFinalTable)
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToxtxFinalTable);
             DAAL_CHECK_STATUS(st, copyDataToTable(xtx, xtxSizeInBytes, xtxFinalTable));
         }
 
@@ -76,6 +79,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
 
             if (&xtyTable != &xtyFinalTable)
             {
+                DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToxtyFinalTable);
                 DAAL_CHECK_STATUS(st, copyDataToTable(xty, xtySizeInBytes, xtyFinalTable));
             }
 
@@ -83,6 +87,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
             betaBuffer = betaBufferArray.get();
             DAAL_CHECK_MALLOC(betaBuffer);
 
+            DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.betaBufCopy);
             int result = daal::services::internal::daal_memcpy_s(betaBuffer, xtySizeInBytes, xty, xtySizeInBytes);
             DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
         }
@@ -91,8 +96,11 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
             algorithmFPType *xtxCopy = xtxCopyArray.get();
             DAAL_CHECK_MALLOC(xtxCopy);
 
-            int result = daal::services::internal::daal_memcpy_s(xtxCopy, xtxSizeInBytes, xtx, xtxSizeInBytes);
-            DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.xtxCopy);
+                int result = daal::services::internal::daal_memcpy_s(xtxCopy, xtxSizeInBytes, xtx, xtxSizeInBytes);
+                DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
+            }
 
             DAAL_CHECK_STATUS(st, helper.computeBetasImpl(nBetasIntercept, xtx, xtxCopy, nResponses,
                                                           betaBuffer, interceptFlag));
@@ -103,6 +111,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
     DAAL_CHECK_BLOCK_STATUS(betaBlock);
     algorithmFPType *beta = betaBlock.get();
 
+    DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyBetaToResult);
     if (nBetasIntercept == nBetas)
     {
         for(size_t i = 0; i < nResponses; i++)
@@ -149,16 +158,23 @@ Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFP
                                                          DAAL_INT ny, algorithmFPType *b,
                                                          const ErrorID &internalError)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem);
     char up = 'U';
     DAAL_INT info;
 
-    /* Perform L*L' decomposition of X'*X */
-    Lapack<algorithmFPType, cpu>::xpotrf(&up, &p, a, &p, &info);
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrf);
+        /* Perform L*L' decomposition of X'*X */
+        Lapack<algorithmFPType, cpu>::xpotrf(&up, &p, a, &p, &info);
+    }
     if (info < 0) { return Status(internalError);   }
     if (info > 0) { return Status(ErrorNormEqSystemSolutionFailed); }
 
-    /* Solve L*L'*b=Y */
-    Lapack<algorithmFPType, cpu>::xpotrs(&up, &p, &ny, a, &p, b, &p, &info);
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrs);
+        /* Solve L*L'*b=Y */
+        Lapack<algorithmFPType, cpu>::xpotrs(&up, &p, &ny, a, &p, b, &p, &info);
+    }
     DAAL_CHECK(info == 0, internalError);
     return Status();
 }
