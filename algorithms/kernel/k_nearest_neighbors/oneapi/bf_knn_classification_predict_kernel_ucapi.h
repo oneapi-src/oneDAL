@@ -78,7 +78,7 @@ private:
             uint32_t curDataBlockSize,
             uint32_t offset,
             services::Status* st);
-    
+
     void initDistances(oneapi::internal::ExecutionContextIface& context,
             const oneapi::internal::KernelPtr& kernel_init_distances,
             oneapi::internal::UniversalBuffer& dataSq,

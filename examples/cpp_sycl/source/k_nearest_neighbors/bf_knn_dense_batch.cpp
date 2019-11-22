@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
         daal::services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
-        
+
         bf_knn_classification::training::ResultPtr trainingResult;
         classifier::prediction::ResultPtr predictionResult;
         NumericTablePtr testGroundTruth;
@@ -104,7 +104,7 @@ void trainModel(bf_knn_classification::training::ResultPtr& trainingResult)
 }
 
 void testModel(bf_knn_classification::training::ResultPtr& trainingResult,
-                classifier::prediction::ResultPtr& predictionResult, 
+                classifier::prediction::ResultPtr& predictionResult,
                 NumericTablePtr& testGroundTruth)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
