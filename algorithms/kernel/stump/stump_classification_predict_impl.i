@@ -53,13 +53,16 @@ template <Method method, typename algorithmFPtype, CpuType cpu>
 services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::changeZeroToMinusOne(NumericTable *yTable)
 {
     services::Status s;
-    const size_t nVectors  = yTable->getNumberOfRows();
-    WriteColumns<algorithmFPtype, cpu> y(const_cast<NumericTable *>(yTable), 0, 0, nVectors);
+    const size_t nVectors = yTable->getNumberOfRows();
+    WriteColumns<algorithmFPtype, cpu> y(yTable, 0, 0, nVectors);
     DAAL_CHECK_STATUS(s, y.status());
     algorithmFPtype *yArray = y.get();
+    DAAL_CHECK(yArray, ErrorMemoryAllocationFailed);
+    const algorithmFPtype zero = 0.0;
+    const algorithmFPtype minusOne = -1.0;
     for(size_t i = 0; i < nVectors; i++)
     {
-        if(yArray[i] == 0) { yArray[i] = -1; }
+        if(yArray[i] == zero) { yArray[i] = minusOne; }
     }
     return s;
 }

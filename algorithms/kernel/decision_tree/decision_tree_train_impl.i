@@ -798,7 +798,6 @@ public:
                 local->winnerPointsAtLeft = next - items; // distance.
                 local->winnerDataStatistics = local->bestCutPointDataStatistics;
             }
-            // daal_free(items);
         });
 
         DAAL_CHECK_SAFE_STATUS()
