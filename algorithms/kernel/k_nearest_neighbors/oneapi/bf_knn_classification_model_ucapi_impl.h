@@ -29,9 +29,6 @@
 
 #include "daal_defines.h"
 
-using namespace daal::services;
-using namespace daal::oneapi::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -41,28 +38,13 @@ namespace bf_knn_classification
 namespace interface1
 {
 
-using daal::data_management::SyclHomogenNumericTable;
-using daal::data_management::NumericTable;
-
 class Model::ModelImpl
 {
 public:
-    /**
-     * Empty constructor for deserialization
-     */
     ModelImpl(size_t nFeatures = 0) : _nFeatures(nFeatures) {}
 
-
-    /**
-     * Returns training data
-     * \return Training data
-     */
     data_management::NumericTableConstPtr getData() const { return _data; }
 
-    /**
-     * Returns training data
-     * \return Training data
-     */
     data_management::NumericTablePtr getData() { return _data; }
 
     template<typename Archive, bool onDeserialize>
@@ -74,93 +56,52 @@ public:
         return services::Status();
     }
 
-    /**
-     * Sets a training data
-     * \param[in]  value  Training data
-     * \param[in]  copy   Flag indicating necessary of data deep copying to avoid direct usage and modification of input data.
-     */
     template <typename algorithmFPType>
     DAAL_EXPORT DAAL_FORCEINLINE services::Status setData(const data_management::NumericTablePtr & value, bool copy)
     {
-        if (!copy)
-        {
-            _data = value;
-        }
-        else
-        {
-            services::Status status;
-            _data = SyclHomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(), value->getNumberOfRows(),
-                                                                     NumericTable::doAllocate, &status);
-            DAAL_CHECK_STATUS_VAR(status);
-            status |= _data->allocateDataMemory();
-            data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
-            status |= _data->getBlockOfRows(0, _data->getNumberOfRows(), data_management::writeOnly, destBD);
-            status |= value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD);
-            DAAL_CHECK_STATUS_VAR(status);
-            auto source = srcBD.getBuffer();
-            auto destination = destBD.getBuffer();
-            auto& context = Environment::getInstance()->getDefaultExecutionContext();
-            context.copy(destination, 0, source, 0, source.size(), &status);
-            DAAL_CHECK_STATUS_VAR(status);
-            status |= _data->releaseBlockOfRows(destBD);
-            status |= value->releaseBlockOfRows(srcBD);
-            DAAL_CHECK_STATUS_VAR(status);
-        }
-        return services::Status();
+        return setTable<algorithmFPType>(value, _data, copy);
     }
 
-    /**
-     * Returns training labels
-     * \return Training labels
-     */
     data_management::NumericTableConstPtr getLabels() const { return _labels; }
 
-    /**
-     * Returns training labels
-     * \return Training labels
-     */
     data_management::NumericTablePtr getLabels() { return _labels; }
 
-    /**
-     * Sets a training data
-     * \param[in]  value  Training labels
-     * \param[in]  copy   Flag indicating necessary of data deep copying to avoid direct usage and modification of input labels.
-     */
     template <typename algorithmFPType>
     DAAL_EXPORT DAAL_FORCEINLINE services::Status setLabels(const data_management::NumericTablePtr & value, bool copy)
     {
+        return setTable<algorithmFPType>(value, _labels, copy);
+    }
+
+    size_t getNumberOfFeatures() const { return _nFeatures; }
+protected:
+    template <typename algorithmFPType>
+    DAAL_FORCEINLINE services::Status setTable(const data_management::NumericTablePtr & value, 
+                                                data_management::NumericTablePtr & dest, bool copy)
+    {
         if (!copy)
         {
-            _labels = value;
+            dest = value;
         }
         else
         {
             services::Status status;
-            _labels = SyclHomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(), value->getNumberOfRows(),
-                                                                       NumericTable::doAllocate, &status);
+            dest = data_management::SyclHomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(), 
+                                    value->getNumberOfRows(), data_management::NumericTable::doAllocate, &status);
             DAAL_CHECK_STATUS_VAR(status);
             data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
-            _labels->getBlockOfRows(0, _labels->getNumberOfRows(), data_management::writeOnly, destBD);
-            value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD);
-            DAAL_CHECK_STATUS_VAR(status);
+            DAAL_CHECK_STATUS_VAR(dest->getBlockOfRows(0, dest->getNumberOfRows(), data_management::writeOnly, destBD));
+            DAAL_CHECK_STATUS_VAR(value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD));
             auto source = srcBD.getBuffer();
             auto destination = destBD.getBuffer();
-            auto& context = Environment::getInstance()->getDefaultExecutionContext();
+            auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
             context.copy(destination, 0, source, 0, source.size(), &status);
             DAAL_CHECK_STATUS_VAR(status);
-            _labels->releaseBlockOfRows(destBD);
-            value->releaseBlockOfRows(srcBD);
-            DAAL_CHECK_STATUS_VAR(status);
+            DAAL_CHECK_STATUS_VAR(dest->releaseBlockOfRows(destBD));
+            DAAL_CHECK_STATUS_VAR(value->releaseBlockOfRows(srcBD));
         }
         return services::Status();
 
     }
-
-    /**
-     *  Retrieves the number of features in the dataset was used on the training stage
-     *  \return Number of features in the dataset was used on the training stage
-     */
-    size_t getNumberOfFeatures() const { return _nFeatures; }
 private:
     size_t _nFeatures;
     data_management::NumericTablePtr _data;
@@ -169,9 +110,6 @@ private:
 
 
 } // namespace interface1
-
-using BFModelImplUCAPI=interface1::Model::ModelImpl;
-
 } // namespace bf_knn_classification
 } // namespace algorithms
 } // namespace daal

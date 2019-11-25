@@ -42,7 +42,7 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_K_NEAREST_NEIGHBOR_TRA
 Result::Result() : classifier::training::Result() {}
 
 /**
- * Returns the result of KD-tree based kNN model-based training
+ * Returns the result of BF kNN model-based training
  * \param[in] id    Identifier of the result
  * \return          Result that corresponds to the given identifier
  */

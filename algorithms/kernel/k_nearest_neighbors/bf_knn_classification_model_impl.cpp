@@ -40,7 +40,10 @@ Model::Model(size_t nFeatures) : daal::algorithms::classifier::Model(), _impl(ne
 
 Model::~Model()
 {
-    delete _impl;
+    if(_impl != nullptr) {
+        delete _impl;
+        _impl = nullptr;
+    }
 }
 
 Model::Model(size_t nFeatures, services::Status &st) : _impl(new ModelImpl(nFeatures))
@@ -72,8 +75,7 @@ size_t Model::getNumberOfFeatures() const
 services::Status Parameter::check() const
 {
     // Inherited.
-    services::Status s = daal::algorithms::classifier::Parameter::check();
-    return s;
+    return daal::algorithms::classifier::Parameter::check();
 }
 
 } // namespace interface1

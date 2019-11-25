@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UUCAPI_H__
-#define __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UUCAPI_H__
+#ifndef __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_H__
+#define __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_H__
 
 #include "bf_knn_classification_predict.h"
 #include "bf_knn_classification_model_ucapi_impl.h"

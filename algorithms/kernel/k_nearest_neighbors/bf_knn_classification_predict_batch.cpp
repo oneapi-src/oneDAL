@@ -41,7 +41,7 @@ namespace interface1
 Input::Input() : classifier::prediction::Input() {}
 
 /**
- * Returns the input Model object in the prediction stage of the KD-tree based kNN algorithm
+ * Returns the input Model object in the prediction stage of the BF kNN algorithm
  * \param[in] id    Identifier of the input Model object
  * \return          %Input object that corresponds to the given identifier
  */
@@ -61,7 +61,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const data_manag
 }
 
 /**
- * Sets the input Model object in the prediction stage of the KD-tree based kNN algorithm
+ * Sets the input Model object in the prediction stage of the BF kNN algorithm
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
@@ -79,17 +79,14 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
 {
     const Parameter * const algParameter = static_cast<const Parameter *>(parameter);
     DAAL_CHECK_EX(algParameter->k > 0, services::ErrorIncorrectParameter, services::ParameterName, kStr());
-    services::Status s = classifier::prediction::Input::check(parameter, method);
-    if(!s) return s;
+    DAAL_CHECK_STATUS_VAR(classifier::prediction::Input::check(parameter, method));
 
     const bf_knn_classification::ModelPtr m = get(classifier::prediction::model);
     ErrorCollection errors;
     errors.setCanThrow(false);
-    s |= checkNumericTable(m->impl()->getData().get(), dataStr());
-    DAAL_CHECK(s, ErrorModelNotFullInitialized);
-    s |= checkNumericTable(m->impl()->getLabels().get(), labelsStr());
-    DAAL_CHECK(s, ErrorModelNotFullInitialized);
-    return s;
+    DAAL_CHECK(checkNumericTable(m->impl()->getData().get(), dataStr()), ErrorModelNotFullInitialized);
+    DAAL_CHECK(checkNumericTable(m->impl()->getLabels().get(), labelsStr()), ErrorModelNotFullInitialized);
+    return services::Status();
 }
 
 } // namespace interface1

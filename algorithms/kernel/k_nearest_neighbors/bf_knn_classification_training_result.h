@@ -36,9 +36,9 @@ namespace training
 {
 
 /**
- * Allocates memory to store the result of KD-tree based kNN model-based training
+ * Allocates memory to store the result of BF kNN model-based training
  * \param[in] input Pointer to an object containing the input data
- * \param[in] parameter %Parameter of KD-tree based kNN model-based training
+ * \param[in] parameter %Parameter of BF based kNN model-based training
  * \param[in] method Computation method for the algorithm
  */
 template<typename algorithmFPType>
