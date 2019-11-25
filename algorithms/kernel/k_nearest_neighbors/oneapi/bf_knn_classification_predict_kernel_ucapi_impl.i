@@ -95,33 +95,32 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
     const size_t probeBlockSize = (2048 * 4) / sizeof(algorithmFpType);
     const size_t nParts = 16;
 
-    auto dataSq                 = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize,                               &st);
-    auto data_temp              = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * nFeatures,                   &st);
-    auto probe_temp              = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nFeatures,                   &st);
-    auto distances              = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * probeBlockSize,              &st);
-    auto categories             = context.allocate(TypeIds::id<int>(), probeBlockSize * dataBlockSize,                          &st);
-    auto partialDistances       = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nK * (nParts + 1),          &st);
-    auto partialCategories      = context.allocate(TypeIds::id<int>(), probeBlockSize * nK * (nParts + 1),                      &st);
-    auto sorted                 = context.allocate(TypeIds::id<int>(), probeBlockSize * nK,                                     &st);
-    auto buffer                 = context.allocate(TypeIds::id<int>(), probeBlockSize * nK,                                     &st);
-    auto radix_buffer           = context.allocate(TypeIds::id<int>(), probeBlockSize * 256,                                    &st);
-    auto classes                = context.allocate(TypeIds::id<int>(), probeBlockSize,                                          &st);
-    auto rndSeq                 = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize,                                           &st);
-    auto rndIndices                 = context.allocate(TypeIds::id<size_t>(), dataBlockSize,                                           &st);
+    auto dataSq                 = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize,                       &st);
+    auto data_temp              = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * nFeatures,           &st);
+    auto probe_temp              = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nFeatures,         &st);
+    auto distances              = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * probeBlockSize,      &st);
+    auto categories             = context.allocate(TypeIds::id<int>(), probeBlockSize * dataBlockSize,                  &st);
+    auto partialDistances       = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nK * (nParts + 1),  &st);
+    auto partialCategories      = context.allocate(TypeIds::id<int>(), probeBlockSize * nK * (nParts + 1),              &st);
+    auto sorted                 = context.allocate(TypeIds::id<int>(), probeBlockSize * nK,                             &st);
+    auto buffer                 = context.allocate(TypeIds::id<int>(), probeBlockSize * nK,                             &st);
+    auto radix_buffer           = context.allocate(TypeIds::id<int>(), probeBlockSize * 256,                            &st);
+    auto classes                = context.allocate(TypeIds::id<int>(), probeBlockSize,                                  &st);
+    auto rndSeq                 = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize,                       &st);
+    auto rndIndices                 = context.allocate(TypeIds::id<size_t>(), dataBlockSize,                            &st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    auto rnds = rndSeq.template get<algorithmFpType>().toHost(ReadWriteMode::writeOnly);
-    auto numbers = rndIndices.template get<size_t>().toHost(ReadWriteMode::readWrite);
-    auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&(*parameter->engine));
-    if(!engineImpl)
-        return Status(ErrorIncorrectEngineParameter);
-    daal::internal::RNGs<size_t, sse2> rng;
-    size_t pos;
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.RNG);
+        auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&(*parameter->engine));
+        if(!engineImpl)
+            return Status(ErrorIncorrectEngineParameter);
+        daal::internal::RNGs<size_t, sse2> rng;
+        auto rnds = rndSeq.template get<algorithmFpType>().toHost(ReadWriteMode::writeOnly);
+        auto numbers = rndIndices.template get<size_t>().toHost(ReadWriteMode::readWrite);
         rng.uniform(dataBlockSize, &numbers.get()[0], engineImpl->getState(), 0, (size_t)(dataBlockSize - 1));
         for(int i = 0; i < dataBlockSize; i++)
-            rnds.get()[i] = (1.0 * numbers.get()[i]) / dataBlockSize;
+            rnds.get()[i] = static_cast<algorithmFpType>(numbers.get()[i]) / dataBlockSize;
     }
     auto init_distances = kernel_factory.getKernel("init_distances", &st);
     DAAL_CHECK_STATUS_VAR(st);
