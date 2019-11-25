@@ -25,6 +25,7 @@
 #include "service_blas.h"
 #include "service_error_handling.h"
 #include "threading.h"
+#include "service_ittnotify.h"
 
 namespace daal
 {
@@ -87,12 +88,16 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
     DAAL_CHECK_BLOCK_STATUS(_yBlock);
     const algorithmFPType *y = _yBlock.get();
 
-    Blas<algorithmFPType, cpu>::xxsyrk(&up, &notrans, &nFeatures, &nRows, &alpha,
-                                       const_cast<algorithmFPType *>(x), &nFeatures, &alpha,
-                                       _xtx, &_nBetasIntercept);
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.syrkX);
+        Blas<algorithmFPType, cpu>::xxsyrk(&up, &notrans, &nFeatures, &nRows, &alpha,
+                                        const_cast<algorithmFPType *>(x), &nFeatures, &alpha,
+                                        _xtx, &_nBetasIntercept);
+    }
 
     if (nFeatures < _nBetasIntercept)
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemm1X);
         algorithmFPType *xtxPtr = _xtx + nFeatures * _nBetasIntercept;
         const algorithmFPType *xPtr = x;
 
@@ -109,11 +114,15 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
         xtxPtr[nFeatures] += algorithmFPType(nRows);
     }
 
-    Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &nFeatures, &_nResponses, &nRows, &alpha, x,
-                                       &nFeatures, y, &_nResponses, &alpha, _xty, &_nBetasIntercept);
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemmXY);
+        Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &nFeatures, &_nResponses, &nRows, &alpha, x,
+                                        &nFeatures, y, &_nResponses, &alpha, _xty, &_nBetasIntercept);
+    }
 
     if (nFeatures < _nBetasIntercept)
     {
+        DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemm1Y);
         const algorithmFPType *yPtr = y;
         for (DAAL_INT i = 0; i < nRows; i++, yPtr += _nResponses)
         {
@@ -131,18 +140,24 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
 template <typename algorithmFPType, CpuType cpu>
 void ThreadingTask<algorithmFPType, cpu>::reduce(algorithmFPType *xtx, algorithmFPType *xty)
 {
-  PRAGMA_IVDEP
-  PRAGMA_VECTOR_ALWAYS
-    for( size_t i = 0; i < (_nBetasIntercept * _nBetasIntercept); i++)
     {
-        xtx[i] += _xtx[i];
+        DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.syrkX);
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for( size_t i = 0; i < (_nBetasIntercept * _nBetasIntercept); i++)
+        {
+            xtx[i] += _xtx[i];
+        }
     }
 
-  PRAGMA_IVDEP
-  PRAGMA_VECTOR_ALWAYS
-    for( size_t i = 0; i < (_nBetasIntercept * _nResponses); i++)
     {
-        xty[i] += _xty[i];
+        DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemmXY);
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for( size_t i = 0; i < (_nBetasIntercept * _nResponses); i++)
+        {
+            xty[i] += _xty[i];
+        }
     }
 }
 
@@ -158,6 +173,7 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable &xTable, c
                                                    NumericTable &xtxTable, NumericTable &xtyTable,
                                                    bool initializeResult, bool interceptFlag)
 {
+    DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate);
     DAAL_INT nRows     (xTable.getNumberOfRows());          /* observations */
     DAAL_INT nResponses(yTable.getNumberOfColumns());       /* responses */
     DAAL_INT nBetas    (xTable.getNumberOfColumns() + 1);   /* coefficients */
