@@ -74,96 +74,8 @@ static void __buildProgram(ClKernelFactoryIface& factory)
         services::String cachekey("__daal_algorithms_gbt_batch_regression_");
         cachekey.add(fptype_name);
         factory.build(ExecutionTargetIds::device, cachekey.c_str(), gbt_batch_regression_kernels, build_options.c_str());
-//        printf ("kernels:\n%s\n", gbt_batch_regression_kernels);
     }
 }
-
-/*
-//////////////////////////////////////////////////////////////////////////////////////////
-// Squared loss function, L(y,f)=1/2([y-f(x)]^2)
-//////////////////////////////////////////////////////////////////////////////////////////
-class SquaredLoss
-{
-public:
-    virtual void getGradients(size_t n, size_t nRows, const services::Buffer<algorithmFPType>& y, const const services::Buffer<algorithmFPType>& f,
-                                                      const services::Buffer<algorithmFPType>& gh) DAAL_C11_OVERRIDE
-    {
-        auto yHost = y.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
-        auto fHost = f.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
-        auto ghHost = gh.template get<algorithmFPType>().toHost(ReadWriteMode::writeOnly);
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for(size_t i = 0; i < n; ++i)
-        {
-            gh.get()[2 * i] = f.get()[i] - y.get()[i]; //gradient
-            gh.get()[2 * i + 1] = 1; //hessian
-        }
-    }
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// TrainBatchTask for regression
-//////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, typename BinIndexType, gbt::regression::training::Method method>
-class TrainBatchTask : public TrainBatchTaskBaseXBoost<algorithmFPType, BinIndexType, cpu>
-{
-    typedef TrainBatchTaskBaseXBoost<algorithmFPType, BinIndexType, cpu> super;
-public:
-    TrainBatchTask(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y,
-        const gbt::training::Parameter& par,
-        const dtrees::internal::FeatureTypes& featTypes,
-        const dtrees::internal::IndexedFeatures* indexedFeatures,
-        engines::internal::BatchBaseImpl& engine, size_t dummy) :
-        super(pHostApp, x, y, par, featTypes, indexedFeatures, engine, 1),
-        _builder(nullptr)
-    {
-        _builder = TreeBuilder<algorithmFPType, int, BinIndexType, cpu>::create(*this); // TODO: replace int
-    }
-    ~TrainBatchTask() { delete _builder; }
-    bool done() { return false; }
-    virtual services::Status init() DAAL_C11_OVERRIDE
-    {
-        auto s = super::init();
-        if(s)
-            s = _builder->init();
-        return s;
-    }
-
-protected:
-    virtual void initLossFunc() DAAL_C11_OVERRIDE
-    {
-        switch(static_cast<const gbt::regression::training::Parameter&>(this->_par).loss)
-        {
-        case squared:
-            this->_loss = new SquaredLoss<algorithmFPType, cpu>(); break;
-        default:
-            DAAL_ASSERT(false);
-        }
-    }
-
-    virtual bool getInitialF(algorithmFPType& val) DAAL_C11_OVERRIDE
-    {
-        const auto py = this->_dataHelper.y();
-        const size_t n = this->_dataHelper.data()->getNumberOfRows();
-        const algorithmFPType div = algorithmFPType(1.) / algorithmFPType(n);
-        val = algorithmFPType(0);
-        for(size_t i = 0; i < n; ++i)
-            val += div*py[i];
-        return true;
-    }
-
-    virtual services::Status buildTrees(gbt::internal::GbtDecisionTree** aTbl,
-        HomogenNumericTable<double>** aTblImp, HomogenNumericTable<int>** aTblSmplCnt, GlobalStorages<algorithmFPType, BinIndexType, cpu>& GH_SUMS_BUF) DAAL_C11_OVERRIDE
-    {
-        this->_nParallelNodes.inc();
-        return _builder->run(aTbl[0], aTblImp[0], aTblSmplCnt[0], 0, GH_SUMS_BUF);
-    }
-
-protected:
-    TreeBuilder<algorithmFPType, int, BinIndexType, cpu>* _builder; // TODO: replace int
-};
-*/
 
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan(const services::Buffer<algorithmFPType>& values,
@@ -172,7 +84,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan
                                                                                  int localSize,
                                                                                  int nLocalSums)
 {
-     // printf ("opencl scan\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.scan);
 
     services::Status status;
@@ -198,21 +109,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::scan
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-     // printf ("opencl scan finished\n"); fflush(stdout);
-
-/*    {
-        auto col = partialHists.template get<int>().toHost(ReadWriteMode::readOnly);
-        for (size_t j = 0; j < nLocalSums; j++)
-        {
-            for (size_t k = 0; k < (1 << 4); k++)
-            {
-                printf ("%d ", col.get()[(j << 4) + k]);
-            }
-            printf ("\n");
-        }
-        printf ("\n"); fflush (stdout);
-    }*/
-
     return status;
 }
 
@@ -222,7 +118,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
                                                                                    int localSize,
                                                                                    int nSubgroupSums)
 {
-     // printf ("opencl reduce\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.reduce);
 
     services::Status status;
@@ -248,7 +143,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-     // printf ("opencl reduce finished\n"); fflush(stdout);
     return status;
 }
 
@@ -347,17 +241,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::init
         context.run(global_range, kernel, args, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
-/*
-                    {
-                        printf ("treeOrder\n");
-                        auto col = treeOrder.template get<int>().toHost(ReadWriteMode::readOnly);
-                        for (size_t i = 0; i < 100 && i < nRows; i++)
-                        {
-                            printf ("%d ", col.get()[i]);
-                        }
-                        printf ("\n"); fflush (stdout);
-                    }
-*/
+
     return status;
 }
 
@@ -374,7 +258,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                                                                                                      size_t localSize,
                                                                                                      size_t nPartialHistograms)
 {
-    // printf ("opencl computePartialHistograms\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialHistograms);
 
     services::Status status;
@@ -382,47 +265,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
 
     auto& kernel = kernelComputePartialHistograms;
-/*
-    {
-        auto col = data.template get<int>().toHost(ReadWriteMode::readOnly);
-        for (size_t j = 0; j < nRows; j++)
-        {
-            for (size_t k = 0; k < nFeatures; k++)
-            {
-                printf ("%d ", col.get()[j * nFeatures + k]);
-            }
-            printf ("\n");
-        }
-        printf ("\n"); fflush (stdout);
-    }
 
-                    {
-                        printf ("partialHistograms\n");
-                        auto col = partialHistograms.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
-                        for (size_t i = 0; i < nPartialHistograms; i++)
-                        {
-                            for (size_t j = 0; j < nTotalBins; j++)
-                            {
-                                for (size_t k = 0; k < 2; k++)
-                                {
-                                    printf ("%.3f ", col.get()[i * nTotalBins + j * 2 + k]);
-                                }
-                            }
-                            printf ("\n");
-                        }
-                        printf ("\n"); fflush (stdout);
-                    }
-*/
-/*                    {
-                        printf ("binOffsets\n");
-                        auto col = binOffsets.template get<int>().toHost(ReadWriteMode::readOnly);
-                        for (size_t i = 0; i < nFeatures + 1; i++)
-                        {
-                            printf ("%d ", col.get()[i]);
-                        }
-                        printf ("\n"); fflush (stdout);
-                    }
-*/
     {
         KernelArguments args(9);
         args.set(0, data, AccessModeIds::read);
@@ -447,24 +290,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         context.run(range, kernel, args, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
-/*
-                    {
-                        printf ("partialHistograms\n");
-                        auto col = partialHistograms.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
-                        for (size_t i = 0; i < nPartialHistograms; i++)
-                        {
-                            for (size_t j = 0; j < nTotalBins; j++)
-                            {
-                                for (size_t k = 0; k < 2; k++)
-                                {
-                                    printf ("%.3f ", col.get()[i * nTotalBins + j * 2 + k]);
-                                }
-                            }
-                            printf ("\n");
-                        }
-                        printf ("\n"); fflush (stdout);
-                    }
-*/
+
     return status;
 }
 
@@ -475,7 +301,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
                                                                                                     size_t reduceLocalSize,
                                                                                                     size_t nPartialHistograms)
 {
-    // printf ("opencl reducePartialHistograms\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.reducePartialHistograms);
 
     services::Status status;
@@ -501,20 +326,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::redu
         context.run(range, kernel, args, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
-/*
-                    {
-                        printf ("histograms\n");
-                        auto col = histograms.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
-                        for (size_t j = 0; j < nTotalBins; j++)
-                        {
-                            for (size_t k = 0; k < 2; k++)
-                            {
-                                printf ("%.3f ", col.get()[j * 2 + k]);
-                            }
-                        }
-                        printf ("\n"); fflush (stdout);
-                    }
-*/
+
     return status;
 }
 
@@ -557,7 +369,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                                                                                                  UniversalBuffer& histogramDst,
                                                                                                  size_t nTotalBins)
 {
-     // printf ("opencl computeHistogramDiff\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeHistogramDiff);
 
     services::Status status;
@@ -589,7 +400,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                                                                                                   size_t nFeatures,
                                                                                                   size_t localSize)
 {
-    // printf ("opencl computeTotalOptCoeffs\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeTotalOptCoeffs);
 
     services::Status status;
@@ -628,7 +438,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                                                                                                         algorithmFPType lambda,
                                                                                                         size_t localSize)
 {
-    // printf ("opencl computeBestSplitForFeatures\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeBestSplitForFeatures);
 
     services::Status status;
@@ -657,7 +466,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-    // printf ("opencl computeBestSplitForFeatures finished\n"); fflush(stdout);
     return status;
 }
 
@@ -671,7 +479,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                                                                                              algorithmFPType* gTotal,
                                                                                              algorithmFPType* hTotal)
 {
-     // printf ("opencl computeBestSplit\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeBestSplit);
 
     services::Status status;
@@ -691,7 +498,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         auto totalOptCoeffsHost = totalOptCoeffs.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
         *gTotal = totalOptCoeffsHost.get()[0];
         *hTotal = totalOptCoeffsHost.get()[1];
-         // printf ("total opt coeffs = %.10f %.10f\n", totalOptCoeffsHost.get()[0], totalOptCoeffsHost.get()[1]);
     }
     {   
         auto splitInfoHost = splitInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
@@ -700,7 +506,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         {
             algorithmFPType impurityDecrease = splitInfoHost.get()[featId * 5 + 0];
             int featureValue = splitValueHost.get()[featId];
-//             printf ("found best split for feature = %d, value = %d, impDec = %.5f, %.5f %.5f | %.5f %.5f\n", (int)featId, featureValue, impurityDecrease, splitInfoHost.get()[1], splitInfoHost.get()[2], splitInfoHost.get()[3], splitInfoHost.get()[4]);
             if (featureValue != -1)
             {
                 if (impurityDecrease > bestSplit._impurityDecrease || (impurityDecrease == bestSplit._impurityDecrease && featId < bestSplit._featureIndex))
@@ -717,7 +522,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         }
     }
 
-     // printf ("opencl computeBestSplit finished\n"); fflush(stdout);
     return status;
 }
 
@@ -731,7 +535,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
                                                                                           size_t localSize,
                                                                                           size_t nLocalSums)
 {
-     // printf ("opencl partitionScan\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partitionScan);
 
     services::Status status;
@@ -760,15 +563,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-/*    {
-        auto partialSumsHost = partialSums.template get<int>().toHost(ReadWriteMode::readOnly);
-        for (int i = 0; i <= nLocalSums; i++)
-        {
-             printf ("%d ", partialSumsHost.get()[i]);
-        }
-         // printf ("\n");
-    }*/
-     // printf ("opencl partitionScan finished\n"); fflush(stdout);
     return status;
 }
 
@@ -779,7 +573,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
                                                                                              size_t localSize,
                                                                                              size_t nSubgroupSums)
 {
-     // printf ("opencl partitionSumScan\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partitionSumScan);
 
     services::Status status;
@@ -806,17 +599,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-/*    {
-        auto partialPrefixSumsHost = partialPrefixSums.template get<int>().toHost(ReadWriteMode::readOnly);
-        auto totalSumHost = totalSum.template get<int>().toHost(ReadWriteMode::readOnly);
-        for (int i = 0; i <= nSubgroupSums; i++)
-        {
-             printf ("%d ", partialPrefixSumsHost.get()[i]);
-        }
-        printf ("\n");
-        printf ("%d\n", totalSumHost.get()[0]);
-    }*/
-     // printf ("opencl partitionSumScan finished\n"); fflush(stdout);
     return status;
 }
 
@@ -831,7 +613,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
                                                                                              size_t localSize,
                                                                                              size_t nLocalSums)
 {
-     // printf ("opencl partitionReorder\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partitionReorder);
 
     services::Status status;
@@ -861,7 +642,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-     // printf ("opencl partitionReorder finished\n"); fflush(stdout);
     return status;
 }
 
@@ -871,7 +651,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
                                                                                           size_t iStart,
                                                                                           size_t nRows)
 {
-     // printf ("opencl partitionCopy\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partitionCopy);
 
     services::Status status;
@@ -892,7 +671,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::part
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-     // printf ("opencl partitionCopy finished\n"); fflush(stdout);
     return status;
 }
 
@@ -950,7 +728,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::upda
                                                                                            size_t nRows,
                                                                                            algorithmFPType inc)
 {
-     // printf ("opencl update response\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateResponse);
 
     services::Status status;
@@ -972,8 +749,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::upda
         context.run(global_range, kernel, args, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
-
-     // printf ("opencl update response finished\n"); fflush(stdout);
 
     return status;
 }
@@ -1038,30 +813,22 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     algorithmFPType initResp = 0.0;
     DAAL_CHECK_STATUS(status, getInitialResponse(*const_cast<NumericTable*>(y), &initResp));
 
-     // printf ("initial response = %.10f\n", initResp); fflush(stdout);
-
     context.fill(response, initResp, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    //printf ("filled response\n"); fflush(stdout);
     AOSNumericTablePtr treeStructure = ConnectorType::createGBTree(par.maxTreeDepth, &status);
     DAAL_CHECK_STATUS_VAR(status);
     ConnectorType connector(treeStructure.get());
 
-     // printf ("created tree structure\n"); fflush(stdout);
     const size_t maxNodes = treeStructure->getNumberOfRows();
 
     Collection<TreeNodeStorage> treeNodeStorages(maxNodes);
     DAAL_CHECK_MALLOC(treeNodeStorages.data());
-     // printf ("created tree storages\n"); fflush(stdout);
 
     for(size_t i = 0; (i < par.maxIterations) && !algorithms::internal::isCancelled(status, pHostApp); ++i)
     {
-        printf ("computeOptCoeffs, iter = %d\n", (int)i); fflush(stdout);
         DAAL_CHECK_STATUS_VAR(computeOptCoeffs(*const_cast<NumericTable*>(y), response, optCoeffs));
-//        printf ("initialiazeTreeOrder\n"); fflush(stdout);
         DAAL_CHECK_STATUS_VAR(initializeTreeOrder(nRows, treeOrder));
-//        printf ("start squanching\n"); fflush(stdout);
 
         TableRecord<algorithmFPType>  *record = connector.get(0);
 
@@ -1081,12 +848,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         for (size_t splitId = 0; splitId < splits.size(); splitId++)
         {
             SplitRecord<algorithmFPType>& split = splits[splitId];
-             // printf ("process split %p %p\n", split.first, split.second);
             if (split.first && split.second)
             {
                 TableRecord<algorithmFPType>* leftRecord = split.first;
                 TableRecord<algorithmFPType>* rightRecord = split.second;
-                 // printf ("split %d %d | %d %d | %d %d\n", (int)leftRecord->nid, (int)rightRecord->nid, (int)leftRecord->n, (int)rightRecord->n, (int)leftRecord->iStart, (int)rightRecord->iStart);
                 const size_t parentId = (leftRecord->nid - 1) / 2;
                 DAAL_CHECK_STATUS_VAR(treeNodeStorages[leftRecord->nid].allocate(indexedFeatures));
                 DAAL_CHECK_STATUS_VAR(treeNodeStorages[rightRecord->nid].allocate(indexedFeatures));
@@ -1112,36 +877,11 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                                                                treeNodeStorages[leftRecord->nid].getHistograms(),
                                                                indexedFeatures.totalBins()));
                 }
-/*                    {
-                        printf ("featureId = %d, nBins = %d, histogram:\n", (int)featId, (int)(indexedFeatures.numIndices(featId)));
-                        {
-                            auto col = treeNodeStorages[leftRecord->nid].getHistogram(featId).template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
-                            for (size_t j = 0; j < indexedFeatures.numIndices(featId); j++)
-                            {
-                                for (size_t k = 0; k < 2; k++)
-                                {
-                                    printf ("%.3f ", col.get()[j * 2 + k]);
-                                }
-                            }
-                            printf ("\n"); fflush (stdout);
-                        }
-                        {
-                            auto col = treeNodeStorages[rightRecord->nid].getHistogram(featId).template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
-                            for (size_t j = 0; j < indexedFeatures.numIndices(featId); j++)
-                            {
-                                for (size_t k = 0; k < 2; k++)
-                                {
-                                    printf ("%.3f ", col.get()[j * 2 + k]);
-                                }
-                            }
-                            printf ("\n"); fflush (stdout);
-                        }
-                    }*/
+
                 DAAL_CHECK_STATUS_VAR(computeBestSplit(treeNodeStorages[leftRecord->nid].getHistograms(), indexedFeatures.binOffsets(), indexedFeatures.totalBins(), nFeatures, par.lambda, bestSplitLeft));
                 DAAL_CHECK_STATUS_VAR(computeBestSplit(treeNodeStorages[rightRecord->nid].getHistograms(), indexedFeatures.binOffsets(), indexedFeatures.totalBins(), nFeatures, par.lambda, bestSplitRight));
 
                 bestSplitLeft._impurityDecrease -= (leftRecord->gTotal / (leftRecord->hTotal + par.lambda)) * leftRecord->gTotal;
-                // printf ("left node, found overall best split, feature = %d, value = %d, impDec = %.5f, %.5f %.5f | %.5f %.5f\n", bestSplitLeft._featureIndex, bestSplitLeft._featureValue, bestSplitLeft._impurityDecrease, bestSplitLeft._leftGTotal, bestSplitLeft._leftHTotal, bestSplitLeft._rightGTotal, bestSplitLeft._rightHTotal);
                 if (bestSplitLeft._impurityDecrease < par.minSplitLoss || bestSplitLeft._featureIndex < 0 || bestSplitLeft._featureValue < 0)
                 {
                     leftRecord->isFinalized = true;
@@ -1152,7 +892,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                     size_t nLeft = 0;
                     size_t nRight = 0;
                     DAAL_CHECK_STATUS_VAR(doPartition(indexedFeatures.getFeature(bestSplitLeft._featureIndex), treeOrder, treeOrderBuf, bestSplitLeft._featureValue, leftRecord->iStart, leftRecord->n, nLeft, nRight));
-                    // printf ("after split, left = %d, right = %d\n", (int)nLeft, (int)nRight);
                     if (nLeft == 0 || nRight == 0)
                     {
                         leftRecord->isFinalized = true;
@@ -1171,7 +910,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                 }
 
                 bestSplitRight._impurityDecrease -= (rightRecord->gTotal / (rightRecord->hTotal + par.lambda)) * rightRecord->gTotal;
-                //printf ("right node, found overall best split, feature = %d, value = %d, impDec = %.5f, %.5f %.5f | %.5f %.5f\n", bestSplitRight._featureIndex, bestSplitRight._featureValue, bestSplitRight._impurityDecrease, bestSplitRight._leftGTotal, bestSplitRight._leftHTotal, bestSplitRight._rightGTotal, bestSplitRight._rightHTotal);
                 if (bestSplitRight._impurityDecrease < par.minSplitLoss || bestSplitRight._featureIndex < 0 || bestSplitRight._featureValue < 0)
                 {
                     rightRecord->isFinalized = true;
@@ -1182,7 +920,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                     size_t nLeft = 0;
                     size_t nRight = 0;
                     DAAL_CHECK_STATUS_VAR(doPartition(indexedFeatures.getFeature(bestSplitRight._featureIndex), treeOrder, treeOrderBuf, bestSplitRight._featureValue, rightRecord->iStart, rightRecord->n, nLeft, nRight));
-                    // printf ("after split, left = %d, right = %d\n", (int)nLeft, (int)nRight);
                     if (nLeft == 0 || nRight == 0)
                     {
                         rightRecord->isFinalized = true;
@@ -1212,18 +949,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                 DAAL_CHECK_STATUS_VAR(computeHistogram(indexedFeatures.getFullData(), treeOrder, optCoeffs, partialHistograms,
                                  treeNodeStorages[record->nid].getHistograms(), record->iStart, record->n, indexedFeatures.binOffsets(), indexedFeatures.totalBins(), nFeatures));
                 DAAL_CHECK_STATUS_VAR(computeBestSplit(treeNodeStorages[record->nid].getHistograms(), indexedFeatures.binOffsets(), indexedFeatures.totalBins(), nFeatures, par.lambda, bestSplit, &gTotal, &hTotal));
-/*                    {
-                        printf ("nBins = %d\n", (int)(indexedFeatures.totalBins()));
-                        auto col = treeNodeStorages[record->nid].getHistograms().template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
-                        for (size_t j = 0; j < indexedFeatures.totalBins(); j++)
-                        {
-                            for (size_t k = 0; k < 2; k++)
-                            {
-                                printf ("%.3f ", col.get()[j * 2 + k]);
-                            }
-                        }
-                        printf ("\n"); fflush (stdout);
-                    }*/
                 if (record->nid == 0)
                 {
                     record->gTotal = gTotal;
@@ -1231,7 +956,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                     record->nTotal = record->n;
                 }
                 bestSplit._impurityDecrease -= (record->gTotal / (record->hTotal + par.lambda)) * record->gTotal;
-                // printf ("found overall best split, feature = %d, value = %d, impDec = %.5f, %.5f %.5f | %.5f %.5f\n", bestSplit._featureIndex, bestSplit._featureValue, bestSplit._impurityDecrease, bestSplit._leftGTotal, bestSplit._leftHTotal, bestSplit._rightGTotal, bestSplit._rightHTotal);
                 if (bestSplit._impurityDecrease < par.minSplitLoss || bestSplit._featureIndex < 0 || bestSplit._featureValue < 0)
                 {
                     record->isFinalized = true;
@@ -1242,7 +966,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                     size_t nLeft = 0;
                     size_t nRight = 0;
                     DAAL_CHECK_STATUS_VAR(doPartition(indexedFeatures.getFeature(bestSplit._featureIndex), treeOrder, treeOrderBuf, bestSplit._featureValue, record->iStart, record->n, nLeft, nRight));
-                    // printf ("after split, left = %d, right = %d\n", (int)nLeft, (int)nRight);
                     if (nLeft == 0 || nRight == 0)
                     {
                         record->isFinalized = true;
@@ -1323,59 +1046,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     }
 
     return services::Status();
-}
-
-template <typename algorithmFPType, gbt::regression::training::Method method>
-uint32_t RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getWorkgroupsCount(uint32_t rows)
-{
-    const uint32_t elementsPerGroup = _maxWorkItemsPerGroup;
-    uint32_t workgroupsCount = rows / elementsPerGroup;
-
-    if (workgroupsCount*elementsPerGroup < rows)
-        workgroupsCount++;
-
-    return workgroupsCount;
-}
-
-template <typename algorithmFPType, gbt::regression::training::Method method>
-uint32_t RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getComputeSquaresWorkgroupsCount(uint32_t nFeatures)
-{
-    size_t workItemsPerGroup = nFeatures < _maxWorkItemsPerGroup ? nFeatures : _maxWorkItemsPerGroup;
-    while (workItemsPerGroup & (workItemsPerGroup - 1))
-    {
-        workItemsPerGroup++;
-    }
-    if(nFeatures <= 32)
-    {
-        workItemsPerGroup = nFeatures;
-    }
-    else if(nFeatures <= 64)
-    {
-        workItemsPerGroup = nFeatures / 2;
-        if(nFeatures % 2 > 0)
-            workItemsPerGroup++;
-    }
-    else if(nFeatures <= 128)
-    {
-        workItemsPerGroup = nFeatures / 4;
-        if(nFeatures % 4 > 0)
-            workItemsPerGroup++;
-    }
-    return workItemsPerGroup;
-}
-
-template <typename algorithmFPType, gbt::regression::training::Method method>
-const char * RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::getComputeSquaresKernelName(uint32_t nFeatures)
-{
-    if(nFeatures <= 32) {
-        return  "compute_squares_32";
-    } else if(nFeatures <= 64) {
-        return "compute_squares_64";
-    }
-    else if(nFeatures <= 128) {
-        return "compute_squares_128";
-    }
-    return "compute_squares";
 }
 
 } /* namespace internal */

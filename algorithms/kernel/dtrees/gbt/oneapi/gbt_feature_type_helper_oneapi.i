@@ -110,7 +110,6 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::extractColumn(const ser
                                                      int nFeatures,
                                                      int nRows)
 {
-    // printf ("opencl extractColumn\n"); fflush(stdout);
     DAAL_ITTNOTIFY_SCOPED_TASK(indexedFeatures.extractColumn);
 
     services::Status status;

@@ -183,11 +183,6 @@ private:
                                     size_t nRows,
                                     algorithmFPType inc);
 
-    uint32_t getWorkgroupsCount(uint32_t rows);
-    uint32_t getComputeSquaresWorkgroupsCount(uint32_t nFeatures);
-    const char * getComputeSquaresKernelName(uint32_t nFeatures);
-    const char * getBuildOptions(uint32_t nClusters);
-
     oneapi::internal::KernelPtr kernelScan;
     oneapi::internal::KernelPtr kernelReduce;
     oneapi::internal::KernelPtr kernelInitializeTreeOrder;

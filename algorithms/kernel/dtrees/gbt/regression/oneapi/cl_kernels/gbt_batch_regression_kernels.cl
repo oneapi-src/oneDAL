@@ -252,8 +252,6 @@ __kernel void computeBestSplitForFeatures(const __global algorithmFPType* histog
     __global int* splitValueForFeature = splitValue + feat_id;
     int nBins = binOffsets[feat_id + 1] - binOffsets[feat_id];
 
-    // printf ("feat_id = %d, local_id = %d, nBins = %d\n", feat_id, local_id, nBins);
-
     for (int i = local_id; i < nBins; i += local_size)
     {
         algorithmFPType gLeft = g + sub_group_scan_inclusive_add(histogramForFeature[i * 2 + 0]);
@@ -271,8 +269,6 @@ __kernel void computeBestSplitForFeatures(const __global algorithmFPType* histog
             curHLeft = hLeft;
         }
 
-        // printf ("feat_id = %d, local_id = %d, i = %d, gLeft = %.3f, hLeft = %.3f, gRight = %.3f, hRight = %.3f | impDec = %.3f, curImpDec = %.3f\n", feat_id, local_id, i, gLeft, hLeft, gRight, hRight, impDec, curImpDec);
-
         g += sub_group_reduce_add(histogramForFeature[i * 2 + 0]);
         h += sub_group_reduce_add(histogramForFeature[i * 2 + 1]);
     }
@@ -280,11 +276,8 @@ __kernel void computeBestSplitForFeatures(const __global algorithmFPType* histog
     algorithmFPType bestImpDec = sub_group_reduce_max(curImpDec);
     int bestFeatureValue = sub_group_reduce_min(bestImpDec == curImpDec ? curFeatureValue : nBins);
 
-    // printf ("feat_id = %d, local_id = %d, bestImpDec = %.3f, curImpDec = %.3f\n", feat_id, local_id, bestImpDec, curImpDec);
-
     if (curFeatureValue == bestFeatureValue)
     {
-        // printf ("feat_id = %d, local_id = %d, put best split for feature\n", feat_id, local_id);
         splitValueForFeature[0] = curFeatureValue == nBins ? -1 : curFeatureValue;
         splitInfoForFeature[0] = curImpDec;
         splitInfoForFeature[1] = curGLeft;
