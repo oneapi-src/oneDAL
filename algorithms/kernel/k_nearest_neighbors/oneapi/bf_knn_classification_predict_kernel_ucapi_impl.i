@@ -15,30 +15,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Common functions for K-Nearest Neighbors predictions calculation
-//--
-*/
-
 #ifndef __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_IMPL_I__
 #define __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_IMPL_I__
 
-#include "threading.h"
-#include "daal_defines.h"
-#include "algorithm.h"
-#include "daal_atomic_int.h"
 #include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_memory.h"
-#include "service_math.h"
 #include "service_rng.h"
-#include "service_sort.h"
 
 #include "engine_batch_impl.h"
 
 #include "oneapi/sum_reducer.h"
-
 #include "oneapi/select_indexed.h"
 #include "oneapi/sorter.h"
 
@@ -47,7 +32,6 @@
 #include "oneapi/bf_knn_classification_model_ucapi_impl.h"
 
 #include "oneapi/service_defines_oneapi.h"
-#include "oneapi/internal/types.h"
 #include "oneapi/blas_gpu.h"
 #include "cl_kernels/bf_knn_cl_kernels.cl"
 
@@ -68,8 +52,8 @@ using namespace daal::services::internal;
 using namespace daal::services;
 using namespace daal::internal;
 using namespace daal::oneapi::internal;
-using daal::oneapi::internal::sort::RadixSort;
-using daal::oneapi::internal::selection::QuickSelectIndexed;
+using sort::RadixSort;
+using selection::QuickSelectIndexed;
 
 template<typename algorithmFpType>
 Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
@@ -88,12 +72,11 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
     NumericTable *points = const_cast<NumericTable *>(model->impl()->getData().get());
     NumericTable *labels = const_cast<NumericTable *>(model->impl()->getLabels().get());
 
-
     const Parameter * const parameter = static_cast<const Parameter *>(par);
     const auto nK = parameter->k;
 
     const size_t nProbeRows = ntData->getNumberOfRows();
-    const size_t nLabelRows = points->getNumberOfRows();
+    const size_t nLabelRows = labels->getNumberOfRows();
     const size_t nDataRows = points->getNumberOfRows() < nLabelRows ? points->getNumberOfRows() : nLabelRows;
     const size_t nFeatures = points->getNumberOfColumns();
 
@@ -130,6 +113,8 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
     auto rnds = rndSeq.template get<algorithmFpType>().toHost(ReadWriteMode::writeOnly);
     auto numbers = rndIndices.template get<size_t>().toHost(ReadWriteMode::readWrite);
     auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&(*parameter->engine));
+    if(!engineImpl)
+        return Status(ErrorIncorrectEngineParameter);
     daal::internal::RNGs<size_t, sse2> rng;
     size_t pos;
     {
@@ -147,22 +132,21 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
     auto init_categories = kernel_factory.getKernel("init_categories", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
-
     const size_t nDataBlocks = nDataRows / dataBlockSize + int (nDataRows % dataBlockSize != 0);
     const size_t nProbeBlocks = nProbeRows / probeBlockSize + int (nProbeRows % probeBlockSize != 0);
     QuickSelectIndexed::Result selectResult(context, nK, probeBlockSize, distances.type(), categories.type(), &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     BlockDescriptor<algorithmFpType> probeRows;
-    st = ntData->getBlockOfRows(0, nProbeRows, readOnly, probeRows); DAAL_CHECK_STATUS_VAR(st);
+    DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(0, nProbeRows, readOnly, probeRows));
     auto probes_all = probeRows.getBuffer();
 
     BlockDescriptor<algorithmFpType> dataRows;
-    st = points->getBlockOfRows(0, nDataRows, readOnly, dataRows); DAAL_CHECK_STATUS_VAR(st);
+    DAAL_CHECK_STATUS_VAR(points->getBlockOfRows(0, nDataRows, readOnly, dataRows));
     auto data_all = dataRows.getBuffer();
 
     BlockDescriptor<int> labelRows;
-    st = labels->getBlockOfRows(0, nDataRows, readOnly, labelRows); DAAL_CHECK_STATUS_VAR(st);
+    DAAL_CHECK_STATUS_VAR(labels->getBlockOfRows(0, nDataRows, readOnly, labelRows));
     auto labels_all = labelRows.getBuffer();
 
     for (size_t pblock = 0; pblock < nProbeBlocks; pblock++)
@@ -228,19 +212,19 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.copy_results);
             BlockDescriptor<algorithmFpType> resultBlock;
-            st = y->getBlockOfRows(0, nProbeRows, writeOnly, resultBlock); DAAL_CHECK_STATUS_VAR(st);
+            DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(0, nProbeRows, writeOnly, resultBlock));
             auto classesRows = classes.template get<int>().toHost(ReadWriteMode::readOnly);
             auto res = resultBlock.getBuffer().toHost(ReadWriteMode::writeOnly);
                 for(int i = 0; i < curProbeBlockSize; i++)
                 {
                     res.get()[pfirst + i] = classesRows.get()[i];
                 }
-            st = y->releaseBlockOfRows(resultBlock); DAAL_CHECK_STATUS_VAR(st);
+            DAAL_CHECK_STATUS_VAR(y->releaseBlockOfRows(resultBlock));
         }
     }
-    st = ntData->releaseBlockOfRows(probeRows); DAAL_CHECK_STATUS_VAR(st);
-    st = points->releaseBlockOfRows(dataRows); DAAL_CHECK_STATUS_VAR(st);
-    st = labels->releaseBlockOfRows(labelRows); DAAL_CHECK_STATUS_VAR(st);
+    DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(probeRows));
+    DAAL_CHECK_STATUS_VAR(points->releaseBlockOfRows(dataRows));
+    DAAL_CHECK_STATUS_VAR(labels->releaseBlockOfRows(labelRows));
     return st;
 }
 
@@ -367,8 +351,6 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners
          uint32_t nK,
          Status* st)
 {
-
-
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.initDistances);
 
     KernelArguments args(3);
@@ -387,7 +369,6 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners
         context.run(range, kernel_compute_winners, args, st);
     }
 }
-
 
 } // namespace internal
 } // namespace prediction
