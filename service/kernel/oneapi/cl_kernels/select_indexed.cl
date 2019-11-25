@@ -133,8 +133,6 @@ __kernel void quick_select_group( __global  algorithmFPType           *distances
             start += split;
         if(count > N) 
         {
-            if(local_id == 0)
-                printf("global_id %d diverged!\n", global_id);
             break;
         }
     }
