@@ -69,7 +69,7 @@ public:
     size_t getNumberOfFeatures() const { return _nFeatures; }
 protected:
     template <typename algorithmFPType>
-    DAAL_FORCEINLINE services::Status setTable(const data_management::NumericTablePtr & value, 
+    DAAL_FORCEINLINE services::Status setTable(const data_management::NumericTablePtr & value,
                                                 data_management::NumericTablePtr & dest, bool copy)
     {
         if (!copy)
@@ -79,7 +79,7 @@ protected:
         else
         {
             services::Status status;
-            dest = data_management::SyclHomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(), 
+            dest = data_management::SyclHomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(),
                                     value->getNumberOfRows(), data_management::NumericTable::doAllocate, &status);
             DAAL_CHECK_STATUS_VAR(status);
             data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
