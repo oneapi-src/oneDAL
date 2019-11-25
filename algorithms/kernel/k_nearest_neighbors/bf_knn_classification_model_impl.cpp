@@ -13,12 +13,6 @@
 * License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of the class defining the K-Nearest Neighbors (kNN) model
-//--
-*/
-
 #include "oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "serialization_utils.h"
 #include "daal_strings.h"

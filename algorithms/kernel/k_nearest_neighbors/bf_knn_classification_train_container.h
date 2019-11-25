@@ -13,12 +13,6 @@
 * License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of K-Nearest Neighbors container.
-//--
-*/
-
 #ifndef __BF_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
 #define __BF_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
 
@@ -40,9 +34,6 @@ namespace training
 
 using namespace daal::data_management;
 
-/**
- *  \brief Initialize list of K-Nearest Neighbors kernels with implementations for supported architectures
- */
 template <typename algorithmFpType, training::Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
 {
@@ -55,9 +46,6 @@ BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-/**
- *  \brief Choose appropriate kernel to calculate K-Nearest Neighbors model.
- */
 template <typename algorithmFpType, training::Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {

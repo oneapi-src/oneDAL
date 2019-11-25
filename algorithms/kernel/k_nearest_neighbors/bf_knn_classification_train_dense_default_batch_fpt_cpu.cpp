@@ -15,12 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of K-Nearest Neighbors training functions for the method of K-D Tree.
-//--
-*/
-
 #include "bf_knn_classification_train_container.h"
 #include "oneapi/bf_knn_classification_train_kernel_ucapi_impl.i"
 

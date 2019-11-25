@@ -15,12 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of prediction stage of K-Nearest Neighbors algorithm.
-//--
-*/
-
 #include "bf_knn_classification_predict_dense_default_batch.h"
 #include "oneapi/bf_knn_classification_predict_kernel_ucapi_impl.i"
 #include "bf_knn_classification_predict_dense_default_batch_container.h"

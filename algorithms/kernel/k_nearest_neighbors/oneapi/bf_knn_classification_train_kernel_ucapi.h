@@ -15,12 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Declaration of structure containing kernels for K-Nearest Neighbors training.
-//--
-*/
-
 #ifndef __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_UCAPI_H__
 #define __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_UCAPI_H__
 

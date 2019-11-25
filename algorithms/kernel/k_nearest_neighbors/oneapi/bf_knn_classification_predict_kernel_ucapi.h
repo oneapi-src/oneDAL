@@ -15,12 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Declaration of template function that computes K-Nearest Neighbors prediction results.
-//--
-*/
-
 #ifndef __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_H__
 #define __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_H__
 

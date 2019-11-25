@@ -15,12 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of the class defining the K-Nearest Neighbors (kNN) model
-//--
-*/
-
 #include "bf_knn_classification_training_result.h"
 
 namespace daal

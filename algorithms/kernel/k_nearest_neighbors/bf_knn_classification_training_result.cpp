@@ -15,12 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of K-Nearest Neighbors (kNN) algorithm classes.
-//--
-*/
-
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_training_types.h"
 #include "serialization_utils.h"
 
@@ -41,11 +35,6 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_K_NEAREST_NEIGHBOR_TRA
 
 Result::Result() : classifier::training::Result() {}
 
-/**
- * Returns the result of BF kNN model-based training
- * \param[in] id    Identifier of the result
- * \return          Result that corresponds to the given identifier
- */
 daal::algorithms::bf_knn_classification::ModelPtr Result::get(classifier::training::ResultId id) const
 {
     return services::staticPointerCast<daal::algorithms::bf_knn_classification::Model,

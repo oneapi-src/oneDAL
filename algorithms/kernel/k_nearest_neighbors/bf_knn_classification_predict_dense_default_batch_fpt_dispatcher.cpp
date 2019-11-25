@@ -15,13 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of K-Nearest Neighbors algorithm container - a class that contains fast K-Nearest Neighbors prediction kernels for supported
-//  architectures.
-//--
-*/
-
 #include "bf_knn_classification_predict.h"
 #include "bf_knn_classification_predict_dense_default_batch_container.h"
 

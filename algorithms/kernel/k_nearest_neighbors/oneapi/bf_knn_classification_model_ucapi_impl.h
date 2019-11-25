@@ -15,12 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of the class defining the K-Nearest Neighbors (kNN) model
-//--
-*/
-
 #ifndef __BF_KNN_CLASSIFICATION_MODEL_UCAPI_IMPL_H__
 #define __BF_KNN_CLASSIFICATION_MODEL_UCAPI_IMPL_H__
 

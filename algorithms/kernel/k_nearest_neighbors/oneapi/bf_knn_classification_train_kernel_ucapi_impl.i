@@ -15,12 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of auxiliary functions for K-Nearest Neighbors BF method.
-//--
-*/
-
 #ifndef __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_UCAPI_IMPL_I__
 #define __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_UCAPI_IMPL_I__
 
