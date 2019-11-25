@@ -127,7 +127,31 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
     }
 
     const size_t nPartialCentroids = 128;
-    const size_t blockSize = nRows;
+    const size_t nValuesInBlock = 1024 * 1024 * 1024 / sizeof(algorithmFPType);
+    const size_t nMinRows = 1;
+    size_t gemmBlockSize = nValuesInBlock;
+
+    while(gemmBlockSize  > nValuesInBlock / nClusters) {
+        gemmBlockSize >>= 1;
+    }
+
+    if(gemmBlockSize < nMinRows) {
+        return Status(ErrorKMeansNumberOfClustersIsTooLarge);
+    }
+
+    size_t datasetBlockSize = nValuesInBlock;
+    while(datasetBlockSize  > nValuesInBlock / nFeatures) {
+        datasetBlockSize >>= 1;
+    }
+
+    if(datasetBlockSize < nMinRows) {
+        return Status(ErrorIncorrectNumberOfFeatures);
+    }
+
+    size_t blockSize = datasetBlockSize > gemmBlockSize ? gemmBlockSize : datasetBlockSize;
+    if(blockSize > nRows) {
+        blockSize = nRows;
+    }
 
     auto dataSq                   = context.allocate(TypeIds::id<algorithmFPType>(), blockSize,                                 &st);
     auto centroidsSq              = context.allocate(TypeIds::id<algorithmFPType>(), nClusters,                                 &st);
@@ -563,7 +587,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::mergePartialCandidates
          uint32_t nClusters,
          Status* st)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialCandidates);
+    DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergePartialCandidates);
 
     KernelArguments args(5);
     args.set(0, candidates, AccessModeIds::write);
@@ -583,7 +607,7 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::mergePartialCandidates
     range.local(local_range, st); DAAL_CHECK_STATUS_PTR(st);
 
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialCandidates.run);
+        DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergePartialCandidates.run);
         context.run(range, kernel_merge_candidates, args, st);
     }
     DAAL_CHECK_STATUS_PTR(st);
