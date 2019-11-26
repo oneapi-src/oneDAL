@@ -49,10 +49,10 @@ daal::algorithms::brownboost::interface1::ModelPtr Result::get(classifier::train
     return staticPointerCast<daal::algorithms::brownboost::interface1::Model, SerializationIface>(Argument::get(id));
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s = classifier::training::interface1::Result::check(input, parameter, method);
-    if(!s) return s;
+    if (!s) return s;
     daal::algorithms::brownboost::interface1::ModelPtr m = get(classifier::training::model);
     DAAL_CHECK(m->getAlpha(), ErrorModelNotFullInitialized);
     return s;

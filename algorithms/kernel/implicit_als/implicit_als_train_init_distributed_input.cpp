@@ -40,14 +40,12 @@ namespace init
 {
 namespace interface1
 {
-
 DistributedParameter::DistributedParameter(size_t nFactors, size_t fullNUsers, size_t seed) : Parameter(nFactors, fullNUsers, seed) {}
 
 services::Status DistributedParameter::check() const
 {
     services::Status s = Parameter::check();
-    if (!s)
-        return s;
+    if (!s) return s;
 
     const int unexpectedLayouts = (int)packed_mask;
     DAAL_CHECK_STATUS(s, checkNumericTable(partition.get(), partitionStr(), unexpectedLayouts, 0, 1));
@@ -55,7 +53,7 @@ services::Status DistributedParameter::check() const
     DAAL_CHECK_EX(nRows > 0, ErrorIncorrectNumberOfRows, ParameterName, partitionStr());
 
     daal::internal::ReadRows<int, sse2> partitionRows(partition.get(), 0, nRows);
-    const int *p = partitionRows.get();
+    const int * p = partitionRows.get();
     DAAL_ASSERT(p);
 
     if (nRows == 1)
@@ -69,16 +67,12 @@ services::Status DistributedParameter::check() const
         /* Here if the partition table of size nRows x 1 contains the offsets to each data part */
         /* Check that the offsets are stored in ascending order, first offset == 0 and the last element == fullNUsers */
         DAAL_CHECK_EX(p[0] == 0, ErrorIncorrectParameter, ParameterName, partitionStr());
-        for (size_t i = 1; i < nRows; i++)
-        {
-            DAAL_CHECK_EX(p[i - 1] < p[i], ErrorIncorrectParameter, ParameterName, partitionStr());
-        }
+        for (size_t i = 1; i < nRows; i++) { DAAL_CHECK_EX(p[i - 1] < p[i], ErrorIncorrectParameter, ParameterName, partitionStr()); }
         DAAL_CHECK_EX(p[nRows - 1] == fullNUsers, ErrorIncorrectParameter, ParameterName, partitionStr());
     }
 
     return s;
 }
-
 
 DistributedInput<step1Local>::DistributedInput() : implicit_als::training::init::Input() {}
 
@@ -99,7 +93,7 @@ KeyValueDataCollectionPtr DistributedInput<step2Local>::get(Step2LocalInputId id
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step2Local>::set(Step2LocalInputId id, const KeyValueDataCollectionPtr &ptr)
+void DistributedInput<step2Local>::set(Step2LocalInputId id, const KeyValueDataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -109,13 +103,13 @@ void DistributedInput<step2Local>::set(Step2LocalInputId id, const KeyValueDataC
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step2Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step2Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_EX(get(inputOfStep2FromStep1).get(), ErrorNullInputDataCollection, ArgumentName, inputOfStep2FromStep1Str());
 
-    KeyValueDataCollection &collection = *(get(inputOfStep2FromStep1));
-    size_t nParts = collection.size();
+    KeyValueDataCollection & collection = *(get(inputOfStep2FromStep1));
+    size_t nParts                       = collection.size();
     DAAL_CHECK_EX(nParts, ErrorIncorrectDataCollectionSize, ArgumentName, inputOfStep2FromStep1Str());
 
     for (size_t i = 0; i < nParts; i++)
@@ -125,8 +119,8 @@ services::Status DistributedInput<step2Local>::check(const daal::algorithms::Par
     }
 
     int expectedLayout = (int)NumericTableIface::csrArray;
-    s = checkNumericTable(NumericTable::cast(collection[0]).get(), inputOfStep2FromStep1Str(), 0, expectedLayout);
-    if(!s)
+    s                  = checkNumericTable(NumericTable::cast(collection[0]).get(), inputOfStep2FromStep1Str(), 0, expectedLayout);
+    if (!s)
     {
         s.add(Error::create(ErrorIncorrectElementInNumericTableCollection, ElementInCollection, 0));
         return s;
@@ -137,7 +131,7 @@ services::Status DistributedInput<step2Local>::check(const daal::algorithms::Par
     for (size_t i = 1; i < nParts; i++)
     {
         s = checkNumericTable(NumericTable::cast(collection[i]).get(), inputOfStep2FromStep1Str(), 0, expectedLayout, 0, nRows);
-        if(!s)
+        if (!s)
         {
             s.add(Error::create(ErrorIncorrectElementInNumericTableCollection, ElementInCollection, i));
             return s;
@@ -146,9 +140,9 @@ services::Status DistributedInput<step2Local>::check(const daal::algorithms::Par
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace init
-}// namespace training
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace init
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

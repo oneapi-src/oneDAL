@@ -36,10 +36,8 @@ namespace covariance
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_COVARIANCE_RESULT_ID);
-Result::Result() : daal::algorithms::Result(lastResultId + 1)
-    {}
+Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
 
 /**
     * Returns the final result of the correlation or variance-covariance matrix algorithm
@@ -56,7 +54,7 @@ NumericTablePtr Result::get(ResultId id) const
     * \param[in] id        Identifier of the result
     * \param[in] value     Pointer to the object
     */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -67,12 +65,11 @@ void Result::set(ResultId id, const NumericTablePtr &value)
     * \param[in] parameter         Pointer to the structure of the parameters of the algorithm
     * \param[in] method            Computation method
     */
-services::Status Result::check(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter,
-            int method) const
+services::Status Result::check(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const PartialResult *pres = static_cast<const PartialResult *>(partialResult);
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
-    size_t nFeatures = pres->getNumberOfFeatures();
+    const PartialResult * pres     = static_cast<const PartialResult *>(partialResult);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
+    size_t nFeatures               = pres->getNumberOfFeatures();
 
     return checkImpl(nFeatures, algParameter->outputMatrixType);
 }
@@ -83,10 +80,9 @@ services::Status Result::check(const daal::algorithms::PartialResult *partialRes
     * \param[in] parameter Pointer to the structure of algorithm parameters
     * \param[in] method    Computation method
     */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-            int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     size_t nFeatures = (static_cast<const InputIface *>(input))->getNumberOfFeatures();
 
@@ -95,33 +91,31 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
 
 services::Status Result::checkImpl(size_t nFeatures, OutputMatrixType outputMatrixType) const
 {
-    int unexpectedLayouts = (int)NumericTableIface::csrArray |
-                            (int)NumericTableIface::upperPackedTriangularMatrix |
-                            (int)NumericTableIface::lowerPackedTriangularMatrix;
+    int unexpectedLayouts =
+        (int)NumericTableIface::csrArray | (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix;
     services::Status s;
     if (outputMatrixType == covarianceMatrix)
     {
         /* Check covariance matrix */
-        s |= checkNumericTable(get(covariance).get(),  covarianceStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-        if(!s) return s;
+        s |= checkNumericTable(get(covariance).get(), covarianceStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
+        if (!s) return s;
     }
     else if (outputMatrixType == correlationMatrix)
     {
         /* Check correlation matrix */
-        s |= checkNumericTable(get(correlation).get(),  correlationStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-        if(!s) return s;
+        s |= checkNumericTable(get(correlation).get(), correlationStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
+        if (!s) return s;
     }
 
-    unexpectedLayouts |= (int)NumericTableIface::upperPackedSymmetricMatrix |
-                            (int)NumericTableIface::lowerPackedSymmetricMatrix;
+    unexpectedLayouts |= (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix;
 
     /* Check mean vector */
     s |= checkNumericTable(get(mean).get(), meanStr(), unexpectedLayouts, 0, nFeatures, 1);
     return s;
 }
 
-}//namespace interface1
+} //namespace interface1
 
-}//namespace covariance
-}// namespace algorithms
-}// namespace daal
+} //namespace covariance
+} // namespace algorithms
+} // namespace daal

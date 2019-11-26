@@ -61,7 +61,7 @@ enum NumericTableInputId
  */
 enum ModelInputId
 {
-    model = lastNumericTableInputId + 1, /*!< Trained regression model */
+    model            = lastNumericTableInputId + 1, /*!< Trained regression model */
     lastModelInputId = model
 };
 
@@ -71,7 +71,7 @@ enum ModelInputId
  */
 enum ResultId
 {
-    prediction,  /*!< Result of the regression model-based prediction */
+    prediction, /*!< Result of the regression model-based prediction */
     lastResultId = prediction
 };
 
@@ -89,7 +89,7 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 public:
     /** Default constructor */
     Input(size_t nElements = 0);
-    Input(const Input& other);
+    Input(const Input & other);
 
     /**
      * Returns an input object for making the regression model-based prediction
@@ -110,23 +110,22 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(NumericTableInputId id, const data_management::NumericTablePtr &value);
+    void set(NumericTableInputId id, const data_management::NumericTablePtr & value);
 
     /**
      * Sets an input object for making the regression model-based prediction
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ModelInputId id, const regression::ModelPtr &value);
+    void set(ModelInputId id, const regression::ModelPtr & value);
 
     /**
      * Checks an input object for making the regression model-based prediction
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__REGRESSION__PREDICTION__RESULT"></a>
@@ -150,7 +149,7 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks the result of the regression model-based prediction
@@ -160,12 +159,12 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -177,10 +176,10 @@ using interface1::Input;
 using interface1::Result;
 using interface1::ResultPtr;
 using interface1::ResultConstPtr;
-}
+} // namespace prediction
 /** @} */
-}
-}
-}
+} // namespace regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

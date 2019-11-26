@@ -36,7 +36,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -53,11 +52,11 @@ namespace interface1
 class NumericTableFeature : public SerializationIface
 {
 public:
-    features::IndexNumType  indexType;
-    features::PMMLNumType   pmmlType;
-    features::FeatureType   featureType;
-    size_t                  typeSize;
-    size_t                  categoryNumber;
+    features::IndexNumType indexType;
+    features::PMMLNumType pmmlType;
+    features::FeatureType featureType;
+    size_t typeSize;
+    size_t categoryNumber;
 
 public:
     /**
@@ -75,13 +74,13 @@ public:
     /**
      *  Copy operator for a data feature
      */
-    NumericTableFeature &operator= (const NumericTableFeature &f)
+    NumericTableFeature & operator=(const NumericTableFeature & f)
     {
-        indexType          = f.indexType     ;
-        pmmlType           = f.pmmlType      ;
-        featureType        = f.featureType   ;
-        typeSize           = f.typeSize      ;
-        categoryNumber     = f.categoryNumber;
+        indexType      = f.indexType;
+        pmmlType       = f.pmmlType;
+        featureType    = f.featureType;
+        typeSize       = f.typeSize;
+        categoryNumber = f.categoryNumber;
 
         return *this;
     }
@@ -92,7 +91,7 @@ public:
      *  Fills the class based on a specified type
      *  \tparam  T  Name of the data feature
      */
-    template<typename T>
+    template <typename T>
     void setType()
     {
         typeSize  = sizeof(T);
@@ -101,47 +100,42 @@ public:
     }
 
     /** \private */
-    services::Status serializeImpl  (InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
-        serialImpl<InputDataArchive, false>( arch );
+        serialImpl<InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
     /** \private */
-    services::Status deserializeImpl(const OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
-        serialImpl<const OutputDataArchive, true>( arch );
+        serialImpl<const OutputDataArchive, true>(arch);
 
         return services::Status();
     }
 
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl( Archive *arch )
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
-        arch->set( pmmlType       );
-        arch->set( featureType    );
-        arch->set( typeSize       );
-        arch->set( categoryNumber );
-        arch->set( indexType      );
+        arch->set(pmmlType);
+        arch->set(featureType);
+        arch->set(typeSize);
+        arch->set(categoryNumber);
+        arch->set(indexType);
 
         return services::Status();
     }
 
-    virtual int getSerializationTag() const DAAL_C11_OVERRIDE
-    {
-        return SERIALIZATION_DATAFEATURE_NT_ID;
-    }
+    virtual int getSerializationTag() const DAAL_C11_OVERRIDE { return SERIALIZATION_DATAFEATURE_NT_ID; }
 
-    features::IndexNumType getIndexType() const
-    {
-        return indexType;
-    }
+    features::IndexNumType getIndexType() const { return indexType; }
 };
 
 /** \private */
-class DictionaryIface {
+class DictionaryIface
+{
 public:
     /**
      * <a name="DAAL-ENUM-DATA_MANAGEMENT__ALLOCATIONFLAG"></a>
@@ -149,8 +143,8 @@ public:
      */
     enum FeaturesEqual
     {
-        notEqual,    /*!< Data Dictionary contains different features */
-        equal        /*!< Data Dictionary contains equal features */
+        notEqual, /*!< Data Dictionary contains different features */
+        equal     /*!< Data Dictionary contains equal features */
     };
 };
 
@@ -159,7 +153,7 @@ public:
  *  \brief Class that represents a dictionary of a data set
  *  and provides methods to work with the data dictionary
  */
-template<typename Feature, int SerializationTag>
+template <typename Feature, int SerializationTag>
 class DAAL_EXPORT Dictionary : public SerializationIface, public DictionaryIface
 {
 public:
@@ -172,10 +166,10 @@ public:
      *  \param[in]  featuresEqual Flag specifying that all features have equal types and properties
      *  \DAAL_DEPRECATED_USE{ Dictionary::create }
      */
-    Dictionary( size_t nfeat, FeaturesEqual featuresEqual = notEqual ):
-        _nfeat(0), _featuresEqual(featuresEqual), _dict(0), _errors(new services::KernelErrorCollection())
+    Dictionary(size_t nfeat, FeaturesEqual featuresEqual = notEqual)
+        : _nfeat(0), _featuresEqual(featuresEqual), _dict(0), _errors(new services::KernelErrorCollection())
     {
-        if(nfeat) { setNumberOfFeatures(nfeat); }
+        if (nfeat) { setNumberOfFeatures(nfeat); }
     }
 
     /**
@@ -185,7 +179,7 @@ public:
      *  \param[in]  stat Status of the dictionary construction
      *  \return data dictionary
      */
-    static services::SharedPtr<Dictionary> create( size_t nfeat, FeaturesEqual featuresEqual = notEqual, services::Status *stat = NULL )
+    static services::SharedPtr<Dictionary> create(size_t nfeat, FeaturesEqual featuresEqual = notEqual, services::Status * stat = NULL)
     {
         DAAL_DEFAULT_CREATE_IMPL_EX(Dictionary, nfeat, featuresEqual);
     }
@@ -194,30 +188,24 @@ public:
      *  Default constructor of a data dictionary
      *  \DAAL_DEPRECATED_USE{ Dictionary::create }
      */
-    Dictionary(): _nfeat(0), _dict(0), _featuresEqual(DictionaryIface::notEqual), _errors(new services::KernelErrorCollection()) {}
+    Dictionary() : _nfeat(0), _dict(0), _featuresEqual(DictionaryIface::notEqual), _errors(new services::KernelErrorCollection()) {}
 
     /**
      *  Constructs a default data dictionary
      *  \param[in]  stat Status of the dictionary construction
      *  \return data dictionary
      */
-    static services::SharedPtr<Dictionary> create( services::Status *stat = NULL )
-    {
-        DAAL_DEFAULT_CREATE_IMPL(Dictionary);
-    }
+    static services::SharedPtr<Dictionary> create(services::Status * stat = NULL) { DAAL_DEFAULT_CREATE_IMPL(Dictionary); }
 
     /** \private */
-    virtual ~Dictionary()
-    {
-        resetDictionary();
-    }
+    virtual ~Dictionary() { resetDictionary(); }
 
     /**
      *  Resets a dictionary and sets the number of features to 0
      */
     services::Status resetDictionary()
     {
-        if(_dict)
+        if (_dict)
         {
             delete[] _dict;
             _dict = NULL;
@@ -230,21 +218,15 @@ public:
      *  Sets all features of a dictionary to the same type
      *  \param[in]  defaultFeature  Default feature class to which to set all features
      */
-    virtual services::Status setAllFeatures(const Feature &defaultFeature)
+    virtual services::Status setAllFeatures(const Feature & defaultFeature)
     {
         if (_featuresEqual == DictionaryIface::equal)
         {
-            if (_nfeat > 0)
-            {
-                _dict[0] = defaultFeature;
-            }
+            if (_nfeat > 0) { _dict[0] = defaultFeature; }
         }
         else
         {
-            for( size_t i = 0 ; i < _nfeat ; i++ )
-            {
-                _dict[i] = defaultFeature;
-            }
+            for (size_t i = 0; i < _nfeat; i++) { _dict[i] = defaultFeature; }
         }
         return services::Status();
     }
@@ -253,7 +235,7 @@ public:
      *  Sets all features of a dictionary to the same type
      *  \tparam  featureType  Default feature type to which to set all features
      */
-    template<typename featureType>
+    template <typename featureType>
     services::Status setAllFeatures()
     {
         Feature defaultFeature;
@@ -269,13 +251,10 @@ public:
     {
         resetDictionary();
         _nfeat = numberOfFeatures;
-        if (_featuresEqual == DictionaryIface::equal)
-        {
-            _dict  = new Feature[1];
-        }
+        if (_featuresEqual == DictionaryIface::equal) { _dict = new Feature[1]; }
         else
         {
-            _dict  = new Feature[_nfeat];
+            _dict = new Feature[_nfeat];
         }
         return services::Status();
     }
@@ -284,31 +263,22 @@ public:
      *  Returns the number of features
      *  \return Number of features
      */
-    size_t getNumberOfFeatures() const
-    {
-        return _nfeat;
-    }
+    size_t getNumberOfFeatures() const { return _nfeat; }
 
     /**
      *  Returns the value of the featuresEqual flag
      *  \return Value of the featuresEqual flag
      */
-    FeaturesEqual getFeaturesEqual() const
-    {
-        return _featuresEqual;
-    }
+    FeaturesEqual getFeaturesEqual() const { return _featuresEqual; }
 
     /**
      *  Returns a feature with a given index
      *  \param[in]  idx  Index of the feature
      *  \return Requested feature
      */
-    Feature &operator[](const size_t idx)
+    Feature & operator[](const size_t idx)
     {
-        if (_featuresEqual == DictionaryIface::equal)
-        {
-            return _dict[0];
-        }
+        if (_featuresEqual == DictionaryIface::equal) { return _dict[0]; }
         else
         {
             return _dict[idx];
@@ -322,15 +292,11 @@ public:
      *  \param[in] idx      Index of the data feature
      *
      */
-    services::Status setFeature(const Feature &feature, size_t idx)
+    services::Status setFeature(const Feature & feature, size_t idx)
     {
-        if(idx >= _nfeat)
-            return services::Status(services::ErrorIncorrectNumberOfFeatures);
+        if (idx >= _nfeat) return services::Status(services::ErrorIncorrectNumberOfFeatures);
 
-        if (_featuresEqual == DictionaryIface::equal)
-        {
-            _dict[0] = feature;
-        }
+        if (_featuresEqual == DictionaryIface::equal) { _dict[0] = feature; }
         else
         {
             _dict[idx] = feature;
@@ -342,7 +308,7 @@ public:
      *  Adds a feature to a data dictionary
      *  \param[in] idx              Index of the data feature
      */
-    template<typename T>
+    template <typename T>
     services::Status setFeature(size_t idx)
     {
         Feature df;
@@ -357,10 +323,7 @@ public:
 
         for (size_t i = 0; i < nFeat; ++i)
         {
-            if (_dict[i].getIndexType() == features::DAAL_OTHER_T)
-            {
-                return services::Status(services::ErrorUndefinedFeature);
-            }
+            if (_dict[i].getIndexType() == features::DAAL_OTHER_T) { return services::Status(services::ErrorUndefinedFeature); }
         }
         return services::Status();
     }
@@ -370,51 +333,45 @@ public:
      * \return Errors during the computation
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED services::SharedPtr<services::KernelErrorCollection> getErrors()
-    {
-        return _errors;
-    }
+    DAAL_DEPRECATED services::SharedPtr<services::KernelErrorCollection> getErrors() { return _errors; }
 
     /** \private */
-    services::Status serializeImpl  (InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
-        serialImpl<InputDataArchive, false>( arch );
+        serialImpl<InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
     /** \private */
-    services::Status deserializeImpl(const OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
-        serialImpl<const OutputDataArchive, true>( arch );
+        serialImpl<const OutputDataArchive, true>(arch);
 
         return services::Status();
     }
 
 private:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl( Archive *arch )
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         arch->segmentHeader();
 
-        arch->set( _nfeat );
-        arch->set( _featuresEqual );
+        arch->set(_nfeat);
+        arch->set(_featuresEqual);
 
-        if( onDeserialize )
+        if (onDeserialize)
         {
             size_t nfeat = _nfeat;
-            _nfeat = 0;
+            _nfeat       = 0;
             setNumberOfFeatures(nfeat);
         }
 
-        if (_featuresEqual)
-        {
-            arch->setObj( _dict, 1 );
-        }
+        if (_featuresEqual) { arch->setObj(_dict, 1); }
         else
         {
-            arch->setObj( _dict, _nfeat );
+            arch->setObj(_dict, _nfeat);
         }
 
         arch->segmentFooter();
@@ -423,18 +380,19 @@ private:
     }
 
 protected:
-    size_t        _nfeat;
+    size_t _nfeat;
     FeaturesEqual _featuresEqual;
-    Feature      *_dict;
+    Feature * _dict;
     services::SharedPtr<services::KernelErrorCollection> _errors;
 
-    Dictionary( size_t nfeat, FeaturesEqual featuresEqual, services::Status &st ):
-        _nfeat(0), _featuresEqual(featuresEqual), _dict(0), _errors(new services::KernelErrorCollection())
+    Dictionary(size_t nfeat, FeaturesEqual featuresEqual, services::Status & st)
+        : _nfeat(0), _featuresEqual(featuresEqual), _dict(0), _errors(new services::KernelErrorCollection())
     {
-        if(nfeat) { st |= setNumberOfFeatures(nfeat); }
+        if (nfeat) { st |= setNumberOfFeatures(nfeat); }
     }
 
-    Dictionary(services::Status &st): _nfeat(0), _dict(0), _featuresEqual(DictionaryIface::notEqual), _errors(new services::KernelErrorCollection()) {}
+    Dictionary(services::Status & st) : _nfeat(0), _dict(0), _featuresEqual(DictionaryIface::notEqual), _errors(new services::KernelErrorCollection())
+    {}
 };
 typedef Dictionary<NumericTableFeature, SERIALIZATION_DATADICTIONARY_NT_ID> NumericTableDictionary;
 typedef services::SharedPtr<NumericTableDictionary> NumericTableDictionaryPtr;
@@ -449,6 +407,6 @@ using interface1::Dictionary;
 using interface1::NumericTableDictionary;
 using interface1::NumericTableDictionaryPtr;
 
-}
+} // namespace data_management
 } // namespace daal
 #endif

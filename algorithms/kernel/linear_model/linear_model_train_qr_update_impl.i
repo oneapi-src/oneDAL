@@ -44,23 +44,26 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-ThreadingTask<algorithmFPType, cpu>::ThreadingTask(DAAL_INT nBetasIntercept, DAAL_INT nRows,
-                                                   DAAL_INT nResponses, Status &st) :
-    _nBetasIntercept(nBetasIntercept), _nRows(nRows), _nResponses(nResponses),
-    _lwork(-1), work(), _xBlock(), _yBlock(),
-    tau         (nBetasIntercept),
-    qrBuffer    (nBetasIntercept * nRows),
-    qtyBuffer   (nResponses * nRows),
-    qrR         (nBetasIntercept * nBetasIntercept),
-    qrQTY       (nBetasIntercept * nResponses),
-    qrRNew      (nBetasIntercept * nBetasIntercept),
-    qrQTYNew    (nBetasIntercept * nResponses),
-    qrRMerge    (2 * nBetasIntercept * nBetasIntercept),
-    qrQTYMerge  (2 * nBetasIntercept * nResponses)
+ThreadingTask<algorithmFPType, cpu>::ThreadingTask(DAAL_INT nBetasIntercept, DAAL_INT nRows, DAAL_INT nResponses, Status & st)
+    : _nBetasIntercept(nBetasIntercept),
+      _nRows(nRows),
+      _nResponses(nResponses),
+      _lwork(-1),
+      work(),
+      _xBlock(),
+      _yBlock(),
+      tau(nBetasIntercept),
+      qrBuffer(nBetasIntercept * nRows),
+      qtyBuffer(nResponses * nRows),
+      qrR(nBetasIntercept * nBetasIntercept),
+      qrQTY(nBetasIntercept * nResponses),
+      qrRNew(nBetasIntercept * nBetasIntercept),
+      qrQTYNew(nBetasIntercept * nResponses),
+      qrRMerge(2 * nBetasIntercept * nBetasIntercept),
+      qrQTYMerge(2 * nBetasIntercept * nResponses)
 {
-    if (!tau.get()      || !qrBuffer.get() || !qtyBuffer.get() ||
-        !qrR.get()      || !qrQTY.get()    || !qrRNew.get()    ||
-        !qrQTYNew.get() || !qrRMerge.get() || !qrQTYMerge.get())
+    if (!tau.get() || !qrBuffer.get() || !qtyBuffer.get() || !qrR.get() || !qrQTY.get() || !qrRNew.get() || !qrQTYNew.get() || !qrRMerge.get()
+        || !qrQTYMerge.get())
     {
         st.add(ErrorMemoryAllocationFailed);
         return;
@@ -70,13 +73,10 @@ ThreadingTask<algorithmFPType, cpu>::ThreadingTask(DAAL_INT nBetasIntercept, DAA
 }
 
 template <typename algorithmFPType, CpuType cpu>
-ThreadingTask<algorithmFPType, cpu> * ThreadingTask<algorithmFPType, cpu>::create(DAAL_INT nBetasIntercept,
-                                                                                  DAAL_INT nRows,
-                                                                                  DAAL_INT nResponses)
+ThreadingTask<algorithmFPType, cpu> * ThreadingTask<algorithmFPType, cpu>::create(DAAL_INT nBetasIntercept, DAAL_INT nRows, DAAL_INT nResponses)
 {
     Status st;
-    ThreadingTask<algorithmFPType, cpu> * res = new ThreadingTask<algorithmFPType, cpu>(
-        nBetasIntercept, nRows, nResponses, st);
+    ThreadingTask<algorithmFPType, cpu> * res = new ThreadingTask<algorithmFPType, cpu>(nBetasIntercept, nRows, nResponses, st);
     if (!st)
     {
         delete res;
@@ -91,7 +91,7 @@ Status ThreadingTask<algorithmFPType, cpu>::allocateWorkBuffer()
     DAAL_INT info;
 
     DAAL_INT nRowsMax = ((_nRows > _nBetasIntercept) ? _nRows + _nBetasIntercept : 2 * _nBetasIntercept);
-    Status st = CommonKernel<algorithmFPType, cpu>::computeWorkSize(nRowsMax, _nBetasIntercept, _nResponses, _lwork);
+    Status st         = CommonKernel<algorithmFPType, cpu>::computeWorkSize(nRowsMax, _nBetasIntercept, _nResponses, _lwork);
     DAAL_CHECK_STATUS_VAR(st);
 
     work.reset(_lwork);
@@ -101,15 +101,14 @@ Status ThreadingTask<algorithmFPType, cpu>::allocateWorkBuffer()
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, DAAL_INT nRows,
-                                                             const NumericTable &xTable,
-                                                             const NumericTable &yTable)
+Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, DAAL_INT nRows, const NumericTable & xTable,
+                                                             const NumericTable & yTable)
 {
     const size_t nFeatures = xTable.getNumberOfColumns();
     _xBlock.set(const_cast<NumericTable &>(xTable), startRow, nRows);
     DAAL_CHECK_BLOCK_STATUS(_xBlock);
-    const algorithmFPType *x = _xBlock.get();
-    int result = 0;
+    const algorithmFPType * x = _xBlock.get();
+    int result                = 0;
 
     if (nRows > _nRows)
     {
@@ -125,7 +124,7 @@ Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, 
     else
     {
         const size_t rowSize = nFeatures * sizeof(algorithmFPType);
-        algorithmFPType *qr = qrBuffer.get();
+        algorithmFPType * qr = qrBuffer.get();
         for (size_t i = 0; i < nRows; i++)
         {
             result |= daal::services::internal::daal_memcpy_s(qr + i * _nBetasIntercept, rowSize, x + i * nFeatures, rowSize);
@@ -135,7 +134,7 @@ Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, 
 
     _yBlock.set(const_cast<NumericTable &>(yTable), startRow, nRows);
     DAAL_CHECK_BLOCK_STATUS(_yBlock);
-    const algorithmFPType *y = _yBlock.get();
+    const algorithmFPType * y = _yBlock.get();
 
     /* Copy matrix Y to temporary buffer in order not to damage it */
     const size_t ySize = _nResponses * nRows * sizeof(algorithmFPType);
@@ -145,90 +144,77 @@ Status ThreadingTask<algorithmFPType, cpu>::copyDataToBuffer(DAAL_INT startRow, 
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status ThreadingTask<algorithmFPType, cpu>::reduce(algorithmFPType* r, algorithmFPType* qty)
+Status ThreadingTask<algorithmFPType, cpu>::reduce(algorithmFPType * r, algorithmFPType * qty)
 {
-    return CommonKernel<algorithmFPType, cpu>::merge(_nBetasIntercept, _nResponses,
-            qrRNew.get(), qrQTYNew.get(), qrR.get(), qrQTY.get(), qrRMerge.get(), qrQTYMerge.get(),
-            r, qty, tau.get(), work.get(), _lwork);
+    return CommonKernel<algorithmFPType, cpu>::merge(_nBetasIntercept, _nResponses, qrRNew.get(), qrQTYNew.get(), qrR.get(), qrQTY.get(),
+                                                     qrRMerge.get(), qrQTYMerge.get(), r, qty, tau.get(), work.get(), _lwork);
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status ThreadingTask<algorithmFPType, cpu>::reduceInPlace(algorithmFPType* r, algorithmFPType* qty)
+Status ThreadingTask<algorithmFPType, cpu>::reduceInPlace(algorithmFPType * r, algorithmFPType * qty)
 {
-    return CommonKernel<algorithmFPType, cpu>::merge(_nBetasIntercept, _nResponses,
-            r, qty, qrR.get(), qrQTY.get(), qrRMerge.get(), qrQTYMerge.get(),
-            r, qty, tau.get(), work.get(), _lwork);
+    return CommonKernel<algorithmFPType, cpu>::merge(_nBetasIntercept, _nResponses, r, qty, qrR.get(), qrQTY.get(), qrRMerge.get(), qrQTYMerge.get(),
+                                                     r, qty, tau.get(), work.get(), _lwork);
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT nRows,
-                                                   const NumericTable &xTable,
-                                                   const NumericTable &yTable)
+Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT nRows, const NumericTable & xTable, const NumericTable & yTable)
 {
     Status st = copyDataToBuffer(startRow, nRows, xTable, yTable);
 
     if (st)
     {
-        st = CommonKernel<algorithmFPType, cpu>::computeQRForBlock(_nBetasIntercept, nRows,
-            qrBuffer.get(), _nResponses, qtyBuffer.get(), qrRNew.get(), qrQTYNew.get(), tau.get(),
-            work.get(), _lwork);
+        st = CommonKernel<algorithmFPType, cpu>::computeQRForBlock(_nBetasIntercept, nRows, qrBuffer.get(), _nResponses, qtyBuffer.get(),
+                                                                   qrRNew.get(), qrQTYNew.get(), tau.get(), work.get(), _lwork);
         return st ? reduce(qrR.get(), qrQTY.get()) : st;
     }
     return st;
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable &xTable,
-                                                   const NumericTable &yTable,
-                                                   NumericTable &rTable, NumericTable &qtyTable,
-                                                   bool initializeResult, bool interceptFlag)
+Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, const NumericTable & yTable, NumericTable & rTable,
+                                                   NumericTable & qtyTable, bool initializeResult, bool interceptFlag)
 {
-    DAAL_INT nRows      = (DAAL_INT)xTable.getNumberOfRows();     /* vectors */
-    DAAL_INT nFeatures  = (DAAL_INT)xTable.getNumberOfColumns();  /* features */
-    DAAL_INT nResponses = (DAAL_INT)yTable.getNumberOfColumns();  /* variables */
+    DAAL_INT nRows      = (DAAL_INT)xTable.getNumberOfRows();    /* vectors */
+    DAAL_INT nFeatures  = (DAAL_INT)xTable.getNumberOfColumns(); /* features */
+    DAAL_INT nResponses = (DAAL_INT)yTable.getNumberOfColumns(); /* variables */
     DAAL_INT nBetas     = nFeatures + 1;
 
     size_t nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
 
     WriteRowsType rBlock(rTable, 0, nBetasIntercept);
     DAAL_CHECK_BLOCK_STATUS(rBlock);
-    algorithmFPType *r = rBlock.get();
+    algorithmFPType * r = rBlock.get();
 
     WriteRowsType qtyBlock(qtyTable, 0, nResponses);
     DAAL_CHECK_BLOCK_STATUS(qtyBlock);
-    algorithmFPType *qty = qtyBlock.get();
+    algorithmFPType * qty = qtyBlock.get();
 
     /* Initialize output arrays by zero in case of batch mode */
-    if(initializeResult)
+    if (initializeResult)
     {
         service_memset<algorithmFPType, cpu>(r, 0, nBetasIntercept * nBetasIntercept);
         service_memset<algorithmFPType, cpu>(qty, 0, nResponses * nBetasIntercept);
     }
 
     /* Split rows by blocks. Each block should contain at least nBetasIntercept rows */
-#if ( __CPUID__(DAAL_CPU) == __avx512_mic__ )
-    size_t nRowsInBlock = (nRows<=10000)?1024:((nRows>=1000000)?512:2048);
+#if (__CPUID__(DAAL_CPU) == __avx512_mic__)
+    size_t nRowsInBlock = (nRows <= 10000) ? 1024 : ((nRows >= 1000000) ? 512 : 2048);
 #else
     size_t nRowsInBlock = 128;
 #endif
-    if (nRowsInBlock < nBetasIntercept)
-        nRowsInBlock = nBetasIntercept;
+    if (nRowsInBlock < nBetasIntercept) nRowsInBlock = nBetasIntercept;
 
-    size_t nBlocks = nRows / nRowsInBlock;
+    size_t nBlocks  = nRows / nRowsInBlock;
     size_t tailSize = nRows - nBlocks * nRowsInBlock;
-    if (tailSize > nBetasIntercept)
-        nBlocks++;
+    if (tailSize > nBetasIntercept) nBlocks++;
 
     /* Create TLS */
-    daal::tls<ThreadingTaskType *> tls( [ = ]() -> ThreadingTaskType*
-    {
-        return ThreadingTaskType::create(nBetasIntercept, nRowsInBlock, nResponses);
-    } );
+    daal::tls<ThreadingTaskType *> tls([=]() -> ThreadingTaskType * { return ThreadingTaskType::create(nBetasIntercept, nRowsInBlock, nResponses); });
 
     SafeStatus safeStat;
-    daal::threader_for( nBlocks, nBlocks, [ =, &tls, &xTable, &yTable, &safeStat ](int iBlock)
-    {
-        ThreadingTaskType *tlsLocal = tls.local();
+    daal::threader_for(nBlocks, nBlocks, [=, &tls, &xTable, &yTable, &safeStat](int iBlock) {
+        ThreadingTaskType * tlsLocal = tls.local();
         if (!tlsLocal)
         {
             safeStat.add(services::ErrorMemoryAllocationFailed);
@@ -240,25 +226,22 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable &xTable,
 
         Status localSt = tlsLocal->update(startRow, blockSize, xTable, yTable);
         DAAL_CHECK_STATUS_THR(localSt);
-    } );
+    });
 
     Status st = safeStat.detach();
-    tls.reduce( [ =, &st ](ThreadingTaskType *tlsLocal)
-    {
-        if (!tlsLocal)
-            return;
+    tls.reduce([=, &st](ThreadingTaskType * tlsLocal) {
+        if (!tlsLocal) return;
 
-        if (st)
-            st = tlsLocal->reduceInPlace(r, qty);
+        if (st) st = tlsLocal->reduceInPlace(r, qty);
         delete tlsLocal;
-    } );
+    });
 
     return st;
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace qr
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

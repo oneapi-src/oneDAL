@@ -32,10 +32,8 @@ namespace logistic_regression
 {
 namespace training
 {
-
 namespace internal
 {
-
 template class TrainBatchKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 
 } // namespace internal

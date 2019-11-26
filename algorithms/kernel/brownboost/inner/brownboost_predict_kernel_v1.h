@@ -43,20 +43,20 @@ namespace prediction
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPtype, CpuType cpu>
 class I1BrownBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cpu>
 {
     using BoostingPredictKernel<algorithmFPtype, cpu>::compute;
+
 public:
-    services::Status compute(const NumericTablePtr &x, const brownboost::interface1::Model *m,
-                             NumericTablePtr &r, const brownboost::interface1::Parameter *par);
+    services::Status compute(const NumericTablePtr & x, const brownboost::interface1::Model * m, NumericTablePtr & r,
+                             const brownboost::interface1::Parameter * par);
 };
 
-} // namespace daal::algorithms::brownboost::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace brownboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

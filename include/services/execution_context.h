@@ -41,19 +41,18 @@ namespace interface1
  */
 class ExecutionContext : public Base
 {
-friend class daal::services::internal::ImplAccessor;
+    friend class daal::services::internal::ImplAccessor;
+
 private:
     typedef daal::oneapi::internal::ExecutionContextIface ImplType;
 
 public:
-    ExecutionContext() { }
+    ExecutionContext() {}
 
 protected:
-    explicit ExecutionContext(ImplType *impl) :
-        _impl(impl) { }
+    explicit ExecutionContext(ImplType * impl) : _impl(impl) {}
 
-    const SharedPtr<ImplType> &getImplPtr() const
-    { return _impl; }
+    const SharedPtr<ImplType> & getImplPtr() const { return _impl; }
 
 private:
     SharedPtr<ImplType> _impl;
@@ -67,9 +66,9 @@ class CpuExecutionContext : public ExecutionContext
 {
 private:
     typedef oneapi::internal::CpuExecutionContextImpl ImplType;
+
 public:
-    CpuExecutionContext() :
-        ExecutionContext(new ImplType()) { }
+    CpuExecutionContext() : ExecutionContext(new ImplType()) {}
 };
 /** @} */
 } // namespace interface1
@@ -80,9 +79,8 @@ using interface1::CpuExecutionContext;
 } // namespace services
 } // namespace daal
 
-
 #ifdef DAAL_SYCL_INTERFACE
-#include "oneapi/internal/execution_context_sycl.h"
+    #include "oneapi/internal/execution_context_sycl.h"
 
 namespace daal
 {
@@ -90,7 +88,7 @@ namespace services
 {
 namespace interface1
 {
- /** @ingroup sycl
+/** @ingroup sycl
  * @{
  */
 
@@ -107,11 +105,10 @@ public:
      *  are performed on the device associated with the queue
      *  \param[in] deviceQueue SYCL* queue object to the device that is selected to perform computations
      */
-    SyclExecutionContext(const cl::sycl::queue &deviceQueue) :
-        ExecutionContext(createContext(deviceQueue)) { }
+    SyclExecutionContext(const cl::sycl::queue & deviceQueue) : ExecutionContext(createContext(deviceQueue)) {}
 
 private:
-    static daal::oneapi::internal::ExecutionContextIface *createContext(const cl::sycl::queue &queue)
+    static daal::oneapi::internal::ExecutionContextIface * createContext(const cl::sycl::queue & queue)
     {
         /* XXX: Workaround to fix performance on CPU: SYCL* runtime loads one
                 thread with active spin-lock that waits for submissions in a queue.
@@ -119,10 +116,7 @@ private:
                 Spin-lock is active while the queue persists. We do not persist
                 the queue and avoid running spin-lock in a queue while any DAAL
                 algorithm is running. */
-        if (queue.get_device().is_cpu())
-        {
-            return new daal::oneapi::internal::CpuExecutionContextImpl();
-        }
+        if (queue.get_device().is_cpu()) { return new daal::oneapi::internal::CpuExecutionContextImpl(); }
         else
         {
             return new daal::oneapi::internal::SyclExecutionContextImpl(queue);

@@ -37,28 +37,21 @@ namespace dtrees
 {
 namespace internal
 {
-
 //////////////////////////////////////////////////////////////////////////////////////////
 // Helper class, provides optimal access to the feature types
 //////////////////////////////////////////////////////////////////////////////////////////
 class FeatureTypes
 {
 public:
-    FeatureTypes(): _bAllUnordered(false){}
+    FeatureTypes() : _bAllUnordered(false) {}
     ~FeatureTypes();
-    bool init(const NumericTable& data);
+    bool init(const NumericTable & data);
 
-    bool isUnordered(size_t iFeature) const
-    {
-        return _bAllUnordered || (_aFeat && findInBuf(iFeature));
-    }
+    bool isUnordered(size_t iFeature) const { return _bAllUnordered || (_aFeat && findInBuf(iFeature)); }
 
     bool hasUnorderedFeatures() const { return (_bAllUnordered || _nNoOrderedFeat); }
 
-    size_t getNumberOfFeatures() const
-    {
-        return _nFeat;
-    }
+    size_t getNumberOfFeatures() const { return _nFeat; }
 
 private:
     void allocBuf(size_t n);
@@ -66,20 +59,20 @@ private:
     bool findInBuf(size_t iFeature) const;
 
 private:
-    bool* _aFeat = nullptr; //buffer with minimal required features data
-    size_t _nFeat = 0; //size of the buffer
+    bool * _aFeat          = nullptr; //buffer with minimal required features data
+    size_t _nFeat          = 0;       //size of the buffer
     size_t _nNoOrderedFeat = 0;
-    bool _bAllUnordered = false;
-    int _firstUnordered = -1;
-    int _lastUnordered = -1;
+    bool _bAllUnordered    = false;
+    int _firstUnordered    = -1;
+    int _lastUnordered     = -1;
 };
 
 struct BinParams
 {
-    BinParams(size_t _maxBins, size_t _minBinSize) : maxBins(_maxBins), minBinSize(_minBinSize){}
-    BinParams(const BinParams& o) : maxBins(o.maxBins), minBinSize(o.minBinSize){}
+    BinParams(size_t _maxBins, size_t _minBinSize) : maxBins(_maxBins), minBinSize(_minBinSize) {}
+    BinParams(const BinParams & o) : maxBins(o.maxBins), minBinSize(o.minBinSize) {}
 
-    size_t maxBins = 256;
+    size_t maxBins    = 256;
     size_t minBinSize = 5;
 };
 
@@ -91,37 +84,37 @@ struct BinParams
 class IndexedFeatures
 {
 public:
-    typedef int   IndexType;     // TODO: should be unsigned int
+    typedef int IndexType; // TODO: should be unsigned int
 
     struct FeatureEntry
     {
         DAAL_NEW_DELETE();
-        IndexType    numIndices = 0; //number of indices or bins
-        ModelFPType* binBorders = nullptr; //right bin borders
+        IndexType numIndices     = 0;       //number of indices or bins
+        ModelFPType * binBorders = nullptr; //right bin borders
 
         services::Status allocBorders();
         ~FeatureEntry();
     };
 
 public:
-    IndexedFeatures() : _data(nullptr), _entries(nullptr), _sizeOfIndex(sizeof(IndexType)), _nCols(0), _nRows(0), _capacity(0), _maxNumIndices(0){}
+    IndexedFeatures() : _data(nullptr), _entries(nullptr), _sizeOfIndex(sizeof(IndexType)), _nCols(0), _nRows(0), _capacity(0), _maxNumIndices(0) {}
     ~IndexedFeatures();
 
     template <typename algorithmFPType, CpuType cpu>
-    services::Status init(const NumericTable& nt, const FeatureTypes* featureTypes = nullptr,
-        const BinParams* pBimPrm = nullptr);
+    services::Status init(const NumericTable & nt, const FeatureTypes * featureTypes = nullptr, const BinParams * pBimPrm = nullptr);
 
     //get max number of indices for that feature
-    IndexType numIndices(size_t iCol) const
-    {
-        return _entries[iCol].numIndices;
-    }
+    IndexType numIndices(size_t iCol) const { return _entries[iCol].numIndices; }
 
     //get max number of indices among all features
-    IndexType maxNumIndices() const { return _maxNumIndices;  }
+    IndexType maxNumIndices() const { return _maxNumIndices; }
 
     //returns true if the feature is mapped to bins
-    bool isBinned(size_t iCol) const { DAAL_ASSERT(iCol < _nCols); return !!_entries[iCol].binBorders; }
+    bool isBinned(size_t iCol) const
+    {
+        DAAL_ASSERT(iCol < _nCols);
+        return !!_entries[iCol].binBorders;
+    }
 
     //returns right border of the bin if the feature is a binned one
     ModelFPType binRightBorder(size_t iCol, size_t iBin) const
@@ -132,10 +125,7 @@ public:
     }
 
     //for low-level optimization
-    const IndexType* data(size_t iFeature) const
-    {
-        return (IndexType*)(((char*)_data) + _nRows*iFeature*_sizeOfIndex);
-    }
+    const IndexType * data(size_t iFeature) const { return (IndexType *)(((char *)_data) + _nRows * iFeature * _sizeOfIndex); }
 
     size_t nRows() const { return _nRows; }
     size_t nCols() const { return _nCols; }
@@ -144,8 +134,8 @@ protected:
     services::Status alloc(size_t nCols, size_t nRows);
 
 protected:
-    IndexType* _data;
-    FeatureEntry* _entries;
+    IndexType * _data;
+    FeatureEntry * _entries;
     size_t _sizeOfIndex;
     size_t _nRows;
     size_t _nCols;

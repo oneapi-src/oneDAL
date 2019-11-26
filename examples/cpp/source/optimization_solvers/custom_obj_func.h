@@ -35,9 +35,10 @@ namespace new_objective_function
  */
 enum InputId
 {
-    argument = (int)daal::algorithms::optimization_solver::sum_of_functions::argument, /*!< Numeric table of size 1 x p with input argument of the objective function */
-    data,                                       /*!< Numeric table of size n x p with data */
-    dependentVariables,                         /*!< Numeric table of size n x 1 with dependent variables */
+    argument = (int)daal::algorithms::optimization_solver::sum_of_functions::
+        argument,       /*!< Numeric table of size 1 x p with input argument of the objective function */
+    data,               /*!< Numeric table of size n x p with data */
+    dependentVariables, /*!< Numeric table of size n x 1 with dependent variables */
     lastInputId = dependentVariables
 };
 
@@ -56,27 +57,22 @@ struct Parameter : public daal::algorithms::optimization_solver::sum_of_function
      *                             all terms will be used in the computations.
      * \param[in] resultsToCompute 64 bit integer flag that indicates the results to compute
      */
-    Parameter(size_t numberOfTerms,
-              daal::data_management::NumericTablePtr batchIndices = daal::data_management::NumericTablePtr(),
-              const DAAL_UINT64 resultsToCompute = daal::algorithms::optimization_solver::objective_function::gradient) :
-        super(numberOfTerms, batchIndices, resultsToCompute)
+    Parameter(size_t numberOfTerms, daal::data_management::NumericTablePtr batchIndices = daal::data_management::NumericTablePtr(),
+              const DAAL_UINT64 resultsToCompute = daal::algorithms::optimization_solver::objective_function::gradient)
+        : super(numberOfTerms, batchIndices, resultsToCompute)
     {}
 
     /**
      * Constructs an Parameter by copying input objects and parameters of another Parameter
      * \param[in] other An object to be used as the source to initialize object
      */
-    Parameter(const Parameter &other) : super(other)
-    {}
+    Parameter(const Parameter & other) : super(other) {}
 
     /**
      * Checks the correctness of the parameter
      * \return Status of computations
      */
-    virtual daal::services::Status check() const DAAL_C11_OVERRIDE
-    {
-        return super::check();
-    }
+    virtual daal::services::Status check() const DAAL_C11_OVERRIDE { return super::check(); }
 };
 
 /**
@@ -91,27 +87,21 @@ public:
     Input() : super(lastInputId + 1) {}
 
     /** Copy constructor */
-    Input(const Input& other) : super(other) {}
+    Input(const Input & other) : super(other) {}
 
     /**
      * Sets one input object for logistic loss objective function
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const daal::data_management::NumericTablePtr &ptr)
-    {
-        Argument::set(id, ptr);
-    }
+    void set(InputId id, const daal::data_management::NumericTablePtr & ptr) { Argument::set(id, ptr); }
 
     /**
      * Returns the input numeric table for logistic loss objective function
      * \param[in] id    Identifier of the input numeric table
      * \return          %Input object that corresponds to the given identifier
      */
-    daal::data_management::NumericTablePtr get(InputId id) const
-    {
-        return NumericTable::cast(Argument::get(id));
-    }
+    daal::data_management::NumericTablePtr get(InputId id) const { return NumericTable::cast(Argument::get(id)); }
 
     /**
      * Checks the correctness of the input
@@ -120,14 +110,13 @@ public:
      *
      * \return Status of computations
      */
-    daal::services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE
+    daal::services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE
     {
         super::check(par, method);
 
         daal::data_management::NumericTablePtr xTable = get(data);
-        daal::services::Status s = checkNumericTable(xTable.get(), "data", 0, 0);
-        if(!s)
-            return s;
+        daal::services::Status s                      = checkNumericTable(xTable.get(), "data", 0, 0);
+        if (!s) return s;
 
         const size_t nColsInData = xTable->getNumberOfColumns();
         const size_t nRowsInData = xTable->getNumberOfRows();
@@ -145,14 +134,14 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the logistic loss objective function, double or float
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<daal::batch>
 {
 public:
     /**
      * Constructs a container for the logistic loss objective function in the batch processing mode
      */
-    BatchContainer(daal::services::Environment::env *daalEnv) {}
+    BatchContainer(daal::services::Environment::env * daalEnv) {}
 
     /**
      * Computes the result of the logistic loss objective function in the batch processing mode
@@ -166,22 +155,19 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations for the logistic loss objective function, double or float
  */
-template<typename algorithmFPType = float>
+template <typename algorithmFPType = float>
 class Batch : public daal::algorithms::optimization_solver::sum_of_functions::Batch
 {
 public:
     typedef daal::algorithms::optimization_solver::sum_of_functions::Batch super;
 
-    Input input;           /*!< %Input data structure */
-    Parameter parameter;   /*!< %Parameter data structure */
+    Input input;         /*!< %Input data structure */
+    Parameter parameter; /*!< %Parameter data structure */
 
     /**
      * Main constructor
      */
-    Batch(size_t numberOfTerms) : parameter(numberOfTerms), super(numberOfTerms, &input, &parameter)
-    {
-        initialize();
-    }
+    Batch(size_t numberOfTerms) : parameter(numberOfTerms), super(numberOfTerms, &input, &parameter) { initialize(); }
 
     /**
      * Constructs an the Mean squared error objective function algorithm by copying input objects and parameters
@@ -189,8 +175,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType> &other) :
-        parameter(other.parameter), super(other.parameter.numberOfTerms, &input, &parameter), input(other.input)
+    Batch(const Batch<algorithmFPType> & other)
+        : parameter(other.parameter), super(other.parameter.numberOfTerms, &input, &parameter), input(other.input)
     {
         initialize();
     }
@@ -206,64 +192,55 @@ public:
      * of this the Mean squared error objective function algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    daal::services::SharedPtr<Batch<algorithmFPType> > clone() const
-    {
-        return daal::services::SharedPtr<Batch<algorithmFPType> >(cloneImpl());
-    }
+    daal::services::SharedPtr<Batch<algorithmFPType> > clone() const { return daal::services::SharedPtr<Batch<algorithmFPType> >(cloneImpl()); }
 
     /**
      * Allocates memory buffers needed for the computations
      * \return Status of computations
      */
-    daal::services::Status allocate()
-    {
-        return allocateResult();
-    }
+    daal::services::Status allocate() { return allocateResult(); }
 
 protected:
-    virtual Batch<algorithmFPType> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType>(*this);
-    }
+    virtual Batch<algorithmFPType> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType>(*this); }
 
     virtual daal::services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         daal::services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, 0);
-        _res = _result.get();
+        _res                     = _result.get();
         return s;
     }
 
     void initialize()
     {
         daal::algorithms::Analysis<daal::batch>::_ac = new BatchContainer<algorithmFPType>(&_env);
-        _in  = &input;
-        _par = &parameter;
+        _in                                          = &input;
+        _par                                         = &parameter;
     }
 };
 
 // implementation of the algorithm for computation of the logistic loss objective function
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 daal::services::Status BatchContainer<algorithmFPType>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    daal::algorithms::optimization_solver::objective_function::Result *result =
+    Input * input = static_cast<Input *>(_in);
+    daal::algorithms::optimization_solver::objective_function::Result * result =
         static_cast<daal::algorithms::optimization_solver::objective_function::Result *>(_res);
-    Parameter *parameter = static_cast<Parameter *>(_par);
+    Parameter * parameter = static_cast<Parameter *>(_par);
 
-    daal::data_management::NumericTable *xTable        = input->get(data).get();               // input data set
-    daal::data_management::NumericTable *yTable        = input->get(dependentVariables).get(); // array of dependent variables
-    daal::data_management::NumericTable *argumentTable = input->get(argument).get();           // argument of the objective function
-    daal::data_management::NumericTable *indicesTable  = parameter->batchIndices.get();        // stochastic indices
+    daal::data_management::NumericTable * xTable        = input->get(data).get();               // input data set
+    daal::data_management::NumericTable * yTable        = input->get(dependentVariables).get(); // array of dependent variables
+    daal::data_management::NumericTable * argumentTable = input->get(argument).get();           // argument of the objective function
+    daal::data_management::NumericTable * indicesTable  = parameter->batchIndices.get();        // stochastic indices
 
-    const size_t p = argumentTable->getNumberOfRows();  // size of the argument
-    const size_t dim = p - 1;                           // number of features in the input data set
-    const size_t n = xTable->getNumberOfRows();         // number of rows in the input data set
+    const size_t p   = argumentTable->getNumberOfRows(); // size of the argument
+    const size_t dim = p - 1;                            // number of features in the input data set
+    const size_t n   = xTable->getNumberOfRows();        // number of rows in the input data set
     const algorithmFPType one(1.0);
 
     daal::data_management::BlockDescriptor<int> indicesBlock;
     indicesTable->getBlockOfRows(0, 1, readOnly, indicesBlock);
-    const int *indices = indicesBlock.getBlockPtr();
-    const size_t nIndices = indicesTable->getNumberOfColumns();
+    const int * indices        = indicesBlock.getBlockPtr();
+    const size_t nIndices      = indicesTable->getNumberOfColumns();
     const algorithmFPType invN = one / (algorithmFPType)nIndices;
 
     std::vector<algorithmFPType> x(nIndices * dim);
@@ -275,17 +252,16 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
         /* Get a row of data from the input data set */
         daal::data_management::BlockDescriptor<algorithmFPType> xBlock;
         xTable->getBlockOfRows(indices[i], 1, readOnly, xBlock);
-        algorithmFPType *xRow = xBlock.getBlockPtr();
+        algorithmFPType * xRow = xBlock.getBlockPtr();
 
-        for (size_t j = 0; j < dim; j++)
-            x[i * dim + j] = xRow[j];
+        for (size_t j = 0; j < dim; j++) x[i * dim + j] = xRow[j];
 
         xTable->releaseBlockOfRows(xBlock);
 
         /* Get a dependent variable */
         daal::data_management::BlockDescriptor<algorithmFPType> yBlock;
         yTable->getBlockOfRows(indices[i], 1, readOnly, yBlock);
-        algorithmFPType *yVal = yBlock.getBlockPtr();
+        algorithmFPType * yVal = yBlock.getBlockPtr();
 
         y[i] = *yVal;
 
@@ -299,81 +275,62 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
     /* Get data as an array from the dependent variables */
     daal::data_management::BlockDescriptor<algorithmFPType> argumentBlock;
     argumentTable->getBlockOfRows(0, 1, readOnly, argumentBlock);
-    const algorithmFPType *argumentArray = argumentBlock.getBlockPtr();
-    const algorithmFPType theta0 = argumentArray[0];
-    const algorithmFPType *theta = &argumentArray[1];
+    const algorithmFPType * argumentArray = argumentBlock.getBlockPtr();
+    const algorithmFPType theta0          = argumentArray[0];
+    const algorithmFPType * theta         = &argumentArray[1];
 
     for (size_t i = 0; i < nIndices; i++)
     {
         f[i] = theta0;
-        for (size_t j = 0; j < dim; j++)
-        {
-            f[i] += theta[j] * x[i * dim + j];
-        }
+        for (size_t j = 0; j < dim; j++) { f[i] += theta[j] * x[i * dim + j]; }
         s[i] = one / (one + exp(-f[i]));
     }
     argumentTable->releaseBlockOfRows(argumentBlock);
 
     /* Compute value of the logistic loss function */
-    const bool valueFlag = ((parameter->resultsToCompute &
-                             daal::algorithms::optimization_solver::objective_function::value) != 0) ? true : false;
-    if(valueFlag)
+    const bool valueFlag = ((parameter->resultsToCompute & daal::algorithms::optimization_solver::objective_function::value) != 0) ? true : false;
+    if (valueFlag)
     {
-        daal::data_management::NumericTable *valueTable =
-            result->get(daal::algorithms::optimization_solver::objective_function::valueIdx).get();
+        daal::data_management::NumericTable * valueTable = result->get(daal::algorithms::optimization_solver::objective_function::valueIdx).get();
         daal::data_management::BlockDescriptor<algorithmFPType> valueBlock;
         valueTable->getBlockOfRows(0, 1, writeOnly, valueBlock);
-        algorithmFPType *value = valueBlock.getBlockPtr();
-        value[0] = 0.0;
-        for (size_t i = 0; i < nIndices; i++)
-        {
-            value[0] += y[i] * log(s[i]) + (one - y[i]) * log(one - s[i]);
-        }
+        algorithmFPType * value = valueBlock.getBlockPtr();
+        value[0]                = 0.0;
+        for (size_t i = 0; i < nIndices; i++) { value[0] += y[i] * log(s[i]) + (one - y[i]) * log(one - s[i]); }
         value[0] *= -invN;
         valueTable->releaseBlockOfRows(valueBlock);
     }
 
     /* Compute gradient of the logistic loss function */
-    const bool gradientFlag = ((parameter->resultsToCompute &
-                                daal::algorithms::optimization_solver::objective_function::gradient) != 0) ? true : false;
+    const bool gradientFlag =
+        ((parameter->resultsToCompute & daal::algorithms::optimization_solver::objective_function::gradient) != 0) ? true : false;
     if (gradientFlag)
     {
-        daal::data_management::NumericTable *gradientTable =
+        daal::data_management::NumericTable * gradientTable =
             result->get(daal::algorithms::optimization_solver::objective_function::gradientIdx).get();
         daal::data_management::BlockDescriptor<algorithmFPType> gradientBlock;
         gradientTable->getBlockOfRows(0, p, writeOnly, gradientBlock);
-        algorithmFPType *gradient = gradientBlock.getBlockPtr();
+        algorithmFPType * gradient = gradientBlock.getBlockPtr();
 
-        for (size_t j = 0; j < p; j++)
-        {
-            gradient[j] = 0.0;
-        }
+        for (size_t j = 0; j < p; j++) { gradient[j] = 0.0; }
         for (size_t i = 0; i < nIndices; i++)
         {
             gradient[0] += (s[i] - y[i]);
-            for (size_t j = 0; j < dim; j++)
-            {
-                gradient[j + 1] += (s[i] - y[i]) * x[i * dim + j];
-            }
+            for (size_t j = 0; j < dim; j++) { gradient[j + 1] += (s[i] - y[i]) * x[i * dim + j]; }
         }
 
-        for (size_t j = 0; j < p; j++)
-        {
-            gradient[j] *= invN;
-        }
+        for (size_t j = 0; j < p; j++) { gradient[j] *= invN; }
         gradientTable->releaseBlockOfRows(gradientBlock);
     }
 
     /* Compute Hessian of the logistic loss function */
-    const bool hessianFlag = ((parameter->resultsToCompute &
-                               daal::algorithms::optimization_solver::objective_function::hessian) != 0) ? true : false;
-    if(hessianFlag)
+    const bool hessianFlag = ((parameter->resultsToCompute & daal::algorithms::optimization_solver::objective_function::hessian) != 0) ? true : false;
+    if (hessianFlag)
     {
-        daal::data_management::NumericTable *hessianTable =
-            result->get(daal::algorithms::optimization_solver::objective_function::hessianIdx).get();
+        daal::data_management::NumericTable * hessianTable = result->get(daal::algorithms::optimization_solver::objective_function::hessianIdx).get();
         /* Hessian computations to go here */
     }
 
     return daal::services::Status();
 }
-}
+} // namespace new_objective_function

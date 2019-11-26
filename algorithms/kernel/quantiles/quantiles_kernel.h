@@ -40,21 +40,19 @@ namespace quantiles
 {
 namespace internal
 {
-
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 struct QuantilesKernel : public Kernel
 {
     virtual ~QuantilesKernel() {}
-    services::Status compute(const NumericTable &dataTable, const NumericTable& quantileOrdersTable, NumericTable &quantilesTable);
+    services::Status compute(const NumericTable & dataTable, const NumericTable & quantileOrdersTable, NumericTable & quantilesTable);
 };
 
-} // namespace daal::algorithms::quantiles::internal
+} // namespace internal
 
-} // namespace daal::algorithms::quantiles
+} // namespace quantiles
 
-} // namespace daal::algorithms
+} // namespace algorithms
 
 } // namespace daal
-
 
 #endif

@@ -34,7 +34,6 @@ namespace algorithms
 {
 namespace svm
 {
-
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_SVM_MODEL_ID);
@@ -47,33 +46,19 @@ services::Status Parameter::check() const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, classifier::Parameter::check());
-    if(C <= 0)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, cBoundStr()));
-    }
-    if(accuracyThreshold <= 0 || accuracyThreshold >= 1)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, accuracyThresholdStr()));
-    }
-    if(tau <= 0)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, tauStr()));
-    }
-    if(maxIterations == 0)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr()));
-    }
-    if(!kernel.get())
-    {
-        return services::Status(services::Error::create(services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, kernelFunctionStr()));
-    }
-    if(shrinkingStep == 0)
-    {
-        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, shrinkingStepStr()));
-    }
+    if (C <= 0) { return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, cBoundStr())); }
+    if (accuracyThreshold <= 0 || accuracyThreshold >= 1)
+    { return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, accuracyThresholdStr())); }
+    if (tau <= 0) { return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, tauStr())); }
+    if (maxIterations == 0)
+    { return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr())); }
+    if (!kernel.get())
+    { return services::Status(services::Error::create(services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, kernelFunctionStr())); }
+    if (shrinkingStep == 0)
+    { return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, shrinkingStepStr())); }
     return s;
 }
-}
+} // namespace interface2
 
 namespace training
 {
@@ -92,20 +77,19 @@ daal::algorithms::svm::ModelPtr Result::get(classifier::training::ResultId id) c
     return services::staticPointerCast<daal::algorithms::svm::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, classifier::training::Result::check(input, parameter, method));
     daal::algorithms::svm::ModelPtr m = get(classifier::training::model);
-    if(!m->getSupportVectors())
-        s.add(services::Error::create(ErrorModelNotFullInitialized, services::ArgumentName, supportVectorsStr()));
-    if(!m->getClassificationCoefficients())
+    if (!m->getSupportVectors()) s.add(services::Error::create(ErrorModelNotFullInitialized, services::ArgumentName, supportVectorsStr()));
+    if (!m->getClassificationCoefficients())
         s.add(services::Error::create(ErrorModelNotFullInitialized, services::ArgumentName, classificationCoefficientsStr()));
     return s;
 }
 
-}// namespace interface1
-}// namespace training
-}// namespace svm
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace svm
+} // namespace algorithms
+} // namespace daal

@@ -31,23 +31,18 @@ namespace objective_function
 {
 namespace internal
 {
-
 using namespace daal::services::internal;
 
 template <typename algorithmFPType>
 struct HelperObjectiveFunction
 {
-    static services::Status lazyAllocate(oneapi::internal::UniversalBuffer &x, const uint32_t n)
+    static services::Status lazyAllocate(oneapi::internal::UniversalBuffer & x, const uint32_t n)
     {
         services::Status status;
-        oneapi::internal::ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
-        const oneapi::internal::TypeIds::Id idType = oneapi::internal::TypeIds::id<algorithmFPType>();
+        oneapi::internal::ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+        const oneapi::internal::TypeIds::Id idType    = oneapi::internal::TypeIds::id<algorithmFPType>();
 
-        if (x.empty() || x.get<algorithmFPType>().size() < n)
-        {
-            x = ctx.allocate(idType, n, &status);
-        }
+        if (x.empty() || x.get<algorithmFPType>().size() < n) { x = ctx.allocate(idType, n, &status); }
 
         return status;
     }
@@ -55,31 +50,24 @@ struct HelperObjectiveFunction
     static uint32_t getWorkgroupsCount(const uint32_t n, const uint32_t localWorkSize)
     {
         const uint32_t elementsPerGroup = localWorkSize;
-        uint32_t workgroupsCount = n / elementsPerGroup;
+        uint32_t workgroupsCount        = n / elementsPerGroup;
 
-        if (workgroupsCount*elementsPerGroup < n)
-        {
-            workgroupsCount++;
-        }
+        if (workgroupsCount * elementsPerGroup < n) { workgroupsCount++; }
         return workgroupsCount;
     }
 
     // sigma = (y - sigma)
-    static services::Status subVectors(
-        const services::Buffer<algorithmFPType>& x,
-        const services::Buffer<algorithmFPType>& y,
-        services::Buffer<algorithmFPType>& result,
-        const uint32_t n)
+    static services::Status subVectors(const services::Buffer<algorithmFPType> & x, const services::Buffer<algorithmFPType> & y,
+                                       services::Buffer<algorithmFPType> & result, const uint32_t n)
     {
         services::Status status;
 
-        oneapi::internal::ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
-        const char* const kernelName = "subVectors";
+        const char * const kernelName      = "subVectors";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelArguments args(3);
@@ -94,20 +82,16 @@ struct HelperObjectiveFunction
         return status;
     }
 
-    static services::Status setElem(
-        const uint32_t index,
-        const algorithmFPType element,
-        services::Buffer<algorithmFPType>& buffer)
+    static services::Status setElem(const uint32_t index, const algorithmFPType element, services::Buffer<algorithmFPType> & buffer)
     {
         services::Status status;
 
-        oneapi::internal::ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
-        const char* const kernelName = "setElem";
+        const char * const kernelName      = "setElem";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelArguments args(3);
@@ -122,20 +106,16 @@ struct HelperObjectiveFunction
         return status;
     }
 
-    static services::Status setColElem(
-        const uint32_t icol,
-        const algorithmFPType element,
-        services::Buffer<algorithmFPType> &buffer,
-        const uint32_t n, const uint32_t m)
+    static services::Status setColElem(const uint32_t icol, const algorithmFPType element, services::Buffer<algorithmFPType> & buffer,
+                                       const uint32_t n, const uint32_t m)
     {
         services::Status status;
-        oneapi::internal::ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
-        const char* const kernelName = "setColElem";
+        const char * const kernelName      = "setColElem";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelArguments args(4);
@@ -151,20 +131,17 @@ struct HelperObjectiveFunction
         return status;
     }
 
-    static services::Status transpose(
-        const services::Buffer<algorithmFPType> &x,
-        services::Buffer<algorithmFPType> &xt,
-        const uint32_t n, const uint32_t p)
+    static services::Status transpose(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & xt, const uint32_t n,
+                                      const uint32_t p)
     {
         services::Status status;
 
-        oneapi::internal::ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
-        const char* const kernelName = "transpose";
+        const char * const kernelName      = "transpose";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelArguments args(4);
@@ -180,40 +157,33 @@ struct HelperObjectiveFunction
         return services::Status();
     }
 
-    static services::Status sumReduction(
-        const services::Buffer<algorithmFPType>& reductionBuffer,
-        const size_t nWorkGroups,
-        algorithmFPType& result)
+    static services::Status sumReduction(const services::Buffer<algorithmFPType> & reductionBuffer, const size_t nWorkGroups,
+                                         algorithmFPType & result)
     {
-        auto sumReductionArrayPtr = reductionBuffer.toHost(data_management::readOnly);
-        const auto* sumReductionArray = sumReductionArrayPtr.get();
+        auto sumReductionArrayPtr      = reductionBuffer.toHost(data_management::readOnly);
+        const auto * sumReductionArray = sumReductionArrayPtr.get();
 
         // Final summation with CPU
-        for (size_t i = 0; i < nWorkGroups; i++)
-        {
-            result += sumReductionArray[i];
-        }
+        for (size_t i = 0; i < nWorkGroups; i++) { result += sumReductionArray[i]; }
 
         return services::Status();
     }
 
     // l1*||beta|| + l2*||beta||**2
-    static services::Status regularization(
-        const services::Buffer<algorithmFPType>& beta, const uint32_t nBeta, const uint32_t nClasses,
-        algorithmFPType& reg, const algorithmFPType l1, const algorithmFPType l2)
+    static services::Status regularization(const services::Buffer<algorithmFPType> & beta, const uint32_t nBeta, const uint32_t nClasses,
+                                           algorithmFPType & reg, const algorithmFPType l1, const algorithmFPType l2)
     {
         services::Status status;
-        const uint32_t n = nBeta*nClasses;
+        const uint32_t n = nBeta * nClasses;
 
         const oneapi::internal::TypeIds::Id idType = oneapi::internal::TypeIds::id<algorithmFPType>();
 
-        oneapi::internal::ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
-        const char* const kernelName = "regularization";
+        const char * const kernelName      = "regularization";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelNDRange range(1);
@@ -231,16 +201,16 @@ struct HelperObjectiveFunction
         const size_t nWorkGroups = getWorkgroupsCount(n, workItemsPerGroup);
 
         oneapi::internal::KernelRange localRange(workItemsPerGroup);
-        oneapi::internal::KernelRange globalRange(workItemsPerGroup*nWorkGroups);
+        oneapi::internal::KernelRange globalRange(workItemsPerGroup * nWorkGroups);
 
         range.local(localRange, &status);
         range.global(globalRange, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        oneapi::internal::UniversalBuffer buffer = ctx.allocate(idType, nWorkGroups, &status);
+        oneapi::internal::UniversalBuffer buffer          = ctx.allocate(idType, nWorkGroups, &status);
         services::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        oneapi::internal::KernelArguments args(6/*7*/);
+        oneapi::internal::KernelArguments args(6 /*7*/);
         args.set(0, beta, oneapi::internal::AccessModeIds::read);
         args.set(1, nBeta);
         args.set(2, n);
@@ -257,21 +227,17 @@ struct HelperObjectiveFunction
     }
 
     // s1 + s2 + .. + sn
-    static services::Status sum(
-        const services::Buffer<algorithmFPType>& x,
-        algorithmFPType& result,
-        const uint32_t n)
+    static services::Status sum(const services::Buffer<algorithmFPType> & x, algorithmFPType & result, const uint32_t n)
     {
         services::Status status;
         const oneapi::internal::TypeIds::Id idType = oneapi::internal::TypeIds::id<algorithmFPType>();
 
-        oneapi::internal::ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
-        const char* const kernelName = "sumReduction";
+        const char * const kernelName      = "sumReduction";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelNDRange range(1);
@@ -289,16 +255,16 @@ struct HelperObjectiveFunction
         const size_t nWorkGroups = getWorkgroupsCount(n, workItemsPerGroup);
 
         oneapi::internal::KernelRange localRange(workItemsPerGroup);
-        oneapi::internal::KernelRange globalRange(workItemsPerGroup*nWorkGroups);
+        oneapi::internal::KernelRange globalRange(workItemsPerGroup * nWorkGroups);
 
         range.local(localRange, &status);
         range.global(globalRange, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        oneapi::internal::UniversalBuffer buffer = ctx.allocate(idType, nWorkGroups, &status);
+        oneapi::internal::UniversalBuffer buffer          = ctx.allocate(idType, nWorkGroups, &status);
         services::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        oneapi::internal::KernelArguments args(3/*4*/);
+        oneapi::internal::KernelArguments args(3 /*4*/);
         args.set(0, x, oneapi::internal::AccessModeIds::read);
         args.set(1, n);
         args.set(2, reductionBuffer, oneapi::internal::AccessModeIds::write);
@@ -314,19 +280,16 @@ struct HelperObjectiveFunction
 
     // x = x + alpha
     // Where x - vector; alpha - scalar
-    static services::Status addVectorScalar(
-        services::Buffer<algorithmFPType>& x,
-        const algorithmFPType alpha, const uint32_t n)
+    static services::Status addVectorScalar(services::Buffer<algorithmFPType> & x, const algorithmFPType alpha, const uint32_t n)
     {
         services::Status status;
 
-        oneapi::internal::ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
-        const char* const kernelName = "addVectorScalar";
+        const char * const kernelName      = "addVectorScalar";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelArguments args(2);
@@ -340,21 +303,19 @@ struct HelperObjectiveFunction
         return status;
     }
 
-        // x = x + y[id]
+    // x = x + y[id]
     // Where x - vector; y - vector, id - index
-    static services::Status addVectorScalar(
-        services::Buffer<algorithmFPType>& x, const services::Buffer<algorithmFPType>& y,
-        const uint32_t id, const uint32_t n)
+    static services::Status addVectorScalar(services::Buffer<algorithmFPType> & x, const services::Buffer<algorithmFPType> & y, const uint32_t id,
+                                            const uint32_t n)
     {
         services::Status status;
 
-        oneapi::internal::ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
-        const char* const kernelName = "addVectorScalar2";
+        const char * const kernelName      = "addVectorScalar2";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelArguments args(3);
@@ -369,25 +330,20 @@ struct HelperObjectiveFunction
         return status;
     }
 
-    static services::Status getXY(
-        const services::Buffer<algorithmFPType> &xBuff,
-        const services::Buffer<algorithmFPType> &yBuff,
-        const services::Buffer<int> &indBuff,
-        services::Buffer<algorithmFPType> aX, services::Buffer<algorithmFPType> aY,
-        uint32_t nBatch, uint32_t p, bool interceptFlag)
+    static services::Status getXY(const services::Buffer<algorithmFPType> & xBuff, const services::Buffer<algorithmFPType> & yBuff,
+                                  const services::Buffer<int> & indBuff, services::Buffer<algorithmFPType> aX, services::Buffer<algorithmFPType> aY,
+                                  uint32_t nBatch, uint32_t p, bool interceptFlag)
     {
         services::Status status;
 
-        oneapi::internal::ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+        oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
         buildProgram(factory);
 
-        const algorithmFPType interceptValue = interceptFlag ?
-            algorithmFPType(1) : algorithmFPType(0);
+        const algorithmFPType interceptValue = interceptFlag ? algorithmFPType(1) : algorithmFPType(0);
 
-        const char* const kernelName = "getXY";
+        const char * const kernelName      = "getXY";
         oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
         oneapi::internal::KernelArguments args(7);
@@ -407,7 +363,7 @@ struct HelperObjectiveFunction
     }
 
 private:
-    static void buildProgram(oneapi::internal::ClKernelFactoryIface& factory)
+    static void buildProgram(oneapi::internal::ClKernelFactoryIface & factory)
     {
         services::String options = oneapi::internal::getKeyFPType<algorithmFPType>();
 
@@ -416,8 +372,7 @@ private:
 
         options.add(" -D LOCAL_SUM_SIZE=256 "); //depends on workItemsPerGroup value
 
-        factory.build(oneapi::internal::ExecutionTargetIds::device, cachekey.c_str(),
-            clKernelObjectiveFunction, options.c_str());
+        factory.build(oneapi::internal::ExecutionTargetIds::device, cachekey.c_str(), clKernelObjectiveFunction, options.c_str());
     }
 };
 

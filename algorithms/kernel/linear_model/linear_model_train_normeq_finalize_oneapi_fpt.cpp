@@ -32,8 +32,8 @@ namespace internal
 {
 template class FinalizeKernelOneAPI<DAAL_FPTYPE>;
 }
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace normal_equations
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

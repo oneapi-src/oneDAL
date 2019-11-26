@@ -34,14 +34,10 @@ namespace init
 {
 namespace internal
 {
-
-template<typename algorithmFPType>
-ErrorID EMforKernel<algorithmFPType>::run(data_management::NumericTable &inputData,
-                data_management::NumericTable &inputWeights,
-                data_management::NumericTable &inputMeans,
-                data_management::DataCollectionPtr &inputCov,
-                const em_gmm::CovarianceStorageId covType,
-                algorithmFPType &loglikelyhood)
+template <typename algorithmFPType>
+ErrorID EMforKernel<algorithmFPType>::run(data_management::NumericTable & inputData, data_management::NumericTable & inputWeights,
+                                          data_management::NumericTable & inputMeans, data_management::DataCollectionPtr & inputCov,
+                                          const em_gmm::CovarianceStorageId covType, algorithmFPType & loglikelyhood)
 {
     this->input.set(daal::algorithms::em_gmm::data, NumericTablePtr(&inputData, EmptyDeleter()));
     this->input.set(daal::algorithms::em_gmm::inputWeights, NumericTablePtr(&inputWeights, EmptyDeleter()));
@@ -55,33 +51,25 @@ ErrorID EMforKernel<algorithmFPType>::run(data_management::NumericTable &inputDa
     emResult->set(daal::algorithms::em_gmm::covariances, inputCov);
 
     services::Status status;
-    SharedPtr<HomogenNumericTable<algorithmFPType> > loglikelyhoodValueTable = HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status);
-    if(!status)
-    {
-        return ErrorMemoryAllocationFailed;
-    }
+    SharedPtr<HomogenNumericTable<algorithmFPType> > loglikelyhoodValueTable =
+        HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status);
+    if (!status) { return ErrorMemoryAllocationFailed; }
 
     NumericTablePtr nIterationsValueTable = HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status);
-    if(!status)
-    {
-        return ErrorMemoryAllocationFailed;
-    }
+    if (!status) { return ErrorMemoryAllocationFailed; }
     emResult->set(daal::algorithms::em_gmm::goalFunction, loglikelyhoodValueTable);
     emResult->set(daal::algorithms::em_gmm::nIterations, nIterationsValueTable);
 
     this->setResult(emResult);
     services::Status s = this->computeNoThrow();
-    if(!s)
-    {
-        return ErrorEMInitNoTrialConverges;
-    }
+    if (!s) { return ErrorEMInitNoTrialConverges; }
     loglikelyhood = loglikelyhoodValueTable->getArray()[0];
     return ErrorID(0);
 }
 
 template class EMforKernel<DAAL_FPTYPE>;
 
-}
+} // namespace internal
 } // namespace init
 } // namespace em_gmm
 } // namespace algorithms

@@ -39,7 +39,6 @@ namespace logitboost
  */
 namespace quality_metric_set
 {
-
 namespace interface1
 {
 /**
@@ -66,15 +65,10 @@ public:
      * \param[in] nClasses          Number of classes
      * \param[in] useDefaultMetrics Flag. If true, a quality metric set is initialized with the quality metrics provided by the library
      */
-    Batch(size_t nClasses = 2, bool useDefaultMetrics = true) :
-        algorithms::quality_metric_set::Batch(useDefaultMetrics),
-        parameter(nClasses)
+    Batch(size_t nClasses = 2, bool useDefaultMetrics = true) : algorithms::quality_metric_set::Batch(useDefaultMetrics), parameter(nClasses)
     {
         _inputData = InputDataCollectionPtr(new InputDataCollection());
-        if (_useDefaultMetrics)
-        {
-            initializeQualityMetrics();
-        }
+        if (_useDefaultMetrics) { initializeQualityMetrics(); }
         _resultCollection = ResultCollectionPtr(new ResultCollection());
     }
 
@@ -86,8 +80,7 @@ public:
      */
     ResultCollectionPtr getResultCollection()
     {
-        return services::staticPointerCast<ResultCollection,
-                                           algorithms::quality_metric_set::ResultCollection>(_resultCollection);
+        return services::staticPointerCast<ResultCollection, algorithms::quality_metric_set::ResultCollection>(_resultCollection);
     }
 
     /**
@@ -96,25 +89,23 @@ public:
      */
     InputDataCollectionPtr getInputDataCollection()
     {
-        return services::staticPointerCast<InputDataCollection,
-                                           algorithms::quality_metric_set::InputDataCollection>(_inputData);
+        return services::staticPointerCast<InputDataCollection, algorithms::quality_metric_set::InputDataCollection>(_inputData);
     }
 
 protected:
     virtual void initializeQualityMetrics()
     {
         inputAlgorithms[confusionMatrix] = services::SharedPtr<classifier::quality_metric::multiclass_confusion_matrix::Batch<> >(
-                                               new classifier::quality_metric::multiclass_confusion_matrix::Batch<>(parameter.nClasses));
-        _inputData->add(confusionMatrix, algorithms::InputPtr(
-                          new classifier::quality_metric::multiclass_confusion_matrix::Input));
+            new classifier::quality_metric::multiclass_confusion_matrix::Batch<>(parameter.nClasses));
+        _inputData->add(confusionMatrix, algorithms::InputPtr(new classifier::quality_metric::multiclass_confusion_matrix::Input));
     }
 };
 /** @} */
 } // namespace interface1
 using interface1::Batch;
 
-}
-}
-}
-}
+} // namespace quality_metric_set
+} // namespace logitboost
+} // namespace algorithms
+} // namespace daal
 #endif

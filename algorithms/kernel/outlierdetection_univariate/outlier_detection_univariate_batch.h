@@ -36,7 +36,6 @@ namespace univariate_outlier_detection
 {
 namespace interface1
 {
-
 /**
  * Registers user-allocated memory to store univariate outlier detection results
  * \param[in] input   Pointer to the %input objects for the algorithm
@@ -44,10 +43,10 @@ namespace interface1
  * \param[in] method  univariate outlier detection computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    Input * algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
     size_t nFeatures = algInput->get(data)->getNumberOfColumns();
     size_t nVectors  = algInput->get(data)->getNumberOfRows();
     set(weights, HomogenNumericTable<algorithmFPType>::create(nFeatures, nVectors, NumericTable::doAllocate, &s));

@@ -37,7 +37,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -50,7 +49,7 @@ namespace interface1
  *  \tparam FeatureManager         The type of feature manager that specifies how to extract numerical data from CSV
  *  \tparam SummaryStatisticsType  The floating point type to compute summary statics for numeric table
  */
-template< typename FeatureManager, typename SummaryStatisticsType = DAAL_SUMMARY_STATISTICS_TYPE>
+template <typename FeatureManager, typename SummaryStatisticsType = DAAL_SUMMARY_STATISTICS_TYPE>
 class FileDataSource : public CsvDataSource<FeatureManager, SummaryStatisticsType>
 {
 private:
@@ -72,11 +71,11 @@ public:
      *                                              is created from the context of the File Data Source
      *  \param[in]  initialMaxRows                  Initial value of maximum number of rows in Numeric Table allocated in loadDataBlock() method
      */
-    FileDataSource(const std::string &fileName,
+    FileDataSource(const std::string & fileName,
                    DataSourceIface::NumericTableAllocationFlag doAllocateNumericTable    = DataSource::notAllocateNumericTable,
                    DataSourceIface::DictionaryCreationFlag doCreateDictionaryFromContext = DataSource::notDictionaryFromContext,
-                   size_t initialMaxRows = 10) :
-        super(doAllocateNumericTable, doCreateDictionaryFromContext, initialMaxRows)
+                   size_t initialMaxRows                                                 = 10)
+        : super(doAllocateNumericTable, doCreateDictionaryFromContext, initialMaxRows)
     {
         _status |= initialize(fileName);
     }
@@ -87,19 +86,15 @@ public:
      *  \param[in]  options         Options of data source
      *  \param[in]  initialMaxRows  Initial value of maximum number of rows in Numeric Table allocated in loadDataBlock() method
      */
-    FileDataSource(const std::string &fileName,
-                   CsvDataSourceOptions options,
-                   size_t initialMaxRows = 10) :
-        super(options, initialMaxRows)
+    FileDataSource(const std::string & fileName, CsvDataSourceOptions options, size_t initialMaxRows = 10) : super(options, initialMaxRows)
     {
         _status |= initialize(fileName);
     }
 
     virtual ~FileDataSource()
     {
-        if (_file)
-            fclose(_file);
-        daal::services::daal_free( _fileBuffer );
+        if (_file) fclose(_file);
+        daal::services::daal_free(_fileBuffer);
     }
 
 public:
@@ -111,40 +106,29 @@ public:
         return s;
     }
 
-    DataSourceIface::DataSourceStatus getStatus() DAAL_C11_OVERRIDE
-    {
-        return (iseof() ? DataSourceIface::endOfData : DataSourceIface::readyForLoad);
-    }
+    DataSourceIface::DataSourceStatus getStatus() DAAL_C11_OVERRIDE { return (iseof() ? DataSourceIface::endOfData : DataSourceIface::readyForLoad); }
 
 protected:
-    bool iseof() const DAAL_C11_OVERRIDE
-    {
-        return (_fileBufferPos == _readedFromFileLen && feof(_file));
-    }
+    bool iseof() const DAAL_C11_OVERRIDE { return (_fileBufferPos == _readedFromFileLen && feof(_file)); }
 
-    bool readLine(char *buffer, int count, int& pos)
+    bool readLine(char * buffer, int count, int & pos)
     {
         bool bRes = true;
-        pos = 0;
+        pos       = 0;
         while (pos + 1 < count)
         {
             if (_fileBufferPos < _readedFromFileLen)
             {
-                if (_fileBuffer[_fileBufferPos] == '\0')
-                {
-                    return false;
-                }
+                if (_fileBuffer[_fileBufferPos] == '\0') { return false; }
                 buffer[pos] = _fileBuffer[_fileBufferPos];
                 ++pos;
                 ++_fileBufferPos;
-                if (buffer[pos - 1] == '\n')
-                    break;
+                if (buffer[pos - 1] == '\n') break;
             }
             else
             {
-                if (iseof ())
-                    break;
-                _fileBufferPos = 0;
+                if (iseof()) break;
+                _fileBufferPos     = 0;
                 _readedFromFileLen = (int)fread(_fileBuffer, 1, _fileBufferLen, _file);
                 if (ferror(_file))
                 {
@@ -160,13 +144,11 @@ protected:
     services::Status readLine() DAAL_C11_OVERRIDE
     {
         _rawLineLength = 0;
-        while(!iseof())
+        while (!iseof())
         {
             int readLen = 0;
-            if(!readLine(_rawLineBuffer + _rawLineLength, _rawLineBufferLen - _rawLineLength, readLen))
-            {
-                return services::Status(services::ErrorOnFileRead);
-            }
+            if (!readLine(_rawLineBuffer + _rawLineLength, _rawLineBufferLen - _rawLineLength, readLen))
+            { return services::Status(services::ErrorOnFileRead); }
 
             if (readLen <= 0)
             {
@@ -177,46 +159,34 @@ protected:
             if (_rawLineBuffer[_rawLineLength - 1] == '\n' || _rawLineBuffer[_rawLineLength - 1] == '\r')
             {
                 while (_rawLineLength > 0 && (_rawLineBuffer[_rawLineLength - 1] == '\n' || _rawLineBuffer[_rawLineLength - 1] == '\r'))
-                {
-                    _rawLineLength--;
-                }
+                { _rawLineLength--; }
                 _rawLineBuffer[_rawLineLength] = '\0';
                 break;
             }
-            if(!super::enlargeBuffer())
-                return services::Status(services::ErrorMemoryAllocationFailed);
+            if (!super::enlargeBuffer()) return services::Status(services::ErrorMemoryAllocationFailed);
         }
         return services::Status();
     }
 
 private:
-    services::Status initialize(const std::string &fileName)
+    services::Status initialize(const std::string & fileName)
     {
-        _file          = NULL;
-        _fileName      = fileName;
-        _fileBufferLen = (int)INITIAL_FILE_BUFFER_LENGTH;
-        _fileBufferPos = _fileBufferLen;
-        _fileBuffer    = NULL;
+        _file              = NULL;
+        _fileName          = fileName;
+        _fileBufferLen     = (int)INITIAL_FILE_BUFFER_LENGTH;
+        _fileBufferPos     = _fileBufferLen;
+        _fileBuffer        = NULL;
         _readedFromFileLen = 0;
-        if (fileName.find('\0') != std::string::npos)
-        {
-            return services::throwIfPossible(services::ErrorNullByteInjection);
-        }
-    #if (defined(_MSC_VER)&&(_MSC_VER >= 1400))
+        if (fileName.find('\0') != std::string::npos) { return services::throwIfPossible(services::ErrorNullByteInjection); }
+#if (defined(_MSC_VER) && (_MSC_VER >= 1400))
         errno_t error;
-        error = fopen_s( &_file, fileName.c_str(), "r" );
-        if (error != 0 || !_file)
-        {
-            return services::throwIfPossible(services::ErrorOnFileOpen);
-        }
-    #else
-        _file = fopen( (char*)(fileName.c_str()), "r" );
-        if (!_file)
-        {
-            return services::throwIfPossible(services::ErrorOnFileOpen);
-        }
-    #endif
-        _fileBuffer    = (char *)daal::services::daal_malloc(_fileBufferLen);
+        error = fopen_s(&_file, fileName.c_str(), "r");
+        if (error != 0 || !_file) { return services::throwIfPossible(services::ErrorOnFileOpen); }
+#else
+        _file = fopen((char *)(fileName.c_str()), "r");
+        if (!_file) { return services::throwIfPossible(services::ErrorOnFileOpen); }
+#endif
+        _fileBuffer = (char *)daal::services::daal_malloc(_fileBufferLen);
         if (!_fileBuffer)
         {
             fclose(_file);
@@ -227,14 +197,14 @@ private:
     }
 
 protected:
-    std::string  _fileName;
+    std::string _fileName;
 
-    FILE *_file;
+    FILE * _file;
 
-    char *_fileBuffer;
-    int   _fileBufferLen;
-    int   _fileBufferPos;
-    int   _readedFromFileLen;
+    char * _fileBuffer;
+    int _fileBufferLen;
+    int _fileBufferPos;
+    int _readedFromFileLen;
 
 private:
     static const size_t INITIAL_FILE_BUFFER_LENGTH = 1048576;

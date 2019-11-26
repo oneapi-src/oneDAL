@@ -25,72 +25,70 @@ namespace daal
 {
 namespace internal
 {
-
 /* STL compatible unique_ptr implementation (doesn't handle the case when T is an array) */
-template<typename T, CpuType cpu,
-         typename Deleter = services::internal::DefaultDeleter<T, cpu>>
+template <typename T, CpuType cpu, typename Deleter = services::internal::DefaultDeleter<T, cpu> >
 class UniquePtr
 {
 private:
-    T *_object;
+    T * _object;
     Deleter _deleter;
 
 public:
-    UniquePtr() : _object(nullptr) { }
+    UniquePtr() : _object(nullptr) {}
 
-    explicit UniquePtr(T *object) : _object(object) { }
+    explicit UniquePtr(T * object) : _object(object) {}
 
-    template<typename U, typename UDeleter>
-    UniquePtr(UniquePtr<U, cpu, UDeleter> &&other) :
-        _object( other.release() ),
-        _deleter( services::internal::forward<cpu, UDeleter>(other.getDeleter()) ) { }
+    template <typename U, typename UDeleter>
+    UniquePtr(UniquePtr<U, cpu, UDeleter> && other)
+        : _object(other.release()), _deleter(services::internal::forward<cpu, UDeleter>(other.getDeleter()))
+    {}
 
     ~UniquePtr() { reset(); }
 
-    inline T *get() const { return _object; }
-    inline bool operator () () const { return _object != nullptr; }
+    inline T * get() const { return _object; }
+    inline bool operator()() const { return _object != nullptr; }
 
-    inline T &operator *  () const { return *_object; }
-    inline T *operator -> () const { return _object;  }
+    inline T & operator*() const { return *_object; }
+    inline T * operator->() const { return _object; }
 
-    template<typename U, typename UDeleter>
-    UniquePtr &operator = (UniquePtr<U, cpu, UDeleter> &&other)
+    template <typename U, typename UDeleter>
+    UniquePtr & operator=(UniquePtr<U, cpu, UDeleter> && other)
     {
         reset(other.release());
         _deleter = services::internal::move<cpu, UDeleter>(other.getDeleter());
         return *this;
     }
 
-    inline void reset(T *object = nullptr)
+    inline void reset(T * object = nullptr)
     {
         if (_object) { _deleter(_object); }
         _object = object;
     }
 
-    inline T *release()
+    inline T * release()
     {
-        T *result = _object;
-        _object = nullptr;
+        T * result = _object;
+        _object    = nullptr;
         return result;
     }
 
-    inline       Deleter &getDeleter()       { return _deleter; }
-    inline const Deleter &getDeleter() const { return _deleter; }
+    inline Deleter & getDeleter() { return _deleter; }
+    inline const Deleter & getDeleter() const { return _deleter; }
 
-    template<typename U, typename UDeleter>
+    template <typename U, typename UDeleter>
     UniquePtr(const UniquePtr<U, cpu, UDeleter> &) = delete;
 
-    template<typename U, typename UDeleter>
-    UniquePtr &operator = (const UniquePtr<U, cpu, UDeleter> &) = delete;
+    template <typename U, typename UDeleter>
+    UniquePtr & operator=(const UniquePtr<U, cpu, UDeleter> &) = delete;
 };
 
 // Creates UniquePtr<T, cpu> by calling constructor of T with the given arguments
 // Usage: auto object = makeUnique<T, cpu>(arg_1, ..., arg_2);
-template<typename T, CpuType cpu, typename ...Args>
-UniquePtr<T, cpu> makeUnique(Args &&...args)
+template <typename T, CpuType cpu, typename... Args>
+UniquePtr<T, cpu> makeUnique(Args &&... args)
 {
     using namespace daal::services::internal;
-    return UniquePtr<T, cpu>( new T(forward<Args>(args) ...) );
+    return UniquePtr<T, cpu>(new T(forward<Args>(args)...));
 }
 
 } // namespace internal

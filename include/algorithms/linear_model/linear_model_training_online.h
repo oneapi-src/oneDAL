@@ -36,7 +36,6 @@ namespace linear_model
 {
 namespace training
 {
-
 namespace interface1
 {
 /**
@@ -56,9 +55,9 @@ namespace interface1
 class DAAL_EXPORT Online : public regression::training::Online
 {
 public:
-    typedef algorithms::linear_model::training::Input         InputType;
-    typedef algorithms::linear_model::Parameter               ParameterType;
-    typedef algorithms::linear_model::training::Result        ResultType;
+    typedef algorithms::linear_model::training::Input InputType;
+    typedef algorithms::linear_model::Parameter ParameterType;
+    typedef algorithms::linear_model::training::Result ResultType;
     typedef algorithms::linear_model::training::PartialResult PartialResultType;
 
     /**
@@ -77,8 +76,8 @@ public:
 } // namespace interface1
 using interface1::Online;
 
-}
-}
-}
-}
+} // namespace training
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal
 #endif

@@ -36,7 +36,6 @@ namespace algorithms
 {
 namespace pivoted_qr
 {
-
 namespace interface1
 {
 /**
@@ -52,7 +51,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the pivoted QR, double or float
  *
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -61,7 +60,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
     /**
@@ -81,21 +80,18 @@ public:
  * \par Enumerations
  *      - \ref Method   Computation methods for the algorithm
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::pivoted_qr::Input     InputType;
+    typedef algorithms::pivoted_qr::Input InputType;
     typedef algorithms::pivoted_qr::Parameter ParameterType;
-    typedef algorithms::pivoted_qr::Result    ResultType;
+    typedef algorithms::pivoted_qr::Result ResultType;
 
-    InputType input;            /*!< Input data structure */
-    ParameterType parameter;    /*!< Pivoted QR parameters structure */
+    InputType input;         /*!< Input data structure */
+    ParameterType parameter; /*!< Pivoted QR parameters structure */
 
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a pivoted QR decomposition algorithm by copying input objects and parameters
@@ -103,35 +99,29 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains the results of the pivoted QR decomposition algorithm
      * \return Structure that contains the results of the pivoted QR decomposition algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Sets structure to store the results of the pivoted QR algorithm
      * \return Structure to store results of the pivoted QR algorithm
      */
-    services::Status setResult(const ResultPtr &res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -140,30 +130,24 @@ public:
      * with a copy of input objects and parameters of this pivoted QR decomposition algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
         services::Status s = _result->allocate<algorithmFPType>(_in, 0, 0);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in   = &input;
-        _par  = &parameter;
+        _in                  = &input;
+        _par                 = &parameter;
     }
 
 private:
@@ -174,7 +158,7 @@ private:
 using interface1::BatchContainer;
 using interface1::Batch;
 
-} // namespace daal::algorithms::pivoted_qr
-}
+} // namespace pivoted_qr
+} // namespace algorithms
 } // namespace daal
 #endif

@@ -43,7 +43,7 @@ services::Status Parameter::check() const
     DAAL_CHECK_EX(resultsToEvaluate != 0, services::ErrorIncorrectParameter, services::ParameterName, resultsToEvaluateStr())
     return services::Status();
 }
-}
+} // namespace interface2
 
 namespace training
 {
@@ -74,7 +74,7 @@ data_management::NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the input object, \ref InputId
  * \param[in] value Pointer to the input object
  */
-void Input::set(InputId id, const data_management::NumericTablePtr &value)
+void Input::set(InputId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -84,57 +84,46 @@ void Input::set(InputId id, const data_management::NumericTablePtr &value)
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     return checkImpl(parameter);
 }
 
-services::Status Input::checkImpl(const daal::algorithms::Parameter *parameter) const
+services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter) const
 {
-    services::Status s; // Error status
-    int nClasses = 0;   // Number of classes
-    bool flag = false;  // Flag indicates error in table of labels
+    services::Status s;   // Error status
+    int nClasses = 0;     // Number of classes
+    bool flag    = false; // Flag indicates error in table of labels
 
     data_management::NumericTablePtr dataTable = get(data);
     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(dataTable.get(), dataStr()));
 
-    const size_t nRows = dataTable->getNumberOfRows();
+    const size_t nRows                           = dataTable->getNumberOfRows();
     data_management::NumericTablePtr labelsTable = get(labels);
     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(labelsTable.get(), labelsStr(), 0, 0, 1, nRows));
 
     data_management::NumericTablePtr weightsTable = get(weights);
-    if (weightsTable)
-    {
-        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(weightsTable.get(), weightsStr(), 0, 0, 1, nRows));
-    }
+    if (weightsTable) { DAAL_CHECK_STATUS(s, data_management::checkNumericTable(weightsTable.get(), weightsStr(), 0, 0, 1, nRows)); }
 
     if (parameter != NULL)
     {
-        const daal::algorithms::classifier::interface1::Parameter *algParameter1 =
+        const daal::algorithms::classifier::interface1::Parameter * algParameter1 =
             dynamic_cast<const daal::algorithms::classifier::interface1::Parameter *>(parameter);
-        const daal::algorithms::classifier::interface2::Parameter *algParameter2 =
+        const daal::algorithms::classifier::interface2::Parameter * algParameter2 =
             dynamic_cast<const daal::algorithms::classifier::interface2::Parameter *>(parameter);
         if (algParameter1 != NULL)
-        {
-            DAAL_CHECK_EX(algParameter1->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
-        }
+        { DAAL_CHECK_EX(algParameter1->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr()); }
         else if (algParameter2 != NULL)
         {
-            DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX),
-                          services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+            DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX), services::ErrorIncorrectParameter,
+                          services::ParameterName, nClassesStr());
             nClasses = static_cast<int>(algParameter2->nClasses);
 
             data_management::BlockDescriptor<int> yBD;
             const_cast<data_management::NumericTable *>(labelsTable.get())->getBlockOfRows(0, nRows, data_management::readOnly, yBD);
             const int * const dy = yBD.getBlockPtr();
-            for (size_t i = 0; i < nRows; ++i)
-            {
-                flag |= (dy[i] >= nClasses);
-            }
-            if (flag)
-            {
-                DAAL_CHECK_STATUS(s, services::Status(services::ErrorIncorrectClassLabels));
-            }
+            for (size_t i = 0; i < nRows; ++i) { flag |= (dy[i] >= nClasses); }
+            if (flag) { DAAL_CHECK_STATUS(s, services::Status(services::ErrorIncorrectClassLabels)); }
             const_cast<data_management::NumericTable *>(labelsTable.get())->releaseBlockOfRows(yBD);
         }
         else
@@ -147,7 +136,7 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter *parameter) 
 }
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
-Result::Result(const size_t n) : daal::algorithms::Result(n){}
+Result::Result(const size_t n) : daal::algorithms::Result(n) {}
 
 /**
  * Returns the model trained with the classification algorithm
@@ -164,7 +153,7 @@ classifier::ModelPtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result, \ref ResultId
  * \param[in] value Pointer to the training result
  */
-void Result::set(ResultId id, const classifier::ModelPtr &value)
+void Result::set(ResultId id, const classifier::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -175,21 +164,20 @@ void Result::set(ResultId id, const classifier::ModelPtr &value)
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-           int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     return checkImpl(input, parameter);
 }
 
-services::Status Result::checkImpl(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter) const
+services::Status Result::checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const
 {
     daal::algorithms::classifier::ModelPtr m = get(model);
     DAAL_CHECK(m, services::ErrorNullModel);
     return services::Status();
 }
 
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal

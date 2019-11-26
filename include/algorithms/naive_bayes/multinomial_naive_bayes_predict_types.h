@@ -46,7 +46,6 @@ namespace multinomial_naive_bayes
  */
 namespace prediction
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__PREDICTION__METHOD"></a>
  * Available methods for computing the results of the naive Bayes model based prediction
@@ -59,7 +58,6 @@ enum Method
 
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the multinomial naive Bayes algorithm
@@ -67,9 +65,10 @@ namespace interface1
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
     typedef classifier::prediction::Input super;
+
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
     virtual ~Input() {}
 
     using super::get;
@@ -94,14 +93,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the multinomial naive Bayes algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const multinomial_naive_bayes::ModelPtr &ptr);
+    void set(classifier::prediction::ModelInputId id, const multinomial_naive_bayes::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
@@ -110,7 +109,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface1

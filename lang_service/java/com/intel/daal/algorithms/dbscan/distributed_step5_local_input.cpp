@@ -29,13 +29,11 @@ using namespace daal::algorithms::dbscan;
 * Method:    cSetDataCollection
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5LocalInput_cSetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5LocalInput_cSetDataCollection(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                           jint id, jlong dcAddr)
 {
     if (id == partialData || id == partialWeights)
-    {
-        jniInput<DistributedInput<step5Local> >::set<LocalCollectionInputId, DataCollection>(inputAddr, id, dcAddr);
-    }
+    { jniInput<DistributedInput<step5Local> >::set<LocalCollectionInputId, DataCollection>(inputAddr, id, dcAddr); }
     else
     {
         jniInput<DistributedInput<step5Local> >::set<Step5LocalCollectionInputId, DataCollection>(inputAddr, id, dcAddr);
@@ -47,13 +45,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Loc
 * Method:    cAddNumericTable
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5LocalInput_cAddNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5LocalInput_cAddNumericTable(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                         jlong ntAddr)
 {
     if (id == partialData || id == partialWeights)
-    {
-        jniInput<DistributedInput<step5Local> >::add<LocalCollectionInputId, NumericTable>(inputAddr, id, ntAddr);
-    }
+    { jniInput<DistributedInput<step5Local> >::add<LocalCollectionInputId, NumericTable>(inputAddr, id, ntAddr); }
     else
     {
         jniInput<DistributedInput<step5Local> >::add<Step5LocalCollectionInputId, NumericTable>(inputAddr, id, ntAddr);
@@ -65,13 +61,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5Loc
 * Method:    cGetDataCollection
 * Signature:(JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5LocalInput_cGetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep5LocalInput_cGetDataCollection(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                            jint id)
 {
     if (id == partialData || id == partialWeights)
-    {
-        return jniInput<DistributedInput<step5Local> >::get<LocalCollectionInputId, DataCollection>(inputAddr, id);
-    }
+    { return jniInput<DistributedInput<step5Local> >::get<LocalCollectionInputId, DataCollection>(inputAddr, id); }
     else
     {
         return jniInput<DistributedInput<step5Local> >::get<Step5LocalCollectionInputId, DataCollection>(inputAddr, id);

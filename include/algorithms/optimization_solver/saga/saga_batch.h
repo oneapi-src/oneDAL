@@ -53,7 +53,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the Stochastic average gradient descent algorithm, double or float
  * \tparam method           Stochastic average gradient descent computation method, daal::algorithms::optimization_solver::saga::Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -62,7 +62,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     DAAL_DEPRECATED ~BatchContainer();
     /**
@@ -87,18 +87,18 @@ public:
  *      - \ref iterative_solver::InputId  Identifiers of input objects for Stochastic average gradient descent
  *      - \ref iterative_solver::ResultId %Result identifiers for the Stochastic average gradient descent
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public iterative_solver::interface1::Batch
 {
 public:
-    typedef algorithms::optimization_solver::saga::interface1::Input     InputType;
+    typedef algorithms::optimization_solver::saga::interface1::Input InputType;
     typedef algorithms::optimization_solver::saga::interface1::Parameter ParameterType;
-    typedef algorithms::optimization_solver::saga::interface1::Result    ResultType;
+    typedef algorithms::optimization_solver::saga::interface1::Result ResultType;
 
-    InputType input;         /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
     /** Default constructor */
-    DAAL_DEPRECATED Batch(const sum_of_functions::interface1::BatchPtr& objectiveFunction = sum_of_functions::interface1::BatchPtr());
+    DAAL_DEPRECATED Batch(const sum_of_functions::interface1::BatchPtr & objectiveFunction = sum_of_functions::interface1::BatchPtr());
 
     /**
      * Constructs a Stochastic average gradient descent algorithm by copying input objects
@@ -106,29 +106,26 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other);
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other);
 
-    DAAL_DEPRECATED ~Batch()
-    {
-        delete _par;
-    }
+    DAAL_DEPRECATED ~Batch() { delete _par; }
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    DAAL_DEPRECATED ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    DAAL_DEPRECATED ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    DAAL_DEPRECATED const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    DAAL_DEPRECATED const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Get input objects for the iterative solver algorithm
@@ -150,7 +147,7 @@ public:
     DAAL_DEPRECATED_VIRTUAL virtual services::Status createResult() DAAL_C11_OVERRIDE
     {
         _result = iterative_solver::interface1::ResultPtr(new ResultType());
-        _res = NULL;
+        _res    = NULL;
         return services::Status();
     }
 
@@ -171,22 +168,19 @@ public:
     DAAL_DEPRECATED static services::SharedPtr<Batch<algorithmFPType, method> > create();
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = static_cast<ResultType*>(_result.get())->allocate<algorithmFPType>(&input, _par, (int)method);
-        _res = _result.get();
+        services::Status s = static_cast<ResultType *>(_result.get())->allocate<algorithmFPType>(&input, _par, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                  = &input;
         _result.reset(new ResultType());
     }
 };
@@ -208,7 +202,7 @@ namespace interface2
  * \tparam algorithmFPType  Data type to use in intermediate computations for the Stochastic average gradient descent algorithm, double or float
  * \tparam method           Stochastic average gradient descent computation method, daal::algorithms::optimization_solver::saga::Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -217,7 +211,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -242,18 +236,18 @@ public:
  *      - \ref iterative_solver::InputId  Identifiers of input objects for Stochastic average gradient descent
  *      - \ref iterative_solver::ResultId %Result identifiers for the Stochastic average gradient descent
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public iterative_solver::Batch
 {
 public:
-    typedef algorithms::optimization_solver::saga::Input     InputType;
+    typedef algorithms::optimization_solver::saga::Input InputType;
     typedef algorithms::optimization_solver::saga::Parameter ParameterType;
-    typedef algorithms::optimization_solver::saga::Result    ResultType;
+    typedef algorithms::optimization_solver::saga::Result ResultType;
 
-    InputType input;         /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
     /** Default constructor */
-    Batch(const sum_of_functions::BatchPtr& objectiveFunction = sum_of_functions::BatchPtr());
+    Batch(const sum_of_functions::BatchPtr & objectiveFunction = sum_of_functions::BatchPtr());
 
     /**
      * Constructs a Stochastic average gradient descent algorithm by copying input objects
@@ -261,29 +255,26 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    Batch(const Batch<algorithmFPType, method> & other);
 
-    ~Batch()
-    {
-        delete _par;
-    }
+    ~Batch() { delete _par; }
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Get input objects for the iterative solver algorithm
@@ -305,7 +296,7 @@ public:
     virtual services::Status createResult() DAAL_C11_OVERRIDE
     {
         _result = iterative_solver::ResultPtr(new ResultType());
-        _res = NULL;
+        _res    = NULL;
         return services::Status();
     }
 
@@ -314,10 +305,7 @@ public:
      * of this Stochastic average gradient descent algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
     /**
     *  Creates the instance of the class
@@ -326,22 +314,19 @@ public:
     static services::SharedPtr<Batch<algorithmFPType, method> > create();
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = static_cast<ResultType*>(_result.get())->allocate<algorithmFPType>(&input, _par, (int)method);
-        _res = _result.get();
+        services::Status s = static_cast<ResultType *>(_result.get())->allocate<algorithmFPType>(&input, _par, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                  = &input;
         _result.reset(new ResultType());
     }
 };
@@ -352,6 +337,6 @@ using interface2::Batch;
 
 } // namespace saga
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

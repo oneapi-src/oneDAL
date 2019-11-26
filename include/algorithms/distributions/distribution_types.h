@@ -51,7 +51,7 @@ namespace distributions
  */
 enum InputId
 {
-    tableToFill = 0   /*!< Input table to fill with random numbers */
+    tableToFill = 0 /*!< Input table to fill with random numbers */
 };
 
 /**
@@ -60,7 +60,7 @@ enum InputId
  */
 enum ResultId
 {
-    randomNumbers = 0  /*!< Table to store the result */
+    randomNumbers = 0 /*!< Table to store the result */
 };
 
 /**
@@ -72,7 +72,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__DISTRIBUTIONS__PARAMETERBASE"></a>
  * Parameters of the distributions
  */
-class DAAL_EXPORT ParameterBase: public daal::algorithms::Parameter
+class DAAL_EXPORT ParameterBase : public daal::algorithms::Parameter
 {
 public:
     ParameterBase();
@@ -93,7 +93,7 @@ public:
      */
     Input();
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input();
 
@@ -109,7 +109,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks an input object for the distribution
@@ -118,7 +118,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -142,7 +142,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
      * Returns result of the distribution
@@ -156,7 +156,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the result
      */
-    void set(ResultId id, const data_management::NumericTablePtr &ptr);
+    void set(ResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the result object for the distribution
@@ -166,26 +166,27 @@ public:
      *
      * \return Status of computations
      */
-    virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                   int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
 
         return services::Status();
     }
 
-    services::Status serializeImpl(data_management::InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         serialImpl<data_management::InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         serialImpl<const data_management::OutputDataArchive, true>(arch);
 
@@ -193,13 +194,13 @@ protected:
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
-} // interface1
+} // namespace interface1
 using interface1::Input;
 using interface1::Result;
 using interface1::ResultPtr;
 using interface1::ParameterBase;
 /** @} */
 } // namespace distributions
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

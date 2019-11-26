@@ -36,18 +36,13 @@ using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
-typedef float algorithmFPType;     /* Algorithm floating-point type */
+typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Input data set parameters */
-const size_t nBlocks          = 4;
+const size_t nBlocks = 4;
 
-const string datasetFileNames[] =
-{
-    "../data/distributed/covcormoments_csr_1.csv",
-    "../data/distributed/covcormoments_csr_2.csv",
-    "../data/distributed/covcormoments_csr_3.csv",
-    "../data/distributed/covcormoments_csr_4.csv"
-};
+const string datasetFileNames[] = { "../data/distributed/covcormoments_csr_1.csv", "../data/distributed/covcormoments_csr_2.csv",
+                                    "../data/distributed/covcormoments_csr_3.csv", "../data/distributed/covcormoments_csr_4.csv" };
 
 low_order_moments::PartialResultPtr partialResult[nBlocks];
 low_order_moments::ResultPtr result;
@@ -55,16 +50,13 @@ low_order_moments::ResultPtr result;
 void computestep1Local(size_t block);
 void computeOnMasterNode();
 
-void printResults(const low_order_moments::ResultPtr &res);
+void printResults(const low_order_moments::ResultPtr & res);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
 
-    for(size_t block = 0; block < nBlocks; block++)
-    {
-        computestep1Local(block);
-    }
+    for (size_t block = 0; block < nBlocks; block++) { computestep1Local(block); }
 
     computeOnMasterNode();
 
@@ -75,7 +67,7 @@ int main(int argc, char *argv[])
 
 void computestep1Local(size_t block)
 {
-    CSRNumericTable *dataTable = createSparseTable<float>(datasetFileNames[block]);
+    CSRNumericTable * dataTable = createSparseTable<float>(datasetFileNames[block]);
 
     /* Create an algorithm to compute low order moments in the distributed processing mode using the default method */
     low_order_moments::Distributed<step1Local, algorithmFPType, low_order_moments::fastCSR> algorithm;
@@ -85,7 +77,6 @@ void computestep1Local(size_t block)
 
     /* Compute partial low order moments estimates on nodes */
     algorithm.compute();
-
 
     /* Get the computed partial estimates */
     partialResult[block] = algorithm.getPartialResult();
@@ -97,10 +88,7 @@ void computeOnMasterNode()
     low_order_moments::Distributed<step2Master, algorithmFPType, low_order_moments::fastCSR> algorithm;
 
     /* Set input objects for the algorithm */
-    for (size_t i = 0; i < nBlocks; i++)
-    {
-        algorithm.input.add(low_order_moments::partialResults, partialResult[i]);
-    }
+    for (size_t i = 0; i < nBlocks; i++) { algorithm.input.add(low_order_moments::partialResults, partialResult[i]); }
 
     /* Compute a partial low order moments estimate on the master node from the partial estimates on local nodes */
     algorithm.compute();
@@ -112,16 +100,16 @@ void computeOnMasterNode()
     result = algorithm.getResult();
 }
 
-void printResults(const low_order_moments::ResultPtr &res)
+void printResults(const low_order_moments::ResultPtr & res)
 {
-    printNumericTable(res->get(low_order_moments::minimum),              "Minimum:");
-    printNumericTable(res->get(low_order_moments::maximum),              "Maximum:");
-    printNumericTable(res->get(low_order_moments::sum),                  "Sum:");
-    printNumericTable(res->get(low_order_moments::sumSquares),           "Sum of squares:");
-    printNumericTable(res->get(low_order_moments::sumSquaresCentered),   "Sum of squared difference from the means:");
-    printNumericTable(res->get(low_order_moments::mean),                 "Mean:");
+    printNumericTable(res->get(low_order_moments::minimum), "Minimum:");
+    printNumericTable(res->get(low_order_moments::maximum), "Maximum:");
+    printNumericTable(res->get(low_order_moments::sum), "Sum:");
+    printNumericTable(res->get(low_order_moments::sumSquares), "Sum of squares:");
+    printNumericTable(res->get(low_order_moments::sumSquaresCentered), "Sum of squared difference from the means:");
+    printNumericTable(res->get(low_order_moments::mean), "Mean:");
     printNumericTable(res->get(low_order_moments::secondOrderRawMoment), "Second order raw moment:");
-    printNumericTable(res->get(low_order_moments::variance),             "Variance:");
-    printNumericTable(res->get(low_order_moments::standardDeviation),    "Standard deviation:");
-    printNumericTable(res->get(low_order_moments::variation),            "Variation:");
+    printNumericTable(res->get(low_order_moments::variance), "Variance:");
+    printNumericTable(res->get(low_order_moments::standardDeviation), "Standard deviation:");
+    printNumericTable(res->get(low_order_moments::variation), "Variation:");
 }

@@ -24,26 +24,26 @@
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::logitboost::training;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_training_TrainingBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_training_TrainingBatch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method,
+                                                                                               jlong nClasses)
 {
     return jniBatch<logitboost::training::Method, Batch, defaultDense>::newObj(prec, method, (size_t)nClasses);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_training_TrainingBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_training_TrainingBatch_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                        jint prec, jint method)
 {
     return jniBatch<logitboost::training::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_training_TrainingBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_training_TrainingBatch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
     return jniBatch<logitboost::training::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_training_TrainingBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_training_TrainingBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                jint prec, jint method)
 {
     return jniBatch<logitboost::training::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

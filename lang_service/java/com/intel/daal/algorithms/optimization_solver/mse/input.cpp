@@ -31,8 +31,8 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Input_cSetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Input_cSetInput(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                               jlong ntAddr)
 {
     jniInput<mse::Input>::set<mse::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -42,8 +42,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_I
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Input_cGetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_mse_Input_cGetInput(JNIEnv *, jobject, jlong inputAddr, jint id)
 {
     return jniInput<mse::Input>::get<mse::InputId, NumericTable>(inputAddr, id);
 }

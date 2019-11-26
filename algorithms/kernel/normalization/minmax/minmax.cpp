@@ -42,7 +42,7 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NORMALIZATION_MINMAX_R
 
 /** Default constructor */
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 /**
  * Returns an input object for the min-max normalization algorithm
@@ -59,7 +59,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the %input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -69,26 +69,21 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
  * \param[in] par       Algorithm parameter
  * \param[in] method    Algorithm computation method
  */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     NumericTablePtr dataTable = get(data);
     Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), dataStr()));
 
-    NumericTable::BasicStatisticsDataCollection &basicStatistics = dataTable->basicStatistics;
-    NumericTablePtr minimumsTable = basicStatistics.get(NumericTableIface::minimum);
-    NumericTablePtr maximumsTable = basicStatistics.get(NumericTableIface::maximum);
+    NumericTable::BasicStatisticsDataCollection & basicStatistics = dataTable->basicStatistics;
+    NumericTablePtr minimumsTable                                 = basicStatistics.get(NumericTableIface::minimum);
+    NumericTablePtr maximumsTable                                 = basicStatistics.get(NumericTableIface::maximum);
 
     size_t nColumns = dataTable->getNumberOfColumns();
-    if (minimumsTable) {
-        DAAL_CHECK_STATUS(s, checkNumericTable(minimumsTable.get(), basicStatisticsMinimumStr(), 0, 0, nColumns, 1));
-    }
-    if (maximumsTable) {
-        DAAL_CHECK_STATUS(s, checkNumericTable(maximumsTable.get(), basicStatisticsMaximumStr(), 0, 0, nColumns, 1));
-    }
+    if (minimumsTable) { DAAL_CHECK_STATUS(s, checkNumericTable(minimumsTable.get(), basicStatisticsMinimumStr(), 0, 0, nColumns, 1)); }
+    if (maximumsTable) { DAAL_CHECK_STATUS(s, checkNumericTable(maximumsTable.get(), basicStatisticsMaximumStr(), 0, 0, nColumns, 1)); }
     return s;
 }
-
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
 
@@ -107,7 +102,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id        Identifier of the Result object
  * \param[in] value     Pointer to the Result object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -118,9 +113,9 @@ void Result::set(ResultId id, const NumericTablePtr &value)
  * \param[in] par    Pointer to the parameter object
  * \param[in] method Algorithm computation method
  */
-Status Result::check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const
 {
-    const Input *input = static_cast<const Input *>(in);
+    const Input * input = static_cast<const Input *>(in);
     DAAL_CHECK(input, ErrorNullInput);
 
     const size_t nFeatures = input->get(data)->getNumberOfColumns();
@@ -130,8 +125,8 @@ Status Result::check(const daal::algorithms::Input *in, const daal::algorithms::
     return checkNumericTable(get(normalizedData).get(), normalizedDataStr(), unexpectedLayouts, 0, nFeatures, nVectors);
 }
 
-}// namespace interface1
-}// namespace minmax
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace minmax
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

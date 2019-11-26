@@ -34,7 +34,6 @@ namespace csv
 {
 namespace internal
 {
-
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__INTERNAL__FEATUREMODIFIERPRIMITIVE"></a>
  * \brief Primitive modifier that applicable to a single column
@@ -42,9 +41,9 @@ namespace internal
 class FeatureModifierPrimitive : public Base
 {
 public:
-    virtual void initialize(Config &context, size_t index) { }
-    virtual DAAL_DATA_TYPE apply(Context &context, size_t index) = 0;
-    virtual void finalize(Config &context, size_t index) { }
+    virtual void initialize(Config & context, size_t index) {}
+    virtual DAAL_DATA_TYPE apply(Context & context, size_t index) = 0;
+    virtual void finalize(Config & context, size_t index) {}
 };
 
 /**
@@ -54,10 +53,7 @@ public:
 class DefaultFeatureModifierPrimitive : public FeatureModifierPrimitive
 {
 public:
-    virtual DAAL_DATA_TYPE apply(Context &context, size_t index) DAAL_C11_OVERRIDE
-    {
-        return (DAAL_DATA_TYPE)0;
-    }
+    virtual DAAL_DATA_TYPE apply(Context & context, size_t index) DAAL_C11_OVERRIDE { return (DAAL_DATA_TYPE)0; }
 };
 
 /**
@@ -67,15 +63,9 @@ public:
 class ContinuousFeatureModifierPrimitive : public FeatureModifierPrimitive
 {
 public:
-    virtual void initialize(Config &config, size_t index) DAAL_C11_OVERRIDE
-    {
-        config.setOutputFeatureType(index, features::DAAL_CONTINUOUS);
-    }
+    virtual void initialize(Config & config, size_t index) DAAL_C11_OVERRIDE { config.setOutputFeatureType(index, features::DAAL_CONTINUOUS); }
 
-    virtual DAAL_DATA_TYPE apply(Context &context, size_t index) DAAL_C11_OVERRIDE
-    {
-        return context.getTokenAs<DAAL_DATA_TYPE>(index);
-    }
+    virtual DAAL_DATA_TYPE apply(Context & context, size_t index) DAAL_C11_OVERRIDE { return context.getTokenAs<DAAL_DATA_TYPE>(index); }
 };
 
 /**
@@ -85,15 +75,11 @@ public:
 class CategoricalFeatureModifierPrimitive : public FeatureModifierPrimitive
 {
 public:
-    CategoricalFeatureModifierPrimitive() :
-        _catDict(new CategoricalFeatureDictionary()) { }
+    CategoricalFeatureModifierPrimitive() : _catDict(new CategoricalFeatureDictionary()) {}
 
-    virtual void initialize(Config &config, size_t index) DAAL_C11_OVERRIDE
-    {
-        config.setOutputFeatureType(index, features::DAAL_CATEGORICAL);
-    }
+    virtual void initialize(Config & config, size_t index) DAAL_C11_OVERRIDE { config.setOutputFeatureType(index, features::DAAL_CATEGORICAL); }
 
-    virtual DAAL_DATA_TYPE apply(Context &context, size_t index) DAAL_C11_OVERRIDE
+    virtual DAAL_DATA_TYPE apply(Context & context, size_t index) DAAL_C11_OVERRIDE
     {
         const services::StringView token = context.getToken(index);
         const std::string sToken(token.begin(), token.end());
@@ -113,7 +99,7 @@ public:
         }
     }
 
-    virtual void finalize(Config &config, size_t index) DAAL_C11_OVERRIDE
+    virtual void finalize(Config & config, size_t index) DAAL_C11_OVERRIDE
     {
         const size_t numberOfCategories = _catDict->size();
         config.setNumberOfCategories(index, numberOfCategories);
@@ -131,24 +117,18 @@ private:
 class ContinuousFeatureModifier : public FeatureModifier
 {
 public:
-    virtual void initialize(Config &config) DAAL_C11_OVERRIDE
+    virtual void initialize(Config & config) DAAL_C11_OVERRIDE
     {
         FeatureModifier::initialize(config);
 
         const size_t numberOfFeatures = config.getNumberOfInputFeatures();
-        for (size_t i = 0; i < numberOfFeatures; i++)
-        {
-            config.setOutputFeatureType(i, features::DAAL_CONTINUOUS);
-        }
+        for (size_t i = 0; i < numberOfFeatures; i++) { config.setOutputFeatureType(i, features::DAAL_CONTINUOUS); }
     }
 
-    virtual void apply(Context &context) DAAL_C11_OVERRIDE
+    virtual void apply(Context & context) DAAL_C11_OVERRIDE
     {
         services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
-        for (size_t i = 0; i < outputBuffer.size(); i++)
-        {
-            outputBuffer[i] = context.getTokenAs<DAAL_DATA_TYPE>(i);
-        }
+        for (size_t i = 0; i < outputBuffer.size(); i++) { outputBuffer[i] = context.getTokenAs<DAAL_DATA_TYPE>(i); }
     }
 };
 
@@ -159,42 +139,33 @@ public:
 class CategoricalFeatureModifier : public FeatureModifier
 {
 public:
-    virtual void initialize(Config &config) DAAL_C11_OVERRIDE
+    virtual void initialize(Config & config) DAAL_C11_OVERRIDE
     {
         FeatureModifier::initialize(config);
 
         const size_t numberOfInputFeatures = config.getNumberOfInputFeatures();
-        _primitives = services::Collection<CategoricalFeatureModifierPrimitive>(numberOfInputFeatures);
-        if ( !_primitives.data() )
+        _primitives                        = services::Collection<CategoricalFeatureModifierPrimitive>(numberOfInputFeatures);
+        if (!_primitives.data())
         {
             services::throwIfPossible(services::ErrorMemoryAllocationFailed);
             return;
         }
 
-        for (size_t i = 0; i < numberOfInputFeatures; i++)
-        {
-            _primitives[i].initialize(config, i);
-        }
+        for (size_t i = 0; i < numberOfInputFeatures; i++) { _primitives[i].initialize(config, i); }
     }
 
-    virtual void apply(Context &context) DAAL_C11_OVERRIDE
+    virtual void apply(Context & context) DAAL_C11_OVERRIDE
     {
         services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
-        for (size_t i = 0; i < outputBuffer.size(); i++)
-        {
-            outputBuffer[i] = _primitives[i].apply(context, i);
-        }
+        for (size_t i = 0; i < outputBuffer.size(); i++) { outputBuffer[i] = _primitives[i].apply(context, i); }
     }
 
-    virtual void finalize(Config &config) DAAL_C11_OVERRIDE
+    virtual void finalize(Config & config) DAAL_C11_OVERRIDE
     {
         FeatureModifier::finalize(config);
 
         const size_t numberOfOutputFeatures = config.getNumberOfInputFeatures();
-        for (size_t i = 0; i < numberOfOutputFeatures; i++)
-        {
-            _primitives[i].finalize(config, i);
-        }
+        for (size_t i = 0; i < numberOfOutputFeatures; i++) { _primitives[i].finalize(config, i); }
     }
 
 private:
@@ -208,17 +179,16 @@ private:
 class AutomaticFeatureModifier : public FeatureModifier
 {
 public:
-    virtual void initialize(Config &config) DAAL_C11_OVERRIDE
+    virtual void initialize(Config & config) DAAL_C11_OVERRIDE
     {
         FeatureModifier::initialize(config);
 
         const size_t numberOfInputFeatures = config.getNumberOfInputFeatures();
         for (size_t i = 0; i < numberOfInputFeatures; i++)
         {
-            FeatureModifierPrimitive *primitive =
-                createPrimitive(config.getInputFeatureDetectedType(i));
+            FeatureModifierPrimitive * primitive = createPrimitive(config.getInputFeatureDetectedType(i));
 
-            if ( !_primitives.push_back(primitive) )
+            if (!_primitives.push_back(primitive))
             {
                 services::throwIfPossible(services::ErrorMemoryAllocationFailed);
                 return;
@@ -228,37 +198,29 @@ public:
         }
     }
 
-    virtual void apply(Context &context) DAAL_C11_OVERRIDE
+    virtual void apply(Context & context) DAAL_C11_OVERRIDE
     {
         services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
-        for (size_t i = 0; i < outputBuffer.size(); i++)
-        {
-            outputBuffer[i] = _primitives[i].apply(context, i);
-        }
+        for (size_t i = 0; i < outputBuffer.size(); i++) { outputBuffer[i] = _primitives[i].apply(context, i); }
     }
 
-    virtual void finalize(Config &config) DAAL_C11_OVERRIDE
+    virtual void finalize(Config & config) DAAL_C11_OVERRIDE
     {
         FeatureModifier::finalize(config);
 
         const size_t numberOfOutputFeatures = config.getNumberOfInputFeatures();
-        for (size_t i = 0; i < numberOfOutputFeatures; i++)
-        {
-            _primitives[i].finalize(config, i);
-        }
+        for (size_t i = 0; i < numberOfOutputFeatures; i++) { _primitives[i].finalize(config, i); }
     }
 
 private:
-    FeatureModifierPrimitive *createPrimitive(features::FeatureType featureType)
+    FeatureModifierPrimitive * createPrimitive(features::FeatureType featureType)
     {
         switch (featureType)
         {
-            case features::DAAL_CONTINUOUS:
-                return new ContinuousFeatureModifierPrimitive();
+        case features::DAAL_CONTINUOUS: return new ContinuousFeatureModifierPrimitive();
 
-            case features::DAAL_ORDINAL:
-            case features::DAAL_CATEGORICAL:
-                return new CategoricalFeatureModifierPrimitive();
+        case features::DAAL_ORDINAL:
+        case features::DAAL_CATEGORICAL: return new CategoricalFeatureModifierPrimitive();
         }
         return new DefaultFeatureModifierPrimitive();
     }

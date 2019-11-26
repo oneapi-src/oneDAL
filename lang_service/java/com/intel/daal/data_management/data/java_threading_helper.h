@@ -25,37 +25,32 @@
 
 namespace daal
 {
-
 namespace internal
 {
-
 struct _java_tls
 {
-    JNIEnv *jenv;    // JNI interface poiner
+    JNIEnv * jenv; // JNI interface poiner
     jobject jbuf;
-    jclass jcls;     // Java class associated with this C++ object
+    jclass jcls; // Java class associated with this C++ object
     bool is_main_thread;
     bool is_attached;
     /* Default constructor */
     _java_tls()
     {
-        jenv = NULL;
-        jbuf = NULL;
-        jcls = NULL;
+        jenv           = NULL;
+        jbuf           = NULL;
+        jcls           = NULL;
         is_main_thread = false;
-        is_attached = false;
+        is_attached    = false;
     }
 };
 
-static services::Status attachCurrentThread(JavaVM *jvm, _java_tls &local_tls)
+static services::Status attachCurrentThread(JavaVM * jvm, _java_tls & local_tls)
 {
     if (!local_tls.is_attached)
     {
         jint status = jvm->AttachCurrentThread((void **)(&(local_tls.jenv)), NULL);
-        if(status == JNI_OK)
-        {
-            local_tls.is_attached = true;
-        }
+        if (status == JNI_OK) { local_tls.is_attached = true; }
         else
         {
             return services::Status(services::ErrorCouldntAttachCurrentThreadToJavaVM);
@@ -64,17 +59,14 @@ static services::Status attachCurrentThread(JavaVM *jvm, _java_tls &local_tls)
     return services::Status();
 }
 
-static services::Status detachCurrentThread(JavaVM *jvm, _java_tls &local_tls, bool detach_main_thread = false)
+static services::Status detachCurrentThread(JavaVM * jvm, _java_tls & local_tls, bool detach_main_thread = false)
 {
     if (local_tls.is_attached)
     {
-        if(!local_tls.is_main_thread || detach_main_thread)
+        if (!local_tls.is_main_thread || detach_main_thread)
         {
             jint status = jvm->DetachCurrentThread();
-            if (status == JNI_OK)
-            {
-                local_tls.is_attached = false;
-            }
+            if (status == JNI_OK) { local_tls.is_attached = false; }
         }
     }
     return services::Status();

@@ -41,23 +41,23 @@ namespace training
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPType, CpuType cpu>
 class I1AdaBoostTrainKernel : public Kernel
 {
 public:
-    services::Status compute(NumericTablePtr *a, adaboost::interface1::Model *r, const adaboost::interface1::Parameter *par);
+    services::Status compute(NumericTablePtr * a, adaboost::interface1::Model * r, const adaboost::interface1::Parameter * par);
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
 
 private:
-    services::Status adaBoostFreundKernel(size_t nVectors, NumericTablePtr weakLearnerInputTables[], const HomogenNTPtr& hTable,
-        const algorithmFPType *y, adaboost::interface1::Model *boostModel, const adaboost::interface1::Parameter *parameter, size_t& nWeakLearners, algorithmFPType *alpha);
+    services::Status adaBoostFreundKernel(size_t nVectors, NumericTablePtr weakLearnerInputTables[], const HomogenNTPtr & hTable,
+                                          const algorithmFPType * y, adaboost::interface1::Model * boostModel,
+                                          const adaboost::interface1::Parameter * parameter, size_t & nWeakLearners, algorithmFPType * alpha);
 };
-} // namespace daal::algorithms::adaboost::training::internal
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace adaboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

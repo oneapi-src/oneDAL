@@ -50,24 +50,24 @@ using namespace daal::algorithms;
 using namespace daal::services;
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::changeZeroToMinusOne(NumericTable *yTable)
+services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::changeZeroToMinusOne(NumericTable * yTable)
 {
     services::Status s;
-    const size_t nVectors  = yTable->getNumberOfRows();
+    const size_t nVectors = yTable->getNumberOfRows();
     WriteColumns<algorithmFPtype, cpu> y(const_cast<NumericTable *>(yTable), 0, 0, nVectors);
     DAAL_CHECK_STATUS(s, y.status());
-    algorithmFPtype *yArray = y.get();
-    for(size_t i = 0; i < nVectors; i++)
+    algorithmFPtype * yArray = y.get();
+    for (size_t i = 0; i < nVectors; i++)
     {
-        if(yArray[i] == 0) { yArray[i] = -1; }
+        if (yArray[i] == 0) { yArray[i] = -1; }
     }
     return s;
 }
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const NumericTable *xTable,
-        const stump::classification::Model *m, NumericTable *rTableLabels, NumericTable *rTableProb,
-        const Parameter *par)
+services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const NumericTable * xTable, const stump::classification::Model * m,
+                                                                           NumericTable * rTableLabels, NumericTable * rTableProb,
+                                                                           const Parameter * par)
 {
     services::Status s;
     const size_t nClasses = par->nClasses;
@@ -75,7 +75,9 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
     decision_tree::classification::prediction::Batch<algorithmFPtype> treeAlgorithm(nClasses);
 
     treeAlgorithm.input.set(classifier::prediction::data, NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
-    treeAlgorithm.input.set(classifier::prediction::model, decision_tree::classification::ModelPtr(static_cast<decision_tree::classification::Model*>(const_cast<stump::classification::Model*>(m)), EmptyDeleter()));
+    treeAlgorithm.input.set(classifier::prediction::model,
+                            decision_tree::classification::ModelPtr(
+                                static_cast<decision_tree::classification::Model *>(const_cast<stump::classification::Model *>(m)), EmptyDeleter()));
     treeAlgorithm.parameter.resultsToEvaluate = par->resultsToEvaluate;
     classifier::prediction::ResultPtr treeResult(new classifier::prediction::Result());
     DAAL_CHECK_MALLOC(treeResult.get())
@@ -85,19 +87,16 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
 
     DAAL_CHECK_STATUS(s, treeAlgorithm.computeNoThrow());
 
-    if(rTableLabels && nClasses == 2)
-    {
-        DAAL_CHECK_STATUS(s, changeZeroToMinusOne(rTableLabels));
-    }
+    if (rTableLabels && nClasses == 2) { DAAL_CHECK_STATUS(s, changeZeroToMinusOne(rTableLabels)); }
 
     return s;
 }
 
-} // namespace daal::algorithms::stump::classification::prediction::internal
-}
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

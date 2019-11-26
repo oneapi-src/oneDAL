@@ -33,10 +33,8 @@ namespace optimization_solver
 {
 namespace logistic_loss
 {
-
 namespace internal
 {
-
 template class LogLossKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 
 } // namespace internal

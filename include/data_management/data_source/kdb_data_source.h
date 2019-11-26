@@ -39,7 +39,6 @@ namespace daal
 {
 namespace data_management
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -52,7 +51,7 @@ namespace interface1
  * \tparam _featureManager       Type of a data source, supports only \ref KDBFeatureManager
  */
 
-template<typename _featureManager, typename summaryStatisticsType = DAAL_SUMMARY_STATISTICS_TYPE>
+template <typename _featureManager, typename summaryStatisticsType = DAAL_SUMMARY_STATISTICS_TYPE>
 class KDBDataSource : public DataSourceTemplate<data_management::HomogenNumericTable<DAAL_DATA_TYPE>, summaryStatisticsType>
 {
 public:
@@ -90,25 +89,26 @@ public:
      *                                                     loadDataBlock() method
      *
      */
-    KDBDataSource(const std::string &dbname, size_t port, const std::string &tablename, const std::string &username = "",
-                   const std::string &password = "",
-                   DataSourceIface::NumericTableAllocationFlag doAllocateNumericTable    = DataSource::notAllocateNumericTable,
-                   DataSourceIface::DictionaryCreationFlag doCreateDictionaryFromContext = DataSource::notDictionaryFromContext,
-                   size_t initialMaxRows = 10) :
-        DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>(doAllocateNumericTable, doCreateDictionaryFromContext),
-        _port(port), _idx_last_read(0)
+    KDBDataSource(const std::string & dbname, size_t port, const std::string & tablename, const std::string & username = "",
+                  const std::string & password                                          = "",
+                  DataSourceIface::NumericTableAllocationFlag doAllocateNumericTable    = DataSource::notAllocateNumericTable,
+                  DataSourceIface::DictionaryCreationFlag doCreateDictionaryFromContext = DataSource::notDictionaryFromContext,
+                  size_t initialMaxRows                                                 = 10)
+        : DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>(doAllocateNumericTable, doCreateDictionaryFromContext),
+          _port(port),
+          _idx_last_read(0)
     {
-        if (dbname.find('\0') != std::string::npos || tablename.find('\0') != std::string::npos ||
-            username.find('\0') != std::string::npos || password.find('\0') != std::string::npos)
+        if (dbname.find('\0') != std::string::npos || tablename.find('\0') != std::string::npos || username.find('\0') != std::string::npos
+            || password.find('\0') != std::string::npos)
         {
             this->_errors->add(services::ErrorNullByteInjection);
             return;
         }
-        _dbname = dbname;
-        _username = username;
-        _password = password;
-        _tablename = tablename;
-        _query = _tablename;
+        _dbname         = dbname;
+        _username       = username;
+        _password       = password;
+        _tablename      = tablename;
+        _query          = _tablename;
         _initialMaxRows = initialMaxRows;
     }
 
@@ -118,18 +118,18 @@ public:
     size_t loadDataBlock() DAAL_C11_OVERRIDE
     {
         checkDictionary();
-        if( this->_errors->size() != 0 ) { return 0; }
+        if (this->_errors->size() != 0) { return 0; }
 
         checkNumericTable();
-        if( this->_errors->size() != 0 ) { return 0; }
+        if (this->_errors->size() != 0) { return 0; }
 
         return loadDataBlock(0, this->DataSource::_spnt.get());
     }
 
-    size_t loadDataBlock(NumericTable* nt) DAAL_C11_OVERRIDE
+    size_t loadDataBlock(NumericTable * nt) DAAL_C11_OVERRIDE
     {
         checkDictionary();
-        if( this->_errors->size() != 0 ) { return 0; }
+        if (this->_errors->size() != 0) { return 0; }
 
         return loadDataBlock(0, nt);
     }
@@ -137,10 +137,10 @@ public:
     virtual size_t loadDataBlock(size_t maxRows) DAAL_C11_OVERRIDE
     {
         checkDictionary();
-        if( !this->_errors->isEmpty() ) { return 0; }
+        if (!this->_errors->isEmpty()) { return 0; }
 
         checkNumericTable();
-        if( !this->_errors->isEmpty() ) { return 0; }
+        if (!this->_errors->isEmpty()) { return 0; }
 
         return loadDataBlock(maxRows, this->DataSource::_spnt.get());
     }
@@ -151,13 +151,17 @@ public:
      *  \param nt Externally allocated Numeric Table
      *  \return Actual number of rows loaded from the Data Source
      */
-    virtual size_t loadDataBlock(size_t maxRows, NumericTable *nt)
+    virtual size_t loadDataBlock(size_t maxRows, NumericTable * nt)
     {
         checkDictionary();
 
-        if( this->_errors->size() != 0 ) { return 0; }
+        if (this->_errors->size() != 0) { return 0; }
 
-        if( nt == NULL ) { this->_errors->add(services::ErrorNullInputNumericTable); return 0; }
+        if (nt == NULL)
+        {
+            this->_errors->add(services::ErrorNullInputNumericTable);
+            return 0;
+        }
 
         I handle = _kdbConnect();
 
@@ -165,38 +169,36 @@ public:
 
         size_t nRows = getNumberOfAvailableRows();
 
-        if (nRows == 0) {
-            DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>::resizeNumericTableImpl( 0, nt );
+        if (nRows == 0)
+        {
+            DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>::resizeNumericTableImpl(0, nt);
             _kdbClose(handle);
             return 0;
         }
 
-        if (maxRows != 0 && nRows > maxRows)
-        {
-            nRows = maxRows;
-        }
+        if (maxRows != 0 && nRows > maxRows) { nRows = maxRows; }
 
         std::ostringstream query;
-        query << "(" << _query << ")[(til " << nRows << ") + " << _idx_last_read << + "]";
+        query << "(" << _query << ")[(til " << nRows << ") + " << _idx_last_read << +"]";
         std::string query_exec = query.str();
 
-        K result = k(handle, const_cast<char*>(query_exec.c_str ()), (K)0);
+        K result = k(handle, const_cast<char *>(query_exec.c_str()), (K)0);
 
         _kdbClose(handle);
 
         _idx_last_read += nRows;
 
-        DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>::resizeNumericTableImpl( nRows, nt );
+        DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>::resizeNumericTableImpl(nRows, nt);
 
-        if(nt->getDataMemoryStatus() == NumericTableIface::userAllocated)
+        if (nt->getDataMemoryStatus() == NumericTableIface::userAllocated)
         {
-            if(nt->getNumberOfRows() < nRows)
+            if (nt->getNumberOfRows() < nRows)
             {
                 r0(result);
                 this->_errors->add(services::ErrorIncorrectNumberOfObservations);
                 return 0;
             }
-            if(nt->getNumberOfColumns() != _dict->getNumberOfFeatures())
+            if (nt->getNumberOfColumns() != _dict->getNumberOfFeatures())
             {
                 r0(result);
                 this->_errors->add(services::ErrorIncorrectNumberOfFeatures);
@@ -220,44 +222,35 @@ public:
         }
         r0(result);
 
-        if(nt->basicStatistics.get(NumericTableIface::minimum   ).get() != NULL &&
-           nt->basicStatistics.get(NumericTableIface::maximum   ).get() != NULL &&
-           nt->basicStatistics.get(NumericTableIface::sum       ).get() != NULL &&
-           nt->basicStatistics.get(NumericTableIface::sumSquares).get() != NULL)
+        if (nt->basicStatistics.get(NumericTableIface::minimum).get() != NULL && nt->basicStatistics.get(NumericTableIface::maximum).get() != NULL
+            && nt->basicStatistics.get(NumericTableIface::sum).get() != NULL && nt->basicStatistics.get(NumericTableIface::sumSquares).get() != NULL)
         {
             BlockDescriptor<DAAL_DATA_TYPE> blockNt;
-            nt->getBlockOfRows(0, nt->getNumberOfRows(), readOnly, blockNt );
-            DAAL_DATA_TYPE *row = blockNt.getBlockPtr();
+            nt->getBlockOfRows(0, nt->getNumberOfRows(), readOnly, blockNt);
+            DAAL_DATA_TYPE * row = blockNt.getBlockPtr();
 
-            for(size_t i = 0; i < nRows; i++)
-            {
-                DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>::updateStatistics(i, nt, row);
-            }
+            for (size_t i = 0; i < nRows; i++) { DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>::updateStatistics(i, nt, row); }
 
             nt->releaseBlockOfRows(blockNt);
         }
 
         NumericTableDictionaryPtr ntDict = nt->getDictionarySharedPtr();
-        size_t nFeatures = _dict->getNumberOfFeatures();
+        size_t nFeatures                 = _dict->getNumberOfFeatures();
         ntDict->setNumberOfFeatures(nFeatures);
-        for (size_t i = 0; i < nFeatures; i++)
-        {
-            ntDict->setFeature((*_dict)[i].ntFeature, i);
-        }
+        for (size_t i = 0; i < nFeatures; i++) { ntDict->setFeature((*_dict)[i].ntFeature, i); }
 
         return nRows;
     }
 
     services::Status createDictionaryFromContext() DAAL_C11_OVERRIDE
     {
-        if(_dict)
-            return services::Status(services::ErrorDictionaryAlreadyAvailable);
+        if (_dict) return services::Status(services::ErrorDictionaryAlreadyAvailable);
 
         I handle = _kdbConnect();
 
         std::string query_exec = "(" + _query + ")[til 1]";
 
-        K result = k(handle, const_cast<char*>(query_exec.c_str ()), (K)0);
+        K result = k(handle, const_cast<char *>(query_exec.c_str()), (K)0);
 
         if (!result)
         {
@@ -276,10 +269,7 @@ public:
         _dict = DataSourceDictionary::create(&status);
         if (!status) return status;
 
-        if (result->t == XT)
-        {
-            featureManager.createDictionaryFromTable(result->k, this->_dict.get());
-        }
+        if (result->t == XT) { featureManager.createDictionaryFromTable(result->k, this->_dict.get()); }
         else if (result->t == XD)
         {
             featureManager.createDictionaryFromTable(result, this->_dict.get());
@@ -294,10 +284,7 @@ public:
         return status;
     }
 
-    DataSourceIface::DataSourceStatus getStatus() DAAL_C11_OVERRIDE
-    {
-        return DataSourceIface::readyForLoad;
-    }
+    DataSourceIface::DataSourceStatus getStatus() DAAL_C11_OVERRIDE { return DataSourceIface::readyForLoad; }
 
     size_t getNumberOfAvailableRows() DAAL_C11_OVERRIDE
     {
@@ -307,7 +294,7 @@ public:
 
         std::string query_exec = "count " + _query;
 
-        K result = k(handle, const_cast<char*>(query_exec.c_str ()), (K)0);
+        K result = k(handle, const_cast<char *>(query_exec.c_str()), (K)0);
 
         if (result->t != -KJ)
         {
@@ -326,23 +313,20 @@ public:
         return nRows - _idx_last_read;
     }
 
-    FeatureManager &getFeatureManager()
-    {
-        return featureManager;
-    }
+    FeatureManager & getFeatureManager() { return featureManager; }
 
 private:
-    std::string      _dbname;
-    size_t           _port;
-    std::string      _username;
-    std::string      _password;
-    std::string      _tablename;
-    std::string      _query;
-    size_t           _idx_last_read;
+    std::string _dbname;
+    size_t _port;
+    std::string _username;
+    std::string _password;
+    std::string _tablename;
+    std::string _query;
+    size_t _idx_last_read;
 
     I _kdbConnect()
     {
-        I handle = khpu(const_cast<char*>(_dbname.c_str ()), _port, const_cast<char*>((_username + ":" + _password).c_str ()));
+        I handle = khpu(const_cast<char *>(_dbname.c_str()), _port, const_cast<char *>((_username + ":" + _password).c_str()));
 
         if (handle < 0)
         {
@@ -359,14 +343,11 @@ private:
         return handle;
     }
 
-    void _kdbClose(I handle)
-    {
-        kclose(handle);
-    }
+    void _kdbClose(I handle) { kclose(handle); }
 };
 } // namespace interface1
 using interface1::KDBDataSource;
 
-}
-}
+} // namespace data_management
+} // namespace daal
 #endif

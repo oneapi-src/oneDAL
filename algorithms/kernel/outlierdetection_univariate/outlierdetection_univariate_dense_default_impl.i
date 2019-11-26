@@ -32,31 +32,25 @@ namespace univariate_outlier_detection
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
-Status OutlierDetectionKernel<algorithmFPType, method, cpu>::
-compute(NumericTable &dataTable, NumericTable &resultTable,
-        NumericTable *locationTable,
-        NumericTable *scatterTable,
-        NumericTable *thresholdTable)
+Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(NumericTable & dataTable, NumericTable & resultTable,
+                                                                     NumericTable * locationTable, NumericTable * scatterTable,
+                                                                     NumericTable * thresholdTable)
 {
     /* Create micro-tables for input data and output results */
     size_t nFeatures = dataTable.getNumberOfColumns();
-    size_t nVectors = resultTable.getNumberOfRows();
+    size_t nVectors  = resultTable.getNumberOfRows();
 
     TArray<algorithmFPType, cpu> locationPtr, scatterPtr, thresholdPtr;
     ReadRows<algorithmFPType, cpu> locationBlock(locationTable), scatterBlock(scatterTable), thresholdBlock(thresholdTable);
 
-    algorithmFPType* locationArray  = (locationTable) ?  const_cast<algorithmFPType *>(locationBlock.next(0, 1)):  locationPtr.reset(nFeatures);
-    algorithmFPType* scatterArray   = (scatterTable) ?   const_cast<algorithmFPType *>(scatterBlock.next(0, 1)):   scatterPtr.reset(nFeatures);
-    algorithmFPType* thresholdArray = (thresholdTable) ? const_cast<algorithmFPType *>(thresholdBlock.next(0, 1)): thresholdPtr.reset(nFeatures);
+    algorithmFPType * locationArray  = (locationTable) ? const_cast<algorithmFPType *>(locationBlock.next(0, 1)) : locationPtr.reset(nFeatures);
+    algorithmFPType * scatterArray   = (scatterTable) ? const_cast<algorithmFPType *>(scatterBlock.next(0, 1)) : scatterPtr.reset(nFeatures);
+    algorithmFPType * thresholdArray = (thresholdTable) ? const_cast<algorithmFPType *>(thresholdBlock.next(0, 1)) : thresholdPtr.reset(nFeatures);
 
     DAAL_CHECK(locationArray && scatterArray && thresholdArray, ErrorMemoryAllocationFailed)
 
-    if(!locationTable || !scatterTable || !thresholdTable)
-    {
-        defaultInitialization(locationArray, scatterArray, thresholdArray, nFeatures);
-    }
+    if (!locationTable || !scatterTable || !thresholdTable) { defaultInitialization(locationArray, scatterArray, thresholdArray, nFeatures); }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
     /* Allocate memory for storing intermediate results */
@@ -64,21 +58,14 @@ compute(NumericTable &dataTable, NumericTable &resultTable,
     DAAL_CHECK(invScatterPtr.get(), ErrorMemoryAllocationFailed)
 
     /* Calculate results */
-    return computeInternal(nFeatures, nVectors, dataTable, resultTable,
-                           locationArray,
-                           scatterArray,
-                           invScatterPtr.get(),
-                           thresholdArray);
+    return computeInternal(nFeatures, nVectors, dataTable, resultTable, locationArray, scatterArray, invScatterPtr.get(), thresholdArray);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-void OutlierDetectionKernel<algorithmFPType, method, cpu>::defaultInitialization(
-    algorithmFPType *locationArray,
-    algorithmFPType *scatterArray,
-    algorithmFPType *thresholdArray,
-    const size_t nFeatures)
+void OutlierDetectionKernel<algorithmFPType, method, cpu>::defaultInitialization(algorithmFPType * locationArray, algorithmFPType * scatterArray,
+                                                                                 algorithmFPType * thresholdArray, const size_t nFeatures)
 {
-    for(size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0; i < nFeatures; i++)
     {
         locationArray[i]  = 0.0;
         scatterArray[i]   = 1.0;

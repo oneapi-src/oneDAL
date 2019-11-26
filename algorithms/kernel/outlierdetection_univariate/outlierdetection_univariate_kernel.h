@@ -39,7 +39,6 @@ namespace univariate_outlier_detection
 {
 namespace internal
 {
-
 using namespace daal::internal;
 using namespace daal::internal;
 using namespace daal::services;
@@ -51,11 +50,9 @@ struct OutlierDetectionKernel : public Kernel
 
     /** \brief Detect outliers in the data from input table
                and store resulting weights into output table */
-    inline static Status computeInternal(size_t nFeatures, size_t nVectors,
-                                       NumericTable &dataTable,
-                                       NumericTable &resultTable,
-                                       const algorithmFPType *location, const algorithmFPType *scatter, algorithmFPType *invScatter,
-                                       const algorithmFPType *threshold)
+    inline static Status computeInternal(size_t nFeatures, size_t nVectors, NumericTable & dataTable, NumericTable & resultTable,
+                                         const algorithmFPType * location, const algorithmFPType * scatter, algorithmFPType * invScatter,
+                                         const algorithmFPType * threshold)
     {
         ReadRows<algorithmFPType, cpu> dataBlock(dataTable);
         WriteOnlyRows<algorithmFPType, cpu> resultBlock(resultTable);
@@ -68,44 +65,35 @@ struct OutlierDetectionKernel : public Kernel
         for (size_t j = 0; j < nFeatures; j++)
         {
             invScatter[j] = one;
-            if (scatter[j] != zero)
-            {
-                invScatter[j] = one / scatter[j];
-            }
+            if (scatter[j] != zero) { invScatter[j] = one / scatter[j]; }
         }
 
         size_t nBlocks = nVectors / blockSize;
-        if (nBlocks * blockSize < nVectors)
-        {
-            nBlocks++;
-        }
+        if (nBlocks * blockSize < nVectors) { nBlocks++; }
 
         /* Process input data table in blocks */
         for (size_t iBlock = 0; iBlock < nBlocks; iBlock++)
         {
-            size_t startRow = iBlock * blockSize;
+            size_t startRow     = iBlock * blockSize;
             size_t nRowsInBlock = blockSize;
-            if (startRow + nRowsInBlock > nVectors)
-            {
-                nRowsInBlock = nVectors - startRow;
-            }
+            if (startRow + nRowsInBlock > nVectors) { nRowsInBlock = nVectors - startRow; }
 
-            const algorithmFPType *data = dataBlock.next(startRow, nRowsInBlock);
-            algorithmFPType *weight = resultBlock.next(startRow, nRowsInBlock);
+            const algorithmFPType * data = dataBlock.next(startRow, nRowsInBlock);
+            algorithmFPType * weight     = resultBlock.next(startRow, nRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS(dataBlock);
             DAAL_CHECK_BLOCK_STATUS(resultBlock);
 
-            const algorithmFPType *dataPtr = data;
-            algorithmFPType *weightPtr = weight;
+            const algorithmFPType * dataPtr = data;
+            algorithmFPType * weightPtr     = weight;
             algorithmFPType diff;
-            for (size_t i = 0;  i < nRowsInBlock; i++, dataPtr += nFeatures, weightPtr += nFeatures)
+            for (size_t i = 0; i < nRowsInBlock; i++, dataPtr += nFeatures, weightPtr += nFeatures)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < nFeatures; j++)
                 {
                     weightPtr[j] = one;
-                    diff = daal::internal::Math<algorithmFPType, cpu>::sFabs(dataPtr[j] - location[j]);
+                    diff         = daal::internal::Math<algorithmFPType, cpu>::sFabs(dataPtr[j] - location[j]);
                     if (scatter[j] != zero)
                     {
                         /* Here if scatter is greater than zero */
@@ -124,15 +112,10 @@ struct OutlierDetectionKernel : public Kernel
 
     /** \brief Detect outliers in the data from input numeric table
                and store resulting weights into output numeric table */
-    Status compute(NumericTable &dataTable, NumericTable &resultTable,
-                   NumericTable *locationTable,
-                   NumericTable *scatterTable,
-                   NumericTable *thresholdTable);
+    Status compute(NumericTable & dataTable, NumericTable & resultTable, NumericTable * locationTable, NumericTable * scatterTable,
+                   NumericTable * thresholdTable);
 
-    void defaultInitialization(algorithmFPType *location,
-                               algorithmFPType *scatter,
-                               algorithmFPType *threshold,
-                               const size_t nFeatures);
+    void defaultInitialization(algorithmFPType * location, algorithmFPType * scatter, algorithmFPType * threshold, const size_t nFeatures);
 };
 
 } // namespace internal

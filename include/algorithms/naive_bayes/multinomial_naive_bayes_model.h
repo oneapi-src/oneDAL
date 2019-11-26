@@ -44,7 +44,6 @@ namespace algorithms
  */
 namespace multinomial_naive_bayes
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -65,17 +64,18 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
      *  \param[in] priorClassEstimates_ Prior class estimates, numeric table of size [nClasses x 1]
      *  \param[in] alpha_               Imagined occurrences of the each feature, numeric table of size [1 x nFeatures]
      */
-    DAAL_DEPRECATED Parameter(size_t nClasses, const data_management::NumericTablePtr &priorClassEstimates_ = data_management::NumericTablePtr(),
-              const data_management::NumericTablePtr &alpha_ = data_management::NumericTablePtr()) :
-        classifier::interface1::Parameter(nClasses), priorClassEstimates(priorClassEstimates_), alpha(alpha_) {}
+    DAAL_DEPRECATED Parameter(size_t nClasses, const data_management::NumericTablePtr & priorClassEstimates_ = data_management::NumericTablePtr(),
+                              const data_management::NumericTablePtr & alpha_ = data_management::NumericTablePtr())
+        : classifier::interface1::Parameter(nClasses), priorClassEstimates(priorClassEstimates_), alpha(alpha_)
+    {}
 
-    data_management::NumericTablePtr priorClassEstimates;   /*!< Prior class estimates */
-    data_management::NumericTablePtr alpha;                 /*!< Imagined occurrences of the each word */
+    data_management::NumericTablePtr priorClassEstimates; /*!< Prior class estimates */
+    data_management::NumericTablePtr alpha;               /*!< Imagined occurrences of the each word */
 
     DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
-}
+} // namespace interface1
 
 /**
  * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -97,21 +97,21 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
      *  \param[in] priorClassEstimates_ Prior class estimates, numeric table of size [nClasses x 1]
      *  \param[in] alpha_               Imagined occurrences of the each feature, numeric table of size [1 x nFeatures]
      */
-    Parameter(size_t nClasses, const data_management::NumericTablePtr &priorClassEstimates_ = data_management::NumericTablePtr(),
-              const data_management::NumericTablePtr &alpha_ = data_management::NumericTablePtr()) :
-        classifier::Parameter(nClasses), priorClassEstimates(priorClassEstimates_), alpha(alpha_) {}
+    Parameter(size_t nClasses, const data_management::NumericTablePtr & priorClassEstimates_ = data_management::NumericTablePtr(),
+              const data_management::NumericTablePtr & alpha_ = data_management::NumericTablePtr())
+        : classifier::Parameter(nClasses), priorClassEstimates(priorClassEstimates_), alpha(alpha_)
+    {}
 
-    data_management::NumericTablePtr priorClassEstimates;   /*!< Prior class estimates */
-    data_management::NumericTablePtr alpha;                 /*!< Imagined occurrences of the each word */
+    data_management::NumericTablePtr priorClassEstimates; /*!< Prior class estimates */
+    data_management::NumericTablePtr alpha;               /*!< Imagined occurrences of the each word */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-}
+} // namespace interface2
 
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__MODEL"></a>
  * \brief Multinomial naive Bayes model
@@ -134,8 +134,8 @@ public:
      * \param[in] dummy      Dummy variable for the templated constructor
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    template<typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, const interface1::Parameter &parameter, modelFPType dummy);
+    template <typename modelFPType>
+    DAAL_EXPORT Model(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy);
 
     /**
      * Constructs multinomial naive Bayes model
@@ -144,8 +144,8 @@ public:
      * \param[in] dummy      Dummy variable for the templated constructor
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    template<typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, const interface2::Parameter &parameter, modelFPType dummy);
+    template <typename modelFPType>
+    DAAL_EXPORT Model(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy);
 
     /**
      * Constructs multinomial naive Bayes model
@@ -153,9 +153,8 @@ public:
      * \param[in] parameter  The multinomial naive Bayes parameter
      * \param[out] stat      Status of the model construction
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, const interface1::Parameter &parameter,
-                                                         services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, const interface1::Parameter & parameter, services::Status * stat = NULL);
 
     /**
      * Constructs multinomial naive Bayes model
@@ -163,9 +162,8 @@ public:
      * \param[in] parameter  The multinomial naive Bayes parameter
      * \param[out] stat      Status of the model construction
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, const interface2::Parameter &parameter,
-                                                         services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, const interface2::Parameter & parameter, services::Status * stat = NULL);
     /** \private */
     virtual ~Model() {}
 
@@ -191,26 +189,25 @@ public:
      *  Retrieves the number of features in the dataset was used on the training stage
      *  \return Number of features in the dataset was used on the training stage
      */
-    size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return (_logTheta ?_logTheta->getNumberOfColumns() : 0); }
+    size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return (_logTheta ? _logTheta->getNumberOfColumns() : 0); }
 
 protected:
     data_management::NumericTablePtr _logP;
     data_management::NumericTablePtr _logTheta;
     data_management::NumericTablePtr _auxTable;
 
-    template<typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, const interface1::Parameter &parameter, modelFPType dummy, services::Status &st);
+    template <typename modelFPType>
+    DAAL_EXPORT Model(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy, services::Status & st);
 
-    template<typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, const interface2::Parameter &parameter, modelFPType dummy, services::Status &st);
+    template <typename modelFPType>
+    DAAL_EXPORT Model(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy, services::Status & st);
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st = classifier::Model::serialImpl<Archive, onDeserialize>(arch);
-        if (!st)
-            return st;
-        arch->setSharedPtrObj(_logP    );
+        if (!st) return st;
+        arch->setSharedPtrObj(_logP);
         arch->setSharedPtrObj(_logTheta);
         arch->setSharedPtrObj(_auxTable);
 
@@ -241,8 +238,8 @@ public:
      * \param[in] dummy      Dummy variable for the templated constructor
      * \DAAL_DEPRECATED_USE{ PartialModel::create }
      */
-    template<typename modelFPType>
-    DAAL_EXPORT PartialModel(size_t nFeatures, const interface1::Parameter &parameter, modelFPType dummy);
+    template <typename modelFPType>
+    DAAL_EXPORT PartialModel(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy);
 
     /**
      * Constructs multinomial naive Bayes partial model
@@ -251,8 +248,8 @@ public:
      * \param[in] dummy      Dummy variable for the templated constructor
      * \DAAL_DEPRECATED_USE{ PartialModel::create }
      */
-    template<typename modelFPType>
-    DAAL_EXPORT PartialModel(size_t nFeatures, const interface2::Parameter &parameter, modelFPType dummy);
+    template <typename modelFPType>
+    DAAL_EXPORT PartialModel(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy);
 
     /**
      * Constructs multinomial naive Bayes partial model
@@ -261,9 +258,9 @@ public:
      * \param[out] stat      Status of the model construction
      * \return Multinomial naive Bayes partial model
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<PartialModel> create(size_t nFeatures, const interface1::Parameter &parameter,
-                                                                services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<PartialModel> create(size_t nFeatures, const interface1::Parameter & parameter,
+                                                                services::Status * stat = NULL);
 
     /**
      * Constructs multinomial naive Bayes partial model
@@ -272,21 +269,15 @@ public:
      * \param[out] stat      Status of the model construction
      * \return Multinomial naive Bayes partial model
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<PartialModel> create(size_t nFeatures, const interface2::Parameter &parameter,
-                                                                services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<PartialModel> create(size_t nFeatures, const interface2::Parameter & parameter,
+                                                                services::Status * stat = NULL);
     /** \private */
     virtual ~PartialModel() {}
 
-    size_t getNObservations()
-    {
-        return _nObservations;
-    }
+    size_t getNObservations() { return _nObservations; }
 
-    void setNObservations( size_t nObservations )
-    {
-        _nObservations = nObservations;
-    }
+    void setNObservations(size_t nObservations) { _nObservations = nObservations; }
 
     /**
      *  Retrieves the number of features in the dataset was used on the training stage
@@ -306,7 +297,7 @@ public:
      */
     void setNFeatures(size_t nFeatures) DAAL_C11_OVERRIDE {}
 
-    template<typename modelFPType>
+    template <typename modelFPType>
     services::Status initialize()
     {
         _classSize->assign((int)0);
@@ -315,7 +306,7 @@ public:
         return services::Status();
     }
 
-    data_management::NumericTablePtr getClassSize()     { return _classSize;     }
+    data_management::NumericTablePtr getClassSize() { return _classSize; }
     data_management::NumericTablePtr getClassGroupSum() { return _classGroupSum; }
 
 protected:
@@ -323,20 +314,17 @@ protected:
     data_management::NumericTablePtr _classGroupSum;
     size_t _nObservations;
 
-    template<typename modelFPType>
-    DAAL_EXPORT PartialModel(size_t nFeatures, const interface1::Parameter &parameter,
-                             modelFPType dummy, services::Status &st);
+    template <typename modelFPType>
+    DAAL_EXPORT PartialModel(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy, services::Status & st);
 
-    template<typename modelFPType>
-    DAAL_EXPORT PartialModel(size_t nFeatures, const interface2::Parameter &parameter,
-                             modelFPType dummy, services::Status &st);
+    template <typename modelFPType>
+    DAAL_EXPORT PartialModel(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy, services::Status & st);
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st = classifier::Model::serialImpl<Archive, onDeserialize>(arch);
-        if (!st)
-            return st;
+        if (!st) return st;
         arch->set(_nObservations);
         arch->setSharedPtrObj(_classSize);
         arch->setSharedPtrObj(_classGroupSum);

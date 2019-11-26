@@ -41,7 +41,7 @@ namespace internal
 {
 template class I1BrownBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace brownboost
+} // namespace algorithms
+} // namespace daal

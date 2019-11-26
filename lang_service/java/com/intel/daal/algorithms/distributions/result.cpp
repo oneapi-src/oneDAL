@@ -33,8 +33,7 @@ using namespace daal::algorithms;
  * Method:    cGetValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_Result_cGetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_Result_cGetValue(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     return jniArgument<distributions::Result>::get<distributions::ResultId, NumericTable>(resAddr, id);
 }
@@ -44,11 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_Result_cGet
  * Method:    cSetValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_Result_cSetValue
-  (JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong tensorAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_Result_cSetValue(JNIEnv * env, jobject thisObj, jlong resAddr, jint id,
+                                                                                     jlong tensorAddr)
 {
-    if (id == randomNumbers)
-    {
-        jniArgument<distributions::Result>::set<distributions::ResultId, NumericTable>(resAddr, id, tensorAddr);
-    }
+    if (id == randomNumbers) { jniArgument<distributions::Result>::set<distributions::ResultId, NumericTable>(resAddr, id, tensorAddr); }
 }

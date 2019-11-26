@@ -27,8 +27,9 @@ using namespace daal::algorithms::linear_regression::quality_metric_set;
 * Method:    cSetNBeta
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cSetNBeta
-(JNIEnv *, jobject, jlong parAddr, jlong nBeta)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cSetNBeta(JNIEnv *, jobject,
+                                                                                                                                  jlong parAddr,
+                                                                                                                                  jlong nBeta)
 {
     (*(Parameter *)parAddr).numBeta = nBeta;
 }
@@ -38,10 +39,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetNBeta
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cGetNBeta
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cGetNBeta(JNIEnv *, jobject,
+                                                                                                                                   jlong parAddr)
 {
-    return(jlong)(*(Parameter *)parAddr).numBeta;
+    return (jlong)(*(Parameter *)parAddr).numBeta;
 }
 
 /*
@@ -49,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cSetNBetaReducedModel
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cSetNBetaReducedModel
-(JNIEnv *, jobject, jlong parAddr, jlong nBetaReducedModel)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cSetNBetaReducedModel(
+    JNIEnv *, jobject, jlong parAddr, jlong nBetaReducedModel)
 {
     (*(Parameter *)parAddr).numBetaReducedModel = nBetaReducedModel;
 }
@@ -60,10 +61,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetNBetaReducedModel
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cGetNBetaReducedModel
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cGetNBetaReducedModel(
+    JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(Parameter *)parAddr).numBetaReducedModel;
+    return (jlong)(*(Parameter *)parAddr).numBetaReducedModel;
 }
 
 /*
@@ -71,22 +72,23 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cSetAlpha
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cSetAlpha
-(JNIEnv *, jobject, jlong parAddr, jdouble alpha)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cSetAlpha(JNIEnv *, jobject,
+                                                                                                                                  jlong parAddr,
+                                                                                                                                  jdouble alpha)
 {
     (*(Parameter *)parAddr).alpha = alpha;
 }
-
 
 /*
 * Class:     com_intel_daal_algorithms_linear_regression_quality_metric_set_QualityMetricSetParameter
 * Method:    cGetAlpha
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cGetAlpha
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cGetAlpha(JNIEnv *,
+                                                                                                                                     jobject,
+                                                                                                                                     jlong parAddr)
 {
-    return(jdouble)(*(Parameter *)parAddr).alpha;
+    return (jdouble)(*(Parameter *)parAddr).alpha;
 }
 
 /*
@@ -94,8 +96,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_qual
 * Method:    cSetAccuracyThreshold
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cSetAccuracyThreshold
-(JNIEnv *, jobject, jlong parAddr, jdouble accuracyThreshold)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cSetAccuracyThreshold(
+    JNIEnv *, jobject, jlong parAddr, jdouble accuracyThreshold)
 {
     (*(Parameter *)parAddr).accuracyThreshold = accuracyThreshold;
 }
@@ -104,8 +106,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cGetAccuracyThreshold
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cGetAccuracyThreshold
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_1set_QualityMetricSetParameter_cGetAccuracyThreshold(
+    JNIEnv *, jobject, jlong parAddr)
 {
-    return(jdouble)(*(Parameter *)parAddr).accuracyThreshold;
+    return (jdouble)(*(Parameter *)parAddr).accuracyThreshold;
 }

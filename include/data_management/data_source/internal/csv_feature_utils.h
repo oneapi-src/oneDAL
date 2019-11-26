@@ -30,7 +30,6 @@ namespace data_management
 {
 namespace internal
 {
-
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__INTERNAL__CSVROWTOKENIZER"></a>
  *  \brief Class that parses single row in CSV file and implements iterator-like
@@ -39,7 +38,7 @@ namespace internal
 class CSVRowTokenizer : public Base
 {
 private:
-    char *_rawData;
+    char * _rawData;
     const size_t _rawDataSize;
     const char _delimiter;
 
@@ -49,14 +48,9 @@ private:
     bool _goodFlag;
 
 public:
-    explicit CSVRowTokenizer(char *rawData, size_t rawDataSize, char delimiter) :
-        _rawData(rawData),
-        _rawDataSize(rawDataSize),
-        _delimiter(delimiter),
-        _pos(0),
-        _prevPos(0),
-        _tokenSize(0),
-        _goodFlag(true) { }
+    explicit CSVRowTokenizer(char * rawData, size_t rawDataSize, char delimiter)
+        : _rawData(rawData), _rawDataSize(rawDataSize), _delimiter(delimiter), _pos(0), _prevPos(0), _tokenSize(0), _goodFlag(true)
+    {}
 
     void reset()
     {
@@ -77,11 +71,10 @@ public:
 
         _prevPos = _pos;
 
-        while (isValidSymbol(_pos) && !isStopSymbol(_pos))
-        { _pos++; }
+        while (isValidSymbol(_pos) && !isStopSymbol(_pos)) { _pos++; }
 
         _tokenSize = _pos - _prevPos;
-        _goodFlag = isValidSymbol(_prevPos);
+        _goodFlag  = isValidSymbol(_prevPos);
 
         if (isValidSymbol(_pos) && isStopSymbol(_pos))
         {
@@ -90,30 +83,17 @@ public:
         }
     }
 
-    DAAL_FORCEINLINE bool good() const
-    {
-        return _goodFlag;
-    }
+    DAAL_FORCEINLINE bool good() const { return _goodFlag; }
 
-    DAAL_FORCEINLINE services::StringView getCurrentToken() const
-    {
-        return services::StringView(_rawData + _prevPos, _tokenSize);
-    }
+    DAAL_FORCEINLINE services::StringView getCurrentToken() const { return services::StringView(_rawData + _prevPos, _tokenSize); }
 
 private:
-    DAAL_FORCEINLINE bool isValidSymbol(size_t index) const
-    {
-        return index < _rawDataSize &&
-               _rawData[index] != '\0';
-    }
+    DAAL_FORCEINLINE bool isValidSymbol(size_t index) const { return index < _rawDataSize && _rawData[index] != '\0'; }
 
-    DAAL_FORCEINLINE bool isStopSymbol(size_t index) const
-    {
-        return _rawData[index] == _delimiter;
-    }
+    DAAL_FORCEINLINE bool isStopSymbol(size_t index) const { return _rawData[index] == _delimiter; }
 
     CSVRowTokenizer(const CSVRowTokenizer &);
-    CSVRowTokenizer &operator=(const CSVRowTokenizer &);
+    CSVRowTokenizer & operator=(const CSVRowTokenizer &);
 };
 
 /**
@@ -123,28 +103,19 @@ private:
 class CSVFeaturesInfo : public Base
 {
 public:
-    services::Status addFeatureName(const services::StringView &featureName)
+    services::Status addFeatureName(const services::StringView & featureName)
     {
         services::Status status = services::internal::checkForNullByteInjection(featureName.begin(), featureName.end());
-        if (!status)
-        {
-            return services::throwIfPossible(services::ErrorNullByteInjection);
-        }
+        if (!status) { return services::throwIfPossible(services::ErrorNullByteInjection); }
         const services::String featureNameStr(featureName.begin());
-        if ( !_featureNames.safe_push_back(featureNameStr) )
-        {
-            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
-        }
+        if (!_featureNames.safe_push_back(featureNameStr)) { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
         return services::Status();
     }
 
-    services::Status addFeatureType(const services::StringView &token)
+    services::Status addFeatureType(const services::StringView & token)
     {
         const features::FeatureType featureType = detectFeatureType(token);
-        if ( !_featureTypes.safe_push_back(featureType) )
-        {
-            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
-        }
+        if (!_featureTypes.safe_push_back(featureType)) { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
         return services::Status();
     }
 
@@ -153,43 +124,38 @@ public:
         /* We allow _featureNames to be empty to support a no-header case */
         if (_featureNames.size() != 0)
         {
-            DAAL_ASSERT( _featureNames.size() == _featureTypes.size() );
+            DAAL_ASSERT(_featureNames.size() == _featureTypes.size());
             return _featureNames.size();
         }
         return _featureTypes.size();
     }
 
-    const services::String &getFeatureName(size_t featureIndex) const
+    const services::String & getFeatureName(size_t featureIndex) const
     {
-        DAAL_ASSERT( _featureNames.size() == 0 ||
-                     _featureNames.size() == _featureTypes.size() );
-        DAAL_ASSERT( featureIndex < _featureNames.size() );
+        DAAL_ASSERT(_featureNames.size() == 0 || _featureNames.size() == _featureTypes.size());
+        DAAL_ASSERT(featureIndex < _featureNames.size());
         return _featureNames[featureIndex];
     }
 
     features::FeatureType getDetectedFeatureType(size_t featureIndex) const
     {
-        DAAL_ASSERT( featureIndex < _featureTypes.size() );
+        DAAL_ASSERT(featureIndex < _featureTypes.size());
         return _featureTypes[featureIndex];
     }
 
-    bool areFeatureNamesAvailable() const
-    {
-        return _featureNames.size() > 0;
-    }
+    bool areFeatureNamesAvailable() const { return _featureNames.size() > 0; }
 
 private:
-    static features::FeatureType detectFeatureType(const services::StringView &token)
+    static features::FeatureType detectFeatureType(const services::StringView & token)
     {
-        return isNumericalFeature(token)
-            ? features::DAAL_CONTINUOUS
-            : features::DAAL_CATEGORICAL;
+        return isNumericalFeature(token) ? features::DAAL_CONTINUOUS : features::DAAL_CATEGORICAL;
     }
 
-    static bool isNumericalFeature(const services::StringView &token)
+    static bool isNumericalFeature(const services::StringView & token)
     {
         std::istringstream iss(token.c_str());
-        DAAL_DATA_TYPE f = 0.0; iss >> f;
+        DAAL_DATA_TYPE f = 0.0;
+        iss >> f;
         return !(iss.fail());
     }
 

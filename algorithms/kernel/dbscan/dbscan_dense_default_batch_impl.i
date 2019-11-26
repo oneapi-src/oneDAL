@@ -27,7 +27,6 @@
 #include "dbscan_types.h"
 #include "dbscan_utils.h"
 
-
 using namespace daal::internal;
 using namespace daal::services;
 using namespace daal::services::internal;
@@ -40,24 +39,17 @@ namespace dbscan
 {
 namespace internal
 {
-
 #define __DBSCAN_PREFETCHED_NEIGHBORHOODS_COUNT 64
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processNeighborhood(size_t clusterId,
-                                                                            int * const assignments,
-                                                                            const Neighborhood<algorithmFPType, cpu> & neigh,
-                                                                            Queue<size_t, cpu> & qu)
+Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processNeighborhood(size_t clusterId, int * const assignments,
+                                                                            const Neighborhood<algorithmFPType, cpu> & neigh, Queue<size_t, cpu> & qu)
 {
     for (size_t j = 0; j < neigh.size(); j++)
     {
         const size_t nextObs = neigh.get(j);
-        if (assignments[nextObs] == noise)
-        {
-            assignments[nextObs] = clusterId;
-        }
-        else
-        if (assignments[nextObs] == undefined)
+        if (assignments[nextObs] == noise) { assignments[nextObs] = clusterId; }
+        else if (assignments[nextObs] == undefined)
         {
             assignments[nextObs] = clusterId;
             DAAL_CHECK_STATUS_VAR(qu.push(nextObs));
@@ -68,30 +60,22 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processNeighborhood(size
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(DAAL_UINT64 resultsToCompute,
-                                                                                int * const isCore,
-                                                                                const NumericTable * ntData,
-                                                                                      NumericTable * ntCoreIndices,
-                                                                                      NumericTable * ntCoreObservations)
+Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(DAAL_UINT64 resultsToCompute, int * const isCore,
+                                                                                const NumericTable * ntData, NumericTable * ntCoreIndices,
+                                                                                NumericTable * ntCoreObservations)
 {
-    const size_t nRows = ntData->getNumberOfRows();
+    const size_t nRows     = ntData->getNumberOfRows();
     const size_t nFeatures = ntData->getNumberOfColumns();
 
     size_t nCoreObservations = 0;
 
     for (size_t i = 0; i < nRows; i++)
     {
-        if (!isCore[i])
-        {
-            continue;
-        }
+        if (!isCore[i]) { continue; }
         nCoreObservations++;
     }
 
-    if (nCoreObservations == 0)
-    {
-        return Status();
-    }
+    if (nCoreObservations == 0) { return Status(); }
 
     if (resultsToCompute & computeCoreIndices)
     {
@@ -103,10 +87,7 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(
         size_t pos = 0;
         for (size_t i = 0; i < nRows; i++)
         {
-            if (!isCore[i])
-            {
-                continue;
-            }
+            if (!isCore[i]) { continue; }
             coreIndices[pos] = i;
             pos++;
         }
@@ -123,36 +104,32 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(
         int result = 0;
         for (size_t i = 0; i < nRows; i++)
         {
-            if (!isCore[i])
-            {
-                continue;
-            }
+            if (!isCore[i]) { continue; }
             ReadRows<algorithmFPType, cpu> dataRows(const_cast<NumericTable *>(ntData), i, 1);
             DAAL_CHECK_BLOCK_STATUS(dataRows);
             const algorithmFPType * const data = dataRows.get();
 
-            result |= daal::services::internal::daal_memcpy_s(&(coreObservations[pos * nFeatures]), sizeof(algorithmFPType) * nFeatures,
-                                              data, sizeof(algorithmFPType) * nFeatures);
+            result |= daal::services::internal::daal_memcpy_s(&(coreObservations[pos * nFeatures]), sizeof(algorithmFPType) * nFeatures, data,
+                                                              sizeof(algorithmFPType) * nFeatures);
             pos++;
         }
-        if (result)
-        {
-            return Status(services::ErrorMemoryCopyFailedInternal);
-        }
+        if (result) { return Status(services::ErrorMemoryCopyFailedInternal); }
     }
 
     return Status();
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const NumericTable *ntData, const NumericTable *ntWeights,
-    NumericTable *ntAssignments, NumericTable *ntNClusters, NumericTable *ntCoreIndices, NumericTable *ntCoreObservations, const Parameter *par)
+Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const NumericTable * ntData, const NumericTable * ntWeights,
+                                                                         NumericTable * ntAssignments, NumericTable * ntNClusters,
+                                                                         NumericTable * ntCoreIndices, NumericTable * ntCoreObservations,
+                                                                         const Parameter * par)
 {
     Status s;
 
-    const algorithmFPType epsilon = par->epsilon;
+    const algorithmFPType epsilon         = par->epsilon;
     const algorithmFPType minObservations = par->minObservations;
-    const algorithmFPType minkowskiPower = (algorithmFPType)2.0;
+    const algorithmFPType minkowskiPower  = (algorithmFPType)2.0;
 
     const size_t nRows = ntData->getNumberOfRows();
 
@@ -183,7 +160,7 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const N
     {
         if (assignments[i] != undefined) continue;
 
-        Neighborhood<algorithmFPType, cpu> &curNeigh = neighs[i];
+        Neighborhood<algorithmFPType, cpu> & curNeigh = neighs[i];
         if (curNeigh.weight() < minObservations)
         {
             assignments[i] = noise;
@@ -191,18 +168,18 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const N
         }
 
         nClusters++;
-        isCore[i] = 1;
+        isCore[i]      = 1;
         assignments[i] = nClusters - 1;
 
         qu.reset();
 
         DAAL_CHECK_STATUS_VAR(processNeighborhood(nClusters - 1, assignments, curNeigh, qu));
 
-        while (!qu.empty ())
+        while (!qu.empty())
         {
             const size_t curObs = qu.pop();
 
-            Neighborhood<algorithmFPType, cpu> &curNeigh = neighs[curObs];
+            Neighborhood<algorithmFPType, cpu> & curNeigh = neighs[curObs];
 
             assignments[curObs] = nClusters - 1;
             if (curNeigh.weight() < minObservations) continue;
@@ -217,23 +194,23 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const N
     DAAL_CHECK_BLOCK_STATUS(nClustersRows);
     nClustersRows.get()[0] = nClusters;
 
-    if(par->resultsToCompute & (computeCoreIndices | computeCoreObservations))
-    {
-        DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, isCore, ntData, ntCoreIndices, ntCoreObservations));
-    }
+    if (par->resultsToCompute & (computeCoreIndices | computeCoreObservations))
+    { DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, isCore, ntData, ntCoreIndices, ntCoreObservations)); }
 
     return s;
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeMemSave(const NumericTable *ntData, const NumericTable *ntWeights,
-    NumericTable *ntAssignments, NumericTable *ntNClusters, NumericTable *ntCoreIndices, NumericTable *ntCoreObservations, const Parameter *par)
+Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeMemSave(const NumericTable * ntData, const NumericTable * ntWeights,
+                                                                       NumericTable * ntAssignments, NumericTable * ntNClusters,
+                                                                       NumericTable * ntCoreIndices, NumericTable * ntCoreObservations,
+                                                                       const Parameter * par)
 {
     Status s;
 
-    const algorithmFPType epsilon = par->epsilon;
+    const algorithmFPType epsilon         = par->epsilon;
     const algorithmFPType minObservations = par->minObservations;
-    const algorithmFPType minkowskiPower = (algorithmFPType)2.0;
+    const algorithmFPType minkowskiPower  = (algorithmFPType)2.0;
 
     const size_t nRows = ntData->getNumberOfRows();
 
@@ -274,7 +251,7 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeMemSave(const Num
         }
 
         nClusters++;
-        isCore[i] = 1;
+        isCore[i]      = 1;
         assignments[i] = nClusters - 1;
 
         qu.reset();
@@ -282,29 +259,25 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeMemSave(const Num
         DAAL_CHECK_STATUS_VAR(processNeighborhood(nClusters - 1, assignments, curNeigh, qu));
 
         size_t firstPrefetchedPos = 0;
-        size_t lastPrefetchedPos = 0;
+        size_t lastPrefetchedPos  = 0;
 
-        while (!qu.empty ())
+        while (!qu.empty())
         {
-            const size_t quPos = qu.head();
+            const size_t quPos  = qu.head();
             const size_t curObs = qu.pop();
 
-            if (quPos >= lastPrefetchedPos)
-            {
-                firstPrefetchedPos = lastPrefetchedPos = quPos;
-            }
+            if (quPos >= lastPrefetchedPos) { firstPrefetchedPos = lastPrefetchedPos = quPos; }
 
             if (lastPrefetchedPos - firstPrefetchedPos < prefetchBlockSize && lastPrefetchedPos < qu.tail())
             {
-                const size_t nextPrefetchPos = firstPrefetchedPos + prefetchBlockSize < qu.tail() ? firstPrefetchedPos + prefetchBlockSize : qu.tail();
-                DAAL_CHECK_STATUS_VAR(nEngine.query(qu.getInternalPtr(lastPrefetchedPos),
-                                                    nextPrefetchPos - lastPrefetchedPos,
-                                                    &(prefetchedNeighs[lastPrefetchedPos - firstPrefetchedPos]),
-                                                    true));
+                const size_t nextPrefetchPos =
+                    firstPrefetchedPos + prefetchBlockSize < qu.tail() ? firstPrefetchedPos + prefetchBlockSize : qu.tail();
+                DAAL_CHECK_STATUS_VAR(nEngine.query(qu.getInternalPtr(lastPrefetchedPos), nextPrefetchPos - lastPrefetchedPos,
+                                                    &(prefetchedNeighs[lastPrefetchedPos - firstPrefetchedPos]), true));
                 lastPrefetchedPos = nextPrefetchPos;
             }
 
-            Neighborhood<algorithmFPType, cpu> &curNeigh = prefetchedNeighs[quPos - firstPrefetchedPos];
+            Neighborhood<algorithmFPType, cpu> & curNeigh = prefetchedNeighs[quPos - firstPrefetchedPos];
 
             assignments[curObs] = nClusters - 1;
             if (curNeigh.weight() < minObservations) continue;
@@ -319,15 +292,13 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeMemSave(const Num
     DAAL_CHECK_BLOCK_STATUS(nClustersRows);
     nClustersRows.get()[0] = nClusters;
 
-    if(par->resultsToCompute & (computeCoreIndices | computeCoreObservations))
-    {
-        DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, isCore, ntData, ntCoreIndices, ntCoreObservations));
-    }
+    if (par->resultsToCompute & (computeCoreIndices | computeCoreObservations))
+    { DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, isCore, ntData, ntCoreIndices, ntCoreObservations)); }
 
     return s;
 }
 
-} // namespace daal::algorithms::dbscan::internal
-} // namespace daal::algorithms::dbscan
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace dbscan
+} // namespace algorithms
 } // namespace daal

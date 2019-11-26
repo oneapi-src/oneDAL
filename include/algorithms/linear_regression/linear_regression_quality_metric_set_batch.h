@@ -39,7 +39,6 @@ namespace linear_regression
  */
 namespace quality_metric_set
 {
-
 namespace interface1
 {
 /**
@@ -60,7 +59,7 @@ namespace interface1
 class DAAL_EXPORT Batch : public algorithms::quality_metric_set::Batch
 {
 public:
-    Parameter parameter;    /*!< Parameters of the algorithm */
+    Parameter parameter; /*!< Parameters of the algorithm */
 
     /**
      * Constructs a quality metric set for the model trained with the linear regression algorithm
@@ -68,14 +67,11 @@ public:
      * \param[in] nBeta                 Number of beta coefficients (p) of linear regression model used for prediction
      * \param[in] nBetaReducedModel     Number of beta coefficients (p0) used for prediction with reduced linear regression model where p - p0 of p beta coefficients are set to 0
      */
-    Batch(size_t nBeta, size_t nBetaReducedModel, bool useDefaultMetrics = true):
-        algorithms::quality_metric_set::Batch(useDefaultMetrics), parameter(nBeta, nBetaReducedModel)
+    Batch(size_t nBeta, size_t nBetaReducedModel, bool useDefaultMetrics = true)
+        : algorithms::quality_metric_set::Batch(useDefaultMetrics), parameter(nBeta, nBetaReducedModel)
     {
         _inputData = InputDataCollectionPtr(new InputDataCollection());
-        if (_useDefaultMetrics)
-        {
-            initializeQualityMetrics();
-        }
+        if (_useDefaultMetrics) { initializeQualityMetrics(); }
         _resultCollection = ResultCollectionPtr(new ResultCollection());
     }
 
@@ -87,8 +83,7 @@ public:
      */
     ResultCollectionPtr getResultCollection()
     {
-        return services::staticPointerCast<ResultCollection,
-                                           algorithms::quality_metric_set::ResultCollection>(_resultCollection);
+        return services::staticPointerCast<ResultCollection, algorithms::quality_metric_set::ResultCollection>(_resultCollection);
     }
 
     /**
@@ -97,8 +92,7 @@ public:
      */
     InputDataCollectionPtr getInputDataCollection()
     {
-        return services::staticPointerCast<InputDataCollection,
-                                           algorithms::quality_metric_set::InputDataCollection>(_inputData);
+        return services::staticPointerCast<InputDataCollection, algorithms::quality_metric_set::InputDataCollection>(_inputData);
     }
 
 protected:
@@ -108,8 +102,8 @@ protected:
 } // namespace interface1
 using interface1::Batch;
 
-}
-}
-}
-}
+} // namespace quality_metric_set
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 #endif

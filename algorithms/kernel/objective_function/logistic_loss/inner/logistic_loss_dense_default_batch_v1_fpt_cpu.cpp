@@ -23,7 +23,6 @@
 #include "logistic_loss_dense_default_batch_v1_impl.i"
 #include "logistic_loss_dense_default_batch_container_v1.h"
 
-
 namespace daal
 {
 namespace algorithms
@@ -32,7 +31,6 @@ namespace optimization_solver
 {
 namespace logistic_loss
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

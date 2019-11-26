@@ -30,22 +30,21 @@ namespace engines
 {
 namespace interface1
 {
-
 Input::Input() : daal::algorithms::Input(1) {}
 
-Input::Input(const Input& other) : daal::algorithms::Input(other) {}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 data_management::NumericTablePtr Input::get(InputId id) const
 {
     return data_management::NumericTable::cast(Argument::get(id));
 }
 
-void Input::set(InputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(InputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, services::ErrorIncorrectNumberOfInputNumericTables);
     return data_management::checkNumericTable(get(tableToFill).get(), tableToFillStr());
@@ -58,15 +57,15 @@ data_management::NumericTablePtr Result::get(ResultId id) const
     return data_management::NumericTable::cast(Argument::get(id));
 }
 
-void Result::set(ResultId id, const data_management::NumericTablePtr &ptr)
+void Result::set(ResultId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, services::ErrorIncorrectNumberOfInputNumericTables);
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput = static_cast<const Input *>(input);
     DAAL_CHECK(algInput, services::ErrorNullInput);
     return data_management::checkNumericTable(get(randomNumbers).get(), randomNumbersStr());
 }

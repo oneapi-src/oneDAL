@@ -39,24 +39,20 @@ namespace oneapi
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method>
-services::Status CovarianceDenseBatchKernelOneAPI<algorithmFPType, method>::compute(
-    NumericTable *dataTable,
-    NumericTable *covTable,
-    NumericTable *meanTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method>
+services::Status CovarianceDenseBatchKernelOneAPI<algorithmFPType, method>::compute(NumericTable * dataTable, NumericTable * covTable,
+                                                                                    NumericTable * meanTable, const Parameter * parameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseBatch);
 
     services::Status status;
 
-    auto& context = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = Environment::getInstance()->getDefaultExecutionContext();
 
-    const size_t nFeatures  = dataTable->getNumberOfColumns();
-    const size_t nVectors   = dataTable->getNumberOfRows();
+    const size_t nFeatures              = dataTable->getNumberOfColumns();
+    const size_t nVectors               = dataTable->getNumberOfRows();
     const algorithmFPType nObservations = static_cast<algorithmFPType>(nVectors);
-    const bool isNormalized = dataTable->isNormalized(NumericTableIface::standardScoreNormalized);
+    const bool isNormalized             = dataTable->isNormalized(NumericTableIface::standardScoreNormalized);
 
     BlockDescriptor<algorithmFPType> dataBlock;
     BlockDescriptor<algorithmFPType> sumBlock;
@@ -76,14 +72,8 @@ services::Status CovarianceDenseBatchKernelOneAPI<algorithmFPType, method>::comp
     status |= calculateCrossProductAndSums<algorithmFPType, method>(dataTable, crossProductBlock.getBuffer(), sumBlock.getBuffer());
     DAAL_CHECK_STATUS_VAR(status);
 
-    status |= finalizeCovariance<algorithmFPType, method>(
-        nFeatures,
-        nObservations,
-        crossProductBlock.getBuffer(),
-        sumBlock.getBuffer(),
-        crossProductBlock.getBuffer(),
-        sumBlock.getBuffer(),
-        parameter);
+    status |= finalizeCovariance<algorithmFPType, method>(nFeatures, nObservations, crossProductBlock.getBuffer(), sumBlock.getBuffer(),
+                                                          crossProductBlock.getBuffer(), sumBlock.getBuffer(), parameter);
 
     {
         status |= dataTable->releaseBlockOfRows(dataBlock);
@@ -99,10 +89,10 @@ services::Status CovarianceDenseBatchKernelOneAPI<algorithmFPType, method>::comp
     return status;
 }
 
-} // internal
-} // oneapi
-} // covariance
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace oneapi
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal
 
 #endif

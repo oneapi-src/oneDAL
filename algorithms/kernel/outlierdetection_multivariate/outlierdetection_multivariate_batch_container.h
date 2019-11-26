@@ -32,9 +32,8 @@ namespace multivariate_outlier_detection
 {
 namespace interface1
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::OutlierDetectionKernel, algorithmFPType, method);
 }
@@ -48,20 +47,21 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
-    NumericTable &dataTable    = *(static_cast<NumericTable *>(input->get(data).get()));
-    NumericTable &weightsTable = *(static_cast<NumericTable *>(result->get(weights).get()));
+    NumericTable & dataTable    = *(static_cast<NumericTable *>(input->get(data).get()));
+    NumericTable & weightsTable = *(static_cast<NumericTable *>(result->get(weights).get()));
 
-    NumericTable *locationTable  = static_cast<NumericTable *>(input->get(location).get());
-    NumericTable *scatterTable   = static_cast<NumericTable *>(input->get(scatter).get());
-    NumericTable *thresholdTable = static_cast<NumericTable *>(input->get(threshold).get());
+    NumericTable * locationTable  = static_cast<NumericTable *>(input->get(location).get());
+    NumericTable * scatterTable   = static_cast<NumericTable *>(input->get(scatter).get());
+    NumericTable * thresholdTable = static_cast<NumericTable *>(input->get(threshold).get());
 
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::OutlierDetectionKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, defaultDense), compute, dataTable, locationTable, scatterTable, thresholdTable, weightsTable);
+    daal::services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::OutlierDetectionKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, defaultDense), compute, dataTable,
+                       locationTable, scatterTable, thresholdTable, weightsTable);
 }
-}
+} // namespace interface1
 } // namespace multivariate_outlier_detection
 
 } // namespace algorithms

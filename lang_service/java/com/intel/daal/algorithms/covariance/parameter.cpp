@@ -33,23 +33,18 @@ using namespace daal::algorithms;
  * Method:    cSetDataSet
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Parameter_cSetOutputDataType
-(JNIEnv *env, jobject thisObj, jlong parAddr, jint id)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Parameter_cSetOutputDataType(JNIEnv * env, jobject thisObj, jlong parAddr, jint id)
 {
-    if(id == CovMatrix)
-    {
-        (*(covariance::Parameter *)parAddr).outputMatrixType = covariance::covarianceMatrix;
-    }
-    else if(id == CorMatrix)
+    if (id == CovMatrix) { (*(covariance::Parameter *)parAddr).outputMatrixType = covariance::covarianceMatrix; }
+    else if (id == CorMatrix)
     {
         (*(covariance::Parameter *)parAddr).outputMatrixType = covariance::correlationMatrix;
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_covariance_Parameter_cGetOutputDataType
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_covariance_Parameter_cGetOutputDataType(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(jint)(*(covariance::Parameter *)parAddr).outputMatrixType;
+    return (jint)(*(covariance::Parameter *)parAddr).outputMatrixType;
 }
 
 /*
@@ -57,17 +52,18 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_covariance_Parameter_cGetO
  * Method:    cSetCParameterObject
  * Signature: (JJIIII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Parameter_cSetCParameterObject
-(JNIEnv *env, jobject thisObj, jlong parameterAddr, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Parameter_cSetCParameterObject(JNIEnv * env, jobject thisObj, jlong parameterAddr,
+                                                                                                jlong algAddr)
 {
     using namespace daal::services;
     using namespace daal::algorithms;
     using namespace daal::data_management;
 
-    SharedPtr<AlgorithmIface> *algShPtr = (SharedPtr<AlgorithmIface> *)algAddr;
-    if(dynamicPointerCast<covariance::DistributedIface<step2Master>, AlgorithmIface>(*algShPtr))
+    SharedPtr<AlgorithmIface> * algShPtr = (SharedPtr<AlgorithmIface> *)algAddr;
+    if (dynamicPointerCast<covariance::DistributedIface<step2Master>, AlgorithmIface>(*algShPtr))
     {
-        staticPointerCast<covariance::DistributedIface<step2Master>, AlgorithmIface>(*algShPtr)->parameter = *((covariance::Parameter *)parameterAddr);
+        staticPointerCast<covariance::DistributedIface<step2Master>, AlgorithmIface>(*algShPtr)->parameter =
+            *((covariance::Parameter *)parameterAddr);
     }
     else
     {

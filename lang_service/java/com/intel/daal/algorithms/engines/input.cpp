@@ -33,13 +33,10 @@ using namespace daal::algorithms;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_engines_Input_cSetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong NumericTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_engines_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                              jlong NumericTableAddr)
 {
-    if (id == tableToFill)
-    {
-        jniInput<engines::Input>::set<engines::InputId, NumericTable>(inputAddr, id, NumericTableAddr);
-    }
+    if (id == tableToFill) { jniInput<engines::Input>::set<engines::InputId, NumericTable>(inputAddr, id, NumericTableAddr); }
 }
 
 /*
@@ -47,8 +44,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_engines_Input_cSetInput
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_engines_Input_cGetInput
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_engines_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<engines::Input>::get<engines::InputId, NumericTable>(inputAddr, id);
 }

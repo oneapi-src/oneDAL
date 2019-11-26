@@ -30,56 +30,49 @@ using namespace daal::services;
  * Method:    cInit
  * Signature:(Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_StringDataSource_cInit
-(JNIEnv *env, jobject obj, jstring jData, jlong n)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_StringDataSource_cInit(JNIEnv * env, jobject obj, jstring jData, jlong n)
 {
-    const char *data = env->GetStringUTFChars(jData, NULL);
+    const char * data = env->GetStringUTFChars(jData, NULL);
 
-    char *inner_data = (char *)daal_malloc( n + 1 );
-    if(!inner_data)
+    char * inner_data = (char *)daal_malloc(n + 1);
+    if (!inner_data)
     {
         env->ReleaseStringUTFChars(jData, data);
         DAAL_CHECK_THROW(services::Status(services::ErrorMemoryAllocationFailed));
         return (jlong)0;
     }
 
-    for( size_t i = 0; i < n; i++ )
-    {
-        inner_data[i] = data[i];
-    }
+    for (size_t i = 0; i < n; i++) { inner_data[i] = data[i]; }
     inner_data[n] = '\0';
 
     env->ReleaseStringUTFChars(jData, data);
 
-    DataSource *ds = new StringDataSource<CSVFeatureManager>((byte *)inner_data, DataSource::doAllocateNumericTable,
-                                                             DataSource::doDictionaryFromContext);
+    DataSource * ds =
+        new StringDataSource<CSVFeatureManager>((byte *)inner_data, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
-    if(!ds->status())
+    if (!ds->status())
     {
         const services::Status s = ds->status();
         delete ds;
         DAAL_CHECK_THROW(s);
         return (jlong)0;
     }
-    return(jlong)(ds);
+    return (jlong)(ds);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_StringDataSource_cSetData
-(JNIEnv *env, jobject obj, jlong ptr, jstring jData, jlong n)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_StringDataSource_cSetData(JNIEnv * env, jobject obj, jlong ptr,
+                                                                                                   jstring jData, jlong n)
 {
-    const char *data = env->GetStringUTFChars(jData, NULL);
+    const char * data = env->GetStringUTFChars(jData, NULL);
 
-    char *inner_data = (char *)daal_malloc( n + 1 );
-    if(!inner_data)
+    char * inner_data = (char *)daal_malloc(n + 1);
+    if (!inner_data)
     {
         env->ReleaseStringUTFChars(jData, data);
         DAAL_CHECK_THROW(services::Status(services::ErrorMemoryAllocationFailed));
         return;
     }
-    for( size_t i = 0; i < n; i++ )
-    {
-        inner_data[i] = data[i];
-    }
+    for (size_t i = 0; i < n; i++) { inner_data[i] = data[i]; }
     inner_data[n] = '\0';
 
     env->ReleaseStringUTFChars(jData, data);
@@ -94,15 +87,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_StringD
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_StringDataSource_cDispose
-(JNIEnv *env, jobject obj, jlong ptr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_StringDataSource_cDispose(JNIEnv * env, jobject obj, jlong ptr)
 {
-    const byte *data = ((StringDataSource<CSVFeatureManager> *)ptr)->getData();
-    delete(DataSource *)ptr;
-    if( data )
-    {
-        daal_free((void *)data);
-    }
+    const byte * data = ((StringDataSource<CSVFeatureManager> *)ptr)->getData();
+    delete (DataSource *)ptr;
+    if (data) { daal_free((void *)data); }
 }
 
 /*
@@ -110,11 +99,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_StringD
  * Method:    cGetFeatureManager
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_StringDataSource_cGetFeatureManager
-(JNIEnv *env, jobject obj, jlong ptr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_StringDataSource_cGetFeatureManager(JNIEnv * env, jobject obj, jlong ptr)
 {
-    StringDataSource<CSVFeatureManager> *ds = (StringDataSource<CSVFeatureManager> *)ptr;
-    services::SharedPtr<CSVFeatureManager>* featureManager =
+    StringDataSource<CSVFeatureManager> * ds = (StringDataSource<CSVFeatureManager> *)ptr;
+    services::SharedPtr<CSVFeatureManager> * featureManager =
         new services::SharedPtr<CSVFeatureManager>(&(ds->getFeatureManager()), services::EmptyDeleter());
 
     return (jlong)featureManager;

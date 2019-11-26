@@ -43,34 +43,30 @@ namespace correlation_distance
 {
 namespace internal
 {
-template <typename algorithmFPType, CpuType cpu> bool isFull(NumericTableIface::StorageLayout layout);
-template <typename algorithmFPType, CpuType cpu> bool isUpper(NumericTableIface::StorageLayout layout);
-template <typename algorithmFPType, CpuType cpu> bool isLower(NumericTableIface::StorageLayout layout);
+template <typename algorithmFPType, CpuType cpu>
+bool isFull(NumericTableIface::StorageLayout layout);
+template <typename algorithmFPType, CpuType cpu>
+bool isUpper(NumericTableIface::StorageLayout layout);
+template <typename algorithmFPType, CpuType cpu>
+bool isLower(NumericTableIface::StorageLayout layout);
 /**
  *  \brief Kernel for Correlation distances calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status DistanceKernel<algorithmFPType, method, cpu>::compute(const size_t na, const NumericTable *const *a,
-        const size_t nr, NumericTable *r[],
-        const daal::algorithms::Parameter *par)
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status DistanceKernel<algorithmFPType, method, cpu>::compute(const size_t na, const NumericTable * const * a, const size_t nr,
+                                                                       NumericTable * r[], const daal::algorithms::Parameter * par)
 {
-    NumericTable *xTable = const_cast<NumericTable *>( a[0] );  /* Input data */
-    NumericTable *rTable = const_cast<NumericTable *>( r[0] );  /* Result */
+    NumericTable * xTable                          = const_cast<NumericTable *>(a[0]); /* Input data */
+    NumericTable * rTable                          = const_cast<NumericTable *>(r[0]); /* Result */
     const NumericTableIface::StorageLayout rLayout = r[0]->getDataLayout();
 
-    if(isFull<algorithmFPType, cpu>(rLayout))
-    {
-        return corDistanceFull<algorithmFPType, cpu>( xTable, rTable );
-    }
+    if (isFull<algorithmFPType, cpu>(rLayout)) { return corDistanceFull<algorithmFPType, cpu>(xTable, rTable); }
     else
     {
-        if(isLower<algorithmFPType, cpu>(rLayout))
+        if (isLower<algorithmFPType, cpu>(rLayout)) { return corDistanceLowerPacked<algorithmFPType, cpu>(xTable, rTable); }
+        else if (isUpper<algorithmFPType, cpu>(rLayout))
         {
-            return corDistanceLowerPacked<algorithmFPType, cpu>( xTable, rTable );
-        }
-        else if(isUpper<algorithmFPType, cpu>(rLayout))
-        {
-            return corDistanceUpperPacked<algorithmFPType, cpu>( xTable, rTable );
+            return corDistanceUpperPacked<algorithmFPType, cpu>(xTable, rTable);
         }
         else
         {
@@ -82,33 +78,22 @@ services::Status DistanceKernel<algorithmFPType, method, cpu>::compute(const siz
 template <typename algorithmFPType, CpuType cpu>
 bool isFull(NumericTableIface::StorageLayout layout)
 {
-    int layoutInt = (int) layout;
-    if (packed_mask & layoutInt)
-    {
-        return false;
-    }
+    int layoutInt = (int)layout;
+    if (packed_mask & layoutInt) { return false; }
     return true;
 }
 
 template <typename algorithmFPType, CpuType cpu>
 bool isUpper(NumericTableIface::StorageLayout layout)
 {
-    if (layout == NumericTableIface::upperPackedSymmetricMatrix  ||
-        layout == NumericTableIface::upperPackedTriangularMatrix)
-    {
-        return true;
-    }
+    if (layout == NumericTableIface::upperPackedSymmetricMatrix || layout == NumericTableIface::upperPackedTriangularMatrix) { return true; }
     return false;
 }
 
 template <typename algorithmFPType, CpuType cpu>
 bool isLower(NumericTableIface::StorageLayout layout)
 {
-    if (layout == NumericTableIface::lowerPackedSymmetricMatrix  ||
-        layout == NumericTableIface::lowerPackedTriangularMatrix)
-    {
-        return true;
-    }
+    if (layout == NumericTableIface::lowerPackedSymmetricMatrix || layout == NumericTableIface::lowerPackedTriangularMatrix) { return true; }
     return false;
 }
 

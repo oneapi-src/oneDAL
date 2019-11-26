@@ -54,7 +54,7 @@ namespace prediction
  */
 enum NumericTableInputId
 {
-    data,                      /*!< Input data set */
+    data, /*!< Input data set */
     lastNumericTableInputId = data
 };
 
@@ -65,7 +65,7 @@ enum NumericTableInputId
  */
 enum ModelInputId
 {
-    model = lastNumericTableInputId + 1,               /*!< Input model trained by the classification algorithm */
+    model            = lastNumericTableInputId + 1, /*!< Input model trained by the classification algorithm */
     lastModelInputId = model
 };
 
@@ -75,9 +75,9 @@ enum ModelInputId
  */
 enum ResultId
 {
-    prediction,           /*!< Prediction results */
-    probabilities,        /*!< Prediction probabilities. Returns the the vector of class probabilities for n-class classification tasks. */
-    logProbabilities,     /*!< Logarithm of prediction probabilities. Returns the the vector of class probabilities for n-class classification tasks. */
+    prediction,       /*!< Prediction results */
+    probabilities,    /*!< Prediction probabilities. Returns the the vector of class probabilities for n-class classification tasks. */
+    logProbabilities, /*!< Logarithm of prediction probabilities. Returns the the vector of class probabilities for n-class classification tasks. */
     lastResultId = logProbabilities
 };
 
@@ -94,7 +94,7 @@ class DAAL_EXPORT InputIface : public daal::algorithms::Input
 {
 public:
     InputIface(size_t nElements);
-    InputIface(const InputIface& other) : daal::algorithms::Input(other){}
+    InputIface(const InputIface & other) : daal::algorithms::Input(other) {}
 
     virtual ~InputIface() {}
     /**
@@ -112,7 +112,7 @@ class DAAL_EXPORT Input : public InputIface
 {
 public:
     Input();
-    Input(const Input& other) : InputIface(other){}
+    Input(const Input & other) : InputIface(other) {}
     virtual ~Input() {}
 
     /**
@@ -140,24 +140,24 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the classifier algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(ModelInputId id, const ModelPtr &ptr);
+    void set(ModelInputId id, const ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-    services::Status checkImpl(const daal::algorithms::Parameter *parameter) const;
+    services::Status checkImpl(const daal::algorithms::Parameter * parameter) const;
 };
 
 /**
@@ -183,7 +183,7 @@ public:
      * \param[in] id    Identifier of the prediction result, \ref ResultId
      * \param[in] value Pointer to the prediction result
      */
-    DAAL_DEPRECATED void set(ResultId id, const data_management::NumericTablePtr &value);
+    DAAL_DEPRECATED void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory for storing prediction results of the classification algorithm
@@ -193,7 +193,8 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                          const int method);
 
     /**
      * Checks the correctness of the Result object
@@ -202,16 +203,15 @@ public:
      * \param[in] method    Computation method
      * \DAAL_DEPRECATED
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-                           int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     Result(size_t n);
-    services::Status checkImpl(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter) const;
+    services::Status checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const;
 
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -248,7 +248,7 @@ public:
      * \param[in] id    Identifier of the prediction result, \ref ResultId
      * \param[in] value Pointer to the prediction result
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory for storing prediction results of the classification algorithm
@@ -258,7 +258,7 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks the correctness of the Result object
@@ -266,16 +266,15 @@ public:
      * \param[in] parameter Pointer to the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-                           int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     Result(const size_t n);
-    services::Status checkImpl(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter) const;
+    services::Status checkImpl(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter) const;
 
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -286,9 +285,9 @@ using interface1::InputIface;
 using interface1::Input;
 using interface2::Result;
 using interface2::ResultPtr;
-}
+} // namespace prediction
 /** @} */
-}
-}
-}
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 #endif

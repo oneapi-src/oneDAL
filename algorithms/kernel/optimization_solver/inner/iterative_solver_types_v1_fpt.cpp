@@ -33,7 +33,6 @@ namespace iterative_solver
 {
 namespace interface1
 {
-
 /**
  * Allocates memory to store the results of the iterative solver algorithm
  * \param[in] input  Pointer to the input structure
@@ -41,27 +40,22 @@ namespace interface1
  * \param[in] method Computation method of the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     using namespace daal::data_management;
-    const Input *algInput = static_cast<const Input *>(input);
-    size_t nRows = algInput->get(inputArgument)->getNumberOfRows();
-    if (!get(minimum))
-    {
-        set(minimum, NumericTablePtr(new HomogenNumericTable<algorithmFPType>(1, nRows, NumericTable::doAllocate)));
-    }
-    if (!get(nIterations))
-    {
-        set(nIterations, NumericTablePtr(new HomogenNumericTable<size_t>(1, 1, NumericTable::doAllocate, (size_t)0)));
-    }
+    const Input * algInput = static_cast<const Input *>(input);
+    size_t nRows           = algInput->get(inputArgument)->getNumberOfRows();
+    if (!get(minimum)) { set(minimum, NumericTablePtr(new HomogenNumericTable<algorithmFPType>(1, nRows, NumericTable::doAllocate))); }
+    if (!get(nIterations)) { set(nIterations, NumericTablePtr(new HomogenNumericTable<size_t>(1, 1, NumericTable::doAllocate, (size_t)0))); }
     return services::Status();
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace interface1
 
 } // namespace iterative_solver
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

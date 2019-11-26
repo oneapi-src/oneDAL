@@ -35,7 +35,6 @@ namespace algorithms
  */
 namespace quality_metric_set
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -52,10 +51,9 @@ namespace interface1
 class Batch
 {
 public:
-    InputAlgorithmsCollection                inputAlgorithms;      /*!< Collection of quality metrics algorithms */
+    InputAlgorithmsCollection inputAlgorithms; /*!< Collection of quality metrics algorithms */
 
-    Batch(bool useDefaultMetrics = true) : _useDefaultMetrics(useDefaultMetrics)
-    {}
+    Batch(bool useDefaultMetrics = true) : _useDefaultMetrics(useDefaultMetrics) {}
 
     virtual ~Batch() {}
     /**
@@ -105,24 +103,21 @@ public:
      * Returns errors that happened during the computations
      * \return Errors that happened during the computations
      */
-    services::SharedPtr<services::ErrorCollection> getErrors()
-    {
-        return _status.getCollection();
-    }
+    services::SharedPtr<services::ErrorCollection> getErrors() { return _status.getCollection(); }
 
 protected:
     virtual void initializeQualityMetrics() = 0;
 
     bool _useDefaultMetrics;
-    InputDataCollectionPtr _inputData;            /*!< Collection of input objects of quality metrics algorithms */
-    ResultCollectionPtr    _resultCollection;
+    InputDataCollectionPtr _inputData; /*!< Collection of input objects of quality metrics algorithms */
+    ResultCollectionPtr _resultCollection;
     services::Status _status;
 };
 /** @} */
 } // namespace interface1
 using interface1::Batch;
 
-} // namespace daal::algorithms::quality_metric_set
-} // namespace daal::algorithms
+} // namespace quality_metric_set
+} // namespace algorithms
 } // namespace daal
 #endif

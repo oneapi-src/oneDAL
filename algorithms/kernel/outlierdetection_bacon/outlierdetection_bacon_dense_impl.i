@@ -38,13 +38,13 @@ namespace bacon_outlier_detection
 {
 namespace internal
 {
-
 using namespace daal::internal;
 using namespace daal::data_management;
 using namespace daal::services;
 
 template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(NumericTable &dataTable, NumericTable &resultTable, const Parameter &par)
+services::Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(NumericTable & dataTable, NumericTable & resultTable,
+                                                                               const Parameter & par)
 {
     const __int64 nBaconParams = 3;
     algorithmFPType baconParams[nBaconParams];
@@ -75,8 +75,8 @@ services::Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(N
     WriteOnlyRows<algorithmFPType, cpu> resultBlock(resultTable, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(resultBlock)
 
-    const algorithmFPType *data = dataBlock.get();
-    algorithmFPType *weight = resultBlock.get();
+    const algorithmFPType * data = dataBlock.get();
+    algorithmFPType * weight     = resultBlock.get();
 
     Statistics<algorithmFPType, cpu>::xoutlierdetection(data, (__int64)nFeatures, (__int64)nVectors, nBaconParams, baconParams, weight);
 

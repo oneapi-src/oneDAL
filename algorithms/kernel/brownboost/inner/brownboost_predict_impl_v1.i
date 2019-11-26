@@ -42,17 +42,18 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status I1BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
-    const brownboost::interface1::Model *m, NumericTablePtr& rTable, const brownboost::interface1::Parameter *par)
+services::Status I1BrownBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr & xTable,
+                                                                                  const brownboost::interface1::Model * m, NumericTablePtr & rTable,
+                                                                                  const brownboost::interface1::Parameter * par)
 {
-    const size_t nVectors  = xTable->getNumberOfRows();
-    brownboost::interface1::Model *boostModel = const_cast<brownboost::interface1::Model *>(m);
-    const size_t nWeakLearners = boostModel->getNumberOfWeakLearners();
+    const size_t nVectors                      = xTable->getNumberOfRows();
+    brownboost::interface1::Model * boostModel = const_cast<brownboost::interface1::Model *>(m);
+    const size_t nWeakLearners                 = boostModel->getNumberOfWeakLearners();
 
     services::Status s;
     WriteOnlyColumns<algorithmFPType, cpu> mtR(*rTable, 0, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtR);
-    algorithmFPType *r = mtR.get();
+    algorithmFPType * r = mtR.get();
     DAAL_ASSERT(r);
 
     {
@@ -63,23 +64,20 @@ services::Status I1BrownBoostPredictKernel<method, algorithmFPType, cpu>::comput
     }
 
     const algorithmFPType error = par->accuracyThreshold;
-    const algorithmFPType zero = (algorithmFPType)0.0;
-    if(error != zero)
+    const algorithmFPType zero  = (algorithmFPType)0.0;
+    if (error != zero)
     {
-        algorithmFPType sqrtC = daal::internal::Math<algorithmFPType, cpu>::sErfInv(algorithmFPType(1.0) - error);
+        algorithmFPType sqrtC    = daal::internal::Math<algorithmFPType, cpu>::sErfInv(algorithmFPType(1.0) - error);
         algorithmFPType invSqrtC = algorithmFPType(1.0) / sqrtC;
-        for (size_t j = 0; j < nVectors; j++)
-        {
-            r[j] *= invSqrtC;
-        }
+        for (size_t j = 0; j < nVectors; j++) { r[j] *= invSqrtC; }
     }
-    daal::internal::Math<algorithmFPType,cpu>::vErf(nVectors, r, r);
+    daal::internal::Math<algorithmFPType, cpu>::vErf(nVectors, r, r);
     return s;
 }
-} // namespace daal::algorithms::brownboost::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace brownboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

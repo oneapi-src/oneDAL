@@ -44,7 +44,7 @@ DAAL_EXPORT Model::Model(size_t nFeatures, modelFPType dummy) : boosting::Model(
 }
 
 template <typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nFeatures, modelFPType dummy, services::Status &st) : boosting::Model(nFeatures, st)
+DAAL_EXPORT Model::Model(size_t nFeatures, modelFPType dummy, services::Status & st) : boosting::Model(nFeatures, st)
 {
     if (!st) { return; }
     _alpha = data_management::HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
@@ -56,17 +56,17 @@ DAAL_EXPORT Model::Model(size_t nFeatures, modelFPType dummy, services::Status &
  * \param[in]  nFeatures Number of features in the dataset
  * \param[out] stat      Status of the model construction
  */
-template<typename modelFPType>
-DAAL_EXPORT ModelPtr Model::create(size_t nFeatures, services::Status *stat)
+template <typename modelFPType>
+DAAL_EXPORT ModelPtr Model::create(size_t nFeatures, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, (modelFPType)0 /* dummy */);
 }
 
 template DAAL_EXPORT Model::Model(size_t, DAAL_FPTYPE);
-template DAAL_EXPORT Model::Model(size_t, DAAL_FPTYPE, services::Status&);
-template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, services::Status*);
-}
+template DAAL_EXPORT Model::Model(size_t, DAAL_FPTYPE, services::Status &);
+template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, services::Status *);
+} // namespace interface1
 
-}// namespace adaboost
-}// namespace algorithms
-}// namespace daal
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal

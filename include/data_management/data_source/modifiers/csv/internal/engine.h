@@ -37,7 +37,6 @@ namespace csv
 {
 namespace internal
 {
-
 using data_management::internal::CSVFeaturesInfo;
 
 /**
@@ -47,25 +46,15 @@ using data_management::internal::CSVFeaturesInfo;
 class InputFeatureInfo : public modifiers::internal::InputFeatureInfo
 {
 public:
-    InputFeatureInfo() : _detectedFeatureType(features::DAAL_CATEGORICAL), _token() { }
+    InputFeatureInfo() : _detectedFeatureType(features::DAAL_CATEGORICAL), _token() {}
 
-    explicit InputFeatureInfo(features::FeatureType detectedFeatureType) :
-        _detectedFeatureType(detectedFeatureType) { }
+    explicit InputFeatureInfo(features::FeatureType detectedFeatureType) : _detectedFeatureType(detectedFeatureType) {}
 
-    const services::StringView &getToken() const
-    {
-        return _token;
-    }
+    const services::StringView & getToken() const { return _token; }
 
-    features::FeatureType getDetectedFeatureType() const
-    {
-        return _detectedFeatureType;
-    }
+    features::FeatureType getDetectedFeatureType() const { return _detectedFeatureType; }
 
-    void setToken(const services::StringView &token)
-    {
-        _token = token;
-    }
+    void setToken(const services::StringView & token) { _token = token; }
 
 private:
     services::StringView _token;
@@ -76,31 +65,26 @@ private:
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__INTERNAL__FEATURECONFIG"></a>
  * \brief Class represents configuration of single output feature
  */
-class OutputFeatureInfo : public modifiers::internal::OutputFeatureInfo { };
+class OutputFeatureInfo : public modifiers::internal::OutputFeatureInfo
+{};
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__INTERNAL__CONFIGIMPL"></a>
  * \brief Internal implementation of feature modifier configuration
  */
-class ConfigImpl : public Config,
-                   public modifiers::internal::Config<InputFeatureInfo,
-                                                      OutputFeatureInfo>
+class ConfigImpl : public Config, public modifiers::internal::Config<InputFeatureInfo, OutputFeatureInfo>
 {
 private:
-    typedef modifiers::internal::Config<InputFeatureInfo,
-                                        OutputFeatureInfo> impl;
+    typedef modifiers::internal::Config<InputFeatureInfo, OutputFeatureInfo> impl;
 
 public:
-    ConfigImpl() { }
+    ConfigImpl() {}
 
-    explicit ConfigImpl(const services::internal::CollectionPtr<InputFeatureInfo *> &pickedInputFeatures,
-                        services::Status *status = NULL) :
-        impl(pickedInputFeatures, status) { }
+    explicit ConfigImpl(const services::internal::CollectionPtr<InputFeatureInfo *> & pickedInputFeatures, services::Status * status = NULL)
+        : impl(pickedInputFeatures, status)
+    {}
 
-    virtual size_t getNumberOfInputFeatures() const DAAL_C11_OVERRIDE
-    {
-        return impl::getNumberOfInputFeatures();
-    }
+    virtual size_t getNumberOfInputFeatures() const DAAL_C11_OVERRIDE { return impl::getNumberOfInputFeatures(); }
 
     virtual features::FeatureType getInputFeatureDetectedType(size_t index) const DAAL_C11_OVERRIDE
     {
@@ -112,20 +96,17 @@ public:
         return impl::setNumberOfOutputFeatures(numberOfOutputFeatures);
     }
 
-    virtual services::Status setOutputFeatureType(size_t outputFeatureIndex,
-                                                  features::FeatureType featureType) DAAL_C11_OVERRIDE
+    virtual services::Status setOutputFeatureType(size_t outputFeatureIndex, features::FeatureType featureType) DAAL_C11_OVERRIDE
     {
         return impl::setOutputFeatureType(outputFeatureIndex, featureType);
     }
 
-    virtual services::Status setNumberOfCategories(size_t outputFeatureIndex,
-                                                   size_t numberOfCategories) DAAL_C11_OVERRIDE
+    virtual services::Status setNumberOfCategories(size_t outputFeatureIndex, size_t numberOfCategories) DAAL_C11_OVERRIDE
     {
         return impl::setNumberOfCategories(outputFeatureIndex, numberOfCategories);
     }
 
-    virtual services::Status setCategoricalDictionary(size_t outputFeatureIndex,
-                                                      const CategoricalFeatureDictionaryPtr &dictionary) DAAL_C11_OVERRIDE
+    virtual services::Status setCategoricalDictionary(size_t outputFeatureIndex, const CategoricalFeatureDictionaryPtr & dictionary) DAAL_C11_OVERRIDE
     {
         return impl::setCategoricalDictionary(outputFeatureIndex, dictionary);
     }
@@ -135,64 +116,47 @@ public:
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__INTERNAL__CONTEXTIMPL"></a>
  * \brief Internal implementation of feature modifier context
  */
-class ContextImpl : public Context,
-                    public modifiers::internal::Context<InputFeatureInfo,
-                                                        OutputFeatureInfo>
+class ContextImpl : public Context, public modifiers::internal::Context<InputFeatureInfo, OutputFeatureInfo>
 {
 private:
-    typedef modifiers::internal::Context<InputFeatureInfo,
-                                         OutputFeatureInfo> impl;
+    typedef modifiers::internal::Context<InputFeatureInfo, OutputFeatureInfo> impl;
 
 public:
-    ContextImpl() { }
+    ContextImpl() {}
 
-    explicit ContextImpl(const services::internal::CollectionPtr<InputFeatureInfo *> &pickedInputFeatures,
-                         services::Status *status = NULL) :
-        impl(pickedInputFeatures, status) { }
+    explicit ContextImpl(const services::internal::CollectionPtr<InputFeatureInfo *> & pickedInputFeatures, services::Status * status = NULL)
+        : impl(pickedInputFeatures, status)
+    {}
 
-    virtual size_t getNumberOfTokens() const DAAL_C11_OVERRIDE
-    {
-        return impl::getNumberOfInputFeatures();
-    }
+    virtual size_t getNumberOfTokens() const DAAL_C11_OVERRIDE { return impl::getNumberOfInputFeatures(); }
 
-    virtual services::StringView getToken(size_t index) const DAAL_C11_OVERRIDE
-    {
-        return impl::getPickedInputFeature(index).getToken();
-    }
+    virtual services::StringView getToken(size_t index) const DAAL_C11_OVERRIDE { return impl::getPickedInputFeature(index).getToken(); }
 
-    virtual services::BufferView<DAAL_DATA_TYPE> getOutputBuffer() const DAAL_C11_OVERRIDE
-    {
-        return impl::getOutputBuffer();
-    }
+    virtual services::BufferView<DAAL_DATA_TYPE> getOutputBuffer() const DAAL_C11_OVERRIDE { return impl::getOutputBuffer(); }
 };
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__INTERNAL__MODIFIERSMANAGER"></a>
  * \brief Class that holds modifiers and implements logic of modifiers applying flow
  */
-class ModifiersManager : public modifiers::internal::ModifiersManager<FeatureModifierIface,
-                                                                      ConfigImpl, ContextImpl>
+class ModifiersManager : public modifiers::internal::ModifiersManager<FeatureModifierIface, ConfigImpl, ContextImpl>
 {
 public:
-    static services::SharedPtr<ModifiersManager> create(services::Status *status = NULL)
+    static services::SharedPtr<ModifiersManager> create(services::Status * status = NULL)
     {
         return services::internal::wrapSharedAndTryThrow<ModifiersManager>(new ModifiersManager(), status);
     }
 
-    void setToken(size_t tokenIndex, const services::StringView &token)
-    {
-        getBinder().getInputFeatureInfo(tokenIndex).setToken(token);
-    }
+    void setToken(size_t tokenIndex, const services::StringView & token) { getBinder().getInputFeatureInfo(tokenIndex).setToken(token); }
 
-    services::Status prepare(const CSVFeaturesInfo &featuresInfo)
+    services::Status prepare(const CSVFeaturesInfo & featuresInfo)
     {
         services::Status status;
 
         const features::FeatureIdMappingIfacePtr featureMapping = createFeatureMapping(featuresInfo, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        const services::internal::CollectionPtr<InputFeatureInfo> inputFeaturesInfo =
-            createInputFeaturesInfo(featuresInfo, &status);
+        const services::internal::CollectionPtr<InputFeatureInfo> inputFeaturesInfo = createInputFeaturesInfo(featuresInfo, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         status |= getBinder().bind(featureMapping, inputFeaturesInfo);
@@ -201,8 +165,8 @@ public:
     }
 
 private:
-    services::internal::CollectionPtr<InputFeatureInfo> createInputFeaturesInfo(const CSVFeaturesInfo &featuresInfo,
-                                                                                services::Status *status = NULL)
+    services::internal::CollectionPtr<InputFeatureInfo> createInputFeaturesInfo(const CSVFeaturesInfo & featuresInfo,
+                                                                                services::Status * status = NULL)
     {
         const size_t numberOfFeatures = featuresInfo.getNumberOfFeatures();
 
@@ -217,14 +181,13 @@ private:
         for (size_t i = 0; i < numberOfFeatures; i++)
         {
             features::FeatureType fType = featuresInfo.getDetectedFeatureType(i);
-            (*inputFeaturesInfo)[i] = InputFeatureInfo(fType);
+            (*inputFeaturesInfo)[i]     = InputFeatureInfo(fType);
         }
 
         return inputFeaturesInfo;
     }
 
-    features::FeatureIdMappingIfacePtr createFeatureMapping(const CSVFeaturesInfo &featuresInfo,
-                                                  services::Status *status = NULL)
+    features::FeatureIdMappingIfacePtr createFeatureMapping(const CSVFeaturesInfo & featuresInfo, services::Status * status = NULL)
     {
         const size_t numberOfFeatures = featuresInfo.getNumberOfFeatures();
 
@@ -239,17 +202,14 @@ private:
 
         if (featuresInfo.areFeatureNamesAvailable())
         {
-            for (size_t i = 0; i < numberOfFeatures; ++i)
-            {
-                mapping->setFeatureKey(i, featuresInfo.getFeatureName(i));
-            }
+            for (size_t i = 0; i < numberOfFeatures; ++i) { mapping->setFeatureKey(i, featuresInfo.getFeatureName(i)); }
         }
 
         return mapping;
     }
 
 private:
-    ModifiersManager() { }
+    ModifiersManager() {}
 };
 typedef services::SharedPtr<ModifiersManager> ModifiersManagerPtr;
 

@@ -24,7 +24,7 @@
 
 #include "com_intel_daal_algorithms_classifier_quality_metric_multi_class_confusion_matrix_MultiClassConfusionMatrixResultId.h"
 #define ConfMatrix com_intel_daal_algorithms_classifier_quality_metric_multi_class_confusion_matrix_MultiClassConfusionMatrixResultId_ConfusionMatrix
-#define MCMetrics com_intel_daal_algorithms_classifier_quality_metric_multi_class_confusion_matrix_MultiClassConfusionMatrixResultId_MultiClassMetrics
+#define MCMetrics  com_intel_daal_algorithms_classifier_quality_metric_multi_class_confusion_matrix_MultiClassConfusionMatrixResultId_MultiClassMetrics
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::classifier::quality_metric;
@@ -35,9 +35,9 @@ using namespace daal::algorithms::classifier::quality_metric::multiclass_confusi
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void
-JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixResult_cSetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixResult_cSetResultTable(
+        JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<multiclass_confusion_matrix::Result>::set<multiclass_confusion_matrix::ResultId, NumericTable>(resAddr, id, ntAddr);
 }
@@ -47,27 +47,23 @@ JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong
-JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixResult_cGetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixResult_cGetResultTable(
+        JNIEnv *, jobject, jlong resAddr, jint id)
 {
     if (id == ConfMatrix)
+    { return jniArgument<multiclass_confusion_matrix::Result>::get<multiclass_confusion_matrix::ResultId, NumericTable>(resAddr, confusionMatrix); }
+    else if (id == MCMetrics)
     {
-        return jniArgument<multiclass_confusion_matrix::Result>::
-            get<multiclass_confusion_matrix::ResultId, NumericTable>(resAddr, confusionMatrix);
-    } else if (id == MCMetrics)
-    {
-        return jniArgument<multiclass_confusion_matrix::Result>::
-            get<multiclass_confusion_matrix::ResultId, NumericTable>(resAddr, multiClassMetrics);
+        return jniArgument<multiclass_confusion_matrix::Result>::get<multiclass_confusion_matrix::ResultId, NumericTable>(resAddr, multiClassMetrics);
     }
 
     return (jlong)0;
-
 }
 
-JNIEXPORT jlong
-JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixResult_cNewResult
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL
+    Java_com_intel_daal_algorithms_classifier_quality_1metric_multi_1class_1confusion_1matrix_MultiClassConfusionMatrixResult_cNewResult(JNIEnv *,
+                                                                                                                                         jobject)
 {
     return jniArgument<multiclass_confusion_matrix::Result>::newObj();
 }

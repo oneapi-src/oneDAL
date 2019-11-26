@@ -33,10 +33,8 @@ namespace algorithms
 {
 namespace pca
 {
-
 namespace interface2
 {
-
 /**
 * Checks the results of the PCA algorithm implementation
 * \param[in] nFeatures      Number of features
@@ -46,10 +44,7 @@ namespace interface2
 */
 services::Status ResultImpl::check(size_t nFeatures, size_t nComponents, size_t nTables) const
 {
-    if (nComponents == 0)
-    {
-        nComponents = nFeatures;
-    }
+    if (nComponents == 0) { nComponents = nFeatures; }
 
     DAAL_CHECK(size() == nTables, ErrorIncorrectNumberOfOutputNumericTables);
     const int packedLayouts = packed_mask;

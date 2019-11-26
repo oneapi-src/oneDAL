@@ -53,7 +53,6 @@ namespace training
 {
 namespace internal
 {
-
 using namespace daal::services::internal;
 using namespace daal::services;
 using namespace daal::internal;
@@ -63,9 +62,7 @@ template <typename T, CpuType cpu>
 class Queue
 {
 public:
-    Queue() : _data(nullptr)
-    {
-    }
+    Queue() : _data(nullptr) {}
 
     ~Queue()
     {
@@ -137,19 +134,20 @@ struct IndexValuePair
 };
 
 template <typename algorithmFpType, CpuType cpu>
-Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-                 compute(NumericTable * x, NumericTable * y, kdtree_knn_classification::Model * r, engines::BatchBase &engine)
+Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::compute(NumericTable * x, NumericTable * y,
+                                                                                                kdtree_knn_classification::Model * r,
+                                                                                                engines::BatchBase & engine)
 {
     Status status;
 
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
 
-    const size_t xRowCount = x->getNumberOfRows();
+    const size_t xRowCount    = x->getNumberOfRows();
     const size_t xColumnCount = x->getNumberOfColumns();
     r->setNFeatures(xColumnCount);
 
-    const algorithmFpType base = 2.0;
+    const algorithmFpType base        = 2.0;
     const algorithmFpType baseInPower = Math::sPowx(base, Math::sCeil(Math::sLog(base * xRowCount - 1) / Math::sLog(base)));
     DAAL_ASSERT(baseInPower > 0)
     const size_t maxKDTreeNodeCount = ((size_t)baseInPower * __KDTREE_MAX_NODE_COUNT_MULTIPLICATION_FACTOR) / __KDTREE_LEAF_BUCKET_SIZE + 1;
@@ -158,13 +156,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, xRowCount, sizeof(size_t));
 
-    size_t * indexes  = static_cast<size_t *>(service_malloc<size_t, cpu>(xRowCount * sizeof(size_t)));
+    size_t * indexes = static_cast<size_t *>(service_malloc<size_t, cpu>(xRowCount * sizeof(size_t)));
 
     DAAL_CHECK_MALLOC(indexes)
-    for (size_t i = 0; i < xRowCount; ++i)
-    {
-        indexes[i] = i;
-    }
+    for (size_t i = 0; i < xRowCount; ++i) { indexes[i] = i; }
 
     Queue<BuildNode, cpu> q;
     BBox * bboxQ = nullptr;
@@ -181,24 +176,24 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 }
 
 template <typename algorithmFpType, CpuType cpu>
-Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    buildFirstPartOfKDTree(Queue<BuildNode, cpu> & q, BoundingBox<algorithmFpType> * & bboxQ, const NumericTable & x,
-                           kdtree_knn_classification::Model & r, size_t * indexes, engines::BatchBase &engine)
+Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::buildFirstPartOfKDTree(
+    Queue<BuildNode, cpu> & q, BoundingBox<algorithmFpType> *& bboxQ, const NumericTable & x, kdtree_knn_classification::Model & r, size_t * indexes,
+    engines::BatchBase & engine)
 {
     Status status;
 
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
 
-    const auto maxThreads = threader_get_threads_number();
+    const auto maxThreads      = threader_get_threads_number();
     const algorithmFpType base = 2.0;
-    const size_t queueSize = 2 * Math::sPowx(base, Math::sCeil(Math::sLog(__KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD * maxThreads)
-                                                               / Math::sLog(base)));
+    const size_t queueSize =
+        2 * Math::sPowx(base, Math::sCeil(Math::sLog(__KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD * maxThreads) / Math::sLog(base)));
     const size_t firstPartLeafNodeCount = queueSize / 2;
     q.init(queueSize);
     const size_t xColumnCount = x.getNumberOfColumns();
-    const size_t xRowCount = x.getNumberOfRows();
-    const size_t bboxSize = queueSize * xColumnCount;
+    const size_t xRowCount    = x.getNumberOfRows();
+    const size_t bboxSize     = queueSize * xColumnCount;
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, queueSize, xColumnCount);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, bboxSize, sizeof(BBox));
@@ -208,26 +203,26 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     DAAL_CHECK_MALLOC(bboxQ)
     r.impl()->setLastNodeIndex(0);
     r.impl()->setRootNodeIndex(0);
-    BBox * bboxCur = nullptr;
-    BBox * bboxLeft = nullptr;
+    BBox * bboxCur   = nullptr;
+    BBox * bboxLeft  = nullptr;
     BBox * bboxRight = nullptr;
     BuildNode bn, bnLeft, bnRight;
-    bn.start = 0;
-    bn.end = xRowCount;
+    bn.start   = 0;
+    bn.end     = xRowCount;
     bn.nodePos = r.impl()->getLastNodeIndex();
     r.impl()->setLastNodeIndex(bn.nodePos + 1);
     bn.queueOrStackPos = bn.nodePos;
-    bboxCur = &bboxQ[bn.queueOrStackPos * xColumnCount];
+    bboxCur            = &bboxQ[bn.queueOrStackPos * xColumnCount];
     DAAL_CHECK_STATUS(status, computeLocalBoundingBoxOfKDTree(bboxCur, x, indexes));
 
     q.push(bn);
 
-    size_t depth = 0;
+    size_t depth                       = 0;
     size_t maxNodeCountForCurrentDepth = 1;
 
     size_t sophisticatedSampleIndexes[__KDTREE_DIMENSION_SELECTION_SIZE];
     algorithmFpType sophisticatedSampleValues[__KDTREE_DIMENSION_SELECTION_SIZE];
-    const size_t subSampleCount = xRowCount / __KDTREE_SEARCH_SKIP + 1;
+    const size_t subSampleCount  = xRowCount / __KDTREE_SEARCH_SKIP + 1;
     algorithmFpType * subSamples = static_cast<algorithmFpType *>(service_malloc<algorithmFpType, cpu>(subSampleCount * sizeof(algorithmFpType)));
     DAAL_CHECK_MALLOC(subSamples)
 
@@ -235,9 +230,9 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     {
         for (size_t i = 0; i < maxNodeCountForCurrentDepth; ++i)
         {
-            bn = q.pop();
+            bn                   = q.pop();
             KDTreeNode & curNode = *(static_cast<KDTreeNode *>(r.impl()->getKDTreeTable()->getArray()) + bn.nodePos);
-            bboxCur = &bboxQ[bn.queueOrStackPos * xColumnCount];
+            bboxCur              = &bboxQ[bn.queueOrStackPos * xColumnCount];
             if (bn.end - bn.start > __KDTREE_LEAF_BUCKET_SIZE)
             {
                 const size_t d = selectDimensionSophisticated(bn.start, bn.end, sophisticatedSampleIndexes, sophisticatedSampleValues,
@@ -247,34 +242,34 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 services::Status stat;
                 const size_t idx = adjustIndexesInParallel(bn.start, bn.end, d, approximatedMedian, x, indexes, stat);
                 DAAL_CHECK_STATUS_VAR(stat)
-                curNode.cutPoint = approximatedMedian;
-                curNode.dimension = d;
-                size_t nodeIdx = r.impl()->getLastNodeIndex();
-                curNode.leftIndex = nodeIdx++;
+                curNode.cutPoint   = approximatedMedian;
+                curNode.dimension  = d;
+                size_t nodeIdx     = r.impl()->getLastNodeIndex();
+                curNode.leftIndex  = nodeIdx++;
                 curNode.rightIndex = nodeIdx++;
                 r.impl()->setLastNodeIndex(nodeIdx);
 
-                bnLeft.start = bn.start;
-                bnLeft.end = idx;
+                bnLeft.start           = bn.start;
+                bnLeft.end             = idx;
                 bnLeft.queueOrStackPos = bnLeft.nodePos = curNode.leftIndex;
-                bboxLeft = &bboxQ[bnLeft.queueOrStackPos * xColumnCount];
+                bboxLeft                                = &bboxQ[bnLeft.queueOrStackPos * xColumnCount];
                 copyBBox(bboxLeft, bboxCur, xColumnCount);
                 bboxLeft[d].upper = approximatedMedian;
                 q.push(bnLeft);
 
-                bnRight.start = idx;
-                bnRight.end = bn.end;
+                bnRight.start           = idx;
+                bnRight.end             = bn.end;
                 bnRight.queueOrStackPos = bnRight.nodePos = curNode.rightIndex;
-                bboxRight = &bboxQ[bnRight.queueOrStackPos * xColumnCount];
+                bboxRight                                 = &bboxQ[bnRight.queueOrStackPos * xColumnCount];
                 copyBBox(bboxRight, bboxCur, xColumnCount);
                 bboxRight[d].lower = approximatedMedian;
                 q.push(bnRight);
             }
             else
             { // Should be leaf node.
-                curNode.cutPoint = 0;
-                curNode.dimension = __KDTREE_NULLDIMENSION;
-                curNode.leftIndex = bn.start;
+                curNode.cutPoint   = 0;
+                curNode.dimension  = __KDTREE_NULLDIMENSION;
+                curNode.leftIndex  = bn.start;
                 curNode.rightIndex = bn.end;
 
                 DAAL_CHECK_BREAK((q.empty()));
@@ -294,56 +289,57 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 }
 
 template <typename algorithmFpType, CpuType cpu>
-Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    computeLocalBoundingBoxOfKDTree(BoundingBox<algorithmFpType> * bbox, const NumericTable & x, const size_t * indexes)
+Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::computeLocalBoundingBoxOfKDTree(
+    BoundingBox<algorithmFpType> * bbox, const NumericTable & x, const size_t * indexes)
 {
     Status status;
 
     typedef BoundingBox<algorithmFpType> BBox;
     typedef daal::services::internal::MaxVal<algorithmFpType> MaxVal;
 
-    const size_t xRowCount = x.getNumberOfRows();
+    const size_t xRowCount    = x.getNumberOfRows();
     const size_t xColumnCount = x.getNumberOfColumns();
 
     const size_t rowsPerBlock = 128;
-    const size_t blockCount = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
+    const size_t blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
     data_management::BlockDescriptor<algorithmFpType> columnBD;
     for (size_t j = 0; j < xColumnCount; ++j)
     {
-        bbox[j].upper = - MaxVal::get();
+        bbox[j].upper = -MaxVal::get();
         bbox[j].lower = MaxVal::get();
 
         const_cast<NumericTable &>(x).getBlockOfColumnValues(j, 0, xRowCount, readOnly, columnBD);
         const algorithmFpType * const dx = columnBD.getBlockPtr();
 
-        daal::tls<BBox *> bboxTLS([=, &status]()-> BBox *
-        {
+        daal::tls<BBox *> bboxTLS([=, &status]() -> BBox * {
             BBox * const ptr = service_scalable_calloc<BBox, cpu>(1);
             if (ptr)
             {
                 ptr->lower = MaxVal::get();
-                ptr->upper = - MaxVal::get();
+                ptr->upper = -MaxVal::get();
             }
-            else { status.add(services::ErrorMemoryAllocationFailed); }
+            else
+            {
+                status.add(services::ErrorMemoryAllocationFailed);
+            }
             return ptr;
-        } );
+        });
 
         DAAL_CHECK_STATUS_OK((status.ok()), status);
 
-        daal::threader_for(blockCount, blockCount, [=, &bboxTLS](int iBlock)
-        {
+        daal::threader_for(blockCount, blockCount, [=, &bboxTLS](int iBlock) {
             BBox * const bboxLocal = bboxTLS.local();
             if (bboxLocal)
             {
                 const size_t first = iBlock * rowsPerBlock;
-                const size_t last = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+                const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
                 if (first < last)
                 {
                     BBox b;
                     size_t i = first;
-                    b.upper = dx[indexes[i]];
-                    b.lower = dx[indexes[i]];
+                    b.upper  = dx[indexes[i]];
+                    b.lower  = dx[indexes[i]];
                     PRAGMA_IVDEP
                     for (++i; i < last; ++i)
                     {
@@ -355,17 +351,16 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                     if (bboxLocal->lower > b.lower) { bboxLocal->lower = b.lower; }
                 }
             }
-        } );
+        });
 
-        bboxTLS.reduce([=](BBox * v) -> void
-        {
+        bboxTLS.reduce([=](BBox * v) -> void {
             if (v)
             {
                 if (bbox[j].lower > v->lower) { bbox[j].lower = v->lower; }
                 if (bbox[j].upper < v->upper) { bbox[j].upper = v->upper; }
                 service_scalable_free<BBox, cpu>(v);
             }
-        } );
+        });
 
         const_cast<NumericTable &>(x).releaseBlockOfColumnValues(columnBD);
     }
@@ -374,16 +369,16 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 }
 
 template <typename algorithmFpType, CpuType cpu>
-size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    selectDimensionSophisticated(size_t start, size_t end, size_t * sampleIndexes, algorithmFpType * sampleValues, size_t sampleCount,
-                                 const NumericTable & x, const size_t * indexes, engines::BatchBase *engine)
+size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::selectDimensionSophisticated(
+    size_t start, size_t end, size_t * sampleIndexes, algorithmFpType * sampleValues, size_t sampleCount, const NumericTable & x,
+    const size_t * indexes, engines::BatchBase * engine)
 {
     const size_t elementCount = min<cpu>(end - start, sampleCount);
     const size_t xColumnCount = x.getNumberOfColumns();
-    const size_t xRowCount = x.getNumberOfRows();
+    const size_t xRowCount    = x.getNumberOfRows();
 
     algorithmFpType maxVarianceValue = 0;
-    size_t maxVarianceDim = 0;
+    size_t maxVarianceDim            = 0;
 
     if (end - start < sampleCount)
     {
@@ -394,30 +389,21 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             const algorithmFpType * const dx = columnBD.getBlockPtr();
 
             PRAGMA_IVDEP
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                sampleValues[i] = dx[indexes[start + i]];
-            }
+            for (size_t i = 0; i < elementCount; ++i) { sampleValues[i] = dx[indexes[start + i]]; }
 
             algorithmFpType meanValue = 0;
 
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                meanValue += sampleValues[i];
-            }
+            for (size_t i = 0; i < elementCount; ++i) { meanValue += sampleValues[i]; }
 
             meanValue /= static_cast<algorithmFpType>(elementCount);
 
             algorithmFpType varValue = 0;
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                varValue += (sampleValues[i] - meanValue) * (sampleValues[i] - meanValue);
-            }
+            for (size_t i = 0; i < elementCount; ++i) { varValue += (sampleValues[i] - meanValue) * (sampleValues[i] - meanValue); }
 
             if (varValue > maxVarianceValue)
             {
                 maxVarianceValue = varValue;
-                maxVarianceDim = j;
+                maxVarianceDim   = j;
             }
 
             const_cast<NumericTable &>(x).releaseBlockOfColumnValues(columnBD);
@@ -425,7 +411,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     }
     else
     {
-        auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(engine);
+        auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(engine);
         daal::internal::RNGs<size_t, cpu> rng;
         rng.uniform(elementCount, sampleIndexes, engineImpl->getState(), start, end);
 
@@ -436,29 +422,20 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             const algorithmFpType * const dx = columnBD.getBlockPtr();
 
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                sampleValues[i] = dx[indexes[sampleIndexes[i]]];
-            }
+            for (size_t i = 0; i < elementCount; ++i) { sampleValues[i] = dx[indexes[sampleIndexes[i]]]; }
 
             algorithmFpType meanValue = 0;
 
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                meanValue += sampleValues[i];
-            }
+            for (size_t i = 0; i < elementCount; ++i) { meanValue += sampleValues[i]; }
 
             meanValue /= static_cast<algorithmFpType>(elementCount);
 
             algorithmFpType varValue = 0;
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                varValue += (sampleValues[i] - meanValue) * (sampleValues[i] - meanValue);
-            }
+            for (size_t i = 0; i < elementCount; ++i) { varValue += (sampleValues[i] - meanValue) * (sampleValues[i] - meanValue); }
             if (varValue > maxVarianceValue)
             {
                 maxVarianceValue = varValue;
-                maxVarianceDim = j;
+                maxVarianceDim   = j;
             }
 
             const_cast<NumericTable &>(x).releaseBlockOfColumnValues(columnBD);
@@ -469,9 +446,9 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 }
 
 template <typename algorithmFpType, CpuType cpu>
-algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    computeApproximatedMedianInParallel(size_t start, size_t end, size_t dimension, algorithmFpType upper, const NumericTable & x,
-                                        const size_t * indexes, engines::BatchBase &engine, algorithmFpType * subSamples, size_t subSampleCapacity, Status &status)
+algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::computeApproximatedMedianInParallel(
+    size_t start, size_t end, size_t dimension, algorithmFpType upper, const NumericTable & x, const size_t * indexes, engines::BatchBase & engine,
+    algorithmFpType * subSamples, size_t subSampleCapacity, Status & status)
 {
     algorithmFpType samples[__KDTREE_MEDIAN_RANDOM_SAMPLE_COUNT + 1];
     const size_t sampleCount = sizeof(samples) / sizeof(samples[0]);
@@ -483,17 +460,17 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
         {
             const_cast<NumericTable &>(x).getBlockOfColumnValues(dimension, indexes[i], 1, readOnly, sampleBD);
             const algorithmFpType * const dx = sampleBD.getBlockPtr();
-            samples[i - start] = *dx;
+            samples[i - start]               = *dx;
             const_cast<NumericTable &>(x).releaseBlockOfColumnValues(sampleBD);
         }
         daal::algorithms::internal::qSort<algorithmFpType, cpu>(end - start, samples);
-        const algorithmFpType approximatedMedian = ((end - start) % 2 != 0) ? samples[(end - start) / 2] :
-            (samples[(end - start) / 2 - 1] + samples[(end - start) / 2]) / 2.0;
+        const algorithmFpType approximatedMedian =
+            ((end - start) % 2 != 0) ? samples[(end - start) / 2] : (samples[(end - start) / 2 - 1] + samples[(end - start) / 2]) / 2.0;
         return approximatedMedian;
     }
 
     {
-        auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&engine);
+        auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&engine);
         daal::internal::RNGs<size_t, cpu> rng;
         size_t pos;
         data_management::BlockDescriptor<algorithmFpType> sampleBD;
@@ -503,7 +480,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
             rng.uniform(1, &pos, engineImpl->getState(), start, end);
             const_cast<NumericTable &>(x).getBlockOfColumnValues(dimension, indexes[pos], 1, readOnly, sampleBD);
             const algorithmFpType * const dx = sampleBD.getBlockPtr();
-            samples[i] = *dx;
+            samples[i]                       = *dx;
             const_cast<NumericTable &>(x).releaseBlockOfColumnValues(sampleBD);
         }
         samples[i] = upper;
@@ -520,30 +497,25 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     const algorithmFpType * const dx = columnBD.getBlockPtr();
 
     const auto rowsPerBlock = 64;
-    const auto blockCount = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
+    const auto blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
     size_t subSampleCount = 0;
-    for (size_t l = 0; l < sampleCount; l += __KDTREE_SEARCH_SKIP)
-    {
-        subSamples[subSampleCount++] = samples[l];
-    }
+    for (size_t l = 0; l < sampleCount; l += __KDTREE_SEARCH_SKIP) { subSamples[subSampleCount++] = samples[l]; }
     const size_t subSampleCount16 = subSampleCount / __SIMDWIDTH * __SIMDWIDTH;
 
-    daal::tls<Hist *> histTLS([=, &status]()-> Hist *
-    {
+    daal::tls<Hist *> histTLS([=, &status]() -> Hist * {
         Hist * const ptr = service_scalable_calloc<Hist, cpu>(sampleCount);
         DAAL_CHECK_COND_ERROR(ptr, status, services::ErrorMemoryAllocationFailed);
         return ptr;
-    } );
-    if(!status.ok()) { return (algorithmFpType)0; }
+    });
+    if (!status.ok()) { return (algorithmFpType)0; }
 
-    daal::threader_for(blockCount, blockCount, [=, &histTLS, &samples, &subSamples](int iBlock)
-    {
+    daal::threader_for(blockCount, blockCount, [=, &histTLS, &samples, &subSamples](int iBlock) {
         Hist * const hist = histTLS.local();
         if (hist)
         {
             const size_t first = start + iBlock * rowsPerBlock;
-            const size_t last = min<cpu>(first + rowsPerBlock, end);
+            const size_t last  = min<cpu>(first + rowsPerBlock, end);
 
             for (size_t l = first; l < last; ++l)
             {
@@ -551,26 +523,22 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
                 ++hist[bucketID];
             }
         }
-    } );
+    });
 
-    histTLS.reduce([=, &masterHist](Hist * v) -> void
-    {
+    histTLS.reduce([=, &masterHist](Hist * v) -> void {
         if (v)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < sampleCount; ++j)
-            {
-                masterHist[j] += v[j];
-            }
+            for (size_t j = 0; j < sampleCount; ++j) { masterHist[j] += v[j]; }
             service_scalable_free<Hist, cpu>(v);
         }
-    } );
+    });
 
     const_cast<NumericTable &>(x).releaseBlockOfColumnValues(columnBD);
 
     size_t sumMid = 0;
-    size_t i = 0;
+    size_t i      = 0;
     for (; i < sampleCount; ++i)
     {
         if (sumMid + masterHist[i] > (end - start) / 2) { break; }
@@ -583,14 +551,16 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
 }
 
 template <typename algorithmFpType, CpuType cpu>
-size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    computeBucketID(algorithmFpType * samples, size_t sampleCount, algorithmFpType * subSamples, size_t subSampleCount,
-                    size_t subSampleCount16, algorithmFpType value)
+size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::computeBucketID(algorithmFpType * samples, size_t sampleCount,
+                                                                                                        algorithmFpType * subSamples,
+                                                                                                        size_t subSampleCount,
+                                                                                                        size_t subSampleCount16,
+                                                                                                        algorithmFpType value)
 {
 #if (__CPUID__(DAAL_CPU) >= __avx__) && (__FPTYPE__(DAAL_FPTYPE) == __float__) && defined(__INTEL_COMPILER_BUILD_DATE)
 
     __m256 vValue = _mm256_set1_ps(value);
-    size_t k = 0;
+    size_t k      = 0;
     for (; k < subSampleCount16; k += __SIMDWIDTH)
     {
         __m256 mask = _mm256_cmp_ps(_mm256_loadu_ps(subSamples + k), vValue, _CMP_GE_OS);
@@ -616,8 +586,8 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         for (size_t j = i - __KDTREE_SEARCH_SKIP + 1; j <= i; j += __SIMDWIDTH)
         {
             __m256 vSamples = _mm256_loadu_ps(samples + j);
-            __m256 mask = _mm256_cmp_ps(vSamples, vValue, _CMP_GE_OS);
-            int maskInt = _mm256_movemask_ps(mask);
+            __m256 mask     = _mm256_cmp_ps(vSamples, vValue, _CMP_GE_OS);
+            int maskInt     = _mm256_movemask_ps(mask);
             if (maskInt) { return j + _bit_scan_forward(_mm256_movemask_ps(mask)); }
         }
     }
@@ -649,7 +619,9 @@ static ForwardIterator2 swapRanges(ForwardIterator1 first1, ForwardIterator1 las
 {
     while (first1 != last1)
     {
-        const auto tmp = *first1; *first1 = *first2; *first2 = tmp;
+        const auto tmp = *first1;
+        *first1        = *first2;
+        *first2        = tmp;
 
         ++first1;
         ++first2;
@@ -658,21 +630,21 @@ static ForwardIterator2 swapRanges(ForwardIterator1 first1, ForwardIterator1 las
 }
 
 template <typename algorithmFpType, CpuType cpu>
-size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    adjustIndexesInParallel(size_t start, size_t end, size_t dimension, algorithmFpType median, const NumericTable & x, size_t * indexes, services::Status& status)
+size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::adjustIndexesInParallel(
+    size_t start, size_t end, size_t dimension, algorithmFpType median, const NumericTable & x, size_t * indexes, services::Status & status)
 {
-    status = services::Status();
+    status                 = services::Status();
     const size_t xRowCount = x.getNumberOfRows();
     data_management::BlockDescriptor<algorithmFpType> columnBD;
 
     const_cast<NumericTable &>(x).getBlockOfColumnValues(dimension, 0, xRowCount, readOnly, columnBD);
     const algorithmFpType * const dx = columnBD.getBlockPtr();
 
-    const auto rowsPerBlock = 128;
-    const auto blockCount = (end - start + rowsPerBlock - 1) / rowsPerBlock;
+    const auto rowsPerBlock  = 128;
+    const auto blockCount    = (end - start + rowsPerBlock - 1) / rowsPerBlock;
     const auto idxMultiplier = 16; // For cache line separation.
 
-    size_t * leftSegmentStartPerBlock = static_cast<size_t *>(service_malloc<size_t, cpu>(idxMultiplier * (blockCount + 1) * sizeof(size_t)));
+    size_t * leftSegmentStartPerBlock  = static_cast<size_t *>(service_malloc<size_t, cpu>(idxMultiplier * (blockCount + 1) * sizeof(size_t)));
     size_t * rightSegmentStartPerBlock = static_cast<size_t *>(service_malloc<size_t, cpu>(idxMultiplier * blockCount * sizeof(size_t)));
 
     if (!leftSegmentStartPerBlock || !rightSegmentStartPerBlock)
@@ -681,12 +653,11 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         return 0;
     }
 
-    daal::threader_for(blockCount, blockCount, [=, &leftSegmentStartPerBlock, &rightSegmentStartPerBlock](int iBlock)
-    {
+    daal::threader_for(blockCount, blockCount, [=, &leftSegmentStartPerBlock, &rightSegmentStartPerBlock](int iBlock) {
         const size_t first = start + iBlock * rowsPerBlock;
-        const size_t last = min<cpu>(first + rowsPerBlock, end);
+        const size_t last  = min<cpu>(first + rowsPerBlock, end);
 
-        size_t left = first;
+        size_t left  = first;
         size_t right = last - 1;
 
         PRAGMA_IVDEP
@@ -708,45 +679,42 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             --right;
         }
 
-        leftSegmentStartPerBlock[idxMultiplier * iBlock] = first;
+        leftSegmentStartPerBlock[idxMultiplier * iBlock]  = first;
         rightSegmentStartPerBlock[idxMultiplier * iBlock] = left;
-    } );
+    });
 
     leftSegmentStartPerBlock[idxMultiplier * blockCount] = end;
 
     // Computes median position.
     size_t idx = start;
-    for (size_t i = 0; i < blockCount; ++i)
-    {
-        idx += rightSegmentStartPerBlock[idxMultiplier * i] - leftSegmentStartPerBlock[idxMultiplier * i];
-    }
+    for (size_t i = 0; i < blockCount; ++i) { idx += rightSegmentStartPerBlock[idxMultiplier * i] - leftSegmentStartPerBlock[idxMultiplier * i]; }
 
     // Swaps the segments.
-    size_t leftSegment = 0;
+    size_t leftSegment  = 0;
     size_t rightSegment = blockCount - 1;
     while (leftSegment < rightSegment)
     {
         // Find the thinner segment.
-        if (leftSegmentStartPerBlock[idxMultiplier * (leftSegment + 1)] - rightSegmentStartPerBlock[idxMultiplier * leftSegment] >
-            rightSegmentStartPerBlock[idxMultiplier * rightSegment] - leftSegmentStartPerBlock[idxMultiplier * rightSegment])
+        if (leftSegmentStartPerBlock[idxMultiplier * (leftSegment + 1)] - rightSegmentStartPerBlock[idxMultiplier * leftSegment]
+            > rightSegmentStartPerBlock[idxMultiplier * rightSegment] - leftSegmentStartPerBlock[idxMultiplier * rightSegment])
         { // Left chunk is bigger.
             swapRanges<cpu>(&indexes[leftSegmentStartPerBlock[idxMultiplier * rightSegment]],
                             &indexes[rightSegmentStartPerBlock[idxMultiplier * rightSegment]],
                             &indexes[rightSegmentStartPerBlock[idxMultiplier * leftSegment]]);
-            rightSegmentStartPerBlock[idxMultiplier * leftSegment] += rightSegmentStartPerBlock[idxMultiplier * rightSegment]
-                - leftSegmentStartPerBlock[idxMultiplier * rightSegment];
+            rightSegmentStartPerBlock[idxMultiplier * leftSegment] +=
+                rightSegmentStartPerBlock[idxMultiplier * rightSegment] - leftSegmentStartPerBlock[idxMultiplier * rightSegment];
             --rightSegment;
         }
-        else if (leftSegmentStartPerBlock[idxMultiplier * (leftSegment + 1)] - rightSegmentStartPerBlock[idxMultiplier * leftSegment] <
-            rightSegmentStartPerBlock[idxMultiplier * rightSegment] - leftSegmentStartPerBlock[idxMultiplier * rightSegment])
+        else if (leftSegmentStartPerBlock[idxMultiplier * (leftSegment + 1)] - rightSegmentStartPerBlock[idxMultiplier * leftSegment]
+                 < rightSegmentStartPerBlock[idxMultiplier * rightSegment] - leftSegmentStartPerBlock[idxMultiplier * rightSegment])
         { // Right chunk is bigger.
-            swapRanges<cpu>(&indexes[rightSegmentStartPerBlock[idxMultiplier * leftSegment]],
-                            &indexes[leftSegmentStartPerBlock[idxMultiplier * (leftSegment + 1)]],
-                            &indexes[rightSegmentStartPerBlock[idxMultiplier * rightSegment]
-                                     - (leftSegmentStartPerBlock[idxMultiplier * (leftSegment + 1)]
-                                        - rightSegmentStartPerBlock[idxMultiplier * leftSegment])]);
-            rightSegmentStartPerBlock[idxMultiplier * rightSegment] -= leftSegmentStartPerBlock[idxMultiplier * (leftSegment + 1)]
-                - rightSegmentStartPerBlock[idxMultiplier * leftSegment];
+            swapRanges<cpu>(
+                &indexes[rightSegmentStartPerBlock[idxMultiplier * leftSegment]],
+                &indexes[leftSegmentStartPerBlock[idxMultiplier * (leftSegment + 1)]],
+                &indexes[rightSegmentStartPerBlock[idxMultiplier * rightSegment]
+                         - (leftSegmentStartPerBlock[idxMultiplier * (leftSegment + 1)] - rightSegmentStartPerBlock[idxMultiplier * leftSegment])]);
+            rightSegmentStartPerBlock[idxMultiplier * rightSegment] -=
+                leftSegmentStartPerBlock[idxMultiplier * (leftSegment + 1)] - rightSegmentStartPerBlock[idxMultiplier * leftSegment];
             ++leftSegment;
         }
         else
@@ -761,32 +729,28 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     daal_free(leftSegmentStartPerBlock);
     daal_free(rightSegmentStartPerBlock);
-    leftSegmentStartPerBlock    = nullptr;
-    rightSegmentStartPerBlock   = nullptr;
+    leftSegmentStartPerBlock  = nullptr;
+    rightSegmentStartPerBlock = nullptr;
 
     const_cast<NumericTable &>(x).releaseBlockOfColumnValues(columnBD);
     return idx;
 }
 
 template <typename algorithmFpType, CpuType cpu>
-void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    copyBBox(BoundingBox<algorithmFpType> * dest, const BoundingBox<algorithmFpType> * src, size_t n)
+void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::copyBBox(BoundingBox<algorithmFpType> * dest,
+                                                                                               const BoundingBox<algorithmFpType> * src, size_t n)
 {
-    for (size_t j = 0; j < n; ++j)
-    {
-        dest[j] = src[j];
-    }
+    for (size_t j = 0; j < n; ++j) { dest[j] = src[j]; }
 }
 
 template <typename algorithmFpType, CpuType cpu>
-Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    rearrangePoints(NumericTable & x, const size_t * indexes)
+Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::rearrangePoints(NumericTable & x, const size_t * indexes)
 {
     Status status;
 
-    const size_t xRowCount = x.getNumberOfRows();
+    const size_t xRowCount    = x.getNumberOfRows();
     const size_t xColumnCount = x.getNumberOfColumns();
-    const auto maxThreads = threader_get_threads_number();
+    const auto maxThreads     = threader_get_threads_number();
 
     algorithmFpType * buffer = nullptr;
 
@@ -797,10 +761,12 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         x.getBlockOfColumnValues(i, 0, xRowCount, readOnly, columnReadBD);
         x.getBlockOfColumnValues(i, 0, xRowCount, writeOnly, columnWriteBD);
         const algorithmFpType * const rx = columnReadBD.getBlockPtr();
-        algorithmFpType * const wx = columnWriteBD.getBlockPtr();
-        algorithmFpType * const awx = (rx != wx) ? wx :
-            (buffer ? buffer : (buffer = static_cast<algorithmFpType *>
-                               (service_malloc<algorithmFpType, cpu>(xRowCount * sizeof(algorithmFpType)))));
+        algorithmFpType * const wx       = columnWriteBD.getBlockPtr();
+        algorithmFpType * const awx =
+            (rx != wx) ?
+                wx :
+                (buffer ? buffer :
+                          (buffer = static_cast<algorithmFpType *>(service_malloc<algorithmFpType, cpu>(xRowCount * sizeof(algorithmFpType)))));
         if (!awx)
         {
             status.add(services::ErrorMemoryAllocationFailed);
@@ -810,12 +776,11 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         }
 
         const auto rowsPerBlock = 256;
-        const auto blockCount = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
+        const auto blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
-        daal::threader_for(blockCount, blockCount, [=](int iBlock)
-        {
+        daal::threader_for(blockCount, blockCount, [=](int iBlock) {
             const size_t first = iBlock * rowsPerBlock;
-            const size_t last = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+            const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
             size_t j = first;
             if (last > 4)
@@ -827,18 +792,14 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                     awx[j] = rx[indexes[j]];
                 }
             }
-            for (; j < last; ++j)
-            {
-                awx[j] = rx[indexes[j]];
-            }
-        } );
+            for (; j < last; ++j) { awx[j] = rx[indexes[j]]; }
+        });
 
         if (rx == wx)
         {
-            daal::threader_for(blockCount, blockCount, [=](int iBlock)
-            {
+            daal::threader_for(blockCount, blockCount, [=](int iBlock) {
                 const size_t first = iBlock * rowsPerBlock;
-                const size_t last = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+                const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
                 auto j = first;
                 if (last > 4)
@@ -850,11 +811,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                         wx[j] = awx[j];
                     }
                 }
-                for (; j < last; ++j)
-                {
-                    wx[j] = awx[j];
-                }
-            } );
+                for (; j < last; ++j) { wx[j] = awx[j]; }
+            });
         }
 
         x.releaseBlockOfColumnValues(columnReadBD);
@@ -868,9 +826,9 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 }
 
 template <typename algorithmFpType, CpuType cpu>
-Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    buildSecondPartOfKDTree(Queue<BuildNode, cpu> & q, BoundingBox<algorithmFpType> * & bboxQ, const NumericTable & x,
-                            kdtree_knn_classification::Model & r, size_t * indexes, engines::BatchBase &engine)
+Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::buildSecondPartOfKDTree(
+    Queue<BuildNode, cpu> & q, BoundingBox<algorithmFpType> *& bboxQ, const NumericTable & x, kdtree_knn_classification::Model & r, size_t * indexes,
+    engines::BatchBase & engine)
 {
     Status status;
 
@@ -880,52 +838,49 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     DAAL_CHECK_STATUS_OK((q.size() != 0), status);
 
-    const size_t xRowCount = x.getNumberOfRows();
+    const size_t xRowCount    = x.getNumberOfRows();
     const size_t xColumnCount = x.getNumberOfColumns();
 
-    const algorithmFpType base = 2.0;
+    const algorithmFpType base    = 2.0;
     const size_t expectedMaxDepth = (Math::sLog(xRowCount) / Math::sLog(base) + 1) * __KDTREE_DEPTH_MULTIPLICATION_FACTOR;
-    const size_t stackSize = Math::sPowx(base, Math::sCeil(Math::sLog(expectedMaxDepth) / Math::sLog(base)));
+    const size_t stackSize        = Math::sPowx(base, Math::sCeil(Math::sLog(expectedMaxDepth) / Math::sLog(base)));
 
     BuildNode * bnQ = static_cast<BuildNode *>(service_malloc<BuildNode, cpu>(q.size() * sizeof(BuildNode)));
     DAAL_CHECK_MALLOC(bnQ)
     size_t posQ = 0;
-    while (q.size() > 0)
-    {
-        bnQ[posQ++] = q.pop();
-    }
+    while (q.size() > 0) { bnQ[posQ++] = q.pop(); }
 
     services::Atomic<size_t> threadIndex(0);
     struct Local
     {
         Stack<BuildNode, cpu> buildStack;
-        BBox * bboxes = nullptr;
-        size_t bboxPos = 0;
-        size_t nodeIndex = 0;
-        size_t threadIndex = 0;
-        IdxValue * inSortValues = nullptr;
-        IdxValue * outSortValues = nullptr;
-        size_t bboxesCapacity = 0;
-        KDTreeNode * extraKDTreeNodes = nullptr;
+        BBox * bboxes                   = nullptr;
+        size_t bboxPos                  = 0;
+        size_t nodeIndex                = 0;
+        size_t threadIndex              = 0;
+        IdxValue * inSortValues         = nullptr;
+        IdxValue * outSortValues        = nullptr;
+        size_t bboxesCapacity           = 0;
+        KDTreeNode * extraKDTreeNodes   = nullptr;
         size_t extraKDTreeNodesCapacity = 0;
-        size_t * fixupQueue = nullptr;
-        size_t fixupQueueCapacity = 0;
-        size_t fixupQueueIndex = 0;
+        size_t * fixupQueue             = nullptr;
+        size_t fixupQueueCapacity       = 0;
+        size_t fixupQueueIndex          = 0;
     };
 
     const auto maxThreads = threader_get_threads_number();
 
     KDTreeTablePtr kdTreeTablePtr = r.impl()->getKDTreeTable();
-    KDTreeTable & kdTreeTable = *kdTreeTablePtr;
+    KDTreeTable & kdTreeTable     = *kdTreeTablePtr;
 
     const auto rowsPerBlock = (posQ + maxThreads - 1) / maxThreads;
-    const auto blockCount = (posQ + rowsPerBlock - 1) / rowsPerBlock;
+    const auto blockCount   = (posQ + rowsPerBlock - 1) / rowsPerBlock;
 
-    const size_t lastNodeIndex = r.impl()->getLastNodeIndex();
-    const size_t maxNodeCount = kdTreeTable.getNumberOfRows();
+    const size_t lastNodeIndex  = r.impl()->getLastNodeIndex();
+    const size_t maxNodeCount   = kdTreeTable.getNumberOfRows();
     const size_t emptyNodeCount = maxNodeCount - lastNodeIndex;
-    const size_t segment = (emptyNodeCount + maxThreads - 1) / maxThreads;
-    size_t * firstNodeIndex = static_cast<size_t *>(service_malloc<size_t, cpu>((maxThreads + 1) * sizeof(*firstNodeIndex)));
+    const size_t segment        = (emptyNodeCount + maxThreads - 1) / maxThreads;
+    size_t * firstNodeIndex     = static_cast<size_t *>(service_malloc<size_t, cpu>((maxThreads + 1) * sizeof(*firstNodeIndex)));
     DAAL_CHECK_MALLOC(firstNodeIndex)
     size_t nodeIndex = lastNodeIndex;
     for (size_t i = 0; i < maxThreads; ++i)
@@ -935,20 +890,17 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     }
     firstNodeIndex[maxThreads] = maxNodeCount;
 
-    daal::tls<Local *> localTLS([=, &threadIndex, &firstNodeIndex, &stackSize, &status]()-> Local *
-    {
+    daal::tls<Local *> localTLS([=, &threadIndex, &firstNodeIndex, &stackSize, &status]() -> Local * {
         Local * const ptr = service_scalable_calloc<Local, cpu>(1);
         if (ptr)
         {
-            ptr->bboxesCapacity = stackSize;
+            ptr->bboxesCapacity     = stackSize;
             ptr->fixupQueueCapacity = 1024;
-            if (!(
-                  ((ptr->bboxes = service_scalable_calloc<BBox, cpu>(ptr->bboxesCapacity * xColumnCount)) != nullptr) &&
-                  ((ptr->inSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD)) != nullptr) &&
-                  ((ptr->outSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD)) != nullptr) &&
-                  ((ptr->fixupQueue = static_cast<size_t *>(service_malloc<size_t, cpu>(ptr->fixupQueueCapacity * sizeof(size_t))))
-                      != nullptr) &&
-                  ptr->buildStack.init(stackSize)))
+            if (!(((ptr->bboxes = service_scalable_calloc<BBox, cpu>(ptr->bboxesCapacity * xColumnCount)) != nullptr)
+                  && ((ptr->inSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD)) != nullptr)
+                  && ((ptr->outSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD)) != nullptr)
+                  && ((ptr->fixupQueue = static_cast<size_t *>(service_malloc<size_t, cpu>(ptr->fixupQueueCapacity * sizeof(size_t)))) != nullptr)
+                  && ptr->buildStack.init(stackSize)))
             {
                 status.add(services::ErrorMemoryAllocationFailed);
                 service_scalable_free<IdxValue, cpu>(ptr->outSortValues);
@@ -959,221 +911,215 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 service_scalable_free<Local, cpu>(ptr);
                 return nullptr;
             }
-            ptr->bboxPos = 0;
+            ptr->bboxPos     = 0;
             ptr->threadIndex = threadIndex.inc() - 1;
-            ptr->nodeIndex = firstNodeIndex[ptr->threadIndex];
+            ptr->nodeIndex   = firstNodeIndex[ptr->threadIndex];
         }
-        else { status.add(services::ErrorMemoryAllocationFailed); }
+        else
+        {
+            status.add(services::ErrorMemoryAllocationFailed);
+        }
         return ptr;
-    } );
+    });
 
     DAAL_CHECK_STATUS_OK((status.ok()), status);
 
     SafeStatus safeStat;
 
-    daal::threader_for(blockCount, blockCount, [=, &localTLS, &firstNodeIndex, &kdTreeTable, &x, &r, &rowsPerBlock, &xColumnCount, &safeStat, &engine](int iBlock)
-    {
-        int result = 0;
-        engines::EnginePtr engineLocal = engine.clone();
+    daal::threader_for(
+        blockCount, blockCount, [=, &localTLS, &firstNodeIndex, &kdTreeTable, &x, &r, &rowsPerBlock, &xColumnCount, &safeStat, &engine](int iBlock) {
+            int result                     = 0;
+            engines::EnginePtr engineLocal = engine.clone();
 
-        DAAL_CHECK_THR(engineLocal, ErrorCloneMethodFailed);
+            DAAL_CHECK_THR(engineLocal, ErrorCloneMethodFailed);
 
-        safeStat |= engineLocal->leapfrog(iBlock, blockCount);
+            safeStat |= engineLocal->leapfrog(iBlock, blockCount);
 
-        Local * const local = localTLS.local();
-        if (local)
-        {
-            const size_t first = iBlock * rowsPerBlock;
-            const size_t last = min<cpu>(first + rowsPerBlock, posQ);
-
-            BuildNode bn, bnLeft, bnRight;
-            BBox * bboxCur = nullptr, * bboxLeft = nullptr, * bboxRight = nullptr;
-            KDTreeNode * curNode = nullptr;
-            algorithmFpType lowerD, upperD;
-            const size_t firstExtraNodeIndex = firstNodeIndex[local->threadIndex + 1];
-
-            size_t sophisticatedSampleIndexes[__KDTREE_DIMENSION_SELECTION_SIZE];
-            algorithmFpType sophisticatedSampleValues[__KDTREE_DIMENSION_SELECTION_SIZE];
-            services::Status statStackPush;
-
-            for (size_t i = first; i < last; ++i)
+            Local * const local = localTLS.local();
+            if (local)
             {
-                bn = bnQ[i];
-                bboxCur = &bboxQ[bn.queueOrStackPos * xColumnCount];
-                statStackPush = local->buildStack.push(bn);
-                DAAL_CHECK_STATUS_THR(statStackPush)
-                this->copyBBox(&(local->bboxes[local->bboxPos * xColumnCount]), bboxCur, xColumnCount);
-                ++local->bboxPos;
-                if (local->bboxPos >= local->bboxesCapacity)
+                const size_t first = iBlock * rowsPerBlock;
+                const size_t last  = min<cpu>(first + rowsPerBlock, posQ);
+
+                BuildNode bn, bnLeft, bnRight;
+                BBox *bboxCur = nullptr, *bboxLeft = nullptr, *bboxRight = nullptr;
+                KDTreeNode * curNode = nullptr;
+                algorithmFpType lowerD, upperD;
+                const size_t firstExtraNodeIndex = firstNodeIndex[local->threadIndex + 1];
+
+                size_t sophisticatedSampleIndexes[__KDTREE_DIMENSION_SELECTION_SIZE];
+                algorithmFpType sophisticatedSampleValues[__KDTREE_DIMENSION_SELECTION_SIZE];
+                services::Status statStackPush;
+
+                for (size_t i = first; i < last; ++i)
                 {
-                    const size_t newCapacity = local->bboxesCapacity * 2;
-                    BBox * const newBboxes = service_scalable_calloc<BBox, cpu>(newCapacity * xColumnCount);
-
-                    DAAL_CHECK_THR(newBboxes, services::ErrorMemoryAllocationFailed);
-
-                    result |= daal::services::internal::daal_memcpy_s(newBboxes, newCapacity * xColumnCount, local->bboxes, local->bboxesCapacity * xColumnCount);
-                    BBox * const oldBboxes = local->bboxes;
-                    local->bboxes = newBboxes;
-                    local->bboxesCapacity = newCapacity;
-                    service_scalable_free<BBox, cpu>(oldBboxes);
-                }
-
-                while (local->buildStack.size() > 0)
-                {
-                    bn = local->buildStack.pop();
-                    --local->bboxPos;
-                    bboxCur = &(local->bboxes[local->bboxPos * xColumnCount]);
-                    curNode = (bn.nodePos < firstExtraNodeIndex) ? static_cast<KDTreeNode *>(kdTreeTable.getArray()) + bn.nodePos
-                                                                 : &(local->extraKDTreeNodes[bn.nodePos - firstExtraNodeIndex]);
-
-                    if (bn.end - bn.start <= __KDTREE_LEAF_BUCKET_SIZE)
-                    { // Should be leaf node.
-                        curNode->cutPoint = 0;
-                        curNode->dimension = __KDTREE_NULLDIMENSION;
-                        curNode->leftIndex = bn.start;
-                        curNode->rightIndex = bn.end;
-                    }
-                    else // if (bn.end - bn.start <= __KDTREE_LEAF_BUCKET_SIZE)
+                    bn            = bnQ[i];
+                    bboxCur       = &bboxQ[bn.queueOrStackPos * xColumnCount];
+                    statStackPush = local->buildStack.push(bn);
+                    DAAL_CHECK_STATUS_THR(statStackPush)
+                    this->copyBBox(&(local->bboxes[local->bboxPos * xColumnCount]), bboxCur, xColumnCount);
+                    ++local->bboxPos;
+                    if (local->bboxPos >= local->bboxesCapacity)
                     {
-                        if (bn.nodePos < lastNodeIndex)
-                        {
-                            local->fixupQueue[local->fixupQueueIndex] = bn.nodePos;
-                            ++local->fixupQueueIndex;
-                            if (local->fixupQueueIndex >= local->fixupQueueCapacity)
-                            {
-                                const size_t newCapacity = local->fixupQueueCapacity * 2;
-                                size_t * const newQueue = static_cast<size_t *>(service_malloc<size_t, cpu>(newCapacity * sizeof(size_t)));
-                                DAAL_CHECK_THR(newQueue, services::ErrorMemoryAllocationFailed);
-                                result |= daal::services::internal::daal_memcpy_s(newQueue, newCapacity * sizeof(size_t),
-                                                                  local->fixupQueue, local->fixupQueueIndex * sizeof(size_t));
-                                size_t * oldQueue = local->fixupQueue;
-                                local->fixupQueue = newQueue;
-                                local->fixupQueueCapacity = newCapacity;
-                                daal_free(oldQueue);
-                                oldQueue = nullptr;
-                            }
+                        const size_t newCapacity = local->bboxesCapacity * 2;
+                        BBox * const newBboxes   = service_scalable_calloc<BBox, cpu>(newCapacity * xColumnCount);
+
+                        DAAL_CHECK_THR(newBboxes, services::ErrorMemoryAllocationFailed);
+
+                        result |= daal::services::internal::daal_memcpy_s(newBboxes, newCapacity * xColumnCount, local->bboxes,
+                                                                          local->bboxesCapacity * xColumnCount);
+                        BBox * const oldBboxes = local->bboxes;
+                        local->bboxes          = newBboxes;
+                        local->bboxesCapacity  = newCapacity;
+                        service_scalable_free<BBox, cpu>(oldBboxes);
+                    }
+
+                    while (local->buildStack.size() > 0)
+                    {
+                        bn = local->buildStack.pop();
+                        --local->bboxPos;
+                        bboxCur = &(local->bboxes[local->bboxPos * xColumnCount]);
+                        curNode = (bn.nodePos < firstExtraNodeIndex) ? static_cast<KDTreeNode *>(kdTreeTable.getArray()) + bn.nodePos :
+                                                                       &(local->extraKDTreeNodes[bn.nodePos - firstExtraNodeIndex]);
+
+                        if (bn.end - bn.start <= __KDTREE_LEAF_BUCKET_SIZE)
+                        { // Should be leaf node.
+                            curNode->cutPoint   = 0;
+                            curNode->dimension  = __KDTREE_NULLDIMENSION;
+                            curNode->leftIndex  = bn.start;
+                            curNode->rightIndex = bn.end;
                         }
-
-                        const auto d = this->selectDimensionSophisticated(bn.start, bn.end, sophisticatedSampleIndexes, sophisticatedSampleValues,
-                                                                    __KDTREE_DIMENSION_SELECTION_SIZE, x, indexes, engineLocal.get());
-                        lowerD = bboxCur[d].lower;
-                        upperD = bboxCur[d].upper;
-                        services::Status statApproxMedian;
-                        const algorithmFpType approximatedMedian = this->computeApproximatedMedianInSerial(bn.start, bn.end, d, bboxCur[d].upper,
-                                                                                                     local->inSortValues, local->outSortValues,
-                                                                                                     __KDTREE_INDEX_VALUE_PAIRS_PER_THREAD, x,
-                                                                                                     indexes, engineLocal.get(), statApproxMedian);
-                        DAAL_CHECK_STATUS_THR(statApproxMedian)
-                        const auto idx = this->adjustIndexesInSerial(bn.start, bn.end, d, approximatedMedian, x, indexes);
-
-                        curNode->cutPoint = approximatedMedian;
-                        curNode->dimension = d;
-                        curNode->leftIndex = (local->nodeIndex)++;
-                        curNode->rightIndex = (local->nodeIndex)++;
-
-                        if (local->nodeIndex >= firstExtraNodeIndex)
+                        else // if (bn.end - bn.start <= __KDTREE_LEAF_BUCKET_SIZE)
                         {
-                            const size_t extraIndex = local->nodeIndex - firstExtraNodeIndex;
-                            if (local->extraKDTreeNodes)
+                            if (bn.nodePos < lastNodeIndex)
                             {
-                                if (extraIndex >= local->extraKDTreeNodesCapacity)
+                                local->fixupQueue[local->fixupQueueIndex] = bn.nodePos;
+                                ++local->fixupQueueIndex;
+                                if (local->fixupQueueIndex >= local->fixupQueueCapacity)
                                 {
-                                    const size_t newCapacity = max<cpu>(
-                                        local->extraKDTreeNodesCapacity > 0 ? local->extraKDTreeNodesCapacity * 2 : static_cast<size_t>(1024),
-                                        extraIndex + 1);
-                                    KDTreeNode * const newNodes =
-                                        static_cast<KDTreeNode *>(service_malloc<KDTreeNode, cpu>(newCapacity * sizeof(KDTreeNode)));
-
-                                    DAAL_CHECK_THR(newNodes, services::ErrorMemoryAllocationFailed);
-
-                                    result |= daal::services::internal::daal_memcpy_s(newNodes, newCapacity * sizeof(KDTreeNode), local->extraKDTreeNodes,
-                                                                      local->extraKDTreeNodesCapacity * sizeof(KDTreeNode));
-                                    KDTreeNode * oldNodes = local->extraKDTreeNodes;
-                                    local->extraKDTreeNodes = newNodes;
-                                    local->extraKDTreeNodesCapacity = newCapacity;
-                                    daal_free(oldNodes);
-                                    oldNodes = nullptr;
+                                    const size_t newCapacity = local->fixupQueueCapacity * 2;
+                                    size_t * const newQueue  = static_cast<size_t *>(service_malloc<size_t, cpu>(newCapacity * sizeof(size_t)));
+                                    DAAL_CHECK_THR(newQueue, services::ErrorMemoryAllocationFailed);
+                                    result |= daal::services::internal::daal_memcpy_s(newQueue, newCapacity * sizeof(size_t), local->fixupQueue,
+                                                                                      local->fixupQueueIndex * sizeof(size_t));
+                                    size_t * oldQueue         = local->fixupQueue;
+                                    local->fixupQueue         = newQueue;
+                                    local->fixupQueueCapacity = newCapacity;
+                                    daal_free(oldQueue);
+                                    oldQueue = nullptr;
                                 }
                             }
-                            else
+
+                            const auto d = this->selectDimensionSophisticated(bn.start, bn.end, sophisticatedSampleIndexes, sophisticatedSampleValues,
+                                                                              __KDTREE_DIMENSION_SELECTION_SIZE, x, indexes, engineLocal.get());
+                            lowerD       = bboxCur[d].lower;
+                            upperD       = bboxCur[d].upper;
+                            services::Status statApproxMedian;
+                            const algorithmFpType approximatedMedian = this->computeApproximatedMedianInSerial(
+                                bn.start, bn.end, d, bboxCur[d].upper, local->inSortValues, local->outSortValues,
+                                __KDTREE_INDEX_VALUE_PAIRS_PER_THREAD, x, indexes, engineLocal.get(), statApproxMedian);
+                            DAAL_CHECK_STATUS_THR(statApproxMedian)
+                            const auto idx = this->adjustIndexesInSerial(bn.start, bn.end, d, approximatedMedian, x, indexes);
+
+                            curNode->cutPoint   = approximatedMedian;
+                            curNode->dimension  = d;
+                            curNode->leftIndex  = (local->nodeIndex)++;
+                            curNode->rightIndex = (local->nodeIndex)++;
+
+                            if (local->nodeIndex >= firstExtraNodeIndex)
                             {
-                                local->extraKDTreeNodesCapacity = max<cpu>(extraIndex + 1, static_cast<size_t>(1024));
-                                local->extraKDTreeNodes =
-                                    static_cast<KDTreeNode *>(service_malloc<KDTreeNode, cpu>(local->extraKDTreeNodesCapacity * sizeof(KDTreeNode)));
+                                const size_t extraIndex = local->nodeIndex - firstExtraNodeIndex;
+                                if (local->extraKDTreeNodes)
+                                {
+                                    if (extraIndex >= local->extraKDTreeNodesCapacity)
+                                    {
+                                        const size_t newCapacity = max<cpu>(
+                                            local->extraKDTreeNodesCapacity > 0 ? local->extraKDTreeNodesCapacity * 2 : static_cast<size_t>(1024),
+                                            extraIndex + 1);
+                                        KDTreeNode * const newNodes =
+                                            static_cast<KDTreeNode *>(service_malloc<KDTreeNode, cpu>(newCapacity * sizeof(KDTreeNode)));
 
-                                DAAL_CHECK_THR(local->extraKDTreeNodes, services::ErrorMemoryAllocationFailed);
+                                        DAAL_CHECK_THR(newNodes, services::ErrorMemoryAllocationFailed);
+
+                                        result |= daal::services::internal::daal_memcpy_s(newNodes, newCapacity * sizeof(KDTreeNode),
+                                                                                          local->extraKDTreeNodes,
+                                                                                          local->extraKDTreeNodesCapacity * sizeof(KDTreeNode));
+                                        KDTreeNode * oldNodes           = local->extraKDTreeNodes;
+                                        local->extraKDTreeNodes         = newNodes;
+                                        local->extraKDTreeNodesCapacity = newCapacity;
+                                        daal_free(oldNodes);
+                                        oldNodes = nullptr;
+                                    }
+                                }
+                                else
+                                {
+                                    local->extraKDTreeNodesCapacity = max<cpu>(extraIndex + 1, static_cast<size_t>(1024));
+                                    local->extraKDTreeNodes         = static_cast<KDTreeNode *>(
+                                        service_malloc<KDTreeNode, cpu>(local->extraKDTreeNodesCapacity * sizeof(KDTreeNode)));
+
+                                    DAAL_CHECK_THR(local->extraKDTreeNodes, services::ErrorMemoryAllocationFailed);
+                                }
                             }
-                        }
 
-                        // Right first to give lower node index for left.
-                        bnRight.start = idx;
-                        bnRight.end = bn.end;
-                        bnRight.nodePos = curNode->rightIndex;
-                        bnRight.queueOrStackPos = local->bboxPos;
-                        ++local->bboxPos;
-                        bboxRight = &local->bboxes[bnRight.queueOrStackPos * xColumnCount];
-                        this->copyBBox(bboxRight, bboxCur, xColumnCount);
-                        bboxRight[d].lower = approximatedMedian;
-                        bboxRight[d].upper = upperD;
-                        statStackPush = local->buildStack.push(bnRight);
-                        DAAL_CHECK_STATUS_THR(statStackPush)
-                        bnLeft.start = bn.start;
-                        bnLeft.end = idx;
-                        bnLeft.nodePos = curNode->leftIndex;
-                        bnLeft.queueOrStackPos = local->bboxPos;
-                        ++local->bboxPos;
-                        if (local->bboxPos >= local->bboxesCapacity)
-                        {
-                            const size_t newCapacity = local->bboxesCapacity * 2;
-                            BBox * const newBboxes = service_scalable_calloc<BBox, cpu>(newCapacity * xColumnCount);
+                            // Right first to give lower node index for left.
+                            bnRight.start           = idx;
+                            bnRight.end             = bn.end;
+                            bnRight.nodePos         = curNode->rightIndex;
+                            bnRight.queueOrStackPos = local->bboxPos;
+                            ++local->bboxPos;
+                            bboxRight = &local->bboxes[bnRight.queueOrStackPos * xColumnCount];
+                            this->copyBBox(bboxRight, bboxCur, xColumnCount);
+                            bboxRight[d].lower = approximatedMedian;
+                            bboxRight[d].upper = upperD;
+                            statStackPush      = local->buildStack.push(bnRight);
+                            DAAL_CHECK_STATUS_THR(statStackPush)
+                            bnLeft.start           = bn.start;
+                            bnLeft.end             = idx;
+                            bnLeft.nodePos         = curNode->leftIndex;
+                            bnLeft.queueOrStackPos = local->bboxPos;
+                            ++local->bboxPos;
+                            if (local->bboxPos >= local->bboxesCapacity)
+                            {
+                                const size_t newCapacity = local->bboxesCapacity * 2;
+                                BBox * const newBboxes   = service_scalable_calloc<BBox, cpu>(newCapacity * xColumnCount);
 
-                            DAAL_CHECK_THR(newBboxes, services::ErrorMemoryAllocationFailed);
+                                DAAL_CHECK_THR(newBboxes, services::ErrorMemoryAllocationFailed);
 
-                            result |= daal::services::internal::daal_memcpy_s(newBboxes, newCapacity * xColumnCount,
-                                                              local->bboxes, local->bboxesCapacity * xColumnCount);
-                            BBox * const oldBboxes = local->bboxes;
-                            local->bboxes = newBboxes;
-                            local->bboxesCapacity = newCapacity;
-                            service_scalable_free<BBox, cpu>(oldBboxes);
-                        }
-                        bboxLeft = &local->bboxes[bnLeft.queueOrStackPos * xColumnCount];
-                        this->copyBBox(bboxLeft, bboxCur, xColumnCount);
-                        bboxLeft[d].lower = lowerD;
-                        bboxLeft[d].upper = upperD;
-                        statStackPush = local->buildStack.push(bnLeft);
-                        DAAL_CHECK_STATUS_THR(statStackPush)
-                    } // if (bn.end - bn.start <= __KDTREE_LEAF_BUCKET_SIZE)
-                } // while (local->buildStack.size() > 0)
-            } // for (auto i = first; i < last; ++i)
-        if (result)
-            safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
-        } // if (local)
-    } );
+                                result |= daal::services::internal::daal_memcpy_s(newBboxes, newCapacity * xColumnCount, local->bboxes,
+                                                                                  local->bboxesCapacity * xColumnCount);
+                                BBox * const oldBboxes = local->bboxes;
+                                local->bboxes          = newBboxes;
+                                local->bboxesCapacity  = newCapacity;
+                                service_scalable_free<BBox, cpu>(oldBboxes);
+                            }
+                            bboxLeft = &local->bboxes[bnLeft.queueOrStackPos * xColumnCount];
+                            this->copyBBox(bboxLeft, bboxCur, xColumnCount);
+                            bboxLeft[d].lower = lowerD;
+                            bboxLeft[d].upper = upperD;
+                            statStackPush     = local->buildStack.push(bnLeft);
+                            DAAL_CHECK_STATUS_THR(statStackPush)
+                        } // if (bn.end - bn.start <= __KDTREE_LEAF_BUCKET_SIZE)
+                    }     // while (local->buildStack.size() > 0)
+                }         // for (auto i = first; i < last; ++i)
+                if (result) safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
+            } // if (local)
+        });
     status = safeStat.detach();
-    if(status.ok())
+    if (status.ok())
     {
-        status = [ & ]() -> Status
-        {
-            int result = 0;
+        status = [&]() -> Status {
+            int result           = 0;
             bool isNeedToReindex = false;
-            localTLS.reduce([=, &isNeedToReindex](Local * ptr) -> void
-            {
-                if (ptr && ptr->extraKDTreeNodes)
-                {
-                    isNeedToReindex = true;
-                }
-            } );
+            localTLS.reduce([=, &isNeedToReindex](Local * ptr) -> void {
+                if (ptr && ptr->extraKDTreeNodes) { isNeedToReindex = true; }
+            });
 
             if (isNeedToReindex)
             {
                 size_t actualNodeCount = lastNodeIndex;
-                localTLS.reduce([=, &actualNodeCount](Local * ptr) -> void
-                {
-                    if (ptr)
-                    {
-                        actualNodeCount += ptr->nodeIndex - firstNodeIndex[ptr->threadIndex];
-                    }
-                } );
+                localTLS.reduce([=, &actualNodeCount](Local * ptr) -> void {
+                    if (ptr) { actualNodeCount += ptr->nodeIndex - firstNodeIndex[ptr->threadIndex]; }
+                });
 
                 Status s;
                 KDTreeTablePtr newKDTreeTable(new KDTreeTable(actualNodeCount, s));
@@ -1181,11 +1127,11 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 KDTreeNode * const oldRoot = static_cast<KDTreeNode *>(kdTreeTable.getArray());
                 KDTreeNode * const newRoot = static_cast<KDTreeNode *>(newKDTreeTable->getArray());
 
-                result |= daal::services::internal::daal_memcpy_s(newRoot, actualNodeCount * sizeof(KDTreeNode), oldRoot, lastNodeIndex * sizeof(KDTreeNode));
+                result |= daal::services::internal::daal_memcpy_s(newRoot, actualNodeCount * sizeof(KDTreeNode), oldRoot,
+                                                                  lastNodeIndex * sizeof(KDTreeNode));
 
                 size_t newNodeIndex = lastNodeIndex;
-                localTLS.reduce([=, &result, &newNodeIndex](Local * ptr) -> void
-                {
+                localTLS.reduce([=, &result, &newNodeIndex](Local * ptr) -> void {
                     if (ptr)
                     {
                         const size_t oldNodeIndex = firstNodeIndex[ptr->threadIndex];
@@ -1194,16 +1140,19 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                             const size_t extraNodeIndex = firstNodeIndex[ptr->threadIndex + 1];
                             if (ptr->nodeIndex > extraNodeIndex)
                             {
-                                result |= daal::services::internal::daal_memcpy_s(&newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode),
-                                                                  &oldRoot[oldNodeIndex], (extraNodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
+                                result |= daal::services::internal::daal_memcpy_s(
+                                    &newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode), &oldRoot[oldNodeIndex],
+                                    (extraNodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
                                 const size_t idx = newNodeIndex + (extraNodeIndex - oldNodeIndex);
                                 result |= daal::services::internal::daal_memcpy_s(&newRoot[idx], (actualNodeCount - idx) * sizeof(KDTreeNode),
-                                                                  ptr->extraKDTreeNodes, (ptr->nodeIndex - extraNodeIndex) * sizeof(KDTreeNode));
+                                                                                  ptr->extraKDTreeNodes,
+                                                                                  (ptr->nodeIndex - extraNodeIndex) * sizeof(KDTreeNode));
                             }
                             else
                             {
-                                result |= daal::services::internal::daal_memcpy_s(&newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode),
-                                                                  &oldRoot[oldNodeIndex], (ptr->nodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
+                                result |= daal::services::internal::daal_memcpy_s(
+                                    &newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode), &oldRoot[oldNodeIndex],
+                                    (ptr->nodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
                             }
                             const long delta = newNodeIndex - oldNodeIndex;
                             for (size_t i = 0; i < ptr->fixupQueueIndex; ++i)
@@ -1222,7 +1171,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                             newNodeIndex += ptr->nodeIndex - oldNodeIndex;
                         }
                     }
-                } );
+                });
                 r.impl()->setKDTreeTable(newKDTreeTable);
                 r.impl()->setLastNodeIndex(newNodeIndex);
             }
@@ -1231,8 +1180,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         }();
     }
 
-    localTLS.reduce([=](Local * ptr) -> void
-    {
+    localTLS.reduce([=](Local * ptr) -> void {
         if (ptr)
         {
             service_scalable_free<IdxValue, cpu>(ptr->inSortValues);
@@ -1240,26 +1188,26 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             service_scalable_free<BBox, cpu>(ptr->bboxes);
             daal_free(ptr->extraKDTreeNodes);
             daal_free(ptr->fixupQueue);
-            ptr->extraKDTreeNodes   = nullptr;
-            ptr->fixupQueue         = nullptr;
+            ptr->extraKDTreeNodes = nullptr;
+            ptr->fixupQueue       = nullptr;
             ptr->buildStack.clear();
             service_scalable_free<Local, cpu>(ptr);
         }
-    } );
+    });
 
     daal_free(firstNodeIndex);
     daal_free(bnQ);
-    firstNodeIndex  = nullptr;
-    bnQ             = nullptr;
+    firstNodeIndex = nullptr;
+    bnQ            = nullptr;
 
     return status;
 }
 
 template <typename algorithmFpType, CpuType cpu>
-algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    computeApproximatedMedianInSerial(size_t start, size_t end, size_t dimension, algorithmFpType upper,
-                                      IndexValuePair<algorithmFpType, cpu> * inSortValues, IndexValuePair<algorithmFpType, cpu> * outSortValues,
-                                      size_t sortValueCount, const NumericTable & x, size_t * indexes, engines::BatchBase *engine, services::Status& status)
+algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::computeApproximatedMedianInSerial(
+    size_t start, size_t end, size_t dimension, algorithmFpType upper, IndexValuePair<algorithmFpType, cpu> * inSortValues,
+    IndexValuePair<algorithmFpType, cpu> * outSortValues, size_t sortValueCount, const NumericTable & x, size_t * indexes,
+    engines::BatchBase * engine, services::Status & status)
 {
     status = services::Status();
     size_t i, j;
@@ -1270,7 +1218,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     if (end - start < sortValueCount)
     {
         const size_t elementCount = end - start;
-        i = 0;
+        i                         = 0;
         if (elementCount > 16)
         {
             const size_t elementCountMinus16 = elementCount - 16;
@@ -1278,25 +1226,23 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
             {
                 DAAL_PREFETCH_READ_T0(dx + indexes[start + i + 16]);
                 inSortValues[i].value = dx[indexes[start + i]];
-                inSortValues[i].idx = indexes[start + i];
+                inSortValues[i].idx   = indexes[start + i];
             }
         }
         for (; i < elementCount; ++i)
         {
             inSortValues[i].value = dx[indexes[start + i]];
-            inSortValues[i].idx = indexes[start + i];
+            inSortValues[i].idx   = indexes[start + i];
         }
 
         radixSort(inSortValues, elementCount, outSortValues);
 
         // Copy back the indexes.
-        for (i = 0; i < elementCount; ++i)
-        {
-            indexes[start + i] = inSortValues[i].idx;
-        }
+        for (i = 0; i < elementCount; ++i) { indexes[start + i] = inSortValues[i].idx; }
 
-        const algorithmFpType approximatedMedian = ((end - start) % 2 != 0) ? dx[indexes[start + (end - start) / 2]] :
-            (dx[indexes[start + (end - start) / 2 - 1]] + dx[indexes[start + (end - start) / 2]]) / 2.0;
+        const algorithmFpType approximatedMedian = ((end - start) % 2 != 0) ?
+                                                       dx[indexes[start + (end - start) / 2]] :
+                                                       (dx[indexes[start + (end - start) / 2 - 1]] + dx[indexes[start + (end - start) / 2]]) / 2.0;
 
         const_cast<NumericTable &>(x).releaseBlockOfColumnValues(columnBD);
 
@@ -1308,15 +1254,14 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
 
     if (sampleCount < __KDTREE_MIN_SAMPLES) { sampleCount = __KDTREE_MIN_SAMPLES + 1; }
 
-    algorithmFpType * samples =
-        static_cast<algorithmFpType *>(service_malloc<algorithmFpType, cpu>(sampleCount * sizeof(*samples)));
+    algorithmFpType * samples = static_cast<algorithmFpType *>(service_malloc<algorithmFpType, cpu>(sampleCount * sizeof(*samples)));
     if (!samples)
     {
         status = services::ErrorMemoryAllocationFailed;
         return 0;
     }
 
-    auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(engine);
+    auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(engine);
     daal::internal::RNGs<size_t, cpu> rng;
     size_t pos;
     for (i = 0; i < sampleCount - 1; ++i)
@@ -1335,14 +1280,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
         return 0;
     }
 
-    for (i = 0; i <sampleCount; ++i)
-    {
-        hist[i] = 0;
-    }
+    for (i = 0; i < sampleCount; ++i) { hist[i] = 0; }
 
-    size_t subSampleCount = (end - start) / __KDTREE_SEARCH_SKIP + 1;
-    algorithmFpType * subSamples =
-        static_cast<algorithmFpType *>(service_malloc<algorithmFpType, cpu>(subSampleCount * sizeof(*subSamples)));
+    size_t subSampleCount        = (end - start) / __KDTREE_SEARCH_SKIP + 1;
+    algorithmFpType * subSamples = static_cast<algorithmFpType *>(service_malloc<algorithmFpType, cpu>(subSampleCount * sizeof(*subSamples)));
     if (!subSamples)
     {
         status = services::ErrorMemoryAllocationFailed;
@@ -1350,13 +1291,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     }
 
     size_t subSamplesPos = 0;
-    for (size_t l = 0; l < sampleCount; l += __KDTREE_SEARCH_SKIP)
-    {
-        subSamples[subSamplesPos++] = samples[l];
-    }
-    subSampleCount = subSamplesPos;
+    for (size_t l = 0; l < sampleCount; l += __KDTREE_SEARCH_SKIP) { subSamples[subSamplesPos++] = samples[l]; }
+    subSampleCount                = subSamplesPos;
     const size_t subSampleCount16 = subSampleCount / __SIMDWIDTH * __SIMDWIDTH;
-    size_t l = start;
+    size_t l                      = start;
     if (end > 2)
     {
         const size_t endMinus2 = end - 2;
@@ -1387,23 +1325,23 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     daal_free(samples);
     daal_free(hist);
     daal_free(subSamples);
-    samples     = nullptr;
-    hist        = nullptr;
-    subSamples  = nullptr;
+    samples    = nullptr;
+    hist       = nullptr;
+    subSamples = nullptr;
 
     return approximatedMedian;
 }
 
 template <typename algorithmFpType, CpuType cpu>
-size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    adjustIndexesInSerial(size_t start, size_t end, size_t dimension, algorithmFpType median, const NumericTable & x, size_t * indexes)
+size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::adjustIndexesInSerial(
+    size_t start, size_t end, size_t dimension, algorithmFpType median, const NumericTable & x, size_t * indexes)
 {
     const size_t xRowCount = x.getNumberOfRows();
     data_management::BlockDescriptor<algorithmFpType> columnBD;
     const_cast<NumericTable &>(x).getBlockOfColumnValues(dimension, 0, xRowCount, readOnly, columnBD);
     const algorithmFpType * const dx = columnBD.getBlockPtr();
 
-    size_t left = start;
+    size_t left  = start;
     size_t right = end - 1;
     for (;;)
     {
@@ -1423,7 +1361,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     }
 
     const size_t lim1 = left;
-    right = end - 1;
+    right             = end - 1;
     for (;;)
     {
         while ((left <= right) && (dx[indexes[left]] <= median)) { ++left; }
@@ -1442,7 +1380,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     }
 
     const size_t lim2 = left;
-    const size_t idx = (lim1 > start + (end - start) / 2) ? lim1 : (lim2 < start + (end - start) / 2) ? lim2 : start + (end - start) / 2;
+    const size_t idx  = (lim1 > start + (end - start) / 2) ? lim1 : (lim2 < start + (end - start) / 2) ? lim2 : start + (end - start) / 2;
 
     const_cast<NumericTable &>(x).releaseBlockOfColumnValues(columnBD);
 
@@ -1450,16 +1388,17 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 }
 
 template <typename algorithmFpType, CpuType cpu>
-void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::
-    radixSort(IndexValuePair<algorithmFpType, cpu> * inValues, size_t valueCount, IndexValuePair<algorithmFpType, cpu> * outValues)
+void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::radixSort(IndexValuePair<algorithmFpType, cpu> * inValues,
+                                                                                                size_t valueCount,
+                                                                                                IndexValuePair<algorithmFpType, cpu> * outValues)
 {
 #if (__FPTYPE__(DAAL_FPTYPE) == __float__)
     typedef IndexValuePair<algorithmFpType, cpu> Item;
     typedef unsigned int IntegerType;
     const size_t histogramSize = 256;
     int histogram[histogramSize], histogramPS[histogramSize + 1];
-    Item * first = inValues;
-    Item * second = outValues;
+    Item * first       = inValues;
+    Item * second      = outValues;
     size_t valueCount4 = valueCount / 4 * 4;
     for (unsigned int pass = 0; pass < 3; ++pass)
     {
@@ -1486,20 +1425,20 @@ void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, 
         {
             sum += histogram[i];
             histogramPS[i] = prevSum;
-            prevSum = sum;
+            prevSum        = sum;
         }
         histogramPS[histogramSize] = prevSum;
 
         for (size_t i = 0; i < valueCount; ++i)
         {
             IntegerType val1 = *reinterpret_cast<IntegerType *>(&first[i].value);
-            const int pos = histogramPS[(val1 >> (pass * 8)) & 0xFF]++;
-            second[pos] = first[i];
+            const int pos    = histogramPS[(val1 >> (pass * 8)) & 0xFF]++;
+            second[pos]      = first[i];
         }
 
         Item * temp = first;
-        first = second;
-        second = temp;
+        first       = second;
+        second      = temp;
     }
     {
         unsigned int pass = 3;
@@ -1526,42 +1465,40 @@ void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, 
         {
             sum += histogram[i];
             histogramPS[i] = prevSum;
-            prevSum = sum;
+            prevSum        = sum;
         }
         histogramPS[histogramSize] = prevSum;
 
         // Handle negative values.
         const size_t indexOfNegatives = histogramSize / 2;
-        int countOfNegatives = histogramPS[histogramSize] - histogramPS[indexOfNegatives];
+        int countOfNegatives          = histogramPS[histogramSize] - histogramPS[indexOfNegatives];
         // Fixes offsets for positive values.
-        for (size_t i = 0; i < indexOfNegatives - 1; ++i)
-        {
-            histogramPS[i] += countOfNegatives;
-        }
+        for (size_t i = 0; i < indexOfNegatives - 1; ++i) { histogramPS[i] += countOfNegatives; }
         // Fixes offsets for negative values.
         histogramPS[histogramSize - 1] = histogram[histogramSize - 1];
         for (size_t i = 0; i < indexOfNegatives - 1; ++i)
-        {
-            histogramPS[histogramSize - 2 - i] = histogramPS[histogramSize - 1 - i] + histogram[histogramSize - 2 - i];
-        }
+        { histogramPS[histogramSize - 2 - i] = histogramPS[histogramSize - 1 - i] + histogram[histogramSize - 2 - i]; }
 
         for (size_t i = 0; i < valueCount; ++i)
         {
             IntegerType val1 = *reinterpret_cast<IntegerType *>(&first[i].value);
-            const int bin = (val1 >> (pass * 8)) & 0xFF;
+            const int bin    = (val1 >> (pass * 8)) & 0xFF;
             int pos;
             if (bin >= indexOfNegatives) { pos = --histogramPS[bin]; }
-            else { pos = histogramPS[bin]++; }
+            else
+            {
+                pos = histogramPS[bin]++;
+            }
             second[pos] = first[i];
         }
     }
-#else // #if (__FPTYPE__(DAAL_FPTYPE) == __float__)
+#else  // #if (__FPTYPE__(DAAL_FPTYPE) == __float__)
     typedef IndexValuePair<algorithmFpType, cpu> Item;
     typedef DAAL_UINT64 IntegerType;
     const size_t histogramSize = 256;
     int histogram[histogramSize], histogramPS[histogramSize + 1];
-    Item * first = inValues;
-    Item * second = outValues;
+    Item * first       = inValues;
+    Item * second      = outValues;
     size_t valueCount4 = valueCount / 4 * 4;
     for (unsigned int pass = 0; pass < 7; ++pass)
     {
@@ -1588,20 +1525,20 @@ void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, 
         {
             sum += histogram[i];
             histogramPS[i] = prevSum;
-            prevSum = sum;
+            prevSum        = sum;
         }
         histogramPS[histogramSize] = prevSum;
 
         for (size_t i = 0; i < valueCount; ++i)
         {
             IntegerType val1 = *reinterpret_cast<IntegerType *>(&first[i].value);
-            const int pos = histogramPS[(val1 >> (pass * 8)) & 0xFF]++;
-            second[pos] = first[i];
+            const int pos    = histogramPS[(val1 >> (pass * 8)) & 0xFF]++;
+            second[pos]      = first[i];
         }
 
         Item * temp = first;
-        first = second;
-        second = temp;
+        first       = second;
+        second      = temp;
     }
     {
         unsigned int pass = 7;
@@ -1628,32 +1565,30 @@ void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, 
         {
             sum += histogram[i];
             histogramPS[i] = prevSum;
-            prevSum = sum;
+            prevSum        = sum;
         }
         histogramPS[histogramSize] = prevSum;
 
         // Handle negative values.
         const size_t indexOfNegatives = histogramSize / 2;
-        int countOfNegatives = histogramPS[histogramSize] - histogramPS[indexOfNegatives];
+        int countOfNegatives          = histogramPS[histogramSize] - histogramPS[indexOfNegatives];
         // Fixes offsets for positive values.
-        for (size_t i = 0; i < indexOfNegatives - 1; ++i)
-        {
-            histogramPS[i] += countOfNegatives;
-        }
+        for (size_t i = 0; i < indexOfNegatives - 1; ++i) { histogramPS[i] += countOfNegatives; }
         // Fixes offsets for negative values.
         histogramPS[histogramSize - 1] = histogram[histogramSize - 1];
         for (size_t i = 0; i < indexOfNegatives - 1; ++i)
-        {
-            histogramPS[histogramSize - 2 - i] = histogramPS[histogramSize - 1 - i] + histogram[histogramSize - 2 - i];
-        }
+        { histogramPS[histogramSize - 2 - i] = histogramPS[histogramSize - 1 - i] + histogram[histogramSize - 2 - i]; }
 
         for (size_t i = 0; i < valueCount; ++i)
         {
             IntegerType val1 = *reinterpret_cast<IntegerType *>(&first[i].value);
-            const int bin = (val1 >> (pass * 8)) & 0xFF;
+            const int bin    = (val1 >> (pass * 8)) & 0xFF;
             int pos;
             if (bin >= indexOfNegatives) { pos = --histogramPS[bin]; }
-            else { pos = histogramPS[bin]++; }
+            else
+            {
+                pos = histogramPS[bin]++;
+            }
             second[pos] = first[i];
         }
     }

@@ -23,7 +23,6 @@ namespace data_management
 {
 namespace interface1
 {
-
 RowMergedNumericTable::RowMergedNumericTable() : NumericTable(0, 0), _tables(new DataCollection) {}
 
 RowMergedNumericTable::RowMergedNumericTable(NumericTablePtr table) : NumericTable(0, 0), _tables(new DataCollection)
@@ -31,32 +30,29 @@ RowMergedNumericTable::RowMergedNumericTable(NumericTablePtr table) : NumericTab
     this->_status |= addNumericTable(table);
 }
 
-services::SharedPtr<RowMergedNumericTable> RowMergedNumericTable::create(services::Status *stat)
+services::SharedPtr<RowMergedNumericTable> RowMergedNumericTable::create(services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL(RowMergedNumericTable);
 }
 
-services::SharedPtr<RowMergedNumericTable> RowMergedNumericTable::create(const NumericTablePtr &nestedTable,
-                                                                         services::Status *stat)
+services::SharedPtr<RowMergedNumericTable> RowMergedNumericTable::create(const NumericTablePtr & nestedTable, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(RowMergedNumericTable, nestedTable);
 }
 
-RowMergedNumericTable::RowMergedNumericTable(services::Status &st) : NumericTable(0, 0), _tables(new DataCollection)
+RowMergedNumericTable::RowMergedNumericTable(services::Status & st) : NumericTable(0, 0), _tables(new DataCollection)
 {
     if (!_tables) { st.add(services::ErrorMemoryAllocationFailed); }
     this->_status |= st;
 }
 
-RowMergedNumericTable::RowMergedNumericTable(const NumericTablePtr &table, services::Status &st) :
-    NumericTable(0, 0),
-    _tables(new DataCollection)
+RowMergedNumericTable::RowMergedNumericTable(const NumericTablePtr & table, services::Status & st) : NumericTable(0, 0), _tables(new DataCollection)
 {
     if (!_tables) { st.add(services::ErrorMemoryAllocationFailed); }
     st |= addNumericTable(table);
     this->_status |= st;
 }
 
-}
-}
-}
+} // namespace interface1
+} // namespace data_management
+} // namespace daal

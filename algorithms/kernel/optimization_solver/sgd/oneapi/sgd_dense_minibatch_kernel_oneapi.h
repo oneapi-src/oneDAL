@@ -36,32 +36,22 @@ namespace sgd
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-class SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>: public Kernel
+class SGDKernelOneAPI<algorithmFPType, miniBatch, cpu> : public Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHost,
-        NumericTable *inputArgument, NumericTablePtr minimum, NumericTable *nIterations,
-        Parameter<miniBatch> *parameter, NumericTable *learningRateSequence,
-        NumericTable *batchIndices, OptionalArgument *optionalArgument,
-        OptionalArgument *optionalResult, engines::BatchBase &engine);
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTablePtr minimum, NumericTable * nIterations,
+                             Parameter<miniBatch> * parameter, NumericTable * learningRateSequence, NumericTable * batchIndices,
+                             OptionalArgument * optionalArgument, OptionalArgument * optionalResult, engines::BatchBase & engine);
 
 private:
-    static services::Status makeStep(
-        const uint32_t argumentSize,
-        const services::Buffer<algorithmFPType> &prevWorkValueBuff,
-        const services::Buffer<algorithmFPType> &gradientBuff,
-        services::Buffer<algorithmFPType> &workValueBuff,
-        const algorithmFPType learningRate,
-        const algorithmFPType consCoeff);
+    static services::Status makeStep(const uint32_t argumentSize, const services::Buffer<algorithmFPType> & prevWorkValueBuff,
+                                     const services::Buffer<algorithmFPType> & gradientBuff, services::Buffer<algorithmFPType> & workValueBuff,
+                                     const algorithmFPType learningRate, const algorithmFPType consCoeff);
 
-    static services::Status vectorNorm(
-        const services::Buffer<algorithmFPType> &x,
-        const uint32_t n,
-        algorithmFPType &norm);
+    static services::Status vectorNorm(const services::Buffer<algorithmFPType> & x, const uint32_t n, algorithmFPType & norm);
 
-    static void buildProgram(oneapi::internal::ClKernelFactoryIface &factory);
+    static void buildProgram(oneapi::internal::ClKernelFactoryIface & factory);
 };
 
 } // namespace internal

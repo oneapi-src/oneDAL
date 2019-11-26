@@ -35,7 +35,6 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-
 /**
  * Allocates memory for storing final results of the low order %moments algorithm
  * \param[in] input     Pointer to the structure with result objects
@@ -43,18 +42,18 @@ namespace low_order_moments
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status s;
     size_t nFeatures = 0;
     DAAL_CHECK_STATUS(s, static_cast<const InputIface *>(input)->getNumberOfColumns(nFeatures));
 
-    auto &context = oneapi::internal::getDefaultContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
 
-    if(method != defaultDense || deviceInfo.isCpu)
+    if (method != defaultDense || deviceInfo.isCpu)
     {
-        for(size_t i = 0; i < lastResultId + 1; i++)
+        for (size_t i = 0; i < lastResultId + 1; i++)
         {
             Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
             DAAL_CHECK_STATUS_VAR(s);
@@ -62,7 +61,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     }
     else
     {
-        for(size_t i = 0; i < lastResultId + 1; i++)
+        for (size_t i = 0; i < lastResultId + 1; i++)
         {
             Argument::set(i, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
             DAAL_CHECK_STATUS_VAR(s);
@@ -79,18 +78,19 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
  * \param[in] method            Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult *partialResult, daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+                                              const int method)
 {
     size_t nFeatures;
     services::Status s;
     DAAL_CHECK_STATUS(s, static_cast<const PartialResult *>(partialResult)->getNumberOfColumns(nFeatures));
 
-    auto &context = oneapi::internal::getDefaultContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
 
-    if(method != defaultDense || deviceInfo.isCpu)
+    if (method != defaultDense || deviceInfo.isCpu)
     {
-        for(size_t i = 0; i < lastResultId + 1; i++)
+        for (size_t i = 0; i < lastResultId + 1; i++)
         {
             Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
             DAAL_CHECK_STATUS_VAR(s);
@@ -98,7 +98,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     }
     else
     {
-        for(size_t i = 0; i < lastResultId + 1; i++)
+        for (size_t i = 0; i < lastResultId + 1; i++)
         {
             Argument::set(i, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
             DAAL_CHECK_STATUS_VAR(s);
@@ -107,8 +107,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     return s;
 }
 
-}// namespace low_order_moments
-}// namespace algorithms
-}// namespace daal
+} // namespace low_order_moments
+} // namespace algorithms
+} // namespace daal
 
 #endif

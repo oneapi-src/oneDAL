@@ -38,19 +38,12 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType>
-services::Status BatchKernelOneAPI<algorithmFPType, training::normEqDense>::compute(NumericTable &x,
-                                                                                    NumericTable &y,
-                                                                                    NumericTable &xtx,
-                                                                                    NumericTable &xty,
-                                                                                    NumericTable &beta,
-                                                                                    bool interceptFlag) const
+services::Status BatchKernelOneAPI<algorithmFPType, training::normEqDense>::compute(NumericTable & x, NumericTable & y, NumericTable & xtx,
+                                                                                    NumericTable & xty, NumericTable & beta, bool interceptFlag) const
 {
     services::Status status = UpdateKernelType::compute(x, y, xtx, xty, interceptFlag);
-    if (status)
-        status = FinalizeKernelType::compute(xtx, xty, xtx, xty, beta, interceptFlag,
-                                         KernelHelperOneAPI<algorithmFPType>());
+    if (status) status = FinalizeKernelType::compute(xtx, xty, xtx, xty, beta, interceptFlag, KernelHelperOneAPI<algorithmFPType>());
     return status;
 }
 

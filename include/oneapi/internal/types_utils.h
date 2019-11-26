@@ -28,29 +28,20 @@ namespace internal
 {
 namespace interface1
 {
-
 /** @ingroup oneapi_internal
  * @{
  */
 
 template <typename...>
-struct Typelist { };
+struct Typelist
+{};
 
-typedef Typelist<
-    daal::oneapi::internal::int8_t,
-    daal::oneapi::internal::int16_t,
-    daal::oneapi::internal::int32_t,
-    daal::oneapi::internal::int64_t,
-    daal::oneapi::internal::uint8_t,
-    daal::oneapi::internal::uint16_t,
-    daal::oneapi::internal::uint32_t,
-    daal::oneapi::internal::uint64_t,
-    daal::oneapi::internal::float32_t,
-    daal::oneapi::internal::float64_t> PrimitiveTypes;
+typedef Typelist<daal::oneapi::internal::int8_t, daal::oneapi::internal::int16_t, daal::oneapi::internal::int32_t, daal::oneapi::internal::int64_t,
+                 daal::oneapi::internal::uint8_t, daal::oneapi::internal::uint16_t, daal::oneapi::internal::uint32_t,
+                 daal::oneapi::internal::uint64_t, daal::oneapi::internal::float32_t, daal::oneapi::internal::float64_t>
+    PrimitiveTypes;
 
-typedef Typelist<
-    daal::oneapi::internal::float32_t,
-    daal::oneapi::internal::float64_t> FloatTypes;
+typedef Typelist<daal::oneapi::internal::float32_t, daal::oneapi::internal::float64_t> FloatTypes;
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__TYPEDISPATCHER"></a>
@@ -60,26 +51,22 @@ class TypeDispatcher
 {
 public:
     template <typename Operation>
-    static void dispatch(TypeId type, Operation &&op)
+    static void dispatch(TypeId type, Operation && op)
     {
         dispatchInternal(type, op, PrimitiveTypes());
     }
 
     template <typename Operation>
-    static void floatDispatch(TypeId type, Operation &&op)
+    static void floatDispatch(TypeId type, Operation && op)
     {
         dispatchInternal(type, op, FloatTypes());
     }
 
-
 private:
     template <typename Operation, typename Head, typename... Rest>
-    static void dispatchInternal(TypeId type, Operation &&op, Typelist<Head, Rest...>)
+    static void dispatchInternal(TypeId type, Operation && op, Typelist<Head, Rest...>)
     {
-        if (type == TypeIds::id<Head>())
-        {
-            op(Typelist<Head>());
-        }
+        if (type == TypeIds::id<Head>()) { op(Typelist<Head>()); }
         else
         {
             dispatchInternal(type, op, Typelist<Rest...>());
@@ -87,7 +74,7 @@ private:
     }
 
     template <typename Operation>
-    static void dispatchInternal(TypeId type, Operation &&op, Typelist<>)
+    static void dispatchInternal(TypeId type, Operation && op, Typelist<>)
     {
         DAAL_ASSERT(!"Unknown type");
     }

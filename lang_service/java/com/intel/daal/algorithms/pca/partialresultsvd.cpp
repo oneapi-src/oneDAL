@@ -28,19 +28,18 @@ USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::pca;
 
 #include "com_intel_daal_algorithms_pca_PartialSVDTableResultID.h"
-#define jnObservationsId      com_intel_daal_algorithms_pca_PartialSVDTableResultID_nObservationsId
-#define jsumSVDId             com_intel_daal_algorithms_pca_PartialSVDTableResultID_sumSVDId
-#define jsumSquaresSVDId      com_intel_daal_algorithms_pca_PartialSVDTableResultID_sumSquaresSVDId
+#define jnObservationsId com_intel_daal_algorithms_pca_PartialSVDTableResultID_nObservationsId
+#define jsumSVDId        com_intel_daal_algorithms_pca_PartialSVDTableResultID_sumSVDId
+#define jsumSquaresSVDId com_intel_daal_algorithms_pca_PartialSVDTableResultID_sumSquaresSVDId
 #include "com_intel_daal_algorithms_pca_PartialSVDCollectionResultID.h"
-#define jsvdAuxiliaryDataId   com_intel_daal_algorithms_pca_PartialSVDCollectionResultID_svdAuxiliaryDataId
+#define jsvdAuxiliaryDataId com_intel_daal_algorithms_pca_PartialSVDCollectionResultID_svdAuxiliaryDataId
 
 /*
  * Class:     com_intel_daal_algorithms_pca_PartialSVDResult
  * Method:    cNewPartialResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cNewPartialResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cNewPartialResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<pca::PartialResult<svdDense> >::newObj();
 }
@@ -50,13 +49,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cNew
  * Method:    cGetPartialResultValue
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cGetPartialResultValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cGetPartialResultValue(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                   jint id)
 {
-    if(id == jnObservationsId || id == jsumSVDId || id == jsumSquaresSVDId)
-    {
-        return jniArgument<pca::PartialResult<svdDense> >::get<PartialSVDTableResultId, NumericTable>(resAddr, id);
-    }
+    if (id == jnObservationsId || id == jsumSVDId || id == jsumSquaresSVDId)
+    { return jniArgument<pca::PartialResult<svdDense> >::get<PartialSVDTableResultId, NumericTable>(resAddr, id); }
 
     return (jlong)0;
 }
@@ -66,13 +63,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cGet
  * Method:    cSetPartialResultValue
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cSetPartialResultValue
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cSetPartialResultValue(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                  jint id, jlong ntAddr)
 {
-    if(id == jnObservationsId || id == jsumSVDId || id == jsumSquaresSVDId)
-    {
-        jniArgument<pca::PartialResult<svdDense> >::set<PartialSVDTableResultId, NumericTable>(resAddr, id, ntAddr);
-    }
+    if (id == jnObservationsId || id == jsumSVDId || id == jsumSquaresSVDId)
+    { jniArgument<pca::PartialResult<svdDense> >::set<PartialSVDTableResultId, NumericTable>(resAddr, id, ntAddr); }
 }
 
 /*
@@ -80,13 +75,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cSetP
  * Method:    cGetPartialResultCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cGetPartialResultCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cGetPartialResultCollection(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                        jint id)
 {
-    if(id == jsvdAuxiliaryDataId)
-    {
-        return jniArgument<pca::PartialResult<svdDense> >::get<PartialSVDCollectionResultId, DataCollection>(resAddr, id);
-    }
+    if (id == jsvdAuxiliaryDataId)
+    { return jniArgument<pca::PartialResult<svdDense> >::get<PartialSVDCollectionResultId, DataCollection>(resAddr, id); }
 
     return (jlong)0;
 }
@@ -96,11 +89,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cGet
  * Method:    cSetPartialResultCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cSetPartialResultCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cSetPartialResultCollection(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                       jint id, jlong dcAddr)
 {
-    if(id == jsvdAuxiliaryDataId)
-    {
-        jniArgument<pca::PartialResult<svdDense> >::set<PartialSVDCollectionResultId, DataCollection>(resAddr, id, dcAddr);
-    }
+    if (id == jsvdAuxiliaryDataId)
+    { jniArgument<pca::PartialResult<svdDense> >::set<PartialSVDCollectionResultId, DataCollection>(resAddr, id, dcAddr); }
 }

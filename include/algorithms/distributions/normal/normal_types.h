@@ -49,8 +49,8 @@ namespace normal
  */
 enum Method
 {
-    icdf         = 0,     /*!< Default: Inverse cumulative distribution function method. */
-    defaultDense = 0    /*!< Default: performance-oriented method. */
+    icdf         = 0, /*!< Default: Inverse cumulative distribution function method. */
+    defaultDense = 0  /*!< Default: performance-oriented method. */
 };
 
 /**
@@ -58,13 +58,12 @@ enum Method
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DISTRIBUTIONS__NORMAL__PARAMETER"></a>
  * \brief Normal distribution parameters
  */
-template<typename algorithmFPType>
-class DAAL_EXPORT Parameter: public distributions::ParameterBase
+template <typename algorithmFPType>
+class DAAL_EXPORT Parameter : public distributions::ParameterBase
 {
 public:
     /**
@@ -72,12 +71,12 @@ public:
      *  \param[in] _a     Mean
      *  \param[in] _sigma Standard deviation
      */
-    Parameter(algorithmFPType _a = 0.0, algorithmFPType _sigma = 1.0): a(_a), sigma(_sigma) {}
+    Parameter(algorithmFPType _a = 0.0, algorithmFPType _sigma = 1.0) : a(_a), sigma(_sigma) {}
 
-    algorithmFPType a;        /*!< Mean */
-    algorithmFPType sigma;    /*!< Standard deviation */
+    algorithmFPType a;     /*!< Mean */
+    algorithmFPType sigma; /*!< Standard deviation */
 
-     /**
+    /**
      * Check the correctness of the %Parameter object
      */
     services::Status check() const DAAL_C11_OVERRIDE;

@@ -42,57 +42,56 @@ namespace training
 {
 namespace internal
 {
-
 using namespace daal::algorithms::logistic_regression::training::internal;
 using namespace daal::algorithms::optimization_solver;
 using namespace daal::data_management;
 using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType, Method method>
-services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(
-    const services::HostAppIfacePtr &pHost, const NumericTablePtr &x, const NumericTablePtr &y,
-    logistic_regression::Model &m, Result &res, const Parameter &par)
+services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const services::HostAppIfacePtr & pHost, const NumericTablePtr & x,
+                                                                          const NumericTablePtr & y, logistic_regression::Model & m, Result & res,
+                                                                          const Parameter & par)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     services::Status status;
 
-    const size_t p = x->getNumberOfColumns();
-    const size_t n = x->getNumberOfRows();
+    const size_t p     = x->getNumberOfColumns();
+    const size_t n     = x->getNumberOfRows();
     const size_t nBeta = p + 1;
     DAAL_ASSERT(nBeta == m.getNumberOfBetas());
-    const size_t nClasses = par.nClasses;
+    const size_t nClasses    = par.nClasses;
     const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-    auto &ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    services::SharedPtr<optimization_solver::iterative_solver::Batch > pSolver = par.optimizationSolver->clone();
+    services::SharedPtr<optimization_solver::iterative_solver::Batch> pSolver = par.optimizationSolver->clone();
     pSolver->setHostApp(pHost);
     if (nClasses == 2)
     {
-        services::SharedPtr<logistic_loss::Batch<algorithmFPType>> objFunc(logistic_loss::Batch<algorithmFPType>::create(n));
+        services::SharedPtr<logistic_loss::Batch<algorithmFPType> > objFunc(logistic_loss::Batch<algorithmFPType>::create(n));
         objFunc->input.set(logistic_loss::data, x);
         objFunc->input.set(logistic_loss::dependentVariables, y);
         objFunc->parameter().interceptFlag = par.interceptFlag;
-        objFunc->parameter().penaltyL1 = par.penaltyL1;
-        objFunc->parameter().penaltyL2 = par.penaltyL2;
-        pSolver->getParameter()->function = objFunc;
+        objFunc->parameter().penaltyL1     = par.penaltyL1;
+        objFunc->parameter().penaltyL2     = par.penaltyL2;
+        pSolver->getParameter()->function  = objFunc;
     }
     else
     {
-        services::SharedPtr<cross_entropy_loss::Batch<algorithmFPType>> objFunc(cross_entropy_loss::Batch<algorithmFPType>::create(nClasses, n));
+        services::SharedPtr<cross_entropy_loss::Batch<algorithmFPType> > objFunc(cross_entropy_loss::Batch<algorithmFPType>::create(nClasses, n));
 
         objFunc->input.set(cross_entropy_loss::data, x);
         objFunc->input.set(cross_entropy_loss::dependentVariables, y);
         objFunc->parameter().interceptFlag = par.interceptFlag;
-        objFunc->parameter().penaltyL1 = par.penaltyL1;
-        objFunc->parameter().penaltyL2 = par.penaltyL2;
-        pSolver->getParameter()->function = objFunc;
+        objFunc->parameter().penaltyL1     = par.penaltyL1;
+        objFunc->parameter().penaltyL2     = par.penaltyL2;
+        pSolver->getParameter()->function  = objFunc;
     }
 
-    const size_t nBetaRows = m.getBeta()->getNumberOfRows();
-    const size_t nBetaTotal = nBeta*nBetaRows;
+    const size_t nBetaRows  = m.getBeta()->getNumberOfRows();
+    const size_t nBetaTotal = nBeta * nBetaRows;
 
-    UniversalBuffer argumentU = ctx.allocate(idType, nBetaTotal, &status);
+    UniversalBuffer argumentU                      = ctx.allocate(idType, nBetaTotal, &status);
     services::Buffer<algorithmFPType> argumentBuff = argumentU.get<algorithmFPType>();
 
     auto argumentSNT = data_management::SyclHomogenNumericTable<algorithmFPType>::create(argumentBuff, 1, nBetaTotal, &status);
@@ -104,7 +103,6 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(
     if (nClasses == 2)
     {
         // TODO
-
     }
     else
     {
@@ -129,7 +127,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(
 
         BlockDescriptor<int> nIterationsBlock;
         DAAL_CHECK_STATUS(status, nIterationsNT->getBlockOfRows(0, 1, ReadWriteMode::readOnly, nIterationsBlock));
-        const int *pnIterations = nIterationsBlock.getBlockPtr();
+        const int * pnIterations = nIterationsBlock.getBlockPtr();
 
         NumericTablePtr nIterationsOut = data_management::HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, pnIterations[0], &status);
         par.optimizationSolver->getResult()->set(optimization_solver::iterative_solver::nIterations, nIterationsOut);
@@ -152,11 +150,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(
         services::Buffer<algorithmFPType> betaBuff = dataRows.getBuffer();
         ctx.copy(betaBuff, 0, minimumBuff, 0, nBetaTotal, &status);
 
-        if (!par.interceptFlag)
-        {
-            DAAL_CHECK_STATUS(status,
-                HelperObjectiveFunction::setColElem(0, algorithmFPType(0), betaBuff, nBetaRows, nBeta));
-        }
+        if (!par.interceptFlag) { DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, algorithmFPType(0), betaBuff, nBetaRows, nBeta)); }
 
         DAAL_CHECK_STATUS(status, betaNT->releaseBlockOfRows(dataRows));
     }

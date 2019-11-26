@@ -47,13 +47,11 @@ namespace stump
  * \brief Contains classes for making prediction based on the classifier model */
 namespace prediction
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__STUMP__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the stump algorithm
@@ -61,9 +59,10 @@ namespace interface1
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
     typedef classifier::prediction::Input super;
+
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -89,28 +88,28 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the Stump algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const stump::ModelPtr &ptr);
+    void set(classifier::prediction::ModelInputId id, const stump::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface1
 using interface1::Input;
-}
+} // namespace prediction
 /** @} */
-}
-}
-}
+} // namespace stump
+} // namespace algorithms
+} // namespace daal
 #endif // __STUMP_PREDICT_TYPES_H__

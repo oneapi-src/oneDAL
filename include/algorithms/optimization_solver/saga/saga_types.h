@@ -48,7 +48,6 @@ namespace optimization_solver
  */
 namespace saga
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__OPTIMIZATION_SOLVER__SAGA__METHOD"></a>
  * Available methods for computing the Stochastic average  gradient descent
@@ -64,7 +63,7 @@ enum Method
 */
 enum OptionalDataId
 {
-    gradientsTable = iterative_solver::lastOptionalData + 1, /*!< Numeric table of size p x 1 with the values of G,
+    gradientsTable   = iterative_solver::lastOptionalData + 1, /*!< Numeric table of size p x 1 with the values of G,
                                                                      where each value is an accumulated
                                                                      sum of squares of corresponding gradient's coordinate values. */
     lastOptionalData = gradientsTable
@@ -75,7 +74,6 @@ enum OptionalDataId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__OPTIMIZATION_SOLVER__SAGA__PARAMETER"></a>
  * \brief %Parameter base class for the Stochastic average  gradient descent algorithm    \DAAL_DEPRECATED
@@ -98,17 +96,11 @@ struct DAAL_EXPORT Parameter : public optimization_solver::iterative_solver::int
      * \param[in] learningRateSequence     Numeric table that contains value of the learning rate
      * \param[in] seed                     Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    DAAL_DEPRECATED Parameter(
-        const sum_of_functions::interface1::BatchPtr &function,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        const data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-        const size_t batchSize = 128,
-        const data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(),
-        size_t seed = 777
-    );
+    DAAL_DEPRECATED Parameter(const sum_of_functions::interface1::BatchPtr & function, size_t nIterations = 100, double accuracyThreshold = 1.0e-05,
+                              const data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(), const size_t batchSize = 128,
+                              const data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(), size_t seed = 777);
 
-    DAAL_DEPRECATED_VIRTUAL virtual ~Parameter(){}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Parameter() {}
 
     /**
      * Checks the correctness of the parameter
@@ -117,13 +109,13 @@ struct DAAL_EXPORT Parameter : public optimization_solver::iterative_solver::int
      */
     DAAL_DEPRECATED_VIRTUAL virtual services::Status check() const DAAL_C11_OVERRIDE;
 
-    data_management::NumericTablePtr batchIndices;            /*!< Numeric table that represents 32 bit integer indices of terms
+    data_management::NumericTablePtr batchIndices;         /*!< Numeric table that represents 32 bit integer indices of terms
                                                                    in the objective function. If no indices are provided,
                                                                    the implementation will generate random indices. */
-    data_management::NumericTablePtr learningRateSequence;    /*!< Numeric table that contains value of the learning rate */
-    size_t                           seed;                    /*!< Seed for random generation of 32 bit integer indices of terms
+    data_management::NumericTablePtr learningRateSequence; /*!< Numeric table that contains value of the learning rate */
+    size_t seed;                                           /*!< Seed for random generation of 32 bit integer indices of terms
                                                                    in the objective function. \DAAL_DEPRECATED_USE{ engine } */
-    engines::EnginePtr               engine;                  /*!< Engine for random generation of 32 bit integer indices of terms
+    engines::EnginePtr engine;                             /*!< Engine for random generation of 32 bit integer indices of terms
                                                                    in the objective function. */
 };
 /* [interface1::Parameter source code] */
@@ -139,9 +131,10 @@ class DAAL_EXPORT Input : public optimization_solver::iterative_solver::interfac
 {
 private:
     typedef optimization_solver::iterative_solver::interface1::Input super;
+
 public:
     DAAL_DEPRECATED Input();
-    DAAL_DEPRECATED Input(const Input& other);
+    DAAL_DEPRECATED Input(const Input & other);
 
     using super::set;
     using super::get;
@@ -158,7 +151,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the correctness of the input
@@ -167,7 +160,7 @@ public:
     *
      * \return Status of computations
     */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Input source code] */
 
@@ -194,7 +187,8 @@ public:
      * \return Status of computations
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                          const int method);
 
     /**
     * Returns optional result of the algorithm
@@ -208,7 +202,7 @@ public:
     * \param[in] id    Identifier of the optional result
     * \param[in] ptr   Pointer to the optional result
     */
-    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the result of the iterative solver algorithm
@@ -218,8 +212,8 @@ public:
     *
      * \return Status of computations
     */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-                                   int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                           int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /* [Result source code] */
@@ -232,7 +226,6 @@ typedef services::SharedPtr<Result> ResultPtr;
  */
 namespace interface2
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__OPTIMIZATION_SOLVER__SAGA__PARAMETER"></a>
  * \brief %Parameter base class for the Stochastic average  gradient descent algorithm
@@ -255,17 +248,11 @@ struct DAAL_EXPORT Parameter : public optimization_solver::iterative_solver::Par
      * \param[in] learningRateSequence     Numeric table that contains value of the learning rate
      * \param[in] seed                     Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    Parameter(
-        const sum_of_functions::BatchPtr &function,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        const data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-        const size_t batchSize = 128,
-        const data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(),
-        size_t seed = 777
-    );
+    Parameter(const sum_of_functions::BatchPtr & function, size_t nIterations = 100, double accuracyThreshold = 1.0e-05,
+              const data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(), const size_t batchSize = 128,
+              const data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(), size_t seed = 777);
 
-    virtual ~Parameter(){}
+    virtual ~Parameter() {}
 
     /**
      * Checks the correctness of the parameter
@@ -274,13 +261,13 @@ struct DAAL_EXPORT Parameter : public optimization_solver::iterative_solver::Par
      */
     virtual services::Status check() const DAAL_C11_OVERRIDE;
 
-    data_management::NumericTablePtr batchIndices;            /*!< Numeric table that represents 32 bit integer indices of terms
+    data_management::NumericTablePtr batchIndices;         /*!< Numeric table that represents 32 bit integer indices of terms
                                                                    in the objective function. If no indices are provided,
                                                                    the implementation will generate random indices. */
-    data_management::NumericTablePtr learningRateSequence;    /*!< Numeric table that contains value of the learning rate */
-    size_t                           seed;                    /*!< Seed for random generation of 32 bit integer indices of terms
+    data_management::NumericTablePtr learningRateSequence; /*!< Numeric table that contains value of the learning rate */
+    size_t seed;                                           /*!< Seed for random generation of 32 bit integer indices of terms
                                                                    in the objective function. \DAAL_DEPRECATED_USE{ engine } */
-    engines::EnginePtr               engine;                  /*!< Engine for random generation of 32 bit integer indices of terms
+    engines::EnginePtr engine;                             /*!< Engine for random generation of 32 bit integer indices of terms
                                                                    in the objective function. */
 };
 /* [Parameter source code] */
@@ -296,9 +283,10 @@ class DAAL_EXPORT Input : public optimization_solver::iterative_solver::Input
 {
 private:
     typedef optimization_solver::iterative_solver::Input super;
+
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     using super::set;
     using super::get;
@@ -315,7 +303,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the correctness of the input
@@ -324,7 +312,7 @@ public:
     *
      * \return Status of computations
     */
-    virtual services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /* [Input source code] */
 
@@ -351,7 +339,7 @@ public:
      * \return Status of computations
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
     * Returns optional result of the algorithm
@@ -365,7 +353,7 @@ public:
     * \param[in] id    Identifier of the optional result
     * \param[in] ptr   Pointer to the optional result
     */
-    void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the result of the iterative solver algorithm
@@ -375,7 +363,7 @@ public:
     *
      * \return Status of computations
     */
-    virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
+    virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                    int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Result> ResultPtr;
@@ -391,6 +379,6 @@ using interface2::ResultPtr;
 
 } // namespace saga
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

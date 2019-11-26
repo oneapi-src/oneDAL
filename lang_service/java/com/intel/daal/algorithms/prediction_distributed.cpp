@@ -30,12 +30,9 @@ using namespace daal::algorithms;
  * Method:    cCompute
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cCompute
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cCompute(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<DistributedPrediction> alg =
-        staticPointerCast<DistributedPrediction, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<DistributedPrediction> alg = staticPointerCast<DistributedPrediction, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->compute());
 }
 
@@ -44,12 +41,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cCom
  * Method:    cFinalizeCompute
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cFinalizeCompute
-  (JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cFinalizeCompute(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<DistributedPrediction> alg =
-        staticPointerCast<DistributedPrediction, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<DistributedPrediction> alg = staticPointerCast<DistributedPrediction, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->finalizeCompute());
 }
 
@@ -58,12 +52,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cFin
  * Method:    cCheckComputeParams
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cCheckComputeParams
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cCheckComputeParams(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<DistributedPrediction> alg =
-        staticPointerCast<DistributedPrediction, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<DistributedPrediction> alg = staticPointerCast<DistributedPrediction, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->checkComputeParams());
 }
 
@@ -72,12 +63,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cChe
  * Method:    cCheckFinalizeComputeParams
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cCheckFinalizeComputeParams
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cCheckFinalizeComputeParams(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<DistributedPrediction> alg =
-        staticPointerCast<DistributedPrediction, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<DistributedPrediction> alg = staticPointerCast<DistributedPrediction, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->checkFinalizeComputeParams());
 }
 
@@ -86,8 +74,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cChe
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cDispose
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PredictionDistributed_cDispose(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    delete(SharedPtr<AlgorithmIface> *)algAddr;
+    delete (SharedPtr<AlgorithmIface> *)algAddr;
 }

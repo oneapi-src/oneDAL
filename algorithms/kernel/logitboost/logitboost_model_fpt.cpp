@@ -38,13 +38,12 @@ namespace interface2
  * \DAAL_DEPRECATED_USE{ Model::create }
  */
 template <typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nFeatures, const Parameter *par, modelFPType dummy) :
-    _nFeatures(nFeatures),
-    _models(new data_management::DataCollection()),
-    _nIterations(par->maxIterations) {}
+DAAL_EXPORT Model::Model(size_t nFeatures, const Parameter * par, modelFPType dummy)
+    : _nFeatures(nFeatures), _models(new data_management::DataCollection()), _nIterations(par->maxIterations)
+{}
 
 template DAAL_EXPORT Model::Model(size_t, const Parameter *, DAAL_FPTYPE);
-}
-}// namespace logitboost
-}// namespace algorithms
-}// namespace daal
+} // namespace interface2
+} // namespace logitboost
+} // namespace algorithms
+} // namespace daal

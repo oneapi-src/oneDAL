@@ -38,7 +38,6 @@ namespace algorithms
  */
 namespace ridge_regression
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -56,8 +55,7 @@ namespace interface1
  */
 /* [Parameter source code] */
 struct Parameter : public linear_model::Parameter
-{
-};
+{};
 /* [Parameter source code] */
 
 /**
@@ -115,8 +113,8 @@ using interface1::ModelConstPtr;
  *
  * \return Status of computations
  */
-DAAL_EXPORT services::Status checkModel(
-    ridge_regression::Model* model, const daal::algorithms::Parameter &par, size_t nBeta, size_t nResponses, int method);
+DAAL_EXPORT services::Status checkModel(ridge_regression::Model * model, const daal::algorithms::Parameter & par, size_t nBeta, size_t nResponses,
+                                        int method);
 
 } // namespace ridge_regression
 } // namespace algorithms

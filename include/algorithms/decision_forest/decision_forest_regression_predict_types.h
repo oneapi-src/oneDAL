@@ -68,7 +68,7 @@ enum Method
  */
 enum NumericTableInputId
 {
-    data = algorithms::regression::prediction::data, /*!< Input data table */
+    data                    = algorithms::regression::prediction::data, /*!< Input data table */
     lastNumericTableInputId = data
 };
 
@@ -78,7 +78,7 @@ enum NumericTableInputId
  */
 enum ModelInputId
 {
-    model = algorithms::regression::prediction::model, /*!< Trained decision tree model */
+    model            = algorithms::regression::prediction::model, /*!< Trained decision tree model */
     lastModelInputId = model
 };
 
@@ -88,7 +88,7 @@ enum ModelInputId
  */
 enum ResultId
 {
-    prediction = algorithms::regression::prediction::prediction, /*!< Result of decision tree model-based prediction */
+    prediction   = algorithms::regression::prediction::prediction, /*!< Result of decision tree model-based prediction */
     lastResultId = prediction
 };
 
@@ -97,7 +97,6 @@ enum ResultId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__REGRESSSION__PREDICTION__INPUT"></a>
  * \brief Provides an interface for input objects for making decision forest model-based prediction
@@ -106,7 +105,7 @@ class DAAL_EXPORT Input : public algorithms::regression::prediction::Input
 {
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     /**
      * Returns an input object for making decision forest model-based prediction
@@ -127,20 +126,20 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(NumericTableInputId id, const data_management::NumericTablePtr &value);
+    void set(NumericTableInputId id, const data_management::NumericTablePtr & value);
 
     /**
      * Sets an input object for making decision forest model-based prediction
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ModelInputId id, const decision_forest::regression::ModelPtr &value);
+    void set(ModelInputId id, const decision_forest::regression::ModelPtr & value);
 
     /**
      * Checks an input object for making decision forest model-based prediction
      * \return Status of checking
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -165,7 +164,7 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory to store a partial result of decision forest model-based prediction
@@ -175,7 +174,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
      * Checks the result of decision forest model-based prediction
@@ -184,12 +183,12 @@ public:
      * \param[in] method  Computation method
      * \return Status of checking
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -203,10 +202,10 @@ using interface1::Result;
 using interface1::ResultPtr;
 using interface1::ResultConstPtr;
 
-}
+} // namespace prediction
 /** @} */
-}
-}
-}
+} // namespace regression
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
 #endif

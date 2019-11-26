@@ -43,15 +43,12 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTable,
-                                                     const NumericTable &xtyTable,
-                                                     NumericTable &xtxFinalTable,
-                                                     NumericTable &xtyFinalTable,
-                                                     NumericTable &betaTable, bool interceptFlag,
-                                                     const KernelHelperIface<algorithmFPType, cpu> &helper)
+Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable & xtxTable, const NumericTable & xtyTable, NumericTable & xtxFinalTable,
+                                                     NumericTable & xtyFinalTable, NumericTable & betaTable, bool interceptFlag,
+                                                     const KernelHelperIface<algorithmFPType, cpu> & helper)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize);
-    const size_t nBetas    (betaTable.getNumberOfColumns());
+    const size_t nBetas(betaTable.getNumberOfColumns());
     const size_t nResponses(betaTable.getNumberOfRows());
     const size_t nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
 
@@ -59,12 +56,12 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
     const size_t xtySizeInBytes(sizeof(algorithmFPType) * nBetasIntercept * nResponses);
 
     TArray<algorithmFPType, cpu> betaBufferArray;
-    algorithmFPType *betaBuffer(nullptr);
+    algorithmFPType * betaBuffer(nullptr);
     Status st;
     {
         ReadRowsType xtxBlock(const_cast<NumericTable &>(xtxTable), 0, nBetasIntercept);
         DAAL_CHECK_BLOCK_STATUS(xtxBlock);
-        algorithmFPType *xtx = const_cast<algorithmFPType *>(xtxBlock.get());
+        algorithmFPType * xtx = const_cast<algorithmFPType *>(xtxBlock.get());
 
         if (&xtxTable != &xtxFinalTable)
         {
@@ -75,7 +72,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
         {
             ReadRowsType xtyBlock(const_cast<NumericTable &>(xtyTable), 0, nResponses);
             DAAL_CHECK_BLOCK_STATUS(xtyBlock);
-            algorithmFPType *xty = const_cast<algorithmFPType *>(xtyBlock.get());
+            algorithmFPType * xty = const_cast<algorithmFPType *>(xtyBlock.get());
 
             if (&xtyTable != &xtyFinalTable)
             {
@@ -93,7 +90,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
         }
         {
             TArray<algorithmFPType, cpu> xtxCopyArray(nBetasIntercept * nBetasIntercept);
-            algorithmFPType *xtxCopy = xtxCopyArray.get();
+            algorithmFPType * xtxCopy = xtxCopyArray.get();
             DAAL_CHECK_MALLOC(xtxCopy);
 
             {
@@ -102,39 +99,32 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
                 DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
             }
 
-            DAAL_CHECK_STATUS(st, helper.computeBetasImpl(nBetasIntercept, xtx, xtxCopy, nResponses,
-                                                          betaBuffer, interceptFlag));
+            DAAL_CHECK_STATUS(st, helper.computeBetasImpl(nBetasIntercept, xtx, xtxCopy, nResponses, betaBuffer, interceptFlag));
         }
     }
 
     WriteOnlyRowsType betaBlock(betaTable, 0, nResponses);
     DAAL_CHECK_BLOCK_STATUS(betaBlock);
-    algorithmFPType *beta = betaBlock.get();
+    algorithmFPType * beta = betaBlock.get();
 
     DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyBetaToResult);
     if (nBetasIntercept == nBetas)
     {
-        for(size_t i = 0; i < nResponses; i++)
+        for (size_t i = 0; i < nResponses; i++)
         {
-          PRAGMA_IVDEP
-          PRAGMA_VECTOR_ALWAYS
-            for(size_t j = 1; j < nBetas; j++)
-            {
-                beta[i * nBetas + j] = betaBuffer[i * nBetas + j - 1];
-            }
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = 1; j < nBetas; j++) { beta[i * nBetas + j] = betaBuffer[i * nBetas + j - 1]; }
             beta[i * nBetas] = betaBuffer[i * nBetas + nBetas - 1];
         }
     }
     else
     {
-        for(size_t i = 0; i < nResponses; i++)
+        for (size_t i = 0; i < nResponses; i++)
         {
-          PRAGMA_IVDEP
-          PRAGMA_VECTOR_ALWAYS
-            for(size_t j = 0; j < nBetas - 1; j++)
-            {
-                beta[i * nBetas + j + 1] = betaBuffer[i * nBetasIntercept + j];
-            }
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = 0; j < nBetas - 1; j++) { beta[i * nBetas + j + 1] = betaBuffer[i * nBetasIntercept + j]; }
             beta[i * nBetas] = 0.0;
         }
     }
@@ -142,21 +132,19 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable &xtxTabl
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status FinalizeKernel<algorithmFPType, cpu>::copyDataToTable(const algorithmFPType* data,
-                                                             size_t dataSizeInBytes, NumericTable &table)
+Status FinalizeKernel<algorithmFPType, cpu>::copyDataToTable(const algorithmFPType * data, size_t dataSizeInBytes, NumericTable & table)
 {
     WriteOnlyRowsType block(table, 0, table.getNumberOfRows());
     DAAL_CHECK_BLOCK_STATUS(block);
-    algorithmFPType *dst = block.get();
+    algorithmFPType * dst = block.get();
 
     int result = daal::services::internal::daal_memcpy_s(dst, dataSizeInBytes, data, dataSizeInBytes);
     return (!result) ? Status() : Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFPType *a,
-                                                         DAAL_INT ny, algorithmFPType *b,
-                                                         const ErrorID &internalError)
+Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFPType * a, DAAL_INT ny, algorithmFPType * b,
+                                                         const ErrorID & internalError)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem);
     char up = 'U';
@@ -167,7 +155,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFP
         /* Perform L*L' decomposition of X'*X */
         Lapack<algorithmFPType, cpu>::xpotrf(&up, &p, a, &p, &info);
     }
-    if (info < 0) { return Status(internalError);   }
+    if (info < 0) { return Status(internalError); }
     if (info > 0) { return Status(ErrorNormEqSystemSolutionFailed); }
 
     {
@@ -179,9 +167,9 @@ Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFP
     return Status();
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace normal_equations
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

@@ -22,8 +22,8 @@
 #include "common_helpers.h"
 
 #include "com_intel_daal_algorithms_lasso_regression_prediction_PredictionResultId.h"
-#define defaultDenseValue   com_intel_daal_algorithms_lasso_regression_prediction_PredictionMethod_defaultDenseValue
-#define predictionId        com_intel_daal_algorithms_lasso_regression_prediction_PredictionResultId_PredictionId
+#define defaultDenseValue com_intel_daal_algorithms_lasso_regression_prediction_PredictionMethod_defaultDenseValue
+#define predictionId      com_intel_daal_algorithms_lasso_regression_prediction_PredictionResultId_PredictionId
 
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::lasso_regression::prediction;
@@ -33,8 +33,7 @@ using namespace daal::algorithms::lasso_regression::prediction;
  * Method:    cNewResult
  * Signature:()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_prediction_PredictionResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_prediction_PredictionResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<lasso_regression::prediction::Result>::newObj();
 }
@@ -44,8 +43,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_predict
  * Method:    cGetPredictionResult
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_prediction_PredictionResult_cGetPredictionResult
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_prediction_PredictionResult_cGetPredictionResult(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong resAddr, jint id)
 {
     return jniArgument<lasso_regression::prediction::Result>::get<lasso_regression::prediction::ResultId, NumericTable>(resAddr, id);
 }
@@ -55,8 +55,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_predict
  * Method:    cSetPredictionResult
  * Signature:(JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_prediction_PredictionResult_cSetPredictionResult
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_prediction_PredictionResult_cSetPredictionResult(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong resAddr, jint id,
+                                                                                                                         jlong ntAddr)
 {
     jniArgument<lasso_regression::prediction::Result>::set<lasso_regression::prediction::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

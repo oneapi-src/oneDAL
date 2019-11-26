@@ -54,7 +54,7 @@ namespace interface1
 class DAAL_EXPORT Batch : public Training<batch>
 {
 public:
-    typedef algorithms::regression::training::Input  InputType;
+    typedef algorithms::regression::training::Input InputType;
     typedef algorithms::regression::training::Result ResultType;
 
     virtual ~Batch() {}
@@ -62,7 +62,7 @@ public:
      * Get input objects for the regression model-based training algorithm
      * \return Input objects for the regression model-based training algorithm
      */
-    virtual InputType* getInput() = 0;
+    virtual InputType * getInput() = 0;
 
     /**
      * Registers user-allocated memory to store the result of the regression model-based training
@@ -70,11 +70,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -88,10 +88,7 @@ public:
      * and parameters of this regression training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
     /**
      * Returns the structure that contains the result of the regression model-based training
@@ -104,10 +101,10 @@ protected:
     ResultPtr _result;
 };
 /** @} */
-}
+} // namespace interface1
 using interface1::Batch;
-}
-}
-}
-}
+} // namespace training
+} // namespace regression
+} // namespace algorithms
+} // namespace daal
 #endif

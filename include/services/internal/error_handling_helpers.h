@@ -27,13 +27,12 @@ namespace services
 {
 namespace internal
 {
-
-inline void tryAssignStatus(Status *status, const Status &statusToAssign)
+inline void tryAssignStatus(Status * status, const Status & statusToAssign)
 {
     if (status) { *status |= statusToAssign; }
 }
 
-inline void tryAssignStatusAndThrow(Status *status, const Status &statusToAssign)
+inline void tryAssignStatusAndThrow(Status * status, const Status & statusToAssign)
 {
     if (status)
     {
@@ -46,23 +45,17 @@ inline void tryAssignStatusAndThrow(Status *status, const Status &statusToAssign
     }
 }
 
-template<typename T>
-inline SharedPtr<T> wrapShared(T *object, Status *status = NULL)
+template <typename T>
+inline SharedPtr<T> wrapShared(T * object, Status * status = NULL)
 {
-    if (!object)
-    {
-        tryAssignStatus(status, ErrorMemoryAllocationFailed);
-    }
+    if (!object) { tryAssignStatus(status, ErrorMemoryAllocationFailed); }
     return SharedPtr<T>(object);
 }
 
-template<typename T>
-inline SharedPtr<T> wrapSharedAndTryThrow(T *object, Status *status = NULL)
+template <typename T>
+inline SharedPtr<T> wrapSharedAndTryThrow(T * object, Status * status = NULL)
 {
-    if (!object)
-    {
-        tryAssignStatusAndThrow(status, ErrorMemoryAllocationFailed);
-    }
+    if (!object) { tryAssignStatusAndThrow(status, ErrorMemoryAllocationFailed); }
     return SharedPtr<T>(object);
 }
 

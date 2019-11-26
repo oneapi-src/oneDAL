@@ -57,7 +57,7 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0        /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -68,9 +68,8 @@ enum ResultNumericTableId
 {
     variableImportance = classifier::training::lastResultId + 1, /*!< %Numeric table 1x(number of features) containing variable importance value.
                                                                Computed when parameter.varImportance != none */
-    lastResultId = variableImportance
+    lastResultId       = variableImportance
 };
-
 
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -102,7 +101,7 @@ public:
      * \param[in] id      Identifier of the result, \ref classifier::training::ResultId
      * \param[in] value   Pointer to the training result
      */
-    void set(classifier::training::ResultId id, daal::algorithms::stump::classification::ModelPtr &value);
+    void set(classifier::training::ResultId id, daal::algorithms::stump::classification::ModelPtr & value);
 
     /**
     * Returns the result of the stump algorithm
@@ -116,7 +115,7 @@ public:
     * \param[in] id      Identifier of the result
     * \param[in] value   Result
     */
-    void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
+    void set(ResultNumericTableId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory to store final results of the decision stump training algorithm
@@ -126,7 +125,7 @@ public:
      * \param[in] method        Decision stump training method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Check the correctness of the Result object
@@ -134,12 +133,12 @@ public:
      * \param[in] parameter Pointer to the parameters structure
      * \param[in] method    Algorithm computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -149,10 +148,10 @@ typedef services::SharedPtr<Result> ResultPtr;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace daal::algorithms::stump::classification::training
+} // namespace training
 /** @} */
-}
-}
-}
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 #endif // __stump__classification_TRAINING_TYPES_H__

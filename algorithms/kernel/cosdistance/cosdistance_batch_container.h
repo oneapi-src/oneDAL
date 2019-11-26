@@ -33,38 +33,37 @@ namespace algorithms
 {
 namespace cosine_distance
 {
-
 /**
  *  \brief Initialize list of correlation distance, double precission
  *  kernels with implementations for supported architectures
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::DistanceKernel, algorithmFPType, method);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Result *result = static_cast<Result *>(_res);
-    Input *input = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
 
     size_t na = input->size();
     size_t nr = result->size();
 
-    NumericTable *a0 = static_cast<NumericTable *>(input->get(data).get());
-    NumericTable **a = &a0;
-    NumericTable *r0 = static_cast<NumericTable *>(result->get(cosineDistance).get());
-    NumericTable **r = &r0;
-    daal::algorithms::Parameter *par = _par;
-    daal::services::Environment::env &env = *_env;
+    NumericTable * a0                      = static_cast<NumericTable *>(input->get(data).get());
+    NumericTable ** a                      = &a0;
+    NumericTable * r0                      = static_cast<NumericTable *>(result->get(cosineDistance).get());
+    NumericTable ** r                      = &r0;
+    daal::algorithms::Parameter * par      = _par;
+    daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::DistanceKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, na, a, nr, r, par);
 }

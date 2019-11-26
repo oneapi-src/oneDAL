@@ -31,46 +31,35 @@ namespace svm
 {
 namespace interface1
 {
-
-template<typename modelFPType>
-services::SharedPtr<Model> Model::create(size_t nColumns,
-                                         data_management::NumericTableIface::StorageLayout layout,
-                                         services::Status *stat)
+template <typename modelFPType>
+services::SharedPtr<Model> Model::create(size_t nColumns, data_management::NumericTableIface::StorageLayout layout, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, (modelFPType)0.0, nColumns, layout);
 }
 
-template<typename modelFPType>
-Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout,
-      services::Status &st) :
-    _bias(0.0)
+template <typename modelFPType>
+Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout, services::Status & st) : _bias(0.0)
 {
     using namespace data_management;
     if (layout == NumericTableIface::csrArray)
-    {
-        _SV = CSRNumericTable::create<modelFPType>(NULL, NULL, NULL, nColumns, 0, CSRNumericTable::oneBased, &st);
-    }
+    { _SV = CSRNumericTable::create<modelFPType>(NULL, NULL, NULL, nColumns, 0, CSRNumericTable::oneBased, &st); }
     else
     {
         _SV = HomogenNumericTable<modelFPType>::create(NULL, nColumns, 0, &st);
     }
-    if (!st)
-        return;
+    if (!st) return;
     _SVCoeff = HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
-    if (!st)
-        return;
+    if (!st) return;
     _SVIndices = HomogenNumericTable<int>::create(NULL, 1, 0, &st);
-    if (!st)
-        return;
+    if (!st) return;
 }
 
-template DAAL_EXPORT services::SharedPtr<Model> Model::create<DAAL_FPTYPE>(size_t nColumns,
-                                         data_management::NumericTableIface::StorageLayout layout,
-                                         services::Status *stat);
+template DAAL_EXPORT services::SharedPtr<Model> Model::create<DAAL_FPTYPE>(size_t nColumns, data_management::NumericTableIface::StorageLayout layout,
+                                                                           services::Status * stat);
 
-template DAAL_EXPORT Model::Model(DAAL_FPTYPE, size_t, data_management::NumericTableIface::StorageLayout, services::Status&);
+template DAAL_EXPORT Model::Model(DAAL_FPTYPE, size_t, data_management::NumericTableIface::StorageLayout, services::Status &);
 
-} // namespace interface1=
+} // namespace interface1
 } // namespace svm
 } // namespace algorithms
 } // namespace daal

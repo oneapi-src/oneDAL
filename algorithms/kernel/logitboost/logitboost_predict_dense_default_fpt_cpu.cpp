@@ -41,7 +41,7 @@ namespace internal
 {
 template struct LogitBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace prediction
+} // namespace logitboost
+} // namespace algorithms
+} // namespace daal

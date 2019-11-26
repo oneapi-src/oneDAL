@@ -30,8 +30,9 @@ namespace dfct = daal::algorithms::decision_forest::classification::training;
 * Method:    cInit
 * Signature: (IIJ)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_TrainingBatch_cInit
-(JNIEnv *, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_TrainingBatch_cInit(JNIEnv *, jobject thisObj,
+                                                                                                                    jint prec, jint method,
+                                                                                                                    jlong nClasses)
 {
     return jniBatch<dfct::Method, dfct::Batch, dfct::defaultDense>::newObj(prec, method, nClasses);
 }
@@ -41,8 +42,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classifi
 * Method:    cInitParameter
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_TrainingBatch_cInitParameter
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_TrainingBatch_cInitParameter(JNIEnv *,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong algAddr, jint prec,
+                                                                                                                             jint method, jint cmode)
 {
     return jniBatch<dfct::Method, dfct::Batch, dfct::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +55,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classifi
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_TrainingBatch_cClone
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_TrainingBatch_cClone(JNIEnv *, jobject thisObj,
+                                                                                                                     jlong algAddr, jint prec,
+                                                                                                                     jint method)
 {
     return jniBatch<dfct::Method, dfct::Batch, dfct::defaultDense>::getClone(prec, method, algAddr);
 }

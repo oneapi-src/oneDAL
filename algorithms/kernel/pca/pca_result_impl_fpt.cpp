@@ -32,7 +32,6 @@ namespace pca
 {
 namespace interface3
 {
-
 /**
  * Allocates memory for storing partial results of the PCA algorithm
  * \param[in] input         Pointer to an object containing input data
@@ -40,11 +39,11 @@ namespace interface3
  * \param[in] resultsToCompute     Results to compute
  * \return Status of computations
  */
-template<typename algorithmFPType>
-services::Status ResultImpl::allocate(const daal::algorithms::Input *input, size_t nComponents, DAAL_UINT64 resultsToCompute)
+template <typename algorithmFPType>
+services::Status ResultImpl::allocate(const daal::algorithms::Input * input, size_t nComponents, DAAL_UINT64 resultsToCompute)
 {
-    const InputIface *in = static_cast<const InputIface *>(input);
-    size_t nFeatures = in->getNFeatures();
+    const InputIface * in = static_cast<const InputIface *>(input);
+    size_t nFeatures      = in->getNFeatures();
 
     return allocate<algorithmFPType>(nFeatures, nComponents, resultsToCompute);
 }
@@ -56,11 +55,11 @@ services::Status ResultImpl::allocate(const daal::algorithms::Input *input, size
  * \param[in] resultsToCompute     Results to compute
  * \return Status of computations
  */
-template<typename algorithmFPType>
-services::Status ResultImpl::allocate(const daal::algorithms::PartialResult *partialResult, size_t nComponents, DAAL_UINT64 resultsToCompute)
+template <typename algorithmFPType>
+services::Status ResultImpl::allocate(const daal::algorithms::PartialResult * partialResult, size_t nComponents, DAAL_UINT64 resultsToCompute)
 {
-    const PartialResultBase *partialRes = static_cast<const PartialResultBase *>(partialResult);
-    size_t nFeatures = partialRes->getNFeatures();
+    const PartialResultBase * partialRes = static_cast<const PartialResultBase *>(partialResult);
+    size_t nFeatures                     = partialRes->getNFeatures();
 
     return allocate<algorithmFPType>(nFeatures, nComponents, resultsToCompute);
 }
@@ -75,18 +74,15 @@ services::Status ResultImpl::allocate(const daal::algorithms::PartialResult *par
 template <typename algorithmFPType>
 services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL_UINT64 resultsToCompute)
 {
-    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
-    {
-        return __allocate__impl<algorithmFPType,
-                                data_management::HomogenNumericTable<algorithmFPType>>(nFeatures, nComponents, resultsToCompute);
-    }
+    { return __allocate__impl<algorithmFPType, data_management::HomogenNumericTable<algorithmFPType> >(nFeatures, nComponents, resultsToCompute); }
     else
     {
-        return __allocate__impl<algorithmFPType,
-                                data_management::SyclHomogenNumericTable<algorithmFPType>>(nFeatures, nComponents, resultsToCompute);
+        return __allocate__impl<algorithmFPType, data_management::SyclHomogenNumericTable<algorithmFPType> >(nFeatures, nComponents,
+                                                                                                             resultsToCompute);
     }
     return services::Status();
 }
@@ -96,20 +92,14 @@ services::Status ResultImpl::__allocate__impl(size_t nFeatures, size_t nComponen
 {
     services::Status status;
 
-    if (nComponents == 0)
-    {
-        nComponents = nFeatures;
-    }
+    if (nComponents == 0) { nComponents = nFeatures; }
 
     setTable(eigenvalues, NumericTableType::create(nComponents, 1, data_management::NumericTableIface::doAllocate, 0, &status));
     DAAL_CHECK_STATUS_VAR(status);
 
     setTable(eigenvectors, NumericTableType::create(nFeatures, nComponents, data_management::NumericTableIface::doAllocate, 0, &status));
     DAAL_CHECK_STATUS_VAR(status);
-    if (resultsToCompute & eigenvalue)
-    {
-        isWhitening = true;
-    }
+    if (resultsToCompute & eigenvalue) { isWhitening = true; }
     if (resultsToCompute & mean)
     {
         setTable(means, NumericTableType::create(nFeatures, 1, data_management::NumericTableIface::doAllocate, 0, &status));
@@ -124,10 +114,11 @@ services::Status ResultImpl::__allocate__impl(size_t nFeatures, size_t nComponen
 }
 
 template services::Status ResultImpl::allocate<DAAL_FPTYPE>(size_t nFeatures, size_t nComponents, DAAL_UINT64 resultsToCompute);
-template services::Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, size_t nComponents, DAAL_UINT64 resultsToCompute);
-template services::Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult *partialResult, size_t nComponents, DAAL_UINT64 resultsToCompute);
+template services::Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, size_t nComponents, DAAL_UINT64 resultsToCompute);
+template services::Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult, size_t nComponents,
+                                                            DAAL_UINT64 resultsToCompute);
 
-}// interface2
-}// namespace pca
-}// namespace algorithms
-}// namespace daal
+} // namespace interface3
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

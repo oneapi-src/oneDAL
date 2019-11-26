@@ -16,12 +16,12 @@
 *******************************************************************************/
 
 #include "com_intel_daal_algorithms_implicit_als_training_init_InitInputId.h"
-#define initDataId                com_intel_daal_algorithms_implicit_als_training_init_InitInputId_Data
+#define initDataId com_intel_daal_algorithms_implicit_als_training_init_InitInputId_Data
 #include "com_intel_daal_algorithms_implicit_als_training_init_InitResultId.h"
-#define initModelId               com_intel_daal_algorithms_implicit_als_training_init_InitResultId_modelId
+#define initModelId com_intel_daal_algorithms_implicit_als_training_init_InitResultId_modelId
 #include "com_intel_daal_algorithms_implicit_als_training_init_InitPartialResultId.h"
-#define initPartialModelId        com_intel_daal_algorithms_implicit_als_training_init_InitPartialResultId_partialModelId
+#define initPartialModelId com_intel_daal_algorithms_implicit_als_training_init_InitPartialResultId_partialModelId
 
 #include "com_intel_daal_algorithms_implicit_als_training_init_InitMethod.h"
-#define InitFastCSR       com_intel_daal_algorithms_implicit_als_training_init_InitMethod_fastCSRId
-#define InitDefaultDense  com_intel_daal_algorithms_implicit_als_training_init_InitMethod_defaultDenseId
+#define InitFastCSR      com_intel_daal_algorithms_implicit_als_training_init_InitMethod_fastCSRId
+#define InitDefaultDense com_intel_daal_algorithms_implicit_als_training_init_InitMethod_defaultDenseId

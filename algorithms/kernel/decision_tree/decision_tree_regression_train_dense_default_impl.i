@@ -47,7 +47,6 @@ namespace training
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace decision_tree::internal;
@@ -58,10 +57,7 @@ class REPPruningData : public PruningData<cpu, algorithmFPType>
     typedef PruningData<cpu, algorithmFPType> BaseType;
 
 public:
-    REPPruningData(size_t size) : BaseType(size), _data(daal_alloc<algorithmFPType>(size ? size * 3 : 1))
-    {
-        resetData();
-    }
+    REPPruningData(size_t size) : BaseType(size), _data(daal_alloc<algorithmFPType>(size ? size * 3 : 1)) { resetData(); }
 
     ~REPPruningData() DAAL_C11_OVERRIDE
     {
@@ -73,15 +69,15 @@ public:
     {
         DAAL_ASSERT(index < size());
         algorithmFPType & count = _data[index * 3];
-        algorithmFPType & mean = _data[index * 3 + 1];
-        algorithmFPType & mse = _data[index * 3 + 2];
+        algorithmFPType & mean  = _data[index * 3 + 1];
+        algorithmFPType & mse   = _data[index * 3 + 2];
 
         // Welford running method.
 
         if (++count == 1)
         {
             mean = v;
-            mse = algorithmFPType(0);
+            mse  = algorithmFPType(0);
         }
         else
         {
@@ -117,15 +113,9 @@ public:
         return mse(index) + count(index) * delta * delta;
     }
 
-    ErrorType error(size_t index) const
-    {
-        return mse(index);
-    }
+    ErrorType error(size_t index) const { return mse(index); }
 
-    void prune(size_t index)
-    {
-        BaseType::prune(index, mean(index));
-    }
+    void prune(size_t index) { BaseType::prune(index, mean(index)); }
 
     using BaseType::size;
 
@@ -133,10 +123,7 @@ protected:
     void resetData()
     {
         const size_t cnt = size() * 3;
-        for (size_t i = 0; i < cnt; ++i)
-        {
-            _data[i] = algorithmFPType(0);
-        }
+        for (size_t i = 0; i < cnt; ++i) { _data[i] = algorithmFPType(0); }
     }
 
 private:
@@ -145,34 +132,34 @@ private:
 
 template <typename algorithmFPType, CpuType cpu>
 static void copyNode(size_t srcNodeIdx, size_t destNodeIdx, const decision_tree::internal::Tree<cpu, algorithmFPType, algorithmFPType> & src,
-                     decision_tree::regression::DecisionTreeNode * dest, double *impVals, int *smplCntVals, size_t & destNodeCount, size_t destNodeCapacity,
-                     const decision_tree::internal::PruningData<cpu, algorithmFPType> & pruningData)
+                     decision_tree::regression::DecisionTreeNode * dest, double * impVals, int * smplCntVals, size_t & destNodeCount,
+                     size_t destNodeCapacity, const decision_tree::internal::PruningData<cpu, algorithmFPType> & pruningData)
 {
     if (src[srcNodeIdx].isLeaf())
     {
-        dest[destNodeIdx].dimension = static_cast<size_t>(-1);
-        dest[destNodeIdx].leftIndex = 0;
+        dest[destNodeIdx].dimension                   = static_cast<size_t>(-1);
+        dest[destNodeIdx].leftIndex                   = 0;
         dest[destNodeIdx].cutPointOrDependantVariable = src[srcNodeIdx].dependentVariable();
-        impVals[destNodeIdx] = src[srcNodeIdx].impurity();
-        smplCntVals[destNodeIdx] = src[srcNodeIdx].count();
+        impVals[destNodeIdx]                          = src[srcNodeIdx].impurity();
+        smplCntVals[destNodeIdx]                      = src[srcNodeIdx].count();
     }
     else if (pruningData.isPruned(srcNodeIdx))
     {
-        dest[destNodeIdx].dimension = static_cast<size_t>(-1);
-        dest[destNodeIdx].leftIndex = 0;
+        dest[destNodeIdx].dimension                   = static_cast<size_t>(-1);
+        dest[destNodeIdx].leftIndex                   = 0;
         dest[destNodeIdx].cutPointOrDependantVariable = pruningData.dependentVariable(srcNodeIdx);
-        impVals[destNodeIdx] = src[srcNodeIdx].impurity();
-        smplCntVals[destNodeIdx] = src[srcNodeIdx].count();
+        impVals[destNodeIdx]                          = src[srcNodeIdx].impurity();
+        smplCntVals[destNodeIdx]                      = src[srcNodeIdx].count();
     }
     else
     {
         DAAL_ASSERT(destNodeCount + 2 <= destNodeCapacity);
-        dest[destNodeIdx].dimension = src[srcNodeIdx].featureIndex();
-        const size_t childIndex = destNodeCount;
-        dest[destNodeIdx].leftIndex = childIndex;
+        dest[destNodeIdx].dimension                   = src[srcNodeIdx].featureIndex();
+        const size_t childIndex                       = destNodeCount;
+        dest[destNodeIdx].leftIndex                   = childIndex;
         dest[destNodeIdx].cutPointOrDependantVariable = src[srcNodeIdx].cutPoint();
-        impVals[destNodeIdx] = src[srcNodeIdx].impurity();
-        smplCntVals[destNodeIdx] = src[srcNodeIdx].count();
+        impVals[destNodeIdx]                          = src[srcNodeIdx].impurity();
+        smplCntVals[destNodeIdx]                      = src[srcNodeIdx].count();
         destNodeCount += 2;
         copyNode(src[srcNodeIdx].leftChildIndex(), childIndex, src, dest, impVals, smplCntVals, destNodeCount, destNodeCapacity, pruningData);
         copyNode(src[srcNodeIdx].rightChildIndex(), childIndex + 1, src, dest, impVals, smplCntVals, destNodeCount, destNodeCapacity, pruningData);
@@ -180,10 +167,11 @@ static void copyNode(size_t srcNodeIdx, size_t destNodeIdx, const decision_tree:
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::defaultDense, cpu>::
-    compute(const NumericTable * x, const NumericTable * y, const NumericTable * w,
-            const NumericTable * px, const NumericTable * py,
-            decision_tree::regression::Model * r, const daal::algorithms::Parameter * par)
+services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::defaultDense, cpu>::compute(const NumericTable * x, const NumericTable * y,
+                                                                                                     const NumericTable * w, const NumericTable * px,
+                                                                                                     const NumericTable * py,
+                                                                                                     decision_tree::regression::Model * r,
+                                                                                                     const daal::algorithms::Parameter * par)
 {
     DAAL_ASSERT(x);
     DAAL_ASSERT(y);
@@ -196,7 +184,7 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::default
     r->impl()->setNumberOfFeatures(x->getNumberOfColumns());
 
     Tree<cpu, algorithmFPType, algorithmFPType> tree;
-    if(w == nullptr)
+    if (w == nullptr)
     {
         MSE<algorithmFPType, cpu> splitCriterion;
         status = tree.train(splitCriterion, *x, *y, w, 0, parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
@@ -221,9 +209,9 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::default
         services::SharedPtr<HomogenNumericTableCPU<int, cpu> > smplCntTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCapacity, status));
         DAAL_CHECK_STATUS_VAR(status);
         DecisionTreeNode * const nodes = static_cast<DecisionTreeNode *>(treeTable->getArray());
-        double *impVals = impTbl->getArray();
-        int *smplCntVals = smplCntTbl->getArray();
-        size_t nodeCount = 1;
+        double * impVals               = impTbl->getArray();
+        int * smplCntVals              = smplCntTbl->getArray();
+        size_t nodeCount               = 1;
         copyNode(0, 0, tree, nodes, impVals, smplCntVals, nodeCount, nodeCapacity, repData);
         r->impl()->setTreeTable(treeTable);
         r->impl()->setImpTable(impTbl);
@@ -239,24 +227,24 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::default
         services::SharedPtr<HomogenNumericTableCPU<int, cpu> > smplCntTbl(new HomogenNumericTableCPU<int, cpu>(1, nodeCount, status));
         DAAL_CHECK_STATUS_VAR(status);
         DecisionTreeNode * const nodes = static_cast<DecisionTreeNode *>(treeTable->getArray());
-        double *impVals = impTbl->getArray();
-        int *smplCntVals = smplCntTbl->getArray();
+        double * impVals               = impTbl->getArray();
+        int * smplCntVals              = smplCntTbl->getArray();
 
         for (size_t i = 0; i < nodeCount; ++i)
         {
             if (tree[i].isLeaf())
             {
-                nodes[i].dimension = static_cast<size_t>(-1);
-                nodes[i].leftIndex = 0;
+                nodes[i].dimension                   = static_cast<size_t>(-1);
+                nodes[i].leftIndex                   = 0;
                 nodes[i].cutPointOrDependantVariable = tree[i].dependentVariable();
             }
             else
             {
-                nodes[i].dimension = tree[i].featureIndex();
-                nodes[i].leftIndex = tree[i].leftChildIndex();
+                nodes[i].dimension                   = tree[i].featureIndex();
+                nodes[i].leftIndex                   = tree[i].leftChildIndex();
                 nodes[i].cutPointOrDependantVariable = tree[i].cutPoint();
             }
-            impVals[i] = tree[i].impurity();
+            impVals[i]     = tree[i].impurity();
             smplCntVals[i] = tree[i].count();
         }
         r->impl()->setTreeTable(treeTable);
@@ -272,7 +260,8 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, training::default
 namespace internal
 {
 template <CpuType cpu, typename algorithmFPType>
-struct CutPointFinder<cpu, algorithmFPType, decision_tree::regression::training::internal::MSEWeighted<algorithmFPType, cpu> > : private WeightedBaseCutPointFinder<cpu>
+struct CutPointFinder<cpu, algorithmFPType, decision_tree::regression::training::internal::MSEWeighted<algorithmFPType, cpu> >
+    : private WeightedBaseCutPointFinder<cpu>
 {
     using WeightedBaseCutPointFinder<cpu>::find;
 };

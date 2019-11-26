@@ -20,17 +20,17 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_bacon_outlier_detection_Parameter.h"
 
-#define baconMedianValue        com_intel_daal_algorithms_bacon_outlier_detection_InitializationMethod_baconMedianValue
-#define baconMahalanobisValue   com_intel_daal_algorithms_bacon_outlier_detection_InitializationMethod_baconMahalanobisValue
+#define baconMedianValue      com_intel_daal_algorithms_bacon_outlier_detection_InitializationMethod_baconMedianValue
+#define baconMahalanobisValue com_intel_daal_algorithms_bacon_outlier_detection_InitializationMethod_baconMahalanobisValue
 
 /*
  * Class:     com_intel_daal_algorithms_bacon_outlier_detection_Parameter
  * Method:    cSetInitializationMethod
  * Signature:(JI)I
  */
-JNIEXPORT void JNICALL
-Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cSetInitializationMethod
-(JNIEnv *env, jobject thisObj, jlong parAddr, jint initMethodValue)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cSetInitializationMethod(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong parAddr,
+                                                                                                                   jint initMethodValue)
 {
     using namespace daal;
     using namespace daal::algorithms::bacon_outlier_detection;
@@ -42,13 +42,12 @@ Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cSetInitializ
  * Method:    cGetInitializationMethod
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL
-Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cGetInitializationMethod
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cGetInitializationMethod(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong parAddr)
 {
     using namespace daal;
     using namespace daal::algorithms::bacon_outlier_detection;
-    return(int)(((Parameter *)parAddr)->initMethod);
+    return (int)(((Parameter *)parAddr)->initMethod);
 }
 
 /*
@@ -56,8 +55,8 @@ Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cGetInitializ
  * Method:    cSetAlpha
  * Signature:(JD)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cSetAlpha
-(JNIEnv *env, jobject thisObj, jlong parAddr, jdouble alpha)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cSetAlpha(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                    jdouble alpha)
 {
     using namespace daal;
     using namespace daal::algorithms::bacon_outlier_detection;
@@ -69,12 +68,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_bacon_1outlier_1detection_
  * Method:    cGetAlpha
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cGetAlpha
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cGetAlpha(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
     using namespace daal;
     using namespace daal::algorithms::bacon_outlier_detection;
-    return((Parameter *)parAddr)->alpha;
+    return ((Parameter *)parAddr)->alpha;
 }
 
 /*
@@ -82,9 +80,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_bacon_1outlier_1detecti
  * Method:    cSetToleranceToConverge
  * Signature:(JD)I
  */
-JNIEXPORT void JNICALL
-Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cSetToleranceToConverge
-(JNIEnv *env, jobject thisObj, jlong parAddr, jdouble tol)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cSetToleranceToConverge(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong parAddr, jdouble tol)
 {
     using namespace daal;
     using namespace daal::algorithms::bacon_outlier_detection;
@@ -96,11 +93,10 @@ Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cSetTolerance
  * Method:    cGetToleranceToConverge
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL
-Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cGetToleranceToConverge
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_bacon_1outlier_1detection_Parameter_cGetToleranceToConverge(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong parAddr)
 {
     using namespace daal;
     using namespace daal::algorithms::bacon_outlier_detection;
-    return((Parameter *)parAddr)->toleranceToConverge;
+    return ((Parameter *)parAddr)->toleranceToConverge;
 }

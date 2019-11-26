@@ -35,18 +35,13 @@ using namespace daal::algorithms;
 /* Input data set parameters */
 const size_t nBlocks = 4;
 
-const string dataFileNames[nBlocks] =
-{
-    "../data/distributed/dbscan_dense_1.csv",
-    "../data/distributed/dbscan_dense_2.csv",
-    "../data/distributed/dbscan_dense_3.csv",
-    "../data/distributed/dbscan_dense_4.csv"
-};
+const string dataFileNames[nBlocks] = { "../data/distributed/dbscan_dense_1.csv", "../data/distributed/dbscan_dense_2.csv",
+                                        "../data/distributed/dbscan_dense_3.csv", "../data/distributed/dbscan_dense_4.csv" };
 
-typedef float algorithmFPType;     /* Algorithm floating-point type */
+typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Algorithm parameters */
-const float epsilon = 0.02f;
+const float epsilon          = 0.02f;
 const size_t minObservations = 180;
 
 NumericTablePtr dataTable[nBlocks];
@@ -84,12 +79,9 @@ void printResults();
 
 int computeFinishedFlag();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
-    for (size_t i = 0; i < nBlocks; i++)
-    {
-        readData(i);
-    }
+    for (size_t i = 0; i < nBlocks; i++) { readData(i); }
 
     geometricPartitioning();
 
@@ -108,7 +100,7 @@ void geometricPartitioning()
         step1.input.set(dbscan::step1Data, dataTable[block]);
         step1.compute();
 
-        partitionedData[block] = DataCollectionPtr(new DataCollection());
+        partitionedData[block]          = DataCollectionPtr(new DataCollection());
         partitionedPartialOrders[block] = DataCollectionPtr(new DataCollection());
 
         partitionedData[block]->push_back(dataTable[block]);
@@ -118,23 +110,23 @@ void geometricPartitioning()
     vector<pair<size_t, size_t> > coms;
     coms.push_back(make_pair(0, nBlocks));
 
-    while (!coms.empty ())
+    while (!coms.empty())
     {
         vector<pair<size_t, size_t> > newComs;
 
         for (size_t comId = 0; comId < coms.size(); comId++)
         {
             const size_t beginBlock = coms[comId].first;
-            const size_t endBlock = coms[comId].second;
+            const size_t endBlock   = coms[comId].second;
             const size_t curNBlocks = endBlock - beginBlock;
 
             if (curNBlocks == 1) { continue; }
 
             for (size_t block = 0; block < curNBlocks; block++)
             {
-                partialSplits[block + beginBlock] = DataCollectionPtr(new DataCollection());
-                partialBoundingBoxes[block + beginBlock] = DataCollectionPtr(new DataCollection());
-                newPartitionedData[block + beginBlock] = DataCollectionPtr(new DataCollection());
+                partialSplits[block + beginBlock]               = DataCollectionPtr(new DataCollection());
+                partialBoundingBoxes[block + beginBlock]        = DataCollectionPtr(new DataCollection());
+                newPartitionedData[block + beginBlock]          = DataCollectionPtr(new DataCollection());
                 newPartitionedPartialOrders[block + beginBlock] = DataCollectionPtr(new DataCollection());
             }
 
@@ -146,12 +138,10 @@ void geometricPartitioning()
                 NumericTablePtr curBoundingBox = step2.getPartialResult()->get(dbscan::boundingBox);
 
                 for (size_t destBlock = 0; destBlock < curNBlocks; destBlock++)
-                {
-                    partialBoundingBoxes[destBlock + beginBlock]->push_back(curBoundingBox);
-                }
+                { partialBoundingBoxes[destBlock + beginBlock]->push_back(curBoundingBox); }
             }
 
-            const size_t leftBlocks = curNBlocks / 2;
+            const size_t leftBlocks  = curNBlocks / 2;
             const size_t rightBlocks = curNBlocks - leftBlocks;
 
             for (size_t block = 0; block < curNBlocks; block++)
@@ -162,10 +152,7 @@ void geometricPartitioning()
                 step3.compute();
                 NumericTablePtr curSplit = step3.getPartialResult()->get(dbscan::split);
 
-                for (size_t destBlock = 0; destBlock < curNBlocks; destBlock++)
-                {
-                    partialSplits[destBlock + beginBlock]->push_back(curSplit);
-                }
+                for (size_t destBlock = 0; destBlock < curNBlocks; destBlock++) { partialSplits[destBlock + beginBlock]->push_back(curSplit); }
             }
 
             for (size_t block = 0; block < curNBlocks; block++)
@@ -176,7 +163,7 @@ void geometricPartitioning()
                 step4.input.set(dbscan::step4PartialSplits, partialSplits[block + beginBlock]);
                 step4.compute();
 
-                DataCollectionPtr curPartitionedData = step4.getPartialResult()->get(dbscan::partitionedData);
+                DataCollectionPtr curPartitionedData          = step4.getPartialResult()->get(dbscan::partitionedData);
                 DataCollectionPtr curPartitionedPartialOrders = step4.getPartialResult()->get(dbscan::partitionedPartialOrders);
 
                 for (size_t destBlock = 0; destBlock < curNBlocks; destBlock++)
@@ -188,7 +175,7 @@ void geometricPartitioning()
 
             for (size_t block = 0; block < curNBlocks; block++)
             {
-                partitionedData[block + beginBlock] = newPartitionedData[block + beginBlock];
+                partitionedData[block + beginBlock]          = newPartitionedData[block + beginBlock];
                 partitionedPartialOrders[block + beginBlock] = newPartitionedPartialOrders[block + beginBlock];
             }
 
@@ -205,9 +192,9 @@ void clustering()
     for (size_t block = 0; block < nBlocks; block++)
     {
         partialBoundingBoxes[block] = DataCollectionPtr(new DataCollection());
-        haloData[block] = DataCollectionPtr(new DataCollection());
-        haloDataIndices[block] = DataCollectionPtr(new DataCollection());
-        haloBlocks[block] = DataCollectionPtr(new DataCollection());
+        haloData[block]             = DataCollectionPtr(new DataCollection());
+        haloDataIndices[block]      = DataCollectionPtr(new DataCollection());
+        haloBlocks[block]           = DataCollectionPtr(new DataCollection());
     }
 
     for (size_t block = 0; block < nBlocks; block++)
@@ -217,10 +204,7 @@ void clustering()
         step2.compute();
         NumericTablePtr curBoundingBox = step2.getPartialResult()->get(dbscan::boundingBox);
 
-        for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
-        {
-            partialBoundingBoxes[destBlock]->push_back(curBoundingBox);
-        }
+        for (size_t destBlock = 0; destBlock < nBlocks; destBlock++) { partialBoundingBoxes[destBlock]->push_back(curBoundingBox); }
     }
 
     for (size_t block = 0; block < nBlocks; block++)
@@ -229,12 +213,12 @@ void clustering()
         step5.input.set(dbscan::partialData, partitionedData[block]);
         step5.input.set(dbscan::step5PartialBoundingBoxes, partialBoundingBoxes[block]);
         step5.compute();
-        DataCollectionPtr curHaloData = step5.getPartialResult()->get(dbscan::partitionedHaloData);
+        DataCollectionPtr curHaloData        = step5.getPartialResult()->get(dbscan::partitionedHaloData);
         DataCollectionPtr curHaloDataIndices = step5.getPartialResult()->get(dbscan::partitionedHaloDataIndices);
 
         for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
         {
-            NumericTablePtr dataTable = services::staticPointerCast<NumericTable, SerializationIface>((*curHaloData)[destBlock]);
+            NumericTablePtr dataTable        = services::staticPointerCast<NumericTable, SerializationIface>((*curHaloData)[destBlock]);
             NumericTablePtr dataIndicesTable = services::staticPointerCast<NumericTable, SerializationIface>((*curHaloDataIndices)[destBlock]);
             if (dataTable->getNumberOfRows() > 0)
             {
@@ -245,10 +229,7 @@ void clustering()
         }
     }
 
-    for (size_t block = 0; block < nBlocks; block++)
-    {
-        queries[block] = DataCollectionPtr(new DataCollection());
-    }
+    for (size_t block = 0; block < nBlocks; block++) { queries[block] = DataCollectionPtr(new DataCollection()); }
 
     for (size_t block = 0; block < nBlocks; block++)
     {
@@ -261,27 +242,21 @@ void clustering()
         step6.input.set(dbscan::haloBlocks, haloBlocks[block]);
         step6.compute();
         clusterStructure[block] = step6.getPartialResult()->get(dbscan::step6ClusterStructure);
-        finishedFlag[block] = step6.getPartialResult()->get(dbscan::step6FinishedFlag);
-        nClusters[block] = step6.getPartialResult()->get(dbscan::step6NClusters);
+        finishedFlag[block]     = step6.getPartialResult()->get(dbscan::step6FinishedFlag);
+        nClusters[block]        = step6.getPartialResult()->get(dbscan::step6NClusters);
 
         DataCollectionPtr curQueries = step6.getPartialResult()->get(dbscan::step6Queries);
 
         for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
         {
             NumericTablePtr table = services::staticPointerCast<NumericTable, SerializationIface>((*curQueries)[destBlock]);
-            if (table->getNumberOfRows() > 0)
-            {
-                queries[destBlock]->push_back(table);
-            }
+            if (table->getNumberOfRows() > 0) { queries[destBlock]->push_back(table); }
         }
     }
 
     while (computeFinishedFlag() == 0)
     {
-        for (size_t block = 0; block < nBlocks; block++)
-        {
-            newQueries[block] = DataCollectionPtr(new DataCollection());
-        }
+        for (size_t block = 0; block < nBlocks; block++) { newQueries[block] = DataCollectionPtr(new DataCollection()); }
 
         for (size_t block = 0; block < nBlocks; block++)
         {
@@ -292,33 +267,24 @@ void clustering()
             step8.compute();
 
             clusterStructure[block] = step8.getPartialResult()->get(dbscan::step8ClusterStructure);
-            finishedFlag[block] = step8.getPartialResult()->get(dbscan::step8FinishedFlag);
-            nClusters[block] = step8.getPartialResult()->get(dbscan::step8NClusters);
+            finishedFlag[block]     = step8.getPartialResult()->get(dbscan::step8FinishedFlag);
+            nClusters[block]        = step8.getPartialResult()->get(dbscan::step8NClusters);
 
             DataCollectionPtr curQueries = step8.getPartialResult()->get(dbscan::step8Queries);
 
             for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
             {
                 NumericTablePtr table = services::staticPointerCast<NumericTable, SerializationIface>((*curQueries)[destBlock]);
-                if (table->getNumberOfRows() > 0)
-                {
-                    newQueries[destBlock]->push_back(table);
-                }
+                if (table->getNumberOfRows() > 0) { newQueries[destBlock]->push_back(table); }
             }
         }
 
-        for (size_t block = 0; block < nBlocks; block++)
-        {
-            queries[block] = newQueries[block];
-        }
+        for (size_t block = 0; block < nBlocks; block++) { queries[block] = newQueries[block]; }
     }
 
     {
         DataCollectionPtr partialNClusters(new DataCollection());
-        for (size_t block = 0; block < nBlocks; block++)
-        {
-            partialNClusters->push_back(nClusters[block]);
-        }
+        for (size_t block = 0; block < nBlocks; block++) { partialNClusters->push_back(nClusters[block]); }
 
         dbscan::Distributed<step9Master, algorithmFPType, dbscan::defaultDense> step9;
         step9.input.set(dbscan::partialNClusters, partialNClusters);
@@ -330,15 +296,10 @@ void clustering()
         DataCollectionPtr curClusterOffsets = step9.getPartialResult()->get(dbscan::clusterOffsets);
 
         for (size_t block = 0; block < nBlocks; block++)
-        {
-            clusterOffset[block] = services::staticPointerCast<NumericTable, SerializationIface>((*curClusterOffsets)[block]);
-        }
+        { clusterOffset[block] = services::staticPointerCast<NumericTable, SerializationIface>((*curClusterOffsets)[block]); }
     }
 
-    for (size_t block = 0; block < nBlocks; block++)
-    {
-        queries[block] = DataCollectionPtr(new DataCollection());
-    }
+    for (size_t block = 0; block < nBlocks; block++) { queries[block] = DataCollectionPtr(new DataCollection()); }
 
     for (size_t block = 0; block < nBlocks; block++)
     {
@@ -348,26 +309,20 @@ void clustering()
         step10.compute();
 
         clusterStructure[block] = step10.getPartialResult()->get(dbscan::step10ClusterStructure);
-        finishedFlag[block] = step10.getPartialResult()->get(dbscan::step10FinishedFlag);
+        finishedFlag[block]     = step10.getPartialResult()->get(dbscan::step10FinishedFlag);
 
         DataCollectionPtr curQueries = step10.getPartialResult()->get(dbscan::step10Queries);
 
         for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
         {
             NumericTablePtr table = services::staticPointerCast<NumericTable, SerializationIface>((*curQueries)[destBlock]);
-            if (table->getNumberOfRows() > 0)
-            {
-                queries[destBlock]->push_back(table);
-            }
+            if (table->getNumberOfRows() > 0) { queries[destBlock]->push_back(table); }
         }
     }
 
     while (computeFinishedFlag() == 0)
     {
-        for (size_t block = 0; block < nBlocks; block++)
-        {
-            newQueries[block] = DataCollectionPtr(new DataCollection());
-        }
+        for (size_t block = 0; block < nBlocks; block++) { newQueries[block] = DataCollectionPtr(new DataCollection()); }
 
         for (size_t block = 0; block < nBlocks; block++)
         {
@@ -377,30 +332,21 @@ void clustering()
             step11.compute();
 
             clusterStructure[block] = step11.getPartialResult()->get(dbscan::step11ClusterStructure);
-            finishedFlag[block] = step11.getPartialResult()->get(dbscan::step11FinishedFlag);
+            finishedFlag[block]     = step11.getPartialResult()->get(dbscan::step11FinishedFlag);
 
             DataCollectionPtr curQueries = step11.getPartialResult()->get(dbscan::step11Queries);
 
             for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
             {
                 NumericTablePtr table = services::staticPointerCast<NumericTable, SerializationIface>((*curQueries)[destBlock]);
-                if (table->getNumberOfRows() > 0)
-                {
-                    newQueries[destBlock]->push_back(table);
-                }
+                if (table->getNumberOfRows() > 0) { newQueries[destBlock]->push_back(table); }
             }
         }
 
-        for (size_t block = 0; block < nBlocks; block++)
-        {
-            queries[block] = newQueries[block];
-        }
+        for (size_t block = 0; block < nBlocks; block++) { queries[block] = newQueries[block]; }
     }
 
-    for (size_t block = 0; block < nBlocks; block++)
-    {
-        assignmentQueries[block] = DataCollectionPtr(new DataCollection());
-    }
+    for (size_t block = 0; block < nBlocks; block++) { assignmentQueries[block] = DataCollectionPtr(new DataCollection()); }
 
     for (size_t block = 0; block < nBlocks; block++)
     {
@@ -414,10 +360,7 @@ void clustering()
         for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
         {
             NumericTablePtr table = services::staticPointerCast<NumericTable, SerializationIface>((*curAssignmentQueries)[destBlock]);
-            if (table->getNumberOfRows() > 0)
-            {
-                assignmentQueries[destBlock]->push_back(table);
-            }
+            if (table->getNumberOfRows() > 0) { assignmentQueries[destBlock]->push_back(table); }
         }
     }
 
@@ -436,10 +379,7 @@ int computeFinishedFlag()
 {
     DataCollectionPtr partialFinishedFlags(new DataCollection());
 
-    for (size_t block = 0; block < nBlocks; block++)
-    {
-        partialFinishedFlags->push_back(finishedFlag[block]);
-    }
+    for (size_t block = 0; block < nBlocks; block++) { partialFinishedFlags->push_back(finishedFlag[block]); }
 
     dbscan::Distributed<step7Master, algorithmFPType, dbscan::defaultDense> step7;
     step7.input.set(dbscan::partialFinishedFlags, partialFinishedFlags);
@@ -454,8 +394,7 @@ void readData(size_t block)
 {
     /* Read trainDatasetFileName from a file and create a numeric table to store the input data */
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(dataFileNames[block], DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(dataFileNames[block], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -466,7 +405,5 @@ void printResults()
 {
     printNumericTable(totalNClusters, "Number of clusters:");
     for (size_t block = 0; block < nBlocks; block++)
-    {
-        printNumericTable(assignments[block], "Assignments of first 20 observations from block:", 20);
-    }
+    { printNumericTable(assignments[block], "Assignments of first 20 observations from block:", 20); }
 }

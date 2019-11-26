@@ -28,8 +28,9 @@ using namespace daal::data_management;
  * Method:    cGetNumberOfTwoClassClassifierModels
  * Signature:(JJ)I
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Model_cGetNumberOfTwoClassClassifierModels
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Model_cGetNumberOfTwoClassClassifierModels(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong modAddr)
 {
     multi_class_classifier::ModelPtr models = *(multi_class_classifier::ModelPtr *)modAddr;
     return (jlong)models->getNumberOfTwoClassClassifierModels();
@@ -40,11 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cGetTwoClassClassifierModel
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Model_cGetTwoClassClassifierModel
-(JNIEnv *env, jobject thisObj, jlong modAddr, jlong idx)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_Model_cGetTwoClassClassifierModel(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong modAddr, jlong idx)
 {
     multi_class_classifier::ModelPtr models = *(multi_class_classifier::ModelPtr *)modAddr;
-    SerializationIfacePtr * dShPtr = new SerializationIfacePtr();
-    *dShPtr = models->getTwoClassClassifierModel(idx);
+    SerializationIfacePtr * dShPtr          = new SerializationIfacePtr();
+    *dShPtr                                 = models->getTwoClassClassifierModel(idx);
     return (jlong)dShPtr;
 }

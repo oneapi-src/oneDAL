@@ -28,7 +28,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -44,7 +43,7 @@ typedef services::SharedPtr<SerializationIface> SerializationIfacePtr;
  *  \brief Class that provides functionality of Collection container for objects derived from
  *  SerializationIface interface and implements SerializationIface itself
  */
-class DAAL_EXPORT DataCollection : public SerializationIface, private services::Collection<SerializationIfacePtr >
+class DAAL_EXPORT DataCollection : public SerializationIface, private services::Collection<SerializationIfacePtr>
 {
 public:
     DECLARE_SERIALIZABLE_TAG();
@@ -57,7 +56,7 @@ public:
     DataCollection();
 
     /** Copy constructor */
-    DataCollection(const DataCollection &other);
+    DataCollection(const DataCollection & other);
 
     /**
      *  Constructor with a defined number of elements
@@ -72,40 +71,40 @@ public:
     *  \param[in] index Index of an accessed element
     *  \return    Pointer to the element
     */
-    const SerializationIfacePtr &operator[](size_t index) const;
+    const SerializationIfacePtr & operator[](size_t index) const;
 
     /**
     *  Element access
     *  \param[in] index Index of an accessed element
     *  \return    Pointer to the element
     */
-    SerializationIfacePtr &operator[](size_t index);
+    SerializationIfacePtr & operator[](size_t index);
 
     /**
     *  Element access
     *  \param[in] index Index of an accessed element
     *  \return    Reference to the element
     */
-    SerializationIfacePtr &get(size_t index);
+    SerializationIfacePtr & get(size_t index);
 
     /**
     *  Const element access
     *  \param[in] index Index of an accessed element
     *  \return    Reference to the element
     */
-    const SerializationIfacePtr &get(size_t index) const;
+    const SerializationIfacePtr & get(size_t index) const;
 
     /**
     *  Adds an element to the end of a collection
     *  \param[in] x Element to add
     */
-    DataCollection &push_back(const SerializationIfacePtr &x);
+    DataCollection & push_back(const SerializationIfacePtr & x);
 
     /**
      *  Adds an element to the end of a collection
      *  \param[in] x Element to add
      */
-    DataCollection &operator << (const SerializationIfacePtr &x);
+    DataCollection & operator<<(const SerializationIfacePtr & x);
 
     /**
      *  Size of a collection
@@ -130,34 +129,28 @@ public:
     */
     bool resize(size_t newCapacity);
 
-    services::Status serializeImpl(interface1::InputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(interface1::InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
-        return serialImpl<interface1::InputDataArchive, false>( arch );
+        return serialImpl<interface1::InputDataArchive, false>(arch);
     }
 
-    services::Status deserializeImpl(const interface1::OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const interface1::OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
-        return serialImpl<const interface1::OutputDataArchive, true>( arch );
+        return serialImpl<const interface1::OutputDataArchive, true>(arch);
     }
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         size_t size = _size;
 
         arch->set(size);
 
-        if( onDeserialize )
-        {
-            resize(size);
-        }
+        if (onDeserialize) { resize(size); }
 
         _size = size;
 
-        for(size_t i = 0; i < _size; i++)
-        {
-            arch->setSharedPtrObj(_array[i]);
-        }
+        for (size_t i = 0; i < _size; i++) { arch->setSharedPtrObj(_array[i]); }
 
         return services::Status();
     }
@@ -169,7 +162,7 @@ typedef services::SharedPtr<DataCollection> DataCollectionPtr;
  *  \brief Class that provides functionality of a key-value container for objects derived from the
  *  T with a key of the size_t type
  */
-template<typename T>
+template <typename T>
 class DAAL_EXPORT KeyValueCollection
 {
 public:
@@ -178,34 +171,30 @@ public:
     /** Default constructor */
     KeyValueCollection() {}
     /** Copy constructor */
-    KeyValueCollection(const KeyValueCollection &other) : _keys(other._keys), _values(other._values) {}
+    KeyValueCollection(const KeyValueCollection & other) : _keys(other._keys), _values(other._values) {}
 
-    KeyValueCollection(const services::Collection<size_t> &keys, const services::Collection<services::SharedPtr<T> > &values)
+    KeyValueCollection(const services::Collection<size_t> & keys, const services::Collection<services::SharedPtr<T> > & values)
     {
-        for(size_t i = 0; i < keys.size(); i++)
+        for (size_t i = 0; i < keys.size(); i++)
         {
             _keys.push_back(keys[i]);
             _values.push_back(values[i]);
         }
     }
 
-    virtual ~KeyValueCollection()
-    {}
+    virtual ~KeyValueCollection() {}
 
     /**
      *  Returns a reference to SharedPtr for a stored object with a given key if an object with such key was registered
      *  \param[in]  k  Key value
      *  \return Reference to SharedPtr of the SerializationIface type
      */
-    const services::SharedPtr<T> &operator[] (size_t k) const
+    const services::SharedPtr<T> & operator[](size_t k) const
     {
         size_t i;
-        for( i = 0; i < _keys.size(); i++ )
+        for (i = 0; i < _keys.size(); i++)
         {
-            if( _keys[i] == k )
-            {
-                return _values[i];
-            }
+            if (_keys[i] == k) { return _values[i]; }
         }
         return _nullPtr;
     }
@@ -215,46 +204,34 @@ public:
      *  \param[in]  k  Key value
      *  \return Reference to SharedPtr of the SerializationIface type
      */
-    services::SharedPtr<T> &operator[] (size_t k);
+    services::SharedPtr<T> & operator[](size_t k);
 
     /**
      *  Returns a reference to SharedPtr for a stored key with a given index
      *  \param[in]  idx  Index of the requested key
      *  \return Reference to SharedPtr of the size_t type
      */
-    size_t getKeyByIndex(int idx) const
-    {
-        return _keys[idx];
-    }
+    size_t getKeyByIndex(int idx) const { return _keys[idx]; }
 
     /**
      *  Returns a reference to SharedPtr for a stored object with a given index
      *  \param[in]  idx  Index of the requested object
      *  \return Reference to SharedPtr of the SerializationIface type
      */
-    services::SharedPtr<T> &getValueByIndex(int idx)
-    {
-        return _values[idx];
-    }
+    services::SharedPtr<T> & getValueByIndex(int idx) { return _values[idx]; }
 
     /**
      *  Returns a const SharedPtr for a stored object with a given index
      *  \param[in]  idx  Index of the requested object
      *  \return Reference to SharedPtr of the SerializationIface type
      */
-    const services::SharedPtr<T> getValueByIndex(int idx) const
-    {
-        return _values[idx];
-    }
+    const services::SharedPtr<T> getValueByIndex(int idx) const { return _values[idx]; }
 
     /**
      *  Returns the number of stored objects
      *  \return Number of stored objects
      */
-    size_t size() const
-    {
-        return _keys.size();
-    }
+    size_t size() const { return _keys.size(); }
 
     /**
      *  Removes all elements from a container
@@ -276,7 +253,7 @@ protected:
  *  \brief Class that provides functionality of a key-value container for objects derived from the
  *  SerializationIface interface with a key of the size_t type
  */
-template<typename T>
+template <typename T>
 class DAAL_EXPORT SerializableKeyValueCollection : public SerializationIface, public KeyValueCollection<T>
 {
 public:
@@ -287,41 +264,43 @@ public:
     /** Default constructor */
     SerializableKeyValueCollection() : KeyValueCollection<T>() {}
     /** Copy constructor */
-    SerializableKeyValueCollection(const SerializableKeyValueCollection &other) : KeyValueCollection<T>(other) {}
+    SerializableKeyValueCollection(const SerializableKeyValueCollection & other) : KeyValueCollection<T>(other) {}
 
-    SerializableKeyValueCollection(const services::Collection<size_t> &keys, const services::Collection<services::SharedPtr<T> > &values) : KeyValueCollection<T>(keys, values) {}
+    SerializableKeyValueCollection(const services::Collection<size_t> & keys, const services::Collection<services::SharedPtr<T> > & values)
+        : KeyValueCollection<T>(keys, values)
+    {}
 
     virtual ~SerializableKeyValueCollection() {}
 
     /** \private */
-    services::Status serializeImpl(interface1::InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(interface1::InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
-        return serialImpl<interface1::InputDataArchive, false>( arch );
+        return serialImpl<interface1::InputDataArchive, false>(arch);
     }
 
     /** \private */
-    services::Status deserializeImpl(const interface1::OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const interface1::OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
-        return serialImpl<const interface1::OutputDataArchive, true>( arch );
+        return serialImpl<const interface1::OutputDataArchive, true>(arch);
     }
 
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl( Archive *arch )
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         size_t size = this->_values.size();
 
         arch->set(size);
 
-        if( onDeserialize )
+        if (onDeserialize)
         {
             this->_values.resize(size);
             this->_keys.resize(size);
         }
 
-        for(size_t i = 0; i < size; i++)
+        for (size_t i = 0; i < size; i++)
         {
-            if( onDeserialize )
+            if (onDeserialize)
             {
                 this->_values.push_back(this->_nullPtr);
                 this->_keys.push_back(0);
@@ -348,7 +327,7 @@ using interface1::KeyValueDataCollectionPtr;
 using interface1::KeyValueDataCollectionConstPtr;
 using interface1::SerializationIfacePtr;
 
-}
-}
+} // namespace data_management
+} // namespace daal
 
 #endif

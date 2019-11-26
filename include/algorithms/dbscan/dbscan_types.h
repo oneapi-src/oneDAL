@@ -42,7 +42,6 @@ namespace algorithms
 /** \brief Contains classes of the DBSCAN algorithm */
 namespace dbscan
 {
-
 const int noise     = -1;
 const int undefined = -2;
 
@@ -52,7 +51,7 @@ const int undefined = -2;
  */
 enum Method
 {
-    defaultDense = 0,   /*!< Default: performance-oriented method */
+    defaultDense = 0, /*!< Default: performance-oriented method */
 };
 
 /**
@@ -61,7 +60,7 @@ enum Method
  */
 enum DistanceType
 {
-    euclidean,                     /*!< Euclidean distance */
+    euclidean, /*!< Euclidean distance */
     lastDistanceType = euclidean
 };
 
@@ -71,8 +70,8 @@ enum DistanceType
  */
 enum InputId
 {
-    data,               /*!< %Input data table */
-    weights,            /*!< %Input weights of observations */
+    data,    /*!< %Input data table */
+    weights, /*!< %Input weights of observations */
     lastInputId = weights
 };
 
@@ -82,8 +81,8 @@ enum InputId
  */
 enum ResultToComputeId
 {
-    computeCoreIndices      = 0x00000001ULL,     /*!< Compute table containing indices of core observations */
-    computeCoreObservations = 0x00000002ULL      /*!< Compute table containing core observations */
+    computeCoreIndices      = 0x00000001ULL, /*!< Compute table containing indices of core observations */
+    computeCoreObservations = 0x00000002ULL  /*!< Compute table containing core observations */
 };
 
 /**
@@ -92,10 +91,10 @@ enum ResultToComputeId
  */
 enum ResultId
 {
-    assignments,                      /*!< Table containing assignments of observations to clusters */
-    nClusters,                        /*!< Table containing number of clusters */
-    coreIndices,                      /*!< Table containing indices of core observations */
-    coreObservations,                 /*!< Table containing core observations */
+    assignments,      /*!< Table containing assignments of observations to clusters */
+    nClusters,        /*!< Table containing number of clusters */
+    coreIndices,      /*!< Table containing indices of core observations */
+    coreObservations, /*!< Table containing core observations */
     lastResultId = coreObservations
 };
 
@@ -105,8 +104,8 @@ enum ResultId
  */
 enum LocalCollectionInputId
 {
-    partialData,                               /*!< Collection of input data tables that contains observations */
-    partialWeights,                            /*!< Collection of input data tables that contains weights of observations */
+    partialData,    /*!< Collection of input data tables that contains observations */
+    partialWeights, /*!< Collection of input data tables that contains weights of observations */
     lastLocalCollectionInputId = partialWeights
 };
 
@@ -117,7 +116,7 @@ enum LocalCollectionInputId
  */
 enum Step1LocalNumericTableInputId
 {
-    step1Data,                                           /*!< Input data table that contains observations */
+    step1Data, /*!< Input data table that contains observations */
     lastStep1LocalNumericTableInputId = data
 };
 
@@ -128,7 +127,7 @@ enum Step1LocalNumericTableInputId
  */
 enum DistributedPartialResultStep1Id
 {
-    partialOrder,                                       /*!< Table containing information about observations:
+    partialOrder, /*!< Table containing information about observations:
                                                              identifier of initial block and index in initial block */
     lastDistributedPartialResultStep1Id = partialOrder
 };
@@ -140,7 +139,7 @@ enum DistributedPartialResultStep1Id
  */
 enum DistributedPartialResultStep2Id
 {
-    boundingBox,                                        /*!< Table containing bounding box of input observations:
+    boundingBox, /*!< Table containing bounding box of input observations:
                                                              first row contains minimum value of each feature,
                                                              second row contains maximum value of each feature. */
     lastDistributedPartialResultStep2Id = boundingBox
@@ -153,7 +152,7 @@ enum DistributedPartialResultStep2Id
  */
 enum Step3LocalCollectionInputId
 {
-    step3PartialBoundingBoxes = lastLocalCollectionInputId + 1,   /*!< Collection of input tables containing bounind boxes */
+    step3PartialBoundingBoxes       = lastLocalCollectionInputId + 1, /*!< Collection of input tables containing bounind boxes */
     lastStep3LocalCollectionInputId = step3PartialBoundingBoxes
 };
 
@@ -164,7 +163,7 @@ enum Step3LocalCollectionInputId
  */
 enum DistributedPartialResultStep3Id
 {
-    split,                                             /*!< Table containing information about split for current
+    split, /*!< Table containing information about split for current
                                                             iteration of geometric repartitioning */
     lastDistributedPartialResultStep3Id = split
 };
@@ -176,9 +175,9 @@ enum DistributedPartialResultStep3Id
  */
 enum Step4LocalCollectionInputId
 {
-    step4PartialSplits = lastLocalCollectionInputId + 1,   /*!< Collection of input tables containing information about split
+    step4PartialSplits = lastLocalCollectionInputId + 1, /*!< Collection of input tables containing information about split
                                                                 for current iteration of gemoetric repartitioning */
-    step4PartialOrders,                                    /*!< Collection of input tables containing information about observations:
+    step4PartialOrders,                                  /*!< Collection of input tables containing information about observations:
                                                                 identifier of initial block and index in initial block */
     lastStep4LocalCollectionInputId = step4PartialOrders
 };
@@ -190,9 +189,9 @@ enum Step4LocalCollectionInputId
  */
 enum DistributedPartialResultStep4Id
 {
-    partitionedData,                                                /*!< Collection of tables containing observations */
-    partitionedWeights,                                             /*!< Collection of tables containing weights of observations */
-    partitionedPartialOrders,                                       /*!< Collection of tables containing information about observations:
+    partitionedData,          /*!< Collection of tables containing observations */
+    partitionedWeights,       /*!< Collection of tables containing weights of observations */
+    partitionedPartialOrders, /*!< Collection of tables containing information about observations:
                                                                          identifier of initial block and index in initial block */
     lastDistributedPartialResultStep4Id = partitionedPartialOrders
 };
@@ -204,7 +203,7 @@ enum DistributedPartialResultStep4Id
  */
 enum Step5LocalCollectionInputId
 {
-    step5PartialBoundingBoxes = lastLocalCollectionInputId + 1,   /*!< Collection of input tables containing bounding boxes */
+    step5PartialBoundingBoxes       = lastLocalCollectionInputId + 1, /*!< Collection of input tables containing bounding boxes */
     lastStep5LocalCollectionInputId = step5PartialBoundingBoxes
 };
 
@@ -215,9 +214,9 @@ enum Step5LocalCollectionInputId
  */
 enum DistributedPartialResultStep5Id
 {
-    partitionedHaloData,                                                /*!< Collection of tables containing halo observations */
-    partitionedHaloDataIndices,                                         /*!< Collection of tables containing indices of halo observations */
-    partitionedHaloWeights,                                             /*!< Collection of tables containing weights of halo observations */
+    partitionedHaloData,        /*!< Collection of tables containing halo observations */
+    partitionedHaloDataIndices, /*!< Collection of tables containing indices of halo observations */
+    partitionedHaloWeights,     /*!< Collection of tables containing weights of halo observations */
     lastDistributedPartialResultStep5Id = partitionedHaloWeights
 };
 
@@ -228,10 +227,10 @@ enum DistributedPartialResultStep5Id
  */
 enum Step6LocalCollectionInputId
 {
-    haloData = lastLocalCollectionInputId + 1,                  /*!< Collection of input tables containing halo observations */
-    haloDataIndices,                                            /*!< Collection of input tables containing indices of halo observations*/
-    haloWeights,                                                /*!< Collection of input tables containing weights of halo observations*/
-    haloBlocks,                                                 /*!< Collection of input tables containing identifiers of blocks for halo observations */
+    haloData = lastLocalCollectionInputId + 1, /*!< Collection of input tables containing halo observations */
+    haloDataIndices,                           /*!< Collection of input tables containing indices of halo observations*/
+    haloWeights,                               /*!< Collection of input tables containing weights of halo observations*/
+    haloBlocks,                                /*!< Collection of input tables containing identifiers of blocks for halo observations */
     lastStep6LocalCollectionInputId = haloBlocks
 };
 
@@ -242,9 +241,9 @@ enum Step6LocalCollectionInputId
  */
 enum DistributedPartialResultStep6NumericTableId
 {
-    step6ClusterStructure,                                            /*!< Table containing information about current clustering state of observations */
-    step6FinishedFlag,                                                /*!< Table containing the flag indicating that the clustering process is finished */
-    step6NClusters,                                                   /*!< Table containing the current number of clusters */
+    step6ClusterStructure, /*!< Table containing information about current clustering state of observations */
+    step6FinishedFlag,     /*!< Table containing the flag indicating that the clustering process is finished */
+    step6NClusters,        /*!< Table containing the current number of clusters */
     lastDistributedPartialResultStep6NumericTableId = step6NClusters
 };
 
@@ -255,7 +254,7 @@ enum DistributedPartialResultStep6NumericTableId
  */
 enum DistributedPartialResultStep6CollectionId
 {
-    step6Queries = lastDistributedPartialResultStep6NumericTableId + 1,   /*!< Collection of tables containing clustering queries */
+    step6Queries = lastDistributedPartialResultStep6NumericTableId + 1, /*!< Collection of tables containing clustering queries */
     lastDistributedPartialResultStep6CollectionId = step6Queries
 };
 
@@ -266,7 +265,7 @@ enum DistributedPartialResultStep6CollectionId
  */
 enum Step7MasterCollectionInputId
 {
-    partialFinishedFlags,                                     /*!< Collection of input tables containing the flags
+    partialFinishedFlags, /*!< Collection of input tables containing the flags
                                                                    indicating that the clustering process is finished */
     lastStep7MasterCollectionInputId = partialFinishedFlags
 };
@@ -278,7 +277,7 @@ enum Step7MasterCollectionInputId
  */
 enum DistributedPartialResultStep7Id
 {
-    finishedFlag,                                                /*!< Table containing the flag indicating that the clustering process is finished */
+    finishedFlag, /*!< Table containing the flag indicating that the clustering process is finished */
     lastDistributedPartialResultStep7Id = finishedFlag
 };
 
@@ -289,8 +288,8 @@ enum DistributedPartialResultStep7Id
  */
 enum Step8LocalNumericTableInputId
 {
-    step8InputClusterStructure,                                 /*!<  Input table containing information about current clustering state of observations */
-    step8InputNClusters,                                        /*!<  Input table containing the current number of clusters */
+    step8InputClusterStructure, /*!<  Input table containing information about current clustering state of observations */
+    step8InputNClusters,        /*!<  Input table containing the current number of clusters */
     lastStep8LocalNumericTableInputId = step8InputNClusters
 };
 
@@ -301,7 +300,7 @@ enum Step8LocalNumericTableInputId
  */
 enum Step8LocalCollectionInputId
 {
-    step8PartialQueries = lastStep8LocalNumericTableInputId + 1,   /*!<  Collection of input tables containing clustering queries */
+    step8PartialQueries             = lastStep8LocalNumericTableInputId + 1, /*!<  Collection of input tables containing clustering queries */
     lastStep8LocalCollectionInputId = step8PartialQueries
 };
 
@@ -312,9 +311,9 @@ enum Step8LocalCollectionInputId
  */
 enum DistributedPartialResultStep8NumericTableId
 {
-    step8ClusterStructure,                                            /*!< Table containing information about current clustering state of observations */
-    step8FinishedFlag,                                                /*!< Table containing the flag indicating that the clustering process is finished */
-    step8NClusters,                                                   /*!< Table containing the current number of clusters */
+    step8ClusterStructure, /*!< Table containing information about current clustering state of observations */
+    step8FinishedFlag,     /*!< Table containing the flag indicating that the clustering process is finished */
+    step8NClusters,        /*!< Table containing the current number of clusters */
     lastDistributedPartialResultStep8NumericTableId = step8NClusters
 };
 
@@ -325,7 +324,7 @@ enum DistributedPartialResultStep8NumericTableId
  */
 enum DistributedPartialResultStep8CollectionId
 {
-    step8Queries = lastDistributedPartialResultStep8NumericTableId + 1,   /*!< Collection of tables containing clustering queries */
+    step8Queries = lastDistributedPartialResultStep8NumericTableId + 1, /*!< Collection of tables containing clustering queries */
     lastDistributedPartialResultStep8CollectionId = step8Queries
 };
 
@@ -336,7 +335,7 @@ enum DistributedPartialResultStep8CollectionId
  */
 enum Step9MasterCollectionInputId
 {
-    partialNClusters,                                     /*!< Collection of input tables containing the current number of clusters */
+    partialNClusters, /*!< Collection of input tables containing the current number of clusters */
     lastStep9MasterCollectionInputId = partialNClusters
 };
 
@@ -347,7 +346,7 @@ enum Step9MasterCollectionInputId
  */
 enum DistributedResultStep9Id
 {
-    step9NClusters,                                                /*!< Table contianing the total number of clusters */
+    step9NClusters, /*!< Table contianing the total number of clusters */
     lastDistributedResultStep9Id = step9NClusters
 };
 
@@ -358,7 +357,7 @@ enum DistributedResultStep9Id
  */
 enum DistributedPartialResultStep9Id
 {
-    clusterOffsets,                                                /*!< Collection of tables containing offsets for cluster numeration */
+    clusterOffsets, /*!< Collection of tables containing offsets for cluster numeration */
     lastDistributedPartialResultStep9Id = clusterOffsets
 };
 
@@ -369,8 +368,8 @@ enum DistributedPartialResultStep9Id
  */
 enum Step10LocalNumericTableInputId
 {
-    step10InputClusterStructure,                                    /*!< Input table containing information about current clustering state of observations */
-    step10ClusterOffset,                                            /*!< Input table containing the cluster numeration offset */
+    step10InputClusterStructure, /*!< Input table containing information about current clustering state of observations */
+    step10ClusterOffset,         /*!< Input table containing the cluster numeration offset */
     lastStep10LocalNumericTableInputId = step10ClusterOffset
 };
 
@@ -381,8 +380,8 @@ enum Step10LocalNumericTableInputId
  */
 enum DistributedPartialResultStep10NumericTableId
 {
-    step10ClusterStructure,                                            /*!< Table containing information about current clustering state of observations */
-    step10FinishedFlag,                                                /*!< Table containing the flag indicating that the cluster numerating process is finished */
+    step10ClusterStructure, /*!< Table containing information about current clustering state of observations */
+    step10FinishedFlag,     /*!< Table containing the flag indicating that the cluster numerating process is finished */
     lastDistributedPartialResultStep10NumericTableId = step10FinishedFlag
 };
 
@@ -393,7 +392,7 @@ enum DistributedPartialResultStep10NumericTableId
  */
 enum DistributedPartialResultStep10CollectionId
 {
-    step10Queries = lastDistributedPartialResultStep10NumericTableId + 1,   /*!< Collection of tables containing cluster numerating queries */
+    step10Queries = lastDistributedPartialResultStep10NumericTableId + 1, /*!< Collection of tables containing cluster numerating queries */
     lastDistributedPartialResultStep10CollectionId = step10Queries
 };
 
@@ -404,7 +403,7 @@ enum DistributedPartialResultStep10CollectionId
  */
 enum Step11LocalNumericTableInputId
 {
-    step11InputClusterStructure,                                 /*!< Input table containing information about current clustering state of observations */
+    step11InputClusterStructure, /*!< Input table containing information about current clustering state of observations */
     lastStep11LocalNumericTableInputId = step11InputClusterStructure
 };
 
@@ -415,7 +414,7 @@ enum Step11LocalNumericTableInputId
  */
 enum Step11LocalCollectionInputId
 {
-    step11PartialQueries = lastStep11LocalNumericTableInputId + 1,  /*!< Collection of input tables containing cluster numerating queries */
+    step11PartialQueries = lastStep11LocalNumericTableInputId + 1, /*!< Collection of input tables containing cluster numerating queries */
     lastStep11LocalCollectionInputId = step11PartialQueries
 };
 
@@ -426,8 +425,8 @@ enum Step11LocalCollectionInputId
  */
 enum DistributedPartialResultStep11NumericTableId
 {
-    step11ClusterStructure,                                            /*!< Table containing information about current clustering state of observations */
-    step11FinishedFlag,                                                /*!< Table containing the flag indicating that the cluster numerating process is finished */
+    step11ClusterStructure, /*!< Table containing information about current clustering state of observations */
+    step11FinishedFlag,     /*!< Table containing the flag indicating that the cluster numerating process is finished */
     lastDistributedPartialResultStep11NumericTableId = step11FinishedFlag
 };
 
@@ -438,7 +437,7 @@ enum DistributedPartialResultStep11NumericTableId
  */
 enum DistributedPartialResultStep11CollectionId
 {
-    step11Queries = lastDistributedPartialResultStep11NumericTableId + 1,   /*!< Collection of input tables containing cluster numerating queries */
+    step11Queries = lastDistributedPartialResultStep11NumericTableId + 1, /*!< Collection of input tables containing cluster numerating queries */
     lastDistributedPartialResultStep11CollectionId = step11Queries
 };
 
@@ -449,7 +448,7 @@ enum DistributedPartialResultStep11CollectionId
  */
 enum Step12LocalNumericTableInputId
 {
-    step12InputClusterStructure,                                 /*!< Input table containing information about current clustering state of observations */
+    step12InputClusterStructure, /*!< Input table containing information about current clustering state of observations */
     lastStep12LocalNumericTableInputId = step12InputClusterStructure
 };
 
@@ -460,7 +459,7 @@ enum Step12LocalNumericTableInputId
  */
 enum Step12LocalCollectionInputId
 {
-    step12PartialOrders = lastStep12LocalNumericTableInputId + 1,    /*!< Collection of input tables containing information about observations:
+    step12PartialOrders = lastStep12LocalNumericTableInputId + 1, /*!< Collection of input tables containing information about observations:
                                                                           identifier of initial block and index in initial block */
     lastStep12LocalCollectionInputId = step12PartialOrders
 };
@@ -472,7 +471,7 @@ enum Step12LocalCollectionInputId
  */
 enum DistributedPartialResultStep12Id
 {
-    assignmentQueries,                                         /*!< Collection of tables containing cluster assigning queries */
+    assignmentQueries, /*!< Collection of tables containing cluster assigning queries */
     lastDistributedPartialResultStep12Id = assignmentQueries
 };
 
@@ -483,7 +482,7 @@ enum DistributedPartialResultStep12Id
  */
 enum Step13LocalCollectionInputId
 {
-    partialAssignmentQueries,                                     /*!< Collection of input tables containing cluster assigning queries */
+    partialAssignmentQueries, /*!< Collection of input tables containing cluster assigning queries */
     lastStep13LocalCollectionInputId = partialAssignmentQueries
 };
 
@@ -494,7 +493,7 @@ enum Step13LocalCollectionInputId
  */
 enum DistributedResultStep13Id
 {
-    step13Assignments,                                  /*!< Table containing assignments of observations to clusters */
+    step13Assignments, /*!< Table containing assignments of observations to clusters */
     lastDistributedResultStep13Id = step13Assignments
 };
 
@@ -505,7 +504,7 @@ enum DistributedResultStep13Id
  */
 enum DistributedPartialResultStep13Id
 {
-    step13AssignmentQueries,                                        /*!< Table containing assigning queries */
+    step13AssignmentQueries, /*!< Table containing assigning queries */
     lastDistributedPartialResultStep13Id = step13AssignmentQueries
 };
 
@@ -541,19 +540,19 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
      *  Constructs parameters of the DBSCAN algorithm by copying another parameters of the DBSCAN algorithm
      *  \param[in] other    Parameters of the DBSCAN algorithm
      */
-    Parameter(const Parameter &other);
+    Parameter(const Parameter & other);
 
     double epsilon;               /*!< Radius of neighborhood */
     size_t minObservations;       /*!< Minimal total weight of observations in neighborhood of core observation */
     bool memorySavingMode;        /*!< If true then use memory saving (but slower) mode */
     DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
 
-    size_t blockIndex;            /*!< Unique identifier of block initially passed for computation on the local node */
-    size_t nBlocks;               /*!< Number of blocks initially passed for computation on all nodes */
+    size_t blockIndex; /*!< Unique identifier of block initially passed for computation on the local node */
+    size_t nBlocks;    /*!< Number of blocks initially passed for computation on all nodes */
 
-    size_t leftBlocks;            /*!< Number of blocks that will process observations with value of selected
+    size_t leftBlocks;  /*!< Number of blocks that will process observations with value of selected
                                        split feature lesser than selected split value */
-    size_t rightBlocks;           /*!< Number of blocks that will process observations with value of selected
+    size_t rightBlocks; /*!< Number of blocks that will process observations with value of selected
                                        split feature greater than selected split value */
 
     services::Status check() const DAAL_C11_OVERRIDE;
@@ -568,7 +567,7 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     Input();
-    Input(const Input& other) : daal::algorithms::Input(other){}
+    Input(const Input & other) : daal::algorithms::Input(other) {}
 
     virtual ~Input() {}
 
@@ -584,14 +583,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks input objects for the DBSCAN algorithm
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -613,7 +612,7 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns the result of the DBSCAN algorithm
@@ -627,7 +626,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &ptr);
+    void set(ResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the result of the DBSCAN algorithm
@@ -635,12 +634,12 @@ public:
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -651,7 +650,7 @@ typedef services::SharedPtr<Result> ResultPtr;
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDINPUT"></a>
  * \brief %Input objects for the DBSCAN algorithm in the distributed processing mode
  */
-template<ComputeStep step>
+template <ComputeStep step>
 class DistributedInput
 {};
 
@@ -660,7 +659,7 @@ class DistributedInput
  * \brief %Input objects for the DBSCAN algorithm in the first step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step1Local> : public daal::algorithms::Input
 {
 public:
@@ -668,7 +667,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -684,7 +683,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step1LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(Step1LocalNumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -692,7 +691,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -721,7 +720,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep1Id id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep1Id id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -730,7 +729,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -738,13 +737,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -756,7 +754,7 @@ typedef services::SharedPtr<DistributedPartialResultStep1> DistributedPartialRes
  * \brief %Input objects for the DBSCAN algorithm in the second step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step2Local> : public daal::algorithms::Input
 {
 public:
@@ -764,7 +762,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -780,14 +778,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(LocalCollectionInputId id, const data_management::DataCollectionPtr &ptr);
+    void set(LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -795,7 +793,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -824,7 +822,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep2Id id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep2Id id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -833,7 +831,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -841,13 +839,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -859,7 +856,7 @@ typedef services::SharedPtr<DistributedPartialResultStep2> DistributedPartialRes
  * \brief %Input objects for the DBSCAN algorithm in the third step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step3Local> : public daal::algorithms::Input
 {
 public:
@@ -867,7 +864,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -890,28 +887,28 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step3LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(Step3LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(Step3LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(Step3LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -919,7 +916,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -948,7 +945,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep3Id id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep3Id id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -957,7 +954,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -965,13 +962,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -983,7 +979,7 @@ typedef services::SharedPtr<DistributedPartialResultStep3> DistributedPartialRes
  * \brief %Input objects for the DBSCAN algorithm in the fourth step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step4Local> : public daal::algorithms::Input
 {
 public:
@@ -991,7 +987,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -1000,42 +996,42 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(LocalCollectionInputId id) const;
+    data_management::DataCollectionPtr get(LocalCollectionInputId id) const;
 
     /**
      * Returns an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(Step4LocalCollectionInputId id) const;
+    data_management::DataCollectionPtr get(Step4LocalCollectionInputId id) const;
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step4LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(Step4LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(Step4LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(Step4LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -1043,7 +1039,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -1072,7 +1068,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep4Id id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedPartialResultStep4Id id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -1081,7 +1077,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -1089,13 +1085,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -1107,7 +1102,7 @@ typedef services::SharedPtr<DistributedPartialResultStep4> DistributedPartialRes
  * \brief %Input objects for the DBSCAN algorithm in the fifth step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step5Local> : public daal::algorithms::Input
 {
 public:
@@ -1115,7 +1110,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -1124,42 +1119,42 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(LocalCollectionInputId id) const;
+    data_management::DataCollectionPtr get(LocalCollectionInputId id) const;
 
     /**
      * Returns an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(Step5LocalCollectionInputId id) const;
+    data_management::DataCollectionPtr get(Step5LocalCollectionInputId id) const;
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step5LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(Step5LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(Step5LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(Step5LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -1167,7 +1162,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -1196,7 +1191,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep5Id id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedPartialResultStep5Id id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -1205,7 +1200,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -1213,13 +1208,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -1231,7 +1225,7 @@ typedef services::SharedPtr<DistributedPartialResultStep5> DistributedPartialRes
  * \brief %Input objects for the DBSCAN algorithm in the sixth step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step6Local> : public daal::algorithms::Input
 {
 public:
@@ -1239,7 +1233,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -1248,42 +1242,42 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(LocalCollectionInputId id) const;
+    data_management::DataCollectionPtr get(LocalCollectionInputId id) const;
 
     /**
      * Returns an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(Step6LocalCollectionInputId id) const;
+    data_management::DataCollectionPtr get(Step6LocalCollectionInputId id) const;
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step6LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(Step6LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(Step6LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(Step6LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -1291,7 +1285,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -1327,14 +1321,14 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep6NumericTableId id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep6NumericTableId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets a partial result of the DBSCAN algorithm
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep6CollectionId id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedPartialResultStep6CollectionId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -1343,7 +1337,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -1351,13 +1345,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -1369,7 +1362,7 @@ typedef services::SharedPtr<DistributedPartialResultStep6> DistributedPartialRes
  * \brief %Input objects for the DBSCAN algorithm in the seventh step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step7Master> : public daal::algorithms::Input
 {
 public:
@@ -1377,7 +1370,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -1386,21 +1379,21 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(Step7MasterCollectionInputId id) const;
+    data_management::DataCollectionPtr get(Step7MasterCollectionInputId id) const;
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step7MasterCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(Step7MasterCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(Step7MasterCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(Step7MasterCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -1408,7 +1401,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -1437,7 +1430,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep7Id id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep7Id id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -1446,7 +1439,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -1454,13 +1447,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -1472,7 +1464,7 @@ typedef services::SharedPtr<DistributedPartialResultStep7> DistributedPartialRes
  * \brief %Input objects for the DBSCAN algorithm in the eighth step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step8Local> : public daal::algorithms::Input
 {
 public:
@@ -1480,7 +1472,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -1496,28 +1488,28 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(Step8LocalCollectionInputId id) const;
+    data_management::DataCollectionPtr get(Step8LocalCollectionInputId id) const;
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step8LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(Step8LocalNumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step8LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(Step8LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(Step8LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(Step8LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -1525,7 +1517,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -1561,14 +1553,14 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep8NumericTableId id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep8NumericTableId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets a partial result of the DBSCAN algorithm
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep8CollectionId id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedPartialResultStep8CollectionId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -1577,7 +1569,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -1585,13 +1577,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -1603,7 +1594,7 @@ typedef services::SharedPtr<DistributedPartialResultStep8> DistributedPartialRes
  * \brief %Input objects for the DBSCAN algorithm in the ninth step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step9Master> : public daal::algorithms::Input
 {
 public:
@@ -1611,7 +1602,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -1620,21 +1611,21 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(Step9MasterCollectionInputId id) const;
+    data_management::DataCollectionPtr get(Step9MasterCollectionInputId id) const;
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step9MasterCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(Step9MasterCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(Step9MasterCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(Step9MasterCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -1642,7 +1633,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -1671,7 +1662,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the new result object
      */
-    void set(DistributedResultStep9Id id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedResultStep9Id id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Allocates memory to store a result of the DBSCAN algorithm
@@ -1680,7 +1671,8 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *pres, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * parameter,
+                                          const int method);
 
     /**
      * Checks a result of the DBSCAN algorithm
@@ -1688,12 +1680,13 @@ public:
      * \param[in] parameter Algorithm parameter
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::PartialResult *pres, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * parameter,
+                           int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -1726,7 +1719,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the new result object
      */
-    void set(DistributedPartialResultStep9Id id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedPartialResultStep9Id id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -1735,7 +1728,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -1743,13 +1736,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -1761,7 +1753,7 @@ typedef services::SharedPtr<DistributedPartialResultStep9> DistributedPartialRes
  * \brief %Input objects for the DBSCAN algorithm in the tenth step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step10Local> : public daal::algorithms::Input
 {
 public:
@@ -1769,7 +1761,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -1785,7 +1777,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step10LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(Step10LocalNumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -1793,7 +1785,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -1829,14 +1821,14 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep10NumericTableId id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep10NumericTableId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets a partial result of the DBSCAN algorithm
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep10CollectionId id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedPartialResultStep10CollectionId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -1845,7 +1837,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -1853,13 +1845,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -1871,7 +1862,7 @@ typedef services::SharedPtr<DistributedPartialResultStep10> DistributedPartialRe
  * \brief %Input objects for the DBSCAN algorithm in the eleventh step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step11Local> : public daal::algorithms::Input
 {
 public:
@@ -1879,7 +1870,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -1895,28 +1886,28 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(Step11LocalCollectionInputId id) const;
+    data_management::DataCollectionPtr get(Step11LocalCollectionInputId id) const;
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step11LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(Step11LocalNumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step11LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(Step11LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(Step11LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(Step11LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -1924,7 +1915,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -1960,14 +1951,14 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep11NumericTableId id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep11NumericTableId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets a partial result of the DBSCAN algorithm
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep11CollectionId id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedPartialResultStep11CollectionId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -1976,7 +1967,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -1984,13 +1975,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -2002,7 +1992,7 @@ typedef services::SharedPtr<DistributedPartialResultStep11> DistributedPartialRe
  * \brief %Input objects for the DBSCAN algorithm in the twelfth step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step12Local> : public daal::algorithms::Input
 {
 public:
@@ -2010,7 +2000,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -2026,28 +2016,28 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(Step12LocalCollectionInputId id) const;
+    data_management::DataCollectionPtr get(Step12LocalCollectionInputId id) const;
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step12LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(Step12LocalNumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step12LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(Step12LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(Step12LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(Step12LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -2055,7 +2045,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -2084,7 +2074,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep12Id id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedPartialResultStep12Id id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -2093,7 +2083,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -2101,13 +2091,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -2119,7 +2108,7 @@ typedef services::SharedPtr<DistributedPartialResultStep12> DistributedPartialRe
  * \brief %Input objects for the DBSCAN algorithm in the thirteenth step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step13Local> : public daal::algorithms::Input
 {
 public:
@@ -2127,7 +2116,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -2136,21 +2125,21 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-     data_management::DataCollectionPtr get(Step13LocalCollectionInputId id) const;
+    data_management::DataCollectionPtr get(Step13LocalCollectionInputId id) const;
 
     /**
      * Sets an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step13LocalCollectionInputId id, const  data_management::DataCollectionPtr &ptr);
+    void set(Step13LocalCollectionInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the DBSCAN algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void add(Step13LocalCollectionInputId id, const data_management::NumericTablePtr &ptr);
+    void add(Step13LocalCollectionInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the parameters and input objects for the DBSCAN algorithm
@@ -2158,7 +2147,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -2187,7 +2176,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedResultStep13Id id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedResultStep13Id id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Allocates memory to store a result of the DBSCAN algorithm
@@ -2196,7 +2185,8 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *pres, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * parameter,
+                                          const int method);
 
     /**
      * Checks a result of the DBSCAN algorithm
@@ -2204,12 +2194,13 @@ public:
      * \param[in] parameter Algorithm parameter
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::PartialResult *pres, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * parameter,
+                           int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -2242,7 +2233,7 @@ public:
      * \param[in] id    Identifier of the partial partial result
      * \param[in] ptr   Pointer to the new partial partial result object
      */
-    void set(DistributedPartialResultStep13Id id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep13Id id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the DBSCAN algorithm
@@ -2251,7 +2242,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the DBSCAN algorithm
@@ -2259,13 +2250,12 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -2311,8 +2301,8 @@ using interface1::DistributedResultStep13Ptr;
 using interface1::DistributedPartialResultStep13;
 using interface1::DistributedPartialResultStep13Ptr;
 
-} // namespace daal::algorithms::dbscan
+} // namespace dbscan
 /** @} */
-} // namespace daal::algorithms
+} // namespace algorithms
 } // namespace daal
 #endif

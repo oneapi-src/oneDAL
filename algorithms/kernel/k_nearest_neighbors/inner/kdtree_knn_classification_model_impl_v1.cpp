@@ -36,7 +36,6 @@ namespace kdtree_knn_classification
 {
 namespace interface1
 {
-
 services::Status Parameter::check() const
 {
     // Inherited.

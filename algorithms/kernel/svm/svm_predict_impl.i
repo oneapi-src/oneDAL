@@ -39,7 +39,6 @@ namespace prediction
 {
 namespace internal
 {
-
 using namespace daal::internal;
 using namespace daal::services;
 using namespace daal::services::internal;
@@ -47,35 +46,32 @@ using namespace daal::services::internal;
 template <typename algorithmFPType, CpuType cpu>
 struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 {
-    services::Status compute(const NumericTablePtr& xTable, const daal::algorithms::Model *m, NumericTable& r,
-                             const daal::algorithms::Parameter *par)
+    services::Status compute(const NumericTablePtr & xTable, const daal::algorithms::Model * m, NumericTable & r,
+                             const daal::algorithms::Parameter * par)
     {
         const size_t nVectors = xTable->getNumberOfRows();
         WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, 0, nVectors);
         DAAL_CHECK_BLOCK_STATUS(mtR);
-        algorithmFPType *distance = mtR.get();
+        algorithmFPType * distance = mtR.get();
 
-        Model *model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
+        Model * model = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
         kernel_function::KernelIfacePtr kernel;
         {
-            svm::interface1::Parameter *parameter = dynamic_cast<svm::interface1::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
-            if(parameter) kernel = parameter->kernel->clone();
+            svm::interface1::Parameter * parameter = dynamic_cast<svm::interface1::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+            if (parameter) kernel = parameter->kernel->clone();
         }
         {
-            svm::interface2::Parameter *parameter = dynamic_cast<svm::interface2::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
-            if(parameter) kernel = parameter->kernel->clone();
+            svm::interface2::Parameter * parameter = dynamic_cast<svm::interface2::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+            if (parameter) kernel = parameter->kernel->clone();
         }
         DAAL_CHECK(kernel, ErrorNullParameterNotSupported);
 
-        NumericTablePtr svCoeffTable  = model->getClassificationCoefficients();
-        const size_t nSV = svCoeffTable->getNumberOfRows();
-        if(nSV == 0)
+        NumericTablePtr svCoeffTable = model->getClassificationCoefficients();
+        const size_t nSV             = svCoeffTable->getNumberOfRows();
+        if (nSV == 0)
         {
             const algorithmFPType zero(0.0);
-            for(size_t i = 0; i < nVectors; i++)
-            {
-                distance[i] = zero;
-            }
+            for (size_t i = 0; i < nVectors; i++) { distance[i] = zero; }
             return Status();
         }
 
@@ -84,11 +80,11 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
         ReadColumns<algorithmFPType, cpu> mtSVCoeff(*svCoeffTable, 0, 0, nSV);
         DAAL_CHECK_BLOCK_STATUS(mtSVCoeff);
-        const algorithmFPType *svCoeff = mtSVCoeff.get();
+        const algorithmFPType * svCoeff = mtSVCoeff.get();
 
         TArray<algorithmFPType, cpu> aBuf(nSV * nVectors);
         DAAL_CHECK(aBuf.get(), ErrorMemoryAllocationFailed);
-        algorithmFPType *buf = aBuf.get();
+        algorithmFPType * buf = aBuf.get();
 
         Status s;
         NumericTablePtr shResNT = HomogenNumericTableCPU<algorithmFPType, cpu>::create(buf, nSV, nVectors, &s);
@@ -102,11 +98,10 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         kernel->getInput()->set(kernel_function::X, xTable);
         kernel->getInput()->set(kernel_function::Y, svTable);
         kernel->getParameter()->computationMode = kernel_function::matrixMatrix;
-        s = kernel->computeNoThrow();
-        if(!s)
-            return Status(services::ErrorSVMPredictKernerFunctionCall).add(s);//this order is expected by test system
+        s                                       = kernel->computeNoThrow();
+        if (!s) return Status(services::ErrorSVMPredictKernerFunctionCall).add(s); //this order is expected by test system
 
-        char trans = 'T';
+        char trans  = 'T';
         DAAL_INT m_ = nSV;
         DAAL_INT n_ = nVectors;
         algorithmFPType alpha(1.0);

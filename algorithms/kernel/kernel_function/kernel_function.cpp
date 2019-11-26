@@ -38,11 +38,12 @@ namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_KERNEL_FUNCTION_RESULT_ID);
 
-ParameterBase::ParameterBase(size_t rowIndexX, size_t rowIndexY, size_t rowIndexResult, ComputationMode computationMode) :
-    rowIndexX(rowIndexX), rowIndexY(rowIndexY), rowIndexResult(rowIndexResult), computationMode(computationMode) {}
+ParameterBase::ParameterBase(size_t rowIndexX, size_t rowIndexY, size_t rowIndexResult, ComputationMode computationMode)
+    : rowIndexX(rowIndexX), rowIndexY(rowIndexY), rowIndexResult(rowIndexResult), computationMode(computationMode)
+{}
 
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 /**
 * Returns the input object of the kernel function algorithm
@@ -59,7 +60,7 @@ NumericTablePtr Input::get(InputId id) const
 * \param[in] id    Identifier of the input object
 * \param[in] ptr   Pointer to the input object
 */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -100,7 +101,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the partial result
  * \param[in] ptr   Pointer to the object
  */
-void Result::set(ResultId id, const NumericTablePtr &ptr)
+void Result::set(ResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -111,11 +112,11 @@ void Result::set(ResultId id, const NumericTablePtr &ptr)
 * \param[in] par     %Parameter of the algorithm
 * \param[in] method  Computation method of the algorithm
 */
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
-    ParameterBase *algParameter = static_cast<ParameterBase *>(const_cast<daal::algorithms::Parameter *>(par));
+    Input * algInput             = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    ParameterBase * algParameter = static_cast<ParameterBase *>(const_cast<daal::algorithms::Parameter *>(par));
 
     const size_t nRowsX = algInput->get(X)->getNumberOfRows();
     const size_t nRowsY = algInput->get(Y)->getNumberOfRows();
@@ -125,22 +126,13 @@ Status Result::check(const daal::algorithms::Input *input, const daal::algorithm
 
     const size_t nVectorsValues = get(values)->getNumberOfRows();
 
-    if(algParameter->rowIndexResult >= nVectorsValues)
-    {
-        return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexResultStr()));
-    }
-    if(algParameter->rowIndexX >= nRowsX)
-    {
-        return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexXStr()));
-    }
-    if(algParameter->rowIndexY >= nRowsY)
-    {
-        return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexYStr()));
-    }
+    if (algParameter->rowIndexResult >= nVectorsValues) { return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexResultStr())); }
+    if (algParameter->rowIndexX >= nRowsX) { return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexXStr())); }
+    if (algParameter->rowIndexY >= nRowsY) { return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexYStr())); }
     return s;
 }
 
-}// namespace interface1
-}// namespace kernel_function
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace kernel_function
+} // namespace algorithms
+} // namespace daal

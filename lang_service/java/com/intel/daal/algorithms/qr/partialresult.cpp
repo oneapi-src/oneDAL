@@ -35,14 +35,12 @@ using namespace daal::algorithms::qr;
  * Method:    cGetDataCollection
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_OnlinePartialResult_cGetDataCollection
-(JNIEnv *env, jobject thisObj, jlong presAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_OnlinePartialResult_cGetDataCollection(JNIEnv * env, jobject thisObj, jlong presAddr,
+                                                                                                 jint id)
 {
-    if ( id == outputOfStep1ForStep3Val )
-    {
-        return jniArgument<qr::OnlinePartialResult>::get<qr::PartialResultId, DataCollection>(presAddr, qr::outputOfStep1ForStep3);
-    }
-    else if(id == outputOfStep1ForStep2Val)
+    if (id == outputOfStep1ForStep3Val)
+    { return jniArgument<qr::OnlinePartialResult>::get<qr::PartialResultId, DataCollection>(presAddr, qr::outputOfStep1ForStep3); }
+    else if (id == outputOfStep1ForStep2Val)
     {
         return jniArgument<qr::OnlinePartialResult>::get<qr::PartialResultId, DataCollection>(presAddr, qr::outputOfStep1ForStep2);
     }
@@ -55,13 +53,14 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_OnlinePartialResult_cG
  * Method:    cGetKeyValueDataCollection
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_DistributedStep2MasterPartialResult_cGetKeyValueDataCollection
-(JNIEnv *env, jobject thisObj, jlong presAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_DistributedStep2MasterPartialResult_cGetKeyValueDataCollection(JNIEnv * env,
+                                                                                                                         jobject thisObj,
+                                                                                                                         jlong presAddr, jint id)
 {
-    if(id == inputOfStep2FromStep1Val)
+    if (id == inputOfStep2FromStep1Val)
     {
-        return jniArgument<qr::DistributedPartialResult>::
-            get<qr::DistributedPartialResultCollectionId, KeyValueDataCollection>(presAddr, qr::outputOfStep2ForStep3);
+        return jniArgument<qr::DistributedPartialResult>::get<qr::DistributedPartialResultCollectionId, KeyValueDataCollection>(
+            presAddr, qr::outputOfStep2ForStep3);
     }
 
     return (jlong)0;
@@ -72,13 +71,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_DistributedStep2Master
  * Method:    cGetResult
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_DistributedStep2MasterPartialResult_cGetResult
-(JNIEnv *env, jobject thisObj, jlong presAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_DistributedStep2MasterPartialResult_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                         jlong presAddr, jint id)
 {
-    if(id == inputOfStep2FromStep1Val)
-    {
-        return jniArgument<qr::DistributedPartialResult>::get<qr::DistributedPartialResultId, qr::Result>(presAddr, qr::finalResultFromStep2Master);
-    }
+    if (id == inputOfStep2FromStep1Val)
+    { return jniArgument<qr::DistributedPartialResult>::get<qr::DistributedPartialResultId, qr::Result>(presAddr, qr::finalResultFromStep2Master); }
 
     return (jlong)0;
 }

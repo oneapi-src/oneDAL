@@ -41,92 +41,90 @@ namespace interface1
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     algorithmFPType zero = 0;
     using namespace services;
     using namespace data_management;
 
-    const Input *algInput = static_cast<const Input *>(input);
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const Input * algInput         = static_cast<const Input *>(input);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
     DAAL_CHECK(algParameter != 0, ErrorNullParameterNotSupported);
 
     services::Status status;
 
-    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
     const size_t nCols = algInput->get(argument)->getNumberOfColumns();
     const size_t nRows = algInput->get(argument)->getNumberOfRows();
 
-    if(algParameter->resultsToCompute & gradient && !Argument::get(gradientIdx))
+    if (algParameter->resultsToCompute & gradient && !Argument::get(gradientIdx))
     {
         NumericTablePtr nt;
-        if (deviceInfo.isCpu)
-        {
-            nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status);
-        }
+        if (deviceInfo.isCpu) { nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status); }
         else
         {
             nt = SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status);
         }
         Argument::set(gradientIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }
-    if(algParameter->resultsToCompute & value && !Argument::get(valueIdx))
+    if (algParameter->resultsToCompute & value && !Argument::get(valueIdx))
     {
-        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate,zero,&status));
+        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, zero, &status));
         DAAL_CHECK_STATUS_VAR(status);
         Argument::set(valueIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }
-    if(algParameter->resultsToCompute & hessian && !Argument::get(hessianIdx))
+    if (algParameter->resultsToCompute & hessian && !Argument::get(hessianIdx))
     {
-        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(nRows, nRows, NumericTable::doAllocate,zero,&status));
+        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(nRows, nRows, NumericTable::doAllocate, zero, &status));
         DAAL_CHECK_STATUS_VAR(status);
         Argument::set(hessianIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }
-    if(algParameter->resultsToCompute & nonSmoothTermValue && !Argument::get(nonSmoothTermValueIdx))
+    if (algParameter->resultsToCompute & nonSmoothTermValue && !Argument::get(nonSmoothTermValueIdx))
     {
-        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate,zero,&status));
+        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, zero, &status));
         DAAL_CHECK_STATUS_VAR(status);
         Argument::set(nonSmoothTermValueIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }
-    if(algParameter->resultsToCompute & proximalProjection && !Argument::get(proximalProjectionIdx))
+    if (algParameter->resultsToCompute & proximalProjection && !Argument::get(proximalProjectionIdx))
     {
-        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate,zero,&status));
+        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status));
         DAAL_CHECK_STATUS_VAR(status);
         Argument::set(proximalProjectionIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }
-    if(algParameter->resultsToCompute & lipschitzConstant && !Argument::get(lipschitzConstantIdx))
+    if (algParameter->resultsToCompute & lipschitzConstant && !Argument::get(lipschitzConstantIdx))
     {
-        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate,zero,&status));
+        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, zero, &status));
         DAAL_CHECK_STATUS_VAR(status);
         Argument::set(lipschitzConstantIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }
-    if(algParameter->resultsToCompute & componentOfGradient && !Argument::get(componentOfGradientIdx))
+    if (algParameter->resultsToCompute & componentOfGradient && !Argument::get(componentOfGradientIdx))
     {
-        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(nCols, 1, NumericTable::doAllocate,zero,&status));
+        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(nCols, 1, NumericTable::doAllocate, zero, &status));
         DAAL_CHECK_STATUS_VAR(status);
         Argument::set(componentOfGradientIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }
-    if(algParameter->resultsToCompute & componentOfHessianDiagonal && !Argument::get(componentOfHessianDiagonalIdx))
+    if (algParameter->resultsToCompute & componentOfHessianDiagonal && !Argument::get(componentOfHessianDiagonalIdx))
     {
-        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(nCols, 1, NumericTable::doAllocate,zero,&status));
+        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(nCols, 1, NumericTable::doAllocate, zero, &status));
         DAAL_CHECK_STATUS_VAR(status);
         Argument::set(componentOfHessianDiagonalIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }
-    if(algParameter->resultsToCompute & componentOfProximalProjection && !Argument::get(componentOfProximalProjectionIdx))
+    if (algParameter->resultsToCompute & componentOfProximalProjection && !Argument::get(componentOfProximalProjectionIdx))
     {
-        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(nCols, 1, NumericTable::doAllocate,zero,&status));
+        NumericTablePtr nt = NumericTablePtr(HomogenNumericTable<algorithmFPType>::create(nCols, 1, NumericTable::doAllocate, zero, &status));
         DAAL_CHECK_STATUS_VAR(status);
         Argument::set(componentOfProximalProjectionIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }
     return status;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace interface1
 } // namespace objective_function
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

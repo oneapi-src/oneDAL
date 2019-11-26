@@ -36,22 +36,21 @@ namespace dbscan
 {
 namespace interface1
 {
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep1,  SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP1_ID);
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep2,  SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP2_ID);
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep3,  SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP3_ID);
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep4,  SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP4_ID);
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep5,  SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP5_ID);
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep6,  SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP6_ID);
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep7,  SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP7_ID);
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep8,  SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP8_ID);
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedResultStep9,         SERIALIZATION_DBSCAN_DISTRIBUTED_RESULT_STEP9_ID);
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep9,  SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP9_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep1, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP1_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep2, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP2_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep3, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP3_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep4, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP4_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep5, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP5_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep6, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP6_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep7, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP7_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep8, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP8_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedResultStep9, SERIALIZATION_DBSCAN_DISTRIBUTED_RESULT_STEP9_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep9, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP9_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep10, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP10_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep11, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP11_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep12, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP12_ID);
-__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedResultStep13,        SERIALIZATION_DBSCAN_DISTRIBUTED_RESULT_STEP13_ID);
+__DAAL_REGISTER_SERIALIZATION_CLASS(DistributedResultStep13, SERIALIZATION_DBSCAN_DISTRIBUTED_RESULT_STEP13_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedPartialResultStep13, SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID);
-
 
 DistributedPartialResultStep1::DistributedPartialResultStep1() : daal::algorithms::PartialResult(lastDistributedPartialResultStep1Id + 1) {}
 
@@ -60,15 +59,15 @@ NumericTablePtr DistributedPartialResultStep1::get(DistributedPartialResultStep1
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep1::set(DistributedPartialResultStep1Id id, const NumericTablePtr &ptr)
+void DistributedPartialResultStep1::set(DistributedPartialResultStep1Id id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep1::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep1::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const DistributedInput<step1Local> *algInput = static_cast<const DistributedInput<step1Local> *>(input);
-    const size_t nRows = algInput->get(step1Data)->getNumberOfRows();
+    const DistributedInput<step1Local> * algInput = static_cast<const DistributedInput<step1Local> *>(input);
+    const size_t nRows                            = algInput->get(step1Data)->getNumberOfRows();
 
     NumericTablePtr ntPartialOrder = get(partialOrder);
     DAAL_CHECK_EX(ntPartialOrder, ErrorNullNumericTable, ArgumentName, partialOrderStr());
@@ -79,7 +78,6 @@ Status DistributedPartialResultStep1::check(const daal::algorithms::Input *input
     return Status();
 }
 
-
 DistributedPartialResultStep2::DistributedPartialResultStep2() : daal::algorithms::PartialResult(lastDistributedPartialResultStep2Id + 1) {}
 
 NumericTablePtr DistributedPartialResultStep2::get(DistributedPartialResultStep2Id id) const
@@ -87,15 +85,15 @@ NumericTablePtr DistributedPartialResultStep2::get(DistributedPartialResultStep2
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep2::set(DistributedPartialResultStep2Id id, const NumericTablePtr &ptr)
+void DistributedPartialResultStep2::set(DistributedPartialResultStep2Id id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep2::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep2::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const DistributedInput<step2Local> *algInput = static_cast<const DistributedInput<step2Local> *>(input);
-    const size_t nFeatures = NumericTable::cast((*algInput->get(partialData))[0])->getNumberOfColumns();
+    const DistributedInput<step2Local> * algInput = static_cast<const DistributedInput<step2Local> *>(input);
+    const size_t nFeatures                        = NumericTable::cast((*algInput->get(partialData))[0])->getNumberOfColumns();
 
     NumericTablePtr ntBoundingBox = get(boundingBox);
     DAAL_CHECK_EX(ntBoundingBox, ErrorNullNumericTable, ArgumentName, boundingBoxStr());
@@ -106,7 +104,6 @@ Status DistributedPartialResultStep2::check(const daal::algorithms::Input *input
     return Status();
 }
 
-
 DistributedPartialResultStep3::DistributedPartialResultStep3() : daal::algorithms::PartialResult(lastDistributedPartialResultStep3Id + 1) {}
 
 NumericTablePtr DistributedPartialResultStep3::get(DistributedPartialResultStep3Id id) const
@@ -114,12 +111,12 @@ NumericTablePtr DistributedPartialResultStep3::get(DistributedPartialResultStep3
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep3::set(DistributedPartialResultStep3Id id, const NumericTablePtr &ptr)
+void DistributedPartialResultStep3::set(DistributedPartialResultStep3Id id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep3::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep3::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     NumericTablePtr ntSplit = get(split);
     DAAL_CHECK_EX(ntSplit, ErrorNullNumericTable, ArgumentName, splitStr());
@@ -130,7 +127,6 @@ Status DistributedPartialResultStep3::check(const daal::algorithms::Input *input
     return Status();
 }
 
-
 DistributedPartialResultStep4::DistributedPartialResultStep4() : daal::algorithms::PartialResult(lastDistributedPartialResultStep4Id + 1) {}
 
 DataCollectionPtr DistributedPartialResultStep4::get(DistributedPartialResultStep4Id id) const
@@ -138,21 +134,21 @@ DataCollectionPtr DistributedPartialResultStep4::get(DistributedPartialResultSte
     return staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep4::set(DistributedPartialResultStep4Id id, const DataCollectionPtr &ptr)
+void DistributedPartialResultStep4::set(DistributedPartialResultStep4Id id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep4::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep4::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     const size_t nBlocks = par->leftBlocks + par->rightBlocks;
 
-    const DistributedInput<step4Local> *algInput = static_cast<const DistributedInput<step4Local> *>(input);
-    const size_t nFeatures = NumericTable::cast((*algInput->get(partialData))[0])->getNumberOfColumns();
+    const DistributedInput<step4Local> * algInput = static_cast<const DistributedInput<step4Local> *>(input);
+    const size_t nFeatures                        = NumericTable::cast((*algInput->get(partialData))[0])->getNumberOfColumns();
 
-    DataCollectionPtr dcPartitionedData = get(partitionedData);
+    DataCollectionPtr dcPartitionedData          = get(partitionedData);
     DataCollectionPtr dcPartitionedPartialOrders = get(partitionedPartialOrders);
 
     DAAL_CHECK_EX(dcPartitionedData.get(), ErrorNullPartialResult, ArgumentName, partitionedDataStr());
@@ -179,7 +175,6 @@ Status DistributedPartialResultStep4::check(const daal::algorithms::Input *input
     return Status();
 }
 
-
 DistributedPartialResultStep5::DistributedPartialResultStep5() : daal::algorithms::PartialResult(lastDistributedPartialResultStep5Id + 1) {}
 
 DataCollectionPtr DistributedPartialResultStep5::get(DistributedPartialResultStep5Id id) const
@@ -187,21 +182,21 @@ DataCollectionPtr DistributedPartialResultStep5::get(DistributedPartialResultSte
     return staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep5::set(DistributedPartialResultStep5Id id, const DataCollectionPtr &ptr)
+void DistributedPartialResultStep5::set(DistributedPartialResultStep5Id id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep5::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep5::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     const size_t nBlocks = par->nBlocks;
 
-    const DistributedInput<step5Local> *algInput = static_cast<const DistributedInput<step5Local> *>(input);
-    const size_t nFeatures = NumericTable::cast((*algInput->get(partialData))[0])->getNumberOfColumns();
+    const DistributedInput<step5Local> * algInput = static_cast<const DistributedInput<step5Local> *>(input);
+    const size_t nFeatures                        = NumericTable::cast((*algInput->get(partialData))[0])->getNumberOfColumns();
 
-    DataCollectionPtr dcPartitionedHaloData = get(partitionedHaloData);
+    DataCollectionPtr dcPartitionedHaloData        = get(partitionedHaloData);
     DataCollectionPtr dcPartitionedHaloDataIndices = get(partitionedHaloDataIndices);
 
     DAAL_CHECK_EX(dcPartitionedHaloData.get(), ErrorNullPartialResult, ArgumentName, partitionedHaloDataStr());
@@ -222,12 +217,12 @@ Status DistributedPartialResultStep5::check(const daal::algorithms::Input *input
         DAAL_CHECK_EX((*dcPartitionedHaloDataIndices)[i], ErrorNullNumericTable, ArgumentName, partitionedHaloDataIndicesStr());
         NumericTablePtr ntPartitionedHaloDataIndices = NumericTable::cast((*dcPartitionedHaloDataIndices)[i]);
         DAAL_CHECK_EX(ntPartitionedHaloDataIndices, ErrorIncorrectElementInNumericTableCollection, ArgumentName, partitionedHaloDataIndicesStr());
-        DAAL_CHECK_STATUS_VAR(checkNumericTable(ntPartitionedHaloDataIndices.get(), partitionedHaloDataIndicesStr(), unexpectedLayouts, 0, 1, 0, false));
+        DAAL_CHECK_STATUS_VAR(
+            checkNumericTable(ntPartitionedHaloDataIndices.get(), partitionedHaloDataIndicesStr(), unexpectedLayouts, 0, 1, 0, false));
     }
 
     return Status();
 }
-
 
 DistributedPartialResultStep6::DistributedPartialResultStep6() : daal::algorithms::PartialResult(lastDistributedPartialResultStep6CollectionId + 1) {}
 
@@ -241,29 +236,26 @@ DataCollectionPtr DistributedPartialResultStep6::get(DistributedPartialResultSte
     return staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep6::set(DistributedPartialResultStep6NumericTableId id, const NumericTablePtr &ptr)
+void DistributedPartialResultStep6::set(DistributedPartialResultStep6NumericTableId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-void DistributedPartialResultStep6::set(DistributedPartialResultStep6CollectionId id, const DataCollectionPtr &ptr)
+void DistributedPartialResultStep6::set(DistributedPartialResultStep6CollectionId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep6::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep6::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     const size_t nBlocks = par->nBlocks;
 
-    const DistributedInput<step6Local> *algInput = static_cast<const DistributedInput<step6Local> *>(input);
-    DataCollectionPtr dcPartialData = algInput->get(partialData);
-    size_t nRows = 0;
-    for (size_t i = 0; i < dcPartialData->size(); i++)
-    {
-        nRows += NumericTable::cast((*dcPartialData)[i])->getNumberOfRows();
-    }
+    const DistributedInput<step6Local> * algInput = static_cast<const DistributedInput<step6Local> *>(input);
+    DataCollectionPtr dcPartialData               = algInput->get(partialData);
+    size_t nRows                                  = 0;
+    for (size_t i = 0; i < dcPartialData->size(); i++) { nRows += NumericTable::cast((*dcPartialData)[i])->getNumberOfRows(); }
 
     {
         NumericTablePtr ntClusterStructure = get(step6ClusterStructure);
@@ -307,7 +299,6 @@ Status DistributedPartialResultStep6::check(const daal::algorithms::Input *input
     return Status();
 }
 
-
 DistributedPartialResultStep7::DistributedPartialResultStep7() : daal::algorithms::PartialResult(lastDistributedPartialResultStep7Id + 1) {}
 
 NumericTablePtr DistributedPartialResultStep7::get(DistributedPartialResultStep7Id id) const
@@ -315,12 +306,12 @@ NumericTablePtr DistributedPartialResultStep7::get(DistributedPartialResultStep7
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep7::set(DistributedPartialResultStep7Id id, const NumericTablePtr &ptr)
+void DistributedPartialResultStep7::set(DistributedPartialResultStep7Id id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep7::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep7::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     NumericTablePtr ntFinishedFlag = get(finishedFlag);
     DAAL_CHECK_EX(ntFinishedFlag, ErrorNullNumericTable, ArgumentName, finishedFlagStr());
@@ -330,7 +321,6 @@ Status DistributedPartialResultStep7::check(const daal::algorithms::Input *input
 
     return Status();
 }
-
 
 DistributedPartialResultStep8::DistributedPartialResultStep8() : daal::algorithms::PartialResult(lastDistributedPartialResultStep8CollectionId + 1) {}
 
@@ -344,24 +334,24 @@ DataCollectionPtr DistributedPartialResultStep8::get(DistributedPartialResultSte
     return staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep8::set(DistributedPartialResultStep8NumericTableId id, const NumericTablePtr &ptr)
+void DistributedPartialResultStep8::set(DistributedPartialResultStep8NumericTableId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-void DistributedPartialResultStep8::set(DistributedPartialResultStep8CollectionId id, const DataCollectionPtr &ptr)
+void DistributedPartialResultStep8::set(DistributedPartialResultStep8CollectionId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep8::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep8::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     const size_t nBlocks = par->nBlocks;
 
-    const DistributedInput<step8Local> *algInput = static_cast<const DistributedInput<step8Local> *>(input);
-    const size_t nRows = algInput->get(step8InputClusterStructure)->getNumberOfRows();
+    const DistributedInput<step8Local> * algInput = static_cast<const DistributedInput<step8Local> *>(input);
+    const size_t nRows                            = algInput->get(step8InputClusterStructure)->getNumberOfRows();
 
     {
         NumericTablePtr ntClusterStructure = get(step8ClusterStructure);
@@ -405,7 +395,6 @@ Status DistributedPartialResultStep8::check(const daal::algorithms::Input *input
     return Status();
 }
 
-
 DistributedResultStep9::DistributedResultStep9() : daal::algorithms::Result(lastDistributedResultStep9Id + 1) {}
 
 NumericTablePtr DistributedResultStep9::get(DistributedResultStep9Id id) const
@@ -413,12 +402,12 @@ NumericTablePtr DistributedResultStep9::get(DistributedResultStep9Id id) const
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedResultStep9::set(DistributedResultStep9Id id, const NumericTablePtr &ptr)
+void DistributedResultStep9::set(DistributedResultStep9Id id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedResultStep9::check(const daal::algorithms::PartialResult *pres, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedResultStep9::check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * parameter, int method) const
 {
     NumericTablePtr ntNClusters = get(step9NClusters);
     DAAL_CHECK_EX(ntNClusters, ErrorNullNumericTable, ArgumentName, step9NClustersStr());
@@ -429,7 +418,6 @@ Status DistributedResultStep9::check(const daal::algorithms::PartialResult *pres
     return Status();
 }
 
-
 DistributedPartialResultStep9::DistributedPartialResultStep9() : daal::algorithms::PartialResult(lastDistributedPartialResultStep9Id + 1) {}
 
 DataCollectionPtr DistributedPartialResultStep9::get(DistributedPartialResultStep9Id id) const
@@ -437,15 +425,15 @@ DataCollectionPtr DistributedPartialResultStep9::get(DistributedPartialResultSte
     return staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep9::set(DistributedPartialResultStep9Id id, const DataCollectionPtr &ptr)
+void DistributedPartialResultStep9::set(DistributedPartialResultStep9Id id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep9::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep9::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const DistributedInput<step9Master> *algInput = static_cast<const DistributedInput<step9Master> *>(input);
-    const size_t nBlocks = algInput->get(partialNClusters)->size();
+    const DistributedInput<step9Master> * algInput = static_cast<const DistributedInput<step9Master> *>(input);
+    const size_t nBlocks                           = algInput->get(partialNClusters)->size();
 
     DataCollectionPtr dcClusterOffsets = get(clusterOffsets);
 
@@ -465,8 +453,8 @@ Status DistributedPartialResultStep9::check(const daal::algorithms::Input *input
     return Status();
 }
 
-
-DistributedPartialResultStep10::DistributedPartialResultStep10() : daal::algorithms::PartialResult(lastDistributedPartialResultStep10CollectionId + 1) {}
+DistributedPartialResultStep10::DistributedPartialResultStep10() : daal::algorithms::PartialResult(lastDistributedPartialResultStep10CollectionId + 1)
+{}
 
 NumericTablePtr DistributedPartialResultStep10::get(DistributedPartialResultStep10NumericTableId id) const
 {
@@ -478,24 +466,24 @@ DataCollectionPtr DistributedPartialResultStep10::get(DistributedPartialResultSt
     return staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep10::set(DistributedPartialResultStep10NumericTableId id, const NumericTablePtr &ptr)
+void DistributedPartialResultStep10::set(DistributedPartialResultStep10NumericTableId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-void DistributedPartialResultStep10::set(DistributedPartialResultStep10CollectionId id, const DataCollectionPtr &ptr)
+void DistributedPartialResultStep10::set(DistributedPartialResultStep10CollectionId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep10::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep10::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     const size_t nBlocks = par->nBlocks;
 
-    const DistributedInput<step10Local> *algInput = static_cast<const DistributedInput<step10Local> *>(input);
-    const size_t nRows = algInput->get(step10InputClusterStructure)->getNumberOfRows();
+    const DistributedInput<step10Local> * algInput = static_cast<const DistributedInput<step10Local> *>(input);
+    const size_t nRows                             = algInput->get(step10InputClusterStructure)->getNumberOfRows();
 
     {
         NumericTablePtr ntClusterStructure = get(step10ClusterStructure);
@@ -531,8 +519,8 @@ Status DistributedPartialResultStep10::check(const daal::algorithms::Input *inpu
     return Status();
 }
 
-
-DistributedPartialResultStep11::DistributedPartialResultStep11() : daal::algorithms::PartialResult(lastDistributedPartialResultStep11CollectionId + 1) {}
+DistributedPartialResultStep11::DistributedPartialResultStep11() : daal::algorithms::PartialResult(lastDistributedPartialResultStep11CollectionId + 1)
+{}
 
 NumericTablePtr DistributedPartialResultStep11::get(DistributedPartialResultStep11NumericTableId id) const
 {
@@ -544,24 +532,24 @@ DataCollectionPtr DistributedPartialResultStep11::get(DistributedPartialResultSt
     return staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep11::set(DistributedPartialResultStep11NumericTableId id, const NumericTablePtr &ptr)
+void DistributedPartialResultStep11::set(DistributedPartialResultStep11NumericTableId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-void DistributedPartialResultStep11::set(DistributedPartialResultStep11CollectionId id, const DataCollectionPtr &ptr)
+void DistributedPartialResultStep11::set(DistributedPartialResultStep11CollectionId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep11::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep11::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     const size_t nBlocks = par->nBlocks;
 
-    const DistributedInput<step11Local> *algInput = static_cast<const DistributedInput<step11Local> *>(input);
-    const size_t nRows = algInput->get(step11InputClusterStructure)->getNumberOfRows();
+    const DistributedInput<step11Local> * algInput = static_cast<const DistributedInput<step11Local> *>(input);
+    const size_t nRows                             = algInput->get(step11InputClusterStructure)->getNumberOfRows();
 
     {
         NumericTablePtr ntClusterStructure = get(step11ClusterStructure);
@@ -597,7 +585,6 @@ Status DistributedPartialResultStep11::check(const daal::algorithms::Input *inpu
     return Status();
 }
 
-
 DistributedPartialResultStep12::DistributedPartialResultStep12() : daal::algorithms::PartialResult(lastDistributedPartialResultStep12Id + 1) {}
 
 DataCollectionPtr DistributedPartialResultStep12::get(DistributedPartialResultStep12Id id) const
@@ -605,14 +592,14 @@ DataCollectionPtr DistributedPartialResultStep12::get(DistributedPartialResultSt
     return staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep12::set(DistributedPartialResultStep12Id id, const DataCollectionPtr &ptr)
+void DistributedPartialResultStep12::set(DistributedPartialResultStep12Id id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep12::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep12::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     const size_t nBlocks = par->nBlocks;
 
@@ -634,7 +621,6 @@ Status DistributedPartialResultStep12::check(const daal::algorithms::Input *inpu
     return Status();
 }
 
-
 DistributedResultStep13::DistributedResultStep13() : daal::algorithms::Result(lastDistributedResultStep13Id + 1) {}
 
 NumericTablePtr DistributedResultStep13::get(DistributedResultStep13Id id) const
@@ -642,12 +628,12 @@ NumericTablePtr DistributedResultStep13::get(DistributedResultStep13Id id) const
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedResultStep13::set(DistributedResultStep13Id id, const NumericTablePtr &ptr)
+void DistributedResultStep13::set(DistributedResultStep13Id id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedResultStep13::check(const daal::algorithms::PartialResult *pres, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedResultStep13::check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * parameter, int method) const
 {
     NumericTablePtr ntAssignments = get(step13Assignments);
     DAAL_CHECK_EX(ntAssignments, ErrorNullNumericTable, ArgumentName, step13AssignmentsStr());
@@ -658,7 +644,6 @@ Status DistributedResultStep13::check(const daal::algorithms::PartialResult *pre
     return Status();
 }
 
-
 DistributedPartialResultStep13::DistributedPartialResultStep13() : daal::algorithms::PartialResult(lastDistributedPartialResultStep13Id + 1) {}
 
 NumericTablePtr DistributedPartialResultStep13::get(DistributedPartialResultStep13Id id) const
@@ -666,12 +651,12 @@ NumericTablePtr DistributedPartialResultStep13::get(DistributedPartialResultStep
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedPartialResultStep13::set(DistributedPartialResultStep13Id id, const NumericTablePtr &ptr)
+void DistributedPartialResultStep13::set(DistributedPartialResultStep13Id id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-Status DistributedPartialResultStep13::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResultStep13::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     NumericTablePtr ntAssignmentQueries = get(step13AssignmentQueries);
     DAAL_CHECK_EX(ntAssignmentQueries, ErrorNullNumericTable, ArgumentName, step13AssignmentQueriesStr());
@@ -682,7 +667,7 @@ Status DistributedPartialResultStep13::check(const daal::algorithms::Input *inpu
     return Status();
 }
 
-}// namespace interface1
-}// namespace dbscan
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace dbscan
+} // namespace algorithms
+} // namespace daal

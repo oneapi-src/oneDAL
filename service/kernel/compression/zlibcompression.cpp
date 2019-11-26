@@ -29,61 +29,52 @@ namespace daal
 {
 namespace data_management
 {
-Compressor<zlib>::Compressor() :
-    data_management::CompressorImpl()
+Compressor<zlib>::Compressor() : data_management::CompressorImpl()
 {
     this->_isOutBlockFull = 0;
-    _strmp = NULL;
-    _isInitialized = false;
+    _strmp                = NULL;
+    _isInitialized        = false;
 }
 
 void Compressor<zlib>::initialize()
 {
     int _windowBits;
 
-    if (parameter.gzHeader)
-    {
-        _windowBits = 31;
-    }
+    if (parameter.gzHeader) { _windowBits = 31; }
     else
     {
         _windowBits = 15;
     }
 
-    int  _memLevel;
-    int  _strategy;
-    int  _method;
+    int _memLevel;
+    int _strategy;
+    int _method;
 
     _memLevel = 8;
     _strategy = Z_DEFAULT_STRATEGY;
-    _method = 8;//Z_DEFLATED;
-
+    _method   = 8; //Z_DEFLATED;
 
     _strmp = NULL;
     _strmp = (void *)daal::services::daal_calloc(sizeof(z_stream));
-    if(_strmp == NULL)
+    if (_strmp == NULL)
     {
         this->_errors->add(services::ErrorMemoryAllocationFailed);
         return;
     }
 
     ((z_stream *)_strmp)->zalloc = Z_NULL;
-    ((z_stream *)_strmp)->zfree = Z_NULL;
+    ((z_stream *)_strmp)->zfree  = Z_NULL;
     ((z_stream *)_strmp)->opaque = Z_NULL;
-    _flush = Z_SYNC_FLUSH;
+    _flush                       = Z_SYNC_FLUSH;
 
-    int errCode = deflateInit2(((z_stream *)_strmp), (int)(parameter.level),
-                               _method,
-                               _windowBits,
-                               _memLevel,
-                               _strategy);
+    int errCode = deflateInit2(((z_stream *)_strmp), (int)(parameter.level), _method, _windowBits, _memLevel, _strategy);
 
     _isInitialized = true;
 
-    ((z_stream *)_strmp)->avail_in = 0;
-    ((z_stream *)_strmp)->next_in = Z_NULL;
+    ((z_stream *)_strmp)->avail_in  = 0;
+    ((z_stream *)_strmp)->next_in   = Z_NULL;
     ((z_stream *)_strmp)->avail_out = 0;
-    ((z_stream *)_strmp)->next_out = Z_NULL;
+    ((z_stream *)_strmp)->next_out  = Z_NULL;
 
     if (!((errCode == Z_OK) || (errCode == Z_STREAM_END) || (errCode == Z_BUF_ERROR)))
     {
@@ -98,9 +89,7 @@ void Compressor<zlib>::initialize()
             this->_errors->add(services::ErrorZlibMemoryAllocationFailed);
             return;
         case Z_VERSION_ERROR:
-        default:
-            this->_errors->add(services::ErrorZlibInternal);
-            return;
+        default: this->_errors->add(services::ErrorZlibInternal); return;
         }
     }
 }
@@ -108,7 +97,7 @@ void Compressor<zlib>::initialize()
 Compressor<zlib>::~Compressor()
 {
     (void)deflateEnd(((z_stream *)_strmp));
-    if(_strmp) daal::services::daal_free(_strmp);
+    if (_strmp) daal::services::daal_free(_strmp);
     _strmp = NULL;
 }
 
@@ -124,47 +113,41 @@ void Compressor<zlib>::resetCompression()
     _flush = Z_SYNC_FLUSH;
 }
 
-void Compressor<zlib>::setInputDataBlock(byte *in, size_t len, size_t off)
+void Compressor<zlib>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if(_isInitialized == false)
-    {
-        initialize();
-    }
+    if (_isInitialized == false) { initialize(); }
 
-    if(this->_errors->size() != 0)
-    {
-        return;
-    }
+    if (this->_errors->size() != 0) { return; }
 
     checkInputParams(in, len);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
     ((z_stream *)_strmp)->avail_in = len;
-    ((z_stream *)_strmp)->next_in = in + off;
+    ((z_stream *)_strmp)->next_in  = in + off;
 }
 
-void Compressor<zlib>::run(byte *out, size_t outLen, size_t off)
+void Compressor<zlib>::run(byte * out, size_t outLen, size_t off)
 {
-    if(_isInitialized == false)
+    if (_isInitialized == false)
     {
         this->_errors->add(services::ErrorZlibInternal);
         return;
     }
 
     checkOutputParams(out, outLen);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
     ((z_stream *)_strmp)->avail_out = outLen;
-    ((z_stream *)_strmp)->next_out = out + off;
-    this->_isOutBlockFull = 0;
+    ((z_stream *)_strmp)->next_out  = out + off;
+    this->_isOutBlockFull           = 0;
 
     int errCode = deflate(((z_stream *)_strmp), _flush);
 
@@ -172,7 +155,7 @@ void Compressor<zlib>::run(byte *out, size_t outLen, size_t off)
     {
     case Z_STREAM_END:
         this->_usedOutBlockSize = outLen - ((z_stream *)_strmp)->avail_out;
-        this->_isOutBlockFull = 0;
+        this->_isOutBlockFull   = 0;
         resetCompression();
         return;
     case Z_STREAM_ERROR:
@@ -181,10 +164,7 @@ void Compressor<zlib>::run(byte *out, size_t outLen, size_t off)
         return;
     case Z_OK:
     case Z_BUF_ERROR:
-        if ((((z_stream *)_strmp)->avail_in == 0) || _flush == Z_FINISH)
-        {
-            _flush = Z_FINISH;
-        }
+        if ((((z_stream *)_strmp)->avail_in == 0) || _flush == Z_FINISH) { _flush = Z_FINISH; }
         if (((z_stream *)_strmp)->avail_out != 0 && ((z_stream *)_strmp)->avail_in == 0)
         {
             errCode = deflate(((z_stream *)_strmp), _flush);
@@ -195,13 +175,13 @@ void Compressor<zlib>::run(byte *out, size_t outLen, size_t off)
                 return;
             }
             this->_usedOutBlockSize = outLen - ((z_stream *)_strmp)->avail_out;
-            this->_isOutBlockFull = 0;
+            this->_isOutBlockFull   = 0;
             resetCompression();
         }
         else
         {
             this->_usedOutBlockSize = outLen - ((z_stream *)_strmp)->avail_out;
-            this->_isOutBlockFull = 1;
+            this->_isOutBlockFull   = 1;
         }
         return;
     default:
@@ -215,21 +195,18 @@ Decompressor<zlib>::Decompressor() : data_management::DecompressorImpl()
 {
     _strmp = NULL;
     _strmp = daal::services::daal_calloc(sizeof(z_stream));
-    if(_strmp == NULL)
+    if (_strmp == NULL)
     {
         this->_errors->add(services::ErrorMemoryAllocationFailed);
         return;
     }
 
     ((z_stream *)_strmp)->zalloc = Z_NULL;
-    ((z_stream *)_strmp)->zfree = Z_NULL;
+    ((z_stream *)_strmp)->zfree  = Z_NULL;
     ((z_stream *)_strmp)->opaque = Z_NULL;
-    _flush = Z_SYNC_FLUSH;
+    _flush                       = Z_SYNC_FLUSH;
 
-    if (this->_errors->size() != 0)
-    {
-        return;
-    }
+    if (this->_errors->size() != 0) { return; }
     this->_isOutBlockFull = 0;
 
     _isInitialized = false;
@@ -237,22 +214,19 @@ Decompressor<zlib>::Decompressor() : data_management::DecompressorImpl()
 
 void Decompressor<zlib>::initialize()
 {
-    int  _windowBits;
+    int _windowBits;
 
-    if (parameter.gzHeader)
-    {
-        _windowBits = 31;
-    }
+    if (parameter.gzHeader) { _windowBits = 31; }
     else
     {
         _windowBits = 15;
     }
 
-    ((z_stream *)_strmp)->avail_in = 0;
-    ((z_stream *)_strmp)->next_in = Z_NULL;
-    int errCode = inflateInit2(((z_stream *)_strmp), _windowBits);
+    ((z_stream *)_strmp)->avail_in  = 0;
+    ((z_stream *)_strmp)->next_in   = Z_NULL;
+    int errCode                     = inflateInit2(((z_stream *)_strmp), _windowBits);
     ((z_stream *)_strmp)->avail_out = 0;
-    ((z_stream *)_strmp)->next_out = Z_NULL;
+    ((z_stream *)_strmp)->next_out  = Z_NULL;
 
     _isInitialized = true;
 
@@ -271,9 +245,7 @@ void Decompressor<zlib>::initialize()
             this->_errors->add(services::ErrorZlibMemoryAllocationFailed);
             return;
         case Z_VERSION_ERROR:
-        default:
-            this->_errors->add(services::ErrorZlibInternal);
-            return;
+        default: this->_errors->add(services::ErrorZlibInternal); return;
         }
     }
 }
@@ -295,46 +267,40 @@ void Decompressor<zlib>::resetCompression()
     (void)inflateReset(((z_stream *)_strmp));
 }
 
-void Decompressor<zlib>::setInputDataBlock(byte *in, size_t len, size_t off)
+void Decompressor<zlib>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if(_isInitialized == false)
-    {
-        initialize();
-    }
+    if (_isInitialized == false) { initialize(); }
 
-    if(this->_errors->size() != 0)
-    {
-        return;
-    }
+    if (this->_errors->size() != 0) { return; }
 
     checkInputParams(in, len);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
     ((z_stream *)_strmp)->avail_in = len;
-    ((z_stream *)_strmp)->next_in = in + off;
+    ((z_stream *)_strmp)->next_in  = in + off;
 }
 
-void Decompressor<zlib>::run(byte *out, size_t outLen, size_t off)
+void Decompressor<zlib>::run(byte * out, size_t outLen, size_t off)
 {
-    if(_isInitialized == false)
+    if (_isInitialized == false)
     {
         this->_errors->add(services::ErrorZlibInternal);
         return;
     }
 
     checkOutputParams(out, outLen);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
     ((z_stream *)_strmp)->avail_out = outLen;
-    ((z_stream *)_strmp)->next_out = out + off;
+    ((z_stream *)_strmp)->next_out  = out + off;
 
     do
     {
@@ -343,16 +309,16 @@ void Decompressor<zlib>::run(byte *out, size_t outLen, size_t off)
         {
         case Z_STREAM_END:
             this->_usedOutBlockSize = outLen - ((z_stream *)_strmp)->avail_out;
-            this->_isOutBlockFull = 0;
+            this->_isOutBlockFull   = 0;
             if (((z_stream *)_strmp)->avail_in > 0)
             {
-                byte *tmpPtrIn = (byte *)((z_stream *)_strmp)->next_in;
-                size_t tmpSizeIn = ((z_stream *)_strmp)->avail_in;
-                byte *tmpPtrOut = (byte *)((z_stream *)_strmp)->next_out;
+                byte * tmpPtrIn   = (byte *)((z_stream *)_strmp)->next_in;
+                size_t tmpSizeIn  = ((z_stream *)_strmp)->avail_in;
+                byte * tmpPtrOut  = (byte *)((z_stream *)_strmp)->next_out;
                 size_t tmpSizeOut = ((z_stream *)_strmp)->avail_out;
                 resetCompression();
                 setInputDataBlock(tmpPtrIn, tmpSizeIn, 0);
-                ((z_stream *)_strmp)->next_out = tmpPtrOut;
+                ((z_stream *)_strmp)->next_out  = tmpPtrOut;
                 ((z_stream *)_strmp)->avail_out = tmpSizeOut;
             }
             break;
@@ -389,13 +355,13 @@ void Decompressor<zlib>::run(byte *out, size_t outLen, size_t off)
                 this->_isOutBlockFull = 0;
                 if (((z_stream *)_strmp)->avail_in > 0)
                 {
-                    byte *tmpPtrIn = (byte *)((z_stream *)_strmp)->next_in;
-                    size_t tmpSizeIn = ((z_stream *)_strmp)->avail_in;
-                    byte *tmpPtrOut = (byte *)((z_stream *)_strmp)->next_out;
+                    byte * tmpPtrIn   = (byte *)((z_stream *)_strmp)->next_in;
+                    size_t tmpSizeIn  = ((z_stream *)_strmp)->avail_in;
+                    byte * tmpPtrOut  = (byte *)((z_stream *)_strmp)->next_out;
                     size_t tmpSizeOut = ((z_stream *)_strmp)->avail_out;
                     resetCompression();
                     setInputDataBlock(tmpPtrIn, tmpSizeIn, 0);
-                    ((z_stream *)_strmp)->next_out = tmpPtrOut;
+                    ((z_stream *)_strmp)->next_out  = tmpPtrOut;
                     ((z_stream *)_strmp)->avail_out = tmpSizeOut;
                 }
             }
@@ -406,8 +372,7 @@ void Decompressor<zlib>::run(byte *out, size_t outLen, size_t off)
             this->_errors->add(services::ErrorZlibInternal);
             return;
         }
-    }
-    while (((z_stream *)_strmp)->avail_in > 0);
+    } while (((z_stream *)_strmp)->avail_in > 0);
 }
 } //namespace data_management
 } //namespace daal

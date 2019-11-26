@@ -32,28 +32,29 @@ namespace daal
 {
 namespace services
 {
-
 using namespace daal::data_management;
 
 class JavaBatchContainerService : public daal::algorithms::AnalysisContainerIface<batch>, public JavaCallback
 {
 public:
-    JavaBatchContainerService(JavaVM *_jvm, jobject _javaObject) : JavaCallback(_jvm, _javaObject), resultStorage(NULL), _input(NULL), _parameter(NULL) {}
-    JavaBatchContainerService(const JavaBatchContainerService &other) : JavaCallback(other), resultStorage(NULL), _input(NULL), _parameter(NULL)
+    JavaBatchContainerService(JavaVM * _jvm, jobject _javaObject)
+        : JavaCallback(_jvm, _javaObject), resultStorage(NULL), _input(NULL), _parameter(NULL)
+    {}
+    JavaBatchContainerService(const JavaBatchContainerService & other) : JavaCallback(other), resultStorage(NULL), _input(NULL), _parameter(NULL)
     {
         JavaCallback::ThreadLocalStorage tls = _tls.local();
-        jint status = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
-        JNIEnv *env = tls.jniEnv;
+        jint status                          = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
+        JNIEnv * env                         = tls.jniEnv;
 
         jclass javaObjectClass = tls.jniEnv->GetObjectClass(javaObject);
-        if(javaObjectClass == 0)
+        if (javaObjectClass == 0)
         {
             tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "javaObjectClass could not be initialized");
             return;
         }
 
         jmethodID getInputMethodID = tls.jniEnv->GetMethodID(javaObjectClass, "getCInput", "()J");
-        if(getInputMethodID == 0)
+        if (getInputMethodID == 0)
         {
             tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "getCInput() method ID could not be initialized");
             return;
@@ -62,48 +63,44 @@ public:
         _input = (daal::algorithms::Input *)(tls.jniEnv->CallLongMethod(javaObject, getInputMethodID));
 
         jmethodID getParameterMethodID = tls.jniEnv->GetMethodID(javaObjectClass, "getCParameter", "()J");
-        if(getInputMethodID == 0)
+        if (getInputMethodID == 0)
         {
             tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), "getCParameter() method ID could not be initialized");
             return;
         }
 
-        _parameter =  (daal::algorithms::Parameter *)(tls.jniEnv->CallLongMethod(javaObject, getParameterMethodID));
+        _parameter = (daal::algorithms::Parameter *)(tls.jniEnv->CallLongMethod(javaObject, getParameterMethodID));
 
         setArguments(_input, NULL, _parameter);
-        if(!tls.is_main_thread)
-        {
-            status = jvm->DetachCurrentThread();
-        }
+        if (!tls.is_main_thread) { status = jvm->DetachCurrentThread(); }
 
         _tls.local() = tls;
     }
 
     virtual ~JavaBatchContainerService() {}
 
-    services::Status compute(const char *javaResultClassName, const char *javaInputClassName = NULL, const char *javaParameterClassName = NULL)
+    services::Status compute(const char * javaResultClassName, const char * javaInputClassName = NULL, const char * javaParameterClassName = NULL)
     {
         JavaCallback::ThreadLocalStorage tls = _tls.local();
-        jint status = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
-        JNIEnv *env = tls.jniEnv;
+        jint status                          = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
+        JNIEnv * env                         = tls.jniEnv;
 
-        if(javaResultClassName == NULL)
+        if (javaResultClassName == NULL)
         {
-            env->ThrowNew(env->FindClass("java/lang/Exception"), "javaResultClassName could not be empty"); return services::Status();
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "javaResultClassName could not be empty");
+            return services::Status();
         }
 
         jclass javaObjectClass = env->GetObjectClass(javaObject);
-        if(javaObjectClass == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "javaObjectClass could not be initialized"); return services::Status(); }
-
-        if(javaInputClassName)
+        if (javaObjectClass == 0)
         {
-            setInputToJava(env, javaObjectClass, javaObject, javaInputClassName);
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "javaObjectClass could not be initialized");
+            return services::Status();
         }
 
-        if(javaParameterClassName)
-        {
-            setParameterToJava(env, javaObjectClass, javaObject, javaParameterClassName);
-        }
+        if (javaInputClassName) { setInputToJava(env, javaObjectClass, javaObject, javaInputClassName); }
+
+        if (javaParameterClassName) { setParameterToJava(env, javaObjectClass, javaObject, javaParameterClassName); }
 
         setResultToJava(env, javaObjectClass, javaObject, javaResultClassName);
 
@@ -111,15 +108,16 @@ public:
         services::String javaResultClassNameString(javaResultClassName, strnlen(javaResultClassName, String::__DAAL_STR_MAX_SIZE));
         fullFunctionSignature.add(javaResultClassNameString);
 
-        jmethodID computeMethodID = env->GetMethodID(javaObjectClass, "compute",  fullFunctionSignature.c_str());
-        if(computeMethodID == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "computeMethodID could not be initialized"); return services::Status(); }
+        jmethodID computeMethodID = env->GetMethodID(javaObjectClass, "compute", fullFunctionSignature.c_str());
+        if (computeMethodID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "computeMethodID could not be initialized");
+            return services::Status();
+        }
 
         env->CallObjectMethod(javaObject, computeMethodID);
 
-        if(!tls.is_main_thread)
-        {
-            status = jvm->DetachCurrentThread();
-        }
+        if (!tls.is_main_thread) { status = jvm->DetachCurrentThread(); }
 
         _tls.local() = tls;
         return services::Status();
@@ -127,67 +125,116 @@ public:
 
     virtual JavaBatchContainerService * cloneImpl() = 0;
 
-    SerializationIfacePtr *resultStorage;
+    SerializationIfacePtr * resultStorage;
     daal::algorithms::ResultPtr _result;
-    daal::algorithms::Input *_input;
-    daal::algorithms::Parameter *_parameter;
+    daal::algorithms::Input * _input;
+    daal::algorithms::Parameter * _parameter;
 
-    void setJavaResult(daal::algorithms::ResultPtr result)
-    {
-        _result = result;
-    }
+    void setJavaResult(daal::algorithms::ResultPtr result) { _result = result; }
 
-    virtual void setInputToJava(JNIEnv *env, jclass javaObjectClass, jobject javaObject, const char *javaInputClassName)
+    virtual void setInputToJava(JNIEnv * env, jclass javaObjectClass, jobject javaObject, const char * javaInputClassName)
     {
         jclass javaInputClass = env->FindClass(javaInputClassName);
-        if(javaInputClass == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "javaInputClass could not be initialized"); return; }
+        if (javaInputClass == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "javaInputClass could not be initialized");
+            return;
+        }
 
         jfieldID inputFieldID = env->GetFieldID(javaObjectClass, "input", javaInputClassName);
-        if(inputFieldID == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "inputFieldID could not be initialized"); return; }
+        if (inputFieldID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "inputFieldID could not be initialized");
+            return;
+        }
 
         jobject javaInput = env->GetObjectField(javaObject, inputFieldID);
-        if(javaInput == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaInput could not be initialized"); return; }
+        if (javaInput == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaInput could not be initialized");
+            return;
+        }
 
         jmethodID setterID = env->GetMethodID(javaInputClass, "setCInput", "(J)V");
-        if(setterID == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "ID setterID could not be initialized"); return; }
+        if (setterID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "ID setterID could not be initialized");
+            return;
+        }
 
         env->CallVoidMethod(javaInput, setterID, (jlong)(_in));
     }
 
-    virtual void setParameterToJava(JNIEnv *env, jclass javaObjectClass, jobject javaObject, const char *javaParameterClassName)
+    virtual void setParameterToJava(JNIEnv * env, jclass javaObjectClass, jobject javaObject, const char * javaParameterClassName)
     {
         jclass javaParameterClass = env->FindClass(javaParameterClassName);
-        if(javaParameterClass == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "javaParameterClass could not be initialized"); return; }
+        if (javaParameterClass == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "javaParameterClass could not be initialized");
+            return;
+        }
 
         jfieldID parameterFieldID = env->GetFieldID(javaObjectClass, "parameter", javaParameterClassName);
-        if(parameterFieldID == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "parameterFieldID could not be initialized"); return; }
+        if (parameterFieldID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "parameterFieldID could not be initialized");
+            return;
+        }
 
         jobject javaParameter = env->GetObjectField(javaObject, parameterFieldID);
-        if(javaParameter == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaParameter could not be initialized"); return; }
+        if (javaParameter == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaParameter could not be initialized");
+            return;
+        }
 
         jmethodID setterID = env->GetMethodID(javaParameterClass, "setCParameter", "(J)V");
-        if(setterID == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "ID setterID could not be initialized"); return; }
+        if (setterID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "ID setterID could not be initialized");
+            return;
+        }
 
         env->CallVoidMethod(javaParameter, setterID, (jlong)(_par));
     }
 
-    virtual void setResultToJava(JNIEnv *env, jclass javaObjectClass, jobject javaObject, const char *javaResultClassName)
+    virtual void setResultToJava(JNIEnv * env, jclass javaObjectClass, jobject javaObject, const char * javaResultClassName)
     {
         jmethodID getContextID = env->GetMethodID(javaObjectClass, "getContext", "()Lcom/intel/daal/services/DaalContext;");
-        if(getContextID == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "getContextID could not be initialized"); return; }
+        if (getContextID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "getContextID could not be initialized");
+            return;
+        }
 
         jobject javaContextObject = env->CallObjectMethod(javaObject, getContextID);
-        if(javaContextObject == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "javaContextObject could not be initialized"); return; }
+        if (javaContextObject == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "javaContextObject could not be initialized");
+            return;
+        }
 
         jclass javaResultClass = env->FindClass(javaResultClassName);
-        if(javaResultClass == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "javaResultClass could not be initialized"); return; }
+        if (javaResultClass == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "javaResultClass could not be initialized");
+            return;
+        }
 
         jmethodID constructResultID = env->GetMethodID(javaResultClass, "<init>", "(Lcom/intel/daal/services/DaalContext;J)V");
-        if(constructResultID == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "constructResultID could not be initialized"); return; }
+        if (constructResultID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "constructResultID could not be initialized");
+            return;
+        }
 
-        resultStorage = new SerializationIfacePtr(staticPointerCast<SerializationIface, daal::algorithms::Result>(_result));
+        resultStorage            = new SerializationIfacePtr(staticPointerCast<SerializationIface, daal::algorithms::Result>(_result));
         jobject javaResultObject = env->NewObject(javaResultClass, constructResultID, javaContextObject, jlong(resultStorage));
-        if(javaResultObject == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "javaResultObject could not be initialized"); return; }
+        if (javaResultObject == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "javaResultObject could not be initialized");
+            return;
+        }
 
         services::String javaResultClassNameString(javaResultClassName, strnlen(javaResultClassName, String::__DAAL_STR_MAX_SIZE));
         services::String rightPart(")V", 2);
@@ -196,13 +243,17 @@ public:
         fullFunctionSignature.add(rightPart);
 
         jmethodID setResultMethodID = env->GetMethodID(javaObjectClass, "setResult", fullFunctionSignature.c_str());
-        if(setResultMethodID == 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), "ResultMethodID could not be initialized"); return; }
+        if (setResultMethodID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "ResultMethodID could not be initialized");
+            return;
+        }
 
         env->CallVoidMethod(javaObject, setResultMethodID, javaResultObject);
     }
 };
 
-} // namespace daal::services
+} // namespace services
 } // namespace daal
 
 #endif

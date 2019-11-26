@@ -58,6 +58,6 @@ public:
 using interface1::BatchIface;
 
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

@@ -64,7 +64,7 @@ enum Method
  */
 enum NumericTableInputId
 {
-    data = linear_model::prediction::data, /*!< Input data table */
+    data                    = linear_model::prediction::data, /*!< Input data table */
     lastNumericTableInputId = data
 };
 
@@ -74,7 +74,7 @@ enum NumericTableInputId
  */
 enum ModelInputId
 {
-    model = linear_model::prediction::model, /*!< Trained ridge regression model */
+    model            = linear_model::prediction::model, /*!< Trained ridge regression model */
     lastModelInputId = model
 };
 
@@ -84,7 +84,7 @@ enum ModelInputId
  */
 enum ResultId
 {
-    prediction = linear_model::prediction::prediction, /*!< Result of ridge regression model-based prediction */
+    prediction   = linear_model::prediction::prediction, /*!< Result of ridge regression model-based prediction */
     lastResultId = prediction
 };
 
@@ -104,7 +104,7 @@ public:
     Input();
 
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
 
     /**
      * Returns an input object for making ridge regression model-based prediction
@@ -125,14 +125,14 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(NumericTableInputId id, const data_management::NumericTablePtr &value);
+    void set(NumericTableInputId id, const data_management::NumericTablePtr & value);
 
     /**
      * Sets an input object for making ridge regression model-based prediction
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ModelInputId id, const ridge_regression::ModelPtr &value);
+    void set(ModelInputId id, const ridge_regression::ModelPtr & value);
 };
 
 /**
@@ -157,12 +157,12 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }

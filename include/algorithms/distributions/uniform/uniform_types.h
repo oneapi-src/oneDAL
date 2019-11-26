@@ -49,7 +49,7 @@ namespace uniform
  */
 enum Method
 {
-    defaultDense = 0    /*!< Default: performance-oriented method. */
+    defaultDense = 0 /*!< Default: performance-oriented method. */
 };
 
 /**
@@ -57,13 +57,12 @@ enum Method
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DISTRIBUTIONS__UNIFORM__PARAMETER"></a>
  * \brief Uniform distribution parameters
  */
-template<typename algorithmFPType>
-class DAAL_EXPORT Parameter: public distributions::ParameterBase
+template <typename algorithmFPType>
+class DAAL_EXPORT Parameter : public distributions::ParameterBase
 {
 public:
     /**
@@ -71,10 +70,10 @@ public:
      *  \param[in] _a    Left bound a
      *  \param[in] _b    Right bound b
      */
-    Parameter(algorithmFPType _a = 0.0, algorithmFPType _b = 1.0): a(_a), b(_b) {}
+    Parameter(algorithmFPType _a = 0.0, algorithmFPType _b = 1.0) : a(_a), b(_b) {}
 
-    algorithmFPType a;    /*!< Left bound a */
-    algorithmFPType b;    /*!< Right bound b */
+    algorithmFPType a; /*!< Left bound a */
+    algorithmFPType b; /*!< Right bound b */
 
     /**
      * Check the correctness of the %Parameter object

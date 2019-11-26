@@ -34,21 +34,18 @@ using namespace daal;
  * Method:    cSetEstimatesToCompute
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Parameter_cSetEstimatesToCompute
-  (JNIEnv *env, jobject thisObj, jlong parAddr, jint estComp)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Parameter_cSetEstimatesToCompute(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong parAddr, jint estComp)
 {
     using namespace daal::algorithms;
-    low_order_moments::Parameter *parameterAddr = (low_order_moments::Parameter *)parAddr;
+    low_order_moments::Parameter * parameterAddr = (low_order_moments::Parameter *)parAddr;
 
-    if(estComp == EstimatesAll)
-    {
-        parameterAddr->estimatesToCompute = low_order_moments::estimatesAll;
-    }
-    else if(estComp == EstimatesMinMax)
+    if (estComp == EstimatesAll) { parameterAddr->estimatesToCompute = low_order_moments::estimatesAll; }
+    else if (estComp == EstimatesMinMax)
     {
         parameterAddr->estimatesToCompute = low_order_moments::estimatesMinMax;
     }
-    else if(estComp == EstimatesMeanVariance)
+    else if (estComp == EstimatesMeanVariance)
     {
         parameterAddr->estimatesToCompute = low_order_moments::estimatesMeanVariance;
     }
@@ -59,12 +56,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Parame
  * Method:    cGetEstimatesToCompute
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Parameter_cGetEstimatesToCompute
-  (JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Parameter_cGetEstimatesToCompute(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong parAddr)
 {
     using namespace daal::algorithms;
-    low_order_moments::Parameter *parameterAddr = (low_order_moments::Parameter *)parAddr;
+    low_order_moments::Parameter * parameterAddr = (low_order_moments::Parameter *)parAddr;
 
     return (jint)(parameterAddr->estimatesToCompute);
-
 }

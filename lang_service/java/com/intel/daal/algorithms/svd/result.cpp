@@ -34,8 +34,7 @@ using namespace daal::algorithms::svd;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<svd::Result>::newObj();
 }
@@ -45,18 +44,14 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cNewResult
  * Method:    cGetFactor
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cGetFactor
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cGetFactor(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
-    if ( id == singularValuesId )
-    {
-        return jniArgument<svd::Result>::get<svd::ResultId, NumericTable>(resAddr, svd::singularValues);
-    }
-    else if(id == leftSingularMatrixId)
+    if (id == singularValuesId) { return jniArgument<svd::Result>::get<svd::ResultId, NumericTable>(resAddr, svd::singularValues); }
+    else if (id == leftSingularMatrixId)
     {
         return jniArgument<svd::Result>::get<svd::ResultId, NumericTable>(resAddr, svd::leftSingularMatrix);
     }
-    else if(id == rightSingularMatrixId)
+    else if (id == rightSingularMatrixId)
     {
         return jniArgument<svd::Result>::get<svd::ResultId, NumericTable>(resAddr, svd::rightSingularMatrix);
     }
@@ -68,8 +63,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cGetFactor
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     return jniArgument<svd::Result>::get<svd::ResultId, NumericTable>(resAddr, id);
 }
@@ -79,8 +73,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cGetResultTabl
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_Result_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<svd::Result>::set<svd::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

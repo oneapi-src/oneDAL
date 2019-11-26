@@ -39,22 +39,16 @@ using namespace daal::algorithms;
 using namespace daal::algorithms::multinomial_naive_bayes;
 
 /* Input data set parameters */
-const string trainDatasetFileNames[4]     =
-{
-    "./data/distributed/naivebayes_train_dense.csv", "./data/distributed/naivebayes_train_dense.csv",
-    "./data/distributed/naivebayes_train_dense.csv", "./data/distributed/naivebayes_train_dense.csv"
-};
-const string trainGroundTruthFileNames[4] =
-{
-    "./data/distributed/naivebayes_train_labels.csv", "./data/distributed/naivebayes_train_labels.csv",
-    "./data/distributed/naivebayes_train_labels.csv", "./data/distributed/naivebayes_train_labels.csv"
-};
+const string trainDatasetFileNames[4]     = { "./data/distributed/naivebayes_train_dense.csv", "./data/distributed/naivebayes_train_dense.csv",
+                                          "./data/distributed/naivebayes_train_dense.csv", "./data/distributed/naivebayes_train_dense.csv" };
+const string trainGroundTruthFileNames[4] = { "./data/distributed/naivebayes_train_labels.csv", "./data/distributed/naivebayes_train_labels.csv",
+                                              "./data/distributed/naivebayes_train_labels.csv", "./data/distributed/naivebayes_train_labels.csv" };
 
-string testDatasetFileName      = "./data/distributed/naivebayes_test_dense.csv";
-string testGroundTruthFileName  = "./data/distributed/naivebayes_test_labels.csv";
+string testDatasetFileName     = "./data/distributed/naivebayes_test_dense.csv";
+string testGroundTruthFileName = "./data/distributed/naivebayes_test_labels.csv";
 
-const size_t nClasses             = 20;
-const size_t nBlocks              = 4;
+const size_t nClasses = 20;
+const size_t nBlocks  = 4;
 
 int rankId, comm_size;
 #define mpi_root 0
@@ -66,7 +60,7 @@ void printResults();
 training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
@@ -74,7 +68,7 @@ int main(int argc, char *argv[])
 
     trainModel();
 
-    if(rankId == mpi_root)
+    if (rankId == mpi_root)
     {
         testModel();
         printResults();
@@ -88,8 +82,8 @@ int main(int argc, char *argv[])
 void trainModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager>   trainDataSource(trainDatasetFileNames[rankId], DataSource::doAllocateNumericTable,
-                                                        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileNames[rankId], DataSource::doAllocateNumericTable,
+                                                      DataSource::doDictionaryFromContext);
     FileDataSource<CSVFeatureManager> trainLabelsSource(trainGroundTruthFileNames[rankId], DataSource::doAllocateNumericTable,
                                                         DataSource::doDictionaryFromContext);
 
@@ -101,7 +95,7 @@ void trainModel()
     training::Distributed<step1Local> localAlgorithm(nClasses);
 
     /* Pass a training data set and dependent values to the algorithm */
-    localAlgorithm.input.set(classifier::training::data,   trainDataSource.getNumericTable());
+    localAlgorithm.input.set(classifier::training::data, trainDataSource.getNumericTable());
     localAlgorithm.input.set(classifier::training::labels, trainLabelsSource.getNumericTable());
 
     /* Train the Naive Bayes model on local nodes */
@@ -114,26 +108,22 @@ void trainModel()
     size_t perNodeArchLength = dataArch.getSizeOfArchive();
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
-    if (rankId == mpi_root)
-    {
-        serializedData.reset(new byte[perNodeArchLength * nBlocks]);
-    }
+    if (rankId == mpi_root) { serializedData.reset(new byte[perNodeArchLength * nBlocks]); }
 
     {
         services::SharedPtr<byte> nodeResults(new byte[perNodeArchLength]);
-        dataArch.copyArchiveToArray(nodeResults.get(), perNodeArchLength );
+        dataArch.copyArchiveToArray(nodeResults.get(), perNodeArchLength);
 
         /* Transfer partial results to step 2 on the root node */
-        MPI_Gather(nodeResults.get(), perNodeArchLength, MPI_CHAR, serializedData.get(), perNodeArchLength, MPI_CHAR, mpi_root,
-                   MPI_COMM_WORLD);
+        MPI_Gather(nodeResults.get(), perNodeArchLength, MPI_CHAR, serializedData.get(), perNodeArchLength, MPI_CHAR, mpi_root, MPI_COMM_WORLD);
     }
 
-    if(rankId == mpi_root)
+    if (rankId == mpi_root)
     {
         /* Create an algorithm object to build the final Naive Bayes model on the master node */
         training::Distributed<step2Master> masterAlgorithm(nClasses);
 
-        for(size_t i = 0; i < nBlocks ; i++)
+        for (size_t i = 0; i < nBlocks; i++)
         {
             /* Deserialize partial results from step 1 */
             OutputDataArchive dataArch(serializedData.get() + perNodeArchLength * i, perNodeArchLength);
@@ -157,8 +147,7 @@ void trainModel()
 void testModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from an input file */
     testDataSource.loadDataBlock();
@@ -167,7 +156,7 @@ void testModel()
     prediction::Batch<> algorithm(nClasses);
 
     /* Pass a testing data set and the trained model to the algorithm */
-    algorithm.input.set(classifier::prediction::data,  testDataSource.getNumericTable());
+    algorithm.input.set(classifier::prediction::data, testDataSource.getNumericTable());
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
 
     /* Predict values of the Naive Bayes model */
@@ -183,8 +172,6 @@ void printResults()
                                                       DataSource::doDictionaryFromContext);
     testGroundTruth.loadDataBlock();
 
-    printNumericTables<int, int>(testGroundTruth.getNumericTable().get(),
-                                 predictionResult->get(classifier::prediction::prediction).get(),
-                                 "Ground truth", "Classification results",
-                                 "NaiveBayes classification results (first 20 observations):", 20);
+    printNumericTables<int, int>(testGroundTruth.getNumericTable().get(), predictionResult->get(classifier::prediction::prediction).get(),
+                                 "Ground truth", "Classification results", "NaiveBayes classification results (first 20 observations):", 20);
 }

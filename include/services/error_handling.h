@@ -25,7 +25,7 @@
 #define __ERROR_HANDLING__
 
 #if (!defined(DAAL_NOTHROW_EXCEPTIONS))
-#include <exception>
+    #include <exception>
 #endif
 
 #include "daal_string.h"
@@ -56,26 +56,26 @@ public:
      * Constructs an exception with a description
      * \param[in] description    Description of the exception
      */
-    Exception(const char *description) : _description(description) {};
+    Exception(const char * description) : _description(description) {};
 
     /**
      * Return description of the exception
      * \return Description of the exception
      */
-    virtual const char *what() const throw() { return _description.c_str(); };
+    virtual const char * what() const throw() { return _description.c_str(); };
 
-#ifndef cxx11
+    #ifndef cxx11
     /**
      * Destructor of an the exception
      */
     virtual ~Exception() throw() {}
-#endif
+    #endif
 
     /**
      * Returns exception with description
      * \return Exception with description
      */
-    static Exception getException(const String &description)
+    static Exception getException(const String & description)
     {
         String d(description);
         return Exception(d.c_str());
@@ -85,10 +85,7 @@ public:
     * Returns exception with description
     * \return Exception with description
     */
-    static Exception getException(const char *description)
-    {
-        return Exception(description);
-    }
+    static Exception getException(const char * description) { return Exception(description); }
 
 private:
     String _description;
@@ -103,7 +100,6 @@ using interface1::Exception;
 
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-SERVICES__ERROR"></a>
  * \brief Class that represents an error
@@ -123,7 +119,7 @@ public:
      * Copy constructor. Constructs an error from a copy of the content of another error
      * \param[in] e    Another error to be used as a source with which to initialize the contents of this error
      */
-    Error(const Error &e);
+    Error(const Error & e);
 
     /** Destructor */
     ~Error();
@@ -138,16 +134,13 @@ public:
      * Sets an identifier of the error
      * \param[in] id    Identifier of the error
      */
-    void setId(ErrorID id)
-    {
-        _id = id;
-    }
+    void setId(ErrorID id) { _id = id; }
 
     /**
      * Returns the word description of the error
      * \return Description of the error
      */
-    const char *description() const;
+    const char * description() const;
 
     /**
      * Adds an integer detail into a collection of details associated with this error
@@ -155,7 +148,7 @@ public:
      * \param[in] value Value of the detail
      * \return Reference to this object
      */
-    Error &addIntDetail(ErrorDetailID id, int value);
+    Error & addIntDetail(ErrorDetailID id, int value);
 
     /**
      * Adds a floating-point detail into a collection of details associated with this error
@@ -163,7 +156,7 @@ public:
      * \param[in] value Value of the detail
      * \return Reference to this object
      */
-    Error &addDoubleDetail(ErrorDetailID id, double value);
+    Error & addDoubleDetail(ErrorDetailID id, double value);
 
     /**
      * Adds a string detail into a collection of details associated with this error
@@ -171,13 +164,13 @@ public:
      * \param[in] value Value of the detail
      * \return Reference to this object
      */
-    Error &addStringDetail(ErrorDetailID id, const String &value);
+    Error & addStringDetail(ErrorDetailID id, const String & value);
 
     /**
     * Access to error details list
     * \return pointer to the top of error details list
     */
-    const ErrorDetail *details() const { return _details; }
+    const ErrorDetail * details() const { return _details; }
 
     /**
      * Create an instance of the class with the given arguments
@@ -187,7 +180,7 @@ public:
 
     static SharedPtr<Error> create(ErrorID id, ErrorDetailID det, int value);
 
-    static SharedPtr<Error> create(ErrorID id, ErrorDetailID det, const String &value);
+    static SharedPtr<Error> create(ErrorID id, ErrorDetailID det, const String & value);
 
 protected:
     /**
@@ -196,11 +189,11 @@ protected:
     * \param[in] detail The detail
     * \return Reference to this object
     */
-    Error &addDetail(ErrorDetail *detail);
+    Error & addDetail(ErrorDetail * detail);
 
 private:
     ErrorID _id;
-    ErrorDetail *_details;
+    ErrorDetail * _details;
 };
 typedef SharedPtr<Error> ErrorPtr;
 
@@ -224,32 +217,32 @@ public:
      * Copy constructor of a kernel error collection
      * \param[in] other Kernel error collection that will be copied
      */
-    KernelErrorCollection(const KernelErrorCollection &other);
+    KernelErrorCollection(const KernelErrorCollection & other);
 
     /**
      * Adds error id to kernel error collection
      * \param[in] id Identifier of error
      * \return    Pointer to the new error
      */
-    Error &add(const ErrorID &id);
+    Error & add(const ErrorID & id);
 
     /**
      * Adds error to kernel error collection
      * \param[in] e Error to be added to kernel error collection
      */
-    void add(const ErrorPtr &e);
+    void add(const ErrorPtr & e);
 
     /**
      * Adds error kernel collection
      * \param[in] e Error collection that will be added
      */
-    void add(const services::SharedPtr<KernelErrorCollection> &e);
+    void add(const services::SharedPtr<KernelErrorCollection> & e);
 
     /**
     * Adds error kernel collection
     * \param[in] e Error collection that will be added
     */
-    void add(const KernelErrorCollection &e);
+    void add(const KernelErrorCollection & e);
 
     /**
      * Returns true if kernel error collection is empty
@@ -268,28 +261,28 @@ public:
     *  \param[in] index Index of an accessed element
     *  \return    Pointer to the element
     */
-    Error *at(size_t index);
+    Error * at(size_t index);
 
     /**
     *  Element access
     *  \param[in] index Index of an accessed element
     *  \return    Pointer to the element
     */
-    const Error *at(size_t index) const;
+    const Error * at(size_t index) const;
 
     /**
     *  Element access
     *  \param[in] index Index of an accessed element
     *  \return    Pointer to the element
     */
-    Error *operator[](size_t index);
+    Error * operator[](size_t index);
 
     /**
     *  Element access
     *  \param[in] index Index of an accessed element
     *  \return    Pointer to the element
     */
-    const Error *operator[](size_t index) const;
+    const Error * operator[](size_t index) const;
 
     /**
      * Destructor of a kernel error collection
@@ -300,10 +293,10 @@ public:
      * Returns description of all errors from collection
      * \return Description of all errors from collection
      */
-    const char *getDescription() const;
+    const char * getDescription() const;
 
 private:
-    mutable char *_description;
+    mutable char * _description;
 };
 typedef SharedPtr<KernelErrorCollection> KernelErrorCollectionPtr;
 
@@ -319,31 +312,29 @@ public:
     /**
      * Constructs an error collection
      */
-    ErrorCollection() : _errors(new KernelErrorCollection()), _canThrow(true){}
+    ErrorCollection() : _errors(new KernelErrorCollection()), _canThrow(true) {}
 
     /**
      * Copy constructor for error collection
      * \param[in] o  Error collection that will be copied
      */
-    ErrorCollection(const ErrorCollection &o) : _errors(o.getErrors()), _canThrow(o._canThrow) {}
-
+    ErrorCollection(const ErrorCollection & o) : _errors(o.getErrors()), _canThrow(o._canThrow) {}
 
     /**
     * Constructor for error collection
     * \param[in] errors  Error collection that will be kept by
     */
-    explicit ErrorCollection(const KernelErrorCollection &errors) : _errors(new KernelErrorCollection(errors)), _canThrow(true) {}
+    explicit ErrorCollection(const KernelErrorCollection & errors) : _errors(new KernelErrorCollection(errors)), _canThrow(true) {}
 
     /**
      * Adds error to error collection and throws exception if DAAL_NOTHROW_EXCEPTIONS not defined
      * \param[in] id Error identifier
      */
-    void add(const ErrorID &id)
+    void add(const ErrorID & id)
     {
         _errors->add(id);
 #if (!defined(DAAL_NOTHROW_EXCEPTIONS))
-        if(_canThrow)
-            throw Exception::getException(getDescription());
+        if (_canThrow) throw Exception::getException(getDescription());
 #endif
     }
 
@@ -351,12 +342,11 @@ public:
      * Adds error to error collection and throws exception if DAAL_NOTHROW_EXCEPTIONS not defined
      * \param[in] e Error
      */
-    void add(const ErrorPtr &e)
+    void add(const ErrorPtr & e)
     {
         _errors->add(e);
 #if (!defined(DAAL_NOTHROW_EXCEPTIONS))
-        if(_canThrow)
-            throw Exception::getException(getDescription());
+        if (_canThrow) throw Exception::getException(getDescription());
 #endif
     }
 
@@ -364,31 +354,28 @@ public:
      * Adds error collection to another error collection and throw exception if DAAL_NOTHROW_EXCEPTIONS not defined
      * \param[in] e Error collection
      */
-    void add(const ErrorCollection &e)
+    void add(const ErrorCollection & e)
     {
-        if(!e.isEmpty())
+        if (!e.isEmpty())
         {
             _errors->add(e.getErrors());
 #if (!defined(DAAL_NOTHROW_EXCEPTIONS))
-            if(_canThrow)
-                throw Exception::getException(getDescription());
+            if (_canThrow) throw Exception::getException(getDescription());
 #endif
         }
     }
-
 
     /**
     * Adds kernel error collection to another error collection and throw exception if DAAL_NOTHROW_EXCEPTIONS not defined
     * \param[in] e Error collection
     */
-    void add(const KernelErrorCollectionPtr &e)
+    void add(const KernelErrorCollectionPtr & e)
     {
-        if(!e->isEmpty())
+        if (!e->isEmpty())
         {
             _errors->add(e);
 #if (!defined(DAAL_NOTHROW_EXCEPTIONS))
-            if(_canThrow)
-                throw Exception::getException(getDescription());
+            if (_canThrow) throw Exception::getException(getDescription());
 #endif
         }
     }
@@ -397,19 +384,13 @@ public:
      * Returns size of an error collection
      * \return Size of an error collection
      */
-    size_t size() const
-    {
-        return _errors->size();
-    }
+    size_t size() const { return _errors->size(); }
 
     /**
      * Returns true if kernel error collection is empty
      * \return True if kernel error collection is empty
      */
-    bool isEmpty() const
-    {
-        return _errors->isEmpty();
-    }
+    bool isEmpty() const { return _errors->isEmpty(); }
 
     /**
      * Destructor of error collection
@@ -420,25 +401,19 @@ public:
      * Returns kernel error collection
      * \return True if kernel error collection is empty
      */
-    const KernelErrorCollectionPtr &getErrors() const
-    {
-        return _errors;
-    }
+    const KernelErrorCollectionPtr & getErrors() const { return _errors; }
 
     /**
      * Returns description of all errors from collection
      * \return Description of all errors from collection
      */
-    const char *getDescription() const { return _errors->getDescription(); }
+    const char * getDescription() const { return _errors->getDescription(); }
 
     /**
     * Returns true if can throw exceptions
     * \return true if can throw exceptions
     */
-    bool canThrow() const
-    {
-        return _canThrow;
-    }
+    bool canThrow() const { return _canThrow; }
 
     /**
     * Set canThrow flag
@@ -470,7 +445,7 @@ public:
     /**
      * Default constructor
      */
-    Status() : _impl(0){}
+    Status() : _impl(0) {}
     /**
     * Constructs an object containing given error
     * \param[in] id Identifier of the error
@@ -480,12 +455,12 @@ public:
     * Constructs an object containing given error
     * \param[in] e the error
     */
-    Status(const ErrorPtr& e);
+    Status(const ErrorPtr & e);
 
     /**
     * Copy constructor
     */
-    Status(const Status& other);
+    Status(const Status & other);
 
     /**
     * Destructor
@@ -509,41 +484,41 @@ public:
     * \param[in] id    Identifier of the error
     * \return Reference to this object
     */
-    Status& add(ErrorID id);
+    Status & add(ErrorID id);
 
     /**
     * Adds an error to the object
     * \param[in] e the error
     * \return Reference to this object
     */
-    Status& add(const ErrorPtr& e);
+    Status & add(const ErrorPtr & e);
 
     /**
     * Adds another status to this object
     * \param[in] other the status to add
     * \return Reference to this object
     */
-    Status& add(const Status& other);
+    Status & add(const Status & other);
 
     /**
     * Operator, adds another status to this object
     * \param[in] other the status to add
     * \return Reference to this object
     */
-    Status& operator |=(const Status& other) { return add(other); }
+    Status & operator|=(const Status & other) { return add(other); }
 
     /**
     * Assignment oerator
     * \param[in] other the status to assign
     * \return Reference to this object
     */
-    Status& operator =(const Status& other);
+    Status & operator=(const Status & other);
 
     /**
     * Returns description of all errors contained in the object
     * \return Description of all errors contained in the object
     */
-    const char* getDescription() const;
+    const char * getDescription() const;
 
     /**
     * Clear all errors contained in this object
@@ -554,11 +529,11 @@ public:
     /**
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED Status(const KernelErrorCollection& e);
+    DAAL_DEPRECATED Status(const KernelErrorCollection & e);
     /**
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED Status(const ErrorCollection& e);
+    DAAL_DEPRECATED Status(const ErrorCollection & e);
 
     /**
      * \DAAL_DEPRECATED
@@ -566,14 +541,13 @@ public:
     ErrorCollectionPtr getCollection() const;
 
 private:
-    void* _impl; //pointer to the collection of errors with reference counting
+    void * _impl; //pointer to the collection of errors with reference counting
 };
 
-inline const Status& throwIfPossible(const Status& s)
+inline const Status & throwIfPossible(const Status & s)
 {
 #if (!defined(DAAL_NOTHROW_EXCEPTIONS))
-    if(!s.ok())
-        throw services::Exception::getException(s.getDescription());
+    if (!s.ok()) throw services::Exception::getException(s.getDescription());
 #endif
     return s;
 }
@@ -587,19 +561,17 @@ using interface1::KernelErrorCollectionPtr;
 using interface1::ErrorCollectionPtr;
 using interface1::Status;
 using interface1::throwIfPossible;
-namespace internal {
-inline Status checkForNullByteInjection(const char *begin, const char *const end)
+namespace internal
+{
+inline Status checkForNullByteInjection(const char * begin, const char * const end)
 {
     for (; begin != end; ++begin)
     {
-        if (*begin == '\0')
-        {
-            return Status(ErrorNullByteInjection);
-        }
+        if (*begin == '\0') { return Status(ErrorNullByteInjection); }
     }
     return Status();
 }
-}
-}
-};
+} // namespace internal
+} // namespace services
+}; // namespace daal
 #endif

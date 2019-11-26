@@ -41,13 +41,11 @@ namespace decision_forest
  */
 namespace classification
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
 {
-
 /**
  * @ingroup decision_forest_classification
  * @{
@@ -145,18 +143,15 @@ public:
     *  Get status of model building
     *  \return Status
     */
-    services::Status getStatus()
-    {
-        return _status;
-    }
+    services::Status getStatus() { return _status; }
 
 protected:
     ModelPtr _model;
     services::Status _status;
     services::Status initialize(size_t nClasses, size_t nTrees);
-    services::Status createTreeInternal(size_t nNodes, TreeId& resId);
-    services::Status addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t classLabel, NodeId& res);
-    services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, NodeId& res);
+    services::Status createTreeInternal(size_t nNodes, TreeId & resId);
+    services::Status addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t classLabel, NodeId & res);
+    services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, NodeId & res);
 };
 /** @} */
 } // namespace interface1

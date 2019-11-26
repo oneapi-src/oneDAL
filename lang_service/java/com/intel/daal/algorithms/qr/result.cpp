@@ -33,8 +33,7 @@ using namespace daal::algorithms::qr;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<qr::Result>::newObj();
 }
@@ -44,14 +43,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Result_cNewResult
  * Method:    cGetResultTable
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Result_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
-    if ( id == matrixQId )
-    {
-        return jniArgument<qr::Result>::get<qr::ResultId, NumericTable>(resAddr, qr::matrixQ);
-    }
-    else if(id == matrixRId)
+    if (id == matrixQId) { return jniArgument<qr::Result>::get<qr::ResultId, NumericTable>(resAddr, qr::matrixQ); }
+    else if (id == matrixRId)
     {
         return jniArgument<qr::Result>::get<qr::ResultId, NumericTable>(resAddr, qr::matrixR);
     }
@@ -64,8 +59,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Result_cGetResultTable
  * Method:    cSetResultTable
  * Signature:(JI)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_Result_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<qr::Result>::set<qr::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

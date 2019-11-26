@@ -26,9 +26,9 @@
 #include "daal_memory.h"
 
 #if defined(_MSC_VER)
-#define EXPECT(x, y) (x)
+    #define EXPECT(x, y) (x)
 #else
-#define EXPECT(x, y) (__builtin_expect((x),(y)))
+    #define EXPECT(x, y) (__builtin_expect((x), (y)))
 #endif
 
 #define BLOCK_HEADER_BYTES 8
@@ -37,31 +37,24 @@ namespace daal
 {
 namespace data_management
 {
-Compressor<lzo>::Compressor() :
-    data_management::CompressorImpl()
+Compressor<lzo>::Compressor() : data_management::CompressorImpl()
 {
     Ipp32u state_size;
 
-    _preHeadBytes = parameter.preHeadBytes;
+    _preHeadBytes  = parameter.preHeadBytes;
     _postHeadBytes = parameter.postHeadBytes;
 
-    _next_in = NULL;
-    _avail_in = 0;
-    _next_out = NULL;
-    _avail_out = 0;
+    _next_in     = NULL;
+    _avail_in    = 0;
+    _next_out    = NULL;
+    _avail_out   = 0;
     _p_lzo_state = NULL;
 
     ippInit();
     int errCode = ippsEncodeLZOGetSize(IppLZO1XST, 0, &state_size);
-    if (errCode != ippStsNoErr)
-    {
-        this->_errors->add(services::ErrorLzoInternal);
-    }
+    if (errCode != ippStsNoErr) { this->_errors->add(services::ErrorLzoInternal); }
     _p_lzo_state = (void *)daal::services::daal_calloc((size_t)state_size);
-    if (_p_lzo_state == NULL)
-    {
-        this->_errors->add(services::ErrorMemoryAllocationFailed);
-    }
+    if (_p_lzo_state == NULL) { this->_errors->add(services::ErrorMemoryAllocationFailed); }
 
     errCode = ippsEncodeLZOInit_8u(IppLZO1XST, 0, (IppLZOState_8u *)_p_lzo_state);
     if (errCode != ippStsNoErr)
@@ -78,11 +71,10 @@ Compressor<lzo>::Compressor() :
         finalizeCompression();
         this->_errors->add(services::ErrorLzoInternal);
         return;
-    default:
-        break;
+    default: break;
     }
 
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
@@ -93,45 +85,42 @@ Compressor<lzo>::Compressor() :
 
 void Compressor<lzo>::initialize()
 {
-    _preHeadBytes = parameter.preHeadBytes;
+    _preHeadBytes  = parameter.preHeadBytes;
     _postHeadBytes = parameter.postHeadBytes;
     _isInitialized = true;
 }
 
 Compressor<lzo>::~Compressor()
 {
-    if(_p_lzo_state) daal::services::daal_free(_p_lzo_state);
+    if (_p_lzo_state) daal::services::daal_free(_p_lzo_state);
     _p_lzo_state = NULL;
 }
 
 void Compressor<lzo>::finalizeCompression()
 {
     daal::services::daal_free(_p_lzo_state);
-    _p_lzo_state = NULL;
+    _p_lzo_state          = NULL;
     this->_isOutBlockFull = 0;
-    _next_in = NULL;
-    _avail_in = 0;
-    _next_out = NULL;
-    _avail_out = 0;
+    _next_in              = NULL;
+    _avail_in             = 0;
+    _next_out             = NULL;
+    _avail_out            = 0;
 }
 
-void Compressor<lzo>::setInputDataBlock(byte *in, size_t len, size_t off)
+void Compressor<lzo>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if(_isInitialized == false)
-    {
-        initialize();
-    }
+    if (_isInitialized == false) { initialize(); }
 
     checkInputParams(in, len);
-    if(this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0) { return; }
 
     _avail_in = len;
-    _next_in = in + off;
+    _next_in  = in + off;
 }
 
-void Compressor<lzo>::run(byte *out, size_t outLen, size_t off)
+void Compressor<lzo>::run(byte * out, size_t outLen, size_t off)
 {
-    if(_isInitialized == false)
+    if (_isInitialized == false)
     {
         this->_errors->add(services::ErrorLzoInternal);
         return;
@@ -141,15 +130,15 @@ void Compressor<lzo>::run(byte *out, size_t outLen, size_t off)
     Ipp32u tmp_avail_out;
 
     checkOutputParams(out, outLen);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
-    _avail_out = outLen;
-    _next_out = out + off;
-    this->_isOutBlockFull = 0;
+    _avail_out              = outLen;
+    _next_out               = out + off;
+    this->_isOutBlockFull   = 0;
     this->_usedOutBlockSize = 0;
 
     if (_avail_out < (67 + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes) + 2)
@@ -160,25 +149,23 @@ void Compressor<lzo>::run(byte *out, size_t outLen, size_t off)
     }
 
     if (_avail_out < _avail_in + (_avail_in) / 16 + 67 + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes)
-    {
-        tmp_avail_in = ((_avail_out - (67 + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes)) * 16) / 17;
-    }
+    { tmp_avail_in = ((_avail_out - (67 + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes)) * 16) / 17; }
     else
     {
         tmp_avail_in = _avail_in;
     }
 
     tmp_avail_out = _avail_out - (BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
-    int errCode = ippsEncodeLZO_8u((const Ipp8u *)(_next_in), tmp_avail_in,
-                                   (Ipp8u *)((byte *)(_next_out) + (BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes)),
-                                   &tmp_avail_out, (IppLZOState_8u *)_p_lzo_state);
+    int errCode   = ippsEncodeLZO_8u((const Ipp8u *)(_next_in), tmp_avail_in,
+                                   (Ipp8u *)((byte *)(_next_out) + (BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes)), &tmp_avail_out,
+                                   (IppLZOState_8u *)_p_lzo_state);
     if (errCode != ippStsNoErr)
     {
         finalizeCompression();
         this->_errors->add(services::ErrorLzoInternal);
         return;
     }
-    _avail_out = _avail_out - tmp_avail_out - (BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
+    _avail_out                                         = _avail_out - tmp_avail_out - (BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
     ((Ipp32u *)((byte *)_next_out + _preHeadBytes))[0] = (Ipp32u)tmp_avail_in;
     ((Ipp32u *)((byte *)_next_out + _preHeadBytes))[1] = (Ipp32u)tmp_avail_out;
     this->_usedOutBlockSize += (BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
@@ -186,24 +173,23 @@ void Compressor<lzo>::run(byte *out, size_t outLen, size_t off)
     _avail_in = _avail_in - tmp_avail_in;
     if (_avail_in > 0)
     {
-        _next_in = (void *)((byte *)(_next_in) + tmp_avail_in);
+        _next_in              = (void *)((byte *)(_next_in) + tmp_avail_in);
         this->_isOutBlockFull = 1;
     }
 }
 
-Decompressor<lzo>::Decompressor() :
-    data_management::DecompressorImpl()
+Decompressor<lzo>::Decompressor() : data_management::DecompressorImpl()
 {
-    _next_in = NULL;
-    _avail_in = 0;
-    _next_out = NULL;
-    _avail_out = 0;
+    _next_in              = NULL;
+    _avail_in             = 0;
+    _next_out             = NULL;
+    _avail_out            = 0;
     this->_isOutBlockFull = 0;
-    _internalBuff = NULL;
-    _internalBuffOff = 0;
-    _internalBuffLen = 0;
+    _internalBuff         = NULL;
+    _internalBuffOff      = 0;
+    _internalBuffLen      = 0;
 
-    _preHeadBytes = parameter.preHeadBytes;
+    _preHeadBytes  = parameter.preHeadBytes;
     _postHeadBytes = parameter.postHeadBytes;
 
     ippInit();
@@ -212,11 +198,10 @@ Decompressor<lzo>::Decompressor() :
 
 void Decompressor<lzo>::initialize()
 {
-    _preHeadBytes = parameter.preHeadBytes;
+    _preHeadBytes  = parameter.preHeadBytes;
     _postHeadBytes = parameter.postHeadBytes;
     _isInitialized = true;
 }
-
 
 Decompressor<lzo>::~Decompressor()
 {
@@ -229,24 +214,18 @@ Decompressor<lzo>::~Decompressor()
 
 void Decompressor<lzo>::finalizeCompression()
 {
-    if (_internalBuff != NULL)
-    {
-        daal::services::daal_free(_internalBuff);
-    }
-    _internalBuff = NULL;
+    if (_internalBuff != NULL) { daal::services::daal_free(_internalBuff); }
+    _internalBuff    = NULL;
     _internalBuffLen = 0;
     _internalBuffOff = 0;
 }
 
-void Decompressor<lzo>::setInputDataBlock(byte *in, size_t len, size_t off)
+void Decompressor<lzo>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if(_isInitialized == false)
-    {
-        initialize();
-    }
+    if (_isInitialized == false) { initialize(); }
 
     checkInputParams(in, len);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
@@ -260,40 +239,39 @@ void Decompressor<lzo>::setInputDataBlock(byte *in, size_t len, size_t off)
     }
 
     _avail_in = len;
-    _next_in = in + off;
+    _next_in  = in + off;
 }
 
-void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
+void Decompressor<lzo>::run(byte * out, size_t outLen, size_t off)
 {
-    if(_isInitialized == false)
+    if (_isInitialized == false)
     {
         this->_errors->add(services::ErrorLzoInternal);
         return;
     }
 
-    Ipp32u tmp_avail_out = 0;
+    Ipp32u tmp_avail_out         = 0;
     Ipp32u uncompressedBlockSize = 0;
-    Ipp32u compressedBlockSize = 0;
-    this->_isOutBlockFull = 0;
-    this->_usedOutBlockSize = 0;
-    int result = 0;
+    Ipp32u compressedBlockSize   = 0;
+    this->_isOutBlockFull        = 0;
+    this->_usedOutBlockSize      = 0;
+    int result                   = 0;
 
     checkOutputParams(out, outLen);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
     _avail_out = outLen;
-    _next_out = out + off;
+    _next_out  = out + off;
     if (_internalBuffLen - _internalBuffOff > 0)
     {
         if (_avail_out < _internalBuffLen - _internalBuffOff)
         {
-
-            result |= daal::services::internal::daal_memcpy_s((void *)(_next_out), _avail_out,
-                                                              (void *)(((byte *)_internalBuff) + _internalBuffOff), _avail_out);
+            result |= daal::services::internal::daal_memcpy_s((void *)(_next_out), _avail_out, (void *)(((byte *)_internalBuff) + _internalBuffOff),
+                                                              _avail_out);
             if (result)
             {
                 this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -302,16 +280,15 @@ void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
 
             _internalBuffOff += _avail_out;
             this->_usedOutBlockSize += _avail_out;
-            _avail_out = 0;
+            _avail_out            = 0;
             this->_isOutBlockFull = 1;
             return;
         }
         else
         {
-
-            result |= daal::services::internal::daal_memcpy_s((void *)(_next_out), _internalBuffLen - _internalBuffOff,
-                                                              (void *)(((byte *)_internalBuff) + _internalBuffOff),
-                                                              _internalBuffLen - _internalBuffOff);
+            result |=
+                daal::services::internal::daal_memcpy_s((void *)(_next_out), _internalBuffLen - _internalBuffOff,
+                                                        (void *)(((byte *)_internalBuff) + _internalBuffOff), _internalBuffLen - _internalBuffOff);
             if (result)
             {
                 this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -320,15 +297,12 @@ void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
 
             this->_usedOutBlockSize += _internalBuffLen - _internalBuffOff;
             _avail_out = _avail_out - (_internalBuffLen - _internalBuffOff);
-            _next_out = (void *)((byte *)_next_out + (_internalBuffLen - _internalBuffOff));
+            _next_out  = (void *)((byte *)_next_out + (_internalBuffLen - _internalBuffOff));
             daal::services::daal_free(_internalBuff);
-            _internalBuff = NULL;
+            _internalBuff    = NULL;
             _internalBuffLen = 0;
             _internalBuffOff = 0;
-            if (_avail_in == 0)
-            {
-                return;
-            }
+            if (_avail_in == 0) { return; }
         }
     }
 
@@ -342,7 +316,7 @@ void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
         }
 
         uncompressedBlockSize = ((Ipp32u *)((byte *)_next_in + _preHeadBytes))[0];
-        compressedBlockSize = ((Ipp32u *)((byte *)_next_in + _preHeadBytes))[1];
+        compressedBlockSize   = ((Ipp32u *)((byte *)_next_in + _preHeadBytes))[1];
 
         if (EXPECT(_avail_in < compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes, 0))
         {
@@ -361,27 +335,21 @@ void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
             }
             _internalBuffLen = uncompressedBlockSize;
             _internalBuffOff = 0;
-            tmp_avail_out = uncompressedBlockSize;
-            int errCode = ippsDecodeLZO_8u((const Ipp8u *)((byte *)_next_in + BLOCK_HEADER_BYTES + _preHeadBytes +
-                                                           _postHeadBytes), compressedBlockSize,
-                                           (Ipp8u *)((byte *)_internalBuff), &tmp_avail_out);
+            tmp_avail_out    = uncompressedBlockSize;
+            int errCode      = ippsDecodeLZO_8u((const Ipp8u *)((byte *)_next_in + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes),
+                                           compressedBlockSize, (Ipp8u *)((byte *)_internalBuff), &tmp_avail_out);
             if (EXPECT(errCode != ippStsNoErr, 0))
             {
                 finalizeCompression();
                 switch (errCode)
                 {
-                case ippStsSrcSizeLessExpected:
-                    this->_errors->add(services::ErrorLzoDataFormat);
-                    return;
-                default:
-                    this->_errors->add(services::ErrorLzoInternal);
-                    return;
+                case ippStsSrcSizeLessExpected: this->_errors->add(services::ErrorLzoDataFormat); return;
+                default: this->_errors->add(services::ErrorLzoInternal); return;
                 }
             }
 
-            result |=
-                daal::services::internal::daal_memcpy_s((void *)(_next_out), _avail_out,
-                                                        (void *)(((byte *)_internalBuff) + _internalBuffOff), _avail_out);
+            result |= daal::services::internal::daal_memcpy_s((void *)(_next_out), _avail_out, (void *)(((byte *)_internalBuff) + _internalBuffOff),
+                                                              _avail_out);
             if (result)
             {
                 this->_errors->add(services::ErrorMemoryCopyFailedInternal);
@@ -390,49 +358,33 @@ void Decompressor<lzo>::run(byte *out, size_t outLen, size_t off)
 
             _internalBuffOff += _avail_out;
             this->_usedOutBlockSize += _avail_out;
-            _avail_out = 0;
+            _avail_out            = 0;
             this->_isOutBlockFull = 1;
-            _avail_in = _avail_in - (compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
+            _avail_in             = _avail_in - (compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
             if (_avail_in > 0)
-            {
-                _next_in = (void *)((byte *)(_next_in) + compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes +
-                                    _postHeadBytes);
-            }
+            { _next_in = (void *)((byte *)(_next_in) + compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes); }
             return;
         }
         tmp_avail_out = _avail_out;
-        int errCode = ippsDecodeLZO_8u((const Ipp8u *)((byte *)_next_in + BLOCK_HEADER_BYTES + _preHeadBytes +
-                                                       _postHeadBytes), compressedBlockSize,
+        int errCode   = ippsDecodeLZO_8u((const Ipp8u *)((byte *)_next_in + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes), compressedBlockSize,
                                        (Ipp8u *)((byte *)_next_out), &tmp_avail_out);
         if (EXPECT(errCode != ippStsNoErr, 0))
         {
             finalizeCompression();
             switch (errCode)
             {
-            case ippStsSrcSizeLessExpected:
-                this->_errors->add(services::ErrorLzoDataFormat);
-                return;
-            default:
-                this->_errors->add(services::ErrorLzoInternal);
-                return;
+            case ippStsSrcSizeLessExpected: this->_errors->add(services::ErrorLzoDataFormat); return;
+            default: this->_errors->add(services::ErrorLzoInternal); return;
             }
         }
         _avail_in = _avail_in - (compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
-        if (_avail_in > 0)
-        {
-            _next_in = (void *)((byte *)(_next_in) + compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes +
-                                _postHeadBytes);
-        }
+        if (_avail_in > 0) { _next_in = (void *)((byte *)(_next_in) + compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes); }
         _avail_out = _avail_out - tmp_avail_out;
-        _next_out = (byte *)_next_out + tmp_avail_out;
+        _next_out  = (byte *)_next_out + tmp_avail_out;
         this->_usedOutBlockSize += tmp_avail_out;
-    }
-    while (_avail_in > 0 && _avail_out > 0);
+    } while (_avail_in > 0 && _avail_out > 0);
 
-    if (_avail_in > 0)
-    {
-        this->_isOutBlockFull = 1;
-    }
+    if (_avail_in > 0) { this->_isOutBlockFull = 1; }
 }
 } //namespace data_management
 } //namespace daal

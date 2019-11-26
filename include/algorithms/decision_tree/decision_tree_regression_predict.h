@@ -50,7 +50,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__PREDICTION__BATCHCONTAINER"></a>
  *  \brief Class containing computation methods for Decision tree model-based prediction  \DAAL_DEPRECATED
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -58,7 +58,7 @@ public:
      * Constructs a container for Decision tree model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
 
     DAAL_DEPRECATED ~BatchContainer();
 
@@ -84,24 +84,21 @@ public:
  *      - \ref decision_tree::regression::interface1::Model "decision_tree::regression::Model" class
  *      - \ref training::interface1::Batch "training::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public algorithms::regression::prediction::Batch
 {
 public:
     typedef algorithms::regression::prediction::Batch super;
 
-    typedef algorithms::decision_tree::regression::prediction::Input  InputType;
-    typedef algorithms::decision_tree::regression::Parameter          ParameterType;
+    typedef algorithms::decision_tree::regression::prediction::Input InputType;
+    typedef algorithms::decision_tree::regression::Parameter ParameterType;
     typedef algorithms::decision_tree::regression::prediction::Result ResultType;
 
-    InputType input; /*!< %Input data structure */
+    InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of prediction */
 
     /** Default constructor */
-    DAAL_DEPRECATED Batch()
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Batch() { initialize(); }
 
     /**
      * Constructs a Decision tree prediction algorithm by copying input objects and parameters
@@ -109,19 +106,19 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other) :
-        algorithms::regression::prediction::Batch(other), input(other.input), parameter(other.parameter)
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other)
+        : algorithms::regression::prediction::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
 
-    DAAL_DEPRECATED_VIRTUAL virtual algorithms::regression::prediction::Input* getInput() DAAL_C11_OVERRIDE { return &input; }
+    DAAL_DEPRECATED_VIRTUAL virtual algorithms::regression::prediction::Input * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains the result of decision tree model-based prediction
@@ -140,22 +137,19 @@ public:
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = getResult()->template allocate<algorithmFPType>(_in, &parameter, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
         _par = &parameter;
         _result.reset(new ResultType());
     }
@@ -175,7 +169,7 @@ namespace interface2
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__PREDICTION__BATCHCONTAINER"></a>
  *  \brief Class containing computation methods for Decision tree model-based prediction
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -183,7 +177,7 @@ public:
      * Constructs a container for Decision tree model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
 
     ~BatchContainer();
 
@@ -209,24 +203,21 @@ public:
  *      - \ref decision_tree::regression::interface1::Model "decision_tree::regression::Model" class
  *      - \ref training::interface1::Batch "training::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public algorithms::regression::prediction::Batch
 {
 public:
     typedef algorithms::regression::prediction::Batch super;
 
-    typedef algorithms::decision_tree::regression::prediction::Input  InputType;
-    typedef algorithms::decision_tree::regression::Parameter          ParameterType;
+    typedef algorithms::decision_tree::regression::prediction::Input InputType;
+    typedef algorithms::decision_tree::regression::Parameter ParameterType;
     typedef algorithms::decision_tree::regression::prediction::Result ResultType;
 
-    InputType input; /*!< %Input data structure */
+    InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of prediction */
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a Decision tree prediction algorithm by copying input objects and parameters
@@ -234,19 +225,19 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) :
-        algorithms::regression::prediction::Batch(other), input(other.input), parameter(other.parameter)
+    Batch(const Batch<algorithmFPType, method> & other)
+        : algorithms::regression::prediction::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
 
-    virtual algorithms::regression::prediction::Input* getInput() DAAL_C11_OVERRIDE { return &input; }
+    virtual algorithms::regression::prediction::Input * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains the result of decision tree model-based prediction
@@ -259,38 +250,31 @@ public:
      * of this Decision tree prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = getResult()->template allocate<algorithmFPType>(_in, &parameter, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
         _par = &parameter;
         _result.reset(new ResultType());
     }
 };
 /** @} */
-}
+} // namespace interface2
 
 using interface2::BatchContainer;
 using interface2::Batch;
-
 
 } // namespace prediction
 } // namespace regression

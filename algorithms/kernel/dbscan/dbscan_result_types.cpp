@@ -35,7 +35,6 @@ namespace algorithms
 {
 namespace dbscan
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_DBSCAN_RESULT_ID);
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
@@ -55,7 +54,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the object
  */
-void Result::set(ResultId id, const NumericTablePtr &ptr)
+void Result::set(ResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -66,12 +65,12 @@ void Result::set(ResultId id, const NumericTablePtr &ptr)
 * \param[in] par     Algorithm parameter
 * \param[in] method  Computation method
 */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const Input *algInput = dynamic_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
-    const Parameter *algPar = static_cast<const Parameter *>(par);
+    const Input * algInput   = dynamic_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    const Parameter * algPar = static_cast<const Parameter *>(par);
 
-    const size_t nRows = algInput->get(data)->getNumberOfRows();
+    const size_t nRows     = algInput->get(data)->getNumberOfRows();
     const size_t nFeatures = algInput->get(data)->getNumberOfColumns();
 
     const int unexpectedLayouts = (int)packed_mask;
@@ -81,17 +80,13 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     DAAL_CHECK_STATUS(s, checkNumericTable(get(nClusters).get(), nClustersStr(), unexpectedLayouts, 0, 1, 1));
 
     if (algPar->resultsToCompute & computeCoreIndices)
-    {
-        DAAL_CHECK_STATUS(s, checkNumericTable(get(coreIndices).get(), coreIndicesStr(), unexpectedLayouts, 0, 1, 0, false));
-    }
+    { DAAL_CHECK_STATUS(s, checkNumericTable(get(coreIndices).get(), coreIndicesStr(), unexpectedLayouts, 0, 1, 0, false)); }
 
     if (algPar->resultsToCompute & computeCoreObservations)
-    {
-        DAAL_CHECK_STATUS(s, checkNumericTable(get(coreObservations).get(), coreObservationsStr(), unexpectedLayouts, 0, nFeatures, 0, false));
-    }
+    { DAAL_CHECK_STATUS(s, checkNumericTable(get(coreObservations).get(), coreObservationsStr(), unexpectedLayouts, 0, nFeatures, 0, false)); }
     return s;
 }
 
 } // namespace dbscan
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

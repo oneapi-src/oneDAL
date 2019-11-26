@@ -27,10 +27,8 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
-
 /**
 *  <a name="DAAL-CLASS-DATA_MANAGEMENT__MEMORYBLOCK"></a>
 *  \brief Serializable memory block, owner of the memory
@@ -43,9 +41,7 @@ public:
     DAAL_CAST_OPERATOR(MemoryBlock);
 
     /** Default constructor */
-    MemoryBlock() : _size(0), _value(NULL)
-    {
-    }
+    MemoryBlock() : _size(0), _value(NULL) {}
 
     /** Constructs Memory Block object by allocating memory of size equal to the requested number of bytes
     * \param[in] n Number of bytes to allocate
@@ -65,28 +61,19 @@ public:
     *  Returns pointer to the owned memory
     *  \return Pointer to the owned memory
     */
-    byte* get()
-    {
-        return _value;
-    }
+    byte * get() { return _value; }
 
     /**
     *  Returns pointer to the owned memory
     *  \return Pointer to the owned memory
     */
-    const byte* get() const
-    {
-        return _value;
-    }
+    const byte * get() const { return _value; }
 
     /**
     *  Returns the size of stored memory in bytes
     *  \return Number of stored bytes
     */
-    size_t size() const
-    {
-        return _size;
-    }
+    size_t size() const { return _size; }
 
     /**
     *  Releases owned memory
@@ -94,29 +81,27 @@ public:
     void release();
 
 protected:
-    virtual services::Status serializeImpl(interface1::InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    virtual services::Status serializeImpl(interface1::InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         arch->set(_size);
-        if(_size)
-            arch->set(_value, _size);
+        if (_size) arch->set(_value, _size);
 
         return services::Status();
     }
 
-    virtual services::Status deserializeImpl(const interface1::OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    virtual services::Status deserializeImpl(const interface1::OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         size_t sz = 0;
         arch->set(sz);
         reserve(sz);
-        if(sz)
-            arch->set(_value, sz);
+        if (sz) arch->set(_value, sz);
 
         return services::Status();
     }
 
 protected:
     size_t _size;
-    byte* _value;
+    byte * _value;
 };
 typedef services::SharedPtr<MemoryBlock> MemoryBlockPtr;
 
@@ -124,7 +109,7 @@ typedef services::SharedPtr<MemoryBlock> MemoryBlockPtr;
 using interface1::MemoryBlock;
 using interface1::MemoryBlockPtr;
 
-}
-}
+} // namespace data_management
+} // namespace daal
 
 #endif

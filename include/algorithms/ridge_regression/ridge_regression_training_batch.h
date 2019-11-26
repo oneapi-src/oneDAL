@@ -50,7 +50,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__TRAINING__BATCHCONTAINER"></a>
  * \brief Class containing methods for normal equations ridge regression model-based training using algorithmFPType precision arithmetic
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
@@ -58,7 +58,7 @@ public:
      * Constructs a container for ridge regression model-based training with a specified environment in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
 
     /** Default destructor */
     ~BatchContainer();
@@ -87,22 +87,19 @@ public:
  *      - \ref ridge_regression::interface1::ModelNormEq "ridge_regression::ModelNormEq" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = normEqDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = normEqDense>
 class DAAL_EXPORT Batch : public linear_model::training::Batch
 {
 public:
-    typedef algorithms::ridge_regression::training::Input  InputType;
-    typedef algorithms::ridge_regression::TrainParameter   ParameterType;
+    typedef algorithms::ridge_regression::training::Input InputType;
+    typedef algorithms::ridge_regression::TrainParameter ParameterType;
     typedef algorithms::ridge_regression::training::Result ResultType;
 
-    InputType input; /*!< %Input data structure */
+    InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< %Training \ref interface1::Parameter "parameters" */
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a ridge regression training algorithm by copying input objects
@@ -110,20 +107,17 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     ~Batch() {}
 
-    virtual regression::training::Input* getInput() DAAL_C11_OVERRIDE { return &input; }
+    virtual regression::training::Input * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains the result of ridge regression model-based training
@@ -147,29 +141,22 @@ public:
      * in the batch processing mode
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = getResult()->template allocate<algorithmFPType>(&input, &parameter, method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
+        _in  = &input;
         _par = &parameter;
         _result.reset(new ResultType());
     }

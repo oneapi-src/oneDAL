@@ -47,14 +47,16 @@ namespace interface1
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__SQL__CONFIGIFACE"></a>
  * \brief Abstract class that defines interface of modifier configuration
  */
-class ConfigIface : public modifiers::ConfigIface { };
+class ConfigIface : public modifiers::ConfigIface
+{};
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__SQL__CONFIG"></a>
  * \brief Base class that represents modifier configuration, object of that
  *        class is passed to the modifier on initialization and finalization stages
  */
-class Config : public Base, public ConfigIface { };
+class Config : public Base, public ConfigIface
+{};
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__SQL__CONTEXTIFACE"></a>
@@ -85,7 +87,7 @@ public:
 class Context : public Base, public ContextIface
 {
 public:
-    template<typename T>
+    template <typename T>
     T getValue(size_t columnIndex) const
     {
         /* Very simple implementation of conversion between C and SQL types.
@@ -94,8 +96,8 @@ public:
          * https://docs.microsoft.com/en-us/sql/odbc/reference/appendixes/conve
          * rting-data-from-sql-to-c-data-types */
         const services::BufferView<char> rawValue = getRawValue(columnIndex);
-        DAAL_ASSERT( rawValue.size() == sizeof(T) );
-        return *( (const T *)(rawValue.data()) );
+        DAAL_ASSERT(rawValue.size() == sizeof(T));
+        return *((const T *)(rawValue.data()));
     }
 };
 
@@ -103,7 +105,8 @@ public:
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__SQL__FEATUREMODIFIERIFACE"></a>
  * \brief Specialization of modifiers::FeatureModifierIface for SQL feature modifier
  */
-class FeatureModifierIface : public modifiers::FeatureModifierIface<Config, Context> { };
+class FeatureModifierIface : public modifiers::FeatureModifierIface<Config, Context>
+{};
 typedef services::SharedPtr<FeatureModifierIface> FeatureModifierIfacePtr;
 
 /**
@@ -117,38 +120,37 @@ public:
      * Default implementation of interface method
      * \param config  The configuration of the modifier
      */
-    virtual void initialize(Config &config) DAAL_C11_OVERRIDE { }
+    virtual void initialize(Config & config) DAAL_C11_OVERRIDE {}
 
     /**
      * Default implementation of interface method
      * \param config  The configuration of the modifier
      */
-    virtual void finalize(Config &config) DAAL_C11_OVERRIDE { }
+    virtual void finalize(Config & config) DAAL_C11_OVERRIDE {}
 };
 typedef services::SharedPtr<FeatureModifier> FeatureModifierPtr;
 
-
 /* Specifications of the Context::getValue method */
 
-template<>
+template <>
 services::StringView Context::getValue<services::StringView>(size_t columnIndex) const
 {
     const services::BufferView<char> buffer = getRawValue(columnIndex);
-    return services::StringView( buffer.data(), buffer.size() );
+    return services::StringView(buffer.data(), buffer.size());
 }
 
-template<>
+template <>
 std::string Context::getValue<std::string>(size_t columnIndex) const
 {
     const services::BufferView<char> buffer = getRawValue(columnIndex);
-    return std::string( buffer.data(), buffer.size() );
+    return std::string(buffer.data(), buffer.size());
 }
 
-template<>
+template <>
 std::vector<char> Context::getValue<std::vector<char> >(size_t columnIndex) const
 {
     const services::BufferView<char> buffer = getRawValue(columnIndex);
-    return std::vector<char>( buffer.data(), buffer.data() + buffer.size() );
+    return std::vector<char>(buffer.data(), buffer.data() + buffer.size());
 }
 
 /** @} */

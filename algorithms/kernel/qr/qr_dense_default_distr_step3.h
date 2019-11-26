@@ -35,7 +35,6 @@ namespace qr
 {
 namespace interface1
 {
-
 /**
  * Allocates memory for storing partial results of the QR decomposition algorithm
  * \param[in] input     Pointer to input object
@@ -43,7 +42,8 @@ namespace interface1
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResultStep3::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status DistributedPartialResultStep3::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                           const int method)
 {
     Argument::set(finalResultFromStep3, ResultPtr(new Result()));
     return Status();
@@ -56,15 +56,15 @@ DAAL_EXPORT Status DistributedPartialResultStep3::allocate(const daal::algorithm
  * processing mode
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResultStep3::setPartialResultStorage(data_management::DataCollection *qCollection)
+DAAL_EXPORT Status DistributedPartialResultStep3::setPartialResultStorage(data_management::DataCollection * qCollection)
 {
     size_t qSize = qCollection->size();
-    size_t m = 0;
-    size_t n = 0;
-    for(size_t i = 0 ; i < qSize ; i++)
+    size_t m     = 0;
+    size_t n     = 0;
+    for (size_t i = 0; i < qSize; i++)
     {
-        data_management::NumericTable  *qNT = static_cast<data_management::NumericTable *>((*qCollection)[i].get());
-        m  = qNT->getNumberOfColumns();
+        data_management::NumericTable * qNT = static_cast<data_management::NumericTable *>((*qCollection)[i].get());
+        m                                   = qNT->getNumberOfColumns();
         n += qNT->getNumberOfRows();
     }
     ResultPtr result = services::staticPointerCast<Result, data_management::SerializationIface>(Argument::get(finalResultFromStep3));
@@ -72,9 +72,9 @@ DAAL_EXPORT Status DistributedPartialResultStep3::setPartialResultStorage(data_m
     return result->allocateImpl<algorithmFPType>(m, n);
 }
 
-}// namespace interface1
-}// namespace qr
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace qr
+} // namespace algorithms
+} // namespace daal
 
 #endif

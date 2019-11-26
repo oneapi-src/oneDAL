@@ -32,42 +32,32 @@ namespace algorithms
 {
 namespace internal
 {
-
-template<typename FPType, CpuType cpu>
-FPType distancePow2(const FPType *a, const FPType *b, size_t dim)
+template <typename FPType, CpuType cpu>
+FPType distancePow2(const FPType * a, const FPType * b, size_t dim)
 {
     FPType sum = 0.0;
 
-    for (size_t i = 0; i < dim; i++)
-    {
-        sum += (b[i] - a[i]) * (b[i] - a[i]);
-    }
+    for (size_t i = 0; i < dim; i++) { sum += (b[i] - a[i]) * (b[i] - a[i]); }
 
     return sum;
 }
 
-template<typename FPType, CpuType cpu>
-FPType distancePow(const FPType *a, const FPType *b, size_t dim, FPType p)
+template <typename FPType, CpuType cpu>
+FPType distancePow(const FPType * a, const FPType * b, size_t dim, FPType p)
 {
     FPType sum = 0.0;
 
-    for (size_t i = 0; i < dim; i++)
-    {
-        sum += daal::internal::Math<FPType, cpu>::sPowx(b[i] - a[i], p);
-    }
+    for (size_t i = 0; i < dim; i++) { sum += daal::internal::Math<FPType, cpu>::sPowx(b[i] - a[i], p); }
 
     return sum;
 }
 
-template<typename FPType, CpuType cpu>
-FPType distance(const FPType *a, const FPType *b, size_t dim, FPType p)
+template <typename FPType, CpuType cpu>
+FPType distance(const FPType * a, const FPType * b, size_t dim, FPType p)
 {
     FPType sum = 0.0;
 
-    for (size_t i = 0; i < dim; i++)
-    {
-        sum += daal::internal::Math<FPType, cpu>::sPowx(b[i] - a[i], p);
-    }
+    for (size_t i = 0; i < dim; i++) { sum += daal::internal::Math<FPType, cpu>::sPowx(b[i] - a[i], p); }
 
     return daal::internal::Math<FPType, cpu>::sPowx(sum, (FPType)1.0 / p);
 }

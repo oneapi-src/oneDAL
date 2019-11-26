@@ -42,20 +42,15 @@ namespace logistic_regression
 {
 namespace training
 {
-
 namespace interface3
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::TrainBatchKernel, algorithmFPType, method);
-    }
+    if (deviceInfo.isCpu) { __DAAL_INITIALIZE_KERNELS(internal::TrainBatchKernel, algorithmFPType, method); }
     else
     {
         __DAAL_INITIALIZE_KERNELS_SYCL(internal::TrainBatchKernelOneAPI, algorithmFPType, method);
@@ -71,57 +66,57 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
-    auto x = input->get(classifier::training::data);
-    auto y = input->get(classifier::training::labels);
-    logistic_regression::Model *m = result->get(classifier::training::model).get();
-    const logistic_regression::training::Parameter *par = static_cast<logistic_regression::training::Parameter*>(_par);
-    daal::services::Environment::env &env = *_env;
+    classifier::training::Input * input                  = static_cast<classifier::training::Input *>(_in);
+    Result * result                                      = static_cast<Result *>(_res);
+    auto x                                               = input->get(classifier::training::data);
+    auto y                                               = input->get(classifier::training::labels);
+    logistic_regression::Model * m                       = result->get(classifier::training::model).get();
+    const logistic_regression::training::Parameter * par = static_cast<logistic_regression::training::Parameter *>(_par);
+    daal::services::Environment::env & env               = *_env;
 
-    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
     {
-        __DAAL_CALL_KERNEL(env, internal::TrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-            compute, daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
+        __DAAL_CALL_KERNEL(env, internal::TrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                           daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
     }
     else
     {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::TrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-            compute, daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
+        __DAAL_CALL_KERNEL_SYCL(env, internal::TrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                                daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
     }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::setupCompute()
 {
-    Result *result = static_cast<Result *>(_res);
-    logistic_regression::Model *m = result->get(classifier::training::model).get();
-    logistic_regression::internal::ModelImpl* pImpl = dynamic_cast<logistic_regression::internal::ModelImpl*>(m);
+    Result * result                                  = static_cast<Result *>(_res);
+    logistic_regression::Model * m                   = result->get(classifier::training::model).get();
+    logistic_regression::internal::ModelImpl * pImpl = dynamic_cast<logistic_regression::internal::ModelImpl *>(m);
 
-    logistic_regression::training::Parameter *par = static_cast<logistic_regression::training::Parameter*>(_par);
-    if(!par->optimizationSolver.get())
+    logistic_regression::training::Parameter * par = static_cast<logistic_regression::training::Parameter *>(_par);
+    if (!par->optimizationSolver.get())
     {
-        auto solver = optimization_solver::sgd::Batch<algorithmFPType, optimization_solver::sgd::momentum>::create();
-        par->optimizationSolver = solver;
-        const size_t nIterations = 1000;
-        const algorithmFPType learningRate = 1e-3;
+        auto solver                             = optimization_solver::sgd::Batch<algorithmFPType, optimization_solver::sgd::momentum>::create();
+        par->optimizationSolver                 = solver;
+        const size_t nIterations                = 1000;
+        const algorithmFPType learningRate      = 1e-3;
         const algorithmFPType accuracyThreshold = 1e-4;
-        solver->parameter.learningRateSequence = HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, learningRate);
-        solver->parameter.accuracyThreshold = accuracyThreshold;
-        solver->parameter.nIterations = nIterations;
-        classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
-        solver->parameter.batchSize = input->get(classifier::training::data)->getNumberOfRows();
+        solver->parameter.learningRateSequence  = HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, learningRate);
+        solver->parameter.accuracyThreshold     = accuracyThreshold;
+        solver->parameter.nIterations           = nIterations;
+        classifier::training::Input * input     = static_cast<classifier::training::Input *>(_in);
+        solver->parameter.batchSize             = input->get(classifier::training::data)->getNumberOfRows();
     }
     DAAL_ASSERT(pImpl);
     return pImpl->reset(par->interceptFlag);
 }
 
-}
-}
-}
-}
-}
+} // namespace interface3
+} // namespace training
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal
 #endif

@@ -36,7 +36,6 @@ namespace quality_metric
 {
 namespace explained_variance
 {
-
 /**
 * Allocates memory to store
 * \param[in] input   %Input object
@@ -44,13 +43,13 @@ namespace explained_variance
 * \param[in] method  Algorithm method
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     size_t nComponents = (static_cast<const Parameter *>(par))->nComponents;
     if (nComponents == 0)
     {
-        const Input *in = static_cast<const Input *>(input);
-        nComponents = in->get(eigenvalues)->getNumberOfColumns();
+        const Input * in = static_cast<const Input *>(input);
+        nComponents      = in->get(eigenvalues)->getNumberOfColumns();
     }
     services::Status status;
     set(explainedVariances,

@@ -34,7 +34,6 @@ namespace sql
 {
 namespace internal
 {
-
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__SQL__INTERNAL__CONTINUOUSFEATUREMODIFIER"></a>
  * \brief Feature modifier that parses tokens as continuous features
@@ -42,22 +41,16 @@ namespace internal
 class ContinuousFeatureModifier : public FeatureModifier
 {
 public:
-    virtual void initialize(Config &config) DAAL_C11_OVERRIDE
+    virtual void initialize(Config & config) DAAL_C11_OVERRIDE
     {
         const size_t numberOfFeatures = config.getNumberOfInputFeatures();
-        for (size_t i = 0; i < numberOfFeatures; i++)
-        {
-            config.setOutputFeatureType(i, features::DAAL_CONTINUOUS);
-        }
+        for (size_t i = 0; i < numberOfFeatures; i++) { config.setOutputFeatureType(i, features::DAAL_CONTINUOUS); }
     }
 
-    virtual void apply(Context &context) DAAL_C11_OVERRIDE
+    virtual void apply(Context & context) DAAL_C11_OVERRIDE
     {
         services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
-        for (size_t i = 0; i < outputBuffer.size(); i++)
-        {
-            outputBuffer[i] = context.getValue<DAAL_DATA_TYPE>(i);
-        }
+        for (size_t i = 0; i < outputBuffer.size(); i++) { outputBuffer[i] = context.getValue<DAAL_DATA_TYPE>(i); }
     }
 };
 

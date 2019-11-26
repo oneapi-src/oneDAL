@@ -30,7 +30,6 @@
 #include "oneapi/internal/utils.h"
 #include "cl_kernel/linear_model_prediction.cl"
 
-
 namespace daal
 {
 namespace algorithms
@@ -41,28 +40,25 @@ namespace prediction
 {
 namespace internal
 {
-
 using namespace daal::oneapi::internal;
 
-
-template<typename algorithmFPType>
-services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaIntercept(
-                                    const services::Buffer<algorithmFPType> &betaTable,
-                                    const size_t nBetas, services::Buffer<algorithmFPType> &yTable,
-                                    const size_t yNRows, const size_t yNCols)
+template <typename algorithmFPType>
+services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaIntercept(const services::Buffer<algorithmFPType> & betaTable,
+                                                                                      const size_t nBetas, services::Buffer<algorithmFPType> & yTable,
+                                                                                      const size_t yNRows, const size_t yNCols)
 {
     services::Status status;
 
-    ExecutionContextIface &ctx = getDefaultContext();
-    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+    ExecutionContextIface & ctx    = getDefaultContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_model_prediction_");
     cachekey.add(options);
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelPrediction, options.c_str());
 
-    const char* const kernelName = "addBetaIntercept";
-    KernelPtr kernel = factory.getKernel(kernelName);
+    const char * const kernelName = "addBetaIntercept";
+    KernelPtr kernel              = factory.getKernel(kernelName);
 
     KernelArguments args(4);
     args.set(0, betaTable, AccessModeIds::read);
@@ -77,37 +73,36 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::addBetaInte
     return status;
 }
 
-template<typename algorithmFPType>
-services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(
-    const NumericTable *a, const linear_model::Model *m, NumericTable *r)
+template <typename algorithmFPType>
+services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r)
 {
     services::Status status;
     linear_model::Model * const model = const_cast<linear_model::Model *>(m);
 
-    NumericTable *xTable = const_cast<NumericTable *>(a);
-    NumericTable *yTable = const_cast<NumericTable *>(r);
-    NumericTable *betaTable = model->getBeta().get();
+    NumericTable * xTable    = const_cast<NumericTable *>(a);
+    NumericTable * yTable    = const_cast<NumericTable *>(r);
+    NumericTable * betaTable = model->getBeta().get();
 
-    const size_t nRows  = xTable->getNumberOfRows();
-    const size_t nBetas  = betaTable->getNumberOfColumns();
-    const size_t nResponses = betaTable->getNumberOfRows();
+    const size_t nRows       = xTable->getNumberOfRows();
+    const size_t nBetas      = betaTable->getNumberOfColumns();
+    const size_t nResponses  = betaTable->getNumberOfRows();
     const bool interceptFlag = model->getInterceptFlag();
 
     /* Temp workaround for compiler bug. */
     const size_t nRowsPerBlock = nRows;
 
     size_t nBlocks = nRows / nRowsPerBlock;
-    if (nBlocks*nRowsPerBlock < nRows) { ++nBlocks; }
+    if (nBlocks * nRowsPerBlock < nRows) { ++nBlocks; }
 
     BlockDescriptor<algorithmFPType> betaBlock;
     DAAL_CHECK_STATUS(status, betaTable->getBlockOfRows(0, nResponses, ReadWriteMode::readOnly, betaBlock));
     const services::Buffer<algorithmFPType> betaBuf = betaBlock.getBuffer();
 
-    for(size_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx)
+    for (size_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx)
     {
         const size_t startRow = blockIdx * nRowsPerBlock;
-        size_t endRow = startRow + nRowsPerBlock;
-        if(endRow > nRows) { endRow = nRows; };
+        size_t endRow         = startRow + nRowsPerBlock;
+        if (endRow > nRows) { endRow = nRows; };
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
@@ -116,29 +111,20 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(
         DAAL_CHECK_STATUS(status, yTable->getBlockOfRows(startRow, endRow - startRow, ReadWriteMode::readWrite, yBlock));
 
         const services::Buffer<algorithmFPType> xBuf = xBlock.getBuffer();
-        services::Buffer<algorithmFPType> yBuf = yBlock.getBuffer();
+        services::Buffer<algorithmFPType> yBuf       = yBlock.getBuffer();
 
-        const size_t xNRows   = endRow - startRow;
-        const size_t xNCols   = nBetas - 1;
-        const size_t yNCols   = nResponses;
+        const size_t xNRows = endRow - startRow;
+        const size_t xNCols = nBetas - 1;
+        const size_t yNCols = nResponses;
 
         /* SYRK: Compute beta*xTable for each block */
-        status = BlasGpu<algorithmFPType>::xgemm(
-                        math::Layout::RowMajor,
-                        math::Transpose::NoTrans, math::Transpose::Trans,
-                        xNRows, yNCols, xNCols,
-                        algorithmFPType(1.0),
-                        xBuf, xNCols, 0,
-                        betaBuf, nBetas, algorithmFPType(1),
-                        algorithmFPType(0.0),
-                        yBuf, yNCols, 0);
+        status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, xNRows, yNCols, xNCols,
+                                                 algorithmFPType(1.0), xBuf, xNCols, 0, betaBuf, nBetas, algorithmFPType(1), algorithmFPType(0.0),
+                                                 yBuf, yNCols, 0);
 
         DAAL_CHECK_STATUS_VAR(status);
 
-        if(interceptFlag)
-        {
-            DAAL_CHECK_STATUS(status, addBetaIntercept(betaBuf, nBetas, yBuf, xNRows, yNCols));
-        }
+        if (interceptFlag) { DAAL_CHECK_STATUS(status, addBetaIntercept(betaBuf, nBetas, yBuf, xNRows, yNCols)); }
 
         DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
         DAAL_CHECK_STATUS(status, yTable->releaseBlockOfRows(yBlock));

@@ -40,33 +40,29 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class PredictBatchKernelOneAPI : public daal::algorithms::Kernel
 {
 public:
-    using LogisticLoss = optimization_solver::logistic_loss::internal::LogLossKernelOneAPI<algorithmFPType,
-        optimization_solver::logistic_loss::Method::defaultDense>;
+    using LogisticLoss =
+        optimization_solver::logistic_loss::internal::LogLossKernelOneAPI<algorithmFPType, optimization_solver::logistic_loss::Method::defaultDense>;
 
-    using CrossEntropyLoss = optimization_solver::cross_entropy_loss::internal::CrossEntropyLossKernelOneAPI<algorithmFPType,
-        optimization_solver::cross_entropy_loss::Method::defaultDense>;
+    using CrossEntropyLoss = optimization_solver::cross_entropy_loss::internal::CrossEntropyLossKernelOneAPI<
+        algorithmFPType, optimization_solver::cross_entropy_loss::Method::defaultDense>;
 
     using HelperObjectiveFunction = optimization_solver::objective_function::internal::HelperObjectiveFunction<algorithmFPType>;
 
-    services::Status compute(services::HostAppIface* pHost, NumericTable *x,
-        const logistic_regression::Model *m, size_t nClasses, NumericTable* pRes,
-        NumericTable* pProbab, NumericTable* pLogProbab);
+    services::Status compute(services::HostAppIface * pHost, NumericTable * x, const logistic_regression::Model * m, size_t nClasses,
+                             NumericTable * pRes, NumericTable * pProbab, NumericTable * pLogProbab);
 
-    static services::Status heaviside(const services::Buffer<algorithmFPType>& x,
-        services::Buffer<algorithmFPType>& result, const uint32_t n);
+    static services::Status heaviside(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & result, const uint32_t n);
 
-    static services::Status argMax(const services::Buffer<algorithmFPType>& x,
-        services::Buffer<algorithmFPType>& result, const uint32_t n, const uint32_t p);
+    static services::Status argMax(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & result, const uint32_t n,
+                                   const uint32_t p);
 
 private:
     oneapi::internal::UniversalBuffer _fUniversal;
     oneapi::internal::UniversalBuffer _oneVector;
-
 };
 
 } // namespace internal

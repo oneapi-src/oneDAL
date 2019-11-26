@@ -40,7 +40,6 @@ namespace classification
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -50,17 +49,17 @@ Model::Model() : _nClasses(0) {}
 
 Model::~Model() {}
 
-Model::Model(size_t nFeatures, size_t nClasses, services::Status &st) : decision_tree::classification::Model(nFeatures)
+Model::Model(size_t nFeatures, size_t nClasses, services::Status & st) : decision_tree::classification::Model(nFeatures)
 {
-    if(!impl()) { st.add(services::ErrorMemoryAllocationFailed); }
+    if (!impl()) { st.add(services::ErrorMemoryAllocationFailed); }
     _nClasses = nClasses;
 }
 
-services::SharedPtr<Model> Model::create(size_t nFeatures, size_t nClasses, services::Status *stat)
+services::SharedPtr<Model> Model::create(size_t nFeatures, size_t nClasses, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, nClasses);
 }
-services::Status Model::serializeImpl(data_management::InputDataArchive  * arch)
+services::Status Model::serializeImpl(data_management::InputDataArchive * arch)
 {
     daal::algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     impl()->serialImpl<data_management::InputDataArchive, false>(arch);
@@ -71,8 +70,8 @@ services::Status Model::serializeImpl(data_management::InputDataArchive  * arch)
 services::Status Model::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
     daal::algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
-    impl()->serialImpl<const data_management::OutputDataArchive, true>(arch,
-        COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion()));
+    impl()->serialImpl<const data_management::OutputDataArchive, true>(
+        arch, COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion()));
 
     return services::Status();
 }
@@ -83,7 +82,6 @@ size_t Model::getSplitFeature() const
     traverseDFS(visitor);
     return visitor.splitFeature;
 }
-
 
 services::Status Parameter::check() const
 {

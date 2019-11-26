@@ -41,8 +41,7 @@ namespace training
  *  kernels with implementations for supported architectures
  */
 template <typename algorithmFPType, training::Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) :
-    TrainingContainerIface<batch>()
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : TrainingContainerIface<batch>()
 {
     __DAAL_INITIALIZE_KERNELS(internal::ImplicitALSTrainBatchKernel, algorithmFPType, method);
 }
@@ -56,15 +55,15 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
-    NumericTable *a0 = static_cast<NumericTable *>(input->get(data).get());
-    Model *a1 = static_cast<Model *>(input->get(inputModel).get());
-    Model *r = static_cast<Model *>(result->get(model).get());
+    NumericTable * a0 = static_cast<NumericTable *>(input->get(data).get());
+    Model * a1        = static_cast<Model *>(input->get(inputModel).get());
+    Model * r         = static_cast<Model *>(result->get(model).get());
 
-    Parameter *par = static_cast<Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    Parameter * par                        = static_cast<Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::ImplicitALSTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, a0, a1, r, par);
 }
@@ -74,8 +73,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
  *  kernels with implementations for supported architectures
  */
 template <typename algorithmFPType, training::Method method, CpuType cpu>
-DistributedContainer<step1Local, algorithmFPType, method, cpu>::DistributedContainer(daal::services::Environment::env *daalEnv) :
-    TrainingContainerIface<distributed>()
+DistributedContainer<step1Local, algorithmFPType, method, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv)
+    : TrainingContainerIface<distributed>()
 {
     __DAAL_INITIALIZE_KERNELS(internal::ImplicitALSTrainDistrStep1Kernel, algorithmFPType);
 }
@@ -89,17 +88,16 @@ DistributedContainer<step1Local, algorithmFPType, method, cpu>::~DistributedCont
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>::compute()
 {
-    DistributedInput<step1Local> *input = static_cast<DistributedInput<step1Local> *>(_in);
-    DistributedPartialResultStep1 *partialResult = static_cast<DistributedPartialResultStep1 *>(_pres);
+    DistributedInput<step1Local> * input          = static_cast<DistributedInput<step1Local> *>(_in);
+    DistributedPartialResultStep1 * partialResult = static_cast<DistributedPartialResultStep1 *>(_pres);
 
-    PartialModel *pModel = static_cast<PartialModel *>(input->get(partialModel).get());
-    NumericTable *crossProduct = static_cast<NumericTable *>(partialResult->get(outputOfStep1ForStep2).get());
+    PartialModel * pModel       = static_cast<PartialModel *>(input->get(partialModel).get());
+    NumericTable * crossProduct = static_cast<NumericTable *>(partialResult->get(outputOfStep1ForStep2).get());
 
-    Parameter *par = static_cast<Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    Parameter * par                        = static_cast<Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::ImplicitALSTrainDistrStep1Kernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType),
-                       compute, pModel, crossProduct, par);
+    __DAAL_CALL_KERNEL(env, internal::ImplicitALSTrainDistrStep1Kernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, pModel, crossProduct, par);
 }
 
 template <typename algorithmFPType, training::Method method, CpuType cpu>
@@ -113,8 +111,8 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
  *  kernels with implementations for supported architectures
  */
 template <typename algorithmFPType, training::Method method, CpuType cpu>
-DistributedContainer<step2Master, algorithmFPType, method, cpu>::DistributedContainer(daal::services::Environment::env *daalEnv) :
-    TrainingContainerIface<distributed>()
+DistributedContainer<step2Master, algorithmFPType, method, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv)
+    : TrainingContainerIface<distributed>()
 {
     __DAAL_INITIALIZE_KERNELS(internal::ImplicitALSTrainDistrStep2Kernel, algorithmFPType);
 }
@@ -128,26 +126,23 @@ DistributedContainer<step2Master, algorithmFPType, method, cpu>::~DistributedCon
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>::compute()
 {
-    DistributedInput<step2Master> *input = static_cast<DistributedInput<step2Master> *>(_in);
-    DistributedPartialResultStep2 *partialResult = static_cast<DistributedPartialResultStep2 *>(_pres);
+    DistributedInput<step2Master> * input         = static_cast<DistributedInput<step2Master> *>(_in);
+    DistributedPartialResultStep2 * partialResult = static_cast<DistributedPartialResultStep2 *>(_pres);
 
-    DataCollection *crossProductCollection = static_cast<DataCollection *>(input->get(inputOfStep2FromStep1).get());
-    size_t nParts = crossProductCollection->size();
-    NumericTable **partialCrossProducts = (NumericTable **)daal::services::internal::service_calloc<NumericTable *, cpu>(
-                nParts * sizeof(NumericTable *));
+    DataCollection * crossProductCollection = static_cast<DataCollection *>(input->get(inputOfStep2FromStep1).get());
+    size_t nParts                           = crossProductCollection->size();
+    NumericTable ** partialCrossProducts =
+        (NumericTable **)daal::services::internal::service_calloc<NumericTable *, cpu>(nParts * sizeof(NumericTable *));
     if (!partialCrossProducts) return services::Status(services::ErrorMemoryAllocationFailed);
 
-    for (size_t i = 0; i < nParts; i++)
-    {
-        partialCrossProducts[i] = static_cast<NumericTable *>((*crossProductCollection)[i].get());
-    }
-    NumericTable *crossProduct = static_cast<NumericTable *>(partialResult->get(outputOfStep2ForStep4).get());
+    for (size_t i = 0; i < nParts; i++) { partialCrossProducts[i] = static_cast<NumericTable *>((*crossProductCollection)[i].get()); }
+    NumericTable * crossProduct = static_cast<NumericTable *>(partialResult->get(outputOfStep2ForStep4).get());
 
-    Parameter *par = static_cast<Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    Parameter * par                        = static_cast<Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
-    services::Status s = __DAAL_CALL_KERNEL_STATUS(env, internal::ImplicitALSTrainDistrStep2Kernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType),
-                                                   compute, nParts, partialCrossProducts, crossProduct, par);
+    services::Status s = __DAAL_CALL_KERNEL_STATUS(env, internal::ImplicitALSTrainDistrStep2Kernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute,
+                                                   nParts, partialCrossProducts, crossProduct, par);
 
     crossProductCollection->clear();
     daal::services::daal_free(partialCrossProducts);
@@ -166,8 +161,8 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
  *  kernels with implementations for supported architectures
  */
 template <typename algorithmFPType, training::Method method, CpuType cpu>
-DistributedContainer<step3Local, algorithmFPType, method, cpu>::DistributedContainer(daal::services::Environment::env *daalEnv) :
-    TrainingContainerIface<distributed>()
+DistributedContainer<step3Local, algorithmFPType, method, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv)
+    : TrainingContainerIface<distributed>()
 {
     __DAAL_INITIALIZE_KERNELS(internal::ImplicitALSTrainDistrStep3Kernel, algorithmFPType);
 }
@@ -181,18 +176,18 @@ DistributedContainer<step3Local, algorithmFPType, method, cpu>::~DistributedCont
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 services::Status DistributedContainer<step3Local, algorithmFPType, method, cpu>::compute()
 {
-    DistributedInput<step3Local> *input = static_cast<DistributedInput<step3Local> *>(_in);
-    DistributedPartialResultStep3 *partialResult = static_cast<DistributedPartialResultStep3 *>(_pres);
+    DistributedInput<step3Local> * input          = static_cast<DistributedInput<step3Local> *>(_in);
+    DistributedPartialResultStep3 * partialResult = static_cast<DistributedPartialResultStep3 *>(_pres);
 
-    PartialModel *pModel = static_cast<PartialModel *>(input->get(partialModel).get());
-    NumericTable *offsetTable = static_cast<NumericTable *>(input->get(offset).get());
-    KeyValueDataCollection *models = static_cast<KeyValueDataCollection *>(partialResult->get(outputOfStep3ForStep4).get());
+    PartialModel * pModel           = static_cast<PartialModel *>(input->get(partialModel).get());
+    NumericTable * offsetTable      = static_cast<NumericTable *>(input->get(offset).get());
+    KeyValueDataCollection * models = static_cast<KeyValueDataCollection *>(partialResult->get(outputOfStep3ForStep4).get());
 
-    Parameter *par = static_cast<Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    Parameter * par                        = static_cast<Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::ImplicitALSTrainDistrStep3Kernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType),
-                       compute, pModel, offsetTable, models, par);
+    __DAAL_CALL_KERNEL(env, internal::ImplicitALSTrainDistrStep3Kernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, pModel, offsetTable,
+                       models, par);
 }
 
 template <typename algorithmFPType, training::Method method, CpuType cpu>
@@ -206,8 +201,8 @@ services::Status DistributedContainer<step3Local, algorithmFPType, method, cpu>:
  *  kernels with implementations for supported architectures
  */
 template <typename algorithmFPType, training::Method method, CpuType cpu>
-DistributedContainer<step4Local, algorithmFPType, method, cpu>::DistributedContainer(daal::services::Environment::env *daalEnv) :
-    TrainingContainerIface<distributed>()
+DistributedContainer<step4Local, algorithmFPType, method, cpu>::DistributedContainer(daal::services::Environment::env * daalEnv)
+    : TrainingContainerIface<distributed>()
 {
     __DAAL_INITIALIZE_KERNELS(internal::ImplicitALSTrainDistrStep4Kernel, algorithmFPType, method);
 }
@@ -221,17 +216,17 @@ DistributedContainer<step4Local, algorithmFPType, method, cpu>::~DistributedCont
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 services::Status DistributedContainer<step4Local, algorithmFPType, method, cpu>::compute()
 {
-    DistributedInput<step4Local> *input = static_cast<DistributedInput<step4Local> *>(_in);
-    DistributedPartialResultStep4 *partialResult = static_cast<DistributedPartialResultStep4 *>(_pres);
+    DistributedInput<step4Local> * input          = static_cast<DistributedInput<step4Local> *>(_in);
+    DistributedPartialResultStep4 * partialResult = static_cast<DistributedPartialResultStep4 *>(_pres);
 
-    KeyValueDataCollection *models = static_cast<KeyValueDataCollection *>(input->get(partialModels).get());
-    NumericTable *dataTable = static_cast<NumericTable *>(input->get(partialData).get());
-    NumericTable *cpTable = static_cast<NumericTable *>(input->get(inputOfStep4FromStep2).get());
+    KeyValueDataCollection * models = static_cast<KeyValueDataCollection *>(input->get(partialModels).get());
+    NumericTable * dataTable        = static_cast<NumericTable *>(input->get(partialData).get());
+    NumericTable * cpTable          = static_cast<NumericTable *>(input->get(inputOfStep4FromStep2).get());
 
-    PartialModel *partialModel = static_cast<PartialModel *>(partialResult->get(outputOfStep4ForStep1).get());
+    PartialModel * partialModel = static_cast<PartialModel *>(partialResult->get(outputOfStep4ForStep1).get());
 
-    Parameter *par = static_cast<Parameter *>(_par);
-    daal::services::Environment::env &env = *_env;
+    Parameter * par                        = static_cast<Parameter *>(_par);
+    daal::services::Environment::env & env = *_env;
 
     services::Status s = __DAAL_CALL_KERNEL_STATUS(env, internal::ImplicitALSTrainDistrStep4Kernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
                                                    compute, models, dataTable, cpTable, partialModel, par);
@@ -246,9 +241,9 @@ services::Status DistributedContainer<step4Local, algorithmFPType, method, cpu>:
     return services::Status();
 }
 
-}
-}
-}
-}
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal
 
 #endif

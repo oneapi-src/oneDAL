@@ -50,7 +50,7 @@ namespace classification
  */
 enum VariableImportanceMode
 {
-    none           /* Do not compute */
+    none /* Do not compute */
 };
 
 /**
@@ -58,7 +58,6 @@ enum VariableImportanceMode
  */
 namespace interface1
 {
-
 // CLARIFICATION:: Added parameter class to support different split criterions for stump.
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__STUMP__CLASSIFICATION__PARAMETER"></a>
@@ -73,9 +72,9 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  Main constructor
      *  \param[in] nClasses Number of classes
      */
-    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::Parameter(nClasses),
-                                     splitCriterion(decision_tree::classification::gini),
-                                     varImportance(none) {}
+    Parameter(size_t nClasses = 2)
+        : daal::algorithms::classifier::Parameter(nClasses), splitCriterion(decision_tree::classification::gini), varImportance(none)
+    {}
     decision_tree::classification::SplitCriterion splitCriterion; /*!< Split criterion for stump classification */
     VariableImportanceMode varImportance;                         /*!< Variable importance computation mode */
 
@@ -107,7 +106,7 @@ public:
      * \param[out] stat      Status of the model construction
      * \return Decision stump model
      */
-    static services::SharedPtr<Model> create(size_t nFeatures = 0, size_t nClasses = 2, services::Status *stat = NULL);
+    static services::SharedPtr<Model> create(size_t nFeatures = 0, size_t nClasses = 2, services::Status * stat = NULL);
 
     /**
      * Default constructor for Model to creator
@@ -126,25 +125,25 @@ public:
      *  Returns a value of the feature that defines the split
      *  \return Value of the feature over which the split is made
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT modelFPType getSplitValue();
 
     /**
      *  Returns an average of the weighted responses for the "left" subset
      *  \return Average of the weighted responses for the "left" subset
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT modelFPType getLeftValue();
 
     /**
      *  Returns an average of the weighted responses for the "right" subset
      *  \return Average of the weighted responses for the "right" subset
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT modelFPType getRightValue();
 
 protected:
-    Model(size_t nFeatures, size_t nClasses, services::Status &st);
+    Model(size_t nFeatures, size_t nClasses, services::Status & st);
 
     services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
 
@@ -152,22 +151,21 @@ protected:
 
 private:
     size_t _nClasses;
-
 };
 
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
 
-}
+} // namespace interface1
 
 using interface1::Parameter;
 using interface1::Model;
 using interface1::ModelPtr;
 using interface1::ModelConstPtr;
 
-}
+} // namespace classification
 /** @} */
-}
-}
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 #endif

@@ -38,14 +38,17 @@ namespace logitboost
 {
 namespace interface2
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_LOGITBOOST_MODEL_ID);
 /** Default constructor */
-Parameter::Parameter() : classifier::Parameter(0),
-    weakLearnerTraining(new stump::regression::training::Batch<>),
-    weakLearnerPrediction(new stump::regression::prediction::Batch<>),
-    accuracyThreshold(0.0), maxIterations(10),
-    weightsDegenerateCasesThreshold(1e-10), responsesDegenerateCasesThreshold(1e-10) {}
+Parameter::Parameter()
+    : classifier::Parameter(0),
+      weakLearnerTraining(new stump::regression::training::Batch<>),
+      weakLearnerPrediction(new stump::regression::prediction::Batch<>),
+      accuracyThreshold(0.0),
+      maxIterations(10),
+      weightsDegenerateCasesThreshold(1e-10),
+      responsesDegenerateCasesThreshold(1e-10)
+{}
 
 /**
  * Constructs LogitBoost parameter structure
@@ -57,12 +60,16 @@ Parameter::Parameter() : classifier::Parameter(0),
  * \param[in] wThr          Threshold to avoid degenerate cases when calculating weights W
  * \param[in] zThr          Threshold to avoid degenerate cases when calculating responses Z
  */
-Parameter::Parameter(const SharedPtr<regression::training::Batch>   &wlTrain,
-                     const SharedPtr<regression::prediction::Batch> &wlPredict,
-                     double acc, size_t maxIter, size_t nC, double wThr, double zThr) :
-    classifier::Parameter(nC),
-    weakLearnerTraining(wlTrain), weakLearnerPrediction(wlPredict),
-    accuracyThreshold(acc), maxIterations(maxIter), weightsDegenerateCasesThreshold(wThr), responsesDegenerateCasesThreshold(zThr) {}
+Parameter::Parameter(const SharedPtr<regression::training::Batch> & wlTrain, const SharedPtr<regression::prediction::Batch> & wlPredict, double acc,
+                     size_t maxIter, size_t nC, double wThr, double zThr)
+    : classifier::Parameter(nC),
+      weakLearnerTraining(wlTrain),
+      weakLearnerPrediction(wlPredict),
+      accuracyThreshold(acc),
+      maxIterations(maxIter),
+      weightsDegenerateCasesThreshold(wThr),
+      responsesDegenerateCasesThreshold(zThr)
+{}
 
 services::Status Parameter::check() const
 {
@@ -75,11 +82,8 @@ services::Status Parameter::check() const
     return s;
 }
 
-
-Model::Model(size_t nFeatures, const Parameter *par, services::Status &st) :
-    _nFeatures(nFeatures),
-    _models(new data_management::DataCollection()),
-    _nIterations(par->maxIterations)
+Model::Model(size_t nFeatures, const Parameter * par, services::Status & st)
+    : _nFeatures(nFeatures), _models(new data_management::DataCollection()), _nIterations(par->maxIterations)
 {
     if (!_models) { st.add(services::ErrorMemoryAllocationFailed); }
 }
@@ -90,7 +94,7 @@ Model::Model(size_t nFeatures, const Parameter *par, services::Status &st) :
  * \param[in]  par       Pointer to the parameter structure of the LogitBoost algorithm
  * \param[out] stat      Status of the model construction
  */
-ModelPtr Model::create(size_t nFeatures, const Parameter *par, services::Status *stat)
+ModelPtr Model::create(size_t nFeatures, const Parameter * par, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, par);
 }
@@ -120,10 +124,7 @@ size_t Model::getNumberOfWeakLearners() const
 
 regression::ModelPtr Model::getWeakLearnerModel(size_t idx) const
 {
-    if(idx < _models->size())
-    {
-        return staticPointerCast<regression::Model, SerializationIface>((*_models)[idx]);
-    }
+    if (idx < _models->size()) { return staticPointerCast<regression::Model, SerializationIface>((*_models)[idx]); }
     return regression::ModelPtr();
 }
 
@@ -136,7 +137,6 @@ void Model::clearWeakLearnerModels()
 {
     _models->clear();
 }
-
 
 } // namespace interface2
 } // namespace logitboost

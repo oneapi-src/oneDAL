@@ -35,7 +35,6 @@ namespace algorithms
  */
 namespace multi_class_classifier
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -52,7 +51,7 @@ namespace interface1
  * \tparam method           Computation method for the algorithm, \ref daal::algorithms::multi_class_classifier::training::Method
  *
  */
-template<training::Method method = training::oneAgainstOne>
+template <training::Method method = training::oneAgainstOne>
 class DAAL_EXPORT ModelBuilder
 {
 public:
@@ -61,13 +60,10 @@ public:
      * \param[in] nFeatures  Number of features in training data
      * \param[in] nClasses   Number of classes in training dataset
      */
-    ModelBuilder(size_t nFeatures, size_t nClasses): _nFeatures(nFeatures), _nClasses(nClasses)
+    ModelBuilder(size_t nFeatures, size_t nClasses) : _nFeatures(nFeatures), _nClasses(nClasses)
     {
         _par = services::SharedPtr<ParameterBase>(new ParameterBase(_nClasses));
-        if(_par.get())
-        {
-            _modelPtr = Model::create(_nFeatures, _par.get(), &_s);
-        }
+        if (_par.get()) { _modelPtr = Model::create(_nFeatures, _par.get(), &_s); }
         else
         {
             _s = services::Status(services::ErrorMemoryAllocationFailed);
@@ -80,19 +76,16 @@ public:
      * \param[in] positiveClassIdx Index of positive class for one vs one classification algorithm
      * \param[in] model  Two-class classifier model to add into collection
      */
-    void setTwoClassClassifierModel(size_t negativeClassIdx, size_t positiveClassIdx, const classifier::ModelPtr& model)
+    void setTwoClassClassifierModel(size_t negativeClassIdx, size_t positiveClassIdx, const classifier::ModelPtr & model)
     {
-        if(negativeClassIdx >= positiveClassIdx)
-        {
-            _s |= services::Status(services::ErrorIncorrectParameter);
-        }
+        if (negativeClassIdx >= positiveClassIdx) { _s |= services::Status(services::ErrorIncorrectParameter); }
 
-        if(!_s)
+        if (!_s)
         {
             services::throwIfPossible(_s);
             return;
         }
-        size_t imodel = positiveClassIdx * (positiveClassIdx - 1)/2 + negativeClassIdx;
+        size_t imodel = positiveClassIdx * (positiveClassIdx - 1) / 2 + negativeClassIdx;
 
         _modelPtr->setTwoClassClassifierModel(imodel, model);
     }
@@ -101,23 +94,17 @@ public:
      *  Get built model
      *  \return Model pointer
      */
-    ModelPtr getModel()
-    {
-        return _modelPtr;
-    }
+    ModelPtr getModel() { return _modelPtr; }
 
     /**
      *  Get status of model building
      *  \return Status
      */
-    services::Status getStatus()
-    {
-        return _s;
-    }
+    services::Status getStatus() { return _s; }
 
 protected:
     ModelPtr _modelPtr;
-    services::SharedPtr<ParameterBase>  _par;
+    services::SharedPtr<ParameterBase> _par;
     services::Status _s;
     size_t _nFeatures;
     size_t _nClasses;

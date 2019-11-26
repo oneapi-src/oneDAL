@@ -45,7 +45,6 @@ namespace training
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace decision_tree::internal;
@@ -56,7 +55,7 @@ class MSEDataStatistics
 public:
     MSEDataStatistics() : _mean(0), _count(0), _mse(0) {}
 
-    MSEDataStatistics(size_t size, const NumericTable  * w = nullptr) : _mean(0), _count(0), _mse(0) {}
+    MSEDataStatistics(size_t size, const NumericTable * w = nullptr) : _mean(0), _count(0), _mse(0) {}
 
     MSEDataStatistics(size_t size, const NumericTable & x, const NumericTable & y, const NumericTable * w) : _mean(0), _count(0), _mse(0)
     {
@@ -64,17 +63,11 @@ public:
         BlockDescriptor<algorithmFPType> yBD;
         const_cast<NumericTable &>(y).getBlockOfColumnValues(0, 0, yRowCount, readOnly, yBD);
         const algorithmFPType * const dy = yBD.getBlockPtr();
-        for (size_t i = 0; i < yRowCount; ++i)
-        {
-            update(dy[i]);
-        }
+        for (size_t i = 0; i < yRowCount; ++i) { update(dy[i]); }
         const_cast<NumericTable &>(y).releaseBlockOfColumnValues(yBD);
     }
 
-    size_t sumWeights(size_t firstIndex, size_t lastIndex, NumericTable* w) const
-    {
-        return (lastIndex - firstIndex);
-    }
+    size_t sumWeights(size_t firstIndex, size_t lastIndex, NumericTable * w) const { return (lastIndex - firstIndex); }
 
     static algorithmFPType subtractMean(algorithmFPType nab, algorithmFPType mab, algorithmFPType na, algorithmFPType nb, algorithmFPType ma)
     {
@@ -86,30 +79,27 @@ public:
                                        algorithmFPType nb, algorithmFPType ma)
     {
         const algorithmFPType delta = subtractMean(nab, mab, na, nb, ma) - ma;
-        const algorithmFPType vb = vab - va - delta * delta * na * nb / nab;
+        const algorithmFPType vb    = vab - va - delta * delta * na * nb / nab;
         return vb;
     }
 
-    MSEDataStatistics & operator-= (const MSEDataStatistics & rhs)
+    MSEDataStatistics & operator-=(const MSEDataStatistics & rhs)
     {
         const algorithmFPType newCount = _count - rhs._count;
-        const algorithmFPType newMean = subtractMean(_count, _mean, rhs._count, newCount, rhs._mean);
-        _mse = subtractMSE(_mse, rhs._mse, _count, _mean, rhs._count, newCount, rhs._mean);
-        _count = newCount;
-        _mean = newMean;
+        const algorithmFPType newMean  = subtractMean(_count, _mean, rhs._count, newCount, rhs._mean);
+        _mse                           = subtractMSE(_mse, rhs._mse, _count, _mean, rhs._count, newCount, rhs._mean);
+        _count                         = newCount;
+        _mean                          = newMean;
         return *this;
     }
 
-    algorithmFPType getBestDependentVariableValue() const
-    {
-        return _mean;
-    }
+    algorithmFPType getBestDependentVariableValue() const { return _mean; }
 
     void reset(const MSEDataStatistics &)
     {
-        _mean = algorithmFPType(0);
+        _mean  = algorithmFPType(0);
         _count = algorithmFPType(0);
-        _mse = algorithmFPType(0);
+        _mse   = algorithmFPType(0);
     }
 
     void update(size_t index, algorithmFPType v)
@@ -125,7 +115,7 @@ public:
         if (++_count == 1)
         {
             _mean = v;
-            _mse = algorithmFPType(0);
+            _mse  = algorithmFPType(0);
         }
         else
         {
@@ -153,10 +143,7 @@ public:
 
     algorithmFPType mse() const { return _mse; }
 
-    size_t operator[] (size_t index) const
-    {
-        return 0;
-    }
+    size_t operator[](size_t index) const { return 0; }
 
     void swap(MSEDataStatistics & value)
     {
@@ -177,7 +164,7 @@ class MSEWeightedDataStatistics
 public:
     MSEWeightedDataStatistics() : _mean(0), _mse(0), _W(0) {}
 
-    MSEWeightedDataStatistics(size_t size, const NumericTable  * w = nullptr) : _mean(0), _mse(0), _W(0) {}
+    MSEWeightedDataStatistics(size_t size, const NumericTable * w = nullptr) : _mean(0), _mse(0), _W(0) {}
 
     MSEWeightedDataStatistics(size_t size, const NumericTable & x, const NumericTable & y, const NumericTable * w) : _mean(0), _mse(0), _W(0)
     {
@@ -187,17 +174,14 @@ public:
         const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, 0, nRows, readOnly, wBD);
         const algorithmFPType * const dy = yBD.getBlockPtr();
         const algorithmFPType * const dw = wBD.getBlockPtr();
-        for (size_t i = 0; i < nRows; ++i)
-        {
-            update(dy[i], dw[i]);
-        }
+        for (size_t i = 0; i < nRows; ++i) { update(dy[i], dw[i]); }
         const_cast<NumericTable &>(y).releaseBlockOfColumnValues(yBD);
         const_cast<NumericTable *>(w)->releaseBlockOfColumnValues(wBD);
     }
 
     size_t size() const { return 1; }
 
-    size_t sumWeights(size_t firstIndex, size_t lastIndex, NumericTable *w) const
+    size_t sumWeights(size_t firstIndex, size_t lastIndex, NumericTable * w) const
     {
         DAAL_ASSERT(w != nullptr)
         const size_t wRowCount = w->getNumberOfRows();
@@ -207,11 +191,8 @@ public:
         BlockDescriptor<algorithmFPType> wBD;
         const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, firstIndex, count, readOnly, wBD);
         const algorithmFPType * const dw = wBD.getBlockPtr();
-        algorithmFPType sum = 0.0;
-        for(size_t i = 0; i < count; i++)
-        {
-            sum += dw[i];
-        }
+        algorithmFPType sum              = 0.0;
+        for (size_t i = 0; i < count; i++) { sum += dw[i]; }
         const_cast<NumericTable *>(w)->releaseBlockOfColumnValues(wBD);
         return sum;
     }
@@ -226,47 +207,41 @@ public:
                                        algorithmFPType nb, algorithmFPType ma)
     {
         const algorithmFPType delta = subtractMean(nab, mab, na, nb, ma) - ma;
-        const algorithmFPType vb = vab - va - delta * delta * na * nb / nab;
+        const algorithmFPType vb    = vab - va - delta * delta * na * nb / nab;
         return vb;
     }
 
-    MSEWeightedDataStatistics & operator-= (const MSEWeightedDataStatistics & rhs)
+    MSEWeightedDataStatistics & operator-=(const MSEWeightedDataStatistics & rhs)
     {
-        const algorithmFPType newW = _W - rhs._W;
+        const algorithmFPType newW    = _W - rhs._W;
         const algorithmFPType newMean = subtractMean(_W, _mean, rhs._W, newW, rhs._mean);
-        _mse = subtractMSE(_mse, rhs._mse, _W, _mean, rhs._W, newW, rhs._mean);
-        _W = newW;
-        _mean = newMean;
+        _mse                          = subtractMSE(_mse, rhs._mse, _W, _mean, rhs._W, newW, rhs._mean);
+        _W                            = newW;
+        _mean                         = newMean;
         return *this;
     }
 
-    algorithmFPType getBestDependentVariableValue() const
-    {
-        return _mean;
-    }
+    algorithmFPType getBestDependentVariableValue() const { return _mean; }
 
     void reset(const MSEWeightedDataStatistics &)
     {
         _mean = algorithmFPType(0);
-        _mse = algorithmFPType(0);
-        _W = algorithmFPType(0);
+        _mse  = algorithmFPType(0);
+        _W    = algorithmFPType(0);
     }
 
-    void update(size_t index, algorithmFPType v)
-    {
-        DAAL_ASSERT(0)
-    }
+    void update(size_t index, algorithmFPType v) { DAAL_ASSERT(0) }
 
     void update(algorithmFPType v, algorithmFPType weight = 0)
     {
-        if(weight == 0) return;
+        if (weight == 0) return;
 
         // Welford running method.
         _W += weight;
         if (_W == weight)
         {
             _mean = v;
-            _mse = algorithmFPType(0);
+            _mse  = algorithmFPType(0);
         }
         else
         {
@@ -292,10 +267,7 @@ public:
 
     algorithmFPType mse() const { return _mse; }
 
-    algorithmFPType operator[] (size_t index) const
-    {
-        return _W;
-    }
+    algorithmFPType operator[](size_t index) const { return _W; }
 
     void swap(MSEWeightedDataStatistics & value)
     {
@@ -318,20 +290,17 @@ struct MSE
     typedef algorithmFPType DependentVariableType;
 
     template <typename RandomIterator>
-    ValueType operator() (RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next, DataStatistics & dataStatistics,
-                          const DataStatistics & totalDataStatistics, data_management::features::FeatureType featureType,
-                          size_t leftCount, size_t rightCount, size_t totalCount)
+    ValueType operator()(RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next, DataStatistics & dataStatistics,
+                         const DataStatistics & totalDataStatistics, data_management::features::FeatureType featureType, size_t leftCount,
+                         size_t rightCount, size_t totalCount)
     {
-        const ValueType leftMSE = dataStatistics.mse();
-        const ValueType rightMSE = DataStatistics::subtractMSE(totalDataStatistics.mse(), leftMSE, totalCount, totalDataStatistics.mean(),
-                                                               leftCount, rightCount, dataStatistics.mean());
+        const ValueType leftMSE  = dataStatistics.mse();
+        const ValueType rightMSE = DataStatistics::subtractMSE(totalDataStatistics.mse(), leftMSE, totalCount, totalDataStatistics.mean(), leftCount,
+                                                               rightCount, dataStatistics.mean());
         return leftMSE + rightMSE;
     }
 
-    ValueType operator() (const DataStatistics & totalDataStatistics, size_t totalCount)
-    {
-        return totalDataStatistics.mse() / totalCount;
-    }
+    ValueType operator()(const DataStatistics & totalDataStatistics, size_t totalCount) { return totalDataStatistics.mse() / totalCount; }
 };
 
 template <typename algorithmFPType, CpuType cpu>
@@ -342,20 +311,17 @@ struct MSEWeighted
     typedef algorithmFPType DependentVariableType;
 
     template <typename RandomIterator>
-    ValueType operator() (RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next, DataStatistics & dataStatistics,
-                          const DataStatistics & totalDataStatistics, data_management::features::FeatureType featureType,
-                          ValueType leftWeight, ValueType rightWeight, ValueType totalWeight)
+    ValueType operator()(RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next, DataStatistics & dataStatistics,
+                         const DataStatistics & totalDataStatistics, data_management::features::FeatureType featureType, ValueType leftWeight,
+                         ValueType rightWeight, ValueType totalWeight)
     {
-        const ValueType leftMSE = dataStatistics.mse();
+        const ValueType leftMSE  = dataStatistics.mse();
         const ValueType rightMSE = DataStatistics::subtractMSE(totalDataStatistics.mse(), leftMSE, totalWeight, totalDataStatistics.mean(),
                                                                leftWeight, rightWeight, dataStatistics.mean());
         return leftMSE + rightMSE;
     }
 
-    ValueType operator() (const DataStatistics & totalDataStatistics, size_t totalWeight)
-    {
-        return totalDataStatistics.mse() / totalWeight;
-    }
+    ValueType operator()(const DataStatistics & totalDataStatistics, size_t totalWeight) { return totalDataStatistics.mse() / totalWeight; }
 };
 
 } // namespace internal

@@ -48,10 +48,11 @@ using namespace daal::services::internal;
 /**
  * Thread local storage used on the partial results update stage
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class ThreadingTask
 {
     typedef ReadRows<algorithmFPType, cpu> ReadRowsType;
+
 public:
     DAAL_NEW_DELETE();
 
@@ -62,8 +63,7 @@ public:
      * \param[in] nResponses        Number of responses
      * \return Pointer on the thread local storage object if the object was created successfully, NULL otherwise
      */
-    static ThreadingTask<algorithmFPType, cpu> *create(DAAL_INT nBetasIntercept, DAAL_INT nRows,
-                                                       DAAL_INT nResponses);
+    static ThreadingTask<algorithmFPType, cpu> * create(DAAL_INT nBetasIntercept, DAAL_INT nRows, DAAL_INT nResponses);
 
     /**
      * Updates local partial result with the new block of data
@@ -73,49 +73,49 @@ public:
      * \param[in] yTable    Input array of responses of size N x Ny
      * \return Status of the computations
      */
-    Status update(DAAL_INT startRow, DAAL_INT nRows, const NumericTable &xTable, const NumericTable &yTable);
+    Status update(DAAL_INT startRow, DAAL_INT nRows, const NumericTable & xTable, const NumericTable & yTable);
 
     /**
      * Reduces thread local partial results into global partial result
      * \param[out] r    Global partial result of size P' x P'
      * \param[out] qty  Global partial result of size Ny x P'
      */
-    Status reduce(algorithmFPType* r, algorithmFPType* qty);
+    Status reduce(algorithmFPType * r, algorithmFPType * qty);
 
     /**
      * Reduces thread local and global partial results into global partial result
      * \param[out] r    Global partial result of size P' x P'
      * \param[out] qty  Global partial result of size Ny x P'
      */
-    Status reduceInPlace(algorithmFPType* r, algorithmFPType* qty);
+    Status reduceInPlace(algorithmFPType * r, algorithmFPType * qty);
 
 protected:
-    DAAL_INT _lwork;                                    /*!< Size of work array for lapack routines */
-    TArrayScalable<algorithmFPType, cpu> work;          /*!< Work array for lapack routines */
-    TArrayScalable<algorithmFPType, cpu> tau;           /*!< Array of scalar factors of the elementary
+    DAAL_INT _lwork;                                     /*!< Size of work array for lapack routines */
+    TArrayScalable<algorithmFPType, cpu> work;           /*!< Work array for lapack routines */
+    TArrayScalable<algorithmFPType, cpu> tau;            /*!< Array of scalar factors of the elementary
                                                              reflectors for the matrix Q */
-    TArrayScalable<algorithmFPType, cpu> qrBuffer;      /*!< Auxiliary array of size Npart x P
+    TArrayScalable<algorithmFPType, cpu> qrBuffer;       /*!< Auxiliary array of size Npart x P
                                                              that stores the copy of input matrix part */
-    TArrayScalable<algorithmFPType, cpu> qtyBuffer;     /*!< Auxiliary array of size Ny x P
+    TArrayScalable<algorithmFPType, cpu> qtyBuffer;      /*!< Auxiliary array of size Ny x P
                                                              that stores the copy of input matrix part*/
-    TArrayScalableCalloc<algorithmFPType, cpu> qrR;           /*!< Array of size P' x P' that stores matrix R
+    TArrayScalableCalloc<algorithmFPType, cpu> qrR;      /*!< Array of size P' x P' that stores matrix R
                                                              accumulated on this thread */
-    TArrayScalableCalloc<algorithmFPType, cpu> qrQTY;         /*!< Array of size Ny x P' that stores matrix Q^T * Y
+    TArrayScalableCalloc<algorithmFPType, cpu> qrQTY;    /*!< Array of size Ny x P' that stores matrix Q^T * Y
                                                              accumulated on this thread */
-    TArrayScalableCalloc<algorithmFPType, cpu> qrRNew;        /*!< Array of size P' x P' that stores matrix R
+    TArrayScalableCalloc<algorithmFPType, cpu> qrRNew;   /*!< Array of size P' x P' that stores matrix R
                                                              obtained from the current block of data */
-    TArrayScalableCalloc<algorithmFPType, cpu> qrQTYNew;      /*!< Array of size Ny x P' that stores matrix Q^T * Y
+    TArrayScalableCalloc<algorithmFPType, cpu> qrQTYNew; /*!< Array of size Ny x P' that stores matrix Q^T * Y
                                                              obtained from the current block of data */
-    TArrayScalable<algorithmFPType, cpu> qrRMerge;      /*!< Array of size 2*P' x P' that stores matrices
+    TArrayScalable<algorithmFPType, cpu> qrRMerge;       /*!< Array of size 2*P' x P' that stores matrices
                                                              qrR and qrRNew merged by rows */
-    TArrayScalable<algorithmFPType, cpu> qrQTYMerge;    /*!< Array of size 2*Ny x P' that stores matrices
+    TArrayScalable<algorithmFPType, cpu> qrQTYMerge;     /*!< Array of size 2*Ny x P' that stores matrices
                                                              qrQTY and qrQTYNew merged by rows */
-    ReadRowsType _xBlock;       /*!< Object that manages memory block of the input data set */
-    ReadRowsType _yBlock;       /*!< Object that manages memory block of the input array of responses */
+    ReadRowsType _xBlock;                                /*!< Object that manages memory block of the input data set */
+    ReadRowsType _yBlock;                                /*!< Object that manages memory block of the input array of responses */
 
-    DAAL_INT _nBetasIntercept;  /*!< Number of rows and columns in the matrix R */
-    DAAL_INT _nRows;            /*!< Npart, number of rows in the input data set part */
-    DAAL_INT _nResponses;       /*!< Number of responses */
+    DAAL_INT _nBetasIntercept; /*!< Number of rows and columns in the matrix R */
+    DAAL_INT _nRows;           /*!< Npart, number of rows in the input data set part */
+    DAAL_INT _nResponses;      /*!< Number of responses */
 
     /**
      * Construct thread local storage of the requested size
@@ -124,7 +124,7 @@ protected:
      * \param[in]  nResponses       Number of responses
      * \param[out] st               Status of the object construction
      */
-    ThreadingTask(DAAL_INT nBetasIntercept, DAAL_INT nRows, DAAL_INT nResponses, Status &st);
+    ThreadingTask(DAAL_INT nBetasIntercept, DAAL_INT nRows, DAAL_INT nResponses, Status & st);
 
     /**
      * Allocates work buffer for lapack routines
@@ -140,8 +140,7 @@ protected:
      * \param[in] yTable    Input array of responses of size N x Ny
      * \return Status of the computations
      */
-    Status copyDataToBuffer(DAAL_INT startRow, DAAL_INT nRows,
-                            const NumericTable &xTable, const NumericTable &yTable);
+    Status copyDataToBuffer(DAAL_INT startRow, DAAL_INT nRows, const NumericTable & xTable, const NumericTable & yTable);
 };
 
 /**
@@ -160,7 +159,7 @@ public:
      * \param[out] lwork      Size of the work buffer
      * \return Status of the computations
      */
-    static Status computeWorkSize(DAAL_INT nRows, DAAL_INT nCols, DAAL_INT nResponses, DAAL_INT &lwork);
+    static Status computeWorkSize(DAAL_INT nRows, DAAL_INT nCols, DAAL_INT nResponses, DAAL_INT & lwork);
 
     /**
      * Computes QR decomposition of input matrix
@@ -177,9 +176,8 @@ public:
      * \param[in]  lwork Size of the work buffer
      * \return Status of the computations
      */
-    static Status computeQRForBlock(DAAL_INT p, DAAL_INT n, const algorithmFPType *x, DAAL_INT ny,
-                                    const algorithmFPType *y, algorithmFPType *r, algorithmFPType *qty,
-                                    algorithmFPType *tau, algorithmFPType *work, DAAL_INT lwork);
+    static Status computeQRForBlock(DAAL_INT p, DAAL_INT n, const algorithmFPType * x, DAAL_INT ny, const algorithmFPType * y, algorithmFPType * r,
+                                    algorithmFPType * qty, algorithmFPType * tau, algorithmFPType * work, DAAL_INT lwork);
 
     /**
      * Merges two results of QR decomposition together
@@ -198,12 +196,9 @@ public:
      * \param[in]  work  Work buffer for lapack routines
      * \param[in]  lwork Size of the work buffer
      */
-    static Status merge(DAAL_INT p, DAAL_INT ny,
-                        const algorithmFPType *r1, const algorithmFPType * qty1,
-                        const algorithmFPType *r2, const algorithmFPType * qty2,
-                        algorithmFPType *r12, algorithmFPType * qty12,
-                        algorithmFPType *r, algorithmFPType * qty,
-                        algorithmFPType *tau, algorithmFPType *work, DAAL_INT lwork);
+    static Status merge(DAAL_INT p, DAAL_INT ny, const algorithmFPType * r1, const algorithmFPType * qty1, const algorithmFPType * r2,
+                        const algorithmFPType * qty2, algorithmFPType * r12, algorithmFPType * qty12, algorithmFPType * r, algorithmFPType * qty,
+                        algorithmFPType * tau, algorithmFPType * work, DAAL_INT lwork);
 };
 
 /**
@@ -229,8 +224,8 @@ public:
      *                              - False otherwis, P' = P
      * \return Status of the computations
      */
-    static Status compute(const NumericTable &x, const NumericTable &y, NumericTable &r, NumericTable &qty,
-                          bool initializeResult, bool interceptFlag);
+    static Status compute(const NumericTable & x, const NumericTable & y, NumericTable & r, NumericTable & qty, bool initializeResult,
+                          bool interceptFlag);
 };
 
 /**
@@ -252,8 +247,7 @@ public:
      * \param[out] xty       Numeric table \f$Q^T \times Y\f$ of size Ny x P
      * \return Status of the computations
      */
-    static Status compute(size_t n, NumericTable **partialr, NumericTable **partialqty,
-                          NumericTable &r, NumericTable &qty);
+    static Status compute(size_t n, NumericTable ** partialr, NumericTable ** partialqty, NumericTable & r, NumericTable & qty);
 };
 
 /**
@@ -283,14 +277,14 @@ public:
      * \param[in]  interceptFlag    Flag. True if intercept term is not zero, false otherwise
      * \return Status of the computations
      */
-    static Status compute(const NumericTable &r, const NumericTable &qty, NumericTable &rFinal,
-                          NumericTable &qtyFinal, NumericTable &beta, bool interceptFlag);
+    static Status compute(const NumericTable & r, const NumericTable & qty, NumericTable & rFinal, NumericTable & qtyFinal, NumericTable & beta,
+                          bool interceptFlag);
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace qr
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal
 #endif

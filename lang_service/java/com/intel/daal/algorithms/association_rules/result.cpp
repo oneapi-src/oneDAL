@@ -24,8 +24,7 @@
 
 USING_COMMON_NAMESPACES();
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<association_rules::Result>::newObj();
 }
@@ -35,14 +34,14 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Result
  * Method:    cGetMinimum
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Result_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                 jint id)
 {
     return jniArgument<association_rules::Result>::get<association_rules::ResultId, NumericTable>(resAddr, id);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_association_1rules_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_association_1rules_Result_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id,
+                                                                                                jlong ntAddr)
 {
     jniArgument<association_rules::Result>::set<association_rules::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

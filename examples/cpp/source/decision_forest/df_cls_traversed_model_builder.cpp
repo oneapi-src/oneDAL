@@ -39,35 +39,33 @@ using namespace daal::algorithms;
 using namespace daal::algorithms::decision_forest::classification;
 
 /* Input data set parameters */
-const string trainDatasetFileName = "../data/batch/df_classification_train.csv";
-const string testDatasetFileName  = "../data/batch/df_classification_test.csv";
+const string trainDatasetFileName         = "../data/batch/df_classification_train.csv";
+const string testDatasetFileName          = "../data/batch/df_classification_test.csv";
 const size_t categoricalFeaturesIndices[] = { 2 };
-const size_t nFeatures  = 3;  /* Number of features in training and testing data sets */
+const size_t nFeatures                    = 3; /* Number of features in training and testing data sets */
 
 /* Decision forest parameters */
-const size_t nTrees = 10;
+const size_t nTrees                    = 10;
 const size_t minObservationsInLeafNode = 8;
 
-const size_t nClasses = 5;  /* Number of classes */
+const size_t nClasses = 5; /* Number of classes */
 
 /** Node structure for representing nodes in trees after traversing DAAL model */
 struct Node
 {
-    Node* left;
-    Node* right;
+    Node * left;
+    Node * right;
     size_t classLabel;
     size_t featureIndex;
     double featureValue;
-    Node(size_t cl, size_t fi, double fv): left(NULL), right(NULL), classLabel(cl), featureIndex(fi), featureValue(fv)
-    {}
-    Node(): left(NULL), right(NULL), classLabel(0), featureIndex(0), featureValue(0)
-    {}
+    Node(size_t cl, size_t fi, double fv) : left(NULL), right(NULL), classLabel(cl), featureIndex(fi), featureValue(fv) {}
+    Node() : left(NULL), right(NULL), classLabel(0), featureIndex(0), featureValue(0) {}
 };
 
 /** Tree structure for representing tree after traversing DAAL model */
 struct Tree
 {
-    Node* root;
+    Node * root;
     size_t nNodes;
 };
 
@@ -76,20 +74,18 @@ struct ParentPlace
 {
     size_t parentId;
     size_t place;
-    ParentPlace(size_t _parent, size_t _place): parentId(_parent), place(_place)
-    {}
-    ParentPlace(): parentId(0), place(0)
-    {}
+    ParentPlace(size_t _parent, size_t _place) : parentId(_parent), place(_place) {}
+    ParentPlace() : parentId(0), place(0) {}
 };
 
 training::ResultPtr trainModel();
 double testModel(daal::algorithms::decision_forest::classification::ModelPtr modelPtr);
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar);
-daal::algorithms::decision_forest::classification::ModelPtr buildModel(Tree* trees);
-Tree* traverseModel(daal::algorithms::decision_forest::classification::ModelPtr m);
-bool buildTree(size_t treeId, Node* node, bool& isRoot, ModelBuilder& builder, std::map<Node*,ParentPlace>& parentMap);
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
+daal::algorithms::decision_forest::classification::ModelPtr buildModel(Tree * trees);
+Tree * traverseModel(daal::algorithms::decision_forest::classification::ModelPtr m);
+bool buildTree(size_t treeId, Node * node, bool & isRoot, ModelBuilder & builder, std::map<Node *, ParentPlace> & parentMap);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &trainDatasetFileName);
 
@@ -99,15 +95,12 @@ int main(int argc, char *argv[])
     double trainedAccurcy = testModel(trainingResult->get(classifier::training::model));
 
     /* traverse the trained model to get Tree representation */
-    Tree* trees = traverseModel(trainingResult->get(classifier::training::model));
+    Tree * trees = traverseModel(trainingResult->get(classifier::training::model));
     /* build the model by ModelBuilder from Tree */
     daal::algorithms::decision_forest::classification::ModelPtr builtModel = buildModel(trees);
     std::cout << "Predict on built model from input user Tree " << std::endl;
     double buildModelAccurcy = testModel(builtModel);
-    if(trainedAccurcy == buildModelAccurcy)
-    {
-        std::cout << "Model was built successfully" << std::endl;
-    }
+    if (trainedAccurcy == buildModelAccurcy) { std::cout << "Model was built successfully" << std::endl; }
     else
     {
         std::cout << "Model was built not correctly" << std::endl;
@@ -115,13 +108,13 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-daal::algorithms::decision_forest::classification::ModelPtr buildModel(Tree* trees)
+daal::algorithms::decision_forest::classification::ModelPtr buildModel(Tree * trees)
 {
     /* create a model builder */
-    ModelBuilder builder(nClasses,nTrees);
+    ModelBuilder builder(nClasses, nTrees);
     /* map to get relationship between nodes */
-    std::map<Node*,ParentPlace> parentMap;
-    for(size_t i = 0; i < nTrees; i++)
+    std::map<Node *, ParentPlace> parentMap;
+    for (size_t i = 0; i < nTrees; i++)
     {
         const size_t nNodes = trees[i].nNodes;
         /* allocate the memory for certain tree */
@@ -129,36 +122,40 @@ daal::algorithms::decision_forest::classification::ModelPtr buildModel(Tree* tre
         bool isRoot = true;
         /* recursive DFS traversing of certain tree with building model */
         buildTree(i, trees[i].root, isRoot, builder, parentMap);
-        parentMap.erase(parentMap.begin(),parentMap.end());
+        parentMap.erase(parentMap.begin(), parentMap.end());
     }
 
     return builder.getModel();
 }
 
-bool buildTree(size_t treeId, Node* node, bool& isRoot, ModelBuilder& builder, std::map<Node*,ParentPlace>& parentMap)
+bool buildTree(size_t treeId, Node * node, bool & isRoot, ModelBuilder & builder, std::map<Node *, ParentPlace> & parentMap)
 {
-    if(node->left != NULL && node->right != NULL)
+    if (node->left != NULL && node->right != NULL)
     {
-        if(isRoot)
+        if (isRoot)
         {
             ModelBuilder::NodeId parent = builder.addSplitNode(treeId, ModelBuilder::noParent, 0, node->featureIndex, node->featureValue);
 
-            parentMap[node->left] = ParentPlace(parent,0);;
-            parentMap[node->right] = ParentPlace(parent,1);;
+            parentMap[node->left] = ParentPlace(parent, 0);
+            ;
+            parentMap[node->right] = ParentPlace(parent, 1);
+            ;
             isRoot = false;
         }
         else
         {
-            ParentPlace p = parentMap[node];
+            ParentPlace p               = parentMap[node];
             ModelBuilder::NodeId parent = builder.addSplitNode(treeId, p.parentId, p.place, node->featureIndex, node->featureValue);
 
-            parentMap[node->left] = ParentPlace(parent,0);;
-            parentMap[node->right] = ParentPlace(parent,1);;
+            parentMap[node->left] = ParentPlace(parent, 0);
+            ;
+            parentMap[node->right] = ParentPlace(parent, 1);
+            ;
         }
     }
     else
     {
-        if(isRoot)
+        if (isRoot)
         {
             builder.addLeafNode(treeId, ModelBuilder::noParent, 0, node->classLabel);
             isRoot = false;
@@ -197,14 +194,13 @@ double testModel(daal::algorithms::decision_forest::classification::ModelPtr mod
     NumericTablePtr prediction = algorithm.getResult()->get(classifier::prediction::prediction);
     printNumericTable(prediction, "Decision forest prediction results (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
-    const size_t nRows = prediction->getNumberOfRows();
+    const size_t nRows       = prediction->getNumberOfRows();
     size_t countOfNotCorrect = 0;
-    for(size_t i = 0; i < nRows; i++)
+    for (size_t i = 0; i < nRows; i++)
     {
-        if(prediction->getValue<float>(0,i) != testGroundTruth->getValue<float>(0,i))
-            countOfNotCorrect++;
+        if (prediction->getValue<float>(0, i) != testGroundTruth->getValue<float>(0, i)) countOfNotCorrect++;
     }
-    double accuracy = 1 - double(countOfNotCorrect)/nRows;
+    double accuracy = 1 - double(countOfNotCorrect) / nRows;
     std::cout << "Accuracy: " << accuracy << std::endl;
     return accuracy;
 }
@@ -224,8 +220,8 @@ training::ResultPtr trainModel()
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainDependentVariable);
 
-    algorithm.parameter.nTrees = nTrees;
-    algorithm.parameter.featuresPerNode = nFeatures;
+    algorithm.parameter.nTrees                    = nTrees;
+    algorithm.parameter.featuresPerNode           = nFeatures;
     algorithm.parameter.minObservationsInLeafNode = minObservationsInLeafNode;
 
     /* Build the decision forest classification model */
@@ -235,12 +231,10 @@ training::ResultPtr trainModel()
     return algorithm.getResult();
 }
 
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar)
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(fileName,
-        DataSource::notAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     pData.reset(new HomogenNumericTable<double>(nFeatures, 0, NumericTable::notAllocate));
@@ -251,7 +245,7 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
     trainDataSource.loadDataBlock(mergedData.get());
 
     NumericTableDictionaryPtr pDictionary = pData->getDictionarySharedPtr();
-    for(size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
+    for (size_t i = 0, n = sizeof(categoricalFeaturesIndices) / sizeof(categoricalFeaturesIndices[0]); i < n; ++i)
         (*pDictionary)[categoricalFeaturesIndices[i]].featureType = data_feature_utils::DAAL_CATEGORICAL;
 }
 
@@ -259,32 +253,29 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
 class BFSNodeVisitor : public daal::algorithms::tree_utils::classification::TreeNodeVisitor
 {
 public:
-    Tree* roots;
+    Tree * roots;
     size_t treeId;
-    std::queue<Node*> parentNodes;
-    virtual bool onLeafNode(const tree_utils::classification::LeafNodeDescriptor &desc)
+    std::queue<Node *> parentNodes;
+    virtual bool onLeafNode(const tree_utils::classification::LeafNodeDescriptor & desc)
     {
-        if(desc.level == 0)
+        if (desc.level == 0)
         {
-            Node* root = roots[treeId].root;
+            Node * root                = roots[treeId].root;
             (*(roots + treeId)).nNodes = 1;
-            root->left = NULL;
-            root->right = NULL;
-            root->classLabel = desc.label;
-            root->featureIndex = 0;
-            root->featureValue = 0;
+            root->left                 = NULL;
+            root->right                = NULL;
+            root->classLabel           = desc.label;
+            root->featureIndex         = 0;
+            root->featureValue         = 0;
             treeId++;
         }
         else
         {
-            roots[treeId-1].nNodes++;
-            Node* node = new Node(desc.label, 0, 0);
+            roots[treeId - 1].nNodes++;
+            Node * node = new Node(desc.label, 0, 0);
 
-            Node* parent = parentNodes.front();
-            if(parent->left == NULL)
-            {
-                parent->left = node;
-            }
+            Node * parent = parentNodes.front();
+            if (parent->left == NULL) { parent->left = node; }
             else
             {
                 parent->right = node;
@@ -294,30 +285,27 @@ public:
         return true;
     }
 
-    virtual bool onSplitNode(const tree_utils::classification::SplitNodeDescriptor &desc)
+    virtual bool onSplitNode(const tree_utils::classification::SplitNodeDescriptor & desc)
     {
-        if(desc.level == 0)
+        if (desc.level == 0)
         {
-            Node* root = roots[treeId].root;
+            Node * root                = roots[treeId].root;
             (*(roots + treeId)).nNodes = 1;
-            root->left = NULL;
-            root->right = NULL;
-            root->classLabel = 0;
-            root->featureIndex = desc.featureIndex;
-            root->featureValue = desc.featureValue;
+            root->left                 = NULL;
+            root->right                = NULL;
+            root->classLabel           = 0;
+            root->featureIndex         = desc.featureIndex;
+            root->featureValue         = desc.featureValue;
             parentNodes.push(root);
             treeId++;
         }
         else
         {
-            roots[treeId-1].nNodes++;
-            Node* node = new Node(0,desc.featureIndex,desc.featureValue);
+            roots[treeId - 1].nNodes++;
+            Node * node = new Node(0, desc.featureIndex, desc.featureValue);
 
-            Node* parent = parentNodes.front();
-            if(parent->left == NULL)
-            {
-                parent->left = node;
-            }
+            Node * parent = parentNodes.front();
+            if (parent->left == NULL) { parent->left = node; }
             else
             {
                 parent->right = node;
@@ -328,25 +316,22 @@ public:
         return true;
     }
 
-    BFSNodeVisitor(size_t nTrees): parentNodes()
+    BFSNodeVisitor(size_t nTrees) : parentNodes()
     {
         roots = new Tree[nTrees];
-        for(size_t i = 0; i < nTrees; i++)
+        for (size_t i = 0; i < nTrees; i++)
         {
             roots[i].root = new Node;
-            Node* root = roots[i].root;
+            Node * root   = roots[i].root;
         }
         treeId = 0;
     }
 };
 
-Tree* traverseModel(const daal::algorithms::decision_forest::classification::ModelPtr m)
+Tree * traverseModel(const daal::algorithms::decision_forest::classification::ModelPtr m)
 {
     const size_t nTrees = m->getNumberOfTrees();
     BFSNodeVisitor visitor(nTrees);
-    for(size_t i = 0; i < nTrees; ++i)
-    {
-        m->traverseBFS(i, visitor);
-    }
+    for (size_t i = 0; i < nTrees; ++i) { m->traverseBFS(i, visitor); }
     return visitor.roots;
 }

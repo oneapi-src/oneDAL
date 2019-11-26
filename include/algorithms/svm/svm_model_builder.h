@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __SVM_MODEL_BUILDER_H__
 #define __SVM_MODEL_BUILDER_H__
 
@@ -59,21 +58,21 @@ namespace interface1
  * \par References
  *      - \ref interface1::Model "Model" class
  */
-template<typename modelFPType = DAAL_ALGORITHM_FP_TYPE>
+template <typename modelFPType = DAAL_ALGORITHM_FP_TYPE>
 class DAAL_EXPORT ModelBuilder
 {
 public:
-
     /**
      * Constructs the SVM model builder
      * \tparam modelFPType         Data type to store SVM model data, double or float
      * \param[in] nFeatures        Number of features in training data
      * \param[in] nSupportVectors  Number of support vectors in model
      */
-    ModelBuilder(size_t nFeatures, size_t nSupportVectors): _nFeatures(nFeatures), _nSupportVectors(nSupportVectors), _modelPtr(Model::create<modelFPType>(nFeatures))
+    ModelBuilder(size_t nFeatures, size_t nSupportVectors)
+        : _nFeatures(nFeatures), _nSupportVectors(nSupportVectors), _modelPtr(Model::create<modelFPType>(nFeatures))
     {
-        _supportV = _modelPtr->getSupportVectors();
-        _supportI = _modelPtr->getSupportIndices();
+        _supportV  = _modelPtr->getSupportVectors();
+        _supportI  = _modelPtr->getSupportIndices();
         _supportCC = _modelPtr->getClassificationCoefficients();
         _supportV->resize(nSupportVectors);
         _supportI->resize(nSupportVectors);
@@ -86,13 +85,10 @@ public:
      *  \param[in] first            Iterator which point to first element of support vectors
      *  \param[in] last             Iterator which point to last element of support vectors
      */
-    template<typename RandomIterator>
+    template <typename RandomIterator>
     void setSupportVectors(RandomIterator first, RandomIterator last)
     {
-        if((last - first) != _nSupportVectors*_nFeatures)
-        {
-             services::throwIfPossible(services::Status(services::ErrorIncorrectParameter));
-        }
+        if ((last - first) != _nSupportVectors * _nFeatures) { services::throwIfPossible(services::Status(services::ErrorIncorrectParameter)); }
         commonSetter<RandomIterator>(_supportV, first, last);
     }
 
@@ -102,13 +98,10 @@ public:
      *  \param[in] first            Iterator which point to first element of support indices
      *  \param[in] last             Iterator which point to last element of support indices
      */
-    template<typename RandomIterator>
+    template <typename RandomIterator>
     void setSupportIndices(RandomIterator first, RandomIterator last)
     {
-        if((last - first) != _nSupportVectors)
-        {
-             services::throwIfPossible(services::Status(services::ErrorIncorrectParameter));
-        }
+        if ((last - first) != _nSupportVectors) { services::throwIfPossible(services::Status(services::ErrorIncorrectParameter)); }
         commonSetter<RandomIterator>(_supportI, first, last);
     }
 
@@ -118,13 +111,10 @@ public:
      *  \param[in] first            Iterator which point to first element of classification coefficients
      *  \param[in] last             Iterator which point to last element of classification coefficients
      */
-    template<typename RandomIterator>
+    template <typename RandomIterator>
     void setClassificationCoefficients(RandomIterator first, RandomIterator last)
     {
-        if((last - first) != _nSupportVectors)
-        {
-             services::throwIfPossible(services::Status(services::ErrorIncorrectParameter));
-        }
+        if ((last - first) != _nSupportVectors) { services::throwIfPossible(services::Status(services::ErrorIncorrectParameter)); }
         commonSetter<RandomIterator>(_supportCC, first, last);
     }
 
@@ -132,46 +122,38 @@ public:
      *  Method to set bias term to model
      *  \param[in] bias The value to be set
      */
-    void setBias(modelFPType bias)
-    {
-        _modelPtr->setBias(bias);
-    }
+    void setBias(modelFPType bias) { _modelPtr->setBias(bias); }
 
     /**
      *  Get built model
      *  \return Model pointer
      */
-    ModelPtr getModel()
-    {
-        return _modelPtr;
-    }
+    ModelPtr getModel() { return _modelPtr; }
 
     /**
      *  Get status of model building
      *  \return Status
      */
-    services::Status getStatus()
-    {
-        return _s;
-    }
+    services::Status getStatus() { return _s; }
+
 private:
     ModelPtr _modelPtr;
     services::Status _s;
     size_t _nFeatures;
     size_t _nSupportVectors;
-    data_management::NumericTablePtr _supportV;          /*!< \private Support vectors */
-    data_management::NumericTablePtr _supportCC;         /*!< \private Classification coefficients */
-    data_management::NumericTablePtr _supportI;          /*!< \private Indices of the support vectors in training data set */
+    data_management::NumericTablePtr _supportV;  /*!< \private Support vectors */
+    data_management::NumericTablePtr _supportCC; /*!< \private Classification coefficients */
+    data_management::NumericTablePtr _supportI;  /*!< \private Indices of the support vectors in training data set */
 
-    template<typename RandomIterator>
-    services::Status commonSetter(data_management::NumericTablePtr& p, RandomIterator first, RandomIterator last)
+    template <typename RandomIterator>
+    services::Status commonSetter(data_management::NumericTablePtr & p, RandomIterator first, RandomIterator last)
     {
         services::Status s;
 
         data_management::BlockDescriptor<modelFPType> pBlock;
         p->getBlockOfRows(0, _nSupportVectors, data_management::readWrite, pBlock);
-        modelFPType* sp = pBlock.getBlockPtr();
-        while(first != last)
+        modelFPType * sp = pBlock.getBlockPtr();
+        while (first != last)
         {
             *sp = *first;
             ++first;

@@ -59,18 +59,17 @@ using namespace daal::data_management;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 
-services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr *a,
-                                                                              Model *r, const Parameter *par)
+services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::compute(size_t na, NumericTablePtr * a, Model * r, const Parameter * par)
 {
     NumericTablePtr xTable = a[0];
     NumericTablePtr yTable = a[1];
-    Parameter *parameter = const_cast<Parameter *>(par);
+    Parameter * parameter  = const_cast<Parameter *>(par);
     r->setNFeatures(xTable->getNumberOfColumns());
 
-    const size_t nVectors  = xTable->getNumberOfRows();
+    const size_t nVectors = xTable->getNumberOfRows();
 
-    size_t nWeakLearners = 0;               /* Number of weak learners */
-    algorithmFPType *alpha = nullptr;          /* BrownBoost coefficients */
+    size_t nWeakLearners    = 0;       /* Number of weak learners */
+    algorithmFPType * alpha = nullptr; /* BrownBoost coefficients */
 
     services::Status s;
     HomogenNTPtr hTable = HomogenNT::create(1, nVectors, &s);
@@ -78,7 +77,7 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::compute(si
     HomogenNTPtr wTable = HomogenNT::create(1, nVectors, &s);
     DAAL_CHECK_STATUS_VAR(s);
 
-    NumericTablePtr weakLearnerInputTables[] = {xTable, yTable, wTable};
+    NumericTablePtr weakLearnerInputTables[] = { xTable, yTable, wTable };
 
     /* Run BrownBoost training */
     {
@@ -91,18 +90,17 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::compute(si
 
     /* Update Brown Boost model with calculated results */
     NumericTablePtr alphaTable = r->getAlpha();
-    s = alphaTable->resize(nWeakLearners);
-    if(s)
+    s                          = alphaTable->resize(nWeakLearners);
+    if (s)
     {
         WriteOnlyColumns<algorithmFPType, cpu> mtAlpha(*alphaTable, 0, 0, nWeakLearners);
         s = mtAlpha.status();
-        if(s)
+        if (s)
         {
-            algorithmFPType *resAlpha = mtAlpha.get();
+            algorithmFPType * resAlpha = mtAlpha.get();
             DAAL_ASSERT(resAlpha);
-            for(size_t i = 0; i < nWeakLearners; i++)
-        resAlpha[i]  = alpha[i];
-    }
+            for (size_t i = 0; i < nWeakLearners; i++) resAlpha[i] = alpha[i];
+        }
     }
 
     if (alpha)
@@ -132,42 +130,39 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::compute(si
  *
   */
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoostFreundKernel(
-    size_t nVectors, NumericTablePtr weakLearnerInputTables[],
-    const HomogenNTPtr& hTable, const algorithmFPType *y,
-    Model *boostModel, Parameter *parameter, size_t& nWeakLearners,
-    algorithmFPType* &alpha)
+services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoostFreundKernel(size_t nVectors,
+                                                                                             NumericTablePtr weakLearnerInputTables[],
+                                                                                             const HomogenNTPtr & hTable, const algorithmFPType * y,
+                                                                                             Model * boostModel, Parameter * parameter,
+                                                                                             size_t & nWeakLearners, algorithmFPType *& alpha)
 {
-    alpha = nullptr;          /* BrownBoost coefficients */
-    algorithmFPType *w = static_cast<HomogenNT*>(weakLearnerInputTables[2].get())->getArray();
-    algorithmFPType *h = hTable->getArray();
+    alpha               = nullptr; /* BrownBoost coefficients */
+    algorithmFPType * w = static_cast<HomogenNT *>(weakLearnerInputTables[2].get())->getArray();
+    algorithmFPType * h = hTable->getArray();
 
     /* Floating point constants */
     const algorithmFPType zero = (algorithmFPType)0.0;
     const algorithmFPType one  = (algorithmFPType)1.0;
 
-    NewtonRaphsonKernel<method, algorithmFPType, cpu> nr(nVectors,
-        parameter->accuracyThreshold,
-        parameter->newtonRaphsonAccuracyThreshold,
-        parameter->newtonRaphsonMaxIterations,
-        parameter->degenerateCasesThreshold
-        );
+    NewtonRaphsonKernel<method, algorithmFPType, cpu> nr(nVectors, parameter->accuracyThreshold, parameter->newtonRaphsonAccuracyThreshold,
+                                                         parameter->newtonRaphsonMaxIterations, parameter->degenerateCasesThreshold);
     DAAL_CHECK(nr.isValid(), services::ErrorMemoryAllocationFailed);
 
     /* Allocate memory for storing intermediate results */
-    daal::internal::TArray<algorithmFPType, cpu> r(nVectors);/* Weak classifier's classification margin */
+    daal::internal::TArray<algorithmFPType, cpu> r(nVectors); /* Weak classifier's classification margin */
     DAAL_CHECK(r.get(), services::ErrorMemoryAllocationFailed);
-    for(auto i = 0; i < nVectors; r[i++] = 0.);
+    for (auto i = 0; i < nVectors; r[i++] = 0.)
+        ;
 
     services::SharedPtr<classifier::training::Batch> learnerTrain = parameter->weakLearnerTraining->clone();
-    classifier::training::Input *trainInput = learnerTrain->getInput();
+    classifier::training::Input * trainInput                      = learnerTrain->getInput();
     DAAL_CHECK(trainInput, services::ErrorNullInput);
-    trainInput->set(classifier::training::data,    weakLearnerInputTables[0]);
-    trainInput->set(classifier::training::labels,  weakLearnerInputTables[1]);
+    trainInput->set(classifier::training::data, weakLearnerInputTables[0]);
+    trainInput->set(classifier::training::labels, weakLearnerInputTables[1]);
     trainInput->set(classifier::training::weights, weakLearnerInputTables[2]);
 
     services::SharedPtr<classifier::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction->clone();
-    classifier::prediction::Input *predictInput = learnerPredict->getInput();
+    classifier::prediction::Input * predictInput                      = learnerPredict->getInput();
     DAAL_CHECK(predictInput, services::ErrorNullInput);
     predictInput->set(classifier::prediction::data, weakLearnerInputTables[0]);
 
@@ -179,8 +174,8 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoost
     /* Clear the collection of weak learners models in the boosting model */
     boostModel->clearWeakLearnerModels();
 
-    algorithmFPType s = nr.c;      /* Remaining time */
-    nWeakLearners = 0;
+    algorithmFPType s = nr.c; /* Remaining time */
+    nWeakLearners     = 0;
     services::Status status;
     for (size_t iteration = 0; iteration < parameter->maxIterations && s > zero; iteration++)
     {
@@ -190,9 +185,8 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoost
         updateWeights(nVectors, s, nr.c, nr.invSqrtC, r.get(), nr.aNra.get(), nr.aNre2.get(), w);
 
         /* Re-allocate array of weak learners' models and boosting coefficients */
-        alpha = reallocateAlpha(nWeakLearners-1, nWeakLearners, alpha, status);
-        if (!alpha)
-            return services::Status(services::ErrorMemoryAllocationFailed);
+        alpha = reallocateAlpha(nWeakLearners - 1, nWeakLearners, alpha, status);
+        if (!alpha) return services::Status(services::ErrorMemoryAllocationFailed);
 
         /* Make weak learner to allocate new memory for storing training result */
         if (iteration > 0) { learnerTrain->resetResult(); }
@@ -214,7 +208,7 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoost
         size_t nCorrect = 0;
         for (size_t j = 0; j < nVectors; j++)
         {
-            h[j] = ((h[j] > zero) ? one : -one);
+            h[j]               = ((h[j] > zero) ? one : -one);
             algorithmFPType hy = h[j] * y[j];
             gamma += w[j] * hy;
             nCorrect += (hy > zero) ? 1 : 0;
@@ -235,56 +229,44 @@ services::Status BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoost
         alpha[nWeakLearners - 1] = nr.nrAlpha;
 
         /* Update margin */
-        const algorithmFPType* nrb = nr.aNrb.get();
-        algorithmFPType* rr = r.get();
-        for (size_t j = 0; j < nVectors; j++)
-        {
-            rr[j] += nr.nrAlpha * nrb[j];
-        }
+        const algorithmFPType * nrb = nr.aNrb.get();
+        algorithmFPType * rr        = r.get();
+        for (size_t j = 0; j < nVectors; j++) { rr[j] += nr.nrAlpha * nrb[j]; }
     }
 
     return status;
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-void BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(
-            size_t nVectors, algorithmFPType s, algorithmFPType c, algorithmFPType invSqrtC,
-            const algorithmFPType *r, algorithmFPType *nra, algorithmFPType *nre2, algorithmFPType *w)
+void BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(size_t nVectors, algorithmFPType s, algorithmFPType c,
+                                                                        algorithmFPType invSqrtC, const algorithmFPType * r, algorithmFPType * nra,
+                                                                        algorithmFPType * nre2, algorithmFPType * w)
 {
     for (size_t j = 0; j < nVectors; j++)
     {
-        nra[j] = r[j] + s;
+        nra[j]  = r[j] + s;
         nre2[j] = nra[j] * invSqrtC;
-        w[j] = -nra[j] * nra[j] / c;
+        w[j]    = -nra[j] * nra[j] / c;
     }
-    daal::internal::Math<algorithmFPType,cpu>::vExp(nVectors, w, w);
-    daal::internal::Math<algorithmFPType,cpu>::vErf(nVectors, nre2, nre2);
+    daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors, w, w);
+    daal::internal::Math<algorithmFPType, cpu>::vErf(nVectors, nre2, nre2);
     algorithmFPType wSum = (algorithmFPType)0.0;
-    for (size_t j = 0; j < nVectors; j++)
-    {
-        wSum += w[j];
-    }
+    for (size_t j = 0; j < nVectors; j++) { wSum += w[j]; }
     algorithmFPType invWSum = 1.0 / wSum;
-    for (size_t j = 0; j < nVectors; j++)
-    {
-        w[j] *= invWSum;
-    }
+    for (size_t j = 0; j < nVectors; j++) { w[j] *= invWSum; }
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-algorithmFPType* BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocateAlpha(
-            size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s)
+algorithmFPType * BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocateAlpha(size_t oldAlphaSize, size_t alphaSize,
+                                                                                       algorithmFPType * oldAlpha, services::Status & s)
 {
-    algorithmFPType *alpha = (algorithmFPType *)daal::services::daal_malloc(alphaSize * sizeof(algorithmFPType));
+    algorithmFPType * alpha = (algorithmFPType *)daal::services::daal_malloc(alphaSize * sizeof(algorithmFPType));
     if (alpha && oldAlpha)
     {
         int result = 0;
-        result = daal::services::internal::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType),
-                                                         oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
-        if (result)
-        {
-            s |= services::Status(services::ErrorMemoryCopyFailedInternal);
-        }
+        result =
+            daal::services::internal::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
+        if (result) { s |= services::Status(services::ErrorMemoryCopyFailedInternal); }
     }
     if (oldAlpha)
     {
@@ -295,58 +277,56 @@ algorithmFPType* BrownBoostTrainKernel<method, algorithmFPType, cpu>::reallocate
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-NewtonRaphsonKernel<method, algorithmFPType, cpu>::NewtonRaphsonKernel(size_t nVect,
-        double parAccuracyThreshold,
-        double parNewtonRaphsonAccuracyThreshold,
-        double parNewtonRaphsonMaxIterations,
-        double parDegenerateCasesThreshold):
-    nVectors(nVect),
-    aNra(nVectors),
-    aNrb(nVectors),
-    aNrd(nVectors),
-    aNrw(nVectors),
-    aNre1(nVectors),
-    aNre2(nVectors),
-    error(parAccuracyThreshold),
-    nrAccuracy(parNewtonRaphsonAccuracyThreshold),
-    nrMaxIter(parNewtonRaphsonMaxIterations),
-    nu(parDegenerateCasesThreshold)
+NewtonRaphsonKernel<method, algorithmFPType, cpu>::NewtonRaphsonKernel(size_t nVect, double parAccuracyThreshold,
+                                                                       double parNewtonRaphsonAccuracyThreshold, double parNewtonRaphsonMaxIterations,
+                                                                       double parDegenerateCasesThreshold)
+    : nVectors(nVect),
+      aNra(nVectors),
+      aNrb(nVectors),
+      aNrd(nVectors),
+      aNrw(nVectors),
+      aNre1(nVectors),
+      aNre2(nVectors),
+      error(parAccuracyThreshold),
+      nrAccuracy(parNewtonRaphsonAccuracyThreshold),
+      nrMaxIter(parNewtonRaphsonMaxIterations),
+      nu(parDegenerateCasesThreshold)
 {
     const algorithmFPType one = (algorithmFPType)1.0;
     const algorithmFPType pi  = (algorithmFPType)3.1415926535897932384626433832795;
-    sqrtC = daal::internal::Math<algorithmFPType,cpu>::sErfInv(one - error);
-    c     = sqrtC * sqrtC;
-    invC  = one / c;
-    invSqrtC = one / sqrtC;
-    sqrtPiC = daal::internal::Math<algorithmFPType,cpu>::sSqrt(pi * c);
+    sqrtC                     = daal::internal::Math<algorithmFPType, cpu>::sErfInv(one - error);
+    c                         = sqrtC * sqrtC;
+    invC                      = one / c;
+    invSqrtC                  = one / sqrtC;
+    sqrtPiC                   = daal::internal::Math<algorithmFPType, cpu>::sSqrt(pi * c);
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-NewtonRaphsonKernel<method, algorithmFPType, cpu>::NewtonRaphsonKernel(size_t nVect, brownboost::interface1::Parameter *parameter):
-    nVectors(nVect),
-    aNra(nVectors),
-    aNrb(nVectors),
-    aNrd(nVectors),
-    aNrw(nVectors),
-    aNre1(nVectors),
-    aNre2(nVectors),
-    error(parameter->accuracyThreshold),
-    nrAccuracy(parameter->newtonRaphsonAccuracyThreshold),
-    nrMaxIter(parameter->newtonRaphsonMaxIterations),
-    nu(parameter->degenerateCasesThreshold)
+NewtonRaphsonKernel<method, algorithmFPType, cpu>::NewtonRaphsonKernel(size_t nVect, brownboost::interface1::Parameter * parameter)
+    : nVectors(nVect),
+      aNra(nVectors),
+      aNrb(nVectors),
+      aNrd(nVectors),
+      aNrw(nVectors),
+      aNre1(nVectors),
+      aNre2(nVectors),
+      error(parameter->accuracyThreshold),
+      nrAccuracy(parameter->newtonRaphsonAccuracyThreshold),
+      nrMaxIter(parameter->newtonRaphsonMaxIterations),
+      nu(parameter->degenerateCasesThreshold)
 {
     const algorithmFPType one = (algorithmFPType)1.0;
     const algorithmFPType pi  = (algorithmFPType)3.1415926535897932384626433832795;
-    sqrtC = daal::internal::Math<algorithmFPType,cpu>::sErfInv(one - error);
-    c     = sqrtC * sqrtC;
-    invC  = one / c;
-    invSqrtC = one / sqrtC;
-    sqrtPiC = daal::internal::Math<algorithmFPType,cpu>::sSqrt(pi * c);
+    sqrtC                     = daal::internal::Math<algorithmFPType, cpu>::sErfInv(one - error);
+    c                         = sqrtC * sqrtC;
+    invC                      = one / c;
+    invSqrtC                  = one / sqrtC;
+    sqrtPiC                   = daal::internal::Math<algorithmFPType, cpu>::sSqrt(pi * c);
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-void NewtonRaphsonKernel<method, algorithmFPType, cpu>::compute(algorithmFPType gamma,
-    algorithmFPType s, const algorithmFPType *h, const algorithmFPType *y)
+void NewtonRaphsonKernel<method, algorithmFPType, cpu>::compute(algorithmFPType gamma, algorithmFPType s, const algorithmFPType * h,
+                                                                const algorithmFPType * y)
 {
     /* Floating point constants */
     const algorithmFPType zero = (algorithmFPType)0.0;
@@ -358,7 +338,7 @@ void NewtonRaphsonKernel<method, algorithmFPType, cpu>::compute(algorithmFPType 
     {
         /* Here if weak classifier is worse that random guessing.
            If we invert predictions, weak classifier became better then random guessing */
-        gamma = zero - gamma;
+        gamma     = zero - gamma;
         alphaSign = -one;
     }
 
@@ -367,35 +347,32 @@ void NewtonRaphsonKernel<method, algorithmFPType, cpu>::compute(algorithmFPType 
     nrAlpha = ((error < gamma) ? error : gamma);
     nrT     = nrAlpha * nrAlpha / 3.0;
 
-    algorithmFPType* nrd = aNrd.get();
-    algorithmFPType* nrw = aNrw.get();
-    algorithmFPType* nra = aNra.get();
-    algorithmFPType* nrb = aNrb.get();
-    algorithmFPType* nre1 = aNre1.get();
-    algorithmFPType* nre2 = aNre2.get();
+    algorithmFPType * nrd  = aNrd.get();
+    algorithmFPType * nrw  = aNrw.get();
+    algorithmFPType * nra  = aNra.get();
+    algorithmFPType * nrb  = aNrb.get();
+    algorithmFPType * nre1 = aNre1.get();
+    algorithmFPType * nre2 = aNre2.get();
 
-    for(size_t j = 0; j < nVectors; j++)
-    {
-        nrb[j] = h[j] * y[j] * alphaSign;
-    }
+    for (size_t j = 0; j < nVectors; j++) { nrb[j] = h[j] * y[j] * alphaSign; }
 
-    for(size_t nrIter = 0; nrIter < nrMaxIter; ++nrIter)
+    for (size_t nrIter = 0; nrIter < nrMaxIter; ++nrIter)
     {
         /* Calculate Newton-Raphson parameters */
-        for(size_t j = 0; j < nVectors; j++)
+        for (size_t j = 0; j < nVectors; j++)
         {
-            nrd[j] = nra[j] + nrAlpha * nrb[j] - nrT;
-            nrw[j] = -invC * nrd[j] * nrd[j];
+            nrd[j]  = nra[j] + nrAlpha * nrb[j] - nrT;
+            nrw[j]  = -invC * nrd[j] * nrd[j];
             nre1[j] = nrd[j] * invSqrtC;
         }
-        daal::internal::Math<algorithmFPType,cpu>::vExp(nVectors, nrw,  nrw);
+        daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors, nrw, nrw);
         daal::internal::Math<algorithmFPType, cpu>::vErf(nVectors, nre1, nre1);
         algorithmFPType nrW(0.0);
         algorithmFPType nrU(0.0);
         algorithmFPType nrB(0.0);
         algorithmFPType nrV(0.0);
         algorithmFPType nrE(0.0);
-        for(size_t j = 0; j < nVectors; j++)
+        for (size_t j = 0; j < nVectors; j++)
         {
             algorithmFPType nrwb  = nrw[j] * nrb[j];
             algorithmFPType nrwdb = nrwb * nrd[j];
@@ -409,21 +386,20 @@ void NewtonRaphsonKernel<method, algorithmFPType, cpu>::compute(algorithmFPType 
         /* Update Newton-Raphson variables */
         const algorithmFPType invDenom = one / (two * (nrV * nrW - nrU * nrB));
         nrAlpha += invDenom * (c * nrW * nrB + sqrtPiC * nrU * nrE);
-        nrT     += invDenom * (c * nrB * nrB + sqrtPiC * nrV * nrE);
+        nrT += invDenom * (c * nrB * nrB + sqrtPiC * nrV * nrE);
 
-        if((daal::internal::Math<algorithmFPType, cpu>::sFabs(nrB / nrW) <= nu) ||
-            (daal::internal::Math<algorithmFPType, cpu>::sFabs(nrB) <= nrAccuracy &&
-            daal::internal::Math<algorithmFPType, cpu>::sFabs(nrE) <= nrAccuracy))
+        if ((daal::internal::Math<algorithmFPType, cpu>::sFabs(nrB / nrW) <= nu)
+            || (daal::internal::Math<algorithmFPType, cpu>::sFabs(nrB) <= nrAccuracy
+                && daal::internal::Math<algorithmFPType, cpu>::sFabs(nrE) <= nrAccuracy))
             break;
     }
     nrAlpha *= alphaSign;
 }
 
-
-} // namespace daal::algorithms::brownboost::training::internal
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace brownboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

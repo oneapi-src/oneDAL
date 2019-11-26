@@ -45,9 +45,9 @@ class MySquaringModifier : public modifiers::sql::FeatureModifier
 {
 public:
     /* This method is called for every row in CSV file */
-    virtual void apply(modifiers::sql::Context &context)
+    virtual void apply(modifiers::sql::Context & context)
     {
-        const size_t numberOfColumns = context.getNumberOfColumns();
+        const size_t numberOfColumns                            = context.getNumberOfColumns();
         daal::services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
 
         /* By default buffer size is equal to the number of columns.
@@ -57,7 +57,7 @@ public:
 
         for (size_t i = 0; i < numberOfColumns; i++)
         {
-            const float x = context.getValue<float>(i);
+            const float x   = context.getValue<float>(i);
             outputBuffer[i] = x * x;
         }
     }
@@ -68,7 +68,7 @@ class MyMaxFeatureModifier : public modifiers::sql::FeatureModifier
 {
 public:
     /* This method is called once before CSV parsing */
-    virtual void initialize(modifiers::sql::Config &config)
+    virtual void initialize(modifiers::sql::Config & config)
     {
         /* Set number of output features for the modifier. We assume modifier
          * computes function y = max { x_1, ..., x_n }, where x_i is input
@@ -77,16 +77,13 @@ public:
     }
 
     /* This method is called for every row in CSV file */
-    virtual void apply(modifiers::sql::Context &context)
+    virtual void apply(modifiers::sql::Context & context)
     {
         const size_t numberOfColumns = context.getNumberOfColumns();
 
         /* Iterate throughout tokens, parse every token as float and compute max value  */
         float maxFeature = context.getValue<float>(0);
-        for (size_t i = 1; i < numberOfColumns; i++)
-        {
-            maxFeature = (std::max)(maxFeature, context.getValue<float>(i));
-        }
+        for (size_t i = 1; i < numberOfColumns; i++) { maxFeature = (std::max)(maxFeature, context.getValue<float>(i)); }
 
         /* Write max value to the output buffer, buffer size is equal to the
          * number of output features that specified in 'initialize' method */
@@ -94,7 +91,7 @@ public:
     }
 };
 
-int main(int argc, char const *argv[])
+int main(int argc, char const * argv[])
 {
     /*
      * This sample demonstrates how to connect to MySQL server using connection string and
@@ -103,11 +100,13 @@ int main(int argc, char const *argv[])
 
     std::string connectionString;
 
-    if (argc > 1)
-    { connectionString = argv[1]; }
+    if (argc > 1) { connectionString = argv[1]; }
 
     if (utils::trim(connectionString).empty())
-    { utils::printHelp(); return 0; }
+    {
+        utils::printHelp();
+        return 0;
+    }
 
     /* Example of user's connection string: */
     // connectionString = "DRIVER=MySQL;"
@@ -125,8 +124,7 @@ int main(int argc, char const *argv[])
     connection.execute("INSERT INTO ? VALUES (2.71, 3.90), (1.11, 0.538), (3.44, 1.41)", tableName);
 
     /* Crate ODBC Data Source via connection string */
-    const ODBCDataSourceOptions options = ODBCDataSourceOptions::allocateNumericTable |
-                                          ODBCDataSourceOptions::createDictionaryFromContext;
+    const ODBCDataSourceOptions options = ODBCDataSourceOptions::allocateNumericTable | ODBCDataSourceOptions::createDictionaryFromContext;
     ODBCDataSource<SQLFeatureManager> ds(connectionString, options);
 
     /* Execute SQL query, you can execute arbitrary query supported by your DB */
@@ -136,9 +134,9 @@ int main(int argc, char const *argv[])
      * Output numeric table will have the following format:
      * | Col1 | Col2 ^ 2 | max(Col1, Col2) | */
     ds.getFeatureManager()
-        .addModifier( features::list("Col1"), modifiers::sql::continuous()                   )
-        .addModifier( features::list("Col2"), modifiers::sql::custom<MySquaringModifier>()   )
-        .addModifier( features::all(),        modifiers::sql::custom<MyMaxFeatureModifier>() );
+        .addModifier(features::list("Col1"), modifiers::sql::continuous())
+        .addModifier(features::list("Col2"), modifiers::sql::custom<MySquaringModifier>())
+        .addModifier(features::all(), modifiers::sql::custom<MyMaxFeatureModifier>());
 
     /* Cause loading data from the table */
     ds.loadDataBlock();

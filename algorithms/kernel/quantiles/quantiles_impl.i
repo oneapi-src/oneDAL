@@ -40,44 +40,45 @@ namespace quantiles
 {
 namespace internal
 {
-template<Method method, typename algorithmFPType, CpuType cpu>
-services::Status QuantilesKernel<method, algorithmFPType, cpu>::compute(
-    const NumericTable &dataTable,
-    const NumericTable &quantileOrdersTable,
-    NumericTable &quantilesTable)
+template <Method method, typename algorithmFPType, CpuType cpu>
+services::Status QuantilesKernel<method, algorithmFPType, cpu>::compute(const NumericTable & dataTable, const NumericTable & quantileOrdersTable,
+                                                                        NumericTable & quantilesTable)
 {
-    const size_t nFeatures = dataTable.getNumberOfColumns();
-    const size_t nVectors = dataTable.getNumberOfRows();
+    const size_t nFeatures       = dataTable.getNumberOfColumns();
+    const size_t nVectors        = dataTable.getNumberOfRows();
     const size_t nQuantileOrders = quantilesTable.getNumberOfColumns();
 
     ReadRows<algorithmFPType, cpu> dataBlock(const_cast<NumericTable &>(dataTable), 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(dataBlock)
-    const algorithmFPType *data = dataBlock.get();
+    const algorithmFPType * data = dataBlock.get();
 
     ReadRows<algorithmFPType, cpu> quantilesQrderBlock(const_cast<NumericTable &>(quantileOrdersTable), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(quantilesQrderBlock)
-    const algorithmFPType *quantileOrders = quantilesQrderBlock.get();
+    const algorithmFPType * quantileOrders = quantilesQrderBlock.get();
 
     WriteOnlyRows<algorithmFPType, cpu> quantilesBlock(quantilesTable, 0, nFeatures);
     DAAL_CHECK_BLOCK_STATUS(quantilesBlock)
-    algorithmFPType *quantiles = quantilesBlock.get();
+    algorithmFPType * quantiles = quantilesBlock.get();
 
     int errorcode = Statistics<algorithmFPType, cpu>::xQuantiles(data, nFeatures, nVectors, nQuantileOrders, quantileOrders, quantiles);
 
-    if(errorcode)
+    if (errorcode)
     {
-        if(errorcode == __DAAL_VSL_SS_ERROR_BAD_QUANT_ORDER) { return Status(services::ErrorQuantileOrderValueIsInvalid); }
-        else { return Status(services::ErrorQuantilesInternal); }
+        if (errorcode == __DAAL_VSL_SS_ERROR_BAD_QUANT_ORDER) { return Status(services::ErrorQuantileOrderValueIsInvalid); }
+        else
+        {
+            return Status(services::ErrorQuantilesInternal);
+        }
     }
 
     return Status();
 }
 
-} // namespace daal::algorithms::quantiles::internal
+} // namespace internal
 
-} // namespace daal::algorithms::quantiles
+} // namespace quantiles
 
-} // namespace daal::algorithms
+} // namespace algorithms
 
 } // namespace daal
 

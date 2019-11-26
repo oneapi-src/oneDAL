@@ -37,7 +37,6 @@ namespace qr
 {
 namespace interface1
 {
-
 /**
  * Allocates memory for storing partial results of the QR decomposition algorithm
  * \param[in] input     Pointer to input object
@@ -45,7 +44,8 @@ namespace interface1
  * \param[in] method    Algorithm method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status OnlinePartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status OnlinePartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                 const int method)
 {
     auto pDataCollection13 = new DataCollection();
     auto pDataCollection12 = new DataCollection();
@@ -56,7 +56,8 @@ DAAL_EXPORT Status OnlinePartialResult::allocate(const daal::algorithms::Input *
 }
 
 template <typename algorithmFPType>
-DAAL_EXPORT Status OnlinePartialResult::initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status OnlinePartialResult::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                   const int method)
 {
     get(outputOfStep1ForStep3)->clear();
     get(outputOfStep1ForStep2)->clear();
@@ -76,18 +77,12 @@ DAAL_EXPORT Status OnlinePartialResult::addPartialResultStorage(size_t m, size_t
     DataCollectionPtr rCollection = get(outputOfStep1ForStep2);
 
     Status s;
-    if(qCollection)
-    {
-        qCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, n, NumericTable::doAllocate, &s));
-    }
+    if (qCollection) { qCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, n, NumericTable::doAllocate, &s)); }
     else
     {
         return Status(Error::create(ErrorNullOutputDataCollection, ArgumentName, outputOfStep1ForStep3Str()));
     }
-    if(rCollection)
-    {
-        rCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &s));
-    }
+    if (rCollection) { rCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &s)); }
     else
     {
         return Status(Error::create(ErrorNullOutputDataCollection, ArgumentName, outputOfStep1ForStep2Str()));
@@ -95,9 +90,9 @@ DAAL_EXPORT Status OnlinePartialResult::addPartialResultStorage(size_t m, size_t
     return s;
 }
 
-}// namespace interface1
-}// namespace qr
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace qr
+} // namespace algorithms
+} // namespace daal
 
 #endif

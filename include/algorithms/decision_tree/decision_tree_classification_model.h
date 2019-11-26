@@ -36,7 +36,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * @defgroup decision_tree_classification Decision Tree Classification
  * \copydoc daal::algorithms::decision_tree::classification
@@ -48,13 +47,11 @@ namespace algorithms
  */
 namespace decision_tree
 {
-
 /**
  * \brief Contains classes for Decision tree classification algorithm
  */
 namespace classification
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__DECISION_TREE__CLASSIFICATION__SPLITCRITERION"></a>
  * \brief Split criterion for Decision tree classification algorithm
@@ -87,19 +84,23 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::
      *  Main constructor
      *  \param[in] nClasses                         Number of classes
      */
-    DAAL_DEPRECATED Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses),
-                                     pruning(reducedErrorPruning), maxTreeDepth(0), minObservationsInLeafNodes(1),
-                                     splitCriterion(infoGain) {}
+    DAAL_DEPRECATED Parameter(size_t nClasses = 2)
+        : daal::algorithms::classifier::interface1::Parameter(nClasses),
+          pruning(reducedErrorPruning),
+          maxTreeDepth(0),
+          minObservationsInLeafNodes(1),
+          splitCriterion(infoGain)
+    {}
 
     /**
      * Checks a parameter of the Decision tree algorithm
      */
     DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 
-    SplitCriterion splitCriterion;      /*!< Split criterion for Decision tree classification */
-    Pruning pruning;                    /*!< Pruning method for Decision tree */
-    size_t maxTreeDepth;                /*!< Maximum tree depth. 0 means unlimited depth. */
-    size_t minObservationsInLeafNodes;  /*!< Minimum number of observations in the leaf node. Can be any positive number. */
+    SplitCriterion splitCriterion;     /*!< Split criterion for Decision tree classification */
+    Pruning pruning;                   /*!< Pruning method for Decision tree */
+    size_t maxTreeDepth;               /*!< Maximum tree depth. 0 means unlimited depth. */
+    size_t minObservationsInLeafNodes; /*!< Minimum number of observations in the leaf node. Can be any positive number. */
 };
 /* [interface1::Parameter source code] */
 
@@ -129,7 +130,7 @@ public:
      * \param[in]  nFeatures Number of features in the dataset
      * \param[out] stat      Status of the model construction
      */
-    static services::SharedPtr<Model> create(size_t nFeatures = 0, services::Status *stat = NULL);
+    static services::SharedPtr<Model> create(size_t nFeatures = 0, services::Status * stat = NULL);
 
     virtual ~Model();
 
@@ -159,36 +160,36 @@ public:
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     *  \DAAL_DEPRECATED_USE{ Model::traverseDFS }
     */
-    void traverseDF(classifier::TreeNodeVisitor& visitor) const;
+    void traverseDF(classifier::TreeNodeVisitor & visitor) const;
 
     /**
     *  Perform Breadth First Traversal of tree
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     *  \DAAL_DEPRECATED_USE{ Model::traverseBFS }
     */
-    void traverseBF(classifier::TreeNodeVisitor& visitor) const;
+    void traverseBF(classifier::TreeNodeVisitor & visitor) const;
 
     /**
     *  Perform Depth First Traversal of tree
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     */
-    void traverseDFS(tree_utils::classification::TreeNodeVisitor& visitor) const;
+    void traverseDFS(tree_utils::classification::TreeNodeVisitor & visitor) const;
 
     /**
     *  Perform Breadth First Traversal of tree
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     */
-    void traverseBFS(tree_utils::classification::TreeNodeVisitor& visitor) const;
+    void traverseBFS(tree_utils::classification::TreeNodeVisitor & visitor) const;
 
 protected:
-    Model(size_t nFeatures, services::Status &st);
+    Model(size_t nFeatures, services::Status & st);
 
     services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
 
     services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 
 private:
-    ModelImplPtr _impl;  /*!< Model implementation */
+    ModelImplPtr _impl; /*!< Model implementation */
 };
 
 typedef services::SharedPtr<Model> ModelPtr;
@@ -222,25 +223,29 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  Main constructor
      *  \param[in] nClasses                         Number of classes
      */
-    Parameter(size_t nClasses = 2) : daal::algorithms::classifier::Parameter(nClasses),
-                                     pruning(reducedErrorPruning), maxTreeDepth(0), minObservationsInLeafNodes(1),
-                                     nBins(1),
-                                     splitCriterion(infoGain) {}
+    Parameter(size_t nClasses = 2)
+        : daal::algorithms::classifier::Parameter(nClasses),
+          pruning(reducedErrorPruning),
+          maxTreeDepth(0),
+          minObservationsInLeafNodes(1),
+          nBins(1),
+          splitCriterion(infoGain)
+    {}
 
     /**
      * Checks a parameter of the Decision tree algorithm
      */
     services::Status check() const DAAL_C11_OVERRIDE;
 
-    SplitCriterion splitCriterion;      /*!< Split criterion for Decision tree classification */
-    Pruning pruning;                    /*!< Pruning method for Decision tree */
-    size_t maxTreeDepth;                /*!< Maximum tree depth. 0 means unlimited depth. */
-    size_t minObservationsInLeafNodes;  /*!< Minimum number of observations in the leaf node. Can be any positive number. */
-    size_t nBins;                       /*!< The number of bins used to compute probabilities of the observations belonging to the class.
+    SplitCriterion splitCriterion;     /*!< Split criterion for Decision tree classification */
+    Pruning pruning;                   /*!< Pruning method for Decision tree */
+    size_t maxTreeDepth;               /*!< Maximum tree depth. 0 means unlimited depth. */
+    size_t minObservationsInLeafNodes; /*!< Minimum number of observations in the leaf node. Can be any positive number. */
+    size_t nBins;                      /*!< The number of bins used to compute probabilities of the observations belonging to the class.
                                              The only supported value for current version of the library is 1. */
 };
 /* [Parameter source code] */
-}
+} // namespace interface2
 using interface2::Parameter;
 
 /** @} */

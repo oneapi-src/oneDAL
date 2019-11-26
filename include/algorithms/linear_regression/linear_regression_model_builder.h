@@ -37,7 +37,6 @@ namespace algorithms
  */
 namespace linear_regression
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -55,11 +54,10 @@ namespace interface1
  * \tparam modelFPType  Data type to store linear regression model data, double or float
  *
  */
-template<typename modelFPType = DAAL_ALGORITHM_FP_TYPE>
+template <typename modelFPType = DAAL_ALGORITHM_FP_TYPE>
 class DAAL_EXPORT ModelBuilder
 {
 public:
-
     /**
      * Constructs the Linear Regression model builder
      * \param[in] nFeatures      Number of features in training data
@@ -74,19 +72,19 @@ public:
      *  \param[in] first      Iterator which point to first element of support vectors
      *  \param[in] last       Iterator which point to last element of support vectors
      */
-    template<typename RandomIterator>
+    template <typename RandomIterator>
     void setBeta(RandomIterator first, RandomIterator last)
     {
         data_management::BlockDescriptor<modelFPType> pBlock;
         _modelPtr->getBeta()->getBlockOfRows(0, _nResponses, data_management::readWrite, pBlock);
-        modelFPType* sp = pBlock.getBlockPtr();
-        if( (last - first) == ((_nFeatures)*_nResponses) )
+        modelFPType * sp = pBlock.getBlockPtr();
+        if ((last - first) == ((_nFeatures)*_nResponses))
         {
             setInterceptFlag(false);
             size_t i = 0;
-            while(first != last)
+            while (first != last)
             {
-                if( (i % (_nFeatures + 1)) == 0)
+                if ((i % (_nFeatures + 1)) == 0)
                 {
                     sp[i] = 0;
                     ++i;
@@ -96,10 +94,10 @@ public:
                 ++i;
             }
         }
-        else if( (last - first) == ((_nFeatures + 1)*_nResponses) )
+        else if ((last - first) == ((_nFeatures + 1) * _nResponses))
         {
             setInterceptFlag(true);
-            while(first != last)
+            while (first != last)
             {
                 *sp = *first;
                 ++first;
@@ -120,19 +118,13 @@ public:
      *  Get built model
      *  \return Model pointer
      */
-    ModelPtr getModel()
-    {
-        return _modelPtr;
-    }
+    ModelPtr getModel() { return _modelPtr; }
 
     /**
      *  Get status of model building
      *  \return Status
      */
-    services::Status getStatus()
-    {
-        return _s;
-    }
+    services::Status getStatus() { return _s; }
 
 private:
     ModelPtr _modelPtr;

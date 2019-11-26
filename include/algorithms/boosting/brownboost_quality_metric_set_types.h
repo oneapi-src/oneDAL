@@ -48,7 +48,7 @@ namespace quality_metric_set
  */
 enum QualityMetricId
 {
-    confusionMatrix,    /*!< Confusion matrix */
+    confusionMatrix, /*!< Confusion matrix */
     lastQualityMetricId = confusionMatrix
 };
 
@@ -74,7 +74,6 @@ public:
      * \return         Result that corresponds to the given identifier
      */
     classifier::quality_metric::binary_confusion_matrix::ResultPtr getResult(QualityMetricId id) const;
-
 };
 typedef services::SharedPtr<ResultCollection> ResultCollectionPtr;
 
@@ -95,19 +94,18 @@ public:
      * \return          %Input object that corresponds to the given identifier
      */
     classifier::quality_metric::binary_confusion_matrix::InputPtr getInput(QualityMetricId id) const;
-
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
-}
+} // namespace interface1
 using interface1::ResultCollection;
 using interface1::ResultCollectionPtr;
 using interface1::InputDataCollection;
 using interface1::InputDataCollectionPtr;
 
-}
+} // namespace quality_metric_set
 /** @} */
-}
-}
-}
+} // namespace brownboost
+} // namespace algorithms
+} // namespace daal
 
 #endif // __BROWNBOOST_QUALITY_METRIC_SET_TYPES_H__

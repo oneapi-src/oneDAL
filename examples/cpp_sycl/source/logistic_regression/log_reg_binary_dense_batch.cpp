@@ -40,24 +40,24 @@ using namespace daal::algorithms::logistic_regression;
 
 /* Input data set parameters */
 const string trainDatasetFileName = "../data/batch/binary_cls_train.csv";
-const string testDatasetFileName = "../data/batch/binary_cls_test.csv";
-const size_t nFeatures = 20;  /* Number of features in training and testing data sets */
+const string testDatasetFileName  = "../data/batch/binary_cls_test.csv";
+const size_t nFeatures            = 20; /* Number of features in training and testing data sets */
 
 /* Logistic regression training parameters */
-const size_t nClasses = 2;  /* Number of classes */
+const size_t nClasses = 2; /* Number of classes */
 
-training::ResultPtr trainModel(const NumericTablePtr& trainData, const NumericTablePtr& trainDependentVariable);
-void testModel(const training::ResultPtr& res, const NumericTablePtr& testData, const NumericTablePtr& testGroundTruth);
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar);
+training::ResultPtr trainModel(const NumericTablePtr & trainData, const NumericTablePtr & trainDependentVariable);
+void testModel(const training::ResultPtr & res, const NumericTablePtr & testData, const NumericTablePtr & testGroundTruth);
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    for (const auto& deviceSelector : getListOfDevices())
+    for (const auto & deviceSelector : getListOfDevices())
     {
-        const auto& nameDevice = deviceSelector.first;
-        const auto& device = deviceSelector.second;
+        const auto & nameDevice = deviceSelector.first;
+        const auto & device     = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -75,12 +75,11 @@ int main(int argc, char *argv[])
         loadData(testDatasetFileName, testData, testGroundTruth);
 
         testModel(trainingResult, testData, testGroundTruth);
-
     }
     return 0;
 }
 
-training::ResultPtr trainModel(const NumericTablePtr& trainData, const NumericTablePtr& trainDependentVariable)
+training::ResultPtr trainModel(const NumericTablePtr & trainData, const NumericTablePtr & trainDependentVariable)
 {
     /* Create an algorithm object to train the logistic regression model */
     training::Batch<> algorithm(nClasses);
@@ -88,15 +87,15 @@ training::ResultPtr trainModel(const NumericTablePtr& trainData, const NumericTa
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainDependentVariable);
-    algorithm.parameter().penaltyL2 = 0.1f;
+    algorithm.parameter().penaltyL2     = 0.1f;
     algorithm.parameter().interceptFlag = true;
 
     /* Set optimization solver SGD mini-batch */
     using SolverType = optimization_solver::sgd::Batch<float, optimization_solver::sgd::miniBatch>;
     services::SharedPtr<SolverType> solver(new SolverType());
 
-    solver->parameter.nIterations = 200;
-    solver->parameter.batchSize = 1;
+    solver->parameter.nIterations       = 200;
+    solver->parameter.batchSize         = 1;
     solver->parameter.accuracyThreshold = 1e-6;
 
     algorithm.parameter().optimizationSolver = solver;
@@ -105,12 +104,9 @@ training::ResultPtr trainModel(const NumericTablePtr& trainData, const NumericTa
     algorithm.compute();
 
     /* Retrieve the algorithm results */
-    training::ResultPtr trainingResult = algorithm.getResult();
+    training::ResultPtr trainingResult     = algorithm.getResult();
     logistic_regression::ModelPtr modelptr = trainingResult->get(classifier::training::model);
-    if(modelptr.get())
-    {
-        printNumericTable(modelptr->getBeta(), "Logistic Regression coefficients:");
-    }
+    if (modelptr.get()) { printNumericTable(modelptr->getBeta(), "Logistic Regression coefficients:"); }
     else
     {
         std::cout << "Null model pointer" << std::endl;
@@ -118,7 +114,7 @@ training::ResultPtr trainModel(const NumericTablePtr& trainData, const NumericTa
     return trainingResult;
 }
 
-void testModel(const training::ResultPtr& trainingResult, const NumericTablePtr& testData, const NumericTablePtr& testGroundTruth)
+void testModel(const training::ResultPtr & trainingResult, const NumericTablePtr & testData, const NumericTablePtr & testGroundTruth)
 {
     /* Create an algorithm object to predict values of logistic regression */
     prediction::Batch<> algorithm(nClasses);
@@ -132,20 +128,17 @@ void testModel(const training::ResultPtr& trainingResult, const NumericTablePtr&
 
     /* Retrieve the algorithm results */
     classifier::prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(classifier::prediction::prediction),
-        "Logistic regression prediction results (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(classifier::prediction::prediction), "Logistic regression prediction results (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }
 
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar)
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(fileName,
-        DataSource::notAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
-    pData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
+    pData         = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
     pDependentVar = SyclHomogenNumericTable<>::create(1, 0, NumericTable::notAllocate);
     NumericTablePtr mergedData(new MergedNumericTable(pData, pDependentVar));
 

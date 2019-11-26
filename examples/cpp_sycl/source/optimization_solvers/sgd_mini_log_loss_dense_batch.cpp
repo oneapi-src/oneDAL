@@ -38,33 +38,31 @@ using namespace daal::data_management;
 
 string datasetFileName = "../data/batch/custom.csv";
 
-const size_t nIterations = 1000;
-const size_t nFeatures = 4;
-const float  learningRate = 0.01f;
+const size_t nIterations       = 1000;
+const size_t nFeatures         = 4;
+const float learningRate       = 0.01f;
 const double accuracyThreshold = 0.02;
-const size_t batchSize = 4;
+const size_t batchSize         = 4;
 
-float initialPoint[nFeatures + 1] = {1, 1, 1, 1, 1};
+float initialPoint[nFeatures + 1] = { 1, 1, 1, 1, 1 };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
     daal::services::Status s;
 
     /* Initialize sycl context */
-    for (const auto& deviceSelector : getListOfDevices())
+    for (const auto & deviceSelector : getListOfDevices())
     {
-        const auto& nameDevice = deviceSelector.first;
-        const auto& device = deviceSelector.second;
+        const auto & nameDevice = deviceSelector.first;
+        const auto & device     = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
         services::SyclExecutionContext ctx(queue);
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
-                DataSource::notAllocateNumericTable,
-                DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
         /* Create Numeric Tables for data and values for dependent variable */
         NumericTablePtr data = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate, &s);
@@ -78,7 +76,7 @@ int main(int argc, char *argv[])
         dataSource.loadDataBlock(mergedData.get());
 
         size_t nVectors = data.get() ? data->getNumberOfRows() : 1;
-        services::SharedPtr<logistic_loss::Batch<float>> logLoss(new logistic_loss::Batch<float>(nVectors));
+        services::SharedPtr<logistic_loss::Batch<float> > logLoss(new logistic_loss::Batch<float>(nVectors));
         logLoss->input.set(logistic_loss::data, data);
         logLoss->input.set(logistic_loss::dependentVariables, dependentVariables);
 
@@ -90,12 +88,11 @@ int main(int argc, char *argv[])
         sgdAlgorithm.input.set(optimization_solver::iterative_solver::inputArgument,
                                SyclHomogenNumericTable<>::create(initialPointBuff, 1, nFeatures + 1, &s));
         checkStatus(s);
-        sgdAlgorithm.parameter.learningRateSequence =
-            HomogenNumericTable<>::create(1, 1, NumericTable::doAllocate, learningRate, &s);
+        sgdAlgorithm.parameter.learningRateSequence = HomogenNumericTable<>::create(1, 1, NumericTable::doAllocate, learningRate, &s);
         checkStatus(s);
-        sgdAlgorithm.parameter.nIterations = nIterations;
+        sgdAlgorithm.parameter.nIterations       = nIterations;
         sgdAlgorithm.parameter.accuracyThreshold = accuracyThreshold;
-        sgdAlgorithm.parameter.batchSize = batchSize;
+        sgdAlgorithm.parameter.batchSize         = batchSize;
 
         /* Compute the Stochastic gradient descent result */
         s = sgdAlgorithm.compute();

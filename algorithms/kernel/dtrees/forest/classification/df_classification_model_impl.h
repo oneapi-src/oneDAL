@@ -38,8 +38,9 @@ namespace classification
 {
 namespace internal
 {
-
-class ModelImpl : public decision_forest::classification::Model, public algorithms::classifier::internal::ModelInternal, public dtrees::internal::ModelImpl
+class ModelImpl : public decision_forest::classification::Model,
+                  public algorithms::classifier::internal::ModelInternal,
+                  public dtrees::internal::ModelImpl
 {
 public:
     friend class decision_forest::classification::ModelBuilder;
@@ -47,7 +48,7 @@ public:
     typedef algorithms::classifier::internal::ModelInternal ClassifierImplType;
     typedef dtrees::internal::TreeImpClassification<> TreeType;
     ModelImpl(size_t nFeatures = 0) : ClassifierImplType(nFeatures) {}
-    ~ModelImpl(){}
+    ~ModelImpl() {}
 
     //Implementation of classifier::Model
     virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return ClassifierImplType::getNumberOfFeatures(); }
@@ -56,17 +57,17 @@ public:
 
     //Implementation of decision_forest::classification::Model
     virtual size_t numberOfTrees() const DAAL_C11_OVERRIDE;
-    virtual void traverseDF(size_t iTree, classifier::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
-    virtual void traverseBF(size_t iTree, classifier::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseDF(size_t iTree, classifier::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseBF(size_t iTree, classifier::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
     virtual void clear() DAAL_C11_OVERRIDE { ImplType::clear(); }
 
-    virtual void traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
-    virtual void traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVisitor & visitor) const DAAL_C11_OVERRIDE;
 
     virtual services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
     virtual services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 
-    bool add(const TreeType& tree, size_t nClasses);
+    bool add(const TreeType & tree, size_t nClasses);
 
     virtual size_t getNumberOfTrees() const DAAL_C11_OVERRIDE;
 };

@@ -36,7 +36,6 @@ namespace decision_tree
 {
 namespace internal
 {
-
 using namespace daal::services;
 
 template <typename T>
@@ -53,10 +52,7 @@ template <>
 class allocation<void>
 {
 public:
-    static DAAL_FORCEINLINE void * malloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAULT_ALIGNMENT)
-    {
-        return daal_calloc(size, alignment);
-    }
+    static DAAL_FORCEINLINE void * malloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAULT_ALIGNMENT) { return daal_calloc(size, alignment); }
 };
 
 template <typename T>
@@ -77,13 +73,9 @@ class FeatureTypesCache
 {
 public:
     FeatureTypesCache(const data_management::NumericTable & table)
-        : _size(table.getNumberOfColumns()),
-          _types(daal_alloc<data_management::features::FeatureType>(_size))
+        : _size(table.getNumberOfColumns()), _types(daal_alloc<data_management::features::FeatureType>(_size))
     {
-        for (FeatureIndex i = 0; i < _size; ++i)
-        {
-            _types[i] = table.getFeatureType(i);
-        }
+        for (FeatureIndex i = 0; i < _size; ++i) { _types[i] = table.getFeatureType(i); }
     }
 
     ~FeatureTypesCache()
@@ -93,9 +85,9 @@ public:
     }
 
     FeatureTypesCache(const FeatureTypesCache &) = delete;
-    FeatureTypesCache & operator= (const FeatureTypesCache &) = delete;
+    FeatureTypesCache & operator=(const FeatureTypesCache &) = delete;
 
-    data_management::features::FeatureType operator[] (FeatureIndex index) const
+    data_management::features::FeatureType operator[](FeatureIndex index) const
     {
         DAAL_ASSERT(index < _size);
         return _types[index];

@@ -43,10 +43,9 @@ namespace svd
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-Status compute_svd_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a, DAAL_INT lda,
-                                       algorithmFPType *s, algorithmFPType *u, DAAL_INT ldu, algorithmFPType *vt, DAAL_INT ldvt )
+Status compute_svd_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a, DAAL_INT lda, algorithmFPType * s, algorithmFPType * u, DAAL_INT ldu,
+                               algorithmFPType * vt, DAAL_INT ldvt)
 {
     /* Specifies options for computing all or part of the matrix U                                       */
     /* 'S': the first min(m, n) columns of U (the left singular vectors) are returned in the array u     */
@@ -57,10 +56,10 @@ Status compute_svd_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a, DAAL
     char jobvt = 'S';
 
     DAAL_INT workDim   = -1; /* =lwork in Intel(R) MKL API */
-    DAAL_INT mklStatus =  0; /* =info in Intel(R) MKL API  */
+    DAAL_INT mklStatus = 0;  /* =info in Intel(R) MKL API  */
 
     /* buffers */
-    algorithmFPType  workQuery[2]; /* align? */
+    algorithmFPType workQuery[2]; /* align? */
 
     /* buffer size query */
     Lapack<algorithmFPType, cpu>::xgesvd(jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, workQuery, workDim, &mklStatus);
@@ -68,17 +67,14 @@ Status compute_svd_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a, DAAL
 
     /* computation block */
     TArray<algorithmFPType, cpu> workPtr(workDim);
-    algorithmFPType *work = workPtr.get();
+    algorithmFPType * work = workPtr.get();
     DAAL_CHECK(work, ErrorMemoryAllocationFailed);
 
     Lapack<algorithmFPType, cpu>::xgesvd(jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, workDim, &mklStatus);
 
-    if ( mklStatus != 0 )
+    if (mklStatus != 0)
     {
-        if ( mklStatus > 0 )
-        {
-            return Status(ErrorSvdXBDSQRDidNotConverge);
-        }
+        if (mklStatus > 0) { return Status(ErrorSvdXBDSQRDidNotConverge); }
         else
         {
             return Status(ErrorSvdIthParamIllegalValue);
@@ -88,10 +84,9 @@ Status compute_svd_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a, DAAL
     return Status();
 }
 
-
 template <typename algorithmFPType, CpuType cpu>
-Status compute_svd_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a, DAAL_INT lda,
-                                           algorithmFPType *s, algorithmFPType *u, DAAL_INT ldu, algorithmFPType *vt, DAAL_INT ldvt )
+Status compute_svd_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a, DAAL_INT lda, algorithmFPType * s, algorithmFPType * u, DAAL_INT ldu,
+                                   algorithmFPType * vt, DAAL_INT ldvt)
 {
     /* Specifies options for computing all or part of the matrix U                                       */
     /* 'S': the first min(m, n) columns of U (the left singular vectors) are returned in the array u     */
@@ -102,10 +97,10 @@ Status compute_svd_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a, 
     char jobvt = 'S';
 
     DAAL_INT workDim   = -1; /* =lwork in Intel(R) MKL API */
-    DAAL_INT mklStatus =  0; /* =info in Intel(R) MKL API  */
+    DAAL_INT mklStatus = 0;  /* =info in Intel(R) MKL API  */
 
     /* buffers */
-    algorithmFPType  workQuery[2]; /* align? */
+    algorithmFPType workQuery[2]; /* align? */
 
     /* buffer size query */
     Lapack<algorithmFPType, cpu>::xxgesvd(jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, workQuery, workDim, &mklStatus);
@@ -113,17 +108,14 @@ Status compute_svd_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a, 
 
     /* computation block */
     TArray<algorithmFPType, cpu> workPtr(workDim);
-    algorithmFPType *work = workPtr.get();
+    algorithmFPType * work = workPtr.get();
     DAAL_CHECK(work, ErrorMemoryAllocationFailed);
 
     Lapack<algorithmFPType, cpu>::xxgesvd(jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, workDim, &mklStatus);
 
-    if ( mklStatus != 0 )
+    if (mklStatus != 0)
     {
-        if ( mklStatus > 0 )
-        {
-            return Status(ErrorSvdXBDSQRDidNotConverge);
-        }
+        if (mklStatus > 0) { return Status(ErrorSvdXBDSQRDidNotConverge); }
         else
         {
             return Status(ErrorSvdIthParamIllegalValue);
@@ -143,23 +135,22 @@ Status compute_svd_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a, 
 
 */
 template <typename algorithmFPType, CpuType cpu>
-Status compute_QR_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q, DAAL_INT lda_q, algorithmFPType *r,
-                                      DAAL_INT ldr )
+Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAAL_INT lda_q, algorithmFPType * r, DAAL_INT ldr)
 {
     // .. Local arrays
     // .. Memory allocation block
     TArray<algorithmFPType, cpu> tauPtr(n);
-    algorithmFPType *tau = tauPtr.get();
+    algorithmFPType * tau = tauPtr.get();
     DAAL_CHECK(tau, ErrorMemoryAllocationFailed);
 
     // buffers
-    algorithmFPType  workQuery[2]; /* align? */
+    algorithmFPType workQuery[2]; /* align? */
 
-    DAAL_INT mklStatus =  0;
+    DAAL_INT mklStatus = 0;
     DAAL_INT workDim   = -1;
 
     // buffer size query
-    Lapack<algorithmFPType, cpu>::xgeqrf( m, n, a_q, lda_q, tau, workQuery, workDim, &mklStatus );
+    Lapack<algorithmFPType, cpu>::xgeqrf(m, n, a_q, lda_q, tau, workQuery, workDim, &mklStatus);
     workDim = workQuery[0];
 
     // a bug in Intel(R) MKL with XORGQR workDim query, to be fixed
@@ -168,56 +159,46 @@ Status compute_QR_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q, DAA
 
     // allocate buffer
     TArray<algorithmFPType, cpu> workPtr(workDim);
-    algorithmFPType *work = workPtr.get();
+    algorithmFPType * work = workPtr.get();
     DAAL_CHECK(work, ErrorMemoryAllocationFailed);
 
     // Compute QR decomposition
-    Lapack<algorithmFPType, cpu>::xgeqrf( m, n, a_q, lda_q, tau, work, workDim, &mklStatus );
+    Lapack<algorithmFPType, cpu>::xgeqrf(m, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
-    if ( mklStatus != 0 )
-    {
-        return Status(ErrorSvdIthParamIllegalValue);
-    }
+    if (mklStatus != 0) { return Status(ErrorSvdIthParamIllegalValue); }
 
     // Get R of the QR factorization formed by xgeqrf
     DAAL_INT i, j;
-    for ( i = 1; i <= n; i++ )
+    for (i = 1; i <= n; i++)
     {
-        for ( j = 0; j < i; j++ )
-        {
-            r[(i - 1)*ldr + j] = a_q[(i - 1) * lda_q + j];
-        }
+        for (j = 0; j < i; j++) { r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j]; }
     }
 
     // Get Q of the QR factorization formed by xgeqrf
-    Lapack<algorithmFPType, cpu>::xorgqr( m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus );
+    Lapack<algorithmFPType, cpu>::xorgqr(m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
-    if ( mklStatus != 0 )
-    {
-        return Status(ErrorSvdIthParamIllegalValue);
-    }
+    if (mklStatus != 0) { return Status(ErrorSvdIthParamIllegalValue); }
 
     return Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status compute_QR_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q, DAAL_INT lda_q, algorithmFPType *r,
-                                          DAAL_INT ldr )
+Status compute_QR_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAAL_INT lda_q, algorithmFPType * r, DAAL_INT ldr)
 {
     // .. Local arrays
     // .. Memory allocation block
     TArray<algorithmFPType, cpu> tauPtr(n);
-    algorithmFPType *tau = tauPtr.get();
+    algorithmFPType * tau = tauPtr.get();
     DAAL_CHECK(tau, ErrorMemoryAllocationFailed);
 
     // buffers
-    algorithmFPType  workQuery[2]; /* align? */
+    algorithmFPType workQuery[2]; /* align? */
 
-    DAAL_INT mklStatus =  0;
+    DAAL_INT mklStatus = 0;
     DAAL_INT workDim   = -1;
 
     // buffer size query
-    Lapack<algorithmFPType, cpu>::xxgeqrf( m, n, a_q, lda_q, tau, workQuery, workDim, &mklStatus );
+    Lapack<algorithmFPType, cpu>::xxgeqrf(m, n, a_q, lda_q, tau, workQuery, workDim, &mklStatus);
     workDim = workQuery[0];
 
     // a bug in Intel(R) MKL with XORGQR workDim query, to be fixed
@@ -226,69 +207,60 @@ Status compute_QR_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a_q,
 
     // allocate buffer
     TArray<algorithmFPType, cpu> workPtr(workDim);
-    algorithmFPType *work = workPtr.get();
+    algorithmFPType * work = workPtr.get();
     DAAL_CHECK(work, ErrorMemoryAllocationFailed);
 
     // Compute QR decomposition
-    Lapack<algorithmFPType, cpu>::xxgeqrf( m, n, a_q, lda_q, tau, work, workDim, &mklStatus );
+    Lapack<algorithmFPType, cpu>::xxgeqrf(m, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
-    if ( mklStatus != 0 )
-    {
-        return Status(ErrorSvdIthParamIllegalValue);
-    }
+    if (mklStatus != 0) { return Status(ErrorSvdIthParamIllegalValue); }
 
     // Get R of the QR factorization formed by xgeqrf
     DAAL_INT i, j;
-    for ( i = 1; i <= n; i++ )
+    for (i = 1; i <= n; i++)
     {
-        for ( j = 0; j < i; j++ )
-        {
-            r[(i - 1)*ldr + j] = a_q[(i - 1) * lda_q + j];
-        }
+        for (j = 0; j < i; j++) { r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j]; }
     }
 
     // Get Q of the QR factorization formed by xgeqrf
-    Lapack<algorithmFPType, cpu>::xxorgqr( m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus );
+    Lapack<algorithmFPType, cpu>::xxorgqr(m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
-    if ( mklStatus != 0 )
-    {
-        return Status(ErrorSvdIthParamIllegalValue);
-    }
+    if (mklStatus != 0) { return Status(ErrorSvdIthParamIllegalValue); }
 
     return Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status compute_gemm_on_one_node( DAAL_INT m, DAAL_INT n, algorithmFPType *a, DAAL_INT lda, algorithmFPType *b, DAAL_INT ldb,
-                                        algorithmFPType *c, DAAL_INT ldc)
+Status compute_gemm_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a, DAAL_INT lda, algorithmFPType * b, DAAL_INT ldb, algorithmFPType * c,
+                                DAAL_INT ldc)
 {
     algorithmFPType one  = algorithmFPType(1.0);
     algorithmFPType zero = algorithmFPType(0.0);
 
     char notrans = 'N';
 
-    Blas<algorithmFPType, cpu>::xgemm( &notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
+    Blas<algorithmFPType, cpu>::xgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
 
     return Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status compute_gemm_on_one_node_seq( DAAL_INT m, DAAL_INT n, algorithmFPType *a, DAAL_INT lda, algorithmFPType *b, DAAL_INT ldb,
-                                            algorithmFPType *c, DAAL_INT ldc)
+Status compute_gemm_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a, DAAL_INT lda, algorithmFPType * b, DAAL_INT ldb, algorithmFPType * c,
+                                    DAAL_INT ldc)
 {
     algorithmFPType one  = algorithmFPType(1.0);
     algorithmFPType zero = algorithmFPType(0.0);
 
     char notrans = 'N';
 
-    Blas<algorithmFPType, cpu>::xxgemm( &notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
+    Blas<algorithmFPType, cpu>::xxgemm(&notrans, &notrans, &m, &n, &n, &one, a, &lda, b, &ldb, &zero, c, &ldc);
 
     return Status();
 }
 
-} // namespace daal::internal
-}
-}
+} // namespace internal
+} // namespace svd
+} // namespace algorithms
 } // namespace daal
 
 #endif

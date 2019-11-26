@@ -38,25 +38,22 @@ using namespace daal::algorithms::implicit_als;
 /* Input data set parameters */
 const size_t nBlocks = 4;
 
-const string trainDatasetFileNames[nBlocks] =
-{
-    "../data/distributed/implicit_als_trans_csr_1.csv",
-    "../data/distributed/implicit_als_trans_csr_2.csv",
-    "../data/distributed/implicit_als_trans_csr_3.csv",
-    "../data/distributed/implicit_als_trans_csr_4.csv"
-};
+const string trainDatasetFileNames[nBlocks] = { "../data/distributed/implicit_als_trans_csr_1.csv",
+                                                "../data/distributed/implicit_als_trans_csr_2.csv",
+                                                "../data/distributed/implicit_als_trans_csr_3.csv",
+                                                "../data/distributed/implicit_als_trans_csr_4.csv" };
 
 static int usersPartition[] = { nBlocks };
 
 NumericTablePtr userOffsets[nBlocks];
 NumericTablePtr itemOffsets[nBlocks];
 
-typedef float algorithmFPType;     /* Algorithm floating-point type */
+typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Algorithm parameters */
-const size_t nUsers = 46;           /* Full number of users */
-const size_t nFactors = 2;          /* Number of factors */
-const size_t maxIterations = 5;     /* Number of iterations in the implicit ALS training algorithm */
+const size_t nUsers        = 46; /* Full number of users */
+const size_t nFactors      = 2;  /* Number of factors */
+const size_t maxIterations = 5;  /* Number of iterations in the implicit ALS training algorithm */
 
 CSRNumericTablePtr dataTable[nBlocks];
 CSRNumericTablePtr transposedDataTable[nBlocks];
@@ -75,12 +72,9 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
-    for (size_t i = 0; i < nBlocks; i++)
-    {
-        readData(i);
-    }
+    for (size_t i = 0; i < nBlocks; i++) { readData(i); }
 
     initializeModel();
 
@@ -100,7 +94,7 @@ KeyValueDataCollectionPtr initializeStep1Local(size_t block)
 
     /* Set parameters of the algorithm */
     initAlgorithm.parameter.fullNUsers = nUsers;
-    initAlgorithm.parameter.nFactors = nFactors;
+    initAlgorithm.parameter.nFactors   = nFactors;
     initAlgorithm.parameter.seed += block;
     initAlgorithm.parameter.partition.reset(new HomogenNumericTable<int>((int *)usersPartition, 1, 1));
 
@@ -111,9 +105,9 @@ KeyValueDataCollectionPtr initializeStep1Local(size_t block)
     initAlgorithm.compute();
 
     training::init::PartialResultPtr partialResult = initAlgorithm.getPartialResult();
-    itemStep3LocalInput[block]        = partialResult->get(training::init::outputOfInitForComputeStep3);
-    userOffsets[block]                = partialResult->get(training::init::offsets, block);
-    PartialModelPtr partialModelLocal = partialResult->get(training::init::partialModel);
+    itemStep3LocalInput[block]                     = partialResult->get(training::init::outputOfInitForComputeStep3);
+    userOffsets[block]                             = partialResult->get(training::init::offsets, block);
+    PartialModelPtr partialModelLocal              = partialResult->get(training::init::partialModel);
 
     itemsPartialResultLocal[block].reset(new training::DistributedPartialResultStep4());
     itemsPartialResultLocal[block]->set(training::outputOfStep4ForStep1, partialModelLocal);
@@ -132,37 +126,27 @@ void initializeStep2Local(size_t block, KeyValueDataCollectionPtr initStep2Local
     initAlgorithm.compute();
 
     training::init::DistributedPartialResultStep2Ptr partialResult = initAlgorithm.getPartialResult();
-    transposedDataTable[block] = CSRNumericTable::cast(partialResult->get(training::init::transposedData));
-    userStep3LocalInput[block] = partialResult->get(training::init::outputOfInitForComputeStep3);
-    itemOffsets[block]         = partialResult->get(training::init::offsets, block);
+    transposedDataTable[block]                                     = CSRNumericTable::cast(partialResult->get(training::init::transposedData));
+    userStep3LocalInput[block]                                     = partialResult->get(training::init::outputOfInitForComputeStep3);
+    itemOffsets[block]                                             = partialResult->get(training::init::offsets, block);
 }
 
 void initializeModel()
 {
     KeyValueDataCollectionPtr initStep1LocalResult[nBlocks];
-    for (size_t i = 0; i < nBlocks; i++)
-    {
-        initStep1LocalResult[i] = initializeStep1Local(i);
-    }
+    for (size_t i = 0; i < nBlocks; i++) { initStep1LocalResult[i] = initializeStep1Local(i); }
 
     /* Prepare input objects for the second step of the distributed initialization algorithm */
     KeyValueDataCollectionPtr initStep2LocalInput[nBlocks];
     for (size_t i = 0; i < nBlocks; i++)
     {
         initStep2LocalInput[i].reset(new KeyValueDataCollection());
-        for (size_t j = 0; j < nBlocks; j++)
-        {
-            (*initStep2LocalInput[i])[j] = (*initStep1LocalResult[j])[i];
-        }
+        for (size_t j = 0; j < nBlocks; j++) { (*initStep2LocalInput[i])[j] = (*initStep1LocalResult[j])[i]; }
     }
-    for (size_t i = 0; i < nBlocks; i++)
-    {
-        initializeStep2Local(i, initStep2LocalInput[i]);
-    }
+    for (size_t i = 0; i < nBlocks; i++) { initializeStep2Local(i, initStep2LocalInput[i]); }
 }
 
-training::DistributedPartialResultStep1Ptr computeStep1Local(
-        const training::DistributedPartialResultStep4Ptr &partialResultLocal)
+training::DistributedPartialResultStep1Ptr computeStep1Local(const training::DistributedPartialResultStep4Ptr & partialResultLocal)
 {
     /* Create an algorithm object to perform first step of the implicit ALS training algorithm on local-node data */
     training::Distributed<step1Local> algorithm;
@@ -178,7 +162,7 @@ training::DistributedPartialResultStep1Ptr computeStep1Local(
     return algorithm.getPartialResult();
 }
 
-NumericTablePtr computeStep2Master(const training::DistributedPartialResultStep1Ptr *step1LocalResult)
+NumericTablePtr computeStep2Master(const training::DistributedPartialResultStep1Ptr * step1LocalResult)
 {
     /* Create an algorithm object to perform second step of the implicit ALS training algorithm */
     training::Distributed<step2Master> algorithm;
@@ -186,10 +170,7 @@ NumericTablePtr computeStep2Master(const training::DistributedPartialResultStep1
 
     /* Set the partial results of the first local step of distributed computations
        as input for the master-node algorithm */
-    for (size_t i = 0; i < nBlocks; i++)
-    {
-        algorithm.input.add(training::inputOfStep2FromStep1, step1LocalResult[i]);
-    }
+    for (size_t i = 0; i < nBlocks; i++) { algorithm.input.add(training::inputOfStep2FromStep1, step1LocalResult[i]); }
 
     /* Compute a partial result on the master node from the partial results on local nodes */
     algorithm.compute();
@@ -198,18 +179,18 @@ NumericTablePtr computeStep2Master(const training::DistributedPartialResultStep1
     return algorithm.getPartialResult()->get(training::outputOfStep2ForStep4);
 }
 
-KeyValueDataCollectionPtr computeStep3Local(const NumericTablePtr &offsetTable,
-    const training::DistributedPartialResultStep4Ptr &partialResultLocal,
-    const KeyValueDataCollectionPtr &step3LocalInput)
+KeyValueDataCollectionPtr computeStep3Local(const NumericTablePtr & offsetTable,
+                                            const training::DistributedPartialResultStep4Ptr & partialResultLocal,
+                                            const KeyValueDataCollectionPtr & step3LocalInput)
 {
     /* Create an algorithm object to perform third step of the implicit ALS training algorithm on local-node data */
     training::Distributed<step3Local> algorithm;
     algorithm.parameter.nFactors = nFactors;
 
     /* Set input objects for the algorithm */
-    algorithm.input.set(training::partialModel,              partialResultLocal->get(training::outputOfStep4ForStep3));
-    algorithm.input.set(training::inputOfStep3FromInit,      step3LocalInput);
-    algorithm.input.set(training::offset,                    offsetTable);
+    algorithm.input.set(training::partialModel, partialResultLocal->get(training::outputOfStep4ForStep3));
+    algorithm.input.set(training::inputOfStep3FromInit, step3LocalInput);
+    algorithm.input.set(training::offset, offsetTable);
 
     /* Compute partial results of the third step on local nodes */
     algorithm.compute();
@@ -218,18 +199,16 @@ KeyValueDataCollectionPtr computeStep3Local(const NumericTablePtr &offsetTable,
     return algorithm.getPartialResult()->get(training::outputOfStep3ForStep4);
 }
 
-training::DistributedPartialResultStep4Ptr computeStep4Local(
-        const CSRNumericTablePtr &dataTable,
-        const NumericTablePtr &step2MasterResult,
-        const KeyValueDataCollectionPtr &step4LocalInput)
+training::DistributedPartialResultStep4Ptr computeStep4Local(const CSRNumericTablePtr & dataTable, const NumericTablePtr & step2MasterResult,
+                                                             const KeyValueDataCollectionPtr & step4LocalInput)
 {
     /* Create an algorithm object to perform fourth step of the implicit ALS training algorithm on local-node data */
     training::Distributed<step4Local> algorithm;
     algorithm.parameter.nFactors = nFactors;
 
     /* Set input objects for the algorithm */
-    algorithm.input.set(training::partialModels,         step4LocalInput);
-    algorithm.input.set(training::partialData,           dataTable);
+    algorithm.input.set(training::partialModels, step4LocalInput);
+    algorithm.input.set(training::partialData, dataTable);
     algorithm.input.set(training::inputOfStep4FromStep2, step2MasterResult);
 
     /* Build the implicit ALS partial model on the local node */
@@ -246,63 +225,39 @@ void trainModel()
     KeyValueDataCollectionPtr step3LocalResult[nBlocks];
     KeyValueDataCollectionPtr step4LocalInput[nBlocks];
 
-    for (size_t i = 0; i < nBlocks; i++)
-    {
-        step4LocalInput[i].reset(new KeyValueDataCollection());
-    }
+    for (size_t i = 0; i < nBlocks; i++) { step4LocalInput[i].reset(new KeyValueDataCollection()); }
     for (size_t iteration = 0; iteration < maxIterations; iteration++)
     {
         /* Update partial users factors */
-        for (size_t i = 0; i < nBlocks; i++)
-        {
-            step1LocalResult[i] = computeStep1Local(itemsPartialResultLocal[i]);
-        }
+        for (size_t i = 0; i < nBlocks; i++) { step1LocalResult[i] = computeStep1Local(itemsPartialResultLocal[i]); }
         step2MasterResult = computeStep2Master(step1LocalResult);
 
         for (size_t i = 0; i < nBlocks; i++)
-        {
-            step3LocalResult[i] = computeStep3Local(itemOffsets[i], itemsPartialResultLocal[i], itemStep3LocalInput[i]);
-        }
+        { step3LocalResult[i] = computeStep3Local(itemOffsets[i], itemsPartialResultLocal[i], itemStep3LocalInput[i]); }
 
         /* Prepare input objects for the fourth step of the distributed algorithm */
         for (size_t i = 0; i < nBlocks; i++)
         {
-            for (size_t j = 0; j < nBlocks; j++)
-            {
-                (*step4LocalInput[i])[j] = (*step3LocalResult[j])[i];
-            }
+            for (size_t j = 0; j < nBlocks; j++) { (*step4LocalInput[i])[j] = (*step3LocalResult[j])[i]; }
         }
 
         for (size_t i = 0; i < nBlocks; i++)
-        {
-            usersPartialResultLocal[i] = computeStep4Local(transposedDataTable[i], step2MasterResult, step4LocalInput[i]);
-        }
+        { usersPartialResultLocal[i] = computeStep4Local(transposedDataTable[i], step2MasterResult, step4LocalInput[i]); }
 
         /* Update partial items factors */
-        for (size_t i = 0; i < nBlocks; i++)
-        {
-            step1LocalResult[i] = computeStep1Local(usersPartialResultLocal[i]);
-        }
+        for (size_t i = 0; i < nBlocks; i++) { step1LocalResult[i] = computeStep1Local(usersPartialResultLocal[i]); }
         step2MasterResult = computeStep2Master(step1LocalResult);
 
         for (size_t i = 0; i < nBlocks; i++)
-        {
-            step3LocalResult[i] = computeStep3Local(userOffsets[i], usersPartialResultLocal[i], userStep3LocalInput[i]);
-        }
+        { step3LocalResult[i] = computeStep3Local(userOffsets[i], usersPartialResultLocal[i], userStep3LocalInput[i]); }
 
         /* Prepare input objects for the fourth step of the distributed algorithm */
         for (size_t i = 0; i < nBlocks; i++)
         {
-            for (size_t j = 0; j < nBlocks; j++)
-            {
-                (*step4LocalInput[i])[j] = (*step3LocalResult[j])[i];
-            }
+            for (size_t j = 0; j < nBlocks; j++) { (*step4LocalInput[i])[j] = (*step3LocalResult[j])[i]; }
         }
 
-        for (size_t i = 0; i < nBlocks; i++)
-        {
-            itemsPartialResultLocal[i] = computeStep4Local(dataTable[i], step2MasterResult, step4LocalInput[i]);
-        }
+        for (size_t i = 0; i < nBlocks; i++) { itemsPartialResultLocal[i] = computeStep4Local(dataTable[i], step2MasterResult, step4LocalInput[i]); }
     }
 }
 

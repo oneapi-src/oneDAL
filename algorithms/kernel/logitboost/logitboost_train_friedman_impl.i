@@ -60,8 +60,7 @@ namespace training
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class LogitBoostLs
 {
 private:
@@ -71,16 +70,16 @@ private:
     typedef typename daal::services::SharedPtr<daal::algorithms::regression::prediction::Batch> PredictLernerPtr;
 
 public:
-    LogitBoostLs(const size_t n): _nRows(n), _isInit(false) {}
+    LogitBoostLs(const size_t n) : _nRows(n), _isInit(false) {}
     ~LogitBoostLs() {}
     DAAL_NEW_DELETE();
 
-    services::Status allocate(NumericTablePtr& x, TrainLernerPtr& train, PredictLernerPtr& predict)
+    services::Status allocate(NumericTablePtr & x, TrainLernerPtr & train, PredictLernerPtr & predict)
     {
         services::Status status;
         if (!_isInit)
         {
-            _learnerTrain = train->clone();
+            _learnerTrain   = train->clone();
             _learnerPredict = predict->clone();
             if (!wArray) wArray = HomogenNT::create(1, _nRows, &status);
             if (!zArray) zArray = HomogenNT::create(1, _nRows, &status);
@@ -89,9 +88,10 @@ public:
             DAAL_CHECK_MALLOC(rpr)
             _predictionRes.reset(rpr);
 
-            regression::training::Input *input = _learnerTrain->getInput();
-            regression::prediction::Input *predInput = _learnerPredict->getInput();
-            if (!input || !predInput) status.add(services::ErrorNullInput);
+            regression::training::Input * input       = _learnerTrain->getInput();
+            regression::prediction::Input * predInput = _learnerPredict->getInput();
+            if (!input || !predInput)
+                status.add(services::ErrorNullInput);
             else
             {
                 input->set(regression::training::dependentVariables, zArray);
@@ -113,17 +113,16 @@ public:
         return status;
     }
 
-    services::Status run(const size_t classIdx, data_management::DataCollection& models,
-            TArray<algorithmFPType, cpu>& pred)
+    services::Status run(const size_t classIdx, data_management::DataCollection & models, TArray<algorithmFPType, cpu> & pred)
     {
         _learnerTrain->resetResult();
         services::Status status = _learnerTrain->computeNoThrow();
         DAAL_CHECK_STATUS_VAR(status);
 
         regression::ModelPtr learnerModel = _learnerTrain->getResult()->get(regression::training::model);
-        models[classIdx] = learnerModel;
+        models[classIdx]                  = learnerModel;
 
-        regression::prediction::Input *predInput = _learnerPredict->getInput();
+        regression::prediction::Input * predInput = _learnerPredict->getInput();
         DAAL_CHECK(predInput, services::ErrorNullInput);
         predInput->set(regression::prediction::model, learnerModel);
 
@@ -138,11 +137,9 @@ public:
         return status;
     }
 
-
 public:
     HomogenNTPtr wArray;
     HomogenNTPtr zArray;
-
 
 private:
     TrainLernerPtr _learnerTrain;
@@ -152,54 +149,47 @@ private:
     bool _isInit;
 };
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status UpdateFPNew( size_t nc, size_t n, algorithmFPType *F, algorithmFPType *P, const algorithmFPType *pred,
-    daal::ls<LogitBoostLs<algorithmFPType, cpu> *>& lsData)
+template <typename algorithmFPType, CpuType cpu>
+services::Status UpdateFPNew(size_t nc, size_t n, algorithmFPType * F, algorithmFPType * P, const algorithmFPType * pred,
+                             daal::ls<LogitBoostLs<algorithmFPType, cpu> *> & lsData)
 {
     const size_t minBlockSize = 768;
-    const size_t nThreads = threader_get_threads_number();
-    size_t nBlocks = n / minBlockSize;
-    nBlocks = nBlocks ? nBlocks : 1;
-    nBlocks = nBlocks < nThreads ? nBlocks : nThreads;
-    const size_t blockSize = n / nBlocks;
-    const size_t tail = n - nBlocks*blockSize;
+    const size_t nThreads     = threader_get_threads_number();
+    size_t nBlocks            = n / minBlockSize;
+    nBlocks                   = nBlocks ? nBlocks : 1;
+    nBlocks                   = nBlocks < nThreads ? nBlocks : nThreads;
+    const size_t blockSize    = n / nBlocks;
+    const size_t tail         = n - nBlocks * blockSize;
 
     const algorithmFPType inv_nc = 1.0 / (algorithmFPType)nc;
-    const algorithmFPType coef = (algorithmFPType)(nc - 1) / (algorithmFPType)nc;
+    const algorithmFPType coef   = (algorithmFPType)(nc - 1) / (algorithmFPType)nc;
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [&] (size_t iBlock)
-    {
+    daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
         const size_t start = iBlock * blockSize + (iBlock < tail ? iBlock : tail);
-        const size_t size = (iBlock < tail) ? blockSize + 1 : blockSize;
+        const size_t size  = (iBlock < tail) ? blockSize + 1 : blockSize;
 
         /* Update additive function's values
            Step 2.b) of the Algorithm 6 from [1] */
         /* i-row contains Fi() for all classes in i-th point x */
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for ( size_t i = start; i < start + size; i++ )
+        for (size_t i = start; i < start + size; i++)
         {
             algorithmFPType s = 0.0;
-            for( size_t k = 0; k < nc; k++ )
-            {
-                s += pred[k * n + i];
-            }
+            for (size_t k = 0; k < nc; k++) { s += pred[k * n + i]; }
 
-            for ( size_t j = 0; j < nc; j++ )
-            {
-                F[i * nc + j] += coef * ( pred[j * n + i] - s * inv_nc );
-            }
+            for (size_t j = 0; j < nc; j++) { F[i * nc + j] += coef * (pred[j * n + i] - s * inv_nc); }
         }
 
-        struct LogitBoostLs<algorithmFPType, cpu> *lsLocal = lsData.local();
+        struct LogitBoostLs<algorithmFPType, cpu> * lsLocal = lsData.local();
         if (!lsLocal)
         {
             safeStat.add(services::ErrorMemoryAllocationFailed);
             return;
         }
         DAAL_CHECK_STATUS_THR(lsLocal->allocate());
-        algorithmFPType* buffer = lsLocal->wArray->getArray();
+        algorithmFPType * buffer = lsLocal->wArray->getArray();
         if (!buffer)
         {
             safeStat.add(services::ErrorMemoryAllocationFailed);
@@ -208,31 +198,28 @@ services::Status UpdateFPNew( size_t nc, size_t n, algorithmFPType *F, algorithm
 
         /* Update probabilities
            Step 2.c) of the Algorithm 6 from [1] */
-        const bool useFullBuffer = size*nc <= n;
-        if (useFullBuffer) daal::internal::Math<algorithmFPType,cpu>::vExp(nc*size, F + start * nc, buffer);
+        const bool useFullBuffer = size * nc <= n;
+        if (useFullBuffer) daal::internal::Math<algorithmFPType, cpu>::vExp(nc * size, F + start * nc, buffer);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for ( size_t i = 0; i < size; i++ )
+        for (size_t i = 0; i < size; i++)
         {
-            const size_t offset = useFullBuffer ? i*nc : 0;
-            if (!useFullBuffer) daal::internal::Math<algorithmFPType,cpu>::vExp(nc, F + (i+start) * nc, buffer);
+            const size_t offset = useFullBuffer ? i * nc : 0;
+            if (!useFullBuffer) daal::internal::Math<algorithmFPType, cpu>::vExp(nc, F + (i + start) * nc, buffer);
 
             algorithmFPType s = 0.0;
 
-            for ( size_t j = 0; j < nc; j++ )
-            {
-                s += buffer[offset+j];
-            }
+            for (size_t j = 0; j < nc; j++) { s += buffer[offset + j]; }
             // if low accuracy exp() returns NaN\Inf - convert it to some positive big value
             s = services::internal::infToBigValue<cpu>(s);
 
             algorithmFPType invs = (algorithmFPType)1.0 / s;
 
             const size_t row = i + start;
-            for ( size_t j = 0; j < nc; j++ )
+            for (size_t j = 0; j < nc; j++)
             {
                 // Normalize probabilities
-                P[j * n + row] = buffer[offset+j] * invs;
+                P[j * n + row] = buffer[offset + j] * invs;
             }
         }
     });
@@ -240,22 +227,23 @@ services::Status UpdateFPNew( size_t nc, size_t n, algorithmFPType *F, algorithm
     return safeStat.detach();
 }
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(const size_t na, NumericTablePtr a[], Model *r, const Parameter *par)
+template <typename algorithmFPType, CpuType cpu>
+services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(const size_t na, NumericTablePtr a[], Model * r,
+                                                                                const Parameter * par)
 {
     const algorithmFPType zero(0.0);
     const algorithmFPType fp_one(1.0);
-    Parameter *parameter = const_cast<Parameter *>(par);
-    NumericTablePtr x = a[0];
-    NumericTablePtr y = a[1];
+    Parameter * parameter = const_cast<Parameter *>(par);
+    NumericTablePtr x     = a[0];
+    NumericTablePtr y     = a[1];
     r->setNFeatures(x->getNumberOfColumns());
 
-    algorithmFPType acc = parameter->accuracyThreshold;
-    const size_t M = parameter->maxIterations;
-    const size_t nc = parameter->nClasses;
+    algorithmFPType acc        = parameter->accuracyThreshold;
+    const size_t M             = parameter->maxIterations;
+    const size_t nc            = parameter->nClasses;
     const algorithmFPType thrW = (algorithmFPType)(parameter->weightsDegenerateCasesThreshold);
     const algorithmFPType thrZ = (algorithmFPType)(parameter->responsesDegenerateCasesThreshold);
-    const size_t n = x->getNumberOfRows();
+    const size_t n             = x->getNumberOfRows();
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n, nc);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, n * nc, sizeof(algorithmFPType));
@@ -272,29 +260,26 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     HomogenNTPtr zTable(HomogenNT::create(1, n, &s));
     DAAL_CHECK_STATUS_VAR(s);
 
-    algorithmFPType *w = wTable->getArray();
+    algorithmFPType * w = wTable->getArray();
 
-    const algorithmFPType inv_n = fp_one / (algorithmFPType)n;
+    const algorithmFPType inv_n  = fp_one / (algorithmFPType)n;
     const algorithmFPType inv_nc = fp_one / (algorithmFPType)nc;
 
     /* Initialize weights, probs and additive function values.
        Step 1) of the Algorithm 6 from [1] */
-    for ( size_t i = 0; i < n; i++ ) { w[i] = inv_n; }
-    for ( size_t i = 0; i < n * nc; i++ ) { P[i] = inv_nc; }
-    algorithmFPType logL = -algorithmFPType(n)*daal::internal::Math<algorithmFPType, cpu>::sLog(inv_nc);
+    for (size_t i = 0; i < n; i++) { w[i] = inv_n; }
+    for (size_t i = 0; i < n * nc; i++) { P[i] = inv_nc; }
+    algorithmFPType logL   = -algorithmFPType(n) * daal::internal::Math<algorithmFPType, cpu>::sLog(inv_nc);
     algorithmFPType accCur = daal::services::internal::MaxVal<algorithmFPType>::get();
 
-    for (size_t i = 0; i < n * nc; i++)
-    {
-        F[i] = zero;
-    }
+    for (size_t i = 0; i < n * nc; i++) { F[i] = zero; }
 
     ReadColumns<int, cpu> yCols(*y, 0, 0, n);
     DAAL_CHECK_BLOCK_STATUS(yCols);
-    const int *y_label = yCols.get();
+    const int * y_label = yCols.get();
     DAAL_ASSERT(y_label);
 
-    services::SharedPtr<regression::training::Batch> learnerTrain = parameter->weakLearnerTraining;
+    services::SharedPtr<regression::training::Batch> learnerTrain     = parameter->weakLearnerTraining;
     services::SharedPtr<regression::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction;
 
     /* Clear the collection of weak learners models in the boosting model */
@@ -302,43 +287,33 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     data_management::DataCollection models(nc);
 
     SafeStatus safeStat;
-    daal::ls<LogitBoostLs<algorithmFPType, cpu> *> lsData([&]()
-    {
+    daal::ls<LogitBoostLs<algorithmFPType, cpu> *> lsData([&]() {
         auto ptr = new LogitBoostLs<algorithmFPType, cpu>(n);
-        if(!ptr)
-        {
-            safeStat.add(services::ErrorMemoryAllocationFailed);
-        }
+        if (!ptr) { safeStat.add(services::ErrorMemoryAllocationFailed); }
         return ptr;
     });
 
     /* Repeat for m = 0, 1, ..., M-1
        Step 2) of the Algorithm 6 from [1] */
-    for ( size_t m = 0; m < M; m++ )
+    for (size_t m = 0; m < M; m++)
     {
         /* Repeat for j = 0, 1, ..., nk-1
            Step 2.a) of the Algorithm 6 from [1] */
-        daal::threader_for(nc, nc, [&] (size_t j)
-        {
-            struct LogitBoostLs<algorithmFPType, cpu> *lsLocal = lsData.local();
-            if(!lsLocal)
-                return;
+        daal::threader_for(nc, nc, [&](size_t j) {
+            struct LogitBoostLs<algorithmFPType, cpu> * lsLocal = lsData.local();
+            if (!lsLocal) return;
 
             services::Status localStatus = lsLocal->allocate(x, learnerTrain, learnerPredict);
             DAAL_CHECK_STATUS_THR(localStatus);
 
-            initWZ<algorithmFPType, cpu>(n, nc, j, y_label, P.get(), thrW, lsLocal->wArray->getArray(),
-                    thrZ, lsLocal->zArray->getArray());
+            initWZ<algorithmFPType, cpu>(n, nc, j, y_label, P.get(), thrW, lsLocal->wArray->getArray(), thrZ, lsLocal->zArray->getArray());
 
             localStatus = lsLocal->run(j, models, pred);
             DAAL_CHECK_STATUS_THR(localStatus);
         });
         DAAL_CHECK_SAFE_STATUS();
 
-        for(size_t j =0; j < nc; ++j)
-        {
-            r->addWeakLearnerModel(services::staticPointerCast<regression::Model, SerializationIface>(models[j]));
-        }
+        for (size_t j = 0; j < nc; ++j) { r->addWeakLearnerModel(services::staticPointerCast<regression::Model, SerializationIface>(models[j])); }
 
         /* Update additive function's values and probabilities
            Step 2.b and 2.c) of the Algorithm 6 from [1] */
@@ -349,22 +324,18 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
 
         if (accCur < acc)
         {
-            r->setIterations( m + 1 );
+            r->setIterations(m + 1);
             break;
         }
     }
     s |= safeStat.detach();
 
-    lsData.reduce([ = ](LogitBoostLs<algorithmFPType, cpu> *logitBoostLs)
-    {
-        delete logitBoostLs;
-    });
+    lsData.reduce([=](LogitBoostLs<algorithmFPType, cpu> * logitBoostLs) { delete logitBoostLs; });
     return s;
 }
 
-
-} // namepsace internal
-} // namespace prediction
+} // namespace internal
+} // namespace training
 } // namespace logitboost
 } // namespace algorithms
 } // namespace daal

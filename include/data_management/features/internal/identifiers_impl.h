@@ -35,7 +35,6 @@ namespace features
 {
 namespace internal
 {
-
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__INTERNAL__FEATUREIDDEFAULTMAPPING"></a>
  * \brief Default implementation of feature mapping
@@ -46,49 +45,34 @@ private:
     typedef std::map<std::string, FeatureIndex> KeyToIndexMap;
 
 public:
-    static services::SharedPtr<FeatureIdDefaultMapping> create(size_t numberOfFeatures,
-                                                               services::Status *status = NULL)
+    static services::SharedPtr<FeatureIdDefaultMapping> create(size_t numberOfFeatures, services::Status * status = NULL)
     {
-        return services::internal::wrapSharedAndTryThrow<FeatureIdDefaultMapping>(
-            new FeatureIdDefaultMapping(numberOfFeatures), status);
+        return services::internal::wrapSharedAndTryThrow<FeatureIdDefaultMapping>(new FeatureIdDefaultMapping(numberOfFeatures), status);
     }
 
-    virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE
-    {
-        return _numberOfFeatures;
-    }
+    virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return _numberOfFeatures; }
 
-    virtual FeatureIndex getIndexByKey(const services::String &key) const DAAL_C11_OVERRIDE
+    virtual FeatureIndex getIndexByKey(const services::String & key) const DAAL_C11_OVERRIDE
     {
         const std::string stdKey(key.c_str(), key.c_str() + key.length());
-        KeyToIndexMap &keyToIndexMap = const_cast<KeyToIndexMap &>(_keyToIndexMap);
+        KeyToIndexMap & keyToIndexMap    = const_cast<KeyToIndexMap &>(_keyToIndexMap);
         KeyToIndexMap::const_iterator it = keyToIndexMap.find(stdKey);
-        if (it == keyToIndexMap.end())
-        {
-            return FeatureIndexTraits::invalid();
-        }
+        if (it == keyToIndexMap.end()) { return FeatureIndexTraits::invalid(); }
         return it->second;
     }
 
-    virtual bool areKeysAvailable() const DAAL_C11_OVERRIDE
-    {
-        return _keyToIndexMap.size() > 0;
-    }
+    virtual bool areKeysAvailable() const DAAL_C11_OVERRIDE { return _keyToIndexMap.size() > 0; }
 
-    void setFeatureKey(FeatureIndex featureIndex, const services::String &key)
+    void setFeatureKey(FeatureIndex featureIndex, const services::String & key)
     {
         const std::string stdKey(key.c_str(), key.c_str() + key.length());
         _keyToIndexMap[stdKey] = featureIndex;
     }
 
-    void setNumberOfFeatures(size_t numberOfFeatures)
-    {
-        _numberOfFeatures = numberOfFeatures;
-    }
+    void setNumberOfFeatures(size_t numberOfFeatures) { _numberOfFeatures = numberOfFeatures; }
 
 private:
-    explicit FeatureIdDefaultMapping(size_t numberOfFeatures) :
-        _numberOfFeatures(numberOfFeatures) { }
+    explicit FeatureIdDefaultMapping(size_t numberOfFeatures) : _numberOfFeatures(numberOfFeatures) {}
 
     size_t _numberOfFeatures;
     KeyToIndexMap _keyToIndexMap;
@@ -102,13 +86,12 @@ typedef services::SharedPtr<FeatureIdDefaultMapping> FeatureIdDefaultMappingPtr;
 class FeatureIdList : public FeatureIdCollection
 {
 public:
-    static services::SharedPtr<FeatureIdList> create(services::Status *status = NULL)
+    static services::SharedPtr<FeatureIdList> create(services::Status * status = NULL)
     {
         return services::internal::wrapSharedAndTryThrow<FeatureIdList>(new FeatureIdList(), status);
     }
 
-    virtual FeatureIndicesIfacePtr mapToFeatureIndices(const FeatureIdMappingIface &mapping,
-                                                       services::Status *status = NULL) DAAL_C11_OVERRIDE
+    virtual FeatureIndicesIfacePtr mapToFeatureIndices(const FeatureIdMappingIface & mapping, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         const size_t numberOfFeatures = _featureIds.size();
 
@@ -120,7 +103,7 @@ public:
 
         for (size_t i = 0; i < numberOfFeatures; i++)
         {
-            const FeatureIdIfacePtr &id = _featureIds[i];
+            const FeatureIdIfacePtr & id = _featureIds[i];
 
             const FeatureIndex mappedIndex = id->mapToIndex(mapping, &localStatus);
             services::internal::tryAssignStatusAndThrow(status, localStatus);
@@ -132,24 +115,19 @@ public:
         return featureFeatureIndices;
     }
 
-    services::Status add(const FeatureIdIfacePtr &id)
+    services::Status add(const FeatureIdIfacePtr & id)
     {
-        if (!id)
-        { return services::throwIfPossible(services::ErrorNullPtr); }
+        if (!id) { return services::throwIfPossible(services::ErrorNullPtr); }
 
-        if ( !_featureIds.safe_push_back(id) )
-        { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
+        if (!_featureIds.safe_push_back(id)) { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
 
         return services::Status();
     }
 
-    size_t size() const
-    {
-        return _featureIds.size();
-    }
+    size_t size() const { return _featureIds.size(); }
 
 private:
-    FeatureIdList() { }
+    FeatureIdList() {}
 
     services::Collection<FeatureIdIfacePtr> _featureIds;
 };
@@ -162,9 +140,8 @@ typedef services::SharedPtr<FeatureIdList> FeatureIdListPtr;
 class FeatureIdRange : public FeatureIdCollection
 {
 public:
-    static services::SharedPtr<FeatureIdRange> create(const FeatureIdIfacePtr &begin,
-                                                      const FeatureIdIfacePtr &end,
-                                                      services::Status *status = NULL)
+    static services::SharedPtr<FeatureIdRange> create(const FeatureIdIfacePtr & begin, const FeatureIdIfacePtr & end,
+                                                      services::Status * status = NULL)
     {
         if (!begin || !end)
         {
@@ -172,12 +149,10 @@ public:
             return services::SharedPtr<FeatureIdRange>();
         }
 
-        return services::internal::wrapSharedAndTryThrow<FeatureIdRange>(
-            new FeatureIdRange(begin, end), status);
+        return services::internal::wrapSharedAndTryThrow<FeatureIdRange>(new FeatureIdRange(begin, end), status);
     }
 
-    virtual FeatureIndicesIfacePtr mapToFeatureIndices(const FeatureIdMappingIface &mapping,
-                                                       services::Status *status = NULL) DAAL_C11_OVERRIDE
+    virtual FeatureIndicesIfacePtr mapToFeatureIndices(const FeatureIdMappingIface & mapping, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::Status localStatus;
 
@@ -192,9 +167,7 @@ public:
     }
 
 private:
-    explicit FeatureIdRange(const FeatureIdIfacePtr &begin, const FeatureIdIfacePtr &end) :
-        _begin(begin),
-        _end(end) { }
+    explicit FeatureIdRange(const FeatureIdIfacePtr & begin, const FeatureIdIfacePtr & end) : _begin(begin), _end(end) {}
 
     FeatureIdIfacePtr _begin;
     FeatureIdIfacePtr _end;
@@ -210,14 +183,12 @@ class NumericFeatureId : public FeatureId
 public:
     typedef long long InternalIndex;
 
-    static services::SharedPtr<NumericFeatureId> create(NumericFeatureId::InternalIndex index,
-                                                        services::Status *status = NULL)
+    static services::SharedPtr<NumericFeatureId> create(NumericFeatureId::InternalIndex index, services::Status * status = NULL)
     {
         return services::internal::wrapSharedAndTryThrow<NumericFeatureId>(new NumericFeatureId(index), status);
     }
 
-    virtual FeatureIndex mapToIndex(const FeatureIdMappingIface &mapping,
-                                       services::Status *status = NULL) DAAL_C11_OVERRIDE
+    virtual FeatureIndex mapToIndex(const FeatureIdMappingIface & mapping, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         const size_t numberOfFeatures = mapping.getNumberOfFeatures();
 
@@ -238,12 +209,11 @@ public:
             return FeatureIndexTraits::invalid();
         }
 
-        return (FeatureIndex)( (nf + _index) % nf );
+        return (FeatureIndex)((nf + _index) % nf);
     }
 
 private:
-    explicit NumericFeatureId(InternalIndex index) :
-        _index(index) { }
+    explicit NumericFeatureId(InternalIndex index) : _index(index) {}
 
     InternalIndex _index;
 };
@@ -256,14 +226,12 @@ typedef services::SharedPtr<NumericFeatureId> NumericFeatureIdPtr;
 class StringFeatureId : public FeatureId
 {
 public:
-    static services::SharedPtr<StringFeatureId> create(const services::String &name,
-                                                       services::Status *status = NULL)
+    static services::SharedPtr<StringFeatureId> create(const services::String & name, services::Status * status = NULL)
     {
         return services::internal::wrapSharedAndTryThrow<StringFeatureId>(new StringFeatureId(name), status);
     }
 
-    virtual FeatureIndex mapToIndex(const FeatureIdMappingIface &mapping,
-                                       services::Status *status = NULL) DAAL_C11_OVERRIDE
+    virtual FeatureIndex mapToIndex(const FeatureIdMappingIface & mapping, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         if (!mapping.areKeysAvailable())
         {
@@ -282,8 +250,7 @@ public:
     }
 
 private:
-    explicit StringFeatureId(const services::String &name) :
-        _name(name) { }
+    explicit StringFeatureId(const services::String & name) : _name(name) {}
 
     services::String _name;
 };

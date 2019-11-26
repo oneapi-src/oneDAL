@@ -35,7 +35,7 @@ BraceWrapping:
   AfterUnion:      true
   AfterExternBlock: true
   BeforeCatch:     true
-  BeforeElse:      false
+  BeforeElse:      true
   IndentBraces:    false
   SplitEmptyFunction: false
   SplitEmptyRecord: false

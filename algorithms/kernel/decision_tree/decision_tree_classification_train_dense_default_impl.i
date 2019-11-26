@@ -47,7 +47,6 @@ namespace training
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -59,9 +58,8 @@ class REPPruningData : public PruningData<cpu, int>
     typedef PruningData<cpu, int> BaseType;
 
 public:
-    REPPruningData(size_t size, size_t numberOfClasses) : BaseType(size),
-                                                          _numberOfClasses(numberOfClasses),
-                                                          _counters(daal_alloc<size_t>(max<cpu, size_t>(1, size * numberOfClasses)))
+    REPPruningData(size_t size, size_t numberOfClasses)
+        : BaseType(size), _numberOfClasses(numberOfClasses), _counters(daal_alloc<size_t>(max<cpu, size_t>(1, size * numberOfClasses)))
     {
         resetCounters();
     }
@@ -89,10 +87,7 @@ public:
         const size_t * const c = &_counters[index * _numberOfClasses];
 
         ErrorType err = 0;
-        for (size_t i = 0; i < _numberOfClasses; ++i)
-        {
-            err += c[i];
-        }
+        for (size_t i = 0; i < _numberOfClasses; ++i) { err += c[i]; }
 
         return err - c[classIndex];
     }
@@ -108,19 +103,13 @@ public:
         {
             err += c[i];
 
-            if (c[i] > max)
-            {
-                max = c[i];
-            }
+            if (c[i] > max) { max = c[i]; }
         }
 
         return err - max;
     }
 
-    void prune(size_t index)
-    {
-        BaseType::prune(index, majorityClass(index));
-    }
+    void prune(size_t index) { BaseType::prune(index, majorityClass(index)); }
 
     void putProbabilities(size_t index, double * probs, size_t numProbs) const DAAL_C11_OVERRIDE
     {
@@ -129,26 +118,17 @@ public:
         DAAL_ASSERT(numProbs == _numberOfClasses);
         DAAL_ASSERT(_counters);
 
-        size_t total = 0;
+        size_t total        = 0;
         size_t * const cnts = _counters + index * _numberOfClasses;
-        for (size_t i = 0; i < _numberOfClasses; ++i)
-        {
-            total += cnts[i];
-        }
+        for (size_t i = 0; i < _numberOfClasses; ++i) { total += cnts[i]; }
 
         if (total != 0)
         {
-            for (size_t i = 0; i < _numberOfClasses; ++i)
-            {
-                probs[i] = static_cast<double>(cnts[i]) / static_cast<double>(total);
-            }
+            for (size_t i = 0; i < _numberOfClasses; ++i) { probs[i] = static_cast<double>(cnts[i]) / static_cast<double>(total); }
         }
         else
         {
-            for (size_t i = 0; i < _numberOfClasses; ++i)
-            {
-                probs[i] = 0.0;
-            }
+            for (size_t i = 0; i < _numberOfClasses; ++i) { probs[i] = 0.0; }
         }
     }
 
@@ -158,10 +138,7 @@ protected:
     void resetCounters()
     {
         const size_t cnt = size() * _numberOfClasses;
-        for (size_t i = 0; i < cnt; ++i)
-        {
-            _counters[i] = 0;
-        }
+        for (size_t i = 0; i < cnt; ++i) { _counters[i] = 0; }
     }
 
     size_t majorityClass(size_t index) const
@@ -198,37 +175,37 @@ static void copyNode(const CopyNodeContext<algorithmFPType, cpu, LeavesData> & c
 {
     if (context.src[srcNodeIdx].isLeaf())
     {
-        context.dest[destNodeIdx].dimension = static_cast<size_t>(-1);
+        context.dest[destNodeIdx].dimension        = static_cast<size_t>(-1);
         context.dest[destNodeIdx].leftIndexOrClass = context.src[srcNodeIdx].dependentVariable();
-        context.dest[destNodeIdx].cutPoint = 0;
-        context.impVals[destNodeIdx] = context.src[srcNodeIdx].impurity();
-        context.smplCntVals[destNodeIdx] = context.src[srcNodeIdx].count();
-        context.probIndices[destNodeIdx] = context.leafIndex;
+        context.dest[destNodeIdx].cutPoint         = 0;
+        context.impVals[destNodeIdx]               = context.src[srcNodeIdx].impurity();
+        context.smplCntVals[destNodeIdx]           = context.src[srcNodeIdx].count();
+        context.probIndices[destNodeIdx]           = context.leafIndex;
         context.leavesData.putProbabilities(context.src[srcNodeIdx].leavesDataIndex(), context.probs + context.leafIndex * context.nClasses,
                                             context.nClasses);
         ++context.leafIndex;
     }
     else if (context.pruningData.isPruned(srcNodeIdx))
     {
-        context.dest[destNodeIdx].dimension = static_cast<size_t>(-1);
+        context.dest[destNodeIdx].dimension        = static_cast<size_t>(-1);
         context.dest[destNodeIdx].leftIndexOrClass = context.pruningData.dependentVariable(srcNodeIdx);
-        context.dest[destNodeIdx].cutPoint = 0;
-        context.impVals[destNodeIdx] = context.src[srcNodeIdx].impurity();
-        context.smplCntVals[destNodeIdx] = context.src[srcNodeIdx].count();
-        context.probIndices[destNodeIdx] = context.leafIndex;
+        context.dest[destNodeIdx].cutPoint         = 0;
+        context.impVals[destNodeIdx]               = context.src[srcNodeIdx].impurity();
+        context.smplCntVals[destNodeIdx]           = context.src[srcNodeIdx].count();
+        context.probIndices[destNodeIdx]           = context.leafIndex;
         context.pruningData.putProbabilities(srcNodeIdx, context.probs + context.leafIndex * context.nClasses, context.nClasses);
         ++context.leafIndex;
     }
     else
     {
         DAAL_ASSERT(context.destNodeCount + 2 <= context.destNodeCapacity);
-        context.dest[destNodeIdx].dimension = context.src[srcNodeIdx].featureIndex();
-        const size_t childIndex = context.destNodeCount;
+        context.dest[destNodeIdx].dimension        = context.src[srcNodeIdx].featureIndex();
+        const size_t childIndex                    = context.destNodeCount;
         context.dest[destNodeIdx].leftIndexOrClass = childIndex;
-        context.dest[destNodeIdx].cutPoint = context.src[srcNodeIdx].cutPoint();
-        context.impVals[destNodeIdx] = context.src[srcNodeIdx].impurity();
-        context.smplCntVals[destNodeIdx] = context.src[srcNodeIdx].count();
-        context.probIndices[destNodeIdx] = -1;
+        context.dest[destNodeIdx].cutPoint         = context.src[srcNodeIdx].cutPoint();
+        context.impVals[destNodeIdx]               = context.src[srcNodeIdx].impurity();
+        context.smplCntVals[destNodeIdx]           = context.src[srcNodeIdx].count();
+        context.probIndices[destNodeIdx]           = -1;
         context.destNodeCount += 2;
         copyNode(context, context.src[srcNodeIdx].leftChildIndex(), childIndex);
         copyNode(context, context.src[srcNodeIdx].rightChildIndex(), childIndex + 1);
@@ -237,8 +214,7 @@ static void copyNode(const CopyNodeContext<algorithmFPType, cpu, LeavesData> & c
 
 template <typename algorithmFPType, CpuType cpu, typename ParameterType, typename LeavesData>
 static services::Status pruneAndConvertTree(const NumericTable * px, const NumericTable * py, decision_tree::classification::Model & r,
-                                            const ParameterType & parameter,
-                                            decision_tree::internal::Tree<cpu, algorithmFPType, int> & tree,
+                                            const ParameterType & parameter, decision_tree::internal::Tree<cpu, algorithmFPType, int> & tree,
                                             const LeavesData & leavesData)
 {
     using services::SharedPtr;
@@ -252,9 +228,9 @@ static services::Status pruneAndConvertTree(const NumericTable * px, const Numer
         REPPruningData<cpu> repData(tree.nodeCount(), parameter.nClasses);
         tree.reducedErrorPruning(*px, *py, repData);
 
-        const size_t nodeCapacity = countNodes(0, tree, repData);
+        const size_t nodeCapacity      = countNodes(0, tree, repData);
         const size_t decisionNodeCount = (nodeCapacity > 0) ? (nodeCapacity - 1) / 2 : 0;
-        const size_t leafNodeCount = nodeCapacity - decisionNodeCount;
+        const size_t leafNodeCount     = nodeCapacity - decisionNodeCount;
         DecisionTreeTablePtr treeTable(new DecisionTreeTable(nodeCapacity, status));
         DAAL_CHECK_STATUS_VAR(status);
         SharedPtr<HomogenNumericTableCPU<double, cpu> > impTbl(new HomogenNumericTableCPU<double, cpu>(1, nodeCapacity, status));
@@ -266,14 +242,15 @@ static services::Status pruneAndConvertTree(const NumericTable * px, const Numer
         SharedPtr<HomogenNumericTableCPU<double, cpu> > probTbl(new HomogenNumericTableCPU<double, cpu>(parameter.nClasses, leafNodeCount, status));
         DAAL_CHECK_STATUS_VAR(status);
         DecisionTreeNode * const nodes = static_cast<DecisionTreeNode *>(treeTable->getArray());
-        double * const impVals = impTbl->getArray();
-        int * const smplCntVals = smplCntTbl->getArray();
-        int * const probIndices = probIndicesTbl->getArray();
-        double * const probs = probTbl->getArray();
-        size_t nodeCount = 1;
-        int leafIndex = 0;
-        const CopyNodeContext<algorithmFPType, cpu, LeavesData> context { tree, nodes, impVals, smplCntVals, nodeCount, nodeCapacity, repData,
-                                                                          leavesData, leafIndex, probIndices, probs, parameter.nClasses };
+        double * const impVals         = impTbl->getArray();
+        int * const smplCntVals        = smplCntTbl->getArray();
+        int * const probIndices        = probIndicesTbl->getArray();
+        double * const probs           = probTbl->getArray();
+        size_t nodeCount               = 1;
+        int leafIndex                  = 0;
+        const CopyNodeContext<algorithmFPType, cpu, LeavesData> context {
+            tree, nodes, impVals, smplCntVals, nodeCount, nodeCapacity, repData, leavesData, leafIndex, probIndices, probs, parameter.nClasses
+        };
         copyNode<>(context, 0, 0);
         DAAL_ASSERT(leafIndex == leafNodeCount);
         r.impl()->setTreeTable(treeTable);
@@ -284,9 +261,9 @@ static services::Status pruneAndConvertTree(const NumericTable * px, const Numer
     }
     else
     {
-        const size_t nodeCount = tree.nodeCount();
+        const size_t nodeCount         = tree.nodeCount();
         const size_t decisionNodeCount = (nodeCount > 0) ? (nodeCount - 1) / 2 : 0;
-        const size_t leafNodeCount = nodeCount - decisionNodeCount;
+        const size_t leafNodeCount     = nodeCount - decisionNodeCount;
         DecisionTreeTablePtr treeTable(new DecisionTreeTable(nodeCount, status));
         DAAL_CHECK_STATUS_VAR(status);
         SharedPtr<HomogenNumericTableCPU<double, cpu> > impTbl(new HomogenNumericTableCPU<double, cpu>(1, nodeCount, status));
@@ -299,32 +276,32 @@ static services::Status pruneAndConvertTree(const NumericTable * px, const Numer
         DAAL_CHECK_STATUS_VAR(status);
 
         DecisionTreeNode * const nodes = static_cast<DecisionTreeNode *>(treeTable->getArray());
-        double * const impVals = impTbl->getArray();
-        int * const smplCntVals = smplCntTbl->getArray();
-        int * const probIndices = probIndicesTbl->getArray();
-        double * const probs = probTbl->getArray();
-        int leafIndex = 0;
+        double * const impVals         = impTbl->getArray();
+        int * const smplCntVals        = smplCntTbl->getArray();
+        int * const probIndices        = probIndicesTbl->getArray();
+        double * const probs           = probTbl->getArray();
+        int leafIndex                  = 0;
 
         for (size_t i = 0; i < nodeCount; ++i)
         {
             if (tree[i].isLeaf())
             {
-                nodes[i].dimension = static_cast<size_t>(-1);
+                nodes[i].dimension        = static_cast<size_t>(-1);
                 nodes[i].leftIndexOrClass = tree[i].dependentVariable();
-                nodes[i].cutPoint = 0;
-                probIndices[i] = leafIndex;
+                nodes[i].cutPoint         = 0;
+                probIndices[i]            = leafIndex;
                 DAAL_ASSERT(leafIndex >= 0 && leafIndex < leafNodeCount);
                 leavesData.putProbabilities(tree[i].leavesDataIndex(), probs + leafIndex * parameter.nClasses, parameter.nClasses);
                 ++leafIndex;
             }
             else
             {
-                nodes[i].dimension = tree[i].featureIndex();
+                nodes[i].dimension        = tree[i].featureIndex();
                 nodes[i].leftIndexOrClass = tree[i].leftChildIndex();
-                nodes[i].cutPoint = tree[i].cutPoint();
-                probIndices[i] = -1;
+                nodes[i].cutPoint         = tree[i].cutPoint();
+                probIndices[i]            = -1;
             }
-            impVals[i] = tree[i].impurity();
+            impVals[i]     = tree[i].impurity();
             smplCntVals[i] = tree[i].count();
         }
         r.impl()->setTreeTable(treeTable);
@@ -337,10 +314,9 @@ static services::Status pruneAndConvertTree(const NumericTable * px, const Numer
 }
 
 template <typename algorithmFPType, typename ParameterType, CpuType cpu>
-services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, training::defaultDense, cpu>::
-    compute(const NumericTable * x, const NumericTable * y, const NumericTable * w,
-            const NumericTable * px, const NumericTable * py,
-            decision_tree::classification::Model * r, const ParameterType * parameter)
+services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, training::defaultDense, cpu>::compute(
+    const NumericTable * x, const NumericTable * y, const NumericTable * w, const NumericTable * px, const NumericTable * py,
+    decision_tree::classification::Model * r, const ParameterType * parameter)
 {
     DAAL_ASSERT(x);
     DAAL_ASSERT(y);
@@ -357,8 +333,8 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
         if (parameter->splitCriterion == gini)
         {
             Gini<algorithmFPType, cpu> splitCriterion;
-            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses,
-                                parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth,
+                                parameter->minObservationsInLeafNodes);
             DAAL_CHECK_STATUS_VAR(status)
             status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
             DAAL_CHECK_STATUS_VAR(status)
@@ -366,8 +342,8 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
         else
         {
             InfoGain<algorithmFPType, cpu> splitCriterion;
-            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses,
-                                parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth,
+                                parameter->minObservationsInLeafNodes);
             DAAL_CHECK_STATUS_VAR(status)
             status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
             DAAL_CHECK_STATUS_VAR(status)
@@ -379,8 +355,8 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
         if (parameter->splitCriterion == gini)
         {
             GiniWeighted<algorithmFPType, cpu> splitCriterion;
-            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses,
-                                parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth,
+                                parameter->minObservationsInLeafNodes);
             DAAL_CHECK_STATUS_VAR(status)
             status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
             DAAL_CHECK_STATUS_VAR(status)
@@ -388,8 +364,8 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
         else
         {
             InfoGainWeighted<algorithmFPType, cpu> splitCriterion;
-            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses,
-                                parameter->maxTreeDepth, parameter->minObservationsInLeafNodes);
+            status = tree.train(splitCriterion, leavesData, *x, *y, w, parameter->nClasses, parameter->maxTreeDepth,
+                                parameter->minObservationsInLeafNodes);
             DAAL_CHECK_STATUS_VAR(status)
             status = pruneAndConvertTree<>(px, py, *r, *parameter, tree, leavesData);
             DAAL_CHECK_STATUS_VAR(status)
@@ -397,7 +373,6 @@ services::Status DecisionTreeTrainBatchKernel<algorithmFPType, ParameterType, tr
     }
     return status;
 }
-
 
 } // namespace internal
 } // namespace training

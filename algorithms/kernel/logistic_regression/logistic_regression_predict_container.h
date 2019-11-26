@@ -40,23 +40,17 @@ namespace prediction
 {
 namespace interface2
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv) : PredictionContainerIface()
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
-    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method);
-
-    }
+    if (deviceInfo.isCpu) { __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method); }
     else
     {
         __DAAL_INITIALIZE_KERNELS(internal::PredictBatchKernelOneAPI, algorithmFPType, method);
     }
-
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -68,37 +62,39 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    classifier::prediction::Result *result = static_cast<classifier::prediction::Result *>(_res);
+    Input * input                           = static_cast<Input *>(_in);
+    classifier::prediction::Result * result = static_cast<classifier::prediction::Result *>(_res);
 
-    NumericTable *a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
-    logistic_regression::Model *m = static_cast<logistic_regression::Model *>(input->get(classifier::prediction::model).get());
-    const classifier::Parameter *par = static_cast<classifier::Parameter*>(_par);
+    NumericTable * a                  = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
+    logistic_regression::Model * m    = static_cast<logistic_regression::Model *>(input->get(classifier::prediction::model).get());
+    const classifier::Parameter * par = static_cast<classifier::Parameter *>(_par);
 
-    NumericTable *r = ((par->resultsToEvaluate & classifier::computeClassLabels) ? result->get(classifier::prediction::prediction).get() : nullptr);
-    NumericTable *prob = ((par->resultsToEvaluate & classifier::computeClassProbabilities) ? result->get(classifier::prediction::probabilities).get() : nullptr);
-    NumericTable *logProb = ((par->resultsToEvaluate & classifier::computeClassLogProbabilities) ? result->get(classifier::prediction::logProbabilities).get() : nullptr);
+    NumericTable * r = ((par->resultsToEvaluate & classifier::computeClassLabels) ? result->get(classifier::prediction::prediction).get() : nullptr);
+    NumericTable * prob =
+        ((par->resultsToEvaluate & classifier::computeClassProbabilities) ? result->get(classifier::prediction::probabilities).get() : nullptr);
+    NumericTable * logProb =
+        ((par->resultsToEvaluate & classifier::computeClassLogProbabilities) ? result->get(classifier::prediction::logProbabilities).get() : nullptr);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-            daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
+                           daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
     }
     else
     {
         __DAAL_CALL_KERNEL(env, internal::PredictBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-            daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
+                           daal::services::internal::hostApp(*input), a, m, par->nClasses, r, prob, logProb);
     }
 }
 
-}
+} // namespace interface2
 
-}// namespace prediction
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
+} // namespace prediction
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal

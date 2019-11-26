@@ -37,7 +37,7 @@ namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}// namespace prediction
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
+} // namespace prediction
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal

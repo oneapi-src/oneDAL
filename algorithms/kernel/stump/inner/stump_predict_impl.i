@@ -42,12 +42,11 @@ namespace internal
 using namespace daal::internal;
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const NumericTable *xTable,
-                                                                           const stump::Model *m, NumericTable *rTable,
-                                                                           const Parameter *par)
+services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const NumericTable * xTable, const stump::Model * m, NumericTable * rTable,
+                                                                           const Parameter * par)
 {
-    const size_t nVectors  = xTable->getNumberOfRows();
-    stump::Model *model = const_cast<stump::Model *>(m);
+    const size_t nVectors = xTable->getNumberOfRows();
+    stump::Model * model  = const_cast<stump::Model *>(m);
 
     const algorithmFPtype splitPoint = model->getSplitValue<algorithmFPtype>();
     const algorithmFPtype leftValue  = model->getLeftSubsetAverage<algorithmFPtype>();
@@ -57,23 +56,20 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
 
     WriteOnlyColumns<algorithmFPtype, cpu> rBD(*rTable, 0, 0, nVectors);
     DAAL_CHECK_STATUS(s, rBD.status());
-    algorithmFPtype* r = rBD.get();
+    algorithmFPtype * r = rBD.get();
 
     ReadColumns<algorithmFPtype, cpu> xBD(*const_cast<NumericTable *>(xTable), model->getSplitFeature(), 0, nVectors);
     DAAL_CHECK_STATUS(s, xBD.status());
-    const algorithmFPtype* x = xBD.get();
+    const algorithmFPtype * x = xBD.get();
 
-    for (size_t i = 0; i < nVectors; i++)
-    {
-        r[i] = ((x[i] < splitPoint) ? leftValue : rightValue);
-    }
+    for (size_t i = 0; i < nVectors; i++) { r[i] = ((x[i] < splitPoint) ? leftValue : rightValue); }
     return s;
 }
 
-} // namespace daal::algorithms::stump::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

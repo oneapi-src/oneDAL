@@ -26,21 +26,18 @@ USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::normalization::minmax;
 
 #include "com_intel_daal_algorithms_normalization_minmax_InputId.h"
-#define InputDataId  com_intel_daal_algorithms_normalization_minmax_InputId_InputDataId
+#define InputDataId com_intel_daal_algorithms_normalization_minmax_InputId_InputDataId
 
 /*
  * Class:     com_intel_daal_algorithms_normalization_minmax_Input
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Input_cSetInputTable
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Input_cSetInputTable(JNIEnv * jenv, jobject thisObj, jlong inputAddr,
+                                                                                                jint id, jlong ntAddr)
 {
-    if(id == InputDataId)
-    {
-        jniInput<normalization::minmax::Input>::
-            set<normalization::minmax::InputId, NumericTable>(inputAddr, normalization::minmax::data, ntAddr);
-    }
+    if (id == InputDataId)
+    { jniInput<normalization::minmax::Input>::set<normalization::minmax::InputId, NumericTable>(inputAddr, normalization::minmax::data, ntAddr); }
 }
 
 /*
@@ -48,14 +45,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Input
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Input_cGetInputTable
-(JNIEnv *jenv, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Input_cGetInputTable(JNIEnv * jenv, jobject thisObj, jlong inputAddr,
+                                                                                                 jint id)
 {
-    if(id == InputDataId)
-    {
-        return jniInput<normalization::minmax::Input>::
-            get<normalization::minmax::InputId, NumericTable>(inputAddr, normalization::minmax::data);
-    }
+    if (id == InputDataId)
+    { return jniInput<normalization::minmax::Input>::get<normalization::minmax::InputId, NumericTable>(inputAddr, normalization::minmax::data); }
 
     return (jlong)0;
 }

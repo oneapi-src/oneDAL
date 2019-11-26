@@ -34,7 +34,6 @@ namespace sql
 {
 namespace internal
 {
-
 using data_management::internal::SQLFeatureInfo;
 using data_management::internal::SQLFeaturesInfo;
 using data_management::internal::SQLFetchBuffer;
@@ -47,22 +46,15 @@ using data_management::internal::SQLFetchBufferFragment;
 class InputFeatureInfo : public modifiers::internal::InputFeatureInfo
 {
 public:
-    InputFeatureInfo() { }
+    InputFeatureInfo() {}
 
-    explicit InputFeatureInfo(const SQLFeatureInfo &featureInfo,
-                              const SQLFetchBufferFragment &fetchBuffer) :
-        _featureInfo(featureInfo),
-        _fetchBuffer(fetchBuffer) { }
+    explicit InputFeatureInfo(const SQLFeatureInfo & featureInfo, const SQLFetchBufferFragment & fetchBuffer)
+        : _featureInfo(featureInfo), _fetchBuffer(fetchBuffer)
+    {}
 
-    const SQLFeatureInfo &getFeatureInfo() const
-    {
-        return _featureInfo;
-    }
+    const SQLFeatureInfo & getFeatureInfo() const { return _featureInfo; }
 
-    const SQLFetchBufferFragment &getFetchBuffer() const
-    {
-        return _fetchBuffer;
-    }
+    const SQLFetchBufferFragment & getFetchBuffer() const { return _fetchBuffer; }
 
 private:
     SQLFeatureInfo _featureInfo;
@@ -73,51 +65,43 @@ private:
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__SQL__INTERNAL__FEATURECONFIG"></a>
  * \brief Class represents configuration of single feature
  */
-class OutputFeatureInfo : public modifiers::internal::OutputFeatureInfo { };
+class OutputFeatureInfo : public modifiers::internal::OutputFeatureInfo
+{};
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__SQL__INTERNAL__CONFIGIMPL"></a>
  * \brief Internal implementation of feature modifier configuration
  */
-class ConfigImpl : public Config,
-                   public modifiers::internal::Config<InputFeatureInfo,
-                                                      OutputFeatureInfo>
+class ConfigImpl : public Config, public modifiers::internal::Config<InputFeatureInfo, OutputFeatureInfo>
 {
 private:
-    typedef modifiers::internal::Config<InputFeatureInfo,
-                                        OutputFeatureInfo> impl;
+    typedef modifiers::internal::Config<InputFeatureInfo, OutputFeatureInfo> impl;
 
 public:
-    ConfigImpl() { }
+    ConfigImpl() {}
 
-    explicit ConfigImpl(const services::internal::CollectionPtr<InputFeatureInfo *> &pickedInputFeatures,
-                        services::Status *status = NULL) :
-        impl(pickedInputFeatures, status) { }
+    explicit ConfigImpl(const services::internal::CollectionPtr<InputFeatureInfo *> & pickedInputFeatures, services::Status * status = NULL)
+        : impl(pickedInputFeatures, status)
+    {}
 
-    virtual size_t getNumberOfInputFeatures() const DAAL_C11_OVERRIDE
-    {
-        return impl::getNumberOfInputFeatures();
-    }
+    virtual size_t getNumberOfInputFeatures() const DAAL_C11_OVERRIDE { return impl::getNumberOfInputFeatures(); }
 
     virtual services::Status setNumberOfOutputFeatures(size_t numberOfOutputFeatures) DAAL_C11_OVERRIDE
     {
         return impl::setNumberOfOutputFeatures(numberOfOutputFeatures);
     }
 
-    virtual services::Status setOutputFeatureType(size_t outputFeatureIndex,
-                                                  features::FeatureType featureType) DAAL_C11_OVERRIDE
+    virtual services::Status setOutputFeatureType(size_t outputFeatureIndex, features::FeatureType featureType) DAAL_C11_OVERRIDE
     {
         return impl::setOutputFeatureType(outputFeatureIndex, featureType);
     }
 
-    virtual services::Status setNumberOfCategories(size_t outputFeatureIndex,
-                                                   size_t numberOfCategories) DAAL_C11_OVERRIDE
+    virtual services::Status setNumberOfCategories(size_t outputFeatureIndex, size_t numberOfCategories) DAAL_C11_OVERRIDE
     {
         return impl::setNumberOfCategories(outputFeatureIndex, numberOfCategories);
     }
 
-    virtual services::Status setCategoricalDictionary(size_t outputFeatureIndex,
-                                                      const CategoricalFeatureDictionaryPtr &dictionary) DAAL_C11_OVERRIDE
+    virtual services::Status setCategoricalDictionary(size_t outputFeatureIndex, const CategoricalFeatureDictionaryPtr & dictionary) DAAL_C11_OVERRIDE
     {
         return impl::setCategoricalDictionary(outputFeatureIndex, dictionary);
     }
@@ -127,34 +111,25 @@ public:
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__SQL__INTERNAL__CONTEXTIMPL"></a>
  * \brief Internal implementation of feature modifier context
  */
-class ContextImpl : public Context,
-                    public modifiers::internal::Context<InputFeatureInfo,
-                                                        OutputFeatureInfo>
+class ContextImpl : public Context, public modifiers::internal::Context<InputFeatureInfo, OutputFeatureInfo>
 {
 private:
-    typedef modifiers::internal::Context<InputFeatureInfo,
-                                         OutputFeatureInfo> impl;
+    typedef modifiers::internal::Context<InputFeatureInfo, OutputFeatureInfo> impl;
 
 public:
-    ContextImpl() { }
+    ContextImpl() {}
 
-    explicit ContextImpl(const services::internal::CollectionPtr<InputFeatureInfo *> &pickedInputFeatures,
-                         services::Status *status = NULL) :
-        impl(pickedInputFeatures, status) { }
+    explicit ContextImpl(const services::internal::CollectionPtr<InputFeatureInfo *> & pickedInputFeatures, services::Status * status = NULL)
+        : impl(pickedInputFeatures, status)
+    {}
 
-    virtual size_t getNumberOfColumns() const DAAL_C11_OVERRIDE
-    {
-        return impl::getNumberOfInputFeatures();
-    }
+    virtual size_t getNumberOfColumns() const DAAL_C11_OVERRIDE { return impl::getNumberOfInputFeatures(); }
 
-    virtual services::BufferView<DAAL_DATA_TYPE> getOutputBuffer() const DAAL_C11_OVERRIDE
-    {
-        return impl::getOutputBuffer();
-    }
+    virtual services::BufferView<DAAL_DATA_TYPE> getOutputBuffer() const DAAL_C11_OVERRIDE { return impl::getOutputBuffer(); }
 
     virtual services::BufferView<char> getRawValue(size_t columnIndex) const DAAL_C11_OVERRIDE
     {
-        const InputFeatureInfo &fi = impl::getPickedInputFeature(columnIndex);
+        const InputFeatureInfo & fi = impl::getPickedInputFeature(columnIndex);
         return fi.getFetchBuffer().view();
     }
 };
@@ -163,25 +138,22 @@ public:
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__SQL__INTERNAL__MODIFIERSMANAGER"></a>
  * \brief Class that holds modifiers and implements logic of modifiers applying flow
  */
-class ModifiersManager : public modifiers::internal::ModifiersManager<FeatureModifierIface,
-                                                                      ConfigImpl, ContextImpl>
+class ModifiersManager : public modifiers::internal::ModifiersManager<FeatureModifierIface, ConfigImpl, ContextImpl>
 {
 public:
-    static services::SharedPtr<ModifiersManager> create(services::Status *status = NULL)
+    static services::SharedPtr<ModifiersManager> create(services::Status * status = NULL)
     {
         return services::internal::wrapSharedAndTryThrow(new ModifiersManager(), status);
     }
 
-    services::Status prepare(const SQLFeaturesInfo &featuresInfo,
-                             const SQLFetchBuffer &fetchBuffer)
+    services::Status prepare(const SQLFeaturesInfo & featuresInfo, const SQLFetchBuffer & fetchBuffer)
     {
         services::Status status;
 
         const features::FeatureIdMappingIfacePtr mapping = createMapping(featuresInfo, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        const services::internal::CollectionPtr<InputFeatureInfo> inputFeaturesInfo =
-            createInputFeaturesInfo(featuresInfo, fetchBuffer, &status);
+        const services::internal::CollectionPtr<InputFeatureInfo> inputFeaturesInfo = createInputFeaturesInfo(featuresInfo, fetchBuffer, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         status |= getBinder().bind(mapping, inputFeaturesInfo);
@@ -190,11 +162,10 @@ public:
     }
 
 private:
-    ModifiersManager() { }
+    ModifiersManager() {}
 
-    services::internal::CollectionPtr<InputFeatureInfo> createInputFeaturesInfo(const SQLFeaturesInfo &featuresInfo,
-                                                                                const SQLFetchBuffer &fetchBuffer,
-                                                                                services::Status *status = NULL)
+    services::internal::CollectionPtr<InputFeatureInfo> createInputFeaturesInfo(const SQLFeaturesInfo & featuresInfo,
+                                                                                const SQLFetchBuffer & fetchBuffer, services::Status * status = NULL)
     {
         const size_t numberOfFeatures = featuresInfo.getNumberOfFeatures();
 
@@ -208,16 +179,15 @@ private:
 
         for (size_t i = 0; i < numberOfFeatures; i++)
         {
-            const SQLFeatureInfo &fi = featuresInfo[i];
-            const SQLFetchBufferFragment &ff = fetchBuffer.getFragment(i);
-            (*inputFeaturesInfo)[i] = InputFeatureInfo(fi, ff);
+            const SQLFeatureInfo & fi         = featuresInfo[i];
+            const SQLFetchBufferFragment & ff = fetchBuffer.getFragment(i);
+            (*inputFeaturesInfo)[i]           = InputFeatureInfo(fi, ff);
         }
 
         return inputFeaturesInfo;
     }
 
-    features::FeatureIdMappingIfacePtr createMapping(const SQLFeaturesInfo &featuresInfo,
-                                                     services::Status *status = NULL)
+    features::FeatureIdMappingIfacePtr createMapping(const SQLFeaturesInfo & featuresInfo, services::Status * status = NULL)
     {
         const size_t numberOfFeatures = featuresInfo.getNumberOfFeatures();
 
@@ -230,10 +200,7 @@ private:
             return mapping;
         }
 
-        for (size_t i = 0; i < numberOfFeatures; ++i)
-        {
-            mapping->setFeatureKey(i, featuresInfo[i].columnName);
-        }
+        for (size_t i = 0; i < numberOfFeatures; ++i) { mapping->setFeatureKey(i, featuresInfo[i].columnName); }
 
         return mapping;
     }

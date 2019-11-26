@@ -42,33 +42,30 @@ namespace interface1
 * \param[in] method Computation method of the algorithm
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     services::Status s;
-    const Input *algInput = static_cast<const Input *>(input);
-    size_t nRows = algInput->get(optimization_solver::iterative_solver::inputArgument)->getNumberOfRows();
-    size_t nColumns = algInput->get(optimization_solver::iterative_solver::inputArgument)->getNumberOfColumns();
+    const Input * algInput = static_cast<const Input *>(input);
+    size_t nRows           = algInput->get(optimization_solver::iterative_solver::inputArgument)->getNumberOfRows();
+    size_t nColumns        = algInput->get(optimization_solver::iterative_solver::inputArgument)->getNumberOfColumns();
 
     if (!get(optimization_solver::iterative_solver::minimum))
     {
-        set(optimization_solver::iterative_solver::minimum, HomogenNumericTable<algorithmFPType>::create(nColumns, nRows, NumericTable::doAllocate, &s));
+        set(optimization_solver::iterative_solver::minimum,
+            HomogenNumericTable<algorithmFPType>::create(nColumns, nRows, NumericTable::doAllocate, &s));
     }
     if (!get(optimization_solver::iterative_solver::nIterations))
-    {
-        set(optimization_solver::iterative_solver::nIterations, HomogenNumericTable<size_t>::create(1, 1, NumericTable::doAllocate, (size_t)0, &s));
-    }
+    { set(optimization_solver::iterative_solver::nIterations, HomogenNumericTable<size_t>::create(1, 1, NumericTable::doAllocate, (size_t)0, &s)); }
 
-    const Parameter *algParam = static_cast<const Parameter *>(par);
-    if(!algParam->optionalResultRequired)
-    {
-        return s;
-    }
+    const Parameter * algParam = static_cast<const Parameter *>(par);
+    if (!algParam->optionalResultRequired) { return s; }
     return s;
 }
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace interface1
 } // namespace coordinate_descent
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

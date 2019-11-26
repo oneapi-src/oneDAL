@@ -146,22 +146,18 @@ public:
     *  Get status of model building
     *  \return Status
     */
-    services::Status getStatus()
-    {
-        return _status;
-    }
+    services::Status getStatus() { return _status; }
 
 protected:
     ModelPtr _model;
     services::Status _status;
     services::Status initialize(size_t nFeatures, size_t nIterations, size_t nClasses);
-    services::Status createTreeInternal(size_t nNodes, size_t classLabel, TreeId& resId);
-    services::Status addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, NodeId& res);
-    services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, NodeId& res);
+    services::Status createTreeInternal(size_t nNodes, size_t classLabel, TreeId & resId);
+    services::Status addLeafNodeInternal(TreeId treeId, NodeId parentId, size_t position, double response, NodeId & res);
+    services::Status addSplitNodeInternal(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, NodeId & res);
     services::Status convertModelInternal();
     size_t _nClasses;
     size_t _nIterations;
-
 };
 /** @} */
 } // namespace interface1

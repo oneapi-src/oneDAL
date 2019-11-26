@@ -40,48 +40,44 @@ namespace init
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-services::Status ImplicitALSInitKernelBase<algorithmFPType, cpu>::randFactors(size_t nItems, size_t nFactors,
-        algorithmFPType *itemsFactors, engines::BatchBase &engine)
+services::Status ImplicitALSInitKernelBase<algorithmFPType, cpu>::randFactors(size_t nItems, size_t nFactors, algorithmFPType * itemsFactors,
+                                                                              engines::BatchBase & engine)
 {
-    const size_t nTheads = threader_get_threads_number();
-    const size_t nBlocks = nTheads;
-    const size_t blockSize = (nItems*nFactors) / nBlocks;
-    const size_t lastBlockSize = (nItems*nFactors) - (nBlocks-1)*blockSize;
+    const size_t nTheads       = threader_get_threads_number();
+    const size_t nBlocks       = nTheads;
+    const size_t blockSize     = (nItems * nFactors) / nBlocks;
+    const size_t lastBlockSize = (nItems * nFactors) - (nBlocks - 1) * blockSize;
 
-    TArray<services::SharedPtr<engines::BatchBase>, cpu> engines(nBlocks-1);
-    for(size_t i = 0; i < nBlocks-1; i++)
-    {
-        engines[i] = engine.clone();
-    }
+    TArray<services::SharedPtr<engines::BatchBase>, cpu> engines(nBlocks - 1);
+    for (size_t i = 0; i < nBlocks - 1; i++) { engines[i] = engine.clone(); }
 
     daal::SafeStatus safeStatus;
-    daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
-    {
-        const size_t start  = blockSize * iBlock;
-        const size_t nElems = (iBlock != nBlocks-1) ? blockSize : lastBlockSize;
-        algorithmFPType* const arr = itemsFactors + start;
+    daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+        const size_t start          = blockSize * iBlock;
+        const size_t nElems         = (iBlock != nBlocks - 1) ? blockSize : lastBlockSize;
+        algorithmFPType * const arr = itemsFactors + start;
 
         if (iBlock != 0)
         {
-            engines[iBlock-1]->skipAhead(start);
-            safeStatus |= distributions::uniform::internal::UniformKernelDefault<algorithmFPType, cpu>::compute(0.0f, 1.0f, *engines[iBlock-1], nElems, arr );
+            engines[iBlock - 1]->skipAhead(start);
+            safeStatus |=
+                distributions::uniform::internal::UniformKernelDefault<algorithmFPType, cpu>::compute(0.0f, 1.0f, *engines[iBlock - 1], nElems, arr);
         }
         else
         {
-            safeStatus |= distributions::uniform::internal::UniformKernelDefault<algorithmFPType, cpu>::compute(0.0f, 1.0f, engine, nElems, arr );
+            safeStatus |= distributions::uniform::internal::UniformKernelDefault<algorithmFPType, cpu>::compute(0.0f, 1.0f, engine, nElems, arr);
         }
     });
 
     return safeStatus.detach();
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace init
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal
 
 #endif

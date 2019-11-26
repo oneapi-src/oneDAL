@@ -45,16 +45,14 @@ namespace low_order_moments
 {
 namespace internal
 {
-
-template<CpuType cpu>
+template <CpuType cpu>
 inline size_t getDefaultBatchModeBlockSize(size_t numberOfRows)
 {
     const static size_t MAX_BLOCK_SIZE = 512;
     const static size_t MIN_BLOCK_SIZE = 256;
 
     const size_t numberOfThreads = threader_get_threads_number();
-    return (numberOfRows / MAX_BLOCK_SIZE) < numberOfThreads
-        ? MIN_BLOCK_SIZE : MAX_BLOCK_SIZE;
+    return (numberOfRows / MAX_BLOCK_SIZE) < numberOfThreads ? MIN_BLOCK_SIZE : MAX_BLOCK_SIZE;
 }
 
 /* Multiple instances for defaultDense method optimized implementations */
@@ -63,7 +61,6 @@ inline size_t getDefaultBatchModeBlockSize(size_t numberOfRows)
 
 namespace estimates_batch_all
 {
-
 #define _THREAD_REDUCTION_
 #define _THREAD_FINAL_
 
@@ -80,53 +77,50 @@ namespace estimates_batch_all
 
 #include "low_order_moments_estimates_batch.i"
 
-}
+} // namespace estimates_batch_all
 
 namespace estimates_batch_minmax
 {
-
 #define _THREAD_REDUCTION_
 #define _THREAD_FINAL_
 
-#define _MIN_ENABLE_   /*+*/
-#define _MAX_ENABLE_   /*+*/
-#undef  _SUM_ENABLE_
-#undef  _SUM2_ENABLE_
-#undef  _SUM2C_ENABLE_
-#undef  _MEAN_ENABLE_
-#undef  _SORM_ENABLE_
-#undef  _VARC_ENABLE_
-#undef  _STDEV_ENABLE_
-#undef  _VART_ENABLE_
+#define _MIN_ENABLE_ /*+*/
+#define _MAX_ENABLE_ /*+*/
+#undef _SUM_ENABLE_
+#undef _SUM2_ENABLE_
+#undef _SUM2C_ENABLE_
+#undef _MEAN_ENABLE_
+#undef _SORM_ENABLE_
+#undef _VARC_ENABLE_
+#undef _STDEV_ENABLE_
+#undef _VART_ENABLE_
 
 #include "low_order_moments_estimates_batch.i"
 
-}
+} // namespace estimates_batch_minmax
 
 namespace estimates_batch_meanvariance
 {
-
 #define _THREAD_REDUCTION_
 #define _THREAD_FINAL_
 
-#undef  _MIN_ENABLE_
-#undef  _MAX_ENABLE_
-#undef  _SUM_ENABLE_
-#undef  _SUM2_ENABLE_
-#undef  _SUM2C_ENABLE_
-#define _MEAN_ENABLE_   /*+*/
-#undef  _SORM_ENABLE_
-#define _VARC_ENABLE_   /*+*/
-#undef  _STDEV_ENABLE_
-#undef  _VART_ENABLE_
+#undef _MIN_ENABLE_
+#undef _MAX_ENABLE_
+#undef _SUM_ENABLE_
+#undef _SUM2_ENABLE_
+#undef _SUM2C_ENABLE_
+#define _MEAN_ENABLE_ /*+*/
+#undef _SORM_ENABLE_
+#define _VARC_ENABLE_ /*+*/
+#undef _STDEV_ENABLE_
+#undef _VART_ENABLE_
 
 #include "low_order_moments_estimates_batch.i"
 
-}
+} // namespace estimates_batch_meanvariance
 
 namespace estimates_online_all
 {
-
 #define _MIN_ENABLE_   /*+*/
 #define _MAX_ENABLE_   /*+*/
 #define _SUM_ENABLE_   /*+*/
@@ -140,74 +134,64 @@ namespace estimates_online_all
 
 #include "low_order_moments_estimates_online.i"
 
-}
+} // namespace estimates_online_all
 
 namespace estimates_online_minmax
 {
-
-#define _MIN_ENABLE_   /*+*/
-#define _MAX_ENABLE_   /*+*/
-#undef  _SUM_ENABLE_
-#undef  _SUM2_ENABLE_
-#undef  _SUM2C_ENABLE_
-#undef  _MEAN_ENABLE_
-#undef  _SORM_ENABLE_
-#undef  _VARC_ENABLE_
-#undef  _STDEV_ENABLE_
-#undef  _VART_ENABLE_
+#define _MIN_ENABLE_ /*+*/
+#define _MAX_ENABLE_ /*+*/
+#undef _SUM_ENABLE_
+#undef _SUM2_ENABLE_
+#undef _SUM2C_ENABLE_
+#undef _MEAN_ENABLE_
+#undef _SORM_ENABLE_
+#undef _VARC_ENABLE_
+#undef _STDEV_ENABLE_
+#undef _VART_ENABLE_
 
 #include "low_order_moments_estimates_online.i"
 
-}
+} // namespace estimates_online_minmax
 
 namespace estimates_online_meanvariance
 {
-
-#undef  _MIN_ENABLE_
-#undef  _MAX_ENABLE_
-#undef  _SUM_ENABLE_
-#undef  _SUM2_ENABLE_
-#undef  _SUM2C_ENABLE_
-#define _MEAN_ENABLE_   /*+*/
-#undef  _SORM_ENABLE_
-#define _VARC_ENABLE_   /*+*/
-#undef  _STDEV_ENABLE_
-#undef  _VART_ENABLE_
+#undef _MIN_ENABLE_
+#undef _MAX_ENABLE_
+#undef _SUM_ENABLE_
+#undef _SUM2_ENABLE_
+#undef _SUM2C_ENABLE_
+#define _MEAN_ENABLE_ /*+*/
+#undef _SORM_ENABLE_
+#define _VARC_ENABLE_ /*+*/
+#undef _STDEV_ENABLE_
+#undef _VART_ENABLE_
 
 #include "low_order_moments_estimates_online.i"
 
-}
+} // namespace estimates_online_meanvariance
 
 /****************************************************************************************************************************/
-template<Method method>
+template <Method method>
 __int64 getMKLMethod()
 {
     __int64 mklMethod = __DAAL_VSL_SS_METHOD_FAST;
 
-    switch(method)
+    switch (method)
     {
     case defaultDense:
-    case fastCSR:
-        mklMethod = __DAAL_VSL_SS_METHOD_FAST;
-        break;
+    case fastCSR: mklMethod = __DAAL_VSL_SS_METHOD_FAST; break;
     case singlePassDense:
-    case singlePassCSR:
-        mklMethod = __DAAL_VSL_SS_METHOD_1PASS;
-        break;
+    case singlePassCSR: mklMethod = __DAAL_VSL_SS_METHOD_1PASS; break;
     case sumDense:
-    case sumCSR:
-        mklMethod = __DAAL_VSL_SS_METHOD_FAST_USER_MEAN;
-        break;
+    case sumCSR: mklMethod = __DAAL_VSL_SS_METHOD_FAST_USER_MEAN; break;
     }
 
     return mklMethod;
 }
 
-
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-LowOrderMomentsBatchTask<algorithmFPType, cpu>::LowOrderMomentsBatchTask( NumericTable *dataTable,
-                                                                          Result *result) : dataTable(dataTable)
+template <typename algorithmFPType, CpuType cpu>
+LowOrderMomentsBatchTask<algorithmFPType, cpu>::LowOrderMomentsBatchTask(NumericTable * dataTable, Result * result) : dataTable(dataTable)
 {
     nVectors  = dataTable->getNumberOfRows();
     nFeatures = dataTable->getNumberOfColumns();
@@ -224,29 +208,31 @@ LowOrderMomentsBatchTask<algorithmFPType, cpu>::LowOrderMomentsBatchTask( Numeri
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 LowOrderMomentsBatchTask<algorithmFPType, cpu>::~LowOrderMomentsBatchTask()
 {
     dataTable->releaseBlockOfRows(dataBD);
-    for (size_t i = 0; i < lastResultId + 1; i++)
-    {
-        resultTable[i]->releaseBlockOfRows(resultBD[i]);
-    }
+    for (size_t i = 0; i < lastResultId + 1; i++) { resultTable[i]->releaseBlockOfRows(resultBD[i]); }
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-LowOrderMomentsOnlineTask<algorithmFPType, cpu>::LowOrderMomentsOnlineTask(NumericTable *dataTable)
-    : dataTable(dataTable), dataBlock(nullptr), mean(nullptr), raw2Mom(nullptr),
-    variance(nullptr), stDev(nullptr), variation(nullptr), prevSums(nullptr)
-{
-}
+template <typename algorithmFPType, CpuType cpu>
+LowOrderMomentsOnlineTask<algorithmFPType, cpu>::LowOrderMomentsOnlineTask(NumericTable * dataTable)
+    : dataTable(dataTable),
+      dataBlock(nullptr),
+      mean(nullptr),
+      raw2Mom(nullptr),
+      variance(nullptr),
+      stDev(nullptr),
+      variation(nullptr),
+      prevSums(nullptr)
+{}
 
-template<typename algorithmFPType, CpuType cpu>
-Status LowOrderMomentsOnlineTask<algorithmFPType, cpu>::init(PartialResult *partialResult, bool isOnline)
+template <typename algorithmFPType, CpuType cpu>
+Status LowOrderMomentsOnlineTask<algorithmFPType, cpu>::init(PartialResult * partialResult, bool isOnline)
 {
-    nVectors  = dataTable->getNumberOfRows();
-    nFeatures = dataTable->getNumberOfColumns();
+    nVectors   = dataTable->getNumberOfRows();
+    nFeatures  = dataTable->getNumberOfColumns();
     int result = 0;
 
     dataTable->getBlockOfRows(0, nVectors, readOnly, dataBD);
@@ -260,20 +246,17 @@ Status LowOrderMomentsOnlineTask<algorithmFPType, cpu>::init(PartialResult *part
         resultArray[i] = resultBD[i].getBlockPtr();
     }
 
-    if (!isOnline)
-    {
-        resultArray[(int)nObservations][0] = 0.0;
-    }
+    if (!isOnline) { resultArray[(int)nObservations][0] = 0.0; }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures * sizeof(algorithmFPType), sizeof(algorithmFPType *));
 
     size_t rowSize = nFeatures * sizeof(algorithmFPType);
-    mean      = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
-    raw2Mom   = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
-    variance  = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
-    stDev     = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
-    variation = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+    mean           = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+    raw2Mom        = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+    variance       = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+    stDev          = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
+    variation      = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);
 
     DAAL_CHECK_MALLOC(mean && raw2Mom && variance && stDev && variation)
 
@@ -287,14 +270,11 @@ Status LowOrderMomentsOnlineTask<algorithmFPType, cpu>::init(PartialResult *part
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 LowOrderMomentsOnlineTask<algorithmFPType, cpu>::~LowOrderMomentsOnlineTask()
 {
     dataTable->releaseBlockOfRows(dataBD);
-    for (size_t i = 0; i < lastPartialResultId + 1; i++)
-    {
-        resultTable[i]->releaseBlockOfRows(resultBD[i]);
-    }
+    for (size_t i = 0; i < lastPartialResultId + 1; i++) { resultTable[i]->releaseBlockOfRows(resultBD[i]); }
 
     daal_free(mean);
     daal_free(raw2Mom);
@@ -303,96 +283,89 @@ LowOrderMomentsOnlineTask<algorithmFPType, cpu>::~LowOrderMomentsOnlineTask()
     daal_free(variation);
     if (prevSums) { daal_free(prevSums); }
 
-    mean        = nullptr;
-    raw2Mom     = nullptr;
-    variance    = nullptr;
-    stDev       = nullptr;
-    variance    = nullptr;
-    prevSums    = nullptr;
+    mean     = nullptr;
+    raw2Mom  = nullptr;
+    variance = nullptr;
+    stDev    = nullptr;
+    variance = nullptr;
+    prevSums = nullptr;
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-LowOrderMomentsFinalizeTask<algorithmFPType, cpu>::LowOrderMomentsFinalizeTask( NumericTable *nObservationsTable,
-                                                                                NumericTable *sumTable,
-                                                                                NumericTable *sumSqTable,
-                                                                                NumericTable *sumSqCenTable,
-                                                                                NumericTable *meanTable,
-                                                                                NumericTable *raw2MomTable,
-                                                                                NumericTable *varianceTable,
-                                                                                NumericTable *stDevTable, NumericTable *variationTable)
+template <typename algorithmFPType, CpuType cpu>
+LowOrderMomentsFinalizeTask<algorithmFPType, cpu>::LowOrderMomentsFinalizeTask(NumericTable * nObservationsTable, NumericTable * sumTable,
+                                                                               NumericTable * sumSqTable, NumericTable * sumSqCenTable,
+                                                                               NumericTable * meanTable, NumericTable * raw2MomTable,
+                                                                               NumericTable * varianceTable, NumericTable * stDevTable,
+                                                                               NumericTable * variationTable)
 
-                                                                             :  nObservationsTable(nObservationsTable),
-                                                                                sumTable(sumTable),
-                                                                                sumSqTable(sumSqTable),
-                                                                                sumSqCenTable(sumSqCenTable),
-                                                                                meanTable(meanTable),
-                                                                                raw2MomTable(raw2MomTable),
-                                                                                varianceTable(varianceTable),
-                                                                                stDevTable(stDevTable),
-                                                                                variationTable(variationTable)
+    : nObservationsTable(nObservationsTable),
+      sumTable(sumTable),
+      sumSqTable(sumSqTable),
+      sumSqCenTable(sumSqCenTable),
+      meanTable(meanTable),
+      raw2MomTable(raw2MomTable),
+      varianceTable(varianceTable),
+      stDevTable(stDevTable),
+      variationTable(variationTable)
 {
     nFeatures = sumTable->getNumberOfColumns();
 
     nObservationsTable->getBlockOfRows(0, 1, readOnly, nObservationsBD);
     nObservations = nObservationsBD.getBlockPtr();
 
-    sumTable     ->getBlockOfRows(0, 1, readOnly, sumBD);
-    sumSqTable   ->getBlockOfRows(0, 1, readOnly, sumSqBD);
+    sumTable->getBlockOfRows(0, 1, readOnly, sumBD);
+    sumSqTable->getBlockOfRows(0, 1, readOnly, sumSqBD);
     sumSqCenTable->getBlockOfRows(0, 1, readOnly, sumSqCenBD);
 
-    sums     = sumBD     .getBlockPtr();
-    sumSq    = sumSqBD   .getBlockPtr();
+    sums     = sumBD.getBlockPtr();
+    sumSq    = sumSqBD.getBlockPtr();
     sumSqCen = sumSqCenBD.getBlockPtr();
 
-    meanTable     ->getBlockOfRows(0, 1, writeOnly, meanBD);
-    raw2MomTable  ->getBlockOfRows(0, 1, writeOnly, raw2MomBD);
-    varianceTable ->getBlockOfRows(0, 1, writeOnly, varianceBD);
-    stDevTable    ->getBlockOfRows(0, 1, writeOnly, stDevBD);
+    meanTable->getBlockOfRows(0, 1, writeOnly, meanBD);
+    raw2MomTable->getBlockOfRows(0, 1, writeOnly, raw2MomBD);
+    varianceTable->getBlockOfRows(0, 1, writeOnly, varianceBD);
+    stDevTable->getBlockOfRows(0, 1, writeOnly, stDevBD);
     variationTable->getBlockOfRows(0, 1, writeOnly, variationBD);
 
-    mean      = meanBD     .getBlockPtr();
-    raw2Mom   = raw2MomBD  .getBlockPtr();
-    variance  = varianceBD .getBlockPtr();
-    stDev     = stDevBD    .getBlockPtr();
+    mean      = meanBD.getBlockPtr();
+    raw2Mom   = raw2MomBD.getBlockPtr();
+    variance  = varianceBD.getBlockPtr();
+    stDev     = stDevBD.getBlockPtr();
     variation = variationBD.getBlockPtr();
 }
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 /****************************************************************************************************************************/
 LowOrderMomentsFinalizeTask<algorithmFPType, cpu>::~LowOrderMomentsFinalizeTask()
 {
     nObservationsTable->releaseBlockOfRows(nObservationsBD);
-    sumTable          ->releaseBlockOfRows(sumBD);
-    sumSqTable        ->releaseBlockOfRows(sumSqBD);
-    sumSqCenTable     ->releaseBlockOfRows(sumSqCenBD);
-    meanTable         ->releaseBlockOfRows(meanBD);
-    raw2MomTable      ->releaseBlockOfRows(raw2MomBD);
-    varianceTable     ->releaseBlockOfRows(varianceBD);
-    stDevTable        ->releaseBlockOfRows(stDevBD);
-    variationTable    ->releaseBlockOfRows(variationBD);
+    sumTable->releaseBlockOfRows(sumBD);
+    sumSqTable->releaseBlockOfRows(sumSqBD);
+    sumSqCenTable->releaseBlockOfRows(sumSqCenBD);
+    meanTable->releaseBlockOfRows(meanBD);
+    raw2MomTable->releaseBlockOfRows(raw2MomBD);
+    varianceTable->releaseBlockOfRows(varianceBD);
+    stDevTable->releaseBlockOfRows(stDevBD);
+    variationTable->releaseBlockOfRows(variationBD);
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-Status retrievePrecomputedStatsIfPossible( const size_t nFeatures,
-                                         const size_t nVectors,
-                                         NumericTable * const dataTable,
-                                         algorithmFPType *sums,
-                                         algorithmFPType *mean)
+template <typename algorithmFPType, CpuType cpu>
+Status retrievePrecomputedStatsIfPossible(const size_t nFeatures, const size_t nVectors, NumericTable * const dataTable, algorithmFPType * sums,
+                                          algorithmFPType * mean)
 {
     NumericTable * const precomputedSumsTable = dataTable->basicStatistics.get(NumericTable::sum).get();
-    int result = 0;
+    int result                                = 0;
 
-    if (!precomputedSumsTable)
-        return Status(services::ErrorPrecomputedSumNotAvailable);
+    if (!precomputedSumsTable) return Status(services::ErrorPrecomputedSumNotAvailable);
 
     BlockDescriptor<algorithmFPType> precomputedSumsBlock;
     precomputedSumsTable->getBlockOfRows(0, 1, readOnly, precomputedSumsBlock);
     const algorithmFPType * const precomputedSums = precomputedSumsBlock.getBlockPtr();
 
     size_t rowSize = nFeatures * sizeof(algorithmFPType);
-    result = daal::services::internal::daal_memcpy_s(sums, rowSize, precomputedSums, rowSize);
+    result         = daal::services::internal::daal_memcpy_s(sums, rowSize, precomputedSums, rowSize);
 
     precomputedSumsTable->releaseBlockOfRows(precomputedSumsBlock);
 
@@ -400,88 +373,53 @@ Status retrievePrecomputedStatsIfPossible( const size_t nFeatures,
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nFeatures; i++)
-    {
-        mean[i] = sums[i] * invNVectors;
-    }
+    for (size_t i = 0; i < nFeatures; i++) { mean[i] = sums[i] * invNVectors; }
     return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
-
 /****************************************************************************************************************************/
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status computeSumAndVariance(size_t nFeatures,
-                            size_t nVectors,
-                            algorithmFPType *dataBlock,
-                            algorithmFPType *sums,
-                            algorithmFPType *prevSums,
-                            algorithmFPType *mean,
-                            algorithmFPType *raw2Mom,
-                            algorithmFPType *variance,
-                            bool isOnline)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status computeSumAndVariance(size_t nFeatures, size_t nVectors, algorithmFPType * dataBlock, algorithmFPType * sums, algorithmFPType * prevSums,
+                             algorithmFPType * mean, algorithmFPType * raw2Mom, algorithmFPType * variance, bool isOnline)
 {
     algorithmFPType nPreviousObservations = 0.0;
 
     const __int64 mklMethod = getMKLMethod<method>();
 
-    const int mklStatus = Statistics<algorithmFPType, cpu>::xSumAndVariance( dataBlock,
-                                                                       nFeatures,
-                                                                       nVectors,
-                                                                       &nPreviousObservations,
-                                                                       mklMethod,
-                                                                       sums,
-                                                                       mean,
-                                                                       raw2Mom,
-                                                                       variance );
+    const int mklStatus = Statistics<algorithmFPType, cpu>::xSumAndVariance(dataBlock, nFeatures, nVectors, &nPreviousObservations, mklMethod, sums,
+                                                                            mean, raw2Mom, variance);
 
-    if (mklStatus != 0)
-        return Status(services::ErrorLowOrderMomentsInternal);
+    if (mklStatus != 0) return Status(services::ErrorLowOrderMomentsInternal);
 
     if (isOnline)
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for(size_t i = 0; i < nFeatures; i++)
-        {
-            sums[i] += prevSums[i];
-        }
+        for (size_t i = 0; i < nFeatures; i++) { sums[i] += prevSums[i]; }
     }
 
     return Status();
 }
 
-
 /****************************************************************************************************************************/
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status computeSum_Mean_SecondOrderRawMoment_Variance_Variation( size_t nFeatures,
-                                                              size_t nVectors,
-                                                              algorithmFPType *dataBlock,
-                                                              algorithmFPType *sums,
-                                                              algorithmFPType *mean,
-                                                              algorithmFPType *raw2Mom,
-                                                              algorithmFPType *variance,
-                                                              algorithmFPType *variation)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status computeSum_Mean_SecondOrderRawMoment_Variance_Variation(size_t nFeatures, size_t nVectors, algorithmFPType * dataBlock, algorithmFPType * sums,
+                                                               algorithmFPType * mean, algorithmFPType * raw2Mom, algorithmFPType * variance,
+                                                               algorithmFPType * variation)
 {
     const __int64 mklMethod = getMKLMethod<method>();
 
-    const int mklStatus = Statistics<algorithmFPType, cpu>::xLowOrderMoments(dataBlock,
-                                                                        nFeatures,
-                                                                        nVectors,
-                                                                        mklMethod,
-                                                                        sums,
-                                                                        mean,
-                                                                        raw2Mom,
-                                                                        variance,
-                                                                        variation );
+    const int mklStatus =
+        Statistics<algorithmFPType, cpu>::xLowOrderMoments(dataBlock, nFeatures, nVectors, mklMethod, sums, mean, raw2Mom, variance, variation);
 
     return mklStatus ? Status(services::ErrorLowOrderMomentsInternal) : Status();
 }
 
 /****************************************************************************************************************************/
 
-template<typename algorithmFPType, CpuType cpu>
-Status computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVectors, const algorithmFPType * const dataBlock, algorithmFPType *min,
-                                    algorithmFPType *max, algorithmFPType *sumSq, const bool isOnline)
+template <typename algorithmFPType, CpuType cpu>
+Status computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVectors, const algorithmFPType * const dataBlock, algorithmFPType * min,
+                                    algorithmFPType * max, algorithmFPType * sumSq, const bool isOnline)
 {
     int result = 0;
     if (!isOnline)
@@ -497,41 +435,41 @@ Status computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVector
     }
 
     /* Split rows by blocks */
-    const size_t blockSize = getDefaultBatchModeBlockSize<cpu>(nVectors);
-    const size_t numRowsInBlock = (nVectors > blockSize) ? blockSize : nVectors;
-    const size_t nBlocks = nVectors / numRowsInBlock;
-    const size_t numRowsInLastBlock = numRowsInBlock + ( nVectors - nBlocks * numRowsInBlock);
+    const size_t blockSize          = getDefaultBatchModeBlockSize<cpu>(nVectors);
+    const size_t numRowsInBlock     = (nVectors > blockSize) ? blockSize : nVectors;
+    const size_t nBlocks            = nVectors / numRowsInBlock;
+    const size_t numRowsInLastBlock = numRowsInBlock + (nVectors - nBlocks * numRowsInBlock);
 
     struct TslData
     {
     public:
-        algorithmFPType *min;
-        algorithmFPType *max;
-        algorithmFPType *sumSq;
+        algorithmFPType * min;
+        algorithmFPType * max;
+        algorithmFPType * sumSq;
 
-        static TslData* create(const size_t nfeatures)
+        static TslData * create(const size_t nfeatures)
         {
             auto object = new TslData(nfeatures);
-            if ( !object ) { return nullptr; }
-            if (!( object->min ) && !( object->max ) && !( object->sumSq) ) { return nullptr; }
+            if (!object) { return nullptr; }
+            if (!(object->min) && !(object->max) && !(object->sumSq)) { return nullptr; }
             return object;
         }
 
     private:
         TslData(const size_t nfeatures)
         {
-            _array.reset(nfeatures*3);
+            _array.reset(nfeatures * 3);
 
-            min = &_array[nfeatures*0];
-            max = &_array[nfeatures*1];
-            sumSq = &_array[nfeatures*2];
+            min   = &_array[nfeatures * 0];
+            max   = &_array[nfeatures * 1];
+            sumSq = &_array[nfeatures * 2];
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t j = 0; j < nfeatures; j++)
+            for (size_t j = 0; j < nfeatures; j++)
             {
-                min[j] = daal::services::internal::MaxVal<algorithmFPType>::get();
-                max[j] = -daal::services::internal::MaxVal<algorithmFPType>::get();
+                min[j]   = daal::services::internal::MaxVal<algorithmFPType>::get();
+                max[j]   = -daal::services::internal::MaxVal<algorithmFPType>::get();
                 sumSq[j] = (algorithmFPType)0.0;
             }
         }
@@ -541,28 +479,26 @@ Status computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVector
 
     /* TLS data initialization */
     SafeStatus safeStat;
-    daal::tls<TslData *> tslData([ nFeatures, &safeStat ]()
-    {
+    daal::tls<TslData *> tslData([nFeatures, &safeStat]() {
         auto tlsData = TslData::create(nFeatures);
         if (!tlsData) { safeStat.add(services::ErrorMemoryAllocationFailed); }
         return tlsData;
     });
 
-    daal::threader_for(nBlocks, nBlocks, [ & ](int iBlock)
-    {
+    daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
         struct TslData * localTslData = tslData.local();
         if (!localTslData) { return; }
 
         const size_t startRows = iBlock * numRowsInBlock;
-        const size_t chunkRows = ( iBlock < (nBlocks - 1) ) ? numRowsInBlock : numRowsInLastBlock;
+        const size_t chunkRows = (iBlock < (nBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
 
-        for(size_t i = startRows; i < chunkRows; i++)
+        for (size_t i = startRows; i < chunkRows; i++)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t j = 0; j < nFeatures; j++)
+            for (size_t j = 0; j < nFeatures; j++)
             {
-                const algorithmFPType value = dataBlock[i*nFeatures + j];
+                const algorithmFPType value = dataBlock[i * nFeatures + j];
 
                 localTslData->min[j] = value < localTslData->min[j] ? value : localTslData->min[j];
                 localTslData->max[j] = value > localTslData->max[j] ? value : localTslData->max[j];
@@ -571,39 +507,26 @@ Status computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVector
         }
     });
 
-    tslData.reduce( [ & ](TslData * localTslData)
-    {
+    tslData.reduce([&](TslData * localTslData) {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for(size_t j = 0; j < nFeatures; j++)
+        for (size_t j = 0; j < nFeatures; j++)
         {
-            if (localTslData->min[j] < min[j])
-            {
-                min[j] = localTslData->min[j];
-            }
+            if (localTslData->min[j] < min[j]) { min[j] = localTslData->min[j]; }
 
-            if (localTslData->max[j] > max[j])
-            {
-                max[j] = localTslData->max[j];
-            }
+            if (localTslData->max[j] > max[j]) { max[j] = localTslData->max[j]; }
             sumSq[j] += localTslData->sumSq[j];
         }
 
         delete localTslData;
-    } );
+    });
     return Status();
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-void computeSumOfSquaredDiffsFromMean( size_t nFeatures,
-                                       size_t nVectors,
-                                       size_t prevNVectors,
-                                       algorithmFPType *variance,
-                                       algorithmFPType *sums,
-                                       algorithmFPType *prevSums,
-                                       algorithmFPType *sumSqCen,
-                                       bool isOnline )
+template <typename algorithmFPType, CpuType cpu>
+void computeSumOfSquaredDiffsFromMean(size_t nFeatures, size_t nVectors, size_t prevNVectors, algorithmFPType * variance, algorithmFPType * sums,
+                                      algorithmFPType * prevSums, algorithmFPType * sumSqCen, bool isOnline)
 {
     if (nVectors > 0)
     {
@@ -612,10 +535,7 @@ void computeSumOfSquaredDiffsFromMean( size_t nFeatures,
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < nFeatures; i++)
-            {
-                sumSqCen[i] = variance[i] * nVectorsM1;
-            }
+            for (size_t i = 0; i < nFeatures; i++) { sumSqCen[i] = variance[i] * nVectorsM1; }
             return;
         }
 
@@ -623,16 +543,13 @@ void computeSumOfSquaredDiffsFromMean( size_t nFeatures,
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < nFeatures; i++)
-            {
-                sumSqCen[i] += variance[i] * nVectorsM1;
-            }
+            for (size_t i = 0; i < nFeatures; i++) { sumSqCen[i] += variance[i] * nVectorsM1; }
         }
         else
         {
             const algorithmFPType invPrevNVectors = 1.0 / (algorithmFPType)prevNVectors;
-            const algorithmFPType invNVectors = 1.0 / (algorithmFPType)nVectors;
-            const algorithmFPType coeff = (algorithmFPType)(prevNVectors * nVectors) / (algorithmFPType)(prevNVectors + nVectors);
+            const algorithmFPType invNVectors     = 1.0 / (algorithmFPType)nVectors;
+            const algorithmFPType coeff           = (algorithmFPType)(prevNVectors * nVectors) / (algorithmFPType)(prevNVectors + nVectors);
 
             for (size_t i = 0; i < nFeatures; i++)
             {
@@ -648,24 +565,22 @@ void computeSumOfSquaredDiffsFromMean( size_t nFeatures,
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-void mergeNObservations( data_management::DataCollection *partialResultsCollection,
-                         PartialResult *partialResult,
-                         int *partialNObservations )
+template <typename algorithmFPType, CpuType cpu>
+void mergeNObservations(data_management::DataCollection * partialResultsCollection, PartialResult * partialResult, int * partialNObservations)
 {
-    PartialResult *inputPartialResult = static_cast<PartialResult* >((*partialResultsCollection)[0].get());
+    PartialResult * inputPartialResult = static_cast<PartialResult *>((*partialResultsCollection)[0].get());
 
-    NumericTable *nObsTable = partialResult->get(nObservations).get();
-    NumericTable *inputNObsTable = inputPartialResult->get(nObservations).get();
+    NumericTable * nObsTable      = partialResult->get(nObservations).get();
+    NumericTable * inputNObsTable = inputPartialResult->get(nObservations).get();
 
     BlockDescriptor<int> nObsBD, inputNObsBD;
 
     nObsTable->getBlockOfRows(0, 1, writeOnly, nObsBD);
     inputNObsTable->getBlockOfRows(0, 1, readOnly, inputNObsBD);
-    int *nObs = nObsBD.getBlockPtr();
-    int *inputNObs = inputNObsBD.getBlockPtr();
+    int * nObs      = nObsBD.getBlockPtr();
+    int * inputNObs = inputNObsBD.getBlockPtr();
 
-    nObs[0] = inputNObs[0];
+    nObs[0]                 = inputNObs[0];
     partialNObservations[0] = inputNObs[0];
 
     inputNObsTable->releaseBlockOfRows(inputNObsBD);
@@ -673,10 +588,10 @@ void mergeNObservations( data_management::DataCollection *partialResultsCollecti
 
     for (size_t i = 1; i < collectionSize; i++)
     {
-        inputPartialResult = static_cast<PartialResult* >((*partialResultsCollection)[i].get());
-        inputNObsTable = inputPartialResult->get(nObservations).get();
+        inputPartialResult = static_cast<PartialResult *>((*partialResultsCollection)[i].get());
+        inputNObsTable     = inputPartialResult->get(nObservations).get();
         inputNObsTable->getBlockOfRows(0, 1, readOnly, inputNObsBD);
-        int *inputNObs = inputNObsBD.getBlockPtr();
+        int * inputNObs = inputNObsBD.getBlockPtr();
 
         nObs[0] += inputNObs[0];
         partialNObservations[i] = inputNObs[0];
@@ -687,14 +602,9 @@ void mergeNObservations( data_management::DataCollection *partialResultsCollecti
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-void getTwoTables( ReadWriteMode rwMode,
-                   NumericTable *table1,
-                   NumericTable *table2,
-                   BlockDescriptor<algorithmFPType> &bd1,
-                   BlockDescriptor<algorithmFPType> &bd2,
-                   algorithmFPType **array1,
-                   algorithmFPType **array2 )
+template <typename algorithmFPType, CpuType cpu>
+void getTwoTables(ReadWriteMode rwMode, NumericTable * table1, NumericTable * table2, BlockDescriptor<algorithmFPType> & bd1,
+                  BlockDescriptor<algorithmFPType> & bd2, algorithmFPType ** array1, algorithmFPType ** array2)
 {
     table1->getBlockOfRows(0, 1, rwMode, bd1);
     table2->getBlockOfRows(0, 1, rwMode, bd2);
@@ -703,21 +613,18 @@ void getTwoTables( ReadWriteMode rwMode,
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-void releaseTwoTables( NumericTable *table1,
-                       NumericTable *table2,
-                       BlockDescriptor<algorithmFPType> &bd1,
-                       BlockDescriptor<algorithmFPType> &bd2 )
+template <typename algorithmFPType, CpuType cpu>
+void releaseTwoTables(NumericTable * table1, NumericTable * table2, BlockDescriptor<algorithmFPType> & bd1, BlockDescriptor<algorithmFPType> & bd2)
 {
     table1->releaseBlockOfRows(bd1);
     table2->releaseBlockOfRows(bd2);
 }
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-Status mergeMinAndMax(data_management::DataCollection *partialResultsCollection, PartialResult *partialResult)
+template <typename algorithmFPType, CpuType cpu>
+Status mergeMinAndMax(data_management::DataCollection * partialResultsCollection, PartialResult * partialResult)
 {
-    NumericTable *minTable = partialResult->get(partialMinimum).get();
-    NumericTable *maxTable = partialResult->get(partialMaximum).get();
+    NumericTable * minTable = partialResult->get(partialMinimum).get();
+    NumericTable * maxTable = partialResult->get(partialMaximum).get();
 
     size_t nFeatures = minTable->getNumberOfColumns();
 
@@ -725,54 +632,33 @@ Status mergeMinAndMax(data_management::DataCollection *partialResultsCollection,
     algorithmFPType *min, *max;
     int result = 0;
 
-    getTwoTables<algorithmFPType, cpu>( writeOnly,
-                                        minTable,
-                                        maxTable,
-                                        minBD,
-                                        maxBD,
-                                        &min,
-                                        &max);
+    getTwoTables<algorithmFPType, cpu>(writeOnly, minTable, maxTable, minBD, maxBD, &min, &max);
 
-    PartialResult *inputPartialResult = static_cast<PartialResult* >((*partialResultsCollection)[0].get());
-    NumericTable *inputMinTable = inputPartialResult->get(partialMinimum).get();
-    NumericTable *inputMaxTable = inputPartialResult->get(partialMaximum).get();
+    PartialResult * inputPartialResult = static_cast<PartialResult *>((*partialResultsCollection)[0].get());
+    NumericTable * inputMinTable       = inputPartialResult->get(partialMinimum).get();
+    NumericTable * inputMaxTable       = inputPartialResult->get(partialMaximum).get();
 
     BlockDescriptor<algorithmFPType> inputMinBD, inputMaxBD;
     algorithmFPType *inputMin, *inputMax;
 
-    getTwoTables<algorithmFPType, cpu>( readOnly,
-                                        inputMinTable,
-                                        inputMaxTable,
-                                        inputMinBD,
-                                        inputMaxBD,
-                                        &inputMin,
-                                        &inputMax );
+    getTwoTables<algorithmFPType, cpu>(readOnly, inputMinTable, inputMaxTable, inputMinBD, inputMaxBD, &inputMin, &inputMax);
 
     size_t rowSize = nFeatures * sizeof(algorithmFPType);
     result |= daal::services::internal::daal_memcpy_s(min, rowSize, inputMin, rowSize);
     result |= daal::services::internal::daal_memcpy_s(max, rowSize, inputMax, rowSize);
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
-    releaseTwoTables<algorithmFPType, cpu>( inputMinTable,
-                                            inputMaxTable,
-                                            inputMinBD,
-                                            inputMaxBD );
+    releaseTwoTables<algorithmFPType, cpu>(inputMinTable, inputMaxTable, inputMinBD, inputMaxBD);
 
     size_t collectionSize = partialResultsCollection->size();
 
     for (size_t i = 1; i < collectionSize; ++i)
     {
-        inputPartialResult = static_cast<PartialResult* >((*partialResultsCollection)[i].get());
-        inputMinTable = inputPartialResult->get(partialMinimum).get();
-        inputMaxTable = inputPartialResult->get(partialMaximum).get();
+        inputPartialResult = static_cast<PartialResult *>((*partialResultsCollection)[i].get());
+        inputMinTable      = inputPartialResult->get(partialMinimum).get();
+        inputMaxTable      = inputPartialResult->get(partialMaximum).get();
 
-        getTwoTables<algorithmFPType, cpu>( readOnly,
-                                            inputMinTable,
-                                            inputMaxTable,
-                                            inputMinBD,
-                                            inputMaxBD,
-                                            &inputMin,
-                                            &inputMax );
+        getTwoTables<algorithmFPType, cpu>(readOnly, inputMinTable, inputMaxTable, inputMinBD, inputMaxBD, &inputMin, &inputMax);
 
         for (size_t j = 0; j < nFeatures; ++j)
         {
@@ -780,32 +666,19 @@ Status mergeMinAndMax(data_management::DataCollection *partialResultsCollection,
             if (inputMax[j] > max[j]) { max[j] = inputMax[j]; }
         }
 
-        releaseTwoTables<algorithmFPType, cpu>( inputMinTable,
-                                                inputMaxTable,
-                                                inputMinBD,
-                                                inputMaxBD );
+        releaseTwoTables<algorithmFPType, cpu>(inputMinTable, inputMaxTable, inputMinBD, inputMaxBD);
     }
 
-    releaseTwoTables<algorithmFPType, cpu>( minTable,
-                                            maxTable,
-                                            minBD,
-                                            maxBD );
+    releaseTwoTables<algorithmFPType, cpu>(minTable, maxTable, minBD, maxBD);
 
     return Status();
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-void getThreeTables( ReadWriteMode rwMode,
-                     NumericTable *table1,
-                     NumericTable *table2,
-                     NumericTable *table3,
-                     BlockDescriptor<algorithmFPType> &bd1,
-                     BlockDescriptor<algorithmFPType> &bd2,
-                     BlockDescriptor<algorithmFPType> &bd3,
-                     algorithmFPType **array1,
-                     algorithmFPType **array2,
-                     algorithmFPType **array3 )
+template <typename algorithmFPType, CpuType cpu>
+void getThreeTables(ReadWriteMode rwMode, NumericTable * table1, NumericTable * table2, NumericTable * table3, BlockDescriptor<algorithmFPType> & bd1,
+                    BlockDescriptor<algorithmFPType> & bd2, BlockDescriptor<algorithmFPType> & bd3, algorithmFPType ** array1,
+                    algorithmFPType ** array2, algorithmFPType ** array3)
 {
     table1->getBlockOfRows(0, 1, rwMode, bd1);
     table2->getBlockOfRows(0, 1, rwMode, bd2);
@@ -816,13 +689,9 @@ void getThreeTables( ReadWriteMode rwMode,
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-void releaseThreeTables( NumericTable *table1,
-                         NumericTable *table2,
-                         NumericTable *table3,
-                         BlockDescriptor<algorithmFPType> &bd1,
-                         BlockDescriptor<algorithmFPType> &bd2,
-                         BlockDescriptor<algorithmFPType> &bd3 )
+template <typename algorithmFPType, CpuType cpu>
+void releaseThreeTables(NumericTable * table1, NumericTable * table2, NumericTable * table3, BlockDescriptor<algorithmFPType> & bd1,
+                        BlockDescriptor<algorithmFPType> & bd2, BlockDescriptor<algorithmFPType> & bd3)
 {
     table1->releaseBlockOfRows(bd1);
     table2->releaseBlockOfRows(bd2);
@@ -830,17 +699,14 @@ void releaseThreeTables( NumericTable *table1,
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-Status mergeSums( data_management::DataCollection *partialResultsCollection,
-                  PartialResult *partialResult,
-                  int *partialNObservations )
+template <typename algorithmFPType, CpuType cpu>
+Status mergeSums(data_management::DataCollection * partialResultsCollection, PartialResult * partialResult, int * partialNObservations)
 {
-
     ///merge first block
-    size_t nMergedObservations = partialNObservations[0];
-    NumericTable *sumTable      = partialResult->get(partialSum).get();
-    NumericTable *sumSqTable    = partialResult->get(partialSumSquares).get();
-    NumericTable *sumSqCenTable = partialResult->get(partialSumSquaresCentered).get();
+    size_t nMergedObservations   = partialNObservations[0];
+    NumericTable * sumTable      = partialResult->get(partialSum).get();
+    NumericTable * sumSqTable    = partialResult->get(partialSumSquares).get();
+    NumericTable * sumSqCenTable = partialResult->get(partialSumSquaresCentered).get();
 
     size_t nFeatures = sumTable->getNumberOfColumns();
 
@@ -848,80 +714,55 @@ Status mergeSums( data_management::DataCollection *partialResultsCollection,
     algorithmFPType *sums, *sumSq, *sumSqCen;
     int result = 0;
 
-    getThreeTables<algorithmFPType, cpu>( writeOnly,
-                                          sumTable,
-                                          sumSqTable,
-                                          sumSqCenTable,
-                                          sumBD,
-                                          sumSqBD,
-                                          sumSqCenBD,
-                                          &sums,
-                                          &sumSq,
-                                          &sumSqCen );
+    getThreeTables<algorithmFPType, cpu>(writeOnly, sumTable, sumSqTable, sumSqCenTable, sumBD, sumSqBD, sumSqCenBD, &sums, &sumSq, &sumSqCen);
 
-    PartialResult *inputPartialResult = static_cast<PartialResult* >((*partialResultsCollection)[0].get());
+    PartialResult * inputPartialResult = static_cast<PartialResult *>((*partialResultsCollection)[0].get());
 
-    NumericTable *inputSumTable      = inputPartialResult->get(partialSum).get();
-    NumericTable *inputSumSqTable    = inputPartialResult->get(partialSumSquares).get();
-    NumericTable *inputSumSqCenTable = inputPartialResult->get(partialSumSquaresCentered).get();
+    NumericTable * inputSumTable      = inputPartialResult->get(partialSum).get();
+    NumericTable * inputSumSqTable    = inputPartialResult->get(partialSumSquares).get();
+    NumericTable * inputSumSqCenTable = inputPartialResult->get(partialSumSquaresCentered).get();
 
     BlockDescriptor<algorithmFPType> inputSumBD, inputSumSqBD, inputSumSqCenBD;
     algorithmFPType *inputSums, *inputSumSq, *inputSumSqCen;
 
-    getThreeTables<algorithmFPType, cpu>( readOnly,
-                                          inputSumTable,
-                                          inputSumSqTable,
-                                          inputSumSqCenTable,
-                                          inputSumBD,
-                                          inputSumSqBD,
-                                          inputSumSqCenBD,
-                                          &inputSums,
-                                          &inputSumSq,
-                                          &inputSumSqCen );
+    getThreeTables<algorithmFPType, cpu>(readOnly, inputSumTable, inputSumSqTable, inputSumSqCenTable, inputSumBD, inputSumSqBD, inputSumSqCenBD,
+                                         &inputSums, &inputSumSq, &inputSumSqCen);
 
     size_t rowSize = nFeatures * sizeof(algorithmFPType);
-    result |= daal::services::internal::daal_memcpy_s(sums,     rowSize, inputSums,     rowSize);
-    result |= daal::services::internal::daal_memcpy_s(sumSq,    rowSize, inputSumSq,    rowSize);
+    result |= daal::services::internal::daal_memcpy_s(sums, rowSize, inputSums, rowSize);
+    result |= daal::services::internal::daal_memcpy_s(sumSq, rowSize, inputSumSq, rowSize);
     result |= daal::services::internal::daal_memcpy_s(sumSqCen, rowSize, inputSumSqCen, rowSize);
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
 
-    releaseThreeTables<algorithmFPType, cpu>( inputSumTable,
-                                              inputSumSqTable,
-                                              inputSumSqCenTable,
-                                              inputSumBD,
-                                              inputSumSqBD,
-                                              inputSumSqCenBD );
+    releaseThreeTables<algorithmFPType, cpu>(inputSumTable, inputSumSqTable, inputSumSqCenTable, inputSumBD, inputSumSqBD, inputSumSqCenBD);
 
     size_t collectionSize = partialResultsCollection->size();
 
     BlockDescriptor<int> inputNObsBD;
-    int *inputNObs;
-    for(size_t block = 1; block < collectionSize; ++block)
+    int * inputNObs;
+    for (size_t block = 1; block < collectionSize; ++block)
     {
-        inputPartialResult = static_cast<PartialResult* >((*partialResultsCollection)[block].get());
+        inputPartialResult = static_cast<PartialResult *>((*partialResultsCollection)[block].get());
 
         inputSumTable      = inputPartialResult->get(partialSum).get();
         inputSumSqTable    = inputPartialResult->get(partialSumSquares).get();
         inputSumSqCenTable = inputPartialResult->get(partialSumSquaresCentered).get();
 
-        getThreeTables<algorithmFPType, cpu>(readOnly, inputSumTable, inputSumSqTable, inputSumSqCenTable,
-            inputSumBD, inputSumSqBD, inputSumSqCenBD, &inputSums, &inputSumSq, &inputSumSqCen);
+        getThreeTables<algorithmFPType, cpu>(readOnly, inputSumTable, inputSumSqTable, inputSumSqCenTable, inputSumBD, inputSumSqBD, inputSumSqCenBD,
+                                             &inputSums, &inputSumSq, &inputSumSqCen);
 
         int n1 = nMergedObservations;
         int n2 = partialNObservations[block];
 
-        if(n2 == 0)
-        {
-            continue;
-        }
+        if (n2 == 0) { continue; }
 
-        if(n1 == 0)
+        if (n1 == 0)
         {
-            for(size_t i = 0; i < nFeatures; i++)
+            for (size_t i = 0; i < nFeatures; i++)
             {
                 sumSqCen[i] += inputSumSqCen[i];
-                sumSq[i]    += inputSumSq[i];
-                sums[i]     += inputSums[i];
+                sumSq[i] += inputSumSq[i];
+                sums[i] += inputSums[i];
             }
             nMergedObservations += n2;
             continue;
@@ -931,61 +772,59 @@ Status mergeSums( data_management::DataCollection *partialResultsCollection,
         algorithmFPType invN1 = 1.0 / (algorithmFPType)n1;
         algorithmFPType invN2 = 1.0 / (algorithmFPType)n2;
 
-        for(size_t i = 0; i < nFeatures; i++)
+        for (size_t i = 0; i < nFeatures; i++)
         {
             algorithmFPType mean1 = sums[i] * invN1;
             algorithmFPType mean2 = inputSums[i] * invN2;
 
             sumSqCen[i] += (inputSumSqCen[i] + coeff * (mean1 * mean1 + mean2 * mean2 - 2 * mean1 * mean2));
 
-            sums[i]  += inputSums[i];
+            sums[i] += inputSums[i];
             sumSq[i] += inputSumSq[i];
         }
         nMergedObservations += n2;
 
-        releaseThreeTables<algorithmFPType, cpu>(inputSumTable, inputSumSqTable, inputSumSqCenTable,
-            inputSumBD, inputSumSqBD, inputSumSqCenBD);
+        releaseThreeTables<algorithmFPType, cpu>(inputSumTable, inputSumSqTable, inputSumSqCenTable, inputSumBD, inputSumSqBD, inputSumSqCenBD);
     }
 
-    releaseThreeTables<algorithmFPType, cpu>(sumTable, sumSqTable, sumSqCenTable,
-        sumBD, sumSqBD, sumSqCenBD);
+    releaseThreeTables<algorithmFPType, cpu>(sumTable, sumSqTable, sumSqCenTable, sumBD, sumSqBD, sumSqCenBD);
     return Status();
 }
 
 /****************************************************************************************************************************/
-template<typename algorithmFPType, CpuType cpu>
-void finalize( LowOrderMomentsFinalizeTask<algorithmFPType, cpu> &task )
+template <typename algorithmFPType, CpuType cpu>
+void finalize(LowOrderMomentsFinalizeTask<algorithmFPType, cpu> & task)
 {
     algorithmFPType invNObservations   = 1.0 / (algorithmFPType)(task.nObservations[0]);
     algorithmFPType invNObservationsM1 = 1.0 / (algorithmFPType)(task.nObservations[0] - 1);
 
-    algorithmFPType *sums     = task.sums;
-    algorithmFPType *sumSq    = task.sumSq;
-    algorithmFPType *sumSqCen = task.sumSqCen;
+    algorithmFPType * sums     = task.sums;
+    algorithmFPType * sumSq    = task.sumSq;
+    algorithmFPType * sumSqCen = task.sumSqCen;
 
-    algorithmFPType *mean      = task.mean;
-    algorithmFPType *raw2Mom   = task.raw2Mom;
-    algorithmFPType *variance  = task.variance;
-    algorithmFPType *stDev     = task.stDev;
-    algorithmFPType *variation = task.variation;
+    algorithmFPType * mean      = task.mean;
+    algorithmFPType * raw2Mom   = task.raw2Mom;
+    algorithmFPType * variance  = task.variance;
+    algorithmFPType * stDev     = task.stDev;
+    algorithmFPType * variation = task.variation;
 
-    size_t nFeatures           = task.nFeatures;
+    size_t nFeatures = task.nFeatures;
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < nFeatures; i++)
     {
-        mean[i]      = sums[i]     * invNObservations;
-        raw2Mom[i]   = sumSq[i]    * invNObservations;
+        mean[i]      = sums[i] * invNObservations;
+        raw2Mom[i]   = sumSq[i] * invNObservations;
         variance[i]  = sumSqCen[i] * invNObservationsM1;
         stDev[i]     = daal::internal::Math<algorithmFPType, cpu>::sSqrt(variance[i]);
         variation[i] = stDev[i] / mean[i];
     }
 }
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace low_order_moments
+} // namespace algorithms
+} // namespace daal
 
 #endif

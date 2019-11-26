@@ -30,23 +30,20 @@
 
 using namespace daal;
 
-typedef PackedTriangularMatrix<NumericTableIface::lowerPackedTriangularMatrix>  LowerPackedTriangularMatrix;
-typedef services::SharedPtr<LowerPackedTriangularMatrix>                        LowerPackedTriangularMatrixPtr;
+typedef PackedTriangularMatrix<NumericTableIface::lowerPackedTriangularMatrix> LowerPackedTriangularMatrix;
+typedef services::SharedPtr<LowerPackedTriangularMatrix> LowerPackedTriangularMatrixPtr;
 
 int main()
 {
     std::cout << "Packed triangular matrix example" << std::endl << std::endl;
 
-    const size_t nDim  = 5;
+    const size_t nDim         = 5;
     const size_t firstReadRow = 0;
-    const size_t nRead = 5;
+    const size_t nRead        = 5;
     size_t readFeatureIdx;
 
     /*Example of using a packed triangular matrix */
-    float data[nDim * (nDim + 1) / 2] =
-    {
-        0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f
-    };
+    float data[nDim * (nDim + 1) / 2] = { 0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f };
 
     LowerPackedTriangularMatrixPtr dataTable = LowerPackedTriangularMatrix::create(data, nDim);
     checkPtr(dataTable.get());
@@ -64,7 +61,7 @@ int main()
     printArray<float>(block.getBlockPtr(), 1, block.getNumberOfRows(), "Print the third feature of packed triangular matrix:");
 
     /* Set new value to a buffer and release it */
-    float* dataBlock = block.getBlockPtr();
+    float * dataBlock             = block.getBlockPtr();
     dataBlock[readFeatureIdx - 1] = -1;
     dataBlock[readFeatureIdx + 1] = -2;
     dataTable->releaseBlockOfColumnValues(block);

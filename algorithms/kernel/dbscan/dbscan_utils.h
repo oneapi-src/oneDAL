@@ -47,9 +47,8 @@ namespace dbscan
 {
 namespace internal
 {
-
-#define __DBSCAN_DEFAULT_QUEUE_SIZE 8
-#define __DBSCAN_DEFAULT_VECTOR_SIZE 8
+#define __DBSCAN_DEFAULT_QUEUE_SIZE        8
+#define __DBSCAN_DEFAULT_VECTOR_SIZE       8
 #define __DBSCAN_DEFAULT_NEIGHBORHOOD_SIZE 8
 
 template <typename T, CpuType cpu>
@@ -65,7 +64,7 @@ public:
     ~Queue() { clear(); }
 
     Queue(const Queue &) = delete;
-    Queue &operator= (const Queue &) = delete;
+    Queue & operator=(const Queue &) = delete;
 
     void clear()
     {
@@ -76,10 +75,7 @@ public:
         }
     }
 
-    void reset()
-    {
-        _head = _tail = 0;
-    }
+    void reset() { _head = _tail = 0; }
 
     services::Status push(const T & value)
     {
@@ -111,12 +107,9 @@ public:
     size_t head() const { return _head; }
     size_t tail() const { return _tail; }
 
-    T* getInternalPtr(size_t ind)
+    T * getInternalPtr(size_t ind)
     {
-        if (ind >= _tail)
-        {
-            return nullptr;
-        }
+        if (ind >= _tail) { return nullptr; }
 
         return &_data[ind];
     }
@@ -124,8 +117,8 @@ public:
 private:
     services::Status grow()
     {
-        int result = 0;
-        _capacity = (_capacity == 0 ? defaultSize : _capacity * 2);
+        int result        = 0;
+        _capacity         = (_capacity == 0 ? defaultSize : _capacity * 2);
         T * const newData = static_cast<T *>(services::internal::service_calloc<T, cpu>(_capacity * sizeof(T)));
         DAAL_CHECK_MALLOC(newData);
 
@@ -159,7 +152,7 @@ public:
     ~Vector() { clear(); }
 
     Vector(const Vector &) = delete;
-    Vector &operator= (const Vector &) = delete;
+    Vector & operator=(const Vector &) = delete;
 
     void clear()
     {
@@ -170,16 +163,13 @@ public:
         }
     }
 
-    void reset()
-    {
-        _size = 0;
-    }
+    void reset() { _size = 0; }
 
     services::Status push_back(const T & value)
     {
         if (_size >= _capacity)
         {
-           services::Status status = grow();
+            services::Status status = grow();
             DAAL_CHECK_STATUS_VAR(status);
         }
 
@@ -189,20 +179,17 @@ public:
         return services::Status();
     }
 
-    inline T &operator[] (size_t index)
-    {
-        return _data[index];
-    }
+    inline T & operator[](size_t index) { return _data[index]; }
 
     size_t size() const { return _size; }
 
-    T* ptr() { return _data; }
+    T * ptr() { return _data; }
 
 private:
     services::Status grow()
     {
-        int result = 0;
-        _capacity = (_capacity == 0 ? defaultSize : _capacity * 2);
+        int result        = 0;
+        _capacity         = (_capacity == 0 ? defaultSize : _capacity * 2);
         T * const newData = static_cast<T *>(services::internal::service_calloc<T, cpu>(_capacity * sizeof(T)));
         DAAL_CHECK_MALLOC(newData);
 
@@ -221,7 +208,7 @@ private:
     size_t _capacity;
 };
 
-template<typename FPType, CpuType cpu>
+template <typename FPType, CpuType cpu>
 class Neighborhood
 {
     static const size_t defaultSize = __DBSCAN_DEFAULT_NEIGHBORHOOD_SIZE;
@@ -229,15 +216,12 @@ class Neighborhood
 public:
     DAAL_NEW_DELETE();
 
-    Neighborhood() : _values(nullptr), _capacity(0), _size(0), _weight(0) { }
+    Neighborhood() : _values(nullptr), _capacity(0), _size(0), _weight(0) {}
 
     Neighborhood(const Neighborhood &) = delete;
-    Neighborhood &operator= (const Neighborhood &) = delete;
+    Neighborhood & operator=(const Neighborhood &) = delete;
 
-    ~Neighborhood()
-    {
-        clear();
-    }
+    ~Neighborhood() { clear(); }
 
     void clear()
     {
@@ -247,12 +231,12 @@ public:
             _values = nullptr;
         }
         _capacity = _size = 0;
-        _weight = 0;
+        _weight           = 0;
     }
 
     void reset()
     {
-        _size = 0;
+        _size   = 0;
         _weight = 0;
     }
 
@@ -271,10 +255,7 @@ public:
         return services::Status();
     }
 
-    void addWeight(FPType w)
-    {
-        _weight += w;
-    }
+    void addWeight(FPType w) { _weight += w; }
 
     size_t get(size_t id) const { return _values[id]; }
 
@@ -285,9 +266,9 @@ public:
 private:
     services::Status grow()
     {
-        int result = 0;
-        _capacity = (_capacity == 0 ? defaultSize : _capacity * 2);
-        void * ptr = services::daal_calloc(_capacity * sizeof(size_t));
+        int result               = 0;
+        _capacity                = (_capacity == 0 ? defaultSize : _capacity * 2);
+        void * ptr               = services::daal_calloc(_capacity * sizeof(size_t));
         size_t * const newValues = static_cast<size_t *>(ptr);
         DAAL_CHECK_MALLOC(newValues);
 
@@ -303,7 +284,7 @@ private:
         return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
 
-    size_t *_values;
+    size_t * _values;
 
     size_t _capacity;
     size_t _size;
@@ -311,30 +292,24 @@ private:
     FPType _weight;
 };
 
-template<typename FPType, CpuType cpu>
+template <typename FPType, CpuType cpu>
 struct TlsNTask
 {
-    TlsNTask(size_t n)
-    {
-        neighs = new Neighborhood<FPType, cpu>[n];
-    }
+    TlsNTask(size_t n) { neighs = new Neighborhood<FPType, cpu>[n]; }
 
     ~TlsNTask()
     {
         if (neighs)
         {
-            delete [] neighs;
+            delete[] neighs;
             neighs = nullptr;
         }
     }
 
-    static TlsNTask* create(size_t n)
+    static TlsNTask * create(size_t n)
     {
-        TlsNTask<FPType, cpu>* result = new TlsNTask<FPType, cpu>(n);
-        if (!result)
-        {
-            return nullptr;
-        }
+        TlsNTask<FPType, cpu> * result = new TlsNTask<FPType, cpu>(n);
+        if (!result) { return nullptr; }
         if (!result->neighs)
         {
             delete result;
@@ -344,108 +319,92 @@ struct TlsNTask
         return result;
     }
 
-    Neighborhood<FPType, cpu>* neighs;
+    Neighborhood<FPType, cpu> * neighs;
 };
 
-template<typename FPType, CpuType cpu>
+template <typename FPType, CpuType cpu>
 struct NTask
 {
     NTask(size_t _n)
     {
-        n = _n;
-        tlsNTask = new daal::tls<TlsNTask<FPType, cpu>*>([=]()-> TlsNTask<FPType, cpu>*
-        {
-            return TlsNTask<FPType, cpu>::create(n);
-        } );
+        n        = _n;
+        tlsNTask = new daal::tls<TlsNTask<FPType, cpu> *>([=]() -> TlsNTask<FPType, cpu> * { return TlsNTask<FPType, cpu>::create(n); });
     }
 
     ~NTask()
     {
         if (tlsNTask)
         {
-            tlsNTask->reduce( [ = ](TlsNTask<FPType, cpu> *tt)-> void
-            {
+            tlsNTask->reduce([=](TlsNTask<FPType, cpu> * tt) -> void {
                 delete tt;
                 tt = nullptr;
-            } );
+            });
             delete tlsNTask;
         }
     }
 
-    static services::SharedPtr<NTask<FPType, cpu >> create(size_t n)
+    static services::SharedPtr<NTask<FPType, cpu> > create(size_t n)
     {
         services::SharedPtr<NTask<FPType, cpu> > result(new NTask<FPType, cpu>(n));
-        if (result.get() && (!result->tlsNTask))
-        {
-            result.reset();
-        }
+        if (result.get() && (!result->tlsNTask)) { result.reset(); }
         return result;
     }
 
     size_t n;
-    daal::tls<TlsNTask<FPType, cpu> *> *tlsNTask;
+    daal::tls<TlsNTask<FPType, cpu> *> * tlsNTask;
 };
 
-template<Method, typename FPType, CpuType cpu>
+template <Method, typename FPType, CpuType cpu>
 class NeighborhoodEngine
 {
 public:
+    NeighborhoodEngine(const NumericTable * inTable, const NumericTable * outTable, const NumericTable * weights, FPType eps, FPType p);
 
-    NeighborhoodEngine(const NumericTable* inTable, const NumericTable* outTable, const NumericTable* weights, FPType eps, FPType p);
+    services::Status queryFull(Neighborhood<FPType, cpu> * neighs, bool doReset = false);
 
-    services::Status queryFull(Neighborhood<FPType, cpu> *neighs, bool doReset = false);
-
-    services::Status query(size_t *indices, size_t n, Neighborhood<FPType, cpu> *neighs, bool doReset = false);
+    services::Status query(size_t * indices, size_t n, Neighborhood<FPType, cpu> * neighs, bool doReset = false);
 };
 
-template<typename FPType, CpuType cpu>
+template <typename FPType, CpuType cpu>
 class NeighborhoodEngine<defaultDense, FPType, cpu>
 {
     DAAL_NEW_DELETE();
 
 public:
-
-    NeighborhoodEngine(const NumericTable* inTable, const NumericTable* outTable, const NumericTable* weights, FPType eps, FPType p) :
-        _inTable(inTable),
-        _outTable(outTable),
-        _weights(weights),
-        _eps(eps),
-        _p(p) {}
+    NeighborhoodEngine(const NumericTable * inTable, const NumericTable * outTable, const NumericTable * weights, FPType eps, FPType p)
+        : _inTable(inTable), _outTable(outTable), _weights(weights), _eps(eps), _p(p)
+    {}
 
     ~NeighborhoodEngine() {}
 
     NeighborhoodEngine(const NeighborhoodEngine &) = delete;
-    NeighborhoodEngine &operator= (const NeighborhoodEngine &) = delete;
+    NeighborhoodEngine & operator=(const NeighborhoodEngine &) = delete;
 
-    services::Status queryFull(Neighborhood<FPType, cpu> *neighs, bool doReset = false)
+    services::Status queryFull(Neighborhood<FPType, cpu> * neighs, bool doReset = false)
     {
         SafeStatus safeStat;
         services::Status s;
 
-        const size_t inRows = _inTable->getNumberOfRows();
+        const size_t inRows  = _inTable->getNumberOfRows();
         const size_t outRows = _outTable->getNumberOfRows();
 
-        if (outRows == 0)
-        {
-            return s;
-        }
+        if (outRows == 0) { return s; }
 
-        const size_t dim = _inTable->getNumberOfColumns();
+        const size_t dim    = _inTable->getNumberOfColumns();
         const size_t outDim = _outTable->getNumberOfColumns();
         DAAL_ASSERT(outDim >= dim);
 
         FPType epsP = Math<FPType, cpu>::sPowx(_eps, _p);
 
         size_t inBlockSize = 256;
-        size_t nInBlocks = inRows / inBlockSize + (inRows % inBlockSize > 0);
+        size_t nInBlocks   = inRows / inBlockSize + (inRows % inBlockSize > 0);
 
         size_t outBlockSize = 256;
-        size_t nOutBlocks = outRows / outBlockSize + (outRows % outBlockSize > 0);
+        size_t nOutBlocks   = outRows / outBlockSize + (outRows % outBlockSize > 0);
 
-        daal::threader_for(nInBlocks, nInBlocks, [&](size_t inBlock)
-        {
-            size_t i1 = inBlock * inBlockSize;
-            size_t i2 = (inBlock + 1 == nInBlocks ? inRows : i1 + inBlockSize);
+        daal::threader_for(nInBlocks, nInBlocks, [&](size_t inBlock) {
+            size_t i1    = inBlock * inBlockSize;
+            size_t i2    = (inBlock + 1 == nInBlocks ? inRows : i1 + inBlockSize);
             size_t iSize = i2 - i1;
 
             ReadRows<FPType, cpu> inDataRows(const_cast<NumericTable *>(_inTable), i1, i2 - i1);
@@ -454,16 +413,13 @@ public:
 
             if (doReset)
             {
-                for (size_t i = 0; i < iSize; i++)
-                {
-                    neighs[i + i1].reset();
-                }
+                for (size_t i = 0; i < iSize; i++) { neighs[i + i1].reset(); }
             }
 
             for (size_t outBlock = 0; outBlock < nOutBlocks; outBlock++)
             {
-                size_t j1 = outBlock * outBlockSize;
-                size_t j2 = (outBlock + 1 == nOutBlocks ? outRows : j1 + outBlockSize);
+                size_t j1    = outBlock * outBlockSize;
+                size_t j2    = (outBlock + 1 == nOutBlocks ? outRows : j1 + outBlockSize);
                 size_t jSize = j2 - j1;
 
                 ReadRows<FPType, cpu> outDataRows(const_cast<NumericTable *>(_outTable), j1, j2 - j1);
@@ -483,10 +439,7 @@ public:
                     for (size_t j = 0; j < jSize; j++)
                     {
                         FPType dist = distancePow2<FPType, cpu>(&inData[i * dim], &outData[j * outDim], dim);
-                        if (dist <= epsP)
-                        {
-                            DAAL_CHECK_STATUS_THR(neighs[i + i1].add(j + j1, (weights ? weights[j] : (FPType)1.0)));
-                        }
+                        if (dist <= epsP) { DAAL_CHECK_STATUS_THR(neighs[i + i1].add(j + j1, (weights ? weights[j] : (FPType)1.0))); }
                     }
                 }
             }
@@ -496,23 +449,20 @@ public:
         return s;
     }
 
-    services::Status query(size_t *indices, size_t n, Neighborhood<FPType, cpu> *neighs, bool doReset = false)
+    services::Status query(size_t * indices, size_t n, Neighborhood<FPType, cpu> * neighs, bool doReset = false)
     {
         SafeStatus safeStat;
         services::Status s;
 
         const size_t outRows = _outTable->getNumberOfRows();
 
-        if (outRows == 0)
-        {
-            return s;
-        }
+        if (outRows == 0) { return s; }
 
-        const size_t dim = _inTable->getNumberOfColumns();
+        const size_t dim    = _inTable->getNumberOfColumns();
         const size_t outDim = _outTable->getNumberOfColumns();
         DAAL_ASSERT(outDim >= dim);
 
-        services::SharedPtr<NTask<FPType, cpu>> nTask = NTask<FPType, cpu>::create(n);
+        services::SharedPtr<NTask<FPType, cpu> > nTask = NTask<FPType, cpu>::create(n);
         DAAL_CHECK_MALLOC(nTask.get());
 
         TArray<ReadRows<FPType, cpu>, cpu> queryRows(n);
@@ -526,27 +476,23 @@ public:
 
         if (doReset)
         {
-            for (size_t i = 0; i < n; i++)
-            {
-                neighs[i].reset();
-            }
+            for (size_t i = 0; i < n; i++) { neighs[i].reset(); }
         }
 
         FPType epsP = Math<FPType, cpu>::sPowx(_eps, _p);
 
         size_t outBlockSize = 256;
-        size_t nOutBlocks = outRows / outBlockSize + (outRows % outBlockSize > 0);
+        size_t nOutBlocks   = outRows / outBlockSize + (outRows % outBlockSize > 0);
 
-        daal::threader_for(nOutBlocks, nOutBlocks, [&](size_t outBlock)
-        {
-            TlsNTask<FPType, cpu>* tlsNTask = nTask->tlsNTask->local();
+        daal::threader_for(nOutBlocks, nOutBlocks, [&](size_t outBlock) {
+            TlsNTask<FPType, cpu> * tlsNTask = nTask->tlsNTask->local();
             DAAL_CHECK_MALLOC_THR(tlsNTask);
 
-            Neighborhood<FPType, cpu>* localNeighs = tlsNTask->neighs;
+            Neighborhood<FPType, cpu> * localNeighs = tlsNTask->neighs;
             DAAL_CHECK_MALLOC_THR(localNeighs);
 
-            size_t j1 = outBlock * outBlockSize;
-            size_t j2 = (outBlock + 1 == nOutBlocks ? outRows : j1 + outBlockSize);
+            size_t j1    = outBlock * outBlockSize;
+            size_t j2    = (outBlock + 1 == nOutBlocks ? outRows : j1 + outBlockSize);
             size_t jSize = j2 - j1;
 
             ReadRows<FPType, cpu> outDataRows(const_cast<NumericTable *>(_outTable), j1, j2 - j1);
@@ -566,10 +512,7 @@ public:
                 for (size_t j = 0; j < jSize; j++)
                 {
                     FPType dist = distancePow2<FPType, cpu>(queryRows[i].get(), &outData[j * outDim], dim);
-                    if (dist <= epsP)
-                    {
-                        DAAL_CHECK_STATUS_THR(localNeighs[i].add(j + j1, (weights ? weights[j] : (FPType)1.0)));
-                    }
+                    if (dist <= epsP) { DAAL_CHECK_STATUS_THR(localNeighs[i].add(j + j1, (weights ? weights[j] : (FPType)1.0))); }
                 }
             }
         });
@@ -577,18 +520,14 @@ public:
         s = safeStat.detach();
         DAAL_CHECK_STATUS_VAR(s);
 
-        nTask->tlsNTask->reduce( [&](TlsNTask<FPType, cpu> *tt)-> void
-        {
-            Neighborhood<FPType, cpu> *localNeighs = tt->neighs;
+        nTask->tlsNTask->reduce([&](TlsNTask<FPType, cpu> * tt) -> void {
+            Neighborhood<FPType, cpu> * localNeighs = tt->neighs;
             if (localNeighs)
             {
                 for (size_t i = 0; i < n; i++)
                 {
                     size_t localSize = localNeighs[i].size();
-                    for (size_t j = 0; j < localSize; j++)
-                    {
-                        neighs[i].add(localNeighs[i].get(j), 0);
-                    }
+                    for (size_t j = 0; j < localSize; j++) { neighs[i].add(localNeighs[i].get(j), 0); }
                     neighs[i].addWeight(localNeighs[i].weight());
                 }
             }
@@ -598,44 +537,32 @@ public:
     }
 
 private:
-    const NumericTable *_inTable;
-    const NumericTable *_outTable;
-    const NumericTable *_weights;
+    const NumericTable * _inTable;
+    const NumericTable * _outTable;
+    const NumericTable * _weights;
 
     FPType _eps;
     FPType _p;
 };
 
-template<typename FPType, CpuType cpu>
-FPType findKthStatistic(FPType *values, size_t nElements, size_t k)
+template <typename FPType, CpuType cpu>
+FPType findKthStatistic(FPType * values, size_t nElements, size_t k)
 {
-    if (nElements == 0)
-    {
-        return (FPType)0;
-    }
+    if (nElements == 0) { return (FPType)0; }
 
-    if (k >= nElements)
-    {
-        k = nElements - 1;
-    }
+    if (k >= nElements) { k = nElements - 1; }
 
     size_t l = 0;
     size_t r = nElements - 1;
     while (l < r)
     {
         FPType med = values[k];
-        int i = l;
-        int j = r;
+        int i      = l;
+        int j      = r;
         while (i <= j)
         {
-            while (values[i] < med)
-            {
-                i++;
-            }
-            while (med < values[j])
-            {
-                j--;
-            }
+            while (values[i] < med) { i++; }
+            while (med < values[j]) { j--; }
             if (i <= j)
             {
                 swap<cpu, FPType>(values[i], values[j]);
@@ -643,14 +570,8 @@ FPType findKthStatistic(FPType *values, size_t nElements, size_t k)
                 j--;
             }
         }
-        if (j < k)
-        {
-            l = i;
-        }
-        if (k < i)
-        {
-            r = j;
-        }
+        if (j < k) { l = i; }
+        if (k < i) { r = j; }
     }
 
     return values[k];

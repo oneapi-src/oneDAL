@@ -25,7 +25,6 @@ namespace daal
 {
 namespace services
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -41,15 +40,14 @@ namespace interface1
  *  \brief   Class that implements functionality of the Collection container
  *  \tparam  T  Type of an object stored in the container
  */
-template<class T>
+template <class T>
 class Collection
 {
 public:
     /**
      *  Default constructor. Sets the size and capacity to 0.
      */
-    Collection() : _array(NULL), _size(0), _capacity(0)
-    {}
+    Collection() : _array(NULL), _size(0), _capacity(0) {}
 
     /**
      *  Constructor. Creates a collection with n empty elements
@@ -57,7 +55,7 @@ public:
      */
     explicit Collection(size_t n) : _array(NULL), _size(0), _capacity(0)
     {
-        if(!resize(n)) {return;}
+        if (!resize(n)) { return; }
         _size = n;
     }
 
@@ -66,13 +64,10 @@ public:
      *  \param[in] n     Number of elements
      *  \param[in] array Array with elements
      */
-    Collection(size_t n, const T *array) : _array(NULL), _size(0), _capacity(0)
+    Collection(size_t n, const T * array) : _array(NULL), _size(0), _capacity(0)
     {
-        if(!resize(n)) {return;}
-        for(size_t i = 0; i < n; i++)
-        {
-            _array[i] = array[i];
-        }
+        if (!resize(n)) { return; }
+        for (size_t i = 0; i < n; i++) { _array[i] = array[i]; }
         _size = n;
     }
 
@@ -80,23 +75,17 @@ public:
      *  Copy constructor
      *  \param[in] other Copied collection
      */
-    Collection(const Collection<T> &other) : _array(NULL), _size(0), _capacity(0)
+    Collection(const Collection<T> & other) : _array(NULL), _size(0), _capacity(0)
     {
-        if(!resize(other.capacity())) {return;}
-        for(size_t i = 0; i < other.size(); i++)
-        {
-            this->push_back(other[i]);
-        }
+        if (!resize(other.capacity())) { return; }
+        for (size_t i = 0; i < other.size(); i++) { this->push_back(other[i]); }
     }
 
-    Collection &operator = (const Collection<T> &other)
+    Collection & operator=(const Collection<T> & other)
     {
-        if(!resize(other.capacity())) {return *this;}
+        if (!resize(other.capacity())) { return *this; }
         _size = 0;
-        for(size_t i = 0; i < other.size(); i++)
-        {
-            this->push_back(other[i]);
-        }
+        for (size_t i = 0; i < other.size(); i++) { this->push_back(other[i]); }
         return *this;
     }
 
@@ -105,10 +94,7 @@ public:
      */
     virtual ~Collection()
     {
-        for(size_t i = 0; i < _capacity; i++)
-        {
-            _array[i].~T();
-        }
+        for (size_t i = 0; i < _capacity; i++) { _array[i].~T(); }
 
         services::daal_free(_array);
         _array = NULL;
@@ -118,78 +104,59 @@ public:
      *  Size of a collection
      *  \return Size of the collection
      */
-    size_t size() const {return _size;}
+    size_t size() const { return _size; }
 
     /**
      *  Size of an allocated storage
      *  \return Size of the allocated storage
      */
-    size_t capacity() const {return _capacity;}
+    size_t capacity() const { return _capacity; }
 
     /**
      *  Element access
      *  \param[in] index Index of an accessed element
      *  \return    Reference to the element
      */
-    T &operator [] (size_t index)
-    {
-        return _array[index];
-    }
+    T & operator[](size_t index) { return _array[index]; }
 
     /**
     *  Const element access
     *  \param[in] index Index of an accessed element
     *  \return    Reference to the element
     */
-    const T &operator [] (size_t index) const
-    {
-        return _array[index];
-    }
+    const T & operator[](size_t index) const { return _array[index]; }
 
     /**
      *  Element access
      *  \param[in] index Index of an accessed element
      *  \return    Reference to the element
      */
-    T &get(size_t index)
-    {
-        return _array[index];
-    }
-
+    T & get(size_t index) { return _array[index]; }
 
     /**
     *  Const element access
     *  \param[in] index Index of an accessed element
     *  \return    Reference to the element
     */
-    const T &get(size_t index) const
-    {
-        return _array[index];
-    }
+    const T & get(size_t index) const { return _array[index]; }
 
     /**
      *  Returns pointer to the underlying array serving as element storage
      *  \return Pointer to the array
      */
-    T* data()
-    {
-        return _array;
-    }
+    T * data() { return _array; }
 
     /**
      *  Returns const pointer to the underlying array serving as element storage
      *  \return Const pointer to the array
      */
-    const T* data() const
-    {
-        return _array;
-    }
+    const T * data() const { return _array; }
 
     /**
      *  Adds an element to the end of a collection
      *  \param[in] x Element to add
      */
-    Collection &push_back(const T &x)
+    Collection & push_back(const T & x)
     {
         safe_push_back(x);
         return *this;
@@ -200,7 +167,7 @@ public:
      *  \param[in] x The element to add
      *  \return True if the element was successfully added
      */
-    bool safe_push_back(const T &x)
+    bool safe_push_back(const T & x)
     {
         if (_size >= _capacity)
         {
@@ -216,10 +183,7 @@ public:
      *  Adds an element to the end of a collection
      *  \param[in] x Element to add
      */
-    Collection &operator << (const T &x)
-    {
-        return this->push_back(x);
-    }
+    Collection & operator<<(const T & x) { return this->push_back(x); }
 
     /**
      *  Changes the size of a storage
@@ -227,28 +191,22 @@ public:
      */
     bool resize(size_t newCapacity)
     {
-        if(newCapacity <= _capacity) { return true; }
-        T *newArray = (T *)services::daal_calloc(sizeof(T) * newCapacity);
-        if(!newArray) {return false;}
-        for(size_t i = 0; i < newCapacity; i++)
+        if (newCapacity <= _capacity) { return true; }
+        T * newArray = (T *)services::daal_calloc(sizeof(T) * newCapacity);
+        if (!newArray) { return false; }
+        for (size_t i = 0; i < newCapacity; i++)
         {
-            T *elementMemory = &(newArray[i]);
-            ::new(elementMemory) T;
+            T * elementMemory = &(newArray[i]);
+            ::new (elementMemory) T;
         }
 
         size_t minSize = newCapacity < _size ? newCapacity : _size;
-        for(size_t i = 0; i < minSize; i++)
-        {
-            newArray[i] = _array[i];
-        }
+        for (size_t i = 0; i < minSize; i++) { newArray[i] = _array[i]; }
 
-        for(size_t i = 0; i < _capacity; i++)
-        {
-            _array[i].~T();
-        }
+        for (size_t i = 0; i < _capacity; i++) { _array[i].~T(); }
 
         services::daal_free(_array);
-        _array = newArray;
+        _array    = newArray;
         _capacity = newCapacity;
         return true;
     }
@@ -258,15 +216,12 @@ public:
      */
     void clear()
     {
-        for(size_t i = 0; i < _capacity; i++)
-        {
-            _array[i].~T();
-        }
+        for (size_t i = 0; i < _capacity; i++) { _array[i].~T(); }
 
         services::daal_free(_array);
 
-        _array = NULL;
-        _size = 0;
+        _array    = NULL;
+        _size     = 0;
         _capacity = 0;
     }
 
@@ -275,26 +230,20 @@ public:
      *  \param[in] pos Position to set
      *  \param[in] x   Element to set
      */
-    bool insert(const size_t pos, const T &x)
+    bool insert(const size_t pos, const T & x)
     {
-        if(pos > this->size())
-        {
-            return true;
-        }
+        if (pos > this->size()) { return true; }
 
         size_t newSize = 1 + this->size();
-        if(newSize > _capacity)
+        if (newSize > _capacity)
         {
-            if(!_resize()) {return false;}
+            if (!_resize()) { return false; }
         }
 
         size_t tail = _size - pos;
-        for(size_t i = 0; i < tail; i++)
-        {
-            _array[_size - i] = _array[_size - 1 - i];
-        }
+        for (size_t i = 0; i < tail; i++) { _array[_size - i] = _array[_size - 1 - i]; }
         _array[pos] = x;
-        _size = newSize;
+        _size       = newSize;
         return true;
     }
 
@@ -303,29 +252,20 @@ public:
      *  \param[in] pos   Position to see
      *  \param[in] other Collection to set
      */
-    bool insert(const size_t pos, Collection<T> &other)
+    bool insert(const size_t pos, Collection<T> & other)
     {
-        if(pos > this->size())
-        {
-            return true;
-        }
+        if (pos > this->size()) { return true; }
 
         size_t newSize = other.size() + this->size();
-        if(newSize > _capacity)
+        if (newSize > _capacity)
         {
-            if(!resize(newSize)) {return false;}
+            if (!resize(newSize)) { return false; }
         }
 
         size_t length = other.size();
-        size_t tail = _size - pos;
-        for(size_t i = 0; i < tail; i++)
-        {
-            _array[_size + length - 1 - i] = _array[_size - 1 - i];
-        }
-        for(size_t i = 0; i < length; i++)
-        {
-            _array[pos + i] = other[i];
-        }
+        size_t tail   = _size - pos;
+        for (size_t i = 0; i < tail; i++) { _array[_size + length - 1 - i] = _array[_size - 1 - i]; }
+        for (size_t i = 0; i < length; i++) { _array[pos + i] = other[i]; }
         _size = newSize;
         return true;
     }
@@ -336,17 +276,11 @@ public:
      */
     void erase(size_t pos)
     {
-        if(pos >= this->size())
-        {
-            return;
-        }
+        if (pos >= this->size()) { return; }
 
         _size--;
 
-        for(size_t i = 0; i < _size - pos; i++)
-        {
-            _array[pos + i] = _array[pos + 1 + i];
-        }
+        for (size_t i = 0; i < _size - pos; i++) { _array[pos + i] = _array[pos + 1 + i]; }
     }
 
 private:
@@ -354,12 +288,12 @@ private:
     bool _resize()
     {
         size_t newCapacity = 2 * _capacity;
-        if(_capacity == 0) { newCapacity = _default_capacity; }
+        if (_capacity == 0) { newCapacity = _default_capacity; }
         return resize(newCapacity);
     }
 
 protected:
-    T *_array;
+    T * _array;
     size_t _size;
     size_t _capacity;
 };

@@ -33,11 +33,11 @@ extern "C"
      * Method:    cSetResult
      * Signature: (JIIJ)V
      */
-    JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_BatchImpl_cSetResult
-    (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+    JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_BatchImpl_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                   jint prec, jint method, jlong resultAddr)
     {
-        jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-            setResult<low_order_moments::Result>(prec, method, algAddr, resultAddr);
+        jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+                 sumCSR>::setResult<low_order_moments::Result>(prec, method, algAddr, resultAddr);
     }
 
     /*
@@ -45,11 +45,11 @@ extern "C"
      * Method:    cGetResult
      * Signature: (JII)J
      */
-    JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_BatchImpl_cGetResult
-    (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+    JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_BatchImpl_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
     {
-        return jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-            getResult(prec, method, algAddr);
+        return jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getResult(
+            prec, method, algAddr);
     }
 
     /*
@@ -57,24 +57,22 @@ extern "C"
      * Method:    cInitBatchImpl
      * Signature: ()J
      */
-    JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_BatchImpl_cInitBatchImpl
-    (JNIEnv *env, jobject thisObj)
+    JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_BatchImpl_cInitBatchImpl(JNIEnv * env, jobject thisObj)
     {
         using namespace daal;
         using namespace daal::algorithms::low_order_moments;
         using namespace daal::services;
 
-        JavaVM *jvm;
-
+        JavaVM * jvm;
 
         // Get pointer to the Java VM interface function table
         jint status = env->GetJavaVM(&jvm);
-        if(status != 0)
+        if (status != 0)
         {
             env->ThrowNew(env->FindClass("java/lang/Exception"), "Unable to get pointer to the Java VM interface function table");
             return 0;
         }
-        SharedPtr<JavaBatch> *batch = new SharedPtr<JavaBatch>(new JavaBatch(jvm, thisObj));
+        SharedPtr<JavaBatch> * batch = new SharedPtr<JavaBatch>(new JavaBatch(jvm, thisObj));
 
         return (jlong)batch;
     }
@@ -84,10 +82,9 @@ extern "C"
      * Method:    cDispose
      * Signature: (J)V
      */
-    JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_BatchImpl_cDispose
-    (JNIEnv *env, jobject thisObj, jlong initAddr)
+    JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_BatchImpl_cDispose(JNIEnv * env, jobject thisObj, jlong initAddr)
     {
-        SharedPtr<BatchImpl> *batch = (SharedPtr<BatchImpl> *)initAddr;
+        SharedPtr<BatchImpl> * batch = (SharedPtr<BatchImpl> *)initAddr;
         delete batch;
     }
 }

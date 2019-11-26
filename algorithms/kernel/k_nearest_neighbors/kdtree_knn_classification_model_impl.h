@@ -34,7 +34,6 @@ namespace kdtree_knn_classification
 {
 namespace interface1
 {
-
 struct KDTreeNode
 {
     size_t dimension;
@@ -46,15 +45,15 @@ struct KDTreeNode
 class KDTreeTable : public data_management::AOSNumericTable
 {
 public:
-    KDTreeTable(size_t rowCount, services::Status &st) : data_management::AOSNumericTable(sizeof(KDTreeNode), 4, rowCount, st)
+    KDTreeTable(size_t rowCount, services::Status & st) : data_management::AOSNumericTable(sizeof(KDTreeNode), 4, rowCount, st)
     {
-        setFeature<size_t> (0, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, dimension));
-        setFeature<size_t> (1, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, leftIndex));
-        setFeature<size_t> (2, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, rightIndex));
-        setFeature<double> (3, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, cutPoint));
+        setFeature<size_t>(0, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, dimension));
+        setFeature<size_t>(1, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, leftIndex));
+        setFeature<size_t>(2, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, rightIndex));
+        setFeature<double>(3, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, cutPoint));
         st |= allocateDataMemory();
     }
-    KDTreeTable(services::Status &st) : KDTreeTable(0, st) {}
+    KDTreeTable(services::Status & st) : KDTreeTable(0, st) {}
 };
 typedef services::SharedPtr<KDTreeTable> KDTreeTablePtr;
 typedef services::SharedPtr<const KDTreeTable> KDTreeTableConstPtr;
@@ -121,7 +120,7 @@ public:
      */
     data_management::NumericTablePtr getData() { return _data; }
 
-    template<typename Archive, bool onDeserialize>
+    template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
         arch->set(_nFeatures);
@@ -143,15 +142,11 @@ public:
     DAAL_EXPORT DAAL_FORCEINLINE services::Status setData(const data_management::NumericTablePtr & value, bool copy)
     {
         int result = 0;
-        if (!copy)
-        {
-            _data = value;
-        }
+        if (!copy) { _data = value; }
         else
         {
-            data_management::SOANumericTablePtr tbl(new data_management::SOANumericTable(value->getNumberOfColumns(),
-                                                                                         value->getNumberOfRows(),
-                                                                                         data_management::DictionaryIface::equal));
+            data_management::SOANumericTablePtr tbl(
+                new data_management::SOANumericTable(value->getNumberOfColumns(), value->getNumberOfRows(), data_management::DictionaryIface::equal));
             tbl->getDictionary()->setAllFeatures<algorithmFPType>(); // Just to set type of all features. Also, no way to use featuresEqual flag.
             tbl->resize(value->getNumberOfRows());
 
@@ -159,10 +154,9 @@ public:
             data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
             tbl->getBlockOfRows(0, tbl->getNumberOfRows(), data_management::writeOnly, destBD);
             value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD);
-            result = services::internal::daal_memcpy_s(destBD.getBlockPtr(),
-                                                       destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
-                                                       srcBD.getBlockPtr(),
-                                                       srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
+            result = services::internal::daal_memcpy_s(
+                destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType), srcBD.getBlockPtr(),
+                srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
             tbl->releaseBlockOfRows(destBD);
             value->releaseBlockOfRows(srcBD);
             _data = tbl;
@@ -191,15 +185,11 @@ public:
     DAAL_EXPORT DAAL_FORCEINLINE services::Status setLabels(const data_management::NumericTablePtr & value, bool copy)
     {
         int result = 0;
-        if (!copy)
-        {
-            _labels = value;
-        }
+        if (!copy) { _labels = value; }
         else
         {
-            data_management::SOANumericTablePtr tbl(new data_management::SOANumericTable(value->getNumberOfColumns(),
-                                                                                         value->getNumberOfRows()));
-            tbl->setArray(static_cast<algorithmFPType *>(0), 0); // Just to create the dictionary.
+            data_management::SOANumericTablePtr tbl(new data_management::SOANumericTable(value->getNumberOfColumns(), value->getNumberOfRows()));
+            tbl->setArray(static_cast<algorithmFPType *>(0), 0);                    // Just to create the dictionary.
             tbl->getDictionary()->setNumberOfFeatures(value->getNumberOfColumns()); // Sadly, setArray() hides number of features from the dictionary.
             data_management::NumericTableFeature temp;
             temp.setType<algorithmFPType>();
@@ -208,10 +198,9 @@ public:
             data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
             tbl->getBlockOfRows(0, tbl->getNumberOfRows(), data_management::writeOnly, destBD);
             value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD);
-            result = services::internal::daal_memcpy_s(destBD.getBlockPtr(),
-                                                       destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
-                                                       srcBD.getBlockPtr(),
-                                                       srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
+            result = services::internal::daal_memcpy_s(
+                destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType), srcBD.getBlockPtr(),
+                srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
             tbl->releaseBlockOfRows(destBD);
             value->releaseBlockOfRows(srcBD);
             _labels = tbl;
@@ -224,6 +213,7 @@ public:
      *  \return Number of features in the dataset was used on the training stage
      */
     size_t getNumberOfFeatures() const { return _nFeatures; }
+
 private:
     size_t _nFeatures;
     KDTreeTablePtr _kdTreeTable;
