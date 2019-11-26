@@ -157,7 +157,7 @@ protected:
                                        int maxBins);
 
     services::Status computeBins(oneapi::internal::UniversalBuffer& values,
-                                 oneapi::internal::UniversalBuffer& indices, 
+                                 oneapi::internal::UniversalBuffer& indices,
                                  oneapi::internal::UniversalBuffer& binBorders,
                                  oneapi::internal::UniversalBuffer& bins,
                                  int nRows,
@@ -235,7 +235,7 @@ template<typename algorithmFPType>
 struct BestSplitOneAPI
 {
     BestSplitOneAPI();
-    
+
     algorithmFPType _impurityDecrease;
     int _featureIndex;
     int _featureValue;

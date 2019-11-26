@@ -499,7 +499,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         *gTotal = totalOptCoeffsHost.get()[0];
         *hTotal = totalOptCoeffsHost.get()[1];
     }
-    {   
+    {
         auto splitInfoHost = splitInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly);
         auto splitValueHost = splitValue.template get<int>().toHost(ReadWriteMode::readOnly);
         for (size_t featId = 0; featId < nFeatures; featId++)
@@ -702,7 +702,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
     DAAL_CHECK_STATUS_VAR(status);
 
     size_t rev = 0;
-    
+
     DAAL_CHECK_STATUS_VAR(partitionScan(data, treeOrder, partialSums, splitValue, iStart, nRows, localSize, nLocalSums));
     DAAL_CHECK_STATUS_VAR(partitionSumScan(partialSums, partialPrefixSums, totalSum, localSize, nSubgroupSums));
     DAAL_CHECK_STATUS_VAR(partitionReorder(data, treeOrder, treeOrderBuf, partialPrefixSums, splitValue, iStart, nRows, localSize, nLocalSums));
@@ -1010,7 +1010,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                 const algorithmFPType inc = val * par.shrinkage;
 
                 res = inc;
-                
+
                 DAAL_CHECK_STATUS_VAR(updateResponse(treeOrder, response, node->iStart, node->n, inc));
             }
 

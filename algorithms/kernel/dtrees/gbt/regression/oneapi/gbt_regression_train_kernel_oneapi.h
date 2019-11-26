@@ -57,7 +57,7 @@ public:
         gbt::regression::Model& m, Result& res, const Parameter& par,
         engines::internal::BatchBaseImpl& engine);
 
-private:    
+private:
     services::Status scan(const services::Buffer<algorithmFPType>& values,
                           oneapi::internal::UniversalBuffer& partialSums,
                           int nRows,

@@ -280,7 +280,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::radixSort(UniversalBuff
     DAAL_CHECK_STATUS_VAR(status);
 
     size_t rev = 0;
-    
+
     for (size_t bitOffset = 0; bitOffset < 8 * sizeof(algorithmFPType); bitOffset += radixBits, rev ^= 1)
     {
         if (!rev)
@@ -336,7 +336,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::collectBinBorders(Unive
 
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBuffer& values,
-                                                   UniversalBuffer& indices, 
+                                                   UniversalBuffer& indices,
                                                    UniversalBuffer& binBorders,
                                                    UniversalBuffer& bins,
                                                    int nRows,
@@ -560,7 +560,7 @@ services::Status TreeNodeStorage::allocate(const gbt::internal::IndexedFeaturesO
 
 template<typename algorithmFPType>
 BestSplitOneAPI<algorithmFPType>::BestSplitOneAPI<algorithmFPType>() : _impurityDecrease(-services::internal::MaxVal<algorithmFPType>::get()), _featureIndex(-1), _featureValue(0),
-                                                                       _leftGTotal(0.0), _leftHTotal(0.0), _rightGTotal(0.0), _rightHTotal(0.0) { }        
+                                                                       _leftGTotal(0.0), _leftHTotal(0.0), _rightGTotal(0.0), _rightHTotal(0.0) { }
 
 } /* namespace internal */
 } /* namespace dtrees */
