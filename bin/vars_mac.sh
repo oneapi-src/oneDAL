@@ -28,13 +28,8 @@ set_daal_env() {
 
     export DAALROOT=$__daal_tmp_dir
     export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
-    if [ -z "${TBBROOT}" ]; then
-        export LIBRARY_PATH=$__daal_tmp_dir/lib:$__daal_tmp_dir/../tbb/lib${LIBRARY_PATH+:${LIBRARY_PATH}}
-        export DYLD_LIBRARY_PATH=$__daal_tmp_dir/lib:$__daal_tmp_dir/../tbb/lib${DYLD_LIBRARY_PATH+:${DYLD_LIBRARY_PATH}}
-    else
-        export LIBRARY_PATH=$__daal_tmp_dir/lib${LIBRARY_PATH+:${LIBRARY_PATH}}
-        export DYLD_LIBRARY_PATH=$__daal_tmp_dir/lib${DYLD_LIBRARY_PATH+:${DYLD_LIBRARY_PATH}}
-    fi
+    export LIBRARY_PATH=$__daal_tmp_dir/lib${LIBRARY_PATH+:${LIBRARY_PATH}}
+    export DYLD_LIBRARY_PATH=$__daal_tmp_dir/lib${DYLD_LIBRARY_PATH+:${DYLD_LIBRARY_PATH}}
     export CLASSPATH=$__daal_tmp_dir/lib/daal.jar${CLASSPATH+:${CLASSPATH}}
 }
 
