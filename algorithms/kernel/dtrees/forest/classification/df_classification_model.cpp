@@ -238,8 +238,6 @@ bool ModelImpl::add(const TreeType& tree, size_t nClasses)
     DAAL_CHECK_STATUS_VAR(impTbl)
     DAAL_CHECK_STATUS_VAR(nodeSamplesTbl)
     DAAL_CHECK_STATUS_VAR(probTbl)
-    auto prob = probTbl;
-    double *probVals      = prob->getArray();
 
 
     tree.convertToTable(pTbl, impTbl, nodeSamplesTbl, probTbl, nClasses);
