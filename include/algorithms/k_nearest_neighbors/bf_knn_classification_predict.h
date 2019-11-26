@@ -105,6 +105,12 @@ public:
      */
     Batch(const Batch<algorithmFPType, method> & other);
 
+    /** Destructor */
+    ~Batch() {
+        delete _par;
+        _par = nullptr;
+    }
+
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
@@ -156,10 +162,8 @@ protected:
     {
         _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _in = &_input;
-        _par = &_param;
     }
     InputType _input;
-    ParameterType _param;
 };
 
 /** @} */

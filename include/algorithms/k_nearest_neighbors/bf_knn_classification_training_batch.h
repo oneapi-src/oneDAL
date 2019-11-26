@@ -176,10 +176,8 @@ protected:
         _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _result.reset(new ResultType());
         _in = &_input;
-        _par = &_param;
     }
     InputType _input;
-    ParameterType _param;
 };
 
 /** @} */
