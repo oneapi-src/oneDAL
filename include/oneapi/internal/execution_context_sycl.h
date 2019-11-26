@@ -24,10 +24,6 @@
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
 
-#if defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191024)
-  #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-#endif
-
 #include "services/daal_string.h"
 #include "oneapi/internal/execution_context.h"
 #include "oneapi/internal/kernel_scheduler_sycl.h"

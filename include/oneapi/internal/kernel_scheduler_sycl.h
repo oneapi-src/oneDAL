@@ -325,26 +325,37 @@ private:
 };
 
 template <int dim>
-cl::sycl::range<dim> convertToSyclRange(const KernelRange &);
+inline cl::sycl::range<dim> convertToSyclRange(const KernelRange &);
 
 template <>
-cl::sycl::range<1> convertToSyclRange<1>(const KernelRange &r)
+inline cl::sycl::range<1> convertToSyclRange<1>(const KernelRange &r)
 { return cl::sycl::range<1>(r.upper1()); }
 
 template <>
-cl::sycl::range<2> convertToSyclRange<2>(const KernelRange &r)
-{ return cl::sycl::range<2>(r.upper1(), r.upper2()); }
+inline cl::sycl::range<2> convertToSyclRange<2>(const KernelRange &r)
+{
+#ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
+    return cl::sycl::range<2>(r.upper2(), r.upper1());
+#else
+    return cl::sycl::range<2>(r.upper1(), r.upper2());
+#endif
+}
 
 template <>
-cl::sycl::range<3> convertToSyclRange<3>(const KernelRange &r)
-{ return cl::sycl::range<3>(r.upper1(), r.upper2(), r.upper3()); }
-
+inline cl::sycl::range<3> convertToSyclRange<3>(const KernelRange &r)
+{
+#ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
+    return cl::sycl::range<3>(r.upper3(), r.upper2(), r.upper1());
+#else
+    return cl::sycl::range<3>(r.upper1(), r.upper2(), r.upper3());
+#endif
+}
 
 template <int dim>
-cl::sycl::nd_range<dim> convertToSyclRange(const KernelNDRange &);
+inline cl::sycl::nd_range<dim> convertToSyclRange(const KernelNDRange &);
 
 template <>
-cl::sycl::nd_range<1> convertToSyclRange<1>(const KernelNDRange &r)
+inline cl::sycl::nd_range<1> convertToSyclRange<1>(const KernelNDRange &r)
 {
     return cl::sycl::nd_range<1>(
         cl::sycl::range<1>(r.global().upper1()),
@@ -353,20 +364,30 @@ cl::sycl::nd_range<1> convertToSyclRange<1>(const KernelNDRange &r)
 }
 
 template <>
-cl::sycl::nd_range<2> convertToSyclRange<2>(const KernelNDRange &r)
+inline cl::sycl::nd_range<2> convertToSyclRange<2>(const KernelNDRange &r)
 {
     return cl::sycl::nd_range<2>(
+#ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
+        cl::sycl::range<2>(r.global().upper2(), r.global().upper1()),
+        cl::sycl::range<2>(r.local().upper2(), r.local().upper1())
+#else
         cl::sycl::range<2>(r.global().upper1(), r.global().upper2()),
         cl::sycl::range<2>(r.local().upper1(), r.local().upper2())
+#endif
     );
 }
 
 template <>
-cl::sycl::nd_range<3> convertToSyclRange<3>(const KernelNDRange &r)
+inline cl::sycl::nd_range<3> convertToSyclRange<3>(const KernelNDRange &r)
 {
     return cl::sycl::nd_range<3>(
+#ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE
+        cl::sycl::range<3>(r.global().upper3(), r.global().upper2(), r.global().upper1()),
+        cl::sycl::range<3>(r.local().upper3(), r.local().upper2(), r.local().upper1())
+#else
         cl::sycl::range<3>(r.global().upper1(), r.global().upper2(), r.global().upper3()),
         cl::sycl::range<3>(r.local().upper1(), r.local().upper2(), r.local().upper3())
+#endif
     );
 }
 
