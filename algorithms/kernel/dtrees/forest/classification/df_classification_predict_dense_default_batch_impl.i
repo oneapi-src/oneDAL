@@ -147,10 +147,10 @@ DAAL_FORCEINLINE void predictByTreeInternal(size_t check, size_t blockSize, size
         }
         else
         {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
             for(size_t i = 0; i < blockSize; i++)
             {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < _nClasses; ++j)
                 {
                     resPtr[i * _nClasses + j] += probas[currentNodes[i] * _nClasses + j];
@@ -185,7 +185,7 @@ services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::
 template <typename algorithmFPType, CpuType cpu>
 void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(size_t iFirstTree, size_t nTrees, const algorithmFPType* x,
     algorithmFPType* resPtr, size_t nTreesTotal) {
-
+    algorithmFPType inverseTreesCount = 1.0 / algorithmFPType(nTreesTotal);
     const size_t iLastTree = iFirstTree + nTrees;
     for(size_t iTree = iFirstTree; iTree < iLastTree; ++iTree)
     {
@@ -202,9 +202,11 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(size_t iFir
         }
         else
         {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for(size_t i = 0; i < _nClasses; i++)
             {
-                resPtr[i] += probas[idx*_nClasses + i]/algorithmFPType(nTreesTotal);
+                resPtr[i] += probas[idx*_nClasses + i] * inverseTreesCount;
             }
         }
     }
@@ -547,18 +549,28 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
             tlsData.reduce([&](algorithmFPType* buf)
             {
                 for(size_t i = 0; i < nRowsOfRes; i++)
+                {
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
                     for(size_t j = 0; j < _nClasses; j++)
                     {
                         commonBufVal[i*_nClasses + j] += buf[i*_nClasses + j];
                     }
+                }
             });
         }
         else
         {
             algorithmFPType* localPtr = tlsData.local();
             for(size_t i = 0; i < nRowsOfRes; i++)
+            {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
                 for(size_t j = 0; j < _nClasses; j++)
+                {
                     commonBufVal[i*_nClasses + j] += localPtr[i*_nClasses + j];
+                }
+            }
         }
     }
     else
@@ -575,8 +587,10 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
 
     if(prob == nullptr && res != nullptr)
     {
-        for(size_t iRes = 0; iRes < nRowsOfRes; iRes++)
+        daal::threader_for(nRowsOfRes, nRowsOfRes , [&](const size_t iRes)
+        {
             res[iRes] = algorithmFPType(getMaxClass(commonBufVal + iRes*_nClasses));
+        });
     }
     else
     {
@@ -590,6 +604,8 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
 
             for(size_t iRes = 0; iRes < nRowsToProcess ; ++iRes)
             {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
                 for(size_t j = 0; j < _nClasses; j++)
                 {
                     prob_internal[iRes * _nClasses + j] = algorithmFPType(prob_internal[iRes * _nClasses +j])*inverseNTreesTotal;

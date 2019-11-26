@@ -137,15 +137,9 @@ struct TreeNodeLeaf: public TreeNodeBase
     TreeNodeLeaf() {}
 
     // nCLasses = 0 for regression
-    TreeNodeLeaf(size_t nClasses)
-    {
-        hist = (double*) daal::threaded_scalable_malloc(nClasses*sizeof(double), 64);
-    }
+    TreeNodeLeaf(double* memoryForHist) : hist(memoryForHist) {}
 
-    virtual ~TreeNodeLeaf()
-    {
-        services::daal_free(hist);
-    }
+    virtual ~TreeNodeLeaf() {}
 
     virtual bool isSplit() const { return false; }
     virtual size_t numChildren() const { return 0; }
@@ -235,7 +229,10 @@ private:
 template <typename NodeType>
 typename NodeType::Leaf* ChunkAllocator<NodeType>::allocLeaf(size_t nClasses)
 {
-    return new (_man.alloc(sizeof(typename NodeType::Leaf))) typename NodeType::Leaf(nClasses);
+    void* memory =
+        _man.alloc(sizeof(typename NodeType::Leaf) + nClasses * sizeof(double));
+    return new (memory) typename NodeType::Leaf(reinterpret_cast<double*>(
+        static_cast<typename NodeType::Leaf*>(memory) + 1));
 }
 
 template <typename NodeType>
