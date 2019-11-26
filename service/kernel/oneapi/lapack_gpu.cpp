@@ -17,6 +17,7 @@
 
 #include "oneapi/internal/math/reference_lapack.h"
 #include "service_lapack.h"
+#include "daal_kernel_defines.h"
 #include "error_handling.h"
 #include "blas_gpu.h"
 #include "cl_kernels/kernel_blas.cl"
@@ -32,19 +33,6 @@ namespace math
 namespace interface1
 {
 using namespace daal::internal;
-
-#define CALL_LAPACK_CPU(fptype, cpuId, funcName, ...)                                                              \
-    switch (cpuId)                                                                                                 \
-    {                                                                                                              \
-    case daal::CpuType::ssse3: Lapack<fptype, daal::CpuType::ssse3>::funcName(__VA_ARGS__); break;                 \
-    case daal::CpuType::sse42: Lapack<fptype, daal::CpuType::sse42>::funcName(__VA_ARGS__); break;                 \
-    case daal::CpuType::avx: Lapack<fptype, daal::CpuType::avx>::funcName(__VA_ARGS__); break;                     \
-    case daal::CpuType::avx2: Lapack<fptype, daal::CpuType::avx2>::funcName(__VA_ARGS__); break;                   \
-    case daal::CpuType::avx512_mic: Lapack<fptype, daal::CpuType::avx512_mic>::funcName(__VA_ARGS__); break;       \
-    case daal::CpuType::avx512: Lapack<fptype, daal::CpuType::avx512>::funcName(__VA_ARGS__); break;               \
-    case daal::CpuType::avx512_mic_e1: Lapack<fptype, daal::CpuType::avx512_mic_e1>::funcName(__VA_ARGS__); break; \
-    default: Lapack<fptype, daal::CpuType::sse2>::funcName(__VA_ARGS__); break;                                    \
-    }
 
 template <typename algorithmFPType>
 services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a_buffer,
@@ -62,7 +50,28 @@ services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo up
 
     services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite);
 
-    CALL_LAPACK_CPU(algorithmFPType, cpuId, xpotrf, &up, &nInt, aPtr.get(), &ldaInt, &info);
+    switch (cpuId)
+    {
+#ifdef DAAL_KERNEL_AVX512
+    case avx512     : DAAL_KERNEL_AVX512_ONLY_CODE     (Lapack<algorithmFPType, avx512>::xpotrf(&up, &nInt, aPtr.get(), &ldaInt, &info)); break;
+#endif
+#ifdef DAAL_KERNEL_AVX512_MIC
+    case avx512_mic : DAAL_KERNEL_AVX512_MIC_ONLY_CODE (Lapack<algorithmFPType, avx512_mic>::xpotrf(&up, &nInt, aPtr.get(), &ldaInt, &info)); break;
+#endif
+#ifdef DAAL_KERNEL_AVX2
+    case avx2       : DAAL_KERNEL_AVX2_ONLY_CODE       (Lapack<algorithmFPType, avx2>::xpotrf(&up, &nInt, aPtr.get(), &ldaInt, &info)); break;
+#endif
+#ifdef DAAL_KERNEL_AVX
+    case avx        : DAAL_KERNEL_AVX_ONLY_CODE        (Lapack<algorithmFPType, avx>::xpotrf(&up, &nInt, aPtr.get(), &ldaInt, &info)); break;
+#endif
+#ifdef DAAL_KERNEL_SSE42
+    case sse42      : DAAL_KERNEL_SSE42_ONLY_CODE      (Lapack<algorithmFPType, sse42>::xpotrf(&up, &nInt, aPtr.get(), &ldaInt, &info)); break;
+#endif
+#ifdef DAAL_KERNEL_SSSE3
+    case ssse3      : DAAL_KERNEL_SSSE3_ONLY_CODE      (Lapack<algorithmFPType, ssse3>::xpotrf(&up, &nInt, aPtr.get(), &ldaInt, &info)); break;
+#endif
+    default         :                                  (Lapack<algorithmFPType, sse2>::xpotrf(&up, &nInt, aPtr.get(), &ldaInt, &info)); break;
+    }
 
     DAAL_CHECK(info == 0, services::ErrorID::ErrorNormEqSystemSolutionFailed);
     return status;
@@ -88,7 +97,28 @@ services::Status ReferencePotrs<algorithmFPType>::operator()(const math::UpLo up
     services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite);
     services::SharedPtr<algorithmFPType> bPtr = b_buffer.toHost(data_management::ReadWriteMode::readWrite);
 
-    CALL_LAPACK_CPU(algorithmFPType, cpuId, xpotrs, &up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info);
+    switch (cpuId)
+    {
+#ifdef DAAL_KERNEL_AVX512
+    case avx512     : DAAL_KERNEL_AVX512_ONLY_CODE     (Lapack<algorithmFPType, avx512>::xpotrs(&up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info)); break;
+#endif
+#ifdef DAAL_KERNEL_AVX512_MIC
+    case avx512_mic : DAAL_KERNEL_AVX512_MIC_ONLY_CODE (Lapack<algorithmFPType, avx512_mic>::xpotrs(&up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info)); break;
+#endif
+#ifdef DAAL_KERNEL_AVX2
+    case avx2       : DAAL_KERNEL_AVX2_ONLY_CODE       (Lapack<algorithmFPType, avx2>::xpotrs(&up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info)); break;
+#endif
+#ifdef DAAL_KERNEL_AVX
+    case avx        : DAAL_KERNEL_AVX_ONLY_CODE        (Lapack<algorithmFPType, avx>::xpotrs(&up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info)); break;
+#endif
+#ifdef DAAL_KERNEL_SSE42
+    case sse42      : DAAL_KERNEL_SSE42_ONLY_CODE      (Lapack<algorithmFPType, sse42>::xpotrs(&up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info)); break;
+#endif
+#ifdef DAAL_KERNEL_SSSE3
+    case ssse3      : DAAL_KERNEL_SSSE3_ONLY_CODE      (Lapack<algorithmFPType, ssse3>::xpotrs(&up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info)); break;
+#endif
+    default         :                                  (Lapack<algorithmFPType, sse2>::xpotrs(&up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info)); break;
+    }
 
     DAAL_CHECK(info == 0, services::ErrorID::ErrorNormEqSystemSolutionFailed);
     return status;
