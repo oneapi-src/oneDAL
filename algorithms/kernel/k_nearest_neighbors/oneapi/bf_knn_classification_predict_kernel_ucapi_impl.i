@@ -116,11 +116,10 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
         if(!engineImpl)
             return Status(ErrorIncorrectEngineParameter);
         daal::internal::RNGs<size_t, sse2> rng;
-        auto rnds = rndSeq.template get<algorithmFpType>().toHost(ReadWriteMode::writeOnly);
-        auto numbers = rndIndices.template get<size_t>().toHost(ReadWriteMode::readWrite);
-        rng.uniform(dataBlockSize, &numbers.get()[0], engineImpl->getState(), 0, (size_t)(dataBlockSize - 1));
-        for(int i = 0; i < dataBlockSize; i++)
-            rnds.get()[i] = static_cast<algorithmFpType>(numbers.get()[i]) / dataBlockSize;
+        size_t numbers[dataBlockSize];
+        rng.uniform(dataBlockSize, &numbers[0], engineImpl->getState(), 0, (size_t)(dataBlockSize - 1));
+        context.copy(rndSeq, 0, (void*)&numbers[0], 0, dataBlockSize, &st);
+        DAAL_CHECK_STATUS_VAR(st);
     }
     auto init_distances = kernel_factory.getKernel("init_distances", &st);
     DAAL_CHECK_STATUS_VAR(st);

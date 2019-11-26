@@ -433,6 +433,11 @@ public:
     virtual ClKernelFactoryIface &getClKernelFactory() = 0;
 
     virtual InfoDevice &getInfoDevice() = 0;
+
+    virtual void copy(UniversalBuffer dest, size_t desOffset,
+        void *src, size_t srcOffset,
+        size_t count, services::Status *status) = 0;
+
 };
 
 /**
@@ -551,6 +556,16 @@ public:
     { return _factory; }
 
     InfoDevice &getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
+
+    void copy(UniversalBuffer dest,
+              size_t desOffset,
+              void *src,
+              size_t srcOffset,
+              size_t count,
+              services::Status *status = nullptr)
+    {
+        services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
+    }
 
 private:
     CpuKernelFactory _factory;
