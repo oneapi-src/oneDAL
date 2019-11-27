@@ -41,7 +41,7 @@ using namespace daal::internal;
     DAAL_KERNEL_AVX_ONLY_CODE(case daal::CpuType::avx:   className<fptype, daal::CpuType::avx>::funcName(__VA_ARGS__); break;)                             \
     DAAL_KERNEL_AVX2_ONLY_CODE(case daal::CpuType::avx2:  className<fptype, daal::CpuType::avx2>::funcName(__VA_ARGS__); break;)                           \
     DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512:  className<fptype, daal::CpuType::avx512>::funcName(__VA_ARGS__); break;)                     \
-    DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic_e1: className<fptype, daal::CpuType::avx512_mic_e1>::funcName(__VA_ARGS__); break;)    \
+    DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic: className<fptype, daal::CpuType::avx512_mic>::funcName(__VA_ARGS__); break;)    \
     default: className<fptype, daal::CpuType::sse2>::funcName(__VA_ARGS__); break;                                                                         \
     }
 

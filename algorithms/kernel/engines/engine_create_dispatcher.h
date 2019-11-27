@@ -32,14 +32,14 @@ namespace engines
 namespace interface1
 {
 
-#define DISPATCH_RESET_ENGINE(engPtr, cpuId, algorithmFPType, method, ...)                                                                         \
+#define DISPATCH_RESET_ENGINE(engPtr, cpuId, algorithmFPType, method, ...)                                                                     \
     switch (cpuId) {                                                                                                                           \
     DAAL_KERNEL_SSSE3_ONLY_CODE(engPtr.reset(new BatchImpl<daal::CpuType::ssse3, algorithmFPType, method>(__VA_ARGS__)); break;)               \
     DAAL_KERNEL_SSE42_ONLY_CODE(engPtr.reset(new BatchImpl<daal::CpuType::sse42, algorithmFPType, method>(__VA_ARGS__)); break;)               \
     DAAL_KERNEL_AVX_ONLY_CODE(engPtr.reset(new BatchImpl<daal::CpuType::avx, algorithmFPType, method>(__VA_ARGS__)); break;)                   \
     DAAL_KERNEL_AVX2_ONLY_CODE(engPtr.reset(new BatchImpl<daal::CpuType::avx2, algorithmFPType, method>(__VA_ARGS__)); break;)                 \
     DAAL_KERNEL_AVX512_ONLY_CODE(engPtr.reset(new BatchImpl<daal::CpuType::avx512, algorithmFPType, method>(__VA_ARGS__)); break;)             \
-    DAAL_KERNEL_AVX512_MIC_ONLY_CODE(engPtr.reset(new BatchImpl<daal::CpuType::avx512_mic_e1, algorithmFPType, method>(__VA_ARGS__)); break;)  \
+    DAAL_KERNEL_AVX512_MIC_ONLY_CODE(engPtr.reset(new BatchImpl<daal::CpuType::avx512_mic, algorithmFPType, method>(__VA_ARGS__)); break;)  \
     default: engPtr.reset(new BatchImpl<daal::CpuType::sse2, algorithmFPType, method>(__VA_ARGS__)); break;                                    \
     }
 

@@ -39,7 +39,7 @@ namespace internal
     DAAL_KERNEL_AVX_ONLY_CODE(case daal::CpuType::avx:   ptr = funcName<__VA_ARGS__, daal::CpuType::avx>; break;)                           \
     DAAL_KERNEL_AVX2_ONLY_CODE(case daal::CpuType::avx2:  ptr = funcName<__VA_ARGS__, daal::CpuType::avx2>; break;)                         \
     DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512:  ptr = funcName<__VA_ARGS__, daal::CpuType::avx512>; break;)                   \
-    DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic_e1: ptr = funcName<__VA_ARGS__, daal::CpuType::avx512_mic_e1>; break;)  \
+    DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic: ptr = funcName<__VA_ARGS__, daal::CpuType::avx512_mic>; break;)  \
     default: ptr = funcName<__VA_ARGS__, daal::CpuType::sse2>; break;                                                                       \
     }
 
