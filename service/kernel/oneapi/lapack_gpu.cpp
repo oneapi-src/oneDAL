@@ -34,7 +34,7 @@ namespace interface1
 {
 using namespace daal::internal;
 
-#define CALL_LAPACK_CPU(fptype, cpuId, className, funcName, ...)                                                                                           \
+#define CALL_CPU_FUNCTION(fptype, cpuId, className, funcName, ...)                                                                                           \
     switch (cpuId) {                                                                                                                                       \
     DAAL_KERNEL_SSSE3_ONLY_CODE(case daal::CpuType::ssse3: className<fptype, daal::CpuType::ssse3>::funcName(__VA_ARGS__); break;)                         \
     DAAL_KERNEL_SSE42_ONLY_CODE(case daal::CpuType::sse42: className<fptype, daal::CpuType::sse42>::funcName(__VA_ARGS__); break;)                         \
@@ -62,7 +62,7 @@ services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo up
 
     services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite);
 
-    CALL_LAPACK_CPU(algorithmFPType, cpuId, Lapack, xpotrf, &up, &nInt, aPtr.get(), &ldaInt, &info);
+    CALL_CPU_FUNCTION(algorithmFPType, cpuId, Lapack, xpotrf, &up, &nInt, aPtr.get(), &ldaInt, &info);
 
     DAAL_CHECK(info == 0, services::ErrorID::ErrorNormEqSystemSolutionFailed);
     return status;
@@ -88,7 +88,7 @@ services::Status ReferencePotrs<algorithmFPType>::operator()(const math::UpLo up
     services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite);
     services::SharedPtr<algorithmFPType> bPtr = b_buffer.toHost(data_management::ReadWriteMode::readWrite);
 
-    CALL_LAPACK_CPU(algorithmFPType, cpuId, Lapack, xpotrs, &up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info);
+    CALL_CPU_FUNCTION(algorithmFPType, cpuId, Lapack, xpotrs, &up, &nInt, &nyInt, aPtr.get(), &ldaInt, bPtr.get(), &ldbInt, &info);
 
     DAAL_CHECK(info == 0, services::ErrorID::ErrorNormEqSystemSolutionFailed);
     return status;
