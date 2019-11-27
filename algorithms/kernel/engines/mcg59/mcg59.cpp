@@ -20,6 +20,7 @@
 //--
 
 #include "algorithms/engines/mcg59/mcg59.h"
+#include "../engine_create_dispatcher.h"
 #include "mcg59_batch_impl.h"
 
 namespace daal
@@ -40,29 +41,8 @@ SharedPtr<Batch<algorithmFPType, method> > Batch<algorithmFPType, method>::creat
 {
     SharedPtr<Batch<algorithmFPType, method> > engPtr;
 
-    int cpuid = (int)Environment::getInstance()->getCpuId();
-    switch (cpuid)
-    {
-#ifdef DAAL_KERNEL_AVX512
-    case avx512: DAAL_KERNEL_AVX512_ONLY_CODE(engPtr.reset(new BatchImpl<avx512, algorithmFPType, method>(seed))); break;
-#endif
-#ifdef DAAL_KERNEL_AVX512_MIC
-    case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(engPtr.reset(new BatchImpl<avx512_mic, algorithmFPType, method>(seed))); break;
-#endif
-#ifdef DAAL_KERNEL_AVX2
-    case avx2: DAAL_KERNEL_AVX2_ONLY_CODE(engPtr.reset(new BatchImpl<avx2, algorithmFPType, method>(seed))); break;
-#endif
-#ifdef DAAL_KERNEL_AVX
-    case avx: DAAL_KERNEL_AVX_ONLY_CODE(engPtr.reset(new BatchImpl<avx, algorithmFPType, method>(seed))); break;
-#endif
-#ifdef DAAL_KERNEL_SSE42
-    case sse42: DAAL_KERNEL_SSE42_ONLY_CODE(engPtr.reset(new BatchImpl<sse42, algorithmFPType, method>(seed))); break;
-#endif
-#ifdef DAAL_KERNEL_SSSE3
-    case ssse3: DAAL_KERNEL_SSSE3_ONLY_CODE(engPtr.reset(new BatchImpl<ssse3, algorithmFPType, method>(seed))); break;
-#endif
-    default: engPtr.reset(new BatchImpl<sse2, algorithmFPType, method>(seed)); break;
-    };
+    const daal::CpuType cpuid = static_cast<daal::CpuType>(Environment::getInstance()->getCpuId());
+    DISPATCH_RESET_ENGINE(engPtr, cpuid, algorithmFPType, method, seed);
     return engPtr;
 }
 
