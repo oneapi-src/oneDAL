@@ -19,10 +19,10 @@
 #define __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_UCAPI_H__
 
 #include "numeric_table.h"
-#include "algorithm_base_common.h"
+#include "kernel.h"
 #include "bf_knn_classification_training_types.h"
 #include "bf_knn_classification_model_ucapi_impl.h"
-#include "service_error_handling.h"
+
 
 namespace daal
 {

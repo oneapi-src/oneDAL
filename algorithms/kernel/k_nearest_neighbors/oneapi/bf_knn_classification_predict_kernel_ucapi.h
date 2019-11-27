@@ -18,15 +18,10 @@
 #ifndef __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_H__
 #define __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_H__
 
-#include "bf_knn_classification_predict.h"
-#include "bf_knn_classification_model_ucapi_impl.h"
-#include "service_memory.h"
 #include "kernel.h"
 #include "numeric_table.h"
-#include "service_blas.h"
-
-#include "oneapi/service_defines_oneapi.h"
-#include "oneapi/internal/types.h"
+#include "bf_knn_classification_model_ucapi_impl.h"
+#include "bf_knn_classification_predict_types.h"
 #include "oneapi/internal/execution_context.h"
 
 namespace daal

@@ -1,4 +1,4 @@
-/* file: bf_knn_classification_predict_dense_default_batch.h */
+/* file: bf_knn_classification_predict_dense_default_batch_fpt.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -15,11 +15,24 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __BF_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
-#define __BF_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
-
-#include "bf_knn_classification_predict.h"
-#include "oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "oneapi/bf_knn_classification_predict_kernel_ucapi.h"
+#include "oneapi/bf_knn_classification_predict_kernel_ucapi_impl.i"
 
-#endif
+namespace daal
+{
+namespace algorithms
+{
+namespace bf_knn_classification
+{
+namespace prediction
+{
+namespace internal
+{
+
+template class KNNClassificationPredictKernelUCAPI<DAAL_FPTYPE>;
+
+} // namespace internal
+} // namespace prediction
+} // namespace bf_knn_classification
+} // namespace algorithms
+} // namespace daal

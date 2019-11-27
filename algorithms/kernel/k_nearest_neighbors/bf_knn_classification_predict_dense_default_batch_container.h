@@ -30,7 +30,7 @@ namespace prediction
 template <typename algorithmFpType, Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
-    _kernel = new daal::algorithms::bf_knn_classification::prediction::internal::KNNClassificationPredictKernelUCAPI<algorithmFpType>();
+    __DAAL_INITIALIZE_KERNELS_SYCL(internal::KNNClassificationPredictKernelUCAPI, DAAL_FPTYPE);
 }
 
 template <typename algorithmFpType, Method method, CpuType cpu>
@@ -50,8 +50,9 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     const data_management::NumericTablePtr r = result->get(classifier::prediction::prediction);
 
     const daal::algorithms::Parameter * const par = _par;
-        return ((daal::algorithms::bf_knn_classification::prediction::internal::KNNClassificationPredictKernelUCAPI<algorithmFpType>*)\
-                                (_kernel))->compute(a.get(), m.get(), r.get(), par);
+    __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationPredictKernelUCAPI, \
+                            __DAAL_KERNEL_ARGUMENTS(algorithmFpType),           \
+                            compute, a.get(), m.get(), r.get(), par);
 }
 
 } // namespace prediction

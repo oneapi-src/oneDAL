@@ -44,8 +44,8 @@ Batch<algorithmFPType, method>::Batch(const Batch &other): classifier::training:
 
 template class Batch<DAAL_FPTYPE, defaultDense>;
 
-} // namespace interface3
-} // namespace prediction
+} // namespace interface1
+} // namespace training
 } // namespace namespace bf_knn_classification
 } // namespace algorithms
 } // namespace daal

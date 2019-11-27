@@ -1,4 +1,4 @@
-/* file: bf_knn_classification_train_fpt_ucapi.cpp */
+/* file: bf_knn_classification_train_dense_default_batch_fpt.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -16,7 +16,6 @@
 *******************************************************************************/
 
 #include "oneapi/bf_knn_classification_train_kernel_ucapi_impl.i"
-#include "bf_knn_classification_predict_dense_default_batch_container.h"
 
 namespace daal
 {
@@ -26,7 +25,6 @@ namespace bf_knn_classification
 {
 namespace training
 {
-
 namespace internal
 {
 

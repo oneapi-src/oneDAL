@@ -47,8 +47,6 @@ void testModel(bf_knn_classification::training::ResultPtr& trainingResult,
                 NumericTablePtr& testGroundTruth);
 void printResults(NumericTablePtr& testGroundTruth, classifier::prediction::ResultPtr& predictionResult);
 
-template <typename T> const char * type_name();
-
 int main(int argc, char *argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);

@@ -25,9 +25,6 @@
 #define __BF_KNN_CLASSIFICATION_MODEL_H__
 
 #include "algorithms/classifier/classifier_model.h"
-#include "data_management/data/aos_numeric_table.h"
-#include "data_management/data/soa_numeric_table.h"
-#include "data_management/data/homogen_numeric_table.h"
 #include "algorithms/engines/mcg59/mcg59.h"
 
 namespace daal

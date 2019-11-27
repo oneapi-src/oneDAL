@@ -29,7 +29,8 @@
 DECLARE_SOURCE(radix_sort_simd,
 
 void swap(  __global sortedType **input,
-            __global sortedType **output) {
+            __global sortedType **output) 
+{
     __global sortedType *tmp = *input;
     *input = *output;
     *output = tmp;
@@ -39,11 +40,12 @@ __kernel void radix_sort_group( __global  sortedType      *labels,
                                 __global  int             *sorted,
                                 __global  int             *radixbuf,
                                 int N,
-                                int BlockOffset) {
+                                int BlockOffset) 
+{
 
     const int global_id  = get_global_id(0);
     const int local_id = get_local_id(1);
-// Added for debug purposes!!! Should be controlled by workgroup size to avoid impact on efficiency!!!!    
+// Code is written for a single subgroup. It's necessary to adjust the local range if idle subgoups are presented
     if(get_sub_group_id() > 0)
         return;
     const int local_size = get_sub_group_size();

@@ -18,7 +18,6 @@
 #ifndef __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_IMPL_I__
 #define __BF_KNN_CLASSIFICATION_PREDICT_KERNEL_UCAPI_IMPL_I__
 
-#include "service_memory.h"
 #include "service_rng.h"
 
 #include "engine_batch_impl.h"
@@ -48,9 +47,9 @@ namespace prediction
 namespace internal
 {
 
-using namespace daal::services::internal;
-using namespace daal::services;
-using namespace daal::internal;
+//using namespace daal::services::internal;
+//using namespace daal::services;
+//using namespace daal::internal;
 using namespace daal::oneapi::internal;
 using sort::RadixSort;
 using selection::QuickSelectIndexed;
@@ -95,19 +94,31 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
     const size_t probeBlockSize = (2048 * 4) / sizeof(algorithmFpType);
     const size_t nParts = 16;
 
-    auto dataSq                 = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize,                       &st);
-    auto data_temp              = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * nFeatures,           &st);
-    auto probe_temp              = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nFeatures,         &st);
-    auto distances              = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * probeBlockSize,      &st);
-    auto categories             = context.allocate(TypeIds::id<int>(), probeBlockSize * dataBlockSize,                  &st);
-    auto partialDistances       = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nK * (nParts + 1),  &st);
-    auto partialCategories      = context.allocate(TypeIds::id<int>(), probeBlockSize * nK * (nParts + 1),              &st);
-    auto sorted                 = context.allocate(TypeIds::id<int>(), probeBlockSize * nK,                             &st);
-    auto buffer                 = context.allocate(TypeIds::id<int>(), probeBlockSize * nK,                             &st);
-    auto radix_buffer           = context.allocate(TypeIds::id<int>(), probeBlockSize * 256,                            &st);
-    auto classes                = context.allocate(TypeIds::id<int>(), probeBlockSize,                                  &st);
-    auto rndSeq                 = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize,                       &st);
-    auto rndIndices                 = context.allocate(TypeIds::id<size_t>(), dataBlockSize,                            &st);
+    auto dataSq             = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize,                       &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto data_temp          = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * nFeatures,           &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto probe_temp         = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nFeatures,          &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto distances          = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * probeBlockSize,      &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto categories         = context.allocate(TypeIds::id<int>(), probeBlockSize * dataBlockSize,                  &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto partialDistances   = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nK * (nParts + 1),  &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto partialCategories  = context.allocate(TypeIds::id<int>(), probeBlockSize * nK * (nParts + 1),              &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto sorted             = context.allocate(TypeIds::id<int>(), probeBlockSize * nK,                             &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto buffer             = context.allocate(TypeIds::id<int>(), probeBlockSize * nK,                             &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto radix_buffer       = context.allocate(TypeIds::id<int>(), probeBlockSize * 256,                            &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto classes            = context.allocate(TypeIds::id<int>(), probeBlockSize,                                  &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto rndSeq             = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize,                       &st);
+    DAAL_CHECK_STATUS_VAR(st);
+    auto rndIndices         = context.allocate(TypeIds::id<size_t>(), dataBlockSize,                                &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     {

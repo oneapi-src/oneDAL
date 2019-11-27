@@ -28,7 +28,6 @@
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict_types.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_model.h"
 #include "algorithms/classifier/classifier_predict.h"
-#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {
@@ -92,7 +91,7 @@ public:
 
     typedef algorithms::bf_knn_classification::prediction::Input InputType;
     typedef algorithms::bf_knn_classification::Parameter         ParameterType;
-    typedef typename super::ResultType                               ResultType;
+    typedef typename super::ResultType                           ResultType;
 
     /** Default constructor */
     Batch();

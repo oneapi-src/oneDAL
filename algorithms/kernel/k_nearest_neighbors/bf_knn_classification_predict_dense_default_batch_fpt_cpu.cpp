@@ -15,8 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "bf_knn_classification_predict_dense_default_batch.h"
-#include "oneapi/bf_knn_classification_predict_kernel_ucapi_impl.i"
 #include "bf_knn_classification_predict_dense_default_batch_container.h"
 
 namespace daal
@@ -33,13 +31,6 @@ namespace interface1
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 } // namespace interface1
-
-namespace internal
-{
-
-template class KNNClassificationPredictKernelUCAPI<DAAL_FPTYPE>;
-
-} // namespace internal
 } // namespace prediction
 } // namespace bf_knn_classification
 } // namespace algorithms

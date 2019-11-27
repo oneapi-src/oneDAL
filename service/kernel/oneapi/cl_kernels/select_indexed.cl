@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Implementation of sum reduction kernels.
+//  Implementation of quick select kernels.
 //--
 */
 
@@ -30,7 +30,8 @@ DECLARE_SOURCE(quick_select_simd,
 
 algorithmFPType get_rnd(   __global  const algorithmFPType *rndseq,
                 int RndPeriod,
-                int *count) {
+                int *count) 
+{
     algorithmFPType ret = rndseq[(*count)++];
     if(*count >= RndPeriod)
         *count = 0;
@@ -45,7 +46,8 @@ void partition( __global  algorithmFPType *pdist,
                 int local_size,
                 algorithmFPType pivot,
                 int *split,
-                int *total_big_num) {
+                int *total_big_num) 
+{
     const int global_id  = get_global_id(0);
     int full_size = end - start;
     int last_group_size = full_size % local_size;
@@ -97,8 +99,8 @@ __kernel void quick_select_group( __global  algorithmFPType           *distances
                             int RndPeriod,
                             int N,
                             int K,
-                            int BlockOffset) {
-
+                            int BlockOffset) 
+{
     const int global_id  = get_global_id(0);
     const int local_id = get_local_id(1);
     const int local_size = get_local_size(1);

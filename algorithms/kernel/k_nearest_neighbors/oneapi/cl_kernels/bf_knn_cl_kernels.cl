@@ -74,8 +74,8 @@ __kernel void find_max_occurance(   __global const sortedType *data,
     const int global_id_0  = get_global_id(0);
      __global const sortedType *array = &data[global_id_0 * K];
 
-    sortedType maxVal;
-    sortedType curVal;
+    sortedType maxVal = -1;
+    sortedType curVal = -1;
     int maxCount = 0;
     int curCount = 0;
 
