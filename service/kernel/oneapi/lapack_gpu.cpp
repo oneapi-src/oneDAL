@@ -34,7 +34,7 @@ namespace interface1
 {
 using namespace daal::internal;
 
-#define CALL_CPU_FUNCTION(fptype, cpuId, className, funcName, ...)                                                                                           \
+#define CALL_CPU_FUNCTION(fptype, cpuId, className, funcName, ...)                                                                                         \
     switch (cpuId) {                                                                                                                                       \
     DAAL_KERNEL_SSSE3_ONLY_CODE(case daal::CpuType::ssse3: className<fptype, daal::CpuType::ssse3>::funcName(__VA_ARGS__); break;)                         \
     DAAL_KERNEL_SSE42_ONLY_CODE(case daal::CpuType::sse42: className<fptype, daal::CpuType::sse42>::funcName(__VA_ARGS__); break;)                         \
