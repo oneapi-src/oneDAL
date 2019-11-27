@@ -43,9 +43,9 @@ namespace interface1
 
 /**
  *  <a name="DAAL-CLASS-SERVICES__BUFFER"></a>
- *  \brief Wrapper for a SYCL* buffer.
+ *  \brief Wrapper for a SYCL* buffer
  *  Can hold data on the host side using shared pointer,
- *  or on host/device sides using SYCL* buffer.
+ *  or on host/device sides using SYCL* buffer
  */
 template<typename T>
 class Buffer : public Base
@@ -58,8 +58,8 @@ public:
 
 #ifdef DAAL_SYCL_INTERFACE
     /**
-     *  Creates a Buffer object referencing a SYCL* buffer.
-     *  Does not copy the data from the SYCL* buffer.
+     *  Creates a Buffer object referencing a SYCL* buffer
+     *  Does not copy the data from the SYCL* buffer
      */
     Buffer(const cl::sycl::buffer<T, 1> &buffer) :
         _impl(new internal::SyclBuffer<T>(buffer)) { }
@@ -67,8 +67,8 @@ public:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
-     *  Creates a Buffer object referencing a USM pointer.
-     *  Does not copy the data from the USM pointer.
+     *  Creates a Buffer object referencing a USM pointer
+     *  Does not copy the data from the USM pointer
      *  \param[in] usmData    Pointer to the USM-allocated data
      *  \param[in] size       Number of elements of type T stored in USM memory block
      *  \param[in] allocType  USM allocation type
@@ -79,8 +79,8 @@ public:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
-     *  Creates a Buffer object referencing a USM pointer.
-     *  Does not copy the data from the USM pointer.
+     *  Creates a Buffer object referencing a USM pointer
+     *  Does not copy the data from the USM pointer
      *  \param[in] usmData    Shared pointer to the USM-allocated data
      *  \param[in] size       Number of elements of type T stored in USM block
      *  \param[in] allocType  USM allocation type
@@ -90,14 +90,14 @@ public:
 #endif
 
     /**
-     *   Creates a Buffer object from host-allocated raw pointer.
-     *   Buffer does not own this pointer.
+     *   Creates a Buffer object from host-allocated raw pointer
+     *   Buffer does not own this pointer
      */
     Buffer(T *data, size_t size) :
         _impl(new internal::HostBuffer<T>(data, size)) { }
 
     /**
-     *   Creates a Buffer object referencing the shared pointer to the host-allocated data.
+     *   Creates a Buffer object referencing the shared pointer to the host-allocated data
      */
     Buffer(const SharedPtr<T> &data, size_t size) :
         _impl(new internal::HostBuffer<T>(data, size)) { }
@@ -127,9 +127,10 @@ public:
     }
 
     /**
-     *  Converts data inside the buffer to the host side.
-     *  \param[in] rwFlag  Access flag to the data
-     *  \return host-allocated shared pointer to the data.
+     *  Converts data inside the buffer to the host side
+     *  \param[in]  rwFlag  Access flag to the data
+     *  \param[out] status  Status of operation
+     *  \return host-allocated shared pointer to the data
      */
     inline SharedPtr<T> toHost(const data_management::ReadWriteMode& rwFlag, Status *status = NULL) const
     {
@@ -144,8 +145,8 @@ public:
 
 #ifdef DAAL_SYCL_INTERFACE
     /**
-     *  Converts buffer to the SYCL* buffer.
-     *  \return one-dimensional SYCL* buffer.
+     *  Converts buffer to the SYCL* buffer
+     *  \return one-dimensional SYCL* buffer
      */
     inline cl::sycl::buffer<T, 1> toSycl(Status *status = NULL) const
     {
@@ -161,8 +162,9 @@ public:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
-     *  Converts buffer to the USM shared pointer.
-     *  \return USM shared pointer.
+     *  Converts buffer to the USM shared pointer
+     *  \param[out] status Status of operation
+     *  \return USM shared pointer
      */
     inline SharedPtr<T> toUSM(Status *status = NULL) const
     {
@@ -177,7 +179,7 @@ public:
 #endif
 
     /**
-     *   Returns the total number of elements in the buffer.
+     *   Returns the total number of elements in the buffer
      */
     inline size_t size() const
     {
@@ -195,9 +197,11 @@ public:
     }
 
     /**
-     *   Creates Buffer object that points to the same memory as a parent but with offset
-     *   \param[in] offset Offset in elements from start of the parent buffer
-     *   \param[in] size   Number of elements in the sub-buffer
+     *  Creates Buffer object that points to the same memory as a parent but with offset
+     *  \param[in]  offset  Offset in elements from start of the parent buffer
+     *  \param[in]  size    Number of elements in the sub-buffer
+     *  \param[out] status  Status of operation
+     *  \return Buffer that contains only a part of the original buffer
      */
     inline Buffer<T> getSubBuffer(size_t offset, size_t size, Status *status = NULL) const
     {

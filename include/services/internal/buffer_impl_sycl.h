@@ -29,7 +29,15 @@ namespace services
 namespace internal
 {
 
+/** @ingroup services_internal
+ * @{
+ */
+
 #ifdef DAAL_SYCL_INTERFACE_USM
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__USMBUFFER"></a>
+ *  \brief BufferIface implementation based on USM
+ */
 template<typename T>
 class UsmBuffer : public Base,
                   public UsmBufferIface<T>
@@ -91,6 +99,10 @@ private:
 };
 #endif
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__SYCLHOSTDELETER"></a>
+ *  \brief Deleter for SharedPtr that owns host accessor for SYCL* buffer
+ */
 template <typename T, cl::sycl::access::mode mode>
 class SyclHostDeleter : public Base
 {
@@ -112,6 +124,10 @@ private:
     HostAccessorType *_hostAccessor;
 };
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__SYCLBUFFER"></a>
+ *  \brief BufferIface implementation based on SYCL* buffer
+ */
 template<typename T>
 class SyclBuffer : public Base,
                    public SyclBufferIface<T>
@@ -174,6 +190,10 @@ private:
     BufferType _syclBuffer;
 };
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__CONVERTTOSYCL"></a>
+ *  \brief BufferVisitor that converters any buffer to SYCL* buffer
+ */
 template <typename T>
 class ConvertToSycl : public BufferVisitor<T>
 {
@@ -207,6 +227,10 @@ private:
 };
 
 #ifdef DAAL_SYCL_INTERFACE_USM
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__CONVERTTOUSM"></a>
+ *  \brief BufferVisitor that converters any buffer to USM pointer
+ */
 template <typename T>
 class ConvertToUsm : public BufferVisitor<T>
 {
@@ -236,6 +260,10 @@ private:
 };
 #endif
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__SYCLBUFFERCONVERTER"></a>
+ *  \brief Groups high-level conversion methods for SYCL* buffer and USM
+ */
 template<typename T>
 class SyclBufferConverter
 {
@@ -256,6 +284,8 @@ public:
     }
 #endif
 };
+
+/** @} */
 
 } // namespace internal
 } // namespace services

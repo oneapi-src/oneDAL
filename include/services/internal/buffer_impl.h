@@ -29,18 +29,30 @@ namespace services
 namespace internal
 {
 
+/** @ingroup services_internal
+ * @{
+ */
+
 template <typename T> class HostBuffer;
 template <typename T> class UsmBufferIface;
 template <typename T> class SyclBufferIface;
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__BUFFERVISITOR"></a>
+ *  \brief Visitor pattern implementation for Buffer class
+ */
 template <typename T>
 class BufferVisitor : public Base {
  public:
-  virtual void operator()(const HostBuffer<T> &buffer) = 0;
-  virtual void operator()(const UsmBufferIface<T> &buffer) = 0;
-  virtual void operator()(const SyclBufferIface<T> &buffer) = 0;
+  virtual void operator()(const HostBuffer<T> &buffer) { }
+  virtual void operator()(const UsmBufferIface<T> &buffer) { }
+  virtual void operator()(const SyclBufferIface<T> &buffer) { }
 };
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__BUFFERIFACE"></a>
+ *  \brief Common Buffer interface
+ */
 template <typename T>
 class BufferIface
 {
@@ -51,6 +63,11 @@ public:
     virtual BufferIface<T> *getSubBuffer(size_t offset, size_t size) const = 0;
 };
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__CONVERTABLETOHOSTIFACE"></a>
+ *  \brief Interface that shall be implemented by any buffer which
+ *         can be converted to host buffer (pointer)
+ */
 template <typename T>
 class ConvertableToHostIface
 {
@@ -61,6 +78,10 @@ public:
     virtual SharedPtr<T> getHostReadWrite(Status *status = NULL) const = 0;
 };
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__USMBUFFERIFACE"></a>
+ *  \brief Common interface for USM-backed buffer
+ */
 template <typename T>
 class UsmBufferIface : public BufferIface<T>,
                        public ConvertableToHostIface<T> {
@@ -68,10 +89,18 @@ public:
     virtual const SharedPtr<T> &get() const = 0;
 };
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__SYCLBUFFERIFACE"></a>
+ *  \brief Common interface for SYCL*-backed buffer
+ */
 template <typename T>
 class SyclBufferIface : public BufferIface<T>,
                         public ConvertableToHostIface<T> { };
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__HOSTBUFFER"></a>
+ *  \brief BufferIface implementation based on host pointer
+ */
 template <typename T>
 class HostBuffer : public Base,
                    public BufferIface<T>
@@ -103,6 +132,10 @@ private:
     size_t _size;
 };
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__CONVERTTOHOST"></a>
+ *  \brief BufferVisitor that converters any buffer to host pointer
+ */
 template<typename T>
 class ConvertToHost : public BufferVisitor<T>
 {
@@ -145,6 +178,10 @@ private:
     data_management::ReadWriteMode _rwFlag;
 };
 
+/**
+ *  <a name="DAAL-CLASS-SERVICES-INTERNAL__HOSTBUFFERCONVERTER"></a>
+ *  \brief Groups high-level conversion methods for host memory
+ */
 template <typename T>
 class HostBufferConverter
 {
@@ -159,6 +196,8 @@ public:
         return action.get();
     }
 };
+
+/** @} */
 
 } // namespace internal
 } // namespace services
