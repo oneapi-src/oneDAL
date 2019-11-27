@@ -60,6 +60,13 @@ void deleteTables(gbt::internal::GbtDecisionTree ** aTbl, HomogenNumericTable<do
     }
 }
 
+template <CpuType cpu>
+size_t getThrOptBorder(size_t nThreads)
+{
+    // TODO: investigate effect of threading optimization on different cpus and numbers of threads
+    return 256000;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // Data helper class for regression
 //////////////////////////////////////////////////////////////////////////////////////////

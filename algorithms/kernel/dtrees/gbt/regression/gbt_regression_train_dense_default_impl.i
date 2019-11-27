@@ -55,24 +55,63 @@ public:
     virtual void getGradients(size_t n, size_t nRows, const algorithmFPType * y, const algorithmFPType * f, const IndexType * sampleInd,
                               algorithmFPType * gh) DAAL_C11_OVERRIDE
     {
-        if (sampleInd)
+        const size_t nThreads = daal::threader_get_threads_number();
+        if ( n < getThrOptBorder<cpu>(nThreads) || nThreads <= 1 )
         {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < n; ++i)
+            if (sampleInd)
             {
-                gh[2 * sampleInd[i]]     = f[sampleInd[i]] - y[sampleInd[i]]; //gradient
-                gh[2 * sampleInd[i] + 1] = 1;                                 //hessian
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < n; ++i)
+                {
+                    gh[2 * sampleInd[i]]     = f[sampleInd[i]] - y[sampleInd[i]]; //gradient
+                    gh[2 * sampleInd[i] + 1] = 1;                                 //hessian
+                }
+            }
+            else
+            {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < n; ++i)
+                {
+                    gh[2 * i]     = f[i] - y[i]; //gradient
+                    gh[2 * i + 1] = 1;           //hessian
+                }
             }
         }
         else
         {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < n; ++i)
+            const size_t nPerBlock = n / nThreads;
+            const size_t nSurplus = n % nThreads;
+            if (sampleInd)
             {
-                gh[2 * i]     = f[i] - y[i]; //gradient
-                gh[2 * i + 1] = 1;           //hessian
+                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                {
+                    size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+                    size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t i = start; i < end; i++)
+                    {
+                        gh[2 * sampleInd[i]]     = f[sampleInd[i]] - y[sampleInd[i]]; //gradient
+                        gh[2 * sampleInd[i] + 1] = 1;                                 //hessian
+                    }
+                });
+            }
+            else
+            {
+                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                {
+                    size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+                    size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t i = start; i < end; i++)
+                    {
+                        gh[2 * i]     = f[i] - y[i]; //gradient
+                        gh[2 * i + 1] = 1;           //hessian
+                    }
+                });
             }
         }
     }
@@ -119,7 +158,26 @@ protected:
         const size_t n            = this->_dataHelper.data()->getNumberOfRows();
         const algorithmFPType div = algorithmFPType(1.) / algorithmFPType(n);
         val                       = algorithmFPType(0);
-        for (size_t i = 0; i < n; ++i) val += div * py[i];
+        const size_t nThreads     = super::numAvailableThreads();
+        if ( n < getThrOptBorder<cpu>(nThreads) || nThreads <= 1 )
+        {
+            for(size_t i = 0; i < n; ++i) val += div*py[i];
+        }
+        else
+        {
+            const size_t nPerBlock = n / nThreads;
+            const size_t nSurplus = n % nThreads;
+            algorithmFPType pvals[nThreads];
+            for(size_t i = 0; i < nThreads; i++) pvals[i] = 0;
+            daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+            {
+                size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+                size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+                for (size_t i = start; i < end; i++)
+                    pvals[iBlock] += div*py[i];
+            });
+            for(size_t i = 0; i < nThreads; i++) val += pvals[i];
+        }
         return true;
     }
 

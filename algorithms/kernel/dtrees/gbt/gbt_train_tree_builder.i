@@ -262,22 +262,71 @@ protected:
         const size_t nSamples  = _ctx.nSamples();
         const int * aSampleToF = _ctx.aSampleToF();
 
-        if (aSampleToF)
+        const size_t nThreads = _ctx.numAvailableThreads();
+        if ( nSamples < getThrOptBorder<cpu>(nThreads) || nThreads <= 1 )
         {
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < nSamples; ++i)
+            if ( aSampleToF )
             {
-                G += pgh[aSampleToF[i]].g;
-                H += pgh[aSampleToF[i]].h;
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < nSamples; ++i)
+                {
+                    G += pgh[aSampleToF[i]].g;
+                    H += pgh[aSampleToF[i]].h;
+                }
+            }
+            else
+            {
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < nSamples; ++i)
+                {
+                    G += pgh[i].g;
+                    H += pgh[i].h;
+                }
             }
         }
         else
         {
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < nSamples; ++i)
+            algorithmFPType gs[nThreads];
+            algorithmFPType hs[nThreads];
+            for (size_t i = 0; i < nThreads; i++)
             {
-                G += pgh[i].g;
-                H += pgh[i].h;
+                gs[i] = 0;
+                hs[i] = 0;
+            }
+            const size_t nPerBlock = nSamples / nThreads;
+            const size_t nSurplus = nSamples % nThreads;
+            if ( aSampleToF )
+            {
+                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                {
+                    size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+                    size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t i = start; i < end; i++)
+                    {
+                        gs[iBlock] += pgh[aSampleToF[i]].g;
+                        hs[iBlock] += pgh[aSampleToF[i]].h;
+                    }
+                });
+            }
+            else
+            {
+                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                {
+                    size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+                    size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t i = start; i < end; i++)
+                    {
+                        gs[iBlock] += pgh[i].g;
+                        hs[iBlock] += pgh[i].h;
+                    }
+                });
+            }
+            for (size_t i = 0; i < nThreads; i++)
+            {
+                G += gs[i];
+                H += hs[i];
             }
         }
     }
