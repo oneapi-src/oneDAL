@@ -167,8 +167,9 @@ protected:
         {
             const size_t nPerBlock = n / nThreads;
             const size_t nSurplus = n % nThreads;
-            algorithmFPType pvals[nThreads];
-            for(size_t i = 0; i < nThreads; i++) pvals[i] = 0;
+            services::internal::TArray<algorithmFPType, cpu> pvalsArr(nThreads);
+            algorithmFPType * pvals = pvalsArr.get();
+            services::internal::service_memset<algorithmFPType, cpu>(pvals, 0, nThreads);
             daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
             {
                 size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;

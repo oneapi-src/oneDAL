@@ -286,13 +286,12 @@ protected:
         }
         else
         {
-            algorithmFPType gs[nThreads];
-            algorithmFPType hs[nThreads];
-            for (size_t i = 0; i < nThreads; i++)
-            {
-                gs[i] = 0;
-                hs[i] = 0;
-            }
+            daal::services::internal::TArray<algorithmFPType, cpu> gsArr(nThreads);
+            daal::services::internal::TArray<algorithmFPType, cpu> hsArr(nThreads);
+            algorithmFPType * gs = gsArr.get();
+            algorithmFPType * hs = hsArr.get();
+            daal::services::internal::service_memset<algorithmFPType, cpu>(gs, 0, nThreads);
+            daal::services::internal::service_memset<algorithmFPType, cpu>(hs, 0, nThreads);
             const size_t nPerBlock = nSamples / nThreads;
             const size_t nSurplus = nSamples % nThreads;
             if ( aSampleToF )
