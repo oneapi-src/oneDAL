@@ -90,7 +90,7 @@ RES = $(example:+=.res)
 CC=clang-cl
 COPTS=/clang:-fsycl /DONEAPI_DAAL_USE_MKL_GPU_FUNC /EHs
 OUT_OPTS=/Fe$(RES_DIR)
-RT_LIB=/link /DEFAULTLIB:OpenCL.lib  -foffload-static-lib=$(DAAL_PATH)\daal_sycl.lib
+RT_LIB=/link /ignore:4078 OpenCL.lib $(DAAL_PATH)\daal_sycl.lib
 CLEAN=
 !ENDIF
 
@@ -106,7 +106,7 @@ EXT_LIB = $(RT_LIB)
 !ELSE
 threading = parallel
 DAAL_LIB_T = $(DAAL_PATH)\daal_thread.lib
-EXT_LIB = $(RT_LIB) /DEFAULTLIB:tbb.lib /DEFAULTLIB:tbbmalloc.lib
+EXT_LIB = $(RT_LIB)
 !ENDIF
 
 DAAL_LIB = $(DAAL_PATH)\daal_core$(EXT) $(DAAL_LIB_T)
