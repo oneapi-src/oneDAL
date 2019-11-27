@@ -107,7 +107,7 @@ public:
     /** Destructor */
     ~Batch() {
         delete _par;
-        _par = nullptr;
+        _par = NULL;
     }
 
     /**

@@ -562,7 +562,7 @@ public:
               void *src,
               size_t srcOffset,
               size_t count,
-              services::Status *status = nullptr)
+              services::Status *status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
