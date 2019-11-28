@@ -207,7 +207,7 @@ protected:
                             size_t nColumns, size_t nRows, services::Status &st) :
         SyclHomogenNumericTable(featuresEqual, nColumns, nRows, st)
     {
-        if (nColumns * nRows < buffer.size())
+        if (nColumns * nRows > buffer.size())
         {
             st |= services::Error::create(services::ErrorIncorrectSizeOfArray, services::Row,
                                           "Buffer size is not enough to represent the table");
