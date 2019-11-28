@@ -104,6 +104,12 @@ public:
      */
     Batch(const Batch<algorithmFPType, method> & other);
 
+    /** Destructor */
+    ~Batch() {
+        delete _par;
+        _par = NULL;
+    }
+
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm

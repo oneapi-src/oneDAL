@@ -48,17 +48,13 @@ Model::Model(size_t nFeatures, services::Status &st) : _impl(new ModelImpl(nFeat
 services::Status Model::serializeImpl(data_management::InputDataArchive  * arch)
 {
     daal::algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
-    _impl->serialImpl<data_management::InputDataArchive, false>(arch);
-
-    return services::Status();
+    return _impl->serialImpl<data_management::InputDataArchive, false>(arch);
 }
 
 services::Status Model::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
     daal::algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
-    _impl->serialImpl<const data_management::OutputDataArchive, true>(arch);
-
-    return services::Status();
+    return _impl->serialImpl<const data_management::OutputDataArchive, true>(arch);
 }
 
 size_t Model::getNumberOfFeatures() const
