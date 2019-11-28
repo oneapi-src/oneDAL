@@ -63,7 +63,7 @@ void nodeToTable(const NodeBase & node, size_t iRow, size_t & iCur, DecisionTree
         {
             for (size_t i = 0; i < nClasses; ++i)
             {
-                probVals[iRow * nClasses + i] = double(l.hist[i]) / double(node.count);
+                probVals[iRow * nClasses + i] = double(l.hist[i]);
             }
         }
         row.featureIndex = -1;

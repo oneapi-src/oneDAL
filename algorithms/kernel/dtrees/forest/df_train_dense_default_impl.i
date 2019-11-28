@@ -247,7 +247,6 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
         s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes);
         DAAL_CHECK_STATUS_VAR(s);
     }
-
     const auto nFeatures = x->getNumberOfColumns();
     WriteOnlyRows<algorithmFPType, cpu> varImpBD(res.varImp, 0, 1);
     if (res.varImp) DAAL_CHECK_BLOCK_STATUS(varImpBD);
