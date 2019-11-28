@@ -58,6 +58,7 @@ Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeMinusOneToZero(cons
     const algorithmFPtype minusOne = -1.0;
     for(size_t i = 0; i < nVectors; i++)
     {
+        // exact fp comparison, fp stores labels: exact numbers 1 or -1
         if(yArray[i] == minusOne) { yZeroOne[i] = zero; }
         else { yZeroOne[i] = one; }
     }
