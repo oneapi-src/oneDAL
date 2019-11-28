@@ -17,8 +17,7 @@
 
 /*
 !  Content:
-!    C++ example of dense correlation matrix computation in the batch
-!    processing mode with DPC++ interfaces
+!    Example of the use of Unified Shared Memory in Numeric Table
 !
 !******************************************************************************/
 
