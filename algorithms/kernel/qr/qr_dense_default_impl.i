@@ -89,8 +89,14 @@ Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAA
     // Get R of the QR factorization formed by xgeqrf
     for (auto i = 1; i <= n; i++)
     {
-        for (auto j = 0; j < i; j++) { r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j]; }
-        for (auto j = i; j < n; j++) { r[(i - 1) * ldr + j] = (algorithmFPType)0.0; }
+        for (auto j = 0; j < i; j++)
+        {
+            r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j];
+        }
+        for (auto j = i; j < n; j++)
+        {
+            r[(i - 1) * ldr + j] = (algorithmFPType)0.0;
+        }
     }
 
     // Get Q of the QR factorization formed by xgeqrf
@@ -131,8 +137,14 @@ Status compute_QR_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q,
     // Get R of the QR factorization formed by xgeqrf
     for (auto i = 1; i <= n; i++)
     {
-        for (auto j = 0; j < i; j++) { r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j]; }
-        for (auto j = i; j < n; j++) { r[(i - 1) * ldr + j] = (algorithmFPType)0.0; }
+        for (auto j = 0; j < i; j++)
+        {
+            r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j];
+        }
+        for (auto j = i; j < n; j++)
+        {
+            r[(i - 1) * ldr + j] = (algorithmFPType)0.0;
+        }
     }
 
     // Get Q of the QR factorization formed by xgeqrf

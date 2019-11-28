@@ -87,7 +87,10 @@ public:
         const size_t * const c = &_counters[index * _numberOfClasses];
 
         ErrorType err = 0;
-        for (size_t i = 0; i < _numberOfClasses; ++i) { err += c[i]; }
+        for (size_t i = 0; i < _numberOfClasses; ++i)
+        {
+            err += c[i];
+        }
 
         return err - c[classIndex];
     }
@@ -103,7 +106,10 @@ public:
         {
             err += c[i];
 
-            if (c[i] > max) { max = c[i]; }
+            if (c[i] > max)
+            {
+                max = c[i];
+            }
         }
 
         return err - max;
@@ -120,15 +126,24 @@ public:
 
         size_t total        = 0;
         size_t * const cnts = _counters + index * _numberOfClasses;
-        for (size_t i = 0; i < _numberOfClasses; ++i) { total += cnts[i]; }
+        for (size_t i = 0; i < _numberOfClasses; ++i)
+        {
+            total += cnts[i];
+        }
 
         if (total != 0)
         {
-            for (size_t i = 0; i < _numberOfClasses; ++i) { probs[i] = static_cast<double>(cnts[i]) / static_cast<double>(total); }
+            for (size_t i = 0; i < _numberOfClasses; ++i)
+            {
+                probs[i] = static_cast<double>(cnts[i]) / static_cast<double>(total);
+            }
         }
         else
         {
-            for (size_t i = 0; i < _numberOfClasses; ++i) { probs[i] = 0.0; }
+            for (size_t i = 0; i < _numberOfClasses; ++i)
+            {
+                probs[i] = 0.0;
+            }
         }
     }
 
@@ -138,7 +153,10 @@ protected:
     void resetCounters()
     {
         const size_t cnt = size() * _numberOfClasses;
-        for (size_t i = 0; i < cnt; ++i) { _counters[i] = 0; }
+        for (size_t i = 0; i < cnt; ++i)
+        {
+            _counters[i] = 0;
+        }
     }
 
     size_t majorityClass(size_t index) const

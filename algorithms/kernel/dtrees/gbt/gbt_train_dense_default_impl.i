@@ -250,7 +250,10 @@ double TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::computeLeafWeight
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < n; ++i) { pf[idx[i] * this->_nTrees + iTree] += inc; }
+    for (size_t i = 0; i < n; ++i)
+    {
+        pf[idx[i] * this->_nTrees + iTree] += inc;
+    }
 
     return res + inc;
 }
@@ -268,7 +271,10 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::run(gbt
         aTblSmplCnt[i] = nullptr;
     }
 
-    if (iIteration) { _initialF = 0; }
+    if (iIteration)
+    {
+        _initialF = 0;
+    }
     else
     {
         if (!getInitialF(_initialF)) _initialF = algorithmFPType(0);
@@ -422,7 +428,10 @@ services::Status computeTypeDisp(HostAppIface * pHostApp, const NumericTable * x
 
     if (!par.memorySavingMode)
     {
-        for (size_t i = 0; i < x->getNumberOfColumns(); ++i) { storage.singleGHSums.add(i, indexedFeatures.numIndices(i), 2); }
+        for (size_t i = 0; i < x->getNumberOfColumns(); ++i)
+        {
+            storage.singleGHSums.add(i, indexedFeatures.numIndices(i), 2);
+        }
     }
 
     TVector<BinIndexType, cpu, ScalableAllocator<cpu> > newFIArr;
@@ -449,7 +458,10 @@ services::Status computeTypeDisp(HostAppIface * pHostApp, const NumericTable * x
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < nCols; ++j) { newFI[nCols * i + j] = fi[nRows * j + i]; }
+                for (size_t j = 0; j < nCols; ++j)
+                {
+                    newFI[nCols * i + j] = fi[nRows * j + i];
+                }
             }
         });
         storage.newFI = newFI;
@@ -483,9 +495,18 @@ services::Status computeTypeDisp(HostAppIface * pHostApp, const NumericTable * x
 
         for (iTree = 0; iTree < nTrees; ++iTree)
         {
-            if ((ptrTotalCover != nullptr) || (ptrCover != nullptr)) { totalCoverFeature = (aTbl[iTree]->getArrayCoverFeature()); }
-            if ((ptrWeight != nullptr) || (ptrCover != nullptr) || (ptrGain != nullptr)) { weightFeature = aTbl[iTree]->getArrayNumSplitFeature(); }
-            if ((ptrTotalGain != nullptr) || (ptrGain != nullptr)) { totalGainFeature = (aTbl[iTree]->getArrayGainFeature()); }
+            if ((ptrTotalCover != nullptr) || (ptrCover != nullptr))
+            {
+                totalCoverFeature = (aTbl[iTree]->getArrayCoverFeature());
+            }
+            if ((ptrWeight != nullptr) || (ptrCover != nullptr) || (ptrGain != nullptr))
+            {
+                weightFeature = aTbl[iTree]->getArrayNumSplitFeature();
+            }
+            if ((ptrTotalGain != nullptr) || (ptrGain != nullptr))
+            {
+                totalGainFeature = (aTbl[iTree]->getArrayGainFeature());
+            }
 
             if (ptrWeight != nullptr)
                 for (size_t kFeature = 0; kFeature < nStor; ++kFeature) ptrWeight[kFeature] += static_cast<algorithmFPType>(weightFeature[kFeature]);

@@ -133,7 +133,10 @@ public:
             _result->set(objective_function::valueIdx, otherResult->get(objective_function::valueIdx));
             isResultInitialized = (isResultInitialized || otherResult->get(objective_function::hessianIdx));
             _result->set(objective_function::hessianIdx, otherResult->get(objective_function::hessianIdx));
-            if (isResultInitialized) { _res = _result.get(); }
+            if (isResultInitialized)
+            {
+                _res = _result.get();
+            }
         }
     }
 
@@ -276,7 +279,10 @@ public:
             _result->set(objective_function::valueIdx, otherResult->get(objective_function::valueIdx));
             isResultInitialized = (isResultInitialized || otherResult->get(objective_function::hessianIdx));
             _result->set(objective_function::hessianIdx, otherResult->get(objective_function::hessianIdx));
-            if (isResultInitialized) { _res = _result.get(); }
+            if (isResultInitialized)
+            {
+                _res = _result.get();
+            }
         }
     }
 

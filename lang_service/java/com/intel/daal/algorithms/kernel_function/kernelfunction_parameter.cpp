@@ -33,7 +33,10 @@ using namespace daal::algorithms::kernel_function;
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_Parameter_cSetComputationMode(JNIEnv * env, jobject thisObj, jlong parAddr,
                                                                                                      jint id)
 {
-    if (id == VectorVector) { (*(ParameterBase *)parAddr).computationMode = vectorVector; }
+    if (id == VectorVector)
+    {
+        (*(ParameterBase *)parAddr).computationMode = vectorVector;
+    }
     else if (id == MatrixVector)
     {
         (*(ParameterBase *)parAddr).computationMode = matrixVector;

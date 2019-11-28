@@ -37,7 +37,10 @@ using namespace daal::algorithms::qr;
  */
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_Input_cSetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
 {
-    if (id != data) { return; }
+    if (id != data)
+    {
+        return;
+    }
 
     jniInput<qr::Input>::set<qr::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -49,7 +52,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_Input_cSetInputTable(JN
  */
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Input_cGetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
-    if (id != data) { return (jlong)-1; }
+    if (id != data)
+    {
+        return (jlong)-1;
+    }
 
     return jniInput<qr::Input>::get<qr::InputId, NumericTable>(inputAddr, id);
 }
@@ -73,7 +79,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_DistributedStep2MasterI
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_DistributedStep3LocalInput_cSetDataCollection(JNIEnv * env, jobject thisObj, jlong inputAddr,
                                                                                                        jint id, jlong dcAddr)
 {
-    if (id != inputOfStep3FromStep1 && id != inputOfStep3FromStep2) { return; }
+    if (id != inputOfStep3FromStep1 && id != inputOfStep3FromStep2)
+    {
+        return;
+    }
 
     jniInput<qr::DistributedStep3Input>::set<qr::FinalizeOnLocalInputId, DataCollection>(inputAddr, id, dcAddr);
 }

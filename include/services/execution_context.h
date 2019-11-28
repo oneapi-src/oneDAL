@@ -116,7 +116,10 @@ private:
                 Spin-lock is active while the queue persists. We do not persist
                 the queue and avoid running spin-lock in a queue while any DAAL
                 algorithm is running. */
-        if (queue.get_device().is_cpu()) { return new daal::oneapi::internal::CpuExecutionContextImpl(); }
+        if (queue.get_device().is_cpu())
+        {
+            return new daal::oneapi::internal::CpuExecutionContextImpl();
+        }
         else
         {
             return new daal::oneapi::internal::SyclExecutionContextImpl(queue);

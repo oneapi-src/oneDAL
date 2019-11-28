@@ -128,7 +128,10 @@ protected:
 
         size_t nCats = aux.nCats;
 
-        for (size_t i = 0; i < nCats; i++) { arr[aux.idx + i] = (DAAL_DATA_TYPE)(i == index); }
+        for (size_t i = 0; i < nCats; i++)
+        {
+            arr[aux.idx + i] = (DAAL_DATA_TYPE)(i == index);
+        }
     }
 };
 
@@ -266,12 +269,18 @@ public:
         {
             services::Collection<bool> flags(nCols);
 
-            for (size_t i = 0; i < nCols; i++) { flags[i] = false; }
+            for (size_t i = 0; i < nCols; i++)
+            {
+                flags[i] = false;
+            }
 
             for (size_t i = 0; i < validList.size(); i++)
             {
                 size_t el = validList[i];
-                if (el < nCols) { flags[el] = true; }
+                if (el < nCols)
+                {
+                    flags[el] = true;
+                }
             }
 
             for (size_t i = 0; i < nCols; i++)
@@ -325,7 +334,10 @@ public:
      */
     size_t getNumericTableNumberOfColumns() const
     {
-        if (_modifiersManager) { return _modifiersManager->getNumberOfOutputFeatures(); }
+        if (_modifiersManager)
+        {
+            return _modifiersManager->getNumberOfOutputFeatures();
+        }
 
         const size_t nDSCols = auxVect.size();
         return auxVect[nDSCols - 1].idx + auxVect[nDSCols - 1].wide;
@@ -394,7 +406,10 @@ public:
         DAAL_ASSERT(rawRowData);
 
         internal::CSVRowTokenizer tokenizer(rawRowData, rawDataSize, _delimiter);
-        for (tokenizer.reset(); tokenizer.good(); tokenizer.next()) { _featuresInfo.addFeatureName(tokenizer.getCurrentToken()); }
+        for (tokenizer.reset(); tokenizer.good(); tokenizer.next())
+        {
+            _featuresInfo.addFeatureName(tokenizer.getCurrentToken());
+        }
     }
 
     /**
@@ -448,7 +463,9 @@ public:
         if (_modifiersManager)
         {
             for (tokenizer.reset(); tokenizer.good() && i < _numberOfTokens; tokenizer.next(), i++)
-            { _modifiersManager->setToken(i, tokenizer.getCurrentToken()); }
+            {
+                _modifiersManager->setToken(i, tokenizer.getCurrentToken());
+            }
             _modifiersManager->applyModifiers(rowBuffer);
         }
         else

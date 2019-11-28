@@ -80,7 +80,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingBatc
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_training_TrainingResult_cGetModel(JNIEnv * env, jobject obj, jlong resAddr, jint id)
 {
     if (id == innerModelId)
-    { return jniArgument<svm::training::Result>::get<classifier::training::ResultId, svm::Model>(resAddr, classifier::training::model); }
+    {
+        return jniArgument<svm::training::Result>::get<classifier::training::ResultId, svm::Model>(resAddr, classifier::training::model);
+    }
 
     return (jlong)0;
 }

@@ -47,10 +47,16 @@ namespace oneapi
 namespace internal
 {
 #define RET_IF_FAIL(st) \
-    if (!st) { return; }
+    if (!st)            \
+    {                   \
+        return;         \
+    }
 #define CHECK_AND_RET_IF_FAIL(st, expr) \
     (st) |= (expr);                     \
-    if (!st) { return; }
+    if (!st)                            \
+    {                                   \
+        return;                         \
+    }
 
 template <>
 const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMinMax>::kSinglePassName = "singlePassMinMax";
@@ -159,7 +165,10 @@ static inline services::Status buildProgram(ClKernelFactoryIface & factory, cons
     build_options.add(TaskInfoBatch<algorithmFPType, scope>::kBldOptFNameSuff);
     build_options.add(TaskInfoBatch<algorithmFPType, scope>::kBldOptScope);
 
-    if (buildOptions) { build_options.add(buildOptions); }
+    if (buildOptions)
+    {
+        build_options.add(buildOptions);
+    }
 
     services::String cachekey(TaskInfoBatch<algorithmFPType, scope>::kCacheKey);
     cachekey.add(fptype_name);
@@ -222,11 +231,17 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
 template <typename algorithmFPType, EstimatesToCompute scope>
 LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::~LowOrderMomentsBatchTaskOneAPI()
 {
-    if (dataTable) { dataTable->releaseBlockOfRows(dataBD); }
+    if (dataTable)
+    {
+        dataTable->releaseBlockOfRows(dataBD);
+    }
 
     for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
     {
-        if (resultTable[i]) { resultTable[i]->releaseBlockOfRows(resultBD[i]); }
+        if (resultTable[i])
+        {
+            resultTable[i]->releaseBlockOfRows(resultBD[i]);
+        }
     }
 }
 
@@ -265,10 +280,15 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
             args.set(argsI++, nFeatures);
             args.set(argsI++, nVectors);
 
-            if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired) { args.set(argsI++, bNVec, AccessModeIds::write); }
+            if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
+            {
+                args.set(argsI++, bNVec, AccessModeIds::write);
+            }
 
             for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nBuffers; i++)
-            { args.set(argsI++, bAuxBuffers[i], AccessModeIds::write); }
+            {
+                args.set(argsI++, bAuxBuffers[i], AccessModeIds::write);
+            }
 
             context.run(range, kProcessBlocks, args, &status);
             DAAL_CHECK_STATUS_VAR(status);
@@ -292,12 +312,19 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
             unsigned int argsI = 0;
             args.set(argsI++, nRowsBlocks); // num of values to merge
             for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
-            { args.set(argsI++, resultBD[i].getBuffer(), AccessModeIds::readwrite); }
+            {
+                args.set(argsI++, resultBD[i].getBuffer(), AccessModeIds::readwrite);
+            }
 
-            if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired) { args.set(argsI++, bNVec, AccessModeIds::write); }
+            if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
+            {
+                args.set(argsI++, bNVec, AccessModeIds::write);
+            }
 
             for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nBuffers; i++)
-            { args.set(argsI++, bAuxBuffers[i], AccessModeIds::write); }
+            {
+                args.set(argsI++, bAuxBuffers[i], AccessModeIds::write);
+            }
 
             context.run(range, kMergeBlocks, args, &status);
             DAAL_CHECK_STATUS_VAR(status);
@@ -323,7 +350,9 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
             args.set(argsI++, nFeatures);
             args.set(argsI++, nVectors);
             for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
-            { args.set(argsI++, resultBD[i].getBuffer(), AccessModeIds::readwrite); }
+            {
+                args.set(argsI++, resultBD[i].getBuffer(), AccessModeIds::readwrite);
+            }
 
             context.run(range, kSinglePass, args, &status);
             DAAL_CHECK_STATUS_VAR(status);

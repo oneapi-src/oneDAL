@@ -38,7 +38,10 @@ namespace dtct = daal::algorithms::decision_tree::classification::training;
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj,
                                                                                                                        jlong resAddr, jint id)
 {
-    if (id == modelId) { return jniArgument<dtct::Result>::get<classifier::training::ResultId, dtc::Model>(resAddr, classifier::training::model); }
+    if (id == modelId)
+    {
+        return jniArgument<dtct::Result>::get<classifier::training::ResultId, dtc::Model>(resAddr, classifier::training::model);
+    }
 
     return (jlong)0;
 }

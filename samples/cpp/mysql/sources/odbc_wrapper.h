@@ -45,9 +45,15 @@ std::vector<std::string> split(const std::string & input, char delim)
     std::vector<std::string> parts;
 
     std::string item;
-    while (std::getline(ss, item, delim)) { parts.push_back(item); }
+    while (std::getline(ss, item, delim))
+    {
+        parts.push_back(item);
+    }
 
-    if (input[input.size() - 1] == delim) { parts.push_back(std::string()); }
+    if (input[input.size() - 1] == delim)
+    {
+        parts.push_back(std::string());
+    }
 
     return parts;
 }
@@ -63,7 +69,10 @@ public:
 
     virtual const char * what() const throw()
     {
-        if (_errors.empty()) { return ""; }
+        if (_errors.empty())
+        {
+            return "";
+        }
         else
         {
             return "Errors have occurred. Result of method \"errors()\" contains error codes.";
@@ -88,7 +97,10 @@ inline Exception formatException(SQLSMALLINT handleType, SQLHANDLE handle)
         SQLCHAR text[SQL_MAX_MESSAGE_LENGTH];
         SQLSMALLINT messageActualSize;
         ret = SQLGetDiagRec(handleType, handle, i, state, &e, text, sizeof(text), &messageActualSize);
-        if (SQL_SUCCEEDED(ret)) { ex.add(e); }
+        if (SQL_SUCCEEDED(ret))
+        {
+            ex.add(e);
+        }
     }
 
     return ex;
@@ -96,7 +108,10 @@ inline Exception formatException(SQLSMALLINT handleType, SQLHANDLE handle)
 
 inline SQLRETURN call(SQLSMALLINT handleType, SQLHANDLE handle, SQLRETURN code)
 {
-    if (!SQL_SUCCEEDED(code)) { throw formatException(handleType, handle); }
+    if (!SQL_SUCCEEDED(code))
+    {
+        throw formatException(handleType, handle);
+    }
     return code;
 }
 
@@ -107,7 +122,10 @@ public:
 
     explicit ColumnAttributes(SQLHSTMT hstmt, SQLUSMALLINT column) : _hstmt(hstmt), _column(column), _sqlType(SQL_UNKNOWN_TYPE), _octetLength(0)
     {
-        if (!hstmt) { throw std::invalid_argument("hstmt can't be nullptr"); }
+        if (!hstmt)
+        {
+            throw std::invalid_argument("hstmt can't be nullptr");
+        }
     }
 
     const std::string & name() const
@@ -215,7 +233,10 @@ private:
     public:
         explicit Impl(SQLHDBC hdbc, const std::string & query) : _hstmt(NULL)
         {
-            if (!hdbc) { throw std::invalid_argument("hdbc can't be nullptr"); }
+            if (!hdbc)
+            {
+                throw std::invalid_argument("hdbc can't be nullptr");
+            }
 
             call(SQL_HANDLE_DBC, hdbc, SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &_hstmt));
             call(SQL_HANDLE_STMT, _hstmt, SQLExecDirect(_hstmt, (SQLCHAR *)query.c_str(), SQL_NTS));
@@ -253,10 +274,16 @@ private:
         bool fetch(bool throwExceptionIfNoData = false)
         {
             SQLRETURN ret = SQLFetchScroll(_hstmt, SQL_FETCH_NEXT, 0);
-            if (SQL_SUCCEEDED(ret)) { return true; }
+            if (SQL_SUCCEEDED(ret))
+            {
+                return true;
+            }
             else
             {
-                if (ret != SQL_NO_DATA || throwExceptionIfNoData) { throw formatException(SQL_HANDLE_STMT, _hstmt); }
+                if (ret != SQL_NO_DATA || throwExceptionIfNoData)
+                {
+                    throw formatException(SQL_HANDLE_STMT, _hstmt);
+                }
                 return false;
             }
         }
@@ -387,7 +414,10 @@ public:
     Statement execute(const std::string & query, const std::string & arg)
     {
         const std::vector<std::string> parts = utils::split(query, '?');
-        if (parts.size() != 2) { throw std::invalid_argument("query must contain exactly one ? character"); }
+        if (parts.size() != 2)
+        {
+            throw std::invalid_argument("query must contain exactly one ? character");
+        }
 
         return execute(parts[0] + arg + parts[1]);
     }

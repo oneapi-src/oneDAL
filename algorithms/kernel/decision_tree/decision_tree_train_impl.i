@@ -157,9 +157,15 @@ struct BaseCutPointFinder
                 for (auto i = first;;)
                 {
                     const auto next = upperBound<cpu>(i, last, *i, compare);
-                    if (next == last) { break; }
+                    if (next == last)
+                    {
+                        break;
+                    }
 
-                    for (auto j = i; j != next; ++j) { dataStatistics.update(getDependentValue(*j)); }
+                    for (auto j = i; j != next; ++j)
+                    {
+                        dataStatistics.update(getDependentValue(*j));
+                    }
 
                     const size_t leftCount  = next - first;
                     const size_t rightCount = last - next;
@@ -189,7 +195,10 @@ struct BaseCutPointFinder
                     {
                         dataStatistics.reset(totalDataStatistics);
 
-                        for (auto j = i; j != next; ++j) { dataStatistics.update(getDependentValue(*j)); }
+                        for (auto j = i; j != next; ++j)
+                        {
+                            dataStatistics.update(getDependentValue(*j));
+                        }
 
                         const size_t leftCount  = next - i;
                         const size_t rightCount = totalCount - leftCount;
@@ -206,7 +215,10 @@ struct BaseCutPointFinder
                             winnerDataStatistics      = dataStatistics;
                         }
 
-                        if (next == last) { break; }
+                        if (next == last)
+                        {
+                            break;
+                        }
                         i = next;
                     }
                 }
@@ -232,7 +244,10 @@ struct WeightedBaseCutPointFinder
     {
         double totalWeight          = 0.0;
         const size_t statisticsSize = totalDataStatistics.size();
-        for (size_t k = 0; k < statisticsSize; k++) { totalWeight += totalDataStatistics[k]; }
+        for (size_t k = 0; k < statisticsSize; k++)
+        {
+            totalWeight += totalDataStatistics[k];
+        }
 
         auto winner = last;
         if (first != last)
@@ -244,12 +259,21 @@ struct WeightedBaseCutPointFinder
                 for (auto i = first;;)
                 {
                     const auto next = upperBound<cpu>(i, last, *i, compare);
-                    if (next == last) { break; }
+                    if (next == last)
+                    {
+                        break;
+                    }
 
-                    for (auto j = i; j != next; ++j) { dataStatistics.update(getDependentValue(*j), getWeight(*j)); }
+                    for (auto j = i; j != next; ++j)
+                    {
+                        dataStatistics.update(getDependentValue(*j), getWeight(*j));
+                    }
 
                     double leftWeight = 0.0, rightWeight = 0.0;
-                    for (size_t k = 0; k < statisticsSize; k++) { leftWeight += dataStatistics[k]; }
+                    for (size_t k = 0; k < statisticsSize; k++)
+                    {
+                        leftWeight += dataStatistics[k];
+                    }
                     rightWeight = totalWeight - leftWeight;
 
                     const auto splitCriterionValue =
@@ -276,7 +300,10 @@ struct WeightedBaseCutPointFinder
                     {
                         dataStatistics.reset(totalDataStatistics);
 
-                        for (auto j = i; j != next; ++j) { dataStatistics.update(getDependentValue(*j), getWeight(*j)); }
+                        for (auto j = i; j != next; ++j)
+                        {
+                            dataStatistics.update(getDependentValue(*j), getWeight(*j));
+                        }
 
                         const size_t leftCount  = next - i;
                         const size_t rightCount = totalCount - leftCount;
@@ -293,7 +320,10 @@ struct WeightedBaseCutPointFinder
                             winnerDataStatistics      = dataStatistics;
                         }
 
-                        if (next == last) { break; }
+                        if (next == last)
+                        {
+                            break;
+                        }
                         i = next;
                     }
                 }
@@ -454,7 +484,10 @@ private:
         DAAL_ASSERT(_size < newCapacity);
         WorkItem * const newData = new WorkItem[newCapacity];
         DAAL_CHECK_MALLOC(newData)
-        for (size_t i = 0; i < _size; ++i) { newData[i].moveFrom(_data[i]); }
+        for (size_t i = 0; i < _size; ++i)
+        {
+            newData[i].moveFrom(_data[i]);
+        }
         delete[] _data;
         _data           = newData;
         _capacity       = newCapacity;
@@ -512,7 +545,10 @@ private:
         DAAL_ASSERT(_size < newCapacity);
         PerLeafData * const newData = new PerLeafData[newCapacity];
         DAAL_CHECK_MALLOC(newData)
-        for (size_t i = 0; i < _size; ++i) { newData[i].swap(_data[i]); }
+        for (size_t i = 0; i < _size; ++i)
+        {
+            newData[i].swap(_data[i]);
+        }
         delete[] _data;
         _data     = newData;
         _capacity = newCapacity;
@@ -620,7 +656,10 @@ public:
         const_cast<NumericTable *>(&y)->getBlockOfColumnValues(0, 0, xRowCount, readOnly, yBD);
 
         BlockDescriptor<IndependentVariableType> wBD;
-        if (w) { const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, 0, xRowCount, readOnly, wBD); }
+        if (w)
+        {
+            const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, 0, xRowCount, readOnly, wBD);
+        }
 
         const TrainigContext<SplitCriterion, LeavesData> context {
             splitCriterion,    leavesData,       x, y, w, featureTypesCache, dataStatistics, minLeafObservations, minSplitObservations, dx,
@@ -721,7 +760,10 @@ public:
                 }
                 if (context.dw)
                 {
-                    for (size_t i = first; i < last; ++i) { items[i].w = context.dw[indexes[i]]; }
+                    for (size_t i = first; i < last; ++i)
+                    {
+                        items[i].w = context.dw[indexes[i]];
+                    }
                 }
             }
 
@@ -808,9 +850,15 @@ public:
                  static_cast<double>(context.splitCriterion(totalDataStatistics, xRowCount - winnerPointsAtLeft)),
                  static_cast<int>(xRowCount - winnerPointsAtLeft));
 
-        if (w) { const_cast<NumericTable *>(w)->releaseBlockOfColumnValues(wBD); }
+        if (w)
+        {
+            const_cast<NumericTable *>(w)->releaseBlockOfColumnValues(wBD);
+        }
         const_cast<NumericTable *>(&y)->releaseBlockOfColumnValues(yBD);
-        for (size_t i = 0; i < xColumnCount; ++i) { const_cast<NumericTable *>(&x)->releaseBlockOfColumnValues(xBD[i]); }
+        for (size_t i = 0; i < xColumnCount; ++i)
+        {
+            const_cast<NumericTable *>(&x)->releaseBlockOfColumnValues(xBD[i]);
+        }
         delete[] dx;
         delete[] xBD;
         daal_free(indexes);
@@ -826,7 +874,9 @@ public:
                            size_t minSplitObservations = 2)
     {
         if (maxTreeDepth == 2) // stump with weights
-        { return trainStump(splitCriterion, leavesData, x, y, w, numberOfClasses, minLeafObservations, minSplitObservations); }
+        {
+            return trainStump(splitCriterion, leavesData, x, y, w, numberOfClasses, minLeafObservations, minSplitObservations);
+        }
         const size_t xRowCount    = x.getNumberOfRows();
         const size_t xColumnCount = x.getNumberOfColumns();
         DAAL_ASSERT(xRowCount > 0);
@@ -864,7 +914,10 @@ public:
         const_cast<NumericTable *>(&y)->getBlockOfColumnValues(0, 0, xRowCount, readOnly, yBD);
 
         BlockDescriptor<IndependentVariableType> wBD;
-        if (w) { const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, 0, xRowCount, readOnly, wBD); }
+        if (w)
+        {
+            const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, 0, xRowCount, readOnly, wBD);
+        }
 
         const size_t depthLimit = (maxTreeDepth != 0) ? maxTreeDepth : static_cast<size_t>(-1);
         const TrainigContext<SplitCriterion, LeavesData> context {
@@ -879,9 +932,15 @@ public:
                                     internalTrainManyFeatures(context, indexes, xRowCount, tni, totalDataStatistics, depthLimit);
         DAAL_CHECK_STATUS_VAR(stat)
 
-        if (w) { const_cast<NumericTable *>(w)->releaseBlockOfColumnValues(wBD); }
+        if (w)
+        {
+            const_cast<NumericTable *>(w)->releaseBlockOfColumnValues(wBD);
+        }
         const_cast<NumericTable *>(&y)->releaseBlockOfColumnValues(yBD);
-        for (size_t i = 0; i < xColumnCount; ++i) { const_cast<NumericTable *>(&x)->releaseBlockOfColumnValues(xBD[i]); }
+        for (size_t i = 0; i < xColumnCount; ++i)
+        {
+            const_cast<NumericTable *>(&x)->releaseBlockOfColumnValues(xBD[i]);
+        }
 
         delete[] dx;
         delete[] xBD;
@@ -981,7 +1040,10 @@ protected:
     TreeNodeIndex pushBack(services::Status & status)
     {
         status = services::Status();
-        if (_nodeCount >= _nodeCapacity) { status = reserve(max<cpu>(_nodeCount + 1, _nodeCapacity * 2)); }
+        if (_nodeCount >= _nodeCapacity)
+        {
+            status = reserve(max<cpu>(_nodeCount + 1, _nodeCapacity * 2));
+        }
 
         return _nodeCount++;
     }
@@ -993,7 +1055,10 @@ protected:
     size_t * prepareIndexes(size_t size)
     {
         size_t * const indexes = daal_alloc<size_t>(size);
-        for (size_t i = 0; i < size; ++i) { indexes[i] = i; }
+        for (size_t i = 0; i < size; ++i)
+        {
+            indexes[i] = i;
+        }
         return indexes;
     }
 
@@ -1121,7 +1186,10 @@ protected:
                 }
                 if (context.dw)
                 {
-                    for (size_t i = first; i < last; ++i) { items[i].w = context.dw[indexes[i]]; }
+                    for (size_t i = first; i < last; ++i)
+                    {
+                        items[i].w = context.dw[indexes[i]];
+                    }
                 }
             }
 
@@ -1526,7 +1594,10 @@ protected:
 
                 delete[] workArray;
                 workArray = nullptr;
-                if (workQueue.empty()) { break; }
+                if (workQueue.empty())
+                {
+                    break;
+                }
             }
         };
 
@@ -1595,7 +1666,10 @@ protected:
                                          static_cast<int>(indexCnt));
                             }
                             workStack.pop();
-                            if (workStack.empty()) { break; }
+                            if (workStack.empty())
+                            {
+                                break;
+                            }
                         }
                         else if (workItem.totalDataStatistics.isPure(leafDependentVariableValue))
                         {
@@ -1609,7 +1683,10 @@ protected:
                                          static_cast<int>(indexCnt));
                             }
                             workStack.pop();
-                            if (workStack.empty()) { break; }
+                            if (workStack.empty())
+                            {
+                                break;
+                            }
                         }
                         else
                         {
@@ -1632,7 +1709,10 @@ protected:
                                              static_cast<int>(indexCnt));
                                 }
                                 workStack.pop();
-                                if (workStack.empty()) { break; }
+                                if (workStack.empty())
+                                {
+                                    break;
+                                }
                             }
                             else
                             {
@@ -1773,7 +1853,10 @@ protected:
                     }
                     if (dw)
                     {
-                        for (size_t i = first; i < last; ++i) { items[i].w = dw[firstIndex[i]]; }
+                        for (size_t i = first; i < last; ++i)
+                        {
+                            items[i].w = dw[firstIndex[i]];
+                        }
                     }
                 }
 
@@ -1898,7 +1981,10 @@ protected:
                 }
                 if (dw)
                 {
-                    for (size_t i = 0; i < indexCount; ++i) { items[i].w = dw[firstIndex[i]]; }
+                    for (size_t i = 0; i < indexCount; ++i)
+                    {
+                        items[i].w = dw[firstIndex[i]];
+                    }
                 }
                 introSort<cpu>(items, &items[indexCount], [](const Item & v1, const Item & v2) -> bool { return v1.x < v2.x; });
                 DAAL_ASSERT(isSorted<cpu>(items, &items[indexCount], [](const Item & v1, const Item & v2) -> bool { return v1.x < v2.x; }));
@@ -1965,7 +2051,10 @@ protected:
     template <typename Error, typename Data>
     Error internalREP(size_t nodeIndex, Data & data) const
     {
-        if (_nodes[nodeIndex].isLeaf()) { return data.error(nodeIndex, _nodes[nodeIndex].dependentVariable()); }
+        if (_nodes[nodeIndex].isLeaf())
+        {
+            return data.error(nodeIndex, _nodes[nodeIndex].dependentVariable());
+        }
 
         const Error subTreeError =
             internalREP<Error, Data>(_nodes[nodeIndex].leftChildIndex(), data) + internalREP<Error, Data>(_nodes[nodeIndex].rightChildIndex(), data);
@@ -2054,7 +2143,10 @@ template <CpuType cpu, typename IndependentVariable, typename DependentVariable>
 size_t countNodes(size_t nodeIndex, const Tree<cpu, IndependentVariable, DependentVariable> & tree,
                   const PruningData<cpu, DependentVariable> & pruningData)
 {
-    if (tree[nodeIndex].isLeaf() || pruningData.isPruned(nodeIndex)) { return 1; }
+    if (tree[nodeIndex].isLeaf() || pruningData.isPruned(nodeIndex))
+    {
+        return 1;
+    }
     return 1 + countNodes<cpu>(tree[nodeIndex].leftChildIndex(), tree, pruningData)
            + countNodes<cpu>(tree[nodeIndex].rightChildIndex(), tree, pruningData);
 }

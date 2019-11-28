@@ -59,7 +59,10 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::changeZeroToM
     algorithmFPtype * yArray = y.get();
     for (size_t i = 0; i < nVectors; i++)
     {
-        if (yArray[i] == 0) { yArray[i] = -1; }
+        if (yArray[i] == 0)
+        {
+            yArray[i] = -1;
+        }
     }
     return s;
 }
@@ -87,7 +90,10 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
 
     DAAL_CHECK_STATUS(s, treeAlgorithm.computeNoThrow());
 
-    if (rTableLabels && nClasses == 2) { DAAL_CHECK_STATUS(s, changeZeroToMinusOne(rTableLabels)); }
+    if (rTableLabels && nClasses == 2)
+    {
+        DAAL_CHECK_STATUS(s, changeZeroToMinusOne(rTableLabels));
+    }
 
     return s;
 }

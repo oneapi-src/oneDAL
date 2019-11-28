@@ -44,7 +44,10 @@ Input::Input() : InputIface(lastInputId + 1) {}
 size_t Input::getNumberOfFeatures() const
 {
     NumericTablePtr ntPtr = NumericTable::cast(get(data));
-    if (ntPtr) { return ntPtr->getNumberOfColumns(); }
+    if (ntPtr)
+    {
+        return ntPtr->getNumberOfColumns();
+    }
     return 0;
 }
 
@@ -78,7 +81,10 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     services::Status s;
     int expectedLayouts = 0;
 
-    if (method == fastCSR || method == singlePassCSR || method == sumCSR) { expectedLayouts = (int)NumericTableIface::csrArray; }
+    if (method == fastCSR || method == singlePassCSR || method == sumCSR)
+    {
+        expectedLayouts = (int)NumericTableIface::csrArray;
+    }
 
     s |= checkNumericTable(get(data).get(), dataStr(), 0, expectedLayouts);
     if (!s) return s;

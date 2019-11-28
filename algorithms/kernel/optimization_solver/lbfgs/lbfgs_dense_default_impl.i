@@ -95,7 +95,10 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute(
     gradientFunction->sumOfFunctionsParameter->batchIndices     = task.ntBatchIndices;
     gradientFunction->sumOfFunctionsParameter->resultsToCompute = objective_function::gradient;
 
-    if (useWolfeConditions) { gradientFunction->sumOfFunctionsParameter->resultsToCompute |= objective_function::value; }
+    if (useWolfeConditions)
+    {
+        gradientFunction->sumOfFunctionsParameter->resultsToCompute |= objective_function::value;
+    }
     gradientFunction->sumOfFunctionsInput->set(sum_of_functions::argument, argumentTable);
 
     sum_of_functions::BatchPtr hessianFunction                 = gradientFunction->clone();
@@ -136,7 +139,10 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute(
     {
         for (; epoch < (t + 1) * L; ++epoch, ++curIteration)
         {
-            for (size_t j = 0; j < task.argumentSize; j++) { argumentLCur[j] += argument[j]; }
+            for (size_t j = 0; j < task.argumentSize; j++)
+            {
+                argumentLCur[j] += argument[j];
+            }
 
             bool bContinue = true;
             DAAL_CHECK_STATUS(s, task.updateArgument(curIteration, t, epoch, m, correctionIndex, nTerms, batchSize, accuracyThreshold,
@@ -148,7 +154,10 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute(
             }
         }
 
-        for (size_t j = 0; j < task.argumentSize; j++) { argumentLCur[j] *= invL; }
+        for (size_t j = 0; j < task.argumentSize; j++)
+        {
+            argumentLCur[j] *= invL;
+        }
 
         t++;
         if (t >= 2)
@@ -162,13 +171,19 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute(
                     s, task.updateCorrectionPairBatchIndices(iPredefinedIndicesCorrectionRow, nTerms, correctionPairBatchSize, engineImpl));
             }
             iPredefinedIndicesCorrectionRow++;
-            if (!useWolfeConditions) { s = hessianFunction->computeNoThrow(); }
+            if (!useWolfeConditions)
+            {
+                s = hessianFunction->computeNoThrow();
+            }
             if (!s || host.isCancelled(s, 1))
             {
                 s |= task.setToResult(correctionIndicesResult, nIterationsNT, optionalArgumentResult, curIteration, epoch, correctionIndex);
                 return s;
             }
-            if (task.correctionPairBatchIndicesStatus == user) { task.mtCorrectionPairBatchIndices.release(); }
+            if (task.correctionPairBatchIndicesStatus == user)
+            {
+                task.mtCorrectionPairBatchIndices.release();
+            }
 
             if (!useWolfeConditions)
             {
@@ -241,7 +256,10 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute1(
     gradientFunction->sumOfFunctionsParameter->batchIndices     = task.ntBatchIndices;
     gradientFunction->sumOfFunctionsParameter->resultsToCompute = objective_function::gradient;
 
-    if (useWolfeConditions) { gradientFunction->sumOfFunctionsParameter->resultsToCompute |= objective_function::value; }
+    if (useWolfeConditions)
+    {
+        gradientFunction->sumOfFunctionsParameter->resultsToCompute |= objective_function::value;
+    }
     gradientFunction->sumOfFunctionsInput->set(sum_of_functions::argument, argumentTable);
 
     sum_of_functions::interface1::BatchPtr hessianFunction     = gradientFunction->clone();
@@ -282,7 +300,10 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute1(
     {
         for (; epoch < (t + 1) * L; ++epoch, ++curIteration)
         {
-            for (size_t j = 0; j < task.argumentSize; j++) { argumentLCur[j] += argument[j]; }
+            for (size_t j = 0; j < task.argumentSize; j++)
+            {
+                argumentLCur[j] += argument[j];
+            }
 
             bool bContinue = true;
             DAAL_CHECK_STATUS(s, task.updateArgument1(curIteration, t, epoch, m, correctionIndex, nTerms, batchSize, accuracyThreshold,
@@ -294,7 +315,10 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute1(
             }
         }
 
-        for (size_t j = 0; j < task.argumentSize; j++) { argumentLCur[j] *= invL; }
+        for (size_t j = 0; j < task.argumentSize; j++)
+        {
+            argumentLCur[j] *= invL;
+        }
 
         t++;
         if (t >= 2)
@@ -308,13 +332,19 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute1(
                     s, task.updateCorrectionPairBatchIndices(iPredefinedIndicesCorrectionRow, nTerms, correctionPairBatchSize, engineImpl));
             }
             iPredefinedIndicesCorrectionRow++;
-            if (!useWolfeConditions) { s = hessianFunction->computeNoThrow(); }
+            if (!useWolfeConditions)
+            {
+                s = hessianFunction->computeNoThrow();
+            }
             if (!s || host.isCancelled(s, 1))
             {
                 s |= task.setToResult(correctionIndicesResult, nIterationsNT, optionalArgumentResult, curIteration, epoch, correctionIndex);
                 return s;
             }
-            if (task.correctionPairBatchIndicesStatus == user) { task.mtCorrectionPairBatchIndices.release(); }
+            if (task.correctionPairBatchIndicesStatus == user)
+            {
+                task.mtCorrectionPairBatchIndices.release();
+            }
 
             if (!useWolfeConditions)
             {
@@ -361,7 +391,10 @@ template <typename algorithmFPType, CpuType cpu>
 algorithmFPType dotProduct(size_t n, const algorithmFPType * x, const algorithmFPType * y)
 {
     algorithmFPType dot = 0.0;
-    for (size_t i = 0; i < n; i++) { dot += x[i] * y[i]; }
+    for (size_t i = 0; i < n; i++)
+    {
+        dot += x[i] * y[i];
+    }
     return dot;
 }
 
@@ -390,7 +423,10 @@ algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch(algorithmFPType * x,
     algorithmFPType * dn = (algorithmFPType *)dnPtr.get();
     DAAL_CHECK_MALLOC(dn);
     //have to save dx as after computing function it will be changed
-    for (size_t i = 0; i < n; i++) { dn[i] = dx[i]; }
+    for (size_t i = 0; i < n; i++)
+    {
+        dn[i] = dx[i];
+    }
 
     ReadRows<algorithmFPType, cpu> fg(*ntGradient, 0, n);
     DAAL_CHECK_BLOCK_STATUS(fg);
@@ -428,7 +464,9 @@ algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch(algorithmFPType * x,
         {
             algorithmFPType fgNewXdn = dotProduct<algorithmFPType, cpu>(n, fgNew.get(), dn);
             if (daal::internal::Math<algorithmFPType, cpu>::sFabs(fgNewXdn) <= c2 * daal::internal::Math<algorithmFPType, cpu>::sFabs(term1))
-            { break; }
+            {
+                break;
+            }
         }
         it += 1;
         continueSearch = true;
@@ -436,7 +474,10 @@ algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch(algorithmFPType * x,
     }
 
     // retern to initial values
-    for (size_t i = 0; i < n; i++) { dx[i] = dn[i]; }
+    for (size_t i = 0; i < n; i++)
+    {
+        dx[i] = dn[i];
+    }
     return stepLength;
 }
 /**
@@ -464,7 +505,10 @@ algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch1(algorithmFPType * x
     algorithmFPType * dn = (algorithmFPType *)dnPtr.get();
     DAAL_CHECK_MALLOC(dn);
     //have to save dx as after computing function it will be changed
-    for (size_t i = 0; i < n; i++) { dn[i] = dx[i]; }
+    for (size_t i = 0; i < n; i++)
+    {
+        dn[i] = dx[i];
+    }
 
     ReadRows<algorithmFPType, cpu> fg(*ntGradient, 0, n);
     DAAL_CHECK_BLOCK_STATUS(fg);
@@ -502,7 +546,9 @@ algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch1(algorithmFPType * x
         {
             algorithmFPType fgNewXdn = dotProduct<algorithmFPType, cpu>(n, fgNew.get(), dn);
             if (daal::internal::Math<algorithmFPType, cpu>::sFabs(fgNewXdn) <= c2 * daal::internal::Math<algorithmFPType, cpu>::sFabs(term1))
-            { break; }
+            {
+                break;
+            }
         }
         it += 1;
         continueSearch = true;
@@ -510,7 +556,10 @@ algorithmFPType LBFGSTask<algorithmFPType, cpu>::lineSearch1(algorithmFPType * x
     }
 
     // retern to initial values
-    for (size_t i = 0; i < n; i++) { dx[i] = dn[i]; }
+    for (size_t i = 0; i < n; i++)
+    {
+        dx[i] = dn[i];
+    }
     return stepLength;
 }
 
@@ -560,10 +609,16 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument(size_t iIteration, size_t
         DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
     DAAL_CHECK_STATUS(s, gradientFunction->compute());
-    if (batchIndicesStatus == user) { mtBatchIndices.release(); }
+    if (batchIndicesStatus == user)
+    {
+        mtBatchIndices.release();
+    }
 
     ntGradient = gradientFunction->getResult()->get(objective_function::gradientIdx);
-    if (useWolfeConditions) { ntValue = gradientFunction->getResult()->get(objective_function::valueIdx); }
+    if (useWolfeConditions)
+    {
+        ntValue = gradientFunction->getResult()->get(objective_function::valueIdx);
+    }
     mtGradient.set(*ntGradient, 0, this->argumentSize);
     DAAL_CHECK_BLOCK_STATUS(mtGradient);
     algorithmFPType * gradient = mtGradient.get();
@@ -592,7 +647,10 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument(size_t iIteration, size_t
     }
     if (useWolfeConditions)
     {
-        for (size_t j = 0; j < this->argumentSize; j++) { gradient[j] *= -1; }
+        for (size_t j = 0; j < this->argumentSize; j++)
+        {
+            gradient[j] *= -1;
+        }
         algorithmFPType alpha = 1;
         if (this->continueLineSearch)
         {
@@ -608,7 +666,10 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument(size_t iIteration, size_t
     }
 
     /* Update argument */
-    for (size_t j = 0; j < this->argumentSize; j++) { argument[j] -= stepLengthVal * gradient[j]; }
+    for (size_t j = 0; j < this->argumentSize; j++)
+    {
+        argument[j] -= stepLengthVal * gradient[j];
+    }
 
     mtGradient.release();
     return s;
@@ -641,10 +702,16 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument1(size_t iIteration, size_
         DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     }
     DAAL_CHECK_STATUS(s, gradientFunction->compute());
-    if (batchIndicesStatus == user) { mtBatchIndices.release(); }
+    if (batchIndicesStatus == user)
+    {
+        mtBatchIndices.release();
+    }
 
     ntGradient = gradientFunction->getResult()->get(objective_function::gradientIdx);
-    if (useWolfeConditions) { ntValue = gradientFunction->getResult()->get(objective_function::valueIdx); }
+    if (useWolfeConditions)
+    {
+        ntValue = gradientFunction->getResult()->get(objective_function::valueIdx);
+    }
     mtGradient.set(*ntGradient, 0, this->argumentSize);
     DAAL_CHECK_BLOCK_STATUS(mtGradient);
     algorithmFPType * gradient = mtGradient.get();
@@ -673,7 +740,10 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument1(size_t iIteration, size_
     }
     if (useWolfeConditions)
     {
-        for (size_t j = 0; j < this->argumentSize; j++) { gradient[j] *= -1; }
+        for (size_t j = 0; j < this->argumentSize; j++)
+        {
+            gradient[j] *= -1;
+        }
         algorithmFPType alpha = 1;
         if (this->continueLineSearch)
         {
@@ -689,7 +759,10 @@ Status LBFGSTask<algorithmFPType, cpu>::updateArgument1(size_t iIteration, size_
     }
 
     /* Update argument */
-    for (size_t j = 0; j < this->argumentSize; j++) { argument[j] -= stepLengthVal * gradient[j]; }
+    for (size_t j = 0; j < this->argumentSize; j++)
+    {
+        argument[j] -= stepLengthVal * gradient[j];
+    }
 
     mtGradient.release();
     return s;
@@ -716,7 +789,10 @@ Status LBFGSTask<algorithmFPType, cpu>::updateBatchIndices(size_t iPredefinedInd
                                                            services::SharedPtr<daal::internal::HomogenNumericTableCPU<int, cpu> > & ntBatchIndices,
                                                            daal::algorithms::engines::internal::BatchBaseImpl * engine)
 {
-    if (batchIndicesStatus == all) { return Status(); }
+    if (batchIndicesStatus == all)
+    {
+        return Status();
+    }
     else if (batchIndicesStatus == user)
     {
         mtBatchIndices.next(iPredefinedIndicesRow, 1);
@@ -757,7 +833,10 @@ void LBFGSTask<algorithmFPType, cpu>::twoLoopRecursion(size_t m, size_t correcti
 
         alpha[index] = rho[index] * dotProduct<algorithmFPType, cpu>(this->argumentSize, correctionSPtr, gradient);
 
-        for (size_t j = 0; j < this->argumentSize; j++) { gradient[j] -= alpha[index] * correctionYPtr[j]; }
+        for (size_t j = 0; j < this->argumentSize; j++)
+        {
+            gradient[j] -= alpha[index] * correctionYPtr[j];
+        }
     }
 
     for (size_t k = 0; k < m; k++)
@@ -768,7 +847,10 @@ void LBFGSTask<algorithmFPType, cpu>::twoLoopRecursion(size_t m, size_t correcti
 
         algorithmFPType beta = rho[index] * dotProduct<algorithmFPType, cpu>(this->argumentSize, correctionYPtr, gradient);
 
-        for (size_t j = 0; j < this->argumentSize; j++) { gradient[j] += correctionSPtr[j] * (alpha[index] - beta); }
+        for (size_t j = 0; j < this->argumentSize; j++)
+        {
+            gradient[j] += correctionSPtr[j] * (alpha[index] - beta);
+        }
     }
 }
 
@@ -781,7 +863,10 @@ void LBFGSTask<algorithmFPType, cpu>::twoLoopRecursion(size_t m, size_t correcti
 template <typename algorithmFPType, CpuType cpu>
 Status LBFGSTask<algorithmFPType, cpu>::computeCorrectionPair(size_t correctionIndex, NumericTable * ntHessian, bool useWolfeConditions)
 {
-    if (useWolfeConditions) { computeCorrectionPairImpl(correctionIndex, NULL, useWolfeConditions); }
+    if (useWolfeConditions)
+    {
+        computeCorrectionPairImpl(correctionIndex, NULL, useWolfeConditions);
+    }
     else
     {
         mtHessian.set(*ntHessian, 0, this->argumentSize);
@@ -805,7 +890,10 @@ void LBFGSTask<algorithmFPType, cpu>::computeCorrectionPairImpl(size_t correctio
     algorithmFPType * s = correctionS + correctionIndex * this->argumentSize;
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t j = 0; j < this->argumentSize; j++) { s[j] = argumentLCur[j] - argumentLPrev[j]; }
+    for (size_t j = 0; j < this->argumentSize; j++)
+    {
+        s[j] = argumentLCur[j] - argumentLPrev[j];
+    }
 
     algorithmFPType * y  = correctionY + correctionIndex * this->argumentSize;
     char trans           = 'N';
@@ -820,7 +908,10 @@ void LBFGSTask<algorithmFPType, cpu>::computeCorrectionPairImpl(size_t correctio
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < this->argumentSize; j++) { y[j] = (gradientCurr[j] - gradientPrev[j]); }
+        for (size_t j = 0; j < this->argumentSize; j++)
+        {
+            y[j] = (gradientCurr[j] - gradientPrev[j]);
+        }
     }
     else
     {
@@ -828,7 +919,9 @@ void LBFGSTask<algorithmFPType, cpu>::computeCorrectionPairImpl(size_t correctio
     }
     rho[correctionIndex] = dotProduct<algorithmFPType, cpu>(this->argumentSize, s, y);
     if (rho[correctionIndex] != 0.0) // threshold
-    { rho[correctionIndex] = 1.0 / rho[correctionIndex]; }
+    {
+        rho[correctionIndex] = 1.0 / rho[correctionIndex];
+    }
 }
 
 /**
@@ -963,7 +1056,10 @@ Status LBFGSTask<algorithmFPType, cpu>::init(NumericTable * inputArgument, Numer
 
     /* Initialize indices for objective function gradient computations */
     NumericTable * batchIndicesTable = parameter->batchIndices.get();
-    if (batchSize < nTerms) { DAAL_CHECK_STATUS(s, getBatchIndices(batchSize, batchIndicesTable, batchIndices, batchIndicesStatus, ntBatchIndices)); }
+    if (batchSize < nTerms)
+    {
+        DAAL_CHECK_STATUS(s, getBatchIndices(batchSize, batchIndicesTable, batchIndices, batchIndicesStatus, ntBatchIndices));
+    }
 
     /* Initialize indices for objective function Hessian computations */
     if (correctionPairBatchSize < nTerms)
@@ -1010,7 +1106,10 @@ Status LBFGSTask<algorithmFPType, cpu>::init(NumericTable * inputArgument, Numer
 
     /* Initialize indices for objective function gradient computations */
     NumericTable * batchIndicesTable = parameter->batchIndices.get();
-    if (batchSize < nTerms) { DAAL_CHECK_STATUS(s, getBatchIndices(batchSize, batchIndicesTable, batchIndices, batchIndicesStatus, ntBatchIndices)); }
+    if (batchSize < nTerms)
+    {
+        DAAL_CHECK_STATUS(s, getBatchIndices(batchSize, batchIndicesTable, batchIndices, batchIndicesStatus, ntBatchIndices));
+    }
 
     /* Initialize indices for objective function Hessian computations */
     if (correctionPairBatchSize < nTerms)
@@ -1053,7 +1152,10 @@ LBFGSTask<algorithmFPType, cpu>::~LBFGSTask()
         daal_free(alpha);
         alpha = nullptr;
     }
-    if (correctionPairs) { correctionPairs->releaseBlockOfRows(correctionPairsBD); }
+    if (correctionPairs)
+    {
+        correctionPairs->releaseBlockOfRows(correctionPairsBD);
+    }
     else
     {
         if (correctionS)
@@ -1067,7 +1169,10 @@ LBFGSTask<algorithmFPType, cpu>::~LBFGSTask()
             correctionY = nullptr;
         }
     }
-    if (stepLength) { mtStepLength.release(); }
+    if (stepLength)
+    {
+        mtStepLength.release();
+    }
     releaseBatchIndices(batchIndices, batchIndicesStatus);
     releaseBatchIndices(correctionPairBatchIndices, correctionPairBatchIndicesStatus);
 }
@@ -1206,7 +1311,9 @@ Status LBFGSTask<algorithmFPType, cpu>::initCorrectionPairs(NumericTable * corre
             auto y = correctionY + i * this->argumentSize;
             rho[i] = dotProduct<algorithmFPType, cpu>(this->argumentSize, s, y);
             if (rho[i] != 0.0) // threshold
-            { rho[i] = 1.0 / rho[i]; }
+            {
+                rho[i] = 1.0 / rho[i];
+            }
         }
     }
     else if (correctionPairsOutput)
@@ -1262,7 +1369,9 @@ Status LBFGSTask<algorithmFPType, cpu>::initCorrectionPairs(NumericTable * corre
             auto y = correctionY + i * this->argumentSize;
             rho[i] = dotProduct<algorithmFPType, cpu>(this->argumentSize, s, y);
             if (rho[i] != 0.0) // threshold
-            { rho[i] = 1.0 / rho[i]; }
+            {
+                rho[i] = 1.0 / rho[i];
+            }
         }
     }
     else if (correctionPairsOutput)
@@ -1291,7 +1400,10 @@ Status LBFGSTask<algorithmFPType, cpu>::getBatchIndices(size_t size, NumericTabl
                                                         services::SharedPtr<daal::internal::HomogenNumericTableCPU<int, cpu> > & ntIndices)
 {
     Status s;
-    if (indicesTable) { indicesStatus = user; }
+    if (indicesTable)
+    {
+        indicesStatus = user;
+    }
     else
     {
         indicesStatus = random;

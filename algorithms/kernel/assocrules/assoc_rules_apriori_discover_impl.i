@@ -51,7 +51,10 @@ const assocrules_itemset<cpu> * AssociationRulesKernel<apriori, algorithmFPType,
 {
     for (auto current = L_cur.start; current; current = current->next())
     {
-        if (!assocrules_memcmp<cpu>(items, current->itemSet()->items, items_size)) { return current->itemSet(); }
+        if (!assocrules_memcmp<cpu>(items, current->itemSet()->items, items_size))
+        {
+            return current->itemSet();
+        }
     }
     return NULL;
 }
@@ -84,7 +87,10 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::setIntersection(cons
         }
         else
         {
-            if (a[ia] > b[ib]) { ib++; }
+            if (a[ia] > b[ib])
+            {
+                ib++;
+            }
             else
             {
                 ia++;
@@ -122,8 +128,14 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPas
 
     for (size_t i = 0; i <= itemSetSize; ++i)
     {
-        for (size_t j = 0; j < i; ++j) { leftItems[j] = items[j]; }
-        for (size_t j = i + 1; j <= itemSetSize; ++j) { leftItems[j - 1] = items[j]; }
+        for (size_t j = 0; j < i; ++j)
+        {
+            leftItems[j] = items[j];
+        }
+        for (size_t j = i + 1; j <= itemSetSize; ++j)
+        {
+            leftItems[j - 1] = items[j];
+        }
 
         const assocrules_itemset<cpu> * left_iset = findItemSet(itemSetSize, leftItems, L_prev);
         DAAL_CHECK(left_iset, services::ErrorNullInput);
@@ -186,8 +198,14 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass
                and second rule's right part are equal */
             if (right_size > 2)
             {
-                if (assocrules_memcmp<cpu>(first_items, second_items, (right_size - 2))) { continue; }
-                if (first_items[right_size - 2] > second_items[right_size - 2]) { continue; }
+                if (assocrules_memcmp<cpu>(first_items, second_items, (right_size - 2)))
+                {
+                    continue;
+                }
+                if (first_items[right_size - 2] > second_items[right_size - 2])
+                {
+                    continue;
+                }
             }
 
             assocrules_itemset<cpu> iset(right_size, first_items, second_items[right_size - 2]);
@@ -199,7 +217,10 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass
 
             size_t left_size;
             setIntersection(first_items, R[firstIdx].left->size, second_items, R[secondIdx].left->size, leftItems, left_size);
-            if (left_size < 1) { continue; }
+            if (left_size < 1)
+            {
+                continue;
+            }
 
             const assocrules_itemset<cpu> * left_iset = findItemSet(left_size, leftItems, L[left_size - 1]);
 
@@ -245,7 +266,10 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::generate
 
     /* Generate all association rules */
     size_t startItemsetSize = 1;
-    if (minItemsetSize > startItemsetSize) { startItemsetSize = minItemsetSize - 1; }
+    if (minItemsetSize > startItemsetSize)
+    {
+        startItemsetSize = minItemsetSize - 1;
+    }
     for (size_t iset_size = startItemsetSize; iset_size < L_size; ++iset_size)
     {
         ItemSetList<cpu> & L_cur = L[iset_size];

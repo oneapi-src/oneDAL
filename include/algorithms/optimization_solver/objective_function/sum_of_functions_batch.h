@@ -75,7 +75,10 @@ public:
         : sumOfFunctionsInput(sumOfFunctionsInput), sumOfFunctionsParameter(sumOfFunctionsParameter)
     {
         initialize();
-        if (sumOfFunctionsParameter != NULL) { sumOfFunctionsParameter->numberOfTerms = numberOfTerms; }
+        if (sumOfFunctionsParameter != NULL)
+        {
+            sumOfFunctionsParameter->numberOfTerms = numberOfTerms;
+        }
     }
 
     /**
@@ -147,7 +150,10 @@ public:
         : sumOfFunctionsInput(sumOfFunctionsInput), sumOfFunctionsParameter(sumOfFunctionsParameter)
     {
         initialize();
-        if (sumOfFunctionsParameter != NULL) { sumOfFunctionsParameter->numberOfTerms = numberOfTerms; }
+        if (sumOfFunctionsParameter != NULL)
+        {
+            sumOfFunctionsParameter->numberOfTerms = numberOfTerms;
+        }
     }
 
     /**

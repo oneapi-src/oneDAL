@@ -122,14 +122,20 @@ Status DistributedInput::check(const daal::algorithms::Parameter * parameter, in
         const size_t trainingDataFeatures = partialModel->getNFeatures();
         DAAL_CHECK(trainingDataFeatures, services::ErrorModelNotFullInitialized);
 
-        if (!nFeatures) { nFeatures = trainingDataFeatures; }
+        if (!nFeatures)
+        {
+            nFeatures = trainingDataFeatures;
+        }
 
         s |= checkNumericTable(partialModel->getClassSize().get(), classSizeStr(), 0, 0, 1, nClasses);
         s |= checkNumericTable(partialModel->getClassGroupSum().get(), groupSumStr(), 0, 0, nFeatures, nClasses);
         return s;
     };
 
-    for (size_t i = 0; i < size; i++) { status |= checkModel((*collection)[i]); }
+    for (size_t i = 0; i < size; i++)
+    {
+        status |= checkModel((*collection)[i]);
+    }
     return status;
 }
 
@@ -145,7 +151,10 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(labelsTable.get(), labelsStr(), 0, 0, 1, nRows));
 
     data_management::NumericTablePtr weightsTable = get(classifier::training::weights);
-    if (weightsTable) { DAAL_CHECK_STATUS(s, data_management::checkNumericTable(weightsTable.get(), weightsStr(), 0, 0, 1, nRows)); }
+    if (weightsTable)
+    {
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(weightsTable.get(), weightsStr(), 0, 0, 1, nRows));
+    }
 
     if (parameter != NULL)
     {
@@ -154,7 +163,9 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
         const daal::algorithms::classifier::interface2::Parameter * algParameter2 =
             dynamic_cast<const daal::algorithms::classifier::interface2::Parameter *>(parameter);
         if (algParameter1 != NULL)
-        { DAAL_CHECK_EX(algParameter1->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr()); }
+        {
+            DAAL_CHECK_EX(algParameter1->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+        }
         else if (algParameter2 != NULL)
         {
             DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX), services::ErrorIncorrectParameter,

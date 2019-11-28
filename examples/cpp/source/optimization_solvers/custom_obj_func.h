@@ -282,7 +282,10 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
     for (size_t i = 0; i < nIndices; i++)
     {
         f[i] = theta0;
-        for (size_t j = 0; j < dim; j++) { f[i] += theta[j] * x[i * dim + j]; }
+        for (size_t j = 0; j < dim; j++)
+        {
+            f[i] += theta[j] * x[i * dim + j];
+        }
         s[i] = one / (one + exp(-f[i]));
     }
     argumentTable->releaseBlockOfRows(argumentBlock);
@@ -296,7 +299,10 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
         valueTable->getBlockOfRows(0, 1, writeOnly, valueBlock);
         algorithmFPType * value = valueBlock.getBlockPtr();
         value[0]                = 0.0;
-        for (size_t i = 0; i < nIndices; i++) { value[0] += y[i] * log(s[i]) + (one - y[i]) * log(one - s[i]); }
+        for (size_t i = 0; i < nIndices; i++)
+        {
+            value[0] += y[i] * log(s[i]) + (one - y[i]) * log(one - s[i]);
+        }
         value[0] *= -invN;
         valueTable->releaseBlockOfRows(valueBlock);
     }
@@ -312,14 +318,23 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
         gradientTable->getBlockOfRows(0, p, writeOnly, gradientBlock);
         algorithmFPType * gradient = gradientBlock.getBlockPtr();
 
-        for (size_t j = 0; j < p; j++) { gradient[j] = 0.0; }
+        for (size_t j = 0; j < p; j++)
+        {
+            gradient[j] = 0.0;
+        }
         for (size_t i = 0; i < nIndices; i++)
         {
             gradient[0] += (s[i] - y[i]);
-            for (size_t j = 0; j < dim; j++) { gradient[j + 1] += (s[i] - y[i]) * x[i * dim + j]; }
+            for (size_t j = 0; j < dim; j++)
+            {
+                gradient[j + 1] += (s[i] - y[i]) * x[i * dim + j];
+            }
         }
 
-        for (size_t j = 0; j < p; j++) { gradient[j] *= invN; }
+        for (size_t j = 0; j < p; j++)
+        {
+            gradient[j] *= invN;
+        }
         gradientTable->releaseBlockOfRows(gradientBlock);
     }
 

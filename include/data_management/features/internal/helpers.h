@@ -46,11 +46,17 @@ inline services::Status pickElementsRaw(const FeatureIndicesIfacePtr & indices, 
         size_t k = 0;
         if (first <= last)
         {
-            for (size_t i = first; i <= last; i++) { pickedElements[k++] = &elements[i]; }
+            for (size_t i = first; i <= last; i++)
+            {
+                pickedElements[k++] = &elements[i];
+            }
         }
         else
         {
-            for (size_t i = first + 1; i > last; i--) { pickedElements[k++] = &elements[i - 1]; }
+            for (size_t i = first + 1; i > last; i--)
+            {
+                pickedElements[k++] = &elements[i - 1];
+            }
         }
     }
     else if (indices->areRawFeatureIndicesAvailable())
@@ -59,7 +65,10 @@ inline services::Status pickElementsRaw(const FeatureIndicesIfacePtr & indices, 
         const FeatureIndex * rawIndices                        = indicesBuffer.data();
         const size_t indicesSize                               = indicesBuffer.size();
 
-        for (size_t i = 0; i < indicesSize; i++) { pickedElements[i] = &elements[rawIndices[i]]; }
+        for (size_t i = 0; i < indicesSize; i++)
+        {
+            pickedElements[i] = &elements[rawIndices[i]];
+        }
     }
     else
     {
@@ -76,7 +85,10 @@ inline services::internal::CollectionPtr<T *> pickElements(const FeatureIndicesI
     DAAL_ASSERT(elements);
 
     services::internal::CollectionPtr<T *> pickedElements = services::internal::HeapAllocatableCollection<T *>::create(indices->size(), status);
-    if (!pickedElements) { return pickedElements; }
+    if (!pickedElements)
+    {
+        return pickedElements;
+    }
 
     services::Status pickElementsStatus = pickElementsRaw<T>(indices, elements, pickedElements->data());
     if (!pickElementsStatus.ok())

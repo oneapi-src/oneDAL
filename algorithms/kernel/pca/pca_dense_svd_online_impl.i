@@ -53,7 +53,10 @@ services::Status PCASVDOnlineKernel<algorithmFPType, cpu>::compute(InputDataType
     const size_t nOldObservations = *oldObservations;
 
     NumericTablePtr normalizedData;
-    if (type == normalizedDataset) { normalizedData = data; }
+    if (type == normalizedDataset)
+    {
+        normalizedData = data;
+    }
     else
     {
         const size_t totalObservations = nOldObservations + nVectors;
@@ -130,7 +133,10 @@ inline void computeSumsAndSsq(const size_t nObservations, const size_t nFeatures
 template <typename algorithmFPType, CpuType cpu>
 inline void computeMean(const size_t nObservations, const size_t nFeatures, const algorithmFPType * sums, algorithmFPType * mean)
 {
-    for (size_t j = 0; j < nFeatures; j++) { mean[j] = sums[j] / nObservations; }
+    for (size_t j = 0; j < nFeatures; j++)
+    {
+        mean[j] = sums[j] / nObservations;
+    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -152,7 +158,10 @@ inline void normalizeData(const size_t nObservations, const size_t nFeatures, co
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < nFeatures; j++) { normalizedData[i * nFeatures + j] = (data[i * nFeatures + j] - mean[j]) / variance[j]; }
+        for (size_t j = 0; j < nFeatures; j++)
+        {
+            normalizedData[i * nFeatures + j] = (data[i * nFeatures + j] - mean[j]) / variance[j];
+        }
     }
 }
 } // namespace

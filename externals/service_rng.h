@@ -126,7 +126,10 @@ public:
 
             for (SizeType j = i; j > 0; j--)
             {
-                if (value == buffer[j - 1]) { value = (DstType)(j - 1 + a); }
+                if (value == buffer[j - 1])
+                {
+                    value = (DstType)(j - 1 + a);
+                }
             }
             r[i] = value;
         }

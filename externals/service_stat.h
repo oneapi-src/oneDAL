@@ -123,7 +123,10 @@ struct Statistics
         // calculate W_all = sum of weights
         fpType sum_local = 0;
         PRAGMA_ICC_NO16(omp simd reduction(+ : sum_local))
-        for (size_t i = 0; i < nRows; i++) { sum_local += weights[i]; }
+        for (size_t i = 0; i < nRows; i++)
+        {
+            sum_local += weights[i];
+        }
 
         sum = sum_local;
 
@@ -131,7 +134,10 @@ struct Statistics
 
         // calcultate weightd means from sums
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nCols; i++) { weightedSum[i] = weightedSum[i] * invSum; }
+        for (size_t i = 0; i < nCols; i++)
+        {
+            weightedSum[i] = weightedSum[i] * invSum;
+        }
 
         // calculate cross-product as cp = W_X(T) * X
         char transa  = 'T';

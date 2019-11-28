@@ -45,8 +45,14 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     using namespace daal::data_management;
     const Input * algInput = static_cast<const Input *>(input);
     size_t nRows           = algInput->get(inputArgument)->getNumberOfRows();
-    if (!get(minimum)) { set(minimum, NumericTablePtr(new HomogenNumericTable<algorithmFPType>(1, nRows, NumericTable::doAllocate))); }
-    if (!get(nIterations)) { set(nIterations, NumericTablePtr(new HomogenNumericTable<size_t>(1, 1, NumericTable::doAllocate, (size_t)0))); }
+    if (!get(minimum))
+    {
+        set(minimum, NumericTablePtr(new HomogenNumericTable<algorithmFPType>(1, nRows, NumericTable::doAllocate)));
+    }
+    if (!get(nIterations))
+    {
+        set(nIterations, NumericTablePtr(new HomogenNumericTable<size_t>(1, 1, NumericTable::doAllocate, (size_t)0)));
+    }
     return services::Status();
 }
 

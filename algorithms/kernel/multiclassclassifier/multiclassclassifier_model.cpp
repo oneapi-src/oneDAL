@@ -80,7 +80,9 @@ classifier::ModelPtr * Model::getTwoClassClassifierModels()
         _modelsArray = new classifier::ModelPtr[_models->size()];
         if (!_modelsArray) return nullptr;
         for (size_t i = 0; i < _models->size(); i++)
-        { _modelsArray[i] = services::staticPointerCast<classifier::Model, data_management::SerializationIface>((*_models)[i]); }
+        {
+            _modelsArray[i] = services::staticPointerCast<classifier::Model, data_management::SerializationIface>((*_models)[i]);
+        }
     }
     return _modelsArray;
 }
@@ -92,7 +94,10 @@ void Model::setTwoClassClassifierModel(size_t idx, const classifier::ModelPtr & 
 
 classifier::ModelPtr Model::getTwoClassClassifierModel(size_t idx) const
 {
-    if (idx < _models->size()) { return services::staticPointerCast<classifier::Model, data_management::SerializationIface>((*_models)[idx]); }
+    if (idx < _models->size())
+    {
+        return services::staticPointerCast<classifier::Model, data_management::SerializationIface>((*_models)[idx]);
+    }
     return classifier::ModelPtr();
 }
 

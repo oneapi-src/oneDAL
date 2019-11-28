@@ -50,7 +50,10 @@ static services::Status attachCurrentThread(JavaVM * jvm, _java_tls & local_tls)
     if (!local_tls.is_attached)
     {
         jint status = jvm->AttachCurrentThread((void **)(&(local_tls.jenv)), NULL);
-        if (status == JNI_OK) { local_tls.is_attached = true; }
+        if (status == JNI_OK)
+        {
+            local_tls.is_attached = true;
+        }
         else
         {
             return services::Status(services::ErrorCouldntAttachCurrentThreadToJavaVM);
@@ -66,7 +69,10 @@ static services::Status detachCurrentThread(JavaVM * jvm, _java_tls & local_tls,
         if (!local_tls.is_main_thread || detach_main_thread)
         {
             jint status = jvm->DetachCurrentThread();
-            if (status == JNI_OK) { local_tls.is_attached = false; }
+            if (status == JNI_OK)
+            {
+                local_tls.is_attached = false;
+            }
         }
     }
     return services::Status();

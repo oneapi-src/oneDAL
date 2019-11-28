@@ -86,7 +86,10 @@ public:
             this->_status.add(services::ErrorMemoryAllocationFailed);
             return;
         }
-        if (memoryAllocationFlag == doAllocate) { this->_status |= allocateDataMemoryImpl(); }
+        if (memoryAllocationFlag == doAllocate)
+        {
+            this->_status |= allocateDataMemoryImpl();
+        }
     }
 
     /**
@@ -121,15 +124,23 @@ public:
     services::Status setArray(const services::SharedPtr<T> & ptr, size_t idx)
     {
         if (_partialMemStatus != notAllocated && _partialMemStatus != userAllocated)
-        { return services::Status(services::ErrorIncorrectNumberOfFeatures); }
+        {
+            return services::Status(services::ErrorIncorrectNumberOfFeatures);
+        }
 
         if (idx < getNumberOfColumns() && idx < _arrays.size())
         {
             _ddict->setFeature<T>(idx);
 
-            if (!_arrays[idx] && ptr) { _arraysInitialized++; }
+            if (!_arrays[idx] && ptr)
+            {
+                _arraysInitialized++;
+            }
 
-            if (_arrays[idx] && !ptr) { _arraysInitialized--; }
+            if (_arrays[idx] && !ptr)
+            {
+                _arraysInitialized--;
+            }
 
             _arrays[idx] = services::reinterpretPointerCast<byte, T>(ptr);
         }
@@ -140,7 +151,10 @@ public:
 
         _partialMemStatus = userAllocated;
 
-        if (_arraysInitialized == getNumberOfColumns()) { _memStatus = userAllocated; }
+        if (_arraysInitialized == getNumberOfColumns())
+        {
+            _memStatus = userAllocated;
+        }
         return services::Status();
     }
 
@@ -163,7 +177,10 @@ public:
      */
     services::SharedPtr<byte> getArraySharedPtr(size_t idx)
     {
-        if (idx < _ddict->getNumberOfFeatures()) { return _arrays[idx]; }
+        if (idx < _ddict->getNumberOfFeatures())
+        {
+            return _arrays[idx];
+        }
         else
         {
             this->_status.add(services::ErrorIncorrectNumberOfFeatures);
@@ -222,7 +239,10 @@ public:
 
         size_t ncol = ddict->getNumberOfFeatures();
 
-        if (!resizePointersArray(ncol)) { return services::Status(services::ErrorMemoryAllocationFailed); }
+        if (!resizePointersArray(ncol))
+        {
+            return services::Status(services::ErrorMemoryAllocationFailed);
+        }
         return s;
     }
 
@@ -240,10 +260,16 @@ protected:
         if (_arrays.size() >= nColumns)
         {
             size_t counter = 0;
-            for (size_t i = 0; i < nColumns; i++) { counter += (_arrays[i] != 0); }
+            for (size_t i = 0; i < nColumns; i++)
+            {
+                counter += (_arrays[i] != 0);
+            }
             _arraysInitialized = counter;
 
-            if (_arraysInitialized == nColumns) { _memStatus = _partialMemStatus; }
+            if (_arraysInitialized == nColumns)
+            {
+                _memStatus = _partialMemStatus;
+            }
             else
             {
                 _memStatus = notAllocated;
@@ -253,7 +279,10 @@ protected:
         }
 
         bool is_resized = _arrays.resize(nColumns);
-        if (is_resized) { _memStatus = notAllocated; }
+        if (is_resized)
+        {
+            _memStatus = notAllocated;
+        }
 
         return is_resized;
     }
@@ -263,7 +292,10 @@ protected:
         services::Status s;
         DAAL_CHECK_STATUS(s, NumericTable::setNumberOfColumnsImpl(ncol));
 
-        if (!resizePointersArray(ncol)) { return services::Status(services::ErrorMemoryAllocationFailed); }
+        if (!resizePointersArray(ncol))
+        {
+            return services::Status(services::ErrorMemoryAllocationFailed);
+        }
         return s;
     }
 
@@ -276,7 +308,10 @@ protected:
 
         if (ncol * nrows == 0)
         {
-            if (nrows == 0) { return services::Status(services::ErrorIncorrectNumberOfObservations); }
+            if (nrows == 0)
+            {
+                return services::Status(services::ErrorIncorrectNumberOfObservations);
+            }
             else
             {
                 return services::Status(services::ErrorIncorrectNumberOfFeatures);
@@ -298,9 +333,15 @@ protected:
             }
         }
 
-        if (_arraysInitialized > 0) { _partialMemStatus = internallyAllocated; }
+        if (_arraysInitialized > 0)
+        {
+            _partialMemStatus = internallyAllocated;
+        }
 
-        if (_arraysInitialized == ncol) { _memStatus = internallyAllocated; }
+        if (_arraysInitialized == ncol)
+        {
+            _memStatus = internallyAllocated;
+        }
         return services::Status();
     }
 
@@ -319,7 +360,10 @@ protected:
     {
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
-        if (onDeserialize) { allocateDataMemoryImpl(); }
+        if (onDeserialize)
+        {
+            allocateDataMemoryImpl();
+        }
 
         size_t ncol  = _ddict->getNumberOfFeatures();
         size_t nrows = getNumberOfRows();
@@ -351,7 +395,10 @@ private:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        if (!block.resizeBuffer(ncols, nrows)) { return services::Status(services::ErrorMemoryAllocationFailed); }
+        if (!block.resizeBuffer(ncols, nrows))
+        {
+            return services::Status(services::ErrorMemoryAllocationFailed);
+        }
 
         if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
 
@@ -363,7 +410,10 @@ private:
 
         for (size_t i = 0; i < nrows; i += di)
         {
-            if (i + di > nrows) { di = nrows - i; }
+            if (i + di > nrows)
+            {
+                di = nrows - i;
+            }
 
             for (size_t j = 0; j < ncols; j++)
             {
@@ -373,7 +423,10 @@ private:
 
                 internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(di, ptr, lbuf);
 
-                for (size_t ii = 0; ii < di; ii++) { buffer[(i + ii) * ncols + j] = lbuf[ii]; }
+                for (size_t ii = 0; ii < di; ii++)
+                {
+                    buffer[(i + ii) * ncols + j] = lbuf[ii];
+                }
             }
         }
         return services::Status();
@@ -395,7 +448,10 @@ private:
 
             for (size_t i = 0; i < nrows; i += di)
             {
-                if (i + di > nrows) { di = nrows - i; }
+                if (i + di > nrows)
+                {
+                    di = nrows - i;
+                }
 
                 for (size_t j = 0; j < ncols; j++)
                 {
@@ -403,7 +459,10 @@ private:
 
                     char * ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
 
-                    for (size_t ii = 0; ii < di; ii++) { lbuf[ii] = blockPtr[(i + ii) * ncols + j]; }
+                    for (size_t ii = 0; ii < di; ii++)
+                    {
+                        lbuf[ii] = blockPtr[(i + ii) * ncols + j];
+                    }
 
                     internal::getVectorDownCast(f.indexType, internal::getConversionDataType<T>())(di, lbuf, ptr);
                 }
@@ -431,12 +490,17 @@ private:
         NumericTableFeature & f = (*_ddict)[feat_idx];
 
         if (features::internal::getIndexNumType<T>() == f.indexType)
-        { block.setPtr(&(_arrays[feat_idx]), _arrays[feat_idx].get() + idx * f.typeSize, 1, nrows); }
+        {
+            block.setPtr(&(_arrays[feat_idx]), _arrays[feat_idx].get() + idx * f.typeSize, 1, nrows);
+        }
         else
         {
             byte * location = _arrays[feat_idx].get() + idx * f.typeSize;
 
-            if (!block.resizeBuffer(1, nrows)) { return services::Status(services::ErrorMemoryAllocationFailed); }
+            if (!block.resizeBuffer(1, nrows))
+            {
+                return services::Status(services::ErrorMemoryAllocationFailed);
+            }
 
             if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
 

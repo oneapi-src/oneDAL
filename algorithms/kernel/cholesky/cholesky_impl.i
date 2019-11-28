@@ -106,7 +106,10 @@ Status CholeskyKernel<algorithmFPType, method, cpu>::performCholesky(NumericTabl
     DAAL_INT dims = static_cast<DAAL_INT>(dim);
     char uplo     = 'U';
 
-    if (isFull<algorithmFPType, cpu>(rLayout)) { Lapack<algorithmFPType, cpu>::xpotrf(&uplo, &dims, pL, &dims, &info); }
+    if (isFull<algorithmFPType, cpu>(rLayout))
+    {
+        Lapack<algorithmFPType, cpu>::xpotrf(&uplo, &dims, pL, &dims, &info);
+    }
     else if (rLayout == NumericTableIface::lowerPackedTriangularMatrix)
     {
         Lapack<algorithmFPType, cpu>::xpptrf(&uplo, &dims, pL, &info);
@@ -135,7 +138,10 @@ bool CholeskyKernel<algorithmFPType, method, cpu>::copyToFullMatrix(NumericTable
     const size_t blockSize = 256;
     const size_t n         = dim;
     size_t nBlocks         = n / blockSize;
-    if (nBlocks * blockSize < n) { nBlocks++; }
+    if (nBlocks * blockSize < n)
+    {
+        nBlocks++;
+    }
 
     if (isFull<algorithmFPType, cpu>(iLayout))
     {
@@ -147,10 +153,16 @@ bool CholeskyKernel<algorithmFPType, method, cpu>::copyToFullMatrix(NumericTable
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j <= i; j++) { pL[i * dim + j] = pA[i * dim + j]; }
+                for (size_t j = 0; j <= i; j++)
+                {
+                    pL[i * dim + j] = pA[i * dim + j];
+                }
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = (i + 1); j < dim; j++) { pL[i * dim + j] = algorithmFPType(0); }
+                for (size_t j = (i + 1); j < dim; j++)
+                {
+                    pL[i * dim + j] = algorithmFPType(0);
+                }
             }
         });
     }
@@ -166,10 +178,16 @@ bool CholeskyKernel<algorithmFPType, method, cpu>::copyToFullMatrix(NumericTable
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j <= i; j++) { pL[i * dim + j] = pA[ind + j]; }
+                for (size_t j = 0; j <= i; j++)
+                {
+                    pL[i * dim + j] = pA[ind + j];
+                }
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = (i + 1); j < dim; j++) { pL[i * dim + j] = algorithmFPType(0); }
+                for (size_t j = (i + 1); j < dim; j++)
+                {
+                    pL[i * dim + j] = algorithmFPType(0);
+                }
             }
         });
     }
@@ -185,10 +203,16 @@ bool CholeskyKernel<algorithmFPType, method, cpu>::copyToFullMatrix(NumericTable
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < j; i++) { pL[i * dim + j] = algorithmFPType(0); }
+                for (size_t i = 0; i < j; i++)
+                {
+                    pL[i * dim + j] = algorithmFPType(0);
+                }
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = j; i < dim; i++) { pL[i * dim + j] = pA[ind + i - j]; }
+                for (size_t i = j; i < dim; i++)
+                {
+                    pL[i * dim + j] = pA[ind + i - j];
+                }
             }
         });
     }
@@ -208,7 +232,10 @@ services::Status CholeskyKernel<algorithmFPType, method, cpu>::copyToLowerTriang
     const size_t blockSize = 512;
     const size_t n         = dim;
     size_t nBlocks         = n / blockSize;
-    if (nBlocks * blockSize < n) { nBlocks++; }
+    if (nBlocks * blockSize < n)
+    {
+        nBlocks++;
+    }
 
     if (isFull<algorithmFPType, cpu>(iLayout))
     {
@@ -222,7 +249,10 @@ services::Status CholeskyKernel<algorithmFPType, method, cpu>::copyToLowerTriang
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j <= i; j++) { pL[ind + j] = pA[i * dim + j]; }
+                for (size_t j = 0; j <= i; j++)
+                {
+                    pL[ind + j] = pA[i * dim + j];
+                }
             }
         });
     }
@@ -231,7 +261,10 @@ services::Status CholeskyKernel<algorithmFPType, method, cpu>::copyToLowerTriang
         size_t size = (dim * (dim + 1) / 2) * sizeof(algorithmFPType);
         int result  = 0;
         result      = services::internal::daal_memcpy_s(pL, size, pA, size);
-        if (result) { status |= Status(ErrorMemoryCopyFailedInternal); }
+        if (result)
+        {
+            status |= Status(ErrorMemoryCopyFailedInternal);
+        }
     }
     else if (iLayout == NumericTableIface::upperPackedSymmetricMatrix)
     {
@@ -245,7 +278,10 @@ services::Status CholeskyKernel<algorithmFPType, method, cpu>::copyToLowerTriang
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i <= j; i++) { pL[ind + i] = pA[(dim * i - i * (i - 1) / 2 - i) + j]; }
+                for (size_t i = 0; i <= j; i++)
+                {
+                    pL[ind + i] = pA[(dim * i - i * (i - 1) / 2 - i) + j];
+                }
             }
         });
     }

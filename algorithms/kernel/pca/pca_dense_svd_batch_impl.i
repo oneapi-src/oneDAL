@@ -47,7 +47,10 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
                                                                                  NumericTable & eigenvalues, NumericTable & eigenvectors)
 {
     NumericTablePtr normalizedData;
-    if (type == normalizedDataset) { normalizedData = data; }
+    if (type == normalizedDataset)
+    {
+        normalizedData = data;
+    }
     else
     {
         services::Status s = normalizeDataset(data, normalizedData);
@@ -70,8 +73,14 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
     if (type == normalizedDataset)
     {
         normalizedData = &data;
-        if (parameter->resultsToCompute & mean) { DAAL_CHECK_STATUS(status, this->fillTable(means, (algorithmFPType)0)); }
-        if (parameter->resultsToCompute & variance) { DAAL_CHECK_STATUS(status, this->fillTable(variances, (algorithmFPType)1)); }
+        if (parameter->resultsToCompute & mean)
+        {
+            DAAL_CHECK_STATUS(status, this->fillTable(means, (algorithmFPType)0));
+        }
+        if (parameter->resultsToCompute & variance)
+        {
+            DAAL_CHECK_STATUS(status, this->fillTable(variances, (algorithmFPType)1));
+        }
     }
     else
     {
@@ -94,7 +103,10 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::compute
 
     DAAL_CHECK_STATUS(status, this->decompose(normalizedData, eigenvalues, eigenvectors));
     DAAL_CHECK_STATUS(status, this->scaleSingularValues(eigenvalues, data.getNumberOfRows()));
-    if (parameter->isDeterministic) { DAAL_CHECK_STATUS(status, this->signFlipEigenvectors(eigenvectors)); }
+    if (parameter->isDeterministic)
+    {
+        DAAL_CHECK_STATUS(status, this->signFlipEigenvectors(eigenvectors));
+    }
 
     return status;
 }
@@ -262,7 +274,9 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
             for (int j = 0; j < nFeatures; j++)
-            { normDataArray_local[i * nFeatures + j] = (dataArray_local[i * nFeatures + j] - mean_total[j]) * inv_sigma_total[j]; }
+            {
+                normDataArray_local[i * nFeatures + j] = (dataArray_local[i * nFeatures + j] - mean_total[j]) * inv_sigma_total[j];
+            }
         }
     });
     return services::Status();

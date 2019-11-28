@@ -66,7 +66,10 @@ int main(int argc, char * argv[])
 
     trainModel();
 
-    if (rankId == mpi_root) { testModel(); }
+    if (rankId == mpi_root)
+    {
+        testModel();
+    }
 
     MPI_Finalize();
 
@@ -104,7 +107,10 @@ void trainModel()
     size_t perNodeArchLength = dataArch.getSizeOfArchive();
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
-    if (rankId == mpi_root) { serializedData = services::SharedPtr<byte>(new byte[perNodeArchLength * nBlocks]); }
+    if (rankId == mpi_root)
+    {
+        serializedData = services::SharedPtr<byte>(new byte[perNodeArchLength * nBlocks]);
+    }
 
     byte * nodeResults = new byte[perNodeArchLength];
     dataArch.copyArchiveToArray(nodeResults, perNodeArchLength);

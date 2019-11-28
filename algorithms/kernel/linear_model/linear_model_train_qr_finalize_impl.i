@@ -89,7 +89,10 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable & rTable
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < nBetasIntercept; j++) { betaBuffer[i * nBetasIntercept + j] = qty[j * nResponses + i]; }
+                for (size_t j = 0; j < nBetasIntercept; j++)
+                {
+                    betaBuffer[i * nBetasIntercept + j] = qty[j * nResponses + i];
+                }
             }
         }
 
@@ -114,7 +117,10 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable & rTable
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 1; j < nBetas; j++) { beta[i * nBetas + j] = betaBuffer[i * nBetas + j - 1]; }
+            for (size_t j = 1; j < nBetas; j++)
+            {
+                beta[i * nBetas + j] = betaBuffer[i * nBetas + j - 1];
+            }
             beta[i * nBetas] = betaBuffer[i * nBetas + nBetas - 1];
         }
     }
@@ -124,7 +130,10 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable & rTable
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < nBetas - 1; j++) { beta[i * nBetas + j + 1] = betaBuffer[i * nBetasIntercept + j]; }
+            for (size_t j = 0; j < nBetas - 1; j++)
+            {
+                beta[i * nBetas + j + 1] = betaBuffer[i * nBetasIntercept + j];
+            }
             beta[i * nBetas] = 0.0;
         }
     }

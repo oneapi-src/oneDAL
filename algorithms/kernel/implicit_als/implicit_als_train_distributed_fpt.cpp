@@ -91,7 +91,10 @@ DAAL_EXPORT Status DistributedPartialResultStep3::allocate(const daal::algorithm
     for (size_t i = 0; i < nBlocks; i++)
     {
         NumericTablePtr outBlockIndices = algInput->getOutBlockIndices(i);
-        if (!outBlockIndices) { continue; }
+        if (!outBlockIndices)
+        {
+            continue;
+        }
         _keys.push_back(i);
         _values.push_back(SerializationIfacePtr(new PartialModel(*algParameter, offset, outBlockIndices, (algorithmFPType)0.0)));
     }

@@ -63,7 +63,10 @@ public:
     ModelBuilder(size_t nFeatures, size_t nClasses) : _nFeatures(nFeatures), _nClasses(nClasses)
     {
         _par = services::SharedPtr<ParameterBase>(new ParameterBase(_nClasses));
-        if (_par.get()) { _modelPtr = Model::create(_nFeatures, _par.get(), &_s); }
+        if (_par.get())
+        {
+            _modelPtr = Model::create(_nFeatures, _par.get(), &_s);
+        }
         else
         {
             _s = services::Status(services::ErrorMemoryAllocationFailed);
@@ -78,7 +81,10 @@ public:
      */
     void setTwoClassClassifierModel(size_t negativeClassIdx, size_t positiveClassIdx, const classifier::ModelPtr & model)
     {
-        if (negativeClassIdx >= positiveClassIdx) { _s |= services::Status(services::ErrorIncorrectParameter); }
+        if (negativeClassIdx >= positiveClassIdx)
+        {
+            _s |= services::Status(services::ErrorIncorrectParameter);
+        }
 
         if (!_s)
         {

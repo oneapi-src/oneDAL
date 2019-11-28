@@ -121,12 +121,18 @@ public:
 
     MemoryStatus getDataMemoryStatus() const DAAL_C11_OVERRIDE
     {
-        if (_tables->size() == 0) { return notAllocated; }
+        if (_tables->size() == 0)
+        {
+            return notAllocated;
+        }
 
         for (size_t i = 0; i < _tables->size(); i++)
         {
             NumericTable * nt = (NumericTable *)(_tables->operator[](i).get());
-            if (nt->getDataMemoryStatus() == notAllocated) { return notAllocated; }
+            if (nt->getDataMemoryStatus() == notAllocated)
+            {
+                return notAllocated;
+            }
         }
 
         return internallyAllocated;
@@ -188,7 +194,10 @@ private:
 
         for (i = 0; i < rows; i++)
         {
-            for (j = 0; j < ncols; j++) { dst[(idx + i) * ncols + j] = src[i * ncols + j]; }
+            for (j = 0; j < ncols; j++)
+            {
+                dst[(idx + i) * ncols + j] = src[i * ncols + j];
+            }
         }
     }
 
@@ -199,7 +208,10 @@ private:
 
         for (i = 0; i < rows; i++)
         {
-            for (j = 0; j < ncols; j++) { dst[i * ncols + j] = src[(i + idx) * ncols + j]; }
+            for (j = 0; j < ncols; j++)
+            {
+                dst[i * ncols + j] = src[(i + idx) * ncols + j];
+            }
         }
     }
 
@@ -316,7 +328,10 @@ protected:
                     BlockDescriptor<T> innerBlock;
                     s |= nt->getBlockOfColumnValues(feat_idx, idxBegin - rows, idxEnd - idxBegin, readOnly, innerBlock);
                     T * location = innerBlock.getBlockPtr();
-                    for (size_t i = idxBegin; i < idxEnd; i++) { buffer[i] = location[i - idxBegin]; }
+                    for (size_t i = idxBegin; i < idxEnd; i++)
+                    {
+                        buffer[i] = location[i - idxBegin];
+                    }
                     s |= nt->releaseBlockOfColumnValues(innerBlock);
                 }
 
@@ -350,7 +365,10 @@ protected:
                     BlockDescriptor<T> innerBlock;
                     s |= nt->getBlockOfColumnValues(feat_idx, idxBegin - rows, idxEnd - idxBegin, writeOnly, innerBlock);
                     T * location = innerBlock.getBlockPtr();
-                    for (size_t i = idxBegin; i < idxEnd; i++) { location[i - idxBegin] = buffer[i]; }
+                    for (size_t i = idxBegin; i < idxEnd; i++)
+                    {
+                        location[i - idxBegin] = buffer[i];
+                    }
                     s |= nt->releaseBlockOfColumnValues(innerBlock);
                 }
 

@@ -44,7 +44,10 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (deviceInfo.isCpu) { __DAAL_INITIALIZE_KERNELS(internal::LogLossKernel, algorithmFPType, method); }
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::LogLossKernel, algorithmFPType, method);
+    }
     else
     {
         _kernel = new internal::LogLossKernelOneAPI<algorithmFPType, method>();
@@ -71,20 +74,35 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * proximalProjection      = nullptr;
     NumericTable * lipschitzConstant       = nullptr;
 
-    if (parameter->resultsToCompute & objective_function::value) { value = result->get(objective_function::valueIdx).get(); }
+    if (parameter->resultsToCompute & objective_function::value)
+    {
+        value = result->get(objective_function::valueIdx).get();
+    }
 
-    if (parameter->resultsToCompute & objective_function::hessian) { hessian = result->get(objective_function::hessianIdx).get(); }
+    if (parameter->resultsToCompute & objective_function::hessian)
+    {
+        hessian = result->get(objective_function::hessianIdx).get();
+    }
 
-    if (parameter->resultsToCompute & objective_function::gradient) { gradient = result->get(objective_function::gradientIdx).get(); }
+    if (parameter->resultsToCompute & objective_function::gradient)
+    {
+        gradient = result->get(objective_function::gradientIdx).get();
+    }
 
     if (parameter->resultsToCompute & objective_function::nonSmoothTermValue)
-    { nonSmoothTermValue = result->get(objective_function::nonSmoothTermValueIdx).get(); }
+    {
+        nonSmoothTermValue = result->get(objective_function::nonSmoothTermValueIdx).get();
+    }
 
     if (parameter->resultsToCompute & objective_function::proximalProjection)
-    { proximalProjection = result->get(objective_function::proximalProjectionIdx).get(); }
+    {
+        proximalProjection = result->get(objective_function::proximalProjectionIdx).get();
+    }
 
     if (parameter->resultsToCompute & objective_function::lipschitzConstant)
-    { lipschitzConstant = result->get(objective_function::lipschitzConstantIdx).get(); }
+    {
+        lipschitzConstant = result->get(objective_function::lipschitzConstantIdx).get();
+    }
 
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();

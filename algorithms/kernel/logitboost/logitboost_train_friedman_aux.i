@@ -82,12 +82,18 @@ void initWZ(size_t n, size_t nc, size_t curClass, const int * label, const algor
     {
         algorithmFPType p = Pptr[i];
         w[i]              = p * (one - p);
-        if (thrW > w[i]) { w[i] = thrW; }
+        if (thrW > w[i])
+        {
+            w[i] = thrW;
+        }
         sumW += w[i];
 
         if (label[i] == iCurClass)
         {
-            if (p > thrZ) { z[i] = one / p; }
+            if (p > thrZ)
+            {
+                z[i] = one / p;
+            }
             else
             {
                 z[i] = three;
@@ -95,7 +101,10 @@ void initWZ(size_t n, size_t nc, size_t curClass, const int * label, const algor
         }
         else
         {
-            if (one - p > thrZ) { z[i] = -one / (one - p); }
+            if (one - p > thrZ)
+            {
+                z[i] = -one / (one - p);
+            }
             else
             {
                 z[i] = negThree;
@@ -104,7 +113,10 @@ void initWZ(size_t n, size_t nc, size_t curClass, const int * label, const algor
     }
 
     algorithmFPType invSumW = one / sumW;
-    for (size_t i = 0; i < n; i++) { w[i] *= invSumW; }
+    for (size_t i = 0; i < n; i++)
+    {
+        w[i] *= invSumW;
+    }
 }
 
 /**
@@ -122,7 +134,10 @@ void calculateAccuracy(size_t n, size_t nc, const int * y_label, algorithmFPType
 {
     algorithmFPType lPrev = lCur;
     lCur                  = 0.0;
-    for (size_t i = 0; i < n; i++) { lCur -= daal::internal::Math<algorithmFPType, cpu>::sLog(P[y_label[i] * n + i]); }
+    for (size_t i = 0; i < n; i++)
+    {
+        lCur -= daal::internal::Math<algorithmFPType, cpu>::sLog(P[y_label[i] * n + i]);
+    }
     const algorithmFPType diff = daal::internal::Math<algorithmFPType, cpu>::sFabs(lPrev - lCur);
     acc                        = daal::internal::Math<algorithmFPType, cpu>::sMin(diff, diff / (lPrev + (algorithmFPType)1e-6));
 }

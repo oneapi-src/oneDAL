@@ -212,7 +212,10 @@ template <typename algorithmFPType, CpuType cpu>
 LowOrderMomentsBatchTask<algorithmFPType, cpu>::~LowOrderMomentsBatchTask()
 {
     dataTable->releaseBlockOfRows(dataBD);
-    for (size_t i = 0; i < lastResultId + 1; i++) { resultTable[i]->releaseBlockOfRows(resultBD[i]); }
+    for (size_t i = 0; i < lastResultId + 1; i++)
+    {
+        resultTable[i]->releaseBlockOfRows(resultBD[i]);
+    }
 }
 
 /****************************************************************************************************************************/
@@ -246,7 +249,10 @@ Status LowOrderMomentsOnlineTask<algorithmFPType, cpu>::init(PartialResult * par
         resultArray[i] = resultBD[i].getBlockPtr();
     }
 
-    if (!isOnline) { resultArray[(int)nObservations][0] = 0.0; }
+    if (!isOnline)
+    {
+        resultArray[(int)nObservations][0] = 0.0;
+    }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures * sizeof(algorithmFPType), sizeof(algorithmFPType *));
@@ -274,14 +280,20 @@ template <typename algorithmFPType, CpuType cpu>
 LowOrderMomentsOnlineTask<algorithmFPType, cpu>::~LowOrderMomentsOnlineTask()
 {
     dataTable->releaseBlockOfRows(dataBD);
-    for (size_t i = 0; i < lastPartialResultId + 1; i++) { resultTable[i]->releaseBlockOfRows(resultBD[i]); }
+    for (size_t i = 0; i < lastPartialResultId + 1; i++)
+    {
+        resultTable[i]->releaseBlockOfRows(resultBD[i]);
+    }
 
     daal_free(mean);
     daal_free(raw2Mom);
     daal_free(variance);
     daal_free(stDev);
     daal_free(variation);
-    if (prevSums) { daal_free(prevSums); }
+    if (prevSums)
+    {
+        daal_free(prevSums);
+    }
 
     mean     = nullptr;
     raw2Mom  = nullptr;
@@ -373,7 +385,10 @@ Status retrievePrecomputedStatsIfPossible(const size_t nFeatures, const size_t n
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nFeatures; i++) { mean[i] = sums[i] * invNVectors; }
+    for (size_t i = 0; i < nFeatures; i++)
+    {
+        mean[i] = sums[i] * invNVectors;
+    }
     return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
 }
 
@@ -395,7 +410,10 @@ Status computeSumAndVariance(size_t nFeatures, size_t nVectors, algorithmFPType 
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nFeatures; i++) { sums[i] += prevSums[i]; }
+        for (size_t i = 0; i < nFeatures; i++)
+        {
+            sums[i] += prevSums[i];
+        }
     }
 
     return Status();
@@ -450,8 +468,14 @@ Status computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVector
         static TslData * create(const size_t nfeatures)
         {
             auto object = new TslData(nfeatures);
-            if (!object) { return nullptr; }
-            if (!(object->min) && !(object->max) && !(object->sumSq)) { return nullptr; }
+            if (!object)
+            {
+                return nullptr;
+            }
+            if (!(object->min) && !(object->max) && !(object->sumSq))
+            {
+                return nullptr;
+            }
             return object;
         }
 
@@ -481,13 +505,19 @@ Status computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVector
     SafeStatus safeStat;
     daal::tls<TslData *> tslData([nFeatures, &safeStat]() {
         auto tlsData = TslData::create(nFeatures);
-        if (!tlsData) { safeStat.add(services::ErrorMemoryAllocationFailed); }
+        if (!tlsData)
+        {
+            safeStat.add(services::ErrorMemoryAllocationFailed);
+        }
         return tlsData;
     });
 
     daal::threader_for(nBlocks, nBlocks, [&](int iBlock) {
         struct TslData * localTslData = tslData.local();
-        if (!localTslData) { return; }
+        if (!localTslData)
+        {
+            return;
+        }
 
         const size_t startRows = iBlock * numRowsInBlock;
         const size_t chunkRows = (iBlock < (nBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
@@ -512,9 +542,15 @@ Status computeMinMaxAndSumOfSquared(const size_t nFeatures, const size_t nVector
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < nFeatures; j++)
         {
-            if (localTslData->min[j] < min[j]) { min[j] = localTslData->min[j]; }
+            if (localTslData->min[j] < min[j])
+            {
+                min[j] = localTslData->min[j];
+            }
 
-            if (localTslData->max[j] > max[j]) { max[j] = localTslData->max[j]; }
+            if (localTslData->max[j] > max[j])
+            {
+                max[j] = localTslData->max[j];
+            }
             sumSq[j] += localTslData->sumSq[j];
         }
 
@@ -535,7 +571,10 @@ void computeSumOfSquaredDiffsFromMean(size_t nFeatures, size_t nVectors, size_t 
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < nFeatures; i++) { sumSqCen[i] = variance[i] * nVectorsM1; }
+            for (size_t i = 0; i < nFeatures; i++)
+            {
+                sumSqCen[i] = variance[i] * nVectorsM1;
+            }
             return;
         }
 
@@ -543,7 +582,10 @@ void computeSumOfSquaredDiffsFromMean(size_t nFeatures, size_t nVectors, size_t 
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < nFeatures; i++) { sumSqCen[i] += variance[i] * nVectorsM1; }
+            for (size_t i = 0; i < nFeatures; i++)
+            {
+                sumSqCen[i] += variance[i] * nVectorsM1;
+            }
         }
         else
         {
@@ -662,8 +704,14 @@ Status mergeMinAndMax(data_management::DataCollection * partialResultsCollection
 
         for (size_t j = 0; j < nFeatures; ++j)
         {
-            if (inputMin[j] < min[j]) { min[j] = inputMin[j]; }
-            if (inputMax[j] > max[j]) { max[j] = inputMax[j]; }
+            if (inputMin[j] < min[j])
+            {
+                min[j] = inputMin[j];
+            }
+            if (inputMax[j] > max[j])
+            {
+                max[j] = inputMax[j];
+            }
         }
 
         releaseTwoTables<algorithmFPType, cpu>(inputMinTable, inputMaxTable, inputMinBD, inputMaxBD);
@@ -754,7 +802,10 @@ Status mergeSums(data_management::DataCollection * partialResultsCollection, Par
         int n1 = nMergedObservations;
         int n2 = partialNObservations[block];
 
-        if (n2 == 0) { continue; }
+        if (n2 == 0)
+        {
+            continue;
+        }
 
         if (n1 == 0)
         {

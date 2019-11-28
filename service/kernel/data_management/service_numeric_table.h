@@ -65,7 +65,10 @@ public:
 
     services::Status setAllFeatures(const NumericTableFeature & defaultFeature) DAAL_C11_OVERRIDE
     {
-        if (_nfeat > 0) { _dict[0] = defaultFeature; }
+        if (_nfeat > 0)
+        {
+            _dict[0] = defaultFeature;
+        }
         return services::Status();
     }
 
@@ -327,7 +330,10 @@ public:
     GetRows(NumericTableType & data, size_t iStartFrom, size_t nRows) : _data(&data) { getBlock(iStartFrom, nRows); }
     GetRows(NumericTableType * data, size_t iStartFrom, size_t nRows) : _data(data), _toReleaseFlag(false)
     {
-        if (_data) { getBlock(iStartFrom, nRows); }
+        if (_data)
+        {
+            getBlock(iStartFrom, nRows);
+        }
     }
     GetRows(NumericTableType * data = nullptr) : _data(data), _toReleaseFlag(false) {}
     GetRows(NumericTableType & data) : _data(&data), _toReleaseFlag(false) {}
@@ -337,7 +343,10 @@ public:
     {
         if (!_data) return nullptr;
 
-        if (_toReleaseFlag) { _status = _data->releaseBlockOfRows(_block); }
+        if (_toReleaseFlag)
+        {
+            _status = _data->releaseBlockOfRows(_block);
+        }
 
         return getBlock(iStartFrom, nRows);
     }
@@ -400,7 +409,10 @@ public:
     GetRowsCSR(CSRNumericTableIface & data, size_t iStartFrom, size_t nRows) : _data(&data) { getBlock(iStartFrom, nRows); }
     GetRowsCSR(CSRNumericTableIface * data, size_t iStartFrom, size_t nRows) : _data(data), _toReleaseFlag(false)
     {
-        if (_data) { getBlock(iStartFrom, nRows); }
+        if (_data)
+        {
+            getBlock(iStartFrom, nRows);
+        }
     }
     GetRowsCSR(CSRNumericTableIface * data = nullptr) : _data(data), _toReleaseFlag(false) {}
     ~GetRowsCSR() { release(); }
@@ -416,7 +428,10 @@ public:
     {
         if (_data)
         {
-            if (_toReleaseFlag) { _status = _data->releaseSparseBlock(_block); }
+            if (_toReleaseFlag)
+            {
+                _status = _data->releaseSparseBlock(_block);
+            }
             getBlock(iStartFrom, nRows);
         }
     }

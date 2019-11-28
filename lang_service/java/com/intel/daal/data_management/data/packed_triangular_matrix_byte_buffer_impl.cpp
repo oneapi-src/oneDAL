@@ -167,7 +167,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
     float * data      = block.getBlockPtr();
     const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -189,7 +192,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
     double * data      = block.getBlockPtr();
     const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -211,7 +217,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
     int * data      = block.getBlockPtr();
     const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -234,7 +243,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -258,7 +270,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -282,7 +297,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -306,7 +324,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -330,7 +351,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -354,7 +378,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -378,7 +405,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
 
     const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -401,7 +431,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
 
     const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -424,7 +457,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
 
     const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -551,7 +587,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -576,7 +615,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -601,7 +643,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -628,7 +673,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -655,7 +703,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -682,7 +733,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
 
     int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -701,7 +755,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
     NumericTable * tbl = ((NumericTablePtr *)numTableAddr)->get();
     services::Status s;
     if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
-    { s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, double> *)tbl)->allocateDataMemory(); }
+    {
+        s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, double> *)tbl)->allocateDataMemory();
+    }
     else
     {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, double> *)tbl)->allocateDataMemory();
@@ -722,7 +778,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
     services::Status s;
 
     if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
-    { s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, float> *)tbl)->allocateDataMemory(); }
+    {
+        s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, float> *)tbl)->allocateDataMemory();
+    }
     else
     {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, float> *)tbl)->allocateDataMemory();
@@ -744,7 +802,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
     services::Status s;
 
     if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
-    { s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, long> *)tbl)->allocateDataMemory(); }
+    {
+        s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, long> *)tbl)->allocateDataMemory();
+    }
     else
     {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, long> *)tbl)->allocateDataMemory();
@@ -766,7 +826,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
 
     services::Status s;
     if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
-    { s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, int> *)tbl)->allocateDataMemory(); }
+    {
+        s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, int> *)tbl)->allocateDataMemory();
+    }
     else
     {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, int> *)tbl)->allocateDataMemory();

@@ -85,13 +85,19 @@ void Input::set(classifier::prediction::ModelInputId id, const adaboost::interfa
 Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s = classifier::prediction::interface1::Input::check(parameter, method);
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     adaboost::interface1::ModelPtr m = get(classifier::prediction::model);
     DAAL_CHECK(m->getNumberOfWeakLearners() > 0, ErrorModelNotFullInitialized);
 
     s |= checkNumericTable(m->getAlpha().get(), alphaStr());
-    if (!s) { return Status(ErrorModelNotFullInitialized); }
+    if (!s)
+    {
+        return Status(ErrorModelNotFullInitialized);
+    }
 
     DAAL_CHECK(m->getNumberOfWeakLearners() == m->getAlpha()->getNumberOfRows(), ErrorIncorrectSizeOfModel);
     return s;

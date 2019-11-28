@@ -75,7 +75,10 @@ services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL
 {
     services::Status status;
 
-    if (nComponents == 0) { nComponents = nFeatures; }
+    if (nComponents == 0)
+    {
+        nComponents = nFeatures;
+    }
 
     setTable(eigenvalues, data_management::HomogenNumericTable<algorithmFPType>::create(nComponents, 1,
                                                                                         data_management::NumericTableIface::doAllocate, 0, &status));
@@ -84,7 +87,10 @@ services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL
     setTable(eigenvectors, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, nComponents,
                                                                                          data_management::NumericTableIface::doAllocate, 0, &status));
     DAAL_CHECK_STATUS_VAR(status);
-    if (resultsToCompute & eigenvalue) { isWhitening = true; }
+    if (resultsToCompute & eigenvalue)
+    {
+        isWhitening = true;
+    }
     if (resultsToCompute & mean)
     {
         setTable(means, data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, data_management::NumericTableIface::doAllocate, 0,

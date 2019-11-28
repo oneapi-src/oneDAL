@@ -75,27 +75,48 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * componentOfProximalProjection = nullptr;
 
     bool valueFlag = ((parameter->resultsToCompute & objective_function::value) != 0) ? true : false;
-    if (valueFlag) { value = result->get(objective_function::valueIdx).get(); }
+    if (valueFlag)
+    {
+        value = result->get(objective_function::valueIdx).get();
+    }
 
     bool hessianFlag = ((parameter->resultsToCompute & objective_function::hessian) != 0) ? true : false;
-    if (hessianFlag) { hessian = result->get(objective_function::hessianIdx).get(); }
+    if (hessianFlag)
+    {
+        hessian = result->get(objective_function::hessianIdx).get();
+    }
 
     bool gradientFlag = ((parameter->resultsToCompute & objective_function::gradient) != 0) ? true : false;
-    if (gradientFlag) { gradient = result->get(objective_function::gradientIdx).get(); }
+    if (gradientFlag)
+    {
+        gradient = result->get(objective_function::gradientIdx).get();
+    }
 
     if (parameter->resultsToCompute & objective_function::nonSmoothTermValue)
-    { nonSmoothTermValue = result->get(objective_function::nonSmoothTermValueIdx).get(); }
+    {
+        nonSmoothTermValue = result->get(objective_function::nonSmoothTermValueIdx).get();
+    }
     if (parameter->resultsToCompute & objective_function::proximalProjection)
-    { proximalProjection = result->get(objective_function::proximalProjectionIdx).get(); }
+    {
+        proximalProjection = result->get(objective_function::proximalProjectionIdx).get();
+    }
     if (parameter->resultsToCompute & objective_function::lipschitzConstant)
-    { lipschitzConstant = result->get(objective_function::lipschitzConstantIdx).get(); }
+    {
+        lipschitzConstant = result->get(objective_function::lipschitzConstantIdx).get();
+    }
 
     if (parameter->resultsToCompute & objective_function::componentOfGradient)
-    { componentOfGradient = result->get(objective_function::componentOfGradientIdx).get(); }
+    {
+        componentOfGradient = result->get(objective_function::componentOfGradientIdx).get();
+    }
     if (parameter->resultsToCompute & objective_function::componentOfHessianDiagonal)
-    { componentOfHessianDiagonal = result->get(objective_function::componentOfHessianDiagonalIdx).get(); }
+    {
+        componentOfHessianDiagonal = result->get(objective_function::componentOfHessianDiagonalIdx).get();
+    }
     if (parameter->resultsToCompute & objective_function::componentOfProximalProjection)
-    { componentOfProximalProjection = result->get(objective_function::componentOfProximalProjectionIdx).get(); }
+    {
+        componentOfProximalProjection = result->get(objective_function::componentOfProximalProjectionIdx).get();
+    }
 
     __DAAL_CALL_KERNEL(env, internal::MSEKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, data, dependentVariables, argument, value,
                        hessian, gradient, nonSmoothTermValue, proximalProjection, lipschitzConstant, componentOfGradient, componentOfHessianDiagonal,

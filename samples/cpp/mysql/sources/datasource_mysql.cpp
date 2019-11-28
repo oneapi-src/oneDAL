@@ -52,7 +52,10 @@ int main(int argc, char const * argv[])
 
     std::string connectionString;
 
-    if (argc > 1) { connectionString = argv[1]; }
+    if (argc > 1)
+    {
+        connectionString = argv[1];
+    }
 
     if (utils::trim(connectionString).empty())
     {

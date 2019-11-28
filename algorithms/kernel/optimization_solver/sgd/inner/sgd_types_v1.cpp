@@ -81,7 +81,10 @@ services::Status Parameter<defaultDense>::check() const
 {
     services::Status s = BaseParameter::check();
     if (!s) return s;
-    if (batchIndices.get() != NULL) { return checkNumericTable(batchIndices.get(), batchIndicesStr(), 0, 0, 1, nIterations); }
+    if (batchIndices.get() != NULL)
+    {
+        return checkNumericTable(batchIndices.get(), batchIndicesStr(), 0, 0, 1, nIterations);
+    }
     return s;
 }
 
@@ -157,14 +160,20 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     DAAL_CHECK(pOpt->size() == lastOptionalData + 1, ErrorIncorrectOptionalInput);
     size_t argumentSize = get(iterative_solver::inputArgument)->getNumberOfRows();
     DAAL_ASSERT(momentum <= services::internal::MaxVal<int>::get())
-    if (method == (int)momentum) { return checkNumericTable(get(pastUpdateVector).get(), pastUpdateVectorStr(), 0, 0, 1, argumentSize); }
+    if (method == (int)momentum)
+    {
+        return checkNumericTable(get(pastUpdateVector).get(), pastUpdateVectorStr(), 0, 0, 1, argumentSize);
+    }
     return s;
 }
 
 NumericTablePtr Input::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalArgument);
-    if (pOpt.get()) { return NumericTable::cast(pOpt->get(id)); }
+    if (pOpt.get())
+    {
+        return NumericTable::cast(pOpt->get(id));
+    }
     return NumericTablePtr();
 }
 
@@ -182,7 +191,10 @@ void Input::set(OptionalDataId id, const NumericTablePtr & ptr)
 services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     services::Status s = super::check(input, par, method);
-    if (!s || !static_cast<const BaseParameter *>(par)->optionalResultRequired) { return s; }
+    if (!s || !static_cast<const BaseParameter *>(par)->optionalResultRequired)
+    {
+        return s;
+    }
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
 
     DAAL_CHECK(pOpt.get(), ErrorNullOptionalResult);
@@ -191,14 +203,19 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     size_t argumentSize    = algInput->get(iterative_solver::inputArgument)->getNumberOfRows();
     DAAL_ASSERT(momentum <= services::internal::MaxVal<int>::get())
     if (method == (int)momentum)
-    { DAAL_CHECK_STATUS(s, checkNumericTable(get(pastUpdateVector).get(), pastUpdateVectorStr(), 0, 0, 1, argumentSize)); }
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(pastUpdateVector).get(), pastUpdateVectorStr(), 0, 0, 1, argumentSize));
+    }
     return s;
 }
 
 NumericTablePtr Result::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
-    if (pOpt.get()) { return NumericTable::cast(pOpt->get(id)); }
+    if (pOpt.get())
+    {
+        return NumericTable::cast(pOpt->get(id));
+    }
     return NumericTablePtr();
 }
 

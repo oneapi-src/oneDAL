@@ -110,7 +110,10 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
     DAAL_CHECK(aErrFlag.get(), services::ErrorMemoryAllocationFailed);
 
     /* Initialize weights */
-    for (size_t i = 0; i < nVectors; i++) { w[i] = invNVectors; }
+    for (size_t i = 0; i < nVectors; i++)
+    {
+        w[i] = invNVectors;
+    }
 
     services::SharedPtr<weak_learner::training::Batch> learnerTrain = parameter->weakLearnerTraining->clone();
     classifier::training::interface1::Input * trainInput            = learnerTrain->getInput();
@@ -189,7 +192,10 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
         algorithmFPType cM = 0.5 * daal::internal::Math<algorithmFPType, cpu>::sLog((one - errM) / errM);
 
         /* Update weights */
-        for (size_t i = 0; i < nVectors; i++) { errFlag[i] *= cM; }
+        for (size_t i = 0; i < nVectors; i++)
+        {
+            errFlag[i] *= cM;
+        }
         daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors, errFlag, errFlag);
         algorithmFPType wSum = zero;
         for (size_t i = 0; i < nVectors; i++)
@@ -198,11 +204,20 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaBoostFr
             wSum += w[i];
         }
         algorithmFPType invWSum = one / wSum;
-        for (size_t i = 0; i < nVectors; i++) { w[i] *= invWSum; }
+        for (size_t i = 0; i < nVectors; i++)
+        {
+            w[i] *= invWSum;
+        }
         alpha[m] = cM;
 
-        if (errM < accThr) { break; }
-        if (alpha[m] > maxAlpha) { maxAlpha = alpha[m]; }
+        if (errM < accThr)
+        {
+            break;
+        }
+        if (alpha[m] > maxAlpha)
+        {
+            maxAlpha = alpha[m];
+        }
     }
     return s;
 }
@@ -247,7 +262,10 @@ services::Status I1AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(Nu
     DAAL_CHECK_BLOCK_STATUS(mtAlpha);
     algorithmFPType * resAlpha = mtAlpha.get();
     DAAL_ASSERT(resAlpha);
-    for (size_t i = 0; i < nWeakLearners; i++) { resAlpha[i] = alpha[i]; }
+    for (size_t i = 0; i < nWeakLearners; i++)
+    {
+        resAlpha[i] = alpha[i];
+    }
     return s;
 }
 } // namespace internal

@@ -92,7 +92,10 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
     const size_t nRowsPerBlock = nRows;
 
     size_t nBlocks = nRows / nRowsPerBlock;
-    if (nBlocks * nRowsPerBlock < nRows) { ++nBlocks; }
+    if (nBlocks * nRowsPerBlock < nRows)
+    {
+        ++nBlocks;
+    }
 
     BlockDescriptor<algorithmFPType> betaBlock;
     DAAL_CHECK_STATUS(status, betaTable->getBlockOfRows(0, nResponses, ReadWriteMode::readOnly, betaBlock));
@@ -102,7 +105,10 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
     {
         const size_t startRow = blockIdx * nRowsPerBlock;
         size_t endRow         = startRow + nRowsPerBlock;
-        if (endRow > nRows) { endRow = nRows; };
+        if (endRow > nRows)
+        {
+            endRow = nRows;
+        };
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
@@ -124,7 +130,10 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
 
         DAAL_CHECK_STATUS_VAR(status);
 
-        if (interceptFlag) { DAAL_CHECK_STATUS(status, addBetaIntercept(betaBuf, nBetas, yBuf, xNRows, yNCols)); }
+        if (interceptFlag)
+        {
+            DAAL_CHECK_STATUS(status, addBetaIntercept(betaBuf, nBetas, yBuf, xNRows, yNCols));
+        }
 
         DAAL_CHECK_STATUS(status, xTable->releaseBlockOfRows(xBlock));
         DAAL_CHECK_STATUS(status, yTable->releaseBlockOfRows(yBlock));

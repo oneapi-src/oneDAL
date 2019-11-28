@@ -173,7 +173,10 @@ bool receiveCompressedDataBlock(DataBlock & block)
     DataBlock currentBlock;
 
     /* Stop at the end of the queue */
-    if (sendReceiveQueue.empty()) { return false; }
+    if (sendReceiveQueue.empty())
+    {
+        return false;
+    }
 
     /* Receive the current compressed block from the queue */
     currentBlock = sendReceiveQueue.front();
@@ -202,7 +205,10 @@ void printCRC32()
     cout << "Input data checksum:    0x" << hex << crcSentDataStream << endl;
     cout << "Received data checksum: 0x" << hex << crcReceivedDataStream << endl;
 
-    if (sentDataStream.getSize() != receivedDataStream.getSize()) { cout << "ERROR: Received data size mismatches with the sent data size" << endl; }
+    if (sentDataStream.getSize() != receivedDataStream.getSize())
+    {
+        cout << "ERROR: Received data size mismatches with the sent data size" << endl;
+    }
     else if (crcSentDataStream != crcReceivedDataStream)
     {
         cout << "ERROR: Received data CRC mismatches with the sent data CRC" << endl;
@@ -215,7 +221,16 @@ void printCRC32()
 
 void releaseMemory()
 {
-    if (compressedDataBlock.getPtr()) { daal::services::daal_free(compressedDataBlock.getPtr()); }
-    if (receivedDataStream.getPtr()) { daal::services::daal_free(receivedDataStream.getPtr()); }
-    if (sentDataStream.getPtr()) { delete[] sentDataStream.getPtr(); }
+    if (compressedDataBlock.getPtr())
+    {
+        daal::services::daal_free(compressedDataBlock.getPtr());
+    }
+    if (receivedDataStream.getPtr())
+    {
+        daal::services::daal_free(receivedDataStream.getPtr());
+    }
+    if (sentDataStream.getPtr())
+    {
+        delete[] sentDataStream.getPtr();
+    }
 }

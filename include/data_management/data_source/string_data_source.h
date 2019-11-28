@@ -123,9 +123,15 @@ protected:
         {
             buffer[pos] = _stringBuffer[_stringBufferPos + pos];
 
-            if (buffer[pos] == '\0' || buffer[pos] == '\n') { break; }
+            if (buffer[pos] == '\0' || buffer[pos] == '\n')
+            {
+                break;
+            }
         }
-        if (buffer[pos] == '\n') { pos++; }
+        if (buffer[pos] == '\n')
+        {
+            pos++;
+        }
         _stringBufferPos += pos;
         buffer[pos] = '\0';
         return pos;
@@ -146,7 +152,9 @@ protected:
             if (_rawLineBuffer[_rawLineLength - 1] == '\n' || _rawLineBuffer[_rawLineLength - 1] == '\r')
             {
                 while (_rawLineLength > 0 && (_rawLineBuffer[_rawLineLength - 1] == '\n' || _rawLineBuffer[_rawLineLength - 1] == '\r'))
-                { _rawLineLength--; }
+                {
+                    _rawLineLength--;
+                }
                 _rawLineBuffer[_rawLineLength] = '\0';
                 return services::Status();
             }

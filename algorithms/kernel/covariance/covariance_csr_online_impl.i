@@ -46,7 +46,10 @@ services::Status computeSumCSR(size_t nFeatures, size_t nVectors, algorithmFPTyp
         invNObservations = 1.0 / nObservations[0];
         for (size_t i = 0; i < nFeatures; i++)
         {
-            for (size_t j = 0; j <= i; j++) { crossProduct[i * nFeatures + j] += sums[i] * sums[j] * invNObservations; }
+            for (size_t j = 0; j <= i; j++)
+            {
+                crossProduct[i * nFeatures + j] += sums[i] * sums[j] * invNObservations;
+            }
         }
     }
 

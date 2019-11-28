@@ -67,7 +67,10 @@ public:
             BlockDescriptor<int> yBD;
             const_cast<NumericTable &>(y).getBlockOfColumnValues(0, 0, yRowCount, readOnly, yBD);
             const int * const dy = yBD.getBlockPtr();
-            for (size_t i = 0; i < yRowCount; ++i) { update(static_cast<size_t>(dy[i])); }
+            for (size_t i = 0; i < yRowCount; ++i)
+            {
+                update(static_cast<size_t>(dy[i]));
+            }
             const_cast<NumericTable &>(y).releaseBlockOfColumnValues(yBD);
         }
     }
@@ -133,7 +136,10 @@ public:
 
     void reset()
     {
-        for (size_t i = 0; i < _size; ++i) { _counters[i] = 0; }
+        for (size_t i = 0; i < _size; ++i)
+        {
+            _counters[i] = 0;
+        }
     }
 
     void update(size_t index, float weight = 1.0)
@@ -150,7 +156,10 @@ public:
             if (_counters[i])
             {
                 ++numberOfClasses;
-                if (numberOfClasses >= 2) { break; }
+                if (numberOfClasses >= 2)
+                {
+                    break;
+                }
                 onlyClass = i;
             }
         }
@@ -166,15 +175,24 @@ public:
         DAAL_ASSERT(numProbs == _size);
 
         size_t total = 0;
-        for (size_t i = 0; i < _size; ++i) { total += _counters[i]; }
+        for (size_t i = 0; i < _size; ++i)
+        {
+            total += _counters[i];
+        }
 
         if (total != 0)
         {
-            for (size_t i = 0; i < _size; ++i) { probs[i] = static_cast<double>(_counters[i]) / static_cast<double>(total); }
+            for (size_t i = 0; i < _size; ++i)
+            {
+                probs[i] = static_cast<double>(_counters[i]) / static_cast<double>(total);
+            }
         }
         else
         {
-            for (size_t i = 0; i < _size; ++i) { probs[i] = 0.0; }
+            for (size_t i = 0; i < _size; ++i)
+            {
+                probs[i] = 0.0;
+            }
         }
     }
 
@@ -222,7 +240,10 @@ public:
             const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, 0, yRowCount, readOnly, wBD);
             const int * const dy             = yBD.getBlockPtr();
             const algorithmFPType * const dw = wBD.getBlockPtr();
-            for (size_t i = 0; i < yRowCount; ++i) { update(static_cast<size_t>(dy[i]), dw[i]); }
+            for (size_t i = 0; i < yRowCount; ++i)
+            {
+                update(static_cast<size_t>(dy[i]), dw[i]);
+            }
             const_cast<NumericTable &>(y).releaseBlockOfColumnValues(yBD);
             const_cast<NumericTable *>(w)->releaseBlockOfColumnValues(wBD);
         }
@@ -245,7 +266,10 @@ public:
         const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, firstIndex, count, readOnly, wBD);
         const algorithmFPType * const dw = wBD.getBlockPtr();
         algorithmFPType sum              = 0.0;
-        for (size_t i = 0; i < count; i++) { sum += dw[i]; }
+        for (size_t i = 0; i < count; i++)
+        {
+            sum += dw[i];
+        }
         const_cast<NumericTable *>(w)->releaseBlockOfColumnValues(wBD);
         return sum;
     }
@@ -304,7 +328,10 @@ public:
 
     void reset()
     {
-        for (size_t i = 0; i < _size; ++i) { _counters[i] = 0; }
+        for (size_t i = 0; i < _size; ++i)
+        {
+            _counters[i] = 0;
+        }
     }
 
     void update(size_t index, algorithmFPType weight = 0.0)
@@ -321,7 +348,10 @@ public:
             if (_counters[i])
             {
                 ++numberOfClasses;
-                if (numberOfClasses >= 2) { break; }
+                if (numberOfClasses >= 2)
+                {
+                    break;
+                }
                 onlyClass = i;
             }
         }
@@ -337,15 +367,24 @@ public:
         DAAL_ASSERT(numProbs == _size);
 
         algorithmFPType total = 0.0;
-        for (size_t i = 0; i < _size; ++i) { total += _counters[i]; }
+        for (size_t i = 0; i < _size; ++i)
+        {
+            total += _counters[i];
+        }
 
         if (total != 0.0)
         {
-            for (size_t i = 0; i < _size; ++i) { probs[i] = _counters[i] / total; }
+            for (size_t i = 0; i < _size; ++i)
+            {
+                probs[i] = _counters[i] / total;
+            }
         }
         else
         {
-            for (size_t i = 0; i < _size; ++i) { probs[i] = 0.0; }
+            for (size_t i = 0; i < _size; ++i)
+            {
+                probs[i] = 0.0;
+            }
         }
     }
 
@@ -525,7 +564,10 @@ protected:
         DAAL_ASSERT((_tempSize == 0) == (_tempP == nullptr));
         DAAL_ASSERT((_tempSize == 0) == (_tempLg == nullptr));
 
-        if (_tempSize >= size) { return true; }
+        if (_tempSize >= size)
+        {
+            return true;
+        }
 
         deallocateTempData();
         _tempSize = size;
@@ -662,7 +704,10 @@ protected:
         DAAL_ASSERT((_tempSize == 0) == (_tempP == nullptr));
         DAAL_ASSERT((_tempSize == 0) == (_tempLg == nullptr));
 
-        if (_tempSize >= size) { return true; }
+        if (_tempSize >= size)
+        {
+            return true;
+        }
 
         deallocateTempData();
         _tempSize = size;

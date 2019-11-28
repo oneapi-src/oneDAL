@@ -113,17 +113,28 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
         yMeansPtr = yMeans.get();
         DAAL_CHECK_MALLOC(yMeansPtr);
         for (size_t i = 0; i < nDependentVariables; i++) //[TBD] do in parallel
-        { yMeansPtr[i] = 0; }
+        {
+            yMeansPtr[i] = 0;
+        }
         for (size_t i = 0; i < nRows; i++)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t id = 0; id < nDependentVariables; ++id) { yMeansPtr[id] += yPtr[i * nDependentVariables + id]; }
+            for (size_t id = 0; id < nDependentVariables; ++id)
+            {
+                yMeansPtr[id] += yPtr[i * nDependentVariables + id];
+            }
         }
-        for (size_t i = 0; i < nDependentVariables; ++i) { yMeansPtr[i] *= inversedNRows; }
+        for (size_t i = 0; i < nDependentVariables; ++i)
+        {
+            yMeansPtr[i] *= inversedNRows;
+        }
         for (size_t i = 0; i < nRows; i++)
         {
-            for (size_t id = 0; id < nDependentVariables; ++id) { yPtr[i * nDependentVariables + id] -= yMeansPtr[id]; }
+            for (size_t id = 0; id < nDependentVariables; ++id)
+            {
+                yPtr[i * nDependentVariables + id] -= yMeansPtr[id];
+            }
         }
 
         xMeans.reset(nFeatures);
@@ -147,16 +158,25 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nFeatures; j++) { sum[j] += xPtr[i * nFeatures + j]; }
+                for (int j = 0; j < nFeatures; j++)
+                {
+                    sum[j] += xPtr[i * nFeatures + j];
+                }
             }
         });
         tlsData.reduce([&](algorithmFPType * localSum) {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (int j = 0; j < nFeatures; j++) { xMeansPtr[j] += localSum[j]; }
+            for (int j = 0; j < nFeatures; j++)
+            {
+                xMeansPtr[j] += localSum[j];
+            }
         });
 
-        for (size_t i = 0; i < nFeatures; ++i) { xMeansPtr[i] *= inversedNRows; }
+        for (size_t i = 0; i < nFeatures; ++i)
+        {
+            xMeansPtr[i] *= inversedNRows;
+        }
 
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
             const size_t startRow  = iBlock * blockSize;
@@ -165,7 +185,10 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nFeatures; j++) { xPtr[i * nFeatures + j] -= xMeansPtr[j]; }
+                for (int j = 0; j < nFeatures; j++)
+                {
+                    xPtr[i * nFeatures + j] -= xMeansPtr[j];
+                }
             }
         });
     }
@@ -227,7 +250,10 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
     for (size_t i = 0; i < nDependentVariables; i++)
     {
-        for (size_t j = 1; j < p; j++) { pBeta[i * p + j] = a[j * nDependentVariables + i]; }
+        for (size_t j = 1; j < p; j++)
+        {
+            pBeta[i * p + j] = a[j * nDependentVariables + i];
+        }
     }
     if (par.interceptFlag)
     {
@@ -237,7 +263,10 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
         for (size_t i = 0; i < nDependentVariables; i++)
         {
-            for (size_t j = 0; j < nFeatures; j++) { dot[i] += xMeansPtr[j] * pBeta[i * p + j + 1]; }
+            for (size_t j = 0; j < nFeatures; j++)
+            {
+                dot[i] += xMeansPtr[j] * pBeta[i * p + j + 1];
+            }
         }
         for (size_t j = 0; j < nDependentVariables; ++j) pBeta[p * j + 0] = yMeansPtr[j] - dot[j];
     }

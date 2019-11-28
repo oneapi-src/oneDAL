@@ -73,7 +73,10 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (int j = 0; j < _nFeatures; j++) { normDataArray_local[i * _nFeatures + j] = dataArray_local[i * _nFeatures + j]; }
+                    for (int j = 0; j < _nFeatures; j++)
+                    {
+                        normDataArray_local[i * _nFeatures + j] = dataArray_local[i * _nFeatures + j];
+                    }
                 }
             });
 
@@ -119,7 +122,9 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
                 for (int j = 0; j < _nFeatures; j++)
-                { normDataArray_local[i * _nFeatures + j] = (algorithmFPType)(dataArray_local[i * _nFeatures + j] - mean_total[j]) * invSigmas[j]; }
+                {
+                    normDataArray_local[i * _nFeatures + j] = (algorithmFPType)(dataArray_local[i * _nFeatures + j] - mean_total[j]) * invSigmas[j];
+                }
             }
         });
     }
@@ -143,7 +148,9 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
                 for (int j = 0; j < _nFeatures; j++)
-                { normDataArray_local[i * _nFeatures + j] = dataArray_local[i * _nFeatures + j] - mean_total[j]; }
+                {
+                    normDataArray_local[i * _nFeatures + j] = dataArray_local[i * _nFeatures + j] - mean_total[j];
+                }
             }
         });
     }
@@ -184,7 +191,10 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::compute(NumericTable & inputTable
     bool computeMeans     = par->resultsToCompute & mean;
     bool computeVariances = par->resultsToCompute & variances;
 
-    if ((computeMeans) || (computeVariances)) { DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nFeatures, sizeof(algorithmFPType)); }
+    if ((computeMeans) || (computeVariances))
+    {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nFeatures, sizeof(algorithmFPType));
+    }
 
     /* Internal arrays for mean and variance, initialized by zeros */
     TArray<algorithmFPType, cpu> meansTotalArray(computeMeans ? 0 : _nFeatures);

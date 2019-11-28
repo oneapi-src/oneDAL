@@ -46,7 +46,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_trainin
                                                                                                            jlong resAddr, jint id)
 {
     if (id == ModelId)
-    { return jniArgument<lasso_regression::training::Result>::get<lasso_regression::training::ResultId, lasso_regression::Model>(resAddr, id); }
+    {
+        return jniArgument<lasso_regression::training::Result>::get<lasso_regression::training::ResultId, lasso_regression::Model>(resAddr, id);
+    }
 
     return (jlong)0;
 }

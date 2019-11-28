@@ -471,7 +471,10 @@ struct MergedResult
     template <typename DataType>
     void release(DataType & data)
     {
-        for (size_t i = 0; i < res.size(); ++i) { res[i].release(data); }
+        for (size_t i = 0; i < res.size(); ++i)
+        {
+            res[i].release(data);
+        }
         res.~TVector<PartialResult, cpu, ScalableAllocator<cpu> >();
         service_scalable_free<void, cpu>(this);
     }
@@ -529,7 +532,10 @@ public:
             buffers.resize(NElem);
             T * ptr = allocate(NElem);
 
-            for (size_t i = 0; i < NElem; ++i) { buffers[i] = ptr + i * _bufferSize; }
+            for (size_t i = 0; i < NElem; ++i)
+            {
+                buffers[i] = ptr + i * _bufferSize;
+            }
         }
 
         ~BuffersStorage() { destoy(); }
@@ -538,7 +544,10 @@ public:
         {
             AUTOLOCK(_mutex);
 
-            if (_curIdx == _capacity) { addBlocks(6); }
+            if (_curIdx == _capacity)
+            {
+                addBlocks(6);
+            }
             return buffers[_curIdx++];
         }
 
@@ -561,7 +570,10 @@ public:
             T * ptr = allocate(nNewBlocks);
 
             buffers.resize(nNewBlocks + _capacity);
-            for (size_t i = 0; i < nNewBlocks; ++i) { buffers[i + _capacity] = ptr + i * _bufferSize; }
+            for (size_t i = 0; i < nNewBlocks; ++i)
+            {
+                buffers[i + _capacity] = ptr + i * _bufferSize;
+            }
 
             _capacity = nNewBlocks + _capacity;
         }
@@ -609,7 +621,10 @@ public:
     {
         AUTOLOCK(_mutex);
 
-        if (_curIdx == _capacity) { addBlocks(2); }
+        if (_curIdx == _capacity)
+        {
+            addBlocks(2);
+        }
         return alloc[_curIdx++];
     }
 
@@ -631,7 +646,10 @@ protected:
 
     void allocate(size_t nBlocks)
     {
-        for (size_t i = 0; i < nBlocks; ++i) { alloc.pushBack(new (service_scalable_calloc<T, cpu>(1)) T(_nGH)); }
+        for (size_t i = 0; i < nBlocks; ++i)
+        {
+            alloc.pushBack(new (service_scalable_calloc<T, cpu>(1)) T(_nGH));
+        }
     }
 
     void destoy()
@@ -683,7 +701,10 @@ public:
     {
         size = 0;
         this->reduce([&](T * ptr) -> void {
-            if (!ptr->isInitilized) { return; }
+            if (!ptr->isInitilized)
+            {
+                return;
+            }
 
             res[size++] = (algorithmFPType *)ptr->ghSum;
         });

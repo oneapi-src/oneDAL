@@ -43,13 +43,19 @@ inline void destroyAt(T * ptr)
 template <typename T, CpuType cpu, typename... Args>
 void constructRange(T * first, T * last, Args &&... args)
 {
-    for (T * ptr = first; ptr != last; ++ptr) { constructAt<T, cpu, Args...>(ptr, args...); }
+    for (T * ptr = first; ptr != last; ++ptr)
+    {
+        constructAt<T, cpu, Args...>(ptr, args...);
+    }
 }
 
 template <typename T, CpuType cpu>
 void destroyRange(T * first, T * last)
 {
-    for (T * ptr = first; ptr != last; ++ptr) { destroyAt<T, cpu>(ptr); }
+    for (T * ptr = first; ptr != last; ++ptr)
+    {
+        destroyAt<T, cpu>(ptr);
+    }
 }
 
 /* CPU specific allocators */

@@ -81,7 +81,10 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     services::Status s; // = super::check(input, par, method);
     if (!s || !static_cast<const Parameter *>(par)->optionalResultRequired) return s;
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
-    if (!pOpt.get()) { return services::Status(services::ErrorNullOptionalResult); }
+    if (!pOpt.get())
+    {
+        return services::Status(services::ErrorNullOptionalResult);
+    }
 
     return s;
 }

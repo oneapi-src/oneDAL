@@ -129,8 +129,13 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
 
             size_t iRow;
             for (iRow = 0; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
-            { predictByTreesVector(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, res + iRow); }
-            for (; iRow < nRowsToProcess; ++iRow) { res[iRow] += predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols); }
+            {
+                predictByTreesVector(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, res + iRow);
+            }
+            for (; iRow < nRowsToProcess; ++iRow)
+            {
+                res[iRow] += predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols);
+            }
         });
 
         s = safeStat.detach();

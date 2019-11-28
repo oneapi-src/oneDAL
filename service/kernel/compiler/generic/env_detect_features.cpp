@@ -103,9 +103,18 @@ static int check_avx512_features()
     */
     uint32_t kmask_ymm_mask = 0xE6;
 
-    if (!check_cpuid(1, 0, 2, avx_osxsave_mask)) { return 0; }
-    if (!check_xgetbv_xcr0_ymm(kmask_ymm_mask)) { return 0; }
-    if (!check_cpuid(7, 0, 1, avx512_mask)) { return 0; }
+    if (!check_cpuid(1, 0, 2, avx_osxsave_mask))
+    {
+        return 0;
+    }
+    if (!check_xgetbv_xcr0_ymm(kmask_ymm_mask))
+    {
+        return 0;
+    }
+    if (!check_cpuid(7, 0, 1, avx512_mask))
+    {
+        return 0;
+    }
 
     return 1;
 }
@@ -132,9 +141,18 @@ static int check_avx512_mic_features()
     */
     uint32_t kmask_ymm_mask = 0xE6;
 
-    if (!check_cpuid(1, 0, 2, avx_osxsave_mask)) { return 0; }
-    if (!check_xgetbv_xcr0_ymm(kmask_ymm_mask)) { return 0; }
-    if (!check_cpuid(7, 0, 1, avx512_mic_mask)) { return 0; }
+    if (!check_cpuid(1, 0, 2, avx_osxsave_mask))
+    {
+        return 0;
+    }
+    if (!check_xgetbv_xcr0_ymm(kmask_ymm_mask))
+    {
+        return 0;
+    }
+    if (!check_cpuid(7, 0, 1, avx512_mic_mask))
+    {
+        return 0;
+    }
 
     return 1;
 }
@@ -155,10 +173,22 @@ static int check_avx2_features()
     /* CPUID.(EAX=80000001H):ECX.LZCNT[bit 5]==1 */
     uint32_t lzcnt_mask = (1 << 5);
 
-    if (!check_cpuid(1, 0, 2, fma_aes_osxsave_mask)) { return 0; }
-    if (!check_xgetbv_xcr0_ymm(6)) { return 0; }
-    if (!check_cpuid(7, 0, 1, avx2_bmi12_mask)) { return 0; }
-    if (!check_cpuid(0x80000001, 0, 2, lzcnt_mask)) { return 0; }
+    if (!check_cpuid(1, 0, 2, fma_aes_osxsave_mask))
+    {
+        return 0;
+    }
+    if (!check_xgetbv_xcr0_ymm(6))
+    {
+        return 0;
+    }
+    if (!check_cpuid(7, 0, 1, avx2_bmi12_mask))
+    {
+        return 0;
+    }
+    if (!check_cpuid(0x80000001, 0, 2, lzcnt_mask))
+    {
+        return 0;
+    }
 
     return 1;
 }
@@ -169,8 +199,14 @@ static int check_avx_features()
        CPUID.(EAX=01H, ECX=0H):ECX.AVX[bit 28]==1 */
     uint32_t avx_mask = 0x18000000;
 
-    if (!check_cpuid(1, 0, 2, avx_mask)) { return 0; }
-    if (!check_xgetbv_xcr0_ymm(6)) { return 0; }
+    if (!check_cpuid(1, 0, 2, avx_mask))
+    {
+        return 0;
+    }
+    if (!check_xgetbv_xcr0_ymm(6))
+    {
+        return 0;
+    }
 
     return 1;
 }
@@ -180,7 +216,10 @@ static int check_sse42_features()
     /* CPUID.(EAX=01H, ECX=0H):ECX.SSE4.2[bit 20]==1 */
     uint32_t sse42_mask = 0x100000;
 
-    if (!check_cpuid(1, 0, 2, sse42_mask)) { return 0; }
+    if (!check_cpuid(1, 0, 2, sse42_mask))
+    {
+        return 0;
+    }
 
     return 1;
 }
@@ -190,7 +229,10 @@ static int check_ssse3_features()
     /* CPUID.(EAX=01H, ECX=0H):ECX.SSSE3[bit 9]==1 */
     uint32_t ssse3_mask = 0x200;
 
-    if (!check_cpuid(1, 0, 2, ssse3_mask)) { return 0; }
+    if (!check_cpuid(1, 0, 2, ssse3_mask))
+    {
+        return 0;
+    }
 
     return 1;
 }
@@ -198,22 +240,42 @@ static int check_ssse3_features()
 int __daal_serv_cpu_detect(int enable)
 {
     if ((enable & daal::services::Environment::avx512_mic_e1) == daal::services::Environment::avx512_mic_e1)
-    { fpk_serv_enable_instructions(MKL_ENABLE_AVX512_MIC_E1); }
+    {
+        fpk_serv_enable_instructions(MKL_ENABLE_AVX512_MIC_E1);
+    }
 
 #if defined(__APPLE__)
     __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif
-    if (check_avx512_features()) { return daal::avx512; }
+    if (check_avx512_features())
+    {
+        return daal::avx512;
+    }
 
-    if (check_avx512_mic_features()) { return daal::avx512_mic; }
+    if (check_avx512_mic_features())
+    {
+        return daal::avx512_mic;
+    }
 
-    if (check_avx2_features()) { return daal::avx2; }
+    if (check_avx2_features())
+    {
+        return daal::avx2;
+    }
 
-    if (check_avx_features()) { return daal::avx; }
+    if (check_avx_features())
+    {
+        return daal::avx;
+    }
 
-    if (check_sse42_features()) { return daal::sse42; }
+    if (check_sse42_features())
+    {
+        return daal::sse42;
+    }
 
-    if (check_ssse3_features()) { return daal::ssse3; }
+    if (check_ssse3_features())
+    {
+        return daal::ssse3;
+    }
 
     return daal::sse2;
 }

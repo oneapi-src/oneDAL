@@ -95,7 +95,10 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_
         DAAL_CHECK(catCoef.get(), services::ErrorMemoryAllocationFailed);
         for (size_t i = 0; i < p; i++)
         {
-            if (ntData->getFeatureType(i) == features::DAAL_CATEGORICAL) { catCoef[i] = par->gamma; }
+            if (ntData->getFeatureType(i) == features::DAAL_CATEGORICAL)
+            {
+                catCoef[i] = par->gamma;
+            }
             else
             {
                 catCoef[i] = (algorithmFPType)1.0;
@@ -115,7 +118,10 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_
         DAAL_CHECK(task.get(), services::ErrorMemoryAllocationFailed);
         DAAL_ASSERT(task);
 
-        if (par->assignFlag) { s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), ntAssignments); }
+        if (par->assignFlag)
+        {
+            s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), ntAssignments);
+        }
         else
         {
             s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get());
@@ -129,7 +135,10 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, sizeof(double));
 
         TArray<double, cpu> dS1(method == defaultDense ? p : 0);
-        if (method == defaultDense) { DAAL_CHECK(dS1.get(), services::ErrorMemoryAllocationFailed); }
+        if (method == defaultDense)
+        {
+            DAAL_CHECK(dS1.get(), services::ErrorMemoryAllocationFailed);
+        }
 
         task->template kmeansComputeCentroids<method>(clusterS0, clusterS1, dS1.get());
 
@@ -141,7 +150,10 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_
             const algorithmFPType * row = mtRow.get();
             result |= daal::services::internal::daal_memcpy_s(&cCentroids[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
         }
-        for (size_t i = cNum; i < nClusters; i++) { cValues[i] = (algorithmFPType)-1.0; }
+        for (size_t i = cNum; i < nClusters; i++)
+        {
+            cValues[i] = (algorithmFPType)-1.0;
+        }
 
         task->kmeansClearClusters(goalFunc);
     }
@@ -167,7 +179,10 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::finalizeCompu
     int * outAssignments = outBlock.get();
 
     PRAGMA_IVDEP
-    for (size_t i = 0; i < n; i++) { outAssignments[i] = inAssignments[i]; }
+    for (size_t i = 0; i < n; i++)
+    {
+        outAssignments[i] = inAssignments[i];
+    }
     return Status();
 }
 

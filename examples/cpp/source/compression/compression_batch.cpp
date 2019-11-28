@@ -119,7 +119,10 @@ void printCRC32()
     cout << "Raw data checksum:    0x" << hex << crcRawData << endl;
     cout << "Decompressed data checksum: 0x" << hex << crcDecompressedData << endl;
 
-    if (rawData.getSize() != deCompressedData.getSize()) { cout << "ERROR: Decompressed data size mismatches with the raw data size" << endl; }
+    if (rawData.getSize() != deCompressedData.getSize())
+    {
+        cout << "ERROR: Decompressed data size mismatches with the raw data size" << endl;
+    }
     else if (crcRawData != crcDecompressedData)
     {
         cout << "ERROR: Decompressed data CRC mismatches with the raw data CRC" << endl;
@@ -132,7 +135,16 @@ void printCRC32()
 
 void releaseMemory()
 {
-    if (compressedData.getPtr()) { delete[] compressedData.getPtr(); }
-    if (deCompressedData.getPtr()) { delete[] deCompressedData.getPtr(); }
-    if (rawData.getPtr()) { delete[] rawData.getPtr(); }
+    if (compressedData.getPtr())
+    {
+        delete[] compressedData.getPtr();
+    }
+    if (deCompressedData.getPtr())
+    {
+        delete[] deCompressedData.getPtr();
+    }
+    if (rawData.getPtr())
+    {
+        delete[] rawData.getPtr();
+    }
 }

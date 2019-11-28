@@ -324,7 +324,10 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
     const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-    if (valueNT == nullptr && gradientNT == nullptr && hessianNT == nullptr) { return services::ErrorMethodNotImplemented; }
+    if (valueNT == nullptr && gradientNT == nullptr && hessianNT == nullptr)
+    {
+        return services::ErrorMethodNotImplemented;
+    }
 
     DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_fUniversal, n));
     services::Buffer<algorithmFPType> fBuf = _fUniversal.get<algorithmFPType>();
@@ -332,7 +335,10 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
     //f = X*b + b0
     DAAL_CHECK_STATUS(status, applyBeta(xBuff, argBuff, fBuf, n, ldX, offsetX));
 
-    if (interceptFlag) { DAAL_CHECK_STATUS(status, betaIntercept(argBuff, fBuf, n)); }
+    if (interceptFlag)
+    {
+        DAAL_CHECK_STATUS(status, betaIntercept(argBuff, fBuf, n));
+    }
 
     DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_sigmoidUniversal, n));
     services::Buffer<algorithmFPType> sigmoidBuf = _sigmoidUniversal.get<algorithmFPType>();
@@ -426,9 +432,15 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
         DAAL_CHECK_STATUS(status, applyHessian(xBuff, sigmoidBuf, n, ldX, hessianBuff, nBeta, offsetX, div));
 
-        if (interceptFlag) { DAAL_CHECK_STATUS(status, hessianIntercept(xBuff, sigmoidBuf, n, ldX, hessianBuff, nBeta, div)); }
+        if (interceptFlag)
+        {
+            DAAL_CHECK_STATUS(status, hessianIntercept(xBuff, sigmoidBuf, n, ldX, hessianBuff, nBeta, div));
+        }
 
-        if (l2reg > 0) { DAAL_CHECK_STATUS(status, hessianRegulization(hessianBuff, nBeta, l2reg)); }
+        if (l2reg > 0)
+        {
+            DAAL_CHECK_STATUS(status, hessianRegulization(hessianBuff, nBeta, l2reg));
+        }
         DAAL_CHECK_STATUS(status, hessianNT->releaseBlockOfRows(hr));
     }
 

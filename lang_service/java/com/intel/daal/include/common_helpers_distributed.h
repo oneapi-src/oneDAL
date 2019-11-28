@@ -129,7 +129,10 @@ struct jniDistributed<_Step, _Method, _AlgClass, head>
     {
         if (method == head)
         {
-            if (prec == 0) { return (jlong)(new SharedPtr<AlgorithmIface>(new _AlgClass<_Step, double, (_Method)head>(args...))); }
+            if (prec == 0)
+            {
+                return (jlong)(new SharedPtr<AlgorithmIface>(new _AlgClass<_Step, double, (_Method)head>(args...)));
+            }
             else
             {
                 return (jlong)(new SharedPtr<AlgorithmIface>(new _AlgClass<_Step, float, (_Method)head>(args...)));
@@ -321,7 +324,9 @@ struct jniDistributed<_Step, _Method, _AlgClass, head>
         if (method == head)
         {
             if (prec == 0)
-            { *ptr = staticPointerCast<_AlgClass<_Step, double, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->clone(); }
+            {
+                *ptr = staticPointerCast<_AlgClass<_Step, double, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->clone();
+            }
             else
             {
                 *ptr = staticPointerCast<_AlgClass<_Step, float, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->clone();

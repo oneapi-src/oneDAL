@@ -348,7 +348,9 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr &
 
     services::Status s;
     if ((treeId > (*(serializationData)).size()) || (position != 0 && position != 1))
-    { return services::Status(services::ErrorID::ErrorIncorrectParameter); }
+    {
+        return services::Status(services::ErrorID::ErrorIncorrectParameter);
+    }
 
     const DecisionTreeTable * const pTreeTable = static_cast<DecisionTreeTable *>((*(serializationData))[treeId].get());
     if (!pTreeTable) return services::Status(services::ErrorID::ErrorNullPtr);
@@ -371,13 +373,19 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr &
         {
             const size_t reservedId = aNode[parentId].leftIndexOrClass + 1;
             nodeId                  = reservedId;
-            if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID) { setNode(aNode[nodeId], -1, response); }
+            if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
+            {
+                setNode(aNode[nodeId], -1, response);
+            }
         }
         else if ((aNode[parentId].leftIndexOrClass > 0) && (position == 0))
         {
             const size_t reservedId = aNode[parentId].leftIndexOrClass;
             nodeId                  = reservedId;
-            if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID) { setNode(aNode[nodeId], -1, response); }
+            if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
+            {
+                setNode(aNode[nodeId], -1, response);
+            }
         }
         else if ((aNode[parentId].leftIndexOrClass == 0) && (position == 0))
         {
@@ -391,10 +399,16 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr &
                 }
             }
             /* no space left */
-            if (i == nRows) { return services::Status(services::ErrorID::ErrorIncorrectParameter); }
+            if (i == nRows)
+            {
+                return services::Status(services::ErrorID::ErrorIncorrectParameter);
+            }
             setNode(aNode[nodeId], -1, response);
             aNode[parentId].leftIndexOrClass = nodeId;
-            if (((nodeId + 1) < nRows) && (aNode[nodeId + 1].featureIndex == __NODE_FREE_ID)) { aNode[nodeId + 1].featureIndex = __NODE_RESERVED_ID; }
+            if (((nodeId + 1) < nRows) && (aNode[nodeId + 1].featureIndex == __NODE_FREE_ID))
+            {
+                aNode[nodeId + 1].featureIndex = __NODE_RESERVED_ID;
+            }
             else
             {
                 return services::Status(services::ErrorID::ErrorIncorrectParameter);
@@ -413,11 +427,17 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr &
                 }
             }
             /*if no free nodes leftBound is not initialized and no space left*/
-            if (i == nRows) { return services::Status(services::ErrorID::ErrorIncorrectParameter); }
+            if (i == nRows)
+            {
+                return services::Status(services::ErrorID::ErrorIncorrectParameter);
+            }
             aNode[leftEmptyId].featureIndex  = __NODE_RESERVED_ID;
             aNode[parentId].leftIndexOrClass = leftEmptyId;
             nodeId                           = leftEmptyId + 1;
-            if (nodeId < nRows) { setNode(aNode[nodeId], -1, response); }
+            if (nodeId < nRows)
+            {
+                setNode(aNode[nodeId], -1, response);
+            }
             else
             {
                 return services::Status(services::ErrorID::ErrorIncorrectParameter);
@@ -470,7 +490,10 @@ protected:
             arch->setSharedPtrObj(_impurityTables);
             arch->setSharedPtrObj(_nNodeSampleTables);
         }
-        if ((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0))) { arch->setSharedPtrObj(_probTbl); }
+        if ((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0)))
+        {
+            arch->setSharedPtrObj(_probTbl);
+        }
 
         if (onDeserialize) _nTree.set(_serializationData->size());
 

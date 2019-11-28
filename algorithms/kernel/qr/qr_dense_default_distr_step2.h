@@ -69,7 +69,10 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(data_manage
     data_management::KeyValueDataCollectionPtr partialCollection =
         services::staticPointerCast<data_management::KeyValueDataCollection, data_management::SerializationIface>(
             Argument::get(outputOfStep2ForStep3));
-    if (!partialCollection) { return Status(); }
+    if (!partialCollection)
+    {
+        return Status();
+    }
 
     ResultPtr result = services::staticPointerCast<Result, data_management::SerializationIface>(Argument::get(finalResultFromStep2Master));
 
@@ -79,7 +82,10 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(data_manage
     data_management::NumericTable * firstNumericTable     = static_cast<data_management::NumericTable *>((*fisrtNodeCollection)[0].get());
 
     size_t m = firstNumericTable->getNumberOfColumns();
-    if (result->get(matrixR).get() == nullptr) { result->allocateImpl<algorithmFPType>(m, 0); }
+    if (result->get(matrixR).get() == nullptr)
+    {
+        result->allocateImpl<algorithmFPType>(m, 0);
+    }
 
     nBlocks = 0;
     Status s;

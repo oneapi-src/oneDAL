@@ -35,7 +35,10 @@ using namespace daal::services;
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_ModelBuilder_cInit(JNIEnv *, jobject, jint prec, jlong nFeatures,
                                                                                                jlong nClasses)
 {
-    if (prec == 0) { return (jlong)(new SharedPtr<ModelBuilder<double> >(new ModelBuilder<double>(nFeatures, nClasses))); }
+    if (prec == 0)
+    {
+        return (jlong)(new SharedPtr<ModelBuilder<double> >(new ModelBuilder<double>(nFeatures, nClasses)));
+    }
     else
     {
         return (jlong)(new SharedPtr<ModelBuilder<float> >(new ModelBuilder<float>(nFeatures, nClasses)));

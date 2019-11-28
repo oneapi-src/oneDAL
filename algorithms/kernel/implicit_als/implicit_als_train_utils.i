@@ -58,7 +58,10 @@ services::Status csr2csc(size_t nItems, size_t nUsers, const algorithmFPType * c
     {
         size_t rowStart = rowOffsets[i - 1] - 1;
         size_t rowEnd   = rowOffsets[i] - 1;
-        for (size_t k = rowStart; k < rowEnd; k++) { rowIndices[k] = i; }
+        for (size_t k = rowStart; k < rowEnd; k++)
+        {
+            rowIndices[k] = i;
+        }
     }
 
     /* Sort arrays that represent data in COO format (values, column indices and row indices) over the column indices,
@@ -68,19 +71,31 @@ services::Status csr2csc(size_t nItems, size_t nUsers, const algorithmFPType * c
     /* Create an array of columns offsets for the data in CSC format */
     size_t colOffset      = 1;
     size_t colOffsetIndex = 0;
-    for (; colOffsetIndex < cooColIndices[0]; colOffsetIndex++) { colOffsets[colOffsetIndex] = 1; }
+    for (; colOffsetIndex < cooColIndices[0]; colOffsetIndex++)
+    {
+        colOffsets[colOffsetIndex] = 1;
+    }
     for (size_t i = 1; i < dataSize; i++)
     {
         if (cooColIndices[i] != cooColIndices[i - 1])
         {
-            if (cooColIndices[i] == cooColIndices[i - 1] + 1) { colOffsets[colOffsetIndex++] = i + 1; }
+            if (cooColIndices[i] == cooColIndices[i - 1] + 1)
+            {
+                colOffsets[colOffsetIndex++] = i + 1;
+            }
             else
             {
-                for (size_t k = cooColIndices[i - 1]; k < cooColIndices[i]; k++) { colOffsets[colOffsetIndex++] = i + 1; }
+                for (size_t k = cooColIndices[i - 1]; k < cooColIndices[i]; k++)
+                {
+                    colOffsets[colOffsetIndex++] = i + 1;
+                }
             }
         }
     }
-    for (size_t i = colOffsetIndex; i <= nItems; i++) { colOffsets[i] = rowOffsets[nUsers]; }
+    for (size_t i = colOffsetIndex; i <= nItems; i++)
+    {
+        colOffsets[i] = rowOffsets[nUsers];
+    }
 
     return Status();
 }

@@ -72,7 +72,10 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::initAccumulatedGra
         processByBlocks<cpu>(
             nRows,
             [=](size_t startOffset, size_t nRowsInBlock) {
-                for (size_t i = startOffset; i < startOffset + nRowsInBlock; i++) { accumulatedG[i] = algorithmFPType(0.0); }
+                for (size_t i = startOffset; i < startOffset + nRowsInBlock; i++)
+                {
+                    accumulatedG[i] = algorithmFPType(0.0);
+                }
             },
             _blockSize, _threadStart);
     }
@@ -135,7 +138,10 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppIfa
     ReadRows<int, cpu> predefinedBatchIndicesBD(parameter->batchIndices.get(), 0, nIter);
     DAAL_CHECK_BLOCK_STATUS(predefinedBatchIndicesBD);
     RngTask<int, cpu> rngTask(predefinedBatchIndicesBD.get(), batchSize);
-    if (!parameter->batchIndices) { DAAL_CHECK_MALLOC(rngTask.init(parameter->function->sumOfFunctionsParameter->numberOfTerms, engine)); }
+    if (!parameter->batchIndices)
+    {
+        DAAL_CHECK_MALLOC(rngTask.init(parameter->function->sumOfFunctionsParameter->numberOfTerms, engine));
+    }
 
     services::Status s;
     SharedPtr<HomogenNumericTableCPU<int, cpu> > ntBatchIndices = HomogenNumericTableCPU<int, cpu>::create(NULL, batchSize, 1, &s);
@@ -206,7 +212,10 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppIfa
                         [=](size_t startOffset, size_t nRowsInBlock) {
                             PRAGMA_IVDEP
                             PRAGMA_VECTOR_ALWAYS
-                            for (size_t j = startOffset; j < startOffset + nRowsInBlock; j++) { accumulatedG[j] += gradient[j] * gradient[j]; }
+                            for (size_t j = startOffset; j < startOffset + nRowsInBlock; j++)
+                            {
+                                accumulatedG[j] += gradient[j] * gradient[j];
+                            }
                         },
                         _blockSize, _threadStart);
                 }

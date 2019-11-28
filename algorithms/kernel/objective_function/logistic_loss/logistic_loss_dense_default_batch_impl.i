@@ -52,7 +52,10 @@ static void applyBetaImpl(const algorithmFPType * x, const algorithmFPType * bet
     DAAL_INT n           = (DAAL_INT)nRows;
     DAAL_INT dim         = (DAAL_INT)nCols;
     DAAL_INT ione        = 1;
-    if (bThreaded) { Blas<algorithmFPType, cpu>::xgemv(&trans, &dim, &n, &one, x, &dim, beta + 1, &ione, &zero, xb, &ione); }
+    if (bThreaded)
+    {
+        Blas<algorithmFPType, cpu>::xgemv(&trans, &dim, &n, &one, x, &dim, beta + 1, &ione, &zero, xb, &ione);
+    }
     else
     {
         Blas<algorithmFPType, cpu>::xxgemv(&trans, &dim, &n, &one, x, &dim, beta + 1, &ione, &zero, xb, &ione);
@@ -135,7 +138,10 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
     HomogenNumericTable<algorithmFPType> * hmgBeta = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(betaNT);
     ReadRows<algorithmFPType, cpu> betar;
 
-    if (hmgBeta) { b = (*hmgBeta).getArray(); }
+    if (hmgBeta)
+    {
+        b = (*hmgBeta).getArray();
+    }
     else
     {
         betar.set(betaNT, 0, nBeta);
@@ -150,7 +156,10 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
 
         HomogenNumericTable<algorithmFPType> * hmgProx = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(proximalProjection);
         WriteRows<algorithmFPType, cpu> pr;
-        if (hmgProx) { prox = hmgProx->getArray(); }
+        if (hmgProx)
+        {
+            prox = hmgProx->getArray();
+        }
         else
         {
             pr.set(proximalProjection, 0, nBeta);
@@ -161,9 +170,18 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
         prox[0] = b[0];
         for (int i = 1; i < nBeta; i++)
         {
-            if (b[i] > parameter->penaltyL1) { prox[i] = b[i] - parameter->penaltyL1; }
-            if (b[i] < -parameter->penaltyL1) { prox[i] = b[i] + parameter->penaltyL1; }
-            if (daal::internal::Math<algorithmFPType, cpu>::sFabs(b[i]) <= parameter->penaltyL1) { prox[i] = 0; }
+            if (b[i] > parameter->penaltyL1)
+            {
+                prox[i] = b[i] - parameter->penaltyL1;
+            }
+            if (b[i] < -parameter->penaltyL1)
+            {
+                prox[i] = b[i] + parameter->penaltyL1;
+            }
+            if (daal::internal::Math<algorithmFPType, cpu>::sFabs(b[i]) <= parameter->penaltyL1)
+            {
+                prox[i] = 0;
+            }
         }
     }
 
@@ -189,12 +207,21 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             for (size_t i = startRow; i < finishRow; i++)
             {
                 curentNorm = 0;
-                for (int j = 0; j < p; j++) { curentNorm += x[i * p + j] * x[i * p + j]; }
-                if (curentNorm > _maxNorm) { _maxNorm = curentNorm; }
+                for (int j = 0; j < p; j++)
+                {
+                    curentNorm += x[i * p + j] * x[i * p + j];
+                }
+                if (curentNorm > _maxNorm)
+                {
+                    _maxNorm = curentNorm;
+                }
             }
         });
         tlsData.reduce([&](algorithmFPType * maxNorm) {
-            if (globalMaxNorm < *maxNorm) { globalMaxNorm = *maxNorm; }
+            if (globalMaxNorm < *maxNorm)
+            {
+                globalMaxNorm = *maxNorm;
+            }
         });
 
         algorithmFPType alpha_scaled = algorithmFPType(parameter->penaltyL2) / algorithmFPType(n);
@@ -212,7 +239,10 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
 
         if ((parameter->penaltyL1 > 0))
         {
-            for (size_t i = 1; i < nBeta; ++i) { nonSmoothTerm += (b[i] < 0 ? -b[i] : b[i]) * parameter->penaltyL1; }
+            for (size_t i = 1; i < nBeta; ++i)
+            {
+                nonSmoothTerm += (b[i] < 0 ? -b[i] : b[i]) * parameter->penaltyL1;
+            }
         }
         v = nonSmoothTerm;
     }
@@ -281,7 +311,10 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
 
             if (bL1)
             {
-                if (nonSmoothTermValue) { value += nonSmoothTerm; }
+                if (nonSmoothTermValue)
+                {
+                    value += nonSmoothTerm;
+                }
                 else
                 {
                     for (size_t i = 1; i < nBeta; ++i) value += (b[i] < 0 ? -b[i] : b[i]) * parameter->penaltyL1;
@@ -299,7 +332,10 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
             algorithmFPType * g;
             HomogenNumericTable<algorithmFPType> * hmgGrad = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(gradientNT);
             WriteRows<algorithmFPType, cpu> gr;
-            if (hmgGrad) { g = hmgGrad->getArray(); }
+            if (hmgGrad)
+            {
+                g = hmgGrad->getArray();
+            }
             else
             {
                 gr.set(gradientNT, 0, nBeta);
@@ -333,12 +369,18 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                     auto pg     = gradsPtr + iBlock * p;
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < nRowsToProcess; ++i) { ps[i] -= py[i]; }
+                    for (size_t i = 0; i < nRowsToProcess; ++i)
+                    {
+                        ps[i] -= py[i];
+                    }
                     daal::internal::Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &yDim, &dim, &nN, &one, ps, &yDim, px, &dim, &one, pg,
                                                                        &yDim);
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < nRowsToProcess; ++i) { ps[i] += py[i]; }
+                    for (size_t i = 0; i < nRowsToProcess; ++i)
+                    {
+                        ps[i] += py[i];
+                    }
                 });
                 for (size_t i = 0; i < nDataBlocks; i++)
                     for (size_t j = 0; j < p; j++) g[j + 1] += gradsPtr[i * p + j];

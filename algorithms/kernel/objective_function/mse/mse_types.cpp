@@ -122,7 +122,10 @@ void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr & ptr)
 data_management::NumericTablePtr Input::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(optimization_solver::mse::optionalArgument);
-    if (pOpt.get()) { return NumericTable::cast(pOpt->get(id)); }
+    if (pOpt.get())
+    {
+        return NumericTable::cast(pOpt->get(id));
+    }
     return NumericTablePtr();
 }
 

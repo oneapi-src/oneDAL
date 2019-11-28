@@ -177,8 +177,14 @@ public:
      */
     virtual void checkInputParams(byte * inBlock, size_t size)
     {
-        if (inBlock == NULL) { this->_errors->add(services::ErrorCompressionNullInputStream); }
-        if (size == 0) { this->_errors->add(services::ErrorCompressionEmptyInputStream); }
+        if (inBlock == NULL)
+        {
+            this->_errors->add(services::ErrorCompressionNullInputStream);
+        }
+        if (size == 0)
+        {
+            this->_errors->add(services::ErrorCompressionEmptyInputStream);
+        }
     }
     /**
      * Basic checks of output block parameters
@@ -187,8 +193,14 @@ public:
      */
     virtual void checkOutputParams(byte * outBlock, size_t size)
     {
-        if (outBlock == NULL) { this->_errors->add(services::ErrorCompressionNullOutputStream); }
-        if (size == 0) { this->_errors->add(services::ErrorCompressionEmptyOutputStream); }
+        if (outBlock == NULL)
+        {
+            this->_errors->add(services::ErrorCompressionNullOutputStream);
+        }
+        if (size == 0)
+        {
+            this->_errors->add(services::ErrorCompressionEmptyOutputStream);
+        }
     }
 
     services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }

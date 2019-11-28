@@ -143,7 +143,10 @@ void geometricPartitioning()
     while (true)
     {
         const size_t curNPartitions = endId - beginId;
-        if (curNPartitions == 1) { break; }
+        if (curNPartitions == 1)
+        {
+            break;
+        }
 
         partialSplits        = DataCollectionPtr(new DataCollection());
         partialBoundingBoxes = DataCollectionPtr(new DataCollection());
@@ -181,7 +184,10 @@ void geometricPartitioning()
         sendCollectionAllToAll(beginId, endId, rankId, step4ResultPartitionedDataTag, curPartitionedData, partitionedData);
         sendCollectionAllToAll(beginId, endId, rankId, step4ResultPartitionedPartialOrdersTag, curPartitionedPartialOrders, partitionedPartialOrders);
 
-        if (rankId < beginId + leftPartitions) { endId = beginId + leftPartitions; }
+        if (rankId < beginId + leftPartitions)
+        {
+            endId = beginId + leftPartitions;
+        }
         else
         {
             beginId = beginId + leftPartitions;
@@ -215,7 +221,9 @@ void clustering()
     {
         NumericTablePtr dataTable = services::staticPointerCast<NumericTable, SerializationIface>((*curHaloData)[destId]);
         if (dataTable->getNumberOfRows() > 0)
-        { curHaloBlocks->push_back(HomogenNumericTable<int>::create(1, 1, NumericTableIface::doAllocate, (int)rankId)); }
+        {
+            curHaloBlocks->push_back(HomogenNumericTable<int>::create(1, 1, NumericTableIface::doAllocate, (int)rankId));
+        }
         else
         {
             curHaloBlocks->push_back(NumericTablePtr());
@@ -387,47 +395,18 @@ void sendCollectionAllToAll(size_t beginId, size_t endId, size_t curId, int tag,
     for (size_t shift = 0; shift < nShifts; shift++)
     {
         size_t partnerId = ((curId - beginId) ^ shift) + beginId;
-        if (partnerId < beginId || partnerId >= endId) { continue; }
+        if (partnerId < beginId || partnerId >= endId)
+        {
+            continue;
+        }
 
         NumericTablePtr table = NumericTable::cast((*collection)[partnerId - beginId]);
         NumericTablePtr partnerTable;
 
-        if (partnerId == curId) { partnerTable = table; }
-        else
+        if (partnerId == curId)
         {
-            if (curId < partnerId)
-            {
-                sendTable(table, partnerId, tag);
-                recvTable(partnerTable, partnerId, tag);
-            }
-            else
-            {
-                recvTable(partnerTable, partnerId, tag);
-                sendTable(table, partnerId, tag);
-            }
+            partnerTable = table;
         }
-
-        if (partnerTable.get() && partnerTable->getNumberOfRows() > 0) { destCollection->push_back(partnerTable); }
-    }
-}
-
-void sendTableAllToAll(size_t beginId, size_t endId, size_t curId, int tag, NumericTablePtr & table, DataCollectionPtr & destCollection,
-                       bool preserveOrder)
-{
-    size_t nIds    = endId - beginId;
-    size_t nShifts = 1;
-    while (nShifts < nIds) nShifts <<= 1;
-
-    if (preserveOrder) { destCollection = DataCollectionPtr(new DataCollection(nIds)); }
-
-    for (size_t shift = 0; shift < nShifts; shift++)
-    {
-        size_t partnerId = ((curId - beginId) ^ shift) + beginId;
-        if (partnerId < beginId || partnerId >= endId) { continue; }
-
-        NumericTablePtr partnerTable;
-
-        if (partnerId == curId) { partnerTable = table; }
         else
         {
             if (curId < partnerId)
@@ -444,7 +423,57 @@ void sendTableAllToAll(size_t beginId, size_t endId, size_t curId, int tag, Nume
 
         if (partnerTable.get() && partnerTable->getNumberOfRows() > 0)
         {
-            if (preserveOrder) { (*destCollection)[partnerId - beginId] = partnerTable; }
+            destCollection->push_back(partnerTable);
+        }
+    }
+}
+
+void sendTableAllToAll(size_t beginId, size_t endId, size_t curId, int tag, NumericTablePtr & table, DataCollectionPtr & destCollection,
+                       bool preserveOrder)
+{
+    size_t nIds    = endId - beginId;
+    size_t nShifts = 1;
+    while (nShifts < nIds) nShifts <<= 1;
+
+    if (preserveOrder)
+    {
+        destCollection = DataCollectionPtr(new DataCollection(nIds));
+    }
+
+    for (size_t shift = 0; shift < nShifts; shift++)
+    {
+        size_t partnerId = ((curId - beginId) ^ shift) + beginId;
+        if (partnerId < beginId || partnerId >= endId)
+        {
+            continue;
+        }
+
+        NumericTablePtr partnerTable;
+
+        if (partnerId == curId)
+        {
+            partnerTable = table;
+        }
+        else
+        {
+            if (curId < partnerId)
+            {
+                sendTable(table, partnerId, tag);
+                recvTable(partnerTable, partnerId, tag);
+            }
+            else
+            {
+                recvTable(partnerTable, partnerId, tag);
+                sendTable(table, partnerId, tag);
+            }
+        }
+
+        if (partnerTable.get() && partnerTable->getNumberOfRows() > 0)
+        {
+            if (preserveOrder)
+            {
+                (*destCollection)[partnerId - beginId] = partnerTable;
+            }
             else
             {
                 destCollection->push_back(partnerTable);
@@ -460,13 +489,19 @@ void sendTableAllToMaster(size_t beginId, size_t endId, size_t rankId, int tag, 
         for (size_t partnerId = beginId; partnerId < endId; partnerId++)
         {
             NumericTablePtr partnerTable;
-            if (partnerId == rankId) { partnerTable = table; }
+            if (partnerId == rankId)
+            {
+                partnerTable = table;
+            }
             else
             {
                 recvTable(partnerTable, partnerId, tag);
             }
 
-            if (partnerTable.get() && partnerTable->getNumberOfRows() > 0) { destCollection->push_back(partnerTable); }
+            if (partnerTable.get() && partnerTable->getNumberOfRows() > 0)
+            {
+                destCollection->push_back(partnerTable);
+            }
         }
     }
     else
@@ -482,7 +517,10 @@ void sendCollectionMasterToAll(size_t beginId, size_t endId, size_t rankId, int 
         for (size_t partnerId = beginId; partnerId < endId; partnerId++)
         {
             NumericTablePtr table = NumericTable::cast((*collection)[partnerId - beginId]);
-            if (partnerId == rankId) { destTable = table; }
+            if (partnerId == rankId)
+            {
+                destTable = table;
+            }
             else
             {
                 sendTable(table, partnerId, tag);
@@ -501,7 +539,10 @@ void sendTableMasterToAll(size_t beginId, size_t endId, size_t rankId, int tag, 
     {
         for (size_t partnerId = beginId; partnerId < endId; partnerId++)
         {
-            if (partnerId == rankId) { destTable = table; }
+            if (partnerId == rankId)
+            {
+                destTable = table;
+            }
             else
             {
                 sendTable(table, partnerId, tag);
@@ -519,7 +560,10 @@ void sendTable(NumericTablePtr & table, int recpnt, int tag)
     ByteBuffer buff;
     size_t size = (table.get() && table->getNumberOfRows() > 0) ? serializeDAALObject(table.get(), buff) : 0;
     MPI_Send(&size, sizeof(size_t), MPI_BYTE, recpnt, tag * 2 + 0, MPI_COMM_WORLD);
-    if (size) { MPI_Send(&buff[0], size, MPI_BYTE, recpnt, tag * 2 + 1, MPI_COMM_WORLD); }
+    if (size)
+    {
+        MPI_Send(&buff[0], size, MPI_BYTE, recpnt, tag * 2 + 1, MPI_COMM_WORLD);
+    }
 }
 
 void recvTable(NumericTablePtr & table, int sender, int tag)

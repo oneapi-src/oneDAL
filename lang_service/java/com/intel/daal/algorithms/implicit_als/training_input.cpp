@@ -47,7 +47,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Tr
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_TrainingInput_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
                                                                                                      jint id, jlong valAddr)
 {
-    if (id == dataId) { jniInput<implicit_als::training::Input>::set<NumericTableInputId, NumericTable>(inputAddr, data, valAddr); }
+    if (id == dataId)
+    {
+        jniInput<implicit_als::training::Input>::set<NumericTableInputId, NumericTable>(inputAddr, data, valAddr);
+    }
     else if (id == inputModelId)
     {
         jniInput<implicit_als::training::Input>::set<ModelInputId, implicit_als::Model>(inputAddr, inputModel, valAddr);
@@ -62,7 +65,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Tra
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_TrainingInput_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
                                                                                                       jint id)
 {
-    if (id == dataId) { return jniInput<implicit_als::training::Input>::get<NumericTableInputId, NumericTable>(inputAddr, data); }
+    if (id == dataId)
+    {
+        return jniInput<implicit_als::training::Input>::get<NumericTableInputId, NumericTable>(inputAddr, data);
+    }
     else if (id == inputModelId)
     {
         return jniInput<implicit_als::training::Input>::get<ModelInputId, implicit_als::Model>(inputAddr, inputModel);

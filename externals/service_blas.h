@@ -151,12 +151,18 @@ struct Blas
         SizeType b_lastblocksize = b_rows - b_blocknum * b_blocksize;
 
         /* Increase the number of blocks if last block size is nonzero */
-        if (a_lastblocksize != 0) { a_blocknum++; }
+        if (a_lastblocksize != 0)
+        {
+            a_blocknum++;
+        }
         else
         {
             a_lastblocksize = a_blocksize;
         }
-        if (b_lastblocksize != 0) { b_blocknum++; }
+        if (b_lastblocksize != 0)
+        {
+            b_blocknum++;
+        }
         else
         {
             b_lastblocksize = b_blocksize;

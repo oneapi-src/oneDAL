@@ -119,7 +119,10 @@ protected:
         {
             if (_fileBufferPos < _readedFromFileLen)
             {
-                if (_fileBuffer[_fileBufferPos] == '\0') { return false; }
+                if (_fileBuffer[_fileBufferPos] == '\0')
+                {
+                    return false;
+                }
                 buffer[pos] = _fileBuffer[_fileBufferPos];
                 ++pos;
                 ++_fileBufferPos;
@@ -148,7 +151,9 @@ protected:
         {
             int readLen = 0;
             if (!readLine(_rawLineBuffer + _rawLineLength, _rawLineBufferLen - _rawLineLength, readLen))
-            { return services::Status(services::ErrorOnFileRead); }
+            {
+                return services::Status(services::ErrorOnFileRead);
+            }
 
             if (readLen <= 0)
             {
@@ -159,7 +164,9 @@ protected:
             if (_rawLineBuffer[_rawLineLength - 1] == '\n' || _rawLineBuffer[_rawLineLength - 1] == '\r')
             {
                 while (_rawLineLength > 0 && (_rawLineBuffer[_rawLineLength - 1] == '\n' || _rawLineBuffer[_rawLineLength - 1] == '\r'))
-                { _rawLineLength--; }
+                {
+                    _rawLineLength--;
+                }
                 _rawLineBuffer[_rawLineLength] = '\0';
                 break;
             }
@@ -177,14 +184,23 @@ private:
         _fileBufferPos     = _fileBufferLen;
         _fileBuffer        = NULL;
         _readedFromFileLen = 0;
-        if (fileName.find('\0') != std::string::npos) { return services::throwIfPossible(services::ErrorNullByteInjection); }
+        if (fileName.find('\0') != std::string::npos)
+        {
+            return services::throwIfPossible(services::ErrorNullByteInjection);
+        }
 #if (defined(_MSC_VER) && (_MSC_VER >= 1400))
         errno_t error;
         error = fopen_s(&_file, fileName.c_str(), "r");
-        if (error != 0 || !_file) { return services::throwIfPossible(services::ErrorOnFileOpen); }
+        if (error != 0 || !_file)
+        {
+            return services::throwIfPossible(services::ErrorOnFileOpen);
+        }
 #else
         _file = fopen((char *)(fileName.c_str()), "r");
-        if (!_file) { return services::throwIfPossible(services::ErrorOnFileOpen); }
+        if (!_file)
+        {
+            return services::throwIfPossible(services::ErrorOnFileOpen);
+        }
 #endif
         _fileBuffer = (char *)daal::services::daal_malloc(_fileBufferLen);
         if (!_fileBuffer)

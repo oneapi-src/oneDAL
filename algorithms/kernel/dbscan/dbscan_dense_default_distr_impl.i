@@ -246,7 +246,10 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
         partialSplitValues[part] = partialSplit[0];
 
         DAAL_ASSERT(partialSplit[1] >= 0)
-        if (part == 0) { splitDim = (size_t)partialSplit[1]; }
+        if (part == 0)
+        {
+            splitDim = (size_t)partialSplit[1];
+        }
         else
         {
             DAAL_ASSERT(splitDim == (size_t)partialSplit[1]);
@@ -304,7 +307,10 @@ Status DBSCANDistrStep4Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
     for (size_t part = 0; part < nBlocks; part++)
     {
-        if (partitionedDataNRows[part] == 0) { continue; }
+        if (partitionedDataNRows[part] == 0)
+        {
+            continue;
+        }
 
         NumericTablePtr ntPartitionedData          = NumericTable::cast((*dcPartitionedData)[part]);
         NumericTablePtr ntPartitionedPartialOrders = NumericTable::cast((*dcPartitionedPartialOrders)[part]);
@@ -427,7 +433,10 @@ Status DBSCANDistrStep5Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
             for (size_t extPart = 0; extPart < nBlocks; extPart++)
             {
-                if (extPart == blockIndex) { continue; }
+                if (extPart == blockIndex)
+                {
+                    continue;
+                }
 
                 NumericTablePtr ntPartialBoundingBox = NumericTable::cast((*dcPartialBoundingBoxes)[extPart]);
                 ReadRows<algorithmFPType, cpu> partialBoundingBoxRows(ntPartialBoundingBox.get(), 0, 2);
@@ -450,7 +459,10 @@ Status DBSCANDistrStep5Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
     for (size_t extPart = 0; extPart < nBlocks; extPart++)
     {
-        if (partitionedHaloDataNRows[extPart] == 0) { continue; }
+        if (partitionedHaloDataNRows[extPart] == 0)
+        {
+            continue;
+        }
 
         NumericTablePtr ntPartitionedHaloData        = NumericTable::cast((*dcPartitionedHaloData)[extPart]);
         NumericTablePtr ntPartitionedHaloDataIndices = NumericTable::cast((*dcPartitionedHaloDataIndices)[extPart]);
@@ -479,7 +491,10 @@ Status DBSCANDistrStep5Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
             for (size_t extPart = 0; extPart < nBlocks; extPart++)
             {
-                if (extPart == blockIndex) { continue; }
+                if (extPart == blockIndex)
+                {
+                    continue;
+                }
 
                 NumericTablePtr ntPartialBoundingBox = NumericTable::cast((*dcPartialBoundingBoxes)[extPart]);
 
@@ -559,7 +574,10 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::processHaloNeighbor
     for (size_t j = 0; j < haloNeigh.size(); j++)
     {
         const size_t haloObs = haloNeigh.get(j);
-        if (haloAssignments[haloObs] != 0) { continue; }
+        if (haloAssignments[haloObs] != 0)
+        {
+            continue;
+        }
         haloAssignments[haloObs] = 1;
 
         const size_t haloIndex = haloDataIndices[haloObs];
@@ -580,7 +598,10 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::generateQueries(siz
     {
         const size_t nCurQueries = queries[part].size() / 2;
 
-        if (nCurQueries == 0) { continue; }
+        if (nCurQueries == 0)
+        {
+            continue;
+        }
         totalFinishedFlag = false;
 
         NumericTablePtr ntCurQueries = NumericTable::cast((*dcQueries)[part]);
@@ -615,7 +636,10 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::repackIntoSingleNT(
         const size_t nInputRows = ntInput->getNumberOfRows();
         nRows += nInputRows;
 
-        if (i == 0) { nFeatures = ntInput->getNumberOfColumns(); }
+        if (i == 0)
+        {
+            nFeatures = ntInput->getNumberOfColumns();
+        }
         else
         {
             DAAL_ASSERT(nFeatures == ntInput->getNumberOfColumns());
@@ -696,7 +720,10 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nHaloRows, sizeof(int));
 
     TArray<int, cpu> haloBlocksArray(nHaloRows);
-    if (nHaloRows) { DAAL_CHECK_MALLOC(haloBlocksArray.get()); }
+    if (nHaloRows)
+    {
+        DAAL_CHECK_MALLOC(haloBlocksArray.get());
+    }
     int * const haloBlocks = haloBlocksArray.get();
 
     size_t pos = 0;
@@ -707,26 +734,44 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
         NumericTablePtr ntHaloBlock      = NumericTable::cast((*dcHaloBlocks)[part]);
         const size_t nRows               = ntSingleHaloData->getNumberOfRows();
         const size_t partId              = ntHaloBlock->getValue<int>(0, 0);
-        for (size_t i = 0; i < nRows; i++) { haloBlocks[i + pos] = partId; }
+        for (size_t i = 0; i < nRows; i++)
+        {
+            haloBlocks[i + pos] = partId;
+        }
         pos += nRows;
     }
 
     ReadRows<int, cpu> haloDataIndicesRows(ntHaloDataIndices.get(), 0, nHaloRows);
-    if (nHaloRows) { DAAL_CHECK_BLOCK_STATUS(haloDataIndicesRows); }
+    if (nHaloRows)
+    {
+        DAAL_CHECK_BLOCK_STATUS(haloDataIndicesRows);
+    }
     const int * const haloDataIndices = haloDataIndicesRows.get();
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, sizeof(Neighborhood<algorithmFPType, cpu>));
 
     TArray<Neighborhood<algorithmFPType, cpu>, cpu> neighs(nRows);
-    if (nRows) { DAAL_CHECK_MALLOC(neighs.get()); }
+    if (nRows)
+    {
+        DAAL_CHECK_MALLOC(neighs.get());
+    }
     TArray<Neighborhood<algorithmFPType, cpu>, cpu> haloNeighs(nRows);
-    if (nRows) { DAAL_CHECK_MALLOC(haloNeighs.get()); }
+    if (nRows)
+    {
+        DAAL_CHECK_MALLOC(haloNeighs.get());
+    }
 
     TArray<int, cpu> haloAssignmentsArray(nHaloRows);
-    if (nHaloRows) { DAAL_CHECK_MALLOC(haloAssignmentsArray.get()); }
+    if (nHaloRows)
+    {
+        DAAL_CHECK_MALLOC(haloAssignmentsArray.get());
+    }
     int * const haloAssignments = haloAssignmentsArray.get();
 
-    for (size_t i = 0; i < nHaloRows; i++) { haloAssignments[i] = 0; }
+    for (size_t i = 0; i < nHaloRows; i++)
+    {
+        haloAssignments[i] = 0;
+    }
 
     NeighborhoodEngine<method, algorithmFPType, cpu> nEngine(ntData.get(), ntData.get(), ntWeights.get(), epsilon, minkowskiPower);
     DAAL_CHECK_STATUS_VAR(nEngine.queryFull(neighs.get()));
@@ -737,7 +782,10 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
     DAAL_CHECK_STATUS_VAR(ntClusterStructure->resize(nRows));
 
     WriteRows<int, cpu> clusterStructureRows(ntClusterStructure, 0, nRows);
-    if (nRows) { DAAL_CHECK_BLOCK_STATUS(clusterStructureRows); }
+    if (nRows)
+    {
+        DAAL_CHECK_BLOCK_STATUS(clusterStructureRows);
+    }
     int * const clusterStructure = clusterStructureRows.get();
 
     for (size_t i = 0; i < nRows; i++)
@@ -759,7 +807,10 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeNoMemSave(co
 
     for (size_t i = 0; i < nRows; i++)
     {
-        if (clusterStructure[i * 4 + 0] != undefined) { continue; }
+        if (clusterStructure[i * 4 + 0] != undefined)
+        {
+            continue;
+        }
 
         Neighborhood<algorithmFPType, cpu> & curNeigh     = neighs[i];
         Neighborhood<algorithmFPType, cpu> & curHaloNeigh = haloNeighs[i];
@@ -852,7 +903,10 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nHaloRows, sizeof(int));
 
     TArray<int, cpu> haloBlocksArray(nHaloRows);
-    if (nHaloRows) { DAAL_CHECK_MALLOC(haloBlocksArray.get()); }
+    if (nHaloRows)
+    {
+        DAAL_CHECK_MALLOC(haloBlocksArray.get());
+    }
     int * const haloBlocks = haloBlocksArray.get();
 
     size_t pos = 0;
@@ -863,12 +917,18 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
         NumericTablePtr ntHaloBlock      = NumericTable::cast((*dcHaloBlocks)[part]);
         const size_t nRows               = ntSingleHaloData->getNumberOfRows();
         const size_t partId              = ntHaloBlock->getValue<int>(0, 0);
-        for (size_t i = 0; i < nRows; i++) { haloBlocks[i + pos] = partId; }
+        for (size_t i = 0; i < nRows; i++)
+        {
+            haloBlocks[i + pos] = partId;
+        }
         pos += nRows;
     }
 
     ReadRows<int, cpu> haloDataIndicesRows(ntHaloDataIndices.get(), 0, nHaloRows);
-    if (nHaloRows) { DAAL_CHECK_BLOCK_STATUS(haloDataIndicesRows); }
+    if (nHaloRows)
+    {
+        DAAL_CHECK_BLOCK_STATUS(haloDataIndicesRows);
+    }
     const int * const haloDataIndices = haloDataIndicesRows.get();
 
     const size_t prefetchBlockSize = __DBSCAN_PREFETCHED_NEIGHBORHOODS_COUNT;
@@ -878,10 +938,16 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
     DAAL_CHECK_MALLOC(prefetchedHaloNeighs.get());
 
     TArray<int, cpu> haloAssignmentsArray(nHaloRows);
-    if (nHaloRows) { DAAL_CHECK_MALLOC(haloAssignmentsArray.get()); }
+    if (nHaloRows)
+    {
+        DAAL_CHECK_MALLOC(haloAssignmentsArray.get());
+    }
     int * const haloAssignments = haloAssignmentsArray.get();
 
-    for (size_t i = 0; i < nHaloRows; i++) { haloAssignments[i] = 0; }
+    for (size_t i = 0; i < nHaloRows; i++)
+    {
+        haloAssignments[i] = 0;
+    }
 
     NeighborhoodEngine<method, algorithmFPType, cpu> nEngine(ntData.get(), ntData.get(), ntWeights.get(), epsilon, minkowskiPower);
     NeighborhoodEngine<method, algorithmFPType, cpu> nHaloEngine(ntData.get(), ntHaloData.get(), ntHaloWeights.get(), epsilon, minkowskiPower);
@@ -889,7 +955,10 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
     DAAL_CHECK_STATUS_VAR(ntClusterStructure->resize(nRows));
 
     WriteRows<int, cpu> clusterStructureRows(ntClusterStructure, 0, nRows);
-    if (nRows) { DAAL_CHECK_BLOCK_STATUS(clusterStructureRows); }
+    if (nRows)
+    {
+        DAAL_CHECK_BLOCK_STATUS(clusterStructureRows);
+    }
     int * const clusterStructure = clusterStructureRows.get();
 
     for (size_t i = 0; i < nRows; i++)
@@ -911,7 +980,10 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
 
     for (size_t i = 0; i < nRows; i++)
     {
-        if (clusterStructure[i * 4 + 0] != undefined) { continue; }
+        if (clusterStructure[i * 4 + 0] != undefined)
+        {
+            continue;
+        }
 
         Neighborhood<algorithmFPType, cpu> curNeigh;
         Neighborhood<algorithmFPType, cpu> curHaloNeigh;
@@ -948,7 +1020,10 @@ Status DBSCANDistrStep6Kernel<algorithmFPType, method, cpu>::computeMemSave(cons
             const size_t quPos  = qu.head();
             const size_t curObs = qu.pop();
 
-            if (quPos >= lastPrefetchedPos) { firstPrefetchedPos = lastPrefetchedPos = quPos; }
+            if (quPos >= lastPrefetchedPos)
+            {
+                firstPrefetchedPos = lastPrefetchedPos = quPos;
+            }
 
             if (lastPrefetchedPos - firstPrefetchedPos < prefetchBlockSize && lastPrefetchedPos < qu.tail())
             {
@@ -1047,7 +1122,9 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::sortQueries(Vector<
                     if (queries[i * 3 + 0] < a
                         || (queries[i * 3 + 0] == a
                             && (queries[i * 3 + 1] < b || (queries[i * 3 + 0] == a && queries[i * 3 + 1] == b && queries[i * 3 + 2] <= c))))
-                    { break; }
+                    {
+                        break;
+                    }
                     queries[3 * (i + 1) + 0] = queries[3 * i + 0];
                     queries[3 * (i + 1) + 1] = queries[3 * i + 1];
                     queries[3 * (i + 1) + 2] = queries[3 * i + 2];
@@ -1058,7 +1135,10 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::sortQueries(Vector<
                 queries[3 * (i + 1) + 2] = c;
             }
 
-            if (jstack < 0) { break; }
+            if (jstack < 0)
+            {
+                break;
+            }
 
             ir = istack[jstack--];
             l  = istack[jstack--];
@@ -1125,7 +1205,10 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::sortQueries(Vector<
                          || (queries[3 * j + 0] == a
                              && (queries[3 * j + 1] > b || (queries[3 * j + 0] == a && queries[3 * j + 1] == b && queries[3 * j + 2] > c))));
 
-                if (j < i) { break; }
+                if (j < i)
+                {
+                    break;
+                }
 
                 daal::services::internal::swap<cpu, int>(queries[3 * i + 0], queries[3 * j + 0]);
                 daal::services::internal::swap<cpu, int>(queries[3 * i + 1], queries[3 * j + 1]);
@@ -1204,11 +1287,17 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
     Vector<int, cpu> * queries = queriesArray.get();
 
     ReadRows<int, cpu> inputClusterStructureRows(const_cast<NumericTable *>(ntInputClusterStructure), 0, nRows);
-    if (nRows) { DAAL_CHECK_BLOCK_STATUS(inputClusterStructureRows); }
+    if (nRows)
+    {
+        DAAL_CHECK_BLOCK_STATUS(inputClusterStructureRows);
+    }
     const int * const inputClusterStructure = inputClusterStructureRows.get();
 
     WriteRows<int, cpu> clusterStructureRows(ntClusterStructure, 0, nRows);
-    if (nRows) { DAAL_CHECK_BLOCK_STATUS(clusterStructureRows); }
+    if (nRows)
+    {
+        DAAL_CHECK_BLOCK_STATUS(clusterStructureRows);
+    }
     int * const clusterStructure = clusterStructureRows.get();
 
     result |= daal::services::internal::daal_memcpy_s(clusterStructure, sizeof(int) * 4 * nRows, inputClusterStructure, sizeof(int) * 4 * nRows);
@@ -1242,7 +1331,9 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
                 if (haloblockIndex == blockIndex)
                 {
                     while (clusterStructure[haloId * 4 + 2] == blockIndex && clusterStructure[haloId * 4 + 3] != haloId)
-                    { haloId = clusterStructure[haloId * 4 + 3]; }
+                    {
+                        haloId = clusterStructure[haloId * 4 + 3];
+                    }
                 }
 
                 if (clusterStructure[id * 4 + 0] == noise)
@@ -1252,11 +1343,20 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
                     clusterStructure[id * 4 + 3] = haloId;
                     continue;
                 }
-                if (clusterStructure[id * 4 + 1] == 0) { continue; }
+                if (clusterStructure[id * 4 + 1] == 0)
+                {
+                    continue;
+                }
 
-                while (clusterStructure[id * 4 + 2] == blockIndex && clusterStructure[id * 4 + 3] != id) { id = clusterStructure[id * 4 + 3]; }
+                while (clusterStructure[id * 4 + 2] == blockIndex && clusterStructure[id * 4 + 3] != id)
+                {
+                    id = clusterStructure[id * 4 + 3];
+                }
 
-                if (haloblockIndex == blockIndex && haloId == id) { continue; }
+                if (haloblockIndex == blockIndex && haloId == id)
+                {
+                    continue;
+                }
 
                 size_t parentBlockIndex = clusterStructure[id * 4 + 2];
                 size_t parentId         = clusterStructure[id * 4 + 3];
@@ -1306,7 +1406,10 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
                     {
                         size_t haloParentblockIndex = clusterStructure[haloId * 4 + 2];
                         size_t haloParentId         = clusterStructure[haloId * 4 + 3];
-                        if (haloId < id) { DAAL_CHECK_STATUS_VAR(addQuery(queries, parentBlockIndex, parentId, haloblockIndex, haloId)); }
+                        if (haloId < id)
+                        {
+                            DAAL_CHECK_STATUS_VAR(addQuery(queries, parentBlockIndex, parentId, haloblockIndex, haloId));
+                        }
                         else // haloId > id
                         {
                             if (haloParentblockIndex == blockIndex)
@@ -1324,7 +1427,9 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
                     else
                     {
                         if (haloblockIndex < blockIndex)
-                        { DAAL_CHECK_STATUS_VAR(addQuery(queries, parentBlockIndex, parentId, haloblockIndex, haloId)); }
+                        {
+                            DAAL_CHECK_STATUS_VAR(addQuery(queries, parentBlockIndex, parentId, haloblockIndex, haloId));
+                        }
                         else
                         {
                             DAAL_CHECK_STATUS_VAR(addQuery(queries, haloblockIndex, haloId, blockIndex, id));
@@ -1341,7 +1446,10 @@ Status DBSCANDistrStep8Kernel<algorithmFPType, method, cpu>::compute(const Numer
         size_t nCurQueries;
         DAAL_CHECK_STATUS_VAR(removeDuplicateQueries(queries[part], nCurQueries));
 
-        if (nCurQueries == 0) { continue; }
+        if (nCurQueries == 0)
+        {
+            continue;
+        }
         totalFinishedFlag = false;
 
         NumericTablePtr ntCurQueries = NumericTable::cast((*dcQueries)[part]);
@@ -1485,7 +1593,10 @@ Status DBSCANDistrStep10Kernel<algorithmFPType, method, cpu>::compute(const Nume
     {
         const size_t nCurQueries = queries[part].size() / 2;
 
-        if (nCurQueries == 0) { continue; }
+        if (nCurQueries == 0)
+        {
+            continue;
+        }
         totalFinishedFlag = false;
 
         NumericTablePtr ntCurQueries = NumericTable::cast((*dcQueries)[part]);
@@ -1533,11 +1644,17 @@ Status DBSCANDistrStep11Kernel<algorithmFPType, method, cpu>::compute(const Nume
     int result = 0;
 
     ReadRows<int, cpu> inputClusterStructureRows(const_cast<NumericTable *>(ntInputClusterStructure), 0, nRows);
-    if (nRows) { DAAL_CHECK_BLOCK_STATUS(inputClusterStructureRows); }
+    if (nRows)
+    {
+        DAAL_CHECK_BLOCK_STATUS(inputClusterStructureRows);
+    }
     const int * const inputClusterStructure = inputClusterStructureRows.get();
 
     WriteRows<int, cpu> clusterStructureRows(ntClusterStructure, 0, nRows);
-    if (nRows) { DAAL_CHECK_BLOCK_STATUS(clusterStructureRows); }
+    if (nRows)
+    {
+        DAAL_CHECK_BLOCK_STATUS(clusterStructureRows);
+    }
     int * const clusterStructure = clusterStructureRows.get();
 
     result |= daal::services::internal::daal_memcpy_s(clusterStructure, sizeof(int) * 4 * nRows, inputClusterStructure, sizeof(int) * 4 * nRows);
@@ -1571,14 +1688,20 @@ Status DBSCANDistrStep11Kernel<algorithmFPType, method, cpu>::compute(const Nume
                     size_t haloblockIndex = curPartialQueries[i * 4 + 2];
                     size_t haloId         = curPartialQueries[i * 4 + 3];
 
-                    while (clusterStructure[id * 4 + 2] == blockIndex && clusterStructure[id * 4 + 3] != id) { id = clusterStructure[id * 4 + 3]; }
+                    while (clusterStructure[id * 4 + 2] == blockIndex && clusterStructure[id * 4 + 3] != id)
+                    {
+                        id = clusterStructure[id * 4 + 3];
+                    }
 
                     size_t parentBlockIndex = clusterStructure[id * 4 + 2];
                     size_t parentId         = clusterStructure[id * 4 + 3];
 
                     if (parentBlockIndex == blockIndex)
                     {
-                        if (haloblockIndex == blockIndex) { clusterStructure[haloId * 4 + 0] = clusterStructure[id * 4 + 0]; }
+                        if (haloblockIndex == blockIndex)
+                        {
+                            clusterStructure[haloId * 4 + 0] = clusterStructure[id * 4 + 0];
+                        }
                         else
                         {
                             queries[haloblockIndex].push_back(1);
@@ -1611,7 +1734,10 @@ Status DBSCANDistrStep11Kernel<algorithmFPType, method, cpu>::compute(const Nume
     {
         const size_t nCurQueries = queries[part].size() / 4;
 
-        if (nCurQueries == 0) { continue; }
+        if (nCurQueries == 0)
+        {
+            continue;
+        }
         totalFinishedFlag = false;
 
         NumericTablePtr ntCurQueries = NumericTable::cast((*dcQueries)[part]);
@@ -1645,7 +1771,10 @@ Status DBSCANDistrStep12Kernel<algorithmFPType, method, cpu>::compute(NumericTab
     const size_t nRows = ntInputClusterStructure->getNumberOfRows();
 
     WriteRows<int, cpu> inputClusterStructureRows(ntInputClusterStructure, 0, nRows);
-    if (nRows) { DAAL_CHECK_BLOCK_STATUS(inputClusterStructureRows); }
+    if (nRows)
+    {
+        DAAL_CHECK_BLOCK_STATUS(inputClusterStructureRows);
+    }
     int * const inputClusterStructure = inputClusterStructureRows.get();
 
     for (size_t id = 0; id < nRows; id++)
@@ -1654,7 +1783,9 @@ Status DBSCANDistrStep12Kernel<algorithmFPType, method, cpu>::compute(NumericTab
         {
             size_t rootId = id;
             while (inputClusterStructure[rootId * 4 + 2] == blockIndex && inputClusterStructure[rootId * 4 + 3] != rootId)
-            { rootId = inputClusterStructure[rootId * 4 + 3]; }
+            {
+                rootId = inputClusterStructure[rootId * 4 + 3];
+            }
 
             size_t clusterId = inputClusterStructure[rootId * 4 + 0];
 
@@ -1714,7 +1845,10 @@ Status DBSCANDistrStep12Kernel<algorithmFPType, method, cpu>::compute(NumericTab
 
     for (size_t part = 0; part < nBlocks; part++)
     {
-        if (initialBlocksNRows[part] == 0) { continue; }
+        if (initialBlocksNRows[part] == 0)
+        {
+            continue;
+        }
 
         NumericTablePtr ntAssignmentQueries = NumericTable::cast((*dcAssignmentQueries)[part]);
         DAAL_CHECK_STATUS_VAR(ntAssignmentQueries->resize(initialBlocksNRows[part]));

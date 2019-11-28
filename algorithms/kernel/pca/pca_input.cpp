@@ -103,7 +103,9 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     {
         DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), dataStr()));
         if (method == svdDense)
-        { DAAL_CHECK_EX(dataTable->getNumberOfColumns() <= dataTable->getNumberOfRows(), ErrorIncorrectNumberOfRows, ArgumentName, dataStr()); }
+        {
+            DAAL_CHECK_EX(dataTable->getNumberOfColumns() <= dataTable->getNumberOfRows(), ErrorIncorrectNumberOfRows, ArgumentName, dataStr());
+        }
     }
     return s;
 }

@@ -72,7 +72,10 @@ public:
             size_t nSkip = 0;
             for (size_t i = 0; i < _numberOfStreams; i++)
             {
-                if (nSkip < numElems[i]) { nSkip = numElems[i]; }
+                if (nSkip < numElems[i])
+                {
+                    nSkip = numElems[i];
+                }
             }
             auto updatedEngine = engine->clone();
             updatedEngine->skipAhead(nSkip);
@@ -124,7 +127,10 @@ public:
             {
                 DAAL_CHECK_STATUS_VAR(_clonedEngine->add(_numberOfStreams - numStreams)); // silently initialize more independent streams
             }
-            for (size_t i = 0; i < _numberOfStreams; i++) { engines[i] = _clonedEngine->get(i); }
+            for (size_t i = 0; i < _numberOfStreams; i++)
+            {
+                engines[i] = _clonedEngine->get(i);
+            }
         }
         }
         return services::Status();

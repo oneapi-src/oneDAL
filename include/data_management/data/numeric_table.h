@@ -68,7 +68,10 @@ public:
      */
     inline DataType * getBlockPtr() const
     {
-        if (_rawPtr) { return (DataType *)_rawPtr; }
+        if (_rawPtr)
+        {
+            return (DataType *)_rawPtr;
+        }
         else if (_xBuffer)
         {
             return getCachedHostSharedPtr().get();
@@ -85,7 +88,10 @@ public:
      */
     inline services::SharedPtr<DataType> getBlockSharedPtr() const
     {
-        if (_rawPtr) { return services::SharedPtr<DataType>(services::reinterpretPointerCast<DataType, byte>(*_pPtr), (DataType *)_rawPtr); }
+        if (_rawPtr)
+        {
+            return services::SharedPtr<DataType>(services::reinterpretPointerCast<DataType, byte>(*_pPtr), (DataType *)_rawPtr);
+        }
         else if (_xBuffer)
         {
             return _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag);
@@ -102,7 +108,10 @@ public:
      */
     inline daal::services::Buffer<DataType> getBuffer() const
     {
-        if (_rawPtr) { return daal::services::Buffer<DataType>((DataType *)_rawPtr, _ncols * _nrows); }
+        if (_rawPtr)
+        {
+            return daal::services::Buffer<DataType>((DataType *)_rawPtr, _ncols * _nrows);
+        }
         else if (_xBuffer)
         {
             return _xBuffer;
@@ -208,7 +217,10 @@ public:
         {
             freeBuffer();
             _buffer = services::SharedPtr<DataType>((DataType *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
-            if (_buffer != 0) { _capacity = newSize; }
+            if (_buffer != 0)
+            {
+                _capacity = newSize;
+            }
             else
             {
                 return false;
@@ -218,7 +230,10 @@ public:
         _ptr = _buffer;
         if (!auxMemorySize)
         {
-            if (_aux_ptr) { _aux_ptr = services::SharedPtr<DataType>(); }
+            if (_aux_ptr)
+            {
+                _aux_ptr = services::SharedPtr<DataType>();
+            }
         }
         else
         {
@@ -274,7 +289,10 @@ protected:
      */
     void freeBuffer()
     {
-        if (_buffer) { _buffer = services::SharedPtr<DataType>(); }
+        if (_buffer)
+        {
+            _buffer = services::SharedPtr<DataType>();
+        }
         _capacity = 0;
     }
 
@@ -285,7 +303,10 @@ protected:
 
     inline services::SharedPtr<DataType> getCachedHostSharedPtr() const
     {
-        if (!_hostSharedPtr) { _hostSharedPtr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag); }
+        if (!_hostSharedPtr)
+        {
+            _hostSharedPtr = _xBuffer.toHost((data_management::ReadWriteMode)_rwFlag);
+        }
         return _hostSharedPtr;
     }
 
@@ -689,7 +710,10 @@ public:
     {
         size_t obsnum      = _obsnum;
         services::Status s = setNumberOfRowsImpl(nrows);
-        if ((_memStatus != userAllocated && obsnum < nrows) || _memStatus == notAllocated) { s |= allocateDataMemoryImpl(); }
+        if ((_memStatus != userAllocated && obsnum < nrows) || _memStatus == notAllocated)
+        {
+            s |= allocateDataMemoryImpl();
+        }
         return s;
     }
 
@@ -788,13 +812,19 @@ public:
     virtual services::Status check(const char * description, bool checkDataAllocation = true) const DAAL_C11_OVERRIDE
     {
         if (getDataMemoryStatus() == notAllocated && checkDataAllocation)
-        { return services::Status(services::Error::create(services::ErrorNullNumericTable, services::ArgumentName, description)); }
+        {
+            return services::Status(services::Error::create(services::ErrorNullNumericTable, services::ArgumentName, description));
+        }
 
         if (getNumberOfColumns() == 0)
-        { return services::Status(services::Error::create(services::ErrorIncorrectNumberOfColumns, services::ArgumentName, description)); }
+        {
+            return services::Status(services::Error::create(services::ErrorIncorrectNumberOfColumns, services::ArgumentName, description));
+        }
 
         if (getNumberOfRows() == 0 && getDataMemoryStatus() != notAllocated)
-        { return services::Status(services::Error::create(services::ErrorIncorrectNumberOfRows, services::ArgumentName, description)); }
+        {
+            return services::Status(services::Error::create(services::ErrorIncorrectNumberOfRows, services::ArgumentName, description));
+        }
 
         return services::Status();
     }
@@ -929,7 +959,10 @@ protected:
 
         arch->set(_obsnum);
 
-        if (onDeserialize) { _memStatus = notAllocated; }
+        if (onDeserialize)
+        {
+            _memStatus = notAllocated;
+        }
 
         arch->set(_layout);
 
@@ -945,7 +978,10 @@ private:
         BlockDescriptor<T> block;
         DAAL_CHECK(getBlockOfRows(0, nRows, writeOnly, block), services::ErrorMemoryAllocationFailed)
         T * array = block.getBlockSharedPtr().get();
-        for (size_t i = 0; i < nCols * nRows; i++) { array[i] = value; }
+        for (size_t i = 0; i < nCols * nRows; i++)
+        {
+            array[i] = value;
+        }
         releaseBlockOfRows(block);
         return services::Status();
     }

@@ -79,7 +79,10 @@ int main(int argc, char * argv[])
     /* Print the results */
     printNumericTable(result->get(em_gmm::weights), "Weights");
     printNumericTable(result->get(em_gmm::means), "Means");
-    for (size_t i = 0; i < nComponents; i++) { printNumericTable(result->get(em_gmm::covariances, i), "Covariance"); }
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        printNumericTable(result->get(em_gmm::covariances, i), "Covariance");
+    }
 
     return 0;
 }

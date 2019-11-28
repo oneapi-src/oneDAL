@@ -72,8 +72,14 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalVe
     algorithmFPType factor      = computeDotProduct(startIndex1, endIndex1, dataA1, mtA1.cols(), startIndex2, endIndex2, dataA2, mtA2.cols());
     factor *= -2.0;
 
-    for (size_t index = startIndex1; index < endIndex1; index++) { factor += dataA1[index] * dataA1[index]; }
-    for (size_t index = startIndex2; index < endIndex2; index++) { factor += dataA2[index] * dataA2[index]; }
+    for (size_t index = startIndex1; index < endIndex1; index++)
+    {
+        factor += dataA1[index] * dataA1[index];
+    }
+    for (size_t index = startIndex2; index < endIndex2; index++)
+    {
+        factor += dataA2[index] * dataA2[index];
+    }
     factor *= coeff;
     daal::internal::Math<algorithmFPType, cpu>::vExp(1, &factor, mtR.get());
 
@@ -108,19 +114,28 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
     const size_t endIndex2      = rowOffsetsA2[1] - 1;
 
     algorithmFPType factor = 0.0;
-    for (size_t index = startIndex2; index < endIndex2; index++) { factor += dataA2[index] * dataA2[index]; }
+    for (size_t index = startIndex2; index < endIndex2; index++)
+    {
+        factor += dataA2[index] * dataA2[index];
+    }
     for (size_t i = 0; i < nVectors1; i++)
     {
         size_t startIndex1 = rowOffsetsA1[i] - 1;
         size_t endIndex1   = rowOffsetsA1[i + 1] - 1;
         dataR[i]           = computeDotProduct(startIndex1, endIndex1, dataA1, mtA1.cols(), startIndex2, endIndex2, dataA2, mtA2.cols());
         dataR[i]           = -2.0 * dataR[i] + factor;
-        for (size_t index = startIndex1; index < endIndex1; index++) { dataR[i] += dataA1[index] * dataA1[index]; }
+        for (size_t index = startIndex1; index < endIndex1; index++)
+        {
+            dataR[i] += dataA1[index] * dataA1[index];
+        }
         dataR[i] *= coeff;
 
         // make all values less than threshold as threshold value
         // to fix slow work on vExp on large negative inputs
-        if (dataR[i] < Math<algorithmFPType, cpu>::vExpThreshold()) { dataR[i] = Math<algorithmFPType, cpu>::vExpThreshold(); }
+        if (dataR[i] < Math<algorithmFPType, cpu>::vExpThreshold())
+        {
+            dataR[i] = Math<algorithmFPType, cpu>::vExpThreshold();
+        }
     }
     daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors1, dataR, dataR);
 
@@ -157,14 +172,19 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
 
         daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
             for (size_t k = 0; k < i; k++)
-            { dataR[i * nVectors1 + k] = coeff * (dataR[i * nVectors1 + i] + dataR[k * nVectors1 + k] + negTwo * dataR[i * nVectors1 + k]); }
+            {
+                dataR[i * nVectors1 + k] = coeff * (dataR[i * nVectors1 + i] + dataR[k * nVectors1 + k] + negTwo * dataR[i * nVectors1 + k]);
+            }
         });
         daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
             dataR[i * nVectors1 + i] = zero;
             daal::internal::Math<algorithmFPType, cpu>::vExp(i + 1, dataR + i * nVectors1, dataR + i * nVectors1);
         });
         daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
-            for (size_t k = i + 1; k < nVectors1; k++) { dataR[i * nVectors1 + k] = dataR[k * nVectors1 + i]; }
+            for (size_t k = i + 1; k < nVectors1; k++)
+            {
+                dataR[i * nVectors1 + k] = dataR[k * nVectors1 + i];
+            }
         });
     }
     else
@@ -190,11 +210,17 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
 
         daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
             sqrDataA1[i] = zero;
-            for (size_t j = rowOffsetsA1[i] - 1; j < rowOffsetsA1[i + 1] - 1; j++) { sqrDataA1[i] += dataA1[j] * dataA1[j]; }
+            for (size_t j = rowOffsetsA1[i] - 1; j < rowOffsetsA1[i + 1] - 1; j++)
+            {
+                sqrDataA1[i] += dataA1[j] * dataA1[j];
+            }
         });
         daal::threader_for_optional(nVectors2, nVectors2, [=](size_t i) {
             sqrDataA2[i] = zero;
-            for (size_t j = rowOffsetsA2[i] - 1; j < rowOffsetsA2[i + 1] - 1; j++) { sqrDataA2[i] += dataA2[j] * dataA2[j]; }
+            for (size_t j = rowOffsetsA2[i] - 1; j < rowOffsetsA2[i + 1] - 1; j++)
+            {
+                sqrDataA2[i] += dataA2[j] * dataA2[j];
+            }
         });
         daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
             for (size_t k = 0; k < nVectors2; k++)
@@ -206,7 +232,9 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
                 // make all values less than threshold as threshold value
                 // to fix slow work on vExp on large negative inputs
                 if (dataR[i * nVectors2 + k] < Math<algorithmFPType, cpu>::vExpThreshold())
-                { dataR[i * nVectors2 + k] = Math<algorithmFPType, cpu>::vExpThreshold(); }
+                {
+                    dataR[i * nVectors2 + k] = Math<algorithmFPType, cpu>::vExpThreshold();
+                }
             }
         });
 

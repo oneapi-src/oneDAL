@@ -63,7 +63,10 @@ services::Status BoostingPredictKernel<algorithmFPType, cpu>::compute(const Nume
     const algorithmFPType zero = (algorithmFPType)0.0;
 
     /* Initialize array of prediction results */
-    for (size_t j = 0; j < nVectors; j++) { r[j] = zero; }
+    for (size_t j = 0; j < nVectors; j++)
+    {
+        r[j] = zero;
+    }
 
     const algorithmFPType one = (algorithmFPType)1.0;
     for (size_t i = 0; i < nWeakLearners; i++)

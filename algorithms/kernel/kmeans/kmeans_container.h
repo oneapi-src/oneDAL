@@ -46,7 +46,10 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (deviceInfo.isCpu) { __DAAL_INITIALIZE_KERNELS(internal::KMeansBatchKernel, method, algorithmFPType); }
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::KMeansBatchKernel, method, algorithmFPType);
+    }
     else
     {
         _kernel = new internal::KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>();
@@ -77,7 +80,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     daal::services::Environment::env & env = *_env;
 
     if (deviceInfo.isCpu || method != lloydDense)
-    { __DAAL_CALL_KERNEL(env, internal::KMeansBatchKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, par); }
+    {
+        __DAAL_CALL_KERNEL(env, internal::KMeansBatchKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, par);
+    }
     else
     {
         return ((internal::KMeansDenseLloydBatchKernelUCAPI<algorithmFPType> *)(_kernel))->compute(a, r, par);
@@ -115,7 +120,10 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
     r[2] = static_cast<NumericTable *>(pres->get(partialObjectiveFunction).get());
     r[3] = static_cast<NumericTable *>(pres->get(partialCandidatesDistances).get());
     r[4] = static_cast<NumericTable *>(pres->get(partialCandidatesCentroids).get());
-    if (par->assignFlag) { r[5] = static_cast<NumericTable *>(pres->get(partialAssignments).get()); }
+    if (par->assignFlag)
+    {
+        r[5] = static_cast<NumericTable *>(pres->get(partialAssignments).get());
+    }
 
     daal::services::Environment::env & env = *_env;
 

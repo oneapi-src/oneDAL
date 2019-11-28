@@ -37,7 +37,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Input
                                                                                                 jint id, jlong ntAddr)
 {
     if (id == InputDataId)
-    { jniInput<normalization::minmax::Input>::set<normalization::minmax::InputId, NumericTable>(inputAddr, normalization::minmax::data, ntAddr); }
+    {
+        jniInput<normalization::minmax::Input>::set<normalization::minmax::InputId, NumericTable>(inputAddr, normalization::minmax::data, ntAddr);
+    }
 }
 
 /*
@@ -49,7 +51,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Inpu
                                                                                                  jint id)
 {
     if (id == InputDataId)
-    { return jniInput<normalization::minmax::Input>::get<normalization::minmax::InputId, NumericTable>(inputAddr, normalization::minmax::data); }
+    {
+        return jniInput<normalization::minmax::Input>::get<normalization::minmax::InputId, NumericTable>(inputAddr, normalization::minmax::data);
+    }
 
     return (jlong)0;
 }

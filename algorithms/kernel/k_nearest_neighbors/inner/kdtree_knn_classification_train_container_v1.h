@@ -80,7 +80,10 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     const bool copy = (par->dataUseInModel == doNotUse);
     status |= r->impl()->setData<algorithmFpType>(x, copy);
     status |= r->impl()->setLabels<algorithmFpType>(y, copy);
-    if (status != services::Status()) { return status; }
+    if (status != services::Status())
+    {
+        return status;
+    }
 
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute,
                        r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par->engine);

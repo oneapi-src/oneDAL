@@ -58,7 +58,10 @@ services::Status PCADenseBase<algorithmFPType, cpu>::copyTable(NumericTable & so
     DAAL_CHECK_BLOCK_STATUS(destBlock);
     const algorithmFPType * sourceData = sourceBlock.get();
     algorithmFPType * destData         = destBlock.get();
-    for (size_t id = 0; id < nElements; ++id) { destData[id] = sourceData[id]; }
+    for (size_t id = 0; id < nElements; ++id)
+    {
+        destData[id] = sourceData[id];
+    }
     return services::Status();
 }
 
@@ -70,7 +73,10 @@ services::Status PCADenseBase<algorithmFPType, cpu>::signFlipEigenvectors(Numeri
     WriteRows<algorithmFPType, cpu> eigenvectorsBlock(eigenvectors, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(eigenvectorsBlock);
     algorithmFPType * eigenvectorsData = eigenvectorsBlock.get();
-    for (size_t id = 0; id < nVectors; ++id) { signFlipArray(nFeatures, eigenvectorsData + id * nFeatures); }
+    for (size_t id = 0; id < nVectors; ++id)
+    {
+        signFlipArray(nFeatures, eigenvectorsData + id * nFeatures);
+    }
     return services::Status();
 }
 
@@ -81,7 +87,10 @@ services::Status PCADenseBase<algorithmFPType, cpu>::fillTable(NumericTable & ta
     WriteOnlyRows<algorithmFPType, cpu> tableBlock(table, 0, nElements);
     DAAL_CHECK_BLOCK_STATUS(tableBlock);
     algorithmFPType * tableData = tableBlock.get();
-    for (size_t id = 0; id < nElements; ++id) { tableData[id] = val; }
+    for (size_t id = 0; id < nElements; ++id)
+    {
+        tableData[id] = val;
+    }
     return services::Status();
 }
 
@@ -101,7 +110,10 @@ void PCADenseBase<algorithmFPType, cpu>::signFlipArray(size_t size, algorithmFPT
     }
     if (smax < 0)
     {
-        for (size_t id = 0; id < size; ++id) { source[id] = -source[id]; }
+        for (size_t id = 0; id < size; ++id)
+        {
+            source[id] = -source[id];
+        }
     }
 #undef FABS
 }

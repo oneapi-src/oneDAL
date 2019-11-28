@@ -65,18 +65,27 @@ struct OutlierDetectionKernel : public Kernel
         for (size_t j = 0; j < nFeatures; j++)
         {
             invScatter[j] = one;
-            if (scatter[j] != zero) { invScatter[j] = one / scatter[j]; }
+            if (scatter[j] != zero)
+            {
+                invScatter[j] = one / scatter[j];
+            }
         }
 
         size_t nBlocks = nVectors / blockSize;
-        if (nBlocks * blockSize < nVectors) { nBlocks++; }
+        if (nBlocks * blockSize < nVectors)
+        {
+            nBlocks++;
+        }
 
         /* Process input data table in blocks */
         for (size_t iBlock = 0; iBlock < nBlocks; iBlock++)
         {
             size_t startRow     = iBlock * blockSize;
             size_t nRowsInBlock = blockSize;
-            if (startRow + nRowsInBlock > nVectors) { nRowsInBlock = nVectors - startRow; }
+            if (startRow + nRowsInBlock > nVectors)
+            {
+                nRowsInBlock = nVectors - startRow;
+            }
 
             const algorithmFPType * data = dataBlock.next(startRow, nRowsInBlock);
             algorithmFPType * weight     = resultBlock.next(startRow, nRowsInBlock);
@@ -97,12 +106,18 @@ struct OutlierDetectionKernel : public Kernel
                     if (scatter[j] != zero)
                     {
                         /* Here if scatter is greater than zero */
-                        if (diff * invScatter[j] > threshold[j]) { weightPtr[j] = zero; }
+                        if (diff * invScatter[j] > threshold[j])
+                        {
+                            weightPtr[j] = zero;
+                        }
                     }
                     else
                     {
                         /* Here if scatter is equal to zero */
-                        if (diff > zero) { weightPtr[j] = zero; }
+                        if (diff > zero)
+                        {
+                            weightPtr[j] = zero;
+                        }
                     }
                 }
             }

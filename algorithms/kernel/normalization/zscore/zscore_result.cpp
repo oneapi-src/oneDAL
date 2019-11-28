@@ -60,9 +60,13 @@ Status ResultImpl::check(const daal::algorithms::Input * in, const daal::algorit
 
     const interface3::BaseParameter * parameter = static_cast<const BaseParameter *>(par);
     if (parameter->resultsToCompute & mean)
-    { DAAL_CHECK_STATUS(status, checkNumericTable(NumericTable::cast(get(means)).get(), meansStr(), packed_mask, 0, nFeatures, 1)) }
+    {
+        DAAL_CHECK_STATUS(status, checkNumericTable(NumericTable::cast(get(means)).get(), meansStr(), packed_mask, 0, nFeatures, 1))
+    }
     if (parameter->resultsToCompute & variance)
-    { DAAL_CHECK_STATUS(status, checkNumericTable(NumericTable::cast(get(variances)).get(), variancesStr(), packed_mask, 0, nFeatures, 1)) }
+    {
+        DAAL_CHECK_STATUS(status, checkNumericTable(NumericTable::cast(get(variances)).get(), variancesStr(), packed_mask, 0, nFeatures, 1))
+    }
     return status;
 }
 

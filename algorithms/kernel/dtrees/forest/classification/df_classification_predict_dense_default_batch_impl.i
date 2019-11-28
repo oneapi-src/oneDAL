@@ -145,7 +145,10 @@ protected:
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < _nClasses; ++j) { resPtr[i * _nClasses + j] += probas[currentNodes[i] * _nClasses + j]; }
+                for (size_t j = 0; j < _nClasses; ++j)
+                {
+                    resPtr[i * _nClasses + j] += probas[currentNodes[i] * _nClasses + j];
+                }
             }
         }
     }
@@ -190,12 +193,18 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(size_t iFir
         size_t idx                                     = pNode - top;
         const double * probas                          = _model->getProbas(iTree);
 
-        if (probas == nullptr) { resPtr[pNode->leftIndexOrClass]++; }
+        if (probas == nullptr)
+        {
+            resPtr[pNode->leftIndexOrClass]++;
+        }
         else
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < _nClasses; i++) { resPtr[i] += probas[idx * _nClasses + i] * inverseTreesCount; }
+            for (size_t i = 0; i < _nClasses; i++)
+            {
+                resPtr[i] += probas[idx * _nClasses + i] * inverseTreesCount;
+            }
         }
     }
 }
@@ -227,7 +236,9 @@ void PredictClassificationTask<algorithmFPType, cpu>::parallelPredict(const algo
     });
 
     if (residualSize != 0)
-    { predictByTree(aX + nBlocks * blockSize * nCols, residualSize, nCols, fi, lc, fv, prob + nBlocks * blockSize * _nClasses, iTree); }
+    {
+        predictByTree(aX + nBlocks * blockSize * nCols, residualSize, nCols, fi, lc, fv, prob + nBlocks * blockSize * _nClasses, iTree);
+    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -337,7 +348,10 @@ void PredictClassificationTask<float, avx512>::predictByTree(const float * x, co
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < _nClasses; ++j) { resPtr[i * _nClasses + j] += probas[idx[i] * _nClasses + j]; }
+                for (size_t j = 0; j < _nClasses; ++j)
+                {
+                    resPtr[i * _nClasses + j] += probas[idx[i] * _nClasses + j];
+                }
             }
         }
     }
@@ -408,7 +422,10 @@ void PredictClassificationTask<double, avx512>::predictByTree(const double * x, 
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < _nClasses; ++j) { resPtr[i * _nClasses + j] += probas[idx[i] * _nClasses + j]; }
+                for (size_t j = 0; j < _nClasses; ++j)
+                {
+                    resPtr[i * _nClasses + j] += probas[idx[i] * _nClasses + j];
+                }
             }
         }
     }
@@ -442,7 +459,10 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(size_t
             algorithmFPType * prob = probPtr + iStartRow * _nClasses;
             daal::threader_for(nRowsToProcess, nRowsToProcess, [&](size_t iRow) {
                 predictByTrees(0, nTreesTotal, xBD.get() + iRow * nCols, prob + iRow * _nClasses, nTreesTotal);
-                if (_res) { res[iRow] = algorithmFPType(getMaxClass(prob + iRow * _nClasses)); }
+                if (_res)
+                {
+                    res[iRow] = algorithmFPType(getMaxClass(prob + iRow * _nClasses));
+                }
             });
         });
     }
@@ -460,7 +480,10 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(size_t
                 algorithmFPType * val = bUseTLS ? lsData.local() : buf;
                 for (size_t i = 0; i < _nClasses; ++i) val[i] = 0;
                 predictByTrees(0, nTreesTotal, xBD.get() + iRow * nCols, val, nTreesTotal);
-                if (_res) { res[iRow] = algorithmFPType(getMaxClass(val)); }
+                if (_res)
+                {
+                    res[iRow] = algorithmFPType(getMaxClass(val));
+                }
             });
         });
     }
@@ -518,7 +541,10 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (size_t j = 0; j < _nClasses; j++) { commonBufVal[i * _nClasses + j] += buf[i * _nClasses + j]; }
+                    for (size_t j = 0; j < _nClasses; j++)
+                    {
+                        commonBufVal[i * _nClasses + j] += buf[i * _nClasses + j];
+                    }
                 }
             });
         }
@@ -529,7 +555,10 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < _nClasses; j++) { commonBufVal[i * _nClasses + j] += localPtr[i * _nClasses + j]; }
+                for (size_t j = 0; j < _nClasses; j++)
+                {
+                    commonBufVal[i * _nClasses + j] += localPtr[i * _nClasses + j];
+                }
             }
         }
     }
@@ -564,8 +593,13 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < _nClasses; j++)
-                { prob_internal[iRes * _nClasses + j] = algorithmFPType(prob_internal[iRes * _nClasses + j]) * inverseNTreesTotal; }
-                if (_res) { res_internal[iRes] = algorithmFPType(getMaxClass(prob_internal + iRes * _nClasses)); }
+                {
+                    prob_internal[iRes * _nClasses + j] = algorithmFPType(prob_internal[iRes * _nClasses + j]) * inverseNTreesTotal;
+                }
+                if (_res)
+                {
+                    res_internal[iRes] = algorithmFPType(getMaxClass(prob_internal + iRes * _nClasses));
+                }
             }
         });
     }
@@ -646,7 +680,10 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(s
                     {
                         predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, prob + iRow * _nClasses, nTreesTotal);
                         if (bLastGroup)
-                            if (_res) { res[iRow] = algorithmFPType(getMaxClass(prob + iRow * _nClasses)); }
+                            if (_res)
+                            {
+                                res[iRow] = algorithmFPType(getMaxClass(prob + iRow * _nClasses));
+                            }
                     }
                 }
                 else
@@ -656,7 +693,10 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(s
                         if (bLastGroup)
                         {
                             //find winning class now
-                            if (_res) { res[iRow] = algorithmFPType(getMaxClass(prob + iRow * _nClasses)); }
+                            if (_res)
+                            {
+                                res[iRow] = algorithmFPType(getMaxClass(prob + iRow * _nClasses));
+                            }
                         }
                     });
                 }

@@ -45,7 +45,10 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     auto & context    = daal::oneapi::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (method != defaultDense || deviceInfo.isCpu) { __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsBatchKernel, algorithmFPType, method); }
+    if (method != defaultDense || deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsBatchKernel, algorithmFPType, method);
+    }
     else
     {
         __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::LowOrderMomentsBatchKernelOneAPI, algorithmFPType, method);
@@ -90,7 +93,10 @@ OnlineContainer<algorithmFPType, method, cpu>::OnlineContainer(daal::services::E
     auto & context    = daal::oneapi::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (method != defaultDense || deviceInfo.isCpu) { __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsOnlineKernel, algorithmFPType, method); }
+    if (method != defaultDense || deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsOnlineKernel, algorithmFPType, method);
+    }
     else
     {
         __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::LowOrderMomentsOnlineKernelOneAPI, algorithmFPType, method);

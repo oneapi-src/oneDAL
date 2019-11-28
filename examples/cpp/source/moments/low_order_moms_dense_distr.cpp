@@ -51,7 +51,10 @@ int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
 
-    for (size_t i = 0; i < nBlocks; i++) { computestep1Local(i); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        computestep1Local(i);
+    }
 
     computeOnMasterNode();
 
@@ -87,7 +90,10 @@ void computeOnMasterNode()
     low_order_moments::Distributed<step2Master> algorithm;
 
     /* Set input objects for the algorithm */
-    for (size_t i = 0; i < nBlocks; i++) { algorithm.input.add(low_order_moments::partialResults, partialResult[i]); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        algorithm.input.add(low_order_moments::partialResults, partialResult[i]);
+    }
 
     /* Compute a partial low order moments estimate on the master node from the partial estimates on local nodes */
     algorithm.compute();

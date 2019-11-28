@@ -501,24 +501,36 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
     }
 #define DAAL_CHECK_BLOCK_STATUS_THR(block) DAAL_CHECK_STATUS_THR((block).status())
 
-#define DAAL_DEFAULT_CREATE_IMPL(Type)                                  \
-    {                                                                   \
-        services::Status defaultSt;                                     \
-        services::Status & st = (stat ? *stat : defaultSt);             \
-        services::SharedPtr<Type> result(new Type(st));                 \
-        if (!result) { st.add(services::ErrorMemoryAllocationFailed); } \
-        if (!st) { result.reset(); }                                    \
-        return result;                                                  \
+#define DAAL_DEFAULT_CREATE_IMPL(Type)                      \
+    {                                                       \
+        services::Status defaultSt;                         \
+        services::Status & st = (stat ? *stat : defaultSt); \
+        services::SharedPtr<Type> result(new Type(st));     \
+        if (!result)                                        \
+        {                                                   \
+            st.add(services::ErrorMemoryAllocationFailed);  \
+        }                                                   \
+        if (!st)                                            \
+        {                                                   \
+            result.reset();                                 \
+        }                                                   \
+        return result;                                      \
     }
 
-#define DAAL_DEFAULT_CREATE_IMPL_EX(Type, ...)                          \
-    {                                                                   \
-        services::Status defaultSt;                                     \
-        services::Status & st = (stat ? *stat : defaultSt);             \
-        services::SharedPtr<Type> result(new Type(__VA_ARGS__, st));    \
-        if (!result) { st.add(services::ErrorMemoryAllocationFailed); } \
-        if (!st) { result.reset(); }                                    \
-        return result;                                                  \
+#define DAAL_DEFAULT_CREATE_IMPL_EX(Type, ...)                       \
+    {                                                                \
+        services::Status defaultSt;                                  \
+        services::Status & st = (stat ? *stat : defaultSt);          \
+        services::SharedPtr<Type> result(new Type(__VA_ARGS__, st)); \
+        if (!result)                                                 \
+        {                                                            \
+            st.add(services::ErrorMemoryAllocationFailed);           \
+        }                                                            \
+        if (!st)                                                     \
+        {                                                            \
+            result.reset();                                          \
+        }                                                            \
+        return result;                                               \
     }
 
 #define DAAL_TEMPLATE_ARGUMENTS(...) __VA_ARGS__
@@ -528,8 +540,14 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
         services::Status defaultSt;                                                  \
         services::Status & st = (stat ? *stat : defaultSt);                          \
         services::SharedPtr<Type<TemplateArgs> > result(new Type<TemplateArgs>(st)); \
-        if (!result) { st.add(services::ErrorMemoryAllocationFailed); }              \
-        if (!st) { result.reset(); }                                                 \
+        if (!result)                                                                 \
+        {                                                                            \
+            st.add(services::ErrorMemoryAllocationFailed);                           \
+        }                                                                            \
+        if (!st)                                                                     \
+        {                                                                            \
+            result.reset();                                                          \
+        }                                                                            \
         return result;                                                               \
     }
 
@@ -538,8 +556,14 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
         services::Status defaultSt;                                                               \
         services::Status & st = (stat ? *stat : defaultSt);                                       \
         services::SharedPtr<Type<TemplateArgs> > result(new Type<TemplateArgs>(__VA_ARGS__, st)); \
-        if (!result) { st.add(services::ErrorMemoryAllocationFailed); }                           \
-        if (!st) { result.reset(); }                                                              \
+        if (!result)                                                                              \
+        {                                                                                         \
+            st.add(services::ErrorMemoryAllocationFailed);                                        \
+        }                                                                                         \
+        if (!st)                                                                                  \
+        {                                                                                         \
+            result.reset();                                                                       \
+        }                                                                                         \
         return result;                                                                            \
     }
 

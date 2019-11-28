@@ -123,7 +123,10 @@ protected:
     void resetData()
     {
         const size_t cnt = size() * 3;
-        for (size_t i = 0; i < cnt; ++i) { _data[i] = algorithmFPType(0); }
+        for (size_t i = 0; i < cnt; ++i)
+        {
+            _data[i] = algorithmFPType(0);
+        }
     }
 
 private:

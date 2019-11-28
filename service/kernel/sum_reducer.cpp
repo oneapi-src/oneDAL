@@ -136,7 +136,9 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
     DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
 
     if (vectorsLayout == Layout::RowMajor)
-    { sum_singlepass(context, kernelFactory, vectorsLayout, vectors, nVectors, vectorSize, maxWorkItemsPerGroup, result, status); }
+    {
+        sum_singlepass(context, kernelFactory, vectorsLayout, vectors, nVectors, vectorSize, maxWorkItemsPerGroup, result, status);
+    }
     else
     {
         const int32_t numDivisionsByCol = (nVectors + maxWorkItemsPerGroup - 1) / maxWorkItemsPerGroup;

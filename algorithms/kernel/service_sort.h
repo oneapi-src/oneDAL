@@ -68,14 +68,20 @@ void qSort(size_t n, algorithmDataType * x)
 
                 for (i = j - 1; i >= l; i--)
                 {
-                    if (x[i] <= a) { break; }
+                    if (x[i] <= a)
+                    {
+                        break;
+                    }
                     x[i + 1] = x[i];
                 }
 
                 x[i + 1] = a;
             }
 
-            if (jstack < 0) { break; }
+            if (jstack < 0)
+            {
+                break;
+            }
 
             ir = istack[jstack--];
             l  = istack[jstack--];
@@ -84,9 +90,18 @@ void qSort(size_t n, algorithmDataType * x)
         {
             k = (l + ir) >> 1;
             daal::services::internal::swap<cpu, algorithmDataType>(x[k], x[l + 1]);
-            if (x[l] > x[ir]) { daal::services::internal::swap<cpu, algorithmDataType>(x[l], x[ir]); }
-            if (x[l + 1] > x[ir]) { daal::services::internal::swap<cpu, algorithmDataType>(x[l + 1], x[ir]); }
-            if (x[l] > x[l + 1]) { daal::services::internal::swap<cpu, algorithmDataType>(x[l], x[l + 1]); }
+            if (x[l] > x[ir])
+            {
+                daal::services::internal::swap<cpu, algorithmDataType>(x[l], x[ir]);
+            }
+            if (x[l + 1] > x[ir])
+            {
+                daal::services::internal::swap<cpu, algorithmDataType>(x[l + 1], x[ir]);
+            }
+            if (x[l] > x[l + 1])
+            {
+                daal::services::internal::swap<cpu, algorithmDataType>(x[l], x[l + 1]);
+            }
             i = l + 1;
             j = ir;
             a = x[l + 1];
@@ -96,7 +111,10 @@ void qSort(size_t n, algorithmDataType * x)
                     ;
                 while (x[--j] > a)
                     ;
-                if (j < i) { break; }
+                if (j < i)
+                {
+                    break;
+                }
                 daal::services::internal::swap<cpu, algorithmDataType>(x[i], x[j]);
             }
             x[l + 1] = x[j];
@@ -147,14 +165,20 @@ void qSort(size_t n, algorithmDataType * x, CompareFunction compare)
 
                 for (i = j - 1; i >= l; i--)
                 {
-                    if (compare(x + i, &a) < 1) { break; }
+                    if (compare(x + i, &a) < 1)
+                    {
+                        break;
+                    }
                     x[i + 1] = x[i];
                 }
 
                 x[i + 1] = a;
             }
 
-            if (jstack < 0) { break; }
+            if (jstack < 0)
+            {
+                break;
+            }
 
             ir = istack[jstack--];
             l  = istack[jstack--];
@@ -164,9 +188,18 @@ void qSort(size_t n, algorithmDataType * x, CompareFunction compare)
             k = (l + ir) >> 1;
             daal::services::internal::swap<cpu, algorithmDataType>(x[k], x[l + 1]);
 
-            if (compare(x + l, x + ir) == 1) { daal::services::internal::swap<cpu, algorithmDataType>(x[l], x[ir]); }
-            if (compare(x + l + 1, x + ir) == 1) { daal::services::internal::swap<cpu, algorithmDataType>(x[l + 1], x[ir]); }
-            if (compare(x + l, x + l + 1) == 1) { daal::services::internal::swap<cpu, algorithmDataType>(x[l], x[l + 1]); }
+            if (compare(x + l, x + ir) == 1)
+            {
+                daal::services::internal::swap<cpu, algorithmDataType>(x[l], x[ir]);
+            }
+            if (compare(x + l + 1, x + ir) == 1)
+            {
+                daal::services::internal::swap<cpu, algorithmDataType>(x[l + 1], x[ir]);
+            }
+            if (compare(x + l, x + l + 1) == 1)
+            {
+                daal::services::internal::swap<cpu, algorithmDataType>(x[l], x[l + 1]);
+            }
             i = l + 1;
             j = ir;
             a = x[l + 1];
@@ -176,7 +209,10 @@ void qSort(size_t n, algorithmDataType * x, CompareFunction compare)
                     ;
                 while (compare(&x[--j], &a) == 1)
                     ;
-                if (j < i) { break; }
+                if (j < i)
+                {
+                    break;
+                }
                 daal::services::internal::swap<cpu, algorithmDataType>(x[i], x[j]);
             }
             x[l + 1] = x[j];
@@ -220,14 +256,20 @@ void qSortByKey(size_t n, T * x)
 
                 for (i = j - 1; i >= l; i--)
                 {
-                    if (x[i].key <= a.key) { break; }
+                    if (x[i].key <= a.key)
+                    {
+                        break;
+                    }
                     x[i + 1] = x[i];
                 }
 
                 x[i + 1] = a;
             }
 
-            if (jstack < 0) { break; }
+            if (jstack < 0)
+            {
+                break;
+            }
 
             ir = istack[jstack--];
             l  = istack[jstack--];
@@ -237,9 +279,18 @@ void qSortByKey(size_t n, T * x)
             k = (l + ir) >> 1;
             daal::services::internal::swap<cpu, T>(x[k], x[l + 1]);
 
-            if (x[l].key > x[ir].key) { daal::services::internal::swap<cpu, T>(x[l], x[ir]); }
-            if (x[l + 1].key > x[ir].key) { daal::services::internal::swap<cpu, T>(x[l + 1], x[ir]); }
-            if (x[l].key > x[l + 1].key) { daal::services::internal::swap<cpu, T>(x[l], x[l + 1]); }
+            if (x[l].key > x[ir].key)
+            {
+                daal::services::internal::swap<cpu, T>(x[l], x[ir]);
+            }
+            if (x[l + 1].key > x[ir].key)
+            {
+                daal::services::internal::swap<cpu, T>(x[l + 1], x[ir]);
+            }
+            if (x[l].key > x[l + 1].key)
+            {
+                daal::services::internal::swap<cpu, T>(x[l], x[l + 1]);
+            }
             i = l + 1;
             j = ir;
             a = x[l + 1];
@@ -250,7 +301,10 @@ void qSortByKey(size_t n, T * x)
                 while (x[--j].key > a.key)
                     ;
 
-                if (j < i) { break; }
+                if (j < i)
+                {
+                    break;
+                }
                 daal::services::internal::swap<cpu, T>(x[i], x[j]);
             }
             x[l + 1] = x[j];
@@ -304,7 +358,10 @@ void qSort(size_t n, algorithmDataType * x, algorithmIndexType * index)
 
                 for (i = j - 1; i >= l; i--)
                 {
-                    if (x[i] <= a) { break; }
+                    if (x[i] <= a)
+                    {
+                        break;
+                    }
                     x[i + 1]     = x[i];
                     index[i + 1] = index[i];
                 }
@@ -313,7 +370,10 @@ void qSort(size_t n, algorithmDataType * x, algorithmIndexType * index)
                 index[i + 1] = b;
             }
 
-            if (jstack < 0) { break; }
+            if (jstack < 0)
+            {
+                break;
+            }
 
             ir = istack[jstack--];
             l  = istack[jstack--];
@@ -348,7 +408,10 @@ void qSort(size_t n, algorithmDataType * x, algorithmIndexType * index)
                     ;
                 while (x[--j] > a)
                     ;
-                if (j < i) { break; }
+                if (j < i)
+                {
+                    break;
+                }
                 daal::services::internal::swap<cpu, algorithmDataType>(x[i], x[j]);
                 daal::services::internal::swap<cpu, algorithmIndexType>(index[i], index[j]);
             }
@@ -399,7 +462,10 @@ void qSort(size_t n, algorithmFPtype * x, wType * w, zType * z)
 
                 for (i = j - 1; i >= l; i--)
                 {
-                    if (x[i] <= a) { break; }
+                    if (x[i] <= a)
+                    {
+                        break;
+                    }
                     x[i + 1] = x[i];
                     w[i + 1] = w[i];
                     z[i + 1] = z[i];
@@ -410,7 +476,10 @@ void qSort(size_t n, algorithmFPtype * x, wType * w, zType * z)
                 z[i + 1] = c;
             }
 
-            if (jstack < 0) { break; }
+            if (jstack < 0)
+            {
+                break;
+            }
 
             ir = istack[jstack--];
             l  = istack[jstack--];
@@ -450,7 +519,10 @@ void qSort(size_t n, algorithmFPtype * x, wType * w, zType * z)
                     ;
                 while (x[--j] > a)
                     ;
-                if (j < i) { break; }
+                if (j < i)
+                {
+                    break;
+                }
                 daal::services::internal::swap<cpu, algorithmFPtype>(x[i], x[j]);
                 daal::services::internal::swap<cpu, wType>(w[i], w[j]);
                 daal::services::internal::swap<cpu, zType>(z[i], z[j]);
@@ -513,13 +585,19 @@ void indexBubbleSortDesc(services::Collection<algorithmFPtype> & x, services::Co
 template <CpuType cpu, typename RandomAccessIterator, typename Compare>
 static DAAL_FORCEINLINE void medianOf3(RandomAccessIterator first, RandomAccessIterator mid, RandomAccessIterator last, Compare compare)
 {
-    if (compare(*mid, *first)) { iterSwap<cpu>(mid, first); }
+    if (compare(*mid, *first))
+    {
+        iterSwap<cpu>(mid, first);
+    }
     if (compare(*last, *mid))
     {
         iterSwap<cpu>(last, mid);
 
         // Middle changed - need to to compare it with first again.
-        if (compare(*mid, *first)) { iterSwap<cpu>(mid, first); }
+        if (compare(*mid, *first))
+        {
+            iterSwap<cpu>(mid, first);
+        }
     }
 }
 
@@ -544,8 +622,14 @@ DAAL_FORCEINLINE void partition3(RandomAccessIterator first, RandomAccessIterato
     partFirst = mid;
     partLast  = partFirst + 1;
 
-    while (first < partFirst && !compare(*(partFirst - 1), *partFirst) && !compare(*partFirst, *(partFirst - 1))) { --partFirst; }
-    while (partLast < last && !compare(*partLast, *partFirst) && !compare(*partFirst, *partLast)) { ++partLast; }
+    while (first < partFirst && !compare(*(partFirst - 1), *partFirst) && !compare(*partFirst, *(partFirst - 1)))
+    {
+        --partFirst;
+    }
+    while (partLast < last && !compare(*partLast, *partFirst) && !compare(*partFirst, *partLast))
+    {
+        ++partLast;
+    }
 
     RandomAccessIterator f = partLast;
     RandomAccessIterator l = partFirst;
@@ -556,8 +640,14 @@ DAAL_FORCEINLINE void partition3(RandomAccessIterator first, RandomAccessIterato
         {
             if (!compare(*partFirst, *f))
             {
-                if (compare(*f, *partFirst)) { break; }
-                if (partLast != f) { iterSwap<cpu>(partLast, f); }
+                if (compare(*f, *partFirst))
+                {
+                    break;
+                }
+                if (partLast != f)
+                {
+                    iterSwap<cpu>(partLast, f);
+                }
                 ++partLast;
             }
         }
@@ -566,16 +656,28 @@ DAAL_FORCEINLINE void partition3(RandomAccessIterator first, RandomAccessIterato
         {
             if (!compare(*(l - 1), *partFirst))
             {
-                if (compare(*partFirst, *(l - 1))) { break; }
-                if (--partFirst != l - 1) { iterSwap<cpu>(partFirst, l - 1); }
+                if (compare(*partFirst, *(l - 1)))
+                {
+                    break;
+                }
+                if (--partFirst != l - 1)
+                {
+                    iterSwap<cpu>(partFirst, l - 1);
+                }
             }
         }
 
-        if (l == first && f == last) { break; }
+        if (l == first && f == last)
+        {
+            break;
+        }
 
         if (l == first)
         {
-            if (partLast != f) { iterSwap<cpu>(partFirst, partLast); }
+            if (partLast != f)
+            {
+                iterSwap<cpu>(partFirst, partLast);
+            }
             ++partLast;
             iterSwap<cpu>(partFirst, f);
             ++partFirst;
@@ -583,7 +685,10 @@ DAAL_FORCEINLINE void partition3(RandomAccessIterator first, RandomAccessIterato
         }
         else if (f == last)
         {
-            if (--l != --partFirst) { iterSwap<cpu>(l, partFirst); }
+            if (--l != --partFirst)
+            {
+                iterSwap<cpu>(l, partFirst);
+            }
             iterSwap<cpu>(partFirst, --partLast);
         }
         else
@@ -664,7 +769,10 @@ ForwardIterator isSortedUntil(ForwardIterator first, ForwardIterator last, Compa
     {
         for (auto next = first; ++next != last; ++first)
         {
-            if (compare(*next, *first)) { return next; }
+            if (compare(*next, *first))
+            {
+                return next;
+            }
         }
     }
     return last;

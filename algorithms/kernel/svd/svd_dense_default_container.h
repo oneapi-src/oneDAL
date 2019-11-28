@@ -141,7 +141,10 @@ Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute()
     for (size_t i = 0; i < np; i++)
     {
         a[i] = static_cast<NumericTable *>((*rCollection)[i].get());
-        if (svdPar.leftSingularMatrix != notRequired) { a[i + np] = static_cast<NumericTable *>((*qCollection)[i].get()); }
+        if (svdPar.leftSingularMatrix != notRequired)
+        {
+            a[i + np] = static_cast<NumericTable *>((*qCollection)[i].get());
+        }
         else
         {
             a[i + np] = 0;

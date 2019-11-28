@@ -98,7 +98,10 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na,
         const algorithmFPType * Ai = aiBlock.get();
         for (size_t i = 0; i < n; i++)
         {
-            for (size_t j = 0; j < m; j++) { QiT[i * m + j] = Ai[i + j * n]; }
+            for (size_t j = 0; j < m; j++)
+            {
+                QiT[i * m + j] = Ai[i + j * n];
+            }
         }
     }
 
@@ -115,7 +118,10 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na,
         algorithmFPType * Qi = qiBlock.get();
         for (size_t i = 0; i < n; i++)
         {
-            for (size_t j = 0; j < m; j++) { Qi[i + j * n] = QiT[i * m + j]; }
+            for (size_t j = 0; j < m; j++)
+            {
+                Qi[i + j * n] = QiT[i * m + j];
+            }
         }
     }
 
@@ -127,8 +133,14 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na,
         for (size_t i = 0; i < n; i++)
         {
             size_t j = 0;
-            for (; j <= i; j++) { Ri[i + j * n] = RiT[i * n + j]; }
-            for (; j < n; j++) { Ri[i + j * n] = 0.0; }
+            for (; j <= i; j++)
+            {
+                Ri[i + j * n] = RiT[i * n + j];
+            }
+            for (; j < n; j++)
+            {
+                Ri[i + j * n] = 0.0;
+            }
         }
     }
     return Status();
@@ -241,7 +253,10 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
             for (int i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++) { QT_local[i * brows_local + j] = A_block[i + j * cols_local]; }
+                for (int j = 0; j < brows_local; j++)
+                {
+                    QT_local[i * brows_local + j] = A_block[i + j * cols_local];
+                }
             }
 
             /* Call QR on local nodes */
@@ -252,7 +267,10 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
             for (int i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++) { Q_block[i + j * cols_local] = QT_local[i * brows_local + j]; }
+                for (int j = 0; j < brows_local; j++)
+                {
+                    Q_block[i + j * cols_local] = QT_local[i * brows_local + j];
+                }
             }
 
             /* Transpose R and zero lower values */
@@ -260,9 +278,15 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
             {
                 int j;
                 PRAGMA_IVDEP
-                for (j = 0; j <= i; j++) { RT_buff[k * cols_local + i * cols_local * blocks + j] = RT_local[i * cols_local + j]; }
+                for (j = 0; j <= i; j++)
+                {
+                    RT_buff[k * cols_local + i * cols_local * blocks + j] = RT_local[i * cols_local + j];
+                }
                 PRAGMA_IVDEP
-                for (; j < cols_local; j++) { RT_buff[k * cols_local + i * cols_local * blocks + j] = 0.0; }
+                for (; j < cols_local; j++)
+                {
+                    RT_buff[k * cols_local + i * cols_local * blocks + j] = 0.0;
+                }
             }
         });
     }
@@ -284,7 +308,10 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
         for (int i = 0; i < cols; i++)
         {
             PRAGMA_IVDEP
-            for (int j = 0; j < cols; j++) { R_output[i + j * cols] = R_buff[i * cols + j]; }
+            for (int j = 0; j < cols; j++)
+            {
+                R_output[i + j * cols] = R_buff[i * cols + j];
+            }
         }
     }
     /* Step3: calculate Q by merging Q*RB */
@@ -310,14 +337,20 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
         for (int i = 0; i < cols_local; i++)
         {
             PRAGMA_IVDEP
-            for (int j = 0; j < cols_local; j++) { RT_local[j * cols_local + i] = RT_buff[j * cols_local * blocks + k * cols_local + i]; }
+            for (int j = 0; j < cols_local; j++)
+            {
+                RT_local[j * cols_local + i] = RT_buff[j * cols_local * blocks + k * cols_local + i];
+            }
         }
 
         /* Transpose Q to QT */
         for (int i = 0; i < cols_local; i++)
         {
             PRAGMA_IVDEP
-            for (int j = 0; j < brows_local; j++) { QT_local[i * brows_local + j] = Q_block[i + j * cols_local]; }
+            for (int j = 0; j < brows_local; j++)
+            {
+                QT_local[i * brows_local + j] = Q_block[i + j * cols_local];
+            }
         }
 
         /* Call GEMMs to multiply Q*R */
@@ -328,7 +361,10 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
         for (int i = 0; i < cols_local; i++)
         {
             PRAGMA_IVDEP
-            for (int j = 0; j < brows_local; j++) { Q_block[i + j * cols_local] = QT_result_local[i * brows_local + j]; }
+            for (int j = 0; j < brows_local; j++)
+            {
+                Q_block[i + j * cols_local] = QT_result_local[i * brows_local + j];
+            }
         }
     });
 

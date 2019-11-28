@@ -137,7 +137,10 @@ public:
         node.impurity = imp.var;
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < _nClasses; ++i) { node.hist[i] = imp.hist[i]; }
+        for (size_t i = 0; i < _nClasses; ++i)
+        {
+            node.hist[i] = imp.hist[i];
+        }
 #ifdef DEBUG_CHECK_IMPURITY
         {
             Histogramm res(_nClasses, 0);
@@ -520,7 +523,10 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
             bestImpDecrease     = decrease;
         }
     }
-    if (idxFeatureBestSplit >= 0) { split.impurityDecrease = curImpurity.var + bestImpDecrease / algorithmFPType(n) - algorithmFPType(1); }
+    if (idxFeatureBestSplit >= 0)
+    {
+        split.impurityDecrease = curImpurity.var + bestImpDecrease / algorithmFPType(n) - algorithmFPType(1);
+    }
     return idxFeatureBestSplit;
 }
 
@@ -620,7 +626,10 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
             bestImpDecrease     = decrease;
         }
     }
-    if (idxFeatureBestSplit >= 0) { split.impurityDecrease = curImpurity.var + bestImpDecrease / algorithmFPType(n) - algorithmFPType(1); }
+    if (idxFeatureBestSplit >= 0)
+    {
+        split.impurityDecrease = curImpurity.var + bestImpDecrease / algorithmFPType(n) - algorithmFPType(1);
+    }
     return idxFeatureBestSplit;
 }
 

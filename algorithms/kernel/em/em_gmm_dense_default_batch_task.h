@@ -60,7 +60,10 @@ public:
     algorithmFPType ** getSigma() { return sigma; }
     algorithmFPType * getSigma(size_t index)
     {
-        if (sigma) { return sigma[index]; }
+        if (sigma)
+        {
+            return sigma[index];
+        }
         else
         {
             return nullptr;
@@ -73,7 +76,10 @@ public:
         size_t nElements = getOneCovSize();
         for (size_t i = 0; i < nComponents; i++)
         {
-            for (size_t j = 0; j < nElements; j++) { sigma[i][j] = 0; }
+            for (size_t j = 0; j < nElements; j++)
+            {
+                sigma[i][j] = 0;
+            }
         }
     }
 
@@ -175,30 +181,48 @@ public:
         algorithmFPType * invSigma = sigma[k];
         for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
         {
-            for (size_t j = 0; j < nFeatures; j++) { CovX[i * nFeatures + j] = X[i * nFeatures + j] * invSigma[j]; }
+            for (size_t j = 0; j < nFeatures; j++)
+            {
+                CovX[i * nFeatures + j] = X[i * nFeatures + j] * invSigma[j];
+            }
         }
     }
     ErrorPtr regularizeCovarianceMatrix(algorithmFPType * cov)
     {
         TArray<algorithmFPType, cpu> sortedCovsPtr(nFeatures);
         algorithmFPType * sortedCovs = sortedCovsPtr.get();
-        if (!sortedCovs) { return ErrorPtr(new Error(ErrorMemoryAllocationFailed)); }
-        for (size_t j = 0; j < nFeatures; j++) { sortedCovs[j] = cov[j]; }
+        if (!sortedCovs)
+        {
+            return ErrorPtr(new Error(ErrorMemoryAllocationFailed));
+        }
+        for (size_t j = 0; j < nFeatures; j++)
+        {
+            sortedCovs[j] = cov[j];
+        }
         daal::algorithms::internal::qSort<algorithmFPType, cpu>(nFeatures, sortedCovs);
 
         algorithmFPType * eigenvalues = sortedCovs;
         size_t i                      = 0;
         for (i = 0; i < nFeatures; i++)
         {
-            if (eigenvalues[i] > EIGENVALUE_THRESHOLD) { break; }
+            if (eigenvalues[i] > EIGENVALUE_THRESHOLD)
+            {
+                break;
+            }
         }
-        if (i == nFeatures) { return ErrorPtr(new Error(ErrorEMIllConditionedCovarianceMatrix)); }
+        if (i == nFeatures)
+        {
+            return ErrorPtr(new Error(ErrorEMIllConditionedCovarianceMatrix));
+        }
 
         //get maximum
         algorithmFPType a              = eigenvalues[i] * covRegularizer;
         algorithmFPType b              = -eigenvalues[0] * (1.0 + covRegularizer);
         algorithmFPType cur_eigenvalue = (a > b) ? a : b;
-        for (size_t j = 0; j < nFeatures; j++) { cov[j] += cur_eigenvalue; }
+        for (size_t j = 0; j < nFeatures; j++)
+        {
+            cov[j] += cur_eigenvalue;
+        }
         return ErrorPtr();
     }
 
@@ -246,7 +270,10 @@ public:
     void finalize(size_t k, algorithmFPType denominator)
     {
         algorithmFPType multplier = 1.0 / denominator;
-        for (size_t i = 0; i < nFeatures; i++) { sigma[k][i] *= multplier; }
+        for (size_t i = 0; i < nFeatures; i++)
+        {
+            sigma[k][i] *= multplier;
+        }
     }
 
     void stepM_mergeCovs(algorithmFPType * cp_n, algorithmFPType * cp_m, algorithmFPType * mean_n, algorithmFPType * mean_m, algorithmFPType & w_n,
@@ -288,7 +315,10 @@ struct Task
 
         threadBufferPtr.reset(memorySizeForOneThread);
         localBuffer = threadBufferPtr.get();
-        if (!localBuffer) { return; }
+        if (!localBuffer)
+        {
+            return;
+        }
 
         x_mu         = localBuffer;
         Ax_mu        = &x_mu[blockSizeDefault * nFeatures];
@@ -309,9 +339,18 @@ struct Task
     void setMergedToZero()
     {
         size_t sizeOfOneCov = covs->getOneCovSize();
-        for (size_t i = 0; i < nComponents; i++) { mergedWSums[i] = 0; }
-        for (size_t i = 0; i < nComponents * nFeatures; i++) { mergedPartialMeans[i] = 0; }
-        for (size_t i = 0; i < nComponents * sizeOfOneCov; i++) { mergedPartialCP[i] = 0; }
+        for (size_t i = 0; i < nComponents; i++)
+        {
+            mergedWSums[i] = 0;
+        }
+        for (size_t i = 0; i < nComponents * nFeatures; i++)
+        {
+            mergedPartialMeans[i] = 0;
+        }
+        for (size_t i = 0; i < nComponents * sizeOfOneCov; i++)
+        {
+            mergedPartialCP[i] = 0;
+        }
     }
 
     Status next(size_t j0, size_t nVectorsInCurrentBlock)

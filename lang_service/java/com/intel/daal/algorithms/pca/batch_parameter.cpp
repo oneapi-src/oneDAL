@@ -97,7 +97,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetCov
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetResultsToCompute(JNIEnv *, jobject, jlong parAddr,
                                                                                               jlong resultsToCompute, jint method)
 {
-    if (method == CorrelationDenseValue) { ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->resultsToCompute = resultsToCompute; }
+    if (method == CorrelationDenseValue)
+    {
+        ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->resultsToCompute = resultsToCompute;
+    }
     else if (method == SVDDenseValue)
     {
         ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->resultsToCompute = resultsToCompute;
@@ -123,7 +126,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cGetRe
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetIsDeterministic(JNIEnv *, jobject, jlong parAddr,
                                                                                              jboolean isDeterministic, jint method)
 {
-    if (method == CorrelationDenseValue) { ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->isDeterministic = isDeterministic; }
+    if (method == CorrelationDenseValue)
+    {
+        ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->isDeterministic = isDeterministic;
+    }
     else if (method == SVDDenseValue)
     {
         ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->isDeterministic = isDeterministic;
@@ -149,7 +155,10 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cGe
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetNumberOfComponents(JNIEnv *, jobject, jlong parAddr,
                                                                                                 jboolean nComponents, jint method)
 {
-    if (method == CorrelationDenseValue) { ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->nComponents = nComponents; }
+    if (method == CorrelationDenseValue)
+    {
+        ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->nComponents = nComponents;
+    }
     else if (method == SVDDenseValue)
     {
         ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->nComponents = nComponents;

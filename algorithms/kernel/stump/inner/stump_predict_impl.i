@@ -62,7 +62,10 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
     DAAL_CHECK_STATUS(s, xBD.status());
     const algorithmFPtype * x = xBD.get();
 
-    for (size_t i = 0; i < nVectors; i++) { r[i] = ((x[i] < splitPoint) ? leftValue : rightValue); }
+    for (size_t i = 0; i < nVectors; i++)
+    {
+        r[i] = ((x[i] < splitPoint) ? leftValue : rightValue);
+    }
     return s;
 }
 

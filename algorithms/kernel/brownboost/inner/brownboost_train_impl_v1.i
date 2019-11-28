@@ -189,7 +189,10 @@ services::Status I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoo
         if (!alpha) return services::Status(services::ErrorMemoryAllocationFailed);
 
         /* Make weak learner to allocate new memory for storing training result */
-        if (iteration > 0) { learnerTrain->resetResult(); }
+        if (iteration > 0)
+        {
+            learnerTrain->resetResult();
+        }
 
         /* Train weak learner's model */
         DAAL_CHECK_STATUS(status, learnerTrain->computeNoThrow());
@@ -231,7 +234,10 @@ services::Status I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::brownBoo
         /* Update margin */
         const algorithmFPType * nrb = nr.aNrb.get();
         algorithmFPType * rr        = r.get();
-        for (size_t j = 0; j < nVectors; j++) { rr[j] += nr.nrAlpha * nrb[j]; }
+        for (size_t j = 0; j < nVectors; j++)
+        {
+            rr[j] += nr.nrAlpha * nrb[j];
+        }
     }
 
     return status;
@@ -251,9 +257,15 @@ void I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::updateWeights(size_t
     daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors, w, w);
     daal::internal::Math<algorithmFPType, cpu>::vErf(nVectors, nre2, nre2);
     algorithmFPType wSum = (algorithmFPType)0.0;
-    for (size_t j = 0; j < nVectors; j++) { wSum += w[j]; }
+    for (size_t j = 0; j < nVectors; j++)
+    {
+        wSum += w[j];
+    }
     algorithmFPType invWSum = 1.0 / wSum;
-    for (size_t j = 0; j < nVectors; j++) { w[j] *= invWSum; }
+    for (size_t j = 0; j < nVectors; j++)
+    {
+        w[j] *= invWSum;
+    }
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
@@ -266,7 +278,10 @@ algorithmFPType * I1BrownBoostTrainKernel<method, algorithmFPType, cpu>::realloc
         int result = 0;
         result =
             daal::services::internal::daal_memcpy_s(alpha, alphaSize * sizeof(algorithmFPType), oldAlpha, oldAlphaSize * sizeof(algorithmFPType));
-        if (result) { s |= services::Status(services::ErrorMemoryCopyFailedInternal); }
+        if (result)
+        {
+            s |= services::Status(services::ErrorMemoryCopyFailedInternal);
+        }
     }
     if (oldAlpha)
     {

@@ -49,7 +49,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeric
     HomogenNumericTable<double> * tbl = new HomogenNumericTable<double>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
     SerializationIfacePtr * sPtr      = new SerializationIfacePtr(tbl);
 
-    if (tbl->getErrors()->size() > 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription()); }
+    if (tbl->getErrors()->size() > 0)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
+    }
     return (jlong)sPtr;
 }
 
@@ -63,7 +66,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeric
 {
     HomogenNumericTable<float> * tbl = new HomogenNumericTable<float>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
     SerializationIfacePtr * sPtr     = new SerializationIfacePtr(tbl);
-    if (tbl->getErrors()->size() > 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription()); }
+    if (tbl->getErrors()->size() > 0)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
+    }
     return (jlong)sPtr;
 }
 
@@ -77,7 +83,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeric
 {
     HomogenNumericTable<__int64> * tbl = new HomogenNumericTable<__int64>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
     SerializationIfacePtr * sPtr       = new SerializationIfacePtr(tbl);
-    if (tbl->getErrors()->size() > 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription()); }
+    if (tbl->getErrors()->size() > 0)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
+    }
     return (jlong)sPtr;
 }
 
@@ -91,7 +100,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_HomogenNumeric
 {
     HomogenNumericTable<int> * tbl = new HomogenNumericTable<int>((DictionaryIface::FeaturesEqual)featuresEqual, NULL, nColumns, 0);
     SerializationIfacePtr * sPtr   = new SerializationIfacePtr(tbl);
-    if (tbl->getErrors()->size() > 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription()); }
+    if (tbl->getErrors()->size() > 0)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
+    }
     return (jlong)sPtr;
 }
 
@@ -184,7 +196,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
     float * data      = block.getBlockPtr();
     const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -206,7 +221,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
     double * data      = block.getBlockPtr();
     const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -228,7 +246,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
     int * data      = block.getBlockPtr();
     const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -250,7 +271,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
     const double * data = block.getBlockPtr();
     double * dst        = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -274,7 +298,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
 
     float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -298,7 +325,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
 
     int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -322,7 +352,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
 
     double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -346,7 +379,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
 
     float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -369,7 +405,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
     const int * data = block.getBlockPtr();
     int * dst        = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -392,7 +431,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
     float * data      = block.getBlockPtr();
     const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -414,7 +456,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
     double * data      = block.getBlockPtr();
     const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -437,7 +482,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
 
     const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -460,7 +508,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
 
     int * data = block.getBlockPtr();
 
-    for (size_t i = 0; i < nRows * nCols; i++) { data[i] = (int)constValue; }
+    for (size_t i = 0; i < nRows * nCols; i++)
+    {
+        data[i] = (int)constValue;
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -483,7 +534,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
 
     int * data = block.getBlockPtr();
 
-    for (size_t i = 0; i < nRows * nCols; i++) { data[i] = (int)constValue; }
+    for (size_t i = 0; i < nRows * nCols; i++)
+    {
+        data[i] = (int)constValue;
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -507,7 +561,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
 
     double * data = block.getBlockPtr();
 
-    for (size_t i = 0; i < nRows * nCols; i++) { data[i] = (double)constValue; }
+    for (size_t i = 0; i < nRows * nCols; i++)
+    {
+        data[i] = (double)constValue;
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -530,7 +587,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
 
     float * data = block.getBlockPtr();
 
-    for (size_t i = 0; i < nRows * nCols; i++) { data[i] = (float)constValue; }
+    for (size_t i = 0; i < nRows * nCols; i++)
+    {
+        data[i] = (float)constValue;
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }

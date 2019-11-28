@@ -127,7 +127,10 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
         nWeakLearners++;
 
         /* Make weak learner to allocate new memory for storing training result */
-        if (m > 0) { learnerTrain->resetResult(); }
+        if (m > 0)
+        {
+            learnerTrain->resetResult();
+        }
 
         /* Train weak learner's model */
         DAAL_CHECK_STATUS(s, learnerTrain->computeNoThrow());
@@ -156,7 +159,10 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
                 errM += w[i];
             }
         }
-        if (weakLearnersErrorsArray) { weakLearnersErrorsArray[m] = errM; }
+        if (weakLearnersErrorsArray)
+        {
+            weakLearnersErrorsArray[m] = errM;
+        }
 
         if (nErr == 0)
         {
@@ -176,7 +182,10 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
             learningRate * (Math<algorithmFPType, cpu>::sLog((one - errM) / errM) + Math<algorithmFPType, cpu>::sLog(nClasses - one));
 
         /* Update weights */
-        for (size_t i = 0; i < nVectors; i++) { errFlag[i] *= cM; }
+        for (size_t i = 0; i < nVectors; i++)
+        {
+            errFlag[i] *= cM;
+        }
         Math<algorithmFPType, cpu>::vExp(nVectors, errFlag, errFlag);
         algorithmFPType wSum = zero;
         for (size_t i = 0; i < nVectors; i++)
@@ -185,10 +194,19 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
             wSum += w[i];
         }
         algorithmFPType invWSum = one / wSum;
-        for (size_t i = 0; i < nVectors; i++) { w[i] *= invWSum; }
+        for (size_t i = 0; i < nVectors; i++)
+        {
+            w[i] *= invWSum;
+        }
         alpha[m] = cM;
-        if (errM < accThr) { break; }
-        if (alpha[m] > maxAlpha) { maxAlpha = alpha[m]; }
+        if (errM < accThr)
+        {
+            break;
+        }
+        if (alpha[m] > maxAlpha)
+        {
+            maxAlpha = alpha[m];
+        }
     }
     return s;
 }
@@ -197,12 +215,18 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 void AdaBoostTrainKernel<method, algorithmFPType, cpu>::convertLabelToVector(size_t nClasses, algorithmFPType * Y)
 {
     const algorithmFPType nonClassValue = -1.0 / (nClasses - 1.0);
-    for (size_t j = 0; j < (nClasses + 1) * nClasses; j++) { Y[j] = nonClassValue; }
+    for (size_t j = 0; j < (nClasses + 1) * nClasses; j++)
+    {
+        Y[j] = nonClassValue;
+    }
 
     const algorithmFPType one   = 1.0;
     Y[0]                        = one;
     algorithmFPType * Y_shifted = &Y[nClasses];
-    for (size_t i = 0; i < nClasses; i++) { Y_shifted[i * nClasses + i] = one; }
+    for (size_t i = 0; i < nClasses; i++)
+    {
+        Y_shifted[i * nClasses + i] = one;
+    }
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
@@ -237,7 +261,10 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
     const algorithmFPType invNVectors = one / (algorithmFPType)nVectors;
 
     /* Initialize weights */
-    for (size_t i = 0; i < nVectors; i++) { w[i] = invNVectors; }
+    for (size_t i = 0; i < nVectors; i++)
+    {
+        w[i] = invNVectors;
+    }
 
     services::SharedPtr<classifier::training::Batch> learnerTrain = parameter->weakLearnerTraining->clone();
     classifier::training::Input * trainInput                      = learnerTrain->getInput();
@@ -271,7 +298,10 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
         nWeakLearners++;
 
         /* Make weak learner to allocate new memory for storing training result */
-        if (m > 0) { learnerTrain->resetResult(); }
+        if (m > 0)
+        {
+            learnerTrain->resetResult();
+        }
 
         /* Train weak learner's model */
         DAAL_CHECK_STATUS(s, learnerTrain->computeNoThrow());
@@ -289,12 +319,18 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
         algorithmFPType wSum = zero;
         for (size_t i = 0; i < nVectors * nClasses; i++)
         {
-            if (p[i] < eps) { p[i] = eps; }
+            if (p[i] < eps)
+            {
+                p[i] = eps;
+            }
         }
         for (size_t i = 0; i < nVectors; i++)
         {
             t[i] = zero;
-            for (size_t j = 0; j < nClasses; j++) { t[i] += Y[((int)y[i]) * nClasses + j] * p[i * nClasses + j]; }
+            for (size_t j = 0; j < nClasses; j++)
+            {
+                t[i] += Y[((int)y[i]) * nClasses + j] * p[i * nClasses + j];
+            }
             t[i] *= scaling;
         }
         Math<algorithmFPType, cpu>::vExp(nVectors, t, t);
@@ -305,7 +341,10 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
         }
 
         algorithmFPType invWSum = one / wSum;
-        for (size_t i = 0; i < nVectors; i++) { w[i] *= invWSum; }
+        for (size_t i = 0; i < nVectors; i++)
+        {
+            w[i] *= invWSum;
+        }
         alpha[m] = 1.0;
 
         if (weakLearnersErrorsArray)
@@ -325,11 +364,17 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::adaboostSAMM
                 }
                 if (nClasses > 2)
                 {
-                    if (iMax != y[i]) { errM += w[i]; }
+                    if (iMax != y[i])
+                    {
+                        errM += w[i];
+                    }
                 }
                 else
                 {
-                    if ((iMax == 0 && y[i] == 1) || (iMax == 1 && y[i] == -1)) { errM += w[i]; }
+                    if ((iMax == 0 && y[i] == 1) || (iMax == 1 && y[i] == -1))
+                    {
+                        errM += w[i];
+                    }
                 }
             }
             weakLearnersErrorsArray[m] = errM;
@@ -392,7 +437,10 @@ services::Status AdaBoostTrainKernel<method, algorithmFPType, cpu>::compute(Nume
     DAAL_CHECK_BLOCK_STATUS(mtAlpha);
     algorithmFPType * resAlpha = mtAlpha.get();
     DAAL_ASSERT(resAlpha);
-    for (size_t i = 0; i < nWeakLearners; i++) { resAlpha[i] = alpha[i]; }
+    for (size_t i = 0; i < nWeakLearners; i++)
+    {
+        resAlpha[i] = alpha[i];
+    }
     return s;
 }
 } // namespace internal

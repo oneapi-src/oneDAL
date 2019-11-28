@@ -77,12 +77,18 @@ DAAL_EXPORT Status OnlinePartialResult::addPartialResultStorage(size_t m, size_t
     DataCollectionPtr rCollection = get(outputOfStep1ForStep2);
 
     Status s;
-    if (qCollection) { qCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, n, NumericTable::doAllocate, &s)); }
+    if (qCollection)
+    {
+        qCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, n, NumericTable::doAllocate, &s));
+    }
     else
     {
         return Status(Error::create(ErrorNullOutputDataCollection, ArgumentName, outputOfStep1ForStep3Str()));
     }
-    if (rCollection) { rCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &s)); }
+    if (rCollection)
+    {
+        rCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &s));
+    }
     else
     {
         return Status(Error::create(ErrorNullOutputDataCollection, ArgumentName, outputOfStep1ForStep2Str()));

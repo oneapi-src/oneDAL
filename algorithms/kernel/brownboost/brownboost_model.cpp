@@ -110,7 +110,10 @@ size_t Model::getNumberOfWeakLearners() const
 
 classifier::ModelPtr Model::getWeakLearnerModel(size_t idx) const
 {
-    if (idx < _models->size()) { return staticPointerCast<classifier::Model, SerializationIface>((*_models)[idx]); }
+    if (idx < _models->size())
+    {
+        return staticPointerCast<classifier::Model, SerializationIface>((*_models)[idx]);
+    }
     return classifier::ModelPtr();
 }
 

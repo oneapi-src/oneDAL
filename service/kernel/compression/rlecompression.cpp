@@ -38,7 +38,10 @@ namespace data_management
 Compressor<rle>::Compressor() : data_management::CompressorImpl()
 {
     _headBytes = 8;
-    if (!(parameter.isBlockHeader)) { _headBytes = 0; }
+    if (!(parameter.isBlockHeader))
+    {
+        _headBytes = 0;
+    }
     _next_in   = NULL;
     _avail_in  = 0;
     _next_out  = NULL;
@@ -50,7 +53,10 @@ Compressor<rle>::Compressor() : data_management::CompressorImpl()
 
 void Compressor<rle>::initialize()
 {
-    if (!(parameter.isBlockHeader)) { _headBytes = 0; }
+    if (!(parameter.isBlockHeader))
+    {
+        _headBytes = 0;
+    }
     _isInitialized = true;
 }
 
@@ -66,7 +72,10 @@ void Compressor<rle>::finalizeCompression()
 
 void Compressor<rle>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if (_isInitialized == false) { initialize(); }
+    if (_isInitialized == false)
+    {
+        initialize();
+    }
 
     checkInputParams(in, len);
     if (this->_errors->size() != 0)
@@ -138,7 +147,10 @@ void Compressor<rle>::run(byte * out, size_t outLen, size_t off)
 Decompressor<rle>::Decompressor() : data_management::DecompressorImpl()
 {
     _headBytes = 8;
-    if (!(parameter.isBlockHeader)) { _headBytes = 0; }
+    if (!(parameter.isBlockHeader))
+    {
+        _headBytes = 0;
+    }
 
     _internalBuff    = NULL;
     _internalBuffLen = 0;
@@ -155,7 +167,10 @@ Decompressor<rle>::Decompressor() : data_management::DecompressorImpl()
 
 void Decompressor<rle>::initialize()
 {
-    if (!(parameter.isBlockHeader)) { _headBytes = 0; }
+    if (!(parameter.isBlockHeader))
+    {
+        _headBytes = 0;
+    }
     _isInitialized = true;
 }
 Decompressor<rle>::~Decompressor()
@@ -169,7 +184,10 @@ Decompressor<rle>::~Decompressor()
 
 void Decompressor<rle>::finalizeCompression()
 {
-    if (_internalBuff != NULL) { daal::services::daal_free(_internalBuff); }
+    if (_internalBuff != NULL)
+    {
+        daal::services::daal_free(_internalBuff);
+    }
     _internalBuff    = NULL;
     _internalBuffLen = 0;
     _internalBuffOff = 0;
@@ -182,7 +200,10 @@ void Decompressor<rle>::finalizeCompression()
 
 void Decompressor<rle>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if (_isInitialized == false) { initialize(); }
+    if (_isInitialized == false)
+    {
+        initialize();
+    }
 
     checkInputParams(in, len);
     if (this->_errors->size() != 0)
@@ -263,7 +284,10 @@ void Decompressor<rle>::run(byte * out, size_t outLen, size_t off)
                 _internalBuff    = NULL;
                 _internalBuffLen = 0;
                 _internalBuffOff = 0;
-                if (_avail_in == 0) { return; }
+                if (_avail_in == 0)
+                {
+                    return;
+                }
             }
         }
 
@@ -366,7 +390,10 @@ void Decompressor<rle>::run(byte * out, size_t outLen, size_t off)
 
         } while (_avail_in > 0 && _avail_out > 0);
 
-        if (_avail_in > 0) { this->_isOutBlockFull = 1; }
+        if (_avail_in > 0)
+        {
+            this->_isOutBlockFull = 1;
+        }
         return;
     }
     else

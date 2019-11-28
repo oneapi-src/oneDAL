@@ -255,7 +255,10 @@ Status DistributedPartialResultStep6::check(const daal::algorithms::Input * inpu
     const DistributedInput<step6Local> * algInput = static_cast<const DistributedInput<step6Local> *>(input);
     DataCollectionPtr dcPartialData               = algInput->get(partialData);
     size_t nRows                                  = 0;
-    for (size_t i = 0; i < dcPartialData->size(); i++) { nRows += NumericTable::cast((*dcPartialData)[i])->getNumberOfRows(); }
+    for (size_t i = 0; i < dcPartialData->size(); i++)
+    {
+        nRows += NumericTable::cast((*dcPartialData)[i])->getNumberOfRows();
+    }
 
     {
         NumericTablePtr ntClusterStructure = get(step6ClusterStructure);

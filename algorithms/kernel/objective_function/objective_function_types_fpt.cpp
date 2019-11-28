@@ -62,7 +62,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     if (algParameter->resultsToCompute & gradient && !Argument::get(gradientIdx))
     {
         NumericTablePtr nt;
-        if (deviceInfo.isCpu) { nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status); }
+        if (deviceInfo.isCpu)
+        {
+            nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status);
+        }
         else
         {
             nt = SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status);

@@ -93,11 +93,17 @@ public:
         local_tls.is_main_thread = true;
 
         services::Status status = daal::internal::attachCurrentThread(jvm, local_tls);
-        if (!status) { this->_status |= status; }
+        if (!status)
+        {
+            this->_status |= status;
+        }
         else
         {
             jJavaNumTable = (local_tls.jenv)->NewGlobalRef(_JavaNumTable);
-            if (jJavaNumTable == NULL) { this->_status.add(services::ErrorCouldntCreateGlobalReferenceToJavaObject); }
+            if (jJavaNumTable == NULL)
+            {
+                this->_status.add(services::ErrorCouldntCreateGlobalReferenceToJavaObject);
+            }
         }
 
         tls.local() = local_tls;
@@ -114,7 +120,10 @@ public:
             this->_status |= daal::internal::attachCurrentThread(jvm, local_tls);
             if (this->_status && local_tls.is_attached)
             {
-                if (jJavaNumTable != NULL) { (local_tls.jenv)->DeleteGlobalRef(jJavaNumTable); }
+                if (jJavaNumTable != NULL)
+                {
+                    (local_tls.jenv)->DeleteGlobalRef(jJavaNumTable);
+                }
 
                 this->_status |= daal::internal::detachCurrentThread(jvm, local_tls, true);
             }
@@ -201,13 +210,19 @@ public:
         size_t ncols      = _ddict->getNumberOfFeatures();
         size_t bufferSize = nrows * ncols * sizeof(T);
 
-        if (!block.resizeBuffer(ncols, nrows)) { return services::Status(); }
+        if (!block.resizeBuffer(ncols, nrows))
+        {
+            return services::Status();
+        }
 
         void * buf = block.getBlockPtr();
 
         /* Get class associated with Java object */
         local_tls.jcls = (local_tls.jenv)->GetObjectClass(jJavaNumTable);
-        if (local_tls.jcls == NULL) { return services::Status(services::ErrorCouldntFindClassForJavaObject); }
+        if (local_tls.jcls == NULL)
+        {
+            return services::Status(services::ErrorCouldntFindClassForJavaObject);
+        }
 
         /* Get ID of the 'getBlockOfRows' method of the Java class */
         jmethodID jmeth = (local_tls.jenv)->GetMethodID(local_tls.jcls, javaMethodName, javaMethodSignature);
@@ -244,7 +259,10 @@ public:
 
             /* Get class associated with Java object */
             local_tls.jcls = (local_tls.jenv)->GetObjectClass(jJavaNumTable);
-            if (local_tls.jcls == NULL) { return services::Status(services::ErrorCouldntFindClassForJavaObject); }
+            if (local_tls.jcls == NULL)
+            {
+                return services::Status(services::ErrorCouldntFindClassForJavaObject);
+            }
 
             /* Get ID of the 'releaseBlockOfRows' method of the Java class */
             jmethodID jmeth = (local_tls.jenv)->GetMethodID(local_tls.jcls, javaMethodName, "(JJLjava/nio/ByteBuffer;)V");
@@ -285,13 +303,19 @@ public:
 
         size_t bufferSize = nrows * sizeof(T);
 
-        if (!block.resizeBuffer(1, nrows)) { return services::Status(); }
+        if (!block.resizeBuffer(1, nrows))
+        {
+            return services::Status();
+        }
 
         void * buf = block.getBlockPtr();
 
         /* Get class associated with Java object */
         local_tls.jcls = (local_tls.jenv)->GetObjectClass(jJavaNumTable);
-        if (local_tls.jcls == NULL) { return services::Status(services::ErrorCouldntFindClassForJavaObject); }
+        if (local_tls.jcls == NULL)
+        {
+            return services::Status(services::ErrorCouldntFindClassForJavaObject);
+        }
 
         /* Get ID of the 'getBlockOfRows' method of the Java class */
         jmethodID jmeth = (local_tls.jenv)->GetMethodID(local_tls.jcls, javaMethodName, javaMethodSignature);
@@ -328,7 +352,10 @@ public:
 
             /* Get class associated with Java object */
             local_tls.jcls = (local_tls.jenv)->GetObjectClass(jJavaNumTable);
-            if (local_tls.jcls == NULL) { return services::Status(services::ErrorCouldntFindClassForJavaObject); }
+            if (local_tls.jcls == NULL)
+            {
+                return services::Status(services::ErrorCouldntFindClassForJavaObject);
+            }
 
             /* Get ID of the 'releaseBlockOfRows' method of the Java class */
             jmethodID jmeth = (local_tls.jenv)->GetMethodID(local_tls.jcls, javaMethodName, "(JJJLjava/nio/ByteBuffer;)V");
@@ -472,10 +499,16 @@ protected:
             setDaalContext(context);
 
             jJavaNumTable = (local_tls.jenv)->NewGlobalRef(javaNumTable);
-            if (jJavaNumTable == NULL) { this->_status.add(services::ErrorCouldntCreateGlobalReferenceToJavaObject); }
+            if (jJavaNumTable == NULL)
+            {
+                this->_status.add(services::ErrorCouldntCreateGlobalReferenceToJavaObject);
+            }
             daal::services::daal_free(ptr);
 
-            if (_memStatus != notAllocated) { _memStatus = internallyAllocated; }
+            if (_memStatus != notAllocated)
+            {
+                _memStatus = internallyAllocated;
+            }
 
             DAAL_CHECK_STATUS(status, daal::internal::detachCurrentThread(jvm, local_tls))
 

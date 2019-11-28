@@ -257,7 +257,10 @@ public:
      */
     services::Status checkFinalizeComputeParams() DAAL_C11_OVERRIDE
     {
-        if (_partialResult) { return _partialResult->check(_par, method); }
+        if (_partialResult)
+        {
+            return _partialResult->check(_par, method);
+        }
         else
         {
             return services::Status(services::ErrorNullResult);
@@ -386,7 +389,10 @@ public:
      */
     services::Status checkFinalizeComputeParams() DAAL_C11_OVERRIDE
     {
-        if (_partialResult) { return _partialResult->check(_par, method); }
+        if (_partialResult)
+        {
+            return _partialResult->check(_par, method);
+        }
         else
         {
             return services::Status(services::ErrorNullResult);
@@ -415,7 +421,10 @@ protected:
         _partialResult.reset(new PartialResultType());
 
         services::Status s = _partialResult->allocate<algorithmFPType>(_in, 0, 0);
-        if (!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
 
         data_management::DataCollectionPtr qCollection = input.get(inputOfStep3FromStep1);
 

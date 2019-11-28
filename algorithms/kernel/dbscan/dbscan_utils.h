@@ -109,7 +109,10 @@ public:
 
     T * getInternalPtr(size_t ind)
     {
-        if (ind >= _tail) { return nullptr; }
+        if (ind >= _tail)
+        {
+            return nullptr;
+        }
 
         return &_data[ind];
     }
@@ -309,7 +312,10 @@ struct TlsNTask
     static TlsNTask * create(size_t n)
     {
         TlsNTask<FPType, cpu> * result = new TlsNTask<FPType, cpu>(n);
-        if (!result) { return nullptr; }
+        if (!result)
+        {
+            return nullptr;
+        }
         if (!result->neighs)
         {
             delete result;
@@ -346,7 +352,10 @@ struct NTask
     static services::SharedPtr<NTask<FPType, cpu> > create(size_t n)
     {
         services::SharedPtr<NTask<FPType, cpu> > result(new NTask<FPType, cpu>(n));
-        if (result.get() && (!result->tlsNTask)) { result.reset(); }
+        if (result.get() && (!result->tlsNTask))
+        {
+            result.reset();
+        }
         return result;
     }
 
@@ -388,7 +397,10 @@ public:
         const size_t inRows  = _inTable->getNumberOfRows();
         const size_t outRows = _outTable->getNumberOfRows();
 
-        if (outRows == 0) { return s; }
+        if (outRows == 0)
+        {
+            return s;
+        }
 
         const size_t dim    = _inTable->getNumberOfColumns();
         const size_t outDim = _outTable->getNumberOfColumns();
@@ -413,7 +425,10 @@ public:
 
             if (doReset)
             {
-                for (size_t i = 0; i < iSize; i++) { neighs[i + i1].reset(); }
+                for (size_t i = 0; i < iSize; i++)
+                {
+                    neighs[i + i1].reset();
+                }
             }
 
             for (size_t outBlock = 0; outBlock < nOutBlocks; outBlock++)
@@ -439,7 +454,10 @@ public:
                     for (size_t j = 0; j < jSize; j++)
                     {
                         FPType dist = distancePow2<FPType, cpu>(&inData[i * dim], &outData[j * outDim], dim);
-                        if (dist <= epsP) { DAAL_CHECK_STATUS_THR(neighs[i + i1].add(j + j1, (weights ? weights[j] : (FPType)1.0))); }
+                        if (dist <= epsP)
+                        {
+                            DAAL_CHECK_STATUS_THR(neighs[i + i1].add(j + j1, (weights ? weights[j] : (FPType)1.0)));
+                        }
                     }
                 }
             }
@@ -456,7 +474,10 @@ public:
 
         const size_t outRows = _outTable->getNumberOfRows();
 
-        if (outRows == 0) { return s; }
+        if (outRows == 0)
+        {
+            return s;
+        }
 
         const size_t dim    = _inTable->getNumberOfColumns();
         const size_t outDim = _outTable->getNumberOfColumns();
@@ -476,7 +497,10 @@ public:
 
         if (doReset)
         {
-            for (size_t i = 0; i < n; i++) { neighs[i].reset(); }
+            for (size_t i = 0; i < n; i++)
+            {
+                neighs[i].reset();
+            }
         }
 
         FPType epsP = Math<FPType, cpu>::sPowx(_eps, _p);
@@ -512,7 +536,10 @@ public:
                 for (size_t j = 0; j < jSize; j++)
                 {
                     FPType dist = distancePow2<FPType, cpu>(queryRows[i].get(), &outData[j * outDim], dim);
-                    if (dist <= epsP) { DAAL_CHECK_STATUS_THR(localNeighs[i].add(j + j1, (weights ? weights[j] : (FPType)1.0))); }
+                    if (dist <= epsP)
+                    {
+                        DAAL_CHECK_STATUS_THR(localNeighs[i].add(j + j1, (weights ? weights[j] : (FPType)1.0)));
+                    }
                 }
             }
         });
@@ -527,7 +554,10 @@ public:
                 for (size_t i = 0; i < n; i++)
                 {
                     size_t localSize = localNeighs[i].size();
-                    for (size_t j = 0; j < localSize; j++) { neighs[i].add(localNeighs[i].get(j), 0); }
+                    for (size_t j = 0; j < localSize; j++)
+                    {
+                        neighs[i].add(localNeighs[i].get(j), 0);
+                    }
                     neighs[i].addWeight(localNeighs[i].weight());
                 }
             }
@@ -548,9 +578,15 @@ private:
 template <typename FPType, CpuType cpu>
 FPType findKthStatistic(FPType * values, size_t nElements, size_t k)
 {
-    if (nElements == 0) { return (FPType)0; }
+    if (nElements == 0)
+    {
+        return (FPType)0;
+    }
 
-    if (k >= nElements) { k = nElements - 1; }
+    if (k >= nElements)
+    {
+        k = nElements - 1;
+    }
 
     size_t l = 0;
     size_t r = nElements - 1;
@@ -561,8 +597,14 @@ FPType findKthStatistic(FPType * values, size_t nElements, size_t k)
         int j      = r;
         while (i <= j)
         {
-            while (values[i] < med) { i++; }
-            while (med < values[j]) { j--; }
+            while (values[i] < med)
+            {
+                i++;
+            }
+            while (med < values[j])
+            {
+                j--;
+            }
             if (i <= j)
             {
                 swap<cpu, FPType>(values[i], values[j]);
@@ -570,8 +612,14 @@ FPType findKthStatistic(FPType * values, size_t nElements, size_t k)
                 j--;
             }
         }
-        if (j < k) { l = i; }
-        if (k < i) { r = j; }
+        if (j < k)
+        {
+            l = i;
+        }
+        if (k < i)
+        {
+            r = j;
+        }
     }
 
     return values[k];

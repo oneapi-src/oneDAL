@@ -41,7 +41,10 @@ template <CpuType cpu>
 int iLog2(int x)
 {
     int res = 1;
-    while ((x >>= 1) != 0) { res++; }
+    while ((x >>= 1) != 0)
+    {
+        res++;
+    }
     return res;
 }
 
@@ -80,8 +83,14 @@ struct hash_tree
     hash_tree(int h, ItemSetList<cpu> & L_cur) : height(h > maxHeight ? maxHeight : h)
     {
         logOrder = iLog2<cpu>(L_cur.size) / height;
-        if (logOrder > maxLogOrder) { logOrder = maxLogOrder; }
-        if (logOrder < minLogOrder) { logOrder = minLogOrder; }
+        if (logOrder > maxLogOrder)
+        {
+            logOrder = maxLogOrder;
+        }
+        if (logOrder < minLogOrder)
+        {
+            logOrder = minLogOrder;
+        }
         order     = (1 << logOrder);
         order_m1  = order - 1;
         n_nodes_i = (int *)daal::services::daal_malloc(height * sizeof(int));
@@ -102,7 +111,10 @@ struct hash_tree
 
             if (root && leaves)
             {
-                for (auto * current = L_cur.start; current; current = current->next()) { insert_itemset(current->itemSet()); }
+                for (auto * current = L_cur.start; current; current = current->next())
+                {
+                    insert_itemset(current->itemSet());
+                }
 
                 _status = services::Status();
             }
@@ -211,7 +223,10 @@ struct hash_tree
         {
             bool found              = true;
             const size_t * curItems = current->itemSet()->items;
-            if (!assocrules_memcmp<cpu>(subset, current->itemSet()->items, iset_size)) { return current->itemSet(); }
+            if (!assocrules_memcmp<cpu>(subset, current->itemSet()->items, iset_size))
+            {
+                return current->itemSet();
+            }
         }
         return NULL;
     }

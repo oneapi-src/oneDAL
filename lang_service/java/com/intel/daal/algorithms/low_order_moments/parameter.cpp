@@ -40,7 +40,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Parame
     using namespace daal::algorithms;
     low_order_moments::Parameter * parameterAddr = (low_order_moments::Parameter *)parAddr;
 
-    if (estComp == EstimatesAll) { parameterAddr->estimatesToCompute = low_order_moments::estimatesAll; }
+    if (estComp == EstimatesAll)
+    {
+        parameterAddr->estimatesToCompute = low_order_moments::estimatesAll;
+    }
     else if (estComp == EstimatesMinMax)
     {
         parameterAddr->estimatesToCompute = low_order_moments::estimatesMinMax;

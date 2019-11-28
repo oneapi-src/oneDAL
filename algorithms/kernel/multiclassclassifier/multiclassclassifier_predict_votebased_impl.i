@@ -76,7 +76,10 @@ public:
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < _nClasses * nRows; i++) { votes[i] = 0; }
+        for (size_t i = 0; i < _nClasses * nRows; i++)
+        {
+            votes[i] = 0;
+        }
 
         {
             NumericTablePtr xTable; // block of rows from the input data set

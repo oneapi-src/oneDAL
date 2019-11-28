@@ -150,7 +150,10 @@ private:
     {
         _size = 0;
 
-        if (size <= staticBufferSize) { _data = _buffer; }
+        if (size <= staticBufferSize)
+        {
+            _data = _buffer;
+        }
         else
         {
             _data = (size) ? Allocator::allocate(size) : nullptr;
@@ -168,7 +171,10 @@ private:
         if (_data)
         {
             ConstructionPolicy::destroy(_data, _data + _size);
-            if (_data != _buffer) { Allocator::deallocate(_data); }
+            if (_data != _buffer)
+            {
+                Allocator::deallocate(_data);
+            }
         }
 
         _data = nullptr;

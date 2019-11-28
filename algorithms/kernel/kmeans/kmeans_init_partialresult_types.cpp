@@ -99,7 +99,9 @@ services::Status PartialResult::check(const daal::algorithms::Input * input, con
     services::Status s;
     NumericTablePtr pPartialClusters = get(partialClusters);
     if (pPartialClusters.get())
-    { DAAL_CHECK_STATUS(s, checkNumericTable(pPartialClusters.get(), partialClustersStr(), unexpectedLayouts, 0, inputFeatures, nClusters)); }
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(pPartialClusters.get(), partialClustersStr(), unexpectedLayouts, 0, inputFeatures, nClusters));
+    }
     DAAL_CHECK_STATUS(s, checkNumericTable(get(partialClustersNumber).get(), partialClustersNumberStr(), unexpectedLayouts, 0, 1, 1));
 
     if (dynamic_cast<const Input *>(input))

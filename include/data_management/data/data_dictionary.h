@@ -169,7 +169,10 @@ public:
     Dictionary(size_t nfeat, FeaturesEqual featuresEqual = notEqual)
         : _nfeat(0), _featuresEqual(featuresEqual), _dict(0), _errors(new services::KernelErrorCollection())
     {
-        if (nfeat) { setNumberOfFeatures(nfeat); }
+        if (nfeat)
+        {
+            setNumberOfFeatures(nfeat);
+        }
     }
 
     /**
@@ -222,11 +225,17 @@ public:
     {
         if (_featuresEqual == DictionaryIface::equal)
         {
-            if (_nfeat > 0) { _dict[0] = defaultFeature; }
+            if (_nfeat > 0)
+            {
+                _dict[0] = defaultFeature;
+            }
         }
         else
         {
-            for (size_t i = 0; i < _nfeat; i++) { _dict[i] = defaultFeature; }
+            for (size_t i = 0; i < _nfeat; i++)
+            {
+                _dict[i] = defaultFeature;
+            }
         }
         return services::Status();
     }
@@ -251,7 +260,10 @@ public:
     {
         resetDictionary();
         _nfeat = numberOfFeatures;
-        if (_featuresEqual == DictionaryIface::equal) { _dict = new Feature[1]; }
+        if (_featuresEqual == DictionaryIface::equal)
+        {
+            _dict = new Feature[1];
+        }
         else
         {
             _dict = new Feature[_nfeat];
@@ -278,7 +290,10 @@ public:
      */
     Feature & operator[](const size_t idx)
     {
-        if (_featuresEqual == DictionaryIface::equal) { return _dict[0]; }
+        if (_featuresEqual == DictionaryIface::equal)
+        {
+            return _dict[0];
+        }
         else
         {
             return _dict[idx];
@@ -296,7 +311,10 @@ public:
     {
         if (idx >= _nfeat) return services::Status(services::ErrorIncorrectNumberOfFeatures);
 
-        if (_featuresEqual == DictionaryIface::equal) { _dict[0] = feature; }
+        if (_featuresEqual == DictionaryIface::equal)
+        {
+            _dict[0] = feature;
+        }
         else
         {
             _dict[idx] = feature;
@@ -323,7 +341,10 @@ public:
 
         for (size_t i = 0; i < nFeat; ++i)
         {
-            if (_dict[i].getIndexType() == features::DAAL_OTHER_T) { return services::Status(services::ErrorUndefinedFeature); }
+            if (_dict[i].getIndexType() == features::DAAL_OTHER_T)
+            {
+                return services::Status(services::ErrorUndefinedFeature);
+            }
         }
         return services::Status();
     }
@@ -368,7 +389,10 @@ private:
             setNumberOfFeatures(nfeat);
         }
 
-        if (_featuresEqual) { arch->setObj(_dict, 1); }
+        if (_featuresEqual)
+        {
+            arch->setObj(_dict, 1);
+        }
         else
         {
             arch->setObj(_dict, _nfeat);
@@ -388,7 +412,10 @@ protected:
     Dictionary(size_t nfeat, FeaturesEqual featuresEqual, services::Status & st)
         : _nfeat(0), _featuresEqual(featuresEqual), _dict(0), _errors(new services::KernelErrorCollection())
     {
-        if (nfeat) { st |= setNumberOfFeatures(nfeat); }
+        if (nfeat)
+        {
+            st |= setNumberOfFeatures(nfeat);
+        }
     }
 
     Dictionary(services::Status & st) : _nfeat(0), _dict(0), _featuresEqual(DictionaryIface::notEqual), _errors(new services::KernelErrorCollection())

@@ -46,7 +46,10 @@ PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResu
 size_t PartialResult::getNumberOfFeatures() const
 {
     NumericTablePtr ntPtr = NumericTable::cast(Argument::get(crossProduct));
-    if (ntPtr) { return ntPtr->getNumberOfColumns(); }
+    if (ntPtr)
+    {
+        return ntPtr->getNumberOfColumns();
+    }
     return 0;
 }
 

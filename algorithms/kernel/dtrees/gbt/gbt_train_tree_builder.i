@@ -378,7 +378,10 @@ void TreeBuilder<algorithmFPType, RowIndexType, BinIndexType, cpu>::buildSplit(G
     task->~GbtTask();
     service_scalable_free<GbtTask, cpu>(task);
 
-    if (nTasks == 1) { buildSplit(newTasks[0]); }
+    if (nTasks == 1)
+    {
+        buildSplit(newTasks[0]);
+    }
     else if (nTasks == 2)
     {
         if (_ctx.numAvailableThreads())

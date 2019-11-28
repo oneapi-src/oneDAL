@@ -51,7 +51,10 @@ Model::~Model() {}
 
 Model::Model(size_t nFeatures, size_t nClasses, services::Status & st) : decision_tree::classification::Model(nFeatures)
 {
-    if (!impl()) { st.add(services::ErrorMemoryAllocationFailed); }
+    if (!impl())
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+    }
     _nClasses = nClasses;
 }
 

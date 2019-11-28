@@ -348,11 +348,26 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
 
     if (parPtr != nullptr)
     {
-        if (par.varImportance & gbt::training::weight) { weightsRows.set(res.get(variableImportanceByWeight).get(), 0, 1); }
-        if (par.varImportance & gbt::training::totalCover) { totalCoverRows.set(res.get(variableImportanceByTotalCover).get(), 0, 1); }
-        if (par.varImportance & gbt::training::cover) { coverRows.set(res.get(variableImportanceByCover).get(), 0, 1); }
-        if (par.varImportance & gbt::training::totalGain) { totalGainRows.set(res.get(variableImportanceByTotalGain).get(), 0, 1); }
-        if (par.varImportance & gbt::training::gain) { gainRows.set(res.get(variableImportanceByGain).get(), 0, 1); }
+        if (par.varImportance & gbt::training::weight)
+        {
+            weightsRows.set(res.get(variableImportanceByWeight).get(), 0, 1);
+        }
+        if (par.varImportance & gbt::training::totalCover)
+        {
+            totalCoverRows.set(res.get(variableImportanceByTotalCover).get(), 0, 1);
+        }
+        if (par.varImportance & gbt::training::cover)
+        {
+            coverRows.set(res.get(variableImportanceByCover).get(), 0, 1);
+        }
+        if (par.varImportance & gbt::training::totalGain)
+        {
+            totalGainRows.set(res.get(variableImportanceByTotalGain).get(), 0, 1);
+        }
+        if (par.varImportance & gbt::training::gain)
+        {
+            gainRows.set(res.get(variableImportanceByGain).get(), 0, 1);
+        }
     }
 
     algorithmFPType * ptrWeight     = weightsRows.get();

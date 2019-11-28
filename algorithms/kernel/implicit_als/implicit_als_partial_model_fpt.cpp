@@ -47,7 +47,10 @@ DAAL_EXPORT services::Status PartialModel::initialize(const Parameter & paramete
     int * indicesData = HomogenNumericTable<int>::cast(_indices)->getArray();
     DAAL_CHECK(size <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectSizeOfArray)
     const int iSize = (int)size;
-    for (int i = 0; i < iSize; i++) { indicesData[i] = i; }
+    for (int i = 0; i < iSize; i++)
+    {
+        indicesData[i] = i;
+    }
 
     return s;
 }
@@ -75,7 +78,10 @@ DAAL_EXPORT services::Status PartialModel::initialize(const Parameter & paramete
     int * dstIndicesData = HomogenNumericTable<int>::cast(_indices)->getArray();
     DAAL_CHECK(offset <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectOffset)
     const int iOffset = (int)offset;
-    for (size_t i = 0; i < size; i++) { dstIndicesData[i] = srcIndicesData[i] + iOffset; }
+    for (size_t i = 0; i < size; i++)
+    {
+        dstIndicesData[i] = srcIndicesData[i] + iOffset;
+    }
 
     indices->releaseBlockOfRows(block);
     return s;

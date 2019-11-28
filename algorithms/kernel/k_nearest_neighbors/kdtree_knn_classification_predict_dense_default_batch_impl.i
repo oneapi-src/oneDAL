@@ -96,11 +96,20 @@ DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAc
     for (auto largest = i;; i = largest)
     {
         const auto l = heapLeftChildIndex<cpu>(i);
-        if ((l < count) && (*(first + largest) < *(first + l))) { largest = l; }
+        if ((l < count) && (*(first + largest) < *(first + l)))
+        {
+            largest = l;
+        }
         const auto r = heapRightChildIndex<cpu>(i);
-        if ((r < count) && (*(first + largest) < *(first + r))) { largest = r; }
+        if ((r < count) && (*(first + largest) < *(first + r)))
+        {
+            largest = r;
+        }
 
-        if (largest == i) { break; }
+        if (largest == i)
+        {
+            break;
+        }
         auto temp          = *(first + i);
         *(first + i)       = *(first + largest);
         *(first + largest) = temp; // Moving can be used instead.
@@ -125,7 +134,10 @@ void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
 {
     const auto count = last - first;
     auto i           = count / 2;
-    while (0 < i) { internalAdjustMaxHeap<cpu>(first, last, count, --i); }
+    while (0 < i)
+    {
+        internalAdjustMaxHeap<cpu>(first, last, count, --i);
+    }
 }
 
 template <typename T, CpuType cpu>
@@ -161,7 +173,10 @@ public:
     void push(const T & e, size_t k)
     {
         _elements[_count++] = e;
-        if (_count == k) { makeMaxHeap<cpu>(_elements, _elements + _count); }
+        if (_count == k)
+        {
+            makeMaxHeap<cpu>(_elements, _elements + _count);
+        }
     }
 
     void replaceMax(const T & e)
@@ -228,7 +243,10 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const NumericTable & labels  = *(model->impl()->getLabels());
 
     size_t iSize = 1;
-    while (iSize < k) { iSize *= 2; }
+    while (iSize < k)
+    {
+        iSize *= 2;
+    }
     const size_t heapSize = (iSize / 16 + 1) * 16;
 
     const size_t xRowCount        = x->getNumberOfRows();
@@ -343,7 +361,10 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             start = node->leftIndex;
             end   = node->rightIndex;
 
-            for (i = start; i < end; ++i) { distance[i - start] = 0; }
+            for (i = start; i < end; ++i)
+            {
+                distance[i - start] = 0;
+            }
 
             curBDIdx  = 0;
             nextBDIdx = 1;
@@ -357,7 +378,10 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                 DAAL_PREFETCH_READ_T0(nx);
                 DAAL_PREFETCH_READ_T0(nx + 16);
 
-                for (i = 0; i < end - start; ++i) { distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]); }
+                for (i = 0; i < end - start; ++i)
+                {
+                    distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
+                }
 
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
 
@@ -367,7 +391,10 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             }
             {
                 const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
-                for (i = 0; i < end - start; ++i) { distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]); }
+                for (i = 0; i < end - start; ++i)
+                {
+                    distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
+                }
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
             }
 
@@ -381,7 +408,10 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                     {
                         heap.push(curNeighbor, k);
 
-                        if (heap.size() == k) { radius = heap.getMax()->distance; }
+                        if (heap.size() == k)
+                        {
+                            radius = heap.getMax()->distance;
+                        }
                     }
                     else
                     {

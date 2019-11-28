@@ -103,7 +103,10 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(labelsTable.get(), labelsStr(), 0, 0, 1, nRows));
 
     data_management::NumericTablePtr weightsTable = get(weights);
-    if (weightsTable) { DAAL_CHECK_STATUS(s, data_management::checkNumericTable(weightsTable.get(), weightsStr(), 0, 0, 1, nRows)); }
+    if (weightsTable)
+    {
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(weightsTable.get(), weightsStr(), 0, 0, 1, nRows));
+    }
 
     if (parameter != NULL)
     {
@@ -112,7 +115,9 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
         const daal::algorithms::classifier::interface2::Parameter * algParameter2 =
             dynamic_cast<const daal::algorithms::classifier::interface2::Parameter *>(parameter);
         if (algParameter1 != NULL)
-        { DAAL_CHECK_EX(algParameter1->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr()); }
+        {
+            DAAL_CHECK_EX(algParameter1->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
+        }
         else if (algParameter2 != NULL)
         {
             DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX), services::ErrorIncorrectParameter,
@@ -122,8 +127,14 @@ services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter)
             data_management::BlockDescriptor<int> yBD;
             const_cast<data_management::NumericTable *>(labelsTable.get())->getBlockOfRows(0, nRows, data_management::readOnly, yBD);
             const int * const dy = yBD.getBlockPtr();
-            for (size_t i = 0; i < nRows; ++i) { flag |= (dy[i] >= nClasses); }
-            if (flag) { DAAL_CHECK_STATUS(s, services::Status(services::ErrorIncorrectClassLabels)); }
+            for (size_t i = 0; i < nRows; ++i)
+            {
+                flag |= (dy[i] >= nClasses);
+            }
+            if (flag)
+            {
+                DAAL_CHECK_STATUS(s, services::Status(services::ErrorIncorrectClassLabels));
+            }
             const_cast<data_management::NumericTable *>(labelsTable.get())->releaseBlockOfRows(yBD);
         }
         else

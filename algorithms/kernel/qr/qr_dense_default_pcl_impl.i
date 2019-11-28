@@ -48,7 +48,10 @@ static inline unsigned int __lzcnt_u32__(unsigned int a)
     for (pos = 31; pos >= 0; pos--)
     {
         mask = 1 << pos;
-        if ((a & mask) == 0) { cnt++; }
+        if ((a & mask) == 0)
+        {
+            cnt++;
+        }
         else
         {
             break;
@@ -305,7 +308,10 @@ static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, al
         for (size_t j = 0; j < ncols; j++)
         {
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < first_height; i++) { a_local[i + j * local_tiles * ncols] = A_local[i * ncols + j]; }
+            for (size_t i = 0; i < first_height; i++)
+            {
+                a_local[i + j * local_tiles * ncols] = A_local[i * ncols + j];
+            }
         } /* for(size_t j = 0; j < ncols; j++ )  */
 
         mkl_m_local   = first_height;
@@ -323,11 +329,17 @@ static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, al
             for (size_t j = 0; j < ncols; j++)
             {
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = j + 1; i < first_height; i++) { A_local[i * ncols + j] = a_local[i + j * local_tiles * ncols]; }
+                for (size_t i = j + 1; i < first_height; i++)
+                {
+                    A_local[i * ncols + j] = a_local[i + j * local_tiles * ncols];
+                }
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = j + 1; i < ncols; i++) { a_local[i + j * local_tiles * ncols] = 0.0f; }
+                for (size_t i = j + 1; i < ncols; i++)
+                {
+                    a_local[i + j * local_tiles * ncols] = 0.0f;
+                }
             } /* for(size_t j = 0; j < ncols; j++ )  */
         }
         else
@@ -337,7 +349,10 @@ static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, al
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = j + 1; i < ncols; i++) { a_local[i + j * local_tiles * ncols] = 0.0f; }
+                for (size_t i = j + 1; i < ncols; i++)
+                {
+                    a_local[i + j * local_tiles * ncols] = 0.0f;
+                }
             } /* for(size_t j = 0; j < ncols; j++ )  */
         }     /* if(onlyV) */
 
@@ -354,7 +369,10 @@ static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, al
             for (size_t j = 0; j < ncols; j++)
             {
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < height; i++) { a_local[i + local_tiles * ncols * j + ncols] = A_tile[i * ncols + j]; }
+                for (size_t i = 0; i < height; i++)
+                {
+                    a_local[i + local_tiles * ncols * j + ncols] = A_tile[i * ncols + j];
+                }
             } /* for(size_t j = 0; j < ncols; j++ )  */
 
             mkl_m_local   = height + ncols;
@@ -373,7 +391,10 @@ static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, al
                 for (size_t j = 0; j < ncols; j++)
                 {
                     PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < height; i++) { A_tile[i * ncols + j] = a_local[i + local_tiles * ncols * j + ncols]; }
+                    for (size_t i = 0; i < height; i++)
+                    {
+                        A_tile[i * ncols + j] = a_local[i + local_tiles * ncols * j + ncols];
+                    }
                 } /* for(size_t j = 0; j < ncols; j++ )  */
             }
 
@@ -382,7 +403,10 @@ static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, al
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = j + 1; i < ncols; i++) { a_local[i + j * local_tiles * ncols] = 0.0f; }
+                for (size_t i = j + 1; i < ncols; i++)
+                {
+                    a_local[i + j * local_tiles * ncols] = 0.0f;
+                }
             } /* for(size_t j = 0; j < ncols; j++ ) */
 
         } /* for(size_t tile = 0; tile < ntiles; tile++) */
@@ -391,11 +415,17 @@ static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, al
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < j + 1; i++) { R_local[i + Rda * j] = a_local[i + local_tiles * ncols * j]; }
+            for (size_t i = 0; i < j + 1; i++)
+            {
+                R_local[i + Rda * j] = a_local[i + local_tiles * ncols * j];
+            }
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = j + 1; i < ncols; i++) { R_local[i + Rda * j] = 0.0f; }
+            for (size_t i = j + 1; i < ncols; i++)
+            {
+                R_local[i + Rda * j] = 0.0f;
+            }
         } /* for(size_t j = 0; j < ncols; j++ )  */
 
         service_scalable_free<algorithmFPType, cpu>(a_local);
@@ -408,7 +438,10 @@ static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, al
     mkl_lwork = lwork;
 
     LAPACK_GEQRF(mkl_m, mkl_n, R, mkl_lda, tau, work, mkl_lwork, &mkl_info);
-    if (mkl_info != 0) { *st = PCL_MKL_ERROR; }
+    if (mkl_info != 0)
+    {
+        *st = PCL_MKL_ERROR;
+    }
 
     if (onlyV == false)
     {
@@ -420,7 +453,10 @@ static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, al
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < j + 1; i++) { A_local[i * ncols + j] = R_local[i + j * nthreads * ncols]; }
+                for (size_t i = 0; i < j + 1; i++)
+                {
+                    A_local[i * ncols + j] = R_local[i + j * nthreads * ncols];
+                }
             } /* for(size_t j = 0; j < ncols; j++ )  */
         });   /* daal::threader_for( nthreads, nthreads, [&](size_t tid) */
     }
@@ -431,7 +467,10 @@ static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, al
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < j + 1; i++) { V[i * ncols + j] = R[i + j * nthreads * ncols]; }
+            for (size_t i = 0; i < j + 1; i++)
+            {
+                V[i * ncols + j] = R[i + j * nthreads * ncols];
+            }
         } /* for(size_t j = 0; j < ncols; j++ )  */
     }
 
@@ -490,10 +529,16 @@ static void tsgetq(algorithmFPType * A, const size_t nrows, const size_t ncols, 
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < j + 1; i++) { R_local[i + Rda * j] = A_local[i * ncols + j]; }
+            for (size_t i = 0; i < j + 1; i++)
+            {
+                R_local[i + Rda * j] = A_local[i * ncols + j];
+            }
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = j + 1; i < ncols; i++) { R_local[i + Rda * j] = 0.0f; }
+            for (size_t i = j + 1; i < ncols; i++)
+            {
+                R_local[i + Rda * j] = 0.0f;
+            }
         } /* for(size_t j = 0; j < ncols; j++ ) */
     });   /* daal::threader_for( nthreads, nthreads, [&](size_t tid) */
 
@@ -543,10 +588,16 @@ static void tsgetq(algorithmFPType * A, const size_t nrows, const size_t ncols, 
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < j + 1; i++) { a[i + j * local_tiles * ncols] = R_local[i + Rda * j]; }
+            for (size_t i = 0; i < j + 1; i++)
+            {
+                a[i + j * local_tiles * ncols] = R_local[i + Rda * j];
+            }
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = j + 1; i < local_tiles * ncols; i++) { a[i + j * local_tiles * ncols] = 0.0; }
+            for (size_t i = j + 1; i < local_tiles * ncols; i++)
+            {
+                a[i + j * local_tiles * ncols] = 0.0;
+            }
         } /* for(size_t j = 0; j < ncols; j++ ) */
 
         // Zero out top of "b" buffer
@@ -554,7 +605,10 @@ static void tsgetq(algorithmFPType * A, const size_t nrows, const size_t ncols, 
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < ncols; i++) { b[i + j * local_tiles * ncols] = 0.0; }
+            for (size_t i = 0; i < ncols; i++)
+            {
+                b[i + j * local_tiles * ncols] = 0.0;
+            }
         } /* for( size_t j = 0; j < ncols; j++ ) */
 
         // Apply tiles in reverse order
@@ -575,7 +629,10 @@ static void tsgetq(algorithmFPType * A, const size_t nrows, const size_t ncols, 
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < height; i++) { b[i + local_tiles * ncols * j + ncols] = A_tile[i * ncols + j]; }
+                for (size_t i = 0; i < height; i++)
+                {
+                    b[i + local_tiles * ncols * j + ncols] = A_tile[i * ncols + j];
+                }
             } /* for( size_t j = 0; j < ncols; j++ )  */
 
             // Zero out bottom portion of "a" buffer
@@ -583,7 +640,10 @@ static void tsgetq(algorithmFPType * A, const size_t nrows, const size_t ncols, 
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < height; i++) { a[i + local_tiles * ncols * j + ncols] = 0.0; }
+                for (size_t i = 0; i < height; i++)
+                {
+                    a[i + local_tiles * ncols * j + ncols] = 0.0;
+                }
             } /* for( size_t j = 0; j < ncols; j++ )  */
 
             // Apply Q in "b" buffer to "a" buffer
@@ -609,14 +669,20 @@ static void tsgetq(algorithmFPType * A, const size_t nrows, const size_t ncols, 
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = j + 1; i < ncols; i++) { a[i + local_tiles * ncols * j] = 0.0; }
+                for (size_t i = j + 1; i < ncols; i++)
+                {
+                    a[i + local_tiles * ncols * j] = 0.0;
+                }
             } /* for( size_t j = 0; j < ncols; j++ ) */
 
             // Copy reconstructed Q from lower portion of "a" buffer to output
             for (size_t j = 0; j < ncols; j++)
             {
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < height; i++) { A_tile[i * ncols + j] = a[i + local_tiles * ncols * j + ncols]; }
+                for (size_t i = 0; i < height; i++)
+                {
+                    A_tile[i * ncols + j] = a[i + local_tiles * ncols * j + ncols];
+                }
             } /* for( size_t j = 0; j < ncols; j++ ) */
 
         } /* for(size_t _tile = 0; _tile < ntiles; _tile++)  */
@@ -627,7 +693,10 @@ static void tsgetq(algorithmFPType * A, const size_t nrows, const size_t ncols, 
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = j + 1; i < first_height; i++) { b[i + j * local_tiles * ncols] = A_local[i * ncols + j]; }
+            for (size_t i = j + 1; i < first_height; i++)
+            {
+                b[i + j * local_tiles * ncols] = A_local[i * ncols + j];
+            }
         }
 
         // Zero out bottom of "a" buffer.
@@ -636,7 +705,10 @@ static void tsgetq(algorithmFPType * A, const size_t nrows, const size_t ncols, 
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = ncols; i < first_height; i++) { a[i + local_tiles * ncols * j] = 0.0; }
+            for (size_t i = ncols; i < first_height; i++)
+            {
+                a[i + local_tiles * ncols * j] = 0.0;
+            }
         }
 
         mkl_side_local  = 'L';
@@ -656,7 +728,10 @@ static void tsgetq(algorithmFPType * A, const size_t nrows, const size_t ncols, 
         for (size_t j = 0; j < ncols; j++)
         {
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < first_height; i++) { A_local[i * ncols + j] = a[i + j * local_tiles * ncols]; }
+            for (size_t i = 0; i < first_height; i++)
+            {
+                A_local[i * ncols + j] = a[i + j * local_tiles * ncols];
+            }
         }
 
         service_scalable_free<algorithmFPType, cpu>(a);
@@ -730,11 +805,17 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < j + 1; i++) { R_local[i + Rda * j] = A_local[i * ncols + j]; }
+            for (size_t i = 0; i < j + 1; i++)
+            {
+                R_local[i + Rda * j] = A_local[i * ncols + j];
+            }
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = j + 1; i < ncols; i++) { R_local[i + Rda * j] = 0.0f; }
+            for (size_t i = j + 1; i < ncols; i++)
+            {
+                R_local[i + Rda * j] = 0.0f;
+            }
         }
 
         if (tid == 0)
@@ -744,7 +825,10 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < ncols; i++) { R2_local[i + Rda * j] = Rin[j * Rin_lda + i]; }
+                for (size_t i = 0; i < ncols; i++)
+                {
+                    R2_local[i + Rda * j] = Rin[j * Rin_lda + i];
+                }
             }
         }
         else /* if(tid == 0) */
@@ -754,7 +838,10 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < ncols; i++) { R2_local[i + Rda * j] = 0.0; }
+                for (size_t i = 0; i < ncols; i++)
+                {
+                    R2_local[i + Rda * j] = 0.0;
+                }
             }
         } /* if(tid == 0) */
     });   /* daal::threader_for( nthreads, nthreads, [&](size_t tid) */
@@ -812,7 +899,10 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < ncols; i++) { a[i + j * local_tiles * ncols] = R2_local[i + Rda * j]; }
+            for (size_t i = 0; i < ncols; i++)
+            {
+                a[i + j * local_tiles * ncols] = R2_local[i + Rda * j];
+            }
         }
 
         // Zero out top of "b" buffer
@@ -820,7 +910,10 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < ncols; i++) { b[i + j * local_tiles * ncols] = 0.0; }
+            for (size_t i = 0; i < ncols; i++)
+            {
+                b[i + j * local_tiles * ncols] = 0.0;
+            }
         }
 
         // Apply tiles in reverse order
@@ -842,7 +935,10 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < height; i++) { b[i + local_tiles * ncols * j + ncols] = A_tile[i * ncols + j]; }
+                for (size_t i = 0; i < height; i++)
+                {
+                    b[i + local_tiles * ncols * j + ncols] = A_tile[i * ncols + j];
+                }
             }
 
             // Zero out bottom portion of "a" buffer
@@ -850,7 +946,10 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < height; i++) { a[i + local_tiles * ncols * j + ncols] = 0.0; }
+                for (size_t i = 0; i < height; i++)
+                {
+                    a[i + local_tiles * ncols * j + ncols] = 0.0;
+                }
             }
 
             // Apply Q factor to "a" buffer
@@ -874,7 +973,10 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < height; i++) { C_tile[i * ncols + j] = a[i + local_tiles * ncols * j + ncols]; }
+                for (size_t i = 0; i < height; i++)
+                {
+                    C_tile[i * ncols + j] = a[i + local_tiles * ncols * j + ncols];
+                }
             }
         } /* for(size_t _tile = 0; _tile < ntiles; _tile++)  */
 
@@ -884,7 +986,10 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = j + 1; i < first_height; i++) { b[i + j * local_tiles * ncols] = A_local[i * ncols + j]; }
+            for (size_t i = j + 1; i < first_height; i++)
+            {
+                b[i + j * local_tiles * ncols] = A_local[i * ncols + j];
+            }
         }
 
         // Zero out bottom portion of "a" buffer
@@ -892,7 +997,10 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = ncols; i < first_height; i++) { a[i + local_tiles * ncols * j] = 0.0; }
+            for (size_t i = ncols; i < first_height; i++)
+            {
+                a[i + local_tiles * ncols * j] = 0.0;
+            }
         }
 
         // Apply Q to "a" buffer
@@ -914,7 +1022,10 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < first_height; i++) { C_local[i * ncols + j] = a[i + j * local_tiles * ncols]; }
+            for (size_t i = 0; i < first_height; i++)
+            {
+                C_local[i * ncols + j] = a[i + j * local_tiles * ncols];
+            }
         }
 
         service_scalable_free<algorithmFPType, cpu>(a);
@@ -963,16 +1074,25 @@ static int qr_pcl(const algorithmFPType * A_in,                        /* nrows 
         size_t num       = nrows * ncols;
         size_t nBlocks   = nthreads;
         size_t blockSize = num / nBlocks;
-        if (nBlocks * blockSize < num) { nBlocks++; }
+        if (nBlocks * blockSize < num)
+        {
+            nBlocks++;
+        }
 
         daal::threader_for(nBlocks, nBlocks, [&](size_t block) {
             size_t b = (block)*blockSize;
             size_t e = (block + 1) * blockSize;
-            if (e > num) { e = num; }
+            if (e > num)
+            {
+                e = num;
+            }
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = b; i < e; i++) { Q_out[i] = A_in[i]; }
+            for (size_t i = b; i < e; i++)
+            {
+                Q_out[i] = A_in[i];
+            }
         });
 
         work_alloc<algorithmFPType, cpu>(Q_out, ncols * nthreads, ncols, tau, &lwork, &work);
@@ -988,11 +1108,17 @@ static int qr_pcl(const algorithmFPType * A_in,                        /* nrows 
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < i; j++) { R_out[i * ncols + j] = 0; }
+            for (size_t j = 0; j < i; j++)
+            {
+                R_out[i * ncols + j] = 0;
+            }
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = i; j < ncols; j++) { R_out[i * ncols + j] = Q_out[i * ncols + j]; }
+            for (size_t j = i; j < ncols; j++)
+            {
+                R_out[i * ncols + j] = Q_out[i * ncols + j];
+            }
         }
 
         tsgetq<algorithmFPType, cpu>(Q_out, nrows, ncols, tau, nthreads, local_tiles, lwork, work, &st);
@@ -1039,7 +1165,10 @@ static int svd_pcl(algorithmFPType * A_in,                                      
     size_t nBlocks   = nthreads;
     size_t blockSize = num / nBlocks;
 
-    if (nBlocks * blockSize < num) { nBlocks++; }
+    if (nBlocks * blockSize < num)
+    {
+        nBlocks++;
+    }
 
     algorithmFPType * tstau = nullptr;
     algorithmFPType * work  = nullptr;
@@ -1054,11 +1183,17 @@ static int svd_pcl(algorithmFPType * A_in,                                      
         daal::threader_for(nBlocks, nBlocks, [&](size_t block) {
             size_t b = (block)*blockSize;
             size_t e = (block + 1) * blockSize;
-            if (e > num) { e = num; }
+            if (e > num)
+            {
+                e = num;
+            }
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = b; i < e; i++) { R_out[i] = A_in[i]; }
+            for (size_t i = b; i < e; i++)
+            {
+                R_out[i] = A_in[i];
+            }
         });
     }
     else
@@ -1095,11 +1230,17 @@ static int svd_pcl(algorithmFPType * A_in,                                      
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < j + 1; i++) { R[j * ncols + i] = R_out[i * ncols + j]; }
+                for (size_t i = 0; i < j + 1; i++)
+                {
+                    R[j * ncols + i] = R_out[i * ncols + j];
+                }
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = j + 1; i < ncols; i++) { R[j * ncols + i] = 0.0; }
+                for (size_t i = j + 1; i < ncols; i++)
+                {
+                    R[j * ncols + i] = 0.0;
+                }
             }
         }
         else
@@ -1114,11 +1255,17 @@ static int svd_pcl(algorithmFPType * A_in,                                      
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < j + 1; i++) { R[j * ncols + i] = V[i * ncols + j]; }
+                for (size_t i = 0; i < j + 1; i++)
+                {
+                    R[j * ncols + i] = V[i * ncols + j];
+                }
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = j + 1; i < ncols; i++) { R[j * ncols + i] = 0.0; }
+                for (size_t i = j + 1; i < ncols; i++)
+                {
+                    R[j * ncols + i] = 0.0;
+                }
             }
         }
 
@@ -1142,11 +1289,17 @@ static int svd_pcl(algorithmFPType * A_in,                                      
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < ncols; j++) { VT_out[i * ncols + j] = V[j * ncols + i]; }
+                for (size_t j = 0; j < ncols; j++)
+                {
+                    VT_out[i * ncols + j] = V[j * ncols + i];
+                }
             }
         }
 
-        if (needsU) { tsapplyq<algorithmFPType, cpu>(R_out, nrows, ncols, tstau, nthreads, local_tiles, R, ncols, lwork, work, &st); }
+        if (needsU)
+        {
+            tsapplyq<algorithmFPType, cpu>(R_out, nrows, ncols, tstau, nthreads, local_tiles, R, ncols, lwork, work, &st);
+        }
 
     } while (0);
 

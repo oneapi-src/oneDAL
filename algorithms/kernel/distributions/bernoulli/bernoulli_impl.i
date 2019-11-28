@@ -55,10 +55,16 @@ Status BernoulliKernel<algorithmFPType, method, cpu>::computeInt(int * resultArr
     {
         size_t nProcessed = block * nElemsInBlock;
         int * array       = resultArray + nProcessed;
-        if (block == nBlocks - 1) { nElemsToProcess = n - nProcessed; }
+        if (block == nBlocks - 1)
+        {
+            nElemsToProcess = n - nProcessed;
+        }
         DAAL_CHECK_STATUS(s, (UniformKernelDefault<algorithmFPType, cpu>::compute(0.0, 1.0, engine, nElemsToProcess, buffer)));
 
-        for (size_t j = 0; j < nElemsToProcess; j++) { array[j] = ((buffer[j] < p) ? one : zero); }
+        for (size_t j = 0; j < nElemsToProcess; j++)
+        {
+            array[j] = ((buffer[j] < p) ? one : zero);
+        }
     }
     return s;
 }
@@ -93,7 +99,10 @@ Status BernoulliKernel<algorithmFPType, method, cpu>::computeFPType(NumericTable
             size_t nElemsToProcess = nRowsToProcess * nCols;
             DAAL_CHECK_STATUS(s, (UniformKernelDefault<algorithmFPType, cpu>::compute(0.0, 1.0, engine, nElemsToProcess, resultArray)));
 
-            for (size_t j = 0; j < nElemsToProcess; j++) { resultArray[j] = ((resultArray[j] < p) ? one : zero); }
+            for (size_t j = 0; j < nElemsToProcess; j++)
+            {
+                resultArray[j] = ((resultArray[j] < p) ? one : zero);
+            }
         }
     }
     else
@@ -115,7 +124,10 @@ Status BernoulliKernel<algorithmFPType, method, cpu>::computeFPType(NumericTable
                 algorithmFPType * array = resultArray + nProcessedElems;
                 DAAL_CHECK_STATUS(s, (UniformKernelDefault<algorithmFPType, cpu>::compute(0.0, 1.0, engine, nElemsToProcess, array)));
 
-                for (size_t j = 0; j < nElemsToProcess; j++) { array[j] = ((array[j] < p) ? one : zero); }
+                for (size_t j = 0; j < nElemsToProcess; j++)
+                {
+                    array[j] = ((array[j] < p) ? one : zero);
+                }
             }
         }
     }

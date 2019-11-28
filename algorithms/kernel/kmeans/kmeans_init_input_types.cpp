@@ -96,7 +96,9 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
         DAAL_CHECK_EX(prm->nRounds > 0, ErrorIncorrectParameter, ParameterName, nRoundsStr());
         size_t L(prm->oversamplingFactor * prm->nClusters);
         if (L * prm->nRounds <= prm->nClusters)
-        { return services::Status(services::Error::create(ErrorIncorrectParameter, ParameterName, nRoundsStr())); }
+        {
+            return services::Status(services::Error::create(ErrorIncorrectParameter, ParameterName, nRoundsStr()));
+        }
     }
     services::Status s;
     if (isCSRMethod(method))

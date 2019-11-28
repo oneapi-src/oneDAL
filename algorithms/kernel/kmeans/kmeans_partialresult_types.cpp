@@ -94,7 +94,10 @@ services::Status PartialResult::check(const daal::algorithms::Input * input, con
     if (kmPar->assignFlag)
     {
         Input * algInput = dynamic_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
-        if (!algInput) { return s; }
+        if (!algInput)
+        {
+            return s;
+        }
         const size_t nRows = algInput->get(data)->getNumberOfRows();
         s                  = checkNumericTable(get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1, nRows);
     }

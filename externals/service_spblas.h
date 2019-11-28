@@ -87,9 +87,15 @@ private:
         for (size_t i = 0; i <= m; i++) col_start[i] = 0;
 
         /* determine column lengths */
-        for (size_t i = 0; i < nz; i++) { col_start[col_idx[i]]++; }
+        for (size_t i = 0; i < nz; i++)
+        {
+            col_start[col_idx[i]]++;
+        }
 
-        for (size_t i = 0; i < m; i++) { col_start[i + 1] += col_start[i]; }
+        for (size_t i = 0; i < m; i++)
+        {
+            col_start[i + 1] += col_start[i];
+        }
 
         /* go through the structure once more. Fill in output matrix. */
 
@@ -105,7 +111,10 @@ private:
         }
 
         /* shift back col_start */
-        for (size_t i = m; i > 0; i--) { col_start[i] = col_start[i - 1]; }
+        for (size_t i = m; i > 0; i--)
+        {
+            col_start[i] = col_start[i - 1];
+        }
 
         col_start[0] = 0;
     }
@@ -160,7 +169,10 @@ private:
                 fpType * ptr_ = res.ptr + rowPtr1[ind1] * res.stride;
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t ind2 = 0; ind2 < nnzCol2; ++ind2) { ptr_[rowPtr2[ind2]] += column1[ind1] * column2[ind2]; }
+                for (size_t ind2 = 0; ind2 < nnzCol2; ++ind2)
+                {
+                    ptr_[rowPtr2[ind2]] += column1[ind1] * column2[ind2];
+                }
             }
         }
     }
@@ -222,7 +234,10 @@ public:
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t col = 0; col < cols; ++col) { block_res.ptr[row * m + col] = 0.0; }
+                for (size_t col = 0; col < cols; ++col)
+                {
+                    block_res.ptr[row * m + col] = 0.0;
+                }
             }
 
             csc_mm_a_bt(n, block1, block2, block_res);
@@ -303,7 +318,10 @@ public:
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t col = 0; col < cols; ++col) { block_res.ptr[row * mb + col] = 0.0; }
+                for (size_t col = 0; col < cols; ++col)
+                {
+                    block_res.ptr[row * mb + col] = 0.0;
+                }
             }
 
             csc_mm_a_bt(n, block1, block2, block_res);

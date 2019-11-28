@@ -47,7 +47,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     services::Status s = super::allocate<algorithmFPType>(input, par, method);
     if (!s) return s;
     const Parameter * algParam = static_cast<const Parameter *>(par);
-    if (!algParam->optionalResultRequired) { return s; }
+    if (!algParam->optionalResultRequired)
+    {
+        return s;
+    }
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
     if (pOpt.get())
     {

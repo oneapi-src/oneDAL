@@ -98,7 +98,10 @@ DAAL_EXPORT Status DistributedPartialResultStep2::allocate(const daal::algorithm
     DAAL_CHECK_STATUS(s, this->PartialResultBase::allocate<algorithmFPType>(nParts));
 
     size_t fullNItems = 0;
-    for (size_t i = 0; i < nParts; i++) { fullNItems += NumericTable::cast((*dataPartsCollection)[i])->getNumberOfColumns(); }
+    for (size_t i = 0; i < nParts; i++)
+    {
+        fullNItems += NumericTable::cast((*dataPartsCollection)[i])->getNumberOfColumns();
+    }
     set(transposedData,
         CSRNumericTable::create((algorithmFPType *)NULL, NULL, NULL, fullNItems, NumericTable::cast((*dataPartsCollection)[0])->getNumberOfRows(),
                                 CSRNumericTableIface::CSRIndexing::oneBased, &s));

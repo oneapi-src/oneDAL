@@ -81,7 +81,10 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         DAAL_CHECK(catCoef.get(), services::ErrorMemoryAllocationFailed);
         for (size_t i = 0; i < p; i++)
         {
-            if (ntData->getFeatureType(i) == features::DAAL_CATEGORICAL) { catCoef[i] = par->gamma; }
+            if (ntData->getFeatureType(i) == features::DAAL_CATEGORICAL)
+            {
+                catCoef[i] = par->gamma;
+            }
             else
             {
                 catCoef[i] = (algorithmFPType)1.0;
@@ -100,7 +103,10 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, sizeof(double));
 
     TArray<double, cpu> dS1(method == defaultDense ? p : 0);
-    if (method == defaultDense) { DAAL_CHECK(dS1.get(), services::ErrorMemoryAllocationFailed); }
+    if (method == defaultDense)
+    {
+        DAAL_CHECK(dS1.get(), services::ErrorMemoryAllocationFailed);
+    }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(algorithmFPType));
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(size_t));
@@ -150,7 +156,10 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
 
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (size_t j = 0; j < p; j++) { clusters[i * p + j] = clusterS1[i * p + j] * coeff; }
+                    for (size_t j = 0; j < p; j++)
+                    {
+                        clusters[i * p + j] = clusterS1[i * p + j] * coeff;
+                    }
                 }
                 else
                 {
@@ -191,7 +200,10 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         inClusters = clusters;
     }
 
-    if (!nIter) { clusters = inClusters; }
+    if (!nIter)
+    {
+        clusters = inClusters;
+    }
 
     NumericTable * assignments = par->assignFlag ? const_cast<NumericTable *>(r[1]) : nullptr;
     algorithmFPType targetFunc = algorithmFPType(0);

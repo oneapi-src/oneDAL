@@ -35,7 +35,10 @@ using namespace daal::algorithms;
  */
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Parameter_cSetOutputDataType(JNIEnv * env, jobject thisObj, jlong parAddr, jint id)
 {
-    if (id == CovMatrix) { (*(covariance::Parameter *)parAddr).outputMatrixType = covariance::covarianceMatrix; }
+    if (id == CovMatrix)
+    {
+        (*(covariance::Parameter *)parAddr).outputMatrixType = covariance::covarianceMatrix;
+    }
     else if (id == CorMatrix)
     {
         (*(covariance::Parameter *)parAddr).outputMatrixType = covariance::correlationMatrix;

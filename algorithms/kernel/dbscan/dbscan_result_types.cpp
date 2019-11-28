@@ -80,10 +80,14 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     DAAL_CHECK_STATUS(s, checkNumericTable(get(nClusters).get(), nClustersStr(), unexpectedLayouts, 0, 1, 1));
 
     if (algPar->resultsToCompute & computeCoreIndices)
-    { DAAL_CHECK_STATUS(s, checkNumericTable(get(coreIndices).get(), coreIndicesStr(), unexpectedLayouts, 0, 1, 0, false)); }
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(coreIndices).get(), coreIndicesStr(), unexpectedLayouts, 0, 1, 0, false));
+    }
 
     if (algPar->resultsToCompute & computeCoreObservations)
-    { DAAL_CHECK_STATUS(s, checkNumericTable(get(coreObservations).get(), coreObservationsStr(), unexpectedLayouts, 0, nFeatures, 0, false)); }
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(coreObservations).get(), coreObservationsStr(), unexpectedLayouts, 0, nFeatures, 0, false));
+    }
     return s;
 }
 

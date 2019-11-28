@@ -88,7 +88,10 @@ Status DistributedPartialResultStep3::check(const daal::algorithms::Input * inpu
         {
             Status s = checkNumericTable(get(finalResultFromStep3)->get(leftSingularMatrix).get(), leftSingularMatrixStr(), unexpectedLayouts, 0,
                                          nFeatures, nVectors);
-            if (!s) { return s; }
+            if (!s)
+            {
+                return s;
+            }
         }
     }
     return Status();
@@ -108,7 +111,10 @@ Status DistributedPartialResultStep3::check(const daal::algorithms::Parameter * 
         {
             int unexpectedLayouts = (int)packed_mask;
             Status s = checkNumericTable(get(finalResultFromStep3)->get(leftSingularMatrix).get(), leftSingularMatrixStr(), unexpectedLayouts);
-            if (!s) { return s; }
+            if (!s)
+            {
+                return s;
+            }
         }
     }
     return Status();

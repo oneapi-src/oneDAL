@@ -61,7 +61,10 @@ public:
 
     inline void reset(T * object = nullptr)
     {
-        if (_object) { _deleter(_object); }
+        if (_object)
+        {
+            _deleter(_object);
+        }
         _object = object;
     }
 

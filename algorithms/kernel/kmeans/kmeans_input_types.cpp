@@ -82,7 +82,10 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     const size_t inputFeatures = get(data)->getNumberOfColumns();
     const size_t inputRows     = get(data)->getNumberOfRows();
 
-    if (kmPar->maxIterations > 0) { DAAL_CHECK(inputRows >= kmPar->nClusters, ErrorKMeansNumberOfClustersIsTooLarge); }
+    if (kmPar->maxIterations > 0)
+    {
+        DAAL_CHECK(inputRows >= kmPar->nClusters, ErrorKMeansNumberOfClustersIsTooLarge);
+    }
     return checkNumericTable(get(inputCentroids).get(), inputCentroidsStr(), 0, 0, inputFeatures, kmPar->nClusters);
 }
 

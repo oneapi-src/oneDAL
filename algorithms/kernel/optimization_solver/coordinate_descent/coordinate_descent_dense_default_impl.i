@@ -154,16 +154,28 @@ services::Status CoordinateDescentKernel<algorithmFPType, method, cpu>::compute(
         for (size_t id = startedId; id < (nRowsArgument); id++)
         {
             //const algorithmFPType prew = workValue[id];
-            for (size_t ic = 0; ic < nColsArgument; ic++) { prews[ic] = workValue[id * nColsArgument + ic]; }
+            for (size_t ic = 0; ic < nColsArgument; ic++)
+            {
+                prews[ic] = workValue[id * nColsArgument + ic];
+            }
             gradientHessianFunction->sumOfFunctionsParameter->featureId = id;
             gradientHessianFunction->computeNoThrow();
 
-            for (size_t ic = 0; ic < nColsArgument; ic++) { steps[ic] = (algorithmFPType)1.0 / (iHes[ic] == 0 ? 1 : iHes[ic]); }
+            for (size_t ic = 0; ic < nColsArgument; ic++)
+            {
+                steps[ic] = (algorithmFPType)1.0 / (iHes[ic] == 0 ? 1 : iHes[ic]);
+            }
 
-            for (size_t ic = 0; ic < nColsArgument; ic++) { proxs[ic] = prews[ic] - steps[ic] * iGr[ic]; }
+            for (size_t ic = 0; ic < nColsArgument; ic++)
+            {
+                proxs[ic] = prews[ic] - steps[ic] * iGr[ic];
+            }
             if (positive)
             {
-                for (size_t ic = 0; ic < nColsArgument; ic++) { proxs[ic] = proxs[ic] < 0 ? 0 : proxs[ic]; }
+                for (size_t ic = 0; ic < nColsArgument; ic++)
+                {
+                    proxs[ic] = proxs[ic] < 0 ? 0 : proxs[ic];
+                }
             }
 
             proximalProjectionFunction->sumOfFunctionsParameter->featureId = id;
@@ -175,7 +187,9 @@ services::Status CoordinateDescentKernel<algorithmFPType, method, cpu>::compute(
             proximalProjectionFunction->computeNoThrow();
 
             for (size_t ic = 0; ic < nColsArgument; ic++)
-            { workValue[id * nColsArgument + ic] = (iHes[ic] == 0) ? workValue[id * nColsArgument + ic] : iPr[ic] * steps[ic]; }
+            {
+                workValue[id * nColsArgument + ic] = (iHes[ic] == 0) ? workValue[id * nColsArgument + ic] : iPr[ic] * steps[ic];
+            }
 
             for (size_t ic = 0; ic < nColsArgument; ic++)
             {
@@ -185,7 +199,10 @@ services::Status CoordinateDescentKernel<algorithmFPType, method, cpu>::compute(
                 maxValue                           = maxValueCurr > maxValue ? maxValueCurr : maxValue;
             }
         }
-        if (maxDiff <= accuracyThreshold * maxValue) { break; }
+        if (maxDiff <= accuracyThreshold * maxValue)
+        {
+            break;
+        }
         maxValue = 0;
         maxDiff  = 0;
     }

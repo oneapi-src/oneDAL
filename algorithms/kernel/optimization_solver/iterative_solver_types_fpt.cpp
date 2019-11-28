@@ -55,7 +55,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     if (!get(minimum))
     {
         NumericTablePtr nt;
-        if (deviceInfo.isCpu) { nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, &status); }
+        if (deviceInfo.isCpu)
+        {
+            nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, &status);
+        }
         else
         {
             nt = SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, &status);

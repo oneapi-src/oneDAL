@@ -42,7 +42,10 @@ Status Parameter::check() const
     Status s;
     DAAL_CHECK_STATUS(s, classifier::interface1::Parameter::check());
 
-    if (priorClassEstimates) { s |= checkNumericTable(priorClassEstimates.get(), priorClassEstimatesStr(), 0, 0, 1, nClasses); }
+    if (priorClassEstimates)
+    {
+        s |= checkNumericTable(priorClassEstimates.get(), priorClassEstimatesStr(), 0, 0, 1, nClasses);
+    }
 
     return s;
 }
@@ -56,7 +59,10 @@ Status Parameter::check() const
     Status s;
     DAAL_CHECK_STATUS(s, classifier::Parameter::check());
 
-    if (priorClassEstimates) { s |= checkNumericTable(priorClassEstimates.get(), priorClassEstimatesStr(), 0, 0, 1, nClasses); }
+    if (priorClassEstimates)
+    {
+        s |= checkNumericTable(priorClassEstimates.get(), priorClassEstimatesStr(), 0, 0, 1, nClasses);
+    }
 
     return s;
 }

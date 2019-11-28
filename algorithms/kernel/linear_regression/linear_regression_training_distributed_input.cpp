@@ -78,7 +78,10 @@ void DistributedInput<step2Master>::add(Step2MasterInputId id, const PartialResu
 size_t DistributedInput<step2Master>::getNumberOfFeatures() const
 {
     DataCollectionPtr partialModelsCollection = static_cast<DataCollectionPtr>(get(partialModels));
-    if (partialModelsCollection->size() == 0) { return 0; }
+    if (partialModelsCollection->size() == 0)
+    {
+        return 0;
+    }
     linear_regression::Model * partialModel = static_cast<daal::algorithms::linear_regression::Model *>(((*partialModelsCollection)[0]).get());
     return partialModel->getNumberOfFeatures();
 }
@@ -89,7 +92,10 @@ size_t DistributedInput<step2Master>::getNumberOfFeatures() const
 size_t DistributedInput<step2Master>::getNumberOfDependentVariables() const
 {
     DataCollectionPtr partialModelsCollection = static_cast<DataCollectionPtr>(get(partialModels));
-    if (partialModelsCollection->size() == 0) { return 0; }
+    if (partialModelsCollection->size() == 0)
+    {
+        return 0;
+    }
     linear_regression::Model * partialModel = static_cast<daal::algorithms::linear_regression::Model *>(((*partialModelsCollection)[0]).get());
     return partialModel->getNumberOfResponses();
 }

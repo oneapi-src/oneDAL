@@ -224,7 +224,10 @@ class OpenClKernelFactory : public Base, public ClKernelFactoryIface
 public:
     explicit OpenClKernelFactory(cl::sycl::queue & deviceQueue) : _executionTarget(ExecutionTargetIds::unspecified), _deviceQueue(deviceQueue)
     {
-        for (size_t i = 0; i < SIZE_CACHE_PROGRAM; i++) { _clProgramCache[i] = nullptr; }
+        for (size_t i = 0; i < SIZE_CACHE_PROGRAM; i++)
+        {
+            _clProgramCache[i] = nullptr;
+        }
     }
 
     void build(ExecutionTargetId target, const char * key, const char * program, const char * options = "",
@@ -244,7 +247,10 @@ public:
         {
             _clProgramCache[id] =
                 new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), key, program, options, status);
-            if (status != nullptr && !status->ok()) { return; }
+            if (status != nullptr && !status->ok())
+            {
+                return;
+            }
             _clProgramRef    = _clProgramCache[id];
             _executionTarget = target;
         }
@@ -261,11 +267,17 @@ public:
         const uint64_t id = hash(keyCache.c_str()) % SIZE_CACHE_KERNEL;
         // TODO: Thread safe?
 
-        if (_kernelCache[id]) { kernelPtr = _kernelCache[id]; }
+        if (_kernelCache[id])
+        {
+            kernelPtr = _kernelCache[id];
+        }
         else
         {
             auto kernelRef = OpenClKernelRef(_clProgramRef->get(), kernelName, status);
-            if (status != nullptr && !status->ok()) { return KernelPtr(); }
+            if (status != nullptr && !status->ok())
+            {
+                return KernelPtr();
+            }
             kernelPtr        = KernelPtr(new OpenClKernel(_executionTarget, *_clProgramRef, kernelRef));
             _kernelCache[id] = kernelPtr;
         }
@@ -287,7 +299,10 @@ protected:
         const char * str = key;
         char c;
 
-        while (c = *str++) { hash = ((hash << 5) + hash) + c; /* hash * 33 + c */ }
+        while (c = *str++)
+        {
+            hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+        }
         return hash;
     }
 
@@ -394,7 +409,10 @@ private:
                 }
                 else
                 {
-                    if (_status != nullptr) { _status->add(services::ErrorID::ErrorMethodNotImplemented); }
+                    if (_status != nullptr)
+                    {
+                        _status->add(services::ErrorID::ErrorMethodNotImplemented);
+                    }
                 }
             }
             catch (cl::sycl::exception const & e)
@@ -435,12 +453,18 @@ private:
         case ExecutionTargetIds::device: scheduleOnDevice(_deviceQueue, kernel, range, args, status); break;
 
         case ExecutionTargetIds::host:
-            if (status != nullptr) { status->add(services::ErrorID::ErrorMethodNotImplemented); }
+            if (status != nullptr)
+            {
+                status->add(services::ErrorID::ErrorMethodNotImplemented);
+            }
             DAAL_ASSERT(!"Not implemented");
             break;
 
         default:
-            if (status != nullptr) { status->add(services::ErrorID::UnknownError); }
+            if (status != nullptr)
+            {
+                status->add(services::ErrorID::UnknownError);
+            }
             DAAL_ASSERT(!"Unexpected");
             break;
         }
@@ -451,7 +475,10 @@ private:
     {
         try
         {
-            if (range.dimensions() == 1) { schedule(_deviceQueue, kernel, cl::sycl::range<1>(range.upper1()), args, status); }
+            if (range.dimensions() == 1)
+            {
+                schedule(_deviceQueue, kernel, cl::sycl::range<1>(range.upper1()), args, status);
+            }
             else if (range.dimensions() == 2)
             {
         #ifdef DAAL_SYCL_INTERFACE_REVERSED_RANGE

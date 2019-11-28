@@ -55,13 +55,19 @@ public:
 
     virtual FeatureIndex getFirst() const DAAL_C11_OVERRIDE
     {
-        if (!size()) { return FeatureIndexTraits::invalid(); }
+        if (!size())
+        {
+            return FeatureIndexTraits::invalid();
+        }
         return _indices[0];
     }
 
     virtual FeatureIndex getLast() const DAAL_C11_OVERRIDE
     {
-        if (!size()) { return FeatureIndexTraits::invalid(); }
+        if (!size())
+        {
+            return FeatureIndexTraits::invalid();
+        }
         return _indices[_indices.size() - 1];
     }
 
@@ -73,9 +79,14 @@ public:
     services::Status add(FeatureIndex index)
     {
         if (index > FeatureIndexTraits::maxIndex() || index == FeatureIndexTraits::invalid())
-        { return services::throwIfPossible(services::ErrorIncorrectDataRange); }
+        {
+            return services::throwIfPossible(services::ErrorIncorrectDataRange);
+        }
 
-        if (!_indices.safe_push_back(index)) { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
+        if (!_indices.safe_push_back(index))
+        {
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+        }
 
         return services::Status();
     }

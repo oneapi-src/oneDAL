@@ -432,7 +432,10 @@ SharedPtr<T> dynamicPointerCast(const SharedPtr<U> & r)
 {
     T * shifted = dynamic_cast<T *>(r.get());
     T * start   = dynamic_cast<T *>(r.getStartPtr());
-    if (!r.get() || start) { return SharedPtr<T>(r, start, shifted); }
+    if (!r.get() || start)
+    {
+        return SharedPtr<T>(r, start, shifted);
+    }
     else
     {
         return SharedPtr<T>();

@@ -97,7 +97,9 @@ services::Status Result::checkImpl(size_t nFeatures) const
     };
 
     for (size_t i = 0; i < lastResultId + 1; i++)
-    { DAAL_CHECK_STATUS(s, checkNumericTable(get((ResultId)i).get(), errorMessages[i], unexpectedLayouts, 0, nFeatures, 1)); }
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get((ResultId)i).get(), errorMessages[i], unexpectedLayouts, 0, nFeatures, 1));
+    }
     return s;
 }
 

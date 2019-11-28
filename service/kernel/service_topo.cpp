@@ -251,7 +251,10 @@ static void __internal_daal_setChkProcessAffinityConsistency(unsigned int lcl_OS
     sched_getaffinity(0, sizeof(allowedCPUs), &allowedCPUs);
     for (i = 0; i < lcl_OSProcessorCount; i++)
     {
-        if (MY_CPU_ISSET(i, &allowedCPUs) == 0) { glbl_obj.error |= _MSGTYP_USERAFFINITYERR; }
+        if (MY_CPU_ISSET(i, &allowedCPUs) == 0)
+        {
+            glbl_obj.error |= _MSGTYP_USERAFFINITYERR;
+        }
         else
         {
             __internal_daal_setGenericAffinityBit(&glbl_obj.cpu_generic_processAffinity, i);
@@ -334,7 +337,10 @@ static void __internal_daal_setChkProcessAffinityConsistency(unsigned int lcl_OS
             return;
         }
 
-        for (i = 0; i < lcl_OSProcessorCount; i++) { __internal_daal_setGenericAffinityBit(&glbl_obj.cpu_generic_processAffinity, i); }
+        for (i = 0; i < lcl_OSProcessorCount; i++)
+        {
+            __internal_daal_setGenericAffinityBit(&glbl_obj.cpu_generic_processAffinity, i);
+        }
 
         return;
     }
@@ -456,7 +462,10 @@ static int __internal_daal_countBits(DWORD_PTR x)
     myll = (LNX_PTR2INT)(x);
     for (i = 0; i < (8 * sizeof(myll)); i++)
     {
-        if ((myll & (LNX_MY1CON << i)) != 0) { res++; }
+        if ((myll & (LNX_MY1CON << i)) != 0)
+        {
+            res++;
+        }
     }
 
     return res;
@@ -621,10 +630,16 @@ static int __internal_daal_compareEqualGenericAffinity(GenericAffinityMask * pAf
     if (!smaller) return 1;
 
     rc = memcmp(pAffinityMap1->AffinityMask, pAffinityMap2->AffinityMask, smaller);
-    if (rc != 0) { return 1; }
+    if (rc != 0)
+    {
+        return 1;
+    }
     else
     {
-        if (pAffinityMap1->maxByteLength == pAffinityMap2->maxByteLength) { return 0; }
+        if (pAffinityMap1->maxByteLength == pAffinityMap2->maxByteLength)
+        {
+            return 0;
+        }
         else if (pAffinityMap1->maxByteLength > pAffinityMap2->maxByteLength)
         {
             for (i = smaller; i < pAffinityMap1->maxByteLength; i++)
@@ -793,7 +808,10 @@ static int __internal_daal_cpuTopologyLeafBConstants()
         subLeaf++;
     } while (1);
 
-    if (wasThreadReported && wasCoreReported) { glbl_obj.CoreSelectMask = coreplusSMT_Mask ^ glbl_obj.SMTSelectMask; }
+    if (wasThreadReported && wasCoreReported)
+    {
+        glbl_obj.CoreSelectMask = coreplusSMT_Mask ^ glbl_obj.SMTSelectMask;
+    }
     else if (!wasCoreReported && wasThreadReported)
     {
         glbl_obj.CoreSelectMask     = 0;
@@ -1505,9 +1523,15 @@ static int __internal_daal_analyzeEachCHierarchy(unsigned subleaf, unsigned numM
         unsigned j;
         for (j = 0; j < maxCacheDetected; j++)
         {
-            if (pEachCIDs[j] == glbl_obj.pApicAffOrdMapping[i].EaCacheIDAPIC[subleaf]) { break; }
+            if (pEachCIDs[j] == glbl_obj.pApicAffOrdMapping[i].EaCacheIDAPIC[subleaf])
+            {
+                break;
+            }
         }
-        if (j >= maxCacheDetected) { pEachCIDs[maxCacheDetected++] = glbl_obj.pApicAffOrdMapping[i].EaCacheIDAPIC[subleaf]; }
+        if (j >= maxCacheDetected)
+        {
+            pEachCIDs[maxCacheDetected++] = glbl_obj.pApicAffOrdMapping[i].EaCacheIDAPIC[subleaf];
+        }
     }
 
     // enumerate distinct SMT threads within a caches of the subleaf index only without relation to core topology
@@ -1518,10 +1542,16 @@ static int __internal_daal_analyzeEachCHierarchy(unsigned subleaf, unsigned numM
         unsigned j;
         for (j = 0; j < maxThreadsDetected; j++)
         {
-            if (pThreadIDsperEachC[j] == glbl_obj.pApicAffOrdMapping[i].EaCacheSMTIDAPIC[subleaf]) { break; }
+            if (pThreadIDsperEachC[j] == glbl_obj.pApicAffOrdMapping[i].EaCacheSMTIDAPIC[subleaf])
+            {
+                break;
+            }
         }
 
-        if (j >= maxThreadsDetected) { pThreadIDsperEachC[maxThreadsDetected++] = glbl_obj.pApicAffOrdMapping[i].EaCacheSMTIDAPIC[subleaf]; }
+        if (j >= maxThreadsDetected)
+        {
+            pThreadIDsperEachC[maxThreadsDetected++] = glbl_obj.pApicAffOrdMapping[i].EaCacheSMTIDAPIC[subleaf];
+        }
     }
 
     glbl_obj.EnumeratedEachCacheCount[subleaf] = maxCacheDetected;
@@ -1552,7 +1582,10 @@ static int __internal_daal_analyzeEachCHierarchy(unsigned subleaf, unsigned numM
     // the enumeration below gets the counts and establishes zero-based numbering scheme for cores and SMT threads under each cache
     maxCacheDetected = 0;
 
-    for (i = 0; i < numMappings; i++) { glbl_obj.pApicAffOrdMapping[i].EachCacheORD[subleaf] = (unsigned)-1; }
+    for (i = 0; i < numMappings; i++)
+    {
+        glbl_obj.pApicAffOrdMapping[i].EachCacheORD[subleaf] = (unsigned)-1;
+    }
 
     for (i = 0; i < numMappings; i++)
     {
@@ -1658,7 +1691,10 @@ static void __internal_daal_buildSystemTopologyTables()
     if (numMappings < 0) return;
 
     // Derived separate numbering schemes for each level of the cpu topology
-    if (__internal_daal_analyzeCPUHierarchy(numMappings) < 0) { glbl_obj.error |= _MSGTYP_TOPOLOGY_NOTANALYZED; }
+    if (__internal_daal_analyzeCPUHierarchy(numMappings) < 0)
+    {
+        glbl_obj.error |= _MSGTYP_TOPOLOGY_NOTANALYZED;
+    }
 
     // an example of building cache topology info for each cache level
     if (glbl_obj.maxCacheSubleaf != -1)
@@ -1936,7 +1972,10 @@ void glktsn::FreeArrays()
 
             if ((i == 0x4 || i == 0xb))
             {
-                for (int j = 1; j < glbl_obj.cpuid_values[i].subleaf_max; j++) { _INTERNAL_DAAL_FREE(glbl_obj.cpuid_values[i].subleaf[j]); }
+                for (int j = 1; j < glbl_obj.cpuid_values[i].subleaf_max; j++)
+                {
+                    _INTERNAL_DAAL_FREE(glbl_obj.cpuid_values[i].subleaf[j]);
+                }
             }
         }
         _INTERNAL_DAAL_FREE(cpuid_values);

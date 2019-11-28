@@ -80,8 +80,14 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     NumericTablePtr maximumsTable                                 = basicStatistics.get(NumericTableIface::maximum);
 
     size_t nColumns = dataTable->getNumberOfColumns();
-    if (minimumsTable) { DAAL_CHECK_STATUS(s, checkNumericTable(minimumsTable.get(), basicStatisticsMinimumStr(), 0, 0, nColumns, 1)); }
-    if (maximumsTable) { DAAL_CHECK_STATUS(s, checkNumericTable(maximumsTable.get(), basicStatisticsMaximumStr(), 0, 0, nColumns, 1)); }
+    if (minimumsTable)
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(minimumsTable.get(), basicStatisticsMinimumStr(), 0, 0, nColumns, 1));
+    }
+    if (maximumsTable)
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(maximumsTable.get(), basicStatisticsMaximumStr(), 0, 0, nColumns, 1));
+    }
     return s;
 }
 

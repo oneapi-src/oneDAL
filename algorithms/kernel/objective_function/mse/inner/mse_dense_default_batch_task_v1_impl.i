@@ -92,23 +92,41 @@ template <typename algorithmFPType, CpuType cpu>
 void I1MSETask<algorithmFPType, cpu>::setResultValuesToZero(algorithmFPType * value, algorithmFPType * gradient, algorithmFPType * hessian)
 {
     algorithmFPType zero = (algorithmFPType)0.0;
-    if (valueFlag) { value[0] = zero; }
+    if (valueFlag)
+    {
+        value[0] = zero;
+    }
     if (hessianFlag)
     {
-        for (size_t j = 0; j < argumentSize * argumentSize; j++) { hessian[j] = zero; }
+        for (size_t j = 0; j < argumentSize * argumentSize; j++)
+        {
+            hessian[j] = zero;
+        }
     }
     if (gradientFlag)
     {
-        for (size_t j = 0; j < argumentSize; j++) { gradient[j] = zero; }
+        for (size_t j = 0; j < argumentSize; j++)
+        {
+            gradient[j] = zero;
+        }
     }
 }
 
 template <typename algorithmFPType, CpuType cpu>
 void I1MSETask<algorithmFPType, cpu>::releaseResultValues()
 {
-    if (valueFlag) { ntValue->releaseBlockOfRows(valueBlock); }
-    if (hessianFlag) { ntHessian->releaseBlockOfRows(hessianBlock); }
-    if (gradientFlag) { ntGradient->releaseBlockOfRows(gradientBlock); }
+    if (valueFlag)
+    {
+        ntValue->releaseBlockOfRows(valueBlock);
+    }
+    if (hessianFlag)
+    {
+        ntHessian->releaseBlockOfRows(hessianBlock);
+    }
+    if (gradientFlag)
+    {
+        ntGradient->releaseBlockOfRows(gradientBlock);
+    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -206,7 +224,10 @@ Status I1MSETaskSample<algorithmFPType, cpu>::getCurrentBlock(size_t startIdx, s
         DAAL_CHECK_STATUS(s, ntDependentVariables->getBlockOfRows(index, 1, readOnly, dependentVariablesBlock));
         dependentVariablesArray = dependentVariablesBlock.getBlockPtr();
 
-        for (size_t j = 0; j < nTheta; j++) { pBlockData[idx * nTheta + j] = dataArray[j]; }
+        for (size_t j = 0; j < nTheta; j++)
+        {
+            pBlockData[idx * nTheta + j] = dataArray[j];
+        }
         pBlockDependentVariables[idx] = dependentVariablesArray[0];
 
         ntData->releaseBlockOfRows(dataBlock);

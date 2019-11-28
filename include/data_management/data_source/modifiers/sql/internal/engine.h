@@ -200,7 +200,10 @@ private:
             return mapping;
         }
 
-        for (size_t i = 0; i < numberOfFeatures; ++i) { mapping->setFeatureKey(i, featuresInfo[i].columnName); }
+        for (size_t i = 0; i < numberOfFeatures; ++i)
+        {
+            mapping->setFeatureKey(i, featuresInfo[i].columnName);
+        }
 
         return mapping;
     }

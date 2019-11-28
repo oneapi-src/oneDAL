@@ -50,7 +50,9 @@ struct BlasGpu
         ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
         if (layout == math::Layout::ColMajor)
-        { ctx.gemm(transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC, &status); }
+        {
+            ctx.gemm(transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC, &status);
+        }
         else
         {
             ctx.gemm(transb, transa, n, m, k, alpha, b_buffer, ldb, offsetB, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, &status);
@@ -69,7 +71,9 @@ struct BlasGpu
         ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
         if (layout == math::Layout::ColMajor)
-        { ctx.syrk(upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, &status); }
+        {
+            ctx.syrk(upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, &status);
+        }
         else
         {
             ctx.syrk(upper_lower, trans, k, n, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, &status);

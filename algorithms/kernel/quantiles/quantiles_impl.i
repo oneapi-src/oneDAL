@@ -64,7 +64,10 @@ services::Status QuantilesKernel<method, algorithmFPType, cpu>::compute(const Nu
 
     if (errorcode)
     {
-        if (errorcode == __DAAL_VSL_SS_ERROR_BAD_QUANT_ORDER) { return Status(services::ErrorQuantileOrderValueIsInvalid); }
+        if (errorcode == __DAAL_VSL_SS_ERROR_BAD_QUANT_ORDER)
+        {
+            return Status(services::ErrorQuantileOrderValueIsInvalid);
+        }
         else
         {
             return Status(services::ErrorQuantilesInternal);

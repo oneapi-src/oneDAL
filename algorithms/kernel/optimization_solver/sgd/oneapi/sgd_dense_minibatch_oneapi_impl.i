@@ -48,7 +48,10 @@ static uint32_t getWorkgroupsCount(const uint32_t n, const uint32_t localWorkSiz
     const uint32_t elementsPerGroup = localWorkSize;
     uint32_t workgroupsCount        = n / elementsPerGroup;
 
-    if (workgroupsCount * elementsPerGroup < n) { workgroupsCount++; }
+    if (workgroupsCount * elementsPerGroup < n)
+    {
+        workgroupsCount++;
+    }
     return workgroupsCount;
 }
 
@@ -93,7 +96,10 @@ static services::Status sumReduction(const services::Buffer<algorithmFPType> & r
     const auto * sumReductionArray = sumReductionArrayPtr.get();
 
     // Final summation with CPU
-    for (size_t i = 0; i < nWorkGroups; i++) { result += sumReductionArray[i]; }
+    for (size_t i = 0; i < nWorkGroups; i++)
+    {
+        result += sumReductionArray[i];
+    }
     return services::Status();
 }
 

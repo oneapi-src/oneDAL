@@ -50,7 +50,10 @@
         auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                     \
         auto & deviceInfo = context.getInfoDevice();                                                                \
                                                                                                                     \
-        if (deviceInfo.isCpu) { __DAAL_INITIALIZE_KERNELS(KernelClass, algorithmFPType, ComputeMethod); }           \
+        if (deviceInfo.isCpu)                                                                                       \
+        {                                                                                                           \
+            __DAAL_INITIALIZE_KERNELS(KernelClass, algorithmFPType, ComputeMethod);                                 \
+        }                                                                                                           \
         else                                                                                                        \
         {                                                                                                           \
             _kernel = new oneapi::__DAAL_CONCAT(KernelClass, OneAPI)<algorithmFPType, ComputeMethod>();             \
@@ -130,7 +133,10 @@
         auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();                         \
         auto & deviceInfo = context.getInfoDevice();                                                                    \
                                                                                                                         \
-        if (deviceInfo.isCpu) { __DAAL_INITIALIZE_KERNELS(KernelClass, algorithmFPType, ComputeMethod); }               \
+        if (deviceInfo.isCpu)                                                                                           \
+        {                                                                                                               \
+            __DAAL_INITIALIZE_KERNELS(KernelClass, algorithmFPType, ComputeMethod);                                     \
+        }                                                                                                               \
         else                                                                                                            \
         {                                                                                                               \
             __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::__DAAL_CONCAT(KernelClass, OneAPI), algorithmFPType, ComputeMethod); \

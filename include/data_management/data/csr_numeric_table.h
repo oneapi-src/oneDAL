@@ -63,7 +63,10 @@ public:
      */
     inline DataType * getBlockValuesPtr() const
     {
-        if (_rawPtr) { return (DataType *)_rawPtr; }
+        if (_rawPtr)
+        {
+            return (DataType *)_rawPtr;
+        }
         return _values_ptr.get();
     }
 
@@ -76,7 +79,10 @@ public:
      */
     inline services::SharedPtr<DataType> getBlockValuesSharedPtr() const
     {
-        if (_rawPtr) { return services::SharedPtr<DataType>(services::reinterpretPointerCast<DataType, byte>(*_pPtr), (DataType *)_rawPtr); }
+        if (_rawPtr)
+        {
+            return services::SharedPtr<DataType>(services::reinterpretPointerCast<DataType, byte>(*_pPtr), (DataType *)_rawPtr);
+        }
         return _values_ptr;
     }
 
@@ -175,7 +181,10 @@ public:
         {
             freeValuesBuffer();
             _values_buffer = services::SharedPtr<DataType>((DataType *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
-            if (_values_buffer) { _values_capacity = newSize; }
+            if (_values_buffer)
+            {
+                _values_capacity = newSize;
+            }
             else
             {
                 return false;
@@ -198,7 +207,10 @@ public:
         {
             freeRowsBuffer();
             _rows_buffer = services::SharedPtr<size_t>((size_t *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
-            if (_rows_buffer) { _rows_capacity = newSize; }
+            if (_rows_buffer)
+            {
+                _rows_capacity = newSize;
+            }
             else
             {
                 return false;
@@ -226,7 +238,10 @@ protected:
      */
     void freeValuesBuffer()
     {
-        if (_values_buffer) { _values_buffer = services::SharedPtr<DataType>(); }
+        if (_values_buffer)
+        {
+            _values_buffer = services::SharedPtr<DataType>();
+        }
         _values_capacity = 0;
     }
 
@@ -470,9 +485,18 @@ public:
     template <typename DataType>
     services::Status getArrays(DataType ** ptr, size_t ** colIndices, size_t ** rowOffsets) const
     {
-        if (ptr) { *ptr = (DataType *)_ptr.get(); }
-        if (colIndices) { *colIndices = _colIndices.get(); }
-        if (rowOffsets) { *rowOffsets = _rowOffsets.get(); }
+        if (ptr)
+        {
+            *ptr = (DataType *)_ptr.get();
+        }
+        if (colIndices)
+        {
+            *colIndices = _colIndices.get();
+        }
+        if (rowOffsets)
+        {
+            *rowOffsets = _rowOffsets.get();
+        }
         return services::Status();
     }
 
@@ -486,9 +510,18 @@ public:
     services::Status getArrays(services::SharedPtr<DataType> & ptr, services::SharedPtr<size_t> & colIndices,
                                services::SharedPtr<size_t> & rowOffsets) const
     {
-        if (ptr) { *ptr = _ptr; }
-        if (colIndices) { *colIndices = _colIndices; }
-        if (rowOffsets) { *rowOffsets = _rowOffsets; }
+        if (ptr)
+        {
+            *ptr = _ptr;
+        }
+        if (colIndices)
+        {
+            *colIndices = _colIndices;
+        }
+        if (rowOffsets)
+        {
+            *rowOffsets = _rowOffsets;
+        }
         return services::Status();
     }
 
@@ -511,7 +544,10 @@ public:
         _rowOffsets = services::SharedPtr<size_t>(rowOffsets, services::EmptyDeleter());
         _indexing   = indexing;
 
-        if (ptr != 0 && colIndices != 0 && rowOffsets != 0) { _memStatus = userAllocated; }
+        if (ptr != 0 && colIndices != 0 && rowOffsets != 0)
+        {
+            _memStatus = userAllocated;
+        }
         return services::Status();
     }
 
@@ -535,7 +571,10 @@ public:
         _rowOffsets = rowOffsets;
         _indexing   = indexing;
 
-        if (ptr && colIndices && rowOffsets) { _memStatus = userAllocated; }
+        if (ptr && colIndices && rowOffsets)
+        {
+            _memStatus = userAllocated;
+        }
         return services::Status();
     }
 
@@ -639,7 +678,9 @@ public:
         DAAL_CHECK_STATUS(s, data_management::NumericTable::check(description, checkDataAllocation));
 
         if (_indexing != oneBased)
-        { return services::Status(services::Error::create(services::ErrorUnsupportedCSRIndexing, services::ArgumentName, description)); }
+        {
+            return services::Status(services::Error::create(services::ErrorUnsupportedCSRIndexing, services::ArgumentName, description));
+        }
 
         return services::Status();
     }
@@ -685,10 +726,16 @@ protected:
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
         size_t dataSize = 0;
-        if (!onDeserialize) { dataSize = getDataSize(); }
+        if (!onDeserialize)
+        {
+            dataSize = getDataSize();
+        }
         arch->set(dataSize);
 
-        if (onDeserialize) { allocateDataMemory(dataSize); }
+        if (onDeserialize)
+        {
+            allocateDataMemory(dataSize);
+        }
 
         size_t nfeat = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
@@ -709,7 +756,10 @@ public:
     size_t getDataSize() DAAL_C11_OVERRIDE
     {
         size_t nobs = getNumberOfRows();
-        if (nobs > 0) { return _rowOffsets.get()[nobs] - _rowOffsets.get()[0]; }
+        if (nobs > 0)
+        {
+            return _rowOffsets.get()[nobs] - _rowOffsets.get()[0];
+        }
         else
         {
             return 0;
@@ -759,13 +809,19 @@ protected:
         T * bufRowCursor       = castingBuffer;
         size_t * indicesCursor = _colIndices.get() + rowOffsets[idx] - 1;
 
-        for (size_t i = 0; i < ncols * nrows; i++) { buffer[i] = (T)0; }
+        for (size_t i = 0; i < ncols * nrows; i++)
+        {
+            buffer[i] = (T)0;
+        }
 
         for (size_t i = 0; i < nrows; i++)
         {
             size_t sparseRowSize = rowOffsets[idx + i + 1] - rowOffsets[idx + i];
 
-            for (size_t k = 0; k < sparseRowSize; k++) { buffer[i * ncols + indicesCursor[k] - 1] = bufRowCursor[k]; }
+            for (size_t k = 0; k < sparseRowSize; k++)
+            {
+                buffer[i * ncols + indicesCursor[k] - 1] = bufRowCursor[k];
+            }
 
             bufRowCursor += sparseRowSize;
             indicesCursor += sparseRowSize;
@@ -814,7 +870,9 @@ protected:
             for (size_t k = 0; k < sparseRowSize; k++)
             {
                 if (indicesCursor[k] - 1 == feat_idx)
-                { internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(1, rowCursor + k * f.typeSize, bufferPtr + i); }
+                {
+                    internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(1, rowCursor + k * f.typeSize, bufferPtr + i);
+                }
             }
 
             rowCursor += sparseRowSize * f.typeSize;
@@ -852,10 +910,15 @@ protected:
         size_t nValues = rowOffsets[idx + nrows] - rowOffsets[idx];
 
         if (features::internal::getIndexNumType<T>() == f.indexType)
-        { block.setValuesPtr(&_ptr, _ptr.get() + (rowOffsets[idx] - 1) * f.typeSize, nValues); }
+        {
+            block.setValuesPtr(&_ptr, _ptr.get() + (rowOffsets[idx] - 1) * f.typeSize, nValues);
+        }
         else
         {
-            if (!block.resizeValuesBuffer(nValues)) { return services::Status(); }
+            if (!block.resizeValuesBuffer(nValues))
+            {
+                return services::Status();
+            }
 
             services::SharedPtr<byte> location(_ptr, _ptr.get() + (rowOffsets[idx] - 1) * f.typeSize);
             internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(nValues, location.get(), block.getBlockValuesPtr());
@@ -864,14 +927,23 @@ protected:
         services::SharedPtr<size_t> shiftedColumns(_colIndices, _colIndices.get() + (rowOffsets[idx] - 1));
         block.setColumnIndicesPtr(shiftedColumns, nValues);
 
-        if (idx == 0) { block.setRowIndicesPtr(_rowOffsets, nrows); }
+        if (idx == 0)
+        {
+            block.setRowIndicesPtr(_rowOffsets, nrows);
+        }
         else
         {
-            if (!block.resizeRowsBuffer(nrows)) { return services::Status(); }
+            if (!block.resizeRowsBuffer(nrows))
+            {
+                return services::Status();
+            }
 
             size_t * row_offsets = block.getBlockRowIndicesSharedPtr().get();
 
-            for (size_t i = 0; i < nrows + 1; i++) { row_offsets[i] = rowOffsets[idx + i] - rowOffsets[idx] + 1; }
+            for (size_t i = 0; i < nrows + 1; i++)
+            {
+                row_offsets[i] = rowOffsets[idx + i] - rowOffsets[idx] + 1;
+            }
         }
         return services::Status();
     }

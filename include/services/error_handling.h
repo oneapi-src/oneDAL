@@ -567,7 +567,10 @@ inline Status checkForNullByteInjection(const char * begin, const char * const e
 {
     for (; begin != end; ++begin)
     {
-        if (*begin == '\0') { return Status(ErrorNullByteInjection); }
+        if (*begin == '\0')
+        {
+            return Status(ErrorNullByteInjection);
+        }
     }
     return Status();
 }

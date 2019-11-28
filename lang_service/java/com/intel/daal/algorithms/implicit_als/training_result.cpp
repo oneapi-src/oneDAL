@@ -46,7 +46,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Tr
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_TrainingResult_cGetResultModel(JNIEnv * env, jobject thisObj,
                                                                                                              jlong resAddr, jint id)
 {
-    if (id == modelId) { return jniArgument<implicit_als::training::Result>::get<ResultId, implicit_als::Model>(resAddr, model); }
+    if (id == modelId)
+    {
+        return jniArgument<implicit_als::training::Result>::get<ResultId, implicit_als::Model>(resAddr, model);
+    }
     else
     {
         return (jlong)0;
@@ -61,5 +64,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_Tr
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_TrainingResult_cSetResultModel(JNIEnv * env, jobject thisObj,
                                                                                                             jlong resAddr, jint id, jlong mdlAddr)
 {
-    if (id == modelId) { jniArgument<implicit_als::training::Result>::set<ResultId, implicit_als::Model>(resAddr, model, mdlAddr); }
+    if (id == modelId)
+    {
+        jniArgument<implicit_als::training::Result>::set<ResultId, implicit_als::Model>(resAddr, model, mdlAddr);
+    }
 }

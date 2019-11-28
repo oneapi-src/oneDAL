@@ -47,7 +47,10 @@ template <typename modelFPType>
 DAAL_EXPORT Model::Model(size_t nFeatures, modelFPType dummy, services::Status & st)
     : _nFeatures(nFeatures), _models(new data_management::DataCollection())
 {
-    if (!_models) { st.add(services::ErrorMemoryAllocationFailed); }
+    if (!_models)
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+    }
     _alpha = data_management::HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
 }
 

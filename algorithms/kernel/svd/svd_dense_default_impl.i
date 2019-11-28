@@ -74,7 +74,10 @@ Status compute_svd_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a, DAAL
 
     if (mklStatus != 0)
     {
-        if (mklStatus > 0) { return Status(ErrorSvdXBDSQRDidNotConverge); }
+        if (mklStatus > 0)
+        {
+            return Status(ErrorSvdXBDSQRDidNotConverge);
+        }
         else
         {
             return Status(ErrorSvdIthParamIllegalValue);
@@ -115,7 +118,10 @@ Status compute_svd_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a, 
 
     if (mklStatus != 0)
     {
-        if (mklStatus > 0) { return Status(ErrorSvdXBDSQRDidNotConverge); }
+        if (mklStatus > 0)
+        {
+            return Status(ErrorSvdXBDSQRDidNotConverge);
+        }
         else
         {
             return Status(ErrorSvdIthParamIllegalValue);
@@ -165,19 +171,28 @@ Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAA
     // Compute QR decomposition
     Lapack<algorithmFPType, cpu>::xgeqrf(m, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
-    if (mklStatus != 0) { return Status(ErrorSvdIthParamIllegalValue); }
+    if (mklStatus != 0)
+    {
+        return Status(ErrorSvdIthParamIllegalValue);
+    }
 
     // Get R of the QR factorization formed by xgeqrf
     DAAL_INT i, j;
     for (i = 1; i <= n; i++)
     {
-        for (j = 0; j < i; j++) { r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j]; }
+        for (j = 0; j < i; j++)
+        {
+            r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j];
+        }
     }
 
     // Get Q of the QR factorization formed by xgeqrf
     Lapack<algorithmFPType, cpu>::xorgqr(m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
-    if (mklStatus != 0) { return Status(ErrorSvdIthParamIllegalValue); }
+    if (mklStatus != 0)
+    {
+        return Status(ErrorSvdIthParamIllegalValue);
+    }
 
     return Status();
 }
@@ -213,19 +228,28 @@ Status compute_QR_on_one_node_seq(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q,
     // Compute QR decomposition
     Lapack<algorithmFPType, cpu>::xxgeqrf(m, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
-    if (mklStatus != 0) { return Status(ErrorSvdIthParamIllegalValue); }
+    if (mklStatus != 0)
+    {
+        return Status(ErrorSvdIthParamIllegalValue);
+    }
 
     // Get R of the QR factorization formed by xgeqrf
     DAAL_INT i, j;
     for (i = 1; i <= n; i++)
     {
-        for (j = 0; j < i; j++) { r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j]; }
+        for (j = 0; j < i; j++)
+        {
+            r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j];
+        }
     }
 
     // Get Q of the QR factorization formed by xgeqrf
     Lapack<algorithmFPType, cpu>::xxorgqr(m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
-    if (mklStatus != 0) { return Status(ErrorSvdIthParamIllegalValue); }
+    if (mklStatus != 0)
+    {
+        return Status(ErrorSvdIthParamIllegalValue);
+    }
 
     return Status();
 }

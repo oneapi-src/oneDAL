@@ -131,8 +131,14 @@ int compareKeyAndUniqueItem(const void * a, const void * b)
     size_t key                        = *(size_t *)a;
     assocRulesUniqueItem<cpu> * itemB = (assocRulesUniqueItem<cpu> *)b;
 
-    if (key < itemB->itemID) { return -1; }
-    if (itemB->itemID < key) { return 1; }
+    if (key < itemB->itemID)
+    {
+        return -1;
+    }
+    if (itemB->itemID < key)
+    {
+        return 1;
+    }
     return 0;
 }
 
@@ -166,7 +172,10 @@ int compareItemsetsBySupport(const void * a, const void * b)
     ItemsetConstPtr aa = *((ItemsetConstPtr *)a);
     ItemsetConstPtr bb = *((ItemsetConstPtr *)b);
 
-    if (bb->support.get() < aa->support.get()) { return -1; }
+    if (bb->support.get() < aa->support.get())
+    {
+        return -1;
+    }
     return (aa->support.get() < bb->support.get()) ? 1 : 0;
 }
 
@@ -176,7 +185,10 @@ int compareRulesByConfidence(const void * a, const void * b)
     const AssocRule<cpu> * aa = *((AssocRule<cpu> **)a);
     const AssocRule<cpu> * bb = *((AssocRule<cpu> **)b);
 
-    if (bb->confidence < aa->confidence) { return -1; }
+    if (bb->confidence < aa->confidence)
+    {
+        return -1;
+    }
     return (aa->confidence < bb->confidence) ? 1 : 0;
 }
 
@@ -191,7 +203,10 @@ struct assocrules_dataset
         int max = 0;
         for (size_t i = 0; i < nElements; i++)
         {
-            if (max < elementsArray[i]) { max = elementsArray[i]; }
+            if (max < elementsArray[i])
+            {
+                max = elementsArray[i];
+            }
         }
         DAAL_ASSERT(max >= 0)
         return (size_t)max;
@@ -210,10 +225,16 @@ struct assocrules_dataset
         const int * itemID        = mtItemID.get();
         if (!(transactionID && itemID)) return;
         numOfTransactions = _numOfTransactions;
-        if (numOfTransactions == 0) { numOfTransactions = getMaxElement(transactionID, data_len) + 1; }
+        if (numOfTransactions == 0)
+        {
+            numOfTransactions = getMaxElement(transactionID, data_len) + 1;
+        }
 
         size_t itemsFullNumber = _numOfUniqueItems;
-        if (itemsFullNumber == 0) { itemsFullNumber = getMaxElement(itemID, data_len) + 1; }
+        if (itemsFullNumber == 0)
+        {
+            itemsFullNumber = getMaxElement(itemID, data_len) + 1;
+        }
 
         size_t * supportVals = (size_t *)daal::services::internal::service_calloc<size_t, cpu>(itemsFullNumber);
 
@@ -223,7 +244,10 @@ struct assocrules_dataset
             return;
         }
 
-        for (size_t i = 0; i < data_len; i++) { supportVals[itemID[i]]++; }
+        for (size_t i = 0; i < data_len; i++)
+        {
+            supportVals[itemID[i]]++;
+        }
         numOfUniqueItems = 0;
         double ceil      = daal::internal::Math<double, cpu>::sCeil(minSupport * numOfTransactions);
         DAAL_ASSERT(ceil >= 0)
@@ -231,7 +255,10 @@ struct assocrules_dataset
         size_t iMinSupport = (size_t)ceil;
         for (size_t i = 0; i < itemsFullNumber; i++)
         {
-            if (supportVals[i] >= iMinSupport) { numOfUniqueItems++; }
+            if (supportVals[i] >= iMinSupport)
+            {
+                numOfUniqueItems++;
+            }
         }
         uniq_items = new assocRulesUniqueItem<cpu>[numOfUniqueItems];
 
@@ -247,7 +274,10 @@ struct assocrules_dataset
         numOfUniqueItems = 0;
         for (size_t i = 0; i < itemsFullNumber; i++)
         {
-            if (supportVals[i] >= iMinSupport) { uniq_items[numOfUniqueItems++] = assocRulesUniqueItem<cpu>(i, supportVals[i]); }
+            if (supportVals[i] >= iMinSupport)
+            {
+                uniq_items[numOfUniqueItems++] = assocRulesUniqueItem<cpu>(i, supportVals[i]);
+            }
         }
 
         numOfLargeTransactions = 0;
@@ -299,7 +329,10 @@ struct assocrules_dataset
         int result = 0;
         for (size_t i = 0; i < data_len; i++)
         {
-            if (supportVals[itemID[i]] >= iMinSupport) { items[numItems++] = itemID[i]; }
+            if (supportVals[itemID[i]] >= iMinSupport)
+            {
+                items[numItems++] = itemID[i];
+            }
             if (((i < data_len - 1) && (transactionID[i + 1] != transactionID[i])) || (i == data_len - 1))
             {
                 if (numItems > 1)
@@ -316,7 +349,10 @@ struct assocrules_dataset
                 numItems = 0;
             }
         }
-        if (result) { _status |= services::Status(services::ErrorMemoryCopyFailedInternal); }
+        if (result)
+        {
+            _status |= services::Status(services::ErrorMemoryCopyFailedInternal);
+        }
 
         daal::services::daal_free(items);
         daal::services::daal_free(supportVals);

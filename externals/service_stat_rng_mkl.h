@@ -55,23 +55,68 @@
         #define __DAAL_MKLVSL_SSE2 ex
     #endif
 
-    #define __DAAL_VSLFN_CALL1(f_pref, f_name, f_args, errcode)                                 \
-        if (avx512 == cpu) { errcode = __DAAL_VSLFN(z0, f_pref, f_name) f_args; }               \
-        if (avx512_mic == cpu) { errcode = __DAAL_VSLFN(b3, f_pref, f_name) f_args; }           \
-        if (avx2 == cpu) { errcode = __DAAL_VSLFN(l9, f_pref, f_name) f_args; }                 \
-        if (avx == cpu) { errcode = __DAAL_VSLFN(e9, f_pref, f_name) f_args; }                  \
-        if (sse42 == cpu) { errcode = __DAAL_VSLFN(h8, f_pref, f_name) f_args; }                \
-        if (ssse3 == cpu) { errcode = __DAAL_VSLFN(u8, f_pref, f_name) f_args; }                \
-        if (sse2 == cpu) { errcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSE2, f_pref, f_name) f_args; } \
-        if (errcode != 0) { return errcode; }
-    #define __DAAL_VSLFN_CALL2(f_pref, f_name, f_args, retcode)                       \
-        if (avx512 == cpu) { retcode = __DAAL_VSLFN(z0, f_pref, f_name) f_args; }     \
-        if (avx512_mic == cpu) { retcode = __DAAL_VSLFN(b3, f_pref, f_name) f_args; } \
-        if (avx2 == cpu) { retcode = __DAAL_VSLFN(l9, f_pref, f_name) f_args; }       \
-        if (avx == cpu) { retcode = __DAAL_VSLFN(e9, f_pref, f_name) f_args; }        \
-        if (sse42 == cpu) { retcode = __DAAL_VSLFN(h8, f_pref, f_name) f_args; }      \
-        if (ssse3 == cpu) { retcode = __DAAL_VSLFN(u8, f_pref, f_name) f_args; }      \
-        if (sse2 == cpu) { retcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSE2, f_pref, f_name) f_args; }
+    #define __DAAL_VSLFN_CALL1(f_pref, f_name, f_args, errcode)                \
+        if (avx512 == cpu)                                                     \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(z0, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx512_mic == cpu)                                                 \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(b3, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx2 == cpu)                                                       \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(l9, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx == cpu)                                                        \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(e9, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (sse42 == cpu)                                                      \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(h8, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (ssse3 == cpu)                                                      \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(u8, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (sse2 == cpu)                                                       \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSE2, f_pref, f_name) f_args; \
+        }                                                                      \
+        if (errcode != 0)                                                      \
+        {                                                                      \
+            return errcode;                                                    \
+        }
+    #define __DAAL_VSLFN_CALL2(f_pref, f_name, f_args, retcode)                \
+        if (avx512 == cpu)                                                     \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(z0, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx512_mic == cpu)                                                 \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(b3, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx2 == cpu)                                                       \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(l9, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx == cpu)                                                        \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(e9, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (sse42 == cpu)                                                      \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(h8, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (ssse3 == cpu)                                                      \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(u8, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (sse2 == cpu)                                                       \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSE2, f_pref, f_name) f_args; \
+        }
 
 #else
 
@@ -81,23 +126,68 @@
         #define __DAAL_MKLVSL_SSE2 w7
     #endif
 
-    #define __DAAL_VSLFN_CALL1(f_pref, f_name, f_args, errcode)                                 \
-        if (avx512 == cpu) { errcode = __DAAL_VSLFN(x0, f_pref, f_name) f_args; }               \
-        if (avx512_mic == cpu) { errcode = __DAAL_VSLFN(a3, f_pref, f_name) f_args; }           \
-        if (avx2 == cpu) { errcode = __DAAL_VSLFN(s9, f_pref, f_name) f_args; }                 \
-        if (avx == cpu) { errcode = __DAAL_VSLFN(g9, f_pref, f_name) f_args; }                  \
-        if (sse42 == cpu) { errcode = __DAAL_VSLFN(n8, f_pref, f_name) f_args; }                \
-        if (ssse3 == cpu) { errcode = __DAAL_VSLFN(v8, f_pref, f_name) f_args; }                \
-        if (sse2 == cpu) { errcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSE2, f_pref, f_name) f_args; } \
-        if (errcode != 0) { return errcode; }
-    #define __DAAL_VSLFN_CALL2(f_pref, f_name, f_args, retcode)                       \
-        if (avx512 == cpu) { retcode = __DAAL_VSLFN(x0, f_pref, f_name) f_args; }     \
-        if (avx512_mic == cpu) { retcode = __DAAL_VSLFN(a3, f_pref, f_name) f_args; } \
-        if (avx2 == cpu) { retcode = __DAAL_VSLFN(s9, f_pref, f_name) f_args; }       \
-        if (avx == cpu) { retcode = __DAAL_VSLFN(g9, f_pref, f_name) f_args; }        \
-        if (sse42 == cpu) { retcode = __DAAL_VSLFN(n8, f_pref, f_name) f_args; }      \
-        if (ssse3 == cpu) { retcode = __DAAL_VSLFN(v8, f_pref, f_name) f_args; }      \
-        if (sse2 == cpu) { retcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSE2, f_pref, f_name) f_args; }
+    #define __DAAL_VSLFN_CALL1(f_pref, f_name, f_args, errcode)                \
+        if (avx512 == cpu)                                                     \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(x0, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx512_mic == cpu)                                                 \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(a3, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx2 == cpu)                                                       \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(s9, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx == cpu)                                                        \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(g9, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (sse42 == cpu)                                                      \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(n8, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (ssse3 == cpu)                                                      \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(v8, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (sse2 == cpu)                                                       \
+        {                                                                      \
+            errcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSE2, f_pref, f_name) f_args; \
+        }                                                                      \
+        if (errcode != 0)                                                      \
+        {                                                                      \
+            return errcode;                                                    \
+        }
+    #define __DAAL_VSLFN_CALL2(f_pref, f_name, f_args, retcode)                \
+        if (avx512 == cpu)                                                     \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(x0, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx512_mic == cpu)                                                 \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(a3, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx2 == cpu)                                                       \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(s9, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (avx == cpu)                                                        \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(g9, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (sse42 == cpu)                                                      \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(n8, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (ssse3 == cpu)                                                      \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(v8, f_pref, f_name) f_args;                 \
+        }                                                                      \
+        if (sse2 == cpu)                                                       \
+        {                                                                      \
+            retcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSE2, f_pref, f_name) f_args; \
+        }
 #endif
 
 #endif

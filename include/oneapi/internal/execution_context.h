@@ -83,7 +83,10 @@ public:
     {
         if (_dimensions != range.dimensions())
         {
-            if (st != NULL) { *st = services::Status(services::UnknownError); } // TODO: error handling!
+            if (st != NULL)
+            {
+                *st = services::Status(services::UnknownError);
+            } // TODO: error handling!
             return;
         }
         _globalRange = range;
@@ -93,7 +96,10 @@ public:
     {
         if (_dimensions != range.dimensions())
         {
-            if (st != NULL) { *st = services::Status(services::UnknownError); } // TODO: error handling!
+            if (st != NULL)
+            {
+                *st = services::Status(services::UnknownError);
+            } // TODO: error handling!
             return;
         }
         _localRange = range;

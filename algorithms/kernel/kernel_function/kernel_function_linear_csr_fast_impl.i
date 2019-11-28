@@ -133,14 +133,20 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
             daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j <= i; j++) { dataR[i * nVectors1 + j] = dataR[i * nVectors1 + j] * k + b; }
+                for (size_t j = 0; j <= i; j++)
+                {
+                    dataR[i * nVectors1 + j] = dataR[i * nVectors1 + j] * k + b;
+                }
             });
         }
 
         daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = i + 1; j < nVectors1; j++) { dataR[i * nVectors1 + j] = dataR[j * nVectors1 + i]; }
+            for (size_t j = i + 1; j < nVectors1; j++)
+            {
+                dataR[i * nVectors1 + j] = dataR[j * nVectors1 + i];
+            }
         });
     }
     else
@@ -157,7 +163,10 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
         if (k != (algorithmFPType)1.0 || b != (algorithmFPType)0.0)
         {
             daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
-                for (size_t j = 0; j < nVectors2; j++) { dataR[i * nVectors2 + j] = dataR[i * nVectors2 + j] * k + b; }
+                for (size_t j = 0; j < nVectors2; j++)
+                {
+                    dataR[i * nVectors2 + j] = dataR[i * nVectors2 + j] * k + b;
+                }
             });
         }
     }

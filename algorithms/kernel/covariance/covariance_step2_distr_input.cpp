@@ -49,7 +49,10 @@ size_t DistributedInput<step2Master>::getNumberOfFeatures() const
         if (onePartialResult.get() != NULL)
         {
             NumericTablePtr ntPtr = onePartialResult->get(sum);
-            if (ntPtr) { return ntPtr->getNumberOfColumns(); }
+            if (ntPtr)
+            {
+                return ntPtr->getNumberOfColumns();
+            }
         }
     }
     return 0;

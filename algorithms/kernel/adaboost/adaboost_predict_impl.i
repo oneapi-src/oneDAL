@@ -86,7 +86,10 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeImp
         }
     }
 
-    for (size_t j = 0; j < nVectors; j++) { r[j] = ((r[j] >= zero) ? one : -one); }
+    for (size_t j = 0; j < nVectors; j++)
+    {
+        r[j] = ((r[j] >= zero) ? one : -one);
+    }
 
     return s;
 }
@@ -104,7 +107,10 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeSam
     const algorithmFPType eps = services::internal::EpsilonVal<algorithmFPType>::get();
     for (size_t i = 0; i < nVectors * nClasses; i++)
     {
-        if (p[i] < eps) { pLog[i] = eps; }
+        if (p[i] < eps)
+        {
+            pLog[i] = eps;
+        }
         else
         {
             pLog[i] = p[i];
@@ -115,9 +121,15 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeSam
 
     for (size_t i = 0; i < nVectors; i++)
     {
-        for (size_t j = 0; j < nClasses; j++) { pSumLog[i] += pLog[i * nClasses + j]; }
+        for (size_t j = 0; j < nClasses; j++)
+        {
+            pSumLog[i] += pLog[i * nClasses + j];
+        }
         pSumLog[i] /= nClasses;
-        for (size_t j = 0; j < nClasses; j++) { h[i * nClasses + j] = (nClasses - 1.0) * (pLog[i * nClasses + j] - pSumLog[i]); }
+        for (size_t j = 0; j < nClasses; j++)
+        {
+            h[i * nClasses + j] = (nClasses - 1.0) * (pLog[i * nClasses + j] - pSumLog[i]);
+        }
     }
     return services::Status();
 }
@@ -191,7 +203,10 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
             const algorithmFPType * rWeak = weakPredictions[m]->getArray();
             for (size_t i = 0; i < nVectors; i++)
             {
-                if (method == samme) { curClassScore[i] += alpha[m] * (rWeak[i] == k); }
+                if (method == samme)
+                {
+                    curClassScore[i] += alpha[m] * (rWeak[i] == k);
+                }
                 else if (method == sammeR)
                 {
                     curClassScore[i] += rWeak[i * nClasses + k];
@@ -214,7 +229,10 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
         const algorithmFPType zero     = (algorithmFPType)0.0;
         for (size_t j = 0; j < nVectors; j++)
         {
-            if (r[j] == zero) { r[j] = minusOne; }
+            if (r[j] == zero)
+            {
+                r[j] = minusOne;
+            }
         }
     }
     return s;
@@ -240,7 +258,10 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(co
         ReadColumns<algorithmFPType, cpu> mtAlpha(*boostModel->getAlpha(), 0, 0, nWeakLearners);
         DAAL_CHECK_BLOCK_STATUS(mtAlpha);
         DAAL_ASSERT(mtAlpha.get());
-        if (method == samme && nClasses == 2) { DAAL_CHECK_STATUS(s, this->computeImpl(xTable, boostModel, nWeakLearners, mtAlpha.get(), r, par)); }
+        if (method == samme && nClasses == 2)
+        {
+            DAAL_CHECK_STATUS(s, this->computeImpl(xTable, boostModel, nWeakLearners, mtAlpha.get(), r, par));
+        }
         else
         {
             DAAL_CHECK_STATUS(s, this->computeCommon(xTable, boostModel, nWeakLearners, mtAlpha.get(), r, par));

@@ -49,7 +49,10 @@ Model::~Model() {}
 
 Model::Model(services::Status & st) : decision_tree::regression::Model()
 {
-    if (!impl()) { st.add(services::ErrorMemoryAllocationFailed); }
+    if (!impl())
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+    }
 }
 
 services::SharedPtr<Model> Model::create(services::Status * stat)

@@ -34,7 +34,9 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_data_1management_compression_Comp
     using namespace daal;
 
     if (((Compression *)compressionAddress)->getErrors()->size() > 0)
-    { env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription()); }
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
+    }
     return ((Compression *)compressionAddress)->isOutputDataBlockFull();
 }
 
@@ -49,7 +51,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_Compres
     using namespace daal;
 
     if (((Compression *)compressionAddress)->getErrors()->size() > 0)
-    { env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription()); }
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
+    }
     return ((Compression *)compressionAddress)->getUsedOutputDataBlockSize();
 }
 
@@ -80,7 +84,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compress
     ((Compression *)compressionAddress)->setInputDataBlock((byte *)inStreamBuffer, size, offset);
 
     if (((Compression *)compressionAddress)->getErrors()->size() > 0)
-    { env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription()); }
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
+    }
 }
 
 /*
@@ -98,7 +104,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compress
     env->ReleaseByteArrayElements(outStream, outStreamBuffer, 0);
 
     if (((Compression *)compressionAddress)->getErrors()->size() > 0)
-    { env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription()); }
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
+    }
 }
 
 /*
@@ -116,7 +124,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compress
     ((Compression *)compressionAddress)->checkInputParams((byte *)inStreamBuffer, (size_t)size);
 
     if (((Compression *)compressionAddress)->getErrors()->size() > 0)
-    { env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription()); }
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
+    }
 }
 
 /*
@@ -135,5 +145,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compress
     ((Compression *)compressionAddress)->checkOutputParams((byte *)outStreamBuffer, (size_t)size);
 
     if (((Compression *)compressionAddress)->getErrors()->size() > 0)
-    { env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription()); }
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
+    }
 }

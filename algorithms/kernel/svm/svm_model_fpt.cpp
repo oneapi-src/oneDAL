@@ -42,7 +42,9 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
 {
     using namespace data_management;
     if (layout == NumericTableIface::csrArray)
-    { _SV = CSRNumericTable::create<modelFPType>(NULL, NULL, NULL, nColumns, 0, CSRNumericTable::oneBased, &st); }
+    {
+        _SV = CSRNumericTable::create<modelFPType>(NULL, NULL, NULL, nColumns, 0, CSRNumericTable::oneBased, &st);
+    }
     else
     {
         _SV = HomogenNumericTable<modelFPType>::create(NULL, nColumns, 0, &st);

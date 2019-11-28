@@ -328,7 +328,9 @@ int doPartition(SizeType n, const IndexType * aIdx, const ResponseType * aRespon
         const FeatureIndexType idx = indexedFeature[iRow];
 
         if ((featureUnordered && (idx != idxFeatureValueBestSplit)) || ((!featureUnordered) && (idx > idxFeatureValueBestSplit)))
-        { bestSplitIdxRight[iRight++] = iSample; }
+        {
+            bestSplitIdxRight[iRight++] = iSample;
+        }
         else
         {
             if (idx == idxFeatureValueBestSplit) iRowSplitVal = iRow;
@@ -364,7 +366,9 @@ int doPartitionIdx(SizeType n, const IndexType * aIdx, const IndexType * aIdx2, 
             const FeatureIndexType idx = indexedFeature[iRow];
 
             if ((featureUnordered && (idx != idxFeatureValueBestSplit)) || ((!featureUnordered) && (idx > idxFeatureValueBestSplit)))
-            { bestSplitIdxRight[iRight++] = iSample; }
+            {
+                bestSplitIdxRight[iRight++] = iSample;
+            }
             else
             {
                 if (idx == idxFeatureValueBestSplit) iRowSplitVal = iRow;
@@ -382,7 +386,9 @@ int doPartitionIdx(SizeType n, const IndexType * aIdx, const IndexType * aIdx2, 
             const FeatureIndexType idx = indexedFeature[iRow];
 
             if ((featureUnordered && (idx != idxFeatureValueBestSplit)) || ((!featureUnordered) && (idx > idxFeatureValueBestSplit)))
-            { bestSplitIdxRight[iRight++] = iRow; }
+            {
+                bestSplitIdxRight[iRight++] = iRow;
+            }
             else
             {
                 if (idx == idxFeatureValueBestSplit) iRowSplitVal = iRow;

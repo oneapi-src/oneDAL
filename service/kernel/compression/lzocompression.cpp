@@ -52,9 +52,15 @@ Compressor<lzo>::Compressor() : data_management::CompressorImpl()
 
     ippInit();
     int errCode = ippsEncodeLZOGetSize(IppLZO1XST, 0, &state_size);
-    if (errCode != ippStsNoErr) { this->_errors->add(services::ErrorLzoInternal); }
+    if (errCode != ippStsNoErr)
+    {
+        this->_errors->add(services::ErrorLzoInternal);
+    }
     _p_lzo_state = (void *)daal::services::daal_calloc((size_t)state_size);
-    if (_p_lzo_state == NULL) { this->_errors->add(services::ErrorMemoryAllocationFailed); }
+    if (_p_lzo_state == NULL)
+    {
+        this->_errors->add(services::ErrorMemoryAllocationFailed);
+    }
 
     errCode = ippsEncodeLZOInit_8u(IppLZO1XST, 0, (IppLZOState_8u *)_p_lzo_state);
     if (errCode != ippStsNoErr)
@@ -109,10 +115,16 @@ void Compressor<lzo>::finalizeCompression()
 
 void Compressor<lzo>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if (_isInitialized == false) { initialize(); }
+    if (_isInitialized == false)
+    {
+        initialize();
+    }
 
     checkInputParams(in, len);
-    if (this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0)
+    {
+        return;
+    }
 
     _avail_in = len;
     _next_in  = in + off;
@@ -149,7 +161,9 @@ void Compressor<lzo>::run(byte * out, size_t outLen, size_t off)
     }
 
     if (_avail_out < _avail_in + (_avail_in) / 16 + 67 + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes)
-    { tmp_avail_in = ((_avail_out - (67 + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes)) * 16) / 17; }
+    {
+        tmp_avail_in = ((_avail_out - (67 + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes)) * 16) / 17;
+    }
     else
     {
         tmp_avail_in = _avail_in;
@@ -214,7 +228,10 @@ Decompressor<lzo>::~Decompressor()
 
 void Decompressor<lzo>::finalizeCompression()
 {
-    if (_internalBuff != NULL) { daal::services::daal_free(_internalBuff); }
+    if (_internalBuff != NULL)
+    {
+        daal::services::daal_free(_internalBuff);
+    }
     _internalBuff    = NULL;
     _internalBuffLen = 0;
     _internalBuffOff = 0;
@@ -222,7 +239,10 @@ void Decompressor<lzo>::finalizeCompression()
 
 void Decompressor<lzo>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if (_isInitialized == false) { initialize(); }
+    if (_isInitialized == false)
+    {
+        initialize();
+    }
 
     checkInputParams(in, len);
     if (this->_errors->size() != 0)
@@ -302,7 +322,10 @@ void Decompressor<lzo>::run(byte * out, size_t outLen, size_t off)
             _internalBuff    = NULL;
             _internalBuffLen = 0;
             _internalBuffOff = 0;
-            if (_avail_in == 0) { return; }
+            if (_avail_in == 0)
+            {
+                return;
+            }
         }
     }
 
@@ -362,7 +385,9 @@ void Decompressor<lzo>::run(byte * out, size_t outLen, size_t off)
             this->_isOutBlockFull = 1;
             _avail_in             = _avail_in - (compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
             if (_avail_in > 0)
-            { _next_in = (void *)((byte *)(_next_in) + compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes); }
+            {
+                _next_in = (void *)((byte *)(_next_in) + compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
+            }
             return;
         }
         tmp_avail_out = _avail_out;
@@ -378,13 +403,19 @@ void Decompressor<lzo>::run(byte * out, size_t outLen, size_t off)
             }
         }
         _avail_in = _avail_in - (compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
-        if (_avail_in > 0) { _next_in = (void *)((byte *)(_next_in) + compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes); }
+        if (_avail_in > 0)
+        {
+            _next_in = (void *)((byte *)(_next_in) + compressedBlockSize + BLOCK_HEADER_BYTES + _preHeadBytes + _postHeadBytes);
+        }
         _avail_out = _avail_out - tmp_avail_out;
         _next_out  = (byte *)_next_out + tmp_avail_out;
         this->_usedOutBlockSize += tmp_avail_out;
     } while (_avail_in > 0 && _avail_out > 0);
 
-    if (_avail_in > 0) { this->_isOutBlockFull = 1; }
+    if (_avail_in > 0)
+    {
+        this->_isOutBlockFull = 1;
+    }
 }
 } //namespace data_management
 } //namespace daal

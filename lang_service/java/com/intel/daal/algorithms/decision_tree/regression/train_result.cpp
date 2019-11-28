@@ -38,7 +38,10 @@ namespace dtrt = daal::algorithms::decision_tree::regression::training;
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj,
                                                                                                                    jlong resAddr, jint id)
 {
-    if (id == modelId) { return jniArgument<dtrt::Result>::get<dtrt::ResultId, dtr::Model>(resAddr, dtrt::model); }
+    if (id == modelId)
+    {
+        return jniArgument<dtrt::Result>::get<dtrt::ResultId, dtr::Model>(resAddr, dtrt::model);
+    }
 
     return (jlong)0;
 }

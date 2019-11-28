@@ -67,7 +67,10 @@ struct Tree
     size_t nNodes;
     ~Tree()
     {
-        if (root) { delete root; }
+        if (root)
+        {
+            delete root;
+        }
     }
 };
 
@@ -106,7 +109,10 @@ public:
             Node * node = new Node(desc.response, 0, 0);
 
             Node * parent = parentNodes.front();
-            if (parent->left == NULL) { parent->left = node; }
+            if (parent->left == NULL)
+            {
+                parent->left = node;
+            }
             else
             {
                 parent->right = node;
@@ -136,7 +142,10 @@ public:
             Node * node = new Node(0, desc.featureIndex, desc.featureValue);
 
             Node * parent = parentNodes.front();
-            if (parent->left == NULL) { parent->left = node; }
+            if (parent->left == NULL)
+            {
+                parent->left = node;
+            }
             else
             {
                 parent->right = node;
@@ -150,7 +159,10 @@ public:
     BFSNodeVisitor(size_t nTrees) : parentNodes()
     {
         roots = new Tree[nTrees];
-        for (size_t i = 0; i < nTrees; i++) { roots[i].root = new Node; }
+        for (size_t i = 0; i < nTrees; i++)
+        {
+            roots[i].root = new Node;
+        }
         treeId = 0;
     }
     ~BFSNodeVisitor()
@@ -270,7 +282,10 @@ double testModel(daal::algorithms::gbt::regression::ModelPtr modelPtr)
     size_t nRows = 0;
     if (prediction.get()) nRows = prediction->getNumberOfRows();
     double error = 0;
-    for (size_t i = 0; i < nRows; i++) { error += prediction->getValue<float>(0, i) - testGroundTruth->getValue<float>(0, i); }
+    for (size_t i = 0; i < nRows; i++)
+    {
+        error += prediction->getValue<float>(0, i) - testGroundTruth->getValue<float>(0, i);
+    }
 
     std::cout << "Error: " << error << std::endl;
     return error;
@@ -322,6 +337,9 @@ Tree * traverseModel(const daal::algorithms::gbt::regression::ModelPtr m, BFSNod
 {
     const size_t nTrees = m->numberOfTrees();
 
-    for (size_t i = 0; i < nTrees; ++i) { m->traverseBFS(i, visitor); }
+    for (size_t i = 0; i < nTrees; ++i)
+    {
+        m->traverseBFS(i, visitor);
+    }
     return visitor.roots;
 }

@@ -87,7 +87,10 @@ services::Status EMKernelTask<algorithmFPType, method, cpu>::compute()
         daal::threader_for(nBlocks, nBlocks, [=, &threadBuffer, &safeStat](size_t iBlock) {
             size_t j0                     = iBlock * blockSizeDefault;
             size_t nVectorsInCurrentBlock = blockSizeDefault;
-            if (iBlock == nBlocks - 1) { nVectorsInCurrentBlock = nVectors - iBlock * blockSizeDefault; }
+            if (iBlock == nBlocks - 1)
+            {
+                nVectorsInCurrentBlock = nVectors - iBlock * blockSizeDefault;
+            }
 
             Task<algorithmFPType, cpu> * tPtr = threadBuffer.local();
             DAAL_CHECK_THR(tPtr && tPtr->localBuffer, ErrorMemoryAllocationFailed)
@@ -124,7 +127,10 @@ services::Status EMKernelTask<algorithmFPType, method, cpu>::compute()
 
         DAAL_CHECK_STATUS(s, stepM_merge(iterCounter))
 
-        if (iterCounter > 0) { diff = logLikelyhood - oldLogLikelyhood; }
+        if (iterCounter > 0)
+        {
+            diff = logLikelyhood - oldLogLikelyhood;
+        }
         oldLogLikelyhood = logLikelyhood;
 
         iterCounter++;
@@ -207,20 +213,27 @@ void EMKernelTask<algorithmFPType, method, cpu>::stepE(const size_t nVectorsInCu
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < nVectorsInCurrentBlock; i++) { t.p[k * nVectorsInCurrentBlock + i] = 0.0; }
+            for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
+            {
+                t.p[k * nVectorsInCurrentBlock + i] = 0.0;
+            }
 
             for (size_t j = 0; j < nFeatures; j++)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
-                { t.p[k * nVectorsInCurrentBlock + i] += t.x_mu[j * nVectorsInCurrentBlock + i] * t.Ax_mu[j * nVectorsInCurrentBlock + i]; }
+                {
+                    t.p[k * nVectorsInCurrentBlock + i] += t.x_mu[j * nVectorsInCurrentBlock + i] * t.Ax_mu[j * nVectorsInCurrentBlock + i];
+                }
             }
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
             for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
-            { t.p[k * nVectorsInCurrentBlock + i] = addition + -0.5 * t.p[k * nVectorsInCurrentBlock + i]; }
+            {
+                t.p[k * nVectorsInCurrentBlock + i] = addition + -0.5 * t.p[k * nVectorsInCurrentBlock + i];
+            }
         }
     }
 
@@ -228,7 +241,10 @@ void EMKernelTask<algorithmFPType, method, cpu>::stepE(const size_t nVectorsInCu
     algorithmFPType * maxInRow = t.rowSum;
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nVectorsInCurrentBlock; i++) { maxInRow[i] = t.p[i]; }
+    for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
+    {
+        maxInRow[i] = t.p[i];
+    }
 
     for (size_t k = 1; k < nComponents; k++)
     {
@@ -236,7 +252,10 @@ void EMKernelTask<algorithmFPType, method, cpu>::stepE(const size_t nVectorsInCu
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
         {
-            if (t.p[k * nVectorsInCurrentBlock + i] > maxInRow[i]) { maxInRow[i] = t.p[k * nVectorsInCurrentBlock + i]; }
+            if (t.p[k * nVectorsInCurrentBlock + i] > maxInRow[i])
+            {
+                maxInRow[i] = t.p[k * nVectorsInCurrentBlock + i];
+            }
         }
     }
 
@@ -248,13 +267,18 @@ void EMKernelTask<algorithmFPType, method, cpu>::stepE(const size_t nVectorsInCu
         {
             t.p[k * nVectorsInCurrentBlock + i] -= maxInRow[i];
             if (t.p[k * nVectorsInCurrentBlock + i] < exp_threshold<algorithmFPType>())
-            { t.p[k * nVectorsInCurrentBlock + i] = exp_threshold<algorithmFPType>(); }
+            {
+                t.p[k * nVectorsInCurrentBlock + i] = exp_threshold<algorithmFPType>();
+            }
         }
     }
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nVectorsInCurrentBlock; i++) { t.partLogLikelyhood += maxInRow[i]; }
+    for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
+    {
+        t.partLogLikelyhood += maxInRow[i];
+    }
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
@@ -269,21 +293,29 @@ void EMKernelTask<algorithmFPType, method, cpu>::stepE(const size_t nVectorsInCu
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nVectorsInCurrentBlock; i++) { t.rowSum[i] += t.p[k * nVectorsInCurrentBlock + i]; }
+        for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
+        {
+            t.rowSum[i] += t.p[k * nVectorsInCurrentBlock + i];
+        }
     }
 
     t.rowSumInv         = t.rowSum;
     algorithmFPType one = 1.0;
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nVectorsInCurrentBlock; i++) { t.rowSumInv[i] = one / t.rowSum[i]; }
+    for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
+    {
+        t.rowSumInv[i] = one / t.rowSum[i];
+    }
 
     for (size_t k = 0; k < nComponents; k++)
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
-        { t.p[k * nVectorsInCurrentBlock + i] = t.p[k * nVectorsInCurrentBlock + i] * t.rowSumInv[i]; }
+        {
+            t.p[k * nVectorsInCurrentBlock + i] = t.p[k * nVectorsInCurrentBlock + i] * t.rowSumInv[i];
+        }
     }
     t.w = t.p;
 }
@@ -304,7 +336,10 @@ algorithmFPType EMKernelTask<algorithmFPType, method, cpu>::computePartialLogLik
     algorithmFPType loglikPartial = t.partLogLikelyhood;
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nVectorsInCurrentBlock; i++) { loglikPartial -= logRowSumInv[i]; }
+    for (size_t i = 0; i < nVectorsInCurrentBlock; i++)
+    {
+        loglikPartial -= logRowSumInv[i];
+    }
     return loglikPartial;
 }
 
@@ -322,7 +357,10 @@ Status EMKernelTask<algorithmFPType, method, cpu>::stepM_partial(const size_t nV
     const size_t nFeatures         = t.nFeatures;
     const size_t nElementsOnOneCov = t.covs->getOneCovSize();
     algorithmFPType * dataBlock    = const_cast<algorithmFPType *>(t.trans_data);
-    if (covType == diagonal) { dataBlock = const_cast<algorithmFPType *>(t.dataBlock); }
+    if (covType == diagonal)
+    {
+        dataBlock = const_cast<algorithmFPType *>(t.dataBlock);
+    }
 
     for (size_t k = 0; k < t.nComponents; k++)
     {
@@ -331,7 +369,10 @@ Status EMKernelTask<algorithmFPType, method, cpu>::stepM_partial(const size_t nV
         int errcode =
             t.covs->computeThreadPartialResults(dataBlock, &t.w[k * nVectorsInCurrentBlock], t.nFeatures, nVectorsInCurrentBlock, &t.wSums[k],
                                                 &t.partialMeans[k * nFeatures], &t.partialCP[k * nElementsOnOneCov], t.w_x_buff);
-        if (errcode) { return Status(Error::create(ErrorEMCovariance, Component, k)); }
+        if (errcode)
+        {
+            return Status(Error::create(ErrorEMCovariance, Component, k));
+        }
 
         if (t.wSums[k] > MinVal<algorithmFPType>::get())
         {
@@ -394,7 +435,10 @@ EMKernelTask<algorithmFPType, method, cpu>::EMKernelTask(NumericTable & dataTabl
 
     nBlocks = nVectors / blockSizeDefault;
     nBlocks += (nBlocks * blockSizeDefault != nVectors);
-    if (nBlocks == 1) { blockSizeDefault = nVectors; }
+    if (nBlocks == 1)
+    {
+        blockSizeDefault = nVectors;
+    }
     covsPtr.reset(nComponents);
 }
 
@@ -402,7 +446,10 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 SharedPtr<GmmModel<algorithmFPType, cpu> > EMKernelTask<algorithmFPType, method, cpu>::initializeCovariances()
 {
     GmmModelPtr covs;
-    if (par.covarianceStorage == diagonal) { covs = GmmModelPtr(new GmmModelDiagType(nFeatures, nComponents)); }
+    if (par.covarianceStorage == diagonal)
+    {
+        covs = GmmModelPtr(new GmmModelDiagType(nFeatures, nComponents));
+    }
     else
     {
         covs = GmmModelPtr(new GmmModelFullType(nFeatures, nComponents));
@@ -415,7 +462,10 @@ SharedPtr<GmmModel<algorithmFPType, cpu> > EMKernelTask<algorithmFPType, method,
     for (size_t i = 0; i < nComponents; i++)
     {
         sigma[i] = covsNt[i].set(resultCovariances[i], 0, covs->getNumberOfRowsInCov());
-        if (!sigma[i]) { return GmmModelPtr(); }
+        if (!sigma[i])
+        {
+            return GmmModelPtr();
+        }
     }
     return covs;
 }
@@ -446,8 +496,14 @@ Status EMKernelTask<algorithmFPType, method, cpu>::initialize()
 template <typename algorithmFPType, Method method, CpuType cpu>
 void EMKernelTask<algorithmFPType, method, cpu>::setResultToZero()
 {
-    for (size_t i = 0; i < nComponents; i++) { alpha[i] = 0; }
-    for (size_t i = 0; i < nComponents * nFeatures; i++) { means[i] = 0; }
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        alpha[i] = 0;
+    }
+    for (size_t i = 0; i < nComponents * nFeatures; i++)
+    {
+        means[i] = 0;
+    }
     covs->setToZero();
 }
 
@@ -466,7 +522,10 @@ void EMKernelTask<algorithmFPType, method, cpu>::stepM_mergePartialSums(algorith
     algorithmFPType one_Wnm = 1.0 / (w_n + w_m);
 
     PRAGMA_VECTOR_UNALIGNED
-    for (size_t j = 0; j < nFeatures; j++) { mom_n[j] = (w_n * mom_n[j] + w_m * mom_m[j]) * one_Wnm; }
+    for (size_t j = 0; j < nFeatures; j++)
+    {
+        mom_n[j] = (w_n * mom_n[j] + w_m * mom_m[j]) * one_Wnm;
+    }
     w_n += w_m;
 }
 /**
@@ -499,7 +558,9 @@ void GmmModelDiag<algorithmFPType, cpu>::stepM_mergeCovs(algorithmFPType * cp_n,
     algorithmFPType one_Wnm = (w_n == (algorithmFPType)0.0) ? 0.0 : (w_n * w_m) / (w_n + w_m);
 
     for (size_t i = 0; i < nFeatures; i++)
-    { cp_n[i] = cp_n[i] + cp_m[i] + one_Wnm * (+mean_n[i] * mean_n[i] + mean_m[i] * mean_m[i] - mean_n[i] * mean_m[i] - mean_m[i] * mean_n[i]); }
+    {
+        cp_n[i] = cp_n[i] + cp_m[i] + one_Wnm * (+mean_n[i] * mean_n[i] + mean_m[i] * mean_m[i] - mean_n[i] * mean_m[i] - mean_m[i] * mean_n[i]);
+    }
 }
 
 /**
@@ -524,39 +585,66 @@ ErrorPtr GmmModelFull<algorithmFPType, cpu>::regularizeCovarianceMatrix(algorith
     TArray<DAAL_INT, cpu> iworkPtr(liwork);
     algorithmFPType * work = workPtr.get();
     DAAL_INT * iwork       = iworkPtr.get();
-    if (!work || !iwork || !eigenvalues || !diagValues) { return Error::create(ErrorMemoryAllocationFailed); }
+    if (!work || !iwork || !eigenvalues || !diagValues)
+    {
+        return Error::create(ErrorMemoryAllocationFailed);
+    }
 
-    for (size_t i = 0; i < nFeatures; i++) { diagValues[i] = cov[i * nFeatures + i]; }
+    for (size_t i = 0; i < nFeatures; i++)
+    {
+        diagValues[i] = cov[i * nFeatures + i];
+    }
 
     DAAL_INT p = nFeatures;
     Lapack<algorithmFPType, cpu>::xxsyevd(&jobz, &uplo, &p, cov, &p, eigenvalues, work, &lwork, iwork, &liwork, &info);
-    if (info != 0) { return Error::create(info < 0 ? ErrorIncorrectInternalFunctionParameter : ErrorEMIllConditionedCovarianceMatrix); }
+    if (info != 0)
+    {
+        return Error::create(info < 0 ? ErrorIncorrectInternalFunctionParameter : ErrorEMIllConditionedCovarianceMatrix);
+    }
 
     for (size_t i = 0; i < nFeatures; i++)
     {
         cov[i * nFeatures + i] = diagValues[i];
-        for (int j = i + 1; j < nFeatures; j++) { cov[i * nFeatures + j] = cov[j * nFeatures + i]; }
+        for (int j = i + 1; j < nFeatures; j++)
+        {
+            cov[i * nFeatures + j] = cov[j * nFeatures + i];
+        }
     }
 
     if (eigenvalues[0] <= 0.0)
     {
         size_t i = 0;
-        while (i < nFeatures && eigenvalues[i] < 0) { i++; }
-        if (i == nFeatures) { return Error::create(ErrorEMNegativeDefinedCovarianceMartix); }
+        while (i < nFeatures && eigenvalues[i] < 0)
+        {
+            i++;
+        }
+        if (i == nFeatures)
+        {
+            return Error::create(ErrorEMNegativeDefinedCovarianceMartix);
+        }
     }
 
     size_t i = 0;
     for (i = 0; i < nFeatures; i++)
     {
-        if (eigenvalues[i] > EIGENVALUE_THRESHOLD) { break; }
+        if (eigenvalues[i] > EIGENVALUE_THRESHOLD)
+        {
+            break;
+        }
     }
-    if (i == nFeatures) { return Error::create(ErrorEMIllConditionedCovarianceMatrix); }
+    if (i == nFeatures)
+    {
+        return Error::create(ErrorEMIllConditionedCovarianceMatrix);
+    }
 
     //get maximum
     algorithmFPType a              = eigenvalues[i] * covRegularizer;
     algorithmFPType b              = -eigenvalues[0] * (1.0 + covRegularizer);
     algorithmFPType cur_eigenvalue = (a > b) ? a : b;
-    for (size_t j = 0; j < nFeatures; j++) { cov[j * nFeatures + j] += cur_eigenvalue; }
+    for (size_t j = 0; j < nFeatures; j++)
+    {
+        cov[j * nFeatures + j] += cur_eigenvalue;
+    }
 
     return ErrorPtr();
 }
@@ -588,7 +676,10 @@ Status GmmModelFull<algorithmFPType, cpu>::computeSigmaInverse(size_t iteration)
 
         algorithmFPType * sigmaTmpBuff = sigma_buff.local();
         DAAL_CHECK_THR(sigmaTmpBuff, ErrorMemoryAllocationFailed)
-        for (size_t i = 0; i < nFeatures * nFeatures; i++) { sigmaTmpBuff[i] = pSigma[i]; }
+        for (size_t i = 0; i < nFeatures * nFeatures; i++)
+        {
+            sigmaTmpBuff[i] = pSigma[i];
+        }
         lapack::xxpotrf(&uplo, &nFeaturesLong, pInvSigma, &lda, &info);
         if (info != 0)
         {
@@ -597,7 +688,10 @@ Status GmmModelFull<algorithmFPType, cpu>::computeSigmaInverse(size_t iteration)
                 safeStat.add(Error::create(ErrorIncorrectInternalFunctionParameter, Component, iComp));
                 return;
             }
-            for (size_t i = 0; i < nFeatures * nFeatures; i++) { pSigma[i] = sigmaTmpBuff[i]; }
+            for (size_t i = 0; i < nFeatures * nFeatures; i++)
+            {
+                pSigma[i] = sigmaTmpBuff[i];
+            }
             ErrorPtr e = regularizeCovarianceMatrix(pSigma);
             if (e)
             {
@@ -610,7 +704,10 @@ Status GmmModelFull<algorithmFPType, cpu>::computeSigmaInverse(size_t iteration)
             if (info != 0)
             {
                 ErrorPtr e;
-                if (info < 0) { e = Error::create(ErrorIncorrectInternalFunctionParameter); }
+                if (info < 0)
+                {
+                    e = Error::create(ErrorIncorrectInternalFunctionParameter);
+                }
                 else
                 {
                     e = Error::create(ErrorEMIllConditionedCovarianceMatrix);
@@ -622,7 +719,10 @@ Status GmmModelFull<algorithmFPType, cpu>::computeSigmaInverse(size_t iteration)
             }
         }
         algorithmFPType sqrtDetSigma = 1;
-        for (size_t j = 0; j < nFeatures; j++) { sqrtDetSigma *= pInvSigma[j * nFeatures + j]; }
+        for (size_t j = 0; j < nFeatures; j++)
+        {
+            sqrtDetSigma *= pInvSigma[j * nFeatures + j];
+        }
         sqrtDetSigma           = infToBigValue<cpu>(sqrtDetSigma);
         sqrtInvDetSigma[iComp] = 1.0 / sqrtDetSigma;
 
@@ -630,7 +730,10 @@ Status GmmModelFull<algorithmFPType, cpu>::computeSigmaInverse(size_t iteration)
         if (info != 0)
         {
             ErrorPtr e;
-            if (info < 0) { e = Error::create(ErrorIncorrectInternalFunctionParameter); }
+            if (info < 0)
+            {
+                e = Error::create(ErrorIncorrectInternalFunctionParameter);
+            }
             else
             {
                 e = Error::create(ErrorEMMatrixInverse);
@@ -677,7 +780,10 @@ services::Status EMKernelTask<algorithmFPType, method, cpu>::setStartValues()
     {
         const algorithmFPType * initCov = bd.set(initialCovariances[i], 0, covs->getNumberOfRowsInCov());
         DAAL_CHECK(initCov, ErrorMemoryAllocationFailed);
-        if (initCov != sigma[i]) { result |= daal::services::internal::daal_memcpy_s(sigma[i], nCopy, initCov, nCopy); }
+        if (initCov != sigma[i])
+        {
+            result |= daal::services::internal::daal_memcpy_s(sigma[i], nCopy, initCov, nCopy);
+        }
     }
     return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
 }

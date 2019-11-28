@@ -83,7 +83,10 @@ services::Status Result::allocate(const daal::algorithms::Input * input, const d
 
             if (!pOpt->get(pastWorkValue))
             {
-                if (deviceInfo.isCpu) { pTbl = HomogenNumericTable<algorithmFPType>::create(1, argumentSize, NumericTable::doAllocate, 0.0, &s); }
+                if (deviceInfo.isCpu)
+                {
+                    pTbl = HomogenNumericTable<algorithmFPType>::create(1, argumentSize, NumericTable::doAllocate, 0.0, &s);
+                }
                 else
                 {
                     pTbl = SyclHomogenNumericTable<algorithmFPType>::create(1, argumentSize, NumericTable::doAllocate, 0.0, &s);

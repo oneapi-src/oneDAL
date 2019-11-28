@@ -61,7 +61,10 @@ services::Status Parameter::check() const
         DAAL_CHECK_EX(learningRateSequence->getNumberOfColumns() == 1, services::ErrorIncorrectNumberOfColumns, services::ArgumentName,
                       "learningRateSequence");
     }
-    if (batchIndices) { DAAL_CHECK_STATUS(s, data_management::checkNumericTable(batchIndices.get(), "batchIndices", 0, 0, 1, nIterations)); }
+    if (batchIndices)
+    {
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(batchIndices.get(), "batchIndices", 0, 0, 1, nIterations));
+    }
     if (batchSize > function->sumOfFunctionsParameter->numberOfTerms || batchSize == 0)
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ArgumentName, batchSizeStr()));
 
@@ -95,7 +98,10 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     if (!s) return s;
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalArgument);
     if (!pOpt.get()) return services::Status(); //ok
-    if (pOpt->size() != lastOptionalData + 1) { return services::Status(services::ErrorIncorrectOptionalInput); }
+    if (pOpt->size() != lastOptionalData + 1)
+    {
+        return services::Status(services::ErrorIncorrectOptionalInput);
+    }
     data_management::NumericTablePtr pGradientsTable = data_management::NumericTable::cast(pOpt->get(gradientsTable));
     if (pGradientsTable.get())
     {
@@ -130,8 +136,14 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     services::Status s = super::check(input, par, method);
     if (!s || !static_cast<const Parameter *>(par)->optionalResultRequired) return s;
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
-    if (!pOpt.get()) { return services::Status(services::ErrorNullOptionalResult); }
-    if (pOpt->size() != lastOptionalData + 1) { return services::Status(services::ErrorIncorrectOptionalResult); }
+    if (!pOpt.get())
+    {
+        return services::Status(services::ErrorNullOptionalResult);
+    }
+    if (pOpt->size() != lastOptionalData + 1)
+    {
+        return services::Status(services::ErrorIncorrectOptionalResult);
+    }
 
     return s;
 }

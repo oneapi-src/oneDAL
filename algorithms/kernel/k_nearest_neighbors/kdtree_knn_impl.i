@@ -146,7 +146,10 @@ public:
         _size *= 2;
         T * const newData = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
         DAAL_CHECK_MALLOC(newData)
-        if (_top == _sizeMinus1) { _top = _size - 1; }
+        if (_top == _sizeMinus1)
+        {
+            _top = _size - 1;
+        }
         _sizeMinus1 = _size - 1;
         int result  = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
         T * oldData = _data;

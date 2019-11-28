@@ -44,7 +44,10 @@ ModelQRInternal::ModelQRInternal(size_t featnum, size_t nrhs, const linear_regre
     : super(featnum, nrhs, par, dummy)
 {
     size_t dimWithoutBeta = getNumberOfBetas();
-    if (!_interceptFlag) { dimWithoutBeta--; };
+    if (!_interceptFlag)
+    {
+        dimWithoutBeta--;
+    };
 
     _rTable = HomogenNumericTable<modelFPType>::create(dimWithoutBeta, dimWithoutBeta, NumericTable::doAllocate, 0, &st);
     if (!st) return;

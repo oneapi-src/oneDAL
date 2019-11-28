@@ -72,13 +72,22 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute(size_
     const size_t nBlocks = na / 5;
 
     /* TODO: initialization  */
-    for (size_t j = 0; j < nClusters; j++) { clusterS0[j] = 0; }
+    for (size_t j = 0; j < nClusters; j++)
+    {
+        clusterS0[j] = 0;
+    }
 
-    for (size_t j = 0; j < nClusters * p; j++) { clusterS1[j] = 0; }
+    for (size_t j = 0; j < nClusters * p; j++)
+    {
+        clusterS1[j] = 0;
+    }
 
     goalFunc[0] = 0;
 
-    for (size_t j = 0; j < nClusters; j++) { cValues[j] = (algorithmFPType)-1.0; }
+    for (size_t j = 0; j < nClusters; j++)
+    {
+        cValues[j] = (algorithmFPType)-1.0;
+    }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(algorithmFPType));
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, sizeof(size_t));
@@ -104,16 +113,25 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute(size_
         const algorithmFPType * inTargetFunc = mtInTargetFunc.get();
         const algorithmFPType * inCValues    = mtInCValues.get();
 
-        for (size_t j = 0; j < nClusters; j++) { clusterS0[j] += inClusterS0[j]; }
+        for (size_t j = 0; j < nClusters; j++)
+        {
+            clusterS0[j] += inClusterS0[j];
+        }
 
-        for (size_t j = 0; j < nClusters * p; j++) { clusterS1[j] += inClusterS1[j]; }
+        for (size_t j = 0; j < nClusters * p; j++)
+        {
+            clusterS1[j] += inClusterS1[j];
+        }
 
         goalFunc[0] += inTargetFunc[0];
 
         size_t cPos = 0, clPos = 0, cNum = 0;
         while (cNum < nClusters)
         {
-            if (cValues[cPos] < (algorithmFPType)0.0 && inCValues[clPos] < (algorithmFPType)0.0) { break; }
+            if (cValues[cPos] < (algorithmFPType)0.0 && inCValues[clPos] < (algorithmFPType)0.0)
+            {
+                break;
+            }
             if (cValues[cPos] > inCValues[clPos])
             {
                 tmpValues[cNum]  = cValues[cPos];
@@ -135,7 +153,10 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::compute(size_
 
     for (size_t i = 0; i < nClusters; i++)
     {
-        if (cValues[i] < (algorithmFPType)0.0) { break; }
+        if (cValues[i] < (algorithmFPType)0.0)
+        {
+            break;
+        }
         size_t block      = cIndices[i] / nClusters;
         size_t posInBlock = cIndices[i] % nClusters;
 
@@ -195,7 +216,10 @@ Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::finalizeCompu
         {
             algorithmFPType coeff = 1.0 / clusterS0[i];
 
-            for (size_t j = 0; j < p; j++) { clusters[i * p + j] = clusterS1[i * p + j] * coeff; }
+            for (size_t j = 0; j < p; j++)
+            {
+                clusters[i * p + j] = clusterS1[i * p + j] * coeff;
+            }
         }
         else
         {

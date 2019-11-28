@@ -118,9 +118,18 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     const size_t nRows = algInput->get(argument)->getNumberOfRows();
 
     services::Status s;
-    if (algParameter->resultsToCompute & value) { s = checkNumericTable(get(valueIdx).get(), valueIdxStr(), 0, 0, 1, 1); }
-    if (algParameter->resultsToCompute & gradient) { s |= checkNumericTable(get(gradientIdx).get(), gradientIdxStr(), 0, 0, 1, nRows); }
-    if (algParameter->resultsToCompute & hessian) { s |= checkNumericTable(get(hessianIdx).get(), hessianIdxStr(), 0, 0, nRows, nRows); }
+    if (algParameter->resultsToCompute & value)
+    {
+        s = checkNumericTable(get(valueIdx).get(), valueIdxStr(), 0, 0, 1, 1);
+    }
+    if (algParameter->resultsToCompute & gradient)
+    {
+        s |= checkNumericTable(get(gradientIdx).get(), gradientIdxStr(), 0, 0, 1, nRows);
+    }
+    if (algParameter->resultsToCompute & hessian)
+    {
+        s |= checkNumericTable(get(hessianIdx).get(), hessianIdxStr(), 0, 0, nRows, nRows);
+    }
     return s;
 }
 

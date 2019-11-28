@@ -42,7 +42,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_1source_String
         return (jlong)0;
     }
 
-    for (size_t i = 0; i < n; i++) { inner_data[i] = data[i]; }
+    for (size_t i = 0; i < n; i++)
+    {
+        inner_data[i] = data[i];
+    }
     inner_data[n] = '\0';
 
     env->ReleaseStringUTFChars(jData, data);
@@ -72,7 +75,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_StringD
         DAAL_CHECK_THROW(services::Status(services::ErrorMemoryAllocationFailed));
         return;
     }
-    for (size_t i = 0; i < n; i++) { inner_data[i] = data[i]; }
+    for (size_t i = 0; i < n; i++)
+    {
+        inner_data[i] = data[i];
+    }
     inner_data[n] = '\0';
 
     env->ReleaseStringUTFChars(jData, data);
@@ -91,7 +97,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_StringD
 {
     const byte * data = ((StringDataSource<CSVFeatureManager> *)ptr)->getData();
     delete (DataSource *)ptr;
-    if (data) { daal_free((void *)data); }
+    if (data)
+    {
+        daal_free((void *)data);
+    }
 }
 
 /*

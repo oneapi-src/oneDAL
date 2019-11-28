@@ -111,7 +111,10 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         }
         dataR[i] = -0.5 * invSqrSigma * factor;
 
-        if (dataR[i] < Math<algorithmFPType, cpu>::vExpThreshold()) { dataR[i] = Math<algorithmFPType, cpu>::vExpThreshold(); }
+        if (dataR[i] < Math<algorithmFPType, cpu>::vExpThreshold())
+        {
+            dataR[i] = Math<algorithmFPType, cpu>::vExpThreshold();
+        }
     }
     daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors1, dataR, dataR);
     return services::Status();
@@ -174,12 +177,18 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         for (size_t i = 0; i < nVectors1; i++)
         {
             sqrDataA1[i] = zero;
-            for (size_t j = 0; j < nFeatures; j++) { sqrDataA1[i] += dataA1[i * nFeatures + j] * dataA1[i * nFeatures + j]; }
+            for (size_t j = 0; j < nFeatures; j++)
+            {
+                sqrDataA1[i] += dataA1[i * nFeatures + j] * dataA1[i * nFeatures + j];
+            }
         }
         for (size_t i = 0; i < nVectors2; i++)
         {
             sqrDataA2[i] = zero;
-            for (size_t j = 0; j < nFeatures; j++) { sqrDataA2[i] += dataA2[i * nFeatures + j] * dataA2[i * nFeatures + j]; }
+            for (size_t j = 0; j < nFeatures; j++)
+            {
+                sqrDataA2[i] += dataA2[i * nFeatures + j] * dataA2[i * nFeatures + j];
+            }
         }
         for (size_t i = 0; i < nVectors1; i++)
         {
@@ -188,7 +197,9 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
                 dataR[i * nVectors2 + k] += (sqrDataA1[i] + sqrDataA2[k]);
                 dataR[i * nVectors2 + k] *= coeff;
                 if (dataR[i * nVectors2 + k] < Math<algorithmFPType, cpu>::vExpThreshold())
-                { dataR[i * nVectors2 + k] = Math<algorithmFPType, cpu>::vExpThreshold(); }
+                {
+                    dataR[i * nVectors2 + k] = Math<algorithmFPType, cpu>::vExpThreshold();
+                }
             }
         }
         daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors1 * nVectors2, dataR, dataR);
@@ -212,7 +223,9 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         for (size_t i = 0; i < nVectors1; i++)
         {
             for (size_t k = 0; k < i; k++)
-            { dataR[i * nVectors1 + k] = coeff * (dataR[i * nVectors1 + i] + dataR[k * nVectors1 + k] - two * dataR[i * nVectors1 + k]); }
+            {
+                dataR[i * nVectors1 + k] = coeff * (dataR[i * nVectors1 + i] + dataR[k * nVectors1 + k] - two * dataR[i * nVectors1 + k]);
+            }
         }
         for (size_t i = 0; i < nVectors1; i++)
         {
@@ -221,7 +234,10 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         }
         for (size_t i = 0; i < nVectors1; i++)
         {
-            for (size_t k = i + 1; k < nVectors1; k++) { dataR[i * nVectors1 + k] = dataR[k * nVectors1 + i]; }
+            for (size_t k = i + 1; k < nVectors1; k++)
+            {
+                dataR[i * nVectors1 + k] = dataR[k * nVectors1 + i];
+            }
         }
     }
     return services::Status();

@@ -44,7 +44,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformInp
                                                                                                   jint id, jlong ntAddr)
 {
     if (id == InputDataId || id == InputEigenvectorsId)
-    { jniInput<pca::transform::Input>::set<pca::transform::InputId, NumericTable>(inputAddr, id, ntAddr); }
+    {
+        jniInput<pca::transform::Input>::set<pca::transform::InputId, NumericTable>(inputAddr, id, ntAddr);
+    }
 }
 
 /*
@@ -56,7 +58,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformInp
                                                                                                           jlong inputAddr, jint id, jlong ntAddr)
 {
     if (id == DataForTransformId)
-    { jniInput<pca::transform::Input>::set<pca::transform::TransformDataInputId, KeyValueDataCollection>(inputAddr, id, ntAddr); }
+    {
+        jniInput<pca::transform::Input>::set<pca::transform::TransformDataInputId, KeyValueDataCollection>(inputAddr, id, ntAddr);
+    }
 }
 
 /*
@@ -85,7 +89,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformIn
                                                                                                    jint id)
 {
     if (id == InputDataId || id == InputEigenvectorsId)
-    { return jniInput<pca::transform::Input>::get<pca::transform::InputId, NumericTable>(inputAddr, id); }
+    {
+        return jniInput<pca::transform::Input>::get<pca::transform::InputId, NumericTable>(inputAddr, id);
+    }
 
     return (jlong)0;
 }
@@ -99,7 +105,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformIn
                                                                                                            jlong inputAddr, jint id)
 {
     if (id == DataForTransformId)
-    { return jniInput<pca::transform::Input>::get<pca::transform::TransformDataInputId, KeyValueDataCollection>(inputAddr, id); }
+    {
+        return jniInput<pca::transform::Input>::get<pca::transform::TransformDataInputId, KeyValueDataCollection>(inputAddr, id);
+    }
 
     return (jlong)0;
 }

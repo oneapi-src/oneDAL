@@ -152,7 +152,10 @@ KeyValueDataCollectionPtr initializeStep1Local()
     training::init::PartialResultPtr partialResult = initAlgorithm.getPartialResult();
     itemStep3LocalInput                            = partialResult->get(training::init::outputOfInitForComputeStep3);
     userOffset                                     = partialResult->get(training::init::offsets, (size_t)rankId);
-    if (rankId == mpi_root) { userOffsetsOnMaster = partialResult->get(training::init::offsets); }
+    if (rankId == mpi_root)
+    {
+        userOffsetsOnMaster = partialResult->get(training::init::offsets);
+    }
     PartialModelPtr partialModelLocal = partialResult->get(training::init::partialModel);
 
     itemsPartialResultLocal.reset(new training::DistributedPartialResultStep4());
@@ -175,7 +178,10 @@ void initializeStep2Local(const KeyValueDataCollectionPtr & initStep2LocalInput)
     transposedDataTable                                            = CSRNumericTable::cast(partialResult->get(training::init::transposedData));
     userStep3LocalInput                                            = partialResult->get(training::init::outputOfInitForComputeStep3);
     itemOffset                                                     = partialResult->get(training::init::offsets, (size_t)rankId);
-    if (rankId == mpi_root) { itemOffsetsOnMaster = partialResult->get(training::init::offsets); }
+    if (rankId == mpi_root)
+    {
+        itemOffsetsOnMaster = partialResult->get(training::init::offsets);
+    }
 }
 
 void initializeModel()
@@ -184,7 +190,10 @@ void initializeModel()
 
     /* MPI_Alltoallv to populate initStep2LocalInput */
     ByteBuffer nodeCPs[nBlocks];
-    for (size_t i = 0; i < nBlocks; i++) { serializeDAALObject((*initStep1LocalResult)[i].get(), nodeCPs[i]); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        serializeDAALObject((*initStep1LocalResult)[i].get(), nodeCPs[i]);
+    }
     KeyValueDataCollectionPtr initStep2LocalInput(new KeyValueDataCollection());
     all2all<NumericTable>(nodeCPs, initStep2LocalInput);
 
@@ -214,7 +223,10 @@ NumericTablePtr computeStep2Master(const training::DistributedPartialResultStep1
     algorithm.parameter.nFactors = nFactors;
 
     /* Set input objects for the algorithm */
-    for (size_t i = 0; i < nBlocks; i++) { algorithm.input.add(training::inputOfStep2FromStep1, step1LocalResultsOnMaster[i]); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        algorithm.input.add(training::inputOfStep2FromStep1, step1LocalResultsOnMaster[i]);
+    }
 
     /* Compute a partial estimate on the master node from the partial estimates on local nodes */
     algorithm.compute();
@@ -282,14 +294,20 @@ void trainModel()
         }
 
         MPI_Bcast(&crossProductLen, sizeof(int), MPI_CHAR, mpi_root, MPI_COMM_WORLD);
-        if (rankId != mpi_root) { crossProductBuf.resize(crossProductLen); }
+        if (rankId != mpi_root)
+        {
+            crossProductBuf.resize(crossProductLen);
+        }
         MPI_Bcast(&crossProductBuf[0], crossProductLen, MPI_CHAR, mpi_root, MPI_COMM_WORLD);
         step2MasterResult = NumericTable::cast(deserializeDAALObject(&crossProductBuf[0], crossProductLen));
 
         step3LocalResult = computeStep3Local(itemOffset, itemsPartialResultLocal, itemStep3LocalInput);
 
         /* MPI_Alltoallv to populate step4LocalInput */
-        for (size_t i = 0; i < nBlocks; i++) { serializeDAALObject((*step3LocalResult)[i].get(), nodeCPs[i]); }
+        for (size_t i = 0; i < nBlocks; i++)
+        {
+            serializeDAALObject((*step3LocalResult)[i].get(), nodeCPs[i]);
+        }
         all2all<PartialModel>(nodeCPs, step4LocalInput);
 
         usersPartialResultLocal = computeStep4Local(transposedDataTable, step2MasterResult, step4LocalInput);
@@ -309,14 +327,20 @@ void trainModel()
         }
 
         MPI_Bcast(&crossProductLen, sizeof(int), MPI_CHAR, mpi_root, MPI_COMM_WORLD);
-        if (rankId != mpi_root) { crossProductBuf.resize(crossProductLen); }
+        if (rankId != mpi_root)
+        {
+            crossProductBuf.resize(crossProductLen);
+        }
         MPI_Bcast(&crossProductBuf[0], crossProductLen, MPI_CHAR, mpi_root, MPI_COMM_WORLD);
         step2MasterResult = NumericTable::cast(deserializeDAALObject(&crossProductBuf[0], crossProductLen));
 
         step3LocalResult = computeStep3Local(userOffset, usersPartialResultLocal, userStep3LocalInput);
 
         /* MPI_Alltoallv to populate step4LocalInput */
-        for (size_t i = 0; i < nBlocks; i++) { serializeDAALObject((*step3LocalResult)[i].get(), nodeCPs[i]); }
+        for (size_t i = 0; i < nBlocks; i++)
+        {
+            serializeDAALObject((*step3LocalResult)[i].get(), nodeCPs[i]);
+        }
         all2all<PartialModel>(nodeCPs, step4LocalInput);
 
         itemsPartialResultLocal = computeStep4Local(dataTable, step2MasterResult, step4LocalInput);
@@ -359,7 +383,10 @@ void gather(const ByteBuffer & nodeResults, T * result)
     if (rankId == mpi_root)
     {
         int memoryBuf = 0;
-        for (int i = 0; i < nBlocks; i++) { memoryBuf += perNodeArchLengthMaster[i]; }
+        for (int i = 0; i < nBlocks; i++)
+        {
+            memoryBuf += perNodeArchLengthMaster[i];
+        }
         serializedData.resize(memoryBuf);
 
         size_t shift = 0;
@@ -391,7 +418,10 @@ void gatherItems(const ByteBuffer & nodeResults)
     MPI_Allgather(&perNodeArchLength, sizeof(int), MPI_CHAR, perNodeArchLengthMaster, sizeof(int), MPI_CHAR, MPI_COMM_WORLD);
 
     int memoryBuf = 0;
-    for (int i = 0; i < nBlocks; i++) { memoryBuf += perNodeArchLengthMaster[i]; }
+    for (int i = 0; i < nBlocks; i++)
+    {
+        memoryBuf += perNodeArchLengthMaster[i];
+    }
     serializedData.resize(memoryBuf);
 
     size_t shift = 0;
@@ -453,5 +483,7 @@ void all2all(ByteBuffer * nodeResults, KeyValueDataCollectionPtr result)
                   MPI_COMM_WORLD);
 
     for (size_t i = 0; i < nBlocks; i++)
-    { (*result)[i] = T::cast(deserializeDAALObject(&serializedRecvData[rdispls[i]], perNodeArchLengthsRecv[i])); }
+    {
+        (*result)[i] = T::cast(deserializeDAALObject(&serializedRecvData[rdispls[i]], perNodeArchLengthsRecv[i]));
+    }
 }

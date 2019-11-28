@@ -67,7 +67,10 @@ inline void OutlierDetectionKernel<algorithmFPType, method, cpu>::mahalanobisDis
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < nFeatures; j++) { dataCenPtr[j] = dataPtr[j] - location[j]; }
+        for (size_t j = 0; j < nFeatures; j++)
+        {
+            dataCenPtr[j] = dataPtr[j] - location[j];
+        }
     }
 
     Blas<algorithmFPType, cpu>::xsymm(&side, &uplo, &dim, &n, &one, invScatter, &dim, dataCen, &dim, &zero, dataCenInvScatter, &dim);
@@ -79,7 +82,10 @@ inline void OutlierDetectionKernel<algorithmFPType, method, cpu>::mahalanobisDis
         distance[i] = zero;
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < nFeatures; j++) { distance[i] += dataCenPtr[j] * dataCenInvScatterPtr[j]; }
+        for (size_t j = 0; j < nFeatures; j++)
+        {
+            distance[i] += dataCenPtr[j] * dataCenInvScatterPtr[j];
+        }
     }
 }
 
@@ -97,7 +103,10 @@ inline Status OutlierDetectionKernel<algorithmFPType, method, cpu>::computeInter
     algorithmFPType zero         = (algorithmFPType)0.0;
     algorithmFPType * invScatter = buffer;
 
-    for (size_t i = 0; i < nFeatures * nFeatures; i++) { invScatter[i] = scatterArray[i]; }
+    for (size_t i = 0; i < nFeatures * nFeatures; i++)
+    {
+        invScatter[i] = scatterArray[i];
+    }
 
     /* Calculate inverse of data variance-covariance matrix */
     DAAL_INT dim = (DAAL_INT)nFeatures;
@@ -110,14 +119,20 @@ inline Status OutlierDetectionKernel<algorithmFPType, method, cpu>::computeInter
     DAAL_CHECK(info == 0, ErrorOutlierDetectionInternal);
 
     size_t nBlocks = nVectors / blockSize;
-    if (nBlocks * blockSize < nVectors) { nBlocks++; }
+    if (nBlocks * blockSize < nVectors)
+    {
+        nBlocks++;
+    }
 
     /* Process input data table in blocks */
     for (size_t iBlock = 0; iBlock < nBlocks; iBlock++)
     {
         size_t startRow     = iBlock * blockSize;
         size_t nRowsInBlock = blockSize;
-        if (startRow + nRowsInBlock > nVectors) { nRowsInBlock = nVectors - startRow; }
+        if (startRow + nRowsInBlock > nVectors)
+        {
+            nRowsInBlock = nVectors - startRow;
+        }
         DAAL_INT n = (DAAL_INT)nRowsInBlock;
 
         const algorithmFPType * data = dataBlock.next(startRow, nRowsInBlock);
@@ -131,7 +146,10 @@ inline Status OutlierDetectionKernel<algorithmFPType, method, cpu>::computeInter
 
         for (size_t i = 0; i < nRowsInBlock; i++)
         {
-            if (Math<algorithmFPType, cpu>::sSqrt(weight[i]) > thresholdValue) { weight[i] = zero; }
+            if (Math<algorithmFPType, cpu>::sSqrt(weight[i]) > thresholdValue)
+            {
+                weight[i] = zero;
+            }
             else
             {
                 weight[i] = one;
@@ -159,7 +177,10 @@ Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(NumericTabl
 
     DAAL_CHECK(locationArray && scatterArray && thresholdArray, ErrorMemoryAllocationFailed)
 
-    if (!locationTable || !scatterTable || !thresholdTable) { defaultInitialization(locationArray, scatterArray, thresholdArray, nFeatures); }
+    if (!locationTable || !scatterTable || !thresholdTable)
+    {
+        defaultInitialization(locationArray, scatterArray, thresholdArray, nFeatures);
+    }
 
     /* Allocate memory for storing intermediate results */
     size_t bufferSize = nFeatures * nFeatures + 2 * nFeatures * nVectors;
@@ -177,7 +198,10 @@ void OutlierDetectionKernel<algorithmFPType, method, cpu>::defaultInitialization
     for (size_t i = 0; i < nFeatures; i++)
     {
         locationArray[i] = 0.0;
-        for (size_t j = 0; j < nFeatures; j++) { scatterArray[i * nFeatures + j] = 0.0; }
+        for (size_t j = 0; j < nFeatures; j++)
+        {
+            scatterArray[i * nFeatures + j] = 0.0;
+        }
         scatterArray[i * nFeatures + i] = 1.0;
     }
     thresholdArray[0] = 3.0;

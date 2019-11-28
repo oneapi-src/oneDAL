@@ -107,7 +107,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_association_1rules_Parame
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_association_1rules_Parameter_cSetItemsetsOrder(JNIEnv * env, jobject thisObj, jlong parAddr,
                                                                                                      jint id)
 {
-    if (id == ItemsetsUnsorted) { (*(association_rules::Parameter *)parAddr).itemsetsOrder = association_rules::itemsetsUnsorted; }
+    if (id == ItemsetsUnsorted)
+    {
+        (*(association_rules::Parameter *)parAddr).itemsetsOrder = association_rules::itemsetsUnsorted;
+    }
     else if (id == ItemsetsSortedBySupport)
     {
         (*(association_rules::Parameter *)parAddr).itemsetsOrder = association_rules::itemsetsSortedBySupport;
@@ -122,7 +125,10 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_association_1rules_Paramet
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_association_1rules_Parameter_cSetRulesOrder(JNIEnv * env, jobject thisObj, jlong parAddr,
                                                                                                   jint id)
 {
-    if (id == RulesUnsorted) { (*(association_rules::Parameter *)parAddr).rulesOrder = association_rules::rulesUnsorted; }
+    if (id == RulesUnsorted)
+    {
+        (*(association_rules::Parameter *)parAddr).rulesOrder = association_rules::rulesUnsorted;
+    }
     else if (id == RulesSortedByConfidence)
     {
         (*(association_rules::Parameter *)parAddr).rulesOrder = association_rules::rulesSortedByConfidence;

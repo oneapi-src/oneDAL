@@ -280,7 +280,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_NumericTableIm
     default: break;
     }
 
-    if (tbl->getErrors()->size() > 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription()); }
+    if (tbl->getErrors()->size() > 0)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
+    }
 
     return (jlong)(new SerializationIfacePtr(tbl));
 }

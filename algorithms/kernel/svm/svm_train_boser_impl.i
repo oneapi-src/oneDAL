@@ -165,7 +165,10 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setResultsToModel(cons
     Status s;
     DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));
     DAAL_CHECK_STATUS(s, setSVIndices(nSV, model));
-    if (xTable.getDataLayout() == NumericTableIface::csrArray) { DAAL_CHECK_STATUS(s, setSV_CSR(model, xTable, nSV)); }
+    if (xTable.getDataLayout() == NumericTableIface::csrArray)
+    {
+        DAAL_CHECK_STATUS(s, setSV_CSR(model, xTable, nSV));
+    }
     else
     {
         DAAL_CHECK_STATUS(s, setSV_Dense(model, xTable, nSV));
@@ -265,7 +268,10 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_Dense(Model & mo
         mtX.set(const_cast<NumericTable *>(&xTable), rowIndex, 1);
         DAAL_CHECK_BLOCK_STATUS(mtX);
         const algorithmFPType * xi = mtX.get();
-        for (size_t j = 0; j < nFeatures; j++) { sv[iSV * nFeatures + j] = xi[j]; }
+        for (size_t j = 0; j < nFeatures; j++)
+        {
+            sv[iSV * nFeatures + j] = xi[j];
+        }
         iSV++;
     }
     return s;
@@ -315,7 +321,10 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setSV_CSR(Model & mode
     /* Copy row offsets into the table */
     size_t * svRowOffsets = nullptr;
     svTable->getArrays<algorithmFPType>(NULL, NULL, &svRowOffsets);
-    for (size_t i = 0; i < nSV + 1; i++) { svRowOffsets[i] = svRowOffsetsBuffer[i]; }
+    for (size_t i = 0; i < nSV + 1; i++)
+    {
+        svRowOffsets[i] = svRowOffsetsBuffer[i];
+    }
 
     WriteOnlyRowsCSR<algorithmFPType, cpu> mtSv(*svTable, 0, nSV);
     DAAL_CHECK_BLOCK_STATUS(mtSv);
@@ -365,7 +374,10 @@ algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::calculateBias
     for (size_t i = 0; i < _nVectors; i++)
     {
         const algorithmFPType yg = -y[i] * grad[i];
-        if (y[i] == -one && alpha[i] == C) { ub = ((ub > yg) ? ub : yg); } /// SVM_MAX(ub, yg);
+        if (y[i] == -one && alpha[i] == C)
+        {
+            ub = ((ub > yg) ? ub : yg);
+        } /// SVM_MAX(ub, yg);
         else if (y[i] == one && alpha[i] == C)
         {
             lb = ((lb < yg) ? lb : yg);
@@ -385,7 +397,10 @@ algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::calculateBias
         }
     }
 
-    if (num_yg == 0) { bias = 0.5 * (ub + lb); }
+    if (num_yg == 0)
+    {
+        bias = 0.5 * (ub + lb);
+    }
     else
     {
         bias = sum_yg / (algorithmFPType)num_yg;
@@ -416,7 +431,10 @@ algorithmFPType SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSi(size_t n
     /* Find i index of the working set (Bi) */
     for (size_t i = 0; i < nActiveVectors; i++)
     {
-        if ((I[i] & up) != up) { continue; }
+        if ((I[i] & up) != up)
+        {
+            continue;
+        }
         algorithmFPType objFunc = -y[i] * grad[i];
         if (objFunc >= GMax)
         {
@@ -443,13 +461,25 @@ void SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSjLocalBaseline(const 
     for (size_t j = jStart; j < jEnd; j++)
     {
         algorithmFPType ygrad = -_y[j] * _grad[j];
-        if ((_I[j] & low) != low) { continue; }
-        if (ygrad <= GMin2) { GMin2 = ygrad; }
-        if (ygrad >= GMax) { continue; }
+        if ((_I[j] & low) != low)
+        {
+            continue;
+        }
+        if (ygrad <= GMin2)
+        {
+            GMin2 = ygrad;
+        }
+        if (ygrad >= GMax)
+        {
+            continue;
+        }
 
         algorithmFPType b = GMax - ygrad;
         algorithmFPType a = Kii + _kernelDiag[j] - two * KiBlock[j - jStart];
-        if (a <= zero) { a = tau; }
+        if (a <= zero)
+        {
+            a = tau;
+        }
         algorithmFPType dt      = b / a;
         algorithmFPType objFunc = -b * dt;
         if (objFunc <= GMin)
@@ -502,12 +532,18 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVec
 
     Status s;
     size_t nBlocks = nActiveVectors / kernelFunctionBlockSize;
-    if (nBlocks * kernelFunctionBlockSize < nActiveVectors) { nBlocks++; }
+    if (nBlocks * kernelFunctionBlockSize < nActiveVectors)
+    {
+        nBlocks++;
+    }
     for (size_t iBlock = 0; iBlock < nBlocks; iBlock++)
     {
         size_t jStart = iBlock * kernelFunctionBlockSize;
         size_t jEnd   = jStart + kernelFunctionBlockSize;
-        if (jEnd > nActiveVectors) { jEnd = nActiveVectors; }
+        if (jEnd > nActiveVectors)
+        {
+            jEnd = nActiveVectors;
+        }
 
         const algorithmFPType * KiBlock = nullptr;
         s                               = _cache->getRowBlock(Bi, jStart, (jEnd - jStart), KiBlock);
@@ -523,7 +559,10 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVec
             Bj    = Bj_local;
             delta = delta_local;
         }
-        if (GMin2_local <= GMin2) { GMin2 = GMin2_local; }
+        if (GMin2_local <= GMin2)
+        {
+            GMin2 = GMin2_local;
+        }
     }
     res = GMin2;
     return s;
@@ -568,7 +607,10 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::update(size_t nActiveV
     {
         size_t tStart = iBlock * blockSize;
         size_t tEnd   = tStart + blockSize;
-        if (tEnd > nActiveVectors) { tEnd = nActiveVectors; }
+        if (tEnd > nActiveVectors)
+        {
+            tEnd = nActiveVectors;
+        }
 
         const algorithmFPType * KiBlock = nullptr;
         const algorithmFPType * KjBlock = nullptr;
@@ -609,12 +651,24 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateAlpha(algor
     /* Project alpha back to the feasible region */
     algorithmFPType sum = yi * oldAlphai + yj * oldAlphaj;
 
-    if (newAlphai > C) { newAlphai = C; }
-    if (newAlphai < zero) { newAlphai = zero; }
+    if (newAlphai > C)
+    {
+        newAlphai = C;
+    }
+    if (newAlphai < zero)
+    {
+        newAlphai = zero;
+    }
     newAlphaj = yj * (sum - yi * newAlphai);
 
-    if (newAlphaj > C) { newAlphaj = C; }
-    if (newAlphaj < zero) { newAlphaj = zero; }
+    if (newAlphaj > C)
+    {
+        newAlphaj = C;
+    }
+    if (newAlphaj < zero)
+    {
+        newAlphaj = zero;
+    }
     newAlphai = yi * (sum - yj * newAlphaj);
 
     _alpha[Bj] = newAlphaj;
@@ -719,7 +773,10 @@ template <typename algorithmFPType, typename ParameterType, CpuType cpu>
 Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructGradient(size_t & nActiveVectors)
 {
     size_t nBlocks = _nVectors / kernelFunctionBlockSize;
-    if (nBlocks * kernelFunctionBlockSize < _nVectors) { nBlocks++; }
+    if (nBlocks * kernelFunctionBlockSize < _nVectors)
+    {
+        nBlocks++;
+    }
     algorithmFPType * grad        = _grad.get();
     const algorithmFPType * y     = _y.get();
     const algorithmFPType * alpha = _alpha.get();
@@ -733,11 +790,17 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::reconstructGradient(si
         {
             size_t jStart = jBlock * kernelFunctionBlockSize;
             size_t jEnd   = jStart + kernelFunctionBlockSize;
-            if (jEnd > _nVectors) { jEnd = _nVectors; }
+            if (jEnd > _nVectors)
+            {
+                jEnd = _nVectors;
+            }
 
             const algorithmFPType * cacheRow = nullptr;
             s                                = _cache->getRowBlock(i, jStart, (jEnd - jStart), cacheRow);
-            for (size_t j = jStart; j < jEnd; j++) { grad[i] += yi * y[j] * cacheRow[j - jStart] * alpha[j]; }
+            for (size_t j = jStart; j < jEnd; j++)
+            {
+                grad[i] += yi * y[j] * cacheRow[j - jStart] * alpha[j];
+            }
         }
     }
     nActiveVectors = _nVectors;
@@ -767,7 +830,9 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::setup(const ParameterT
     size_t cacheSize                       = svmPar.cacheSize;
     Status s;
     if (cacheSize >= _nVectors * _nVectors * sizeof(algorithmFPType))
-    { _cache = SVMCache<simpleCache, algorithmFPType, cpu>::create(_nVectors, svmPar.doShrinking, xTable, kernel, s); }
+    {
+        _cache = SVMCache<simpleCache, algorithmFPType, cpu>::create(_nVectors, svmPar.doShrinking, xTable, kernel, s);
+    }
     else
     {
         cacheSize = kernelFunctionBlockSize;
@@ -830,10 +895,22 @@ inline void SVMTrainTask<algorithmFPType, ParameterType, cpu>::updateI(algorithm
     algorithmFPType alphai = _alpha[index];
     algorithmFPType yi     = _y[index];
     Ii &= (char)shrink;
-    if (alphai < C && yi == +one) { Ii |= up; }
-    if (alphai > zero && yi == -one) { Ii |= up; }
-    if (alphai < C && yi == -one) { Ii |= low; }
-    if (alphai > zero && yi == +one) { Ii |= low; }
+    if (alphai < C && yi == +one)
+    {
+        Ii |= up;
+    }
+    if (alphai > zero && yi == -one)
+    {
+        Ii |= up;
+    }
+    if (alphai < C && yi == -one)
+    {
+        Ii |= low;
+    }
+    if (alphai > zero && yi == +one)
+    {
+        Ii |= low;
+    }
     _I[index] = Ii;
 }
 
@@ -897,7 +974,9 @@ Status SVMCache<simpleCache, algorithmFPType, cpu>::updateShrinkingRowIndices(si
 
         /* Swap i-th and j-th column in cache */
         for (size_t k = 0; k < _nLines; k++)
-        { daal::services::internal::swap<cpu, algorithmFPType>(_cache[i + k * _lineSize], _cache[j + k * _lineSize]); }
+        {
+            daal::services::internal::swap<cpu, algorithmFPType>(_cache[i + k * _lineSize], _cache[j + k * _lineSize]);
+        }
 
         // maybe not needed
         _cache[i * _lineSize + i] = cachejj;

@@ -239,7 +239,10 @@ bool ModelImpl::nodeIsDummyLeaf(size_t idx, const GbtDecisionTree & gbtTree)
 
 bool ModelImpl::nodeIsLeaf(size_t idx, const GbtDecisionTree & gbtTree, const size_t lvl)
 {
-    if (lvl == gbtTree.getMaxLvl()) { return true; }
+    if (lvl == gbtTree.getMaxLvl())
+    {
+        return true;
+    }
     else if (nodeIsDummyLeaf(2 * idx + 1, gbtTree)) // check, that left son is dummy
     {
         return true;

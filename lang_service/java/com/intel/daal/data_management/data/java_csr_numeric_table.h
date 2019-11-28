@@ -93,11 +93,17 @@ public:
 
         /* Get class associated with Java object */
         local_tls.jcls = (local_tls.jenv)->GetObjectClass(jJavaNumTable);
-        if (local_tls.jcls == NULL) { return 0; }
+        if (local_tls.jcls == NULL)
+        {
+            return 0;
+        }
 
         /* Get ID of the 'getBlockOfRows' method of the Java class */
         jmethodID jmeth = (local_tls.jenv)->GetMethodID(local_tls.jcls, "getSparseBlockSize", "(JJ)J");
-        if (jmeth == NULL) { return 0; }
+        if (jmeth == NULL)
+        {
+            return 0;
+        }
 
         size_t bufferSize = (size_t)((local_tls.jenv)->CallObjectMethod(jJavaNumTable, jmeth, (jlong)0, (jlong)getNumberOfRows()));
 
@@ -121,11 +127,17 @@ protected:
 
         /* Get class associated with Java object */
         local_tls.jcls = (local_tls.jenv)->GetObjectClass(jJavaNumTable);
-        if (local_tls.jcls == NULL) { return services::Status(); }
+        if (local_tls.jcls == NULL)
+        {
+            return services::Status();
+        }
 
         /* Get ID of the 'getBlockOfRows' method of the Java class */
         jmethodID jmeth = (local_tls.jenv)->GetMethodID(local_tls.jcls, "getSparseBlockSize", "(JJ)J");
-        if (jmeth == NULL) { return services::Status(); }
+        if (jmeth == NULL)
+        {
+            return services::Status();
+        }
         size_t nValues = (size_t)((local_tls.jenv)->CallObjectMethod(jJavaNumTable, jmeth, (jlong)idx, (jlong)nrows));
 
         size_t ncols = _ddict->getNumberOfFeatures();
@@ -156,15 +168,27 @@ protected:
         jobject jRowOffsets = (local_tls.jenv)->NewDirectByteBuffer(rowOffsetsBufJava, rowOffsetsSizeJava);
 
         jmeth = (local_tls.jenv)->GetMethodID(local_tls.jcls, javaMethodName, "(JJLjava/nio/ByteBuffer;Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)J");
-        if (jmeth == NULL) { return services::Status(); }
+        if (jmeth == NULL)
+        {
+            return services::Status();
+        }
         size_t nRows = (size_t)((local_tls.jenv)->CallObjectMethod(jJavaNumTable, jmeth, (jlong)idx, (jlong)nrows, jdata, jColIndices, jRowOffsets));
 
-        if (nRows == 0) { return services::Status(); }
+        if (nRows == 0)
+        {
+            return services::Status();
+        }
 
         if (sizeof(size_t) != sizeof(__int64))
         {
-            for (size_t i = 0; i < nValues; i++) { colIndicesBuf[i] = (size_t)colIndicesBufJava[i]; }
-            for (size_t i = 0; i < nrows + 1; i++) { rowOffsetsBuf[i] = (size_t)rowOffsetsBufJava[i]; }
+            for (size_t i = 0; i < nValues; i++)
+            {
+                colIndicesBuf[i] = (size_t)colIndicesBufJava[i];
+            }
+            for (size_t i = 0; i < nrows + 1; i++)
+            {
+                rowOffsetsBuf[i] = (size_t)rowOffsetsBufJava[i];
+            }
             daal::services::daal_free(rowOffsetsBufJava);
             daal::services::daal_free(colIndicesBufJava);
         }
@@ -183,7 +207,10 @@ protected:
     template <typename T>
     services::Status releaseSparseTBlock(CSRBlockDescriptor<T> & block)
     {
-        if (block.getRWFlag() & (int)writeOnly) { return services::Status(services::ErrorMethodNotSupported); }
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            return services::Status(services::ErrorMethodNotSupported);
+        }
         void * valuesBuf     = block.getBlockValuesPtr();
         void * colIndicesBuf = block.getBlockColumnIndicesPtr();
         void * rowOffsetsBuf = block.getBlockRowIndicesPtr();
@@ -203,7 +230,10 @@ protected:
     template <typename T>
     services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
-        if (block.getRWFlag() & (int)writeOnly) { return services::Status(services::ErrorMethodNotSupported); }
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            return services::Status(services::ErrorMethodNotSupported);
+        }
         block.reset();
         return services::Status();
     }
@@ -211,7 +241,10 @@ protected:
     template <typename T>
     services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
-        if (block.getRWFlag() & (int)writeOnly) { return services::Status(services::ErrorMethodNotSupported); }
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            return services::Status(services::ErrorMethodNotSupported);
+        }
         block.reset();
         return services::Status();
     }

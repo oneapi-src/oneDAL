@@ -79,7 +79,10 @@ void DistributedInput<svdDense>::add(Step2MasterInputId id, const SharedPtr<Part
 SharedPtr<PartialResult<svdDense> > DistributedInput<svdDense>::getPartialResult(size_t id) const
 {
     DataCollectionPtr partialResultsCollection = staticPointerCast<DataCollection, SerializationIface>(Argument::get(partialResults));
-    if (partialResultsCollection->size() <= id) { return SharedPtr<PartialResult<svdDense> >(); }
+    if (partialResultsCollection->size() <= id)
+    {
+        return SharedPtr<PartialResult<svdDense> >();
+    }
     return staticPointerCast<PartialResult<svdDense>, SerializationIface>((*partialResultsCollection)[id]);
 }
 

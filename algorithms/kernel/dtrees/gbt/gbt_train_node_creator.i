@@ -76,7 +76,10 @@ public:
             res->count    = _node.n;
             res->impurity = _node.imp.value(_data.ctx.par().lambda);
 
-            if (!res->kid[0] && !res->kid[1]) { build2nodes(newTasks, nTask, res, impRight); }
+            if (!res->kid[0] && !res->kid[1])
+            {
+                build2nodes(newTasks, nTask, res, impRight);
+            }
             else if (!res->kid[0])
             {
                 buildLeftnode(newTasks, nTask, res);

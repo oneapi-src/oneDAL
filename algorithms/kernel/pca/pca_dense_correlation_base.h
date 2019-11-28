@@ -71,7 +71,10 @@ void PCACorrelationBase<algorithmFPType, cpu>::copyArray(size_t size, const algo
 {
     if (source != destination)
     {
-        for (size_t i = 0; i < size; i++) { destination[i] = source[i]; }
+        for (size_t i = 0; i < size; i++)
+        {
+            destination[i] = source[i];
+        }
     }
 }
 
@@ -90,18 +93,26 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::correlationFromCovari
 
     algorithmFPType * diagInvSqrts = diagInvSqrtsArray.get();
     for (size_t i = 0; i < nFeatures; i++)
-    { diagInvSqrts[i] = 1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(covarianceArray[i * nFeatures + i]); }
+    {
+        diagInvSqrts[i] = 1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(covarianceArray[i * nFeatures + i]);
+    }
 
     for (size_t i = 0; i < nFeatures; i++)
     {
-        for (size_t j = 0; j < i; j++) { covarianceArray[i * nFeatures + j] *= diagInvSqrts[i] * diagInvSqrts[j]; }
+        for (size_t j = 0; j < i; j++)
+        {
+            covarianceArray[i * nFeatures + j] *= diagInvSqrts[i] * diagInvSqrts[j];
+        }
         covarianceArray[i * nFeatures + i] = 1.0; //diagonal element
     }
 
     /* Copy results into symmetric upper triangle */
     for (size_t i = 0; i < nFeatures; i++)
     {
-        for (size_t j = 0; j < i; j++) { covarianceArray[j * nFeatures + i] = covarianceArray[i * nFeatures + j]; }
+        for (size_t j = 0; j < i; j++)
+        {
+            covarianceArray[j * nFeatures + i] = covarianceArray[i * nFeatures + j];
+        }
     }
 
     return services::Status();
@@ -120,7 +131,10 @@ services::Status PCACorrelationBase<algorithmFPType, cpu>::copyVarianceFromCovar
     DAAL_CHECK_BLOCK_STATUS(destBlock);
     algorithmFPType * destData = destBlock.get();
 
-    for (size_t id = 0; id < nElements; ++id) { destData[id] = covarianceArray[id * (nFeatures + 1)]; }
+    for (size_t id = 0; id < nElements; ++id)
+    {
+        destData[id] = covarianceArray[id * (nFeatures + 1)];
+    }
     return services::Status();
 }
 

@@ -49,7 +49,10 @@ int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
 
-    for (size_t i = 0; i < nBlocks; i++) { computestep1Local(i); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        computestep1Local(i);
+    }
 
     computeOnMasterNode();
 
@@ -86,7 +89,10 @@ void computeOnMasterNode()
     covariance::Distributed<step2Master> algorithm;
 
     /* Set input objects for the algorithm */
-    for (size_t i = 0; i < nBlocks; i++) { algorithm.input.add(covariance::partialResults, partialResult[i]); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        algorithm.input.add(covariance::partialResults, partialResult[i]);
+    }
 
     /* Set the parameter to choose the type of the output matrix */
     algorithm.parameter.outputMatrixType = covariance::correlationMatrix;

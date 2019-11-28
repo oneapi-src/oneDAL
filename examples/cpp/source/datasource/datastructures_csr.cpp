@@ -62,7 +62,10 @@ int main()
     printArray<float>(valuesBlock, nValuesInBlock, 1, "Values in 3 rows from CSR data array:");
     printArray<size_t>(csrBlock.getBlockColumnIndicesPtr(), nValuesInBlock, 1, "Columns indices in 3 rows from CSR data array:");
     printArray<size_t>(csrBlock.getBlockRowIndicesPtr(), nRead + 1, 1, "Rows offsets in 3 rows from CSR data array:");
-    for (size_t i = 0; i < nValuesInBlock; i++) { valuesBlock[i] = -(1.0f + i); }
+    for (size_t i = 0; i < nValuesInBlock; i++)
+    {
+        valuesBlock[i] = -(1.0f + i);
+    }
     dataTable->releaseSparseBlock(csrBlock);
 
     /* Read block of rows in dense format */

@@ -92,7 +92,10 @@ public:
 
         env->CallObjectMethod(javaObject, computeMethodID);
 
-        if (!tls.is_main_thread) { status = jvm->DetachCurrentThread(); }
+        if (!tls.is_main_thread)
+        {
+            status = jvm->DetachCurrentThread();
+        }
 
         _tls.local() = tls;
         _initFlag    = true;
@@ -144,7 +147,10 @@ public:
 
         env->CallObjectMethod(javaObject, finalizeComputeMethodID);
 
-        if (!tls.is_main_thread) { status = jvm->DetachCurrentThread(); }
+        if (!tls.is_main_thread)
+        {
+            status = jvm->DetachCurrentThread();
+        }
 
         _tls.local() = tls;
         return services::Status();

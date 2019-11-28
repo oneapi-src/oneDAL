@@ -57,7 +57,10 @@ public:
         const std::string stdKey(key.c_str(), key.c_str() + key.length());
         KeyToIndexMap & keyToIndexMap    = const_cast<KeyToIndexMap &>(_keyToIndexMap);
         KeyToIndexMap::const_iterator it = keyToIndexMap.find(stdKey);
-        if (it == keyToIndexMap.end()) { return FeatureIndexTraits::invalid(); }
+        if (it == keyToIndexMap.end())
+        {
+            return FeatureIndexTraits::invalid();
+        }
         return it->second;
     }
 
@@ -99,7 +102,10 @@ public:
 
         FeatureIndicesListPtr featureFeatureIndices = FeatureIndicesList::create(&localStatus);
         services::internal::tryAssignStatusAndThrow(status, localStatus);
-        if (!localStatus.ok()) { return FeatureIndicesPtr(); }
+        if (!localStatus.ok())
+        {
+            return FeatureIndicesPtr();
+        }
 
         for (size_t i = 0; i < numberOfFeatures; i++)
         {
@@ -107,7 +113,10 @@ public:
 
             const FeatureIndex mappedIndex = id->mapToIndex(mapping, &localStatus);
             services::internal::tryAssignStatusAndThrow(status, localStatus);
-            if (!localStatus.ok()) { return FeatureIndicesPtr(); }
+            if (!localStatus.ok())
+            {
+                return FeatureIndicesPtr();
+            }
 
             featureFeatureIndices->add(mappedIndex);
         }
@@ -117,9 +126,15 @@ public:
 
     services::Status add(const FeatureIdIfacePtr & id)
     {
-        if (!id) { return services::throwIfPossible(services::ErrorNullPtr); }
+        if (!id)
+        {
+            return services::throwIfPossible(services::ErrorNullPtr);
+        }
 
-        if (!_featureIds.safe_push_back(id)) { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
+        if (!_featureIds.safe_push_back(id))
+        {
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+        }
 
         return services::Status();
     }
@@ -162,7 +177,10 @@ public:
         const FeatureIndex endIndex = _end->mapToIndex(mapping, &localStatus);
         services::internal::tryAssignStatusAndThrow(status, localStatus);
 
-        if (!localStatus.ok()) { return FeatureIndicesPtr(); }
+        if (!localStatus.ok())
+        {
+            return FeatureIndicesPtr();
+        }
         return FeatureIndicesRange::create(beginIndex, endIndex, status);
     }
 

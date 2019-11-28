@@ -124,7 +124,10 @@ Status DistributedStep2Input::getNumberOfColumns(size_t * nFeatures) const
     DAAL_CHECK_EX(firstNumTableInFirstNodeCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, QRNodeCollectionStr());
 
     Status s = checkNumericTable(firstNumTableInFirstNodeCollection.get(), QRNodeCollectionNTStr());
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     *nFeatures = firstNumTableInFirstNodeCollection->getNumberOfColumns();
     return Status();

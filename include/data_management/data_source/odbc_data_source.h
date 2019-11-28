@@ -137,7 +137,10 @@ public:
         }
         initialize(initialMaxRows);
         _status |= connectUsingUserNameAndPassword(dbname, userName, password);
-        if (!_status) { return; }
+        if (!_status)
+        {
+            return;
+        }
         _status |= executeSelectAllQuery(tableName);
     }
 
@@ -163,7 +166,10 @@ public:
         }
         initialize(initialMaxRows);
         _status |= connectUsingUserNameAndPassword(dbname, userName, password);
-        if (!_status) { return; }
+        if (!_status)
+        {
+            return;
+        }
         _status |= executeSelectAllQuery(tableName);
     }
 
@@ -197,22 +203,37 @@ public:
         }
         _idxLastRead = 0;
 
-        if (_autoNumericTableFlag == DataSource::doAllocateNumericTable) { _spnt.reset(); }
+        if (_autoNumericTableFlag == DataSource::doAllocateNumericTable)
+        {
+            _spnt.reset();
+        }
 
-        if (_autoDictionaryFlag == DataSource::doDictionaryFromContext) { _dict.reset(); }
+        if (_autoDictionaryFlag == DataSource::doDictionaryFromContext)
+        {
+            _dict.reset();
+        }
 
         if (_hdlStmt)
         {
             SQLRETURN ret = SQLFreeHandle(SQL_HANDLE_STMT, _hdlStmt);
-            if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorSQLstmtHandle); }
+            if (!SQL_SUCCEEDED(ret))
+            {
+                return services::throwIfPossible(services::ErrorSQLstmtHandle);
+            }
             _hdlStmt = SQL_NULL_HSTMT;
         }
 
         SQLRETURN ret = SQLAllocHandle(SQL_HANDLE_STMT, _hdlDbc, &_hdlStmt);
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorSQLstmtHandle); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorSQLstmtHandle);
+        }
 
         ret = SQLExecDirect(_hdlStmt, (SQLCHAR *)query.c_str(), SQL_NTS);
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorODBC);
+        }
 
         _connectionStatus = DataSource::readyForLoad;
         return services::Status();
@@ -224,7 +245,10 @@ public:
     services::Status freeHandles()
     {
         SQLRETURN ret = freeHandlesInternal();
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorODBC);
+        }
 
         _connectionStatus = DataSource::notReady;
         return services::Status();
@@ -233,13 +257,22 @@ public:
     virtual size_t loadDataBlock(size_t maxRows) DAAL_C11_OVERRIDE
     {
         services::Status s = checkConnection();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkDictionary();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkNumericTable();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         return loadDataBlock(maxRows, _spnt.get());
     }
@@ -253,10 +286,16 @@ public:
     virtual size_t loadDataBlock(size_t maxRows, NumericTable * nt)
     {
         services::Status s = checkConnection();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkDictionary();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         if (nt == NULL)
         {
@@ -292,7 +331,10 @@ public:
         if (nt->basicStatistics.get(NumericTableIface::minimum).get() != NULL && nt->basicStatistics.get(NumericTableIface::maximum).get() != NULL
             && nt->basicStatistics.get(NumericTableIface::sum).get() != NULL && nt->basicStatistics.get(NumericTableIface::sumSquares).get() != NULL)
         {
-            for (size_t i = 0; i < nRead; i++) { super::updateStatistics(i, nt, row); }
+            for (size_t i = 0; i < nRead; i++)
+            {
+                super::updateStatistics(i, nt, row);
+            }
         }
 
         nt->releaseBlockOfRows(blockNt);
@@ -300,7 +342,10 @@ public:
         NumericTableDictionaryPtr ntDict = nt->getDictionarySharedPtr();
         size_t nFeatures                 = _dict->getNumberOfFeatures();
         ntDict->setNumberOfFeatures(nFeatures);
-        for (size_t i = 0; i < nFeatures; i++) { ntDict->setFeature((*_dict)[i].ntFeature, i); }
+        for (size_t i = 0; i < nFeatures; i++)
+        {
+            ntDict->setFeature((*_dict)[i].ntFeature, i);
+        }
 
         return nRead;
     }
@@ -310,13 +355,22 @@ public:
         services::Status s;
 
         s = checkConnection();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkDictionary();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkNumericTable();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         return loadDataBlock(_spnt.get());
     }
@@ -326,10 +380,16 @@ public:
         services::Status s;
 
         s = checkConnection();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkDictionary();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         if (nt == NULL)
         {
@@ -354,7 +414,10 @@ public:
             tables.push_back(ntCurrent);
             size_t rows = loadDataBlock(maxRows, ntCurrent.get());
             nrows += rows;
-            if (rows < maxRows) { break; }
+            if (rows < maxRows)
+            {
+                break;
+            }
             maxRows *= 2;
         }
 
@@ -371,7 +434,10 @@ public:
             NumericTable * ntCurrent = (NumericTable *)(tables[i].get());
             size_t rows              = ntCurrent->getNumberOfRows();
 
-            if (rows == 0) { continue; }
+            if (rows == 0)
+            {
+                continue;
+            }
 
             ntCurrent->getBlockOfRows(0, rows, readOnly, blockCurrent);
             nt->getBlockOfRows(pos, rows, writeOnly, block);
@@ -385,12 +451,18 @@ public:
             super::combineStatistics(ntCurrent, nt, pos == 0);
             pos += rows;
         }
-        if (result) { this->_status.add(services::throwIfPossible(services::ErrorMemoryCopyFailedInternal)); }
+        if (result)
+        {
+            this->_status.add(services::throwIfPossible(services::ErrorMemoryCopyFailedInternal));
+        }
 
         NumericTableDictionaryPtr ntDict = nt->getDictionarySharedPtr();
         size_t nFeatures                 = _dict->getNumberOfFeatures();
         ntDict->setNumberOfFeatures(nFeatures);
-        for (size_t i = 0; i < nFeatures; i++) { ntDict->setFeature((*_dict)[i].ntFeature, i); }
+        for (size_t i = 0; i < nFeatures; i++)
+        {
+            ntDict->setFeature((*_dict)[i].ntFeature, i);
+        }
 
         return nrows;
     }
@@ -402,7 +474,10 @@ public:
 
         _connectionStatus = DataSource::notReady;
 
-        if (_dict) { return services::throwIfPossible(services::ErrorDictionaryAlreadyAvailable); }
+        if (_dict)
+        {
+            return services::throwIfPossible(services::ErrorDictionaryAlreadyAvailable);
+        }
 
         _dict = DataSourceDictionary::create(&status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -435,10 +510,16 @@ private:
     services::Status connectUsingUserNameAndPassword(const std::string & dbname, const std::string & username, const std::string & password)
     {
         SQLRETURN ret = setupHandlesInternal();
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorHandlesSQL); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorHandlesSQL);
+        }
 
         ret = connectInternal(dbname, username, password);
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorODBC);
+        }
 
         return services::Status();
     }
@@ -446,17 +527,26 @@ private:
     services::Status connectUsingConnectionString(const std::string & connectionString)
     {
         SQLRETURN ret = setupHandlesInternal();
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorHandlesSQL); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorHandlesSQL);
+        }
 
         ret = connectDriverInternal(connectionString);
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorODBC);
+        }
 
         return services::Status();
     }
 
     services::Status executeSelectAllQuery(const std::string & tableName)
     {
-        if (!tableName.empty()) { return executeQuery("SELECT * FROM " + tableName); }
+        if (!tableName.empty())
+        {
+            return executeQuery("SELECT * FROM " + tableName);
+        }
         return services::Status();
     }
 
@@ -476,29 +566,50 @@ private:
     SQLRETURN setupHandlesInternal()
     {
         SQLRETURN ret = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &_hdlEnv);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         ret = SQLSetEnvAttr(_hdlEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, SQL_IS_UINTEGER);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         ret = SQLAllocHandle(SQL_HANDLE_DBC, _hdlEnv, &_hdlDbc);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         return SQL_SUCCESS;
     }
 
     SQLRETURN freeHandlesInternal()
     {
-        if (_hdlDbc == SQL_NULL_HDBC || _hdlEnv == SQL_NULL_HENV) { return SQL_SUCCESS; }
+        if (_hdlDbc == SQL_NULL_HDBC || _hdlEnv == SQL_NULL_HENV)
+        {
+            return SQL_SUCCESS;
+        }
 
         SQLRETURN ret = SQLDisconnect(_hdlDbc);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         ret = SQLFreeHandle(SQL_HANDLE_DBC, _hdlDbc);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         ret = SQLFreeHandle(SQL_HANDLE_ENV, _hdlEnv);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         _hdlDbc = SQL_NULL_HDBC;
         _hdlEnv = SQL_NULL_HENV;
@@ -508,7 +619,10 @@ private:
 
     services::Status checkConnection()
     {
-        if (_connectionStatus == DataSource::notReady) { return services::throwIfPossible(services::ErrorSourceDataNotAvailable); }
+        if (_connectionStatus == DataSource::notReady)
+        {
+            return services::throwIfPossible(services::ErrorSourceDataNotAvailable);
+        }
 
         return services::Status();
     }

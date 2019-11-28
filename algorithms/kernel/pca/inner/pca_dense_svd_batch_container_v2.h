@@ -68,9 +68,15 @@ Status BatchContainer<algorithmFPType, svdDense, cpu>::compute()
     auto normalizationAlgorithm = parameter->normalization;
     normalizationAlgorithm->input.set(normalization::zscore::data, data);
     auto algParameter = normalizationAlgorithm->getParameter();
-    if (parameter->resultsToCompute & mean) { algParameter->resultsToCompute |= normalization::zscore::mean; }
+    if (parameter->resultsToCompute & mean)
+    {
+        algParameter->resultsToCompute |= normalization::zscore::mean;
+    }
 
-    if (parameter->resultsToCompute & variance) { algParameter->resultsToCompute |= normalization::zscore::variance; }
+    if (parameter->resultsToCompute & variance)
+    {
+        algParameter->resultsToCompute |= normalization::zscore::variance;
+    }
 
     daal::services::Environment::env & env = *_env;
 

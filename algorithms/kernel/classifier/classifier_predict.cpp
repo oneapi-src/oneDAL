@@ -47,7 +47,10 @@ size_t Input::getNumberOfRows() const
 {
     size_t nRows                               = 0;
     data_management::NumericTablePtr dataTable = get(data);
-    if (dataTable) { nRows = dataTable->getNumberOfRows(); }
+    if (dataTable)
+    {
+        nRows = dataTable->getNumberOfRows();
+    }
     else
     {
         /* ERROR */;

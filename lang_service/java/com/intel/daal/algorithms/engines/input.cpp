@@ -36,7 +36,10 @@ using namespace daal::algorithms;
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_engines_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
                                                                               jlong NumericTableAddr)
 {
-    if (id == tableToFill) { jniInput<engines::Input>::set<engines::InputId, NumericTable>(inputAddr, id, NumericTableAddr); }
+    if (id == tableToFill)
+    {
+        jniInput<engines::Input>::set<engines::InputId, NumericTable>(inputAddr, id, NumericTableAddr);
+    }
 }
 
 /*

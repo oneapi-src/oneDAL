@@ -78,7 +78,9 @@ services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
-    { return __allocate__impl<algorithmFPType, data_management::HomogenNumericTable<algorithmFPType> >(nFeatures, nComponents, resultsToCompute); }
+    {
+        return __allocate__impl<algorithmFPType, data_management::HomogenNumericTable<algorithmFPType> >(nFeatures, nComponents, resultsToCompute);
+    }
     else
     {
         return __allocate__impl<algorithmFPType, data_management::SyclHomogenNumericTable<algorithmFPType> >(nFeatures, nComponents,
@@ -92,14 +94,20 @@ services::Status ResultImpl::__allocate__impl(size_t nFeatures, size_t nComponen
 {
     services::Status status;
 
-    if (nComponents == 0) { nComponents = nFeatures; }
+    if (nComponents == 0)
+    {
+        nComponents = nFeatures;
+    }
 
     setTable(eigenvalues, NumericTableType::create(nComponents, 1, data_management::NumericTableIface::doAllocate, 0, &status));
     DAAL_CHECK_STATUS_VAR(status);
 
     setTable(eigenvectors, NumericTableType::create(nFeatures, nComponents, data_management::NumericTableIface::doAllocate, 0, &status));
     DAAL_CHECK_STATUS_VAR(status);
-    if (resultsToCompute & eigenvalue) { isWhitening = true; }
+    if (resultsToCompute & eigenvalue)
+    {
+        isWhitening = true;
+    }
     if (resultsToCompute & mean)
     {
         setTable(means, NumericTableType::create(nFeatures, 1, data_management::NumericTableIface::doAllocate, 0, &status));

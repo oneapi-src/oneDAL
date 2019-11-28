@@ -212,7 +212,10 @@ public:
 
         nt->releaseBlockOfRows(block);
 
-        if (result) { this->_status.add(services::throwIfPossible(services::Status(services::ErrorMemoryCopyFailedInternal))); }
+        if (result)
+        {
+            this->_status.add(services::throwIfPossible(services::Status(services::ErrorMemoryCopyFailedInternal)));
+        }
         return nrows;
     }
 
@@ -278,7 +281,10 @@ public:
 
                 return 0;
             }
-            if (!_rawLineLength) { break; }
+            if (!_rawLineLength)
+            {
+                break;
+            }
 
             services::BufferView<DAAL_DATA_TYPE> rowBuffer(ntBlock.getBlockPtr() + (rowOffset + j) * nt->getNumberOfColumns(),
                                                            ntBlock.getNumberOfColumns());
@@ -308,21 +314,33 @@ public:
     {
         services::Status s;
 
-        if (_dict) { return services::throwIfPossible(services::Status(services::ErrorDictionaryAlreadyAvailable)); }
+        if (_dict)
+        {
+            return services::throwIfPossible(services::Status(services::ErrorDictionaryAlreadyAvailable));
+        }
 
         _dict = DataSourceDictionary::create(&s);
-        if (!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
         _contextDictFlag = true;
 
         if (_parseHeader)
         {
             s = readLine();
-            if (!s) { return services::throwIfPossible(s); }
+            if (!s)
+            {
+                return services::throwIfPossible(s);
+            }
             _featureManager.parseRowAsHeader(_rawLineBuffer, _rawLineLength);
         }
 
         s = readLine();
-        if (!s) { return services::throwIfPossible(s); }
+        if (!s)
+        {
+            return services::throwIfPossible(s);
+        }
         _featureManager.parseRowAsDictionary(_rawLineBuffer, _rawLineLength, this->_dict.get());
 
         return services::Status();
@@ -344,7 +362,10 @@ protected:
         for (size_t i = 0; i < nFeatures; i++) ntDict->setFeature((*_dict)[i].ntFeature, i);
 
         s = super::resizeNumericTableImpl(newSize, nt);
-        if (!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
 
         nt->setNormalizationFlag(NumericTable::nonNormalized);
         return services::Status();
@@ -352,10 +373,16 @@ protected:
 
     virtual services::Status checkInputNumericTable(const NumericTable * const nt) const
     {
-        if (!nt) { return services::Status(services::ErrorNullInputNumericTable); }
+        if (!nt)
+        {
+            return services::Status(services::ErrorNullInputNumericTable);
+        }
 
         const NumericTable::StorageLayout layout = nt->getDataLayout();
-        if (layout == NumericTable::csrArray) { return services::Status(services::ErrorIncorrectTypeOfInputNumericTable); }
+        if (layout == NumericTable::csrArray)
+        {
+            return services::Status(services::ErrorIncorrectTypeOfInputNumericTable);
+        }
 
         return services::Status();
     }
@@ -366,7 +393,10 @@ protected:
         char * newRawLineBuffer = (char *)daal::services::daal_malloc(newRawLineBufferLen);
         if (newRawLineBuffer == 0) return false;
         int result = daal::services::internal::daal_memcpy_s(newRawLineBuffer, newRawLineBufferLen, _rawLineBuffer, _rawLineBufferLen);
-        if (result) { this->_status.add(services::throwIfPossible(services::Status(services::ErrorMemoryCopyFailedInternal))); }
+        if (result)
+        {
+            this->_status.add(services::throwIfPossible(services::Status(services::ErrorMemoryCopyFailedInternal)));
+        }
         daal::services::daal_free(_rawLineBuffer);
         _rawLineBuffer    = newRawLineBuffer;
         _rawLineBufferLen = newRawLineBufferLen;
@@ -384,7 +414,10 @@ private:
 
         _rawLineBufferLen = (int)INITIAL_LINE_BUFFER_LENGTH;
         _rawLineBuffer    = (char *)daal::services::daal_malloc(_rawLineBufferLen);
-        if (!_rawLineBuffer) { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
+        if (!_rawLineBuffer)
+        {
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+        }
 
         return services::Status();
     }

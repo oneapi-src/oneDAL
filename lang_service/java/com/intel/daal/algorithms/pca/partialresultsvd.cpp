@@ -53,7 +53,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cGet
                                                                                                    jint id)
 {
     if (id == jnObservationsId || id == jsumSVDId || id == jsumSquaresSVDId)
-    { return jniArgument<pca::PartialResult<svdDense> >::get<PartialSVDTableResultId, NumericTable>(resAddr, id); }
+    {
+        return jniArgument<pca::PartialResult<svdDense> >::get<PartialSVDTableResultId, NumericTable>(resAddr, id);
+    }
 
     return (jlong)0;
 }
@@ -67,7 +69,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cSetP
                                                                                                   jint id, jlong ntAddr)
 {
     if (id == jnObservationsId || id == jsumSVDId || id == jsumSquaresSVDId)
-    { jniArgument<pca::PartialResult<svdDense> >::set<PartialSVDTableResultId, NumericTable>(resAddr, id, ntAddr); }
+    {
+        jniArgument<pca::PartialResult<svdDense> >::set<PartialSVDTableResultId, NumericTable>(resAddr, id, ntAddr);
+    }
 }
 
 /*
@@ -79,7 +83,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cGet
                                                                                                         jint id)
 {
     if (id == jsvdAuxiliaryDataId)
-    { return jniArgument<pca::PartialResult<svdDense> >::get<PartialSVDCollectionResultId, DataCollection>(resAddr, id); }
+    {
+        return jniArgument<pca::PartialResult<svdDense> >::get<PartialSVDCollectionResultId, DataCollection>(resAddr, id);
+    }
 
     return (jlong)0;
 }
@@ -93,5 +99,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_PartialSVDResult_cSetP
                                                                                                        jint id, jlong dcAddr)
 {
     if (id == jsvdAuxiliaryDataId)
-    { jniArgument<pca::PartialResult<svdDense> >::set<PartialSVDCollectionResultId, DataCollection>(resAddr, id, dcAddr); }
+    {
+        jniArgument<pca::PartialResult<svdDense> >::set<PartialSVDCollectionResultId, DataCollection>(resAddr, id, dcAddr);
+    }
 }

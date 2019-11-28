@@ -105,7 +105,10 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (int j = 0; j < nFeatures; j++) { resultVariance[j] += pVariances[j]; }
+            for (int j = 0; j < nFeatures; j++)
+            {
+                resultVariance[j] += pVariances[j];
+            }
         }
         service_scalable_free<algorithmFPType, cpu>(pVariances);
     });
@@ -113,7 +116,10 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (int j = 0; j < nFeatures; j++) { resultVariance[j] *= invNm1; }
+    for (int j = 0; j < nFeatures; j++)
+    {
+        resultVariance[j] *= invNm1;
+    }
 
     return safeStat.detach();
 }

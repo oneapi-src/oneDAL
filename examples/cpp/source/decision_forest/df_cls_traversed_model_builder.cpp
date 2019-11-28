@@ -100,7 +100,10 @@ int main(int argc, char * argv[])
     daal::algorithms::decision_forest::classification::ModelPtr builtModel = buildModel(trees);
     std::cout << "Predict on built model from input user Tree " << std::endl;
     double buildModelAccurcy = testModel(builtModel);
-    if (trainedAccurcy == buildModelAccurcy) { std::cout << "Model was built successfully" << std::endl; }
+    if (trainedAccurcy == buildModelAccurcy)
+    {
+        std::cout << "Model was built successfully" << std::endl;
+    }
     else
     {
         std::cout << "Model was built not correctly" << std::endl;
@@ -275,7 +278,10 @@ public:
             Node * node = new Node(desc.label, 0, 0);
 
             Node * parent = parentNodes.front();
-            if (parent->left == NULL) { parent->left = node; }
+            if (parent->left == NULL)
+            {
+                parent->left = node;
+            }
             else
             {
                 parent->right = node;
@@ -305,7 +311,10 @@ public:
             Node * node = new Node(0, desc.featureIndex, desc.featureValue);
 
             Node * parent = parentNodes.front();
-            if (parent->left == NULL) { parent->left = node; }
+            if (parent->left == NULL)
+            {
+                parent->left = node;
+            }
             else
             {
                 parent->right = node;
@@ -332,6 +341,9 @@ Tree * traverseModel(const daal::algorithms::decision_forest::classification::Mo
 {
     const size_t nTrees = m->getNumberOfTrees();
     BFSNodeVisitor visitor(nTrees);
-    for (size_t i = 0; i < nTrees; ++i) { m->traverseBFS(i, visitor); }
+    for (size_t i = 0; i < nTrees; ++i)
+    {
+        m->traverseBFS(i, visitor);
+    }
     return visitor.roots;
 }

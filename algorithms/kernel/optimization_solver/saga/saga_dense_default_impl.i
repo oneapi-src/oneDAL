@@ -196,7 +196,10 @@ services::Status SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIface 
                 }
             }
 
-            for (size_t i = 0; i < sizeArgument; i++) { savedGradients[k * sizeArgument + i] = gradient[i]; }
+            for (size_t i = 0; i < sizeArgument; i++)
+            {
+                savedGradients[k * sizeArgument + i] = gradient[i];
+            }
         }
     }
     /* compute sum of gradients */
@@ -204,7 +207,10 @@ services::Status SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIface 
 
     for (size_t k = 0; k < n; k++)
     {
-        for (size_t i = 0; i < sizeArgument; i++) { summGrads[i] += savedGradients[k * sizeArgument + i]; }
+        for (size_t i = 0; i < sizeArgument; i++)
+        {
+            summGrads[i] += savedGradients[k * sizeArgument + i];
+        }
     }
 
     services::internal::HostAppHelper host(pHost, 10);
@@ -232,7 +238,10 @@ services::Status SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIface 
 
     for (size_t iter = 0; iter < maxIterations; iter++)
     {
-        if (batchIndicesNT) { batchIndicesPtr[0] = batchIndicesBD.get()[iter]; }
+        if (batchIndicesNT)
+        {
+            batchIndicesPtr[0] = batchIndicesBD.get()[iter];
+        }
         else
         {
             if (iter % 1024 == 0) rngTask.getWithReplacement(pValues);
@@ -306,7 +315,10 @@ services::Status SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIface 
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t k = 0; k < sizeArgument; k++) { workValue[k] = stepLength * prox[k]; }
+        for (size_t k = 0; k < sizeArgument; k++)
+        {
+            workValue[k] = stepLength * prox[k];
+        }
 
         bool continueCheck = false;
         for (size_t k = 0; k < sizeArgument; k++)
@@ -317,7 +329,10 @@ services::Status SagaKernel<algorithmFPType, method, cpu>::compute(HostAppIface 
         }
 
         /* number_of_convergence_checks = 1 at first */
-        if (!continueCheck) { break; }
+        if (!continueCheck)
+        {
+            break;
+        }
 
         result |= daal::services::internal::daal_memcpy_s(savedGradients + displacement, sizeArgument * sizeof(algorithmFPType), gradient,
                                                           sizeArgument * sizeof(algorithmFPType));

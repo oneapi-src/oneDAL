@@ -65,7 +65,10 @@ public:
         int * aIdx         = _sharedData.aIdx + _nodeInfo.iStart;
 
         bool bCopy = true;
-        if (_idxFeatureValueBestSplit >= 0) { finalizeBestSplit(_nodeInfo.n, _nodeInfo.iStart); }
+        if (_idxFeatureValueBestSplit >= 0)
+        {
+            finalizeBestSplit(_nodeInfo.n, _nodeInfo.iStart);
+        }
         else if (_bestSplit.featureUnordered)
         {
             if (_bestSplit.iStart)

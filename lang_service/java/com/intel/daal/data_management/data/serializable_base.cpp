@@ -65,7 +65,10 @@ JNIEXPORT jobjectArray JNICALL Java_com_intel_daal_data_1management_data_Seriali
     for (size_t i = 0; i < nBlocks; i++)
     {
         int smallLength = maxBlockLenght;
-        if (i == nBlocks - 1) { smallLength = length - i * maxBlockLenght; }
+        if (i == nBlocks - 1)
+        {
+            smallLength = length - i * maxBlockLenght;
+        }
 
         jbyteArray byteArray = env->NewByteArray(smallLength);
         env->SetByteArrayRegion(byteArray, 0, smallLength, ((jbyte *)buffer) + offset);
@@ -161,7 +164,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_SerializableBas
 {
     JavaVM * jvm;
     jint status = env->GetJavaVM(&jvm);
-    if (status != 0) { return; }
+    if (status != 0)
+    {
+        return;
+    }
     daal::JavaNumericTableBase::setJavaVM(jvm);
 }
 

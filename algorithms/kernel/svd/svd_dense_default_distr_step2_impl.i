@@ -54,7 +54,10 @@ Status SVDDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const si
     svd::Parameter defaultParams;
     const svd::Parameter * svdPar = &defaultParams;
 
-    if (par != 0) { svdPar = static_cast<const svd::Parameter *>(par); }
+    if (par != 0)
+    {
+        svdPar = static_cast<const svd::Parameter *>(par);
+    }
 
     const NumericTable * ntAux2_0 = a[0];
     NumericTable * ntSigma        = const_cast<NumericTable *>(r[0]);
@@ -91,7 +94,10 @@ Status SVDDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const si
 
         for (size_t i = 0; i < n; i++)
         {
-            for (size_t j = 0; j < n; j++) { Aux2T[j * nxb + k * n + i] = Aux2[i * n + j]; }
+            for (size_t j = 0; j < n; j++)
+            {
+                Aux2T[j * nxb + k * n + i] = Aux2[i * n + j];
+            }
         }
     });
 
@@ -113,7 +119,10 @@ Status SVDDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const si
         DAAL_CHECK(U && R, ErrorMemoryAllocationFailed);
 
         /* By some reason, there was this part in Sample */
-        for (size_t i = 0; i < n * ldR; i++) { R[i] = 0.0; }
+        for (size_t i = 0; i < n * ldR; i++)
+        {
+            R[i] = 0.0;
+        }
 
         // Rc = P*R
         const auto ecQr = compute_QR_on_one_node<algorithmFPType, cpu>(nxb, n, Aux2T, ldAux2, R, ldR);
@@ -139,7 +148,10 @@ Status SVDDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const si
 
             for (size_t i = 0; i < n; i++)
             {
-                for (size_t j = 0; j < n; j++) { Aux3[i * n + j] = Aux3T[j * nxb + k * n + i]; }
+                for (size_t j = 0; j < n; j++)
+                {
+                    Aux3[i * n + j] = Aux3T[j * nxb + k * n + i];
+                }
             }
         });
         if (!safeStat) return safeStat.detach();
@@ -153,7 +165,10 @@ Status SVDDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const si
 
         for (i = 0; i < n; i++)
         {
-            for (j = 0; j < n; j++) { V[i + j * n] = VT[i * n + j]; }
+            for (j = 0; j < n; j++)
+            {
+                V[i + j * n] = VT[i * n + j];
+            }
         }
     }
 

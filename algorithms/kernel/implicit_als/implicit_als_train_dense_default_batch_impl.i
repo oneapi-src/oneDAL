@@ -63,7 +63,10 @@ void ImplicitALSTrainKernelBase<algorithmFPType, cpu>::updateSystem(size_t nCols
     const DAAL_INT iOne = 1;
     Blas<algorithmFPType, cpu>::xxsyr(&uplo, (DAAL_INT *)&nCols, coeff, x, &iOne, a, (DAAL_INT *)&nCols);
 
-    if (*coeff > 0.0) { Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&nCols, c, x, &iOne, b, &iOne); }
+    if (*coeff > 0.0)
+    {
+        Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&nCols, c, x, &iOne, b, &iOne);
+    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -125,7 +128,10 @@ Status ImplicitALSTrainKernelBase<algorithmFPType, cpu>::computeFactors(size_t n
             algorithmFPType * lhs_local = lhs.local();
             algorithmFPType * rhs       = rowFactors + (offset + j) * nFactors;
 
-            for (int f = 0; f < nFactors; f++) { rhs[f] = 0.0; }
+            for (int f = 0; f < nFactors; f++)
+            {
+                rhs[f] = 0.0;
+            }
             result |= daal::services::internal::daal_memcpy_s(lhs_local, nFactors * nFactors * sizeof(algorithmFPType), xtx,
                                                               nFactors * nFactors * sizeof(algorithmFPType));
 
@@ -164,14 +170,23 @@ void ImplicitALSTrainKernel<algorithmFPType, fastCSR, cpu>::computeCostFunction(
             algorithmFPType * itemsJ = itemsFactors + (colIndices[j] - 1) * nFactors;
 
             algorithmFPType dotProduct = 0.0;
-            for (size_t k = 0; k < nFactors; k++) { dotProduct += usersI[k] * itemsJ[k]; }
+            for (size_t k = 0; k < nFactors; k++)
+            {
+                dotProduct += usersI[k] * itemsJ[k];
+            }
             algorithmFPType sqrError = 1.0 - dotProduct;
             sqrError *= sqrError;
             costFunction += c * sqrError;
         }
     }
-    for (size_t i = 0; i < nItems * nFactors; i++) { sumItems2 += itemsFactors[i] * itemsFactors[i]; }
-    for (size_t i = 0; i < nUsers * nFactors; i++) { sumUsers2 += usersFactors[i] * usersFactors[i]; }
+    for (size_t i = 0; i < nItems * nFactors; i++)
+    {
+        sumItems2 += itemsFactors[i] * itemsFactors[i];
+    }
+    for (size_t i = 0; i < nUsers * nFactors; i++)
+    {
+        sumUsers2 += usersFactors[i] * usersFactors[i];
+    }
     costFunction += lambda * (sumItems2 + sumUsers2);
     *costFunctionPtr = costFunction;
 }
@@ -200,15 +215,24 @@ void ImplicitALSTrainKernel<algorithmFPType, defaultDense, cpu>::computeCostFunc
                 algorithmFPType c        = one + alpha * data[i * nItems + j];
 
                 algorithmFPType dotProduct = 0.0;
-                for (size_t k = 0; k < nFactors; k++) { dotProduct += usersI[k] * itemsJ[k]; }
+                for (size_t k = 0; k < nFactors; k++)
+                {
+                    dotProduct += usersI[k] * itemsJ[k];
+                }
                 algorithmFPType sqrError = one - dotProduct;
                 sqrError *= sqrError;
                 costFunction += c * sqrError;
             }
         }
     }
-    for (size_t i = 0; i < nItems * nFactors; i++) { sumItems2 += itemsFactors[i] * itemsFactors[i]; }
-    for (size_t i = 0; i < nUsers * nFactors; i++) { sumUsers2 += usersFactors[i] * usersFactors[i]; }
+    for (size_t i = 0; i < nItems * nFactors; i++)
+    {
+        sumItems2 += itemsFactors[i] * itemsFactors[i];
+    }
+    for (size_t i = 0; i < nUsers * nFactors; i++)
+    {
+        sumUsers2 += usersFactors[i] * usersFactors[i];
+    }
     costFunction += lambda * (sumItems2 + sumUsers2);
     *costFunctionPtr = costFunction;
 }
@@ -233,7 +257,10 @@ void ImplicitALSTrainKernel<algorithmFPType, fastCSR, cpu>::formSystem(size_t i,
 
     /* Add regularization term */
     algorithmFPType gamma = lambda * (endIdx - startIdx);
-    for (size_t k = 0; k < nFactors; k++) { lhs[k * nFactors + k] += gamma; }
+    for (size_t k = 0; k < nFactors; k++)
+    {
+        lhs[k * nFactors + k] += gamma;
+    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -261,7 +288,10 @@ void ImplicitALSTrainKernel<algorithmFPType, defaultDense, cpu>::formSystem(size
 
     /* Add regularization term */
     const algorithmFPType gamma = lambda * gammaMultiplier;
-    for (size_t k = 0; k < nFactors; k++) { lhs[k * nFactors + k] += gamma; }
+    for (size_t k = 0; k < nFactors; k++)
+    {
+        lhs[k * nFactors + k] += gamma;
+    }
 }
 
 template <typename algorithmFPType, CpuType cpu>

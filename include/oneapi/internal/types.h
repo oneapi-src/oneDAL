@@ -39,9 +39,13 @@ template <typename algorithmFPType>
 services::String getKeyFPType()
 {
     if (IsSameType<algorithmFPType, float>::value)
-    { return services::String(" -D algorithmFPType=float -D algorithmFPType2=float2 -D algorithmFPType4=float4 "); }
+    {
+        return services::String(" -D algorithmFPType=float -D algorithmFPType2=float2 -D algorithmFPType4=float4 ");
+    }
     if (IsSameType<algorithmFPType, double>::value)
-    { return services::String(" -D algorithmFPType=double -D algorithmFPType2=double2  -D algorithmFPType4=double4 "); }
+    {
+        return services::String(" -D algorithmFPType=double -D algorithmFPType2=double2  -D algorithmFPType4=double4 ");
+    }
     return services::String();
 }
 

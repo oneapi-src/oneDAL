@@ -80,7 +80,10 @@ services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, train
     size_t nRowsInBlock = getMultiClassClassifierPredictBlockSize<algorithmFPType, cpu>();
     /* Calculate number of blocks of rows including tail block */
     size_t nBlocks = nVectors / nRowsInBlock;
-    if (nBlocks * nRowsInBlock < nVectors) { nBlocks++; }
+    if (nBlocks * nRowsInBlock < nVectors)
+    {
+        nBlocks++;
+    }
 
     /* Allocate data for storing of intermediate results and subsets of input data*/
     typedef SubTask<algorithmFPType, ClsType, cpu> TSubTask;
@@ -166,12 +169,18 @@ inline void updateProbabilities(size_t nClasses, const algorithmFPType * Q, algo
     for (size_t i = 0; i < nClasses; i++)
     {
         Qp[i] = zero;
-        for (size_t j = 0; j < nClasses; j++) { Qp[i] += Q[i * nClasses + j] * p[j]; }
+        for (size_t j = 0; j < nClasses; j++)
+        {
+            Qp[i] += Q[i * nClasses + j] * p[j];
+        }
     }
 
     /* Calculate p'*Q*p */
     algorithmFPType pQp = zero;
-    for (size_t j = 0; j < nClasses; j++) { pQp += p[j] * Qp[j]; }
+    for (size_t j = 0; j < nClasses; j++)
+    {
+        pQp += p[j] * Qp[j];
+    }
 
     /* Update probabilities p */
     algorithmFPType sumP = zero;
@@ -183,7 +192,10 @@ inline void updateProbabilities(size_t nClasses, const algorithmFPType * Q, algo
 
     /* Normalize probabilities */
     algorithmFPType invSumP = one / sumP;
-    for (size_t j = 0; j < nClasses; j++) { p[j] *= invSumP; }
+    for (size_t j = 0; j < nClasses; j++)
+    {
+        p[j] *= invSumP;
+    }
 }
 
 template <typename algorithmFPType, typename ClsType, CpuType cpu>
@@ -209,7 +221,10 @@ services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults
     for (size_t k = 0; k < nRows; k++, rProbPtr += nClassesSq)
     {
         /* Set initial probabilities */
-        for (size_t j = 0; j < nClasses; j++) { p[j] = invNClasses; }
+        for (size_t j = 0; j < nClasses; j++)
+        {
+            p[j] = invNClasses;
+        }
 
         /* Calculate matrix Q */
         computeQ<algorithmFPType, cpu>(nClasses, rProbPtr, Q);

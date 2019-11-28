@@ -111,18 +111,27 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
 
     size_t numRowsInBlock = _numRowsInBlock;
 
-    if (numRowsInBlock < 1) { numRowsInBlock = 1; }
+    if (numRowsInBlock < 1)
+    {
+        numRowsInBlock = 1;
+    }
 
     /* Calculate number of blocks of rows including tail block */
     size_t numBlocks = numVectors / numRowsInBlock;
-    if (numBlocks * numRowsInBlock < numVectors) { numBlocks++; }
+    if (numBlocks * numRowsInBlock < numVectors)
+    {
+        numBlocks++;
+    }
 
     SafeStatus safeStat;
     /* Loop over input data blocks */
     daal::threader_for(numBlocks, numBlocks, [=, &safeStat](int iBlock) {
         size_t startRow = iBlock * numRowsInBlock;
         size_t endRow   = startRow + numRowsInBlock;
-        if (endRow > numVectors) { endRow = numVectors; }
+        if (endRow > numVectors)
+        {
+            endRow = numVectors;
+        }
 
         DAAL_INT numRows = endRow - startRow;
 

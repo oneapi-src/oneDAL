@@ -39,7 +39,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
                                                                                                                              jobject thisObj,
                                                                                                                              jlong resAddr, jint id)
 {
-    if (id == predictionId) { return jniArgument<dtrp::Result>::get<dtrp::ResultId, NumericTable>(resAddr, dtrp::prediction); }
+    if (id == predictionId)
+    {
+        return jniArgument<dtrp::Result>::get<dtrp::ResultId, NumericTable>(resAddr, dtrp::prediction);
+    }
 
     return (jlong)0;
 }
@@ -54,5 +57,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_
                                                                                                                             jlong resAddr, jint id,
                                                                                                                             jlong ntAddr)
 {
-    if (id == predictionId) { jniArgument<dtrp::Result>::set<dtrp::ResultId, NumericTable>(resAddr, dtrp::prediction, ntAddr); }
+    if (id == predictionId)
+    {
+        jniArgument<dtrp::Result>::set<dtrp::ResultId, NumericTable>(resAddr, dtrp::prediction, ntAddr);
+    }
 }

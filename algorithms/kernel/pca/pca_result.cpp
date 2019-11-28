@@ -139,8 +139,14 @@ services::Status Result::checkImpl(size_t nFeatures, size_t nComponents, DAAL_UI
     DAAL_CHECK(impl, ErrorNullPtr);
 
     Status s = impl->check(nFeatures, nComponents, lastResultId + 1);
-    if (resultsToCompute & mean) { DAAL_CHECK_STATUS(s, checkNumericTable(get(means).get(), meansStr(), packed_mask, 0, nFeatures, 1)); }
-    if (resultsToCompute & variance) { DAAL_CHECK_STATUS(s, checkNumericTable(get(variances).get(), variancesStr(), packed_mask, 0, nFeatures, 1)); }
+    if (resultsToCompute & mean)
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(means).get(), meansStr(), packed_mask, 0, nFeatures, 1));
+    }
+    if (resultsToCompute & variance)
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(variances).get(), variancesStr(), packed_mask, 0, nFeatures, 1));
+    }
 
     return s;
 }

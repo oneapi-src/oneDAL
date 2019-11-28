@@ -365,7 +365,10 @@ public:
 
         DataType * ptr         = (DataType *)_ptr.get();
         DataType valueDataType = (DataType)value;
-        for (size_t i = 0; i < (nDim * (nDim + 1)) / 2; i++) { ptr[i] = valueDataType; }
+        for (size_t i = 0; i < (nDim * (nDim + 1)) / 2; i++)
+        {
+            ptr[i] = valueDataType;
+        }
         return services::Status();
     }
 
@@ -521,7 +524,10 @@ protected:
     {
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
-        if (onDeserialize) { allocateDataMemoryImpl(); }
+        if (onDeserialize)
+        {
+            allocateDataMemoryImpl();
+        }
 
         size_t nDim = getNumberOfColumns();
         size_t size = (nDim * (nDim + 1)) / 2;
@@ -549,7 +555,10 @@ private:
 
             for (i = 0; i < n; i++)
             {
-                for (j = 0; j < p; j++) { dst[i * p + j] = static_cast<T2>(src[i * p + j]); }
+                for (j = 0; j < p; j++)
+                {
+                    dst[i * p + j] = static_cast<T2>(src[i * p + j]);
+                }
             }
         }
         return services::Status();
@@ -560,7 +569,10 @@ private:
     {
         size_t i;
 
-        for (i = 0; i < n; i++) { dst[i * p] = static_cast<T2>(src[i]); }
+        for (i = 0; i < n; i++)
+        {
+            dst[i * p] = static_cast<T2>(src[i]);
+        }
     }
 
 protected:
@@ -630,7 +642,10 @@ protected:
 
             for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                for (size_t iCol = 0; iCol < nDim; iCol++) { buffer[iRow * nDim + iCol] = getValue<T>(nDim, iRow + idx, iCol); }
+                for (size_t iCol = 0; iCol < nDim; iCol++)
+                {
+                    buffer[iRow * nDim + iCol] = getValue<T>(nDim, iRow + idx, iCol);
+                }
             }
         }
         return services::Status();
@@ -649,7 +664,10 @@ protected:
 
             for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                for (size_t iCol = 0; iCol < nDim; iCol++) { s |= setValue<T>(nDim, idx + iRow, iCol, buffer[iRow * nDim + iCol]); }
+                for (size_t iCol = 0; iCol < nDim; iCol++)
+                {
+                    s |= setValue<T>(nDim, idx + iRow, iCol, buffer[iRow * nDim + iCol]);
+                }
             }
         }
         block.reset();
@@ -676,7 +694,10 @@ protected:
         {
             T * buffer = block.getBlockPtr();
 
-            for (size_t iRow = 0; iRow < nrows; iRow++) { buffer[iRow] = getValue<T>(nDim, iRow + idx, feat_idx); }
+            for (size_t iRow = 0; iRow < nrows; iRow++)
+            {
+                buffer[iRow] = getValue<T>(nDim, iRow + idx, feat_idx);
+            }
         }
         return services::Status();
     }
@@ -693,7 +714,10 @@ protected:
             size_t feat_idx = block.getColumnsOffset();
             T * buffer      = block.getBlockPtr();
 
-            for (size_t iRow = 0; iRow < nrows; iRow++) { s |= setValue<T>(nDim, iRow + idx, feat_idx, buffer[iRow]); }
+            for (size_t iRow = 0; iRow < nrows; iRow++)
+            {
+                s |= setValue<T>(nDim, iRow + idx, feat_idx, buffer[iRow]);
+            }
         }
         block.reset();
         return s;
@@ -719,7 +743,10 @@ protected:
 
         T * buffer     = block.getBlockPtr();
         DataType * ptr = (DataType *)_ptr.get();
-        for (size_t i = 0; i < nSize; i++) { buffer[i] = static_cast<T>(*(ptr + i)); }
+        for (size_t i = 0; i < nSize; i++)
+        {
+            buffer[i] = static_cast<T>(*(ptr + i));
+        }
         return services::Status();
     }
 
@@ -733,7 +760,10 @@ protected:
             T * buffer     = block.getBlockPtr();
             DataType * ptr = (DataType *)_ptr.get();
 
-            for (size_t i = 0; i < nSize; i++) { *(ptr + i) = static_cast<baseDataType>(buffer[i]); }
+            for (size_t i = 0; i < nSize; i++)
+            {
+                *(ptr + i) = static_cast<baseDataType>(buffer[i]);
+            }
         }
         block.reset();
         return services::Status();
@@ -1062,7 +1092,10 @@ public:
 
         DataType * ptr         = (DataType *)_ptr.get();
         DataType valueDataType = (DataType)value;
-        for (size_t i = 0; i < (nDim * (nDim + 1)) / 2; i++) { ptr[i] = valueDataType; }
+        for (size_t i = 0; i < (nDim * (nDim + 1)) / 2; i++)
+        {
+            ptr[i] = valueDataType;
+        }
         return services::Status();
     }
 
@@ -1185,7 +1218,10 @@ protected:
     {
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
-        if (onDeserialize) { allocateDataMemoryImpl(); }
+        if (onDeserialize)
+        {
+            allocateDataMemoryImpl();
+        }
 
         size_t nDim = getNumberOfColumns();
         size_t size = (nDim * (nDim + 1)) / 2;
@@ -1213,7 +1249,10 @@ private:
 
             for (i = 0; i < n; i++)
             {
-                for (j = 0; j < p; j++) { dst[i * p + j] = static_cast<T2>(src[i * p + j]); }
+                for (j = 0; j < p; j++)
+                {
+                    dst[i * p + j] = static_cast<T2>(src[i * p + j]);
+                }
             }
         }
         return services::Status();
@@ -1224,7 +1263,10 @@ private:
     {
         size_t i;
 
-        for (i = 0; i < n; i++) { dst[i * p] = static_cast<T2>(src[i]); }
+        for (i = 0; i < n; i++)
+        {
+            dst[i * p] = static_cast<T2>(src[i]);
+        }
     }
 
 protected:
@@ -1234,13 +1276,19 @@ protected:
 
         if (packedLayout == upperPackedTriangularMatrix)
         {
-            if (colIdx < rowIdx) { return zero; }
+            if (colIdx < rowIdx)
+            {
+                return zero;
+            }
 
             offset = (2 * dim - rowIdx) * (rowIdx + 1) / 2 - (dim - colIdx);
         }
         else /* here lowerPackedTriangularMatrix is supposed */
         {
-            if (colIdx > rowIdx) { return zero; }
+            if (colIdx > rowIdx)
+            {
+                return zero;
+            }
 
             offset = (2 + rowIdx) * (rowIdx + 1) / 2 - (rowIdx - colIdx) - 1;
         }
@@ -1284,7 +1332,10 @@ protected:
 
             for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                for (size_t iCol = 0; iCol < nDim; iCol++) { buffer[iRow * nDim + iCol] = getValue<T>(nDim, iRow + idx, iCol); }
+                for (size_t iCol = 0; iCol < nDim; iCol++)
+                {
+                    buffer[iRow * nDim + iCol] = getValue<T>(nDim, iRow + idx, iCol);
+                }
             }
         }
         return services::Status();
@@ -1303,7 +1354,10 @@ protected:
 
             for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                for (size_t iCol = 0; iCol < nDim; iCol++) { s |= setValue<T>(nDim, iRow + idx, iCol, buffer[iRow * nDim + iCol]); }
+                for (size_t iCol = 0; iCol < nDim; iCol++)
+                {
+                    s |= setValue<T>(nDim, iRow + idx, iCol, buffer[iRow * nDim + iCol]);
+                }
             }
         }
         block.reset();
@@ -1329,7 +1383,10 @@ protected:
         if ((block.getRWFlag() & (int)readOnly))
         {
             T * buffer = block.getBlockPtr();
-            for (size_t iRow = 0; iRow < nrows; iRow++) { buffer[iRow] = getValue<T>(nDim, iRow + idx, feat_idx); }
+            for (size_t iRow = 0; iRow < nrows; iRow++)
+            {
+                buffer[iRow] = getValue<T>(nDim, iRow + idx, feat_idx);
+            }
         }
         return services::Status();
     }
@@ -1346,7 +1403,10 @@ protected:
             size_t feat_idx = block.getColumnsOffset();
             T * buffer      = block.getBlockPtr();
 
-            for (size_t iRow = 0; iRow < nrows; iRow++) { s |= setValue<T>(nDim, iRow + idx, feat_idx, buffer[iRow]); }
+            for (size_t iRow = 0; iRow < nrows; iRow++)
+            {
+                s |= setValue<T>(nDim, iRow + idx, feat_idx, buffer[iRow]);
+            }
         }
         block.reset();
         return s;
@@ -1372,7 +1432,10 @@ protected:
 
         T * buffer     = block.getBlockPtr();
         DataType * ptr = (DataType *)_ptr.get();
-        for (size_t i = 0; i < nSize; i++) { buffer[i] = static_cast<T>(*(ptr + i)); }
+        for (size_t i = 0; i < nSize; i++)
+        {
+            buffer[i] = static_cast<T>(*(ptr + i));
+        }
         return services::Status();
     }
 
@@ -1386,7 +1449,10 @@ protected:
             T * buffer     = block.getBlockPtr();
             DataType * ptr = (DataType *)_ptr.get();
 
-            for (size_t i = 0; i < nSize; i++) { *(ptr + i) = static_cast<baseDataType>(buffer[i]); }
+            for (size_t i = 0; i < nSize; i++)
+            {
+                *(ptr + i) = static_cast<baseDataType>(buffer[i]);
+            }
         }
         block.reset();
         return services::Status();

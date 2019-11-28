@@ -46,7 +46,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_trainin
                                                                                                            jlong resAddr, jint id)
 {
     if (id == ModelId)
-    { return jniArgument<ridge_regression::training::Result>::get<ridge_regression::training::ResultId, ridge_regression::Model>(resAddr, id); }
+    {
+        return jniArgument<ridge_regression::training::Result>::get<ridge_regression::training::ResultId, ridge_regression::Model>(resAddr, id);
+    }
 
     return (jlong)0;
 }

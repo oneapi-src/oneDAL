@@ -54,7 +54,10 @@ const services::SharedPtr<quality_metric::Batch> & InputAlgorithmsCollection::op
     size_t i;
     for (i = 0; i < _keys.size(); i++)
     {
-        if (_keys[i] == k) { return _qualityMetrics[i]; }
+        if (_keys[i] == k)
+        {
+            return _qualityMetrics[i];
+        }
     }
     return *nullPtr;
 }
@@ -70,7 +73,10 @@ services::SharedPtr<quality_metric::Batch> & InputAlgorithmsCollection::operator
     size_t i;
     for (i = 0; i < _keys.size(); i++)
     {
-        if (_keys[i] == k) { return _qualityMetrics[i]; }
+        if (_keys[i] == k)
+        {
+            return _qualityMetrics[i];
+        }
     }
     _keys.push_back(0);
     _keys[i] = k;

@@ -46,5 +46,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_engines_Result_cGetValue(
 JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_engines_Result_cSetValue(JNIEnv * env, jobject thisObj, jlong resAddr, jint id,
                                                                                jlong tensorAddr)
 {
-    if (id == randomNumbers) { jniArgument<engines::Result>::set<engines::ResultId, NumericTable>(resAddr, id, tensorAddr); }
+    if (id == randomNumbers)
+    {
+        jniArgument<engines::Result>::set<engines::ResultId, NumericTable>(resAddr, id, tensorAddr);
+    }
 }

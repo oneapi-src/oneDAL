@@ -63,7 +63,10 @@ NumericTablePtr Input::get(TransformDataInputId wid, TransformComponentId id) co
 
 void Input::set(TransformDataInputId wid, TransformComponentId id, const NumericTablePtr & value)
 {
-    if (get(wid).get() == NULL) { set(wid, KeyValueDataCollectionPtr(new KeyValueDataCollection())); }
+    if (get(wid).get() == NULL)
+    {
+        set(wid, KeyValueDataCollectionPtr(new KeyValueDataCollection()));
+    }
     KeyValueDataCollectionPtr dataCollectionPtr = get(wid);
     (*dataCollectionPtr)[id]                    = value;
 }
@@ -103,16 +106,25 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     if (hasTransform)
     {
         NumericTablePtr pMeans = get(dataForTransform, mean);
-        if (pMeans) { DAAL_CHECK_STATUS(s, checkNumericTable(pMeans.get(), meanStr(), packed_mask, 0, nFeatures, 1)); }
+        if (pMeans)
+        {
+            DAAL_CHECK_STATUS(s, checkNumericTable(pMeans.get(), meanStr(), packed_mask, 0, nFeatures, 1));
+        }
         NumericTablePtr pVariances = get(dataForTransform, variance);
-        if (pVariances) { DAAL_CHECK_STATUS(s, checkNumericTable(pVariances.get(), varianceStr(), packed_mask, 0, nFeatures, 1)); }
+        if (pVariances)
+        {
+            DAAL_CHECK_STATUS(s, checkNumericTable(pVariances.get(), varianceStr(), packed_mask, 0, nFeatures, 1));
+        }
         NumericTablePtr pEigenvalue = get(dataForTransform, eigenvalue);
         if (pEigenvalue)
         {
             size_t nEigenvalues = pEigenvalue->getNumberOfColumns();
             DAAL_CHECK_STATUS(s, checkNumericTable(pEigenvalue.get(), eigenvalueStr(), packed_mask, 0, nEigenvalues, 1));
             // if nComponents is specified number of eigenvalues should be greater or equal to perform transformation with whitening
-            if (parameter->nComponents > 0) { DAAL_CHECK(parameter->nComponents <= nEigenvalues, ErrorIncorrectNComponents); }
+            if (parameter->nComponents > 0)
+            {
+                DAAL_CHECK(parameter->nComponents <= nEigenvalues, ErrorIncorrectNComponents);
+            }
         }
     }
 

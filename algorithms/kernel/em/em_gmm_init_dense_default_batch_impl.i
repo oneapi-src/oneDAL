@@ -138,14 +138,20 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::writeValuesToTables()
         WriteOnlyRows<algorithmFPType, cpu, NumericTable> weightsBlock(weightsToInit, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(weightsBlock)
         algorithmFPType * weightsArray = weightsBlock.get();
-        for (size_t i = 0; i < nComponents; i++) { weightsArray[i] = alpha->getArray()[i]; }
+        for (size_t i = 0; i < nComponents; i++)
+        {
+            weightsArray[i] = alpha->getArray()[i];
+        }
     }
 
     {
         WriteOnlyRows<algorithmFPType, cpu, NumericTable> meansBlock(meansToInit, 0, nComponents);
         DAAL_CHECK_BLOCK_STATUS(meansBlock)
         algorithmFPType * meansArray = meansBlock.get();
-        for (size_t i = 0; i < nFeatures * nComponents; i++) { meansArray[i] = means->getArray()[i]; }
+        for (size_t i = 0; i < nFeatures * nComponents; i++)
+        {
+            meansArray[i] = means->getArray()[i];
+        }
     }
 
     covs.writeToTables(covariancesToInit);
@@ -156,7 +162,10 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 Status EMInitKernelTask<algorithmFPType, method, cpu>::setSelectedSetAsInitialValues()
 {
     algorithmFPType * alphaArray = alpha->getArray();
-    for (int k = 0; k < nComponents; k++) { alphaArray[k] = 1.0 / nComponents; }
+    for (int k = 0; k < nComponents; k++)
+    {
+        alphaArray[k] = 1.0 / nComponents;
+    }
 
     algorithmFPType * meansArray = means->getArray();
     ReadRows<algorithmFPType, cpu, NumericTable> block;
@@ -164,7 +173,10 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::setSelectedSetAsInitialVa
     {
         const algorithmFPType * selectedRow = block.set(data, selectedSet[k], 1);
         DAAL_CHECK(selectedRow, ErrorMemoryAllocationFailed)
-        for (int j = 0; j < nFeatures; j++) { meansArray[k * nFeatures + j] = selectedRow[j]; }
+        for (int j = 0; j < nFeatures; j++)
+        {
+            meansArray[k * nFeatures + j] = selectedRow[j];
+        }
     }
 
     covs.setVariance(varianceArray);
@@ -178,7 +190,10 @@ ErrorID EMInitKernelTask<algorithmFPType, method, cpu>::runEM()
     em.parameter.maxIterations     = nIterations;
     em.parameter.accuracyThreshold = accuracyThreshold;
     ErrorID returnErrorId          = em.run(data, *alpha, *means, covs.getSigma(), parameter.covarianceStorage, loglikelyhood);
-    if (returnErrorId != 0) { loglikelyhood = -MaxVal<algorithmFPType>::get(); }
+    if (returnErrorId != 0)
+    {
+        loglikelyhood = -MaxVal<algorithmFPType>::get();
+    }
     return returnErrorId;
 }
 
@@ -197,7 +212,10 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::generateSelectedSet()
             isNumberUnique = true;
             for (int j = 0; j < i; j++)
             {
-                if (number == selectedSet[j]) { isNumberUnique = false; }
+                if (number == selectedSet[j])
+                {
+                    isNumberUnique = false;
+                }
             }
         }
         selectedSet[i] = number;

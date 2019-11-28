@@ -55,10 +55,15 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
             HomogenNumericTable<algorithmFPType>::create(nColumns, nRows, NumericTable::doAllocate, &s));
     }
     if (!get(optimization_solver::iterative_solver::nIterations))
-    { set(optimization_solver::iterative_solver::nIterations, HomogenNumericTable<size_t>::create(1, 1, NumericTable::doAllocate, (size_t)0, &s)); }
+    {
+        set(optimization_solver::iterative_solver::nIterations, HomogenNumericTable<size_t>::create(1, 1, NumericTable::doAllocate, (size_t)0, &s));
+    }
 
     const Parameter * algParam = static_cast<const Parameter *>(par);
-    if (!algParam->optionalResultRequired) { return s; }
+    if (!algParam->optionalResultRequired)
+    {
+        return s;
+    }
     return s;
 }
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,

@@ -105,6 +105,9 @@ extern "C"
     JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cDispose(JNIEnv * env, jobject thisObj, jlong initAddr)
     {
         SharedPtr<DistributedIface<step2Master> > * covDistributed = (SharedPtr<DistributedIface<step2Master> > *)initAddr;
-        if (initAddr) { delete covDistributed; }
+        if (initAddr)
+        {
+            delete covDistributed;
+        }
     }
 }

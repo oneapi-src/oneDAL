@@ -101,7 +101,10 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (DAAL_INT j = 0; j < nFeatures; j++) { xtxPtr[j] += xPtr[j]; }
+            for (DAAL_INT j = 0; j < nFeatures; j++)
+            {
+                xtxPtr[j] += xPtr[j];
+            }
         }
 
         xtxPtr[nFeatures] += algorithmFPType(nRows);
@@ -121,7 +124,10 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (DAAL_INT j = 0; j < _nResponses; j++) { _xty[j * _nBetasIntercept + nFeatures] += yPtr[j]; }
+            for (DAAL_INT j = 0; j < _nResponses; j++)
+            {
+                _xty[j * _nBetasIntercept + nFeatures] += yPtr[j];
+            }
         }
     }
     return Status();
@@ -134,14 +140,20 @@ void ThreadingTask<algorithmFPType, cpu>::reduce(algorithmFPType * xtx, algorith
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.syrkX);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < (_nBetasIntercept * _nBetasIntercept); i++) { xtx[i] += _xtx[i]; }
+        for (size_t i = 0; i < (_nBetasIntercept * _nBetasIntercept); i++)
+        {
+            xtx[i] += _xtx[i];
+        }
     }
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemmXY);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < (_nBetasIntercept * _nResponses); i++) { xty[i] += _xty[i]; }
+        for (size_t i = 0; i < (_nBetasIntercept * _nResponses); i++)
+        {
+            xty[i] += _xty[i];
+        }
     }
 }
 
@@ -182,7 +194,10 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, 
     size_t nRowsInBlock = 128;
 
     size_t nBlocks = nRows / nRowsInBlock;
-    if (nBlocks * nRowsInBlock < nRows) { nBlocks++; }
+    if (nBlocks * nRowsInBlock < nRows)
+    {
+        nBlocks++;
+    }
 
     /* Create TLS */
     daal::tls<ThreadingTaskType *> tls([=]() -> ThreadingTaskType * { return ThreadingTaskType::create(nBetasIntercept, nResponses); });
@@ -199,7 +214,10 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, 
 
         size_t startRow = iBlock * nRowsInBlock;
         size_t endRow   = startRow + nRowsInBlock;
-        if (endRow > nRows) { endRow = nRows; }
+        if (endRow > nRows)
+        {
+            endRow = nRows;
+        }
 
         Status localSt = tlsLocal->update(startRow, endRow - startRow, xTable, yTable);
         DAAL_CHECK_STATUS_THR(localSt);

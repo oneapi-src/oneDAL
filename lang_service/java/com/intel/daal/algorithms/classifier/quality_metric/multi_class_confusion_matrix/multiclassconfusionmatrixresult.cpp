@@ -52,7 +52,9 @@ JNIEXPORT jlong JNICALL
         JNIEnv *, jobject, jlong resAddr, jint id)
 {
     if (id == ConfMatrix)
-    { return jniArgument<multiclass_confusion_matrix::Result>::get<multiclass_confusion_matrix::ResultId, NumericTable>(resAddr, confusionMatrix); }
+    {
+        return jniArgument<multiclass_confusion_matrix::Result>::get<multiclass_confusion_matrix::ResultId, NumericTable>(resAddr, confusionMatrix);
+    }
     else if (id == MCMetrics)
     {
         return jniArgument<multiclass_confusion_matrix::Result>::get<multiclass_confusion_matrix::ResultId, NumericTable>(resAddr, multiClassMetrics);

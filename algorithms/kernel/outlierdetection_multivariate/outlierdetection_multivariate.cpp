@@ -71,9 +71,18 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(), dataStr()))
     size_t nFeatures = get(data)->getNumberOfColumns();
-    if (get(location)) { DAAL_CHECK_STATUS(s, checkNumericTable(get(location).get(), locationStr(), 0, 0, nFeatures, 1)); }
-    if (get(scatter)) { DAAL_CHECK_STATUS(s, checkNumericTable(get(scatter).get(), scatterStr(), 0, 0, nFeatures, nFeatures)); }
-    if (get(threshold)) { DAAL_CHECK_STATUS(s, checkNumericTable(get(threshold).get(), thresholdStr(), 0, 0, 1, 1)); }
+    if (get(location))
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(location).get(), locationStr(), 0, 0, nFeatures, 1));
+    }
+    if (get(scatter))
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(scatter).get(), scatterStr(), 0, 0, nFeatures, nFeatures));
+    }
+    if (get(threshold))
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(get(threshold).get(), thresholdStr(), 0, 0, 1, 1));
+    }
     return s;
 }
 

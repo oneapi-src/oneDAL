@@ -126,7 +126,10 @@ void SVMTrainTask<float, daal::algorithms::svm::interface1::Parameter, avx512>::
             GMin = minus_GMin_val[k];
             Bj   = Bj_val_overall[k] + k; // from partial index to final
         }
-        if (minusGMin2_overall[k] > GMin2) { GMin2 = minusGMin2_overall[k]; }
+        if (minusGMin2_overall[k] > GMin2)
+        {
+            GMin2 = minusGMin2_overall[k];
+        }
     }
 
     if (Bj != -1)
@@ -134,7 +137,10 @@ void SVMTrainTask<float, daal::algorithms::svm::interface1::Parameter, avx512>::
         float ygrad = -_y[Bj] * _grad[Bj];
         float b     = GMax - ygrad;
         float a     = Kii + _kernelDiag[Bj] - two * KiBlock[Bj - jStart];
-        if (a <= zero) { a = tau; }
+        if (a <= zero)
+        {
+            a = tau;
+        }
         delta = b / a;
         GMin  = -b * delta;
 
@@ -157,7 +163,10 @@ void SVMTrainTask<float, daal::algorithms::svm::interface1::Parameter, avx512>::
             Bj    = Bj_local;
             delta = delta_local;
         }
-        if (GMin2_local <= GMin2) { GMin2 = GMin2_local; }
+        if (GMin2_local <= GMin2)
+        {
+            GMin2 = GMin2_local;
+        }
     }
 }
 
@@ -215,7 +224,9 @@ void SVMTrainTask<double, daal::algorithms::svm::interface1::Parameter, avx512>:
         __m256i Bj_vec_cur = _mm256_set1_epi32((int)(j_cur));
 
         if ((j_cur + 8) > jEnd) // last iteration
-        { mask_cmp = *((__mmask16 *)&cmp_half); }
+        {
+            mask_cmp = *((__mmask16 *)&cmp_half);
+        }
         __m128i vec_I = _mm_maskz_loadu_epi8(mask_cmp, &_I[j_cur]); // basically, I load 16 chars except last iteration
 
         // vector multiplication y_grad[jcur:jcur+8] = _y[jcur:jcur+8] * _grad[jcur:jcur+8]
@@ -279,7 +290,10 @@ void SVMTrainTask<double, daal::algorithms::svm::interface1::Parameter, avx512>:
             GMin = minus_GMin_val[k];
             Bj   = Bj_val_overall[k] + k; // from partial index to final
         }
-        if (minusGMin2_overall[k] > GMin2) { GMin2 = minusGMin2_overall[k]; }
+        if (minusGMin2_overall[k] > GMin2)
+        {
+            GMin2 = minusGMin2_overall[k];
+        }
     }
 
     if (Bj != -1)
@@ -287,7 +301,10 @@ void SVMTrainTask<double, daal::algorithms::svm::interface1::Parameter, avx512>:
         double ygrad = -_y[Bj] * _grad[Bj];
         double b     = GMax - ygrad;
         double a     = Kii + _kernelDiag[Bj] - two * KiBlock[Bj - jStart];
-        if (a <= zero) { a = tau; }
+        if (a <= zero)
+        {
+            a = tau;
+        }
         delta = b / a;
         GMin  = -b * delta;
 
@@ -310,6 +327,9 @@ void SVMTrainTask<double, daal::algorithms::svm::interface1::Parameter, avx512>:
             Bj    = Bj_local;
             delta = delta_local;
         }
-        if (GMin2_local <= GMin2) { GMin2 = GMin2_local; }
+        if (GMin2_local <= GMin2)
+        {
+            GMin2 = GMin2_local;
+        }
     }
 }

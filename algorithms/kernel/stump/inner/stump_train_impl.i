@@ -76,7 +76,10 @@ void StumpTrainKernel<method, algorithmFPtype, cpu>::StumpQSort(size_t n, algori
 
                 for (i = j - 1; i >= l; i--)
                 {
-                    if (x[i] <= a) { break; }
+                    if (x[i] <= a)
+                    {
+                        break;
+                    }
                     x[i + 1] = x[i];
                     w[i + 1] = w[i];
                     z[i + 1] = z[i];
@@ -87,7 +90,10 @@ void StumpTrainKernel<method, algorithmFPtype, cpu>::StumpQSort(size_t n, algori
                 z[i + 1] = c;
             }
 
-            if (jstack < 0) { break; }
+            if (jstack < 0)
+            {
+                break;
+            }
 
             ir = istack[jstack--];
             l  = istack[jstack--];
@@ -127,7 +133,10 @@ void StumpTrainKernel<method, algorithmFPtype, cpu>::StumpQSort(size_t n, algori
                     ;
                 while (x[--j] > a)
                     ;
-                if (j < i) { break; }
+                if (j < i)
+                {
+                    break;
+                }
                 daal::services::internal::swap<cpu, algorithmFPtype>(x[i], x[j]);
                 daal::services::internal::swap<cpu, algorithmFPtype>(w[i], w[j]);
                 daal::services::internal::swap<cpu, algorithmFPtype>(z[i], z[j]);
@@ -238,7 +247,10 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::stumpRegression
         rM -= wz;
         rs -= wzz;
 
-        if (xx[k] == xx[k + 1]) { continue; }
+        if (xx[k] == xx[k + 1])
+        {
+            continue;
+        }
 
         /* Current split point */
         algorithmFPtype curT = C05 * (xx[k] + xx[k + 1]);

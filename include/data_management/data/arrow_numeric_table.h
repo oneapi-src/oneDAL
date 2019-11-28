@@ -60,7 +60,10 @@ public:
     {
         if (!table)
         {
-            if (stat) { stat->add(services::ErrorNullPtr); }
+            if (stat)
+            {
+                stat->add(services::ErrorNullPtr);
+            }
             return services::SharedPtr<ArrowImmutableNumericTable>();
         }
 
@@ -78,7 +81,10 @@ public:
     {
         if (!table)
         {
-            if (stat) { stat->add(services::ErrorNullPtr); }
+            if (stat)
+            {
+                stat->add(services::ErrorNullPtr);
+            }
             return services::SharedPtr<ArrowImmutableNumericTable>();
         }
 
@@ -143,7 +149,10 @@ protected:
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
-        if (onDeserialize) { return services::Status(services::ErrorMethodNotSupported); }
+        if (onDeserialize)
+        {
+            return services::Status(services::ErrorMethodNotSupported);
+        }
 
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
@@ -189,7 +198,10 @@ private:
     DAAL_FORCEINLINE services::Status updateFeatures(const arrow::Table & table)
     {
         services::Status s;
-        if (_ddict.get() == NULL) { _ddict = NumericTableDictionary::create(&s); }
+        if (_ddict.get() == NULL)
+        {
+            _ddict = NumericTableDictionary::create(&s);
+        }
         if (!s) return s;
 
         const std::shared_ptr<const arrow::Schema> schemaPtr = table.schema();
@@ -235,7 +247,10 @@ private:
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
-        if (block.getRWFlag() & (int)writeOnly) { return services::Status(services::ErrorMethodNotSupported); }
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            return services::Status(services::ErrorMethodNotSupported);
+        }
 
         const size_t ncols = getNumberOfColumns();
         const size_t nobs  = getNumberOfRows();
@@ -249,7 +264,10 @@ private:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        if (!block.resizeBuffer(ncols, nrows)) { return services::Status(services::ErrorMemoryAllocationFailed); }
+        if (!block.resizeBuffer(ncols, nrows))
+        {
+            return services::Status(services::ErrorMemoryAllocationFailed);
+        }
 
         T lbuf[32];
         size_t di        = 32;
@@ -257,7 +275,10 @@ private:
 
         for (size_t i = 0; i < nrows; i += di)
         {
-            if (i + di > nrows) { di = nrows - i; }
+            if (i + di > nrows)
+            {
+                di = nrows - i;
+            }
 
             for (size_t j = 0; j < ncols; ++j)
             {
@@ -294,7 +315,10 @@ private:
                     DAAL_ASSERT(offset == di);
                 }
 
-                for (size_t ii = 0; ii < di; ++ii) { buffer[(i + ii) * ncols + j] = lbuf[ii]; }
+                for (size_t ii = 0; ii < di; ++ii)
+                {
+                    buffer[(i + ii) * ncols + j] = lbuf[ii];
+                }
             }
         }
 
@@ -304,7 +328,10 @@ private:
     template <typename T>
     services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
-        if (block.getRWFlag() & (int)writeOnly) { return services::Status(services::ErrorMethodNotSupported); }
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            return services::Status(services::ErrorMethodNotSupported);
+        }
 
         block.reset();
         return services::Status();
@@ -313,7 +340,10 @@ private:
     template <typename T>
     services::Status getTFeature(size_t featIdx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        if (block.getRWFlag() & (int)writeOnly) { return services::Status(services::ErrorMethodNotSupported); }
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            return services::Status(services::ErrorMethodNotSupported);
+        }
 
         const size_t ncols = getNumberOfColumns();
         const size_t nobs  = getNumberOfRows();
@@ -347,7 +377,10 @@ private:
         }
         else
         {
-            if (!block.resizeBuffer(1, nrows)) { return services::Status(services::ErrorMemoryAllocationFailed); }
+            if (!block.resizeBuffer(1, nrows))
+            {
+                return services::Status(services::ErrorMemoryAllocationFailed);
+            }
 
             if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
 
@@ -381,7 +414,10 @@ private:
     template <typename T>
     services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
-        if (block.getRWFlag() & (int)writeOnly) { return services::Status(services::ErrorMethodNotSupported); }
+        if (block.getRWFlag() & (int)writeOnly)
+        {
+            return services::Status(services::ErrorMethodNotSupported);
+        }
 
         block.reset();
         return services::Status();

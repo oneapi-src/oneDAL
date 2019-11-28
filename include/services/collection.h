@@ -55,7 +55,10 @@ public:
      */
     explicit Collection(size_t n) : _array(NULL), _size(0), _capacity(0)
     {
-        if (!resize(n)) { return; }
+        if (!resize(n))
+        {
+            return;
+        }
         _size = n;
     }
 
@@ -66,8 +69,14 @@ public:
      */
     Collection(size_t n, const T * array) : _array(NULL), _size(0), _capacity(0)
     {
-        if (!resize(n)) { return; }
-        for (size_t i = 0; i < n; i++) { _array[i] = array[i]; }
+        if (!resize(n))
+        {
+            return;
+        }
+        for (size_t i = 0; i < n; i++)
+        {
+            _array[i] = array[i];
+        }
         _size = n;
     }
 
@@ -77,15 +86,27 @@ public:
      */
     Collection(const Collection<T> & other) : _array(NULL), _size(0), _capacity(0)
     {
-        if (!resize(other.capacity())) { return; }
-        for (size_t i = 0; i < other.size(); i++) { this->push_back(other[i]); }
+        if (!resize(other.capacity()))
+        {
+            return;
+        }
+        for (size_t i = 0; i < other.size(); i++)
+        {
+            this->push_back(other[i]);
+        }
     }
 
     Collection & operator=(const Collection<T> & other)
     {
-        if (!resize(other.capacity())) { return *this; }
+        if (!resize(other.capacity()))
+        {
+            return *this;
+        }
         _size = 0;
-        for (size_t i = 0; i < other.size(); i++) { this->push_back(other[i]); }
+        for (size_t i = 0; i < other.size(); i++)
+        {
+            this->push_back(other[i]);
+        }
         return *this;
     }
 
@@ -94,7 +115,10 @@ public:
      */
     virtual ~Collection()
     {
-        for (size_t i = 0; i < _capacity; i++) { _array[i].~T(); }
+        for (size_t i = 0; i < _capacity; i++)
+        {
+            _array[i].~T();
+        }
 
         services::daal_free(_array);
         _array = NULL;
@@ -171,7 +195,10 @@ public:
     {
         if (_size >= _capacity)
         {
-            if (!_resize()) { return false; }
+            if (!_resize())
+            {
+                return false;
+            }
         }
         _array[_size] = x;
         _size++;
@@ -191,9 +218,15 @@ public:
      */
     bool resize(size_t newCapacity)
     {
-        if (newCapacity <= _capacity) { return true; }
+        if (newCapacity <= _capacity)
+        {
+            return true;
+        }
         T * newArray = (T *)services::daal_calloc(sizeof(T) * newCapacity);
-        if (!newArray) { return false; }
+        if (!newArray)
+        {
+            return false;
+        }
         for (size_t i = 0; i < newCapacity; i++)
         {
             T * elementMemory = &(newArray[i]);
@@ -201,9 +234,15 @@ public:
         }
 
         size_t minSize = newCapacity < _size ? newCapacity : _size;
-        for (size_t i = 0; i < minSize; i++) { newArray[i] = _array[i]; }
+        for (size_t i = 0; i < minSize; i++)
+        {
+            newArray[i] = _array[i];
+        }
 
-        for (size_t i = 0; i < _capacity; i++) { _array[i].~T(); }
+        for (size_t i = 0; i < _capacity; i++)
+        {
+            _array[i].~T();
+        }
 
         services::daal_free(_array);
         _array    = newArray;
@@ -216,7 +255,10 @@ public:
      */
     void clear()
     {
-        for (size_t i = 0; i < _capacity; i++) { _array[i].~T(); }
+        for (size_t i = 0; i < _capacity; i++)
+        {
+            _array[i].~T();
+        }
 
         services::daal_free(_array);
 
@@ -232,16 +274,25 @@ public:
      */
     bool insert(const size_t pos, const T & x)
     {
-        if (pos > this->size()) { return true; }
+        if (pos > this->size())
+        {
+            return true;
+        }
 
         size_t newSize = 1 + this->size();
         if (newSize > _capacity)
         {
-            if (!_resize()) { return false; }
+            if (!_resize())
+            {
+                return false;
+            }
         }
 
         size_t tail = _size - pos;
-        for (size_t i = 0; i < tail; i++) { _array[_size - i] = _array[_size - 1 - i]; }
+        for (size_t i = 0; i < tail; i++)
+        {
+            _array[_size - i] = _array[_size - 1 - i];
+        }
         _array[pos] = x;
         _size       = newSize;
         return true;
@@ -254,18 +305,30 @@ public:
      */
     bool insert(const size_t pos, Collection<T> & other)
     {
-        if (pos > this->size()) { return true; }
+        if (pos > this->size())
+        {
+            return true;
+        }
 
         size_t newSize = other.size() + this->size();
         if (newSize > _capacity)
         {
-            if (!resize(newSize)) { return false; }
+            if (!resize(newSize))
+            {
+                return false;
+            }
         }
 
         size_t length = other.size();
         size_t tail   = _size - pos;
-        for (size_t i = 0; i < tail; i++) { _array[_size + length - 1 - i] = _array[_size - 1 - i]; }
-        for (size_t i = 0; i < length; i++) { _array[pos + i] = other[i]; }
+        for (size_t i = 0; i < tail; i++)
+        {
+            _array[_size + length - 1 - i] = _array[_size - 1 - i];
+        }
+        for (size_t i = 0; i < length; i++)
+        {
+            _array[pos + i] = other[i];
+        }
         _size = newSize;
         return true;
     }
@@ -276,11 +339,17 @@ public:
      */
     void erase(size_t pos)
     {
-        if (pos >= this->size()) { return; }
+        if (pos >= this->size())
+        {
+            return;
+        }
 
         _size--;
 
-        for (size_t i = 0; i < _size - pos; i++) { _array[pos + i] = _array[pos + 1 + i]; }
+        for (size_t i = 0; i < _size - pos; i++)
+        {
+            _array[pos + i] = _array[pos + 1 + i];
+        }
     }
 
 private:
@@ -288,7 +357,10 @@ private:
     bool _resize()
     {
         size_t newCapacity = 2 * _capacity;
-        if (_capacity == 0) { newCapacity = _default_capacity; }
+        if (_capacity == 0)
+        {
+            newCapacity = _default_capacity;
+        }
         return resize(newCapacity);
     }
 

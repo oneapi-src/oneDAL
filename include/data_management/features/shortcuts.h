@@ -96,7 +96,10 @@ inline FeatureIdCollectionIfacePtr list(const IdFactory & id)
     using internal::FeatureIdListPtr;
 
     FeatureIdListPtr l = FeatureIdList::create();
-    if (l) { l->add(id.get()); }
+    if (l)
+    {
+        l->add(id.get());
+    }
     return l;
 }
 
@@ -153,7 +156,10 @@ inline FeatureIdCollectionIfacePtr list(const std::vector<IdFactory> & ids)
     using internal::FeatureIdListPtr;
 
     FeatureIdListPtr l = FeatureIdList::create();
-    for (size_t i = 0; i < ids.size(); i++) { l->add(ids[i].get()); }
+    for (size_t i = 0; i < ids.size(); i++)
+    {
+        l->add(ids[i].get());
+    }
     return l;
 }
 

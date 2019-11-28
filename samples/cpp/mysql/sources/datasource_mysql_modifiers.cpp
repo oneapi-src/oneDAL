@@ -83,7 +83,10 @@ public:
 
         /* Iterate throughout tokens, parse every token as float and compute max value  */
         float maxFeature = context.getValue<float>(0);
-        for (size_t i = 1; i < numberOfColumns; i++) { maxFeature = (std::max)(maxFeature, context.getValue<float>(i)); }
+        for (size_t i = 1; i < numberOfColumns; i++)
+        {
+            maxFeature = (std::max)(maxFeature, context.getValue<float>(i));
+        }
 
         /* Write max value to the output buffer, buffer size is equal to the
          * number of output features that specified in 'initialize' method */
@@ -100,7 +103,10 @@ int main(int argc, char const * argv[])
 
     std::string connectionString;
 
-    if (argc > 1) { connectionString = argv[1]; }
+    if (argc > 1)
+    {
+        connectionString = argv[1];
+    }
 
     if (utils::trim(connectionString).empty())
     {

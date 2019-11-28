@@ -108,7 +108,10 @@ size_t OnlinePartialResult::getNumberOfRows() const
 
     if (1 /* we need V matrices */)
     {
-        for (size_t i = 0; i < np; i++) { n += static_cast<NumericTable *>((*qCollection)[i].get())->getNumberOfRows(); }
+        for (size_t i = 0; i < np; i++)
+        {
+            n += static_cast<NumericTable *>((*qCollection)[i].get())->getNumberOfRows();
+        }
     }
 
     return n;
@@ -120,7 +123,9 @@ Status OnlinePartialResult::checkImpl(const daal::algorithms::Parameter * parame
     DataCollectionPtr rCollection = get(outputOfStep1ForStep2);
     Parameter * svdPar            = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter));
     if (svdPar->leftSingularMatrix != notRequired)
-    { DAAL_CHECK_EX(qCollection, ErrorNullOutputDataCollection, ArgumentName, outputOfStep1ForStep3Str()); }
+    {
+        DAAL_CHECK_EX(qCollection, ErrorNullOutputDataCollection, ArgumentName, outputOfStep1ForStep3Str());
+    }
     DAAL_CHECK_EX(rCollection, ErrorNullOutputDataCollection, ArgumentName, outputOfStep1ForStep2Str());
 
     size_t nodeSize = rCollection->size();
@@ -131,7 +136,9 @@ Status OnlinePartialResult::checkImpl(const daal::algorithms::Parameter * parame
     }
 
     if (svdPar->leftSingularMatrix != notRequired)
-    { DAAL_CHECK_EX(nodeSize == qCollection->size(), ErrorIncorrectNumberOfElementsInResultCollection, ArgumentName, outputOfStep1ForStep3Str()); }
+    {
+        DAAL_CHECK_EX(nodeSize == qCollection->size(), ErrorIncorrectNumberOfElementsInResultCollection, ArgumentName, outputOfStep1ForStep3Str());
+    }
 
     DAAL_CHECK_EX((*rCollection)[0], ErrorNullNumericTable, ArgumentName, rCollectionStr());
 
@@ -139,7 +146,10 @@ Status OnlinePartialResult::checkImpl(const daal::algorithms::Parameter * parame
     DAAL_CHECK_EX(firstNumTableInRCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, outputOfStep1ForStep2Str());
 
     Status s = checkNumericTable(firstNumTableInRCollection.get(), rCollectionStr());
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     if (nFeatures == 0) nFeatures = firstNumTableInRCollection->getNumberOfColumns();
     for (size_t i = 0; i < nodeSize; i++)
@@ -150,7 +160,10 @@ Status OnlinePartialResult::checkImpl(const daal::algorithms::Parameter * parame
 
         int unexpectedLayouts = (int)packed_mask;
         s |= checkNumericTable(numTableInRCollection.get(), rCollectionStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-        if (!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
 
         if (svdPar->leftSingularMatrix != notRequired)
         {
@@ -159,7 +172,10 @@ Status OnlinePartialResult::checkImpl(const daal::algorithms::Parameter * parame
             DAAL_CHECK_EX(numTableInQCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, outputOfStep1ForStep3Str());
 
             s |= checkNumericTable(numTableInQCollection.get(), qCollectionStr(), unexpectedLayouts, 0, nFeatures);
-            if (!s) { return s; }
+            if (!s)
+            {
+                return s;
+            }
 
             DAAL_CHECK_EX(nFeatures <= numTableInQCollection->getNumberOfRows(), ErrorIncorrectNumberOfRows, ArgumentName, qCollectionStr());
         }

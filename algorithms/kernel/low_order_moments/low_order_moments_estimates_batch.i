@@ -79,7 +79,10 @@ struct common_moments_data_t
     ~common_moments_data_t()
     {
         dataTable->releaseBlockOfRows(firstRowBD);
-        for (size_t i = 0; i < lastResultId + 1; i++) { resultTable[i]->releaseBlockOfRows(resultBD[i]); }
+        for (size_t i = 0; i < lastResultId + 1; i++)
+        {
+            resultTable[i]->releaseBlockOfRows(resultBD[i]);
+        }
     }
 
     int malloc_errors;
@@ -251,7 +254,10 @@ Status compute_estimates(NumericTable * dataTable, Result * result)
     /* Compute partial results for each TLS buffer */
     daal::threader_for(numRowsBlocks, numRowsBlocks, [&](int iBlock) {
         struct tls_moments_data_t<algorithmFPType, cpu> * _td = tls_data.local();
-        if (_td->malloc_errors) { return; }
+        if (_td->malloc_errors)
+        {
+            return;
+        }
 
         const size_t _startRow = iBlock * numRowsInBlock;
         const size_t _nRows    = (iBlock < (numRowsBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;

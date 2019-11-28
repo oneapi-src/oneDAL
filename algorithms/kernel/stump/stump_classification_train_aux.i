@@ -59,7 +59,10 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeMinusOneT
     algorithmFPtype * yArray = y.get();
     for (size_t i = 0; i < nVectors; i++)
     {
-        if (yArray[i] == -1) { yArray[i] = 0; }
+        if (yArray[i] == -1)
+        {
+            yArray[i] = 0;
+        }
     }
     return s;
 }
@@ -74,7 +77,10 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeZeroToMin
     algorithmFPtype * yArray = y.get();
     for (size_t i = 0; i < nVectors; i++)
     {
-        if (yArray[i] == 0) { yArray[i] = -1; }
+        if (yArray[i] == 0)
+        {
+            yArray[i] = -1;
+        }
     }
     return s;
 }
@@ -106,7 +112,10 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t 
     /* Pass the training data set, labels, and pruning dataset with labels to the algorithm */
     treeAlgorithm.input.set(classifier::training::data, NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
     treeAlgorithm.input.set(classifier::training::weights, NumericTablePtr(const_cast<NumericTable *>(wTable), EmptyDeleter()));
-    if (nClasses == 2) { DAAL_CHECK_STATUS(s, changeMinusOneToZero(yTable)); }
+    if (nClasses == 2)
+    {
+        DAAL_CHECK_STATUS(s, changeMinusOneToZero(yTable));
+    }
     treeAlgorithm.input.set(classifier::training::labels, NumericTablePtr(const_cast<NumericTable *>(yTable), EmptyDeleter()));
 
     decision_tree::classification::training::ResultPtr treeResult(new decision_tree::classification::training::Result());
@@ -117,7 +126,10 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t 
     treeAlgorithm.setResult(treeResult);
     /* Train the Decision tree model */
     DAAL_CHECK_STATUS(s, treeAlgorithm.computeNoThrow());
-    if (nClasses == 2) { DAAL_CHECK_STATUS(s, changeZeroToMinusOne(yTable)); }
+    if (nClasses == 2)
+    {
+        DAAL_CHECK_STATUS(s, changeZeroToMinusOne(yTable));
+    }
 
     return s;
 }

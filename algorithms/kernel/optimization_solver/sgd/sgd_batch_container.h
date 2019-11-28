@@ -50,7 +50,10 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (deviceInfo.isCpu || method == defaultDense || method == momentum) { __DAAL_INITIALIZE_KERNELS(internal::SGDKernel, algorithmFPType, method); }
+    if (deviceInfo.isCpu || method == defaultDense || method == momentum)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::SGDKernel, algorithmFPType, method);
+    }
     else
     {
         __DAAL_INITIALIZE_KERNELS(internal::SGDKernelOneAPI, algorithmFPType, method);

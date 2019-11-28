@@ -53,10 +53,15 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     set(assignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
     set(nClusters, HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
 
-    if (par->resultsToCompute & computeCoreIndices) { set(coreIndices, HomogenNumericTable<int>::create(1, 0, NumericTable::notAllocate, &status)); }
+    if (par->resultsToCompute & computeCoreIndices)
+    {
+        set(coreIndices, HomogenNumericTable<int>::create(1, 0, NumericTable::notAllocate, &status));
+    }
 
     if (par->resultsToCompute & computeCoreObservations)
-    { set(coreObservations, HomogenNumericTable<algorithmFPType>::create(nFeatures, 0, NumericTable::notAllocate, &status)); }
+    {
+        set(coreObservations, HomogenNumericTable<algorithmFPType>::create(nFeatures, 0, NumericTable::notAllocate, &status));
+    }
 
     return status;
 }

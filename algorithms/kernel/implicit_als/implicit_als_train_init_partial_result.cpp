@@ -56,7 +56,10 @@ NumericTablePtr PartialResultBase::get(PartialResultBaseId id, size_t key) const
 {
     KeyValueDataCollectionPtr collection = get(id);
     NumericTablePtr nt;
-    if (collection) { nt = NumericTable::cast((*collection)[key]); }
+    if (collection)
+    {
+        nt = NumericTable::cast((*collection)[key]);
+    }
     return nt;
 }
 
@@ -117,7 +120,10 @@ NumericTablePtr PartialResult::get(PartialResultCollectionId id, size_t key) con
 {
     KeyValueDataCollectionPtr collection = get(id);
     NumericTablePtr nt;
-    if (collection) { nt = NumericTable::cast((*collection)[key]); }
+    if (collection)
+    {
+        nt = NumericTable::cast((*collection)[key]);
+    }
     return nt;
 }
 
@@ -195,7 +201,10 @@ Status DistributedPartialResultStep2::check(const daal::algorithms::Input * inpu
 
     size_t nRows = NumericTable::cast((*collection)[0])->getNumberOfRows();
     size_t nCols = 0;
-    for (size_t i = 0; i < nParts; i++) { nCols += NumericTable::cast((*collection)[i])->getNumberOfColumns(); }
+    for (size_t i = 0; i < nParts; i++)
+    {
+        nCols += NumericTable::cast((*collection)[i])->getNumberOfColumns();
+    }
 
     const int expectedLayout = (int)NumericTableIface::csrArray;
     return checkNumericTable(get(transposedData).get(), transposedDataStr(), 0, expectedLayout, nCols, nRows, false);

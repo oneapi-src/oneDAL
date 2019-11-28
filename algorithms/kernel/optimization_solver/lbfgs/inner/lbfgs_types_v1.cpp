@@ -61,7 +61,10 @@ services::Status Parameter::check() const
     DAAL_CHECK_EX(L != 0, ErrorIncorrectParameter, ArgumentName, "L");
     DAAL_CHECK_EX(batchSize != 0, ErrorIncorrectParameter, ArgumentName, "batchSize");
 
-    if (batchIndices.get() != NULL) { DAAL_CHECK_STATUS(s, checkNumericTable(batchIndices.get(), batchIndicesStr(), 0, 0, batchSize, nIterations)); }
+    if (batchIndices.get() != NULL)
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(batchIndices.get(), batchIndicesStr(), 0, 0, batchSize, nIterations));
+    }
 
     if (correctionPairBatchIndices.get() != NULL)
     {
@@ -72,7 +75,9 @@ services::Status Parameter::check() const
     if (stepLengthSequence.get() != NULL)
     {
         if (stepLengthSequence->getNumberOfColumns() != 1 && stepLengthSequence->getNumberOfColumns() != nIterations)
-        { return services::Status(Error::create(ErrorIncorrectNumberOfFeatures, ArgumentName, stepLengthSequenceStr())); }
+        {
+            return services::Status(Error::create(ErrorIncorrectNumberOfFeatures, ArgumentName, stepLengthSequenceStr()));
+        }
         s |= checkNumericTable(stepLengthSequence.get(), stepLengthSequenceStr(), 0, 0, 0, 1);
     }
     return s;
@@ -84,7 +89,10 @@ Input::Input(const Input & other) {}
 NumericTablePtr Input::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalArgument);
-    if (pOpt.get()) { return NumericTable::cast(pOpt->get(id)); }
+    if (pOpt.get())
+    {
+        return NumericTable::cast(pOpt->get(id));
+    }
     return NumericTablePtr();
 }
 
@@ -162,19 +170,28 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     //checking correction pairs table
     {
         auto pItem = pOpt->get(correctionPairs);
-        if (pItem.get()) { DAAL_CHECK_STATUS(s, checkCorrectionPairsData(this, par, pItem, true)); }
+        if (pItem.get())
+        {
+            DAAL_CHECK_STATUS(s, checkCorrectionPairsData(this, par, pItem, true));
+        }
     }
 
     //checking correction index table
     {
         auto pItem = pOpt->get(correctionIndices);
-        if (pItem.get()) { DAAL_CHECK_STATUS(s, checkCorrectionIndexData(pItem, true)); }
+        if (pItem.get())
+        {
+            DAAL_CHECK_STATUS(s, checkCorrectionIndexData(pItem, true));
+        }
     }
 
     //checking average argument for L iterations table
     {
         auto pItem = pOpt->get(averageArgumentLIterations);
-        if (pItem.get()) { DAAL_CHECK_STATUS(s, checkAverageArgumentLIterations(this, pItem, true)); }
+        if (pItem.get())
+        {
+            DAAL_CHECK_STATUS(s, checkAverageArgumentLIterations(this, pItem, true));
+        }
     }
 
     return s;
@@ -183,7 +200,10 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
 NumericTablePtr Result::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
-    if (pOpt.get()) { return NumericTable::cast(pOpt->get(id)); }
+    if (pOpt.get())
+    {
+        return NumericTable::cast(pOpt->get(id));
+    }
     return NumericTablePtr();
 }
 
@@ -202,7 +222,10 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, super::check(input, par, method));
-    if (!static_cast<const Parameter *>(par)->optionalResultRequired) { return services::Status(); }
+    if (!static_cast<const Parameter *>(par)->optionalResultRequired)
+    {
+        return services::Status();
+    }
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
     DAAL_CHECK(pOpt.get(), ErrorNullOptionalResult);
     DAAL_CHECK(pOpt->size() == lastOptionalData + 1, ErrorIncorrectOptionalResult);

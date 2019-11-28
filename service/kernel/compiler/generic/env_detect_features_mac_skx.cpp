@@ -23,6 +23,9 @@ void __daal_serv_CPUHasAVX512f_enable_it_mac()
     int answer         = 0;
     size_t answer_size = sizeof(answer);
     ::sysctlbyname("hw.optional.avx512f", &answer, &answer_size, NULL, 0);
-    if (answer) { asm("kandw %k1, %k2, %k3\t"); }
+    if (answer)
+    {
+        asm("kandw %k1, %k2, %k3\t");
+    }
 }
 #endif

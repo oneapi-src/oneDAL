@@ -93,7 +93,10 @@ size_t DistributedStep2MasterInput::getNumberOfFeatures() const
     DataCollectionPtr collection = get(partialResults);
     const size_t nBlocks         = collection->size();
     size_t nFeatures             = 0;
-    for (size_t i = 0; i < nBlocks && !nFeatures; i++) { nFeatures = getNumFeatures((*collection)[i]); }
+    for (size_t i = 0; i < nBlocks && !nFeatures; i++)
+    {
+        nFeatures = getNumFeatures((*collection)[i]);
+    }
     return nFeatures;
 }
 

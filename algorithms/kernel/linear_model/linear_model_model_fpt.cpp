@@ -37,7 +37,10 @@ ModelInternal::ModelInternal(size_t nFeatures, size_t nResponses, const Paramete
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (deviceInfo.isCpu) { _beta = HomogenNumericTable<modelFPType>::create(nFeatures + 1, nResponses, NumericTable::doAllocate, 0, &st); }
+    if (deviceInfo.isCpu)
+    {
+        _beta = HomogenNumericTable<modelFPType>::create(nFeatures + 1, nResponses, NumericTable::doAllocate, 0, &st);
+    }
     else
     {
         _beta = SyclHomogenNumericTable<modelFPType>::create(nFeatures + 1, nResponses, NumericTable::doAllocate, 0, &st);

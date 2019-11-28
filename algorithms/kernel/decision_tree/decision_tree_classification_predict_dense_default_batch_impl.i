@@ -71,7 +71,10 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
 
     const size_t xRowCount    = x->getNumberOfRows();
     const size_t xColumnCount = x->getNumberOfColumns();
-    if (y) { DAAL_ASSERT(xRowCount == y->getNumberOfRows()) }
+    if (y)
+    {
+        DAAL_ASSERT(xRowCount == y->getNumberOfRows())
+    }
 
     const auto rowsPerBlock = 512;
     const auto blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
@@ -126,11 +129,17 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
                 const auto probs = modelImpl.getProbabilities(nodeIndex);
                 if (probs)
                 {
-                    for (size_t k = 0; k < numberOfClasses; ++k) { dp[i * numberOfClasses + k] = probs[k]; }
+                    for (size_t k = 0; k < numberOfClasses; ++k)
+                    {
+                        dp[i * numberOfClasses + k] = probs[k];
+                    }
                 }
                 else
                 {
-                    for (size_t k = 0; k < numberOfClasses; ++k) { dp[i * numberOfClasses + k] = 0; }
+                    for (size_t k = 0; k < numberOfClasses; ++k)
+                    {
+                        dp[i * numberOfClasses + k] = 0;
+                    }
                     dp[i * numberOfClasses + nodes[nodeIndex].leftIndexOrClass] = 1;
                 }
             }

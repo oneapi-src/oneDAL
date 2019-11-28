@@ -51,7 +51,10 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
         this->_status.add(services::ErrorMemoryAllocationFailed);
         return;
     }
-    if (memoryAllocationFlag == doAllocate) { this->_status |= allocateDataMemoryImpl(); }
+    if (memoryAllocationFlag == doAllocate)
+    {
+        this->_status |= allocateDataMemoryImpl();
+    }
 }
 
 services::SharedPtr<SOANumericTable> SOANumericTable::create(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag,
@@ -81,7 +84,10 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
         st.add(services::ErrorMemoryAllocationFailed);
         return;
     }
-    if (memoryAllocationFlag == doAllocate) { st |= allocateDataMemoryImpl(); }
+    if (memoryAllocationFlag == doAllocate)
+    {
+        st |= allocateDataMemoryImpl();
+    }
 }
 
 } // namespace interface1

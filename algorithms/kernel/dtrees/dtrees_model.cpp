@@ -140,7 +140,10 @@ void MemoryManager::reset()
 
 services::Status createTreeInternal(data_management::DataCollectionPtr & serializationData, size_t nNodes, size_t & resId)
 {
-    if (nNodes == 0) { return services::Status(services::ErrorID::ErrorIncorrectParameter); }
+    if (nNodes == 0)
+    {
+        return services::Status(services::ErrorID::ErrorIncorrectParameter);
+    }
     services::Status s;
 
     size_t treeId            = 0;
@@ -151,7 +154,10 @@ services::Status createTreeInternal(data_management::DataCollectionPtr & seriali
         isNotEmptyTreeTable = ((*(serializationData))[treeId].get()) != nullptr;
         if (isNotEmptyTreeTable) treeId++;
     }
-    if (treeId == nTrees) { return services::Status(services::ErrorID::ErrorIncorrectParameter); }
+    if (treeId == nTrees)
+    {
+        return services::Status(services::ErrorID::ErrorIncorrectParameter);
+    }
 
     services::SharedPtr<DecisionTreeTable> treeTablePtr(new DecisionTreeTable(nNodes));
     const size_t nRows              = treeTablePtr->getNumberOfRows();
@@ -192,7 +198,9 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
     services::Status s;
 
     if ((treeId > (*(serializationData)).size()) || (position != 0 && position != 1))
-    { return services::Status(services::ErrorID::ErrorIncorrectParameter); }
+    {
+        return services::Status(services::ErrorID::ErrorIncorrectParameter);
+    }
 
     const DecisionTreeTable * const pTreeTable = static_cast<DecisionTreeTable *>((*(serializationData))[treeId].get());
     if (!pTreeTable) return services::Status(services::ErrorID::ErrorNullPtr);
@@ -247,12 +255,18 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
                 }
             }
             /* no space left */
-            if (i == nRows) { return services::Status(services::ErrorID::ErrorIncorrectParameter); }
+            if (i == nRows)
+            {
+                return services::Status(services::ErrorID::ErrorIncorrectParameter);
+            }
             aNode[nodeId].featureIndex           = featureIndex;
             aNode[nodeId].leftIndexOrClass       = 0;
             aNode[nodeId].featureValueOrResponse = featureValue;
             aNode[parentId].leftIndexOrClass     = nodeId;
-            if (((nodeId + 1) < nRows) && (aNode[nodeId + 1].featureIndex == __NODE_FREE_ID)) { aNode[nodeId + 1].featureIndex = __NODE_RESERVED_ID; }
+            if (((nodeId + 1) < nRows) && (aNode[nodeId + 1].featureIndex == __NODE_FREE_ID))
+            {
+                aNode[nodeId + 1].featureIndex = __NODE_RESERVED_ID;
+            }
             else
             {
                 return services::Status(services::ErrorID::ErrorIncorrectParameter);
@@ -271,7 +285,10 @@ services::Status addSplitNodeInternal(data_management::DataCollectionPtr & seria
                 }
             }
             /*if no free nodes leftBound is not initialized and no space left*/
-            if (i == nRows) { return services::Status(services::ErrorID::ErrorIncorrectParameter); }
+            if (i == nRows)
+            {
+                return services::Status(services::ErrorID::ErrorIncorrectParameter);
+            }
             aNode[leftEmptyId].featureIndex  = __NODE_RESERVED_ID;
             aNode[parentId].leftIndexOrClass = leftEmptyId;
             nodeId                           = leftEmptyId + 1;

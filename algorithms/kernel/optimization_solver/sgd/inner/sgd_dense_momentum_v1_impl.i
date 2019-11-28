@@ -268,7 +268,10 @@ Status I1SGDmomentumTask<algorithmFPType, cpu>::init(NumericTable * batchIndices
             WriteOnlyRows<algorithmFPType, cpu, NumericTable> pastUpdateBD(*pastUpdate, startOffset, nRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS_THR(pastUpdateBD);
             algorithmFPType * pastUpdateArray = pastUpdateBD.get();
-            for (size_t i = 0; i < nRowsInBlock; i++) { pastUpdateArray[i] = 0.0; }
+            for (size_t i = 0; i < nRowsInBlock; i++)
+            {
+                pastUpdateArray[i] = 0.0;
+            }
         });
         return safeStat.detach();
     }
@@ -334,7 +337,10 @@ Status I1SGDmomentumTask<algorithmFPType, cpu>::init(NumericTable * batchIndices
             WriteOnlyRows<algorithmFPType, cpu, NumericTable> pastUpdateBD(*pastUpdate, startOffset, nRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS_THR(pastUpdateBD);
             algorithmFPType * pastUpdateArray = pastUpdateBD.get();
-            for (size_t i = 0; i < nRowsInBlock; i++) { pastUpdateArray[i] = 0.0; }
+            for (size_t i = 0; i < nRowsInBlock; i++)
+            {
+                pastUpdateArray[i] = 0.0;
+            }
         });
         return safeStat.detach();
     }

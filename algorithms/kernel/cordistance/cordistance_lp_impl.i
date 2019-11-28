@@ -49,7 +49,10 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
     /* compute major diagonal blocks of the distance matrix */
     daal::threader_for(nBlocks, nBlocks, [=, &safeStat](size_t k1) {
         DAAL_INT blockSize1 = blockSizeDefault;
-        if (k1 == nBlocks - 1) { blockSize1 = n - k1 * blockSizeDefault; }
+        if (k1 == nBlocks - 1)
+        {
+            blockSize1 = n - k1 * blockSizeDefault;
+        }
 
         /* read access to blockSize1 rows in input dataset at k1*blockSizeDefault*p row */
         ReadRows<algorithmFPType, cpu> xBlock(*const_cast<NumericTable *>(xTable), k1 * blockSizeDefault, blockSize1);
@@ -63,7 +66,10 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
         {
             algorithmFPType s = (algorithmFPType)0.0;
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < p; j++) { s += x[i * p + j]; }
+            for (size_t j = 0; j < p; j++)
+            {
+                s += x[i * p + j];
+            }
             sum[i] = s;
         }
 
@@ -94,7 +100,9 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
         for (size_t i = 0; i < blockSize1; i++)
         {
             if (buf[i * blockSize1 + i] > (algorithmFPType)0.0)
-            { buf[i * blockSize1 + i] = (algorithmFPType)1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(buf[i * blockSize1 + i]); }
+            {
+                buf[i * blockSize1 + i] = (algorithmFPType)1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(buf[i * blockSize1 + i]);
+            }
         }
 
         /* compute cosine distance for k1 block of rows in the input dataset */
@@ -102,7 +110,9 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
         {
             PRAGMA_VECTOR_ALWAYS
             for (size_t j = 0; j < i; j++)
-            { buf[i * blockSize1 + j] = 1.0 - buf[i * blockSize1 + j] * buf[i * blockSize1 + i] * buf[j * blockSize1 + j]; }
+            {
+                buf[i * blockSize1 + j] = 1.0 - buf[i * blockSize1 + j] * buf[i * blockSize1 + i] * buf[j * blockSize1 + j];
+            }
         }
 
         /* unpack the results into user's memory */
@@ -112,7 +122,10 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
         for (size_t i = 0; i < blockSize1; i++)
         {
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j <= i; j++) { rr[j] = buf[i * blockSize1 + j]; }
+            for (size_t j = 0; j <= i; j++)
+            {
+                rr[j] = buf[i * blockSize1 + j];
+            }
             /* the next "row" in the user memory is shifted by shift1+i+1 positions vs the previous one */
             rr += (shift1 + i + 1);
         }
@@ -122,7 +135,10 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
     /* compute off-diagonal blocks of the distance matrix */
     daal::threader_for(nBlocks, nBlocks, [=, &safeStat](size_t k1) {
         DAAL_INT blockSize1 = blockSizeDefault;
-        if (k1 == nBlocks - 1) { blockSize1 = n - k1 * blockSizeDefault; }
+        if (k1 == nBlocks - 1)
+        {
+            blockSize1 = n - k1 * blockSizeDefault;
+        }
 
         size_t shift1 = k1 * blockSizeDefault;
 
@@ -138,7 +154,10 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
         {
             algorithmFPType s = (algorithmFPType)0.0;
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < p; j++) { s += x1[i * p + j]; }
+            for (size_t j = 0; j < p; j++)
+            {
+                s += x1[i * p + j];
+            }
             sum1[i] = s;
         }
 
@@ -149,7 +168,10 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
             size_t nl = n, pl = p;
             algorithmFPType * sum1l = const_cast<algorithmFPType *>(sum1);
 
-            if (k2 == nBlocks - 1) { blockSize2 = nl - k2 * blockSizeDefault; }
+            if (k2 == nBlocks - 1)
+            {
+                blockSize2 = nl - k2 * blockSizeDefault;
+            }
 
             /* extract diagonal elements of k1-th diagonal block of the matrix */
             size_t shift1l = shift1, idx;
@@ -189,7 +211,10 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
             {
                 algorithmFPType s = (algorithmFPType)0.0;
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < pl; j++) { s += x2[i * pl + j]; }
+                for (size_t j = 0; j < pl; j++)
+                {
+                    s += x2[i * pl + j];
+                }
                 sum2[i] = s;
             }
 
@@ -221,7 +246,10 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
             for (size_t i = 0; i < blockSize1; i++)
             {
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < blockSize2; j++) { buf[i * blockSize2 + j] = 1.0 - buf[i * blockSize2 + j] * diag1[i] * diag2[j]; }
+                for (size_t j = 0; j < blockSize2; j++)
+                {
+                    buf[i * blockSize2 + j] = 1.0 - buf[i * blockSize2 + j] * diag1[i] * diag2[j];
+                }
             }
 
             /* copy the results into user memory */
@@ -229,13 +257,19 @@ services::Status corDistanceLowerPacked(const NumericTable * xTable, NumericTabl
             rr = r + shift2l * (shift2l + 1) / 2 + shift1l;
             for (size_t i = 0; i < blockSize2; i++)
             {
-                for (size_t j = 0; j < blockSize1; j++) { rr[j] = buf[j * blockSize2 + i]; }
+                for (size_t j = 0; j < blockSize1; j++)
+                {
+                    rr[j] = buf[j * blockSize2 + i];
+                }
 
                 /* the next "row" of the distance is shifted by shift2 + i + 1 elements vs previous */
                 rr += (shift2l + i + 1);
             }
         });
-        if (!safeStat) { return; }
+        if (!safeStat)
+        {
+            return;
+        }
     });
     DAAL_CHECK_SAFE_STATUS()
 

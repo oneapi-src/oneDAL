@@ -39,7 +39,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_OnlinePartialResult_cG
                                                                                                  jint id)
 {
     if (id == outputOfStep1ForStep3Val)
-    { return jniArgument<qr::OnlinePartialResult>::get<qr::PartialResultId, DataCollection>(presAddr, qr::outputOfStep1ForStep3); }
+    {
+        return jniArgument<qr::OnlinePartialResult>::get<qr::PartialResultId, DataCollection>(presAddr, qr::outputOfStep1ForStep3);
+    }
     else if (id == outputOfStep1ForStep2Val)
     {
         return jniArgument<qr::OnlinePartialResult>::get<qr::PartialResultId, DataCollection>(presAddr, qr::outputOfStep1ForStep2);
@@ -75,7 +77,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_DistributedStep2Master
                                                                                                          jlong presAddr, jint id)
 {
     if (id == inputOfStep2FromStep1Val)
-    { return jniArgument<qr::DistributedPartialResult>::get<qr::DistributedPartialResultId, qr::Result>(presAddr, qr::finalResultFromStep2Master); }
+    {
+        return jniArgument<qr::DistributedPartialResult>::get<qr::DistributedPartialResultId, qr::Result>(presAddr, qr::finalResultFromStep2Master);
+    }
 
     return (jlong)0;
 }

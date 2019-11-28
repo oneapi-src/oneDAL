@@ -142,7 +142,10 @@ public:
     DAAL_EXPORT DAAL_FORCEINLINE services::Status setData(const data_management::NumericTablePtr & value, bool copy)
     {
         int result = 0;
-        if (!copy) { _data = value; }
+        if (!copy)
+        {
+            _data = value;
+        }
         else
         {
             data_management::SOANumericTablePtr tbl(
@@ -185,7 +188,10 @@ public:
     DAAL_EXPORT DAAL_FORCEINLINE services::Status setLabels(const data_management::NumericTablePtr & value, bool copy)
     {
         int result = 0;
-        if (!copy) { _labels = value; }
+        if (!copy)
+        {
+            _labels = value;
+        }
         else
         {
             data_management::SOANumericTablePtr tbl(new data_management::SOANumericTable(value->getNumberOfColumns(), value->getNumberOfRows()));

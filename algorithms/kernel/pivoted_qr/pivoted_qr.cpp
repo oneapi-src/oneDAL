@@ -65,7 +65,10 @@ void Input::set(InputId id, const NumericTablePtr & value)
 Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     Status s = checkNumericTable(get(data).get(), dataStr());
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
     size_t nVectors  = get(data)->getNumberOfRows();
     size_t nFeatures = get(data)->getNumberOfColumns();
 
@@ -123,9 +126,15 @@ Status Result::check(const daal::algorithms::Input * in, const daal::algorithms:
                             | (int)NumericTableIface::lowerPackedSymmetricMatrix;
 
     Status s = checkNumericTable(get(matrixQ).get(), matrixQStr(), unexpectedLayouts, 0, nFeatures, nVectors);
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
     s |= checkNumericTable(get(permutationMatrix).get(), permutationMatrixStr(), unexpectedLayouts, 0, nFeatures, 1);
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
     unexpectedLayouts = (int)NumericTableIface::csrArray | (int)NumericTableIface::lowerPackedTriangularMatrix
                         | (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix;
 

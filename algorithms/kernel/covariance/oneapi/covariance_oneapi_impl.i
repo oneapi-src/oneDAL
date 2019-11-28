@@ -65,7 +65,10 @@ static size_t getGlobalRangeSize(size_t localRangeSize, size_t N)
 {
     size_t factor = N / localRangeSize;
 
-    if (factor * localRangeSize != N) { factor++; }
+    if (factor * localRangeSize != N)
+    {
+        factor++;
+    }
     return factor * localRangeSize;
 }
 
@@ -184,7 +187,10 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::Buffer<algo
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeCrossProduct);
 
-    if (nFeatures > services::internal::MaxVal<uint32_t>::get()) { return services::Status(daal::services::ErrorCovarianceInternal); }
+    if (nFeatures > services::internal::MaxVal<uint32_t>::get())
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
 
     services::Status status;
 
@@ -248,7 +254,10 @@ services::Status prepareMeansAndCrossProductDiag(size_t nFeatures, algorithmFPTy
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.prepareMeansAndCrossProductDiag);
 
-    if (nFeatures > services::internal::MaxVal<uint32_t>::get()) { return services::Status(daal::services::ErrorCovarianceInternal); }
+    if (nFeatures > services::internal::MaxVal<uint32_t>::get())
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
 
     services::Status status;
 
@@ -281,7 +290,10 @@ services::Status finalize(size_t nFeatures, algorithmFPType nObservations, const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.finalize);
 
-    if (nFeatures > services::internal::MaxVal<uint32_t>::get()) { return services::Status(daal::services::ErrorCovarianceInternal); }
+    if (nFeatures > services::internal::MaxVal<uint32_t>::get())
+    {
+        return services::Status(daal::services::ErrorCovarianceInternal);
+    }
 
     services::Status status;
 

@@ -125,7 +125,10 @@ Status DistributedStep2Input::getNumberOfColumns(size_t & nCols) const
     DAAL_CHECK_EX(firstNumTableInFirstNodeCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, SVDNodeCollectionStr());
 
     Status s = checkNumericTable(firstNumTableInFirstNodeCollection.get(), SVDNodeCollectionNTStr());
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     nCols = firstNumTableInFirstNodeCollection->getNumberOfColumns();
     return Status();
@@ -142,8 +145,14 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter * paramete
     KeyValueDataCollectionPtr inputKeyValueDC = get(inputOfStep2FromStep1);
     size_t nFeatures                          = 0;
     Status s                                  = getNumberOfColumns(nFeatures);
-    if (!s) { return s; }
-    if (nFeatures == 0) { return s; }
+    if (!s)
+    {
+        return s;
+    }
+    if (nFeatures == 0)
+    {
+        return s;
+    }
 
     const size_t nNodes = inputKeyValueDC->size();
     DAAL_CHECK(nNodes <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfNodes)
@@ -164,7 +173,10 @@ Status DistributedStep2Input::check(const daal::algorithms::Parameter * paramete
             DAAL_CHECK_EX(numTableInNodeCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, SVDNodeCollectionStr());
             int unexpectedLayouts = (int)packed_mask;
             s |= checkNumericTable(numTableInNodeCollection.get(), SVDNodeCollectionNTStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-            if (!s) { return s; }
+            if (!s)
+            {
+                return s;
+            }
         }
     }
     return Status();

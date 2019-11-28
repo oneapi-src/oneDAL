@@ -105,8 +105,14 @@ void DistributedInput<step2Local>::add(LocalCollectionInputId id, const NumericT
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -130,7 +136,10 @@ services::Status DistributedInput<step2Local>::check(const daal::algorithms::Par
         NumericTablePtr ntPartialData = NumericTable::cast((*dcPartialData)[i]);
         DAAL_CHECK_EX(ntPartialData, ErrorIncorrectElementInNumericTableCollection, ArgumentName, partialDataStr());
 
-        if (i == 0) { nFeatures = ntPartialData->getNumberOfColumns(); }
+        if (i == 0)
+        {
+            nFeatures = ntPartialData->getNumberOfColumns();
+        }
 
         DAAL_CHECK_STATUS_VAR(checkNumericTable(ntPartialData.get(), partialDataStr(), 0, 0, nFeatures, 0));
     }
@@ -189,8 +198,14 @@ void DistributedInput<step3Local>::add(LocalCollectionInputId id, const NumericT
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -203,8 +218,14 @@ void DistributedInput<step3Local>::add(Step3LocalCollectionInputId id, const Num
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -235,7 +256,10 @@ services::Status DistributedInput<step3Local>::check(const daal::algorithms::Par
         NumericTablePtr ntPartialData = NumericTable::cast((*dcPartialData)[i]);
         DAAL_CHECK_EX(ntPartialData, ErrorIncorrectElementInNumericTableCollection, ArgumentName, partialDataStr());
 
-        if (i == 0) { nFeatures = ntPartialData->getNumberOfColumns(); }
+        if (i == 0)
+        {
+            nFeatures = ntPartialData->getNumberOfColumns();
+        }
 
         DAAL_CHECK_STATUS_VAR(checkNumericTable(ntPartialData.get(), partialDataStr(), 0, 0, nFeatures, 0));
     }
@@ -308,8 +332,14 @@ void DistributedInput<step4Local>::add(LocalCollectionInputId id, const NumericT
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -322,8 +352,14 @@ void DistributedInput<step4Local>::add(Step4LocalCollectionInputId id, const Num
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -358,7 +394,10 @@ services::Status DistributedInput<step4Local>::check(const daal::algorithms::Par
         DAAL_CHECK_EX((*dcPartialData)[i], ErrorNullNumericTable, ArgumentName, partialDataStr());
         NumericTablePtr ntPartialData = NumericTable::cast((*dcPartialData)[i]);
         DAAL_CHECK_EX(ntPartialData, ErrorIncorrectElementInNumericTableCollection, ArgumentName, partialDataStr());
-        if (i == 0) { nFeatures = ntPartialData->getNumberOfColumns(); }
+        if (i == 0)
+        {
+            nFeatures = ntPartialData->getNumberOfColumns();
+        }
         DAAL_CHECK_STATUS_VAR(checkNumericTable(ntPartialData.get(), partialDataStr(), 0, 0, nFeatures, 0));
 
         const size_t nRows = ntPartialData->getNumberOfRows();
@@ -437,8 +476,14 @@ void DistributedInput<step5Local>::add(LocalCollectionInputId id, const NumericT
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -451,8 +496,14 @@ void DistributedInput<step5Local>::add(Step5LocalCollectionInputId id, const Num
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -483,7 +534,10 @@ services::Status DistributedInput<step5Local>::check(const daal::algorithms::Par
         NumericTablePtr ntPartialData = NumericTable::cast((*dcPartialData)[i]);
         DAAL_CHECK_EX(ntPartialData, ErrorIncorrectElementInNumericTableCollection, ArgumentName, partialDataStr());
 
-        if (i == 0) { nFeatures = ntPartialData->getNumberOfColumns(); }
+        if (i == 0)
+        {
+            nFeatures = ntPartialData->getNumberOfColumns();
+        }
 
         DAAL_CHECK_STATUS_VAR(checkNumericTable(ntPartialData.get(), partialDataStr(), 0, 0, nFeatures, 0));
     }
@@ -556,8 +610,14 @@ void DistributedInput<step6Local>::add(LocalCollectionInputId id, const NumericT
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -570,8 +630,14 @@ void DistributedInput<step6Local>::add(Step6LocalCollectionInputId id, const Num
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -601,7 +667,10 @@ services::Status DistributedInput<step6Local>::check(const daal::algorithms::Par
         NumericTablePtr ntPartialData = NumericTable::cast((*dcPartialData)[i]);
         DAAL_CHECK_EX(ntPartialData, ErrorIncorrectElementInNumericTableCollection, ArgumentName, partialDataStr());
 
-        if (i == 0) { nFeatures = ntPartialData->getNumberOfColumns(); }
+        if (i == 0)
+        {
+            nFeatures = ntPartialData->getNumberOfColumns();
+        }
 
         DAAL_CHECK_STATUS_VAR(checkNumericTable(ntPartialData.get(), partialDataStr(), 0, 0, nFeatures, 0));
     }
@@ -671,8 +740,14 @@ void DistributedInput<step7Master>::add(Step7MasterCollectionInputId id, const N
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -753,8 +828,14 @@ void DistributedInput<step8Local>::add(Step8LocalCollectionInputId id, const Num
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -836,8 +917,14 @@ void DistributedInput<step9Master>::add(Step9MasterCollectionInputId id, const N
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -972,8 +1059,14 @@ void DistributedInput<step11Local>::add(Step11LocalCollectionInputId id, const N
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -1067,8 +1160,14 @@ void DistributedInput<step12Local>::add(Step12LocalCollectionInputId id, const N
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -1143,8 +1242,14 @@ void DistributedInput<step13Local>::add(Step13LocalCollectionInputId id, const N
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 

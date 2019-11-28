@@ -46,7 +46,10 @@ BatchContainer<algorithmFPType, correlationDense, cpu>::BatchContainer(daal::ser
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (deviceInfo.isCpu) { __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, batch, algorithmFPType); }
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, batch, algorithmFPType);
+    }
     else
     {
         services::SharedPtr<internal::PCACorrelationBaseIface<algorithmFPType> > hostImpl(new internal::PCACorrelationBase<algorithmFPType, cpu>());
@@ -81,7 +84,10 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
     auto covarianceAlgorithm = parameter->covariance;
     covarianceAlgorithm->input.set(covariance::data, data);
 
-    if (parameter->resultsToCompute & mean) { covarianceAlgorithm->getResult()->set(covariance::mean, means); }
+    if (parameter->resultsToCompute & mean)
+    {
+        covarianceAlgorithm->getResult()->set(covariance::mean, means);
+    }
 
     if (deviceInfo.isCpu)
     {

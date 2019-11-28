@@ -167,7 +167,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedSymmetric
     float * data      = block.getBlockPtr();
     const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -189,7 +192,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedSymmetric
     double * data      = block.getBlockPtr();
     const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -211,7 +217,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedSymmetric
     int * data      = block.getBlockPtr();
     const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -233,7 +242,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
     const double * data = block.getBlockPtr();
     double * dst        = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -257,7 +269,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
 
     float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -280,7 +295,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
     const int * data = block.getBlockPtr();
     int * dst        = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -303,7 +321,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
     const double * data = block.getBlockPtr();
     double * dst        = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -326,7 +347,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
     const float * data = block.getBlockPtr();
     float * dst        = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -349,7 +373,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
     const int * data = block.getBlockPtr();
     int * dst        = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -373,7 +400,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedSymmetric
 
     const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -396,7 +426,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedSymmetric
 
     const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -419,7 +452,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedSymmetric
 
     const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -546,7 +582,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
 
     double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -571,7 +610,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
 
     float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -596,7 +638,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
 
     int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -623,7 +668,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
 
     double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -650,7 +698,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
 
     float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -677,7 +728,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedSymmet
 
     int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nSize; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < nSize; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releasePackedArray(block));
 
@@ -697,7 +751,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedSymmetric
 
     services::Status s;
     if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedSymmetricMatrix)
-    { s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::upperPackedSymmetricMatrix, double> *)tbl)->allocateDataMemory(); }
+    {
+        s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::upperPackedSymmetricMatrix, double> *)tbl)->allocateDataMemory();
+    }
     else
     {
         s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::lowerPackedSymmetricMatrix, double> *)tbl)->allocateDataMemory();
@@ -718,7 +774,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedSymmetric
 
     services::Status s;
     if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedSymmetricMatrix)
-    { s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::upperPackedSymmetricMatrix, float> *)tbl)->allocateDataMemory(); }
+    {
+        s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::upperPackedSymmetricMatrix, float> *)tbl)->allocateDataMemory();
+    }
     else
     {
         s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::lowerPackedSymmetricMatrix, float> *)tbl)->allocateDataMemory();
@@ -739,7 +797,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedSymmetric
 
     services::Status s;
     if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedSymmetricMatrix)
-    { s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::upperPackedSymmetricMatrix, long> *)tbl)->allocateDataMemory(); }
+    {
+        s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::upperPackedSymmetricMatrix, long> *)tbl)->allocateDataMemory();
+    }
     else
     {
         s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::lowerPackedSymmetricMatrix, long> *)tbl)->allocateDataMemory();
@@ -760,7 +820,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedSymmetric
 
     services::Status s;
     if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedSymmetricMatrix)
-    { s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::upperPackedSymmetricMatrix, int> *)tbl)->allocateDataMemory(); }
+    {
+        s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::upperPackedSymmetricMatrix, int> *)tbl)->allocateDataMemory();
+    }
     else
     {
         s = ((PackedSymmetricMatrix<NumericTableIface::StorageLayout::lowerPackedSymmetricMatrix, int> *)tbl)->allocateDataMemory();

@@ -42,7 +42,10 @@ struct HelperObjectiveFunction
         oneapi::internal::ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
         const oneapi::internal::TypeIds::Id idType    = oneapi::internal::TypeIds::id<algorithmFPType>();
 
-        if (x.empty() || x.get<algorithmFPType>().size() < n) { x = ctx.allocate(idType, n, &status); }
+        if (x.empty() || x.get<algorithmFPType>().size() < n)
+        {
+            x = ctx.allocate(idType, n, &status);
+        }
 
         return status;
     }
@@ -52,7 +55,10 @@ struct HelperObjectiveFunction
         const uint32_t elementsPerGroup = localWorkSize;
         uint32_t workgroupsCount        = n / elementsPerGroup;
 
-        if (workgroupsCount * elementsPerGroup < n) { workgroupsCount++; }
+        if (workgroupsCount * elementsPerGroup < n)
+        {
+            workgroupsCount++;
+        }
         return workgroupsCount;
     }
 
@@ -164,7 +170,10 @@ struct HelperObjectiveFunction
         const auto * sumReductionArray = sumReductionArrayPtr.get();
 
         // Final summation with CPU
-        for (size_t i = 0; i < nWorkGroups; i++) { result += sumReductionArray[i]; }
+        for (size_t i = 0; i < nWorkGroups; i++)
+        {
+            result += sumReductionArray[i];
+        }
 
         return services::Status();
     }

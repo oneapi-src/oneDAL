@@ -48,7 +48,10 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processNeighborhood(size
     for (size_t j = 0; j < neigh.size(); j++)
     {
         const size_t nextObs = neigh.get(j);
-        if (assignments[nextObs] == noise) { assignments[nextObs] = clusterId; }
+        if (assignments[nextObs] == noise)
+        {
+            assignments[nextObs] = clusterId;
+        }
         else if (assignments[nextObs] == undefined)
         {
             assignments[nextObs] = clusterId;
@@ -71,11 +74,17 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(
 
     for (size_t i = 0; i < nRows; i++)
     {
-        if (!isCore[i]) { continue; }
+        if (!isCore[i])
+        {
+            continue;
+        }
         nCoreObservations++;
     }
 
-    if (nCoreObservations == 0) { return Status(); }
+    if (nCoreObservations == 0)
+    {
+        return Status();
+    }
 
     if (resultsToCompute & computeCoreIndices)
     {
@@ -87,7 +96,10 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(
         size_t pos = 0;
         for (size_t i = 0; i < nRows; i++)
         {
-            if (!isCore[i]) { continue; }
+            if (!isCore[i])
+            {
+                continue;
+            }
             coreIndices[pos] = i;
             pos++;
         }
@@ -104,7 +116,10 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(
         int result = 0;
         for (size_t i = 0; i < nRows; i++)
         {
-            if (!isCore[i]) { continue; }
+            if (!isCore[i])
+            {
+                continue;
+            }
             ReadRows<algorithmFPType, cpu> dataRows(const_cast<NumericTable *>(ntData), i, 1);
             DAAL_CHECK_BLOCK_STATUS(dataRows);
             const algorithmFPType * const data = dataRows.get();
@@ -113,7 +128,10 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processResultsToCompute(
                                                               sizeof(algorithmFPType) * nFeatures);
             pos++;
         }
-        if (result) { return Status(services::ErrorMemoryCopyFailedInternal); }
+        if (result)
+        {
+            return Status(services::ErrorMemoryCopyFailedInternal);
+        }
     }
 
     return Status();
@@ -195,7 +213,9 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const N
     nClustersRows.get()[0] = nClusters;
 
     if (par->resultsToCompute & (computeCoreIndices | computeCoreObservations))
-    { DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, isCore, ntData, ntCoreIndices, ntCoreObservations)); }
+    {
+        DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, isCore, ntData, ntCoreIndices, ntCoreObservations));
+    }
 
     return s;
 }
@@ -266,7 +286,10 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeMemSave(const Num
             const size_t quPos  = qu.head();
             const size_t curObs = qu.pop();
 
-            if (quPos >= lastPrefetchedPos) { firstPrefetchedPos = lastPrefetchedPos = quPos; }
+            if (quPos >= lastPrefetchedPos)
+            {
+                firstPrefetchedPos = lastPrefetchedPos = quPos;
+            }
 
             if (lastPrefetchedPos - firstPrefetchedPos < prefetchBlockSize && lastPrefetchedPos < qu.tail())
             {
@@ -293,7 +316,9 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeMemSave(const Num
     nClustersRows.get()[0] = nClusters;
 
     if (par->resultsToCompute & (computeCoreIndices | computeCoreObservations))
-    { DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, isCore, ntData, ntCoreIndices, ntCoreObservations)); }
+    {
+        DAAL_CHECK_STATUS_VAR(processResultsToCompute(par->resultsToCompute, isCore, ntData, ntCoreIndices, ntCoreObservations));
+    }
 
     return s;
 }

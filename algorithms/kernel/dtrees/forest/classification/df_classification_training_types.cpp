@@ -91,7 +91,9 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
         dynamic_cast<const daal::algorithms::decision_forest::training::Parameter *>(par);
     DAAL_CHECK(algParameter, ErrorNullParameterNotSupported);
     if (algParameter->resultsToCompute & decision_forest::training::computeOutOfBagError)
-    { DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1)); }
+    {
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1));
+    }
     if (algParameter->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
     {
         const auto nObs = algInput->get(classifier::training::data)->getNumberOfRows();

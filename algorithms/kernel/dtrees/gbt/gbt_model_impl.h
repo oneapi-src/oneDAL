@@ -218,7 +218,10 @@ public:
         *pTblImp     = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
         *pTblSmplCnt = new HomogenNumericTable<int>(1, nNodes, NumericTable::doAllocate);
 
-        if (!(*pTbl) || !(*pTblImp) || !(*pTblSmplCnt)) { status = services::Status(services::ErrorMemoryAllocationFailed); }
+        if (!(*pTbl) || !(*pTblImp) || !(*pTblSmplCnt))
+        {
+            status = services::Status(services::ErrorMemoryAllocationFailed);
+        }
 
         if (super::top())
         {

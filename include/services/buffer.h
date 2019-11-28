@@ -266,7 +266,10 @@ public:
 
     void operator()(const SyclBufferImplIface<T> & bufferImpl)
     {
-        if (_rwFlag == data_management::readOnly) { _hostSharedPtr = bufferImpl.getReadHostSharedPtr(); }
+        if (_rwFlag == data_management::readOnly)
+        {
+            _hostSharedPtr = bufferImpl.getReadHostSharedPtr();
+        }
         else if (_rwFlag == data_management::readWrite)
         {
             _hostSharedPtr = bufferImpl.getReadWriteHostSharedPtr();

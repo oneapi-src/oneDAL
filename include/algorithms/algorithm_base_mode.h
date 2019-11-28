@@ -57,7 +57,10 @@ public:
 
     virtual ~Algorithm()
     {
-        if (_ac) { delete _ac; }
+        if (_ac)
+        {
+            delete _ac;
+        }
     }
 
     virtual void clean() {}
@@ -75,7 +78,10 @@ public:
 protected:
     PartialResult * allocatePartialResultMemory()
     {
-        if (_pres == 0) { allocatePartialResult(); }
+        if (_pres == 0)
+        {
+            allocatePartialResult();
+        }
 
         return _pres;
     }
@@ -122,7 +128,10 @@ public:
 
     virtual ~Algorithm()
     {
-        if (_ac) { delete _ac; }
+        if (_ac)
+        {
+            delete _ac;
+        }
     }
 
     /**

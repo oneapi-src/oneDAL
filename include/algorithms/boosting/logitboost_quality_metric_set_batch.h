@@ -68,7 +68,10 @@ public:
     Batch(size_t nClasses = 2, bool useDefaultMetrics = true) : algorithms::quality_metric_set::Batch(useDefaultMetrics), parameter(nClasses)
     {
         _inputData = InputDataCollectionPtr(new InputDataCollection());
-        if (_useDefaultMetrics) { initializeQualityMetrics(); }
+        if (_useDefaultMetrics)
+        {
+            initializeQualityMetrics();
+        }
         _resultCollection = ResultCollectionPtr(new ResultCollection());
     }
 

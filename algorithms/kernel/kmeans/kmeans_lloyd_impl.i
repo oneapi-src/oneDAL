@@ -60,17 +60,35 @@ struct tls_task_t
 
     ~tls_task_t()
     {
-        if (mkl_buff) { service_scalable_free<algorithmFPType, cpu>(mkl_buff); }
-        if (cS1) { service_scalable_free<algorithmFPType, cpu>(cS1); }
-        if (cS0) { service_scalable_free<int, cpu>(cS0); }
-        if (cValues) { service_scalable_free<algorithmFPType, cpu>(cValues); }
-        if (cIndices) { service_scalable_free<size_t, cpu>(cIndices); }
+        if (mkl_buff)
+        {
+            service_scalable_free<algorithmFPType, cpu>(mkl_buff);
+        }
+        if (cS1)
+        {
+            service_scalable_free<algorithmFPType, cpu>(cS1);
+        }
+        if (cS0)
+        {
+            service_scalable_free<int, cpu>(cS0);
+        }
+        if (cValues)
+        {
+            service_scalable_free<algorithmFPType, cpu>(cValues);
+        }
+        if (cIndices)
+        {
+            service_scalable_free<size_t, cpu>(cIndices);
+        }
     }
 
     static tls_task_t<algorithmFPType, cpu> * create(int dim, int clNum, int max_block_size)
     {
         tls_task_t<algorithmFPType, cpu> * result = new tls_task_t<algorithmFPType, cpu>(dim, clNum, max_block_size);
-        if (!result) { return nullptr; }
+        if (!result)
+        {
+            return nullptr;
+        }
         if (!result->mkl_buff || !result->cS1 || !result->cS0)
         {
             delete result;
@@ -127,7 +145,10 @@ struct task_t
                 algorithmFPType sum = algorithmFPType(0);
                 PRAGMA_IVDEP
                 PRAGMA_ICC_NO16(omp simd reduction(+ : sum))
-                for (size_t j = 0; j < dim; j++) { sum += cCenters[k * dim + j] * cCenters[k * dim + j] * 0.5; }
+                for (size_t j = 0; j < dim; j++)
+                {
+                    sum += cCenters[k * dim + j] * cCenters[k * dim + j] * 0.5;
+                }
                 clSq[k] = sum;
             }
         }
@@ -140,13 +161,19 @@ struct task_t
             tls_task->reduce([=](tls_task_t<algorithmFPType, cpu> * tt) -> void { delete tt; });
             delete tls_task;
         }
-        if (clSq) { service_scalable_free<algorithmFPType, cpu>(clSq); }
+        if (clSq)
+        {
+            service_scalable_free<algorithmFPType, cpu>(clSq);
+        }
     }
 
     static SharedPtr<task_t<algorithmFPType, cpu> > create(int dim, int clNum, algorithmFPType * centroids)
     {
         SharedPtr<task_t<algorithmFPType, cpu> > result(new task_t<algorithmFPType, cpu>(dim, clNum, centroids));
-        if (result.get() && (!result->tls_task || !result->clSq)) { result.reset(); }
+        if (result.get() && (!result->tls_task || !result->clSq))
+        {
+            result.reset();
+        }
         return result;
     }
 
@@ -234,7 +261,10 @@ Status task_t<algorithmFPType, cpu>::addNTToTaskThreadedDense(const NumericTable
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < blockSize; i++) { x_clusters[i + j * blockSize] = clustersSq[j]; }
+            for (size_t i = 0; i < blockSize; i++)
+            {
+                x_clusters[i + j * blockSize] = clustersSq[j];
+            }
         }
 
         Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &_m, &_n, &_k, &alpha, data, &lda, inClusters, &ldy, &beta, x_clusters, &ldaty);
@@ -393,7 +423,10 @@ template <Method method>
 Status task_t<algorithmFPType, cpu>::addNTToTaskThreaded(const NumericTable * const ntData, const algorithmFPType * const catCoef,
                                                          NumericTable * ntAssign)
 {
-    if (method == lloydDense) { return addNTToTaskThreadedDense(ntData, catCoef, ntAssign); }
+    if (method == lloydDense)
+    {
+        return addNTToTaskThreadedDense(ntData, catCoef, ntAssign);
+    }
     else if (method == lloydCSR)
     {
         return addNTToTaskThreadedCSR(ntData, catCoef, ntAssign);
@@ -415,7 +448,10 @@ int task_t<algorithmFPType, cpu>::kmeansUpdateCluster(int jidx, centroidsFPType 
     tls_task->reduce([=](tls_task_t<algorithmFPType, cpu> * tt) -> void {
         int j;
         PRAGMA_IVDEP
-        for (j = 0; j < dim; j++) { s1[j] += tt->cS1[idx * dim + j]; }
+        for (j = 0; j < dim; j++)
+        {
+            s1[j] += tt->cS1[idx * dim + j];
+        }
     });
     return s0;
 }
@@ -433,7 +469,10 @@ void task_t<algorithmFPType, cpu>::kmeansComputeCentroids(int * clusterS0, algor
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < dim; j++) { clusterS1[i * dim + j] = auxData[j]; }
+            for (size_t j = 0; j < dim; j++)
+            {
+                clusterS1[i * dim + j] = auxData[j];
+            }
         }
     }
     else
@@ -464,7 +503,10 @@ void task_t<algorithmFPType, cpu>::kmeansInsertCandidate(tls_task_t<algorithmFPT
     {
         tt->cValues[cPos]  = value;
         tt->cIndices[cPos] = index;
-        if (tt->cNum < clNum) { tt->cNum++; }
+        if (tt->cNum < clNum)
+        {
+            tt->cNum++;
+        }
     }
 }
 
@@ -574,7 +616,9 @@ Status RecalculationObservationsDense(const size_t p, const size_t nClusters, co
                 PRAGMA_ICC_NO16(omp simd reduction(+ : localGoalVal))
                 PRAGMA_IVDEP
                 for (size_t j = 0; j < p; j++)
-                { localGoalVal += (data[k * p + j] - inClusters[i * p + j]) * (data[k * p + j] - inClusters[i * p + j]); }
+                {
+                    localGoalVal += (data[k * p + j] - inClusters[i * p + j]) * (data[k * p + j] - inClusters[i * p + j]);
+                }
 
                 if (localGoalVal < minGoalVal || i == 0)
                 {
@@ -599,7 +643,10 @@ Status RecalculationObservationsDense(const size_t p, const size_t nClusters, co
     objectiveFunction = algorithmFPType(0);
     PRAGMA_ICC_NO16(omp simd reduction(+ : objectiveFunction))
     PRAGMA_IVDEP
-    for (size_t j = 0; j < nBlocks; j++) { objectiveFunction += goalLocalData[j]; }
+    for (size_t j = 0; j < nBlocks; j++)
+    {
+        objectiveFunction += goalLocalData[j];
+    }
     return Status();
 }
 
@@ -686,7 +733,10 @@ Status RecalculationObservationsCSR(const size_t p, const size_t nClusters, cons
     objectiveFunction = algorithmFPType(0);
     PRAGMA_IVDEP
     PRAGMA_ICC_NO16(omp simd reduction(+ : objectiveFunction))
-    for (size_t j = 0; j < nBlocks; j++) { objectiveFunction += goalLocalData[j]; }
+    for (size_t j = 0; j < nBlocks; j++)
+    {
+        objectiveFunction += goalLocalData[j];
+    }
 
     return Status();
 }
@@ -696,7 +746,9 @@ Status RecalculationObservations(const size_t p, const size_t nClusters, const a
                                  const algorithmFPType * const catCoef, NumericTable * ntAssign, algorithmFPType & objectiveFunction)
 {
     if (method == lloydDense)
-    { return RecalculationObservationsDense<algorithmFPType, cpu>(p, nClusters, inClusters, ntData, catCoef, ntAssign, objectiveFunction); }
+    {
+        return RecalculationObservationsDense<algorithmFPType, cpu>(p, nClusters, inClusters, ntData, catCoef, ntAssign, objectiveFunction);
+    }
     else if (method == lloydCSR)
     {
         return RecalculationObservationsCSR<algorithmFPType, cpu>(p, nClusters, inClusters, ntData, catCoef, ntAssign, objectiveFunction);

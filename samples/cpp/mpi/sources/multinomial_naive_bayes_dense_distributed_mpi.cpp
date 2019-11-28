@@ -108,7 +108,10 @@ void trainModel()
     size_t perNodeArchLength = dataArch.getSizeOfArchive();
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
-    if (rankId == mpi_root) { serializedData.reset(new byte[perNodeArchLength * nBlocks]); }
+    if (rankId == mpi_root)
+    {
+        serializedData.reset(new byte[perNodeArchLength * nBlocks]);
+    }
 
     {
         services::SharedPtr<byte> nodeResults(new byte[perNodeArchLength]);

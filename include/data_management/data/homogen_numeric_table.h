@@ -507,7 +507,10 @@ public:
 
         this->_status |= _ddict->setAllFeatures(df);
 
-        if (memoryAllocationFlag == doAllocate) { this->_status |= allocateDataMemoryImpl(); }
+        if (memoryAllocationFlag == doAllocate)
+        {
+            this->_status |= allocateDataMemoryImpl();
+        }
 
         this->_status |= assign<DataType>(constValue);
     }
@@ -554,7 +557,10 @@ public:
 
         _ptr = services::SharedPtr<byte>((byte *)ptr, services::EmptyDeleter());
 
-        if (_ptr) { _memStatus = userAllocated; }
+        if (_ptr)
+        {
+            _memStatus = userAllocated;
+        }
         else
         {
             _memStatus = notAllocated;
@@ -573,7 +579,10 @@ public:
 
         _ptr = services::reinterpretPointerCast<byte, DataType>(ptr);
 
-        if (_ptr) { _memStatus = userAllocated; }
+        if (_ptr)
+        {
+            _memStatus = userAllocated;
+        }
         else
         {
             _memStatus = notAllocated;
@@ -593,7 +602,10 @@ public:
         _ptr    = services::SharedPtr<byte>((byte *)ptr, services::EmptyDeleter());
         _obsnum = nRows;
 
-        if (_ptr) { _memStatus = userAllocated; }
+        if (_ptr)
+        {
+            _memStatus = userAllocated;
+        }
         else
         {
             _memStatus = notAllocated;
@@ -613,7 +625,10 @@ public:
         _ptr    = services::reinterpretPointerCast<byte, DataType>(ptr);
         _obsnum = nRows;
 
-        if (_ptr) { _memStatus = userAllocated; }
+        if (_ptr)
+        {
+            _memStatus = userAllocated;
+        }
         else
         {
             _memStatus = notAllocated;
@@ -795,7 +810,10 @@ protected:
     {
         NumericTable::serialImpl<Archive, onDeserialize>(archive);
 
-        if (onDeserialize) { allocateDataMemoryImpl(); }
+        if (onDeserialize)
+        {
+            allocateDataMemoryImpl();
+        }
 
         size_t size = getNumberOfColumns() * getNumberOfRows();
 
@@ -833,7 +851,10 @@ protected:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        if (IsSameType<T, DataType>::value) { block.setPtr(&_ptr, internal_getBlockOfRows(idx), ncols, nrows); }
+        if (IsSameType<T, DataType>::value)
+        {
+            block.setPtr(&_ptr, internal_getBlockOfRows(idx), ncols, nrows);
+        }
         else
         {
             if (!block.resizeBuffer(ncols, nrows)) return services::Status(services::ErrorMemoryAllocationFailed);
@@ -898,7 +919,10 @@ protected:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        if ((IsSameType<T, DataType>::value) && (ncols == 1)) { block.setPtr(&_ptr, internal_getBlockOfRows(idx), ncols, nrows); }
+        if ((IsSameType<T, DataType>::value) && (ncols == 1))
+        {
+            block.setPtr(&_ptr, internal_getBlockOfRows(idx), ncols, nrows);
+        }
         else
         {
             if (!block.resizeBuffer(1, nrows)) return services::Status(services::ErrorMemoryAllocationFailed);

@@ -115,7 +115,9 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
     DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialCandidatesCentroids).get(), partialCandidatesCentroidsStr(), unexpectedLayouts, 0,
                                            inputFeatures, kmPar->nClusters));
     if (kmPar->assignFlag)
-    { DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1)); }
+    {
+        DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1));
+    }
     for (size_t i = 1; i < nBlocks; i++)
     {
         PartialResultPtr pres = dynamicPointerCast<PartialResult, SerializationIface>((*collection)[i]);
@@ -130,7 +132,9 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
         DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialCandidatesCentroids).get(), partialCandidatesCentroidsStr(), unexpectedLayouts,
                                                0, inputFeatures, kmPar->nClusters));
         if (kmPar->assignFlag)
-        { DAAL_CHECK_STATUS(s, checkNumericTable(pres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1)); }
+        {
+            DAAL_CHECK_STATUS(s, checkNumericTable(pres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1));
+        }
     }
     return s;
 }

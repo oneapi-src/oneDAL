@@ -106,7 +106,10 @@ size_t OnlinePartialResult::getNumberOfRows() const
     size_t np                                     = qCollection->size();
 
     size_t n = 0;
-    for (size_t i = 0; i < np; i++) { n += static_cast<data_management::NumericTable *>((*qCollection)[i].get())->getNumberOfRows(); }
+    for (size_t i = 0; i < np; i++)
+    {
+        n += static_cast<data_management::NumericTable *>((*qCollection)[i].get())->getNumberOfRows();
+    }
 
     return n;
 }
@@ -134,7 +137,10 @@ Status OnlinePartialResult::checkImpl(const daal::algorithms::Parameter * parame
     DAAL_CHECK_EX(firstNumTableInRCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, outputOfStep1ForStep2Str());
 
     Status s = checkNumericTable(firstNumTableInRCollection.get(), rCollectionStr());
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     if (nFeatures == 0) nFeatures = firstNumTableInRCollection->getNumberOfColumns();
     for (size_t i = 0; i < nodeSize; i++)
@@ -145,14 +151,20 @@ Status OnlinePartialResult::checkImpl(const daal::algorithms::Parameter * parame
 
         int unexpectedLayouts = (int)packed_mask;
         s |= checkNumericTable(numTableInRCollection.get(), rCollectionStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-        if (!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
 
         DAAL_CHECK_EX((*qCollection)[i], ErrorNullNumericTable, ArgumentName, qCollectionStr());
         NumericTablePtr numTableInQCollection = NumericTable::cast((*qCollection)[i]);
         DAAL_CHECK_EX(numTableInQCollection, ErrorIncorrectElementInNumericTableCollection, ArgumentName, outputOfStep1ForStep3Str());
 
         s |= checkNumericTable(numTableInQCollection.get(), qCollectionStr(), unexpectedLayouts, 0, nFeatures);
-        if (!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
 
         DAAL_CHECK_EX(nFeatures <= numTableInQCollection->getNumberOfRows(), ErrorIncorrectNumberOfRows, ArgumentName, qCollectionStr());
     }

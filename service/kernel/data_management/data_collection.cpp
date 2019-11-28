@@ -30,7 +30,10 @@ DAAL_EXPORT services::SharedPtr<T> & KeyValueCollection<T>::operator[](size_t k)
     size_t i;
     for (i = 0; i < _keys.size(); i++)
     {
-        if (_keys[i] == k) { return _values[i]; }
+        if (_keys[i] == k)
+        {
+            return _values[i];
+        }
     }
     _keys.push_back(k);
     _values.push_back(services::SharedPtr<T>());

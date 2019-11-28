@@ -77,9 +77,13 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
 
     Status s = checkNumericTable(get(singularValues).get(), singularValuesStr(), unexpectedLayouts, 0, nFeatures, 1);
     if (svdPar->rightSingularMatrix == requiredInPackedForm)
-    { s |= checkNumericTable(get(rightSingularMatrix).get(), rightSingularMatrixStr(), unexpectedLayouts, 0, nFeatures, nFeatures); }
+    {
+        s |= checkNumericTable(get(rightSingularMatrix).get(), rightSingularMatrixStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
+    }
     if (svdPar->leftSingularMatrix == requiredInPackedForm)
-    { s |= checkNumericTable(get(leftSingularMatrix).get(), leftSingularMatrixStr(), unexpectedLayouts, 0, nFeatures, nVectors); }
+    {
+        s |= checkNumericTable(get(leftSingularMatrix).get(), leftSingularMatrixStr(), unexpectedLayouts, 0, nFeatures, nVectors);
+    }
     return s;
 }
 /**
@@ -98,9 +102,13 @@ Status Result::check(const daal::algorithms::PartialResult * pres, const daal::a
 
     Status s = checkNumericTable(get(singularValues).get(), singularValuesStr(), unexpectedLayouts, 0, nFeatures, 1);
     if (svdPar->rightSingularMatrix == requiredInPackedForm)
-    { s |= checkNumericTable(get(rightSingularMatrix).get(), rightSingularMatrixStr(), unexpectedLayouts, 0, nFeatures, nFeatures); }
+    {
+        s |= checkNumericTable(get(rightSingularMatrix).get(), rightSingularMatrixStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
+    }
     if (svdPar->leftSingularMatrix == requiredInPackedForm)
-    { s |= checkNumericTable(get(leftSingularMatrix).get(), leftSingularMatrixStr(), unexpectedLayouts, 0, nFeatures, nVectors); }
+    {
+        s |= checkNumericTable(get(leftSingularMatrix).get(), leftSingularMatrixStr(), unexpectedLayouts, 0, nFeatures, nVectors);
+    }
     return s;
 }
 

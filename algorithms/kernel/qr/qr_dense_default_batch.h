@@ -71,7 +71,10 @@ template <typename algorithmFPType>
 DAAL_EXPORT Status Result::allocateImpl(size_t m, size_t n)
 {
     Status s;
-    if (n == 0) { Argument::set(matrixQ, data_management::SerializationIfacePtr()); }
+    if (n == 0)
+    {
+        Argument::set(matrixQ, data_management::SerializationIfacePtr());
+    }
     else
     {
         Argument::set(matrixQ, data_management::HomogenNumericTable<algorithmFPType>::create(m, n, data_management::NumericTable::doAllocate, &s));

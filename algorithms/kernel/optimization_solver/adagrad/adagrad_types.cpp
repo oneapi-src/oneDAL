@@ -107,7 +107,10 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     DAAL_CHECK(pOpt->size() == lastOptionalData + 1, services::ErrorIncorrectOptionalInput);
 
     auto pItem = pOpt->get(gradientSquareSum);
-    if (pItem.get()) { DAAL_CHECK_STATUS(s, checkGradientSquareSumData(this, pItem, true)); }
+    if (pItem.get())
+    {
+        DAAL_CHECK_STATUS(s, checkGradientSquareSumData(this, pItem, true));
+    }
     return s;
 }
 

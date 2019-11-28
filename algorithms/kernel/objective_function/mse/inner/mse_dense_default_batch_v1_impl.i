@@ -54,7 +54,10 @@ inline services::Status I1MSEKernel<algorithmFPType, method, cpu>::compute(Numer
         algorithmFPType * p       = prox.get();
         const algorithmFPType * b = beta.get();
 
-        for (int i = 0; i < nBeta; i++) { p[i] = b[i]; }
+        for (int i = 0; i < nBeta; i++)
+        {
+            p[i] = b[i];
+        }
         return services::Status();
     }
 
@@ -83,12 +86,21 @@ inline services::Status I1MSEKernel<algorithmFPType, method, cpu>::compute(Numer
             for (size_t i = startRow; i < finishRow; i++)
             {
                 curentNorm = 0;
-                for (int j = 0; j < p; j++) { curentNorm += x[i * p + j] * x[i * p + j]; }
-                if (curentNorm > _maxNorm) { _maxNorm = curentNorm; }
+                for (int j = 0; j < p; j++)
+                {
+                    curentNorm += x[i * p + j] * x[i * p + j];
+                }
+                if (curentNorm > _maxNorm)
+                {
+                    _maxNorm = curentNorm;
+                }
             }
         });
         tlsData.reduce([&](algorithmFPType * maxNorm) {
-            if (globalMaxNorm < *maxNorm) { globalMaxNorm = *maxNorm; }
+            if (globalMaxNorm < *maxNorm)
+            {
+                globalMaxNorm = *maxNorm;
+            }
         });
 
         algorithmFPType lipschitz = (globalMaxNorm + 1);
@@ -129,7 +141,10 @@ services::Status I1MSEKernel<algorithmFPType, method, cpu>::run(I1MSETask<algori
     size_t blockSize = blockSizeDefault;
     size_t nBlocks   = task.batchSize / blockSizeDefault;
     nBlocks += (nBlocks * blockSizeDefault != task.batchSize);
-    if (nBlocks == 1) { blockSize = task.batchSize; }
+    if (nBlocks == 1)
+    {
+        blockSize = task.batchSize;
+    }
 
     for (size_t block = 0; s.ok() && (block < nBlocks); block++)
     {
@@ -165,7 +180,10 @@ inline void I1MSEKernel<algorithmFPType, method, cpu>::computeMSE(size_t blockSi
     {
         Blas<algorithmFPType, cpu>::xgemv(&trans, &dim, &n, &one, data, &dim, theta, &ione, &zero, xMultTheta, &ione);
 
-        for (size_t i = 0; i < blockSize; i++) { xMultTheta[i] = xMultTheta[i] + theta0 - dependentVariablesArray[i]; }
+        for (size_t i = 0; i < blockSize; i++)
+        {
+            xMultTheta[i] = xMultTheta[i] + theta0 - dependentVariablesArray[i];
+        }
     }
 
     if (task.gradientFlag)
@@ -173,13 +191,19 @@ inline void I1MSEKernel<algorithmFPType, method, cpu>::computeMSE(size_t blockSi
         for (size_t i = 0; i < blockSize; i++)
         {
             gradient[0] += xMultTheta[i];
-            for (size_t j = 0; j < nTheta; j++) { gradient[j + 1] += xMultTheta[i] * data[i * nTheta + j]; }
+            for (size_t j = 0; j < nTheta; j++)
+            {
+                gradient[j + 1] += xMultTheta[i] * data[i * nTheta + j];
+            }
         }
     }
 
     if (task.valueFlag)
     {
-        for (size_t i = 0; i < blockSize; i++) { value[0] += xMultTheta[i] * xMultTheta[i]; }
+        for (size_t i = 0; i < blockSize; i++)
+        {
+            value[0] += xMultTheta[i] * xMultTheta[i];
+        }
     }
 
     if (task.hessianFlag)
@@ -192,12 +216,18 @@ inline void I1MSEKernel<algorithmFPType, method, cpu>::computeMSE(size_t blockSi
 
         for (size_t i = 0; i < blockSize; i++)
         {
-            for (size_t j = 0; j < nTheta; j++) { hessian[j + 1] += data[i * nTheta + j]; }
+            for (size_t j = 0; j < nTheta; j++)
+            {
+                hessian[j + 1] += data[i * nTheta + j];
+            }
         }
 
         for (size_t i = 0; i < argumentSize; i++)
         {
-            for (size_t j = 1; j < i; j++) { hessian[j * argumentSize + i] = hessian[i * argumentSize + j]; }
+            for (size_t j = 1; j < i; j++)
+            {
+                hessian[j * argumentSize + i] = hessian[i * argumentSize + j];
+            }
             hessian[i * argumentSize] = hessian[i];
         }
     }
@@ -210,17 +240,26 @@ void I1MSEKernel<algorithmFPType, method, cpu>::normalizeResults(I1MSETask<algor
     size_t argumentSize          = task.argumentSize;
     const algorithmFPType one    = 1.0;
     algorithmFPType batchSizeInv = (algorithmFPType)one / task.batchSize;
-    if (task.valueFlag) { value[0] /= (algorithmFPType)(2 * task.batchSize); }
+    if (task.valueFlag)
+    {
+        value[0] /= (algorithmFPType)(2 * task.batchSize);
+    }
 
     if (task.gradientFlag)
     {
-        for (size_t j = 0; j < argumentSize; j++) { gradient[j] *= batchSizeInv; }
+        for (size_t j = 0; j < argumentSize; j++)
+        {
+            gradient[j] *= batchSizeInv;
+        }
     }
 
     if (task.hessianFlag)
     {
         hessian[0] = one;
-        for (size_t j = 1; j < argumentSize * argumentSize; j++) { hessian[j] *= batchSizeInv; }
+        for (size_t j = 1; j < argumentSize * argumentSize; j++)
+        {
+            hessian[j] *= batchSizeInv;
+        }
     }
 }
 

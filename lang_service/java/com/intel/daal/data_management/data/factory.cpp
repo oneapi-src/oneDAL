@@ -49,7 +49,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_Factory_cGet
     SerializationIfacePtr * object = (SerializationIfacePtr *)cObject;
     JavaNumericTableBase * nt      = dynamic_cast<JavaNumericTableBase *>(object->get());
 
-    if (nt != 0) { return nt->getJavaObject(); }
+    if (nt != 0)
+    {
+        return nt->getJavaObject();
+    }
 
     return 0;
 }

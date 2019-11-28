@@ -90,10 +90,16 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
         {
             if (cpuid > daal::lastCpuType || cpuid < 0) return daal::services::ErrorCpuIsInvalid;
 
-            if (cpuid > host_cpuid) { _cpu_detect(daal::services::Environment::avx512_mic_e1); }
+            if (cpuid > host_cpuid)
+            {
+                _cpu_detect(daal::services::Environment::avx512_mic_e1);
+            }
             else
             {
-                if (daal::avx512_mic == cpuid && daal::avx512_mic != host_cpuid) { _cpu_detect(daal::services::Environment::avx512_mic_e1); }
+                if (daal::avx512_mic == cpuid && daal::avx512_mic != host_cpuid)
+                {
+                    _cpu_detect(daal::services::Environment::avx512_mic_e1);
+                }
                 else
                 {
                     _env.cpuid = cpuid;
@@ -138,7 +144,10 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
         int ncores = daal::internal::Service<>::serv_get_ncpus() * daal::internal::Service<>::serv_get_ncorespercpu();
 
         /*  Re-set number of threads if ncores is valid and different to _numThreads */
-        if ((ncores > 0) && (ncores < _daal_threader_get_max_threads())) { daal::services::Environment::setNumberOfThreads(ncores); }
+        if ((ncores > 0) && (ncores < _daal_threader_get_max_threads()))
+        {
+            daal::services::Environment::setNumberOfThreads(ncores);
+        }
     }
     isInit = true;
 }
@@ -152,7 +161,10 @@ DAAL_EXPORT daal::services::Environment::~Environment()
 void daal::services::Environment::_cpu_detect(int enable)
 {
     initNumberOfThreads();
-    if (-1 == _env.cpuid) { _env.cpuid = __daal_serv_cpu_detect(enable); }
+    if (-1 == _env.cpuid)
+    {
+        _env.cpuid = __daal_serv_cpu_detect(enable);
+    }
 }
 
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
@@ -178,7 +190,10 @@ DAAL_EXPORT void daal::services::Environment::enableThreadPinning(const bool ena
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
     daal::services::internal::thread_pinner_t * thread_pinner = daal::services::internal::getThreadPinner(true, read_topology, delete_topology);
 
-    if (thread_pinner != NULL) { thread_pinner->set_pinning(enableThreadPinningFlag); }
+    if (thread_pinner != NULL)
+    {
+        thread_pinner->set_pinning(enableThreadPinningFlag);
+    }
 #endif
     return;
 }

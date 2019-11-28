@@ -120,17 +120,29 @@ CompressionStream::CompressionStream(CompressorImpl * compr, size_t minSize)
 
 CompressionStream::~CompressionStream()
 {
-    if (_blocks) { delete (CBC *)_blocks; }
+    if (_blocks)
+    {
+        delete (CBC *)_blocks;
+    }
     _blocks = NULL;
 }
 
 void CompressionStream::compressBlock(size_t pos)
 {
-    if (this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0)
+    {
+        return;
+    }
 
-    if (pos >= (*(CBC *)_blocks).size()) { return; }
+    if (pos >= (*(CBC *)_blocks).size())
+    {
+        return;
+    }
 
-    if ((*(CBC *)_blocks)[pos]->getComprState() == compressed) { return; }
+    if ((*(CBC *)_blocks)[pos]->getComprState() == compressed)
+    {
+        return;
+    }
 
     size_t tmpSize = (*(CBC *)_blocks)[pos]->getWriteOffset() > _minBlockSize ? _minBlockSize : (*(CBC *)_blocks)[pos]->getWriteOffset();
 
@@ -163,7 +175,10 @@ void CompressionStream::compressBlock(size_t pos)
 
 void CompressionStream::push_back(DataBlock * block)
 {
-    if (this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0)
+    {
+        return;
+    }
 
     //checkParams;
     if (block == NULL)
@@ -241,7 +256,10 @@ DataBlockCollectionPtr CompressionStream::getCompressedBlocksCollection()
     compressBlock(_writePos);
 
     DataBlockCollectionPtr retBlocks = DataBlockCollectionPtr(new DataBlockCollection);
-    for (size_t i = 0; i < (*(CBC *)_blocks).size(); i++) { retBlocks->push_back(DataBlockPtr((*(CBC *)_blocks)[i])); }
+    for (size_t i = 0; i < (*(CBC *)_blocks).size(); i++)
+    {
+        retBlocks->push_back(DataBlockPtr((*(CBC *)_blocks)[i]));
+    }
     (*(CBC *)_blocks).clear();
     _writePos = 0;
     _readPos  = 0;
@@ -250,21 +268,29 @@ DataBlockCollectionPtr CompressionStream::getCompressedBlocksCollection()
 
 size_t CompressionStream::getCompressedDataSize()
 {
-    if (this->_errors->size() != 0) { return 0; }
+    if (this->_errors->size() != 0)
+    {
+        return 0;
+    }
     //    for(int i = 0; i < (*(CBC*)_blocks).size(); i++)
     //    {
     compressBlock(_writePos);
     //    }
     _compressedDataSize = 0;
     for (size_t i = 0; i < (*(CBC *)_blocks).size(); i++)
-    { _compressedDataSize += (*(CBC *)_blocks)[i]->getWriteOffset() - (*(CBC *)_blocks)[i]->getReadOffset(); }
+    {
+        _compressedDataSize += (*(CBC *)_blocks)[i]->getWriteOffset() - (*(CBC *)_blocks)[i]->getReadOffset();
+    }
 
     return _compressedDataSize;
 }
 
 size_t CompressionStream::copyCompressedArray(byte * ptr, size_t size)
 {
-    if (this->_errors->size() != 0) { return 0; }
+    if (this->_errors->size() != 0)
+    {
+        return 0;
+    }
     //checkParams;
     if (ptr == NULL)
     {
@@ -283,7 +309,10 @@ size_t CompressionStream::copyCompressedArray(byte * ptr, size_t size)
     byte * tmpPtr;
     int result = 0;
 
-    if (_readPos == (*(CBC *)_blocks).size()) { return readSize; }
+    if (_readPos == (*(CBC *)_blocks).size())
+    {
+        return readSize;
+    }
     do
     {
         compressBlock(_readPos);
@@ -305,15 +334,24 @@ size_t CompressionStream::copyCompressedArray(byte * ptr, size_t size)
 
         availSize -= rs;
 
-        if (!availSize) { (*(CBC *)_blocks).erase(_readPos); }
+        if (!availSize)
+        {
+            (*(CBC *)_blocks).erase(_readPos);
+        }
         readSize += rs;
         leftSize -= rs;
 
     } while (readSize < size && _readPos < (*(CBC *)_blocks).size());
 
-    if (result) { this->_errors->add(services::ErrorMemoryCopyFailedInternal); }
+    if (result)
+    {
+        this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+    }
 
-    if ((*(CBC *)_blocks).size()) { _writePos = (*(CBC *)_blocks).size() - 1; }
+    if ((*(CBC *)_blocks).size())
+    {
+        _writePos = (*(CBC *)_blocks).size() - 1;
+    }
     else
     {
         _writePos = 0;
@@ -349,15 +387,24 @@ DecompressionStream::DecompressionStream(DecompressorImpl * compr, size_t minSiz
 
 DecompressionStream::~DecompressionStream()
 {
-    if (_blocks) { delete (CBC *)_blocks; }
+    if (_blocks)
+    {
+        delete (CBC *)_blocks;
+    }
     _blocks = NULL;
 }
 
 void DecompressionStream::decompressBlock(size_t pos)
 {
-    if (this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0)
+    {
+        return;
+    }
 
-    if ((*(CBC *)_blocks)[pos]->getComprState() == decompressed) { return; }
+    if ((*(CBC *)_blocks)[pos]->getComprState() == decompressed)
+    {
+        return;
+    }
 
     size_t tmpSize = (*(CBC *)_blocks)[pos]->getWriteOffset() > _minBlockSize ? _minBlockSize : (*(CBC *)_blocks)[pos]->getWriteOffset();
     _decompressor->setInputDataBlock((*(CBC *)_blocks)[pos]->getPtr(), (*(CBC *)_blocks)[pos]->getWriteOffset(), 0);
@@ -389,7 +436,10 @@ void DecompressionStream::decompressBlock(size_t pos)
 
 void DecompressionStream::push_back(DataBlock * block)
 {
-    if (this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0)
+    {
+        return;
+    }
     //checkParams;
     if (block == NULL)
     {
@@ -420,7 +470,10 @@ DataBlockCollectionPtr DecompressionStream::getDecompressedBlocksCollection()
     getDecompressedDataSize();
 
     DataBlockCollectionPtr retBlocks = DataBlockCollectionPtr(new DataBlockCollection);
-    for (size_t i = 0; i < (*(CBC *)_blocks).size(); i++) { retBlocks->push_back(DataBlockPtr((*(CBC *)_blocks)[i])); }
+    for (size_t i = 0; i < (*(CBC *)_blocks).size(); i++)
+    {
+        retBlocks->push_back(DataBlockPtr((*(CBC *)_blocks)[i]));
+    }
     (*(CBC *)_blocks).clear();
     _writePos = 0;
     _readPos  = 0;
@@ -429,7 +482,10 @@ DataBlockCollectionPtr DecompressionStream::getDecompressedBlocksCollection()
 
 size_t DecompressionStream::copyDecompressedArray(byte * ptr, size_t size)
 {
-    if (this->_errors->size() != 0) { return 0; }
+    if (this->_errors->size() != 0)
+    {
+        return 0;
+    }
     //checkParams;
     if (ptr == NULL)
     {
@@ -448,7 +504,10 @@ size_t DecompressionStream::copyDecompressedArray(byte * ptr, size_t size)
     byte * tmpPtr;
     int result = 0;
 
-    if (_readPos == (*(CBC *)_blocks).size()) { return readSize; }
+    if (_readPos == (*(CBC *)_blocks).size())
+    {
+        return readSize;
+    }
 
     do
     {
@@ -471,24 +530,39 @@ size_t DecompressionStream::copyDecompressedArray(byte * ptr, size_t size)
 
         availSize -= rs;
 
-        if (!availSize) { (*(CBC *)_blocks).erase(_readPos); }
+        if (!availSize)
+        {
+            (*(CBC *)_blocks).erase(_readPos);
+        }
         readSize += rs;
         leftSize -= rs;
 
     } while (readSize < size && _readPos < (*(CBC *)_blocks).size());
 
-    if (result) { this->_errors->add(services::ErrorMemoryCopyFailedInternal); }
+    if (result)
+    {
+        this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+    }
 
     return readSize;
 }
 
 size_t DecompressionStream::getDecompressedDataSize()
 {
-    if (this->_errors->size() != 0) { return 0; }
+    if (this->_errors->size() != 0)
+    {
+        return 0;
+    }
 
-    for (int i = 0; i < (*(CBC *)_blocks).size(); i++) { decompressBlock(i); }
+    for (int i = 0; i < (*(CBC *)_blocks).size(); i++)
+    {
+        decompressBlock(i);
+    }
     _decompressedDataSize = 0;
-    for (size_t i = 0; i < (*(CBC *)_blocks).size(); i++) { _decompressedDataSize += (*(CBC *)_blocks)[i]->getWriteOffset(); }
+    for (size_t i = 0; i < (*(CBC *)_blocks).size(); i++)
+    {
+        _decompressedDataSize += (*(CBC *)_blocks)[i]->getWriteOffset();
+    }
 
     return _decompressedDataSize;
 }

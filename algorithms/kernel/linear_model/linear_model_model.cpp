@@ -54,7 +54,10 @@ Status ModelInternal::initialize()
     DAAL_CHECK_BLOCK_STATUS(betaRows);
     float * betaArray     = betaRows.get();
     const size_t betaSize = _beta->getNumberOfColumns() * nRows;
-    for (size_t i = 0; i < betaSize; i++) { betaArray[i] = 0.0f; }
+    for (size_t i = 0; i < betaSize; i++)
+    {
+        betaArray[i] = 0.0f;
+    }
     return Status();
 }
 
@@ -92,7 +95,10 @@ Status ModelInternal::setToZero(NumericTable & table)
 
     const size_t nCols = table.getNumberOfColumns();
 
-    for (size_t i = 0; i < nCols * nRows; i++) { tableArray[i] = 0.0f; }
+    for (size_t i = 0; i < nCols * nRows; i++)
+    {
+        tableArray[i] = 0.0f;
+    }
 
     return Status();
 }

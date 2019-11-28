@@ -53,16 +53,25 @@ ErrorID EMforKernel<algorithmFPType>::run(data_management::NumericTable & inputD
     services::Status status;
     SharedPtr<HomogenNumericTable<algorithmFPType> > loglikelyhoodValueTable =
         HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status);
-    if (!status) { return ErrorMemoryAllocationFailed; }
+    if (!status)
+    {
+        return ErrorMemoryAllocationFailed;
+    }
 
     NumericTablePtr nIterationsValueTable = HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status);
-    if (!status) { return ErrorMemoryAllocationFailed; }
+    if (!status)
+    {
+        return ErrorMemoryAllocationFailed;
+    }
     emResult->set(daal::algorithms::em_gmm::goalFunction, loglikelyhoodValueTable);
     emResult->set(daal::algorithms::em_gmm::nIterations, nIterationsValueTable);
 
     this->setResult(emResult);
     services::Status s = this->computeNoThrow();
-    if (!s) { return ErrorEMInitNoTrialConverges; }
+    if (!s)
+    {
+        return ErrorEMInitNoTrialConverges;
+    }
     loglikelyhood = loglikelyhoodValueTable->getArray()[0];
     return ErrorID(0);
 }

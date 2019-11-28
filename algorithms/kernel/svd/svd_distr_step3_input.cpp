@@ -75,7 +75,10 @@ Status DistributedStep3Input::getSizes(size_t & nFeatures, size_t & nVectors) co
 
     NumericTablePtr numTableInQCollection = NumericTable::cast((*qCollection)[0]);
     Status s                              = checkNumericTable(numTableInQCollection.get(), qCollectionStr());
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     nFeatures = numTableInQCollection->getNumberOfColumns();
     nVectors  = numTableInQCollection->getNumberOfRows();
@@ -98,7 +101,10 @@ Status DistributedStep3Input::check(const daal::algorithms::Parameter * paramete
     size_t nFeatures = 0;
     size_t nVectors  = 0;
     Status s         = this->getSizes(nFeatures, nVectors);
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
     for (size_t i = 0; i < nodeSize; i++)
     {
         DAAL_CHECK_EX((*qCollection)[i], ErrorNullNumericTable, ArgumentName, qCollectionStr());
@@ -112,10 +118,16 @@ Status DistributedStep3Input::check(const daal::algorithms::Parameter * paramete
 
         int unexpectedLayouts = (int)packed_mask;
         s |= checkNumericTable(numTableInQCollection.get(), qCollectionStr(), unexpectedLayouts, 0, nFeatures);
-        if (!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
         DAAL_CHECK_EX(numTableInQCollection->getNumberOfRows() >= nFeatures, ErrorNullNumericTable, ArgumentName, rCollectionStr());
         s |= checkNumericTable(numTableInRCollection.get(), rCollectionStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
-        if (!s) { return s; }
+        if (!s)
+        {
+            return s;
+        }
     }
     return Status();
 }

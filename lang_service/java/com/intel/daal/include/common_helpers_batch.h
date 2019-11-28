@@ -94,7 +94,10 @@ struct jniBatch<_Method, _AlgClass, head>
     {
         if (method == head)
         {
-            if (prec == 0) { return (jlong)(new SharedPtr<AlgorithmIface>(new _AlgClass<double, (_Method)head>(args...))); }
+            if (prec == 0)
+            {
+                return (jlong)(new SharedPtr<AlgorithmIface>(new _AlgClass<double, (_Method)head>(args...)));
+            }
             else
             {
                 return (jlong)(new SharedPtr<AlgorithmIface>(new _AlgClass<float, (_Method)head>(args...)));
@@ -126,7 +129,9 @@ struct jniBatch<_Method, _AlgClass, head>
         if (method == head)
         {
             if (prec == 0)
-            { return (jlong)&staticPointerCast<_AlgClass<double, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->input; }
+            {
+                return (jlong)&staticPointerCast<_AlgClass<double, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->input;
+            }
             else
             {
                 return (jlong)&staticPointerCast<_AlgClass<float, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->input;
@@ -159,7 +164,9 @@ struct jniBatch<_Method, _AlgClass, head>
         if (method == head)
         {
             if (prec == 0)
-            { *ptr = staticPointerCast<_AlgClass<double, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->getResult(); }
+            {
+                *ptr = staticPointerCast<_AlgClass<double, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->getResult();
+            }
             else
             {
                 *ptr = staticPointerCast<_AlgClass<float, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->getResult();
@@ -177,7 +184,9 @@ struct jniBatch<_Method, _AlgClass, head>
         if (method == head)
         {
             if (prec == 0)
-            { staticPointerCast<_AlgClass<double, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->setResult(resShPtr); }
+            {
+                staticPointerCast<_AlgClass<double, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->setResult(resShPtr);
+            }
             else
             {
                 staticPointerCast<_AlgClass<float, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->setResult(resShPtr);
@@ -191,7 +200,9 @@ struct jniBatch<_Method, _AlgClass, head>
         if (method == head)
         {
             if (prec == 0)
-            { *ptr = staticPointerCast<_AlgClass<double, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->clone(); }
+            {
+                *ptr = staticPointerCast<_AlgClass<double, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->clone();
+            }
             else
             {
                 *ptr = staticPointerCast<_AlgClass<float, (_Method)head>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->clone();
@@ -272,7 +283,10 @@ struct jniBatchClassifier<_PMethod, _TMethod, tmethod, _AlgClass, head>
     {
         if (method == head)
         {
-            if (prec == 0) { return (jlong)(new SharedPtr<AlgorithmIface>(new _AlgClass<double, (_PMethod)head, tmethod>(args...))); }
+            if (prec == 0)
+            {
+                return (jlong)(new SharedPtr<AlgorithmIface>(new _AlgClass<double, (_PMethod)head, tmethod>(args...)));
+            }
             else
             {
                 return (jlong)(new SharedPtr<AlgorithmIface>(new _AlgClass<float, (_PMethod)head, tmethod>(args...)));

@@ -54,7 +54,10 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
     size_t n    = cn;
     int errcode = 0;
 
-    if (a >= b) { return -3; }
+    if (a >= b)
+    {
+        return -3;
+    }
 
     if (sizeof(size_t) == sizeof(unsigned int))
     {
@@ -65,10 +68,16 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
         int * rr   = (int *)r;
         __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniform, (method, stream, nn, rr, na, nb), errcode);
 
-        if (errcode != 0) { return errcode; }
+        if (errcode != 0)
+        {
+            return errcode;
+        }
 
         size_t shift = a - na;
-        for (size_t i = 0; i < n; i++) { r[i] = r[i] + shift; }
+        for (size_t i = 0; i < n; i++)
+        {
+            r[i] = r[i] + shift;
+        }
     }
     else
     {
@@ -82,11 +91,17 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
             int * rr   = (int *)r + n;
             __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniform, (method, stream, nn, rr, na, nb), errcode);
 
-            if (errcode != 0) { return errcode; }
+            if (errcode != 0)
+            {
+                return errcode;
+            }
 
             rr           = (int *)r + n;
             size_t shift = a - na;
-            for (size_t i = 0; i < n; i++) { r[i] = rr[i] + shift; }
+            for (size_t i = 0; i < n; i++)
+            {
+                r[i] = rr[i] + shift;
+            }
         }
         else
         {
@@ -106,7 +121,10 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
                 unsigned __int64 * rr = cr;
                 __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniformBits64, (method, stream, nn, rr), errcode);
 
-                if (errcode != 0) { return errcode; }
+                if (errcode != 0)
+                {
+                    return errcode;
+                }
             }
             else
             {
@@ -119,16 +137,25 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
                     unsigned __int64 * rr = cr + pos;
                     __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniformBits64, (method, stream, nn, rr), errcode);
 
-                    if (errcode != 0) { return errcode; }
+                    if (errcode != 0)
+                    {
+                        return errcode;
+                    }
 
                     for (size_t i = pos; i < cn; i++)
                     {
-                        if (cr[i] < MAX) { cr[pos++] = cr[i]; }
+                        if (cr[i] < MAX)
+                        {
+                            cr[pos++] = cr[i];
+                        }
                     }
                 }
             }
 
-            for (size_t i = 0; i < cn; i++) { cr[i] = a + cr[i] * dv; }
+            for (size_t i = 0; i < cn; i++)
+            {
+                cr[i] = a + cr[i] * dv;
+            }
         }
     }
 
@@ -226,7 +253,10 @@ public:
         {
             if (seed)
             {
-                for (size_t i = 0; i < n; i++) { _seed[i] = seed[i]; }
+                for (size_t i = 0; i < n; i++)
+                {
+                    _seed[i] = seed[i];
+                }
             }
             int errcode = 0;
             __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslNewStreamEx, (&_stream, brngId, n, seed), errcode);
@@ -238,7 +268,10 @@ public:
         services::Status s = allocSeeds(_seedSize);
         if (s)
         {
-            for (size_t i = 0; i < _seedSize; i++) { _seed[i] = other._seed[i]; }
+            for (size_t i = 0; i < _seedSize; i++)
+            {
+                _seed[i] = other._seed[i];
+            }
             int errcode = 0;
             __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslNewStreamEx, (&_stream, _brngId, _seedSize, _seed), errcode);
             if (!errcode) __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslCopyStreamState, (_stream, other._stream), errcode);

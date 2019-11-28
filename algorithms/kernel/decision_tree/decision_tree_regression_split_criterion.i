@@ -63,7 +63,10 @@ public:
         BlockDescriptor<algorithmFPType> yBD;
         const_cast<NumericTable &>(y).getBlockOfColumnValues(0, 0, yRowCount, readOnly, yBD);
         const algorithmFPType * const dy = yBD.getBlockPtr();
-        for (size_t i = 0; i < yRowCount; ++i) { update(dy[i]); }
+        for (size_t i = 0; i < yRowCount; ++i)
+        {
+            update(dy[i]);
+        }
         const_cast<NumericTable &>(y).releaseBlockOfColumnValues(yBD);
     }
 
@@ -174,7 +177,10 @@ public:
         const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, 0, nRows, readOnly, wBD);
         const algorithmFPType * const dy = yBD.getBlockPtr();
         const algorithmFPType * const dw = wBD.getBlockPtr();
-        for (size_t i = 0; i < nRows; ++i) { update(dy[i], dw[i]); }
+        for (size_t i = 0; i < nRows; ++i)
+        {
+            update(dy[i], dw[i]);
+        }
         const_cast<NumericTable &>(y).releaseBlockOfColumnValues(yBD);
         const_cast<NumericTable *>(w)->releaseBlockOfColumnValues(wBD);
     }
@@ -192,7 +198,10 @@ public:
         const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, firstIndex, count, readOnly, wBD);
         const algorithmFPType * const dw = wBD.getBlockPtr();
         algorithmFPType sum              = 0.0;
-        for (size_t i = 0; i < count; i++) { sum += dw[i]; }
+        for (size_t i = 0; i < count; i++)
+        {
+            sum += dw[i];
+        }
         const_cast<NumericTable *>(w)->releaseBlockOfColumnValues(wBD);
         return sum;
     }

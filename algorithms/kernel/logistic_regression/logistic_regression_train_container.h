@@ -50,7 +50,10 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (deviceInfo.isCpu) { __DAAL_INITIALIZE_KERNELS(internal::TrainBatchKernel, algorithmFPType, method); }
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::TrainBatchKernel, algorithmFPType, method);
+    }
     else
     {
         __DAAL_INITIALIZE_KERNELS_SYCL(internal::TrainBatchKernelOneAPI, algorithmFPType, method);

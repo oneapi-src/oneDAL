@@ -85,7 +85,10 @@ services::Status Parameter::check() const
 Model::Model(size_t nFeatures, const Parameter * par, services::Status & st)
     : _nFeatures(nFeatures), _models(new data_management::DataCollection()), _nIterations(par->maxIterations)
 {
-    if (!_models) { st.add(services::ErrorMemoryAllocationFailed); }
+    if (!_models)
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+    }
 }
 
 /**
@@ -124,7 +127,10 @@ size_t Model::getNumberOfWeakLearners() const
 
 regression::ModelPtr Model::getWeakLearnerModel(size_t idx) const
 {
-    if (idx < _models->size()) { return staticPointerCast<regression::Model, SerializationIface>((*_models)[idx]); }
+    if (idx < _models->size())
+    {
+        return staticPointerCast<regression::Model, SerializationIface>((*_models)[idx]);
+    }
     return regression::ModelPtr();
 }
 

@@ -75,7 +75,10 @@ public:
     FeatureTypesCache(const data_management::NumericTable & table)
         : _size(table.getNumberOfColumns()), _types(daal_alloc<data_management::features::FeatureType>(_size))
     {
-        for (FeatureIndex i = 0; i < _size; ++i) { _types[i] = table.getFeatureType(i); }
+        for (FeatureIndex i = 0; i < _size; ++i)
+        {
+            _types[i] = table.getFeatureType(i);
+        }
     }
 
     ~FeatureTypesCache()

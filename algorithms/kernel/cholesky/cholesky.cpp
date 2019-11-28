@@ -131,7 +131,9 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
 
     const int rLayoutInt = (int)rLayout;
     if (rLayoutInt & data_management::packed_mask)
-    { DAAL_CHECK(rLayout == NumericTableIface::lowerPackedTriangularMatrix, ErrorIncorrectTypeOfOutputNumericTable); }
+    {
+        DAAL_CHECK(rLayout == NumericTableIface::lowerPackedTriangularMatrix, ErrorIncorrectTypeOfOutputNumericTable);
+    }
     return Status();
 }
 

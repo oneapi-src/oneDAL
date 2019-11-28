@@ -40,7 +40,10 @@ struct common_moments_data_t
             if (!resultArray[i]) return Status(services::ErrorMemoryAllocationFailed);
         }
 
-        if (!isOnline) { resultArray[(int)nObservations][0] = 0.0; }
+        if (!isOnline)
+        {
+            resultArray[(int)nObservations][0] = 0.0;
+        }
 
         size_t rowSize = nFeatures * sizeof(algorithmFPType);
 
@@ -66,14 +69,20 @@ struct common_moments_data_t
     ~common_moments_data_t()
     {
         dataTable->releaseBlockOfRows(dataBD);
-        for (size_t i = 0; i < lastPartialResultId + 1; i++) { resultTable[i]->releaseBlockOfRows(resultBD[i]); }
+        for (size_t i = 0; i < lastPartialResultId + 1; i++)
+        {
+            resultTable[i]->releaseBlockOfRows(resultBD[i]);
+        }
 
 #if (defined _MEAN_ENABLE_) || (defined _VARC_ENABLE_)
         daal_free(mean);
         daal_free(variance);
 #endif
 #if (defined _SUM_ENABLE_) || (defined _MEAN_ENABLE_)
-        if (prevSums) { daal_free(prevSums); }
+        if (prevSums)
+        {
+            daal_free(prevSums);
+        }
 #endif
     }
 
@@ -281,7 +290,10 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
     /* Compute partial results for each TLS buffer */
     daal::threader_for(numRowsBlocks, numRowsBlocks, [&](int iBlock) {
         struct tls_moments_data_t<algorithmFPType, cpu> * _td = tls_data.local();
-        if (_td->malloc_errors) { return; }
+        if (_td->malloc_errors)
+        {
+            return;
+        }
 
         const size_t _startRow = iBlock * numRowsInBlock;
         const size_t _nRows    = (iBlock < (numRowsBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
@@ -399,7 +411,10 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
 #if (defined _SUM_ENABLE_) || (defined _MEAN_ENABLE_)
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < _cd.nFeatures; i++) { _sums[i] += _cd.prevSums[i]; }
+        for (size_t i = 0; i < _cd.nFeatures; i++)
+        {
+            _sums[i] += _cd.prevSums[i];
+        }
 #endif
     }
 
@@ -411,7 +426,10 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < _cd.nFeatures; i++) { _sumSqCen[i] = _cd.variance[i] * nVectorsM1; }
+            for (size_t i = 0; i < _cd.nFeatures; i++)
+            {
+                _sumSqCen[i] = _cd.variance[i] * nVectorsM1;
+            }
         }
         else /* isOnline */
         {
@@ -419,7 +437,10 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < _cd.nFeatures; i++) { _sumSqCen[i] += _cd.variance[i] * nVectorsM1; }
+                for (size_t i = 0; i < _cd.nFeatures; i++)
+                {
+                    _sumSqCen[i] += _cd.variance[i] * nVectorsM1;
+                }
             }
             else /* if (nObs != 0) */
             {

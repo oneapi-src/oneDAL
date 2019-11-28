@@ -292,14 +292,19 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
                 if (res)
                 {
                     for (size_t i = 0; i < gbt::prediction::internal::VECTOR_BLOCK_SIZE; ++i)
-                    { res[iRow + i] = getMaxClass(val + i * nClasses, nClasses); }
+                    {
+                        res[iRow + i] = getMaxClass(val + i * nClasses, nClasses);
+                    }
                 }
             }
             for (; iRow < nRowsToProcess; ++iRow)
             {
                 val = valL + iRow * nClasses;
                 predictByTrees(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
-                if (res) { res[iRow] = algorithmFPType(getMaxClass(val, nClasses)); }
+                if (res)
+                {
+                    res[iRow] = algorithmFPType(getMaxClass(val, nClasses));
+                }
             }
         });
         algorithmFPType * prob_pred = probBD.get();
@@ -325,7 +330,9 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
                 predictByTreesVector(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
 
                 for (size_t i = 0; i < gbt::prediction::internal::VECTOR_BLOCK_SIZE; ++i)
-                { res[iRow + i] = getMaxClass(val + i * nClasses, nClasses); }
+                {
+                    res[iRow + i] = getMaxClass(val + i * nClasses, nClasses);
+                }
             }
             for (; iRow < nRowsToProcess; ++iRow)
             {

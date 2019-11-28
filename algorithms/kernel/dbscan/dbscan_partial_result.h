@@ -172,7 +172,10 @@ DAAL_EXPORT services::Status DistributedPartialResultStep6::allocate(const daal:
     size_t nDataBlocks              = dcPartialData->size();
 
     size_t nRows = 0;
-    for (size_t i = 0; i < nDataBlocks; i++) { nRows += NumericTable::cast((*algInput->get(partialData))[i])->getNumberOfRows(); }
+    for (size_t i = 0; i < nDataBlocks; i++)
+    {
+        nRows += NumericTable::cast((*algInput->get(partialData))[i])->getNumberOfRows();
+    }
 
     services::Status status;
 
@@ -183,7 +186,10 @@ DAAL_EXPORT services::Status DistributedPartialResultStep6::allocate(const daal:
     DataCollectionPtr dcQueries(new DataCollection(nBlocks));
     DAAL_CHECK_MALLOC(dcQueries.get());
 
-    for (size_t i = 0; i < nBlocks; i++) { (*dcQueries)[i] = HomogenNumericTable<int>::create(3, 0, NumericTable::notAllocate, &status); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        (*dcQueries)[i] = HomogenNumericTable<int>::create(3, 0, NumericTable::notAllocate, &status);
+    }
 
     set(step6Queries, dcQueries);
 
@@ -230,7 +236,10 @@ DAAL_EXPORT services::Status DistributedPartialResultStep8::allocate(const daal:
     DataCollectionPtr dcQueries(new DataCollection(nBlocks));
     DAAL_CHECK_MALLOC(dcQueries.get());
 
-    for (size_t i = 0; i < nBlocks; i++) { (*dcQueries)[i] = HomogenNumericTable<int>::create(3, 0, NumericTable::notAllocate, &status); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        (*dcQueries)[i] = HomogenNumericTable<int>::create(3, 0, NumericTable::notAllocate, &status);
+    }
 
     set(step8Queries, dcQueries);
 
@@ -270,7 +279,10 @@ DAAL_EXPORT services::Status DistributedPartialResultStep9::allocate(const daal:
     DataCollectionPtr dcClusterOffsets(new DataCollection(nBlocks + 1));
     DAAL_CHECK_MALLOC(dcClusterOffsets.get());
 
-    for (size_t i = 0; i < nBlocks + 1; i++) { (*dcClusterOffsets)[i] = HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status); }
+    for (size_t i = 0; i < nBlocks + 1; i++)
+    {
+        (*dcClusterOffsets)[i] = HomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status);
+    }
 
     set(clusterOffsets, dcClusterOffsets);
 
@@ -301,7 +313,10 @@ DAAL_EXPORT services::Status DistributedPartialResultStep10::allocate(const daal
     DataCollectionPtr dcQueries(new DataCollection(nBlocks));
     DAAL_CHECK_MALLOC(dcQueries.get());
 
-    for (size_t i = 0; i < nBlocks; i++) { (*dcQueries)[i] = HomogenNumericTable<int>::create(4, 0, NumericTable::notAllocate, &status); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        (*dcQueries)[i] = HomogenNumericTable<int>::create(4, 0, NumericTable::notAllocate, &status);
+    }
 
     set(step10Queries, dcQueries);
 
@@ -332,7 +347,10 @@ DAAL_EXPORT services::Status DistributedPartialResultStep11::allocate(const daal
     DataCollectionPtr dcQueries(new DataCollection(nBlocks));
     DAAL_CHECK_MALLOC(dcQueries.get());
 
-    for (size_t i = 0; i < nBlocks; i++) { (*dcQueries)[i] = HomogenNumericTable<int>::create(4, 0, NumericTable::notAllocate, &status); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        (*dcQueries)[i] = HomogenNumericTable<int>::create(4, 0, NumericTable::notAllocate, &status);
+    }
 
     set(step11Queries, dcQueries);
 
@@ -357,7 +375,10 @@ DAAL_EXPORT services::Status DistributedPartialResultStep12::allocate(const daal
     DataCollectionPtr dcAssignmentQueries(new DataCollection(nBlocks));
     DAAL_CHECK_MALLOC(dcAssignmentQueries.get());
 
-    for (size_t i = 0; i < nBlocks; i++) { (*dcAssignmentQueries)[i] = HomogenNumericTable<int>::create(2, 0, NumericTable::notAllocate, &status); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        (*dcAssignmentQueries)[i] = HomogenNumericTable<int>::create(2, 0, NumericTable::notAllocate, &status);
+    }
 
     set(assignmentQueries, dcAssignmentQueries);
 

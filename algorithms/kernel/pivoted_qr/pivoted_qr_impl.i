@@ -79,18 +79,27 @@ ServiceStatus compute_pivoted_QR_on_one_node(const DAAL_INT m, const DAAL_INT n,
     // Compute QR decomposition
     Lapack<algorithmFPType, cpu>::xgeqp3(m, n, a_q, lda_q, jpvt, tau, work, workDim, &mklStatus);
 
-    if (mklStatus != 0) { return SERV_ERR_MKL_QR_ITH_PARAM_ILLEGAL_VALUE; }
+    if (mklStatus != 0)
+    {
+        return SERV_ERR_MKL_QR_ITH_PARAM_ILLEGAL_VALUE;
+    }
 
     // Get R of the QR factorization formed by xgeqp3
     for (int i = 1; i <= n; i++)
     {
-        for (int j = 0; j < i; j++) { r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j]; }
+        for (int j = 0; j < i; j++)
+        {
+            r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j];
+        }
     }
 
     // Get Q of the QR factorization formed by xgeqp3
     Lapack<algorithmFPType, cpu>::xorgqr(m, n, n, a_q, lda_q, tau, work, workDim, &mklStatus);
 
-    if (mklStatus != 0) { return SERV_ERR_MKL_QR_ITH_PARAM_ILLEGAL_VALUE; }
+    if (mklStatus != 0)
+    {
+        return SERV_ERR_MKL_QR_ITH_PARAM_ILLEGAL_VALUE;
+    }
 
     return SERV_ERR_OK;
 }
@@ -114,11 +123,17 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(const Nu
         ReadRows<int, cpu> permutedColumnsBlock(permutedColumns, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(permutedColumnsBlock);
         const int * jpvtFromParameter = permutedColumnsBlock.get();
-        for (size_t i = 0; i < n; i++) { jpvt[i] = jpvtFromParameter[i]; }
+        for (size_t i = 0; i < n; i++)
+        {
+            jpvt[i] = jpvtFromParameter[i];
+        }
     }
     else
     {
-        for (size_t i = 0; i < n; i++) { jpvt[i] = 0; }
+        for (size_t i = 0; i < n; i++)
+        {
+            jpvt[i] = 0;
+        }
     }
 
     DAAL_INT ldAi = m;
@@ -136,7 +151,10 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(const Nu
         const algorithmFPType * Ai = blockAi.get();
         for (int i = 0; i < n; i++)
         {
-            for (int j = 0; j < m; j++) { QiT[i * m + j] = Ai[i + j * n]; }
+            for (int j = 0; j < m; j++)
+            {
+                QiT[i * m + j] = Ai[i + j * n];
+            }
         }
     }
 
@@ -161,7 +179,10 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(const Nu
         algorithmFPType * Qi = blockQi.get();
         for (int i = 0; i < n; i++)
         {
-            for (int j = 0; j < m; j++) { Qi[i + j * n] = QiT[i * m + j]; }
+            for (int j = 0; j < m; j++)
+            {
+                Qi[i + j * n] = QiT[i * m + j];
+            }
         }
     }
 
@@ -171,8 +192,14 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(const Nu
         algorithmFPType * Ri = blockRi.get();
         for (int i = 0; i < n; i++)
         {
-            for (int j = 0; j <= i; j++) { Ri[i + j * n] = RiT[i * n + j]; }
-            for (int j = i + 1; j < n; j++) { Ri[i + j * n] = 0.0; }
+            for (int j = 0; j <= i; j++)
+            {
+                Ri[i + j * n] = RiT[i * n + j];
+            }
+            for (int j = i + 1; j < n; j++)
+            {
+                Ri[i + j * n] = 0.0;
+            }
         }
     }
 
@@ -180,7 +207,10 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(const Nu
         WriteOnlyRows<algorithmFPType, cpu> blockPi(PTable, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(blockPi);
         algorithmFPType * Pi = blockPi.get();
-        for (int i = 0; i < n; i++) { Pi[i] = jpvt[i]; }
+        for (int i = 0; i < n; i++)
+        {
+            Pi[i] = jpvt[i];
+        }
     }
 
     return Status();

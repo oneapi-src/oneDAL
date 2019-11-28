@@ -161,7 +161,9 @@ void I1SGDMiniBatchTask<algorithmFPType, cpu>::makeStep(const algorithmFPType * 
 {
     algorithmFPType * workValue = mtWorkValue.get();
     for (size_t j = 0; j < argumentSize; j++)
-    { workValue[j] = workValue[j] - learningRate * (gradient[j] + consCoeff * (workValue[j] - prevWorkValue[j])); }
+    {
+        workValue[j] = workValue[j] - learningRate * (gradient[j] + consCoeff * (workValue[j] - prevWorkValue[j]));
+    }
     nProceededIters++;
 }
 

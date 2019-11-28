@@ -139,7 +139,10 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
 
     PartialModel ** a = new PartialModel *[na];
 
-    for (size_t i = 0; i < na; i++) { a[i] = static_cast<PartialModel *>((*models)[i].get()); }
+    for (size_t i = 0; i < na; i++)
+    {
+        a[i] = static_cast<PartialModel *>((*models)[i].get());
+    }
 
     PartialModel * pModel = partialResult->get(classifier::training::partialModel).get();
 
@@ -272,7 +275,10 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     PartialModel ** a = new PartialModel *[na];
     DAAL_CHECK_MALLOC(a)
 
-    for (size_t i = 0; i < na; i++) { a[i] = static_cast<PartialModel *>((*models)[i].get()); }
+    for (size_t i = 0; i < na; i++)
+    {
+        a[i] = static_cast<PartialModel *>((*models)[i].get());
+    }
 
     PartialModel * pModel = partialResult->get(classifier::training::partialModel).get();
 

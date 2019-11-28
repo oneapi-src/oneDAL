@@ -74,7 +74,10 @@ public:
             _partition                = _partitionPtr.get();
             const size_t nUsersInPart = fullNUsers / nParts;
             _partition[0]             = 0;
-            for (size_t i = 1; i < nParts; i++) { _partition[i] = _partition[i - 1] + nUsersInPart; }
+            for (size_t i = 1; i < nParts; i++)
+            {
+                _partition[i] = _partition[i - 1] + nUsersInPart;
+            }
             _partition[nParts] = fullNUsers;
         }
         return Status();
@@ -175,7 +178,10 @@ Status ImplicitALSInitDistrKernel<algorithmFPType, fastCSR, cpu>::transposeAndSp
         algorithmFPType * dataPart = dataPartRows.values();
 
         size_t rowOffsetDiff = rowOffsets[partition[i]] - 1;
-        for (size_t j = 0; j < nRowsPart + 1; j++) { rowOffsetsPart[j] = rowOffsets[j + partition[i]] - rowOffsetDiff; }
+        for (size_t j = 0; j < nRowsPart + 1; j++)
+        {
+            rowOffsetsPart[j] = rowOffsets[j + partition[i]] - rowOffsetDiff;
+        }
         size_t offset = rowOffsets[partition[i]] - 1;
         for (size_t j = 0; j < nValuesPart; j++)
         {
@@ -206,7 +212,10 @@ Status ImplicitALSInitDistrKernelBase<algorithmFPType, fastCSR, cpu>::computeBlo
             blockFlags[(k - 1) * nItems + i] = false;
             for (size_t j = colOffsets[i] - 1; j < colOffsets[i + 1] - 1; j++)
             {
-                if (partition[k - 1] <= rowIndices[j] - 1 && rowIndices[j] - 1 < partition[k]) { blockFlags[(k - 1) * nItems + i] = true; }
+                if (partition[k - 1] <= rowIndices[j] - 1 && rowIndices[j] - 1 < partition[k])
+                {
+                    blockFlags[(k - 1) * nItems + i] = true;
+                }
             }
         }
     }
@@ -218,7 +227,10 @@ Status ImplicitALSInitDistrKernelBase<algorithmFPType, fastCSR, cpu>::computeBlo
     for (size_t i = 0; i < nParts; i++)
     {
         blocksToLocalSize[i] = 0;
-        for (size_t j = 0; j < nItems; j++) { blocksToLocalSize[i] += (blockFlags[i * nItems + j] ? 1 : 0); }
+        for (size_t j = 0; j < nItems; j++)
+        {
+            blocksToLocalSize[i] += (blockFlags[i * nItems + j] ? 1 : 0);
+        }
     }
     for (size_t i = 0; i < nParts; i++)
     {
@@ -271,7 +283,10 @@ Status ImplicitALSInitDistrKernel<algorithmFPType, fastCSR, cpu>::computePartial
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t k = start; k < end; ++k) { itemsSum += tdata[k]; }
+            for (size_t k = start; k < end; ++k)
+            {
+                itemsSum += tdata[k];
+            }
 
             itemsFactors[i * nFactors] = itemsSum / notNullElem;
         }
@@ -290,7 +305,10 @@ services::Status ImplicitALSInitDistrStep2Kernel<algorithmFPType, fastCSR, cpu>:
     CSRNumericTable * csrDataTable = dynamic_cast<CSRNumericTable *>(dataTable);
 
     size_t nValues = 0;
-    for (size_t i = 0; i < nParts; i++) { nValues += dynamic_cast<CSRNumericTable *>(dataParts[i])->getDataSize(); }
+    for (size_t i = 0; i < nParts; i++)
+    {
+        nValues += dynamic_cast<CSRNumericTable *>(dataParts[i])->getDataSize();
+    }
     Status s;
     DAAL_CHECK_STATUS(s, csrDataTable->allocateDataMemory(nValues));
     WriteRowsCSR<algorithmFPType, cpu> dataTableRows(csrDataTable, 0, nRows);
@@ -304,7 +322,10 @@ services::Status ImplicitALSInitDistrStep2Kernel<algorithmFPType, fastCSR, cpu>:
     DAAL_CHECK_MALLOC(partitionPtr.get());
     int * partition = partitionPtr.get();
     partition[0]    = 0;
-    for (size_t i = 1; i < nParts + 1; i++) { partition[i] = partition[i - 1] + dataParts[i - 1]->getNumberOfColumns(); }
+    for (size_t i = 1; i < nParts + 1; i++)
+    {
+        partition[i] = partition[i - 1] + dataParts[i - 1]->getNumberOfColumns();
+    }
     computeOffsets(nParts, partition, itemOffsets);
     return computeBlocksToLocal(nRows, nCols, colIndices, rowOffsets, nParts, partition, blocksToLocal);
 }
@@ -335,13 +356,19 @@ Status ImplicitALSInitDistrStep2Kernel<algorithmFPType, fastCSR, cpu>::mergeCSRT
     for (size_t i = 1; i < nRows + 1; i++)
     {
         rowOffsets[i] = rowOffsets[i - 1];
-        for (size_t p = 0; p < nParts; p++) { rowOffsets[i] += (rowOffsetsPart[p][i] - rowOffsetsPart[p][i - 1]); }
+        for (size_t p = 0; p < nParts; p++)
+        {
+            rowOffsets[i] += (rowOffsetsPart[p][i] - rowOffsetsPart[p][i - 1]);
+        }
     }
 
     TArray<size_t, cpu> colIndicesOffsets(nParts);
     DAAL_CHECK_MALLOC(colIndicesOffsets.get());
     colIndicesOffsets[0] = 0;
-    for (size_t i = 1; i < nParts; i++) { colIndicesOffsets[i] = colIndicesOffsets[i - 1] + dataParts[i - 1]->getNumberOfColumns(); }
+    for (size_t i = 1; i < nParts; i++)
+    {
+        colIndicesOffsets[i] = colIndicesOffsets[i - 1] + dataParts[i - 1]->getNumberOfColumns();
+    }
 
     for (size_t i = 1; i < nRows + 1; i++)
     {

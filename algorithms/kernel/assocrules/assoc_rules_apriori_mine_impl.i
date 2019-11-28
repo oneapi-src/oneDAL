@@ -91,11 +91,20 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::pruneCandidate(size_
     for (size_t i = 1; i < iset_size; i++)
     {
         bool found = false;
-        for (size_t k = 0; k < i; k++) { subset[k] = candidate[k]; }
-        for (size_t k = i + 1; k < iset_size; k++) { subset[k - 1] = candidate[k]; }
+        for (size_t k = 0; k < i; k++)
+        {
+            subset[k] = candidate[k];
+        }
+        for (size_t k = i + 1; k < iset_size; k++)
+        {
+            subset[k - 1] = candidate[k];
+        }
 
         iset = C_tree.hash_subset(iset_size - 1, subset, &levelMiss);
-        if (!iset) { return true; }
+        if (!iset)
+        {
+            return true;
+        }
     }
 
     return false;
@@ -143,7 +152,10 @@ size_t AssociationRulesKernel<apriori, algorithmFPType, cpu>::binarySearch(size_
     size_t me = ((hi + lo) >> 1);
     while (lo < hi)
     {
-        if (uniqueItems[me].itemID < itemID) { lo = me + 1; }
+        if (uniqueItems[me].itemID < itemID)
+        {
+            lo = me + 1;
+        }
         else if (itemID < uniqueItems[me].itemID)
         {
             hi = me - 1;
@@ -229,7 +241,10 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::genCandidates(size_t
                     return false;
                 }
 
-                if (iset) { L_cur->insert(iset); }
+                if (iset)
+                {
+                    L_cur->insert(iset);
+                }
             }
         }
     }
@@ -262,8 +277,14 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::genSubset(size_t tra
     {
         /* Generate next subset of size iset_size */
         idx[iset_size - h]++;
-        for (size_t j = iset_size - h + 1; j < iset_size; j++) { idx[j] = idx[j - 1] + 1; }
-        for (size_t j = 0; j < iset_size; j++) { subset[j] = items[idx[j]]; }
+        for (size_t j = iset_size - h + 1; j < iset_size; j++)
+        {
+            idx[j] = idx[j - 1] + 1;
+        }
+        for (size_t j = 0; j < iset_size; j++)
+        {
+            subset[j] = items[idx[j]];
+        }
 
         /* Increment counter for the subset if this subset exists
            in hash tree C_tree */
@@ -277,7 +298,10 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::genSubset(size_t tra
         if ((levelMiss > 0) && (idx[levelMiss - 1] < transactionSize - 1))
         {
             h = iset_size - (levelMiss - 1);
-            while (h <= iset_size && idx[iset_size - h] >= transactionSize - h) { h++; }
+            while (h <= iset_size && idx[iset_size - h] >= transactionSize - h)
+            {
+                h++;
+            }
         }
         else if (idx[iset_size - h] < transactionSize - h)
         {
@@ -340,7 +364,10 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::prune(size_t imin_s,
 
         genSubset(tran->size, tran->items, new_iset_size, subset, idx, *C_tree, large_count);
 
-        if (large_count < 2) { tran->is_large = false; }
+        if (large_count < 2)
+        {
+            tran->is_large = false;
+        }
     });
 
     tls.reduce([&](size_t * idx) {
@@ -363,10 +390,19 @@ void AssociationRulesKernel<apriori, algorithmFPType, cpu>::prune(size_t imin_s,
     size_t iNotLarge = numOfLargeTransactions - 1;
     while (iLarge < iNotLarge && iLarge < numOfLargeTransactions)
     {
-        while (iLarge < numOfLargeTransactions && large_tran[iLarge]->is_large) { iLarge++; }
-        while (iNotLarge > iLarge && !large_tran[iNotLarge]->is_large) { iNotLarge--; }
+        while (iLarge < numOfLargeTransactions && large_tran[iLarge]->is_large)
+        {
+            iLarge++;
+        }
+        while (iNotLarge > iLarge && !large_tran[iNotLarge]->is_large)
+        {
+            iNotLarge--;
+        }
 
-        if (iLarge >= iNotLarge || iLarge >= numOfLargeTransactions || iNotLarge <= 0) { break; }
+        if (iLarge >= iNotLarge || iLarge >= numOfLargeTransactions || iNotLarge <= 0)
+        {
+            break;
+        }
 
         assocrules_transaction<cpu> * tmp = large_tran[iLarge];
         large_tran[iLarge]                = large_tran[iNotLarge];
@@ -419,8 +455,14 @@ hash_tree<cpu> * AssociationRulesKernel<apriori, algorithmFPType, cpu>::nextPass
     }
 
     prune(imin_s, iset_size, data, L, C_tree_new);
-    if (L[iset_size].size > 0) { ++L_size; }
-    if (L[iset_size].size < 2) { bFound = false; }
+    if (L[iset_size].size > 0)
+    {
+        ++L_size;
+    }
+    if (L[iset_size].size < 2)
+    {
+        bFound = false;
+    }
     return C_tree_new;
 }
 

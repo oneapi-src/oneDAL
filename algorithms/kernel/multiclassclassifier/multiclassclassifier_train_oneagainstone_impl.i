@@ -134,7 +134,10 @@ Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, 
     size_t * classNonZeroValuesCount = buffer.get() + nClasses;
     size_t * classDataSize           = buffer.get() + 2 * nClasses;
     size_t * classIndex              = buffer.get() + 3 * nClasses;
-    for (size_t i = 0; i < nVectors; i++) { classLabelsCount[y[i]]++; }
+    for (size_t i = 0; i < nVectors; i++)
+    {
+        classLabelsCount[y[i]]++;
+    }
     if (xTable->getDataLayout() == NumericTableIface::csrArray)
     {
         CSRNumericTableIface * csrIface = dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable));

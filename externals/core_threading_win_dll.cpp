@@ -121,7 +121,9 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
     case TRUST_E_NOSIGNATURE:
         lerr = GetLastError();
         if (TRUST_E_NOSIGNATURE == lerr || TRUST_E_SUBJECT_FORM_UNKNOWN == lerr || TRUST_E_PROVIDER_UNKNOWN == lerr)
-        { printf("Intel DAAL FATAL ERROR: %s is not signed.\n", filename); }
+        {
+            printf("Intel DAAL FATAL ERROR: %s is not signed.\n", filename);
+        }
         else
         {
             printf("Intel DAAL FATAL ERROR: An unknown error occurred trying toverify the signature of the %s.\n", filename);
@@ -147,7 +149,10 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
     WinVerifyTrust(NULL, &pgActionID, &pWVTData);
     delete[] wPathBuf;
 
-    if (ERROR_SUCCESS != sverif) { return NULL; }
+    if (ERROR_SUCCESS != sverif)
+    {
+        return NULL;
+    }
 
     rv2 = LoadLibraryA(PathBuf);
 
@@ -160,14 +165,20 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
 
 static void load_daal_thr_dll(void)
 {
-    if (daal_thr_dll_handle != NULL) { return; }
+    if (daal_thr_dll_handle != NULL)
+    {
+        return;
+    }
 
     switch (__daal_serv_get_thr_set())
     {
     case daal::services::Environment::MultiThreaded:
     {
         daal_thr_dll_handle = DAAL_LOAD_DLL("daal_thread.dll");
-        if (daal_thr_dll_handle != NULL) { return; }
+        if (daal_thr_dll_handle != NULL)
+        {
+            return;
+        }
 
         printf("Intel DAAL FATAL ERROR: Cannot load libdaal_thread.dll.\n");
         exit(1);
@@ -177,7 +188,10 @@ static void load_daal_thr_dll(void)
     case daal::services::Environment::SingleThreaded:
     {
         daal_thr_dll_handle = DAAL_LOAD_DLL("daal_sequential.dll");
-        if (daal_thr_dll_handle != NULL) { return; }
+        if (daal_thr_dll_handle != NULL)
+        {
+            return;
+        }
 
         printf("Intel DAAL FATAL ERROR: Cannot load libdaal_sequential.dll.\n");
         exit(1);
@@ -187,10 +201,16 @@ static void load_daal_thr_dll(void)
     default:
     {
         daal_thr_dll_handle = DAAL_LOAD_DLL("daal_thread.dll");
-        if (daal_thr_dll_handle != NULL) { return; }
+        if (daal_thr_dll_handle != NULL)
+        {
+            return;
+        }
 
         daal_thr_dll_handle = DAAL_LOAD_DLL("daal_sequential.dll");
-        if (daal_thr_dll_handle != NULL) { return; }
+        if (daal_thr_dll_handle != NULL)
+        {
+            return;
+        }
 
         printf("Intel DAAL FATAL ERROR: Cannot load neither libdaal_thread.dll nor libdaal_sequential.dll.\n");
         exit(1);
@@ -314,21 +334,30 @@ static _getThreadPinner_t _getThreadPinner_ptr                                  
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
 {
     load_daal_thr_dll();
-    if (_threaded_malloc_ptr == NULL) { _threaded_malloc_ptr = (_threaded_malloc_t)load_daal_thr_func("_threaded_scalable_malloc"); }
+    if (_threaded_malloc_ptr == NULL)
+    {
+        _threaded_malloc_ptr = (_threaded_malloc_t)load_daal_thr_func("_threaded_scalable_malloc");
+    }
     return _threaded_malloc_ptr(size, alignment);
 }
 
 DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 {
     load_daal_thr_dll();
-    if (_threaded_free_ptr == NULL) { _threaded_free_ptr = (_threaded_free_t)load_daal_thr_func("_threaded_scalable_free"); }
+    if (_threaded_free_ptr == NULL)
+    {
+        _threaded_free_ptr = (_threaded_free_t)load_daal_thr_func("_threaded_scalable_free");
+    }
     _threaded_free_ptr(ptr);
 }
 
 DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func)
 {
     load_daal_thr_dll();
-    if (_daal_threader_for_ptr == NULL) { _daal_threader_for_ptr = (_daal_threader_for_t)load_daal_thr_func("_daal_threader_for"); }
+    if (_daal_threader_for_ptr == NULL)
+    {
+        _daal_threader_for_ptr = (_daal_threader_for_t)load_daal_thr_func("_daal_threader_for");
+    }
     _daal_threader_for_ptr(n, threads_request, a, func);
 }
 
@@ -336,7 +365,9 @@ DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const vo
 {
     load_daal_thr_dll();
     if (_daal_threader_for_blocked_ptr == NULL)
-    { _daal_threader_for_blocked_ptr = (_daal_threader_for_blocked_t)load_daal_thr_func("_daal_threader_for_blocked"); }
+    {
+        _daal_threader_for_blocked_ptr = (_daal_threader_for_blocked_t)load_daal_thr_func("_daal_threader_for_blocked");
+    }
     _daal_threader_for_blocked_ptr(n, threads_request, a, func);
 }
 
@@ -344,7 +375,9 @@ DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const v
 {
     load_daal_thr_dll();
     if (_daal_threader_for_optional_ptr == NULL)
-    { _daal_threader_for_optional_ptr = (_daal_threader_for_t)load_daal_thr_func("_daal_threader_for_optional"); }
+    {
+        _daal_threader_for_optional_ptr = (_daal_threader_for_t)load_daal_thr_func("_daal_threader_for_optional");
+    }
     _daal_threader_for_optional_ptr(n, threads_request, a, func);
 }
 
@@ -352,35 +385,49 @@ DAAL_EXPORT int _daal_threader_get_max_threads()
 {
     load_daal_thr_dll();
     if (_daal_threader_get_max_threads_ptr == NULL)
-    { _daal_threader_get_max_threads_ptr = (_daal_threader_get_max_threads_t)load_daal_thr_func("_daal_threader_get_max_threads"); }
+    {
+        _daal_threader_get_max_threads_ptr = (_daal_threader_get_max_threads_t)load_daal_thr_func("_daal_threader_get_max_threads");
+    }
     return _daal_threader_get_max_threads_ptr();
 }
 
 DAAL_EXPORT void * _daal_get_tls_ptr(void * a, daal::tls_functype func)
 {
     load_daal_thr_dll();
-    if (_daal_get_tls_ptr_ptr == NULL) { _daal_get_tls_ptr_ptr = (_daal_get_tls_ptr_t)load_daal_thr_func("_daal_get_tls_ptr"); }
+    if (_daal_get_tls_ptr_ptr == NULL)
+    {
+        _daal_get_tls_ptr_ptr = (_daal_get_tls_ptr_t)load_daal_thr_func("_daal_get_tls_ptr");
+    }
     return _daal_get_tls_ptr_ptr(a, func);
 }
 
 DAAL_EXPORT void _daal_del_tls_ptr(void * tlsPtr)
 {
     load_daal_thr_dll();
-    if (_daal_del_tls_ptr_ptr == NULL) { _daal_del_tls_ptr_ptr = (_daal_del_tls_ptr_t)load_daal_thr_func("_daal_del_tls_ptr"); }
+    if (_daal_del_tls_ptr_ptr == NULL)
+    {
+        _daal_del_tls_ptr_ptr = (_daal_del_tls_ptr_t)load_daal_thr_func("_daal_del_tls_ptr");
+    }
     _daal_del_tls_ptr_ptr(tlsPtr);
 }
 
 DAAL_EXPORT void * _daal_get_tls_local(void * tlsPtr)
 {
     load_daal_thr_dll();
-    if (_daal_get_tls_local_ptr == NULL) { _daal_get_tls_local_ptr = (_daal_get_tls_local_t)load_daal_thr_func("_daal_get_tls_local"); }
+    if (_daal_get_tls_local_ptr == NULL)
+    {
+        _daal_get_tls_local_ptr = (_daal_get_tls_local_t)load_daal_thr_func("_daal_get_tls_local");
+    }
     return _daal_get_tls_local_ptr(tlsPtr);
 }
 
 DAAL_EXPORT void _daal_reduce_tls(void * tlsPtr, void * a, daal::tls_reduce_functype func)
 {
     load_daal_thr_dll();
-    if (_daal_reduce_tls_ptr == NULL) { _daal_reduce_tls_ptr = (_daal_reduce_tls_t)load_daal_thr_func("_daal_reduce_tls"); }
+    if (_daal_reduce_tls_ptr == NULL)
+    {
+        _daal_reduce_tls_ptr = (_daal_reduce_tls_t)load_daal_thr_func("_daal_reduce_tls");
+    }
     _daal_reduce_tls_ptr(tlsPtr, a, func);
 }
 
@@ -388,105 +435,149 @@ DAAL_EXPORT void _daal_parallel_reduce_tls(void * tlsPtr, void * a, daal::tls_re
 {
     load_daal_thr_dll();
     if (_daal_parallel_reduce_tls_ptr == NULL)
-    { _daal_parallel_reduce_tls_ptr = (_daal_parallel_reduce_tls_t)load_daal_thr_func("_daal_parallel_reduce_tls"); }
+    {
+        _daal_parallel_reduce_tls_ptr = (_daal_parallel_reduce_tls_t)load_daal_thr_func("_daal_parallel_reduce_tls");
+    }
     _daal_parallel_reduce_tls_ptr(tlsPtr, a, func);
 }
 
 DAAL_EXPORT void * _daal_get_ls_ptr(void * a, daal::tls_functype func)
 {
     load_daal_thr_dll();
-    if (_daal_get_ls_ptr_ptr == NULL) { _daal_get_ls_ptr_ptr = (_daal_get_ls_ptr_t)load_daal_thr_func("_daal_get_ls_ptr"); }
+    if (_daal_get_ls_ptr_ptr == NULL)
+    {
+        _daal_get_ls_ptr_ptr = (_daal_get_ls_ptr_t)load_daal_thr_func("_daal_get_ls_ptr");
+    }
     return _daal_get_ls_ptr_ptr(a, func);
 }
 
 DAAL_EXPORT void _daal_del_ls_ptr(void * lsPtr)
 {
     load_daal_thr_dll();
-    if (_daal_del_ls_ptr_ptr == NULL) { _daal_del_ls_ptr_ptr = (_daal_del_ls_ptr_t)load_daal_thr_func("_daal_del_ls_ptr"); }
+    if (_daal_del_ls_ptr_ptr == NULL)
+    {
+        _daal_del_ls_ptr_ptr = (_daal_del_ls_ptr_t)load_daal_thr_func("_daal_del_ls_ptr");
+    }
     _daal_del_ls_ptr_ptr(lsPtr);
 }
 
 DAAL_EXPORT void * _daal_get_ls_local(void * lsPtr)
 {
     load_daal_thr_dll();
-    if (_daal_get_ls_local_ptr == NULL) { _daal_get_ls_local_ptr = (_daal_get_ls_local_t)load_daal_thr_func("_daal_get_ls_local"); }
+    if (_daal_get_ls_local_ptr == NULL)
+    {
+        _daal_get_ls_local_ptr = (_daal_get_ls_local_t)load_daal_thr_func("_daal_get_ls_local");
+    }
     return _daal_get_ls_local_ptr(lsPtr);
 }
 
 DAAL_EXPORT void _daal_release_ls_local(void * lsPtr, void * a)
 {
     load_daal_thr_dll();
-    if (_daal_release_ls_local_ptr == NULL) { _daal_release_ls_local_ptr = (_daal_release_ls_local_t)load_daal_thr_func("_daal_release_ls_local"); }
+    if (_daal_release_ls_local_ptr == NULL)
+    {
+        _daal_release_ls_local_ptr = (_daal_release_ls_local_t)load_daal_thr_func("_daal_release_ls_local");
+    }
     _daal_release_ls_local_ptr(lsPtr, a);
 }
 
 DAAL_EXPORT void _daal_reduce_ls(void * lsPtr, void * a, daal::tls_reduce_functype func)
 {
     load_daal_thr_dll();
-    if (_daal_reduce_ls_ptr == NULL) { _daal_reduce_ls_ptr = (_daal_reduce_ls_t)load_daal_thr_func("_daal_reduce_ls"); }
+    if (_daal_reduce_ls_ptr == NULL)
+    {
+        _daal_reduce_ls_ptr = (_daal_reduce_ls_t)load_daal_thr_func("_daal_reduce_ls");
+    }
     _daal_reduce_ls_ptr(lsPtr, a, func);
 }
 
 DAAL_EXPORT void * _daal_new_mutex()
 {
     load_daal_thr_dll();
-    if (_daal_new_mutex_ptr == NULL) { _daal_new_mutex_ptr = (_daal_new_mutex_t)load_daal_thr_func("_daal_new_mutex"); }
+    if (_daal_new_mutex_ptr == NULL)
+    {
+        _daal_new_mutex_ptr = (_daal_new_mutex_t)load_daal_thr_func("_daal_new_mutex");
+    }
     return _daal_new_mutex_ptr();
 }
 
 DAAL_EXPORT void _daal_lock_mutex(void * mutexPtr)
 {
     load_daal_thr_dll();
-    if (_daal_lock_mutex_ptr == NULL) { _daal_lock_mutex_ptr = (_daal_lock_mutex_t)load_daal_thr_func("_daal_lock_mutex"); }
+    if (_daal_lock_mutex_ptr == NULL)
+    {
+        _daal_lock_mutex_ptr = (_daal_lock_mutex_t)load_daal_thr_func("_daal_lock_mutex");
+    }
     _daal_lock_mutex_ptr(mutexPtr);
 }
 
 DAAL_EXPORT void _daal_unlock_mutex(void * mutexPtr)
 {
     load_daal_thr_dll();
-    if (_daal_unlock_mutex_ptr == NULL) { _daal_unlock_mutex_ptr = (_daal_unlock_mutex_t)load_daal_thr_func("_daal_unlock_mutex"); }
+    if (_daal_unlock_mutex_ptr == NULL)
+    {
+        _daal_unlock_mutex_ptr = (_daal_unlock_mutex_t)load_daal_thr_func("_daal_unlock_mutex");
+    }
     _daal_unlock_mutex_ptr(mutexPtr);
 }
 
 DAAL_EXPORT void _daal_del_mutex(void * mutexPtr)
 {
     load_daal_thr_dll();
-    if (_daal_del_mutex_ptr == NULL) { _daal_del_mutex_ptr = (_daal_del_mutex_t)load_daal_thr_func("_daal_del_mutex"); }
+    if (_daal_del_mutex_ptr == NULL)
+    {
+        _daal_del_mutex_ptr = (_daal_del_mutex_t)load_daal_thr_func("_daal_del_mutex");
+    }
     _daal_del_mutex_ptr(mutexPtr);
 }
 
 DAAL_EXPORT void * _daal_new_task_group()
 {
     load_daal_thr_dll();
-    if (_daal_new_task_group_ptr == NULL) { _daal_new_task_group_ptr = (_daal_new_task_group_t)load_daal_thr_func("_daal_new_task_group"); }
+    if (_daal_new_task_group_ptr == NULL)
+    {
+        _daal_new_task_group_ptr = (_daal_new_task_group_t)load_daal_thr_func("_daal_new_task_group");
+    }
     return _daal_new_task_group_ptr();
 }
 
 DAAL_EXPORT void _daal_del_task_group(void * taskGroupPtr)
 {
     load_daal_thr_dll();
-    if (_daal_del_task_group_ptr == NULL) { _daal_del_task_group_ptr = (_daal_del_task_group_t)load_daal_thr_func("_daal_del_task_group"); }
+    if (_daal_del_task_group_ptr == NULL)
+    {
+        _daal_del_task_group_ptr = (_daal_del_task_group_t)load_daal_thr_func("_daal_del_task_group");
+    }
     _daal_del_task_group_ptr(taskGroupPtr);
 }
 
 DAAL_EXPORT void _daal_run_task_group(void * taskGroupPtr, daal::task * t)
 {
     load_daal_thr_dll();
-    if (_daal_run_task_group_ptr == NULL) { _daal_run_task_group_ptr = (_daal_run_task_group_t)load_daal_thr_func("_daal_run_task_group"); }
+    if (_daal_run_task_group_ptr == NULL)
+    {
+        _daal_run_task_group_ptr = (_daal_run_task_group_t)load_daal_thr_func("_daal_run_task_group");
+    }
     _daal_run_task_group_ptr(taskGroupPtr, t);
 }
 
 DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr)
 {
     load_daal_thr_dll();
-    if (_daal_wait_task_group_ptr == NULL) { _daal_wait_task_group_ptr = (_daal_wait_task_group_t)load_daal_thr_func("_daal_wait_task_group"); }
+    if (_daal_wait_task_group_ptr == NULL)
+    {
+        _daal_wait_task_group_ptr = (_daal_wait_task_group_t)load_daal_thr_func("_daal_wait_task_group");
+    }
     _daal_wait_task_group_ptr(taskGroupPtr);
 }
 
 DAAL_EXPORT bool _daal_is_in_parallel()
 {
     load_daal_thr_dll();
-    if (_daal_is_in_parallel_ptr == NULL) { _daal_is_in_parallel_ptr = (_daal_is_in_parallel_t)load_daal_thr_func("_daal_is_in_parallel"); }
+    if (_daal_is_in_parallel_ptr == NULL)
+    {
+        _daal_is_in_parallel_ptr = (_daal_is_in_parallel_t)load_daal_thr_func("_daal_is_in_parallel");
+    }
     return _daal_is_in_parallel_ptr();
 }
 
@@ -494,21 +585,29 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
 {
     load_daal_thr_dll();
     if (_daal_tbb_task_scheduler_free_ptr == NULL)
-    { _daal_tbb_task_scheduler_free_ptr = (_daal_tbb_task_scheduler_free_t)load_daal_thr_func("_daal_tbb_task_scheduler_free"); }
+    {
+        _daal_tbb_task_scheduler_free_ptr = (_daal_tbb_task_scheduler_free_t)load_daal_thr_func("_daal_tbb_task_scheduler_free");
+    }
     return _daal_tbb_task_scheduler_free_ptr(init);
 }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** init)
 {
     load_daal_thr_dll();
-    if (_setNumberOfThreads_ptr == NULL) { _setNumberOfThreads_ptr = (_setNumberOfThreads_t)load_daal_thr_func("_setNumberOfThreads"); }
+    if (_setNumberOfThreads_ptr == NULL)
+    {
+        _setNumberOfThreads_ptr = (_setNumberOfThreads_t)load_daal_thr_func("_setNumberOfThreads");
+    }
     return _setNumberOfThreads_ptr(numThreads, init);
 }
 
 DAAL_EXPORT void * _daal_threader_env()
 {
     load_daal_thr_dll();
-    if (_daal_threader_env_ptr == NULL) { _daal_threader_env_ptr = (_daal_threader_env_t)load_daal_thr_func("_daal_threader_env"); }
+    if (_daal_threader_env_ptr == NULL)
+    {
+        _daal_threader_env_ptr = (_daal_threader_env_t)load_daal_thr_func("_daal_threader_env");
+    }
     return _daal_threader_env_ptr();
 }
 
@@ -517,7 +616,9 @@ DAAL_EXPORT void _thread_pinner_thread_pinner_init()
 {
     load_daal_thr_dll();
     if (_thread_pinner_thread_pinner_init_ptr == NULL)
-    { _thread_pinner_thread_pinner_init_ptr = (_thread_pinner_thread_pinner_init_t)load_daal_thr_func("_thread_pinner_thread_pinner_init"); }
+    {
+        _thread_pinner_thread_pinner_init_ptr = (_thread_pinner_thread_pinner_init_t)load_daal_thr_func("_thread_pinner_thread_pinner_init");
+    }
     _thread_pinner_thread_pinner_init_ptr();
 }
 
@@ -525,7 +626,9 @@ DAAL_EXPORT void _thread_pinner_read_topology()
 {
     load_daal_thr_dll();
     if (_thread_pinner_read_topology_ptr == NULL)
-    { _thread_pinner_read_topology_ptr = (_thread_pinner_read_topology_t)load_daal_thr_func("_thread_pinner_read_topology"); }
+    {
+        _thread_pinner_read_topology_ptr = (_thread_pinner_read_topology_t)load_daal_thr_func("_thread_pinner_read_topology");
+    }
     _thread_pinner_read_topology_ptr();
 }
 
@@ -533,7 +636,9 @@ DAAL_EXPORT void _thread_pinner_on_scheduler_entry(bool p)
 {
     load_daal_thr_dll();
     if (_thread_pinner_on_scheduler_entry_ptr == NULL)
-    { _thread_pinner_on_scheduler_entry_ptr = (_thread_pinner_on_scheduler_entry_t)load_daal_thr_func("_thread_pinner_on_scheduler_entry"); }
+    {
+        _thread_pinner_on_scheduler_entry_ptr = (_thread_pinner_on_scheduler_entry_t)load_daal_thr_func("_thread_pinner_on_scheduler_entry");
+    }
     _thread_pinner_on_scheduler_entry_ptr(p);
 }
 
@@ -541,14 +646,19 @@ DAAL_EXPORT void _thread_pinner_on_scheduler_exit(bool p)
 {
     load_daal_thr_dll();
     if (_thread_pinner_on_scheduler_exit_ptr == NULL)
-    { _thread_pinner_on_scheduler_exit_ptr = (_thread_pinner_on_scheduler_exit_t)load_daal_thr_func("_thread_pinner_on_scheduler_exit"); }
+    {
+        _thread_pinner_on_scheduler_exit_ptr = (_thread_pinner_on_scheduler_exit_t)load_daal_thr_func("_thread_pinner_on_scheduler_exit");
+    }
     _thread_pinner_on_scheduler_exit_ptr(p);
 }
 
 DAAL_EXPORT void _thread_pinner_execute(daal::services::internal::thread_pinner_task_t & task)
 {
     load_daal_thr_dll();
-    if (_thread_pinner_execute_ptr == NULL) { _thread_pinner_execute_ptr = (_thread_pinner_execute_t)load_daal_thr_func("_thread_pinner_execute"); }
+    if (_thread_pinner_execute_ptr == NULL)
+    {
+        _thread_pinner_execute_ptr = (_thread_pinner_execute_t)load_daal_thr_func("_thread_pinner_execute");
+    }
     _thread_pinner_execute_ptr(task);
 }
 
@@ -556,7 +666,9 @@ DAAL_EXPORT int _thread_pinner_get_status()
 {
     load_daal_thr_dll();
     if (_thread_pinner_get_status_ptr == NULL)
-    { _thread_pinner_get_status_ptr = (_thread_pinner_get_status_t)load_daal_thr_func("_thread_pinner_get_status"); }
+    {
+        _thread_pinner_get_status_ptr = (_thread_pinner_get_status_t)load_daal_thr_func("_thread_pinner_get_status");
+    }
     return _thread_pinner_get_status_ptr();
 }
 
@@ -564,7 +676,9 @@ DAAL_EXPORT bool _thread_pinner_get_pinning()
 {
     load_daal_thr_dll();
     if (_thread_pinner_get_pinning_ptr == NULL)
-    { _thread_pinner_get_pinning_ptr = (_thread_pinner_get_pinning_t)load_daal_thr_func("_thread_pinner_get_pinning"); }
+    {
+        _thread_pinner_get_pinning_ptr = (_thread_pinner_get_pinning_t)load_daal_thr_func("_thread_pinner_get_pinning");
+    }
     return _thread_pinner_get_pinning_ptr();
 }
 
@@ -572,14 +686,19 @@ DAAL_EXPORT bool _thread_pinner_set_pinning(bool p)
 {
     load_daal_thr_dll();
     if (_thread_pinner_set_pinning_ptr == NULL)
-    { _thread_pinner_set_pinning_ptr = (_thread_pinner_set_pinning_t)load_daal_thr_func("_thread_pinner_set_pinning"); }
+    {
+        _thread_pinner_set_pinning_ptr = (_thread_pinner_set_pinning_t)load_daal_thr_func("_thread_pinner_set_pinning");
+    }
     return _thread_pinner_set_pinning_ptr(p);
 }
 
 DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *))
 {
     load_daal_thr_dll();
-    if (_getThreadPinner_ptr == NULL) { _getThreadPinner_ptr = (_getThreadPinner_t)load_daal_thr_func("_getThreadPinner"); }
+    if (_getThreadPinner_ptr == NULL)
+    {
+        _getThreadPinner_ptr = (_getThreadPinner_t)load_daal_thr_func("_getThreadPinner");
+    }
     return _getThreadPinner_ptr(create_pinner, read_topo, deleter);
 }
 #endif
@@ -600,7 +719,9 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
     {                                                                                                            \
         load_daal_thr_dll();                                                                                     \
         if (##fn_dpref##fn_name##_ptr == NULL)                                                                   \
-        { ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); } \
+        {                                                                                                        \
+            ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
+        }                                                                                                        \
         ##fn_dpref##fn_name##_ptr##argcall;                                                                      \
     }
 
@@ -610,7 +731,9 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
         {                                                                                                            \
             load_daal_thr_dll();                                                                                     \
             if (##fn_dpref##fn_name##_ptr == NULL)                                                                   \
-            { ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); } \
+            {                                                                                                        \
+                ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
+            }                                                                                                        \
             ##fn_dpref##fn_name##_ptr##argcall;                                                                      \
         }
 #else
@@ -633,7 +756,9 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
     {                                                                                                            \
         load_daal_thr_dll();                                                                                     \
         if (##fn_dpref##fn_name##_ptr == NULL)                                                                   \
-        { ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); } \
+        {                                                                                                        \
+            ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
+        }                                                                                                        \
         return fn_dpref##fn_name##_ptr##argcall;                                                                 \
     }
 
@@ -643,7 +768,9 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
         {                                                                                                            \
             load_daal_thr_dll();                                                                                     \
             if (##fn_dpref##fn_name##_ptr == NULL)                                                                   \
-            { ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); } \
+            {                                                                                                        \
+                ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_cpu #fn_name); \
+            }                                                                                                        \
             return fn_dpref##fn_name##_ptr##argcall;                                                                 \
         }
 #else
@@ -901,24 +1028,30 @@ CALL_VOID_FUNC_FROM_DLL(fpk_spblas_, mkl_dcsrmm, (CSRMM_ARGS(double)),
 CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_64f_I, (Ipp64f * pSrcDst, Ipp64f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
 CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_32f_I, (Ipp32f * pSrcDst, Ipp32f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
 
-#define CALL_VOID_FUNC_FROM_DLL_ALONE(fn_dpref, fn_name, argdecl, argcall)                                                                      \
-    typedef void(*##fn_dpref##fn_name##_t)##argdecl;                                                                                            \
-    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                                                                \
-    void fn_dpref##fn_name##argdecl                                                                                                             \
-    {                                                                                                                                           \
-        load_daal_thr_dll();                                                                                                                    \
-        if (##fn_dpref##fn_name##_ptr == NULL) { ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_name); } \
-        ##fn_dpref##fn_name##_ptr##argcall;                                                                                                     \
+#define CALL_VOID_FUNC_FROM_DLL_ALONE(fn_dpref, fn_name, argdecl, argcall)                               \
+    typedef void(*##fn_dpref##fn_name##_t)##argdecl;                                                     \
+    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                         \
+    void fn_dpref##fn_name##argdecl                                                                      \
+    {                                                                                                    \
+        load_daal_thr_dll();                                                                             \
+        if (##fn_dpref##fn_name##_ptr == NULL)                                                           \
+        {                                                                                                \
+            ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_name); \
+        }                                                                                                \
+        ##fn_dpref##fn_name##_ptr##argcall;                                                              \
     }
 
-#define CALL_RET_FUNC_FROM_DLL_ALONE(ret_type, fn_dpref, fn_name, argdecl, argcall)                                                             \
-    typedef ret_type(*##fn_dpref##fn_name##_t)##argdecl;                                                                                        \
-    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                                                                \
-    ret_type fn_dpref##fn_name##argdecl                                                                                                         \
-    {                                                                                                                                           \
-        load_daal_thr_dll();                                                                                                                    \
-        if (##fn_dpref##fn_name##_ptr == NULL) { ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_name); } \
-        return fn_dpref##fn_name##_ptr##argcall;                                                                                                \
+#define CALL_RET_FUNC_FROM_DLL_ALONE(ret_type, fn_dpref, fn_name, argdecl, argcall)                      \
+    typedef ret_type(*##fn_dpref##fn_name##_t)##argdecl;                                                 \
+    static fn_dpref##fn_name##_t fn_dpref##fn_name##_ptr = NULL;                                         \
+    ret_type fn_dpref##fn_name##argdecl                                                                  \
+    {                                                                                                    \
+        load_daal_thr_dll();                                                                             \
+        if (##fn_dpref##fn_name##_ptr == NULL)                                                           \
+        {                                                                                                \
+            ##fn_dpref##fn_name##_ptr = (##fn_dpref##fn_name##_t)load_daal_thr_func(#fn_dpref #fn_name); \
+        }                                                                                                \
+        return fn_dpref##fn_name##_ptr##argcall;                                                         \
     }
 
 CALL_VOID_FUNC_FROM_DLL_ALONE(fpk_serv_, set_num_threads, (int nth), (nth));

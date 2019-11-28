@@ -76,7 +76,10 @@ public:
 
         /* Iterate throughout tokens, parse every token as float and compute max value  */
         float maxFeature = context.getTokenAs<float>(0);
-        for (size_t i = 1; i < numberOfTokens; i++) { maxFeature = std::max(maxFeature, context.getTokenAs<float>(i)); }
+        for (size_t i = 1; i < numberOfTokens; i++)
+        {
+            maxFeature = std::max(maxFeature, context.getTokenAs<float>(i));
+        }
 
         /* Write max value to the output buffer, buffer size is equal to the
          * number of output features that specified in 'initialize' method */

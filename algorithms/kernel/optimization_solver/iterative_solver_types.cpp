@@ -45,7 +45,10 @@ Parameter::Parameter(const sum_of_functions::BatchPtr & function_, const size_t 
                      size_t batchSize_)
     : nIterations(nIterations_), accuracyThreshold(accuracyThreshold_), optionalResultRequired(optionalResultReq), batchSize(batchSize_)
 {
-    if (function_) { function = function_->clone(); }
+    if (function_)
+    {
+        function = function_->clone();
+    }
 }
 
 Parameter::Parameter(const Parameter & other)
@@ -54,7 +57,10 @@ Parameter::Parameter(const Parameter & other)
       optionalResultRequired(other.optionalResultRequired),
       batchSize(other.batchSize)
 {
-    if (other.function) { function = other.function->clone(); }
+    if (other.function)
+    {
+        function = other.function->clone();
+    }
 }
 
 services::Status Parameter::check() const
@@ -92,7 +98,10 @@ void Input::set(OptionalInputId id, const algorithms::OptionalArgumentPtr & ptr)
 NumericTablePtr Input::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalArgument);
-    if (pOpt.get()) { return NumericTable::cast(pOpt->get(id)); }
+    if (pOpt.get())
+    {
+        return NumericTable::cast(pOpt->get(id));
+    }
     return NumericTablePtr();
 }
 
@@ -136,7 +145,10 @@ void Result::set(OptionalResultId id, const algorithms::OptionalArgumentPtr & pt
 NumericTablePtr Result::get(OptionalDataId id) const
 {
     algorithms::OptionalArgumentPtr pOpt = get(iterative_solver::optionalResult);
-    if (pOpt.get()) { return NumericTable::cast(pOpt->get(id)); }
+    if (pOpt.get())
+    {
+        return NumericTable::cast(pOpt->get(id));
+    }
     return NumericTablePtr();
 }
 

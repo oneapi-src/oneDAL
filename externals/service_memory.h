@@ -39,12 +39,18 @@ template <typename T, CpuType cpu>
 T * service_calloc(size_t size, size_t alignment = 64)
 {
     T * ptr = (T *)daal::services::daal_malloc(size * sizeof(T), alignment);
-    if (ptr == NULL) { return NULL; }
+    if (ptr == NULL)
+    {
+        return NULL;
+    }
 
     char * cptr        = (char *)ptr;
     size_t sizeInBytes = size * sizeof(T);
 
-    for (size_t i = 0; i < sizeInBytes; i++) { cptr[i] = '\0'; }
+    for (size_t i = 0; i < sizeInBytes; i++)
+    {
+        cptr[i] = '\0';
+    }
 
     return ptr;
 }
@@ -53,7 +59,10 @@ template <typename T, CpuType cpu>
 T * service_malloc(size_t size, size_t alignment = 64)
 {
     T * ptr = (T *)daal::services::daal_malloc(size * sizeof(T), alignment);
-    if (ptr == NULL) { return NULL; }
+    if (ptr == NULL)
+    {
+        return NULL;
+    }
     return ptr;
 }
 
@@ -69,12 +78,18 @@ T * service_scalable_calloc(size_t size, size_t alignment = 64)
 {
     T * ptr = (T *)threaded_scalable_malloc(size * sizeof(T), alignment);
 
-    if (ptr == NULL) { return NULL; }
+    if (ptr == NULL)
+    {
+        return NULL;
+    }
 
     char * cptr        = (char *)ptr;
     size_t sizeInBytes = size * sizeof(T);
 
-    for (size_t i = 0; i < sizeInBytes; i++) { cptr[i] = '\0'; }
+    for (size_t i = 0; i < sizeInBytes; i++)
+    {
+        cptr[i] = '\0';
+    }
 
     return ptr;
 }
@@ -83,7 +98,10 @@ template <typename T, CpuType cpu>
 T * service_scalable_malloc(size_t size, size_t alignment = 64)
 {
     T * ptr = (T *)threaded_scalable_malloc(size * sizeof(T), alignment);
-    if (ptr == NULL) { return NULL; }
+    if (ptr == NULL)
+    {
+        return NULL;
+    }
     return ptr;
 }
 
@@ -99,15 +117,24 @@ T * service_memset(T * const ptr, const T value, const size_t num)
 {
     const size_t blockSize = 512;
     size_t nBlocks         = num / blockSize;
-    if (nBlocks * blockSize < num) { nBlocks++; }
+    if (nBlocks * blockSize < num)
+    {
+        nBlocks++;
+    }
 
     threader_for(nBlocks, nBlocks, [&](size_t block) {
         size_t end = (block + 1) * blockSize;
-        if (end > num) { end = num; }
+        if (end > num)
+        {
+            end = num;
+        }
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = block * blockSize; i < end; i++) { ptr[i] = value; }
+        for (size_t i = block * blockSize; i < end; i++)
+        {
+            ptr[i] = value;
+        }
     });
     return ptr;
 }
@@ -117,7 +144,10 @@ void service_memset_seq(T * const ptr, const T value, const size_t num)
 {
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < num; i++) { ptr[i] = value; }
+    for (size_t i = 0; i < num; i++)
+    {
+        ptr[i] = value;
+    }
 }
 
 } // namespace internal

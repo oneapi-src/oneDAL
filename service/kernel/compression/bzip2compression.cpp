@@ -96,8 +96,14 @@ Compressor<bzip2>::Compressor() : data_management::CompressorImpl()
     _flush                         = BZ_RUN;
 
     _blockSize100k = parameter.level;
-    if (_blockSize100k == defaultLevel) { _blockSize100k = level9; }
-    if (_blockSize100k == level0) { _blockSize100k = level1; }
+    if (_blockSize100k == defaultLevel)
+    {
+        _blockSize100k = level9;
+    }
+    if (_blockSize100k == level0)
+    {
+        _blockSize100k = level1;
+    }
 
     int errCode = CompressInit((bz_stream *)_strmp, _blockSize100k, 0, 0);
     checkBZipError(errCode);
@@ -120,8 +126,14 @@ Compressor<bzip2>::Compressor() : data_management::CompressorImpl()
 void Compressor<bzip2>::initialize()
 {
     _blockSize100k = parameter.level;
-    if (_blockSize100k == defaultLevel) { _blockSize100k = level9; }
-    if (_blockSize100k == level0) { _blockSize100k = level1; }
+    if (_blockSize100k == defaultLevel)
+    {
+        _blockSize100k = level9;
+    }
+    if (_blockSize100k == level0)
+    {
+        _blockSize100k = level1;
+    }
     resetCompression();
     _isInitialized = true;
 }
@@ -167,9 +179,15 @@ void Compressor<bzip2>::resetCompression()
 
 void Compressor<bzip2>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if (this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0)
+    {
+        return;
+    }
 
-    if (_isInitialized == false) { initialize(); }
+    if (_isInitialized == false)
+    {
+        initialize();
+    }
 
     checkInputParams(in, len);
     if (this->_errors->size() != 0)
@@ -188,7 +206,10 @@ void Compressor<bzip2>::setInputDataBlock(byte * in, size_t len, size_t off)
 
 void Compressor<bzip2>::run(byte * out, size_t outLen, size_t off)
 {
-    if (_isInitialized == false) { this->_errors->add(services::ErrorBzip2Internal); }
+    if (_isInitialized == false)
+    {
+        this->_errors->add(services::ErrorBzip2Internal);
+    }
 
     checkOutputParams(out, outLen);
     if (this->_errors->size() != 0)
@@ -218,7 +239,10 @@ void Compressor<bzip2>::run(byte * out, size_t outLen, size_t off)
                 size_t processedSize = _comprLenLeft > _comprBlockThres ? _comprBlockThres : _comprLenLeft;
                 _comprLenLeft -= processedSize;
 
-                if (_comprLenLeft /*((bz_stream *)_strmp)->avail_in*/ == 0) { _flush = BZ_FINISH; }
+                if (_comprLenLeft /*((bz_stream *)_strmp)->avail_in*/ == 0)
+                {
+                    _flush = BZ_FINISH;
+                }
                 else
                 {
                     size_t sizeToCompress           = _comprLenLeft > _comprBlockThres ? _comprBlockThres : _comprLenLeft;
@@ -264,7 +288,10 @@ void Compressor<bzip2>::run(byte * out, size_t outLen, size_t off)
             switch (errCode)
             {
             case BZ_RUN_OK:
-                if (((bz_stream *)_strmp)->avail_in == 0) { _flush = BZ_FINISH; }
+                if (((bz_stream *)_strmp)->avail_in == 0)
+                {
+                    _flush = BZ_FINISH;
+                }
                 break;
             case BZ_STREAM_END: //normal termination, reset and return
                 this->_usedOutBlockSize = outLen - ((bz_stream *)_strmp)->avail_out;
@@ -291,7 +318,10 @@ Decompressor<bzip2>::Decompressor() : data_management::DecompressorImpl()
 {
     _strmp = NULL;
     _strmp = (void *)daal::services::daal_calloc(sizeof(bz_stream));
-    if (_strmp == NULL) { this->_errors->add(services::ErrorMemoryAllocationFailed); }
+    if (_strmp == NULL)
+    {
+        this->_errors->add(services::ErrorMemoryAllocationFailed);
+    }
 
     ((bz_stream *)_strmp)->bzalloc = NULL;
     ((bz_stream *)_strmp)->bzfree  = NULL;
@@ -352,7 +382,10 @@ void Decompressor<bzip2>::initialize()
 
 void Decompressor<bzip2>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if (this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0)
+    {
+        return;
+    }
 
     checkInputParams(in, len);
     if (this->_errors->size() != 0)
@@ -406,7 +439,10 @@ void Decompressor<bzip2>::run(byte * out, size_t outLen, size_t off)
         case BZ_OK: //need more output or input
             this->_usedOutBlockSize = outLen - ((bz_stream *)_strmp)->avail_out;
             this->_isOutBlockFull   = 0;
-            if (((bz_stream *)_strmp)->avail_out < 1) { this->_isOutBlockFull = 1; }
+            if (((bz_stream *)_strmp)->avail_out < 1)
+            {
+                this->_isOutBlockFull = 1;
+            }
             return;
         case BZ_DATA_ERROR:
         case BZ_DATA_ERROR_MAGIC: finalizeCompression(); this->_errors->add(services::ErrorBzip2DataFormat);

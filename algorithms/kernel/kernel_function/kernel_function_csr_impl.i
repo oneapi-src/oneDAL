@@ -127,7 +127,10 @@ double KernelCSRImplBase<double, avx512_mic>::computeDotProduct(const size_t sta
             {
                 offsetA += 8;
                 offsetB += 8;
-                if (offsetA + 8 > endIndexA || offsetB + 8 > endIndexB) { break; }
+                if (offsetA + 8 > endIndexA || offsetB + 8 > endIndexB)
+                {
+                    break;
+                }
                 iA   = _mm256_i32gather_epi32((const int *)(indicesA + offsetA), idx, 4);
                 iB   = _mm256_i32gather_epi32((const int *)(indicesB + offsetB), idx, 4);
                 valA = _mm512_loadu_pd(valuesA + offsetA);
@@ -136,14 +139,20 @@ double KernelCSRImplBase<double, avx512_mic>::computeDotProduct(const size_t sta
             else if (a7 > b7)
             {
                 offsetB += 8;
-                if (offsetB + 8 > endIndexB) { break; }
+                if (offsetB + 8 > endIndexB)
+                {
+                    break;
+                }
                 iB   = _mm256_i32gather_epi32((const int *)(indicesB + offsetB), idx, 4);
                 valB = _mm512_loadu_pd(valuesB + offsetB);
             }
             else // (a7 < b7)
             {
                 offsetA += 8;
-                if (offsetA + 8 > endIndexA) { break; }
+                if (offsetA + 8 > endIndexA)
+                {
+                    break;
+                }
                 iA   = _mm256_i32gather_epi32((const int *)(indicesA + offsetA), idx, 4);
                 valA = _mm512_loadu_pd(valuesA + offsetA);
             }
@@ -154,7 +163,10 @@ double KernelCSRImplBase<double, avx512_mic>::computeDotProduct(const size_t sta
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (int i = 0; i < 8; i++) { sum += partialSum[i]; }
+        for (int i = 0; i < 8; i++)
+        {
+            sum += partialSum[i];
+        }
     }
 
     /* Process tail elements in scalar loop */
@@ -206,7 +218,10 @@ float KernelCSRImplBase<float, avx512_mic>::computeDotProduct(const size_t start
             {
                 offsetA += 8;
                 offsetB += 8;
-                if (offsetA + 8 > endIndexA || offsetB + 8 > endIndexB) { break; }
+                if (offsetA + 8 > endIndexA || offsetB + 8 > endIndexB)
+                {
+                    break;
+                }
                 iA = _mm256_i32gather_epi32((const int *)(indicesA + offsetA), idx, 4);
                 iB = _mm256_i32gather_epi32((const int *)(indicesB + offsetB), idx, 4);
 
@@ -218,7 +233,10 @@ float KernelCSRImplBase<float, avx512_mic>::computeDotProduct(const size_t start
             else if (a7 > b7)
             {
                 offsetB += 8;
-                if (offsetB + 8 > endIndexB) { break; }
+                if (offsetB + 8 > endIndexB)
+                {
+                    break;
+                }
                 iB = _mm256_i32gather_epi32((const int *)(indicesB + offsetB), idx, 4);
 
                 valFloatB = _mm256_loadu_ps(valuesB + offsetB);
@@ -227,7 +245,10 @@ float KernelCSRImplBase<float, avx512_mic>::computeDotProduct(const size_t start
             else // (a7 < b7)
             {
                 offsetA += 8;
-                if (offsetA + 8 > endIndexA) { break; }
+                if (offsetA + 8 > endIndexA)
+                {
+                    break;
+                }
                 iA = _mm256_i32gather_epi32((const int *)(indicesA + offsetA), idx, 4);
 
                 valFloatA = _mm256_loadu_ps(valuesA + offsetA);
@@ -240,7 +261,10 @@ float KernelCSRImplBase<float, avx512_mic>::computeDotProduct(const size_t start
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (int i = 0; i < 8; i++) { sum += partialSum[i]; }
+        for (int i = 0; i < 8; i++)
+        {
+            sum += partialSum[i];
+        }
     }
 
     /* Process tail elements in scalar loop */
@@ -300,7 +324,10 @@ double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t startIn
             {
                 offsetA += 8;
                 offsetB += 8;
-                if (offsetA + 8 > endIndexA || offsetB + 8 > endIndexB) { break; }
+                if (offsetA + 8 > endIndexA || offsetB + 8 > endIndexB)
+                {
+                    break;
+                }
                 tmpA = _mm512_loadu_si512((__m512i *)(indicesA + offsetA));
                 tmpB = _mm512_loadu_si512((__m512i *)(indicesB + offsetB));
                 idxA = _mm512_permutexvar_epi32(idx, tmpA);
@@ -314,7 +341,10 @@ double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t startIn
             else if (a7 > b7)
             {
                 offsetB += 8;
-                if (offsetB + 8 > endIndexB) { break; }
+                if (offsetB + 8 > endIndexB)
+                {
+                    break;
+                }
                 tmpB = _mm512_loadu_si512((__m512i *)(indicesB + offsetB));
                 idxB = _mm512_permutexvar_epi32(idx, tmpB);
                 iB   = _mm512_extracti64x4_epi64(idxB, 0);
@@ -324,7 +354,10 @@ double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t startIn
             else // (a7 < b7)
             {
                 offsetA += 8;
-                if (offsetA + 8 > endIndexA) { break; }
+                if (offsetA + 8 > endIndexA)
+                {
+                    break;
+                }
                 tmpA = _mm512_loadu_si512((__m512i *)(indicesA + offsetA));
                 idxA = _mm512_permutexvar_epi32(idx, tmpA);
                 iA   = _mm512_extracti64x4_epi64(idxA, 0);
@@ -338,7 +371,10 @@ double KernelCSRImplBase<double, avx512>::computeDotProduct(const size_t startIn
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (int i = 0; i < 8; i++) { sum += partialSum[i]; }
+        for (int i = 0; i < 8; i++)
+        {
+            sum += partialSum[i];
+        }
     }
 
     /* Process tail elements in scalar loop */
@@ -395,7 +431,10 @@ float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t startInde
             {
                 offsetA += 8;
                 offsetB += 8;
-                if (offsetA + 8 > endIndexA || offsetB + 8 > endIndexB) { break; }
+                if (offsetA + 8 > endIndexA || offsetB + 8 > endIndexB)
+                {
+                    break;
+                }
                 tmpA = _mm512_loadu_si512((__m512i *)(indicesA + offsetA));
                 tmpB = _mm512_loadu_si512((__m512i *)(indicesB + offsetB));
                 idxA = _mm512_permutexvar_epi32(idx, tmpA);
@@ -411,7 +450,10 @@ float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t startInde
             else if (a7 > b7)
             {
                 offsetB += 8;
-                if (offsetB + 8 > endIndexB) { break; }
+                if (offsetB + 8 > endIndexB)
+                {
+                    break;
+                }
                 tmpB = _mm512_loadu_si512((__m512i *)(indicesB + offsetB));
                 idxB = _mm512_permutexvar_epi32(idx, tmpB);
                 iB   = _mm512_extracti64x4_epi64(idxB, 0);
@@ -422,7 +464,10 @@ float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t startInde
             else // (a7 < b7)
             {
                 offsetA += 8;
-                if (offsetA + 8 > endIndexA) { break; }
+                if (offsetA + 8 > endIndexA)
+                {
+                    break;
+                }
                 tmpA = _mm512_loadu_si512((__m512i *)(indicesA + offsetA));
                 idxA = _mm512_permutexvar_epi32(idx, tmpA);
                 iA   = _mm512_extracti64x4_epi64(idxA, 0);
@@ -437,7 +482,10 @@ float KernelCSRImplBase<float, avx512>::computeDotProduct(const size_t startInde
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (int i = 0; i < 8; i++) { sum += partialSum[i]; }
+        for (int i = 0; i < 8; i++)
+        {
+            sum += partialSum[i];
+        }
     }
 
     /* Process tail elements in scalar loop */

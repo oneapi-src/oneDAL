@@ -86,13 +86,19 @@ inline void printNumericTable(const daal::data_management::NumericTablePtr & dat
     size_t nRows = dataTable->getNumberOfRows();
     size_t nCols = dataTable->getNumberOfColumns();
 
-    if (nPrintedRows != 0) { nPrintedRows = (std::min)(nRows, nPrintedRows); }
+    if (nPrintedRows != 0)
+    {
+        nPrintedRows = (std::min)(nRows, nPrintedRows);
+    }
     else
     {
         nPrintedRows = nRows;
     }
 
-    if (nPrintedCols != 0) { nPrintedCols = (std::min)(nCols, nPrintedCols); }
+    if (nPrintedCols != 0)
+    {
+        nPrintedCols = (std::min)(nCols, nPrintedCols);
+    }
     else
     {
         nPrintedCols = nCols;

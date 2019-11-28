@@ -56,7 +56,10 @@ services::Status PCASVDStep2MasterKernel<algorithmFPType, cpu>::finalizeMerge(In
             services::staticPointerCast<PartialResult<svdDense>, SerializationIface>(inputPartialResults->get(i));
 
         size_t nBlocks = partialRes->get(pca::auxiliaryData)->size();
-        for (size_t j = 0; j < nBlocks; j++) { rTables.push_back(partialRes->get(pca::auxiliaryData, j)); }
+        for (size_t j = 0; j < nBlocks; j++)
+        {
+            rTables.push_back(partialRes->get(pca::auxiliaryData, j));
+        }
 
         NumericTable * nCurrentObservationsTable = partialRes->get(pca::nObservationsSVD).get();
         nObservations += nCurrentObservationsTable->getValue<int>(0, 0);

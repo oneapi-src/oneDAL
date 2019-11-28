@@ -46,7 +46,10 @@ ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const ridg
     : super(featnum, nrhs, par, dummy)
 {
     size_t dimWithoutBeta = getNumberOfBetas();
-    if (!_interceptFlag) { dimWithoutBeta--; }
+    if (!_interceptFlag)
+    {
+        dimWithoutBeta--;
+    }
 
     _xtxTable = HomogenNumericTable<modelFPType>::create(dimWithoutBeta, dimWithoutBeta, NumericTable::doAllocate, 0, &st);
     if (!st) return;

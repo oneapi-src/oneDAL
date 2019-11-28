@@ -127,7 +127,10 @@ public:
             tls.jniEnv->ThrowNew(tls.jniEnv->FindClass("java/lang/Exception"), err.c_str());
         }
 
-        if (!tls.is_main_thread) { status = jvm->DetachCurrentThread(); }
+        if (!tls.is_main_thread)
+        {
+            status = jvm->DetachCurrentThread();
+        }
         _tls.local() = tls;
     }
 
@@ -189,7 +192,10 @@ protected:
         className[0] = 'L';
         for (size_t i = 0; i < stringLength + 1; i++)
         {
-            if (className[i] == '.') { className[i] = '/'; }
+            if (className[i] == '.')
+            {
+                className[i] = '/';
+            }
         }
         className[stringLength + 1] = ';';
         className[stringLength + 2] = '\0';

@@ -71,7 +71,10 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     size_t nRowsPerBlock = nRows;
 
     size_t nBlocks = nRows / nRowsPerBlock;
-    if (nBlocks * nRowsPerBlock < nRows) { ++nBlocks; }
+    if (nBlocks * nRowsPerBlock < nRows)
+    {
+        ++nBlocks;
+    }
 
     services::Buffer<algorithmFPType> sumXBuf;
     services::Buffer<algorithmFPType> sumYBuf;
@@ -105,7 +108,10 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     {
         const size_t startRow = blockIdx * nRowsPerBlock;
         size_t endRow         = startRow + nRowsPerBlock;
-        if (endRow > nRows) { endRow = nRows; };
+        if (endRow > nRows)
+        {
+            endRow = nRows;
+        };
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;

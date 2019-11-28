@@ -47,7 +47,10 @@ public:
           leftValue(0),
           rightValue(0)
     {
-        if (nClasses == 2) { changeZeroToMinusOne = true; }
+        if (nClasses == 2)
+        {
+            changeZeroToMinusOne = true;
+        }
     }
 
     virtual bool onLeafNode(const tree_utils::classification::LeafNodeDescriptor & desc)
@@ -60,8 +63,14 @@ public:
         rightValue = desc.label;
         if (changeZeroToMinusOne)
         {
-            if (rightValue == 0) { rightValue = -1; }
-            if (leftValue == 0) { leftValue = -1; }
+            if (rightValue == 0)
+            {
+                rightValue = -1;
+            }
+            if (leftValue == 0)
+            {
+                leftValue = -1;
+            }
         }
         return true;
     }

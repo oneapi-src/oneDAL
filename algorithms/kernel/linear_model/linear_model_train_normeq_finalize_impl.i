@@ -114,7 +114,10 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable & xtxTab
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 1; j < nBetas; j++) { beta[i * nBetas + j] = betaBuffer[i * nBetas + j - 1]; }
+            for (size_t j = 1; j < nBetas; j++)
+            {
+                beta[i * nBetas + j] = betaBuffer[i * nBetas + j - 1];
+            }
             beta[i * nBetas] = betaBuffer[i * nBetas + nBetas - 1];
         }
     }
@@ -124,7 +127,10 @@ Status FinalizeKernel<algorithmFPType, cpu>::compute(const NumericTable & xtxTab
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < nBetas - 1; j++) { beta[i * nBetas + j + 1] = betaBuffer[i * nBetasIntercept + j]; }
+            for (size_t j = 0; j < nBetas - 1; j++)
+            {
+                beta[i * nBetas + j + 1] = betaBuffer[i * nBetasIntercept + j];
+            }
             beta[i * nBetas] = 0.0;
         }
     }
@@ -155,8 +161,14 @@ Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFP
         /* Perform L*L' decomposition of X'*X */
         Lapack<algorithmFPType, cpu>::xpotrf(&up, &p, a, &p, &info);
     }
-    if (info < 0) { return Status(internalError); }
-    if (info > 0) { return Status(ErrorNormEqSystemSolutionFailed); }
+    if (info < 0)
+    {
+        return Status(internalError);
+    }
+    if (info > 0)
+    {
+        return Status(ErrorNormEqSystemSolutionFailed);
+    }
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrs);

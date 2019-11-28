@@ -174,8 +174,14 @@ void DistributedInput<step2Master>::add(MasterInputId id, const DistributedParti
 {
     data_management::DataCollectionPtr collection =
         services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!partialResult) { return; }
+    if (!collection)
+    {
+        return;
+    }
+    if (!partialResult)
+    {
+        return;
+    }
     collection->push_back(partialResult->get(training::outputOfStep1ForStep2));
 }
 

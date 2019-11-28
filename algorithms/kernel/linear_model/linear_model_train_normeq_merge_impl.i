@@ -44,10 +44,16 @@ using namespace daal::services::internal;
 template <CpuType cpu, typename F>
 void conditional_threader_for(bool condition, size_t n, size_t threadsRequest, const F & processIteration)
 {
-    if (condition) { daal::threader_for(n, threadsRequest, processIteration); }
+    if (condition)
+    {
+        daal::threader_for(n, threadsRequest, processIteration);
+    }
     else
     {
-        for (size_t i = 0; i < n; i++) { processIteration(i); }
+        for (size_t i = 0; i < n; i++)
+        {
+            processIteration(i);
+        }
     }
 }
 

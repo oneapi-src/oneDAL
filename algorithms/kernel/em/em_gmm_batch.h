@@ -58,7 +58,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     for (size_t i = 0; i < nComponents; i++)
     {
         if (algParameter->covarianceStorage == diagonal)
-        { covarianceCollection->push_back(HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, 0, &status)); }
+        {
+            covarianceCollection->push_back(HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, 0, &status));
+        }
         else
         {
             covarianceCollection->push_back(HomogenNumericTable<algorithmFPType>::create(nFeatures, nFeatures, NumericTable::doAllocate, 0, &status));

@@ -217,7 +217,10 @@ public:
         const size_t elementsToCopy = services::internal::minValue(buffer.size(), getNumberOfFeatures());
         for (size_t i = 0; i < elementsToCopy; i++)
         {
-            if (_actualDataSizes[i] == SQL_NULL_DATA) { targetBuffer[i] = DAAL_DATA_TYPE(0.0); }
+            if (_actualDataSizes[i] == SQL_NULL_DATA)
+            {
+                targetBuffer[i] = DAAL_DATA_TYPE(0.0);
+            }
             else
             {
                 targetBuffer[i] = *((DAAL_DATA_TYPE *)rawFetchBuffer);

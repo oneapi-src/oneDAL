@@ -81,7 +81,10 @@ int computeFinishedFlag();
 
 int main(int argc, char * argv[])
 {
-    for (size_t i = 0; i < nBlocks; i++) { readData(i); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        readData(i);
+    }
 
     geometricPartitioning();
 
@@ -120,7 +123,10 @@ void geometricPartitioning()
             const size_t endBlock   = coms[comId].second;
             const size_t curNBlocks = endBlock - beginBlock;
 
-            if (curNBlocks == 1) { continue; }
+            if (curNBlocks == 1)
+            {
+                continue;
+            }
 
             for (size_t block = 0; block < curNBlocks; block++)
             {
@@ -138,7 +144,9 @@ void geometricPartitioning()
                 NumericTablePtr curBoundingBox = step2.getPartialResult()->get(dbscan::boundingBox);
 
                 for (size_t destBlock = 0; destBlock < curNBlocks; destBlock++)
-                { partialBoundingBoxes[destBlock + beginBlock]->push_back(curBoundingBox); }
+                {
+                    partialBoundingBoxes[destBlock + beginBlock]->push_back(curBoundingBox);
+                }
             }
 
             const size_t leftBlocks  = curNBlocks / 2;
@@ -152,7 +160,10 @@ void geometricPartitioning()
                 step3.compute();
                 NumericTablePtr curSplit = step3.getPartialResult()->get(dbscan::split);
 
-                for (size_t destBlock = 0; destBlock < curNBlocks; destBlock++) { partialSplits[destBlock + beginBlock]->push_back(curSplit); }
+                for (size_t destBlock = 0; destBlock < curNBlocks; destBlock++)
+                {
+                    partialSplits[destBlock + beginBlock]->push_back(curSplit);
+                }
             }
 
             for (size_t block = 0; block < curNBlocks; block++)
@@ -204,7 +215,10 @@ void clustering()
         step2.compute();
         NumericTablePtr curBoundingBox = step2.getPartialResult()->get(dbscan::boundingBox);
 
-        for (size_t destBlock = 0; destBlock < nBlocks; destBlock++) { partialBoundingBoxes[destBlock]->push_back(curBoundingBox); }
+        for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
+        {
+            partialBoundingBoxes[destBlock]->push_back(curBoundingBox);
+        }
     }
 
     for (size_t block = 0; block < nBlocks; block++)
@@ -229,7 +243,10 @@ void clustering()
         }
     }
 
-    for (size_t block = 0; block < nBlocks; block++) { queries[block] = DataCollectionPtr(new DataCollection()); }
+    for (size_t block = 0; block < nBlocks; block++)
+    {
+        queries[block] = DataCollectionPtr(new DataCollection());
+    }
 
     for (size_t block = 0; block < nBlocks; block++)
     {
@@ -250,13 +267,19 @@ void clustering()
         for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
         {
             NumericTablePtr table = services::staticPointerCast<NumericTable, SerializationIface>((*curQueries)[destBlock]);
-            if (table->getNumberOfRows() > 0) { queries[destBlock]->push_back(table); }
+            if (table->getNumberOfRows() > 0)
+            {
+                queries[destBlock]->push_back(table);
+            }
         }
     }
 
     while (computeFinishedFlag() == 0)
     {
-        for (size_t block = 0; block < nBlocks; block++) { newQueries[block] = DataCollectionPtr(new DataCollection()); }
+        for (size_t block = 0; block < nBlocks; block++)
+        {
+            newQueries[block] = DataCollectionPtr(new DataCollection());
+        }
 
         for (size_t block = 0; block < nBlocks; block++)
         {
@@ -275,16 +298,25 @@ void clustering()
             for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
             {
                 NumericTablePtr table = services::staticPointerCast<NumericTable, SerializationIface>((*curQueries)[destBlock]);
-                if (table->getNumberOfRows() > 0) { newQueries[destBlock]->push_back(table); }
+                if (table->getNumberOfRows() > 0)
+                {
+                    newQueries[destBlock]->push_back(table);
+                }
             }
         }
 
-        for (size_t block = 0; block < nBlocks; block++) { queries[block] = newQueries[block]; }
+        for (size_t block = 0; block < nBlocks; block++)
+        {
+            queries[block] = newQueries[block];
+        }
     }
 
     {
         DataCollectionPtr partialNClusters(new DataCollection());
-        for (size_t block = 0; block < nBlocks; block++) { partialNClusters->push_back(nClusters[block]); }
+        for (size_t block = 0; block < nBlocks; block++)
+        {
+            partialNClusters->push_back(nClusters[block]);
+        }
 
         dbscan::Distributed<step9Master, algorithmFPType, dbscan::defaultDense> step9;
         step9.input.set(dbscan::partialNClusters, partialNClusters);
@@ -296,10 +328,15 @@ void clustering()
         DataCollectionPtr curClusterOffsets = step9.getPartialResult()->get(dbscan::clusterOffsets);
 
         for (size_t block = 0; block < nBlocks; block++)
-        { clusterOffset[block] = services::staticPointerCast<NumericTable, SerializationIface>((*curClusterOffsets)[block]); }
+        {
+            clusterOffset[block] = services::staticPointerCast<NumericTable, SerializationIface>((*curClusterOffsets)[block]);
+        }
     }
 
-    for (size_t block = 0; block < nBlocks; block++) { queries[block] = DataCollectionPtr(new DataCollection()); }
+    for (size_t block = 0; block < nBlocks; block++)
+    {
+        queries[block] = DataCollectionPtr(new DataCollection());
+    }
 
     for (size_t block = 0; block < nBlocks; block++)
     {
@@ -316,13 +353,19 @@ void clustering()
         for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
         {
             NumericTablePtr table = services::staticPointerCast<NumericTable, SerializationIface>((*curQueries)[destBlock]);
-            if (table->getNumberOfRows() > 0) { queries[destBlock]->push_back(table); }
+            if (table->getNumberOfRows() > 0)
+            {
+                queries[destBlock]->push_back(table);
+            }
         }
     }
 
     while (computeFinishedFlag() == 0)
     {
-        for (size_t block = 0; block < nBlocks; block++) { newQueries[block] = DataCollectionPtr(new DataCollection()); }
+        for (size_t block = 0; block < nBlocks; block++)
+        {
+            newQueries[block] = DataCollectionPtr(new DataCollection());
+        }
 
         for (size_t block = 0; block < nBlocks; block++)
         {
@@ -339,14 +382,23 @@ void clustering()
             for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
             {
                 NumericTablePtr table = services::staticPointerCast<NumericTable, SerializationIface>((*curQueries)[destBlock]);
-                if (table->getNumberOfRows() > 0) { newQueries[destBlock]->push_back(table); }
+                if (table->getNumberOfRows() > 0)
+                {
+                    newQueries[destBlock]->push_back(table);
+                }
             }
         }
 
-        for (size_t block = 0; block < nBlocks; block++) { queries[block] = newQueries[block]; }
+        for (size_t block = 0; block < nBlocks; block++)
+        {
+            queries[block] = newQueries[block];
+        }
     }
 
-    for (size_t block = 0; block < nBlocks; block++) { assignmentQueries[block] = DataCollectionPtr(new DataCollection()); }
+    for (size_t block = 0; block < nBlocks; block++)
+    {
+        assignmentQueries[block] = DataCollectionPtr(new DataCollection());
+    }
 
     for (size_t block = 0; block < nBlocks; block++)
     {
@@ -360,7 +412,10 @@ void clustering()
         for (size_t destBlock = 0; destBlock < nBlocks; destBlock++)
         {
             NumericTablePtr table = services::staticPointerCast<NumericTable, SerializationIface>((*curAssignmentQueries)[destBlock]);
-            if (table->getNumberOfRows() > 0) { assignmentQueries[destBlock]->push_back(table); }
+            if (table->getNumberOfRows() > 0)
+            {
+                assignmentQueries[destBlock]->push_back(table);
+            }
         }
     }
 
@@ -379,7 +434,10 @@ int computeFinishedFlag()
 {
     DataCollectionPtr partialFinishedFlags(new DataCollection());
 
-    for (size_t block = 0; block < nBlocks; block++) { partialFinishedFlags->push_back(finishedFlag[block]); }
+    for (size_t block = 0; block < nBlocks; block++)
+    {
+        partialFinishedFlags->push_back(finishedFlag[block]);
+    }
 
     dbscan::Distributed<step7Master, algorithmFPType, dbscan::defaultDense> step7;
     step7.input.set(dbscan::partialFinishedFlags, partialFinishedFlags);
@@ -405,5 +463,7 @@ void printResults()
 {
     printNumericTable(totalNClusters, "Number of clusters:");
     for (size_t block = 0; block < nBlocks; block++)
-    { printNumericTable(assignments[block], "Assignments of first 20 observations from block:", 20); }
+    {
+        printNumericTable(assignments[block], "Assignments of first 20 observations from block:", 20);
+    }
 }

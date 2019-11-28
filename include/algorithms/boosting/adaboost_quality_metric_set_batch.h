@@ -68,7 +68,10 @@ public:
     DAAL_DEPRECATED Batch(bool useDefaultMetrics = true) : algorithms::quality_metric_set::Batch(useDefaultMetrics)
     {
         _inputData = interface1::InputDataCollectionPtr(new interface1::InputDataCollection());
-        if (_useDefaultMetrics) { initializeQualityMetrics(); }
+        if (_useDefaultMetrics)
+        {
+            initializeQualityMetrics();
+        }
         _resultCollection = interface1::ResultCollectionPtr(new interface1::ResultCollection());
     }
 
@@ -134,7 +137,10 @@ public:
     Batch(size_t nClasses = 2, bool useDefaultMetrics = true) : algorithms::quality_metric_set::Batch(useDefaultMetrics), parameter(nClasses)
     {
         _inputData = InputDataCollectionPtr(new InputDataCollection());
-        if (_useDefaultMetrics) { initializeQualityMetrics(); }
+        if (_useDefaultMetrics)
+        {
+            initializeQualityMetrics();
+        }
         _resultCollection = ResultCollectionPtr(new ResultCollection());
     }
 

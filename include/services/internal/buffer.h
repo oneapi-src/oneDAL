@@ -63,14 +63,23 @@ public:
 
     services::Status reallocate(size_t size, bool copy = false)
     {
-        if (_size == size) { return services::Status(); }
+        if (_size == size)
+        {
+            return services::Status();
+        }
 
         T * buffer = (T *)services::daal_calloc(sizeof(T) * size);
-        if (!buffer) { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
+        if (!buffer)
+        {
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+        }
 
         if (copy)
         {
-            for (size_t i = 0; i < _size; i++) { _buffer[i] = buffer[i]; }
+            for (size_t i = 0; i < _size; i++)
+            {
+                _buffer[i] = buffer[i];
+            }
         }
 
         destroy();

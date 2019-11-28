@@ -47,7 +47,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_traini
                                                                                                             jlong resAddr, jint id)
 {
     if (id == ModelId)
-    { return jniArgument<linear_regression::training::Result>::get<linear_regression::training::ResultId, linear_regression::Model>(resAddr, id); }
+    {
+        return jniArgument<linear_regression::training::Result>::get<linear_regression::training::ResultId, linear_regression::Model>(resAddr, id);
+    }
 
     return (jlong)0;
 }

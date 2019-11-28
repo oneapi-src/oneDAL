@@ -201,8 +201,13 @@ public:
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
             for (size_t i = 0u; i < dim; i++)
-            { dist2 += (pData[iRow * dim + i] - pLastAddedCenter[i]) * (pData[iRow * dim + i] - pLastAddedCenter[i]); }
-            if (aWeights) { dist2 *= aWeights[iRow]; }
+            {
+                dist2 += (pData[iRow * dim + i] - pLastAddedCenter[i]) * (pData[iRow * dim + i] - pLastAddedCenter[i]);
+            }
+            if (aWeights)
+            {
+                dist2 *= aWeights[iRow];
+            }
 
             pDistSq[iRow] = daal::services::internal::min<cpu, algorithmFPType>(pDistSqBest[iRow], dist2);
             sumOfDist2 += pDistSq[iRow];
@@ -295,7 +300,10 @@ public:
             {
                 dist2 += (pData[csrCursor] - pLastAddedCenter[colIdx[csrCursor] - 1]) * (pData[csrCursor] - pLastAddedCenter[colIdx[csrCursor] - 1]);
             }
-            if (aWeights) { dist2 *= aWeights[iRow]; }
+            if (aWeights)
+            {
+                dist2 *= aWeights[iRow];
+            }
 
             pDistSq[iRow] = daal::services::internal::min<cpu, algorithmFPType>(pDistSqBest[iRow], dist2);
             sumOfDist2 += pDistSq[iRow];
@@ -548,7 +556,9 @@ size_t TaskPlusPlusBatchBase<algorithmFPType, cpu, DataHelper>::calcFirstCenter(
     const algorithmFPType prob = this->_aProbability[0];
     size_t iRow                = prob * _data.nRows;
     if (iRow == _data.nRows) //round-off error
-    { --iRow; }
+    {
+        --iRow;
+    }
     _lastAddedCenterSumSq = this->_data.copyOneRowCalcSumSq(iRow, &_lastAddedCenter[0 * this->_data.dim]);
     return iRow;
 }
@@ -560,14 +570,23 @@ size_t TaskPlusPlusBatchBase<algorithmFPType, cpu, DataHelper>::findSample(algor
     const algorithmFPType * const aMinDist    = &_aMinDist[_trialBest * _data.nRows];
     //find the block this sample belongs to
     size_t iBlock = 0;
-    for (; (iBlock + 1 < _nBlocks) && (sample >= aMinDistAcc[iBlock]); ++iBlock) { sample -= aMinDistAcc[iBlock]; }
+    for (; (iBlock + 1 < _nBlocks) && (sample >= aMinDistAcc[iBlock]); ++iBlock)
+    {
+        sample -= aMinDistAcc[iBlock];
+    }
 
     //find the row in the block corresponding to the sample
     size_t nRowsToProcess = _nRowsInBlock;
-    if (iBlock == _nBlocks - 1) { nRowsToProcess = _data.nRows - iBlock * _nRowsInBlock; }
+    if (iBlock == _nBlocks - 1)
+    {
+        nRowsToProcess = _data.nRows - iBlock * _nRowsInBlock;
+    }
     const size_t iStartRow = iBlock * _nRowsInBlock;
     size_t iRow            = 0;
-    for (; (iRow + 1 < nRowsToProcess) && (sample >= aMinDist[iStartRow + iRow]); ++iRow) { sample -= aMinDist[iStartRow + iRow]; }
+    for (; (iRow + 1 < nRowsToProcess) && (sample >= aMinDist[iStartRow + iRow]); ++iRow)
+    {
+        sample -= aMinDist[iStartRow + iRow];
+    }
     return iStartRow + iRow;
 }
 
@@ -607,7 +626,10 @@ Status TaskPlusPlusBatchBase<algorithmFPType, cpu, DataHelper>::updateMinDist(co
     for (size_t iTrials = 0u; iTrials < nTrials; iTrials++)
     {
         algorithmFPType distance = _aMinDistAcc[iTrials * _nBlocks + 0u];
-        for (size_t iBlock = 1u; iBlock < _nBlocks; iBlock++) { distance += _aMinDistAcc[iTrials * _nBlocks + iBlock]; }
+        for (size_t iBlock = 1u; iBlock < _nBlocks; iBlock++)
+        {
+            distance += _aMinDistAcc[iTrials * _nBlocks + iBlock];
+        }
         _overallError[iTrials] = distance;
     }
     return safeStat.detach();
@@ -626,7 +648,10 @@ void TaskPlusPlusBatch<algorithmFPType, cpu, DataHelper>::calcCenter(size_t iClu
     }
 
     // for one trial, there is no need to recalculate the inertia on the last selected cluster
-    if (this->_nTrials == 1 && iCluster == this->_nClusters - 1) { return; }
+    if (this->_nTrials == 1 && iCluster == this->_nClusters - 1)
+    {
+        return;
+    }
 
     this->updateMinDist(_aWeight, this->_nTrials);
 

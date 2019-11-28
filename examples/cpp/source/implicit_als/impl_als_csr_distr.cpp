@@ -74,7 +74,10 @@ void printResults();
 
 int main(int argc, char * argv[])
 {
-    for (size_t i = 0; i < nBlocks; i++) { readData(i); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        readData(i);
+    }
 
     initializeModel();
 
@@ -134,16 +137,25 @@ void initializeStep2Local(size_t block, KeyValueDataCollectionPtr initStep2Local
 void initializeModel()
 {
     KeyValueDataCollectionPtr initStep1LocalResult[nBlocks];
-    for (size_t i = 0; i < nBlocks; i++) { initStep1LocalResult[i] = initializeStep1Local(i); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        initStep1LocalResult[i] = initializeStep1Local(i);
+    }
 
     /* Prepare input objects for the second step of the distributed initialization algorithm */
     KeyValueDataCollectionPtr initStep2LocalInput[nBlocks];
     for (size_t i = 0; i < nBlocks; i++)
     {
         initStep2LocalInput[i].reset(new KeyValueDataCollection());
-        for (size_t j = 0; j < nBlocks; j++) { (*initStep2LocalInput[i])[j] = (*initStep1LocalResult[j])[i]; }
+        for (size_t j = 0; j < nBlocks; j++)
+        {
+            (*initStep2LocalInput[i])[j] = (*initStep1LocalResult[j])[i];
+        }
     }
-    for (size_t i = 0; i < nBlocks; i++) { initializeStep2Local(i, initStep2LocalInput[i]); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        initializeStep2Local(i, initStep2LocalInput[i]);
+    }
 }
 
 training::DistributedPartialResultStep1Ptr computeStep1Local(const training::DistributedPartialResultStep4Ptr & partialResultLocal)
@@ -170,7 +182,10 @@ NumericTablePtr computeStep2Master(const training::DistributedPartialResultStep1
 
     /* Set the partial results of the first local step of distributed computations
        as input for the master-node algorithm */
-    for (size_t i = 0; i < nBlocks; i++) { algorithm.input.add(training::inputOfStep2FromStep1, step1LocalResult[i]); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        algorithm.input.add(training::inputOfStep2FromStep1, step1LocalResult[i]);
+    }
 
     /* Compute a partial result on the master node from the partial results on local nodes */
     algorithm.compute();
@@ -225,39 +240,63 @@ void trainModel()
     KeyValueDataCollectionPtr step3LocalResult[nBlocks];
     KeyValueDataCollectionPtr step4LocalInput[nBlocks];
 
-    for (size_t i = 0; i < nBlocks; i++) { step4LocalInput[i].reset(new KeyValueDataCollection()); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        step4LocalInput[i].reset(new KeyValueDataCollection());
+    }
     for (size_t iteration = 0; iteration < maxIterations; iteration++)
     {
         /* Update partial users factors */
-        for (size_t i = 0; i < nBlocks; i++) { step1LocalResult[i] = computeStep1Local(itemsPartialResultLocal[i]); }
+        for (size_t i = 0; i < nBlocks; i++)
+        {
+            step1LocalResult[i] = computeStep1Local(itemsPartialResultLocal[i]);
+        }
         step2MasterResult = computeStep2Master(step1LocalResult);
 
         for (size_t i = 0; i < nBlocks; i++)
-        { step3LocalResult[i] = computeStep3Local(itemOffsets[i], itemsPartialResultLocal[i], itemStep3LocalInput[i]); }
+        {
+            step3LocalResult[i] = computeStep3Local(itemOffsets[i], itemsPartialResultLocal[i], itemStep3LocalInput[i]);
+        }
 
         /* Prepare input objects for the fourth step of the distributed algorithm */
         for (size_t i = 0; i < nBlocks; i++)
         {
-            for (size_t j = 0; j < nBlocks; j++) { (*step4LocalInput[i])[j] = (*step3LocalResult[j])[i]; }
+            for (size_t j = 0; j < nBlocks; j++)
+            {
+                (*step4LocalInput[i])[j] = (*step3LocalResult[j])[i];
+            }
         }
 
         for (size_t i = 0; i < nBlocks; i++)
-        { usersPartialResultLocal[i] = computeStep4Local(transposedDataTable[i], step2MasterResult, step4LocalInput[i]); }
+        {
+            usersPartialResultLocal[i] = computeStep4Local(transposedDataTable[i], step2MasterResult, step4LocalInput[i]);
+        }
 
         /* Update partial items factors */
-        for (size_t i = 0; i < nBlocks; i++) { step1LocalResult[i] = computeStep1Local(usersPartialResultLocal[i]); }
+        for (size_t i = 0; i < nBlocks; i++)
+        {
+            step1LocalResult[i] = computeStep1Local(usersPartialResultLocal[i]);
+        }
         step2MasterResult = computeStep2Master(step1LocalResult);
 
         for (size_t i = 0; i < nBlocks; i++)
-        { step3LocalResult[i] = computeStep3Local(userOffsets[i], usersPartialResultLocal[i], userStep3LocalInput[i]); }
+        {
+            step3LocalResult[i] = computeStep3Local(userOffsets[i], usersPartialResultLocal[i], userStep3LocalInput[i]);
+        }
 
         /* Prepare input objects for the fourth step of the distributed algorithm */
         for (size_t i = 0; i < nBlocks; i++)
         {
-            for (size_t j = 0; j < nBlocks; j++) { (*step4LocalInput[i])[j] = (*step3LocalResult[j])[i]; }
+            for (size_t j = 0; j < nBlocks; j++)
+            {
+                (*step4LocalInput[i])[j] = (*step3LocalResult[j])[i];
+            }
         }
 
-        for (size_t i = 0; i < nBlocks; i++) { itemsPartialResultLocal[i] = computeStep4Local(dataTable[i], step2MasterResult, step4LocalInput[i]); }
+        for (size_t i = 0; i < nBlocks; i++)
+        {
+            itemsPartialResultLocal[i] = computeStep4Local(dataTable[i], step2MasterResult, step4LocalInput[i]);
+        }
     }
 }
 

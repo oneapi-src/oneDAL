@@ -118,7 +118,10 @@ void ImplicitALSTrainTask<algorithmFPType, defaultDense, cpu>::transpose(size_t 
 {
     for (size_t i = 0; i < nRows; i++)
     {
-        for (size_t j = 0; j < nCols; j++) { tdata[j * nRows + i] = data[i * nCols + j]; }
+        for (size_t j = 0; j < nCols; j++)
+        {
+            tdata[j * nRows + i] = data[i * nCols + j];
+        }
     }
 }
 

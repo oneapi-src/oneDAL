@@ -78,9 +78,14 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
         if (par1 == nullptr && par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
     }
     daal::algorithms::multi_class_classifier::ModelPtr m = get(classifier::training::model);
-    if (m->getNumberOfTwoClassClassifierModels() == 0) { return services::Status(services::ErrorModelNotFullInitialized); }
+    if (m->getNumberOfTwoClassClassifierModels() == 0)
+    {
+        return services::Status(services::ErrorModelNotFullInitialized);
+    }
     if (m->getNumberOfTwoClassClassifierModels() != nClasses * (nClasses - 1) / 2)
-    { return services::Status(services::ErrorModelNotFullInitialized); }
+    {
+        return services::Status(services::ErrorModelNotFullInitialized);
+    }
     return s;
 }
 

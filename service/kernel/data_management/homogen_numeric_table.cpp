@@ -33,7 +33,10 @@ HomogenNumericTable<DataType>::HomogenNumericTable(DictionaryIface::FeaturesEqua
 
     st |= _ddict->setAllFeatures(df);
 
-    if (memoryAllocationFlag == doAllocate) { st |= allocateDataMemoryImpl(); }
+    if (memoryAllocationFlag == doAllocate)
+    {
+        st |= allocateDataMemoryImpl();
+    }
 
     st |= assign<DataType>(constValue);
 }

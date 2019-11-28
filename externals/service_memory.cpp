@@ -32,11 +32,17 @@ void * daal::services::daal_malloc(size_t size, size_t alignment)
 void * daal::services::daal_calloc(size_t size, size_t alignment)
 {
     void * ptr = daal::services::daal_malloc(size, alignment);
-    if (ptr == NULL) { return NULL; }
+    if (ptr == NULL)
+    {
+        return NULL;
+    }
 
     char * cptr = (char *)ptr;
 
-    for (size_t i = 0; i < size; i++) { cptr[i] = '\0'; }
+    for (size_t i = 0; i < size; i++)
+    {
+        cptr[i] = '\0';
+    }
 
     return ptr;
 }
@@ -65,36 +71,54 @@ void daal_free_buffers()
 void daal::services::daal_memcpy_s(void * dest, size_t destSize, const void * src, size_t srcSize)
 {
     size_t copySize = srcSize;
-    if (destSize < srcSize) { copySize = destSize; }
+    if (destSize < srcSize)
+    {
+        copySize = destSize;
+    }
 
     size_t BLOCKSIZE       = 200000000; // approx 200MB
     size_t nBlocks         = copySize / BLOCKSIZE;
     size_t sizeOfLastBlock = 0;
-    if (nBlocks * BLOCKSIZE != copySize) { sizeOfLastBlock = copySize - (nBlocks * BLOCKSIZE); }
+    if (nBlocks * BLOCKSIZE != copySize)
+    {
+        sizeOfLastBlock = copySize - (nBlocks * BLOCKSIZE);
+    }
 
     char * dstChar = (char *)dest;
     char * srcChar = (char *)src;
     for (size_t i = 0; i < nBlocks; i++)
-    { daal::internal::Service<>::serv_memcpy_s(&dstChar[i * BLOCKSIZE], BLOCKSIZE, &srcChar[i * BLOCKSIZE], BLOCKSIZE); }
+    {
+        daal::internal::Service<>::serv_memcpy_s(&dstChar[i * BLOCKSIZE], BLOCKSIZE, &srcChar[i * BLOCKSIZE], BLOCKSIZE);
+    }
     if (sizeOfLastBlock != 0)
-    { daal::internal::Service<>::serv_memcpy_s(&dstChar[nBlocks * BLOCKSIZE], sizeOfLastBlock, &srcChar[nBlocks * BLOCKSIZE], sizeOfLastBlock); }
+    {
+        daal::internal::Service<>::serv_memcpy_s(&dstChar[nBlocks * BLOCKSIZE], sizeOfLastBlock, &srcChar[nBlocks * BLOCKSIZE], sizeOfLastBlock);
+    }
 }
 
 int daal::services::internal::daal_memcpy_s(void * dest, size_t destSize, const void * src, size_t srcSize)
 {
     size_t copySize = srcSize;
-    if (destSize < srcSize) { copySize = destSize; }
+    if (destSize < srcSize)
+    {
+        copySize = destSize;
+    }
 
     size_t BLOCKSIZE       = 200000000; // approx 200MB
     size_t nBlocks         = copySize / BLOCKSIZE;
     size_t sizeOfLastBlock = 0;
     int result             = 0;
-    if (nBlocks * BLOCKSIZE != copySize) { sizeOfLastBlock = copySize - (nBlocks * BLOCKSIZE); }
+    if (nBlocks * BLOCKSIZE != copySize)
+    {
+        sizeOfLastBlock = copySize - (nBlocks * BLOCKSIZE);
+    }
 
     char * dstChar = (char *)dest;
     char * srcChar = (char *)src;
     for (size_t i = 0; i < nBlocks; i++)
-    { result |= daal::internal::Service<>::serv_memcpy_s(&dstChar[i * BLOCKSIZE], BLOCKSIZE, &srcChar[i * BLOCKSIZE], BLOCKSIZE); }
+    {
+        result |= daal::internal::Service<>::serv_memcpy_s(&dstChar[i * BLOCKSIZE], BLOCKSIZE, &srcChar[i * BLOCKSIZE], BLOCKSIZE);
+    }
     if (sizeOfLastBlock != 0)
     {
         result |=

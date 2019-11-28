@@ -52,7 +52,10 @@ Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const al
     int result = 0;
     if (nRidge == 1)
     {
-        for (DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1)) { aCopy[idx] += *ridge; }
+        for (DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1))
+        {
+            aCopy[idx] += *ridge;
+        }
 
         st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, ny, b, ErrorRidgeRegressionInternal);
         DAAL_CHECK_STATUS_VAR(st);
@@ -64,7 +67,10 @@ Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const al
         for (DAAL_INT j = 0; j < ny; j++, bPtr += (pToFix + 1))
         {
             result |= daal::services::internal::daal_memcpy_s(aCopy, aSizeInBytes, a, aSizeInBytes);
-            for (DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1)) { aCopy[idx] += ridge[j]; }
+            for (DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1))
+            {
+                aCopy[idx] += ridge[j];
+            }
 
             DAAL_INT one(1);
 

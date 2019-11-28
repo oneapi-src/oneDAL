@@ -53,11 +53,17 @@ int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
 
-    for (size_t i = 0; i < nBlocks; i++) { computestep1Local(i); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        computestep1Local(i);
+    }
 
     computeOnMasterNode();
 
-    for (size_t i = 0; i < nBlocks; i++) { finalizeComputestep1Local(i); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        finalizeComputestep1Local(i);
+    }
 
     /* Print the results */
     printNumericTable(Qi[0], "Part of orthogonal matrix Q from 1st node:", 10);
@@ -91,7 +97,10 @@ void computeOnMasterNode()
     /* Create an algorithm to compute QR decomposition on the master node */
     qr::Distributed<step2Master> algorithm;
 
-    for (size_t i = 0; i < nBlocks; i++) { algorithm.input.add(qr::inputOfStep2FromStep1, i, dataFromStep1ForStep2[i]); }
+    for (size_t i = 0; i < nBlocks; i++)
+    {
+        algorithm.input.add(qr::inputOfStep2FromStep1, i, dataFromStep1ForStep2[i]);
+    }
 
     /* Compute QR decomposition */
     algorithm.compute();
@@ -100,7 +109,9 @@ void computeOnMasterNode()
     KeyValueDataCollectionPtr inputForStep3FromStep2 = pres->get(qr::outputOfStep2ForStep3);
 
     for (size_t i = 0; i < nBlocks; i++)
-    { dataFromStep2ForStep3[i] = services::staticPointerCast<data_management::DataCollection, SerializationIface>((*inputForStep3FromStep2)[i]); }
+    {
+        dataFromStep2ForStep3[i] = services::staticPointerCast<data_management::DataCollection, SerializationIface>((*inputForStep3FromStep2)[i]);
+    }
 
     qr::ResultPtr res = algorithm.getResult();
 

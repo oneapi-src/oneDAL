@@ -55,7 +55,9 @@ JNIEXPORT jlong JNICALL
                                                                                                                                     jint id)
 {
     if (id == ConfusionMatrix)
-    { return jniArgument<binary_confusion_matrix::Result>::get<binary_confusion_matrix::ResultId, NumericTable>(resAddr, confusionMatrix); }
+    {
+        return jniArgument<binary_confusion_matrix::Result>::get<binary_confusion_matrix::ResultId, NumericTable>(resAddr, confusionMatrix);
+    }
     else if (id == BinaryMetrics)
     {
         return jniArgument<binary_confusion_matrix::Result>::get<binary_confusion_matrix::ResultId, NumericTable>(resAddr, binaryMetrics);

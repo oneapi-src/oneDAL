@@ -86,7 +86,10 @@ services::Status ImplicitALSInitKernel<algorithmFPType, defaultDense, cpu>::comp
     DAAL_CHECK_STATUS_VAR(this->randFactors(nItems, nFactors, itemsFactors, engine));
 
     const algorithmFPType invNUsers = algorithmFPType(1.0) / algorithmFPType(nUsers);
-    for (size_t i = 0; i < nItems; i++) { itemsFactors[i * nFactors] = itemsSum[i] * invNUsers; }
+    for (size_t i = 0; i < nItems; i++)
+    {
+        itemsFactors[i * nFactors] = itemsSum[i] * invNUsers;
+    }
 
     return services::Status();
 }

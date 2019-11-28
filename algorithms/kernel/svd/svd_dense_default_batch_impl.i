@@ -58,7 +58,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute(const size_t na, co
     svd::Parameter defaultParams;
     const svd::Parameter * svdPar = &defaultParams;
 
-    if (par != 0) { svdPar = static_cast<const svd::Parameter *>(par); }
+    if (par != 0)
+    {
+        svdPar = static_cast<const svd::Parameter *>(par);
+    }
 
     NumericTable * ntAi = const_cast<NumericTable *>(a[0]);
 
@@ -105,7 +108,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
 
         for (size_t i = 0; i < n; i++)
         {
-            for (size_t j = 0; j < m; j++) { AT[i * m + j] = A[i + j * n]; }
+            for (size_t j = 0; j < m; j++)
+            {
+                AT[i * m + j] = A[i + j * n];
+            }
         }
     }
 
@@ -120,7 +126,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
         DAAL_CHECK_BLOCK_STATUS(sigmaBlock);
         algorithmFPType * tSigma = sigmaBlock.get();
 
-        for (size_t i = 0; i < nComponents; i++) { tSigma[i] = Sigma[i]; }
+        for (size_t i = 0; i < nComponents; i++)
+        {
+            tSigma[i] = Sigma[i];
+        }
     }
 
     if (svdPar->leftSingularMatrix == requiredInPackedForm)
@@ -131,7 +140,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
 
         for (size_t i = 0; i < n; i++)
         {
-            for (size_t j = 0; j < m; j++) { Q[i + j * n] = QT[i * m + j]; }
+            for (size_t j = 0; j < m; j++)
+            {
+                Q[i + j * n] = QT[i * m + j];
+            }
         }
     }
 
@@ -143,7 +155,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_seq(const size_t na
 
         for (size_t i = 0; i < n; i++)
         {
-            for (size_t j = 0; j < nComponents; j++) { V[i + j * n] = VT[i * n + j]; }
+            for (size_t j = 0; j < nComponents; j++)
+            {
+                V[i + j * n] = VT[i * n + j];
+            }
         }
     }
 
@@ -254,7 +269,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
 
     TArray<algorithmFPType, cpu> Q_buffPtr;
     algorithmFPType * Q_buff = 0;
-    if (svdPar->leftSingularMatrix == requiredInPackedForm) { Q_buff = U_output; /* re-use output U for Q_buff */ }
+    if (svdPar->leftSingularMatrix == requiredInPackedForm)
+    {
+        Q_buff = U_output; /* re-use output U for Q_buff */
+    }
     else
     {
         Q_buffPtr.reset(rows * cols);
@@ -292,7 +310,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             for (int i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++) { QT_local[i * brows_local + j] = A_block[i + j * cols_local]; }
+                for (int j = 0; j < brows_local; j++)
+                {
+                    QT_local[i * brows_local + j] = A_block[i + j * cols_local];
+                }
             }
 
             /* Call QR on local nodes */
@@ -307,7 +328,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             for (int i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++) { Q_block[i + j * cols_local] = QT_local[i * brows_local + j]; }
+                for (int j = 0; j < brows_local; j++)
+                {
+                    Q_block[i + j * cols_local] = QT_local[i * brows_local + j];
+                }
             }
 
             /* Transpose R and zero lower values */
@@ -315,9 +339,15 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             {
                 int j;
                 PRAGMA_IVDEP
-                for (j = 0; j <= i; j++) { RT_buff[k * cols_local + i * cols_local * blocks + j] = RT_local[i * cols_local + j]; }
+                for (j = 0; j <= i; j++)
+                {
+                    RT_buff[k * cols_local + i * cols_local * blocks + j] = RT_local[i * cols_local + j];
+                }
                 PRAGMA_IVDEP
-                for (; j < cols_local; j++) { RT_buff[k * cols_local + i * cols_local * blocks + j] = 0.0; }
+                for (; j < cols_local; j++)
+                {
+                    RT_buff[k * cols_local + i * cols_local * blocks + j] = 0.0;
+                }
             }
         });
     }
@@ -345,10 +375,15 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
         DAAL_CHECK_BLOCK_STATUS(bkS_output);
         algorithmFPType * tS_output = bkS_output.get();
 
-        for (size_t i = 0; i < nComponents; i++) { tS_output[i] = S_output[i]; }
+        for (size_t i = 0; i < nComponents; i++)
+        {
+            tS_output[i] = S_output[i];
+        }
 
         if (svdPar->leftSingularMatrix == requiredInPackedForm)
-        { compute_gemm_on_one_node_seq<algorithmFPType, cpu>(cols * blocks, cols, RT_buff, cols * blocks, U_buff, cols, R_buff, cols * blocks); }
+        {
+            compute_gemm_on_one_node_seq<algorithmFPType, cpu>(cols * blocks, cols, RT_buff, cols * blocks, U_buff, cols, R_buff, cols * blocks);
+        }
 
         if (svdPar->rightSingularMatrix == requiredInPackedForm)
         {
@@ -356,7 +391,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             for (int i = 0; i < cols; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < nComponents; j++) { V_output[i + j * cols] = V_buff[i * cols + j]; }
+                for (int j = 0; j < nComponents; j++)
+                {
+                    V_output[i + j * cols] = V_buff[i * cols + j];
+                }
             }
         }
     }
@@ -391,21 +429,30 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             for (int i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < cols_local; j++) { RT_block[i * cols_local + j] = R_buff[j * cols_local * blocks + k * cols_local + i]; }
+                for (int j = 0; j < cols_local; j++)
+                {
+                    RT_block[i * cols_local + j] = R_buff[j * cols_local * blocks + k * cols_local + i];
+                }
             }
 
             /* Transpose Q to QT */
             for (int i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++) { QT_local[i * brows_local + j] = Q_block[i + j * cols_local]; }
+                for (int j = 0; j < brows_local; j++)
+                {
+                    QT_local[i * brows_local + j] = Q_block[i + j * cols_local];
+                }
             }
 
             /* Transpose R to RT */
             for (int i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < cols_local; j++) { RT_local[i * cols_local + j] = RT_block[i + j * cols_local]; }
+                for (int j = 0; j < cols_local; j++)
+                {
+                    RT_local[i * cols_local + j] = RT_block[i + j * cols_local];
+                }
             }
 
             /* Call GEMMs to multiply Q*R */
@@ -416,7 +463,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             for (int i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++) { U_block[i + j * cols_local] = QT_result_local[i * brows_local + j]; }
+                for (int j = 0; j < brows_local; j++)
+                {
+                    U_block[i + j * cols_local] = QT_result_local[i * brows_local + j];
+                }
             }
         });
     } /* if (svdPar->leftSingularMatrix == requiredInPackedForm) */
@@ -476,7 +526,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na
     DAAL_CHECK_BLOCK_STATUS(sBlock);
     algorithmFPType * tSigma = sBlock.get();
 
-    for (size_t i = 0; i < nComponents; i++) { tSigma[i] = Sigma[i]; }
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        tSigma[i] = Sigma[i];
+    }
 
     if (svdPar->rightSingularMatrix == requiredInPackedForm)
     {
@@ -486,7 +539,10 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na
         for (size_t i = 0; i < nComponents; i++)
         {
             PRAGMA_IVDEP
-            for (size_t j = 0; j < n; j++) { tV[i * n + j] = V[i * n + j]; }
+            for (size_t j = 0; j < n; j++)
+            {
+                tV[i * n + j] = V[i * n + j];
+            }
         }
     }
 

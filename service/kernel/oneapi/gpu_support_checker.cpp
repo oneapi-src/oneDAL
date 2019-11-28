@@ -33,7 +33,10 @@ GpuSupportChecker & GpuSupportChecker::GetInstance()
 bool isImplementedForDevice(const oneapi::internal::InfoDevice & deviceInfo, algorithms::AlgorithmContainerIface * iface)
 {
     bool ret = true;
-    if (!deviceInfo.isCpu) { ret = GpuSupportChecker::GetInstance().check(iface); }
+    if (!deviceInfo.isCpu)
+    {
+        ret = GpuSupportChecker::GetInstance().check(iface);
+    }
     return ret;
 }
 

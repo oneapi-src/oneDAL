@@ -37,7 +37,10 @@ using namespace daal::algorithms::implicit_als::training::init;
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitInput_cInit(JNIEnv * env, jobject thisObj, jlong algAddr,
                                                                                                    jint prec, jint method, jint cmode)
 {
-    if (cmode == jBatch) { return jniBatch<implicit_als::training::init::Method, Batch, fastCSR, defaultDense>::getInput(prec, method, algAddr); }
+    if (cmode == jBatch)
+    {
+        return jniBatch<implicit_als::training::init::Method, Batch, fastCSR, defaultDense>::getInput(prec, method, algAddr);
+    }
     else if (cmode == jDistributed)
     {
         return jniDistributed<step1Local, implicit_als::training::init::Method, Distributed, fastCSR, defaultDense>::getInput(prec, method, algAddr);

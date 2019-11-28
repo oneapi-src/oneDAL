@@ -175,7 +175,9 @@ inline double infToBigValue(double arg)
     uint64_t lBigValue = 0x7fefffffffffffff;
 
     if (((_daal_dp_union_t *)&arg)->bits.exponent == 0x7FF) // infinite number (inf or nan)
-    { return *(double *)&lBigValue; }
+    {
+        return *(double *)&lBigValue;
+    }
     else
     {
         return arg;
@@ -189,7 +191,9 @@ inline float infToBigValue(float arg)
     uint32_t iBigValue = 0x7e7fffff;
 
     if (((_daal_sp_union_t *)&arg)->bits.exponent == 0xFF) // infinite number (inf or nan)
-    { return *(float *)&iBigValue; }
+    {
+        return *(float *)&iBigValue;
+    }
     else
     {
         return arg;
@@ -230,11 +234,17 @@ BidirectionalIterator partition(BidirectionalIterator first, BidirectionalIterat
 template <CpuType cpu, typename ForwardIterator>
 ForwardIterator maxElement(ForwardIterator first, ForwardIterator last)
 {
-    if (first == last) { return last; }
+    if (first == last)
+    {
+        return last;
+    }
     auto largest = first;
     while (++first != last)
     {
-        if (*largest < *first) { largest = first; }
+        if (*largest < *first)
+        {
+            largest = first;
+        }
     }
     return largest;
 }
@@ -242,11 +252,17 @@ ForwardIterator maxElement(ForwardIterator first, ForwardIterator last)
 template <CpuType cpu, typename ForwardIterator, typename Compare>
 ForwardIterator maxElement(ForwardIterator first, ForwardIterator last, Compare compare)
 {
-    if (first == last) { return last; }
+    if (first == last)
+    {
+        return last;
+    }
     auto largest = first;
     while (++first != last)
     {
-        if (compare(*largest, *first)) { largest = first; }
+        if (compare(*largest, *first))
+        {
+            largest = first;
+        }
     }
     return largest;
 }
@@ -258,7 +274,10 @@ void transpose(const algorithmFPType * src, size_t rows, size_t cols, algorithmF
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < rows; i++) { dst[j * rows + i] = src[i * cols + j]; }
+        for (size_t i = 0; i < rows; i++)
+        {
+            dst[j * rows + i] = src[i * cols + j];
+        }
     }
 }
 

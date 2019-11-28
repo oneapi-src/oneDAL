@@ -103,7 +103,10 @@ public:
         bool found   = false;
         size_t index = 0;
 
-        if (this->size() == 0) { return find(_noMessageFound); }
+        if (this->size() == 0)
+        {
+            return find(_noMessageFound);
+        }
 
         for (size_t i = 0; i < this->size() && found == false; i++)
         {
@@ -114,7 +117,10 @@ public:
             }
         }
 
-        if (found) { return (*this)[index]; }
+        if (found)
+        {
+            return (*this)[index];
+        }
         else
         {
             return find(_noMessageFound);
@@ -400,7 +406,10 @@ const char * KernelErrorCollection::getDescription() const
 {
     if (size() == 0)
     {
-        if (_description) { daal_free(_description); }
+        if (_description)
+        {
+            daal_free(_description);
+        }
         _description    = (char *)daal::services::daal_calloc(sizeof(char) * 1);
         _description[0] = '\0';
         return _description;
@@ -432,7 +441,10 @@ const char * KernelErrorCollection::getDescription() const
         descriptionSize += strnlen(errorDescription[i], DAAL_MAX_STRING_SIZE);
     }
 
-    if (_description) { daal_free(_description); }
+    if (_description)
+    {
+        daal_free(_description);
+    }
     _description    = (char *)daal::services::daal_calloc(sizeof(char) * (descriptionSize + 1));
     _description[0] = '\0';
 

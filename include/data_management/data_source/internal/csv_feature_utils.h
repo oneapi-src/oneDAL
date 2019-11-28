@@ -67,11 +67,17 @@ public:
         /* We assume _rawData is single line of CSV file and
          * has a termination character in the end */
 
-        if (!good()) { return; }
+        if (!good())
+        {
+            return;
+        }
 
         _prevPos = _pos;
 
-        while (isValidSymbol(_pos) && !isStopSymbol(_pos)) { _pos++; }
+        while (isValidSymbol(_pos) && !isStopSymbol(_pos))
+        {
+            _pos++;
+        }
 
         _tokenSize = _pos - _prevPos;
         _goodFlag  = isValidSymbol(_prevPos);
@@ -106,16 +112,25 @@ public:
     services::Status addFeatureName(const services::StringView & featureName)
     {
         services::Status status = services::internal::checkForNullByteInjection(featureName.begin(), featureName.end());
-        if (!status) { return services::throwIfPossible(services::ErrorNullByteInjection); }
+        if (!status)
+        {
+            return services::throwIfPossible(services::ErrorNullByteInjection);
+        }
         const services::String featureNameStr(featureName.begin());
-        if (!_featureNames.safe_push_back(featureNameStr)) { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
+        if (!_featureNames.safe_push_back(featureNameStr))
+        {
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+        }
         return services::Status();
     }
 
     services::Status addFeatureType(const services::StringView & token)
     {
         const features::FeatureType featureType = detectFeatureType(token);
-        if (!_featureTypes.safe_push_back(featureType)) { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
+        if (!_featureTypes.safe_push_back(featureType))
+        {
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+        }
         return services::Status();
     }
 

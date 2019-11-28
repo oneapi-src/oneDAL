@@ -118,10 +118,16 @@ public:
     size_t loadDataBlock() DAAL_C11_OVERRIDE
     {
         checkDictionary();
-        if (this->_errors->size() != 0) { return 0; }
+        if (this->_errors->size() != 0)
+        {
+            return 0;
+        }
 
         checkNumericTable();
-        if (this->_errors->size() != 0) { return 0; }
+        if (this->_errors->size() != 0)
+        {
+            return 0;
+        }
 
         return loadDataBlock(0, this->DataSource::_spnt.get());
     }
@@ -129,7 +135,10 @@ public:
     size_t loadDataBlock(NumericTable * nt) DAAL_C11_OVERRIDE
     {
         checkDictionary();
-        if (this->_errors->size() != 0) { return 0; }
+        if (this->_errors->size() != 0)
+        {
+            return 0;
+        }
 
         return loadDataBlock(0, nt);
     }
@@ -137,10 +146,16 @@ public:
     virtual size_t loadDataBlock(size_t maxRows) DAAL_C11_OVERRIDE
     {
         checkDictionary();
-        if (!this->_errors->isEmpty()) { return 0; }
+        if (!this->_errors->isEmpty())
+        {
+            return 0;
+        }
 
         checkNumericTable();
-        if (!this->_errors->isEmpty()) { return 0; }
+        if (!this->_errors->isEmpty())
+        {
+            return 0;
+        }
 
         return loadDataBlock(maxRows, this->DataSource::_spnt.get());
     }
@@ -155,7 +170,10 @@ public:
     {
         checkDictionary();
 
-        if (this->_errors->size() != 0) { return 0; }
+        if (this->_errors->size() != 0)
+        {
+            return 0;
+        }
 
         if (nt == NULL)
         {
@@ -165,7 +183,10 @@ public:
 
         I handle = _kdbConnect();
 
-        if (handle <= 0) { return 0; }
+        if (handle <= 0)
+        {
+            return 0;
+        }
 
         size_t nRows = getNumberOfAvailableRows();
 
@@ -176,7 +197,10 @@ public:
             return 0;
         }
 
-        if (maxRows != 0 && nRows > maxRows) { nRows = maxRows; }
+        if (maxRows != 0 && nRows > maxRows)
+        {
+            nRows = maxRows;
+        }
 
         std::ostringstream query;
         query << "(" << _query << ")[(til " << nRows << ") + " << _idx_last_read << +"]";
@@ -229,7 +253,10 @@ public:
             nt->getBlockOfRows(0, nt->getNumberOfRows(), readOnly, blockNt);
             DAAL_DATA_TYPE * row = blockNt.getBlockPtr();
 
-            for (size_t i = 0; i < nRows; i++) { DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>::updateStatistics(i, nt, row); }
+            for (size_t i = 0; i < nRows; i++)
+            {
+                DataSourceTemplate<DefaultNumericTableType, summaryStatisticsType>::updateStatistics(i, nt, row);
+            }
 
             nt->releaseBlockOfRows(blockNt);
         }
@@ -237,7 +264,10 @@ public:
         NumericTableDictionaryPtr ntDict = nt->getDictionarySharedPtr();
         size_t nFeatures                 = _dict->getNumberOfFeatures();
         ntDict->setNumberOfFeatures(nFeatures);
-        for (size_t i = 0; i < nFeatures; i++) { ntDict->setFeature((*_dict)[i].ntFeature, i); }
+        for (size_t i = 0; i < nFeatures; i++)
+        {
+            ntDict->setFeature((*_dict)[i].ntFeature, i);
+        }
 
         return nRows;
     }
@@ -269,7 +299,10 @@ public:
         _dict = DataSourceDictionary::create(&status);
         if (!status) return status;
 
-        if (result->t == XT) { featureManager.createDictionaryFromTable(result->k, this->_dict.get()); }
+        if (result->t == XT)
+        {
+            featureManager.createDictionaryFromTable(result->k, this->_dict.get());
+        }
         else if (result->t == XD)
         {
             featureManager.createDictionaryFromTable(result, this->_dict.get());

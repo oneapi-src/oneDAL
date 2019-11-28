@@ -82,7 +82,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cS
                                                                                               jlong ntAddr)
 {
     ResultId cid;
-    if (id == WeightsValue) { cid = weights; }
+    if (id == WeightsValue)
+    {
+        cid = weights;
+    }
     else if (id == MeansValue)
     {
         cid = means;
@@ -104,7 +107,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_init_InitResult_cS
                                                                                                        jint id, jlong dcAddr)
 {
     ResultCovariancesId cid;
-    if (id == CovariancesValue) { cid = covariances; }
+    if (id == CovariancesValue)
+    {
+        cid = covariances;
+    }
     else
     {
         return;

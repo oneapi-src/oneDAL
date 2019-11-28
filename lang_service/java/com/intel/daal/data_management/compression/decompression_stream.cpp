@@ -45,7 +45,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_Decompr
     strmAddr       = (jlong)(new DecompressionStream((DecompressorImpl *)comprAddr, minSize));
 
     if (((DecompressionStream *)strmAddr)->getErrors()->size() > 0)
-    { env->ThrowNew(env->FindClass("java/lang/Exception"), ((DecompressionStream *)strmAddr)->getErrors()->getDescription()); }
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((DecompressionStream *)strmAddr)->getErrors()->getDescription());
+    }
     return strmAddr;
 }
 
@@ -64,7 +66,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Decompre
     ((CompressionStream *)strmAddr)->push_back(&tmp);
 
     if (((DecompressionStream *)strmAddr)->getErrors()->size() > 0)
-    { env->ThrowNew(env->FindClass("java/lang/Exception"), ((DecompressionStream *)strmAddr)->getErrors()->getDescription()); }
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((DecompressionStream *)strmAddr)->getErrors()->getDescription());
+    }
 }
 
 /*
@@ -76,7 +80,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_Decompr
                                                                                                                       jlong strmAddr)
 {
     if (((DecompressionStream *)strmAddr)->getErrors()->size() > 0)
-    { env->ThrowNew(env->FindClass("java/lang/Exception"), ((DecompressionStream *)strmAddr)->getErrors()->getDescription()); }
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((DecompressionStream *)strmAddr)->getErrors()->getDescription());
+    }
     return (jlong)((DecompressionStream *)strmAddr)->getDecompressedDataSize();
 }
 
@@ -95,7 +101,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_Decompr
     env->ReleaseByteArrayElements(outBlock, outBuffer, 0);
 
     if (((DecompressionStream *)strmAddr)->getErrors()->size() > 0)
-    { env->ThrowNew(env->FindClass("java/lang/Exception"), ((DecompressionStream *)strmAddr)->getErrors()->getDescription()); }
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((DecompressionStream *)strmAddr)->getErrors()->getDescription());
+    }
 
     return result;
 }

@@ -65,7 +65,10 @@ template <typename algorithmFPType>
 DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(KeyValueDataCollection * inCollection, size_t & nBlocks)
 {
     KeyValueDataCollectionPtr partialCollection = staticPointerCast<KeyValueDataCollection, SerializationIface>(Argument::get(outputOfStep2ForStep3));
-    if (!partialCollection) { return Status(); }
+    if (!partialCollection)
+    {
+        return Status();
+    }
 
     ResultPtr result = staticPointerCast<Result, SerializationIface>(Argument::get(finalResultFromStep2Master));
 
@@ -94,7 +97,9 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(KeyValueDat
         DataCollectionPtr nodePartialResult(new DataCollection());
         DAAL_CHECK_MALLOC(nodePartialResult)
         for (size_t j = 0; j < nodeSize; j++)
-        { nodePartialResult->push_back(HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &st)); }
+        {
+            nodePartialResult->push_back(HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &st));
+        }
         (*partialCollection)[nodeKey] = nodePartialResult;
     }
     return st;

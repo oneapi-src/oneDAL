@@ -88,7 +88,10 @@ public:
     template <typename RandomIterator>
     void setSupportVectors(RandomIterator first, RandomIterator last)
     {
-        if ((last - first) != _nSupportVectors * _nFeatures) { services::throwIfPossible(services::Status(services::ErrorIncorrectParameter)); }
+        if ((last - first) != _nSupportVectors * _nFeatures)
+        {
+            services::throwIfPossible(services::Status(services::ErrorIncorrectParameter));
+        }
         commonSetter<RandomIterator>(_supportV, first, last);
     }
 
@@ -101,7 +104,10 @@ public:
     template <typename RandomIterator>
     void setSupportIndices(RandomIterator first, RandomIterator last)
     {
-        if ((last - first) != _nSupportVectors) { services::throwIfPossible(services::Status(services::ErrorIncorrectParameter)); }
+        if ((last - first) != _nSupportVectors)
+        {
+            services::throwIfPossible(services::Status(services::ErrorIncorrectParameter));
+        }
         commonSetter<RandomIterator>(_supportI, first, last);
     }
 
@@ -114,7 +120,10 @@ public:
     template <typename RandomIterator>
     void setClassificationCoefficients(RandomIterator first, RandomIterator last)
     {
-        if ((last - first) != _nSupportVectors) { services::throwIfPossible(services::Status(services::ErrorIncorrectParameter)); }
+        if ((last - first) != _nSupportVectors)
+        {
+            services::throwIfPossible(services::Status(services::ErrorIncorrectParameter));
+        }
         commonSetter<RandomIterator>(_supportCC, first, last);
     }
 

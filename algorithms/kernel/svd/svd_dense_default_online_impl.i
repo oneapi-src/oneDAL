@@ -53,7 +53,10 @@ Status SVDOnlineKernel<algorithmFPType, method, cpu>::compute(const size_t na, c
     svd::Parameter defaultParams;
     const svd::Parameter * svdPar = &defaultParams;
 
-    if (par != 0) { svdPar = static_cast<const svd::Parameter *>(par); }
+    if (par != 0)
+    {
+        svdPar = static_cast<const svd::Parameter *>(par);
+    }
 
     NumericTable * ntAi    = const_cast<NumericTable *>(a[0]);
     NumericTable * ntAux2i = r[1];
@@ -83,7 +86,10 @@ Status SVDOnlineKernel<algorithmFPType, method, cpu>::compute(const size_t na, c
 
     for (i = 0; i < n; i++)
     {
-        for (j = 0; j < m; j++) { Aux1iT[i * m + j] = Ai[i + j * n]; }
+        for (j = 0; j < m; j++)
+        {
+            Aux1iT[i * m + j] = Ai[i + j * n];
+        }
     }
 
     const auto ec = compute_QR_on_one_node<algorithmFPType, cpu>(m, n, Aux1iT, m, Aux2iT, n);
@@ -97,14 +103,23 @@ Status SVDOnlineKernel<algorithmFPType, method, cpu>::compute(const size_t na, c
 
         for (i = 0; i < n; i++)
         {
-            for (j = 0; j < m; j++) { Aux1i[i + j * n] = Aux1iT[i * m + j]; }
+            for (j = 0; j < m; j++)
+            {
+                Aux1i[i + j * n] = Aux1iT[i * m + j];
+            }
         }
     }
 
     for (i = 0; i < n; i++)
     {
-        for (j = 0; j <= i; j++) { Aux2i[i + j * n] = Aux2iT[i * n + j]; }
-        for (; j < n; j++) { Aux2i[i + j * n] = 0.0; }
+        for (j = 0; j <= i; j++)
+        {
+            Aux2i[i + j * n] = Aux2iT[i * n + j];
+        }
+        for (; j < n; j++)
+        {
+            Aux2i[i + j * n] = 0.0;
+        }
     }
 
     return Status();
@@ -117,7 +132,10 @@ Status SVDOnlineKernel<algorithmFPType, method, cpu>::finalizeCompute(const size
     svd::Parameter defaultParams;
     const svd::Parameter * svdPar = &defaultParams;
 
-    if (par != 0) { svdPar = static_cast<const svd::Parameter *>(par); }
+    if (par != 0)
+    {
+        svdPar = static_cast<const svd::Parameter *>(par);
+    }
 
     const NumericTable * ntAux2_0 = a[0];
     NumericTable * ntSigma        = r[0];

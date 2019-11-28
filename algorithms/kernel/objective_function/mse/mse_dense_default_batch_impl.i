@@ -177,7 +177,10 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     size_t compute_matrix = 0;
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < (nTheta + 1) * yDim; i++) { compute_matrix += (fB[i] != 0); }
+                    for (size_t i = 0; i < (nTheta + 1) * yDim; i++)
+                    {
+                        compute_matrix += (fB[i] != 0);
+                    }
 
                     const size_t blockSize = 256;
                     size_t nBlocks         = nDataRows / blockSize;
@@ -203,7 +206,10 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                             {
                                 for (size_t ic = 0; ic < yDim; ic++)
                                 {
-                                    for (size_t i = startRow; i < finishRow; i++) /*threader for*/ { residualPtr[i * yDim + ic] -= fB[ic]; }
+                                    for (size_t i = startRow; i < finishRow; i++) /*threader for*/
+                                    {
+                                        residualPtr[i * yDim + ic] -= fB[ic];
+                                    }
                                 }
                             }
                         });
@@ -217,7 +223,10 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
-                        for (size_t j = 0; j < nTheta; j++) { hessianDiagonalPtr[j] = 0; /*USE DOTPRODUCT or parallel computation*/ }
+                        for (size_t j = 0; j < nTheta; j++)
+                        {
+                            hessianDiagonalPtr[j] = 0; /*USE DOTPRODUCT or parallel computation*/
+                        }
 
                         if (transposedData)
                         {
@@ -232,13 +241,18 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                     PRAGMA_IVDEP
                                     PRAGMA_VECTOR_ALWAYS
                                     for (size_t i = startRow; i < finishRow; i++)
-                                    { hessianDiagonalLocal[j] += X[j * n + i] * X[j * n + i]; /*USE DOTPRODUCT or parallel computation*/ }
+                                    {
+                                        hessianDiagonalLocal[j] += X[j * n + i] * X[j * n + i]; /*USE DOTPRODUCT or parallel computation*/
+                                    }
                                 }
                             });
                             tlsData.reduce([&](algorithmFPType * localHes) {
                                 PRAGMA_IVDEP
                                 PRAGMA_VECTOR_ALWAYS
-                                for (int j = 0; j < nTheta; j++) { hessianDiagonalPtr[j] += localHes[j]; }
+                                for (int j = 0; j < nTheta; j++)
+                                {
+                                    hessianDiagonalPtr[j] += localHes[j];
+                                }
                             });
                         }
                         else
@@ -254,18 +268,26 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                                     PRAGMA_IVDEP
                                     PRAGMA_VECTOR_ALWAYS
                                     for (size_t j = 0; j < nTheta; j++)
-                                    { hessianDiagonalLocal[j] += X[i * dim + j] * X[i * dim + j]; /*USE DOTPRODUCT or parallel computation*/ }
+                                    {
+                                        hessianDiagonalLocal[j] += X[i * dim + j] * X[i * dim + j]; /*USE DOTPRODUCT or parallel computation*/
+                                    }
                                 }
                             });
                             tlsData.reduce([&](algorithmFPType * localHes) {
                                 PRAGMA_IVDEP
                                 PRAGMA_VECTOR_ALWAYS
-                                for (int j = 0; j < nTheta; j++) { hessianDiagonalPtr[j] += localHes[j]; }
+                                for (int j = 0; j < nTheta; j++)
+                                {
+                                    hessianDiagonalPtr[j] += localHes[j];
+                                }
                             });
                         }
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
-                        for (size_t j = 0; j < nTheta; j++) { hessianDiagonalPtr[j] *= inverseNData; }
+                        for (size_t j = 0; j < nTheta; j++)
+                        {
+                            hessianDiagonalPtr[j] *= inverseNData;
+                        }
                     }
                 }
 
@@ -282,7 +304,10 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                             {
                                 PRAGMA_IVDEP
                                 PRAGMA_VECTOR_ALWAYS
-                                for (size_t i = 0; i < nDataRows; i++) /*threader for*/ { residualPtr[i * yDim + ic] += diff; }
+                                for (size_t i = 0; i < nDataRows; i++) /*threader for*/
+                                {
+                                    residualPtr[i * yDim + ic] += diff;
+                                }
                             }
                             if (previousFeatureId != 0)
                             {
@@ -300,7 +325,10 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         }
                     }
                 }
-                for (size_t ic = 0; ic < yDim; ic++) { dotPtr[ic] = 0; }
+                for (size_t ic = 0; ic < yDim; ic++)
+                {
+                    dotPtr[ic] = 0;
+                }
 
                 if (id == 0)
                 {
@@ -319,21 +347,31 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     if (transposedData)
                     {
                         for (size_t ic = 0; ic < yDim; ic++)
-                        { dotPtr[ic] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(&n, X + (id - 1) * n, &ione, residualPtr + ic, &yDim); }
+                        {
+                            dotPtr[ic] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(&n, X + (id - 1) * n, &ione, residualPtr + ic, &yDim);
+                        }
                     }
                     else
                     {
                         for (size_t ic = 0; ic < yDim; ic++)
-                        { dotPtr[ic] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(&n, X + (id - 1), &dim, residualPtr + ic, &yDim); }
+                        {
+                            dotPtr[ic] += daal::internal::Blas<algorithmFPType, cpu>::xxdot(&n, X + (id - 1), &dim, residualPtr + ic, &yDim);
+                        }
                     }
                 }
 
                 /*store previous values for update*/
                 previousFeatureId = id;
-                for (size_t ic = 0; ic < yDim; ic++) { previousFeatureValuesPtr[ic] = b[ic + id * yDim]; }
+                for (size_t ic = 0; ic < yDim; ic++)
+                {
+                    previousFeatureValuesPtr[ic] = b[ic + id * yDim];
+                }
 
                 algorithmFPType inverseNData = (algorithmFPType)(1.0) / nDataRows;
-                for (size_t ic = 0; ic < yDim; ic++) { gr[ic] = (algorithmFPType)(-1.0) * inverseNData * dot[ic]; }
+                for (size_t ic = 0; ic < yDim; ic++)
+                {
+                    gr[ic] = (algorithmFPType)(-1.0) * inverseNData * dot[ic];
+                }
             }
             else
             {
@@ -392,10 +430,16 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     tlsData.reduce([&](algorithmFPType * local) {
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
-                        for (int j = 0; j < dim * yDim; j++) { XYPtr[j] += local[j]; }
+                        for (int j = 0; j < dim * yDim; j++)
+                        {
+                            XYPtr[j] += local[j];
+                        }
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
-                        for (int j = 0; j < dim * dim; j++) { gramMatrixPtr[j] += local[j + disp]; }
+                        for (int j = 0; j < dim * dim; j++)
+                        {
+                            gramMatrixPtr[j] += local[j + disp];
+                        }
                     });
                     const size_t dimension = dim;
                     for (size_t i = 0; i < dimension; i++)
@@ -431,16 +475,24 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                 }
 
                 previousFeatureId = id;
-                for (size_t ic = 0; ic < yDim; ic++) { previousFeatureValuesPtr[ic] = b[ic + id * yDim]; }
+                for (size_t ic = 0; ic < yDim; ic++)
+                {
+                    previousFeatureValuesPtr[ic] = b[ic + id * yDim];
+                }
                 if (id > 0)
                 {
                     algorithmFPType inverseNData = (algorithmFPType)(1.0) / nDataRows;
                     for (size_t i = 0; i < yDim; i++)
-                    { gr[i] = (algorithmFPType)(-1.0) * inverseNData * (XYPtr[(id - 1) * yDim + i] - gradientForGramPtr[(id - 1) * yDim + i]); }
+                    {
+                        gr[i] = (algorithmFPType)(-1.0) * inverseNData * (XYPtr[(id - 1) * yDim + i] - gradientForGramPtr[(id - 1) * yDim + i]);
+                    }
                 }
                 else
                 {
-                    for (size_t i = 0; i < yDim; i++) { gr[i] = 0; }
+                    for (size_t i = 0; i < yDim; i++)
+                    {
+                        gr[i] = 0;
+                    }
                 }
             }
         }
@@ -458,11 +510,17 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
             {
                 if (parameter->interceptFlag)
                 {
-                    for (size_t i = 0; i < yDim; i++) { h[i] = 1; }
+                    for (size_t i = 0; i < yDim; i++)
+                    {
+                        h[i] = 1;
+                    }
                 }
                 else
                 {
-                    for (size_t i = 0; i < yDim; i++) { h[i] = 0; }
+                    for (size_t i = 0; i < yDim; i++)
+                    {
+                        h[i] = 0;
+                    }
                 }
             }
             else
@@ -471,7 +529,10 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                 {
                     algorithmFPType inverseNData = (algorithmFPType)(1.0) / nDataRows;
                     const algorithmFPType hes    = inverseNData * (gramMatrixPtr[(id - 1) * nTheta + (id - 1)]);
-                    for (size_t i = 0; i < yDim; i++) { h[i] = hes; }
+                    for (size_t i = 0; i < yDim; i++)
+                    {
+                        h[i] = hes;
+                    }
                 }
                 else
                 {
@@ -485,19 +546,30 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
-                        for (size_t j = 0; j < nTheta; j++) { hessianDiagonalPtr[j] = 0; /*USE DOTPRODUCT or parallel computation*/ }
+                        for (size_t j = 0; j < nTheta; j++)
+                        {
+                            hessianDiagonalPtr[j] = 0; /*USE DOTPRODUCT or parallel computation*/
+                        }
                         for (size_t i = 0; i < nDataRows; i++)
                         {
                             PRAGMA_IVDEP
                             PRAGMA_VECTOR_ALWAYS
                             for (size_t j = 0; j < nTheta; j++)
-                            { hessianDiagonalPtr[j] += X[i * dim + j] * X[i * dim + j]; /*USE DOTPRODUCT or parallel computation*/ }
+                            {
+                                hessianDiagonalPtr[j] += X[i * dim + j] * X[i * dim + j]; /*USE DOTPRODUCT or parallel computation*/
+                            }
                         }
                         PRAGMA_IVDEP
                         PRAGMA_VECTOR_ALWAYS
-                        for (size_t j = 0; j < nTheta; j++) { hessianDiagonalPtr[j] *= inverseNData; }
+                        for (size_t j = 0; j < nTheta; j++)
+                        {
+                            hessianDiagonalPtr[j] *= inverseNData;
+                        }
                     }
-                    for (size_t ic = 0; ic < yDim; ic++) { h[ic] = hessianDiagonalPtr[id - 1]; }
+                    for (size_t ic = 0; ic < yDim; ic++)
+                    {
+                        h[ic] = hessianDiagonalPtr[id - 1];
+                    }
                 }
             }
         }
@@ -542,9 +614,18 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
             {
                 for (size_t i = 0; i < proxSize; i++)
                 {
-                    if (bI[i] > l1) { p[i] = bI[i] - l1; }
-                    if (bI[i] < -l1) { p[i] = bI[i] + l1; }
-                    if (daal::internal::Math<algorithmFPType, cpu>::sFabs(bI[i]) <= l1) { p[i] = 0; }
+                    if (bI[i] > l1)
+                    {
+                        p[i] = bI[i] - l1;
+                    }
+                    if (bI[i] < -l1)
+                    {
+                        p[i] = bI[i] + l1;
+                    }
+                    if (daal::internal::Math<algorithmFPType, cpu>::sFabs(bI[i]) <= l1)
+                    {
+                        p[i] = 0;
+                    }
                 }
             }
         }
@@ -560,7 +641,10 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
         algorithmFPType * p       = prox.get();
         const algorithmFPType * b = beta.get();
 
-        for (int i = 0; i < nBeta; i++) { p[i] = b[i]; }
+        for (int i = 0; i < nBeta; i++)
+        {
+            p[i] = b[i];
+        }
         return services::Status();
     }
 
@@ -589,12 +673,21 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
             for (size_t i = startRow; i < finishRow; i++)
             {
                 curentNorm = 0;
-                for (int j = 0; j < p; j++) { curentNorm += x[i * p + j] * x[i * p + j]; }
-                if (curentNorm > _maxNorm) { _maxNorm = curentNorm; }
+                for (int j = 0; j < p; j++)
+                {
+                    curentNorm += x[i * p + j] * x[i * p + j];
+                }
+                if (curentNorm > _maxNorm)
+                {
+                    _maxNorm = curentNorm;
+                }
             }
         });
         tlsData.reduce([&](algorithmFPType * maxNorm) {
-            if (globalMaxNorm < *maxNorm) { globalMaxNorm = *maxNorm; }
+            if (globalMaxNorm < *maxNorm)
+            {
+                globalMaxNorm = *maxNorm;
+            }
         });
 
         algorithmFPType lipschitz = (globalMaxNorm + 1);
@@ -635,7 +728,10 @@ services::Status MSEKernel<algorithmFPType, method, cpu>::run(MSETask<algorithmF
     size_t blockSize = blockSizeDefault;
     size_t nBlocks   = task.batchSize / blockSizeDefault;
     nBlocks += (nBlocks * blockSizeDefault != task.batchSize);
-    if (nBlocks == 1) { blockSize = task.batchSize; }
+    if (nBlocks == 1)
+    {
+        blockSize = task.batchSize;
+    }
 
     for (size_t block = 0; s.ok() && (block < nBlocks); block++)
     {
@@ -671,7 +767,10 @@ inline void MSEKernel<algorithmFPType, method, cpu>::computeMSE(size_t blockSize
     {
         Blas<algorithmFPType, cpu>::xgemv(&trans, &dim, &n, &one, data, &dim, theta, &ione, &zero, xMultTheta, &ione);
 
-        for (size_t i = 0; i < blockSize; i++) { xMultTheta[i] = xMultTheta[i] + theta0 - dependentVariablesArray[i]; }
+        for (size_t i = 0; i < blockSize; i++)
+        {
+            xMultTheta[i] = xMultTheta[i] + theta0 - dependentVariablesArray[i];
+        }
     }
 
     if (task.gradientFlag)
@@ -679,13 +778,19 @@ inline void MSEKernel<algorithmFPType, method, cpu>::computeMSE(size_t blockSize
         for (size_t i = 0; i < blockSize; i++)
         {
             gradient[0] += xMultTheta[i];
-            for (size_t j = 0; j < nTheta; j++) { gradient[j + 1] += xMultTheta[i] * data[i * nTheta + j]; }
+            for (size_t j = 0; j < nTheta; j++)
+            {
+                gradient[j + 1] += xMultTheta[i] * data[i * nTheta + j];
+            }
         }
     }
 
     if (task.valueFlag)
     {
-        for (size_t i = 0; i < blockSize; i++) { value[0] += xMultTheta[i] * xMultTheta[i]; }
+        for (size_t i = 0; i < blockSize; i++)
+        {
+            value[0] += xMultTheta[i] * xMultTheta[i];
+        }
     }
 
     if (task.hessianFlag)
@@ -698,12 +803,18 @@ inline void MSEKernel<algorithmFPType, method, cpu>::computeMSE(size_t blockSize
 
         for (size_t i = 0; i < blockSize; i++)
         {
-            for (size_t j = 0; j < nTheta; j++) { hessian[j + 1] += data[i * nTheta + j]; }
+            for (size_t j = 0; j < nTheta; j++)
+            {
+                hessian[j + 1] += data[i * nTheta + j];
+            }
         }
 
         for (size_t i = 0; i < argumentSize; i++)
         {
-            for (size_t j = 1; j < i; j++) { hessian[j * argumentSize + i] = hessian[i * argumentSize + j]; }
+            for (size_t j = 1; j < i; j++)
+            {
+                hessian[j * argumentSize + i] = hessian[i * argumentSize + j];
+            }
             hessian[i * argumentSize] = hessian[i];
         }
     }
@@ -716,17 +827,26 @@ void MSEKernel<algorithmFPType, method, cpu>::normalizeResults(MSETask<algorithm
     size_t argumentSize          = task.argumentSize;
     const algorithmFPType one    = 1.0;
     algorithmFPType batchSizeInv = (algorithmFPType)one / task.batchSize;
-    if (task.valueFlag) { value[0] /= (algorithmFPType)(2 * task.batchSize); }
+    if (task.valueFlag)
+    {
+        value[0] /= (algorithmFPType)(2 * task.batchSize);
+    }
 
     if (task.gradientFlag)
     {
-        for (size_t j = 0; j < argumentSize; j++) { gradient[j] *= batchSizeInv; }
+        for (size_t j = 0; j < argumentSize; j++)
+        {
+            gradient[j] *= batchSizeInv;
+        }
     }
 
     if (task.hessianFlag)
     {
         hessian[0] = one;
-        for (size_t j = 1; j < argumentSize * argumentSize; j++) { hessian[j] *= batchSizeInv; }
+        for (size_t j = 1; j < argumentSize * argumentSize; j++)
+        {
+            hessian[j] *= batchSizeInv;
+        }
     }
 }
 

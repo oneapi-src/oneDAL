@@ -48,7 +48,10 @@ ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const line
     : super(featnum, nrhs, par, dummy)
 {
     size_t dimWithoutBeta = getNumberOfBetas();
-    if (!_interceptFlag) { dimWithoutBeta--; }
+    if (!_interceptFlag)
+    {
+        dimWithoutBeta--;
+    }
 
     auto & context    = oneapi::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();

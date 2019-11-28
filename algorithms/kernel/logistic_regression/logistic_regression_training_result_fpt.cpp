@@ -44,7 +44,9 @@ ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, mode
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu)
-    { _beta = data_management::HomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st); }
+    {
+        _beta = data_management::HomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st);
+    }
     else
     {
         _beta = data_management::SyclHomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st);

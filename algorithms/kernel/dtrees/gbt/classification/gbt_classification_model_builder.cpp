@@ -70,12 +70,21 @@ services::Status ModelBuilder::createTreeInternal(size_t nNodes, size_t clasLabe
 {
     gbt::classification::internal::ModelImpl & modelImplRef =
         daal::algorithms::dtrees::internal::getModelRef<daal::algorithms::gbt::classification::internal::ModelImpl, ModelPtr>(_model);
-    if (_nClasses == 1) { return daal::algorithms::dtrees::internal::createTreeInternal(modelImplRef._serializationData, nNodes, resId); }
+    if (_nClasses == 1)
+    {
+        return daal::algorithms::dtrees::internal::createTreeInternal(modelImplRef._serializationData, nNodes, resId);
+    }
     else
     {
         Status s;
-        if (nNodes == 0) { return Status(ErrorID::ErrorIncorrectParameter); }
-        if (clasLabel > (_nClasses - 1)) { return Status(ErrorID::ErrorIncorrectParameter); }
+        if (nNodes == 0)
+        {
+            return Status(ErrorID::ErrorIncorrectParameter);
+        }
+        if (clasLabel > (_nClasses - 1))
+        {
+            return Status(ErrorID::ErrorIncorrectParameter);
+        }
         TreeId treeId                               = clasLabel * _nIterations;
         const SerializationIface * isEmptyTreeTable = (*(modelImplRef._serializationData))[treeId].get();
         const size_t nTrees                         = (clasLabel + 1) * _nIterations;

@@ -45,7 +45,10 @@ public:
 
     virtual ~ObjectPtrCollection()
     {
-        for (size_t i = 0; i < _objects.size(); i++) { _deleter((const void *)_objects[i]); }
+        for (size_t i = 0; i < _objects.size(); i++)
+        {
+            _deleter((const void *)_objects[i]);
+        }
     }
 
     T & operator[](size_t index) const
@@ -58,7 +61,10 @@ public:
 
     bool push_back(T * object)
     {
-        if (!object) { return false; }
+        if (!object)
+        {
+            return false;
+        }
 
         return _objects.safe_push_back(object);
     }

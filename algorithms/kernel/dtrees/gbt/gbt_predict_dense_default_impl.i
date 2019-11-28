@@ -90,7 +90,10 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++) { v[k] = values[i[k]]; }
+    for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+    {
+        v[k] = values[i[k]];
+    }
 }
 
 template <typename algorithmFPType, typename DecisionTreeType, CpuType cpu>
@@ -106,11 +109,16 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
     if (featTypes.hasUnorderedFeatures())
     {
         for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
-        { i = i * 2 + (featTypes.isUnordered(fIndexes[i]) ? int(x[fIndexes[i]]) != int(values[i]) : x[fIndexes[i]] > values[i]); }
+        {
+            i = i * 2 + (featTypes.isUnordered(fIndexes[i]) ? int(x[fIndexes[i]]) != int(values[i]) : x[fIndexes[i]] > values[i]);
+        }
     }
     else
     {
-        for (FeatureIndexType itr = 0; itr < maxLvl; itr++) { i = i * 2 + (x[fIndexes[i]] > values[i]); }
+        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+        {
+            i = i * 2 + (x[fIndexes[i]] > values[i]);
+        }
     }
 
     return values[i];
@@ -136,7 +144,10 @@ struct TileDimensions
         {
             nRowsInBlock = 2 * VECTOR_BLOCK_SIZE;
 
-            if (daal::threader_get_threads_number() > nRowsTotal / nRowsInBlock) { nRowsInBlock = VECTOR_BLOCK_SIZE; }
+            if (daal::threader_get_threads_number() > nRowsTotal / nRowsInBlock)
+            {
+                nRowsInBlock = VECTOR_BLOCK_SIZE;
+            }
         }
         nDataBlocks = nRowsTotal / nRowsInBlock;
 

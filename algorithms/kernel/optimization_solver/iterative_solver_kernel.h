@@ -96,7 +96,10 @@ public:
                 DAAL_CHECK_THR(normPtr, services::ErrorMemoryAllocationFailed);
                 PRAGMA_VECTOR_ALWAYS
                 PRAGMA_IVDEP
-                for (int j = 0; j < nRowsInBlock; j++) { *normPtr += vecLocal[j] * vecLocal[j]; }
+                for (int j = 0; j < nRowsInBlock; j++)
+                {
+                    *normPtr += vecLocal[j] * vecLocal[j];
+                }
             },
             minRowsNumInBlock, blockStartThreshold);
         normTls.reduce([=, &res](algorithmFPType * normPtr) -> void {
@@ -116,7 +119,10 @@ public:
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < nElements; j++) { res += vec[j] * vec[j]; }
+            for (size_t j = 0; j < nElements; j++)
+            {
+                res += vec[j] * vec[j];
+            }
             res = daal::internal::Math<algorithmFPType, cpu>::sSqrt(res); // change to sqNorm
             return services::Status();
         }
@@ -135,7 +141,10 @@ public:
                 DAAL_CHECK_THR(normPtr, services::ErrorMemoryAllocationFailed);
                 const algorithmFPType * vecLocal = &vec[startOffset];
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nRowsInBlock; j++) { *normPtr += vecLocal[j] * vecLocal[j]; }
+                for (int j = 0; j < nRowsInBlock; j++)
+                {
+                    *normPtr += vecLocal[j] * vecLocal[j];
+                }
             },
             minRowsNumInBlock, blockStartThreshold);
 

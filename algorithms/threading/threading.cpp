@@ -84,11 +84,17 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 #if defined(__DO_TBB_LAYER__)
     tbb::parallel_for(tbb::blocked_range<int>(0, n, 1), [&](tbb::blocked_range<int> r) {
         int i;
-        for (i = r.begin(); i < r.end(); i++) { func(i, a); }
+        for (i = r.begin(); i < r.end(); i++)
+        {
+            func(i, a);
+        }
     });
 #elif defined(__DO_SEQ_LAYER__)
     int i;
-    for (i = 0; i < n; i++) { func(i, a); }
+    for (i = 0; i < n; i++)
+    {
+        func(i, a);
+    }
 #endif
 }
 
@@ -107,7 +113,10 @@ DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const v
     if (_daal_is_in_parallel())
     {
         int i;
-        for (i = 0; i < n; i++) { func(i, a); }
+        for (i = 0; i < n; i++)
+        {
+            func(i, a);
+        }
     }
     else
     {
@@ -161,7 +170,10 @@ DAAL_EXPORT void _daal_reduce_tls(void * tlsPtr, void * a, daal::tls_reduce_func
 #if defined(__DO_TBB_LAYER__)
     tbb::enumerable_thread_specific<void *> * p = static_cast<tbb::enumerable_thread_specific<void *> *>(tlsPtr);
 
-    for (auto it = p->begin(); it != p->end(); ++it) { func((*it), a); }
+    for (auto it = p->begin(); it != p->end(); ++it)
+    {
+        func((*it), a);
+    }
 #elif defined(__DO_SEQ_LAYER__)
     func(tlsPtr, a);
 #endif
@@ -312,9 +324,15 @@ public:
     */
     bool resize(size_t newCapacity)
     {
-        if (newCapacity <= _capacity) { return true; }
+        if (newCapacity <= _capacity)
+        {
+            return true;
+        }
         T * newArray = (T *)Allocator::alloc(sizeof(T) * newCapacity);
-        if (!newArray) { return false; }
+        if (!newArray)
+        {
+            return false;
+        }
         for (size_t i = 0; i < newCapacity; i++)
         {
             T * elementMemory = &(newArray[i]);

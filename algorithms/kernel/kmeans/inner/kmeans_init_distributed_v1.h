@@ -483,14 +483,20 @@ public:
         if (_partialResult)
         {
             s |= _partialResult->check(_par, method);
-            if (!s) { return s; }
+            if (!s)
+            {
+                return s;
+            }
         }
         else
         {
             return services::Status(services::ErrorNullResult);
         }
 
-        if (_result) { s |= _result->check(&input, _par, method); }
+        if (_result)
+        {
+            s |= _result->check(&input, _par, method);
+        }
         else
         {
             return services::Status(services::ErrorNullResult);

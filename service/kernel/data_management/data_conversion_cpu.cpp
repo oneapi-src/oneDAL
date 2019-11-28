@@ -28,13 +28,19 @@ namespace internal
 template <typename T1, typename T2, CpuType cpu>
 void vectorConvertFuncCpu(size_t n, const void * src, void * dst)
 {
-    for (size_t i = 0; i < n; i++) { ((T2 *)dst)[i] = static_cast<T2>(((T1 *)src)[i]); }
+    for (size_t i = 0; i < n; i++)
+    {
+        ((T2 *)dst)[i] = static_cast<T2>(((T1 *)src)[i]);
+    }
 }
 
 template <typename T1, typename T2, CpuType cpu>
 void vectorStrideConvertFuncCpu(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride)
 {
-    for (size_t i = 0; i < n; i++) { *(T2 *)(((char *)dst) + i * dstByteStride) = static_cast<T2>(*(T1 *)(((char *)src) + i * srcByteStride)); }
+    for (size_t i = 0; i < n; i++)
+    {
+        *(T2 *)(((char *)dst) + i * dstByteStride) = static_cast<T2>(*(T1 *)(((char *)src) + i * srcByteStride));
+    }
 }
 
 #undef DAAL_FUNCS_UP_ENTRY

@@ -129,17 +129,32 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
     const size_t nMinRows          = 1;
     size_t gemmBlockSize           = nValuesInBlock;
 
-    while (gemmBlockSize > nValuesInBlock / nClusters) { gemmBlockSize >>= 1; }
+    while (gemmBlockSize > nValuesInBlock / nClusters)
+    {
+        gemmBlockSize >>= 1;
+    }
 
-    if (gemmBlockSize < nMinRows) { return Status(ErrorKMeansNumberOfClustersIsTooLarge); }
+    if (gemmBlockSize < nMinRows)
+    {
+        return Status(ErrorKMeansNumberOfClustersIsTooLarge);
+    }
 
     size_t datasetBlockSize = nValuesInBlock;
-    while (datasetBlockSize > nValuesInBlock / nFeatures) { datasetBlockSize >>= 1; }
+    while (datasetBlockSize > nValuesInBlock / nFeatures)
+    {
+        datasetBlockSize >>= 1;
+    }
 
-    if (datasetBlockSize < nMinRows) { return Status(ErrorIncorrectNumberOfFeatures); }
+    if (datasetBlockSize < nMinRows)
+    {
+        return Status(ErrorIncorrectNumberOfFeatures);
+    }
 
     size_t blockSize = datasetBlockSize > gemmBlockSize ? gemmBlockSize : datasetBlockSize;
-    if (blockSize > nRows) { blockSize = nRows; }
+    if (blockSize > nRows)
+    {
+        blockSize = nRows;
+    }
 
     auto dataSq                    = context.allocate(TypeIds::id<algorithmFPType>(), blockSize, &st);
     auto centroidsSq               = context.allocate(TypeIds::id<algorithmFPType>(), nClusters, &st);
@@ -188,7 +203,10 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
             size_t first = block * blockSize;
             size_t last  = first + blockSize;
 
-            if (last > nRows) { last = nRows; }
+            if (last > nRows)
+            {
+                last = nRows;
+            }
 
             size_t curBlockSize = last - first;
 
@@ -241,7 +259,10 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
             {
                 if (cPos >= nClusters) continue;
                 int id = candidatesIds.get()[cPos];
-                if (id < 0 || id >= nRows) { continue; }
+                if (id < 0 || id >= nRows)
+                {
+                    continue;
+                }
                 objFuncCorrection += candidatesDists.get()[cPos];
                 BlockDescriptor<algorithmFPType> singleRow;
                 ntData->getBlockOfRows(0, blockSize, readOnly, singleRow);
@@ -277,7 +298,10 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         size_t first = block * blockSize;
         size_t last  = first + blockSize;
 
-        if (last > nRows) { last = nRows; }
+        if (last > nRows)
+        {
+            last = nRows;
+        }
 
         size_t curBlockSize = last - first;
 
@@ -364,8 +388,14 @@ template <typename algorithmFPType>
 uint32_t KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::getComputeSquaresWorkgroupsCount(uint32_t nFeatures)
 {
     size_t workItemsPerGroup = nFeatures < _maxWorkItemsPerGroup ? nFeatures : _maxWorkItemsPerGroup;
-    while (workItemsPerGroup & (workItemsPerGroup - 1)) { workItemsPerGroup++; }
-    if (nFeatures <= 32) { workItemsPerGroup = nFeatures; }
+    while (workItemsPerGroup & (workItemsPerGroup - 1))
+    {
+        workItemsPerGroup++;
+    }
+    if (nFeatures <= 32)
+    {
+        workItemsPerGroup = nFeatures;
+    }
     else if (nFeatures <= 64)
     {
         workItemsPerGroup = nFeatures / 2;
@@ -382,7 +412,10 @@ uint32_t KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::getComputeSquaresWor
 template <typename algorithmFPType>
 const char * KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::getComputeSquaresKernelName(uint32_t nFeatures)
 {
-    if (nFeatures <= 32) { return "compute_squares_32"; }
+    if (nFeatures <= 32)
+    {
+        return "compute_squares_32";
+    }
     else if (nFeatures <= 64)
     {
         return "compute_squares_64";
@@ -465,7 +498,10 @@ void KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::computeDistances(Executi
                                                       nFeatures, algorithmFPType(-1.0), data, nFeatures, 0, centroids, nFeatures, 0,
                                                       algorithmFPType(1.0), distances.get<algorithmFPType>(), blockSize, 0);
 
-    if (st != nullptr) { *st = gemmStatus; }
+    if (st != nullptr)
+    {
+        *st = gemmStatus;
+    }
 }
 
 template <typename algorithmFPType>

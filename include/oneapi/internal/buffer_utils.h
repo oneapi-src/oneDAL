@@ -112,7 +112,10 @@ public:
         auto & context      = getDefaultContext();
         auto uniBufferBlock = context.allocate(TypeIds::id<DataType>(), _size, &_st);
 
-        if (!_st) { return; }
+        if (!_st)
+        {
+            return;
+        }
 
         auto bufferBlock = uniBufferBlock.template get<DataType>();
         {

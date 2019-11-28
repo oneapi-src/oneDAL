@@ -50,7 +50,10 @@ services::Status ImplicitALSInitKernelBase<algorithmFPType, cpu>::randFactors(si
     const size_t lastBlockSize = (nItems * nFactors) - (nBlocks - 1) * blockSize;
 
     TArray<services::SharedPtr<engines::BatchBase>, cpu> engines(nBlocks - 1);
-    for (size_t i = 0; i < nBlocks - 1; i++) { engines[i] = engine.clone(); }
+    for (size_t i = 0; i < nBlocks - 1; i++)
+    {
+        engines[i] = engine.clone();
+    }
 
     daal::SafeStatus safeStatus;
     daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {

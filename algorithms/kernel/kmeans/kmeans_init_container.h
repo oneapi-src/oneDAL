@@ -48,7 +48,9 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu || (method != deterministicDense && method != randomDense))
-    { __DAAL_INITIALIZE_KERNELS(internal::KMeansInitKernel, method, algorithmFPType); }
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::KMeansInitKernel, method, algorithmFPType);
+    }
     else
     {
         _kernel = new internal::KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>();

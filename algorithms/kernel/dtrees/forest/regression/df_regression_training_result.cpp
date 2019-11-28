@@ -87,7 +87,9 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     //TODO: check model
     const Parameter * algParameter = static_cast<const Parameter *>(par);
     if (algParameter->resultsToCompute & decision_forest::training::computeOutOfBagError)
-    { DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1)); }
+    {
+        DAAL_CHECK_STATUS(s, data_management::checkNumericTable(get(outOfBagError).get(), outOfBagErrorStr(), 0, 0, 1, 1));
+    }
     if (algParameter->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
     {
         const auto nObs = algInput->get(decision_forest::regression::training::data)->getNumberOfRows();

@@ -102,7 +102,10 @@ struct localDataCollector<algorithmFPType, defaultDense, cpu>
             int cl = predefClass[j];
             DAAL_ASSERT(cl < _c);
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < _p; i++) { n_ci[cl * _p + i] += data[j * _p + i]; }
+            for (size_t i = 0; i < _p; i++)
+            {
+                n_ci[cl * _p + i] += data[j * _p + i];
+            }
         }
 
         return Status();
@@ -180,9 +183,15 @@ Status collectCounters(const Parameter * nbPar, NumericTable * ntData, NumericTa
         algorithmFPType block_size = ldc.getBlockSize(jn);
         int i;
 
-        for (i = 0; i + block_size < jn + 1; i += block_size) { safeStat |= ldc.addData(j0 + i, block_size); }
+        for (i = 0; i + block_size < jn + 1; i += block_size)
+        {
+            safeStat |= ldc.addData(j0 + i, block_size);
+        }
 
-        if (i != jn) { safeStat |= ldc.addData(j0 + i, jn - i); }
+        if (i != jn)
+        {
+            safeStat |= ldc.addData(j0 + i, jn - i);
+        }
     });
 
     tls_n_ci.reduce([=](algorithmFPType * v) {
@@ -222,10 +231,16 @@ Status mergeModels(const Parameter * nbPar, size_t p, size_t nModels, PartialMod
         DAAL_CHECK_BLOCK_STATUS(rrCi);
 
         PRAGMA_IVDEP
-        for (size_t j = 0; j < c; j++) { n_c[j] += in_n_c[j]; }
+        for (size_t j = 0; j < c; j++)
+        {
+            n_c[j] += in_n_c[j];
+        }
 
         PRAGMA_IVDEP
-        for (size_t j = 0; j < p * c; j++) { n_ci[j] += in_n_ci[j]; }
+        for (size_t j = 0; j < p * c; j++)
+        {
+            n_ci[j] += in_n_ci[j];
+        }
 
         merged_n += models[i]->getNObservations();
     }
@@ -253,7 +268,10 @@ Status fillModel(const Parameter * nbPar, size_t p, algorithmFPType * n_c, algor
     {
         algorithmFPType log_p_const = -daal::internal::Math<algorithmFPType, cpu>::sLog((algorithmFPType)c);
 
-        for (size_t j = 0; j < c; j++) { log_p[j] = log_p_const; }
+        for (size_t j = 0; j < c; j++)
+        {
+            log_p[j] = log_p_const;
+        }
     }
     else
     {
@@ -274,7 +292,10 @@ Status fillModel(const Parameter * nbPar, size_t p, algorithmFPType * n_c, algor
             algorithmFPType denominator = (algorithmFPType)1.0 / (n_c[j] + alpha);
 
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < p; i++) { log_theta[j * p + i] = (n_ci[j * p + i] + alpha_i) * denominator; }
+            for (size_t i = 0; i < p; i++)
+            {
+                log_theta[j * p + i] = (n_ci[j * p + i] + alpha_i) * denominator;
+            }
             daal::internal::Math<algorithmFPType, cpu>::vLog(p, log_theta + j * p, log_theta + j * p);
         }
     }
@@ -285,21 +306,30 @@ Status fillModel(const Parameter * nbPar, size_t p, algorithmFPType * n_c, algor
         const algorithmFPType * alpha_i = rrAlphaI.get();
 
         algorithmFPType alpha = 0;
-        for (size_t i = 0; i < p; i++) { alpha += alpha_i[i]; }
+        for (size_t i = 0; i < p; i++)
+        {
+            alpha += alpha_i[i];
+        }
 
         for (size_t j = 0; j < c; j++)
         {
             algorithmFPType denominator = (algorithmFPType)1.0 / (n_c[j] + alpha);
 
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < p; i++) { log_theta[j * p + i] = (n_ci[j * p + i] + alpha_i[i]) * denominator; }
+            for (size_t i = 0; i < p; i++)
+            {
+                log_theta[j * p + i] = (n_ci[j * p + i] + alpha_i[i]) * denominator;
+            }
             daal::internal::Math<algorithmFPType, cpu>::vLog(p, log_theta + j * p, log_theta + j * p);
         }
     }
 
     for (size_t j = 0; j < c; j++)
     {
-        for (size_t i = 0; i < p; i++) { aux_table[j * p + i] = log_theta[j * p + i] + log_p[j]; }
+        for (size_t i = 0; i < p; i++)
+        {
+            aux_table[j * p + i] = log_theta[j * p + i] + log_p[j];
+        }
     }
 
     rMdl->setNFeatures(p);
@@ -337,13 +367,22 @@ services::Status NaiveBayesBatchTrainKernel<algorithmFPType, method, cpu>::compu
     algorithmFPType * n_c  = t_n_c.get();
     algorithmFPType * n_ci = t_n_ci.get();
 
-    if (n_c == 0 || n_ci == 0) { return Status(ErrorMemoryAllocationFailed); }
+    if (n_c == 0 || n_ci == 0)
+    {
+        return Status(ErrorMemoryAllocationFailed);
+    }
 
     PRAGMA_IVDEP
-    for (size_t j = 0; j < c; j++) { n_c[j] = 0; }
+    for (size_t j = 0; j < c; j++)
+    {
+        n_c[j] = 0;
+    }
 
     PRAGMA_IVDEP
-    for (size_t j = 0; j < p * c; j++) { n_ci[j] = 0; }
+    for (size_t j = 0; j < p * c; j++)
+    {
+        n_ci[j] = 0;
+    }
     Status s = collectCounters<algorithmFPType, method, cpu>(nbPar, ntData, ntClass, n_c, n_ci);
 
     if (!s) return s;
@@ -446,9 +485,15 @@ services::Status NaiveBayesDistributedTrainKernel<algorithmFPType, method, cpu>:
         algorithmFPType * n_c  = wrC.get();
         algorithmFPType * n_ci = wrCi.get();
 
-        for (size_t j = 0; j < c; j++) { n_c[j] = 0; }
+        for (size_t j = 0; j < c; j++)
+        {
+            n_c[j] = 0;
+        }
 
-        for (size_t j = 0; j < p * c; j++) { n_ci[j] = 0; }
+        for (size_t j = 0; j < p * c; j++)
+        {
+            n_ci[j] = 0;
+        }
 
         s = mergeModels<algorithmFPType, method, cpu>(nbPar, p, nModels, inPMdls, n_c, n_ci, merged_n);
     }

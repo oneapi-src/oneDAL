@@ -91,7 +91,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
 
     const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -114,7 +117,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
     double * data      = block.getBlockPtr();
     const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -140,7 +146,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
 
     const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
 }
@@ -166,7 +175,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
 
     double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -193,7 +205,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
 
     float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -219,7 +234,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
 
     int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum * nCols; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum * nCols; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfRows(block));
     return byteBuffer;
@@ -244,7 +262,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
 
     double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -269,7 +290,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
 
     float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -294,7 +318,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_RowMergedNum
 
     int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { dst[i] = data[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        dst[i] = data[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
     return byteBuffer;
@@ -319,7 +346,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
 
     const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -343,7 +373,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
 
     const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }
@@ -367,7 +400,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_RowMergedNumeri
 
     const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < vectorNum; i++) { data[i] = src[i]; }
+    for (size_t i = 0; i < vectorNum; i++)
+    {
+        data[i] = src[i];
+    }
 
     DAAL_CHECK_THROW(nt->releaseBlockOfColumnValues(block));
 }

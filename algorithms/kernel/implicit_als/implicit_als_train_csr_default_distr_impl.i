@@ -65,7 +65,10 @@ Status ImplicitALSTrainDistrStep1Kernel<algorithmFPType, cpu>::compute(implicit_
     algorithmFPType * cp = mtCrossProduct.get();
 
     const algorithmFPType zero(0.0);
-    for (size_t i = 0; i < nFactors * nFactors; i++) { cp[i] = zero; }
+    for (size_t i = 0; i < nFactors * nFactors; i++)
+    {
+        cp[i] = zero;
+    }
 
     /* SYRK parameters */
     char uplo             = 'U';
@@ -325,7 +328,10 @@ Status AlsTls<algorithmFPType, cpu>::formSystem(ReadRowsCSR<algorithmFPType, cpu
 
     /* Add regularization term */
     const algorithmFPType gamma = algorithmFPType(_prm.lambda) * (endIdx - startIdx);
-    for (size_t k = 0; k < _prm.nFactors; k++) { lhs[k * _prm.nFactors + k] += gamma; }
+    for (size_t k = 0; k < _prm.nFactors; k++)
+    {
+        lhs[k * _prm.nFactors + k] += gamma;
+    }
     return Status();
 }
 

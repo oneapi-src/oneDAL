@@ -75,7 +75,10 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
     int unexpectedLayouts  = (int)packed_mask;
 
     Status s = checkNumericTable(get(matrixQ).get(), matrixQStr(), unexpectedLayouts, 0, nFeatures, nVectors);
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     s |= checkNumericTable(get(matrixR).get(), matrixRStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
     return s;
@@ -95,7 +98,10 @@ Status Result::check(const daal::algorithms::PartialResult * pres, const daal::a
     size_t nFeatures                       = algPartRes->getNumberOfColumns();
 
     Status s = checkNumericTable(get(matrixQ).get(), matrixQStr(), unexpectedLayouts, 0, nFeatures, nVectors);
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     s |= checkNumericTable(get(matrixR).get(), matrixRStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
     return s;

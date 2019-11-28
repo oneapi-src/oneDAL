@@ -273,7 +273,10 @@ public:
     size_t loadDataBlock() DAAL_C11_OVERRIDE
     {
         services::Status s = checkDictionary();
-        if (s) { s.add(checkNumericTable()); }
+        if (s)
+        {
+            s.add(checkNumericTable());
+        }
         if (!s)
         {
             this->_status.add(services::throwIfPossible(s));
@@ -403,7 +406,10 @@ protected:
 
         size_t nFeatures = ntDict->getNumberOfFeatures();
 
-        for (size_t i = 0; i < nFeatures; i++) { (*ntDict)[i] = (*_dict)[i].ntFeature; }
+        for (size_t i = 0; i < nFeatures; i++)
+        {
+            (*ntDict)[i] = (*_dict)[i].ntFeature;
+        }
         return services::Status();
     }
 };
@@ -503,7 +509,10 @@ protected:
 
         size_t nFeatures = getNumericTableNumberOfColumns();
 
-        if (nt->getNumberOfColumns() < nFeatures) { nt->getDictionarySharedPtr()->setNumberOfFeatures(nFeatures); }
+        if (nt->getNumberOfColumns() < nFeatures)
+        {
+            nt->getDictionarySharedPtr()->setNumberOfFeatures(nFeatures);
+        }
 
         nt->resize(0);
         nt->resize(linesToLoad);
@@ -519,25 +528,37 @@ protected:
 
         if (ntMin->getNumberOfColumns() != nCols || ntMin->getNumberOfRows() != 1)
         {
-            if (ntMin->getNumberOfColumns() != nCols) { ntMin->getDictionarySharedPtr()->setNumberOfFeatures(nCols); }
+            if (ntMin->getNumberOfColumns() != nCols)
+            {
+                ntMin->getDictionarySharedPtr()->setNumberOfFeatures(nCols);
+            }
             ntMin->resize(1);
         }
 
         if (ntMax->getNumberOfColumns() != nCols || ntMax->getNumberOfRows() != 1)
         {
-            if (ntMax->getNumberOfColumns() != nCols) { ntMax->getDictionarySharedPtr()->setNumberOfFeatures(nCols); }
+            if (ntMax->getNumberOfColumns() != nCols)
+            {
+                ntMax->getDictionarySharedPtr()->setNumberOfFeatures(nCols);
+            }
             ntMax->resize(1);
         }
 
         if (ntSum->getNumberOfColumns() != nCols || ntSum->getNumberOfRows() != 1)
         {
-            if (ntSum->getNumberOfColumns() != nCols) { ntSum->getDictionarySharedPtr()->setNumberOfFeatures(nCols); }
+            if (ntSum->getNumberOfColumns() != nCols)
+            {
+                ntSum->getDictionarySharedPtr()->setNumberOfFeatures(nCols);
+            }
             ntSum->resize(1);
         }
 
         if (ntSumSq->getNumberOfColumns() != nCols || ntSumSq->getNumberOfRows() != 1)
         {
-            if (ntSumSq->getNumberOfColumns() != nCols) { ntSumSq->getDictionarySharedPtr()->setNumberOfFeatures(nCols); }
+            if (ntSumSq->getNumberOfColumns() != nCols)
+            {
+                ntSumSq->getDictionarySharedPtr()->setNumberOfFeatures(nCols);
+            }
             ntSumSq->resize(1);
         }
         return services::Status();
@@ -585,8 +606,14 @@ protected:
         {
             for (size_t i = 0; i < nCols; i++)
             {
-                if (minimum[i] > row[i]) { minimum[i] = row[i]; }
-                if (maximum[i] < row[i]) { maximum[i] = row[i]; }
+                if (minimum[i] > row[i])
+                {
+                    minimum[i] = row[i];
+                }
+                if (maximum[i] < row[i])
+                {
+                    maximum[i] = row[i];
+                }
                 sum[i] += row[i];
                 sumSquares[i] += row[i] * row[i];
             }
@@ -644,7 +671,10 @@ protected:
 
         if (wasEmpty)
         {
-            for (size_t i = 0; i < nCols; i++) { dst[i] = src[i]; }
+            for (size_t i = 0; i < nCols; i++)
+            {
+                dst[i] = src[i];
+            }
         }
         else
         {
@@ -652,23 +682,35 @@ protected:
             {
                 for (size_t i = 0; i < nCols; i++)
                 {
-                    if (dst[i] > src[i]) { dst[i] = src[i]; }
+                    if (dst[i] > src[i])
+                    {
+                        dst[i] = src[i];
+                    }
                 }
             }
             else if (id == NumericTable::maximum)
             {
                 for (size_t i = 0; i < nCols; i++)
                 {
-                    if (dst[i] < src[i]) { dst[i] = src[i]; }
+                    if (dst[i] < src[i])
+                    {
+                        dst[i] = src[i];
+                    }
                 }
             }
             else if (id == NumericTable::sum)
             {
-                for (size_t i = 0; i < nCols; i++) { dst[i] += src[i]; }
+                for (size_t i = 0; i < nCols; i++)
+                {
+                    dst[i] += src[i];
+                }
             }
             else if (id == NumericTable::sumSquares)
             {
-                for (size_t i = 0; i < nCols; i++) { dst[i] += src[i]; }
+                for (size_t i = 0; i < nCols; i++)
+                {
+                    dst[i] += src[i];
+                }
             }
         }
 

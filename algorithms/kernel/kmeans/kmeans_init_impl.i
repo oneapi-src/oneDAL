@@ -57,7 +57,10 @@ Status init(size_t p, size_t n, size_t nRowsTotal, size_t nClusters, algorithmFP
         const algorithmFPType * data = mtData.get();
         for (size_t i = 0; i < nClusters && i < n; i++)
         {
-            for (size_t j = 0; j < p; j++) { clusters[i * p + j] = data[i * p + j]; }
+            for (size_t j = 0; j < p; j++)
+            {
+                clusters[i * p + j] = data[i * p + j];
+            }
         }
         clustersFound = nClusters;
         return Status();
@@ -91,7 +94,10 @@ Status init(size_t p, size_t n, size_t nRowsTotal, size_t nClusters, algorithmFP
             if (c >= n) continue;
             const algorithmFPType * data = mtData.set(ntData, c, 1);
             DAAL_CHECK_BLOCK_STATUS(mtData);
-            for (size_t j = 0; j < p; j++) { clusters[k * p + j] = data[j]; }
+            for (size_t j = 0; j < p; j++)
+            {
+                clusters[k * p + j] = data[j];
+            }
             k++;
         }
         clustersFound = k;
@@ -294,7 +300,10 @@ services::Status KMeansInitStep2MasterKernel<method, algorithmFPType, cpu>::fina
         const size_t inK = *inClustersN;
         for (size_t j = 0; j < inK; j++)
         {
-            for (size_t h = 0; h < p; h++) { clusters[k * p + h] = inClusters[j * p + h]; }
+            for (size_t h = 0; h < p; h++)
+            {
+                clusters[k * p + h] = inClusters[j * p + h];
+            }
             k++;
         }
     }

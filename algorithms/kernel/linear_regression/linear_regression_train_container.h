@@ -59,7 +59,9 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(Environment::env * 
     auto & deviceInfo = context.getInfoDevice();
 
     if ((method == training::normEqDense) && (!deviceInfo.isCpu))
-    { __DAAL_INITIALIZE_KERNELS_SYCL(internal::BatchKernelOneAPI, algorithmFPType, training::normEqDense); }
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::BatchKernelOneAPI, algorithmFPType, training::normEqDense);
+    }
     else
     {
         __DAAL_INITIALIZE_KERNELS(internal::BatchKernel, algorithmFPType, method);

@@ -44,9 +44,14 @@ Parameter::Parameter(InitializationMethod initMethod, double alpha, double toler
 
 services::Status Parameter::check() const
 {
-    if (alpha <= 0 || alpha >= 1) { return services::Status(Error::create(ErrorIncorrectParameter, ParameterName, alphaStr())); }
+    if (alpha <= 0 || alpha >= 1)
+    {
+        return services::Status(Error::create(ErrorIncorrectParameter, ParameterName, alphaStr()));
+    }
     if (toleranceToConverge <= 0 || toleranceToConverge >= 1)
-    { return services::Status(Error::create(ErrorIncorrectParameter, ParameterName, toleranceToConvergeStr())); }
+    {
+        return services::Status(Error::create(ErrorIncorrectParameter, ParameterName, toleranceToConvergeStr()));
+    }
     return services::Status();
 }
 

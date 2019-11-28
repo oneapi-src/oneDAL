@@ -93,7 +93,10 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::compute(const Nume
         for (size_t i = 1; i < L_size; i++)
         {
             size_t exp2LSize = ((size_t)1 << (i + 1)) - (size_t)2;
-            if (exp2LSize < 2) { exp2LSize = 2; }
+            if (exp2LSize < 2)
+            {
+                exp2LSize = 2;
+            }
             maxRulesNum += L[i].size * (exp2LSize - 1) * (exp2LSize);
         }
 
@@ -202,10 +205,16 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::writeItemsetsTable
     size_t iset_idx = 0;
     for (size_t i = minItemsetSize - 1, k = 0; i < L_size; i++)
     {
-        for (auto * current = L[i].start; current != NULL; current = current->next(), iset_idx++, k++) { itemsetsArray[k] = current->itemSet(); }
+        for (auto * current = L[i].start; current != NULL; current = current->next(), iset_idx++, k++)
+        {
+            itemsetsArray[k] = current->itemSet();
+        }
     }
 
-    if (itemsetsOrder == itemsetsSortedBySupport) { qSort<ItemsetConstPtr, cpu>(nLargeItemSets, itemsetsArray.get(), compareItemsetsBySupport<cpu>); }
+    if (itemsetsOrder == itemsetsSortedBySupport)
+    {
+        qSort<ItemsetConstPtr, cpu>(nLargeItemSets, itemsetsArray.get(), compareItemsetsBySupport<cpu>);
+    }
 
     size_t item_idx = 0;
     for (size_t i = 0; i < nLargeItemSets; i++)
@@ -257,9 +266,15 @@ Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::writeRulesTableDat
 
     TArray<AssocRule<cpu> *, cpu> rulesArray(nRules);
     DAAL_CHECK(rulesArray.get(), ErrorMemoryAllocationFailed);
-    for (size_t i = 0; i < nRules; i++) { rulesArray[i] = R + i; }
+    for (size_t i = 0; i < nRules; i++)
+    {
+        rulesArray[i] = R + i;
+    }
 
-    if (rulesOrder == rulesSortedByConfidence) { qSort<AssocRule<cpu> *, cpu>(nRules, rulesArray.get(), compareRulesByConfidence<cpu>); }
+    if (rulesOrder == rulesSortedByConfidence)
+    {
+        qSort<AssocRule<cpu> *, cpu>(nRules, rulesArray.get(), compareRulesByConfidence<cpu>);
+    }
     WriteOnlyColumns<algorithmFPType, cpu> mtConfidence(confidenceTable, 0, 0, nRules);
     DAAL_CHECK_BLOCK_STATUS(mtConfidence);
     algorithmFPType * confidence = mtConfidence.get();

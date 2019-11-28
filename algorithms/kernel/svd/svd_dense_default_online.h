@@ -78,7 +78,10 @@ DAAL_EXPORT Status OnlinePartialResult::addPartialResultStorage(size_t m, size_t
 {
     DataCollectionPtr rCollection = staticPointerCast<DataCollection, SerializationIface>(Argument::get(outputOfStep1ForStep2));
     Status st;
-    if (rCollection) { rCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &st)); }
+    if (rCollection)
+    {
+        rCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &st));
+    }
     else
     {
         return Status(Error::create(ErrorNullOutputDataCollection, ArgumentName, outputOfStep1ForStep3Str()));
@@ -87,7 +90,10 @@ DAAL_EXPORT Status OnlinePartialResult::addPartialResultStorage(size_t m, size_t
     if (par.leftSingularMatrix != notRequired)
     {
         DataCollectionPtr qCollection = staticPointerCast<DataCollection, SerializationIface>(Argument::get(outputOfStep1ForStep3));
-        if (qCollection) { qCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, n, NumericTable::doAllocate, &st)); }
+        if (qCollection)
+        {
+            qCollection->push_back(HomogenNumericTable<algorithmFPType>::create(m, n, NumericTable::doAllocate, &st));
+        }
         else
         {
             return Status(Error::create(ErrorNullOutputDataCollection, ArgumentName, outputOfStep1ForStep3Str()));

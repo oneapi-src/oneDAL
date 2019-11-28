@@ -185,7 +185,10 @@ struct cpu_mask_t
     ~cpu_mask_t()
     {
         #if defined __PINNER_LINUX__
-        if (cpu_set != NULL) { CPU_FREE(cpu_set); }
+        if (cpu_set != NULL)
+        {
+            CPU_FREE(cpu_set);
+        }
         #endif
 
         return;

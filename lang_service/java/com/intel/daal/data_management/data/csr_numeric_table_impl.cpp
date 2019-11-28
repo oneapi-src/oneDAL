@@ -51,7 +51,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTabl
     // Create C++ object of the class JavaNumericTable
     JavaCSRNumericTable * tbl = new JavaCSRNumericTable((size_t)nFeatures, (size_t)nVectors, jvm, thisObj);
 
-    if (tbl->getErrors()->size() > 0) { env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription()); }
+    if (tbl->getErrors()->size() > 0)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), tbl->getErrors()->getDescription());
+    }
 
     return (jlong) new SerializationIfacePtr(tbl);
 }
@@ -111,7 +114,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
 
     __int64 * dest = (__int64 *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < dataSize; i++) { dest[i] = colIndices[i]; }
+    for (size_t i = 0; i < dataSize; i++)
+    {
+        dest[i] = colIndices[i];
+    }
     return byteBuffer;
 }
 
@@ -133,7 +139,10 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
 
     __int64 * dest = (__int64 *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for (size_t i = 0; i < nRows; i++) { dest[i] = rowOffsets[i]; }
+    for (size_t i = 0; i < nRows; i++)
+    {
+        dest[i] = rowOffsets[i];
+    }
     return byteBuffer;
 }
 

@@ -58,13 +58,17 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
     {
         set(nObservations, HomogenNumericTable<size_t>::create(1, 1, NumericTable::doAllocate, &s));
         for (size_t i = 1; i < lastPartialResultId + 1; i++)
-        { Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s)); }
+        {
+            Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
+        }
     }
     else
     {
         set(nObservations, SyclHomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &s));
         for (size_t i = 1; i < lastPartialResultId + 1; i++)
-        { Argument::set(i, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s)); }
+        {
+            Argument::set(i, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
+        }
     }
     return s;
 }

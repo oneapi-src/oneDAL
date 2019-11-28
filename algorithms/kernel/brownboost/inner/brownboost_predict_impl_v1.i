@@ -69,7 +69,10 @@ services::Status I1BrownBoostPredictKernel<method, algorithmFPType, cpu>::comput
     {
         algorithmFPType sqrtC    = daal::internal::Math<algorithmFPType, cpu>::sErfInv(algorithmFPType(1.0) - error);
         algorithmFPType invSqrtC = algorithmFPType(1.0) / sqrtC;
-        for (size_t j = 0; j < nVectors; j++) { r[j] *= invSqrtC; }
+        for (size_t j = 0; j < nVectors; j++)
+        {
+            r[j] *= invSqrtC;
+        }
     }
     daal::internal::Math<algorithmFPType, cpu>::vErf(nVectors, r, r);
     return s;

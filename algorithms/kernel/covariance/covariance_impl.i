@@ -94,10 +94,19 @@ struct tls_data_t
     static tls_data_t<algorithmFPType, cpu> * create(bool isNormalized, size_t nFeatures)
     {
         auto object = new tls_data_t<algorithmFPType, cpu>(isNormalized, nFeatures);
-        if (!object) { return nullptr; }
+        if (!object)
+        {
+            return nullptr;
+        }
 
-        if (!(object->crossProduct)) { return nullptr; }
-        if (!(object->sums) && !isNormalized) { return nullptr; }
+        if (!(object->crossProduct))
+        {
+            return nullptr;
+        }
+        if (!(object->sums) && !isNormalized)
+        {
+            return nullptr;
+        }
 
         return object;
     }
@@ -105,7 +114,10 @@ struct tls_data_t
     tls_data_t(bool isNormalized, size_t nFeatures)
     {
         crossProductArray.reset(nFeatures * nFeatures);
-        if (!isNormalized) { sumsArray.reset(nFeatures); }
+        if (!isNormalized)
+        {
+            sumsArray.reset(nFeatures);
+        }
 
         sums         = sumsArray.get();
         crossProduct = crossProductArray.get();
@@ -143,20 +155,29 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         /* Split rows by blocks */
         size_t numRowsInBlock = getBlockSize<cpu>(nVectors);
         size_t numBlocks      = nVectors / numRowsInBlock;
-        if (numBlocks * numRowsInBlock < nVectors) { numBlocks++; }
+        if (numBlocks * numRowsInBlock < nVectors)
+        {
+            numBlocks++;
+        }
 
         /* TLS data initialization */
         SafeStatus safeStat;
         daal::tls<tls_data_t<algorithmFPType, cpu> *> tls_data([=, &safeStat]() {
             auto tlsData = tls_data_t<algorithmFPType, cpu>::create(isNormalized, nFeatures);
-            if (!tlsData) { safeStat.add(services::ErrorMemoryAllocationFailed); }
+            if (!tlsData)
+            {
+                safeStat.add(services::ErrorMemoryAllocationFailed);
+            }
             return tlsData;
         });
 
         /* Threaded loop with syrk seq calls */
         daal::threader_for(numBlocks, numBlocks, [&](int iBlock) {
             struct tls_data_t<algorithmFPType, cpu> * tls_data_local = tls_data.local();
-            if (!tls_data_local) { return; }
+            if (!tls_data_local)
+            {
+                return;
+            }
 
             char uplo             = 'U';
             char trans            = 'N';
@@ -165,7 +186,10 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
 
             size_t startRow = iBlock * numRowsInBlock;
             size_t endRow   = startRow + numRowsInBlock;
-            if (endRow > nVectors) { endRow = nVectors; }
+            if (endRow > nVectors)
+            {
+                endRow = nVectors;
+            }
             DAAL_INT nFeatures_local             = nFeatures;
             DAAL_INT nVectors_local              = endRow - startRow;
             algorithmFPType * dataBlock_local    = dataBlock + startRow * nFeatures;
@@ -186,7 +210,10 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (int j = 0; j < nFeatures_local; j++) { sums_local[j] += dataBlock_local[i * nFeatures_local + j]; }
+                    for (int j = 0; j < nFeatures_local; j++)
+                    {
+                        sums_local[j] += dataBlock_local[i * nFeatures_local + j];
+                    }
                 }
             }
         });
@@ -200,7 +227,10 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < (nFeatures * nFeatures); i++) { crossProduct[i] += tls_data_local->crossProduct[i]; }
+                for (size_t i = 0; i < (nFeatures * nFeatures); i++)
+                {
+                    crossProduct[i] += tls_data_local->crossProduct[i];
+                }
             }
 
             /* Update sums vector in case of non-normalized data */
@@ -210,7 +240,10 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (int i = 0; i < nFeatures; i++) { sums[i] += tls_data_local->sums[i]; }
+                    for (int i = 0; i < nFeatures; i++)
+                    {
+                        sums[i] += tls_data_local->sums[i];
+                    }
                 }
             }
 
@@ -225,7 +258,10 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nFeatures; j++) { crossProduct[i * nFeatures + j] -= (nVectorsInv * sums[i] * sums[j]); }
+                for (int j = 0; j < nFeatures; j++)
+                {
+                    crossProduct[i * nFeatures + j] -= (nVectorsInv * sums[i] * sums[j]);
+                }
             }
         }
     }
@@ -336,7 +372,10 @@ void mergeCrossProductAndSums(size_t nFeatures, const algorithmFPType * partialC
         nObservations[0] += partialNObservations[0];
 
         /* Merge sums */
-        for (size_t i = 0; i < nFeatures; i++) { sums[i] += partialSums[i]; }
+        for (size_t i = 0; i < nFeatures; i++)
+        {
+            sums[i] += partialSums[i];
+        }
     }
 }
 
@@ -349,10 +388,16 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
 
     algorithmFPType invNObservations   = 1.0 / nObservations;
     algorithmFPType invNObservationsM1 = 1.0;
-    if (nObservations > 1.0) { invNObservationsM1 = 1.0 / (nObservations - 1.0); }
+    if (nObservations > 1.0)
+    {
+        invNObservationsM1 = 1.0 / (nObservations - 1.0);
+    }
 
     /* Calculate resulting mean vector */
-    for (size_t i = 0; i < nFeatures; i++) { mean[i] = sums[i] * invNObservations; }
+    for (size_t i = 0; i < nFeatures; i++)
+    {
+        mean[i] = sums[i] * invNObservations;
+    }
 
     if (parameter->outputMatrixType == covariance::correlationMatrix)
     {
@@ -362,11 +407,16 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
 
         algorithmFPType * diagInvSqrts = diagInvSqrtsArray.get();
         for (size_t i = 0; i < nFeatures; i++)
-        { diagInvSqrts[i] = 1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(crossProduct[i * nFeatures + i]); }
+        {
+            diagInvSqrts[i] = 1.0 / daal::internal::Math<algorithmFPType, cpu>::sSqrt(crossProduct[i * nFeatures + i]);
+        }
 
         for (size_t i = 0; i < nFeatures; i++)
         {
-            for (size_t j = 0; j < i; j++) { cov[i * nFeatures + j] = crossProduct[i * nFeatures + j] * diagInvSqrts[i] * diagInvSqrts[j]; }
+            for (size_t j = 0; j < i; j++)
+            {
+                cov[i * nFeatures + j] = crossProduct[i * nFeatures + j] * diagInvSqrts[i] * diagInvSqrts[j];
+            }
             cov[i * nFeatures + i] = 1.0; //diagonal element
         }
     }
@@ -375,14 +425,20 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
         /* Calculate resulting covariance matrix */
         for (size_t i = 0; i < nFeatures; i++)
         {
-            for (size_t j = 0; j <= i; j++) { cov[i * nFeatures + j] = crossProduct[i * nFeatures + j] * invNObservationsM1; }
+            for (size_t j = 0; j <= i; j++)
+            {
+                cov[i * nFeatures + j] = crossProduct[i * nFeatures + j] * invNObservationsM1;
+            }
         }
     }
 
     /* Copy results into symmetric upper triangle */
     for (size_t i = 0; i < nFeatures; i++)
     {
-        for (size_t j = 0; j < i; j++) { cov[j * nFeatures + i] = cov[i * nFeatures + j]; }
+        for (size_t j = 0; j < i; j++)
+        {
+            cov[j * nFeatures + i] = cov[i * nFeatures + j];
+        }
     }
 
     return services::Status();

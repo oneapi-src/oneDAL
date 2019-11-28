@@ -126,9 +126,18 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
 
     const size_t nVectorsValues = get(values)->getNumberOfRows();
 
-    if (algParameter->rowIndexResult >= nVectorsValues) { return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexResultStr())); }
-    if (algParameter->rowIndexX >= nRowsX) { return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexXStr())); }
-    if (algParameter->rowIndexY >= nRowsY) { return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexYStr())); }
+    if (algParameter->rowIndexResult >= nVectorsValues)
+    {
+        return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexResultStr()));
+    }
+    if (algParameter->rowIndexX >= nRowsX)
+    {
+        return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexXStr()));
+    }
+    if (algParameter->rowIndexY >= nRowsY)
+    {
+        return Status(Error::create(ErrorIncorrectParameter, ParameterName, rowIndexYStr()));
+    }
     return s;
 }
 

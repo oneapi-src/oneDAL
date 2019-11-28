@@ -68,7 +68,10 @@ services::Status ImplicitALSInitKernel<algorithmFPType, fastCSR, cpu>::computeSu
         const size_t high = ((i != nBlocks - 1) ? blockSize * (i + 1) : notNullElem);
 
         if (oneAsBase) s--; // shift to align with corrrect indexing
-        for (size_t j = low; j < high; ++j) { s[colIndices[j]] += data[j]; }
+        for (size_t j = low; j < high; ++j)
+        {
+            s[colIndices[j]] += data[j];
+        }
     });
 
     services::Status st = reduceSumByColumns(arrSum, nItems, nBlocks, itemsSum);
@@ -81,7 +84,10 @@ services::Status ImplicitALSInitKernel<algorithmFPType, fastCSR, cpu>::computeSu
         const size_t high = ((i != nBlocks - 1) ? blockSize * (i + 1) : notNullElem);
 
         if (oneAsBase) s--; // shift to align with corrrect indexing
-        for (size_t j = low; j < high; ++j) { s[colIndices[j]]++; }
+        for (size_t j = low; j < high; ++j)
+        {
+            s[colIndices[j]]++;
+        }
     });
 
     st |= reduceSumByColumns(arrSum, nItems, nBlocks, notNullElemSum);
@@ -109,7 +115,10 @@ services::Status ImplicitALSInitKernel<algorithmFPType, fastCSR, cpu>::reduceSum
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = start; j < end; ++j) { arrForReduce[j] += s[j]; }
+            for (size_t j = start; j < end; ++j)
+            {
+                arrForReduce[j] += s[j];
+            }
         }
     });
 
@@ -158,11 +167,16 @@ services::Status ImplicitALSInitKernel<algorithmFPType, fastCSR, cpu>::compute(c
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < nItems; i++) // if number of not null elems is equal 0
-    { notNullElemSum[i] = (notNullElemSum[i] == algorithmFPType(0.0) ? algorithmFPType(1.0) : notNullElemSum[i]); }
+    {
+        notNullElemSum[i] = (notNullElemSum[i] == algorithmFPType(0.0) ? algorithmFPType(1.0) : notNullElemSum[i]);
+    }
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nItems; i++) { itemsFactors[i * nFactors] = itemsSum[i] / notNullElemSum[i]; }
+    for (size_t i = 0; i < nItems; i++)
+    {
+        itemsFactors[i * nFactors] = itemsSum[i] / notNullElemSum[i];
+    }
 
     return s;
 }

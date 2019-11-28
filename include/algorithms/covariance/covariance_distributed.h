@@ -252,7 +252,9 @@ public:
         initialize();
         data_management::DataCollectionPtr collection = other.input.get(partialResults);
         for (size_t i = 0; i < collection->size(); i++)
-        { input.add(partialResults, services::staticPointerCast<PartialResultType, data_management::SerializationIface>((*collection)[i])); }
+        {
+            input.add(partialResults, services::staticPointerCast<PartialResultType, data_management::SerializationIface>((*collection)[i]));
+        }
     }
 
     virtual ~DistributedIface() {}

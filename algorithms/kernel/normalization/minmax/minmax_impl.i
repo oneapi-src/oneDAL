@@ -77,7 +77,10 @@ Status MinMaxKernel<algorithmFPType, method, cpu>::compute(const NumericTable & 
         size_t blockSize     = regularBlockSize;
         size_t startRowIndex = iRowsBlock * regularBlockSize;
 
-        if (iRowsBlock == blocksNumber - 1) { blockSize += nRows % regularBlockSize; }
+        if (iRowsBlock == blocksNumber - 1)
+        {
+            blockSize += nRows % regularBlockSize;
+        }
 
         safeStat |= processBlock(inputTable, resultTable, scaleFactors, shiftFactors, startRowIndex, blockSize);
     });
@@ -105,7 +108,10 @@ Status MinMaxKernel<algorithmFPType, method, cpu>::processBlock(const NumericTab
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < nColumns; j++) { result[i * nColumns + j] = input[i * nColumns + j] * scale[j] - shift[j]; }
+        for (size_t j = 0; j < nColumns; j++)
+        {
+            result[i * nColumns + j] = input[i * nColumns + j] * scale[j] - shift[j];
+        }
     }
     return Status();
 }

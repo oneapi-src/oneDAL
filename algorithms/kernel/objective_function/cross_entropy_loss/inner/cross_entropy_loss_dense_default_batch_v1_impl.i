@@ -206,11 +206,17 @@ services::Status I1CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompu
             for (size_t j = 1; j < nBetaPerClass; j++)
             {
                 if (b[i * nBetaPerClass + j] > parameter->penaltyL1)
-                { prox[i * nBetaPerClass + j] = b[i * nBetaPerClass + j] - parameter->penaltyL1; }
+                {
+                    prox[i * nBetaPerClass + j] = b[i * nBetaPerClass + j] - parameter->penaltyL1;
+                }
                 if (b[i * nBetaPerClass + j] < -parameter->penaltyL1)
-                { prox[i * nBetaPerClass + j] = b[i * nBetaPerClass + j] + parameter->penaltyL1; }
+                {
+                    prox[i * nBetaPerClass + j] = b[i * nBetaPerClass + j] + parameter->penaltyL1;
+                }
                 if (daal::internal::Math<algorithmFPType, cpu>::sFabs(b[i * nBetaPerClass + j]) <= parameter->penaltyL1)
-                { prox[i * nBetaPerClass + j] = 0; }
+                {
+                    prox[i * nBetaPerClass + j] = 0;
+                }
             }
         }
     }
@@ -253,12 +259,21 @@ services::Status I1CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompu
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < p; j++) { curentNorm += x[i * p + j] * x[i * p + j]; }
-                if (curentNorm > _maxNorm) { _maxNorm = curentNorm; }
+                for (int j = 0; j < p; j++)
+                {
+                    curentNorm += x[i * p + j] * x[i * p + j];
+                }
+                if (curentNorm > _maxNorm)
+                {
+                    _maxNorm = curentNorm;
+                }
             }
         });
         tlsData.reduce([&](algorithmFPType * maxNorm) {
-            if (globalMaxNorm < *maxNorm) { globalMaxNorm = *maxNorm; }
+            if (globalMaxNorm < *maxNorm)
+            {
+                globalMaxNorm = *maxNorm;
+            }
         });
 
         algorithmFPType alpha_scaled = algorithmFPType(parameter->penaltyL2) / algorithmFPType(n);
@@ -309,7 +324,10 @@ services::Status I1CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompu
 
             if (bL1)
             {
-                if (nonSmoothTermValue) { value += notSmoothTerm; }
+                if (nonSmoothTermValue)
+                {
+                    value += notSmoothTerm;
+                }
                 else
                 {
                     for (size_t i = 0; i < nClasses; i++)

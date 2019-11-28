@@ -157,7 +157,10 @@ public:
                         const RowIndexType * aSampleToSourceRow, const algorithmFPType * const pgh, GHSumType * const aGHSum,
                         algorithmFPType & gTotal, algorithmFPType & hTotal, size_t level)
     {
-        if (level) { computeCommon(iStart, n, indexedFeature, aIdx, pgh, aGHSum, gTotal, hTotal); }
+        if (level)
+        {
+            computeCommon(iStart, n, indexedFeature, aIdx, pgh, aGHSum, gTotal, hTotal);
+        }
         else
         {
             if (aSampleToSourceRow)
@@ -209,7 +212,10 @@ public:
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nUnique * 4; ++i) { aGHSumsFP[i] = aGHSumPrevFP[i] - aGHSumsOtherFP[i]; }
+        for (size_t i = 0; i < nUnique * 4; ++i)
+        {
+            aGHSumsFP[i] = aGHSumPrevFP[i] - aGHSumsOtherFP[i];
+        }
     }
 
     static void fillByZero(const size_t nUnique, GHSumType * const aGHSum)

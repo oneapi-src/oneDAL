@@ -131,10 +131,16 @@ namespace data_management
         SharedPtr<HomogenNumericTable<T> > dst = HomogenNumericTable<T>::create(featuresEqual, ncols, nrows, NumericTableIface::doAllocate); \
         NumericTableDictionaryPtr dstDict      = dst->getDictionarySharedPtr();                                                              \
                                                                                                                                              \
-        if (featuresEqual == DictionaryIface::equal) { dstDict->setFeature(srcDict->operator[](0), 0); }                                     \
+        if (featuresEqual == DictionaryIface::equal)                                                                                         \
+        {                                                                                                                                    \
+            dstDict->setFeature(srcDict->operator[](0), 0);                                                                                  \
+        }                                                                                                                                    \
         else                                                                                                                                 \
         {                                                                                                                                    \
-            for (size_t i = 0; i < ncols; i++) { dstDict->setFeature(srcDict->operator[](i), i); }                                           \
+            for (size_t i = 0; i < ncols; i++)                                                                                               \
+            {                                                                                                                                \
+                dstDict->setFeature(srcDict->operator[](i), i);                                                                              \
+            }                                                                                                                                \
         }                                                                                                                                    \
                                                                                                                                              \
         BlockDescriptor<T> block;                                                                                                            \
@@ -159,17 +165,26 @@ namespace data_management
         SharedPtr<HomogenNumericTable<T> > dst = HomogenNumericTable<T>::create(featuresEqual, ncols, nrows, NumericTableIface::doAllocate); \
         NumericTableDictionaryPtr dstDict      = dst->getDictionarySharedPtr();                                                              \
                                                                                                                                              \
-        if (featuresEqual == DictionaryIface::equal) { dstDict->setFeature(srcDict->operator[](0), 0); }                                     \
+        if (featuresEqual == DictionaryIface::equal)                                                                                         \
+        {                                                                                                                                    \
+            dstDict->setFeature(srcDict->operator[](0), 0);                                                                                  \
+        }                                                                                                                                    \
         else                                                                                                                                 \
         {                                                                                                                                    \
-            for (size_t i = 0; i < ncols; i++) { dstDict->setFeature(srcDict->operator[](i), i); }                                           \
+            for (size_t i = 0; i < ncols; i++)                                                                                               \
+            {                                                                                                                                \
+                dstDict->setFeature(srcDict->operator[](i), i);                                                                              \
+            }                                                                                                                                \
         }                                                                                                                                    \
                                                                                                                                              \
         BlockDescriptor<> block;                                                                                                             \
         src.getBlockOfRows(0, nrows, readOnly, block);                                                                                       \
         float * srcData = block.getBlockPtr();                                                                                               \
         T * dstData     = dst->getArray();                                                                                                   \
-        for (size_t i = 0; i < ncols * nrows; i++) { dstData[i] = (T)srcData[i]; }                                                           \
+        for (size_t i = 0; i < ncols * nrows; i++)                                                                                           \
+        {                                                                                                                                    \
+            dstData[i] = (T)srcData[i];                                                                                                      \
+        }                                                                                                                                    \
         src.releaseBlockOfRows(block);                                                                                                       \
                                                                                                                                              \
         return dst;                                                                                                                          \
@@ -323,8 +338,14 @@ Status createSparseTableImpl(const NumericTablePtr & inTable, CSRNumericTablePtr
     size_t * inColIndices = inputBlock.getBlockColumnIndicesPtr();
     size_t * inRowIndices = inputBlock.getBlockRowIndicesPtr();
 
-    for (size_t i = 0; i < dataSize; i++) { resColIndices[i] = inColIndices[i]; }
-    for (size_t i = 0; i < nObservations + 1; i++) { resRowIndices[i] = inRowIndices[i]; }
+    for (size_t i = 0; i < dataSize; i++)
+    {
+        resColIndices[i] = inColIndices[i];
+    }
+    for (size_t i = 0; i < nObservations + 1; i++)
+    {
+        resRowIndices[i] = inRowIndices[i];
+    }
 
     s = inputTable->releaseSparseBlock(inputBlock);
 

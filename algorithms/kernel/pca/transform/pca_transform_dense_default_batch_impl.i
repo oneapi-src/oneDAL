@@ -105,11 +105,17 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericT
     const algorithmFPType * pBasis = basis.get();
 
     size_t numRowsInBlock = _numRowsInBlock;
-    if (numRowsInBlock < 1) { numRowsInBlock = 1; }
+    if (numRowsInBlock < 1)
+    {
+        numRowsInBlock = 1;
+    }
 
     /* Calculate number of blocks of rows including tail block */
     size_t numBlocks = numVectors / numRowsInBlock;
-    if (numBlocks * numRowsInBlock < numVectors) { numBlocks++; }
+    if (numBlocks * numRowsInBlock < numVectors)
+    {
+        numBlocks++;
+    }
 
     Status status;
 
@@ -156,7 +162,10 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericT
     daal::threader_for(numBlocks, numBlocks, [=, &tls, &transformedData, &data, &safeStat](int iBlock) {
         size_t startRow = iBlock * numRowsInBlock;
         size_t endRow   = startRow + numRowsInBlock;
-        if (endRow > numVectors) { endRow = numVectors; }
+        if (endRow > numVectors)
+        {
+            endRow = numVectors;
+        }
 
         DAAL_INT numRows     = endRow - startRow;
         DAAL_INT numFeatures = data.getNumberOfColumns();
@@ -180,12 +189,16 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericT
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t colId = 0; colId < numMeans; ++colId)
-                { pCopyBlock[rowId * numMeans + colId] = pDataBlock[rowId * numMeans + colId] - pRawMeans[colId]; }
+                {
+                    pCopyBlock[rowId * numMeans + colId] = pDataBlock[rowId * numMeans + colId] - pRawMeans[colId];
+                }
                 /* compute normalization to unit variance if numInvSigmas!= 0 */
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t colId = 0; colId < numInvSigmas; ++colId)
-                { pCopyBlock[rowId * numInvSigmas + colId] = pNormBlock[rowId * numInvSigmas + colId] * pInvSigmas[colId]; }
+                {
+                    pCopyBlock[rowId * numInvSigmas + colId] = pNormBlock[rowId * numInvSigmas + colId] * pInvSigmas[colId];
+                }
             }
             pDataBlock = pCopyBlock;
         }
@@ -198,7 +211,9 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericT
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t colId = 0; colId < numComponents; ++colId)
-                { pTransformedBlock[rowId * numComponents + colId] = pTransformedBlock[rowId * numComponents + colId] * pInvEigenvalues[colId]; }
+                {
+                    pTransformedBlock[rowId * numComponents + colId] = pTransformedBlock[rowId * numComponents + colId] * pInvEigenvalues[colId];
+                }
             }
         }
     }); /* daal::threader_for */

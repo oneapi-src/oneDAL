@@ -37,7 +37,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Input
                                                                                            jlong ntAddr)
 {
     if (id == InputDataId)
-    { jniInput<normalization::zscore::Input>::set<normalization::zscore::InputId, NumericTable>(inputAddr, normalization::zscore::data, ntAddr); }
+    {
+        jniInput<normalization::zscore::Input>::set<normalization::zscore::InputId, NumericTable>(inputAddr, normalization::zscore::data, ntAddr);
+    }
 }
 
 /*
@@ -49,7 +51,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Inpu
                                                                                                  jint id)
 {
     if (id == InputDataId)
-    { return jniInput<normalization::zscore::Input>::get<normalization::zscore::InputId, NumericTable>(inputAddr, normalization::zscore::data); }
+    {
+        return jniInput<normalization::zscore::Input>::get<normalization::zscore::InputId, NumericTable>(inputAddr, normalization::zscore::data);
+    }
 
     return (jlong)0;
 }

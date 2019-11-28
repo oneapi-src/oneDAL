@@ -86,7 +86,10 @@ public:
                 predictLabels(aRaw, resBD.get(), nRowsTotal);
             }
             ll::internal::LogLossKernel<algorithmFPType, ll::defaultDense, cpu>::sigmoid(aRaw, aRaw, nRowsTotal);
-            if (pRaw->getNumberOfColumns() == 2) { stretchProbaOnTwoColumns(aRaw, nRowsTotal); }
+            if (pRaw->getNumberOfColumns() == 2)
+            {
+                stretchProbaOnTwoColumns(aRaw, nRowsTotal);
+            }
             if (_logProb)
             {
                 if (_prob)

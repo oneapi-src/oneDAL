@@ -59,7 +59,9 @@ bool FeatureTypes::init(const NumericTable & data)
     allocBuf(_lastUnordered - _firstUnordered + 1);
     if (!_aFeat) return false;
     for (size_t i = _firstUnordered; i < _lastUnordered + 1; ++i)
-    { _aFeat[i - _firstUnordered] = (data.getFeatureType(i) == data_management::features::DAAL_CATEGORICAL); }
+    {
+        _aFeat[i - _firstUnordered] = (data.getFeatureType(i) == data_management::features::DAAL_CATEGORICAL);
+    }
     return true;
 }
 

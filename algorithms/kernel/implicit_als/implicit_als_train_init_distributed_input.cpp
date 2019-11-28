@@ -67,7 +67,10 @@ services::Status DistributedParameter::check() const
         /* Here if the partition table of size nRows x 1 contains the offsets to each data part */
         /* Check that the offsets are stored in ascending order, first offset == 0 and the last element == fullNUsers */
         DAAL_CHECK_EX(p[0] == 0, ErrorIncorrectParameter, ParameterName, partitionStr());
-        for (size_t i = 1; i < nRows; i++) { DAAL_CHECK_EX(p[i - 1] < p[i], ErrorIncorrectParameter, ParameterName, partitionStr()); }
+        for (size_t i = 1; i < nRows; i++)
+        {
+            DAAL_CHECK_EX(p[i - 1] < p[i], ErrorIncorrectParameter, ParameterName, partitionStr());
+        }
         DAAL_CHECK_EX(p[nRows - 1] == fullNUsers, ErrorIncorrectParameter, ParameterName, partitionStr());
     }
 

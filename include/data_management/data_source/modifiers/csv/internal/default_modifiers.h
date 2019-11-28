@@ -122,13 +122,19 @@ public:
         FeatureModifier::initialize(config);
 
         const size_t numberOfFeatures = config.getNumberOfInputFeatures();
-        for (size_t i = 0; i < numberOfFeatures; i++) { config.setOutputFeatureType(i, features::DAAL_CONTINUOUS); }
+        for (size_t i = 0; i < numberOfFeatures; i++)
+        {
+            config.setOutputFeatureType(i, features::DAAL_CONTINUOUS);
+        }
     }
 
     virtual void apply(Context & context) DAAL_C11_OVERRIDE
     {
         services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
-        for (size_t i = 0; i < outputBuffer.size(); i++) { outputBuffer[i] = context.getTokenAs<DAAL_DATA_TYPE>(i); }
+        for (size_t i = 0; i < outputBuffer.size(); i++)
+        {
+            outputBuffer[i] = context.getTokenAs<DAAL_DATA_TYPE>(i);
+        }
     }
 };
 
@@ -151,13 +157,19 @@ public:
             return;
         }
 
-        for (size_t i = 0; i < numberOfInputFeatures; i++) { _primitives[i].initialize(config, i); }
+        for (size_t i = 0; i < numberOfInputFeatures; i++)
+        {
+            _primitives[i].initialize(config, i);
+        }
     }
 
     virtual void apply(Context & context) DAAL_C11_OVERRIDE
     {
         services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
-        for (size_t i = 0; i < outputBuffer.size(); i++) { outputBuffer[i] = _primitives[i].apply(context, i); }
+        for (size_t i = 0; i < outputBuffer.size(); i++)
+        {
+            outputBuffer[i] = _primitives[i].apply(context, i);
+        }
     }
 
     virtual void finalize(Config & config) DAAL_C11_OVERRIDE
@@ -165,7 +177,10 @@ public:
         FeatureModifier::finalize(config);
 
         const size_t numberOfOutputFeatures = config.getNumberOfInputFeatures();
-        for (size_t i = 0; i < numberOfOutputFeatures; i++) { _primitives[i].finalize(config, i); }
+        for (size_t i = 0; i < numberOfOutputFeatures; i++)
+        {
+            _primitives[i].finalize(config, i);
+        }
     }
 
 private:
@@ -201,7 +216,10 @@ public:
     virtual void apply(Context & context) DAAL_C11_OVERRIDE
     {
         services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
-        for (size_t i = 0; i < outputBuffer.size(); i++) { outputBuffer[i] = _primitives[i].apply(context, i); }
+        for (size_t i = 0; i < outputBuffer.size(); i++)
+        {
+            outputBuffer[i] = _primitives[i].apply(context, i);
+        }
     }
 
     virtual void finalize(Config & config) DAAL_C11_OVERRIDE
@@ -209,7 +227,10 @@ public:
         FeatureModifier::finalize(config);
 
         const size_t numberOfOutputFeatures = config.getNumberOfInputFeatures();
-        for (size_t i = 0; i < numberOfOutputFeatures; i++) { _primitives[i].finalize(config, i); }
+        for (size_t i = 0; i < numberOfOutputFeatures; i++)
+        {
+            _primitives[i].finalize(config, i);
+        }
     }
 
 private:

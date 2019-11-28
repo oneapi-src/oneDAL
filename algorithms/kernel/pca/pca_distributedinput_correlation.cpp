@@ -69,7 +69,10 @@ DataCollectionPtr DistributedInput<correlationDense>::get(Step2MasterInputId id)
 SharedPtr<PartialResult<correlationDense> > DistributedInput<correlationDense>::getPartialResult(size_t id) const
 {
     DataCollectionPtr partialResultsCollection = staticPointerCast<DataCollection, SerializationIface>(get(partialResults));
-    if (partialResultsCollection->size() <= id) { return SharedPtr<PartialResult<correlationDense> >(); }
+    if (partialResultsCollection->size() <= id)
+    {
+        return SharedPtr<PartialResult<correlationDense> >();
+    }
     return staticPointerCast<PartialResult<correlationDense>, SerializationIface>((*partialResultsCollection)[id]);
 }
 

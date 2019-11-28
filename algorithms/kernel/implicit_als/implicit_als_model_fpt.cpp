@@ -44,10 +44,16 @@ DAAL_EXPORT Model::Model(size_t nUsers, size_t nItems, const Parameter & paramet
     const size_t nFactors = parameter.nFactors;
 
     _usersFactors = HomogenNumericTable<modelFPType>::create(nFactors, nUsers, NumericTableIface::doAllocate, 0, &st);
-    if (!st) { return; }
+    if (!st)
+    {
+        return;
+    }
 
     _itemsFactors = HomogenNumericTable<modelFPType>::create(nFactors, nItems, NumericTableIface::doAllocate, 0, &st);
-    if (!st) { return; }
+    if (!st)
+    {
+        return;
+    }
 }
 
 /**

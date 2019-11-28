@@ -61,7 +61,10 @@ services::Status PCASVDKernelBase<algorithmFPType, cpu>::scaleSingularValues(Num
     DAAL_CHECK_BLOCK_STATUS(block);
     algorithmFPType * eigenvalues = block.get();
 
-    for (size_t i = 0; i < nFeatures; i++) { eigenvalues[i] = eigenvalues[i] * eigenvalues[i] / (nVectors - 1); }
+    for (size_t i = 0; i < nFeatures; i++)
+    {
+        eigenvalues[i] = eigenvalues[i] * eigenvalues[i] / (nVectors - 1);
+    }
     return services::Status();
 }
 

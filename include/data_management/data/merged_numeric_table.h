@@ -119,7 +119,10 @@ public:
         size_t obs = table->getNumberOfRows();
         if (obs != _obsnum)
         {
-            if (obs < _obsnum || _tables->size() == 1) { _obsnum = obs; }
+            if (obs < _obsnum || _tables->size() == 1)
+            {
+                _obsnum = obs;
+            }
             DAAL_CHECK_STATUS(s, setNumberOfRowsImpl(_obsnum));
         }
         return s;
@@ -140,12 +143,18 @@ public:
 
     MemoryStatus getDataMemoryStatus() const DAAL_C11_OVERRIDE
     {
-        if (_tables->size() == 0) { return notAllocated; }
+        if (_tables->size() == 0)
+        {
+            return notAllocated;
+        }
 
         for (size_t i = 0; i < _tables->size(); i++)
         {
             NumericTable * nt = (NumericTable *)(_tables->operator[](i).get());
-            if (nt->getDataMemoryStatus() == notAllocated) { return notAllocated; }
+            if (nt->getDataMemoryStatus() == notAllocated)
+            {
+                return notAllocated;
+            }
         }
 
         return internallyAllocated;
@@ -206,14 +215,22 @@ public:
             sumSqMergeNT->addNumericTable(nt->basicStatistics.get(NumericTable::sumSquares));
         }
         if (basicStatistics.get(NumericTable::minimum).get() == NULL || basicStatistics.get(NumericTable::minimum)->getNumberOfColumns() != ncols)
-        { basicStatistics.set(NumericTable::minimum, minMergeNT); }
+        {
+            basicStatistics.set(NumericTable::minimum, minMergeNT);
+        }
         if (basicStatistics.get(NumericTable::maximum).get() == NULL || basicStatistics.get(NumericTable::maximum)->getNumberOfColumns() != ncols)
-        { basicStatistics.set(NumericTable::maximum, maxMergeNT); }
+        {
+            basicStatistics.set(NumericTable::maximum, maxMergeNT);
+        }
         if (basicStatistics.get(NumericTable::sum).get() == NULL || basicStatistics.get(NumericTable::sum)->getNumberOfColumns() != ncols)
-        { basicStatistics.set(NumericTable::sum, sumMergeNT); }
+        {
+            basicStatistics.set(NumericTable::sum, sumMergeNT);
+        }
         if (basicStatistics.get(NumericTable::sumSquares).get() == NULL
             || basicStatistics.get(NumericTable::sumSquares)->getNumberOfColumns() != ncols)
-        { basicStatistics.set(NumericTable::sumSquares, sumSqMergeNT); }
+        {
+            basicStatistics.set(NumericTable::sumSquares, sumSqMergeNT);
+        }
         return services::Status();
     }
 
@@ -236,7 +253,10 @@ private:
 
         for (i = 0; i < rows; i++)
         {
-            for (j = 0; j < cols; j++) { dst[i * ncols + j + pos] = src[i * cols + j]; }
+            for (j = 0; j < cols; j++)
+            {
+                dst[i * ncols + j + pos] = src[i * cols + j];
+            }
         }
     }
 
@@ -247,7 +267,10 @@ private:
 
         for (i = 0; i < rows; i++)
         {
-            for (j = 0; j < cols; j++) { dst[i * cols + j] = src[i * ncols + j + pos]; }
+            for (j = 0; j < cols; j++)
+            {
+                dst[i * cols + j] = src[i * ncols + j + pos];
+            }
         }
     }
 
@@ -350,7 +373,10 @@ protected:
                     BlockDescriptor<T> innerBlock;
                     s |= nt->getBlockOfColumnValues(feat_idx, idx, nrows, readOnly, innerBlock);
                     T * location = innerBlock.getBlockPtr();
-                    for (size_t i = 0; i < nrows; i++) { buffer[i] = location[i]; }
+                    for (size_t i = 0; i < nrows; i++)
+                    {
+                        buffer[i] = location[i];
+                    }
                     s |= nt->releaseBlockOfColumnValues(innerBlock);
                     break;
                 }
@@ -381,7 +407,10 @@ protected:
                     BlockDescriptor<T> innerBlock;
                     s |= nt->getBlockOfColumnValues(feat_idx, idx, nrows, writeOnly, innerBlock);
                     T * location = innerBlock.getBlockPtr();
-                    for (size_t i = 0; i < nrows; i++) { location[i] = buffer[i]; }
+                    for (size_t i = 0; i < nrows; i++)
+                    {
+                        location[i] = buffer[i];
+                    }
                     s |= nt->releaseBlockOfColumnValues(innerBlock);
                     break;
                 }

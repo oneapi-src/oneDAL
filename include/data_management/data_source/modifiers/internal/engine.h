@@ -105,7 +105,10 @@ public:
 
     services::Status setOutputFeatureType(size_t outputFeatureIndex, features::FeatureType featureType)
     {
-        if (outputFeatureIndex >= _outputFeatures.size()) { return services::throwIfPossible(services::ErrorIncorrectIndex); }
+        if (outputFeatureIndex >= _outputFeatures.size())
+        {
+            return services::throwIfPossible(services::ErrorIncorrectIndex);
+        }
 
         _outputFeatures[outputFeatureIndex].setFeatureType(featureType);
         return services::Status();
@@ -113,7 +116,10 @@ public:
 
     services::Status setNumberOfCategories(size_t outputFeatureIndex, size_t numberOfCategories)
     {
-        if (outputFeatureIndex >= _outputFeatures.size()) { return services::throwIfPossible(services::ErrorIncorrectIndex); }
+        if (outputFeatureIndex >= _outputFeatures.size())
+        {
+            return services::throwIfPossible(services::ErrorIncorrectIndex);
+        }
 
         _outputFeatures[outputFeatureIndex].setNumberOfCategories(numberOfCategories);
         return services::Status();
@@ -121,7 +127,10 @@ public:
 
     services::Status setCategoricalDictionary(size_t outputFeatureIndex, const CategoricalFeatureDictionaryPtr & dictionary)
     {
-        if (outputFeatureIndex >= _outputFeatures.size()) { return services::throwIfPossible(services::ErrorIncorrectIndex); }
+        if (outputFeatureIndex >= _outputFeatures.size())
+        {
+            return services::throwIfPossible(services::ErrorIncorrectIndex);
+        }
 
         _outputFeatures[outputFeatureIndex].setCategoricalDictionary(dictionary);
         return services::Status();
@@ -146,7 +155,10 @@ private:
     services::Status reallocateOutputFeatures(size_t numberOfOutputFeatures)
     {
         _outputFeatures = services::Collection<OutputFeatureInfo>(numberOfOutputFeatures);
-        if (!_outputFeatures.data()) { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
+        if (!_outputFeatures.data())
+        {
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+        }
 
         return services::Status();
     }
@@ -278,22 +290,33 @@ public:
 
     services::Status add(const features::FeatureIdCollectionIfacePtr & identifiers, const services::SharedPtr<ModifierType> & modifier)
     {
-        if (!identifiers || !modifier) { return services::throwIfPossible(services::ErrorNullPtr); }
+        if (!identifiers || !modifier)
+        {
+            return services::throwIfPossible(services::ErrorNullPtr);
+        }
 
         if (!_bindings.safe_push_back(ModifierBinding(identifiers, modifier)))
-        { return services::throwIfPossible(services::ErrorMemoryAllocationFailed); }
+        {
+            return services::throwIfPossible(services::ErrorMemoryAllocationFailed);
+        }
 
         return services::Status();
     }
 
     void apply(const services::BufferView<DAAL_DATA_TYPE> & outputBuffer)
     {
-        for (size_t i = 0; i < _bindings.size(); i++) { _bindings[i].apply(outputBuffer); }
+        for (size_t i = 0; i < _bindings.size(); i++)
+        {
+            _bindings[i].apply(outputBuffer);
+        }
     }
 
     void finalize()
     {
-        for (size_t i = 0; i < _bindings.size(); i++) { _bindings[i].finalize(); }
+        for (size_t i = 0; i < _bindings.size(); i++)
+        {
+            _bindings[i].finalize();
+        }
     }
 
     services::Status bind(const features::FeatureIdMappingIfacePtr & mapping,

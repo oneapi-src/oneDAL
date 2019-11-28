@@ -96,14 +96,20 @@ extern "C"
     {
         DAAL_INT i;
 
-        for (i = 0; i < n; i++) { func(i, 0, 1, a); }
+        for (i = 0; i < n; i++)
+        {
+            func(i, 0, 1, a);
+        }
     }
 
     static void _daal_mkl_threader_for_ordered_sequential(DAAL_INT n, DAAL_INT threads_request, void * a, func_type func)
     {
         DAAL_INT i;
 
-        for (i = 0; i < n; i++) { func(i, 0, 1, a); }
+        for (i = 0; i < n; i++)
+        {
+            func(i, 0, 1, a);
+        }
     }
 
     static void _daal_mkl_threader_sections_sequential(DAAL_INT threads_request, void * a, func_type func) { func(0, 0, 1, a); }
@@ -173,7 +179,10 @@ struct MklStatistics<double, cpu>
         if (method == __DAAL_VSL_SS_METHOD_FAST_USER_MEAN)
         {
             double invNVectors = 1.0 / (double)nVectors;
-            for (size_t i = 0; i < nFeatures; i++) { mean[i] = sum[i] * invNVectors; }
+            for (size_t i = 0; i < nFeatures; i++)
+            {
+                mean[i] = sum[i] * invNVectors;
+            }
         }
 
         double weight[2] = { *nPreviousObservations, *nPreviousObservations };
@@ -378,7 +387,10 @@ struct MklStatistics<double, cpu>
         __int64 dataStorage = __DAAL_VSL_SS_MATRIX_STORAGE_COLS;
 
         __DAAL_VSLFN_CALL(fpk_vsl_sub_kernel, vsldSSNewTask, (&task, &nFeatures, &nVectors, &dataStorage, data, 0, 0, __SS_ILP_FLAG__), errcode);
-        if (errcode) { return errcode; }
+        if (errcode)
+        {
+            return errcode;
+        }
 
         __DAAL_VSLFN_CALL(fpk_vsl_sub_kernel, vsliSSEditTask, (task, __DAAL_VSL_SS_ED_QUANT_ORDER_N, &quantOrderN), errcode);
         if (errcode)
@@ -424,7 +436,10 @@ struct MklStatistics<double, cpu>
         __int64 outputStorage = __DAAL_VSL_SS_MATRIX_STORAGE_COLS;
 
         __DAAL_VSLFN_CALL(fpk_vsl_sub_kernel, vsldSSNewTask, (&task, &nFeatures, &nVectors, &inputStorage, data, 0, 0, __SS_ILP_FLAG__), errcode);
-        if (errcode) { return errcode; }
+        if (errcode)
+        {
+            return errcode;
+        }
 
         __DAAL_VSLFN_CALL(fpk_vsl_sub_kernel, vsldSSEditTask, (task, __DAAL_VSL_SS_ED_SORTED_OBSERV, sortedData), errcode);
         if (errcode)
@@ -480,7 +495,10 @@ struct MklStatistics<float, cpu>
         if (method == __DAAL_VSL_SS_METHOD_FAST_USER_MEAN)
         {
             float invNVectors = 1.0 / (float)nVectors;
-            for (size_t i = 0; i < nFeatures; i++) { mean[i] = sum[i] * invNVectors; }
+            for (size_t i = 0; i < nFeatures; i++)
+            {
+                mean[i] = sum[i] * invNVectors;
+            }
         }
 
         float weight[2] = { *nPreviousObservations, *nPreviousObservations };
@@ -685,7 +703,10 @@ struct MklStatistics<float, cpu>
         __int64 dataStorage = __DAAL_VSL_SS_MATRIX_STORAGE_COLS;
 
         __DAAL_VSLFN_CALL(fpk_vsl_sub_kernel, vslsSSNewTask, (&task, &nFeatures, &nVectors, &dataStorage, data, 0, 0, __SS_ILP_FLAG__), errcode);
-        if (errcode) { return errcode; }
+        if (errcode)
+        {
+            return errcode;
+        }
 
         __DAAL_VSLFN_CALL(fpk_vsl_sub_kernel, vsliSSEditTask, (task, __DAAL_VSL_SS_ED_QUANT_ORDER_N, &quantOrderN), errcode);
         if (errcode)
@@ -731,7 +752,10 @@ struct MklStatistics<float, cpu>
         __int64 outputStorage = __DAAL_VSL_SS_MATRIX_STORAGE_COLS;
 
         __DAAL_VSLFN_CALL(fpk_vsl_sub_kernel, vslsSSNewTask, (&task, &nFeatures, &nVectors, &inputStorage, data, 0, 0, __SS_ILP_FLAG__), errcode);
-        if (errcode) { return errcode; }
+        if (errcode)
+        {
+            return errcode;
+        }
 
         __DAAL_VSLFN_CALL(fpk_vsl_sub_kernel, vslsSSEditTask, (task, __DAAL_VSL_SS_ED_SORTED_OBSERV, sortedData), errcode);
         if (errcode)

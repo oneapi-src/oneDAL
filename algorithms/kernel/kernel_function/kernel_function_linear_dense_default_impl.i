@@ -65,7 +65,10 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
     dataR[0]                 = 0.0;
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (size_t i = 0; i < nFeatures; i++) { dataR[0] += dataA1[i] * dataA2[i]; }
+    for (size_t i = 0; i < nFeatures; i++)
+    {
+        dataR[0] += dataA1[i] * dataA2[i];
+    }
     dataR[0] = dataR[0] * linPar->k + linPar->b;
 
     return services::Status();
@@ -100,7 +103,10 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
         dataR[i] = 0.0;
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < nFeatures; j++) { dataR[i] += dataA1[i * nFeatures + j] * dataA2[j]; }
+        for (size_t j = 0; j < nFeatures; j++)
+        {
+            dataR[i] += dataA1[i * nFeatures + j] * dataA2[j];
+        }
         dataR[i] = k * dataR[i];
         dataR[i] += b;
     }
@@ -160,7 +166,10 @@ services::Status KernelImplLinear<defaultDense, algorithmFPType, cpu>::computeIn
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nVectors1 * nVectors2; i++) { dataR[i] = dataR[i] + b; }
+        for (size_t i = 0; i < nVectors1 * nVectors2; i++)
+        {
+            dataR[i] = dataR[i] + b;
+        }
     }
 
     return safeStat.detach();

@@ -196,6 +196,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
                                                                                                                          jlong inputAddr, jint id)
 {
     if (id == ConstModel)
-    { return jniInput<single_beta::Input>::get<single_beta::ModelInputId, linear_regression::Model>(inputAddr, single_beta::model); }
+    {
+        return jniInput<single_beta::Input>::get<single_beta::ModelInputId, linear_regression::Model>(inputAddr, single_beta::model);
+    }
     return (jlong)0;
 }

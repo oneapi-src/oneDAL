@@ -146,11 +146,17 @@ public:
 
         arch->set(size);
 
-        if (onDeserialize) { resize(size); }
+        if (onDeserialize)
+        {
+            resize(size);
+        }
 
         _size = size;
 
-        for (size_t i = 0; i < _size; i++) { arch->setSharedPtrObj(_array[i]); }
+        for (size_t i = 0; i < _size; i++)
+        {
+            arch->setSharedPtrObj(_array[i]);
+        }
 
         return services::Status();
     }
@@ -194,7 +200,10 @@ public:
         size_t i;
         for (i = 0; i < _keys.size(); i++)
         {
-            if (_keys[i] == k) { return _values[i]; }
+            if (_keys[i] == k)
+            {
+                return _values[i];
+            }
         }
         return _nullPtr;
     }

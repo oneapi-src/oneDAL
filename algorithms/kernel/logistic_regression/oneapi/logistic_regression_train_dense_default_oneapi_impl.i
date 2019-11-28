@@ -150,7 +150,10 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
         services::Buffer<algorithmFPType> betaBuff = dataRows.getBuffer();
         ctx.copy(betaBuff, 0, minimumBuff, 0, nBetaTotal, &status);
 
-        if (!par.interceptFlag) { DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, algorithmFPType(0), betaBuff, nBetaRows, nBeta)); }
+        if (!par.interceptFlag)
+        {
+            DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, algorithmFPType(0), betaBuff, nBetaRows, nBeta));
+        }
 
         DAAL_CHECK_STATUS(status, betaNT->releaseBlockOfRows(dataRows));
     }

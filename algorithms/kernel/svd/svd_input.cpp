@@ -64,7 +64,10 @@ Status Input::getNumberOfColumns(size_t * nFeatures) const
     if (!nFeatures) return Status(ErrorNullParameterNotSupported);
 
     NumericTablePtr dataTable = get(data);
-    if (dataTable) { *nFeatures = dataTable->getNumberOfColumns(); }
+    if (dataTable)
+    {
+        *nFeatures = dataTable->getNumberOfColumns();
+    }
     else
     {
         return Status(Error::create(ErrorNullNumericTable, ArgumentName, dataStr()));
@@ -77,7 +80,10 @@ Status Input::getNumberOfRows(size_t * nRows) const
     if (!nRows) return Status(ErrorNullParameterNotSupported);
 
     NumericTablePtr dataTable = get(data);
-    if (dataTable) { *nRows = dataTable->getNumberOfRows(); }
+    if (dataTable)
+    {
+        *nRows = dataTable->getNumberOfRows();
+    }
     else
     {
         return Status(Error::create(ErrorNullNumericTable, ArgumentName, dataStr()));
@@ -94,7 +100,10 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
 {
     NumericTablePtr dataTable = get(data);
     Status s                  = checkNumericTable(dataTable.get(), dataStr());
-    if (!s) { return s; }
+    if (!s)
+    {
+        return s;
+    }
 
     DAAL_CHECK_EX(dataTable->getNumberOfColumns() <= dataTable->getNumberOfRows(), ErrorIncorrectNumberOfRows, ArgumentName, dataStr());
     return Status();

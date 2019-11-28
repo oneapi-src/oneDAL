@@ -241,7 +241,10 @@ public:
         addBlock(size);
 
         int result = daal::services::internal::daal_memcpy_s(blockPtr[currentWriteBlock], size, ptr, size);
-        if (result) { this->_errors->add(services::ErrorMemoryCopyFailedInternal); }
+        if (result)
+        {
+            this->_errors->add(services::ErrorMemoryCopyFailedInternal);
+        }
 
         blockOffset[currentWriteBlock] += size;
     }
@@ -257,7 +260,10 @@ public:
         daal::services::daal_free(blockPtr);
         daal::services::daal_free(blockAllocatedSize);
         daal::services::daal_free(blockOffset);
-        if (serializedBuffer) { daal::services::daal_free(serializedBuffer); }
+        if (serializedBuffer)
+        {
+            daal::services::daal_free(serializedBuffer);
+        }
 
         blockPtr           = NULL;
         blockAllocatedSize = NULL;
@@ -268,7 +274,10 @@ public:
     void write(byte * ptr, size_t size) DAAL_C11_OVERRIDE
     {
         size_t alignedSize = alignValueUp(size);
-        if (blockAllocatedSize[currentWriteBlock] < blockOffset[currentWriteBlock] + alignedSize) { addBlock(alignedSize); }
+        if (blockAllocatedSize[currentWriteBlock] < blockOffset[currentWriteBlock] + alignedSize)
+        {
+            addBlock(alignedSize);
+        }
 
         size_t offset = blockOffset[currentWriteBlock];
 
@@ -278,7 +287,10 @@ public:
             this->_errors->add(services::ErrorMemoryCopyFailedInternal);
             return;
         }
-        for (size_t i = size; i < alignedSize; i++) { blockPtr[currentWriteBlock][offset + i] = 0; }
+        for (size_t i = size; i < alignedSize; i++)
+        {
+            blockPtr[currentWriteBlock][offset + i] = 0;
+        }
 
         blockOffset[currentWriteBlock] += alignedSize;
     }
@@ -311,7 +323,10 @@ public:
     {
         int i;
         size_t size = 0;
-        for (i = 0; i <= currentWriteBlock; i++) { size += blockOffset[i]; }
+        for (i = 0; i <= currentWriteBlock; i++)
+        {
+            size += blockOffset[i];
+        }
         return size;
     }
 
@@ -319,10 +334,16 @@ public:
     {
         size_t length = getSizeOfArchive();
 
-        if (length == 0) { return services::SharedPtr<byte>(); }
+        if (length == 0)
+        {
+            return services::SharedPtr<byte>();
+        }
 
         services::SharedPtr<byte> serializedBufferPtr((byte *)daal::services::daal_malloc(length), services::ServiceDeleter());
-        if (!serializedBufferPtr) { return services::SharedPtr<byte>(); }
+        if (!serializedBufferPtr)
+        {
+            return services::SharedPtr<byte>();
+        }
 
         copyArchiveToArray(serializedBufferPtr.get(), length);
 
@@ -331,14 +352,23 @@ public:
 
     byte * getArchiveAsArray() DAAL_C11_OVERRIDE
     {
-        if (serializedBuffer) { return serializedBuffer; }
+        if (serializedBuffer)
+        {
+            return serializedBuffer;
+        }
 
         size_t length = getSizeOfArchive();
 
-        if (length == 0) { return 0; }
+        if (length == 0)
+        {
+            return 0;
+        }
 
         serializedBuffer = (byte *)daal::services::daal_malloc(length);
-        if (serializedBuffer == 0) { return 0; }
+        if (serializedBuffer == 0)
+        {
+            return 0;
+        }
 
         copyArchiveToArray(serializedBuffer, length);
 
@@ -357,7 +387,10 @@ public:
     {
         size_t length = getSizeOfArchive();
 
-        if (length == 0 || length > maxLength) { return length; }
+        if (length == 0 || length > maxLength)
+        {
+            return length;
+        }
 
         int i;
         size_t offset = 0;
@@ -399,7 +432,10 @@ protected:
             blockAllocatedSize = (size_t *)daal::services::daal_malloc(sizeof(size_t) * (arraysSize + minBlocksNum));
             blockOffset        = (size_t *)daal::services::daal_malloc(sizeof(size_t) * (arraysSize + minBlocksNum));
 
-            if (blockPtr == 0 || blockAllocatedSize == 0 || blockOffset == 0) { return; }
+            if (blockPtr == 0 || blockAllocatedSize == 0 || blockOffset == 0)
+            {
+                return;
+            }
 
             result |= daal::services::internal::daal_memcpy_s(blockPtr, arraysSize * sizeof(byte *), oldBlockPtr, arraysSize * sizeof(byte *));
             result |= daal::services::internal::daal_memcpy_s(blockAllocatedSize, arraysSize * sizeof(size_t), oldBlockAllocatedSize,
@@ -429,7 +465,10 @@ protected:
 
     inline size_t alignValueUp(size_t value)
     {
-        if (_majorVersion == 2016 && _minorVersion == 0 && _updateVersion == 0) { return value; }
+        if (_majorVersion == 2016 && _minorVersion == 0 && _updateVersion == 0)
+        {
+            return value;
+        }
 
         size_t alignm1 = DAAL_MALLOC_DEFAULT_ALIGNMENT - 1;
 
@@ -479,7 +518,10 @@ public:
     /** \private */
     ~CompressedDataArchive()
     {
-        if (serializedBuffer) { daal::services::daal_free(serializedBuffer); }
+        if (serializedBuffer)
+        {
+            daal::services::daal_free(serializedBuffer);
+        }
         delete compressionStream;
     }
 
@@ -497,14 +539,23 @@ public:
 
     byte * getArchiveAsArray() DAAL_C11_OVERRIDE
     {
-        if (serializedBuffer) { return serializedBuffer; }
+        if (serializedBuffer)
+        {
+            return serializedBuffer;
+        }
 
         size_t length = getSizeOfArchive();
 
-        if (length == 0) { return 0; }
+        if (length == 0)
+        {
+            return 0;
+        }
 
         serializedBuffer = (byte *)daal::services::daal_malloc(length);
-        if (serializedBuffer == 0) { return 0; }
+        if (serializedBuffer == 0)
+        {
+            return 0;
+        }
 
         compressionStream->copyCompressedArray(serializedBuffer, length);
         return serializedBuffer;
@@ -514,10 +565,16 @@ public:
     {
         size_t length = getSizeOfArchive();
 
-        if (length == 0) { return services::SharedPtr<byte>(); }
+        if (length == 0)
+        {
+            return services::SharedPtr<byte>();
+        }
 
         services::SharedPtr<byte> serializedBufferPtr((byte *)daal::services::daal_malloc(length), services::ServiceDeleter());
-        if (!serializedBufferPtr) { return services::SharedPtr<byte>(); }
+        if (!serializedBufferPtr)
+        {
+            return services::SharedPtr<byte>();
+        }
 
         copyArchiveToArray(serializedBufferPtr.get(), length);
 
@@ -536,7 +593,10 @@ public:
     {
         size_t length = getSizeOfArchive();
 
-        if (length == 0 || length > maxLength) { return length; }
+        if (length == 0 || length > maxLength)
+        {
+            return length;
+        }
 
         compressionStream->copyCompressedArray(ptr, length);
         return length;
@@ -577,7 +637,10 @@ public:
     /** \private */
     ~DecompressedDataArchive()
     {
-        if (serializedBuffer) { daal::services::daal_free(serializedBuffer); }
+        if (serializedBuffer)
+        {
+            daal::services::daal_free(serializedBuffer);
+        }
         delete decompressionStream;
     }
 
@@ -595,14 +658,23 @@ public:
 
     byte * getArchiveAsArray() DAAL_C11_OVERRIDE
     {
-        if (serializedBuffer) { return serializedBuffer; }
+        if (serializedBuffer)
+        {
+            return serializedBuffer;
+        }
 
         size_t length = getSizeOfArchive();
 
-        if (length == 0) { return 0; }
+        if (length == 0)
+        {
+            return 0;
+        }
 
         serializedBuffer = (byte *)daal::services::daal_malloc(length);
-        if (serializedBuffer == 0) { return 0; }
+        if (serializedBuffer == 0)
+        {
+            return 0;
+        }
 
         decompressionStream->copyDecompressedArray(serializedBuffer, length);
         return serializedBuffer;
@@ -612,10 +684,16 @@ public:
     {
         size_t length = getSizeOfArchive();
 
-        if (length == 0) { return services::SharedPtr<byte>(); }
+        if (length == 0)
+        {
+            return services::SharedPtr<byte>();
+        }
 
         services::SharedPtr<byte> serializedBufferPtr((byte *)daal::services::daal_malloc(length), services::ServiceDeleter());
-        if (!serializedBufferPtr) { return services::SharedPtr<byte>(); }
+        if (!serializedBufferPtr)
+        {
+            return services::SharedPtr<byte>();
+        }
 
         copyArchiveToArray(serializedBufferPtr.get(), length);
 
@@ -634,7 +712,10 @@ public:
     {
         size_t length = getSizeOfArchive();
 
-        if (length == 0 || length > maxLength) { return length; }
+        if (length == 0 || length > maxLength)
+        {
+            return length;
+        }
 
         decompressionStream->copyDecompressedArray(ptr, length);
         return length;
@@ -701,7 +782,10 @@ public:
         _arch->setMajorVersion(headerValues[1]);
         _arch->setMinorVersion(headerValues[2]);
         _arch->setUpdateVersion(headerValues[3]);
-        for (size_t i = 0; i < 8; i++) { _arch->write((byte *)&headerValues[i], sizeof(int)); }
+        for (size_t i = 0; i < 8; i++)
+        {
+            _arch->write((byte *)&headerValues[i], sizeof(int));
+        }
     }
 
     /**
@@ -740,7 +824,10 @@ public:
     {
         size_t size = val.size();
         _arch->write((byte *)&size, sizeof(size_t));
-        for (size_t i = 0; i < size; i++) { _arch->write((byte *)&(val[i]), sizeof(T)); }
+        for (size_t i = 0; i < size; i++)
+        {
+            _arch->write((byte *)&(val[i]), sizeof(T));
+        }
     }
 
     /**
@@ -764,7 +851,10 @@ public:
     template <typename T>
     void setObj(T * ptr, size_t size = 1)
     {
-        for (size_t i = 0; i < size; i++) { ptr[i].serializeImpl(this); }
+        for (size_t i = 0; i < size; i++)
+        {
+            ptr[i].serializeImpl(this);
+        }
     }
 
     /**
@@ -776,7 +866,10 @@ public:
         int isNull = (*ptr == 0);
         set(isNull);
 
-        if (!isNull) { (*ptr)->serialize(*this); }
+        if (!isNull)
+        {
+            (*ptr)->serialize(*this);
+        }
     }
 
     /**
@@ -796,7 +889,10 @@ public:
      */
     services::SharedPtr<byte> getArchiveAsArraySharedPtr()
     {
-        if (!_finalized) { archiveFooter(); }
+        if (!_finalized)
+        {
+            archiveFooter();
+        }
         return _arch->getArchiveAsArraySharedPtr();
     }
 
@@ -807,7 +903,10 @@ public:
      */
     DAAL_DEPRECATED byte * getArchiveAsArray()
     {
-        if (!_finalized) { archiveFooter(); }
+        if (!_finalized)
+        {
+            archiveFooter();
+        }
         return _arch->getArchiveAsArray();
     }
 
@@ -819,7 +918,10 @@ public:
      */
     DAAL_DEPRECATED void getArchiveAsArray(const byte ** ptr, size_t * size)
     {
-        if (!_finalized) { archiveFooter(); }
+        if (!_finalized)
+        {
+            archiveFooter();
+        }
 
         *ptr  = (byte *)_arch->getArchiveAsArray();
         *size = _arch->getSizeOfArchive();
@@ -831,7 +933,10 @@ public:
      */
     size_t getSizeOfArchive()
     {
-        if (!_finalized) { archiveFooter(); }
+        if (!_finalized)
+        {
+            archiveFooter();
+        }
 
         return _arch->getSizeOfArchive();
     }
@@ -843,7 +948,10 @@ public:
      */
     DAAL_DEPRECATED std::string getArchiveAsString()
     {
-        if (!_finalized) { archiveFooter(); }
+        if (!_finalized)
+        {
+            archiveFooter();
+        }
 
         return _arch->getArchiveAsString();
     }
@@ -856,7 +964,10 @@ public:
      */
     size_t copyArchiveToArray(byte * ptr, size_t maxLength)
     {
-        if (!_finalized) { archiveFooter(); }
+        if (!_finalized)
+        {
+            archiveFooter();
+        }
 
         return _arch->copyArchiveToArray(ptr, maxLength);
     }
@@ -934,7 +1045,10 @@ public:
     {
         int headerValues[8];
 
-        for (size_t i = 0; i < 8; i++) { _arch->read((byte *)&headerValues[i], sizeof(int)); }
+        for (size_t i = 0; i < 8; i++)
+        {
+            _arch->read((byte *)&headerValues[i], sizeof(int));
+        }
 
         _arch->setMajorVersion(headerValues[1]);
         _arch->setMinorVersion(headerValues[2]);
@@ -1012,7 +1126,10 @@ public:
     template <typename T>
     void setObj(T * ptr, size_t size = 1) const
     {
-        for (size_t i = 0; i < size; i++) { ptr[i].deserializeImpl(this); }
+        for (size_t i = 0; i < size; i++)
+        {
+            ptr[i].deserializeImpl(this);
+        }
     }
 
     /**
@@ -1053,8 +1170,14 @@ public:
     {
         data_management::SerializationIface * ptr;
         setSingleObj(&ptr);
-        if (this->_errors->size() != 0) { return; }
-        if (ptr) { obj = services::SharedPtr<T>(static_cast<T *>(ptr)); }
+        if (this->_errors->size() != 0)
+        {
+            return;
+        }
+        if (ptr)
+        {
+            obj = services::SharedPtr<T>(static_cast<T *>(ptr));
+        }
         else
         {
             obj = services::SharedPtr<T>();

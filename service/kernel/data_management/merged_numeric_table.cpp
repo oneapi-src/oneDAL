@@ -38,13 +38,19 @@ MergedNumericTable::MergedNumericTable(NumericTablePtr first, NumericTablePtr se
 
 MergedNumericTable::MergedNumericTable(services::Status & st) : NumericTable(0, 0), _tables(new DataCollection)
 {
-    if (!_tables) { st.add(services::ErrorMemoryAllocationFailed); }
+    if (!_tables)
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+    }
     this->_status |= st;
 }
 
 MergedNumericTable::MergedNumericTable(const NumericTablePtr & table, services::Status & st) : NumericTable(0, 0), _tables(new DataCollection)
 {
-    if (!_tables) { st.add(services::ErrorMemoryAllocationFailed); }
+    if (!_tables)
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+    }
     st |= addNumericTable(table);
     this->_status |= st;
 }
@@ -52,7 +58,10 @@ MergedNumericTable::MergedNumericTable(const NumericTablePtr & table, services::
 MergedNumericTable::MergedNumericTable(const NumericTablePtr & first, const NumericTablePtr & second, services::Status & st)
     : NumericTable(0, 0), _tables(new DataCollection)
 {
-    if (!_tables) { st.add(services::ErrorMemoryAllocationFailed); }
+    if (!_tables)
+    {
+        st.add(services::ErrorMemoryAllocationFailed);
+    }
     st |= addNumericTable(first);
     st |= addNumericTable(second);
     this->_status |= st;

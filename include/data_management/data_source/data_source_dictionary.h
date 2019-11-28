@@ -78,7 +78,10 @@ public:
     /** \private */
     virtual ~DataSourceFeature()
     {
-        if (_catDictPtr.get() != cat_dict) { delete cat_dict; }
+        if (_catDictPtr.get() != cat_dict)
+        {
+            delete cat_dict;
+        }
     }
 
     /**
@@ -188,7 +191,10 @@ public:
                     int catV2         = 0;
 
                     arch->set(catNameLen);
-                    if (catNameLen > buff.size()) { DAAL_CHECK_STATUS(status, buff.reallocate(catNameLen)); }
+                    if (catNameLen > buff.size())
+                    {
+                        DAAL_CHECK_STATUS(status, buff.reallocate(catNameLen));
+                    }
                     arch->set(buff.data(), catNameLen);
                     arch->set(catV1);
                     arch->set(catV2);
@@ -235,7 +241,10 @@ private:
         ntFeature   = other.ntFeature;
         cat_dict    = other.cat_dict;
 
-        if (other.name == other._name.c_str()) { synchRawAndStringNames(); }
+        if (other.name == other._name.c_str())
+        {
+            synchRawAndStringNames();
+        }
         else
         {
             name        = other.name;

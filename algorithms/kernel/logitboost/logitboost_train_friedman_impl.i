@@ -177,9 +177,15 @@ services::Status UpdateFPNew(size_t nc, size_t n, algorithmFPType * F, algorithm
         for (size_t i = start; i < start + size; i++)
         {
             algorithmFPType s = 0.0;
-            for (size_t k = 0; k < nc; k++) { s += pred[k * n + i]; }
+            for (size_t k = 0; k < nc; k++)
+            {
+                s += pred[k * n + i];
+            }
 
-            for (size_t j = 0; j < nc; j++) { F[i * nc + j] += coef * (pred[j * n + i] - s * inv_nc); }
+            for (size_t j = 0; j < nc; j++)
+            {
+                F[i * nc + j] += coef * (pred[j * n + i] - s * inv_nc);
+            }
         }
 
         struct LogitBoostLs<algorithmFPType, cpu> * lsLocal = lsData.local();
@@ -209,7 +215,10 @@ services::Status UpdateFPNew(size_t nc, size_t n, algorithmFPType * F, algorithm
 
             algorithmFPType s = 0.0;
 
-            for (size_t j = 0; j < nc; j++) { s += buffer[offset + j]; }
+            for (size_t j = 0; j < nc; j++)
+            {
+                s += buffer[offset + j];
+            }
             // if low accuracy exp() returns NaN\Inf - convert it to some positive big value
             s = services::internal::infToBigValue<cpu>(s);
 
@@ -267,12 +276,21 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
 
     /* Initialize weights, probs and additive function values.
        Step 1) of the Algorithm 6 from [1] */
-    for (size_t i = 0; i < n; i++) { w[i] = inv_n; }
-    for (size_t i = 0; i < n * nc; i++) { P[i] = inv_nc; }
+    for (size_t i = 0; i < n; i++)
+    {
+        w[i] = inv_n;
+    }
+    for (size_t i = 0; i < n * nc; i++)
+    {
+        P[i] = inv_nc;
+    }
     algorithmFPType logL   = -algorithmFPType(n) * daal::internal::Math<algorithmFPType, cpu>::sLog(inv_nc);
     algorithmFPType accCur = daal::services::internal::MaxVal<algorithmFPType>::get();
 
-    for (size_t i = 0; i < n * nc; i++) { F[i] = zero; }
+    for (size_t i = 0; i < n * nc; i++)
+    {
+        F[i] = zero;
+    }
 
     ReadColumns<int, cpu> yCols(*y, 0, 0, n);
     DAAL_CHECK_BLOCK_STATUS(yCols);
@@ -289,7 +307,10 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
     SafeStatus safeStat;
     daal::ls<LogitBoostLs<algorithmFPType, cpu> *> lsData([&]() {
         auto ptr = new LogitBoostLs<algorithmFPType, cpu>(n);
-        if (!ptr) { safeStat.add(services::ErrorMemoryAllocationFailed); }
+        if (!ptr)
+        {
+            safeStat.add(services::ErrorMemoryAllocationFailed);
+        }
         return ptr;
     });
 
@@ -313,7 +334,10 @@ services::Status LogitBoostTrainKernel<friedman, algorithmFPType, cpu>::compute(
         });
         DAAL_CHECK_SAFE_STATUS();
 
-        for (size_t j = 0; j < nc; ++j) { r->addWeakLearnerModel(services::staticPointerCast<regression::Model, SerializationIface>(models[j])); }
+        for (size_t j = 0; j < nc; ++j)
+        {
+            r->addWeakLearnerModel(services::staticPointerCast<regression::Model, SerializationIface>(models[j]));
+        }
 
         /* Update additive function's values and probabilities
            Step 2.b and 2.c) of the Algorithm 6 from [1] */

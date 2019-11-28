@@ -106,14 +106,20 @@ public:
         {
             services::BufferView<DAAL_DATA_TYPE> rowBuffer(ntBuffer + read * nColumns, nColumns);
 
-            if (_modifiersManager) { _modifiersManager->applyModifiers(rowBuffer); }
+            if (_modifiersManager)
+            {
+                _modifiersManager->applyModifiers(rowBuffer);
+            }
             else
             {
                 _fetchBuffer->copyTo(rowBuffer);
             }
 
             read++;
-            if (read >= maxRows) { break; }
+            if (read >= maxRows)
+            {
+                break;
+            }
         }
 
         nt->releaseBlockOfRows(_currentRowBlock);
@@ -130,7 +136,10 @@ public:
         }
         else
         {
-            if (read < maxRows) { status = DataSourceIface::endOfData; }
+            if (read < maxRows)
+            {
+                status = DataSourceIface::endOfData;
+            }
         }
         return status;
     }
@@ -257,7 +266,10 @@ private:
         DAAL_CHECK_STATUS_VAR(status);
 
         SQLRETURN ret = SQLFreeStmt(hdlStmt, SQL_UNBIND);
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorODBC);
+        }
 
         const SQLSMALLINT targetSQLType = internal::SQLFetchMode::getTargetType(fetchMode);
         for (size_t i = 0; i < featuresInfo.getNumberOfFeatures(); i++)
@@ -268,21 +280,33 @@ private:
 
             SQLLEN strLenOrIndPtr;
             ret = SQLBindCol(hdlStmt, (SQLUSMALLINT)(i + 1), targetSQLType, (SQLPOINTER)buffer, bufferSize, actualSizeBuffer);
-            if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+            if (!SQL_SUCCEEDED(ret))
+            {
+                return services::throwIfPossible(services::ErrorODBC);
+            }
         }
 
-        if (_modifiersManager) { DAAL_CHECK_STATUS(status, _modifiersManager->prepare(featuresInfo, *_fetchBuffer)); }
+        if (_modifiersManager)
+        {
+            DAAL_CHECK_STATUS(status, _modifiersManager->prepare(featuresInfo, *_fetchBuffer));
+        }
 
         return status;
     }
 
     services::Status fillDictionary(DataSourceDictionary & dictionary, const internal::SQLFeaturesInfo & featuresInfo)
     {
-        if (_modifiersManager) { return _modifiersManager->fillDictionary(dictionary); }
+        if (_modifiersManager)
+        {
+            return _modifiersManager->fillDictionary(dictionary);
+        }
 
         const size_t nFeatures  = featuresInfo.getNumberOfFeatures();
         services::Status status = dictionary.setNumberOfFeatures(nFeatures);
-        if (!status) { return services::throwIfPossible(status); }
+        if (!status)
+        {
+            return services::throwIfPossible(status);
+        }
 
         for (size_t i = 0; i < nFeatures; i++)
         {

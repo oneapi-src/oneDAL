@@ -47,7 +47,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Result_cNewRe
  */
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Result_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
-    if (id == matrixQId) { return jniArgument<pivoted_qr::Result>::get<pivoted_qr::ResultId, NumericTable>(resAddr, pivoted_qr::matrixQ); }
+    if (id == matrixQId)
+    {
+        return jniArgument<pivoted_qr::Result>::get<pivoted_qr::ResultId, NumericTable>(resAddr, pivoted_qr::matrixQ);
+    }
     else if (id == matrixRId)
     {
         return jniArgument<pivoted_qr::Result>::get<pivoted_qr::ResultId, NumericTable>(resAddr, pivoted_qr::matrixR);

@@ -72,7 +72,10 @@ public:
         _parameter = (daal::algorithms::Parameter *)(tls.jniEnv->CallLongMethod(javaObject, getParameterMethodID));
 
         setArguments(_input, NULL, _parameter);
-        if (!tls.is_main_thread) { status = jvm->DetachCurrentThread(); }
+        if (!tls.is_main_thread)
+        {
+            status = jvm->DetachCurrentThread();
+        }
 
         _tls.local() = tls;
     }
@@ -98,9 +101,15 @@ public:
             return services::Status();
         }
 
-        if (javaInputClassName) { setInputToJava(env, javaObjectClass, javaObject, javaInputClassName); }
+        if (javaInputClassName)
+        {
+            setInputToJava(env, javaObjectClass, javaObject, javaInputClassName);
+        }
 
-        if (javaParameterClassName) { setParameterToJava(env, javaObjectClass, javaObject, javaParameterClassName); }
+        if (javaParameterClassName)
+        {
+            setParameterToJava(env, javaObjectClass, javaObject, javaParameterClassName);
+        }
 
         setResultToJava(env, javaObjectClass, javaObject, javaResultClassName);
 
@@ -117,7 +126,10 @@ public:
 
         env->CallObjectMethod(javaObject, computeMethodID);
 
-        if (!tls.is_main_thread) { status = jvm->DetachCurrentThread(); }
+        if (!tls.is_main_thread)
+        {
+            status = jvm->DetachCurrentThread();
+        }
 
         _tls.local() = tls;
         return services::Status();

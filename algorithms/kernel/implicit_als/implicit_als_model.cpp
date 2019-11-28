@@ -35,13 +35,25 @@ Model::Model() {}
 services::Status Parameter::check() const
 {
     if (nFactors == 0)
-    { return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, nFactorsStr())); }
+    {
+        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, nFactorsStr()));
+    }
     if (maxIterations == 0)
-    { return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr())); }
-    if (alpha < 0) { return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, alphaStr())); }
-    if (lambda < 0) { return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, lambdaStr())); }
+    {
+        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr()));
+    }
+    if (alpha < 0)
+    {
+        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, alphaStr()));
+    }
+    if (lambda < 0)
+    {
+        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, lambdaStr()));
+    }
     if (preferenceThreshold < 0)
-    { return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, preferenceThresholdStr())); }
+    {
+        return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, preferenceThresholdStr()));
+    }
     return services::Status();
 }
 

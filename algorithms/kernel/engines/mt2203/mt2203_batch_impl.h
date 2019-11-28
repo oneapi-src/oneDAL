@@ -64,7 +64,9 @@ public:
         services::Status s = requestIndices(numberOfStreams, 6024, indices);
 
         for (size_t i = 0; i < numberOfStreams; i++)
-        { push_back(indices[i], BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(this->getSeed(), __DAAL_BRNG_MT2203 + indices[i]))); }
+        {
+            push_back(indices[i], BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(this->getSeed(), __DAAL_BRNG_MT2203 + indices[i])));
+        }
         return s;
     }
 
@@ -88,9 +90,15 @@ public:
         streamIdxsIn->resize(this->getNumberOfStreams());
         streamsIn->resize(this->getNumberOfStreams());
 
-        for (size_t i = 0; i < this->getNumberOfStreams(); i++) { (*streamIdxsIn)[i] = _streamIdxs[i]; }
+        for (size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            (*streamIdxsIn)[i] = _streamIdxs[i];
+        }
 
-        for (size_t i = 0; i < this->getNumberOfStreams(); i++) { (*streamsIn)[i] = BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(*(_streams[i]))); }
+        for (size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            (*streamsIn)[i] = BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(*(_streams[i])));
+        }
         return services::Status();
     }
 
@@ -107,9 +115,15 @@ public:
         _streamIdxs.resize(this->getNumberOfStreams());
         _streams.resize(this->getNumberOfStreams());
 
-        for (size_t i = 0; i < this->getNumberOfStreams(); i++) { _streamIdxs[i] = streamIdxsIn[i]; }
+        for (size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            _streamIdxs[i] = streamIdxsIn[i];
+        }
 
-        for (size_t i = 0; i < this->getNumberOfStreams(); i++) { _streams[i] = BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(*(streamsIn[i]))); }
+        for (size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            _streams[i] = BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(*(streamsIn[i])));
+        }
 
         return services::Status();
     }
@@ -117,14 +131,20 @@ public:
     services::Status leapfrogImpl(size_t threadNum, size_t nThreads) DAAL_C11_OVERRIDE
     {
         Status s;
-        for (size_t i = 0; i < this->getNumberOfStreams(); i++) { s.add(leapfrogOne(i, threadNum, nThreads)); }
+        for (size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            s.add(leapfrogOne(i, threadNum, nThreads));
+        }
         return s;
     }
 
     services::Status skipAheadImpl(size_t nSkip) DAAL_C11_OVERRIDE
     {
         Status s;
-        for (size_t i = 0; i < this->getNumberOfStreams(); i++) { s.add(skipAheadOne(i, nSkip)); }
+        for (size_t i = 0; i < this->getNumberOfStreams(); i++)
+        {
+            s.add(skipAheadOne(i, nSkip));
+        }
         return s;
     }
 
@@ -154,7 +174,9 @@ protected:
     BatchImpl(const BatchImpl<cpu, algorithmFPType, method> & other) : super1(other), super2(other)
     {
         for (size_t i = 0; i < other.getNumberOfStreams(); i++)
-        { push_back(other._streamIdxs[i], BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(*(other._streams[i])))); }
+        {
+            push_back(other._streamIdxs[i], BaseRNGsPtr(new daal::internal::BaseRNGs<cpu>(*(other._streams[i]))));
+        }
     }
 
     BatchImpl(size_t seed, size_t i, services::SharedPtr<daal::internal::BaseRNGs<cpu> > baseRng) : super1(seed), super2(seed)

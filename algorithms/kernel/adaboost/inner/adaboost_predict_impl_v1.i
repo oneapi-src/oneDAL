@@ -65,7 +65,10 @@ services::Status I1AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(
 
     const algorithmFPType zero = (algorithmFPType)0.0;
     const algorithmFPType one  = (algorithmFPType)1.0;
-    for (size_t j = 0; j < nVectors; j++) { r[j] = ((r[j] >= zero) ? one : -one); }
+    for (size_t j = 0; j < nVectors; j++)
+    {
+        r[j] = ((r[j] >= zero) ? one : -one);
+    }
     return s;
 }
 } // namespace internal

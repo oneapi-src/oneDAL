@@ -40,7 +40,10 @@ void Compressor<zlib>::initialize()
 {
     int _windowBits;
 
-    if (parameter.gzHeader) { _windowBits = 31; }
+    if (parameter.gzHeader)
+    {
+        _windowBits = 31;
+    }
     else
     {
         _windowBits = 15;
@@ -115,9 +118,15 @@ void Compressor<zlib>::resetCompression()
 
 void Compressor<zlib>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if (_isInitialized == false) { initialize(); }
+    if (_isInitialized == false)
+    {
+        initialize();
+    }
 
-    if (this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0)
+    {
+        return;
+    }
 
     checkInputParams(in, len);
     if (this->_errors->size() != 0)
@@ -164,7 +173,10 @@ void Compressor<zlib>::run(byte * out, size_t outLen, size_t off)
         return;
     case Z_OK:
     case Z_BUF_ERROR:
-        if ((((z_stream *)_strmp)->avail_in == 0) || _flush == Z_FINISH) { _flush = Z_FINISH; }
+        if ((((z_stream *)_strmp)->avail_in == 0) || _flush == Z_FINISH)
+        {
+            _flush = Z_FINISH;
+        }
         if (((z_stream *)_strmp)->avail_out != 0 && ((z_stream *)_strmp)->avail_in == 0)
         {
             errCode = deflate(((z_stream *)_strmp), _flush);
@@ -206,7 +218,10 @@ Decompressor<zlib>::Decompressor() : data_management::DecompressorImpl()
     ((z_stream *)_strmp)->opaque = Z_NULL;
     _flush                       = Z_SYNC_FLUSH;
 
-    if (this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0)
+    {
+        return;
+    }
     this->_isOutBlockFull = 0;
 
     _isInitialized = false;
@@ -216,7 +231,10 @@ void Decompressor<zlib>::initialize()
 {
     int _windowBits;
 
-    if (parameter.gzHeader) { _windowBits = 31; }
+    if (parameter.gzHeader)
+    {
+        _windowBits = 31;
+    }
     else
     {
         _windowBits = 15;
@@ -269,9 +287,15 @@ void Decompressor<zlib>::resetCompression()
 
 void Decompressor<zlib>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if (_isInitialized == false) { initialize(); }
+    if (_isInitialized == false)
+    {
+        initialize();
+    }
 
-    if (this->_errors->size() != 0) { return; }
+    if (this->_errors->size() != 0)
+    {
+        return;
+    }
 
     checkInputParams(in, len);
     if (this->_errors->size() != 0)

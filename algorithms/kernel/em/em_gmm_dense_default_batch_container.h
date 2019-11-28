@@ -62,7 +62,10 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * initialMeans   = input->get(inputMeans).get();
     daal::internal::TArray<NumericTable *, cpu> initialCovariancesPtr(nComponents);
     NumericTable ** initialCovariances = initialCovariancesPtr.get();
-    for (size_t i = 0; i < nComponents; i++) { initialCovariances[i] = input->get(inputCovariances, i).get(); }
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        initialCovariances[i] = input->get(inputCovariances, i).get();
+    }
 
     NumericTable * resultWeights      = pRes->get(weights).get();
     NumericTable * resultMeans        = pRes->get(means).get();
@@ -71,7 +74,10 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::internal::TArray<NumericTable *, cpu> resultCovariancesPtr(nComponents);
     NumericTable ** resultCovariances = resultCovariancesPtr.get();
-    for (size_t i = 0; i < nComponents; i++) { resultCovariances[i] = pRes->get(covariances, i).get(); }
+    for (size_t i = 0; i < nComponents; i++)
+    {
+        resultCovariances[i] = pRes->get(covariances, i).get();
+    }
 
     daal::services::Environment::env & env = *_env;
 

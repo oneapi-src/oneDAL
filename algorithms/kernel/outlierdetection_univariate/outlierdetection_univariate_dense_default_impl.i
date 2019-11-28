@@ -50,7 +50,10 @@ Status OutlierDetectionKernel<algorithmFPType, method, cpu>::compute(NumericTabl
 
     DAAL_CHECK(locationArray && scatterArray && thresholdArray, ErrorMemoryAllocationFailed)
 
-    if (!locationTable || !scatterTable || !thresholdTable) { defaultInitialization(locationArray, scatterArray, thresholdArray, nFeatures); }
+    if (!locationTable || !scatterTable || !thresholdTable)
+    {
+        defaultInitialization(locationArray, scatterArray, thresholdArray, nFeatures);
+    }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
     /* Allocate memory for storing intermediate results */

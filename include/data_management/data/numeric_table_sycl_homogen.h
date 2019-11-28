@@ -173,7 +173,10 @@ protected:
         df.setType<DataType>();
         st |= _ddict->setAllFeatures(df);
 
-        if (memoryAllocationFlag == NumericTableIface::doAllocate) { st |= allocateDataMemoryImpl(); }
+        if (memoryAllocationFlag == NumericTableIface::doAllocate)
+        {
+            st |= allocateDataMemoryImpl();
+        }
     }
 
     explicit SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, size_t nColumns, size_t nRows,
@@ -187,7 +190,10 @@ protected:
 
         st |= _ddict->setAllFeatures(df);
 
-        if (memoryAllocationFlag == doAllocate) { st |= allocateDataMemoryImpl(); }
+        if (memoryAllocationFlag == doAllocate)
+        {
+            st |= allocateDataMemoryImpl();
+        }
 
         st |= assignImpl<DataType>(constValue);
     }
@@ -198,7 +204,10 @@ protected:
 
         freeDataMemoryImpl();
 
-        if (isCpuContext()) { status |= allocateDataMemoryOnCpu(); }
+        if (isCpuContext())
+        {
+            status |= allocateDataMemoryOnCpu();
+        }
         else
         {
             const size_t size = getNumberOfColumns() * getNumberOfRows();
@@ -212,7 +221,10 @@ protected:
                 oneapi::internal::getDefaultContext().allocate(oneapi::internal::TypeIds::id<DataType>(), size, &status).template get<DataType>();
         }
 
-        if (status) { _memStatus = internallyAllocated; }
+        if (status)
+        {
+            _memStatus = internallyAllocated;
+        }
 
         return status;
     }
@@ -228,7 +240,10 @@ protected:
     {
         services::Status status;
 
-        if (isCpuTable()) { status |= _cpuTable->setNumberOfColumns(ncol); }
+        if (isCpuTable())
+        {
+            status |= _cpuTable->setNumberOfColumns(ncol);
+        }
 
         if (status && _ddict->getNumberOfFeatures() != ncol)
         {
@@ -248,10 +263,16 @@ protected:
     {
         NumericTable::serialImpl<Archive, onDeserialize>(archive);
 
-        if (onDeserialize) { allocateDataMemoryImpl(); }
+        if (onDeserialize)
+        {
+            allocateDataMemoryImpl();
+        }
 
         const size_t size = getNumberOfColumns() * getNumberOfRows();
-        if (isCpuTable()) { archive->set(_cpuTable->getArray(), size); }
+        if (isCpuTable())
+        {
+            archive->set(_cpuTable->getArray(), size);
+        }
         else
         {
             archive->set(_buffer.toHost(data_management::readOnly).get(), size);
@@ -267,7 +288,10 @@ protected:
 
         if (_memStatus == notAllocated) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
-        if (isCpuTable()) { return _cpuTable->assign(value); }
+        if (isCpuTable())
+        {
+            return _cpuTable->assign(value);
+        }
 
         auto & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
         ctx.fill(_buffer, (double)value, &status);
@@ -282,7 +306,10 @@ private:
         {
             DAAL_ASSERT(buffer.size() == nRows * nCols);
 
-            if (!block.resizeBuffer(nCols, nRows)) { return services::Status(services::ErrorMemoryAllocationFailed); }
+            if (!block.resizeBuffer(nCols, nRows))
+            {
+                return services::Status(services::ErrorMemoryAllocationFailed);
+            }
 
             // TODO: Figure out how to convert the data without fallback to host
             auto hostPtr = buffer.toHost(data_management::readOnly);
@@ -329,14 +356,20 @@ private:
         const size_t nCols  = getNumberOfColumns();
         const size_t offset = rowOffset * nCols;
         const size_t size   = nRows * nCols;
-        if (size == _buffer.size()) { return _buffer; }
+        if (size == _buffer.size())
+        {
+            return _buffer;
+        }
         return _buffer.getSubBuffer(offset, size);
     }
 
     template <typename T>
     services::Status getTBlock(size_t rowOffset, size_t nRowsBlockDesired, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
-        if (isCpuTable()) { return _cpuTable->getBlockOfRows(rowOffset, nRowsBlockDesired, rwFlag, block); }
+        if (isCpuTable())
+        {
+            return _cpuTable->getBlockOfRows(rowOffset, nRowsBlockDesired, rwFlag, block);
+        }
 
         const size_t nRows = getNumberOfRows();
         const size_t nCols = getNumberOfColumns();
@@ -356,7 +389,10 @@ private:
     template <typename T>
     services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
-        if (isCpuTable()) { return _cpuTable->releaseBlockOfRows(block); }
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseBlockOfRows(block);
+        }
 
         services::Status status;
 
@@ -376,7 +412,10 @@ private:
     template <typename T>
     services::Status getTFeature(size_t columnIndex, size_t rowOffset, size_t nRowsBlockDesired, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
-        if (isCpuTable()) { return _cpuTable->getBlockOfColumnValues(columnIndex, rowOffset, nRowsBlockDesired, rwFlag, block); }
+        if (isCpuTable())
+        {
+            return _cpuTable->getBlockOfColumnValues(columnIndex, rowOffset, nRowsBlockDesired, rwFlag, block);
+        }
 
         return services::ErrorMethodNotImplemented;
     }
@@ -384,7 +423,10 @@ private:
     template <typename T>
     services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
-        if (isCpuTable()) { return _cpuTable->releaseBlockOfColumnValues(block); }
+        if (isCpuTable())
+        {
+            return _cpuTable->releaseBlockOfColumnValues(block);
+        }
 
         return services::ErrorMethodNotImplemented;
     }

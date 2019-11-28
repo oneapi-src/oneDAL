@@ -159,7 +159,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     size_t * indexes = static_cast<size_t *>(service_malloc<size_t, cpu>(xRowCount * sizeof(size_t)));
 
     DAAL_CHECK_MALLOC(indexes)
-    for (size_t i = 0; i < xRowCount; ++i) { indexes[i] = i; }
+    for (size_t i = 0; i < xRowCount; ++i)
+    {
+        indexes[i] = i;
+    }
 
     Queue<BuildNode, cpu> q;
     BBox * bboxQ = nullptr;
@@ -343,12 +346,24 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                     PRAGMA_IVDEP
                     for (++i; i < last; ++i)
                     {
-                        if (b.lower > dx[indexes[i]]) { b.lower = dx[indexes[i]]; }
-                        if (b.upper < dx[indexes[i]]) { b.upper = dx[indexes[i]]; }
+                        if (b.lower > dx[indexes[i]])
+                        {
+                            b.lower = dx[indexes[i]];
+                        }
+                        if (b.upper < dx[indexes[i]])
+                        {
+                            b.upper = dx[indexes[i]];
+                        }
                     }
 
-                    if (bboxLocal->upper < b.upper) { bboxLocal->upper = b.upper; }
-                    if (bboxLocal->lower > b.lower) { bboxLocal->lower = b.lower; }
+                    if (bboxLocal->upper < b.upper)
+                    {
+                        bboxLocal->upper = b.upper;
+                    }
+                    if (bboxLocal->lower > b.lower)
+                    {
+                        bboxLocal->lower = b.lower;
+                    }
                 }
             }
         });
@@ -356,8 +371,14 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         bboxTLS.reduce([=](BBox * v) -> void {
             if (v)
             {
-                if (bbox[j].lower > v->lower) { bbox[j].lower = v->lower; }
-                if (bbox[j].upper < v->upper) { bbox[j].upper = v->upper; }
+                if (bbox[j].lower > v->lower)
+                {
+                    bbox[j].lower = v->lower;
+                }
+                if (bbox[j].upper < v->upper)
+                {
+                    bbox[j].upper = v->upper;
+                }
                 service_scalable_free<BBox, cpu>(v);
             }
         });
@@ -389,16 +410,25 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             const algorithmFpType * const dx = columnBD.getBlockPtr();
 
             PRAGMA_IVDEP
-            for (size_t i = 0; i < elementCount; ++i) { sampleValues[i] = dx[indexes[start + i]]; }
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                sampleValues[i] = dx[indexes[start + i]];
+            }
 
             algorithmFpType meanValue = 0;
 
-            for (size_t i = 0; i < elementCount; ++i) { meanValue += sampleValues[i]; }
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                meanValue += sampleValues[i];
+            }
 
             meanValue /= static_cast<algorithmFpType>(elementCount);
 
             algorithmFpType varValue = 0;
-            for (size_t i = 0; i < elementCount; ++i) { varValue += (sampleValues[i] - meanValue) * (sampleValues[i] - meanValue); }
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                varValue += (sampleValues[i] - meanValue) * (sampleValues[i] - meanValue);
+            }
 
             if (varValue > maxVarianceValue)
             {
@@ -422,16 +452,25 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             const algorithmFpType * const dx = columnBD.getBlockPtr();
 
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < elementCount; ++i) { sampleValues[i] = dx[indexes[sampleIndexes[i]]]; }
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                sampleValues[i] = dx[indexes[sampleIndexes[i]]];
+            }
 
             algorithmFpType meanValue = 0;
 
-            for (size_t i = 0; i < elementCount; ++i) { meanValue += sampleValues[i]; }
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                meanValue += sampleValues[i];
+            }
 
             meanValue /= static_cast<algorithmFpType>(elementCount);
 
             algorithmFpType varValue = 0;
-            for (size_t i = 0; i < elementCount; ++i) { varValue += (sampleValues[i] - meanValue) * (sampleValues[i] - meanValue); }
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                varValue += (sampleValues[i] - meanValue) * (sampleValues[i] - meanValue);
+            }
             if (varValue > maxVarianceValue)
             {
                 maxVarianceValue = varValue;
@@ -500,7 +539,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     const auto blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
     size_t subSampleCount = 0;
-    for (size_t l = 0; l < sampleCount; l += __KDTREE_SEARCH_SKIP) { subSamples[subSampleCount++] = samples[l]; }
+    for (size_t l = 0; l < sampleCount; l += __KDTREE_SEARCH_SKIP)
+    {
+        subSamples[subSampleCount++] = samples[l];
+    }
     const size_t subSampleCount16 = subSampleCount / __SIMDWIDTH * __SIMDWIDTH;
 
     daal::tls<Hist *> histTLS([=, &status]() -> Hist * {
@@ -508,7 +550,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
         DAAL_CHECK_COND_ERROR(ptr, status, services::ErrorMemoryAllocationFailed);
         return ptr;
     });
-    if (!status.ok()) { return (algorithmFpType)0; }
+    if (!status.ok())
+    {
+        return (algorithmFpType)0;
+    }
 
     daal::threader_for(blockCount, blockCount, [=, &histTLS, &samples, &subSamples](int iBlock) {
         Hist * const hist = histTLS.local();
@@ -530,7 +575,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < sampleCount; ++j) { masterHist[j] += v[j]; }
+            for (size_t j = 0; j < sampleCount; ++j)
+            {
+                masterHist[j] += v[j];
+            }
             service_scalable_free<Hist, cpu>(v);
         }
     });
@@ -541,7 +589,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     size_t i      = 0;
     for (; i < sampleCount; ++i)
     {
-        if (sumMid + masterHist[i] > (end - start) / 2) { break; }
+        if (sumMid + masterHist[i] > (end - start) / 2)
+        {
+            break;
+        }
         sumMid += masterHist[i];
     }
 
@@ -576,7 +627,10 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     {
         for (k = subSampleCount16; k < subSampleCount; ++k)
         {
-            if (subSamples[k] >= value) { break; }
+            if (subSamples[k] >= value)
+            {
+                break;
+            }
         }
     }
 
@@ -588,7 +642,10 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             __m256 vSamples = _mm256_loadu_ps(samples + j);
             __m256 mask     = _mm256_cmp_ps(vSamples, vValue, _CMP_GE_OS);
             int maskInt     = _mm256_movemask_ps(mask);
-            if (maskInt) { return j + _bit_scan_forward(_mm256_movemask_ps(mask)); }
+            if (maskInt)
+            {
+                return j + _bit_scan_forward(_mm256_movemask_ps(mask));
+            }
         }
     }
 
@@ -599,14 +656,20 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     size_t k = 0;
     for (; k < subSampleCount; ++k)
     {
-        if (subSamples[k] >= value) { break; }
+        if (subSamples[k] >= value)
+        {
+            break;
+        }
     }
     size_t i = k * __KDTREE_SEARCH_SKIP;
     if (i > 0)
     {
         for (size_t j = i - __KDTREE_SEARCH_SKIP + 1; j <= i; ++j)
         {
-            if (samples[j] >= value) { return j; }
+            if (samples[j] >= value)
+            {
+                return j;
+            }
         }
     }
     return i;
@@ -664,8 +727,14 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         PRAGMA_VECTOR_ALWAYS
         for (;;)
         {
-            while ((left <= right) && (dx[indexes[left]] <= median)) { ++left; }
-            while ((left < right) && (dx[indexes[right]] > median)) { --right; }
+            while ((left <= right) && (dx[indexes[left]] <= median))
+            {
+                ++left;
+            }
+            while ((left < right) && (dx[indexes[right]] > median))
+            {
+                --right;
+            }
             if ((left <= right) && (dx[indexes[right]] > median))
             {
                 DAAL_CHECK_BREAK((right == 0));
@@ -687,7 +756,10 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     // Computes median position.
     size_t idx = start;
-    for (size_t i = 0; i < blockCount; ++i) { idx += rightSegmentStartPerBlock[idxMultiplier * i] - leftSegmentStartPerBlock[idxMultiplier * i]; }
+    for (size_t i = 0; i < blockCount; ++i)
+    {
+        idx += rightSegmentStartPerBlock[idxMultiplier * i] - leftSegmentStartPerBlock[idxMultiplier * i];
+    }
 
     // Swaps the segments.
     size_t leftSegment  = 0;
@@ -740,7 +812,10 @@ template <typename algorithmFpType, CpuType cpu>
 void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::copyBBox(BoundingBox<algorithmFpType> * dest,
                                                                                                const BoundingBox<algorithmFpType> * src, size_t n)
 {
-    for (size_t j = 0; j < n; ++j) { dest[j] = src[j]; }
+    for (size_t j = 0; j < n; ++j)
+    {
+        dest[j] = src[j];
+    }
 }
 
 template <typename algorithmFpType, CpuType cpu>
@@ -792,7 +867,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                     awx[j] = rx[indexes[j]];
                 }
             }
-            for (; j < last; ++j) { awx[j] = rx[indexes[j]]; }
+            for (; j < last; ++j)
+            {
+                awx[j] = rx[indexes[j]];
+            }
         });
 
         if (rx == wx)
@@ -811,7 +889,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                         wx[j] = awx[j];
                     }
                 }
-                for (; j < last; ++j) { wx[j] = awx[j]; }
+                for (; j < last; ++j)
+                {
+                    wx[j] = awx[j];
+                }
             });
         }
 
@@ -848,7 +929,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     BuildNode * bnQ = static_cast<BuildNode *>(service_malloc<BuildNode, cpu>(q.size() * sizeof(BuildNode)));
     DAAL_CHECK_MALLOC(bnQ)
     size_t posQ = 0;
-    while (q.size() > 0) { bnQ[posQ++] = q.pop(); }
+    while (q.size() > 0)
+    {
+        bnQ[posQ++] = q.pop();
+    }
 
     services::Atomic<size_t> threadIndex(0);
     struct Local
@@ -1111,14 +1195,20 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             int result           = 0;
             bool isNeedToReindex = false;
             localTLS.reduce([=, &isNeedToReindex](Local * ptr) -> void {
-                if (ptr && ptr->extraKDTreeNodes) { isNeedToReindex = true; }
+                if (ptr && ptr->extraKDTreeNodes)
+                {
+                    isNeedToReindex = true;
+                }
             });
 
             if (isNeedToReindex)
             {
                 size_t actualNodeCount = lastNodeIndex;
                 localTLS.reduce([=, &actualNodeCount](Local * ptr) -> void {
-                    if (ptr) { actualNodeCount += ptr->nodeIndex - firstNodeIndex[ptr->threadIndex]; }
+                    if (ptr)
+                    {
+                        actualNodeCount += ptr->nodeIndex - firstNodeIndex[ptr->threadIndex];
+                    }
                 });
 
                 Status s;
@@ -1238,7 +1328,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
         radixSort(inSortValues, elementCount, outSortValues);
 
         // Copy back the indexes.
-        for (i = 0; i < elementCount; ++i) { indexes[start + i] = inSortValues[i].idx; }
+        for (i = 0; i < elementCount; ++i)
+        {
+            indexes[start + i] = inSortValues[i].idx;
+        }
 
         const algorithmFpType approximatedMedian = ((end - start) % 2 != 0) ?
                                                        dx[indexes[start + (end - start) / 2]] :
@@ -1252,7 +1345,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     size_t sampleCount = min<cpu>(static_cast<size_t>(static_cast<algorithmFpType>(end - start) * __KDTREE_SAMPLES_PERCENT / 100),
                                   static_cast<size_t>(__KDTREE_MAX_SAMPLES + 1));
 
-    if (sampleCount < __KDTREE_MIN_SAMPLES) { sampleCount = __KDTREE_MIN_SAMPLES + 1; }
+    if (sampleCount < __KDTREE_MIN_SAMPLES)
+    {
+        sampleCount = __KDTREE_MIN_SAMPLES + 1;
+    }
 
     algorithmFpType * samples = static_cast<algorithmFpType *>(service_malloc<algorithmFpType, cpu>(sampleCount * sizeof(*samples)));
     if (!samples)
@@ -1280,7 +1376,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
         return 0;
     }
 
-    for (i = 0; i < sampleCount; ++i) { hist[i] = 0; }
+    for (i = 0; i < sampleCount; ++i)
+    {
+        hist[i] = 0;
+    }
 
     size_t subSampleCount        = (end - start) / __KDTREE_SEARCH_SKIP + 1;
     algorithmFpType * subSamples = static_cast<algorithmFpType *>(service_malloc<algorithmFpType, cpu>(subSampleCount * sizeof(*subSamples)));
@@ -1291,7 +1390,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     }
 
     size_t subSamplesPos = 0;
-    for (size_t l = 0; l < sampleCount; l += __KDTREE_SEARCH_SKIP) { subSamples[subSamplesPos++] = samples[l]; }
+    for (size_t l = 0; l < sampleCount; l += __KDTREE_SEARCH_SKIP)
+    {
+        subSamples[subSamplesPos++] = samples[l];
+    }
     subSampleCount                = subSamplesPos;
     const size_t subSampleCount16 = subSampleCount / __SIMDWIDTH * __SIMDWIDTH;
     size_t l                      = start;
@@ -1314,7 +1416,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     size_t sumMid = 0;
     for (i = 0; i < sampleCount; ++i)
     {
-        if (sumMid + hist[i] > (end - start) / 2) { break; }
+        if (sumMid + hist[i] > (end - start) / 2)
+        {
+            break;
+        }
         sumMid += hist[i];
     }
 
@@ -1345,8 +1450,14 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     size_t right = end - 1;
     for (;;)
     {
-        while ((left <= right) && (dx[indexes[left]] < median)) { ++left; }
-        while ((left < right) && (dx[indexes[right]] >= median)) { --right; }
+        while ((left <= right) && (dx[indexes[left]] < median))
+        {
+            ++left;
+        }
+        while ((left < right) && (dx[indexes[right]] >= median))
+        {
+            --right;
+        }
         if ((left <= right) && (dx[indexes[right]] >= median))
         {
             DAAL_CHECK_BREAK((right == 0));
@@ -1364,8 +1475,14 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     right             = end - 1;
     for (;;)
     {
-        while ((left <= right) && (dx[indexes[left]] <= median)) { ++left; }
-        while ((left < right) && (dx[indexes[right]] > median)) { --right; }
+        while ((left <= right) && (dx[indexes[left]] <= median))
+        {
+            ++left;
+        }
+        while ((left < right) && (dx[indexes[right]] > median))
+        {
+            --right;
+        }
         if ((left <= right) && (dx[indexes[right]] > median))
         {
             DAAL_CHECK_BREAK((right == 0));
@@ -1402,7 +1519,10 @@ void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, 
     size_t valueCount4 = valueCount / 4 * 4;
     for (unsigned int pass = 0; pass < 3; ++pass)
     {
-        for (size_t i = 0; i < histogramSize; ++i) { histogram[i] = 0; }
+        for (size_t i = 0; i < histogramSize; ++i)
+        {
+            histogram[i] = 0;
+        }
         for (size_t i = 0; i < valueCount4; i += 4)
         {
             IntegerType val1 = *reinterpret_cast<IntegerType *>(&first[i].value);
@@ -1442,7 +1562,10 @@ void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, 
     }
     {
         unsigned int pass = 3;
-        for (size_t i = 0; i < histogramSize; ++i) { histogram[i] = 0; }
+        for (size_t i = 0; i < histogramSize; ++i)
+        {
+            histogram[i] = 0;
+        }
         for (size_t i = 0; i < valueCount4; i += 4)
         {
             IntegerType val1 = *reinterpret_cast<IntegerType *>(&first[i].value);
@@ -1473,18 +1596,26 @@ void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, 
         const size_t indexOfNegatives = histogramSize / 2;
         int countOfNegatives          = histogramPS[histogramSize] - histogramPS[indexOfNegatives];
         // Fixes offsets for positive values.
-        for (size_t i = 0; i < indexOfNegatives - 1; ++i) { histogramPS[i] += countOfNegatives; }
+        for (size_t i = 0; i < indexOfNegatives - 1; ++i)
+        {
+            histogramPS[i] += countOfNegatives;
+        }
         // Fixes offsets for negative values.
         histogramPS[histogramSize - 1] = histogram[histogramSize - 1];
         for (size_t i = 0; i < indexOfNegatives - 1; ++i)
-        { histogramPS[histogramSize - 2 - i] = histogramPS[histogramSize - 1 - i] + histogram[histogramSize - 2 - i]; }
+        {
+            histogramPS[histogramSize - 2 - i] = histogramPS[histogramSize - 1 - i] + histogram[histogramSize - 2 - i];
+        }
 
         for (size_t i = 0; i < valueCount; ++i)
         {
             IntegerType val1 = *reinterpret_cast<IntegerType *>(&first[i].value);
             const int bin    = (val1 >> (pass * 8)) & 0xFF;
             int pos;
-            if (bin >= indexOfNegatives) { pos = --histogramPS[bin]; }
+            if (bin >= indexOfNegatives)
+            {
+                pos = --histogramPS[bin];
+            }
             else
             {
                 pos = histogramPS[bin]++;
@@ -1502,7 +1633,10 @@ void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, 
     size_t valueCount4 = valueCount / 4 * 4;
     for (unsigned int pass = 0; pass < 7; ++pass)
     {
-        for (size_t i = 0; i < histogramSize; ++i) { histogram[i] = 0; }
+        for (size_t i = 0; i < histogramSize; ++i)
+        {
+            histogram[i] = 0;
+        }
         for (size_t i = 0; i < valueCount4; i += 4)
         {
             IntegerType val1 = *reinterpret_cast<IntegerType *>(&first[i].value);
@@ -1542,7 +1676,10 @@ void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, 
     }
     {
         unsigned int pass = 7;
-        for (size_t i = 0; i < histogramSize; ++i) { histogram[i] = 0; }
+        for (size_t i = 0; i < histogramSize; ++i)
+        {
+            histogram[i] = 0;
+        }
         for (size_t i = 0; i < valueCount4; i += 4)
         {
             IntegerType val1 = *reinterpret_cast<IntegerType *>(&first[i].value);
@@ -1573,18 +1710,26 @@ void KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, 
         const size_t indexOfNegatives = histogramSize / 2;
         int countOfNegatives          = histogramPS[histogramSize] - histogramPS[indexOfNegatives];
         // Fixes offsets for positive values.
-        for (size_t i = 0; i < indexOfNegatives - 1; ++i) { histogramPS[i] += countOfNegatives; }
+        for (size_t i = 0; i < indexOfNegatives - 1; ++i)
+        {
+            histogramPS[i] += countOfNegatives;
+        }
         // Fixes offsets for negative values.
         histogramPS[histogramSize - 1] = histogram[histogramSize - 1];
         for (size_t i = 0; i < indexOfNegatives - 1; ++i)
-        { histogramPS[histogramSize - 2 - i] = histogramPS[histogramSize - 1 - i] + histogram[histogramSize - 2 - i]; }
+        {
+            histogramPS[histogramSize - 2 - i] = histogramPS[histogramSize - 1 - i] + histogram[histogramSize - 2 - i];
+        }
 
         for (size_t i = 0; i < valueCount; ++i)
         {
             IntegerType val1 = *reinterpret_cast<IntegerType *>(&first[i].value);
             const int bin    = (val1 >> (pass * 8)) & 0xFF;
             int pos;
-            if (bin >= indexOfNegatives) { pos = --histogramPS[bin]; }
+            if (bin >= indexOfNegatives)
+            {
+                pos = --histogramPS[bin];
+            }
             else
             {
                 pos = histogramPS[bin]++;

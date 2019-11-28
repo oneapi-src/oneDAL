@@ -276,7 +276,10 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
     engines::internal::ParallelizationTechnique technique = engines::internal::family;
     selectParallelizationTechnique<cpu>(par, technique);
     engines::internal::Params<cpu> params(par.nTrees);
-    for (size_t i = 0; i < par.nTrees; i++) { params.nSkip[i] = i * par.nTrees * x->getNumberOfRows() * (par.featuresPerNode + 1); }
+    for (size_t i = 0; i < par.nTrees; i++)
+    {
+        params.nSkip[i] = i * par.nTrees * x->getNumberOfRows() * (par.featuresPerNode + 1);
+    }
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, par.nTrees, sizeof(engines::EnginePtr));
     TArray<engines::EnginePtr, cpu> engines(par.nTrees);
     engines::internal::EnginesCollection<cpu> enginesCollection(par.engine, technique, params, engines, &s);
@@ -294,7 +297,10 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
         auto engineImpl                = dynamic_cast<engines::internal::BatchBaseImpl *>(engines[i].get());
         DAAL_CHECK_THR(engineImpl, ErrorEngineNotSupported);
         services::Status s = task->run(engineImpl, pTree, numElems[i]);
-        if (pTree) { md.add((typename ModelType::TreeType &)*pTree, nClasses); }
+        if (pTree)
+        {
+            md.add((typename ModelType::TreeType &)*pTree, nClasses);
+        }
         DAAL_CHECK_STATUS_THR(s);
     });
     s                = safeStat.detach();

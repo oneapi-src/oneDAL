@@ -135,7 +135,10 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
         (NumericTable **)daal::services::internal::service_calloc<NumericTable *, cpu>(nParts * sizeof(NumericTable *));
     if (!partialCrossProducts) return services::Status(services::ErrorMemoryAllocationFailed);
 
-    for (size_t i = 0; i < nParts; i++) { partialCrossProducts[i] = static_cast<NumericTable *>((*crossProductCollection)[i].get()); }
+    for (size_t i = 0; i < nParts; i++)
+    {
+        partialCrossProducts[i] = static_cast<NumericTable *>((*crossProductCollection)[i].get());
+    }
     NumericTable * crossProduct = static_cast<NumericTable *>(partialResult->get(outputOfStep2ForStep4).get());
 
     Parameter * par                        = static_cast<Parameter *>(_par);

@@ -66,7 +66,10 @@ private:
     template <typename Operation, typename Head, typename... Rest>
     static void dispatchInternal(TypeId type, Operation && op, Typelist<Head, Rest...>)
     {
-        if (type == TypeIds::id<Head>()) { op(Typelist<Head>()); }
+        if (type == TypeIds::id<Head>())
+        {
+            op(Typelist<Head>());
+        }
         else
         {
             dispatchInternal(type, op, Typelist<Rest...>());

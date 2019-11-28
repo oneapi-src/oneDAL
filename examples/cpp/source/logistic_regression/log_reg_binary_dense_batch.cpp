@@ -79,7 +79,10 @@ training::ResultPtr trainModel()
     /* Retrieve the algorithm results */
     training::ResultPtr trainingResult     = algorithm.getResult();
     logistic_regression::ModelPtr modelptr = trainingResult->get(classifier::training::model);
-    if (modelptr.get()) { printNumericTable(modelptr->getBeta(), "Logistic Regression coefficients:"); }
+    if (modelptr.get())
+    {
+        printNumericTable(modelptr->getBeta(), "Logistic Regression coefficients:");
+    }
     else
     {
         std::cout << "Null model pointer" << std::endl;

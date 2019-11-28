@@ -33,7 +33,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep4Loc
                                                                                                            jint id, jlong dcAddr)
 {
     if (id == partialData || id == partialWeights)
-    { jniInput<DistributedInput<step4Local> >::set<LocalCollectionInputId, DataCollection>(inputAddr, id, dcAddr); }
+    {
+        jniInput<DistributedInput<step4Local> >::set<LocalCollectionInputId, DataCollection>(inputAddr, id, dcAddr);
+    }
     else
     {
         jniInput<DistributedInput<step4Local> >::set<Step4LocalCollectionInputId, DataCollection>(inputAddr, id, dcAddr);
@@ -49,7 +51,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep4Loc
                                                                                                          jlong ntAddr)
 {
     if (id == partialData || id == partialWeights)
-    { jniInput<DistributedInput<step4Local> >::add<LocalCollectionInputId, NumericTable>(inputAddr, id, ntAddr); }
+    {
+        jniInput<DistributedInput<step4Local> >::add<LocalCollectionInputId, NumericTable>(inputAddr, id, ntAddr);
+    }
     else
     {
         jniInput<DistributedInput<step4Local> >::add<Step4LocalCollectionInputId, NumericTable>(inputAddr, id, ntAddr);
@@ -65,7 +69,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep4Lo
                                                                                                             jint id)
 {
     if (id == partialData || id == partialWeights)
-    { return jniInput<DistributedInput<step4Local> >::get<LocalCollectionInputId, DataCollection>(inputAddr, id); }
+    {
+        return jniInput<DistributedInput<step4Local> >::get<LocalCollectionInputId, DataCollection>(inputAddr, id);
+    }
     else
     {
         return jniInput<DistributedInput<step4Local> >::get<Step4LocalCollectionInputId, DataCollection>(inputAddr, id);

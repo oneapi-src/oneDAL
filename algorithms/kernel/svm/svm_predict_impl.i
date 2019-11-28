@@ -71,7 +71,10 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         if (nSV == 0)
         {
             const algorithmFPType zero(0.0);
-            for (size_t i = 0; i < nVectors; i++) { distance[i] = zero; }
+            for (size_t i = 0; i < nVectors; i++)
+            {
+                distance[i] = zero;
+            }
             return Status();
         }
 

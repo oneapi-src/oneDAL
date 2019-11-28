@@ -39,7 +39,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_OnlinePartialResult_c
                                                                                                   jint id)
 {
     if (id == outputOfStep1ForStep3Val)
-    { return jniArgument<svd::OnlinePartialResult>::get<svd::PartialResultId, DataCollection>(presAddr, svd::outputOfStep1ForStep3); }
+    {
+        return jniArgument<svd::OnlinePartialResult>::get<svd::PartialResultId, DataCollection>(presAddr, svd::outputOfStep1ForStep3);
+    }
     else if (id == outputOfStep1ForStep2Val)
     {
         return jniArgument<svd::OnlinePartialResult>::get<svd::PartialResultId, DataCollection>(presAddr, svd::outputOfStep1ForStep2);

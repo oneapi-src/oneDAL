@@ -65,14 +65,20 @@ int main(int argc, char * argv[])
 
     if (nBlocks != commSize)
     {
-        if (rankId == mpiRoot) { printf("%d MPI ranks != %lu datasets available, so please start exactly %lu ranks.\n", commSize, nBlocks, nBlocks); }
+        if (rankId == mpiRoot)
+        {
+            printf("%d MPI ranks != %lu datasets available, so please start exactly %lu ranks.\n", commSize, nBlocks, nBlocks);
+        }
         MPI_Finalize();
         return 0;
     }
 
     computestep1Local();
 
-    if (rankId == mpiRoot) { computeOnMasterNode(); }
+    if (rankId == mpiRoot)
+    {
+        computeOnMasterNode();
+    }
 
     finalizeComputestep1Local();
 
@@ -114,7 +120,10 @@ void computestep1Local()
     perNodeArchLength = dataArch.getSizeOfArchive();
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
-    if (rankId == mpiRoot) { serializedData = services::SharedPtr<byte>(new byte[perNodeArchLength * nBlocks]); }
+    if (rankId == mpiRoot)
+    {
+        serializedData = services::SharedPtr<byte>(new byte[perNodeArchLength * nBlocks]);
+    }
 
     byte * nodeResults = new byte[perNodeArchLength];
     dataArch.copyArchiveToArray(nodeResults, perNodeArchLength);

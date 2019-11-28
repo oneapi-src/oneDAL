@@ -42,7 +42,10 @@ DAAL_EXPORT Model::Model(size_t nFeatures, const interface1::Parameter & paramet
     using namespace data_management;
 
     const interface1::Parameter * par = &parameter;
-    if (par->nClasses < 2 || nFeatures == 0) { return; }
+    if (par->nClasses < 2 || nFeatures == 0)
+    {
+        return;
+    }
 
     _logP     = NumericTablePtr(new HomogenNumericTable<modelFPType>(1, par->nClasses, NumericTable::doAllocate));
     _logTheta = NumericTablePtr(new HomogenNumericTable<modelFPType>(nFeatures, par->nClasses, NumericTable::doAllocate));
@@ -98,7 +101,10 @@ DAAL_EXPORT Model::Model(size_t nFeatures, const interface2::Parameter & paramet
     using namespace data_management;
 
     const interface2::Parameter * par = &parameter;
-    if (par->nClasses < 2 || nFeatures == 0) { return; }
+    if (par->nClasses < 2 || nFeatures == 0)
+    {
+        return;
+    }
 
     _logP     = NumericTablePtr(new HomogenNumericTable<modelFPType>(1, par->nClasses, NumericTable::doAllocate));
     _logTheta = NumericTablePtr(new HomogenNumericTable<modelFPType>(nFeatures, par->nClasses, NumericTable::doAllocate));
@@ -153,7 +159,10 @@ DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface1::Param
 {
     using namespace data_management;
     const interface1::Parameter * par = &parameter;
-    if (par->nClasses < 2 || nFeatures == 0) { return; }
+    if (par->nClasses < 2 || nFeatures == 0)
+    {
+        return;
+    }
 
     _classSize     = NumericTablePtr(new HomogenNumericTable<int>(1, par->nClasses, NumericTable::doAllocate));
     _classGroupSum = NumericTablePtr(new HomogenNumericTable<int>(nFeatures, par->nClasses, NumericTable::doAllocate));
@@ -195,7 +204,10 @@ DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface2::Param
 {
     using namespace data_management;
     const interface2::Parameter * par = &parameter;
-    if (par->nClasses < 2 || nFeatures == 0) { return; }
+    if (par->nClasses < 2 || nFeatures == 0)
+    {
+        return;
+    }
 
     _classSize     = NumericTablePtr(new HomogenNumericTable<int>(1, par->nClasses, NumericTable::doAllocate));
     _classGroupSum = NumericTablePtr(new HomogenNumericTable<int>(nFeatures, par->nClasses, NumericTable::doAllocate));

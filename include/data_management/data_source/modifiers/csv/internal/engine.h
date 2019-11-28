@@ -202,7 +202,10 @@ private:
 
         if (featuresInfo.areFeatureNamesAvailable())
         {
-            for (size_t i = 0; i < numberOfFeatures; ++i) { mapping->setFeatureKey(i, featuresInfo.getFeatureName(i)); }
+            for (size_t i = 0; i < numberOfFeatures; ++i)
+            {
+                mapping->setFeatureKey(i, featuresInfo.getFeatureName(i));
+            }
         }
 
         return mapping;

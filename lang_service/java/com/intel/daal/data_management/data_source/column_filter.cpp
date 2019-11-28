@@ -83,7 +83,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_1source_ColumnF
     size_t n    = env->GetArrayLength(valid);
     jlong * arr = env->GetLongArrayElements(valid, 0);
     services::Collection<size_t> collection(n);
-    for (int i = 0; i < n; i++) { collection[i] = (size_t)arr[i]; }
+    for (int i = 0; i < n; i++)
+    {
+        collection[i] = (size_t)arr[i];
+    }
     columnFilter->list(collection);
     env->ReleaseLongArrayElements(valid, arr, JNI_ABORT);
 }

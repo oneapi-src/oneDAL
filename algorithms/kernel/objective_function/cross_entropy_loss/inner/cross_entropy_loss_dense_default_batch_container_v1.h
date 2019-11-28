@@ -71,11 +71,17 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     if (parameter->resultsToCompute & objective_function::gradient) gradient = result->get(objective_function::gradientIdx).get();
 
     if (parameter->resultsToCompute & objective_function::nonSmoothTermValue)
-    { nonSmoothTermValue = result->get(objective_function::nonSmoothTermValueIdx).get(); }
+    {
+        nonSmoothTermValue = result->get(objective_function::nonSmoothTermValueIdx).get();
+    }
     if (parameter->resultsToCompute & objective_function::proximalProjection)
-    { proximalProjection = result->get(objective_function::proximalProjectionIdx).get(); }
+    {
+        proximalProjection = result->get(objective_function::proximalProjectionIdx).get();
+    }
     if (parameter->resultsToCompute & objective_function::lipschitzConstant)
-    { lipschitzConstant = result->get(objective_function::lipschitzConstantIdx).get(); }
+    {
+        lipschitzConstant = result->get(objective_function::lipschitzConstantIdx).get();
+    }
 
     __DAAL_CALL_KERNEL(env, internal::I1CrossEntropyLossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
                        input->get(cross_entropy_loss::data).get(), input->get(cross_entropy_loss::dependentVariables).get(),

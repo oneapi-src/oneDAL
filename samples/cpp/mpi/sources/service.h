@@ -44,7 +44,10 @@ typedef std::vector<daal::byte> ByteBuffer;
 size_t readTextFile(const std::string & datasetFileName, daal::byte ** data)
 {
     std::ifstream file(datasetFileName.c_str(), std::ios::binary | std::ios::ate);
-    if (!file.is_open()) { fileOpenError(datasetFileName.c_str()); }
+    if (!file.is_open())
+    {
+        fileOpenError(datasetFileName.c_str());
+    }
 
     std::streampos end = file.tellg();
     file.seekg(0, std::ios::beg);
@@ -96,7 +99,10 @@ void readRowUnknownLength(char * line, std::vector<item_type> & data)
     if (prevDelim != ptr - 1) ++n;
     data.resize(n);
     std::stringstream iss(line);
-    for (size_t i = 0; i < n; ++i) { iss >> data[i]; }
+    for (size_t i = 0; i < n; ++i)
+    {
+        iss >> data[i];
+    }
 }
 
 template <typename item_type>
@@ -104,7 +110,10 @@ CSRNumericTable * createSparseTable(const std::string & datasetFileName)
 {
     std::ifstream file(datasetFileName.c_str());
 
-    if (!file.is_open()) { fileOpenError(datasetFileName.c_str()); }
+    if (!file.is_open())
+    {
+        fileOpenError(datasetFileName.c_str());
+    }
 
     std::string str;
 
@@ -133,7 +142,10 @@ CSRNumericTable * createSparseTable(const std::string & datasetFileName)
     }
     const size_t nFeatures = maxCol;
 
-    if (!nFeatures || !nVectors || colIndices.size() != nNonZeros || nNonZeros != (rowOffsets[nVectors] - 1)) { sparceFileReadError(); }
+    if (!nFeatures || !nVectors || colIndices.size() != nNonZeros || nNonZeros != (rowOffsets[nVectors] - 1))
+    {
+        sparceFileReadError();
+    }
 
     size_t * resultRowOffsets      = NULL;
     size_t * resultColIndices      = NULL;
@@ -146,7 +158,10 @@ CSRNumericTable * createSparseTable(const std::string & datasetFileName)
         resultData[i]       = data[i];
         resultColIndices[i] = colIndices[i];
     }
-    for (size_t i = 0; i < nVectors + 1; ++i) { resultRowOffsets[i] = rowOffsets[i]; }
+    for (size_t i = 0; i < nVectors + 1; ++i)
+    {
+        resultRowOffsets[i] = rowOffsets[i];
+    }
     return numericTable;
 }
 
@@ -166,12 +181,18 @@ void printAprioriItemsets(NumericTablePtr largeItemsetsTable, NumericTablePtr la
     std::vector<std::vector<size_t> > largeItemsetsVector;
     largeItemsetsVector.resize(largeItemsetCount);
 
-    for (size_t i = 0; i < nItemsInLargeItemsets; i++) { largeItemsetsVector[largeItemsets[2 * i]].push_back(largeItemsets[2 * i + 1]); }
+    for (size_t i = 0; i < nItemsInLargeItemsets; i++)
+    {
+        largeItemsetsVector[largeItemsets[2 * i]].push_back(largeItemsets[2 * i + 1]);
+    }
 
     std::vector<size_t> supportVector;
     supportVector.resize(largeItemsetCount);
 
-    for (size_t i = 0; i < largeItemsetCount; i++) { supportVector[largeItemsetsSupportData[2 * i]] = largeItemsetsSupportData[2 * i + 1]; }
+    for (size_t i = 0; i < largeItemsetCount; i++)
+    {
+        supportVector[largeItemsetsSupportData[2 * i]] = largeItemsetsSupportData[2 * i + 1];
+    }
 
     std::cout << std::endl << "Apriori example program results" << std::endl;
 
@@ -184,7 +205,10 @@ void printAprioriItemsets(NumericTablePtr largeItemsetsTable, NumericTablePtr la
     for (size_t i = iMin; i < largeItemsetCount; i++)
     {
         std::cout << "{";
-        for (size_t l = 0; l < largeItemsetsVector[i].size() - 1; l++) { std::cout << largeItemsetsVector[i][l] << ", "; }
+        for (size_t l = 0; l < largeItemsetsVector[i].size() - 1; l++)
+        {
+            std::cout << largeItemsetsVector[i][l] << ", ";
+        }
         std::cout << largeItemsetsVector[i][largeItemsetsVector[i].size() - 1] << "}\t\t";
 
         std::cout << supportVector[i] << std::endl;
@@ -221,17 +245,26 @@ void printAprioriRules(NumericTablePtr leftItemsTable, NumericTablePtr rightItem
         return;
     }
 
-    for (size_t i = 0; i < nLeftItems; i++) { leftItemsVector[leftItems[2 * i]].push_back(leftItems[2 * i + 1]); }
+    for (size_t i = 0; i < nLeftItems; i++)
+    {
+        leftItemsVector[leftItems[2 * i]].push_back(leftItems[2 * i + 1]);
+    }
 
     std::vector<std::vector<size_t> > rightItemsVector;
     rightItemsVector.resize(nRules);
 
-    for (size_t i = 0; i < nRightItems; i++) { rightItemsVector[rightItems[2 * i]].push_back(rightItems[2 * i + 1]); }
+    for (size_t i = 0; i < nRightItems; i++)
+    {
+        rightItemsVector[rightItems[2 * i]].push_back(rightItems[2 * i + 1]);
+    }
 
     std::vector<DAAL_DATA_TYPE> confidenceVector;
     confidenceVector.resize(nRules);
 
-    for (size_t i = 0; i < nRules; i++) { confidenceVector[i] = confidence[i]; }
+    for (size_t i = 0; i < nRules; i++)
+    {
+        confidenceVector[i] = confidence[i];
+    }
 
     std::cout << std::endl << "Last " << nRulesToPrint << " association rules: " << std::endl;
     std::cout << std::endl
@@ -242,10 +275,16 @@ void printAprioriRules(NumericTablePtr leftItemsTable, NumericTablePtr rightItem
     for (size_t i = iMin; i < nRules; i++)
     {
         std::cout << "{";
-        for (size_t l = 0; l < leftItemsVector[i].size() - 1; l++) { std::cout << leftItemsVector[i][l] << ", "; }
+        for (size_t l = 0; l < leftItemsVector[i].size() - 1; l++)
+        {
+            std::cout << leftItemsVector[i][l] << ", ";
+        }
         std::cout << leftItemsVector[i][leftItemsVector[i].size() - 1] << "} => {";
 
-        for (size_t l = 0; l < rightItemsVector[i].size() - 1; l++) { std::cout << rightItemsVector[i][l] << ", "; }
+        for (size_t l = 0; l < rightItemsVector[i].size() - 1; l++)
+        {
+            std::cout << rightItemsVector[i][l] << ", ";
+        }
         std::cout << rightItemsVector[i][rightItemsVector[i].size() - 1] << "}\t\t";
 
         std::cout << confidenceVector[i] << std::endl;
@@ -259,19 +298,28 @@ void printAprioriRules(NumericTablePtr leftItemsTable, NumericTablePtr rightItem
 bool isFull(NumericTableIface::StorageLayout layout)
 {
     int layoutInt = (int)layout;
-    if (packed_mask & layoutInt) { return false; }
+    if (packed_mask & layoutInt)
+    {
+        return false;
+    }
     return true;
 }
 
 bool isUpper(NumericTableIface::StorageLayout layout)
 {
-    if (layout == NumericTableIface::upperPackedSymmetricMatrix || layout == NumericTableIface::upperPackedTriangularMatrix) { return true; }
+    if (layout == NumericTableIface::upperPackedSymmetricMatrix || layout == NumericTableIface::upperPackedTriangularMatrix)
+    {
+        return true;
+    }
     return false;
 }
 
 bool isLower(NumericTableIface::StorageLayout layout)
 {
-    if (layout == NumericTableIface::lowerPackedSymmetricMatrix || layout == NumericTableIface::lowerPackedTriangularMatrix) { return true; }
+    if (layout == NumericTableIface::lowerPackedSymmetricMatrix || layout == NumericTableIface::lowerPackedTriangularMatrix)
+    {
+        return true;
+    }
     return false;
 }
 
@@ -324,13 +372,19 @@ void printUpperArray(T * array, const size_t nPrintedCols, const size_t nPrinted
     int ind = 0;
     for (size_t i = 0; i < nPrintedRows; i++)
     {
-        for (size_t j = 0; j < i; j++) { std::cout << "          "; }
+        for (size_t j = 0; j < i; j++)
+        {
+            std::cout << "          ";
+        }
         for (size_t j = i; j < nPrintedCols; j++)
         {
             std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(3);
             std::cout << array[ind++];
         }
-        for (size_t j = nPrintedCols; j < nCols; j++) { ind++; }
+        for (size_t j = nPrintedCols; j < nCols; j++)
+        {
+            ind++;
+        }
         std::cout << std::endl;
     }
     std::cout << std::endl;
@@ -342,13 +396,19 @@ void printNumericTable(NumericTable * dataTable, const char * message = "", size
     size_t nCols                            = dataTable->getNumberOfColumns();
     NumericTableIface::StorageLayout layout = dataTable->getDataLayout();
 
-    if (nPrintedRows != 0) { nPrintedRows = std::min(nRows, nPrintedRows); }
+    if (nPrintedRows != 0)
+    {
+        nPrintedRows = std::min(nRows, nPrintedRows);
+    }
     else
     {
         nPrintedRows = nRows;
     }
 
-    if (nPrintedCols != 0) { nPrintedCols = std::min(nCols, nPrintedCols); }
+    if (nPrintedCols != 0)
+    {
+        nPrintedCols = std::min(nCols, nPrintedCols);
+    }
     else
     {
         nPrintedCols = nCols;
@@ -365,7 +425,10 @@ void printNumericTable(NumericTable * dataTable, const char * message = "", size
     {
         PackedArrayNumericTableIface * packedTable = dynamic_cast<PackedArrayNumericTableIface *>(dataTable);
         packedTable->getPackedArray(readOnly, block);
-        if (isLower(layout)) { printLowerArray<DAAL_DATA_TYPE>(block.getBlockPtr(), nPrintedRows, message, interval); }
+        if (isLower(layout))
+        {
+            printLowerArray<DAAL_DATA_TYPE>(block.getBlockPtr(), nPrintedRows, message, interval);
+        }
         else if (isUpper(layout))
         {
             printUpperArray<DAAL_DATA_TYPE>(block.getBlockPtr(), nPrintedCols, nPrintedRows, nCols, message, interval);
@@ -428,7 +491,10 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     BlockDescriptor<type2> block2;
 
     size_t nRows = std::min(nRows1, nRows2);
-    if (nPrintedRows != 0) { nRows = std::min(std::min(nRows1, nRows2), nPrintedRows); }
+    if (nPrintedRows != 0)
+    {
+        nRows = std::min(std::min(nRows1, nRows2), nPrintedRows);
+    }
 
     dataTable1->getBlockOfRows(0, nRows, readOnly, block1);
     dataTable2->getBlockOfRows(0, nRows, readOnly, block2);
@@ -447,7 +513,10 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
             std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(3);
             std::cout << data1[i * nCols1 + j];
         }
-        for (size_t j = 0; j < nCols2; j++) { std::cout << std::setprecision(0) << std::setw(interval) << data2[i * nCols2 + j]; }
+        for (size_t j = 0; j < nCols2; j++)
+        {
+            std::cout << std::setprecision(0) << std::setw(interval) << data2[i * nCols2 + j];
+        }
         std::cout << std::endl;
     }
     std::cout << std::endl;
@@ -475,7 +544,10 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
     BlockDescriptor<DAAL_DATA_TYPE> block2;
 
     size_t nRows = std::min(nRows1, nRows2);
-    if (nPrintedRows != 0) { nRows = std::min(std::min(nRows1, nRows2), nPrintedRows); }
+    if (nPrintedRows != 0)
+    {
+        nRows = std::min(std::min(nRows1, nRows2), nPrintedRows);
+    }
 
     dataTable1->getBlockOfRows(0, nRows, readOnly, block1);
     dataTable2->getBlockOfRows(0, nRows, readOnly, block2);
@@ -494,7 +566,10 @@ void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, co
             std::cout << std::setw(interval) << std::setiosflags(std::ios::fixed) << std::setprecision(3);
             std::cout << data1[i * nCols1 + j];
         }
-        for (size_t j = 0; j < nCols2; j++) { std::cout << std::setprecision(0) << std::setw(interval) << data2[i * nCols2 + j]; }
+        for (size_t j = 0; j < nCols2; j++)
+        {
+            std::cout << std::setprecision(0) << std::setw(interval) << data2[i * nCols2 + j];
+        }
         std::cout << std::endl;
     }
     std::cout << std::endl;
@@ -519,11 +594,17 @@ void printNumericTables(NumericTablePtr dataTable1, NumericTablePtr dataTable2, 
 bool checkFileIsAvailable(std::string filename, bool needExit = false)
 {
     std::ifstream file(filename.c_str());
-    if (file.good()) { return true; }
+    if (file.good())
+    {
+        return true;
+    }
     else
     {
         std::cout << "Can't open file " << filename << std::endl;
-        if (needExit) { exit(fileError); }
+        if (needExit)
+        {
+            exit(fileError);
+        }
         return false;
     }
 }
@@ -533,11 +614,17 @@ void checkArguments(int argc, char * argv[], int count, ...)
     std::string ** filelist = new std::string *[count];
     va_list ap;
     va_start(ap, count);
-    for (int i = 0; i < count; i++) { filelist[i] = va_arg(ap, std::string *); }
+    for (int i = 0; i < count; i++)
+    {
+        filelist[i] = va_arg(ap, std::string *);
+    }
     va_end(ap);
     if (argc == 1)
     {
-        for (int i = 0; i < count; i++) { checkFileIsAvailable(*(filelist[i]), true); }
+        for (int i = 0; i < count; i++)
+        {
+            checkFileIsAvailable(*(filelist[i]), true);
+        }
     }
     else if (argc == (count + 1))
     {
@@ -552,35 +639,53 @@ void checkArguments(int argc, char * argv[], int count, ...)
         }
         if (isAllCorrect == true)
         {
-            for (int i = 0; i < count; i++) { (*filelist[i]) = argv[i + 1]; }
+            for (int i = 0; i < count; i++)
+            {
+                (*filelist[i]) = argv[i + 1];
+            }
         }
         else
         {
             std::cout << "Warning: Try to open default datasetFileNames" << std::endl;
-            for (int i = 0; i < count; i++) { checkFileIsAvailable(*(filelist[i]), true); }
+            for (int i = 0; i < count; i++)
+            {
+                checkFileIsAvailable(*(filelist[i]), true);
+            }
         }
     }
     else
     {
         std::cout << "Usage: " << argv[0] << " [ ";
-        for (int i = 0; i < count; i++) { std::cout << "<filename_" << i << "> "; }
+        for (int i = 0; i < count; i++)
+        {
+            std::cout << "<filename_" << i << "> ";
+        }
         std::cout << "]" << std::endl;
         std::cout << "Warning: Try to open default datasetFileNames" << std::endl;
-        for (int i = 0; i < count; i++) { checkFileIsAvailable(*(filelist[i]), true); }
+        for (int i = 0; i < count; i++)
+        {
+            checkFileIsAvailable(*(filelist[i]), true);
+        }
     }
     delete[] filelist;
 }
 
 void copyBytes(daal::byte * dst, daal::byte * src, size_t size)
 {
-    for (size_t i = 0; i < size; i++) { dst[i] = src[i]; }
+    for (size_t i = 0; i < size; i++)
+    {
+        dst[i] = src[i];
+    }
 }
 
 size_t checkBytes(daal::byte * dst, daal::byte * src, size_t size)
 {
     for (size_t i = 0; i < size; i++)
     {
-        if (dst[i] != src[i]) { return i + 1; }
+        if (dst[i] != src[i])
+        {
+            return i + 1;
+        }
     }
     return 0;
 }
@@ -630,7 +735,10 @@ unsigned int getCRC32(daal::byte * input, unsigned int prevRes, size_t len)
         res       = res ^ crcRem[highDigit];
     }
 
-    if (res >= crcPoly) { res = res ^ crcPoly; }
+    if (res >= crcPoly)
+    {
+        res = res ^ crcPoly;
+    }
 
     return res;
 }
@@ -658,7 +766,9 @@ void printALSRatings(NumericTablePtr usersOffsetTable, NumericTablePtr itemsOffs
     for (size_t i = 0; i < nUsers; i++)
     {
         for (size_t j = 0; j < nItems; j++)
-        { std::cout << i + usersOffset << ", " << j + itemsOffset << ", " << ratingsData[i * nItems + j] << std::endl; }
+        {
+            std::cout << i + usersOffset << ", " << j + itemsOffset << ", " << ratingsData[i * nItems + j] << std::endl;
+        }
     }
     ratings->releaseBlockOfRows(block1);
 }

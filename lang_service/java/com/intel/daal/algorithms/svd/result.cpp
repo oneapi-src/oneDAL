@@ -46,7 +46,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cNewResult(JNI
  */
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_Result_cGetFactor(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
-    if (id == singularValuesId) { return jniArgument<svd::Result>::get<svd::ResultId, NumericTable>(resAddr, svd::singularValues); }
+    if (id == singularValuesId)
+    {
+        return jniArgument<svd::Result>::get<svd::ResultId, NumericTable>(resAddr, svd::singularValues);
+    }
     else if (id == leftSingularMatrixId)
     {
         return jniArgument<svd::Result>::get<svd::ResultId, NumericTable>(resAddr, svd::leftSingularMatrix);

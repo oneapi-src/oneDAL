@@ -204,10 +204,15 @@ public:
     services::Status setFeature(size_t idx, size_t offset, features::FeatureType featureType = features::DAAL_CONTINUOUS, size_t categoryNumber = 0)
     {
         if (offset >= _structSize || idx >= getNumberOfColumns())
-        { return services::throwIfPossible(services::Status(services::ErrorIncorrectDataRange)); }
+        {
+            return services::throwIfPossible(services::Status(services::ErrorIncorrectDataRange));
+        }
 
         services::Status s;
-        if (_ddict.get() == NULL) { _ddict = NumericTableDictionary::create(&s); }
+        if (_ddict.get() == NULL)
+        {
+            _ddict = NumericTableDictionary::create(&s);
+        }
         if (!s) return s;
 
         s = _ddict->setFeature<T>(idx);
@@ -227,7 +232,9 @@ public:
     void setOffset(size_t idx, size_t offset)
     {
         if (offset >= _structSize || idx >= getNumberOfColumns())
-        { _status.add(services::throwIfPossible(services::Status(services::ErrorIncorrectDataRange))); }
+        {
+            _status.add(services::throwIfPossible(services::Status(services::ErrorIncorrectDataRange)));
+        }
         else
         {
             _offsets[idx] = offset;
@@ -320,14 +327,23 @@ protected:
         size_t sizeOfRowInDict = 0;
         for (size_t i = 0; i < ncols; ++i)
         {
-            if (!(*_ddict)[i].typeSize) { return false; }
+            if (!(*_ddict)[i].typeSize)
+            {
+                return false;
+            }
             sizeOfRowInDict += (*_ddict)[i].typeSize;
         }
-        if (sizeOfRowInDict > _structSize) { return true; }
+        if (sizeOfRowInDict > _structSize)
+        {
+            return true;
+        }
 
         for (size_t i = 1; i < ncols; ++i)
         {
-            if (_offsets[i - 1] >= _offsets[i]) { return true; }
+            if (_offsets[i - 1] >= _offsets[i])
+            {
+                return true;
+            }
         }
         return false;
     }
@@ -365,10 +381,16 @@ protected:
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
         arch->set(_structSize);
 
-        if (onDeserialize) { initOffsets(); }
+        if (onDeserialize)
+        {
+            initOffsets();
+        }
         arch->set((char *)_offsets, getNumberOfColumns() * sizeof(size_t));
 
-        if (onDeserialize) { allocateDataMemoryImpl(); }
+        if (onDeserialize)
+        {
+            allocateDataMemoryImpl();
+        }
 
         size_t size = getNumberOfRows();
 

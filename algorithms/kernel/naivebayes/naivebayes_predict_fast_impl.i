@@ -134,7 +134,10 @@ services::Status NaiveBayesPredictKernel<algorithmFPType, method, cpu>::compute(
         DAAL_CHECK_THR(buff, ErrorMemoryAllocationFailed);
 
         size_t jn = blockSizeDeafult;
-        if (k == nBlocks - 1) { jn = n - k * blockSizeDeafult; }
+        if (k == nBlocks - 1)
+        {
+            jn = n - k * blockSizeDeafult;
+        }
         size_t j0 = k * blockSizeDeafult;
 
         WriteOnlyRows<int, cpu> wrClassesBlock(ntClass, j0, jn);

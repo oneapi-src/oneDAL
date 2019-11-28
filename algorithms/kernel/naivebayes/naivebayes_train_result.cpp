@@ -126,7 +126,10 @@ services::Status Result::checkImpl(size_t nFeatures, const daal::algorithms::Par
     s |= checkNumericTable(resModel->getLogP().get(), logPStr(), 0, 0, 1, nClasses);
     s |= checkNumericTable(resModel->getLogTheta().get(), logThetaStr(), 0, 0, nFeatures, nClasses);
 
-    if (alphaTable) { s |= checkNumericTable(alphaTable.get(), alphaStr(), 0, 0, nFeatures, 1); }
+    if (alphaTable)
+    {
+        s |= checkNumericTable(alphaTable.get(), alphaStr(), 0, 0, nFeatures, 1);
+    }
 
     return s;
 }

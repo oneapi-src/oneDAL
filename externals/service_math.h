@@ -64,7 +64,10 @@ struct Math
     static void vPowxAsLnExp(SizeType n, const fpType * in, fpType in1, fpType * out)
     {
         _impl<fpType, cpu>::vLog(n, in, out);
-        for (size_t i = 0; i < n; i++) { out[i] *= in1; }
+        for (size_t i = 0; i < n; i++)
+        {
+            out[i] *= in1;
+        }
         _impl<fpType, cpu>::vExp(n, out, out);
     }
 

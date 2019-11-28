@@ -59,7 +59,10 @@ public:
         : covType(_covType), nComponents(_nComponents), nFeatures(_nFeatures), sigma(new DataCollection())
     {
         nRows = nFeatures;
-        if (covType == em_gmm::diagonal) { nRows = 1; }
+        if (covType == em_gmm::diagonal)
+        {
+            nRows = 1;
+        }
         for (size_t i = 0; i < nComponents; i++)
         {
             sigma->push_back(HomogenNT::create(nFeatures, nRows, &st));
@@ -74,12 +77,21 @@ public:
             algorithmFPType * sigmaArray = workSigma->getArray();
             if (covType == em_gmm::diagonal)
             {
-                for (int i = 0; i < nFeatures; i++) { sigmaArray[i] = varianceArray[i]; }
+                for (int i = 0; i < nFeatures; i++)
+                {
+                    sigmaArray[i] = varianceArray[i];
+                }
             }
             else
             {
-                for (int i = 0; i < nFeatures * nFeatures; i++) { sigmaArray[i] = 0.0; }
-                for (int i = 0; i < nFeatures; i++) { sigmaArray[i * nFeatures + i] = varianceArray[i]; }
+                for (int i = 0; i < nFeatures * nFeatures; i++)
+                {
+                    sigmaArray[i] = 0.0;
+                }
+                for (int i = 0; i < nFeatures; i++)
+                {
+                    sigmaArray[i * nFeatures + i] = varianceArray[i];
+                }
             }
         }
     }
@@ -94,7 +106,10 @@ public:
             algorithmFPType * covarianceArray = covarianceBlock.get();
 
             auto workSigma = static_cast<HomogenNT *>((*sigma)[k].get());
-            for (size_t i = 0; i < nRows * nFeatures; i++) { covarianceArray[i] = (workSigma->getArray())[i]; }
+            for (size_t i = 0; i < nRows * nFeatures; i++)
+            {
+                covarianceArray[i] = (workSigma->getArray())[i];
+            }
         }
         return Status();
     }

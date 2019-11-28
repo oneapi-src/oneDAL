@@ -79,14 +79,20 @@ Status QRDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const siz
         const algorithmFPType * Aux2 = mtAux2.get(); /* Aux2  [nxb][n] */
         for (size_t i = 0; i < n; i++)
         {
-            for (size_t j = 0; j < n; j++) { Aux2T[j * nxb + k * n + i] = Aux2[i * n + j]; }
+            for (size_t j = 0; j < n; j++)
+            {
+                Aux2T[j * nxb + k * n + i] = Aux2[i * n + j];
+            }
         }
     });
     DAAL_CHECK_SAFE_STATUS();
 
     {
         /* By some reason, there was this part in Sample */
-        for (size_t i = 0; i < n * n; i++) { RT[i] = 0.0; }
+        for (size_t i = 0; i < n * n; i++)
+        {
+            RT[i] = 0.0;
+        }
     }
 
     const auto ec = compute_QR_on_one_node<algorithmFPType, cpu>(nxb, n, Aux2T, nxb, RT, n);
@@ -98,7 +104,10 @@ Status QRDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const siz
         algorithmFPType * Aux3 = mtAux3.get(); /* Aux2  [nxb][n] */
         for (size_t i = 0; i < n; i++)
         {
-            for (size_t j = 0; j < n; j++) { Aux3[i * n + j] = Aux2T[j * nxb + k * n + i]; }
+            for (size_t j = 0; j < n; j++)
+            {
+                Aux3[i * n + j] = Aux2T[j * nxb + k * n + i];
+            }
         }
     });
     DAAL_CHECK_SAFE_STATUS();
@@ -109,10 +118,16 @@ Status QRDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const siz
 
     for (auto i = 0; i < n; i++)
     {
-        for (auto j = 0; j < n; j++) { R[i + j * n] = RT[i * n + j]; }
+        for (auto j = 0; j < n; j++)
+        {
+            R[i + j * n] = RT[i * n + j];
+        }
     }
 
-    if (inCollection) { inCollection->clear(); }
+    if (inCollection)
+    {
+        inCollection->clear();
+    }
 
     return Status();
 }
@@ -159,11 +174,17 @@ Status QRDistributedStep3Kernel<algorithmFPType, method, cpu>::compute(const siz
 
         for (auto i = 0; i < n; i++)
         {
-            for (auto j = 0; j < m; j++) { Aux1iT[i * m + j] = Aux1i[i + j * n]; }
+            for (auto j = 0; j < m; j++)
+            {
+                Aux1iT[i * m + j] = Aux1i[i + j * n];
+            }
         }
         for (auto i = 0; i < n; i++)
         {
-            for (auto j = 0; j < n; j++) { Aux3iT[i * n + j] = Aux3i[i + j * n]; }
+            for (auto j = 0; j < n; j++)
+            {
+                Aux3iT[i * n + j] = Aux3i[i + j * n];
+            }
         }
 
         DAAL_INT ldAux1i = m;
@@ -174,7 +195,10 @@ Status QRDistributedStep3Kernel<algorithmFPType, method, cpu>::compute(const siz
 
         for (auto i = 0; i < n; i++)
         {
-            for (auto j = 0; j < m; j++) { Qi[i + j * n] = QiT[i * m + j]; }
+            for (auto j = 0; j < m; j++)
+            {
+                Qi[i + j * n] = QiT[i * m + j];
+            }
         }
 
         mCalculated += m;
