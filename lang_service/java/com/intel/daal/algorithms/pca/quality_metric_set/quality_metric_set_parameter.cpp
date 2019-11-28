@@ -27,8 +27,9 @@ using namespace daal::algorithms::pca::quality_metric_set;
 * Method:    cSetNComponents
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetParameter_cSetNComponents
-(JNIEnv *, jobject, jlong parAddr, jlong nComponents)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetParameter_cSetNComponents(JNIEnv *, jobject,
+                                                                                                                         jlong parAddr,
+                                                                                                                         jlong nComponents)
 {
     (*(Parameter *)parAddr).nComponents = nComponents;
 }
@@ -38,10 +39,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_Q
 * Method:    cGetNComponents
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetParameter_cGetNComponents
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetParameter_cGetNComponents(JNIEnv *, jobject,
+                                                                                                                          jlong parAddr)
 {
-    return(jlong)(*(Parameter *)parAddr).nComponents;
+    return (jlong)(*(Parameter *)parAddr).nComponents;
 }
 
 /*
@@ -49,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_
 * Method:    cSetNBetaReducedModel
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetParameter_cSetNFeatures
-(JNIEnv *, jobject, jlong parAddr, jlong nFeatures)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetParameter_cSetNFeatures(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr, jlong nFeatures)
 {
     (*(Parameter *)parAddr).nFeatures = nFeatures;
 }
@@ -60,8 +61,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_Q
 * Method:    cGetNFeatures
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetParameter_cGetNFeatures
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_1set_QualityMetricSetParameter_cGetNFeatures(JNIEnv *, jobject,
+                                                                                                                        jlong parAddr)
 {
-    return(jlong)(*(Parameter *)parAddr).nFeatures;
+    return (jlong)(*(Parameter *)parAddr).nFeatures;
 }

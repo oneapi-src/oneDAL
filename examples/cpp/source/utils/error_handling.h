@@ -20,7 +20,6 @@
 !    Auxiliary error-handling functions used in C++ examples
 !******************************************************************************/
 
-
 #ifndef _ERROR_HANDLING_H
 #define _ERROR_HANDLING_H
 
@@ -28,7 +27,7 @@
 
 const int fileError = -1001;
 
-void checkAllocation(void *ptr)
+void checkAllocation(void * ptr)
 {
     if (!ptr)
     {
@@ -37,7 +36,7 @@ void checkAllocation(void *ptr)
     }
 }
 
-void checkPtr(void *ptr)
+void checkPtr(void * ptr)
 {
     if (!ptr)
     {
@@ -46,7 +45,7 @@ void checkPtr(void *ptr)
     }
 }
 
-void fileOpenError(const char *filename)
+void fileOpenError(const char * filename)
 {
     std::cout << "Unable to open file '" << filename << "'" << std::endl;
     exit(fileError);
@@ -64,7 +63,7 @@ void sparceFileReadError()
     exit(fileError);
 }
 
-void checkStatus(const daal::services::Status &s)
+void checkStatus(const daal::services::Status & s)
 {
     if (!s)
     {

@@ -52,8 +52,8 @@ namespace rbf
  */
 enum Method
 {
-    defaultDense = 0,    /*!< Default method for computing the RBF kernel */
-    fastCSR = 1          /*!< Fast: performance-oriented method. Works with Compressed Sparse Rows (CSR) numeric tables */
+    defaultDense = 0, /*!< Default method for computing the RBF kernel */
+    fastCSR      = 1  /*!< Fast: performance-oriented method. Works with Compressed Sparse Rows (CSR) numeric tables */
 };
 
 /**
@@ -71,7 +71,7 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public ParameterBase
 {
     Parameter(double sigma = 1.0);
-    double sigma;   /*!< RBF kernel coefficient */
+    double sigma; /*!< RBF kernel coefficient */
 };
 /* [RBF input object source code] */
 
@@ -83,7 +83,7 @@ class DAAL_EXPORT Input : public kernel_function::Input
 {
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -92,14 +92,14 @@ public:
     * \param[in] par     %Input objects of the algorithm
     * \param[in] method   Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
 } // namespace interface1
 using interface1::Input;
 using interface1::Parameter;
 
-} // rbf
+} // namespace rbf
 } // namespace kernel_function
 } // namespace algorithms
 } // namespace daal

@@ -55,8 +55,8 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0,  /*!< Normal equations method */
-    normEqDense = 0, /*!< Normal equations method */
+    defaultDense = 0, /*!< Normal equations method */
+    normEqDense  = 0, /*!< Normal equations method */
 };
 
 /**
@@ -67,7 +67,7 @@ enum InputId
 {
     data               = linear_model::training::data,               /*!< %Input data table */
     dependentVariables = linear_model::training::dependentVariables, /*!< Values of the dependent variable for the input data */
-    lastInputId = dependentVariables
+    lastInputId        = dependentVariables
 };
 
 /**
@@ -76,7 +76,7 @@ enum InputId
  */
 enum Step2MasterInputId
 {
-    partialModels,    /*!< Collection of partial models trained on local nodes */
+    partialModels, /*!< Collection of partial models trained on local nodes */
     lastStep2MasterInputId = partialModels
 };
 
@@ -86,7 +86,7 @@ enum Step2MasterInputId
  */
 enum PartialResultID
 {
-    partialModel,    /*!< Partial model trained on the available input data */
+    partialModel, /*!< Partial model trained on the available input data */
     lastPartialResultID = partialModel
 };
 
@@ -96,7 +96,7 @@ enum PartialResultID
  */
 enum ResultId
 {
-    model = linear_model::training::model,  /*!< Linear regression model */
+    model        = linear_model::training::model, /*!< Linear regression model */
     lastResultId = model
 };
 
@@ -136,7 +136,7 @@ class DAAL_EXPORT Input : public linear_model::training::Input, public InputIfac
 public:
     /** Default constructor */
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -152,7 +152,7 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &value);
+    void set(InputId id, const data_management::NumericTablePtr & value);
 
     /**
      * Returns the number of columns in the input data set
@@ -173,14 +173,14 @@ public:
     *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__TRAINING__DISTRIBUTEDINPUT"></a>
  * \brief %Input object for ridge regression model-based training in the distributed processing mode
  */
-template<ComputeStep step>
+template <ComputeStep step>
 class DistributedInput
 {};
 
@@ -219,7 +219,7 @@ public:
      * \param[in] id      Identifier of the argument
      * \param[in] value   Pointer to the argument
      */
-    void set(PartialResultID id, const daal::algorithms::ridge_regression::ModelPtr &value);
+    void set(PartialResultID id, const daal::algorithms::ridge_regression::ModelPtr & value);
 
     /**
      * Allocates memory to store a partial result of ridge regression model-based training
@@ -230,7 +230,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Initializes memory to store a partial result of ridge regression model-based training
@@ -241,7 +241,7 @@ public:
      * \return Status of initialization
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the ridge regression algorithm
@@ -251,7 +251,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks a partial result of the ridge regression algorithm
@@ -260,12 +260,12 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -277,11 +277,12 @@ typedef services::SharedPtr<const PartialResult> PartialResultConstPtr;
  * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__TRAINING__DISTRIBUTED_INPUT"></a>
  * \brief %Input object for ridge regression model-based training in the second step of the distributed processing mode
  */
-template<> class DAAL_EXPORT DistributedInput<step2Master> : public daal::algorithms::Input, public InputIface
+template <>
+class DAAL_EXPORT DistributedInput<step2Master> : public daal::algorithms::Input, public InputIface
 {
 public:
     DistributedInput();
-    DistributedInput(const DistributedInput& other);
+    DistributedInput(const DistributedInput & other);
 
     /**
      * Gets an input object for ridge regression model-based training in the second step of the distributed processing mode
@@ -295,14 +296,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   %Input object
      */
-    void set(Step2MasterInputId id, const data_management::DataCollectionPtr &ptr);
+    void set(Step2MasterInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      Adds an input object for ridge regression model-based training in the second step of the distributed processing mode
      * \param[in] id      Identifier of the input object
      * \param[in] partialResult   %Input object
      */
-    void add(Step2MasterInputId id, const PartialResultPtr &partialResult);
+    void add(Step2MasterInputId id, const PartialResultPtr & partialResult);
 
     /**
      * Returns the number of columns in the input data set
@@ -322,9 +323,8 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__TRAINING__RESULT"></a>
@@ -349,7 +349,7 @@ public:
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
      */
-    void set(ResultId id, const ridge_regression::ModelPtr &value);
+    void set(ResultId id, const ridge_regression::ModelPtr & value);
 
     /**
      * Allocates memory to store the result of ridge regression model-based training
@@ -359,8 +359,8 @@ public:
      *
      * \return Status of computations
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const Parameter *parameter, const int method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store the result of ridge regression model-based training
@@ -370,8 +370,8 @@ public:
      *
      * \return Status of computations
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *partialResult, const Parameter *parameter, int method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, const Parameter * parameter, int method);
 
     /**
      * Checks the result of ridge regression model-based training
@@ -381,7 +381,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks the result of the ridge regression model-based training
@@ -391,12 +391,12 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::PartialResult *pr, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }

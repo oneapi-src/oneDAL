@@ -50,7 +50,7 @@ namespace quality_metric_set
  */
 enum QualityMetricId
 {
-    confusionMatrix,    /*!< Confusion matrix */
+    confusionMatrix, /*!< Confusion matrix */
     lastQualityMetricId = confusionMatrix
 };
 
@@ -98,7 +98,7 @@ public:
     classifier::quality_metric::binary_confusion_matrix::InputPtr getInput(QualityMetricId id) const;
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
-}
+} // namespace interface1
 
 /** @} */
 
@@ -119,7 +119,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     Parameter(size_t nClasses = 2);
     virtual ~Parameter() {}
 
-    size_t nClasses;        /*!< Number of classes */
+    size_t nClasses; /*!< Number of classes */
 };
 /* [Parameter source code] */
 
@@ -162,17 +162,17 @@ public:
     classifier::quality_metric::multiclass_confusion_matrix::InputPtr getInput(QualityMetricId id) const;
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
-}
+} // namespace interface2
 using interface2::Parameter;
 using interface2::ResultCollection;
 using interface2::ResultCollectionPtr;
 using interface2::InputDataCollection;
 using interface2::InputDataCollectionPtr;
 
-}
+} // namespace quality_metric_set
 /** @} */
-}
-}
-}
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal
 
 #endif // __ADABOOST_QUALITY_METRIC_SET_TYPES_H__

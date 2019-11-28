@@ -38,7 +38,6 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -49,20 +48,20 @@ class JavaBatch : public BatchImpl
 {
 public:
     /** Default constructor */
-    JavaBatch(JavaVM *_jvm, jobject _javaObject)
+    JavaBatch(JavaVM * _jvm, jobject _javaObject)
     {
-        JavaBatchContainer *_container = new JavaBatchContainer(_jvm, _javaObject);
+        JavaBatchContainer * _container = new JavaBatchContainer(_jvm, _javaObject);
         _container->setJavaResult(_result);
         _container->setEnvironment(&_env);
 
-        this->_ac = _container ;
+        this->_ac = _container;
     };
 
     virtual ~JavaBatch() {}
 
     virtual int getMethod() const DAAL_C11_OVERRIDE { return 0; } // To make the class non-abstract
 
-    virtual services::Status setResult(const ResultPtr &result) DAAL_C11_OVERRIDE
+    virtual services::Status setResult(const ResultPtr & result) DAAL_C11_OVERRIDE
     {
         _result = result;
         (static_cast<JavaBatchContainer *>(this->_ac))->setJavaResult(_result);
@@ -74,15 +73,15 @@ protected:
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE // To make the class non-abstract
     {
         services::Status s = _result->allocate<double>(_in, 0, 0);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
-    virtual JavaBatch *cloneImpl() const DAAL_C11_OVERRIDE { return NULL; }
+    virtual JavaBatch * cloneImpl() const DAAL_C11_OVERRIDE { return NULL; }
 };
 
-} // namespace daal::algorithms::low_order_moments
-} // namespace daal::algorithms
+} // namespace low_order_moments
+} // namespace algorithms
 } // namespace daal
 
 #endif

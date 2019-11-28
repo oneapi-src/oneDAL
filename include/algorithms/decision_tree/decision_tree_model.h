@@ -28,7 +28,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * @defgroup decision_tree Base Decision Tree
  * \brief Contains base classes for Decision tree algorithm
@@ -41,15 +40,14 @@ namespace algorithms
  */
 namespace decision_tree
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__DECISION_TREE__PRUNING"></a>
  * \brief Pruning method for Decision tree algorithm
  */
 enum Pruning
 {
-    none                = 0,    /*!< Do not prune */
-    reducedErrorPruning = 1     /*!< Reduced error pruning */
+    none                = 0, /*!< Do not prune */
+    reducedErrorPruning = 1  /*!< Reduced error pruning */
 };
 
 } // namespace decision_tree

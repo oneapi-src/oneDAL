@@ -35,8 +35,7 @@ using namespace daal::algorithms::pivoted_qr;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<pivoted_qr::Result>::newObj();
 }
@@ -46,18 +45,17 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Result_cNewRe
  * Method:    cGetResultTable
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Result_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
-    if ( id == matrixQId )
+    if (id == matrixQId)
     {
         return jniArgument<pivoted_qr::Result>::get<pivoted_qr::ResultId, NumericTable>(resAddr, pivoted_qr::matrixQ);
     }
-    else if(id == matrixRId)
+    else if (id == matrixRId)
     {
         return jniArgument<pivoted_qr::Result>::get<pivoted_qr::ResultId, NumericTable>(resAddr, pivoted_qr::matrixR);
     }
-    else if(id == permutationMatrixId)
+    else if (id == permutationMatrixId)
     {
         return jniArgument<pivoted_qr::Result>::get<pivoted_qr::ResultId, NumericTable>(resAddr, pivoted_qr::permutationMatrix);
     }
@@ -70,8 +68,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Result_cGetRe
  * Method:    cSetResultTable
  * Signature:(JI)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pivoted_1qr_Result_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id,
+                                                                                         jlong ntAddr)
 {
     jniArgument<pivoted_qr::Result>::set<pivoted_qr::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

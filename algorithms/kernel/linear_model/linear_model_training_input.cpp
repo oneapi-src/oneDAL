@@ -36,23 +36,21 @@ namespace interface1
 {
 using namespace daal::data_management;
 using namespace daal::services;
-Input::Input(size_t nElements) : regression::training::Input(nElements)
-{}
-Input::Input(const Input& other) : regression::training::Input(other)
-{}
+Input::Input(size_t nElements) : regression::training::Input(nElements) {}
+Input::Input(const Input & other) : regression::training::Input(other) {}
 
 data_management::NumericTablePtr Input::get(InputId id) const
 {
     return regression::training::Input::get(regression::training::InputId(id));
 }
 
-void Input::set(InputId id, const data_management::NumericTablePtr &value)
+void Input::set(InputId id, const data_management::NumericTablePtr & value)
 {
     regression::training::Input::set(regression::training::InputId(id), value);
 }
 
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace training
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

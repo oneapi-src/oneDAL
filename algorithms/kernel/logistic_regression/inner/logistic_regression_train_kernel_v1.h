@@ -42,20 +42,18 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class I1TrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(const HostAppIfacePtr& pHost, const NumericTablePtr& x, const NumericTablePtr& y,
-        logistic_regression::Model& m, interface1::Result& res, const interface1::Parameter& par);
+    services::Status compute(const HostAppIfacePtr & pHost, const NumericTablePtr & x, const NumericTablePtr & y, logistic_regression::Model & m,
+                             interface1::Result & res, const interface1::Parameter & par);
 };
 
 } // namespace internal
-}// namespace training
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
-
+} // namespace training
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -63,7 +63,7 @@ namespace minmax
  */
 enum Method
 {
-    defaultDense = 0,      /*!< Default: performance-oriented method. Works with all types of numeric tables */
+    defaultDense = 0, /*!< Default: performance-oriented method. Works with all types of numeric tables */
 };
 
 /**
@@ -73,7 +73,7 @@ enum Method
  */
 enum InputId
 {
-    data,             /*!< %Input data table */
+    data, /*!< %Input data table */
     lastInputId = data
 };
 
@@ -84,7 +84,7 @@ enum InputId
  */
 enum ResultId
 {
-    normalizedData,        /*!< min-max normalization results */
+    normalizedData, /*!< min-max normalization results */
     lastResultId = normalizedData
 };
 
@@ -93,7 +93,6 @@ enum ResultId
  */
 namespace interface1
 {
-
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__MINMAX__PARAMETERBASE"></a>
 * \brief Base class that specifies the parameters of the algorithm in the batch computing mode
@@ -102,10 +101,10 @@ struct DAAL_EXPORT ParameterBase : public daal::algorithms::Parameter
 {
 public:
     /** Constructs min-max normalization parameters */
-    ParameterBase(double lowerBound, double upperBound, const services::SharedPtr<low_order_moments::BatchImpl> &momentsForParameterBase);
+    ParameterBase(double lowerBound, double upperBound, const services::SharedPtr<low_order_moments::BatchImpl> & momentsForParameterBase);
 
-    double lowerBound;  /*!< The lower bound of the features value will be obtained during normalization. */
-    double upperBound;  /*!< The upper bound of the features value will be obtained during normalization. */
+    double lowerBound; /*!< The lower bound of the features value will be obtained during normalization. */
+    double upperBound; /*!< The upper bound of the features value will be obtained during normalization. */
 
     services::SharedPtr<low_order_moments::BatchImpl> moments; /*!< Pointer to the algorithm that computes the low order moments */
 
@@ -121,7 +120,7 @@ public:
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__MINMAX__PARAMETER"></a>
 * \brief Class that specifies the parameters of the algorithm in the batch computing mode
 */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct DAAL_EXPORT Parameter : public ParameterBase
 {
 public:
@@ -129,7 +128,7 @@ public:
     Parameter(double lowerBound = 0.0, double upperBound = 1.0);
 
     /** Constructs min-max normalization parameters */
-    Parameter(double lowerBound, double upperBound, const services::SharedPtr<low_order_moments::BatchImpl> &momentsForParameter);
+    Parameter(double lowerBound, double upperBound, const services::SharedPtr<low_order_moments::BatchImpl> & momentsForParameter);
 };
 
 /**
@@ -143,7 +142,7 @@ public:
     Input();
 
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -159,7 +158,7 @@ public:
      * \param[in] id    Identifier of the %input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Check the correctness of the %Input object
@@ -168,7 +167,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -192,7 +191,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, int method);
 
     /**
      * Returns the final result of the min-max normalization algorithm
@@ -206,7 +205,7 @@ public:
      * \param[in] id        Identifier of the Result object
      * \param[in] value     Pointer to the Result object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks the correctness of the Result object
@@ -216,12 +215,12 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }

@@ -30,7 +30,6 @@ namespace internal
 {
 namespace interface1
 {
-
 /** @ingroup oneapi_internal
  * @{
  */
@@ -44,17 +43,11 @@ template <typename DataType>
 class BufferConverterFrom
 {
 public:
-    BufferConverterFrom(const UniversalBuffer& src,
-                        UniversalBuffer& dest,
-                        size_t offset,
-                        size_t size)
-        : _src(src),
-          _dest(dest),
-          _offset(offset),
-          _size(size)
-    { }
+    BufferConverterFrom(const UniversalBuffer & src, UniversalBuffer & dest, size_t offset, size_t size)
+        : _src(src), _dest(dest), _offset(offset), _size(size)
+    {}
 
-    UniversalBuffer getResult(services::Status& st)
+    UniversalBuffer getResult(services::Status & st)
     {
         st = _st;
         return _dest;
@@ -68,12 +61,12 @@ public:
 
         _st = services::Status();
 
-        auto srcBuffer = _src.template get<DataType>();
+        auto srcBuffer  = _src.template get<DataType>();
         auto srcHostPtr = srcBuffer.toHost(readOnly);
 
-        auto destBuffer = _dest.template get<T>();
+        auto destBuffer    = _dest.template get<T>();
         auto destSubBuffer = destBuffer.getSubBuffer(_offset, _size);
-        auto destHostPtr = destSubBuffer.toHost(readWrite);
+        auto destHostPtr   = destSubBuffer.toHost(readWrite);
 
         VectorDownCast<DataType, T>()(_size, srcHostPtr.get(), destHostPtr.get());
     }
@@ -96,15 +89,13 @@ template <typename DataType>
 class BufferConverterTo
 {
 public:
-    BufferConverterTo(const UniversalBuffer& src,
-                      size_t offset,
-                      size_t size)
-        : _src(src),
-          _offset(offset),
-          _size(size)
-    { }
+    BufferConverterTo(const UniversalBuffer & src, size_t offset, size_t size) : _src(src), _offset(offset), _size(size) {}
 
-    services::Buffer<DataType> getResult(services::Status& st) { st = _st; return _dest; }
+    services::Buffer<DataType> getResult(services::Status & st)
+    {
+        st = _st;
+        return _dest;
+    }
 
     template <typename T>
     void operator()(Typelist<T>)
@@ -114,14 +105,17 @@ public:
 
         _st = services::Status();
 
-        auto buffer = _src.template get<T>();
-        auto subbuffer = buffer.getSubBuffer(_offset, _size);
+        auto buffer      = _src.template get<T>();
+        auto subbuffer   = buffer.getSubBuffer(_offset, _size);
         auto memoryBlock = subbuffer.toHost(readOnly);
 
-        auto& context = getDefaultContext();
+        auto & context      = getDefaultContext();
         auto uniBufferBlock = context.allocate(TypeIds::id<DataType>(), _size, &_st);
 
-        if (!_st) { return; }
+        if (!_st)
+        {
+            return;
+        }
 
         auto bufferBlock = uniBufferBlock.template get<DataType>();
         {
@@ -135,7 +129,7 @@ public:
     {
         _st = services::Status();
 
-        auto buffer = _src.template get<DataType>();
+        auto buffer    = _src.template get<DataType>();
         auto subbuffer = buffer.getSubBuffer(_offset, _size);
 
         _dest = subbuffer;
@@ -159,15 +153,11 @@ template <typename DataType>
 class BufferHostReinterpreter
 {
 public:
-    BufferHostReinterpreter(const UniversalBuffer& src,
-                            const data_management::ReadWriteMode& mode,
-                            size_t size)
-        : _src(src),
-          _mode(mode),
-          _size(size)
-    { }
+    BufferHostReinterpreter(const UniversalBuffer & src, const data_management::ReadWriteMode & mode, size_t size)
+        : _src(src), _mode(mode), _size(size)
+    {}
 
-    services::SharedPtr<DataType> getResult(services::Status& st)
+    services::SharedPtr<DataType> getResult(services::Status & st)
     {
         st = _st;
         return _reinterpretedPtr;
@@ -177,10 +167,11 @@ public:
     void operator()(Typelist<T>)
     {
         auto buffer = _src.template get<T>();
-        auto ptr = buffer.toHost(_mode);
+        auto ptr    = buffer.toHost(_mode);
 
         _reinterpretedPtr = services::reinterpretPointerCast<DataType, T>(ptr);
     }
+
 private:
     services::Status _st;
 

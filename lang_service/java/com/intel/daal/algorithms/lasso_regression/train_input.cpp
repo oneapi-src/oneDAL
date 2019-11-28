@@ -29,8 +29,8 @@ using namespace daal::algorithms::lasso_regression;
  * Method:    cSetInput
  * Signature:(JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_Input_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                 jint id, jlong ntAddr)
 {
     jniInput<lasso_regression::training::Input>::set<lasso_regression::training::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -40,8 +40,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training
  * Method:    cGetInput
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_Input_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_training_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                  jint id)
 {
     return jniInput<lasso_regression::training::Input>::get<lasso_regression::training::InputId, NumericTable>(inputAddr, id);
 }

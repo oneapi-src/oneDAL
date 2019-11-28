@@ -36,7 +36,6 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-
 namespace interface1
 {
 /**
@@ -68,7 +67,7 @@ public:
  * \tparam method           Computation method of the algorithm, \ref daal::algorithms::low_order_moments::Method
  * \tparam algorithmFPType  Data type to use in intermediate computations of the low order moments, double or float
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public BatchContainerIface
 {
 public:
@@ -77,7 +76,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
     /**
@@ -94,15 +93,12 @@ public:
 class DAAL_EXPORT BatchImpl : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::low_order_moments::Input     InputType;
+    typedef algorithms::low_order_moments::Input InputType;
     typedef algorithms::low_order_moments::Parameter ParameterType;
-    typedef algorithms::low_order_moments::Result    ResultType;
+    typedef algorithms::low_order_moments::Result ResultType;
 
     /** Default constructor */
-    BatchImpl()
-    {
-        initialize();
-    }
+    BatchImpl() { initialize(); }
 
     /**
      * Constructs an algorithm for moments of low order computation
@@ -110,29 +106,23 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    BatchImpl(const BatchImpl &other) : parameter(other.parameter), input(other.input)
-    {
-        initialize();
-    }
+    BatchImpl(const BatchImpl & other) : parameter(other.parameter), input(other.input) { initialize(); }
 
     /**
      * Returns the structure that contains moments of low order
      * \return Structure that contains the computed matrix
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory to store results of computation of moments of low order
      * \param[in] result    Structure to store the results
      */
-    virtual services::Status setResult(const ResultPtr &result)
+    virtual services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -141,15 +131,12 @@ public:
      * with a copy of input objects and parameters of this algorithm for moments of low order
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<BatchImpl> clone() const
-    {
-        return services::SharedPtr<BatchImpl>(cloneImpl());
-    }
+    services::SharedPtr<BatchImpl> clone() const { return services::SharedPtr<BatchImpl>(cloneImpl()); }
 
     virtual ~BatchImpl() {}
 
-    InputType input;                    /*!< %Input data structure */
-    ParameterType parameter;            /*!< %Algorithm parameter */
+    InputType input;         /*!< %Input data structure */
+    ParameterType parameter; /*!< %Algorithm parameter */
 
 protected:
     ResultPtr _result;
@@ -160,7 +147,7 @@ protected:
         _in  = &input;
         _par = &parameter;
     }
-    virtual BatchImpl *cloneImpl() const DAAL_C11_OVERRIDE = 0;
+    virtual BatchImpl * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };
 
 /**
@@ -180,21 +167,18 @@ protected:
  *      - Input class
  *      - Result class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public BatchImpl
 {
 public:
     typedef BatchImpl super;
 
-    typedef typename super::InputType     InputType;
+    typedef typename super::InputType InputType;
     typedef typename super::ParameterType ParameterType;
-    typedef typename super::ResultType    ResultType;
+    typedef typename super::ResultType ResultType;
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs an algorithm that computes moments of low order by copying input objects
@@ -202,10 +186,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : BatchImpl(other)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : BatchImpl(other) { initialize(); }
 
     virtual ~Batch() {}
 
@@ -213,35 +194,26 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated algorithm that computes moments of low order
      * with a copy of input objects of this algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, 0, 0);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
-    void initialize()
-    {
-        this->_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-    }
+    void initialize() { this->_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env); }
 };
 /** @} */
 } // namespace interface1
@@ -250,7 +222,7 @@ using interface1::BatchContainer;
 using interface1::BatchImpl;
 using interface1::Batch;
 
-} // namespace daal::algorithms::low_order_moments
-}
+} // namespace low_order_moments
+} // namespace algorithms
 } // namespace daal
 #endif

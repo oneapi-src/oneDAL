@@ -37,36 +37,27 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType>
 class PCACorrelationKernelUCAPI : public Kernel
 {
 public:
-    using PCACorrelationBaseIfacePtr = services::SharedPtr<PCACorrelationBaseIface<algorithmFPType>>;
+    using PCACorrelationBaseIfacePtr = services::SharedPtr<PCACorrelationBaseIface<algorithmFPType> >;
 
 public:
-    PCACorrelationKernelUCAPI(const PCACorrelationBaseIfacePtr& host_impl);
+    PCACorrelationKernelUCAPI(const PCACorrelationBaseIfacePtr & host_impl);
 
-    services::Status compute
-            (bool isCorrelation,
-             bool isDeterministic,
-             data_management::NumericTable& dataTable,
-             covariance::BatchImpl* covarianceAlg,
-             DAAL_UINT64 resultsToCompute,
-             data_management::NumericTable& eigenvectors,
-             data_management::NumericTable& eigenvalues,
-             data_management::NumericTable& means,
-             data_management::NumericTable& variances);
+    services::Status compute(bool isCorrelation, bool isDeterministic, data_management::NumericTable & dataTable,
+                             covariance::BatchImpl * covarianceAlg, DAAL_UINT64 resultsToCompute, data_management::NumericTable & eigenvectors,
+                             data_management::NumericTable & eigenvalues, data_management::NumericTable & means,
+                             data_management::NumericTable & variances);
 
 private:
-    services::Status calculateVariances(oneapi::internal::ExecutionContextIface& context,
-                                        const oneapi::internal::KernelPtr& calculateVariancesKernel,
-                                        data_management::NumericTable& covariance,
-                                        const services::Buffer<algorithmFPType>& variances);
+    services::Status calculateVariances(oneapi::internal::ExecutionContextIface & context,
+                                        const oneapi::internal::KernelPtr & calculateVariancesKernel, data_management::NumericTable & covariance,
+                                        const services::Buffer<algorithmFPType> & variances);
 
-    services::Status correlationFromCovarianceTable(uint32_t nObservations,
-                                                    data_management::NumericTable& covariance,
-                                                    const services::Buffer<algorithmFPType>& variances);
+    services::Status correlationFromCovarianceTable(uint32_t nObservations, data_management::NumericTable & covariance,
+                                                    const services::Buffer<algorithmFPType> & variances);
 
 private:
     PCACorrelationBaseIfacePtr _host_impl;

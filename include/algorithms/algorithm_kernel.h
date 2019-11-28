@@ -34,7 +34,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * @addtogroup base_algorithms
  * @{
@@ -50,14 +49,13 @@ class Kernel
 public:
     Kernel() {};
 
-    virtual ~Kernel () {}
+    virtual ~Kernel() {}
 };
-
 
 /** @} */
 } // namespace interface1
 using interface1::Kernel;
 
-}
-}
+} // namespace algorithms
+} // namespace daal
 #endif

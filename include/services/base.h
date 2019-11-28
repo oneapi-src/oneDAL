@@ -45,5 +45,5 @@ public:
     virtual ~Base() {}
 };
 /** @} */
-}
+} // namespace daal
 #endif

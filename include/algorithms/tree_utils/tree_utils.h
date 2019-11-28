@@ -28,7 +28,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * @defgroup tree_utils Tree utils
  * \brief Contains classes for work with the tree-based algorithms
@@ -36,21 +35,19 @@ namespace algorithms
  */
 namespace tree_utils
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__NODEDESCRIPTOR"></a>
  * \brief %Struct containing base description of node in descision tree
  */
 struct DAAL_EXPORT NodeDescriptor
 {
-    size_t level; /*!< Number of connections between the node and the root */
-    double impurity; /*!< Measure of the homogeneity of the response variable at the node (i.e., the value of the criterion) */
+    size_t level;            /*!< Number of connections between the node and the root */
+    double impurity;         /*!< Measure of the homogeneity of the response variable at the node (i.e., the value of the criterion) */
     size_t nNodeSampleCount; /*!< Number of samples at the node */
 };
 
@@ -81,22 +78,22 @@ public:
     *  \param[in] desc     The structure containing description of the leaf visited
     *  \return This method should return false to cancel further search and true otherwise
     */
-    virtual bool onSplitNode(const SplitNodeDescriptor &desc) = 0;
+    virtual bool onSplitNode(const SplitNodeDescriptor & desc) = 0;
 
     /**
     *  This method is called by traversal method when a leaf node is visited.
     *  \param[in] desc     The structure containing description of the leaf visited
     *  \return This method should return false to cancel further search and true otherwise
     */
-    virtual bool onLeafNode(const LeafNodeDescriptorType &desc) = 0;
+    virtual bool onLeafNode(const LeafNodeDescriptorType & desc) = 0;
 };
 
-} // interface1
+} // namespace interface1
 using interface1::NodeDescriptor;
 using interface1::SplitNodeDescriptor;
 using interface1::TreeNodeVisitor;
-} // tree_utils
-} // algorithms
-} // daal
+} // namespace tree_utils
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -48,9 +48,9 @@ namespace kmeans
  */
 enum Method
 {
-    lloydDense = 0,     /*!< Default: performance-oriented method, synonym of defaultDense */
-    defaultDense = 0,   /*!< Default: performance-oriented method, synonym of lloydDense */
-    lloydCSR = 1        /*!< Implementation of the Lloyd algorithm for CSR numeric tables */
+    lloydDense   = 0, /*!< Default: performance-oriented method, synonym of defaultDense */
+    defaultDense = 0, /*!< Default: performance-oriented method, synonym of lloydDense */
+    lloydCSR     = 1  /*!< Implementation of the Lloyd algorithm for CSR numeric tables */
 };
 
 /**
@@ -69,8 +69,8 @@ enum DistanceType
  */
 enum InputId
 {
-    data,            /*!< %Input data table */
-    inputCentroids,  /*!< Initial centroids for the algorithm */
+    data,           /*!< %Input data table */
+    inputCentroids, /*!< Initial centroids for the algorithm */
     lastInputId = inputCentroids
 };
 
@@ -80,7 +80,7 @@ enum InputId
  */
 enum MasterInputId
 {
-    partialResults,   /*!< Collection of partial results computed on local nodes  */
+    partialResults, /*!< Collection of partial results computed on local nodes  */
     lastMasterInputId = partialResults
 };
 
@@ -90,13 +90,13 @@ enum MasterInputId
  */
 enum PartialResultId
 {
-    nObservations,                                   /*!< Table containing the number of observations assigned to centroids */
-    partialSums,                                     /*!< Table containing the sum of observations assigned to centroids */
-    partialObjectiveFunction,                        /*!< Table containing an objective function value */
-    partialGoalFunction = partialObjectiveFunction,  /*!< Table containing an objective function value \DAAL_DEPRECATED */
-    partialAssignments,                              /*!< Table containing assignments of observations to particular clusters */
-    partialCandidatesDistances,                      /*!< Table containing goal function of observations most distant from their assigned cluster center */
-    partialCandidatesCentroids,                      /*!< Table containing observations most distant from their assigned cluster center */
+    nObservations,                                  /*!< Table containing the number of observations assigned to centroids */
+    partialSums,                                    /*!< Table containing the sum of observations assigned to centroids */
+    partialObjectiveFunction,                       /*!< Table containing an objective function value */
+    partialGoalFunction = partialObjectiveFunction, /*!< Table containing an objective function value \DAAL_DEPRECATED */
+    partialAssignments,                             /*!< Table containing assignments of observations to particular clusters */
+    partialCandidatesDistances, /*!< Table containing goal function of observations most distant from their assigned cluster center */
+    partialCandidatesCentroids, /*!< Table containing observations most distant from their assigned cluster center */
     lastPartialResultId = partialCandidatesCentroids
 };
 
@@ -141,14 +141,14 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
      *  Constructs parameters of K-Means algorithm by copying another parameters of K-Means algorithm
      *  \param[in] other    Parameters of K-Means algorithm
      */
-    Parameter(const Parameter &other);
+    Parameter(const Parameter & other);
 
-    size_t nClusters;                                      /*!< Number of clusters */
-    size_t maxIterations;                                  /*!< Number of iterations */
-    double accuracyThreshold;                              /*!< Threshold for the termination of the algorithm */
-    double gamma;                                          /*!< Weight used in distance computation for categorical features */
-    DistanceType distanceType;                             /*!< Distance used in the algorithm */
-    bool assignFlag;                                       /*!< Do data points assignment */
+    size_t nClusters;          /*!< Number of clusters */
+    size_t maxIterations;      /*!< Number of iterations */
+    double accuracyThreshold;  /*!< Threshold for the termination of the algorithm */
+    double gamma;              /*!< Weight used in distance computation for categorical features */
+    DistanceType distanceType; /*!< Distance used in the algorithm */
+    bool assignFlag;           /*!< Do data points assignment */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
@@ -188,8 +188,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
-
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the number of features in the input object
@@ -202,7 +201,7 @@ public:
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -224,7 +223,7 @@ public:
      * \param[in] method       Computation method of the algorithm
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns a partial result of K-Means algorithm
@@ -238,7 +237,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the object
      */
-    void set(PartialResultId id, const data_management::NumericTablePtr &ptr);
+    void set(PartialResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the number of features in the Input data table
@@ -253,19 +252,19 @@ public:
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks partial results of K-Means algorithm
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -291,7 +290,7 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store the results of K-Means algorithm
@@ -300,7 +299,8 @@ public:
      * \param[in] method        Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
+                                          const int method);
 
     /**
      * Returns the result of K-Means algorithm
@@ -314,7 +314,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &ptr);
+    void set(ResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the result of K-Means algorithm
@@ -322,7 +322,7 @@ public:
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks the results of K-Means algorithm
@@ -330,12 +330,12 @@ public:
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
      */
-    services::Status check(const daal::algorithms::PartialResult *pres, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -365,7 +365,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(MasterInputId id, const data_management::DataCollectionPtr &ptr);
+    void set(MasterInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds partial results computed on local nodes to the input for K-Means algorithm
@@ -373,7 +373,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] value Pointer to the object
      */
-    void add(MasterInputId id, const PartialResultPtr &value);
+    void add(MasterInputId id, const PartialResultPtr & value);
 
     /**
      * Returns the number of features in the Input data table in the second step of the distributed processing mode
@@ -387,7 +387,7 @@ public:
      * \param[in] par     Algorithm parameter
      * \param[in] method  Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 } // namespace interface1
 using interface1::Parameter;
@@ -399,8 +399,8 @@ using interface1::Result;
 using interface1::ResultPtr;
 using interface1::DistributedStep2MasterInput;
 
-} // namespace daal::algorithms::kmeans
+} // namespace kmeans
 /** @} */
-} // namespace daal::algorithms
+} // namespace algorithms
 } // namespace daal
 #endif

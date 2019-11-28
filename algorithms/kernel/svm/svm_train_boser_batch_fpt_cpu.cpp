@@ -39,7 +39,6 @@ template class BatchContainer<DAAL_FPTYPE, boser, DAAL_CPU>;
 }
 namespace internal
 {
-
 template struct SVMTrainImpl<boser, DAAL_FPTYPE, svm::interface2::Parameter, DAAL_CPU>;
 
 } // namespace internal

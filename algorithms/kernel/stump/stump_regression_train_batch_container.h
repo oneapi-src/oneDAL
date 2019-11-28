@@ -38,41 +38,40 @@ namespace regression
 {
 namespace training
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::StumpTrainKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    daal::algorithms::regression::training::Input *input = static_cast<daal::algorithms::regression::training::Input *>(_in);
-    stump::regression::training::Result *result = static_cast<stump::regression::training::Result *>(_res);
+    daal::algorithms::regression::training::Input * input = static_cast<daal::algorithms::regression::training::Input *>(_in);
+    stump::regression::training::Result * result          = static_cast<stump::regression::training::Result *>(_res);
     DAAL_CHECK_MALLOC(_par)
-    const Parameter *par = static_cast<Parameter *>(_par);
-    size_t n = input->size();
-    NumericTable *a[3];
-    a[0] = static_cast<NumericTable *>(input->get(daal::algorithms::regression::training::data).get());
-    a[1] = static_cast<NumericTable *>(input->get(daal::algorithms::regression::training::dependentVariables).get());
-    a[2] = static_cast<NumericTable *>(input->get(daal::algorithms::regression::training::weights).get());
-    stump::regression::Model *r = static_cast<stump::regression::Model *>(result->get(daal::algorithms::regression::training::model).get());
+    const Parameter * par = static_cast<Parameter *>(_par);
+    size_t n              = input->size();
+    NumericTable * a[3];
+    a[0]                         = static_cast<NumericTable *>(input->get(daal::algorithms::regression::training::data).get());
+    a[1]                         = static_cast<NumericTable *>(input->get(daal::algorithms::regression::training::dependentVariables).get());
+    a[2]                         = static_cast<NumericTable *>(input->get(daal::algorithms::regression::training::weights).get());
+    stump::regression::Model * r = static_cast<stump::regression::Model *>(result->get(daal::algorithms::regression::training::model).get());
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::StumpTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, n, a, r, par);
 }
 
-} // namespace daal::algorithm::stump::regression::training
-}
-}
-}
+} // namespace training
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

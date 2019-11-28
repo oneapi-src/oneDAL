@@ -53,12 +53,12 @@ namespace interface1
 class Batch : public daal::algorithms::Prediction
 {
 public:
-    typedef algorithms::regression::prediction::Input  InputType;
-    typedef algorithms::Parameter                      ParameterType;
+    typedef algorithms::regression::prediction::Input InputType;
+    typedef algorithms::Parameter ParameterType;
     typedef algorithms::regression::prediction::Result ResultType;
 
     virtual ~Batch() {}
-    virtual InputType* getInput() = 0;
+    virtual InputType * getInput() = 0;
 
     /**
      * Registers user-allocated memory to store the result of the regression model-based prediction
@@ -66,11 +66,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -85,20 +85,17 @@ public:
      * and parameters of this regression prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
     ResultPtr _result;
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };
 /** @} */
-}
+} // namespace interface1
 using interface1::Batch;
-}
-}
-}
-}
+} // namespace prediction
+} // namespace regression
+} // namespace algorithms
+} // namespace daal
 #endif

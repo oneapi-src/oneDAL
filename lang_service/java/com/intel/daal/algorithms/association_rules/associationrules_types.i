@@ -28,7 +28,7 @@ using namespace daal::algorithms;
 #define RulesUnsorted           com_intel_daal_algorithms_association_rules_RulesOrderId_RulesUnsorted
 #define RulesSortedByConfidence com_intel_daal_algorithms_association_rules_RulesOrderId_RulesSortedByConfidence
 
-typedef association_rules::Batch<float, association_rules::apriori>     ar_of_s_ap;
-typedef association_rules::Batch<double, association_rules::apriori>    ar_of_d_ap;
-typedef services::SharedPtr<association_rules::Batch<float, association_rules::apriori> >    sp_ar_of_s_ap;
-typedef services::SharedPtr<association_rules::Batch<double, association_rules::apriori> >   sp_ar_of_d_ap;
+typedef association_rules::Batch<float, association_rules::apriori> ar_of_s_ap;
+typedef association_rules::Batch<double, association_rules::apriori> ar_of_d_ap;
+typedef services::SharedPtr<association_rules::Batch<float, association_rules::apriori> > sp_ar_of_s_ap;
+typedef services::SharedPtr<association_rules::Batch<double, association_rules::apriori> > sp_ar_of_d_ap;

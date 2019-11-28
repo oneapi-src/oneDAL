@@ -28,8 +28,7 @@ namespace internal
 {
 namespace interface1
 {
-
-inline ExecutionContextIface &getDefaultContext()
+inline ExecutionContextIface & getDefaultContext()
 {
     return services::Environment::getInstance()->getDefaultExecutionContext();
 }

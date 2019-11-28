@@ -69,7 +69,7 @@ ResultPtr DistributedPartialResult::get(DistributedPartialResultId id) const
  * \param[in] id    Identifier of partial result
  * \param[in] value Pointer to the Result object
  */
-void DistributedPartialResult::set(DistributedPartialResultCollectionId id, const KeyValueDataCollectionPtr &value)
+void DistributedPartialResult::set(DistributedPartialResultCollectionId id, const KeyValueDataCollectionPtr & value)
 {
     Argument::set(id, value);
 }
@@ -79,7 +79,7 @@ void DistributedPartialResult::set(DistributedPartialResultCollectionId id, cons
  * \param[in] id    Identifier of the result
  * \param[in] value Pointer to the Result object
  */
-void DistributedPartialResult::set(DistributedPartialResultId id, const ResultPtr &value)
+void DistributedPartialResult::set(DistributedPartialResultId id, const ResultPtr & value)
 {
     Argument::set(id, value);
 }
@@ -89,7 +89,7 @@ void DistributedPartialResult::set(DistributedPartialResultId id, const ResultPt
  * \param[in] parameter Pointer to parameters
  * \param[in] method Computation method
  */
-Status DistributedPartialResult::check(const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResult::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     // check key-value dataCollection;
     KeyValueDataCollectionPtr resultKeyValueDC = get(outputOfStep2ForStep3);
@@ -115,7 +115,7 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
     size_t nFeatures = firstNumTableInFirstNodeCollection->getNumberOfColumns();
     DAAL_CHECK(nNodes <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfNodes)
     // check all dataCollection in key-value dataCollection
-    for(size_t i = 0 ; i < nNodes ; i++)
+    for (size_t i = 0; i < nNodes; i++)
     {
         DAAL_CHECK_EX((*resultKeyValueDC).getValueByIndex((int)i), ErrorNullOutputDataCollection, ArgumentName, QRNodeCollectionStr());
         DataCollectionPtr nodeCollection = DataCollection::cast((*resultKeyValueDC).getValueByIndex((int)i));
@@ -123,7 +123,7 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
         size_t nodeSize = nodeCollection->size();
         DAAL_CHECK_EX(nodeSize > 0, ErrorIncorrectNumberOfElementsInResultCollection, ArgumentName, QRNodeCollectionStr());
         // check all numeric tables in dataCollection
-        for(size_t j = 0 ; j < nodeSize ; j++)
+        for (size_t j = 0; j < nodeSize; j++)
         {
             DAAL_CHECK_EX((*nodeCollection)[j], ErrorNullNumericTable, ArgumentName, QRNodeCollectionNTStr());
             NumericTablePtr rNumTableInNodeCollection = NumericTable::cast((*nodeCollection)[j]);
@@ -134,7 +134,7 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
         }
     }
     int unexpectedLayouts = (int)packed_mask;
-    if(get(finalResultFromStep2Master))
+    if (get(finalResultFromStep2Master))
     {
         s |= checkNumericTable(get(finalResultFromStep2Master)->get(matrixR).get(), matrixRStr(), unexpectedLayouts, 0, nFeatures, nFeatures);
         DAAL_CHECK_STATUS_VAR(s)
@@ -148,12 +148,12 @@ Status DistributedPartialResult::check(const daal::algorithms::Parameter *parame
  * \param[in] par    Pointer to parameters
  * \param[in] method Computation method
  */
-Status DistributedPartialResult::check(const daal::algorithms::Input* input, const daal::algorithms::Parameter *parameter, int method) const
+Status DistributedPartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     return check(parameter, method);
 }
 
 } // namespace interface1
 } // namespace qr
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

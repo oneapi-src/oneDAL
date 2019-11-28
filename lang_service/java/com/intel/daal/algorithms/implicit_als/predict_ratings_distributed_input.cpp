@@ -31,8 +31,9 @@ using namespace daal::algorithms::implicit_als::prediction::ratings;
  * Method:    cInit
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributedInput_cInit
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributedInput_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
     return jniDistributed<step1Local, implicit_als::prediction::ratings::Method, Distributed, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -42,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_
  * Method:    cSetPartialModel
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributedInput_cSetPartialModel
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong modelAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributedInput_cSetPartialModel(
+    JNIEnv * env, jobject thisObj, jlong inputAddr, jint id, jlong modelAddr)
 {
     jniInput<DistributedInput<step1Local> >::set<PartialModelInputId, algorithms::implicit_als::PartialModel>(inputAddr, id, modelAddr);
 }
@@ -53,8 +54,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_r
  * Method:    cGetPartialModel
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributedInput_cGetPartialModel
-  (JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_prediction_ratings_RatingsDistributedInput_cGetPartialModel(JNIEnv * env,
+                                                                                                                                 jobject thisObj,
+                                                                                                                                 jlong inputAddr,
+                                                                                                                                 jint id)
 {
     return jniInput<DistributedInput<step1Local> >::get<PartialModelInputId, algorithms::implicit_als::PartialModel>(inputAddr, id);
 }

@@ -26,14 +26,13 @@
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::logistic_regression::prediction;
 
-
 /*
  * Class:     com_intel_daal_algorithms_logistic_regression_prediction_PredictionBatch
  * Method:    cInit
  * Signature:(IIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                             jint method, jlong nClasses)
 {
     return jniBatch<logistic_regression::prediction::Method, Batch, defaultDense>::newObj(prec, method, nClasses);
 }
@@ -43,8 +42,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_pred
  * Method:    cInitParameter
  * Signature:(JIII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
     return jniBatch<logistic_regression::prediction::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -54,8 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_pred
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
     return jniBatch<logistic_regression::prediction::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }
@@ -65,8 +65,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_pred
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong algAddr, jint prec,
+                                                                                                                  jint method)
 {
     return jniBatch<logistic_regression::prediction::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -76,9 +77,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_pred
  * Method:    cSetResult
  * Signature:(JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionBatch_cSetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong algAddr, jint prec,
+                                                                                                                 jint method, jlong resultAddr)
 {
-    jniBatch<logistic_regression::prediction::Method, Batch, defaultDense>::
-        setResult<classifier::prediction::Result>(prec, method, algAddr, resultAddr);
+    jniBatch<logistic_regression::prediction::Method, Batch, defaultDense>::setResult<classifier::prediction::Result>(prec, method, algAddr,
+                                                                                                                      resultAddr);
 }

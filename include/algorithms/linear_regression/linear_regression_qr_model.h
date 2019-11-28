@@ -32,7 +32,6 @@ namespace algorithms
 {
 namespace linear_regression
 {
-
 namespace interface1
 {
 /**
@@ -56,7 +55,7 @@ class DAAL_EXPORT ModelQR : public Model
 public:
     DECLARE_MODEL(ModelQR, linear_regression::Model);
 
-    virtual ~ModelQR() { }
+    virtual ~ModelQR() {}
 
     /**
      * Returns a Numeric table that contains the R factor of QR decomposition
@@ -79,7 +78,7 @@ using interface1::ModelQR;
 using interface1::ModelQRPtr;
 using interface1::ModelQRConstPtr;
 
-}
-}
+} // namespace linear_regression
+} // namespace algorithms
 } // namespace daal
 #endif

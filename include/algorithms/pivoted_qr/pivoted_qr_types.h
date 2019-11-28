@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __PIVOTED_QR_TYPES_H__
 #define __PIVOTED_QR_TYPES_H__
 
@@ -58,7 +57,7 @@ enum Method
  */
 enum InputId
 {
-    data ,          /*!< Input data table */
+    data, /*!< Input data table */
     lastInputId = data
 };
 
@@ -68,9 +67,9 @@ enum InputId
  */
 enum ResultId
 {
-    matrixQ,            /*!< Orthogonal Matrix Q */
-    matrixR,            /*!< Upper Triangular Matrix R */
-    permutationMatrix,     /*!< The permutation matrix P overwritten by its details  */
+    matrixQ,           /*!< Orthogonal Matrix Q */
+    matrixR,           /*!< Upper Triangular Matrix R */
+    permutationMatrix, /*!< The permutation matrix P overwritten by its details  */
     lastResultId = permutationMatrix
 };
 
@@ -87,7 +86,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter(const data_management::NumericTablePtr permutedColumns = data_management::NumericTablePtr());
 
-    data_management::NumericTablePtr permutedColumns;    /*!< On entry, if i-th element of permutedColumns != 0,
+    data_management::NumericTablePtr permutedColumns; /*!< On entry, if i-th element of permutedColumns != 0,
                                                                   * the i-th column of input matrix is moved  to the beginning of Data * P before
                                                                   * the computation, and fixed in place during the computation.
                                                                   * If i-th element of permutedColumns = 0, the i-th column of input data
@@ -106,7 +105,7 @@ public:
     Input();
 
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
 
     /** Destructor */
     virtual ~Input() {}
@@ -123,9 +122,9 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] value Pointer to the input object
      */
-    void set(InputId id, const data_management::NumericTablePtr &value);
+    void set(InputId id, const data_management::NumericTablePtr & value);
 
-    virtual services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -148,7 +147,7 @@ public:
      * \param[in] method       Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns result of the pivoted QR algorithm
@@ -162,7 +161,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] value Pointer to the storage data_management::NumericTable
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
     * Checks the correctness of the result object
@@ -170,12 +169,12 @@ public:
     * \param[in] par    Pointer to the structure of the algorithm parameters
     * \param[in] method Computation method
     */
-    virtual services::Status check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -189,7 +188,7 @@ using interface1::Input;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace daal::algorithms::pivoted_qr
-} // namespace daal::algorithms
+} // namespace pivoted_qr
+} // namespace algorithms
 } // namespace daal
 #endif

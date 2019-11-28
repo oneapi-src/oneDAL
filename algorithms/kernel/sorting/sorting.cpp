@@ -36,10 +36,9 @@ namespace sorting
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_SORTING_RESULT_ID);
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 /**
  * Returns an input object for the sorting algorithm
@@ -56,7 +55,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the %input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -66,7 +65,7 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
  * \param[in] method    Algorithm computation method
  * \param[in] par       Pointer to the parameters of the algorithm
  */
-Status Input::check(const Parameter *par, int method) const
+Status Input::check(const Parameter * par, int method) const
 {
     const int unexpectedLayouts = packed_mask;
     return checkNumericTable(get(data).get(), dataStr(), unexpectedLayouts);
@@ -89,7 +88,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id        Identifier of the Result object
  * \param[in] value     Pointer to the Result object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -100,18 +99,18 @@ void Result::set(ResultId id, const NumericTablePtr &value)
  * \param[in] par     %Parameter of algorithm
  * \param[in] method Algorithm computation method
  */
-Status Result::check(const daal::algorithms::Input *in, const Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * in, const Parameter * par, int method) const
 {
-    const Input *input = static_cast<const Input *>(in);
+    const Input * input = static_cast<const Input *>(in);
 
-    const size_t nFeatures = input->get(data)->getNumberOfColumns();
-    const size_t nVectors  = input->get(data)->getNumberOfRows();
+    const size_t nFeatures      = input->get(data)->getNumberOfColumns();
+    const size_t nVectors       = input->get(data)->getNumberOfRows();
     const int unexpectedLayouts = packed_mask;
 
     return checkNumericTable(get(sortedData).get(), sortedDataStr(), unexpectedLayouts, 0, nFeatures, nVectors);
 }
 
-}// namespace interface1
-}// namespace sorting
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace sorting
+} // namespace algorithms
+} // namespace daal

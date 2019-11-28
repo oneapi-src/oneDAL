@@ -47,19 +47,15 @@ namespace interface1
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__REFERENCEGEMM"></a>
  *  \brief Adapter for reference GEMM routine
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct DAAL_EXPORT ReferenceGemm
 {
-    ReferenceGemm()
-    { }
+    ReferenceGemm() {}
 
-    services::Status operator()(const math::Transpose transa, const math::Transpose transb,
-        const size_t m, const size_t n, const size_t k,
-        const algorithmFPType alpha,
-        const services::Buffer<algorithmFPType> &a_buffer, const size_t lda, const size_t offsetA,
-        const services::Buffer<algorithmFPType> &b_buffer, const size_t ldb, const size_t offsetB,
-        const algorithmFPType beta,
-        services::Buffer<algorithmFPType> &c_buffer, const size_t ldc, const size_t offsetC);
+    services::Status operator()(const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n, const size_t k,
+                                const algorithmFPType alpha, const services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                const size_t offsetA, const services::Buffer<algorithmFPType> & b_buffer, const size_t ldb, const size_t offsetB,
+                                const algorithmFPType beta, services::Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC);
 };
 
 /** @} */
@@ -68,8 +64,8 @@ struct DAAL_EXPORT ReferenceGemm
 using interface1::ReferenceGemm;
 
 } // namespace math
-} // namespace oneapi
 } // namespace internal
+} // namespace oneapi
 } // namespace daal
 
 #endif

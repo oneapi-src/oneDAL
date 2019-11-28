@@ -43,7 +43,7 @@ namespace internal
 {
 template class ImplicitALSTrainDistrStep2Kernel<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

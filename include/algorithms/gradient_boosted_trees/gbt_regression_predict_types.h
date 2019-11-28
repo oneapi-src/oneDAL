@@ -57,7 +57,7 @@ namespace prediction
  */
 enum Method
 {
-    defaultDense = 0        /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -66,7 +66,7 @@ enum Method
  */
 enum NumericTableInputId
 {
-    data = algorithms::regression::prediction::data, /*!< Input data table */
+    data                    = algorithms::regression::prediction::data, /*!< Input data table */
     lastNumericTableInputId = data
 };
 
@@ -76,7 +76,7 @@ enum NumericTableInputId
  */
 enum ModelInputId
 {
-    model = algorithms::regression::prediction::model, /*!< Trained gradient boosted trees model */
+    model            = algorithms::regression::prediction::model, /*!< Trained gradient boosted trees model */
     lastModelInputId = model
 };
 
@@ -86,7 +86,7 @@ enum ModelInputId
  */
 enum ResultId
 {
-    prediction = algorithms::regression::prediction::prediction, /*!< Result of gradient boosted trees model-based prediction */
+    prediction   = algorithms::regression::prediction::prediction, /*!< Result of gradient boosted trees model-based prediction */
     lastResultId = prediction
 };
 
@@ -95,7 +95,6 @@ enum ResultId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__GBT__REGRESSION__PREDICTION__PARAMETER"></a>
  * \brief Parameters of the prediction algorithm
@@ -106,8 +105,8 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter() : daal::algorithms::Parameter(), nIterations(0) {}
-    Parameter(const Parameter& o) : daal::algorithms::Parameter(o), nIterations(o.nIterations){}
-    size_t nIterations;        /*!< Number of iterations of the trained model to be uses for prediction*/
+    Parameter(const Parameter & o) : daal::algorithms::Parameter(o), nIterations(o.nIterations) {}
+    size_t nIterations; /*!< Number of iterations of the trained model to be uses for prediction*/
 };
 /* [Parameter source code] */
 
@@ -119,7 +118,7 @@ class DAAL_EXPORT Input : public algorithms::regression::prediction::Input
 {
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     /**
      * Returns an input object for making model-based prediction
@@ -140,20 +139,20 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(NumericTableInputId id, const data_management::NumericTablePtr &value);
+    void set(NumericTableInputId id, const data_management::NumericTablePtr & value);
 
     /**
      * Sets an input object for making model-based prediction
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ModelInputId id, const gbt::regression::ModelPtr &value);
+    void set(ModelInputId id, const gbt::regression::ModelPtr & value);
 
     /**
      * Checks an input object for making model-based prediction
      * \return Status of checking
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -178,7 +177,7 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory to store a partial result of model-based prediction
@@ -188,7 +187,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
      * Checks the result of model-based prediction
@@ -197,12 +196,12 @@ public:
      * \param[in] method  Computation method
      * \return Status of checking
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -217,10 +216,10 @@ using interface1::Result;
 using interface1::ResultPtr;
 using interface1::ResultConstPtr;
 
-}
+} // namespace prediction
 /** @} */
-}
-}
-}
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal
 #endif

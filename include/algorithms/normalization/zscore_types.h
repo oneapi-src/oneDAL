@@ -63,8 +63,8 @@ namespace zscore
  */
 enum Method
 {
-    defaultDense = 0,      /*!< Default: performance-oriented method. Works with all types of numeric tables */
-    sumDense     = 1,      /*!< Precomputed sum: implementation of algorithm in the case of a precomputed sum.
+    defaultDense = 0, /*!< Default: performance-oriented method. Works with all types of numeric tables */
+    sumDense     = 1, /*!< Precomputed sum: implementation of algorithm in the case of a precomputed sum.
                                      Works with all types of numeric tables */
 };
 
@@ -75,10 +75,9 @@ enum Method
  */
 enum InputId
 {
-    data,             /*!< %Input data table */
+    data, /*!< %Input data table */
     lastInputId = data
 };
-
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__NORMALIZATION__ZSCORE__RESULTID"></a>
@@ -87,12 +86,11 @@ enum InputId
 */
 enum ResultId
 {
-    normalizedData,        /*!< z-score normalization results */
-    means,                 /*!< Mean values */
-    variances,             /*!< Variances */
+    normalizedData, /*!< z-score normalization results */
+    means,          /*!< Mean values */
+    variances,      /*!< Variances */
     lastResultId = variances
 };
-
 
 /**
 * <a name="DAAL-ENUM-ALGORITHMS__NORMALIZATION__ZSCORE__RESULTOCOMPUTETID"></a>
@@ -101,18 +99,16 @@ enum ResultId
 */
 enum ResultToComputeId
 {
-    none = 0x00000000ULL,
-    mean = 0x00000001ULL, /*!< Numeric table of size 1 x p with the mean values of features >*/
+    none     = 0x00000000ULL,
+    mean     = 0x00000001ULL, /*!< Numeric table of size 1 x p with the mean values of features >*/
     variance = 0x00000002ULL  /*!< Numeric table of size 1 x p with the variances of features >*/
 };
-
 
 /**
 * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
 */
 namespace interface1
 {
-
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__INPUT"></a>
 * \brief %Input objects for the z-score normalization algorithm
@@ -124,7 +120,7 @@ public:
     Input();
 
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -140,7 +136,7 @@ public:
     * \param[in] id    Identifier of the %input object
     * \param[in] ptr   Pointer to the input object
     */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Check the correctness of the %Input object
@@ -149,20 +145,18 @@ public:
     *
     * \return Status of computations
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /** @} */
 /** @} */
 } // namespace interface1
 
-
 /**
  * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface2
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__RESULT"></a>
  * \brief Provides methods to access final results obtained with the compute() method of the
@@ -172,7 +166,7 @@ class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    Result(const Result& o);
+    Result(const Result & o);
     Result();
 
     virtual ~Result() {};
@@ -186,8 +180,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
     * Allocates memory to store final results of the z-score normalization algorithms
@@ -197,9 +190,7 @@ public:
     * \return Status of computations
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const int method);
-
-
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const int method);
 
     /**
      * Returns the final result of the z-score normalization algorithm
@@ -213,7 +204,7 @@ public:
      * \param[in] id        Identifier of the Result object
      * \param[in] value     Pointer to the Result object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks the correctness of the Result object
@@ -223,12 +214,12 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -239,19 +230,18 @@ typedef services::SharedPtr<Result> ResultPtr;
 /** @} */
 } // namespace interface2
 
-
 /**
  * \brief Contains version 3.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface3
 {
-
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__PARAMETER"></a>
 * \brief Class that specifies the parameters of the algorithm in the batch computing mode
 */
-template<typename algorithmFPType, Method method>
-class DAAL_EXPORT Parameter {};
+template <typename algorithmFPType, Method method>
+class DAAL_EXPORT Parameter
+{};
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__BASEPARAMETER"></a>
@@ -261,15 +251,15 @@ class DAAL_EXPORT BaseParameter : public daal::algorithms::Parameter
 {
 public:
     BaseParameter(const bool doScale = true);
-    DAAL_UINT64 resultsToCompute;  /*!< 64 bit integer flag that indicates the results to compute */
-    bool doScale;                  /*!< boolean flag that indicates the mode of computation. If true both centering and scaling, otherwise only centering. */
+    DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
+    bool doScale; /*!< boolean flag that indicates the mode of computation. If true both centering and scaling, otherwise only centering. */
 };
 
 // /**
 //  * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__PARAMETER"></a>
 //  * \brief Class that specifies the parameters of the default algorithm in the batch computing mode
 //  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class DAAL_EXPORT Parameter<algorithmFPType, sumDense> : public BaseParameter
 {
 public:
@@ -280,14 +270,15 @@ public:
 //  * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__PARAMETER"></a>
 //  * \brief Class that specifies the parameters of the default algorithm in the batch computing mode
 //  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class DAAL_EXPORT Parameter<algorithmFPType, defaultDense> : public BaseParameter
 {
 public:
     /** Constructs z-score normalization parameters */
-    Parameter(const services::SharedPtr<low_order_moments::BatchImpl> &momentsForParameter =
-                  services::SharedPtr<low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense> >
-              (new low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense>()), const bool doScale = true);
+    Parameter(const services::SharedPtr<low_order_moments::BatchImpl> & momentsForParameter =
+                  services::SharedPtr<low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense> >(
+                      new low_order_moments::Batch<algorithmFPType, low_order_moments::defaultDense>()),
+              const bool doScale = true);
 
     services::SharedPtr<low_order_moments::BatchImpl> moments; /*!< Pointer to the algorithm that computes the low order moments */
 
@@ -298,7 +289,7 @@ public:
      */
     virtual services::Status check() const DAAL_C11_OVERRIDE;
 };
-}// namespace interface3
+} // namespace interface3
 
 using interface1::Input;
 using interface3::Parameter;

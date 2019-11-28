@@ -39,17 +39,17 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_ASSOCIATION_RULES_RESULT_ID);
 
 Parameter::Parameter(double minSupport, double minConfidence, size_t nUniqueItems, size_t nTransactions, bool discoverRules,
-                        ItemsetsOrder itemsetsOrder, RulesOrder rulesOrder, size_t minSize, size_t maxSize) :
-        minSupport(minSupport),
-        minConfidence(minConfidence),
-        nUniqueItems(nUniqueItems),
-        nTransactions(nTransactions),
-        discoverRules(discoverRules),
-        itemsetsOrder(itemsetsOrder),
-        rulesOrder(rulesOrder),
-        minItemsetSize(minSize),
-        maxItemsetSize(maxSize)
-    {}
+                     ItemsetsOrder itemsetsOrder, RulesOrder rulesOrder, size_t minSize, size_t maxSize)
+    : minSupport(minSupport),
+      minConfidence(minConfidence),
+      nUniqueItems(nUniqueItems),
+      nTransactions(nTransactions),
+      discoverRules(discoverRules),
+      itemsetsOrder(itemsetsOrder),
+      rulesOrder(rulesOrder),
+      minItemsetSize(minSize),
+      maxItemsetSize(maxSize)
+{}
 
 /**
  * Checks parameters of the association rules algorithm
@@ -79,7 +79,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -89,28 +89,26 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method of the algorithm
  */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == (lastInputId + 1), ErrorIncorrectNumberOfInputNumericTables);
 
-    const int unexpectedLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix  |
-                            (int)NumericTableIface::lowerPackedSymmetricMatrix  |
-                            (int)NumericTableIface::upperPackedTriangularMatrix |
-                            (int)NumericTableIface::lowerPackedTriangularMatrix;
+    const int unexpectedLayouts = (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix
+                                  | (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix;
     const size_t nColumns = 2;
     Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(data).get(), dataStr(), unexpectedLayouts, 0, nColumns));
 
-    const size_t nRows = get(data)->getNumberOfRows();
-    const Parameter *algParameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+    const size_t nRows             = get(data)->getNumberOfRows();
+    const Parameter * algParameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
 
     DAAL_CHECK_EX(algParameter->nUniqueItems <= nRows, ErrorIncorrectParameter, ParameterName, nUniqueItemsStr());
     DAAL_CHECK_EX(algParameter->nTransactions <= nRows, ErrorIncorrectParameter, ParameterName, nTransactionsStr());
-    DAAL_CHECK_EX((algParameter->maxItemsetSize <= nRows) && (algParameter->nUniqueItems <= 0 || algParameter->maxItemsetSize <= algParameter->nUniqueItems),
+    DAAL_CHECK_EX(
+        (algParameter->maxItemsetSize <= nRows) && (algParameter->nUniqueItems <= 0 || algParameter->maxItemsetSize <= algParameter->nUniqueItems),
         ErrorIncorrectParameter, ParameterName, maxItemsetSizeStr());
     return s;
 }
-
 
 Result::Result() : daal::algorithms::Result((lastResultId + 1)) {}
 
@@ -129,7 +127,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the result
  */
-void Result::set(ResultId id, const NumericTablePtr &ptr)
+void Result::set(ResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -140,15 +138,15 @@ void Result::set(ResultId id, const NumericTablePtr &ptr)
  * \param[in] par     %Parameter of algorithm
  * \param[in] method  Computation method of the algorithm
  */
-Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
-    const Parameter *algParameter = static_cast<const Parameter *>(par);
-    const int unexpectedLayouts = packed_mask;
+    const Parameter * algParameter = static_cast<const Parameter *>(par);
+    const int unexpectedLayouts    = packed_mask;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(largeItemsets).get(), largeItemsetsStr(), unexpectedLayouts, 0, 2, 0, false));
     DAAL_CHECK_STATUS(s, checkNumericTable(get(largeItemsetsSupport).get(), largeItemsetsSupportStr(), unexpectedLayouts, 0, 2, 0, false));
 
-    if(algParameter->discoverRules)
+    if (algParameter->discoverRules)
     {
         DAAL_CHECK_STATUS(s, checkNumericTable(get(antecedentItemsets).get(), antecedentItemsetsStr(), unexpectedLayouts, 0, 2, 0, false));
         DAAL_CHECK_STATUS(s, checkNumericTable(get(consequentItemsets).get(), consequentItemsetsStr(), unexpectedLayouts, 0, 2, 0, false));
@@ -158,7 +156,7 @@ Status Result::check(const daal::algorithms::Input *input, const daal::algorithm
     return s;
 }
 
-}// namespace interface1
-}// namespace association_rules
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace association_rules
+} // namespace algorithms
+} // namespace daal

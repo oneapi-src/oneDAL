@@ -52,10 +52,11 @@ namespace algorithms
  *        defined for each algorithm of data analysis.
  * \tparam mode Computation mode of the algorithm, \ref ComputeMode
  */
-template<ComputeMode mode> class AnalysisContainerIface : public AlgorithmContainerImpl<mode>
+template <ComputeMode mode>
+class AnalysisContainerIface : public AlgorithmContainerImpl<mode>
 {
 public:
-    AnalysisContainerIface(daal::services::Environment::env *daalEnv = 0): AlgorithmContainerImpl<mode>(daalEnv) {}
+    AnalysisContainerIface(daal::services::Environment::env * daalEnv = 0) : AlgorithmContainerImpl<mode>(daalEnv) {}
 };
 
 /**
@@ -67,9 +68,11 @@ public:
  *        of the algorithms.
  * \tparam mode Computation mode of the algorithm, \ref ComputeMode
  */
-template<ComputeMode mode> class Analysis: public AlgorithmImpl<mode> {};
-}
-}
+template <ComputeMode mode>
+class Analysis : public AlgorithmImpl<mode>
+{};
+} // namespace algorithms
+} // namespace daal
 /** @} */
 /** @} */
 #endif

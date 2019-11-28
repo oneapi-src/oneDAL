@@ -24,15 +24,14 @@
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::em_gmm;
 
-#define DefaultDense    com_intel_daal_algorithms_em_gmm_Method_defaultDenseValue
+#define DefaultDense com_intel_daal_algorithms_em_gmm_Method_defaultDenseValue
 
 /*
  * Class:     com_intel_daal_algorithms_em_gmm_Batch
  * Method:    cInit
  * Signature:(IIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cInit
-(JNIEnv *, jobject, jint precision, jint method, jlong nComponents)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cInit(JNIEnv *, jobject, jint precision, jint method, jlong nComponents)
 {
     return jniBatch<em_gmm::Method, Batch, defaultDense>::newObj(precision, method, nComponents);
 }
@@ -42,8 +41,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cInit
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<em_gmm::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -53,8 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cGetResult
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                               jlong resultAddr)
 {
     jniBatch<em_gmm::Method, Batch, defaultDense>::setResult<em_gmm::Result>(prec, method, algAddr, resultAddr);
 }
@@ -64,8 +62,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cSetResult
  * Method:    cInitParameter
  * Signature: (JII)V
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                    jint method)
 {
     return jniBatch<em_gmm::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -75,8 +73,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cInitParame
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniBatch<em_gmm::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

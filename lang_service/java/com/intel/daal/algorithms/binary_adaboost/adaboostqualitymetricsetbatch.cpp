@@ -27,10 +27,9 @@ using namespace daal::algorithms::adaboost::quality_metric_set::interface1;
  * Method:    cInit
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_quality_1metric_1set_QualityMetricSetBatch_cInit
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_quality_1metric_1set_QualityMetricSetBatch_cInit(JNIEnv *, jobject)
 {
     jlong addr = 0;
-    addr = (jlong)(new Batch());
+    addr       = (jlong)(new Batch());
     return addr;
 }

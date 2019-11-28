@@ -45,11 +45,11 @@ namespace interface1
 class DAAL_EXPORT BatchBase : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::distributions::Input         InputType;
+    typedef algorithms::distributions::Input InputType;
     typedef algorithms::distributions::ParameterBase ParameterType;
-    typedef algorithms::distributions::Result        ResultType;
+    typedef algorithms::distributions::Result ResultType;
 
-    InputType  input;  /*!< Input of the distribution */
+    InputType input; /*!< Input of the distribution */
     virtual ~BatchBase() {}
 };
 

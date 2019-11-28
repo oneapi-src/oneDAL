@@ -54,7 +54,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the LBFGS algorithm, double or float
  * \tparam method           Stochastic gradient descent computation method, daal::algorithms::optimization_solver::lbfgs::Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -63,7 +63,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -91,24 +91,23 @@ public:
  * \par References
  *      - Result class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public iterative_solver::interface1::Batch
 {
 public:
-    typedef algorithms::optimization_solver::lbfgs::interface1::Input     InputType;
+    typedef algorithms::optimization_solver::lbfgs::interface1::Input InputType;
     typedef algorithms::optimization_solver::lbfgs::interface1::Parameter ParameterType;
-    typedef algorithms::optimization_solver::lbfgs::interface1::Result    ResultType;
+    typedef algorithms::optimization_solver::lbfgs::interface1::Result ResultType;
 
     InputType input;         /*!< %Input data structure */
-    ParameterType parameter;   /*!< %Parameters of the algorithm */
+    ParameterType parameter; /*!< %Parameters of the algorithm */
 
     /**
      * Constructs the LBFGS algorithm with the input objective function
      * \param[in] objectiveFunction Objective function that can be represented as a sum of functions
      */
-    Batch(const sum_of_functions::interface1::BatchPtr& objectiveFunction = sum_of_functions::interface1::BatchPtr()) :
-        input(),
-        parameter(objectiveFunction)
+    Batch(const sum_of_functions::interface1::BatchPtr & objectiveFunction = sum_of_functions::interface1::BatchPtr())
+        : input(), parameter(objectiveFunction)
     {
         initialize();
     }
@@ -118,10 +117,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) :
-        iterative_solver::interface1::Batch(other),
-        input(other.input),
-        parameter(other.parameter)
+    Batch(const Batch<algorithmFPType, method> & other) : iterative_solver::interface1::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
@@ -130,7 +126,7 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Get input objects for the iterative solver algorithm
@@ -152,7 +148,7 @@ public:
     virtual services::Status createResult() DAAL_C11_OVERRIDE
     {
         _result = iterative_solver::interface1::ResultPtr(new ResultType());
-        _res = NULL;
+        _res    = NULL;
         return services::Status();
     }
 
@@ -161,10 +157,7 @@ public:
      * of this LBFGS algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
     /**
     *  Creates the instance of the class
@@ -173,23 +166,20 @@ public:
     static services::SharedPtr<Batch<algorithmFPType, method> > create();
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = static_cast<ResultType*>(_result.get())->allocate<algorithmFPType>(&input, &parameter, (int)method);
-        _res = _result.get();
+        services::Status s = static_cast<ResultType *>(_result.get())->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _par = &parameter;
-        _in  = &input;
+        _par                 = &parameter;
+        _in                  = &input;
         _result.reset(new ResultType());
     }
 };
@@ -211,7 +201,7 @@ namespace interface2
  * \tparam algorithmFPType  Data type to use in intermediate computations for the LBFGS algorithm, double or float
  * \tparam method           Stochastic gradient descent computation method, daal::algorithms::optimization_solver::lbfgs::Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -220,7 +210,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -248,24 +238,22 @@ public:
  * \par References
  *      - Result class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public iterative_solver::Batch
 {
 public:
-    typedef algorithms::optimization_solver::lbfgs::Input     InputType;
+    typedef algorithms::optimization_solver::lbfgs::Input InputType;
     typedef algorithms::optimization_solver::lbfgs::Parameter ParameterType;
-    typedef algorithms::optimization_solver::lbfgs::Result    ResultType;
+    typedef algorithms::optimization_solver::lbfgs::Result ResultType;
 
     InputType input;         /*!< %Input data structure */
-    ParameterType parameter;   /*!< %Parameters of the algorithm */
+    ParameterType parameter; /*!< %Parameters of the algorithm */
 
     /**
      * Constructs the LBFGS algorithm with the input objective function
      * \param[in] objectiveFunction Objective function that can be represented as a sum of functions
      */
-    Batch(const sum_of_functions::BatchPtr& objectiveFunction = sum_of_functions::BatchPtr()) :
-        input(),
-        parameter(objectiveFunction)
+    Batch(const sum_of_functions::BatchPtr & objectiveFunction = sum_of_functions::BatchPtr()) : input(), parameter(objectiveFunction)
     {
         initialize();
     }
@@ -275,10 +263,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) :
-        iterative_solver::Batch(other),
-        input(other.input),
-        parameter(other.parameter)
+    Batch(const Batch<algorithmFPType, method> & other) : iterative_solver::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
@@ -287,7 +272,7 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Get input objects for the iterative solver algorithm
@@ -309,7 +294,7 @@ public:
     virtual services::Status createResult() DAAL_C11_OVERRIDE
     {
         _result = iterative_solver::ResultPtr(new ResultType());
-        _res = NULL;
+        _res    = NULL;
         return services::Status();
     }
 
@@ -318,10 +303,7 @@ public:
      * of this LBFGS algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
     /**
     *  Creates the instance of the class
@@ -330,23 +312,20 @@ public:
     static services::SharedPtr<Batch<algorithmFPType, method> > create();
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = static_cast<ResultType*>(_result.get())->allocate<algorithmFPType>(&input, &parameter, (int)method);
-        _res = _result.get();
+        services::Status s = static_cast<ResultType *>(_result.get())->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _par = &parameter;
-        _in  = &input;
+        _par                 = &parameter;
+        _in                  = &input;
         _result.reset(new ResultType());
     }
 };
@@ -357,7 +336,7 @@ using interface2::Batch;
 
 } // namespace lbfgs
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 
 #endif

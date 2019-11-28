@@ -28,8 +28,8 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(logistic_regression::training::BatchContainer, batch, DAAL_FPTYPE, \
-    logistic_regression::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(logistic_regression::training::BatchContainer, batch, DAAL_FPTYPE,
+                                           logistic_regression::training::defaultDense)
 
 namespace logistic_regression
 {
@@ -38,7 +38,7 @@ namespace training
 namespace interface3
 {
 template <>
-Batch<DAAL_FPTYPE, logistic_regression::training::defaultDense>::Batch(size_t nClasses, const SolverPtr& solver)
+Batch<DAAL_FPTYPE, logistic_regression::training::defaultDense>::Batch(size_t nClasses, const SolverPtr & solver)
 {
     _par = new ParameterType(nClasses, solver);
     initialize();
@@ -46,13 +46,14 @@ Batch<DAAL_FPTYPE, logistic_regression::training::defaultDense>::Batch(size_t nC
 
 using BatchType = Batch<DAAL_FPTYPE, logistic_regression::training::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, logistic_regression::training::defaultDense>::Batch(const BatchType &other): classifier::training::Batch(other), input(other.input)
+Batch<DAAL_FPTYPE, logistic_regression::training::defaultDense>::Batch(const BatchType & other)
+    : classifier::training::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
 
-}
+} // namespace interface3
 } // namespace training
 } // namespace logistic_regression
 } // namespace algorithms

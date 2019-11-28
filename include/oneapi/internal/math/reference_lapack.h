@@ -47,29 +47,25 @@ namespace interface1
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__REFERENCEPOTRF"></a>
  *  \brief Adapter for reference POTRF routine
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct DAAL_EXPORT ReferencePotrf
 {
-    ReferencePotrf()
-    { }
+    ReferencePotrf() {}
 
-    services::Status operator()(const math::UpLo uplo,
-            const size_t n, services::Buffer<algorithmFPType>& a_buffer, const size_t lda);
+    services::Status operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a_buffer, const size_t lda);
 };
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__REFERENCEPOTRS"></a>
  *  \brief Adapter for reference POTRS routine
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct DAAL_EXPORT ReferencePotrs
 {
-    ReferencePotrs()
-    { }
+    ReferencePotrs() {}
 
-    services::Status operator()(const math::UpLo uplo,
-            const size_t n, const size_t ny, services::Buffer<algorithmFPType>& a_buffer, const size_t lda,
-            services::Buffer<algorithmFPType>& b_buffer, const size_t ldb);
+    services::Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, services::Buffer<algorithmFPType> & a_buffer,
+                                const size_t lda, services::Buffer<algorithmFPType> & b_buffer, const size_t ldb);
 };
 
 /** @} */
@@ -79,8 +75,8 @@ using interface1::ReferencePotrf;
 using interface1::ReferencePotrs;
 
 } // namespace math
-} // namespace oneapi
 } // namespace internal
+} // namespace oneapi
 } // namespace daal
 
 #endif

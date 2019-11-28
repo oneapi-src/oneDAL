@@ -67,8 +67,7 @@ class DAAL_EXPORT Model : public daal::algorithms::Model
 public:
     DAAL_CAST_OPERATOR(Model)
 
-    virtual ~Model()
-    {}
+    virtual ~Model() {}
 
     /**
      * Returns the number of features in the training data set
@@ -79,11 +78,11 @@ public:
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
 /** @} */
-}
+} // namespace interface1
 using interface1::Model;
 using interface1::ModelPtr;
 using interface1::ModelConstPtr;
-}
-}
-}
+} // namespace regression
+} // namespace algorithms
+} // namespace daal
 #endif

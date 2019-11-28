@@ -29,8 +29,8 @@ namespace modifiers
 {
 namespace csv
 {
-namespace interface1 {
-
+namespace interface1
+{
 /**
  * @ingroup data_source_modifiers_csv
  * @{
@@ -41,7 +41,7 @@ namespace interface1 {
  * \tparam  Modifier  Type of modifier to be constructed
  * \return  Shared pointer to the modifier
  */
-template<typename Modifier>
+template <typename Modifier>
 inline FeatureModifierIfacePtr custom()
 {
     return services::internal::wrapSharedAndTryThrow<Modifier>(new Modifier());
@@ -53,8 +53,7 @@ inline FeatureModifierIfacePtr custom()
  */
 inline FeatureModifierIfacePtr continuous()
 {
-    return services::internal::wrapSharedAndTryThrow<FeatureModifier>(
-        new internal::ContinuousFeatureModifier());
+    return services::internal::wrapSharedAndTryThrow<FeatureModifier>(new internal::ContinuousFeatureModifier());
 }
 
 /**
@@ -64,8 +63,7 @@ inline FeatureModifierIfacePtr continuous()
  */
 inline FeatureModifierIfacePtr categorical()
 {
-    return services::internal::wrapSharedAndTryThrow<FeatureModifier>(
-        new internal::CategoricalFeatureModifier());
+    return services::internal::wrapSharedAndTryThrow<FeatureModifier>(new internal::CategoricalFeatureModifier());
 }
 
 /**
@@ -74,8 +72,7 @@ inline FeatureModifierIfacePtr categorical()
  */
 inline FeatureModifierIfacePtr automatic()
 {
-    return services::internal::wrapSharedAndTryThrow<FeatureModifier>(
-        new internal::AutomaticFeatureModifier());
+    return services::internal::wrapSharedAndTryThrow<FeatureModifier>(new internal::AutomaticFeatureModifier());
 }
 
 /** @} */

@@ -39,7 +39,6 @@ namespace optimization_solver
 {
 namespace sum_of_functions
 {
-
 namespace interface1
 {
 /**
@@ -65,19 +64,21 @@ class DAAL_EXPORT Batch : public objective_function::Batch
 public:
     typedef objective_function::Batch super;
 
-    typedef algorithms::optimization_solver::sum_of_functions::interface1::Input     InputType;
+    typedef algorithms::optimization_solver::sum_of_functions::interface1::Input InputType;
     typedef algorithms::optimization_solver::sum_of_functions::interface1::Parameter ParameterType;
-    typedef super::ResultType                                            ResultType;
+    typedef super::ResultType ResultType;
 
     /**
      *  Main constructor
      */
-    Batch(size_t numberOfTerms, InputType *sumOfFunctionsInput, ParameterType *sumOfFunctionsParameter) :
-        sumOfFunctionsInput(sumOfFunctionsInput),
-        sumOfFunctionsParameter(sumOfFunctionsParameter)
+    Batch(size_t numberOfTerms, InputType * sumOfFunctionsInput, ParameterType * sumOfFunctionsParameter)
+        : sumOfFunctionsInput(sumOfFunctionsInput), sumOfFunctionsParameter(sumOfFunctionsParameter)
     {
         initialize();
-        if(sumOfFunctionsParameter != NULL) {sumOfFunctionsParameter->numberOfTerms = numberOfTerms;}
+        if (sumOfFunctionsParameter != NULL)
+        {
+            sumOfFunctionsParameter->numberOfTerms = numberOfTerms;
+        }
     }
 
     /**
@@ -86,8 +87,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch &other) : sumOfFunctionsInput(other.sumOfFunctionsInput),
-        sumOfFunctionsParameter(other.sumOfFunctionsParameter)
+    Batch(const Batch & other) : sumOfFunctionsInput(other.sumOfFunctionsInput), sumOfFunctionsParameter(other.sumOfFunctionsParameter)
     {
         initialize();
     }
@@ -99,19 +99,15 @@ public:
      * of this Sum of functions
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
-    ParameterType *sumOfFunctionsParameter; /*!< Pointer to the parameter to use one object in inherited class */
-    InputType *sumOfFunctionsInput;         /*!< Pointer to the input to use one object in inherited class */
+    ParameterType * sumOfFunctionsParameter; /*!< Pointer to the parameter to use one object in inherited class */
+    InputType * sumOfFunctionsInput;         /*!< Pointer to the input to use one object in inherited class */
 
 protected:
-    virtual Batch *cloneImpl() const DAAL_C11_OVERRIDE = 0;
+    virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
-    void initialize()
-    {}
+    void initialize() {}
 };
 typedef services::SharedPtr<Batch> BatchPtr;
 
@@ -143,19 +139,21 @@ class DAAL_EXPORT Batch : public objective_function::Batch
 public:
     typedef objective_function::Batch super;
 
-    typedef algorithms::optimization_solver::sum_of_functions::Input     InputType;
+    typedef algorithms::optimization_solver::sum_of_functions::Input InputType;
     typedef algorithms::optimization_solver::sum_of_functions::Parameter ParameterType;
-    typedef super::ResultType                                            ResultType;
+    typedef super::ResultType ResultType;
 
     /**
      *  Main constructor
      */
-    Batch(size_t numberOfTerms, InputType *sumOfFunctionsInput, ParameterType *sumOfFunctionsParameter) :
-        sumOfFunctionsInput(sumOfFunctionsInput),
-        sumOfFunctionsParameter(sumOfFunctionsParameter)
+    Batch(size_t numberOfTerms, InputType * sumOfFunctionsInput, ParameterType * sumOfFunctionsParameter)
+        : sumOfFunctionsInput(sumOfFunctionsInput), sumOfFunctionsParameter(sumOfFunctionsParameter)
     {
         initialize();
-        if(sumOfFunctionsParameter != NULL) {sumOfFunctionsParameter->numberOfTerms = numberOfTerms;}
+        if (sumOfFunctionsParameter != NULL)
+        {
+            sumOfFunctionsParameter->numberOfTerms = numberOfTerms;
+        }
     }
 
     /**
@@ -164,8 +162,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch &other) : sumOfFunctionsInput(other.sumOfFunctionsInput),
-        sumOfFunctionsParameter(other.sumOfFunctionsParameter)
+    Batch(const Batch & other) : sumOfFunctionsInput(other.sumOfFunctionsInput), sumOfFunctionsParameter(other.sumOfFunctionsParameter)
     {
         initialize();
     }
@@ -177,19 +174,15 @@ public:
      * of this Sum of functions
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
-    ParameterType *sumOfFunctionsParameter; /*!< Pointer to the parameter to use one object in inherited class */
-    InputType *sumOfFunctionsInput;         /*!< Pointer to the input to use one object in inherited class */
+    ParameterType * sumOfFunctionsParameter; /*!< Pointer to the parameter to use one object in inherited class */
+    InputType * sumOfFunctionsInput;         /*!< Pointer to the input to use one object in inherited class */
 
 protected:
-    virtual Batch *cloneImpl() const DAAL_C11_OVERRIDE = 0;
+    virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
-    void initialize()
-    {}
+    void initialize() {}
 };
 typedef services::SharedPtr<Batch> BatchPtr;
 
@@ -200,6 +193,6 @@ using interface2::BatchPtr;
 
 } // namespace sum_of_functions
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

@@ -30,8 +30,8 @@ using namespace daal::algorithms::pca::transform;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nComponents)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method,
+                                                                                          jlong nComponents)
 {
     return jniBatch<pca::transform::Method, Batch, defaultDense>::newObj(prec, method, nComponents);
 }
@@ -41,8 +41,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBa
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cGetParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cGetParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                  jint prec, jint method)
 {
     return jniBatch<pca::transform::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +52,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBa
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                              jint method)
 {
     return jniBatch<pca::transform::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -63,8 +63,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBa
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                               jint prec, jint method)
 {
     return jniBatch<pca::transform::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -74,11 +74,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBa
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                              jint method, jlong resultAddr)
 {
-    jniBatch<pca::transform::Method, Batch, defaultDense>::
-        setResult<pca::transform::Result>(prec, method, algAddr, resultAddr);
+    jniBatch<pca::transform::Method, Batch, defaultDense>::setResult<pca::transform::Result>(prec, method, algAddr, resultAddr);
 }
 
 /*
@@ -86,8 +85,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBat
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_transform_TransformBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                           jint method)
 {
     return jniBatch<pca::transform::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

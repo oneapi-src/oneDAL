@@ -64,7 +64,7 @@ enum Method
  */
 enum NumericTableInputId
 {
-    data = linear_model::prediction::data, /*!< Input data table */
+    data                    = linear_model::prediction::data, /*!< Input data table */
     lastNumericTableInputId = data
 };
 
@@ -74,7 +74,7 @@ enum NumericTableInputId
  */
 enum ModelInputId
 {
-    model = linear_model::prediction::model, /*!< Trained linear regression model */
+    model            = linear_model::prediction::model, /*!< Trained linear regression model */
     lastModelInputId = model
 };
 
@@ -84,7 +84,7 @@ enum ModelInputId
  */
 enum ResultId
 {
-    prediction = linear_model::prediction::prediction, /*!< Result of linear regression model-based prediction */
+    prediction   = linear_model::prediction::prediction, /*!< Result of linear regression model-based prediction */
     lastResultId = prediction
 };
 
@@ -122,14 +122,14 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(NumericTableInputId id, const data_management::NumericTablePtr &value);
+    void set(NumericTableInputId id, const data_management::NumericTablePtr & value);
 
     /**
      * Sets an input object for making linear regression model-based prediction
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ModelInputId id, const linear_regression::ModelPtr &value);
+    void set(ModelInputId id, const linear_regression::ModelPtr & value);
 };
 
 /**
@@ -154,12 +154,12 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -171,9 +171,9 @@ using interface1::Input;
 using interface1::Result;
 using interface1::ResultPtr;
 using interface1::ResultConstPtr;
-}
+} // namespace prediction
 /** @} */
-}
-}
+} // namespace linear_regression
+} // namespace algorithms
 } // namespace daal
 #endif

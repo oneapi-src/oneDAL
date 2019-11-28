@@ -39,7 +39,6 @@ namespace pca
  */
 namespace quality_metric_set
 {
-
 namespace interface1
 {
 /**
@@ -60,7 +59,7 @@ namespace interface1
 class DAAL_EXPORT Batch : public algorithms::quality_metric_set::Batch
 {
 public:
-    Parameter parameter;    /*!< Parameters of the algorithm */
+    Parameter parameter; /*!< Parameters of the algorithm */
 
     /**
      * Constructs a quality metric set for the pca algorithm
@@ -68,8 +67,8 @@ public:
      * \param[in] nFeatures             Number of features of source dataset
      * \param[in] useDefaultMetrics     Flag. If true, a quality metric set is initialized with the quality metrics provided by the library
      */
-    Batch(size_t nComponents = 0, size_t nFeatures = 0, bool useDefaultMetrics = true):
-        algorithms::quality_metric_set::Batch(useDefaultMetrics), parameter(nComponents, nFeatures)
+    Batch(size_t nComponents = 0, size_t nFeatures = 0, bool useDefaultMetrics = true)
+        : algorithms::quality_metric_set::Batch(useDefaultMetrics), parameter(nComponents, nFeatures)
     {
         _inputData = InputDataCollectionPtr(new InputDataCollection());
         if (_useDefaultMetrics)
@@ -87,8 +86,7 @@ public:
      */
     ResultCollectionPtr getResultCollection()
     {
-        return services::staticPointerCast<ResultCollection,
-                                           algorithms::quality_metric_set::ResultCollection>(_resultCollection);
+        return services::staticPointerCast<ResultCollection, algorithms::quality_metric_set::ResultCollection>(_resultCollection);
     }
 
     /**
@@ -97,8 +95,7 @@ public:
      */
     InputDataCollectionPtr getInputDataCollection()
     {
-        return services::staticPointerCast<InputDataCollection,
-                                           algorithms::quality_metric_set::InputDataCollection>(_inputData);
+        return services::staticPointerCast<InputDataCollection, algorithms::quality_metric_set::InputDataCollection>(_inputData);
     }
 
 protected:
@@ -108,8 +105,8 @@ protected:
 } // namespace interface1
 using interface1::Batch;
 
-}
-}
-}
-}
+} // namespace quality_metric_set
+} // namespace pca
+} // namespace algorithms
+} // namespace daal
 #endif

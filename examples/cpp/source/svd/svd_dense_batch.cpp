@@ -36,13 +36,12 @@ using namespace daal::algorithms;
 /* Input data set parameters */
 const string datasetFileName = "../data/batch/svd.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
@@ -58,9 +57,9 @@ int main(int argc, char *argv[])
     svd::ResultPtr res = algorithm.getResult();
 
     /* Print the results */
-    printNumericTable(res->get(svd::singularValues),      "Singular values:");
+    printNumericTable(res->get(svd::singularValues), "Singular values:");
     printNumericTable(res->get(svd::rightSingularMatrix), "Right orthogonal matrix V:");
-    printNumericTable(res->get(svd::leftSingularMatrix),  "Left orthogonal matrix U:", 10);
+    printNumericTable(res->get(svd::leftSingularMatrix), "Left orthogonal matrix U:", 10);
 
     return 0;
 }

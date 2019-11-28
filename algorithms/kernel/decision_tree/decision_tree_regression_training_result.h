@@ -36,14 +36,13 @@ namespace regression
 {
 namespace training
 {
-
 /**
  * Allocates memory to store the result of Decision tree model-based training
  * \param[in] input Pointer to an object containing the input data
  * \param[in] parameter %Parameter of Decision tree model-based training
  * \param[in] method Computation method for the algorithm
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, int method)
 {
     services::Status status;

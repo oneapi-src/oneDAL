@@ -39,7 +39,6 @@ namespace prediction
 {
 namespace interface1
 {
-
 /**
  * Returns an input object for making logistic regression model-based prediction
  * \param[in] id    Identifier of the input object
@@ -65,7 +64,7 @@ logistic_regression::ModelPtr Input::get(classifier::prediction::ModelInputId id
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr &value)
+void Input::set(classifier::prediction::NumericTableInputId id, const NumericTablePtr & value)
 {
     algorithms::classifier::prediction::Input::set(id, value);
 }
@@ -75,7 +74,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const NumericTab
  * \param[in] id      Identifier of the input object
  * \param[in] value   %Input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const logistic_regression::ModelPtr &value)
+void Input::set(classifier::prediction::ModelInputId id, const logistic_regression::ModelPtr & value)
 {
     algorithms::classifier::prediction::Input::set(id, value);
 }
@@ -83,23 +82,23 @@ void Input::set(classifier::prediction::ModelInputId id, const logistic_regressi
 /**
  * Checks an input object for making logistic regression model-based prediction
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::classifier::prediction::Input::check(parameter, method));
     ModelPtr m = get(classifier::prediction::model);
-    const daal::algorithms::logistic_regression::internal::ModelImpl* pModel =
-        static_cast<const daal::algorithms::logistic_regression::internal::ModelImpl*>(m.get());
+    const daal::algorithms::logistic_regression::internal::ModelImpl * pModel =
+        static_cast<const daal::algorithms::logistic_regression::internal::ModelImpl *>(m.get());
     DAAL_ASSERT(pModel);
     size_t nClasses;
     {
         auto par1 = dynamic_cast<const logistic_regression::prediction::interface1::Parameter *>(parameter);
-        if(par1) nClasses = par1->nClasses;
+        if (par1) nClasses = par1->nClasses;
 
         auto par2 = dynamic_cast<const classifier::Parameter *>(parameter);
-        if(par2) nClasses = par2->nClasses;
+        if (par2) nClasses = par2->nClasses;
 
-        if(par1 == nullptr && par2 == nullptr) return services::Status(ErrorNullParameterNotSupported);
+        if (par1 == nullptr && par2 == nullptr) return services::Status(ErrorNullParameterNotSupported);
     }
     const size_t nBetaPerClass = get(classifier::prediction::data)->getNumberOfColumns() + 1;
     return checkNumericTable(pModel->getBeta().get(), betaStr(), 0, 0, nBetaPerClass, nClasses == 2 ? 1 : nClasses);

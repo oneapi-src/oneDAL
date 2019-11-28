@@ -34,46 +34,42 @@ namespace normal
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status NormalKernel<algorithmFPType, method, cpu>::compute(const normal::Parameter<algorithmFPType> *parameter,
-                                                           engines::BatchBase &engine,
-                                                           NumericTable *resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status NormalKernel<algorithmFPType, method, cpu>::compute(const normal::Parameter<algorithmFPType> * parameter, engines::BatchBase & engine,
+                                                           NumericTable * resultTable)
 {
     size_t nRows = resultTable->getNumberOfRows();
 
     daal::internal::WriteRows<algorithmFPType, cpu> resultBlock(resultTable, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(resultBlock);
-    algorithmFPType *result = resultBlock.get();
+    algorithmFPType * result = resultBlock.get();
 
     size_t size = nRows * resultTable->getNumberOfColumns();
 
     return compute(parameter, engine, size, result);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status NormalKernel<algorithmFPType, method, cpu>::compute(const normal::Parameter<algorithmFPType> *parameter,
-                                                           engines::BatchBase &engine, size_t n,
-                                                           algorithmFPType *resultArray)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status NormalKernel<algorithmFPType, method, cpu>::compute(const normal::Parameter<algorithmFPType> * parameter, engines::BatchBase & engine,
+                                                           size_t n, algorithmFPType * resultArray)
 {
-    auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&engine);
+    auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&engine);
     DAAL_CHECK(engineImpl, ErrorIncorrectEngineParameter);
 
     return compute(parameter, *engineImpl, n, resultArray);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status NormalKernel<algorithmFPType, method, cpu>::compute(const normal::Parameter<algorithmFPType> *parameter,
-                                                           UniquePtr<engines::internal::BatchBaseImpl, cpu> &enginePtr,
-                                                           size_t n, algorithmFPType *resultArray)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status NormalKernel<algorithmFPType, method, cpu>::compute(const normal::Parameter<algorithmFPType> * parameter,
+                                                           UniquePtr<engines::internal::BatchBaseImpl, cpu> & enginePtr, size_t n,
+                                                           algorithmFPType * resultArray)
 {
     return compute(parameter, *enginePtr, n, resultArray);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status NormalKernel<algorithmFPType, method, cpu>::compute(const normal::Parameter<algorithmFPType> *parameter,
-                                                           engines::internal::BatchBaseImpl &engine,
-                                                           size_t n, algorithmFPType *resultArray)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status NormalKernel<algorithmFPType, method, cpu>::compute(const normal::Parameter<algorithmFPType> * parameter,
+                                                           engines::internal::BatchBaseImpl & engine, size_t n, algorithmFPType * resultArray)
 {
     algorithmFPType a     = parameter->a;
     algorithmFPType sigma = parameter->sigma;

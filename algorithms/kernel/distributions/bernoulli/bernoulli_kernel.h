@@ -45,16 +45,16 @@ namespace internal
 /**
  *  \brief Kernel for bernoulli calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BernoulliKernel : public Kernel
 {
 public:
-    static Status compute(algorithmFPType p, engines::BatchBase &engine, NumericTable *resultTable);
-    static Status computeInt(int *resultArray, size_t n, algorithmFPType p, engines::BatchBase &engine);
-    static Status computeFPType(NumericTable *resultTable, algorithmFPType p, engines::BatchBase &engine);
+    static Status compute(algorithmFPType p, engines::BatchBase & engine, NumericTable * resultTable);
+    static Status computeInt(int * resultArray, size_t n, algorithmFPType p, engines::BatchBase & engine);
+    static Status computeFPType(NumericTable * resultTable, algorithmFPType p, engines::BatchBase & engine);
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 using BernoulliKernelDefault = BernoulliKernel<algorithmFPType, bernoulli::defaultDense, cpu>;
 
 } // namespace internal

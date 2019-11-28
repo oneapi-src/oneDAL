@@ -75,7 +75,7 @@ size_t PartialResult::getNumberOfDependentVariables() const
  * \param[in] id      Identifier of the argument
  * \param[in] value   Pointer to the argument
  */
-void PartialResult::set(PartialResultID id, const linear_regression::ModelPtr &value)
+void PartialResult::set(PartialResultID id, const linear_regression::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -88,15 +88,15 @@ void PartialResult::set(PartialResultID id, const linear_regression::ModelPtr &v
  *
  * \return Status of computations
  */
-services::Status PartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, ErrorIncorrectNumberOfOutputNumericTables);
     /* input object can be an instance of both Input and DistributedInput<step2Master> classes.
        Both classes have multiple inheritance with InputIface as a second base class.
        That's why we use dynamic_cast here. */
-    const InputIface *in = dynamic_cast<const InputIface *>(input);
+    const InputIface * in = dynamic_cast<const InputIface *>(input);
 
-    size_t nBeta = in->getNumberOfFeatures() + 1;
+    size_t nBeta      = in->getNumberOfFeatures() + 1;
     size_t nResponses = in->getNumberOfDependentVariables();
 
     linear_regression::ModelPtr partialModel = get(training::partialModel);
@@ -111,14 +111,14 @@ services::Status PartialResult::check(const daal::algorithms::Input *input, cons
  *
  * \return Status of computations
  */
-services::Status PartialResult::check(const daal::algorithms::Parameter *par, int method) const
+services::Status PartialResult::check(const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, ErrorIncorrectNumberOfOutputNumericTables);
 
     linear_regression::ModelPtr partialModel = get(training::partialModel);
     DAAL_CHECK(partialModel, Error::create(ErrorNullPartialModel));
 
-    size_t nBeta = partialModel->getNumberOfBetas();
+    size_t nBeta      = partialModel->getNumberOfBetas();
     size_t nResponses = partialModel->getNumberOfResponses();
 
     return linear_regression::checkModel(partialModel.get(), *par, nBeta, nResponses, method);

@@ -31,25 +31,24 @@ namespace math
 {
 namespace interface1
 {
-
 using namespace daal::internal;
 
-#define CALL_LAPACK_CPU(fptype, cpuId, funcName, ...) \
-        switch (cpuId) \
-    {                                                                                                                   \
-    case daal::CpuType::ssse3: Lapack<fptype, daal::CpuType::ssse3>::funcName(__VA_ARGS__); break;                      \
-    case daal::CpuType::sse42: Lapack<fptype, daal::CpuType::sse42>::funcName(__VA_ARGS__); break;                      \
-    case daal::CpuType::avx:   Lapack<fptype, daal::CpuType::avx>::funcName(__VA_ARGS__); break;                        \
-    case daal::CpuType::avx2:  Lapack<fptype, daal::CpuType::avx2>::funcName(__VA_ARGS__); break;                       \
-    case daal::CpuType::avx512_mic: Lapack<fptype, daal::CpuType::avx512_mic>::funcName(__VA_ARGS__); break;            \
-    case daal::CpuType::avx512:  Lapack<fptype, daal::CpuType::avx512>::funcName(__VA_ARGS__); break;                   \
-    case daal::CpuType::avx512_mic_e1: Lapack<fptype, daal::CpuType::avx512_mic_e1>::funcName(__VA_ARGS__); break;      \
-    default: Lapack<fptype, daal::CpuType::sse2>::funcName(__VA_ARGS__); break;                                         \
+#define CALL_LAPACK_CPU(fptype, cpuId, funcName, ...)                                                              \
+    switch (cpuId)                                                                                                 \
+    {                                                                                                              \
+    case daal::CpuType::ssse3: Lapack<fptype, daal::CpuType::ssse3>::funcName(__VA_ARGS__); break;                 \
+    case daal::CpuType::sse42: Lapack<fptype, daal::CpuType::sse42>::funcName(__VA_ARGS__); break;                 \
+    case daal::CpuType::avx: Lapack<fptype, daal::CpuType::avx>::funcName(__VA_ARGS__); break;                     \
+    case daal::CpuType::avx2: Lapack<fptype, daal::CpuType::avx2>::funcName(__VA_ARGS__); break;                   \
+    case daal::CpuType::avx512_mic: Lapack<fptype, daal::CpuType::avx512_mic>::funcName(__VA_ARGS__); break;       \
+    case daal::CpuType::avx512: Lapack<fptype, daal::CpuType::avx512>::funcName(__VA_ARGS__); break;               \
+    case daal::CpuType::avx512_mic_e1: Lapack<fptype, daal::CpuType::avx512_mic_e1>::funcName(__VA_ARGS__); break; \
+    default: Lapack<fptype, daal::CpuType::sse2>::funcName(__VA_ARGS__); break;                                    \
     }
 
-template<typename algorithmFPType>
-services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo uplo,
-            const size_t n, services::Buffer<algorithmFPType>& a_buffer, const size_t lda)
+template <typename algorithmFPType>
+services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a_buffer,
+                                                             const size_t lda)
 {
     services::Status status;
     const daal::CpuType cpuId = static_cast<daal::CpuType>(services::Environment::getInstance()->getCpuId());
@@ -58,7 +57,7 @@ services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo up
 
     DAAL_INT info;
 
-    DAAL_INT nInt = static_cast<DAAL_INT>(n);
+    DAAL_INT nInt   = static_cast<DAAL_INT>(n);
     DAAL_INT ldaInt = static_cast<DAAL_INT>(lda);
 
     services::SharedPtr<algorithmFPType> aPtr = a_buffer.toHost(data_management::ReadWriteMode::readWrite);
@@ -69,10 +68,10 @@ services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo up
     return status;
 }
 
-template<typename algorithmFPType>
-services::Status ReferencePotrs<algorithmFPType>::operator()(const math::UpLo uplo,
-            const size_t n, const size_t ny, services::Buffer<algorithmFPType>& a_buffer, const size_t lda,
-            services::Buffer<algorithmFPType>& b_buffer, const size_t ldb)
+template <typename algorithmFPType>
+services::Status ReferencePotrs<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n, const size_t ny,
+                                                             services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                                             services::Buffer<algorithmFPType> & b_buffer, const size_t ldb)
 {
     services::Status status;
     const daal::CpuType cpuId = static_cast<daal::CpuType>(services::Environment::getInstance()->getCpuId());
@@ -81,8 +80,8 @@ services::Status ReferencePotrs<algorithmFPType>::operator()(const math::UpLo up
 
     DAAL_INT info;
 
-    DAAL_INT nInt = static_cast<DAAL_INT>(n);
-    DAAL_INT nyInt = static_cast<DAAL_INT>(ny);
+    DAAL_INT nInt   = static_cast<DAAL_INT>(n);
+    DAAL_INT nyInt  = static_cast<DAAL_INT>(ny);
     DAAL_INT ldaInt = static_cast<DAAL_INT>(lda);
     DAAL_INT ldbInt = static_cast<DAAL_INT>(ldb);
 

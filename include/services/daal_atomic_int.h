@@ -31,7 +31,6 @@ namespace daal
 {
 namespace services
 {
-
 namespace interface1
 {
 /**
@@ -44,7 +43,7 @@ namespace interface1
  *
  * \tparam dataType Data type of the atomic object
  */
-template<typename dataType = int>
+template <typename dataType = int>
 class DAAL_EXPORT Atomic
 {
 public:
@@ -87,12 +86,11 @@ public:
     ~Atomic();
 
 protected:
-    void *_ptr;
+    void * _ptr;
 
 private:
     Atomic(const Atomic &);
 };
-
 
 /** @} */
 
@@ -101,7 +99,7 @@ using interface1::Atomic;
 
 typedef Atomic<int> AtomicInt;
 
-}
-}
+} // namespace services
+} // namespace daal
 
 #endif

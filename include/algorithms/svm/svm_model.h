@@ -65,32 +65,33 @@ namespace interface1
 /* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
 {
-    Parameter(const services::SharedPtr<kernel_function::KernelIface> &kernelForParameter
-              = services::SharedPtr<kernel_function::KernelIface>(new kernel_function::linear::Batch<>()),
-              double C = 1.0,
-              double accuracyThreshold = 0.001,
-              double tau = 1.0e-6,
-              size_t maxIterations = 1000000,
-              size_t cacheSize = 8000000,
-              bool doShrinking = true,
-              size_t shrinkingStep = 1000) :
-        C(C), accuracyThreshold(accuracyThreshold), tau(tau), maxIterations(maxIterations), cacheSize(cacheSize),
-        doShrinking(doShrinking), shrinkingStep(shrinkingStep), kernel(kernelForParameter) {};
+    Parameter(const services::SharedPtr<kernel_function::KernelIface> & kernelForParameter =
+                  services::SharedPtr<kernel_function::KernelIface>(new kernel_function::linear::Batch<>()),
+              double C = 1.0, double accuracyThreshold = 0.001, double tau = 1.0e-6, size_t maxIterations = 1000000, size_t cacheSize = 8000000,
+              bool doShrinking = true, size_t shrinkingStep = 1000)
+        : C(C),
+          accuracyThreshold(accuracyThreshold),
+          tau(tau),
+          maxIterations(maxIterations),
+          cacheSize(cacheSize),
+          doShrinking(doShrinking),
+          shrinkingStep(shrinkingStep),
+          kernel(kernelForParameter) {};
 
-    double C;                   /*!< Upper bound in constraints of the quadratic optimization problem */
-    double accuracyThreshold;   /*!< Training accuracy */
-    double tau;                 /*!< Tau parameter of the working set selection scheme */
-    size_t maxIterations;       /*!< Maximal number of iterations for the algorithm */
-    size_t cacheSize;           /*!< Size of cache in bytes to store values of the kernel matrix.
+    double C;                                           /*!< Upper bound in constraints of the quadratic optimization problem */
+    double accuracyThreshold;                           /*!< Training accuracy */
+    double tau;                                         /*!< Tau parameter of the working set selection scheme */
+    size_t maxIterations;                               /*!< Maximal number of iterations for the algorithm */
+    size_t cacheSize;                                   /*!< Size of cache in bytes to store values of the kernel matrix.
                                      A non-zero value enables use of a cache optimization technique */
-    bool doShrinking;           /*!< Flag that enables use of the shrinking optimization technique */
-    size_t shrinkingStep;       /*!< Number of iterations between the steps of shrinking optimization technique */
-    algorithms::kernel_function::KernelIfacePtr kernel;   /*!< Kernel function */
+    bool doShrinking;                                   /*!< Flag that enables use of the shrinking optimization technique */
+    size_t shrinkingStep;                               /*!< Number of iterations between the steps of shrinking optimization technique */
+    algorithms::kernel_function::KernelIfacePtr kernel; /*!< Kernel function */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
-}
+} // namespace interface1
 
 /**
  * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -110,32 +111,33 @@ namespace interface2
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public classifier::Parameter
 {
-    Parameter(const services::SharedPtr<kernel_function::KernelIface> &kernelForParameter
-              = services::SharedPtr<kernel_function::KernelIface>(new kernel_function::linear::Batch<>()),
-              double C = 1.0,
-              double accuracyThreshold = 0.001,
-              double tau = 1.0e-6,
-              size_t maxIterations = 1000000,
-              size_t cacheSize = 8000000,
-              bool doShrinking = true,
-              size_t shrinkingStep = 1000) :
-        C(C), accuracyThreshold(accuracyThreshold), tau(tau), maxIterations(maxIterations), cacheSize(cacheSize),
-        doShrinking(doShrinking), shrinkingStep(shrinkingStep), kernel(kernelForParameter) {};
+    Parameter(const services::SharedPtr<kernel_function::KernelIface> & kernelForParameter =
+                  services::SharedPtr<kernel_function::KernelIface>(new kernel_function::linear::Batch<>()),
+              double C = 1.0, double accuracyThreshold = 0.001, double tau = 1.0e-6, size_t maxIterations = 1000000, size_t cacheSize = 8000000,
+              bool doShrinking = true, size_t shrinkingStep = 1000)
+        : C(C),
+          accuracyThreshold(accuracyThreshold),
+          tau(tau),
+          maxIterations(maxIterations),
+          cacheSize(cacheSize),
+          doShrinking(doShrinking),
+          shrinkingStep(shrinkingStep),
+          kernel(kernelForParameter) {};
 
-    double C;                   /*!< Upper bound in constraints of the quadratic optimization problem */
-    double accuracyThreshold;   /*!< Training accuracy */
-    double tau;                 /*!< Tau parameter of the working set selection scheme */
-    size_t maxIterations;       /*!< Maximal number of iterations for the algorithm */
-    size_t cacheSize;           /*!< Size of cache in bytes to store values of the kernel matrix.
+    double C;                                           /*!< Upper bound in constraints of the quadratic optimization problem */
+    double accuracyThreshold;                           /*!< Training accuracy */
+    double tau;                                         /*!< Tau parameter of the working set selection scheme */
+    size_t maxIterations;                               /*!< Maximal number of iterations for the algorithm */
+    size_t cacheSize;                                   /*!< Size of cache in bytes to store values of the kernel matrix.
                                      A non-zero value enables use of a cache optimization technique */
-    bool doShrinking;           /*!< Flag that enables use of the shrinking optimization technique */
-    size_t shrinkingStep;       /*!< Number of iterations between the steps of shrinking optimization technique */
-    algorithms::kernel_function::KernelIfacePtr kernel;   /*!< Kernel function */
+    bool doShrinking;                                   /*!< Flag that enables use of the shrinking optimization technique */
+    size_t shrinkingStep;                               /*!< Number of iterations between the steps of shrinking optimization technique */
+    algorithms::kernel_function::KernelIfacePtr kernel; /*!< Kernel function */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-}
+} // namespace interface2
 
 namespace interface1
 {
@@ -161,15 +163,15 @@ public:
      * \param[in] layout    Data layout of the numeric table of support vectors
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    template<typename modelFPType>
-    Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout = data_management::NumericTableIface::aos) :
-        _bias(0.0)
+    template <typename modelFPType>
+    Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout = data_management::NumericTableIface::aos)
+        : _bias(0.0)
     {
         using namespace data_management;
         if (layout == NumericTableIface::csrArray)
         {
-            modelFPType *dummyPtr = NULL;
-            _SV.reset(new CSRNumericTable(dummyPtr,NULL,NULL,nColumns));
+            modelFPType * dummyPtr = NULL;
+            _SV.reset(new CSRNumericTable(dummyPtr, NULL, NULL, nColumns));
         }
         else
         {
@@ -187,10 +189,10 @@ public:
      * \param[out] stat     Status of the model construction
      * \return SVM model
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nColumns,
-                                             data_management::NumericTableIface::StorageLayout layout = data_management::NumericTableIface::aos,
-                                             services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<Model> create(
+        size_t nColumns, data_management::NumericTableIface::StorageLayout layout = data_management::NumericTableIface::aos,
+        services::Status * stat = NULL);
 
     /**
      * Empty constructor for deserialization
@@ -203,13 +205,12 @@ public:
      * \param[out] stat     Status of the model construction
      * \return Empty SVM model for deserialization
      */
-    static services::SharedPtr<Model> create(services::Status *stat = NULL)
+    static services::SharedPtr<Model> create(services::Status * stat = NULL)
     {
         services::SharedPtr<Model> modelPtr(new Model());
         if (!modelPtr)
         {
-            if (stat)
-                stat->add(services::ErrorMemoryAllocationFailed);
+            if (stat) stat->add(services::ErrorMemoryAllocationFailed);
         }
         return modelPtr;
     }
@@ -244,10 +245,7 @@ public:
      * Sets the bias for the SVM model
      * \param bias  Bias of the model
      */
-    virtual void setBias(double bias)
-    {
-        _bias = bias;
-    }
+    virtual void setBias(double bias) { _bias = bias; }
 
     /**
      *  Retrieves the number of features in the dataset was used on the training stage
@@ -256,21 +254,19 @@ public:
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return (_SV ? _SV->getNumberOfColumns() : 0); }
 
 protected:
-    data_management::NumericTablePtr _SV;          /*!< \private Support vectors */
-    data_management::NumericTablePtr _SVCoeff;     /*!< \private Classification coefficients */
-    double _bias;                         /*!< \private Bias of the distance function D(x) = w*Phi(x) + bias */
-    data_management::NumericTablePtr _SVIndices;   /*!< \private Indices of the support vectors in training data set */
+    data_management::NumericTablePtr _SV;        /*!< \private Support vectors */
+    data_management::NumericTablePtr _SVCoeff;   /*!< \private Classification coefficients */
+    double _bias;                                /*!< \private Bias of the distance function D(x) = w*Phi(x) + bias */
+    data_management::NumericTablePtr _SVIndices; /*!< \private Indices of the support vectors in training data set */
 
-    template<typename modelFPType>
-    DAAL_EXPORT Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout,
-          services::Status &st);
+    template <typename modelFPType>
+    DAAL_EXPORT Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout, services::Status & st);
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st = classifier::Model::serialImpl<Archive, onDeserialize>(arch);
-        if (!st)
-            return st;
+        if (!st) return st;
         arch->setSharedPtrObj(_SV);
         arch->setSharedPtrObj(_SVCoeff);
         arch->set(_bias);

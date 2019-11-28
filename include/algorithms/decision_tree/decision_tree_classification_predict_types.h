@@ -33,19 +33,16 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * \brief Contains classes of the Decision tree algorithm
  */
 namespace decision_tree
 {
-
 /**
  * \brief Contains classes of the Decision tree classification algorithm
  */
 namespace classification
 {
-
 /**
  * @defgroup decision_tree_classification_prediction Prediction
  * \copydoc daal::algorithms::decision_tree::classification::prediction
@@ -57,7 +54,6 @@ namespace classification
  */
 namespace prediction
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__DECISION_TREE__CLASSIFICATION__PREDICTION__METHOD"></a>
  * \brief Available methods for making Decision tree model-based prediction
@@ -72,7 +68,6 @@ enum Method
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__CLASSIFICATION__PREDICTION__INPUT"></a>
  * \brief Provides an interface for input objects for making Decision tree model-based prediction
@@ -80,10 +75,11 @@ namespace interface1
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
     typedef classifier::prediction::Input super;
+
 public:
     /** Default constructor */
     Input();
-    Input(const Input& other) : super(other){}
+    Input(const Input & other) : super(other) {}
 
     using super::get;
     using super::set;

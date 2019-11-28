@@ -32,10 +32,11 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetBatchIndices
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cSetBatchIndices
-(JNIEnv *, jobject, jlong parAddr, jlong cBatchIndices)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cSetBatchIndices(JNIEnv *, jobject,
+                                                                                                                         jlong parAddr,
+                                                                                                                         jlong cBatchIndices)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)cBatchIndices;
+    SerializationIfacePtr * ntShPtr                        = (SerializationIfacePtr *)cBatchIndices;
     ((sum_of_functions::Parameter *)parAddr)->batchIndices = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -44,22 +45,22 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1
  * Method:    cGetBatchIndices
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cGetBatchIndices
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cGetBatchIndices(JNIEnv *, jobject,
+                                                                                                                          jlong parAddr)
 {
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = ((sum_of_functions::Parameter *)parAddr)->batchIndices;
+    NumericTablePtr * ntShPtr = new NumericTablePtr();
+    *ntShPtr                  = ((sum_of_functions::Parameter *)parAddr)->batchIndices;
     return (jlong)ntShPtr;
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_optimization_solver_sum_of_functions_Parameter
  * Method:    cSetNumberOfTerms
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cSetNumberOfTerms
-(JNIEnv *, jobject, jlong parAddr, jlong numberOfTerms)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cSetNumberOfTerms(JNIEnv *, jobject,
+                                                                                                                          jlong parAddr,
+                                                                                                                          jlong numberOfTerms)
 {
     ((sum_of_functions::Parameter *)parAddr)->numberOfTerms = numberOfTerms;
 }
@@ -69,8 +70,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1
  * Method:    cGetNumberOfTerms
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cGetNumberOfTerms
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cGetNumberOfTerms(JNIEnv *, jobject,
+                                                                                                                           jlong parAddr)
 {
     return ((sum_of_functions::Parameter *)parAddr)->numberOfTerms;
 }
@@ -80,11 +81,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_
  * Method:    cGetNumberOfTerms
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cCreateParameter
-(JNIEnv *, jobject, jlong numberOfTerms)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cCreateParameter(JNIEnv *, jobject,
+                                                                                                                          jlong numberOfTerms)
 {
     jlong addr = 0;
-    addr = (jlong) (new sum_of_functions::Parameter(numberOfTerms));
+    addr       = (jlong)(new sum_of_functions::Parameter(numberOfTerms));
     return addr;
 }
 
@@ -93,10 +94,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_
  * Method:    cParameterDispose
  * Signature: (J)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cParameterDispose
-(JNIEnv *, jobject, jlong createdParameter)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cParameterDispose(JNIEnv *, jobject,
+                                                                                                                          jlong createdParameter)
 {
-    sum_of_functions::Parameter* ptr = (sum_of_functions::Parameter *) createdParameter;
+    sum_of_functions::Parameter * ptr = (sum_of_functions::Parameter *)createdParameter;
     delete ptr;
 }
 
@@ -105,13 +106,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1
  * Method:    cSetCParameter
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cSetCParameter
-(JNIEnv *, jobject, jlong parAddr, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sum_1of_1functions_Parameter_cSetCParameter(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr, jlong algAddr)
 {
-    sum_of_functions::Parameter *parameterPtr = (sum_of_functions::Parameter *)parAddr;
+    sum_of_functions::Parameter * parameterPtr = (sum_of_functions::Parameter *)parAddr;
 
-    SharedPtr<sum_of_functions::Batch> alg =
-        staticPointerCast<sum_of_functions::Batch, AlgorithmIface>
-        (*(SharedPtr<AlgorithmIface> *)algAddr);
-    alg->sumOfFunctionsParameter = parameterPtr;
+    SharedPtr<sum_of_functions::Batch> alg = staticPointerCast<sum_of_functions::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
+    alg->sumOfFunctionsParameter           = parameterPtr;
 }

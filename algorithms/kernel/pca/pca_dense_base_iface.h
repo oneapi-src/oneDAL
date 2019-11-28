@@ -38,14 +38,13 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType>
 class PCADenseBaseIface
 {
 public:
-    virtual services::Status signFlipEigenvectors(NumericTable& eigenvectors) const = 0;
-    virtual services::Status fillTable(NumericTable& table, algorithmFPType val) const = 0;
-    virtual services::Status copyTable(NumericTable& source, NumericTable& dest) const = 0;
+    virtual services::Status signFlipEigenvectors(NumericTable & eigenvectors) const     = 0;
+    virtual services::Status fillTable(NumericTable & table, algorithmFPType val) const  = 0;
+    virtual services::Status copyTable(NumericTable & source, NumericTable & dest) const = 0;
 };
 
 } // namespace internal

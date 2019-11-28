@@ -50,7 +50,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the Cholesky decomposition algorithm, double or float
  * \tparam method           Cholesky decomposition computation method, \ref daal::algorithms::cholesky::Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -58,7 +58,7 @@ public:
      * Constructs a container for the Cholesky decomposition algorithm with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -81,7 +81,7 @@ public:
  *      - \ref InputId  Identifiers of input objects for Cholesky decomposition
  *      - \ref ResultId Result identifiers for the Cholesky decomposition
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
 {
 public:
@@ -89,10 +89,7 @@ public:
     typedef algorithms::cholesky::Result ResultType;
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a Cholesky decomposition algorithm by copying input objects
@@ -100,10 +97,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input) { initialize(); }
 
     /** Destructor */
     virtual ~Batch() {}
@@ -112,16 +106,13 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of Cholesky decomposition
      * \return Structure that contains results of Cholesky decomposition
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory to store results of Cholesky decomposition
@@ -129,11 +120,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -142,33 +133,27 @@ public:
      * of this Cholesky decomposition algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, NULL, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
+        _in                  = &input;
         _result.reset(new ResultType());
     }
 
 public:
-    InputType input;         /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     ResultPtr _result;
@@ -179,6 +164,6 @@ using interface1::BatchContainer;
 using interface1::Batch;
 
 } // namespace cholesky
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

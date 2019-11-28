@@ -36,14 +36,13 @@ using namespace daal::algorithms;
 
 /* Input data set parameters */
 const string dataFileName = "../data/batch/pca_transform.csv";
-const size_t nVectors = 4;
-const size_t nComponents = 2;
+const size_t nVectors     = 4;
+const size_t nComponents  = 2;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &dataFileName);
-    FileDataSource<CSVFeatureManager> dataSource(dataFileName, DataSource::doAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(dataFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
     dataSource.loadDataBlock(nVectors);
 
     /* Create an algorithm for principal component analysis using the SVD method */
@@ -63,18 +62,14 @@ int main(int argc, char *argv[])
     printNumericTable(pcaResult->get(pca::eigenvectors), "Eigenvectors:");
 
     KeyValueDataCollectionPtr resultCollection = pcaResult->get(pca::dataForTransform);
-    NumericTablePtr eigenvaluesT = NumericTable::cast((*resultCollection)[pca::eigenvalue]);
-    if (eigenvaluesT.get() != NULL)
-        printNumericTable(eigenvaluesT, "Eigenvalues kv:");
+    NumericTablePtr eigenvaluesT               = NumericTable::cast((*resultCollection)[pca::eigenvalue]);
+    if (eigenvaluesT.get() != NULL) printNumericTable(eigenvaluesT, "Eigenvalues kv:");
 
     NumericTablePtr meansT = NumericTable::cast((*resultCollection)[pca::mean]);
-    if (meansT.get() != NULL)
-        printNumericTable(meansT, "Means kv:");
+    if (meansT.get() != NULL) printNumericTable(meansT, "Means kv:");
 
     NumericTablePtr variancesT = NumericTable::cast((*resultCollection)[pca::variance]);
-    if (variancesT.get() != NULL)
-        printNumericTable(variancesT, "Variances kv:");
-
+    if (variancesT.get() != NULL) printNumericTable(variancesT, "Variances kv:");
 
     /* Apply transform with whitening because means and eigenvalues are provided*/
     pca::transform::Batch<float> pcaTransform(nComponents);

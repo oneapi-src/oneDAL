@@ -35,7 +35,6 @@ namespace algorithms
 {
 namespace svd
 {
-
 namespace interface1
 {
 /**
@@ -51,7 +50,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the SVD algorithm, double or float
  *
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class OnlineContainer : public daal::algorithms::AnalysisContainerIface<online>
 {
 public:
@@ -60,7 +59,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~OnlineContainer();
     /**
@@ -86,25 +85,22 @@ public:
  * \par Enumerations
  *      - \ref Method   SVD computation methods
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Online : public daal::algorithms::Analysis<online>
 {
 public:
     typedef OnlinePartialResult PartialResult;
     typedef OnlinePartialResultPtr PartialResultPtr;
 
-    typedef algorithms::svd::Input               InputType;
-    typedef algorithms::svd::Parameter           ParameterType;
-    typedef algorithms::svd::Result              ResultType;
+    typedef algorithms::svd::Input InputType;
+    typedef algorithms::svd::Parameter ParameterType;
+    typedef algorithms::svd::Result ResultType;
     typedef algorithms::svd::OnlinePartialResult PartialResultType;
 
-    InputType     input;     /*!< %Input data structure */
+    InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< SVD parameters structure */
 
-    Online()
-    {
-        initialize();
-    }
+    Online() { initialize(); }
 
     /**
      * Constructs an SVD algorithm by copying input objects and parameters
@@ -112,44 +108,35 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Online(const Online<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results of the SVD algorithm
      * \return Structure that contains computed partial results of the SVD algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Returns the structure that contains computed partial results of the SVD algorithm
      * \return Structure that contains computed partial results of the SVD algorithm
      */
-    PartialResultPtr getPartialResult()
-    {
-        return _partialResult;
-    }
+    PartialResultPtr getPartialResult() { return _partialResult; }
 
     /**
      * Registers user-allocated memory to store computed results of the SVD algorithm
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -159,10 +146,10 @@ public:
      * \param[in] initFlag        Flag that specifies whether the partial results are initialized
      * \return Status of computations
      */
-    services::Status setPartialResult(const PartialResultPtr &partialResult, bool initFlag = false)
+    services::Status setPartialResult(const PartialResultPtr & partialResult, bool initFlag = false)
     {
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         setInitFlag(initFlag);
         return services::Status();
     }
@@ -173,19 +160,17 @@ public:
      */
     services::Status checkFinalizeComputeParams() DAAL_C11_OVERRIDE
     {
-        if(_partialResult)
+        if (_partialResult)
         {
             services::Status s = _partialResult->check(_par, method);
-            if(!s)
-                return s;
+            if (!s) return s;
         }
         else
         {
             return services::Status(services::ErrorNullResult);
         }
 
-        if(_result)
-            return _result->check(_partialResult.get(), _par, method);
+        if (_result) return _result->check(_partialResult.get(), _par, method);
         return services::Status(services::ErrorNullResult);
     }
 
@@ -194,22 +179,16 @@ public:
      * with a copy of input objects and parameters of this SVD algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Online<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Online<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Online<algorithmFPType, method> > clone() const { return services::SharedPtr<Online<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Online<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Online<algorithmFPType, method>(*this);
-    }
+    virtual Online<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Online<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
         services::Status s = _result->allocate<algorithmFPType>(_pres, 0, 0);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
@@ -217,34 +196,34 @@ protected:
     {
         _partialResult.reset(new PartialResultType());
         services::Status s = _partialResult->allocate<algorithmFPType>(_in, 0, 0);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
     virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->initialize<algorithmFPType>(_in, 0, 0);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<online>::_ac = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, method)(&_env);
-        _in   = &input;
-        _par  = &parameter;
+        _in                   = &input;
+        _par                  = &parameter;
     }
 
 private:
     PartialResultPtr _partialResult;
-    ResultPtr        _result;
+    ResultPtr _result;
 };
 /** @} */
 } // namespace interface1
 using interface1::OnlineContainer;
 using interface1::Online;
 
-} // namespace daal::algorithms::svd
-} // namespace daal::algorithms
+} // namespace svd
+} // namespace algorithms
 } // namespace daal
 #endif

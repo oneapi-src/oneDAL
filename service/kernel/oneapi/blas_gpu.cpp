@@ -29,28 +29,25 @@ namespace math
 {
 namespace interface1
 {
-
-template<typename algorithmFPType>
-services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose transa, const Transpose transb,
-    const size_t m, const size_t n, const size_t k,
-    const algorithmFPType alpha,
-    const services::Buffer<algorithmFPType> &a_buffer, const size_t lda, const size_t offsetA,
-    const services::Buffer<algorithmFPType> &b_buffer, const size_t ldb, const size_t offsetB,
-    const algorithmFPType beta,
-    services::Buffer<algorithmFPType> &c_buffer, const size_t ldc, const size_t offsetC)
+template <typename algorithmFPType>
+services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose transa, const Transpose transb, const size_t m, const size_t n,
+                                                            const size_t k, const algorithmFPType alpha,
+                                                            const services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                                            const size_t offsetA, const services::Buffer<algorithmFPType> & b_buffer,
+                                                            const size_t ldb, const size_t offsetB, const algorithmFPType beta,
+                                                            services::Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC)
 {
     services::Status status;
 
-    ExecutionContextIface &ctx =
-        services::Environment::getInstance()->getDefaultExecutionContext();
-    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
-    services::String options = getKeyFPType<algorithmFPType>();
-    services::String cacheKey = "__daal_blas_";
+    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+    services::String options       = getKeyFPType<algorithmFPType>();
+    services::String cacheKey      = "__daal_blas_";
     cacheKey.add(options);
 
     factory.build(ExecutionTargetIds::device, cacheKey.c_str(), clKernelGemm, options.c_str());
 
-    const char* const kernelName = beta != algorithmFPType(0) ? "blas_sgemm_small" : "blas_sgemm_without_sum";
+    const char * const kernelName = beta != algorithmFPType(0) ? "blas_sgemm_small" : "blas_sgemm_without_sum";
 
     KernelPtr kernelGemm = factory.getKernel(kernelName);
 
@@ -60,32 +57,43 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
 
     args.set(0, (uint32_t)k);
     args.set(1, alpha);
-    args.set(2, a_buffer); args.set(5, (uint32_t)offsetA);
-    args.set(6, b_buffer); args.set(9, (uint32_t)offsetB);
+    args.set(2, a_buffer);
+    args.set(5, (uint32_t)offsetA);
+    args.set(6, b_buffer);
+    args.set(9, (uint32_t)offsetB);
     args.set(10, beta);
     args.set(11, c_buffer, AccessModeIds::write);
-    args.set(12, (uint32_t)one); args.set(13, (uint32_t)ldc);
+    args.set(12, (uint32_t)one);
+    args.set(13, (uint32_t)ldc);
     args.set(14, (uint32_t)offsetC);
 
     if (transa == Transpose::NoTrans && transb == Transpose::NoTrans)
     {
-        args.set(3, one); args.set(4, lda);
-        args.set(7, one); args.set(8, ldb);
+        args.set(3, one);
+        args.set(4, lda);
+        args.set(7, one);
+        args.set(8, ldb);
     }
     else if (transa == Transpose::Trans && transb == Transpose::NoTrans)
     {
-        args.set(3, lda); args.set(4, one);
-        args.set(7, one); args.set(8, ldb);
+        args.set(3, lda);
+        args.set(4, one);
+        args.set(7, one);
+        args.set(8, ldb);
     }
     else if (transa == Transpose::NoTrans && transb == Transpose::Trans)
     {
-        args.set(3, one); args.set(4, lda);
-        args.set(7, ldb); args.set(8, one);
+        args.set(3, one);
+        args.set(4, lda);
+        args.set(7, ldb);
+        args.set(8, one);
     }
     else
     {
-        args.set(3, one); args.set(4, lda);
-        args.set(7, one); args.set(8, ldb);
+        args.set(3, one);
+        args.set(4, lda);
+        args.set(7, one);
+        args.set(8, ldb);
     }
 
     KernelRange range(m, n);

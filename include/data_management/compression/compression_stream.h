@@ -62,31 +62,25 @@ public:
      * \param compr Pointer to a specific Compressor used for compression
      * \param minSize Optional parameter, minimal size of internal data blocks
      */
-    CompressionStream(CompressorImpl *compr, size_t minSize = 1024 * 64);
+    CompressionStream(CompressorImpl * compr, size_t minSize = 1024 * 64);
     virtual ~CompressionStream();
 
     /**
      * Writes the next DataBlock to %CompressionStream and compresses it
      * \param[in] inBlock  Pointer to the next DataBlock to be compressed
      */
-    virtual void push_back(DataBlock *inBlock);
+    virtual void push_back(DataBlock * inBlock);
 
     /**
      * Writes the next DataBlock to %CompressionStream and compresses it
      * \param[in] inBlock  Pointer to the next DataBlock to be compressed
      */
-    virtual void operator << (DataBlock *inBlock)
-    {
-        push_back(inBlock);
-    }
+    virtual void operator<<(DataBlock * inBlock) { push_back(inBlock); }
     /**
      * Writes the next DataBlock to %CompressionStream and compresses it
      * \param[in] inBlock  Next DataBlock to be compressed
      */
-    virtual void operator << (DataBlock inBlock)
-    {
-        push_back(&inBlock);
-    }
+    virtual void operator<<(DataBlock inBlock) { push_back(&inBlock); }
     /**
      * Provides access to compressed data blocks stored in %CompressionStream
      * \return Pointer to an internal \ref DataBlockCollection
@@ -103,26 +97,20 @@ public:
      * \param[in] outSize Number of bytes available in external memory
      * \return Size of copied data in bytes
      */
-    virtual size_t copyCompressedArray(byte *outPtr, size_t outSize);
+    virtual size_t copyCompressedArray(byte * outPtr, size_t outSize);
     /**
      * Copies compressed data stored in %CompressionStream to an external DataBlock
      * \param[out] outBlock Reference to the DataBlock where compressed data is stored
      * \return Size of copied data in bytes
      */
-    virtual size_t copyCompressedArray(DataBlock &outBlock)
-    {
-        return copyCompressedArray(outBlock.getPtr(), outBlock.getSize());
-    }
+    virtual size_t copyCompressedArray(DataBlock & outBlock) { return copyCompressedArray(outBlock.getPtr(), outBlock.getSize()); }
 
-    services::SharedPtr<services::ErrorCollection> getErrors()
-    {
-        return _errors;
-    }
+    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
 
 private:
-    void *_blocks;
+    void * _blocks;
 
-    CompressorImpl *_compressor;
+    CompressorImpl * _compressor;
     size_t _compressedDataSize;
     size_t _minBlockSize;
 
@@ -151,29 +139,23 @@ public:
      * \param decompr Pointer to a specific Decompressor used for decompression
      * \param minSize Optional parameter, minimal size of internal data blocks
      */
-    DecompressionStream(DecompressorImpl *decompr, size_t minSize = 1024 * 64);
+    DecompressionStream(DecompressorImpl * decompr, size_t minSize = 1024 * 64);
     virtual ~DecompressionStream();
     /**
      * Writes the next compressed DataBlock to %DecompressionStream and decompresses it
      * \param[in] inBlock  Pointer to the next DataBlock to be decompressed
      */
-    virtual void push_back(DataBlock *inBlock);
+    virtual void push_back(DataBlock * inBlock);
     /**
      * Writes the next compressed DataBlock to %DecompressionStream and decompresses it
      * \param[in] inBlock  Pointer to the next DataBlock to be decompressed
      */
-    virtual void operator << (DataBlock *inBlock)
-    {
-        push_back(inBlock);
-    }
+    virtual void operator<<(DataBlock * inBlock) { push_back(inBlock); }
     /**
      * Writes the next compressed DataBlock to %DecompressionStream and decompresses it
      * \param[in] inBlock  Next DataBlock to be decompressed
      */
-    virtual void operator << (DataBlock inBlock)
-    {
-        push_back(&inBlock);
-    }
+    virtual void operator<<(DataBlock inBlock) { push_back(&inBlock); }
     /**
      * Provides access to decompressed data blocks stored in %DecompressionStream
      * \return Pointer to internal \ref DataBlockCollection
@@ -190,26 +172,20 @@ public:
      * \param[in] outSize Number of bytes available in external memory
      * \return Size of copied data in bytes
      */
-    virtual size_t copyDecompressedArray(byte *outPtr, size_t outSize);
+    virtual size_t copyDecompressedArray(byte * outPtr, size_t outSize);
     /**
      * Copies decompressed data stored in %DecompressionStream to an external DataBlock
      * \param[out] outBlock Reference to the DataBlock where decompressed data is stored.
      *                      Size of DataBlock must be at least getDecompressedSize() bytes
      */
-    virtual size_t copyDecompressedArray(DataBlock &outBlock)
-    {
-        return copyDecompressedArray(outBlock.getPtr(), outBlock.getSize());
-    }
+    virtual size_t copyDecompressedArray(DataBlock & outBlock) { return copyDecompressedArray(outBlock.getPtr(), outBlock.getSize()); }
 
-    services::SharedPtr<services::ErrorCollection> getErrors()
-    {
-        return _errors;
-    }
+    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
 
 private:
-    void *_blocks;
+    void * _blocks;
 
-    DecompressorImpl *_decompressor;
+    DecompressorImpl * _decompressor;
     size_t _decompressedDataSize;
     size_t _minBlockSize;
 

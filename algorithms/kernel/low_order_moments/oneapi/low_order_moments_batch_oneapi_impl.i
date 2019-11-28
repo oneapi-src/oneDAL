@@ -46,87 +46,95 @@ namespace oneapi
 {
 namespace internal
 {
+#define RET_IF_FAIL(st) \
+    if (!st)            \
+    {                   \
+        return;         \
+    }
+#define CHECK_AND_RET_IF_FAIL(st, expr) \
+    (st) |= (expr);                     \
+    if (!st)                            \
+    {                                   \
+        return;                         \
+    }
 
-#define RET_IF_FAIL(st) if(!st) { return; }
-#define CHECK_AND_RET_IF_FAIL(st, expr) (st) |= (expr); if(!st) { return; }
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMinMax>::kSinglePassName = "singlePassMinMax";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMinMax>::kSinglePassName    = "singlePassMinMax";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMinMax>::kProcessBlocksName = "processBlocksMinMax";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMinMax>::kProcessBlocksName = "processBlocksMinMax";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMinMax>::kMergeBlocksName = "mergeBlocksMinMax";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMinMax>::kMergeBlocksName   = "mergeBlocksMinMax";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMinMax>::kBldOptFNameSuff = " -DFNAMESUFF=MinMax ";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMinMax>::kBldOptFNameSuff   = " -DFNAMESUFF=MinMax ";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMinMax>::kBldOptScope = " -D_RMIN_ -D_RMAX_ ";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMinMax>::kBldOptScope       = " -D_RMIN_ -D_RMAX_ ";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMinMax>::kCacheKey = "__daal_algorithms_low_order_moments_batch_kernels_minmax";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMinMax>::kCacheKey          = "__daal_algorithms_low_order_moments_batch_kernels_minmax";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMeanVariance>::kSinglePassName = "singlePassMeanVariance";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMeanVariance>::kSinglePassName    = "singlePassMeanVariance";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMeanVariance>::kProcessBlocksName = "processBlocksMeanVariance";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMeanVariance>::kProcessBlocksName = "processBlocksMeanVariance";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMeanVariance>::kMergeBlocksName = "mergeBlocksMeanVariance";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMeanVariance>::kMergeBlocksName   = "mergeBlocksMeanVariance";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMeanVariance>::kBldOptFNameSuff = " -DFNAMESUFF=MeanVariance ";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMeanVariance>::kBldOptFNameSuff = " -DFNAMESUFF=MeanVariance ";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMeanVariance>::kBldOptScope = " -D_RMEAN_ -D_RVARC_ ";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMeanVariance>::kBldOptScope     = " -D_RMEAN_ -D_RVARC_ ";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesMeanVariance>::kCacheKey = "__daal_algorithms_low_order_moments_batch_kernels_mean_variance";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesMeanVariance>::kCacheKey = "__daal_algorithms_low_order_moments_batch_kernels_mean_variance";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesAll>::kSinglePassName = "singlePassAll";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesAll>::kSinglePassName    = "singlePassAll";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesAll>::kProcessBlocksName = "processBlocksAll";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesAll>::kProcessBlocksName = "processBlocksAll";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesAll>::kMergeBlocksName = "mergeBlocksAll";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesAll>::kMergeBlocksName   = "mergeBlocksAll";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesAll>::kBldOptFNameSuff = " -DFNAMESUFF=All ";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesAll>::kBldOptFNameSuff   = " -DFNAMESUFF=All ";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesAll>::kBldOptScope =
+    " -D_RMIN_ -D_RMAX_ -D_RSUM_ -D_RSUM2_ -D_RSUM2C_ -D_RMEAN_ -D_RSORM_ -D_RVARC_ -D_RSTDEV_ -D_RVART_ ";
 
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesAll>::kBldOptScope
-                                = " -D_RMIN_ -D_RMAX_ -D_RSUM_ -D_RSUM2_ -D_RSUM2C_ -D_RMEAN_ -D_RSORM_ -D_RVARC_ -D_RSTDEV_ -D_RVART_ ";
-
-template<>
-const char* TaskInfoBatch<DAAL_FPTYPE,estimatesAll>::kCacheKey          = "__daal_algorithms_low_order_moments_batch_kernels_all";
+template <>
+const char * TaskInfoBatch<DAAL_FPTYPE, estimatesAll>::kCacheKey = "__daal_algorithms_low_order_moments_batch_kernels_all";
 
 /*
    Kernel methods implementation
 */
-template<typename algorithmFPType, Method method>
-services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::compute(
-    NumericTable *dataTable, Result *result, const Parameter *parameter)
+template <typename algorithmFPType, Method method>
+services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::compute(NumericTable * dataTable, Result * result,
+                                                                                    const Parameter * parameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseBatch);
 
     services::Status status;
 
-    auto& context = daal::oneapi::internal::getDefaultContext();
+    auto & context = daal::oneapi::internal::getDefaultContext();
 
-    if(method == defaultDense)
+    if (method == defaultDense)
     {
-        if(parameter->estimatesToCompute == estimatesMinMax)
+        if (parameter->estimatesToCompute == estimatesMinMax)
         {
             LowOrderMomentsBatchTaskOneAPI<algorithmFPType, estimatesMinMax> task(context, dataTable, result, &status);
             DAAL_CHECK_STATUS_VAR(status);
             return task.compute();
         }
-        else if(parameter->estimatesToCompute == estimatesMeanVariance)
+        else if (parameter->estimatesToCompute == estimatesMeanVariance)
         {
             LowOrderMomentsBatchTaskOneAPI<algorithmFPType, estimatesMeanVariance> task(context, dataTable, result, &status);
             DAAL_CHECK_STATUS_VAR(status);
@@ -144,20 +152,20 @@ services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::comp
     return status;
 }
 
-template<typename algorithmFPType, EstimatesToCompute scope>
-static inline services::Status buildProgram(ClKernelFactoryIface& factory, const char* buildOptions = nullptr)
+template <typename algorithmFPType, EstimatesToCompute scope>
+static inline services::Status buildProgram(ClKernelFactoryIface & factory, const char * buildOptions = nullptr)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
 
     services::Status status;
-    auto fptype_name = getKeyFPType<algorithmFPType>();
+    auto fptype_name   = getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
 
     build_options.add(" -cl-std=CL1.2 -D LOCAL_BUFFER_SIZE=256 ");
     build_options.add(TaskInfoBatch<algorithmFPType, scope>::kBldOptFNameSuff);
     build_options.add(TaskInfoBatch<algorithmFPType, scope>::kBldOptScope);
 
-    if(buildOptions)
+    if (buildOptions)
     {
         build_options.add(buildOptions);
     }
@@ -173,11 +181,10 @@ static inline services::Status buildProgram(ClKernelFactoryIface& factory, const
 /*
     Batch task methods implementations
 */
-template<typename algorithmFPType, EstimatesToCompute scope>
-LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTaskOneAPI(ExecutionContextIface& context,
-                                                                                        NumericTable *dataTable,
-                                                                                        Result *result,
-                                                                                        services::Status* status) : dataTable(dataTable)
+template <typename algorithmFPType, EstimatesToCompute scope>
+LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTaskOneAPI(ExecutionContextIface & context, NumericTable * dataTable,
+                                                                                       Result * result, services::Status * status)
+    : dataTable(dataTable)
 {
     nVectors  = dataTable->getNumberOfRows();
     nFeatures = dataTable->getNumberOfColumns();
@@ -185,9 +192,12 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
     nColsBlocks = (nFeatures + maxWorkItemsPerGroup - 1) / maxWorkItemsPerGroup;
 
     nRowsBlocks = 8;
-    if (nVectors < 5000) nRowsBlocks = 1;
-    else if (nVectors < 10000) nRowsBlocks = 2;
-    else if (nVectors < 20000) nRowsBlocks = 4;
+    if (nVectors < 5000)
+        nRowsBlocks = 1;
+    else if (nVectors < 10000)
+        nRowsBlocks = 2;
+    else if (nVectors < 20000)
+        nRowsBlocks = 4;
 
     workItemsPerGroup = (maxWorkItemsPerGroup < nFeatures) ? maxWorkItemsPerGroup : nFeatures;
 
@@ -199,16 +209,16 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
         CHECK_AND_RET_IF_FAIL(*status, resultTable[i]->getBlockOfRows(0, 1, writeOnly, resultBD[i]));
     }
 
-    if(TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
+    if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
     {
-        if(nRowsBlocks > 1)
+        if (nRowsBlocks > 1)
         {
             bNVec = context.allocate(TypeIds::uint32, nFeatures * nRowsBlocks, status);
             RET_IF_FAIL(*status);
         }
     }
 
-    if(nRowsBlocks > 1)
+    if (nRowsBlocks > 1)
     {
         for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nBuffers; i++)
         {
@@ -218,32 +228,32 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
     }
 }
 
-template<typename algorithmFPType, EstimatesToCompute scope>
+template <typename algorithmFPType, EstimatesToCompute scope>
 LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::~LowOrderMomentsBatchTaskOneAPI()
 {
-    if(dataTable)
+    if (dataTable)
     {
         dataTable->releaseBlockOfRows(dataBD);
     }
 
     for (unsigned int i = 0; i < TaskInfoBatch<algorithmFPType, scope>::nResults; i++)
     {
-        if(resultTable[i])
+        if (resultTable[i])
         {
             resultTable[i]->releaseBlockOfRows(resultBD[i]);
         }
     }
 }
 
-template<typename algorithmFPType, EstimatesToCompute scope>
+template <typename algorithmFPType, EstimatesToCompute scope>
 services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute()
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsBatchTaskOneAPI.compute);
 
     services::Status status;
 
-    auto& context = daal::oneapi::internal::getDefaultContext();
-    auto& factory = context.getClKernelFactory();
+    auto & context = daal::oneapi::internal::getDefaultContext();
+    auto & factory = context.getClKernelFactory();
 
     status = buildProgram<algorithmFPType, scope>(factory);
     DAAL_CHECK_STATUS_VAR(status);
@@ -262,15 +272,15 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
             range.local(localRange, &status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            KernelArguments args(3 + TaskInfoBatch<algorithmFPType, scope>::nBuffers +
-                            (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0));
+            KernelArguments args(3 + TaskInfoBatch<algorithmFPType, scope>::nBuffers
+                                 + (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0));
 
             unsigned int argsI = 0;
             args.set(argsI++, dataBD.getBuffer(), AccessModeIds::read);
             args.set(argsI++, nFeatures);
             args.set(argsI++, nVectors);
 
-            if(TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
+            if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
             {
                 args.set(argsI++, bNVec, AccessModeIds::write);
             }
@@ -296,8 +306,8 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
             range.local(localRange, &status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            KernelArguments args(1 + TaskInfoBatch<algorithmFPType, scope>::nResults + TaskInfoBatch<algorithmFPType, scope>::nBuffers +
-                            (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0));
+            KernelArguments args(1 + TaskInfoBatch<algorithmFPType, scope>::nResults + TaskInfoBatch<algorithmFPType, scope>::nBuffers
+                                 + (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired ? 1 : 0));
 
             unsigned int argsI = 0;
             args.set(argsI++, nRowsBlocks); // num of values to merge
@@ -306,7 +316,7 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
                 args.set(argsI++, resultBD[i].getBuffer(), AccessModeIds::readwrite);
             }
 
-            if(TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
+            if (TaskInfoBatch<algorithmFPType, scope>::isRowsInBlockInfoRequired)
             {
                 args.set(argsI++, bNVec, AccessModeIds::write);
             }

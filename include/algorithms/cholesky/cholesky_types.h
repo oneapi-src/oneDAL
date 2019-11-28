@@ -50,7 +50,7 @@ namespace cholesky
  */
 enum Method
 {
-    defaultDense = 0       /*!< Default: performance-oriented method. */
+    defaultDense = 0 /*!< Default: performance-oriented method. */
 };
 
 /**
@@ -59,7 +59,7 @@ enum Method
  */
 enum InputId
 {
-    data,                /*!< %Input data table */
+    data, /*!< %Input data table */
     lastInputId = data
 };
 
@@ -69,7 +69,7 @@ enum InputId
  */
 enum ResultId
 {
-    choleskyFactor,      /*!< Table to store the result. Contains the lower triangle matrix L of the decomposition */
+    choleskyFactor, /*!< Table to store the result. Contains the lower triangle matrix L of the decomposition */
     lastResultId = choleskyFactor
 };
 
@@ -86,7 +86,7 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     Input();
-    Input(const Input& other) : daal::algorithms::Input(other){}
+    Input(const Input & other) : daal::algorithms::Input(other) {}
 
     virtual ~Input() {}
 
@@ -102,7 +102,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks parameters of the Cholesky algorithm
@@ -111,7 +111,7 @@ public:
      *
      * \return Status of computations
      */
-    virtual services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -135,7 +135,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
      * Returns result of the Cholesky algorithm
@@ -149,7 +149,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the result
      */
-    void set(ResultId id, const data_management::NumericTablePtr &ptr);
+    void set(ResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the result of the Cholesky algorithm
@@ -159,12 +159,12 @@ public:
      *
      * \return Status of computations
      */
-    virtual services::Status check(const algorithms::Input *input, const algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const algorithms::Input * input, const algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -177,6 +177,6 @@ using interface1::Result;
 using interface1::ResultPtr;
 
 } // namespace cholesky
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

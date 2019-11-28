@@ -30,8 +30,7 @@ USING_COMMON_NAMESPACES()
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Result_cNewResult
-(JNIEnv *, jobject)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Result_cNewResult(JNIEnv *, jobject)
 {
     return jniArgument<optimization_solver::iterative_solver::Result>::newObj();
 }
@@ -41,11 +40,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iter
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Result_cGetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Result_cGetResultTable(JNIEnv *, jobject, jlong resAddr,
+                                                                                                                     jint id)
 {
-    return jniArgument<optimization_solver::iterative_solver::Result>::get<
-        optimization_solver::iterative_solver::ResultId, NumericTable>(resAddr, id);
+    return jniArgument<optimization_solver::iterative_solver::Result>::get<optimization_solver::iterative_solver::ResultId, NumericTable>(resAddr,
+                                                                                                                                          id);
 }
 
 /*
@@ -53,11 +52,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iter
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Result_cSetResultTable
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Result_cSetResultTable(JNIEnv *, jobject, jlong resAddr,
+                                                                                                                    jint id, jlong ntAddr)
 {
-    jniArgument<optimization_solver::iterative_solver::Result>::set<
-        optimization_solver::iterative_solver::ResultId, NumericTable>(resAddr, id, ntAddr);
+    jniArgument<optimization_solver::iterative_solver::Result>::set<optimization_solver::iterative_solver::ResultId, NumericTable>(resAddr, id,
+                                                                                                                                   ntAddr);
 }
 
 /*
@@ -65,11 +64,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_itera
 * Method:    cGetOptionalResult
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Result_cGetOptionalResult
-(JNIEnv *, jobject, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Result_cGetOptionalResult(JNIEnv *, jobject,
+                                                                                                                        jlong resAddr, jint id)
 {
-    return jniArgument<optimization_solver::iterative_solver::Result>::get<
-        optimization_solver::iterative_solver::OptionalResultId, OptionalArgument>(resAddr, id);
+    return jniArgument<optimization_solver::iterative_solver::Result>::get<optimization_solver::iterative_solver::OptionalResultId, OptionalArgument>(
+        resAddr, id);
 }
 
 /*
@@ -77,9 +76,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iter
 * Method:    cSetOptionalResult
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Result_cSetOptionalResult
-(JNIEnv *, jobject, jlong resAddr, jint id, jlong argAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Result_cSetOptionalResult(JNIEnv *, jobject,
+                                                                                                                       jlong resAddr, jint id,
+                                                                                                                       jlong argAddr)
 {
-    jniArgument<optimization_solver::iterative_solver::Result>::set<
-        optimization_solver::iterative_solver::OptionalResultId, OptionalArgument>(resAddr, id, argAddr);
+    jniArgument<optimization_solver::iterative_solver::Result>::set<optimization_solver::iterative_solver::OptionalResultId, OptionalArgument>(
+        resAddr, id, argAddr);
 }

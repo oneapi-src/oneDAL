@@ -48,7 +48,7 @@ namespace quality_metric_set
  */
 enum QualityMetricId
 {
-    explainedVariancesMetrics,     /*!< Explained and noise variances metrics*/
+    explainedVariancesMetrics, /*!< Explained and noise variances metrics*/
     lastQualityMetricId = explainedVariancesMetrics
 };
 
@@ -57,7 +57,6 @@ enum QualityMetricId
  */
 namespace interface1
 {
-
 /**
 * <a name="DAAL-STRUCT-ALGORITHMS__PCA__QUALITY_METRIC_SET__PARAMETER"></a>
 * \brief Parameters for the quality metrics set compute() method
@@ -71,8 +70,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 
     virtual ~Parameter() {}
 
-    size_t nComponents;              /*!< Number of principal components to compute metrics for */
-    size_t nFeatures;                /*!< Number of features in dataset used as input in PCA */
+    size_t nComponents; /*!< Number of principal components to compute metrics for */
+    size_t nFeatures;   /*!< Number of features in dataset used as input in PCA */
 
     /**
     * Checks the correctness of the parameter
@@ -88,7 +87,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
  * \brief Class that implements functionality of the collection of result objects of the quality metrics algorithm
  *        specialized for using with the pca algorithm
  */
-class DAAL_EXPORT ResultCollection: public algorithms::quality_metric_set::ResultCollection
+class DAAL_EXPORT ResultCollection : public algorithms::quality_metric_set::ResultCollection
 {
 public:
     ResultCollection() {}
@@ -108,7 +107,7 @@ typedef services::SharedPtr<ResultCollection> ResultCollectionPtr;
  * \brief Class that implements functionality of the collection of input objects of the quality metrics algorithm
  *        specialized for using with the pca algorithm
  */
-class DAAL_EXPORT InputDataCollection: public algorithms::quality_metric_set::InputDataCollection
+class DAAL_EXPORT InputDataCollection : public algorithms::quality_metric_set::InputDataCollection
 {
 public:
     InputDataCollection() {}
@@ -123,17 +122,17 @@ public:
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
 
-}
+} // namespace interface1
 using interface1::Parameter;
 using interface1::ResultCollection;
 using interface1::InputDataCollection;
 using interface1::ResultCollectionPtr;
 using interface1::InputDataCollectionPtr;
 
-}
+} // namespace quality_metric_set
 /** @} */
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal
 
 #endif // __PCA_QUALITY_METRIC_SET_TYPES_H__

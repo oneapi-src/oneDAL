@@ -49,33 +49,38 @@ namespace training
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeMinusOneToZero(NumericTable *yTable)
+services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeMinusOneToZero(NumericTable * yTable)
 {
     services::Status s;
-    const size_t nVectors  = yTable->getNumberOfRows();
+    const size_t nVectors = yTable->getNumberOfRows();
     WriteColumns<algorithmFPtype, cpu> y(const_cast<NumericTable *>(yTable), 0, 0, nVectors);
     DAAL_CHECK_STATUS(s, y.status());
-    algorithmFPtype *yArray = y.get();
-    for(size_t i = 0; i < nVectors; i++)
+    algorithmFPtype * yArray = y.get();
+    for (size_t i = 0; i < nVectors; i++)
     {
-        if(yArray[i] == -1) { yArray[i] = 0; }
+        if (yArray[i] == -1)
+        {
+            yArray[i] = 0;
+        }
     }
     return s;
 }
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeZeroToMinusOne(NumericTable *yTable)
+services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeZeroToMinusOne(NumericTable * yTable)
 {
     services::Status s;
-    const size_t nVectors  = yTable->getNumberOfRows();
+    const size_t nVectors = yTable->getNumberOfRows();
     WriteColumns<algorithmFPtype, cpu> y(const_cast<NumericTable *>(yTable), 0, 0, nVectors);
     DAAL_CHECK_STATUS(s, y.status());
-    algorithmFPtype *yArray = y.get();
-    for(size_t i = 0; i < nVectors; i++)
+    algorithmFPtype * yArray = y.get();
+    for (size_t i = 0; i < nVectors; i++)
     {
-        if(yArray[i] == 0) { yArray[i] = -1; }
+        if (yArray[i] == 0)
+        {
+            yArray[i] = -1;
+        }
     }
     return s;
 }
@@ -84,30 +89,30 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeZeroToMin
  *  \brief Perform stump regression for data set X on responses Y with weights W
  */
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t n, const NumericTable *const *a, stump::classification::Model *stumpModel,
-        const Parameter *par)
+services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t n, const NumericTable * const * a,
+                                                                         stump::classification::Model * stumpModel, const Parameter * par)
 {
-    const NumericTable *xTable = a[0];
-    NumericTable *yTable = const_cast<NumericTable *>(a[1]);
-    const NumericTable *wTable = (n >= 3 ? a[2] : 0);
+    const NumericTable * xTable = a[0];
+    NumericTable * yTable       = const_cast<NumericTable *>(a[1]);
+    const NumericTable * wTable = (n >= 3 ? a[2] : 0);
 
     const size_t nFeatures = xTable->getNumberOfColumns();
-    const size_t nClasses = par->nClasses;
+    const size_t nClasses  = par->nClasses;
     stumpModel->setNFeatures(nFeatures);
 
     services::Status s;
 
     /* Create an algorithm object to train the Decision tree model */
     decision_tree::classification::training::Batch<algorithmFPtype> treeAlgorithm(par->nClasses);
-    treeAlgorithm.parameter.splitCriterion = par->splitCriterion;
-    treeAlgorithm.parameter.pruning = daal::algorithms::decision_tree::none;
-    treeAlgorithm.parameter.maxTreeDepth = 2;
+    treeAlgorithm.parameter.splitCriterion             = par->splitCriterion;
+    treeAlgorithm.parameter.pruning                    = daal::algorithms::decision_tree::none;
+    treeAlgorithm.parameter.maxTreeDepth               = 2;
     treeAlgorithm.parameter.minObservationsInLeafNodes = 1;
 
     /* Pass the training data set, labels, and pruning dataset with labels to the algorithm */
     treeAlgorithm.input.set(classifier::training::data, NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
     treeAlgorithm.input.set(classifier::training::weights, NumericTablePtr(const_cast<NumericTable *>(wTable), EmptyDeleter()));
-    if(nClasses == 2)
+    if (nClasses == 2)
     {
         DAAL_CHECK_STATUS(s, changeMinusOneToZero(yTable));
     }
@@ -115,11 +120,13 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t 
 
     decision_tree::classification::training::ResultPtr treeResult(new decision_tree::classification::training::Result());
     DAAL_CHECK_MALLOC(treeResult.get())
-    treeResult->set(daal::algorithms::classifier::training::model, decision_tree::classification::ModelPtr(static_cast<decision_tree::classification::Model*>(const_cast<stump::classification::Model*>(stumpModel)), EmptyDeleter()));
+    treeResult->set(daal::algorithms::classifier::training::model,
+                    decision_tree::classification::ModelPtr(
+                        static_cast<decision_tree::classification::Model *>(const_cast<stump::classification::Model *>(stumpModel)), EmptyDeleter()));
     treeAlgorithm.setResult(treeResult);
     /* Train the Decision tree model */
     DAAL_CHECK_STATUS(s, treeAlgorithm.computeNoThrow());
-    if(nClasses == 2)
+    if (nClasses == 2)
     {
         DAAL_CHECK_STATUS(s, changeZeroToMinusOne(yTable));
     }
@@ -127,11 +134,11 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t 
     return s;
 }
 
-} // namespace daal::algorithms::stump::classification::training::internal
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

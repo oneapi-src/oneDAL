@@ -38,9 +38,9 @@ class MySquaringModifier : public modifiers::csv::FeatureModifier
 {
 public:
     /* This method is called for every row in CSV file */
-    virtual void apply(modifiers::csv::Context &context)
+    virtual void apply(modifiers::csv::Context & context)
     {
-        const size_t numberOfTokens = context.getNumberOfTokens();
+        const size_t numberOfTokens                             = context.getNumberOfTokens();
         daal::services::BufferView<DAAL_DATA_TYPE> outputBuffer = context.getOutputBuffer();
 
         /* By default number of tokens (token is one word separated by commas) is equals to the
@@ -50,7 +50,7 @@ public:
 
         for (size_t i = 0; i < numberOfTokens; i++)
         {
-            const float x = context.getTokenAs<float>(i);
+            const float x   = context.getTokenAs<float>(i);
             outputBuffer[i] = x * x;
         }
     }
@@ -61,7 +61,7 @@ class MyMaxFeatureModifier : public modifiers::csv::FeatureModifier
 {
 public:
     /* This method is called once before CSV parsing */
-    virtual void initialize(modifiers::csv::Config &config)
+    virtual void initialize(modifiers::csv::Config & config)
     {
         /* Set number of output features for the modifier. We assume modifier
          * computes function y = max { x_1, ..., x_n }, where x_i is input
@@ -70,7 +70,7 @@ public:
     }
 
     /* This method is called for every row in CSV file */
-    virtual void apply(modifiers::csv::Context &context)
+    virtual void apply(modifiers::csv::Context & context)
     {
         const size_t numberOfTokens = context.getNumberOfTokens();
 
@@ -87,7 +87,7 @@ public:
     }
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     /* Path to the CSV to be read */
     const std::string csvFileName = "../data/batch/mixed_text_and_numbers.csv";
@@ -95,9 +95,8 @@ int main(int argc, char *argv[])
     checkArguments(argc, argv, 1, &csvFileName);
 
     /* Define options for CSV data source */
-    const CsvDataSourceOptions csvOptions = CsvDataSourceOptions::allocateNumericTable |
-                                            CsvDataSourceOptions::createDictionaryFromContext |
-                                            CsvDataSourceOptions::parseHeader;
+    const CsvDataSourceOptions csvOptions =
+        CsvDataSourceOptions::allocateNumericTable | CsvDataSourceOptions::createDictionaryFromContext | CsvDataSourceOptions::parseHeader;
 
     /* Define CSV file data source */
     FileDataSource<CSVFeatureManager> ds(csvFileName, csvOptions);
@@ -106,9 +105,9 @@ int main(int argc, char *argv[])
      * Output numeric table will have the following format:
      * | Numeric1 | Numeric2 ^ 2 | Numeric5 ^ 2 | max(Numeric0, Numeric5) | */
     ds.getFeatureManager()
-        .addModifier( features::list("Numeric1"), modifiers::csv::continuous() )
-        .addModifier( features::list("Numeric2", "Numeric5"), modifiers::csv::custom<MySquaringModifier>() )
-        .addModifier( features::list("Numeric0", "Numeric5"), modifiers::csv::custom<MyMaxFeatureModifier>() );
+        .addModifier(features::list("Numeric1"), modifiers::csv::continuous())
+        .addModifier(features::list("Numeric2", "Numeric5"), modifiers::csv::custom<MySquaringModifier>())
+        .addModifier(features::list("Numeric0", "Numeric5"), modifiers::csv::custom<MyMaxFeatureModifier>());
 
     /* Load and parse CSV file */
     ds.loadDataBlock();

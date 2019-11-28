@@ -39,22 +39,19 @@ namespace training
 {
 namespace internal
 {
-
 using namespace daal::oneapi::internal;
 
-
 template <typename algorithmFPType>
-services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable &xTable, NumericTable &yTable,
-                                                              NumericTable &xtx, NumericTable &xty,
+services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTable, NumericTable & yTable, NumericTable & xtx, NumericTable & xty,
                                                               bool interceptFlag)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate);
     services::Status status;
 
-    const size_t nRows = xTable.getNumberOfRows();
-    const size_t nCols = xTable.getNumberOfColumns();
-    const size_t nResponses = yTable.getNumberOfColumns();
-    const size_t nBetas = nCols + 1;
+    const size_t nRows           = xTable.getNumberOfRows();
+    const size_t nCols           = xTable.getNumberOfColumns();
+    const size_t nResponses      = yTable.getNumberOfColumns();
+    const size_t nBetas          = nCols + 1;
     const size_t nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
 
     BlockDescriptor<algorithmFPType> xtxBlock;
@@ -63,7 +60,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable &xTab
     DAAL_CHECK_STATUS(status, xtx.getBlockOfRows(0, nBetasIntercept, ReadWriteMode::readWrite, xtxBlock));
     DAAL_CHECK_STATUS(status, xty.getBlockOfRows(0, nResponses, ReadWriteMode::readWrite, xtyBlock));
 
-    auto& context = getDefaultContext();
+    auto & context                            = getDefaultContext();
     services::Buffer<algorithmFPType> xtxBuff = xtxBlock.getBuffer();
     services::Buffer<algorithmFPType> xtyBuff = xtyBlock.getBuffer();
 
@@ -74,13 +71,16 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable &xTab
     size_t nRowsPerBlock = nRows;
 
     size_t nBlocks = nRows / nRowsPerBlock;
-    if (nBlocks*nRowsPerBlock < nRows) { ++nBlocks; }
+    if (nBlocks * nRowsPerBlock < nRows)
+    {
+        ++nBlocks;
+    }
 
     services::Buffer<algorithmFPType> sumXBuf;
     services::Buffer<algorithmFPType> sumYBuf;
     services::Buffer<algorithmFPType> onesBuf;
 
-    if(interceptFlag)
+    if (interceptFlag)
     {
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
@@ -104,11 +104,14 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable &xTab
         DAAL_CHECK_STATUS_VAR(status);
     }
 
-    for(size_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx)
+    for (size_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx)
     {
         const size_t startRow = blockIdx * nRowsPerBlock;
-        size_t endRow = startRow + nRowsPerBlock;
-        if(endRow > nRows) { endRow = nRows; };
+        size_t endRow         = startRow + nRowsPerBlock;
+        if (endRow > nRows)
+        {
+            endRow = nRows;
+        };
 
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
@@ -126,62 +129,37 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable &xTab
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.syrkX);
             /* Compute XTX for each block and reduce to final result*/
-            status = BlasGpu<algorithmFPType>::xsyrk(
-                            math::Layout::RowMajor,
-                            math::UpLo::Upper, math::Transpose::Trans,
-                            xNCols, xNRows,
-                            algorithmFPType(1.0),
-                            xBuf, xNCols, 0,
-                            algorithmFPType(1.0),
-                            xtxBuff, xtxNCols, 0);
+            status = BlasGpu<algorithmFPType>::xsyrk(math::Layout::RowMajor, math::UpLo::Upper, math::Transpose::Trans, xNCols, xNRows,
+                                                     algorithmFPType(1.0), xBuf, xNCols, 0, algorithmFPType(1.0), xtxBuff, xtxNCols, 0);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemmXY);
             /* Compute XTY (in real YTX) for each block and reduce to final result*/
-            status = BlasGpu<algorithmFPType>::xgemm(
-                            math::Layout::RowMajor,
-                            math::Transpose::Trans, math::Transpose::NoTrans,
-                            yNCols, xNCols, xNRows,
-                            algorithmFPType(1.0),
-                            yBuf, yNCols, 0,
-                            xBuf, xNCols, 0,
-                            algorithmFPType(1.0),
-                            xtyBuff, xtxNCols, 0);
+            status =
+                BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, yNCols, xNCols, xNRows,
+                                                algorithmFPType(1.0), yBuf, yNCols, 0, xBuf, xNCols, 0, algorithmFPType(1.0), xtyBuff, xtxNCols, 0);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
-
-        if(interceptFlag)
+        if (interceptFlag)
         {
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemm1X);
                 /* Compute reduce X in columns for each block and reduce it to final result*/
-                status = BlasGpu<algorithmFPType>::xgemm(
-                                math::Layout::RowMajor,
-                                math::Transpose::NoTrans, math::Transpose::NoTrans,
-                                1, xNCols, xNRows,
-                                algorithmFPType(1.0),
-                                onesBuf, nRowsPerBlock, 0,
-                                xBuf, xNCols, 0,
-                                algorithmFPType(1.0),
-                                sumXBuf, xNCols, 0);
+                status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, 1, xNCols,
+                                                         xNRows, algorithmFPType(1.0), onesBuf, nRowsPerBlock, 0, xBuf, xNCols, 0,
+                                                         algorithmFPType(1.0), sumXBuf, xNCols, 0);
             }
             DAAL_CHECK_STATUS_VAR(status);
 
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemm1Y);
                 /* Compute reduce Y in columns for each block and reduce it to final result*/
-                status = BlasGpu<algorithmFPType>::xgemm(
-                                math::Layout::RowMajor,
-                                math::Transpose::NoTrans, math::Transpose::NoTrans,
-                                1, yNCols, xNRows,
-                                algorithmFPType(1.0),
-                                onesBuf, nRowsPerBlock, 0,
-                                yBuf, yNCols, 0,
-                                algorithmFPType(1.0),
-                                sumYBuf, yNCols, 0);
+                status = BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, 1, yNCols,
+                                                         xNRows, algorithmFPType(1.0), onesBuf, nRowsPerBlock, 0, yBuf, yNCols, 0,
+                                                         algorithmFPType(1.0), sumYBuf, yNCols, 0);
             }
             DAAL_CHECK_STATUS_VAR(status);
         }
@@ -190,16 +168,16 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable &xTab
         DAAL_CHECK_STATUS(status, yTable.releaseBlockOfRows(yBlock));
     }
 
-    if(interceptFlag)
+    if (interceptFlag)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.copyResults);
         /*Copy reduce results of xTable into XTX*/
-        context.copy(xtxBuff, nCols*nBetasIntercept, sumXBuf, 0, nCols, &status);
+        context.copy(xtxBuff, nCols * nBetasIntercept, sumXBuf, 0, nCols, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         algorithmFPType nrowsVal = static_cast<algorithmFPType>(nRows);
         const services::Buffer<algorithmFPType> nrowsBuf(&nrowsVal, 1);
-        context.copy(xtxBuff, nCols*nBetasIntercept + nBetasIntercept - 1, nrowsBuf, 0, 1, &status);
+        context.copy(xtxBuff, nCols * nBetasIntercept + nBetasIntercept - 1, nrowsBuf, 0, 1, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         /*Copy reduce results of yTable into YTX*/
@@ -210,21 +188,21 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable &xTab
 }
 
 template <typename algorithmFPType>
-services::Status UpdateKernelOneAPI<algorithmFPType>::copyReduceResultsY(const services::Buffer<algorithmFPType> &src, const size_t srcSize,
-                                                                         services::Buffer<algorithmFPType> &dst,  const size_t nColsDst)
+services::Status UpdateKernelOneAPI<algorithmFPType>::copyReduceResultsY(const services::Buffer<algorithmFPType> & src, const size_t srcSize,
+                                                                         services::Buffer<algorithmFPType> & dst, const size_t nColsDst)
 {
     services::Status status;
 
-    ExecutionContextIface &ctx = getDefaultContext();
-    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+    ExecutionContextIface & ctx    = getDefaultContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_model_copy_");
     cachekey.add(options);
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCopy, options.c_str());
 
-    const char* const kernelName = "copyReduceResults";
-    KernelPtr kernel = factory.getKernel(kernelName);
+    const char * const kernelName = "copyReduceResults";
+    KernelPtr kernel              = factory.getKernel(kernelName);
 
     KernelArguments args(3);
     args.set(0, src, AccessModeIds::read);

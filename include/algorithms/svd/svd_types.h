@@ -48,7 +48,7 @@ namespace svd
  */
 enum Method
 {
-    defaultDense    = 0 /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -57,8 +57,8 @@ enum Method
  */
 enum SVDResultFormat
 {
-    notRequired,          /*!< Matrix is not required */
-    requiredInPackedForm  /*!< Matrix in the packed format is required */
+    notRequired,         /*!< Matrix is not required */
+    requiredInPackedForm /*!< Matrix in the packed format is required */
 };
 
 /**
@@ -67,7 +67,7 @@ enum SVDResultFormat
  */
 enum InputId
 {
-    data,       /*!< %Input data table */
+    data, /*!< %Input data table */
     lastInputId = data
 };
 
@@ -77,9 +77,9 @@ enum InputId
  */
 enum ResultId
 {
-    singularValues,        /*!< Singular values         */
-    leftSingularMatrix,    /*!< Left orthogonal matrix  */
-    rightSingularMatrix,   /*!< Right orthogonal matrix */
+    singularValues,      /*!< Singular values         */
+    leftSingularMatrix,  /*!< Left orthogonal matrix  */
+    rightSingularMatrix, /*!< Right orthogonal matrix */
     lastResultId = rightSingularMatrix
 };
 
@@ -90,9 +90,9 @@ enum ResultId
  */
 enum PartialResultId
 {
-    outputOfStep1ForStep3,   /*!< DataCollection with data computed in the first step to be transferred to the third step in the distributed
+    outputOfStep1ForStep3, /*!< DataCollection with data computed in the first step to be transferred to the third step in the distributed
                                     * processing mode */
-    outputOfStep1ForStep2,    /*!< DataCollection with data computed in the first step to be transferred to the second step in the distributed
+    outputOfStep1ForStep2, /*!< DataCollection with data computed in the first step to be transferred to the second step in the distributed
                                     * processing mode  */
     lastPartialResultId = outputOfStep1ForStep2
 };
@@ -104,7 +104,7 @@ enum PartialResultId
  */
 enum DistributedPartialResultCollectionId
 {
-    outputOfStep2ForStep3,   /*!< DataCollection with data to be transferred to the third step in the distributed processing mode */
+    outputOfStep2ForStep3, /*!< DataCollection with data to be transferred to the third step in the distributed processing mode */
     lastDistributedPartialResultCollectionId = outputOfStep2ForStep3
 };
 
@@ -115,7 +115,8 @@ enum DistributedPartialResultCollectionId
  */
 enum DistributedPartialResultId
 {
-    finalResultFromStep2Master = lastDistributedPartialResultCollectionId + 1, /*!< Result object with singular values and the right orthogonal matrix */
+    finalResultFromStep2Master =
+        lastDistributedPartialResultCollectionId + 1, /*!< Result object with singular values and the right orthogonal matrix */
     lastDistributedPartialResultId = finalResultFromStep2Master
 };
 
@@ -136,7 +137,7 @@ enum DistributedPartialResultStep3Id
  */
 enum MasterInputId
 {
-    inputOfStep2FromStep1,  /*!< DataCollection with data transferred from the first step to the second step in the distributed processing mode*/
+    inputOfStep2FromStep1, /*!< DataCollection with data transferred from the first step to the second step in the distributed processing mode*/
     lastMasterInputId = inputOfStep2FromStep1
 };
 
@@ -167,9 +168,9 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
      *  \param[in] _leftSingularMatrix  Format of the matrix of left singular vectors
      *  \param[in] _rightSingularMatrix Format of the matrix of right singular vectors
      */
-    Parameter(SVDResultFormat _leftSingularMatrix  = requiredInPackedForm,
-              SVDResultFormat _rightSingularMatrix = requiredInPackedForm) :
-        leftSingularMatrix(_leftSingularMatrix), rightSingularMatrix(_rightSingularMatrix) {}
+    Parameter(SVDResultFormat _leftSingularMatrix = requiredInPackedForm, SVDResultFormat _rightSingularMatrix = requiredInPackedForm)
+        : leftSingularMatrix(_leftSingularMatrix), rightSingularMatrix(_rightSingularMatrix)
+    {}
 
     SVDResultFormat leftSingularMatrix;  /*!< Format of the matrix of left singular vectors  >*/
     SVDResultFormat rightSingularMatrix; /*!< Format of the matrix of right singular vectors >*/
@@ -186,7 +187,7 @@ public:
     /** Default constructor */
     Input();
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
     /** Destructor */
     virtual ~Input() {}
 
@@ -202,11 +203,11 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] value Pointer to the new input object value
      */
-    void set(InputId id, const data_management::NumericTablePtr &value);
+    void set(InputId id, const data_management::NumericTablePtr & value);
 
-    services::Status getNumberOfColumns(size_t *nFeatures) const;
+    services::Status getNumberOfColumns(size_t * nFeatures) const;
 
-    services::Status getNumberOfRows(size_t *nRows) const;
+    services::Status getNumberOfRows(size_t * nRows) const;
 
     /**
      * Checks parameters of the algorithm
@@ -214,8 +215,7 @@ public:
      * \param[in] method Computation method
      * \return Errors detected while checking
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
-
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -229,14 +229,14 @@ public:
     DistributedStep2Input();
 
     /** Copy constructor */
-    DistributedStep2Input(const DistributedStep2Input& other);
+    DistributedStep2Input(const DistributedStep2Input & other);
 
     /**
      * Sets an input object for the SVD algorithm
      * \param[in] id   Identifier of the input object
      * \param[in] ptr  Input object that corresponds to the given identifier
      */
-    void set(MasterInputId id, const data_management::KeyValueDataCollectionPtr &ptr);
+    void set(MasterInputId id, const data_management::KeyValueDataCollectionPtr & ptr);
 
     /**
      * Returns an input object for the SVD algorithm
@@ -251,7 +251,7 @@ public:
      * \param[in] key   Key to use to retrieve data
      * \param[in] value Pointer to the new input object value
      */
-    void add(MasterInputId id, size_t key, const data_management::DataCollectionPtr &value);
+    void add(MasterInputId id, size_t key, const data_management::DataCollectionPtr & value);
 
     /**
     * Returns the number of blocks in the input data set
@@ -265,14 +265,14 @@ public:
      * \param[in] method Computation method
      * \return Errors detected while checking
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /**
     * Returns the number of columns in the input data set
     * \return Number of columns in the input data set
     */
-    services::Status getNumberOfColumns(size_t& nCols) const;
+    services::Status getNumberOfColumns(size_t & nCols) const;
 };
 
 /**
@@ -286,7 +286,7 @@ public:
     DistributedStep3Input();
 
     /** Copy constructor */
-    DistributedStep3Input(const DistributedStep3Input& other);
+    DistributedStep3Input(const DistributedStep3Input & other);
 
     /**
      * Returns an input object for the SVD algorithm
@@ -300,9 +300,9 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] value Pointer to the new input object value
      */
-    void set(FinalizeOnLocalInputId id, const data_management::DataCollectionPtr &value);
+    void set(FinalizeOnLocalInputId id, const data_management::DataCollectionPtr & value);
 
-    services::Status getSizes(size_t &nFeatures, size_t &nVectors) const;
+    services::Status getSizes(size_t & nFeatures, size_t & nVectors) const;
 
     /**
      * Checks parameters of the algorithm
@@ -310,8 +310,7 @@ public:
      * \param[in] method Computation method
      * \return Errors detected while checking
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
-
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -336,7 +335,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Initializes additional memory to store partial results of the SVD algorithm for each subsequent compute() method
@@ -346,7 +345,7 @@ public:
      * \return Status of initialization
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates additional memory to store partial results of the SVD algorithm for each subsequent compute() method
@@ -356,7 +355,7 @@ public:
      * \param[in]  par  Reference to the object with the algorithm parameters
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status addPartialResultStorage(size_t m, size_t n, Parameter &par);
+    DAAL_EXPORT services::Status addPartialResultStorage(size_t m, size_t n, Parameter & par);
 
     /**
      * Returns partial results of the SVD algorithm
@@ -370,7 +369,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] value Value that corresponds to the given identifier
      */
-    void set(PartialResultId id, const data_management::DataCollectionPtr &value);
+    void set(PartialResultId id, const data_management::DataCollectionPtr & value);
 
     /**
      * Checks partial results of the algorithm
@@ -378,9 +377,9 @@ public:
      * \param[in] method Computation method
      * \return Errors detected while checking
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
     size_t getNumberOfColumns() const;
 
@@ -388,12 +387,12 @@ public:
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
-    services::Status checkImpl(const daal::algorithms::Parameter *parameter, int method, size_t nFeatures, size_t nVectors) const;
+    services::Status checkImpl(const daal::algorithms::Parameter * parameter, int method, size_t nFeatures, size_t nVectors) const;
 };
 typedef services::SharedPtr<OnlinePartialResult> OnlinePartialResultPtr;
 
@@ -426,7 +425,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store final results of the SVD algorithm
@@ -436,14 +435,15 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *partialResult, daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+                                          const int method);
 
     /**
      * Sets the final result of the SVD algorithm
      * \param[in] id    Identifier of the final result
      * \param[in] value Value that corresponds to the given identifier
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
       * Checks final results of the algorithm
@@ -452,7 +452,7 @@ public:
       * \param[in] method Computation method
       * \return Errors detected while checking
       */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks the result parameter of the SVD algorithm
@@ -460,7 +460,7 @@ public:
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method
      */
-    services::Status check(const daal::algorithms::PartialResult *pres, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Allocates memory to store final results of the SVD algorithm
@@ -474,8 +474,8 @@ public:
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -501,7 +501,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store partial results of the SVD algorithm based on the known structure of partial results from step 1 in the
@@ -514,7 +514,7 @@ public:
      * \param[out] nBlocks         Number of rows in the input data set
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status setPartialResultStorage(data_management::KeyValueDataCollection *inCollection, size_t &nBlocks);
+    DAAL_EXPORT services::Status setPartialResultStorage(data_management::KeyValueDataCollection * inCollection, size_t & nBlocks);
 
     /**
      * Returns partial results of the SVD algorithm.
@@ -545,14 +545,14 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] value Value that corresponds to the given identifier
      */
-    void set(DistributedPartialResultCollectionId id, const data_management::KeyValueDataCollectionPtr &value);
+    void set(DistributedPartialResultCollectionId id, const data_management::KeyValueDataCollectionPtr & value);
 
     /**
      * Sets the Result object to store results of the SVD algorithm
      * \param[in] id    Identifier of the parameter
      * \param[in] value Pointer to the Result object
      */
-    void set(DistributedPartialResultId id, const ResultPtr &value);
+    void set(DistributedPartialResultId id, const ResultPtr & value);
 
     /**
      * Checks partial results of the algorithm
@@ -560,7 +560,7 @@ public:
      * \param[in] method Computation method
      * \return Errors detected while checking
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks final results of the algorithm
@@ -569,12 +569,12 @@ public:
      * \param[in] method    Computation method
      * \return Errors detected while checking
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -603,7 +603,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store partial results of the SVD algorithm obtained in the third step in the distributed processing mode
@@ -611,7 +611,7 @@ public:
      * \param[in]  qCollection  DataCollection of all partial results from step 1 of the SVD algorithm in the distributed processing mode
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status setPartialResultStorage(data_management::DataCollection *qCollection);
+    DAAL_EXPORT services::Status setPartialResultStorage(data_management::DataCollection * qCollection);
 
     /**
      * Returns results of the SVD algorithm with singular values and the left orthogonal matrix calculated
@@ -625,7 +625,7 @@ public:
      * \param[in] id    Identifier of the parameter
      * \param[in] value Pointer to the Result object
      */
-    void set(DistributedPartialResultStep3Id id, const ResultPtr &value);
+    void set(DistributedPartialResultStep3Id id, const ResultPtr & value);
 
     /**
      * Checks partial results of the algorithm
@@ -634,8 +634,7 @@ public:
      * \param[in] method Computation method
      * \return Errors detected while checking
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
-
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks partial results of the algorithm
@@ -643,12 +642,12 @@ public:
      * \param[in] method Computation method
      * \return Errors detected while checking
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -669,7 +668,7 @@ using interface1::DistributedPartialResultPtr;
 using interface1::DistributedPartialResultStep3;
 using interface1::DistributedPartialResultStep3Ptr;
 
-} // namespace daal::algorithms::svd
-} // namespace daal::algorithms
+} // namespace svd
+} // namespace algorithms
 } // namespace daal
 #endif

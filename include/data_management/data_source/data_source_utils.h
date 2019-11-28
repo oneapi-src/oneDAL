@@ -31,7 +31,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -54,7 +53,7 @@ public:
      *  \param[in]  rawDataSize  Size of the rawRowData array
      *  \param[out] dict         Pointer to the dictionary constructed from the string
      */
-    virtual void parseRowAsDictionary( char *rawRowData, size_t rawDataSize, DataSourceDictionary *dict ) = 0;
+    virtual void parseRowAsDictionary(char * rawRowData, size_t rawDataSize, DataSourceDictionary * dict) = 0;
 
     /**
      *  Parses a string that represents a feature vector and converts it into a numeric representation
@@ -64,14 +63,14 @@ public:
      *  \param[out] rowBuffer    Pointer to a Buffer View to store the result of parsing
      *  \param[in]  ntRowIndex   Position in the Numeric Table at which to store the result of parsing
      */
-    virtual void parseRowIn ( char *rawRowData, size_t rawDataSize, DataSourceDictionary *dict,
-                              services::BufferView<DAAL_DATA_TYPE> &rowBuffer, size_t  ntRowIndex  ) = 0;
+    virtual void parseRowIn(char * rawRowData, size_t rawDataSize, DataSourceDictionary * dict, services::BufferView<DAAL_DATA_TYPE> & rowBuffer,
+                            size_t ntRowIndex) = 0;
 };
 /** @} */
 } // namespace interface1
 using interface1::StringRowFeatureManagerIface;
 
-}
-}
+} // namespace data_management
+} // namespace daal
 
 #endif
