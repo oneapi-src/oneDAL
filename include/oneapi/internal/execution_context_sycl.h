@@ -700,6 +700,25 @@ public:
 
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
 
+    void copy(UniversalBuffer dest,
+              size_t desOffset,
+              void *src,
+              size_t srcOffset,
+              size_t count,
+              services::Status *status = nullptr) DAAL_C11_OVERRIDE
+    {
+        // TODO: Thread safe?
+        try
+        {
+            ArrayCopier::copy(_deviceQueue, dest,
+                               desOffset, src, srcOffset, count);
+        }
+        catch (cl::sycl::exception const &e)
+        {
+            convertSyclExceptionToStatus(e, status);
+        }
+    }
+
 private:
     cl::sycl::queue _deviceQueue;
     OpenClKernelFactory _kernelFactory;
