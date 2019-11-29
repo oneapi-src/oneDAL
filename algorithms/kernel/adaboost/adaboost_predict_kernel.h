@@ -64,7 +64,7 @@ public:
     services::Status computeClassScore(
         const size_t k, const size_t nClasses,
         daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > &weakPredictions,
-        algorithmFPType *r, const algorithmFPType *alpha, const size_t nWeakLearners);
+        algorithmFPType *r, const algorithmFPType *alpha, const size_t nWeakLearners, algorithmFPType* maxClassScore);
 
     services::Status processBlockClassScore(
         size_t nProcessedRows,
