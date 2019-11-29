@@ -19,18 +19,12 @@ rem ============================================================================
 ::     Intel(R) Data Analytics Acceleration Library samples creation and run
 ::******************************************************************************
 
-set ARCH=%1
-set RMODE=%2
+set ARCH=intel64
+set RMODE=%1
 
 set errorcode=0
 
 if "%1"=="help" (
-    goto :Usage
-)
-
-if not "%ARCH%"=="intel64" (
-    echo Bad first argument, must be intel64
-    set errorcode=1
     goto :Usage
 )
 

@@ -34,7 +34,7 @@ To build Intel(R) DAAL Apache Arrow\* C++ samples, go to the C++ Apache Arrow\* 
 ```
 cd <sample_dir>\cpp\arrow
 
-launcher.bat intel64 build
+launcher.bat build
 ```
 
 The command creates the `.\_results\intel64` directory and builds `*.exe` executables, as well as creates a log file for build results.
@@ -44,7 +44,7 @@ To run Intel(R) DAAL Apache Arrow\* C++ samples, go to the C++ Apache Arrow\* sa
 ```
 cd <sample_dir>\cpp\arrow
 
-launcher.bat intel64 run
+launcher.bat run
 ```
 
 Select the same architecture parameter as you provided to the launcher command with the build parameter.
