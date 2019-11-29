@@ -35,7 +35,6 @@ namespace regression
 {
 namespace training
 {
-
 namespace interface1
 {
 /**
@@ -55,12 +54,12 @@ namespace interface1
 class DAAL_EXPORT Online : public Training<online>
 {
 public:
-    typedef algorithms::regression::training::Input         InputType;
-    typedef algorithms::regression::training::Result        ResultType;
+    typedef algorithms::regression::training::Input InputType;
+    typedef algorithms::regression::training::Result ResultType;
     typedef algorithms::regression::training::PartialResult PartialResultType;
 
     virtual ~Online() {}
-    virtual InputType* getInput() = 0;
+    virtual InputType * getInput() = 0;
 
     /**
      * Registers user-allocated memory to store a partial result of the regression model-based training
@@ -68,10 +67,10 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setPartialResult(const PartialResultPtr& partialResult)
+    services::Status setPartialResult(const PartialResultPtr & partialResult)
     {
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -81,11 +80,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -109,8 +108,8 @@ protected:
 } // namespace interface1
 using interface1::Online;
 
-}
-}
-}
-}
+} // namespace training
+} // namespace regression
+} // namespace algorithms
+} // namespace daal
 #endif

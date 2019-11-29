@@ -24,26 +24,22 @@ namespace daal
 {
 namespace classification
 {
-
 bool JavaTreeNodeVisitor::onLeafNode(size_t level, size_t response)
 {
     ThreadLocalStorage tls = _tls.local();
-    jint status = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
-    JNIEnv *env = tls.jniEnv;
+    jint status            = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
+    JNIEnv * env           = tls.jniEnv;
 
     /* Get current context */
     jclass javaObjectClass = env->GetObjectClass(javaObject);
-    if(javaObjectClass == NULL)
-        throwError(env, "Couldn't find class of this java object");
+    if (javaObjectClass == NULL) throwError(env, "Couldn't find class of this java object");
 
     jmethodID methodID = env->GetMethodID(javaObjectClass, "onLeafNode", "(JJ)Z");
-    if(methodID == NULL)
-        throwError(env, "Couldn't find onLeafNode method");
+    if (methodID == NULL) throwError(env, "Couldn't find onLeafNode method");
 
     jboolean val = env->CallBooleanMethod(javaObject, methodID, (jlong)level, (jlong)response);
 
-    if(!tls.is_main_thread)
-        status = jvm->DetachCurrentThread();
+    if (!tls.is_main_thread) status = jvm->DetachCurrentThread();
     _tls.local() = tls;
     return val != 0;
 }
@@ -51,24 +47,21 @@ bool JavaTreeNodeVisitor::onLeafNode(size_t level, size_t response)
 bool JavaTreeNodeVisitor::onSplitNode(size_t level, size_t featureIndex, double featureValue)
 {
     ThreadLocalStorage tls = _tls.local();
-    jint status = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
-    JNIEnv *env = tls.jniEnv;
+    jint status            = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
+    JNIEnv * env           = tls.jniEnv;
 
     /* Get current context */
     jclass javaObjectClass = env->GetObjectClass(javaObject);
-    if(javaObjectClass == NULL)
-        throwError(env, "Couldn't find class of this java object");
+    if (javaObjectClass == NULL) throwError(env, "Couldn't find class of this java object");
 
     jmethodID methodID = env->GetMethodID(javaObjectClass, "onSplitNode", "(JJD)Z");
-    if(methodID == NULL)
-        throwError(env, "Couldn't find onSplitNode method");
+    if (methodID == NULL) throwError(env, "Couldn't find onSplitNode method");
     jboolean val = env->CallBooleanMethod(javaObject, methodID, (jlong)level, (jlong)featureIndex, (jdouble)featureValue);
 
-    if(!tls.is_main_thread)
-        status = jvm->DetachCurrentThread();
+    if (!tls.is_main_thread) status = jvm->DetachCurrentThread();
     _tls.local() = tls;
     return val != 0;
 }
 
-}//namespace
-}//namespace
+} // namespace classification
+} // namespace daal

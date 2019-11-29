@@ -36,7 +36,6 @@ namespace quality_metric
 {
 namespace single_beta
 {
-
 /**
 * Allocates memory to store
 * \param[in] input   %Input object
@@ -44,14 +43,13 @@ namespace single_beta
 * \param[in] method  Algorithm method
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     const data_management::NumericTablePtr dependentVariableTable = (static_cast<const Input *>(input))->get(expectedResponses);
-    const size_t nDepVariable = dependentVariableTable->getNumberOfColumns();
+    const size_t nDepVariable                                     = dependentVariableTable->getNumberOfColumns();
 
     services::Status st;
-    set(rms,
-        data_management::HomogenNumericTable<algorithmFPType>::create(nDepVariable, 1, data_management::NumericTableIface::doAllocate, 0, &st));
+    set(rms, data_management::HomogenNumericTable<algorithmFPType>::create(nDepVariable, 1, data_management::NumericTableIface::doAllocate, 0, &st));
     DAAL_CHECK_STATUS_VAR(st);
     set(variance,
         data_management::HomogenNumericTable<algorithmFPType>::create(nDepVariable, 1, data_management::NumericTableIface::doAllocate, 0, &st));
@@ -62,7 +60,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
 
     for (size_t i = 0; i < nDepVariable; ++i)
     {
-        coll->push_back(data_management::HomogenNumericTable<algorithmFPType>::create(nBeta, nBeta, data_management::NumericTableIface::doAllocate, 0, &st));
+        coll->push_back(
+            data_management::HomogenNumericTable<algorithmFPType>::create(nBeta, nBeta, data_management::NumericTableIface::doAllocate, 0, &st));
     }
 
     set(betaCovariances, coll);
@@ -71,8 +70,8 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
         data_management::HomogenNumericTable<algorithmFPType>::create(nBeta, nDepVariable, data_management::NumericTableIface::doAllocate, 0, &st));
     DAAL_CHECK_STATUS_VAR(st);
 
-    set(confidenceIntervals,
-        data_management::HomogenNumericTable<algorithmFPType>::create(2*nBeta, nDepVariable, data_management::NumericTableIface::doAllocate, 0, &st));
+    set(confidenceIntervals, data_management::HomogenNumericTable<algorithmFPType>::create(2 * nBeta, nDepVariable,
+                                                                                           data_management::NumericTableIface::doAllocate, 0, &st));
     DAAL_CHECK_STATUS_VAR(st);
 
     set(inverseOfXtX,

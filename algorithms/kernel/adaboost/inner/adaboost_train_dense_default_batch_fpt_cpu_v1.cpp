@@ -41,7 +41,7 @@ namespace internal
 {
 template class I1AdaBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal

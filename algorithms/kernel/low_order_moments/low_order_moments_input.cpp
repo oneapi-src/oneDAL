@@ -35,24 +35,23 @@ namespace low_order_moments
 {
 namespace interface1
 {
-
 Input::Input() : InputIface(lastInputId + 1) {}
-Input::Input(const Input& other) : InputIface(other){}
+Input::Input(const Input & other) : InputIface(other) {}
 
 /**
  * Returns the number of columns in the input data set
  * \return Number of columns in the input data set
  */
-services::Status Input::getNumberOfColumns(size_t& nCols) const
+services::Status Input::getNumberOfColumns(size_t & nCols) const
 {
     NumericTablePtr ntPtr = NumericTable::cast(Argument::get(0));
-    if(ntPtr)
+    if (ntPtr)
     {
         nCols = ntPtr.get() ? ntPtr->getNumberOfColumns() : 0;
         return services::Status();
     }
     nCols = 0;
-        return services::Status(ErrorNullNumericTable);
+    return services::Status(ErrorNullNumericTable);
 }
 
 /**
@@ -70,17 +69,17 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the %input object
  * \param[in] ptr   Pointer to the object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     NumericTablePtr dataTable = get(data);
-    int unexpectedLayouts = 0;
-    if(method == fastCSR || method == singlePassCSR || method == sumCSR)
+    int unexpectedLayouts     = 0;
+    if (method == fastCSR || method == singlePassCSR || method == sumCSR)
     {
         int expectedLayout = (int)NumericTableIface::csrArray;
         DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), dataStr(), 0, expectedLayout));
@@ -89,7 +88,7 @@ services::Status Input::check(const daal::algorithms::Parameter *parameter, int 
     {
         DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), dataStr()));
     }
-    if(method == sumDense || method == sumCSR)
+    if (method == sumDense || method == sumCSR)
     {
         NumericTablePtr sum = dataTable->basicStatistics.get(NumericTableIface::sum);
         DAAL_CHECK_STATUS(s, checkNumericTable(sum.get(), basicStatisticsSumStr(), 0, 0, dataTable->getNumberOfColumns(), 1));

@@ -37,7 +37,6 @@ namespace math
 {
 namespace interface1
 {
-
 /** @ingroup oneapi_internal
  * @{
  */
@@ -46,34 +45,26 @@ namespace interface1
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLGEMM"></a>
  *  \brief Adapter for MKL GEMM routine
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct MKLGemm
 {
-    MKLGemm(cl::sycl::queue &queue) : _queue(queue)
-    { }
+    MKLGemm(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const math::Transpose transa, const math::Transpose transb,
-        const size_t m, const size_t n, const size_t k,
-        const algorithmFPType alpha,
-        const services::Buffer<algorithmFPType> &a_buffer, const size_t lda, const size_t offsetA,
-        const services::Buffer<algorithmFPType> &b_buffer, const size_t ldb, const size_t offsetB,
-        const algorithmFPType beta,
-        services::Buffer<algorithmFPType> &c_buffer, const size_t ldc, const size_t offsetC)
+    services::Status operator()(const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n, const size_t k,
+                                const algorithmFPType alpha, const services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                const size_t offsetA, const services::Buffer<algorithmFPType> & b_buffer, const size_t ldb, const size_t offsetB,
+                                const algorithmFPType beta, services::Buffer<algorithmFPType> & c_buffer, const size_t ldc, const size_t offsetC)
     {
         services::Status status;
 
-        const MKL_TRANSPOSE transamkl = transa == math::Transpose::Trans ?
-            MKL_TRANS : MKL_NOTRANS;
-        const MKL_TRANSPOSE transbmkl = transb == math::Transpose::Trans ?
-            MKL_TRANS : MKL_NOTRANS;
+        const MKL_TRANSPOSE transamkl = transa == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
+        const MKL_TRANSPOSE transbmkl = transb == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
 
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl();
         cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b_buffer.toSycl();
         cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl();
 
-        innerGemm(transamkl, transbmkl, m, n, k, alpha, a_sycl_buff, lda,
-            b_sycl_buff, ldb, beta,
-            c_sycl_buff, ldc, offsetA, offsetB, offsetC);
+        innerGemm(transamkl, transbmkl, m, n, k, alpha, a_sycl_buff, lda, b_sycl_buff, ldb, beta, c_sycl_buff, ldc, offsetA, offsetB, offsetC);
 
         _queue.wait();
         return status;
@@ -81,69 +72,52 @@ struct MKLGemm
 
 private:
     template <typename T>
-    void innerGemm(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb,
-        int64_t m, int64_t n, int64_t k, T alpha,
-        cl::sycl::buffer<T, 1> a, int64_t lda,
-        cl::sycl::buffer<T, 1> b, int64_t ldb, T beta,
-        cl::sycl::buffer<T, 1> c, int64_t ldc,
-        int64_t offset_a, int64_t offset_b, int64_t offset_c);
+    void innerGemm(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb, int64_t m, int64_t n, int64_t k, T alpha, cl::sycl::buffer<T, 1> a, int64_t lda,
+                   cl::sycl::buffer<T, 1> b, int64_t ldb, T beta, cl::sycl::buffer<T, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_b,
+                   int64_t offset_c);
 
-    template<>
-    void innerGemm<double>(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb,
-        int64_t m, int64_t n, int64_t k, double alpha,
-        cl::sycl::buffer<double, 1> a, int64_t lda,
-        cl::sycl::buffer<double, 1> b, int64_t ldb, double beta,
-        cl::sycl::buffer<double, 1> c, int64_t ldc,
-        int64_t offset_a, int64_t offset_b, int64_t offset_c)
+    template <>
+    void innerGemm<double>(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb, int64_t m, int64_t n, int64_t k, double alpha, cl::sycl::buffer<double, 1> a,
+                           int64_t lda, cl::sycl::buffer<double, 1> b, int64_t ldb, double beta, cl::sycl::buffer<double, 1> c, int64_t ldc,
+                           int64_t offset_a, int64_t offset_b, int64_t offset_c)
     {
-        fpk::gpu::dgemm_sycl(&_queue, transa, transb, m, n, k, alpha,
-            &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
+        fpk::gpu::dgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
     }
 
-    template<>
-    void innerGemm<float>(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb,
-        int64_t m, int64_t n, int64_t k, float alpha,
-        cl::sycl::buffer<float, 1> a, int64_t lda,
-        cl::sycl::buffer<float, 1> b, int64_t ldb, float beta,
-        cl::sycl::buffer<float, 1> c, int64_t ldc,
-        int64_t offset_a, int64_t offset_b, int64_t offset_c)
+    template <>
+    void innerGemm<float>(MKL_TRANSPOSE transa, MKL_TRANSPOSE transb, int64_t m, int64_t n, int64_t k, float alpha, cl::sycl::buffer<float, 1> a,
+                          int64_t lda, cl::sycl::buffer<float, 1> b, int64_t ldb, float beta, cl::sycl::buffer<float, 1> c, int64_t ldc,
+                          int64_t offset_a, int64_t offset_b, int64_t offset_c)
     {
-        fpk::gpu::sgemm_sycl(&_queue, transa, transb, m, n, k, alpha,
-            &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
+        fpk::gpu::sgemm_sycl(&_queue, transa, transb, m, n, k, alpha, &a, lda, &b, ldb, beta, &c, ldc, offset_a, offset_b, offset_c);
     }
 
-    cl::sycl::queue &_queue;
+    cl::sycl::queue & _queue;
 };
 
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__MKLSYRK"></a>
  *  \brief Adapter for MKL SYRK routine
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct MKLSyrk
 {
-    MKLSyrk(cl::sycl::queue &queue) : _queue(queue)
-    { }
+    MKLSyrk(cl::sycl::queue & queue) : _queue(queue) {}
 
-    services::Status operator()(const math::UpLo upper_lower,
-            const math::Transpose trans,
-            const size_t n, const size_t k, const algorithmFPType alpha,
-            const services::Buffer<algorithmFPType> &a_buffer, const size_t lda, const size_t offsetA,
-            const algorithmFPType beta,
-            services::Buffer<algorithmFPType> &c_buffer, const size_t ldc, const size_t offsetC)
+    services::Status operator()(const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
+                                const algorithmFPType alpha, const services::Buffer<algorithmFPType> & a_buffer, const size_t lda,
+                                const size_t offsetA, const algorithmFPType beta, services::Buffer<algorithmFPType> & c_buffer, const size_t ldc,
+                                const size_t offsetC)
     {
         services::Status status;
 
-        const MKL_TRANSPOSE transmkl = trans == math::Transpose::Trans ?
-            MKL_TRANS : MKL_NOTRANS;
-        const MKL_UPLO uplomkl = upper_lower == math::UpLo::Upper ?
-            MKL_UPPER : MKL_LOWER;
+        const MKL_TRANSPOSE transmkl = trans == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
+        const MKL_UPLO uplomkl       = upper_lower == math::UpLo::Upper ? MKL_UPPER : MKL_LOWER;
 
         cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl();
         cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl();
 
-        innerSyrk(uplomkl, transmkl, n, k, alpha, a_sycl_buff, lda, beta,
-            c_sycl_buff, ldc, offsetA, offsetC);
+        innerSyrk(uplomkl, transmkl, n, k, alpha, a_sycl_buff, lda, beta, c_sycl_buff, ldc, offsetA, offsetC);
 
         _queue.wait();
         return status;
@@ -151,36 +125,24 @@ struct MKLSyrk
 
 private:
     template <typename T>
-    void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans,
-        int64_t n, int64_t k, T alpha,
-        cl::sycl::buffer<T, 1> a, int64_t lda,
-        T beta,
-        cl::sycl::buffer<T, 1> c, int64_t ldc,
-        int64_t offset_a, int64_t offset_c);
+    void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans, int64_t n, int64_t k, T alpha, cl::sycl::buffer<T, 1> a, int64_t lda, T beta,
+                   cl::sycl::buffer<T, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_c);
 
-    template<>
-    void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans,
-        int64_t n, int64_t k, double alpha,
-        cl::sycl::buffer<double, 1> a, int64_t lda,
-        double beta,
-        cl::sycl::buffer<double, 1> c, int64_t ldc,
-        int64_t offset_a, int64_t offset_c)
+    template <>
+    void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans, int64_t n, int64_t k, double alpha, cl::sycl::buffer<double, 1> a, int64_t lda, double beta,
+                   cl::sycl::buffer<double, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_c)
     {
         fpk::gpu::dsyrk_sycl(&_queue, uplo, trans, n, k, alpha, &a, lda, beta, &c, ldc, offset_a, offset_c);
     }
 
-    template<>
-    void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans,
-        int64_t n, int64_t k, float alpha,
-        cl::sycl::buffer<float, 1> a, int64_t lda,
-        float beta,
-        cl::sycl::buffer<float, 1> c, int64_t ldc,
-        int64_t offset_a, int64_t offset_c)
+    template <>
+    void innerSyrk(MKL_UPLO uplo, MKL_TRANSPOSE trans, int64_t n, int64_t k, float alpha, cl::sycl::buffer<float, 1> a, int64_t lda, float beta,
+                   cl::sycl::buffer<float, 1> c, int64_t ldc, int64_t offset_a, int64_t offset_c)
     {
         fpk::gpu::ssyrk_sycl(&_queue, uplo, trans, n, k, alpha, &a, lda, beta, &c, ldc, offset_a, offset_c);
     }
 
-    cl::sycl::queue &_queue;
+    cl::sycl::queue & _queue;
 };
 
 /** @} */
@@ -190,8 +152,8 @@ using interface1::MKLGemm;
 using interface1::MKLSyrk;
 
 } // namespace math
-} // namespace oneapi
 } // namespace internal
+} // namespace oneapi
 } // namespace daal
 
 #endif

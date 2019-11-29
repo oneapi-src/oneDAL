@@ -42,12 +42,10 @@ namespace training
 {
 namespace internal
 {
-
-template<Method method, typename AlgorithmFPtype, typename ClsType, typename MccParType, CpuType cpu>
+template <Method method, typename AlgorithmFPtype, typename ClsType, typename MccParType, CpuType cpu>
 struct MultiClassClassifierTrainKernel : public Kernel
 {
-    services::Status compute(const NumericTable *a0, const NumericTable *a1, daal::algorithms::Model *r,
-                             const daal::algorithms::Parameter *par);
+    services::Status compute(const NumericTable * a0, const NumericTable * a1, daal::algorithms::Model * r, const daal::algorithms::Parameter * par);
 };
 
 } // namespace internal
@@ -59,6 +57,5 @@ struct MultiClassClassifierTrainKernel : public Kernel
 } // namespace algorithms
 
 } // namespace daal
-
 
 #endif

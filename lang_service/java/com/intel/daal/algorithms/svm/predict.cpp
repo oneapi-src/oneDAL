@@ -30,8 +30,7 @@ using namespace daal::algorithms::svm::prediction;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_prediction_PredictionBatch_cInit
-(JNIEnv *env, jobject obj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_prediction_PredictionBatch_cInit(JNIEnv * env, jobject obj, jint prec, jint method)
 {
     return jniBatch<svm::prediction::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_prediction_Prediction
  * Method:    cInitParameter
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_prediction_PredictionBatch_cInitParameter
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_prediction_PredictionBatch_cInitParameter(JNIEnv * env, jobject obj, jlong algAddr,
+                                                                                                     jint prec, jint method)
 {
     return jniBatch<svm::prediction::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_prediction_Prediction
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_prediction_PredictionBatch_cClone
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_prediction_PredictionBatch_cClone(JNIEnv * env, jobject obj, jlong algAddr, jint prec,
+                                                                                             jint method)
 {
     return jniBatch<svm::prediction::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

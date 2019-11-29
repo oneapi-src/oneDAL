@@ -38,19 +38,21 @@ namespace interface1
  * \param[in] method Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
-    size_t dim = algInput->get(data)->getNumberOfRows();
-    Argument::set(cosineDistance, data_management::SerializationIfacePtr(
+    Input * algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    size_t dim       = algInput->get(data)->getNumberOfRows();
+    Argument::set(cosineDistance,
+                  data_management::SerializationIfacePtr(
                       new data_management::PackedSymmetricMatrix<data_management::NumericTableIface::lowerPackedSymmetricMatrix, algorithmFPType>(
                           dim, data_management::NumericTable::doAllocate)));
     return services::Status();
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
-}// namespace interface1
-}// namespace cosine_distance
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace cosine_distance
+} // namespace algorithms
+} // namespace daal

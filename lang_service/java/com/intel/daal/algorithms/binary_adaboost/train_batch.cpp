@@ -30,8 +30,8 @@ USING_COMMON_NAMESPACES();
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training_TrainingBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training_TrainingBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                     jint method)
 {
     return jniBatch<adaboost::training::Method, adaboost::training::interface1::Batch, adaboost::training::defaultDense>::newObj(prec, method);
 }
@@ -41,10 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training_TrainingBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training_TrainingBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<adaboost::training::Method, adaboost::training::interface1::Batch, adaboost::training::defaultDense>::getParameter(prec, method, algAddr);
+    return jniBatch<adaboost::training::Method, adaboost::training::interface1::Batch, adaboost::training::defaultDense>::getParameter(prec, method,
+                                                                                                                                       algAddr);
 }
 
 /*
@@ -52,10 +53,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training_TrainingBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training_TrainingBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<adaboost::training::Method, adaboost::training::interface1::Batch, adaboost::training::defaultDense>::getResult(prec, method, algAddr);
+    return jniBatch<adaboost::training::Method, adaboost::training::interface1::Batch, adaboost::training::defaultDense>::getResult(prec, method,
+                                                                                                                                    algAddr);
 }
 
 /*
@@ -63,8 +65,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training_TrainingBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_training_TrainingBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                      jint prec, jint method)
 {
-    return jniBatch<adaboost::training::Method, adaboost::training::interface1::Batch, adaboost::training::defaultDense>::getClone(prec, method, algAddr);
+    return jniBatch<adaboost::training::Method, adaboost::training::interface1::Batch, adaboost::training::defaultDense>::getClone(prec, method,
+                                                                                                                                   algAddr);
 }

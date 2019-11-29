@@ -42,23 +42,21 @@ namespace binary_confusion_matrix
 {
 namespace internal
 {
-
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 class BinaryConfusionMatrixKernel : public Kernel
 {
 public:
     virtual ~BinaryConfusionMatrixKernel() {}
 
-    services::Status compute(const NumericTable *predictedLabels, const NumericTable *groundTruthLabels,
-                             NumericTable *confusionMatrix, NumericTable *accuracyMeasures,
-                             const binary_confusion_matrix::Parameter *parameter);
+    services::Status compute(const NumericTable * predictedLabels, const NumericTable * groundTruthLabels, NumericTable * confusionMatrix,
+                             NumericTable * accuracyMeasures, const binary_confusion_matrix::Parameter * parameter);
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace binary_confusion_matrix
+} // namespace quality_metric
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -57,23 +57,20 @@ namespace interface1
  *      - \ref lasso_regression::interface1::Model "lasso_regression::Model" class
  *      - \ref training::interface1::Batch "training::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense>
 {
 public:
     typedef linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense> super;
 
-    typedef algorithms::lasso_regression::prediction::Input  InputType;
-    typedef typename super::ParameterType                    ParameterType;
+    typedef algorithms::lasso_regression::prediction::Input InputType;
+    typedef typename super::ParameterType ParameterType;
     typedef algorithms::lasso_regression::prediction::Result ResultType;
 
     InputType input; /*!< %Input data structure */
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a lasso regression prediction algorithm by copying input objects
@@ -81,16 +78,13 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  of the algorithm
      */
-    Batch(const Batch<algorithmFPType, defaultDense> &other) : input(other.input)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, defaultDense> & other) : input(other.input) { initialize(); }
 
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)defaultDense; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)defaultDense; }
 
     /**
      * Returns the structure that contains the result of lasso regression model-based prediction
@@ -108,26 +102,23 @@ public:
         return services::SharedPtr<Batch<algorithmFPType, defaultDense> >(cloneImpl());
     }
 
-    virtual regression::prediction::Input* getInput() DAAL_C11_OVERRIDE { return &input; }
+    virtual regression::prediction::Input * getInput() DAAL_C11_OVERRIDE { return &input; }
 
 protected:
-
-    virtual Batch<algorithmFPType, defaultDense> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, defaultDense>(*this);
-    }
+    virtual Batch<algorithmFPType, defaultDense> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, defaultDense>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = getResult()->template allocate<algorithmFPType>(this->_in, 0, 0);
-        this->_res = this->_result.get();
+        this->_res         = this->_result.get();
         return s;
     }
 
     void initialize()
     {
-        this->_ac = new __DAAL_ALGORITHM_CONTAINER(batch, linear_model::prediction::BatchContainer, algorithmFPType, linear_model::prediction::defaultDense)(&(this->_env));
-        this->_in = &input;
+        this->_ac  = new __DAAL_ALGORITHM_CONTAINER(batch, linear_model::prediction::BatchContainer, algorithmFPType,
+                                                   linear_model::prediction::defaultDense)(&(this->_env));
+        this->_in  = &input;
         this->_par = NULL;
         this->_result.reset(new ResultType());
     }

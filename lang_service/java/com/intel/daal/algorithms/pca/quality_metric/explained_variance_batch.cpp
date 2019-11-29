@@ -30,8 +30,7 @@ using namespace daal::algorithms::pca::quality_metric::explained_variance;
 * Method:    cInit
 * Signature: (II)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cInit
-(JNIEnv *, jobject, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cInit(JNIEnv *, jobject, jint prec, jint method)
 {
     return jniBatch<explained_variance::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -41,11 +40,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Expla
 * Method:    cSetResult
 * Signature: (JIIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cSetResult
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cSetResult(JNIEnv *, jobject, jlong algAddr,
+                                                                                                            jint prec, jint method, jlong resultAddr)
 {
-    jniBatch<explained_variance::Method, Batch, defaultDense>::
-        setResult<explained_variance::Result>(prec, method, algAddr, resultAddr);
+    jniBatch<explained_variance::Method, Batch, defaultDense>::setResult<explained_variance::Result>(prec, method, algAddr, resultAddr);
 }
 
 /*
@@ -53,8 +51,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Explai
 * Method:    cInitParameter
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cInitParameter
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cInitParameter(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                 jint prec, jint method)
 {
     return jniBatch<explained_variance::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -64,8 +62,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Expla
 * Method:    cGetInput
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cGetInput
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cGetInput(JNIEnv *, jobject, jlong algAddr,
+                                                                                                            jint prec, jint method)
 {
     return jniBatch<explained_variance::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -75,8 +73,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Expla
 * Method:    cGetResult
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cGetResult
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cGetResult(JNIEnv *, jobject, jlong algAddr,
+                                                                                                             jint prec, jint method)
 {
     return jniBatch<explained_variance::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -86,8 +84,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_Expla
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cClone
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_quality_1metric_ExplainedVarianceBatch_cClone(JNIEnv *, jobject, jlong algAddr, jint prec,
+                                                                                                         jint method)
 {
     return jniBatch<explained_variance::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

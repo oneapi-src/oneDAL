@@ -52,7 +52,7 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0  /*!< Default training method */
+    defaultDense = 0 /*!< Default training method */
 };
 
 /**
@@ -72,14 +72,19 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
     typedef optimization_solver::iterative_solver::interface1::BatchPtr SolverPtr;
 
     /** Default constructor */
-    DAAL_DEPRECATED Parameter(size_t nClasses, const SolverPtr& solver = SolverPtr());
-    DAAL_DEPRECATED Parameter(const Parameter& o) : classifier::interface1::Parameter(o), interceptFlag(o.interceptFlag),
-        penaltyL1(o.penaltyL1), penaltyL2(o.penaltyL2), optimizationSolver(o.optimizationSolver){}
+    DAAL_DEPRECATED Parameter(size_t nClasses, const SolverPtr & solver = SolverPtr());
+    DAAL_DEPRECATED Parameter(const Parameter & o)
+        : classifier::interface1::Parameter(o),
+          interceptFlag(o.interceptFlag),
+          penaltyL1(o.penaltyL1),
+          penaltyL2(o.penaltyL2),
+          optimizationSolver(o.optimizationSolver)
+    {}
     services::Status check() const DAAL_C11_OVERRIDE;
 
-    bool interceptFlag;  /*!< Whether the intercept needs to be computed */
-    float penaltyL1;     /*!< L1 regularization coefficient. Default is 0 (not applied) */
-    float penaltyL2;     /*!< L2 regularization coefficient. Default is 0 (not applied) */
+    bool interceptFlag;           /*!< Whether the intercept needs to be computed */
+    float penaltyL1;              /*!< L1 regularization coefficient. Default is 0 (not applied) */
+    float penaltyL2;              /*!< L2 regularization coefficient. Default is 0 (not applied) */
     SolverPtr optimizationSolver; /*!< Default is sgd momentum solver */
 };
 /* [interface1::Parameter source code] */
@@ -109,7 +114,7 @@ public:
     * \param[in] id      Identifier of the result
     * \param[in] value   Result
     */
-    DAAL_DEPRECATED void set(classifier::training::ResultId id, const ModelPtr &value);
+    DAAL_DEPRECATED void set(classifier::training::ResultId id, const ModelPtr & value);
 
     /**
      * Allocates memory to store final results of the logistic regression training algorithm
@@ -119,7 +124,8 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                          const int method);
 
     /**s
     * Checks the result of model-based training
@@ -128,12 +134,13 @@ public:
     * \param[in] method  Computation method
     * \return Status of checking
     */
-    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                           int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -159,14 +166,19 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
     typedef optimization_solver::iterative_solver::BatchPtr SolverPtr;
 
     /** Default constructor */
-    DAAL_DEPRECATED Parameter(size_t nClasses, const SolverPtr& solver = SolverPtr());
-    DAAL_DEPRECATED Parameter(const Parameter& o) : classifier::interface1::Parameter(o), interceptFlag(o.interceptFlag),
-        penaltyL1(o.penaltyL1), penaltyL2(o.penaltyL2), optimizationSolver(o.optimizationSolver){}
+    DAAL_DEPRECATED Parameter(size_t nClasses, const SolverPtr & solver = SolverPtr());
+    DAAL_DEPRECATED Parameter(const Parameter & o)
+        : classifier::interface1::Parameter(o),
+          interceptFlag(o.interceptFlag),
+          penaltyL1(o.penaltyL1),
+          penaltyL2(o.penaltyL2),
+          optimizationSolver(o.optimizationSolver)
+    {}
     services::Status check() const DAAL_C11_OVERRIDE;
 
-    bool interceptFlag;  /*!< Whether the intercept needs to be computed */
-    float penaltyL1;     /*!< L1 regularization coefficient. Default is 0 (not applied) */
-    float penaltyL2;     /*!< L2 regularization coefficient. Default is 0 (not applied) */
+    bool interceptFlag;           /*!< Whether the intercept needs to be computed */
+    float penaltyL1;              /*!< L1 regularization coefficient. Default is 0 (not applied) */
+    float penaltyL2;              /*!< L2 regularization coefficient. Default is 0 (not applied) */
     SolverPtr optimizationSolver; /*!< Default is sgd momentum solver */
 };
 /* [interface2::Parameter source code] */
@@ -196,7 +208,7 @@ public:
     * \param[in] id      Identifier of the result
     * \param[in] value   Result
     */
-    void set(classifier::training::ResultId id, const ModelPtr &value);
+    void set(classifier::training::ResultId id, const ModelPtr & value);
 
     /**
      * Allocates memory to store final results of the logistic regression training algorithm
@@ -206,7 +218,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**s
     * Checks the result of model-based training
@@ -215,12 +227,12 @@ public:
     * \param[in] method  Computation method
     * \return Status of checking
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -245,23 +257,28 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
     typedef optimization_solver::iterative_solver::BatchPtr SolverPtr;
 
     /** Default constructor */
-    Parameter(size_t nClasses, const SolverPtr& solver = SolverPtr());
-    Parameter(const Parameter& o) : classifier::Parameter(o), interceptFlag(o.interceptFlag),
-        penaltyL1(o.penaltyL1), penaltyL2(o.penaltyL2), optimizationSolver(o.optimizationSolver){}
+    Parameter(size_t nClasses, const SolverPtr & solver = SolverPtr());
+    Parameter(const Parameter & o)
+        : classifier::Parameter(o),
+          interceptFlag(o.interceptFlag),
+          penaltyL1(o.penaltyL1),
+          penaltyL2(o.penaltyL2),
+          optimizationSolver(o.optimizationSolver)
+    {}
     services::Status check() const DAAL_C11_OVERRIDE;
 
-    bool interceptFlag;  /*!< Whether the intercept needs to be computed */
-    float penaltyL1;     /*!< L1 regularization coefficient. Default is 0 (not applied) */
-    float penaltyL2;     /*!< L2 regularization coefficient. Default is 0 (not applied) */
+    bool interceptFlag;           /*!< Whether the intercept needs to be computed */
+    float penaltyL1;              /*!< L1 regularization coefficient. Default is 0 (not applied) */
+    float penaltyL2;              /*!< L2 regularization coefficient. Default is 0 (not applied) */
     SolverPtr optimizationSolver; /*!< Default is sgd momentum solver */
 };
 /* [Parameter source code] */
-}
+} // namespace interface3
 using interface3::Parameter;
 
-} // namespace daal::algorithms::logistic_regression::training
+} // namespace training
 /** @} */
-}
-}
+} // namespace logistic_regression
+} // namespace algorithms
 } // namespace daal
 #endif // __LOGISTIC_REGRESSION_TRAINING_TYPES_H__

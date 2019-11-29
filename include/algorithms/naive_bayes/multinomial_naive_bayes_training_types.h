@@ -61,7 +61,7 @@ enum Method
  */
 enum Step2MasterInputId
 {
-    partialModels,                     /*!< Collection of partial models trained on local nodes */
+    partialModels, /*!< Collection of partial models trained on local nodes */
     lastStep2MasterInputId = partialModels
 };
 
@@ -70,7 +70,6 @@ enum Step2MasterInputId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__TRAINING__PARTIALRESULT"></a>
  * \brief Provides methods to access partial results obtained with the compute() method of the
@@ -101,7 +100,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Initializes memory for storing partial results of the naive Bayes training algorithm
@@ -112,7 +111,7 @@ public:
      * \return Status of initialization
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
     * Returns number of columns in the naive Bayes partial result
@@ -128,7 +127,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks partial result of the naive Bayes training algorithm
@@ -137,17 +136,17 @@ public:
     *
      * \return Status of computations
     */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method)  const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return classifier::training::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
     /** \private */
-    services::Status checkImpl(size_t nFeatures,const daal::algorithms::Parameter* parameter) const;
+    services::Status checkImpl(size_t nFeatures, const daal::algorithms::Parameter * parameter) const;
 };
 typedef services::SharedPtr<PartialResult> PartialResultPtr;
 
@@ -181,7 +180,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
     * Allocates memory for storing final result computed with naive Bayes training algorithm
@@ -192,7 +191,8 @@ public:
      * \return Status of computations
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
+                                          const int method);
 
     /**
     * Checks the correctness of Result object
@@ -202,7 +202,8 @@ public:
     *
      * \return Status of computations
     */
-    services::Status check(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
+                           int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks the final result of the naive Bayes training algorithm
@@ -212,17 +213,17 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return classifier::training::Result::serialImpl<Archive, onDeserialize>(arch);
     }
     /** \private */
-    services::Status checkImpl(size_t nFeatures,const daal::algorithms::Parameter* parameter) const;
+    services::Status checkImpl(size_t nFeatures, const daal::algorithms::Parameter * parameter) const;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 
@@ -234,7 +235,7 @@ class DAAL_EXPORT DistributedInput : public classifier::training::InputIface
 {
 public:
     DistributedInput();
-    DistributedInput(const DistributedInput& other) : classifier::training::InputIface(other){}
+    DistributedInput(const DistributedInput & other) : classifier::training::InputIface(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -252,21 +253,21 @@ public:
      * \param[in] id            Identifier of the input object
      * \param[in] partialResult Pointer to the object
      */
-    void add(const Step2MasterInputId &id, const PartialResultPtr &partialResult);
+    void add(const Step2MasterInputId & id, const PartialResultPtr & partialResult);
 
     /**
      * Sets input object in the training stage of the classification algorithm
      * \param[in] id   Identifier of the object
      * \param[in] value Pointer to the object
      */
-    void set(Step2MasterInputId id, const data_management::DataCollectionPtr &value);
+    void set(Step2MasterInputId id, const data_management::DataCollectionPtr & value);
 
     /**
      * Checks input parameters in the training stage of the classification algorithm
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Algorithm method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -276,10 +277,8 @@ public:
 class DAAL_EXPORT Input : public classifier::training::Input
 {
 public:
-    Input(size_t nElements = classifier::training::lastInputId + 1): classifier::training::Input(nElements)
-    {}
-    Input(const Input& other) : classifier::training::Input(other)
-    {}
+    Input(size_t nElements = classifier::training::lastInputId + 1) : classifier::training::Input(nElements) {}
+    Input(const Input & other) : classifier::training::Input(other) {}
 
     virtual ~Input() {}
 
@@ -288,7 +287,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Algorithm method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface1

@@ -37,12 +37,11 @@ namespace training
 {
 namespace interface2
 {
-template class BatchContainer<DAAL_FPTYPE, oneAgainstOne,    DAAL_CPU>;
+template class BatchContainer<DAAL_FPTYPE, oneAgainstOne, DAAL_CPU>;
 }
 namespace internal
 {
-
-template class MultiClassClassifierTrainKernel<oneAgainstOne,    DAAL_FPTYPE, classifier::training::Batch, multi_class_classifier::Parameter, DAAL_CPU>;
+template class MultiClassClassifierTrainKernel<oneAgainstOne, DAAL_FPTYPE, classifier::training::Batch, multi_class_classifier::Parameter, DAAL_CPU>;
 
 } // namespace internal
 

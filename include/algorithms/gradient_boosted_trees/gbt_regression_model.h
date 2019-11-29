@@ -49,7 +49,6 @@ namespace regression
  */
 namespace interface1
 {
-
 /**
  * @ingroup gbt_regression
  * @{
@@ -74,7 +73,7 @@ public:
      * \param[in]  nFeatures Number of features in the dataset
      * \param[out] stat      Status of the model construction
      */
-    static services::SharedPtr<Model> create(size_t nFeatures, services::Status *stat = NULL);
+    static services::SharedPtr<Model> create(size_t nFeatures, services::Status * stat = NULL);
 
     /**
      *  Gets number of trees in the model
@@ -89,7 +88,7 @@ public:
      *  \param[in] visitor  This object gets notified when tree nodes are visited
      *  \DAAL_DEPRECATED_USE{ Model::traverseDFS }
      */
-    virtual void traverseDF(size_t iTree, algorithms::regression::TreeNodeVisitor& visitor) const = 0;
+    virtual void traverseDF(size_t iTree, algorithms::regression::TreeNodeVisitor & visitor) const = 0;
 
     /**
      *  Performs Breadth First Traversal of i-th tree
@@ -97,7 +96,7 @@ public:
      *  \param[in] visitor  This object gets notified when tree nodes are visited
      *  \DAAL_DEPRECATED_USE{ Model::traverseBFS }
      */
-    virtual void traverseBF(size_t iTree, algorithms::regression::TreeNodeVisitor& visitor) const = 0;
+    virtual void traverseBF(size_t iTree, algorithms::regression::TreeNodeVisitor & visitor) const = 0;
 
     /**
      *  Removes all trees from the model
@@ -109,14 +108,14 @@ public:
     *  \param[in] iTree    Index of the tree to traverse
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     */
-    virtual void traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const = 0;
+    virtual void traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisitor & visitor) const = 0;
 
     /**
     *  Perform Breadth First Traversal of i-th tree
     *  \param[in] iTree    Index of the tree to traverse
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     */
-    virtual void traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor& visitor) const = 0;
+    virtual void traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisitor & visitor) const = 0;
 
     /**
      *  Gets number of trees in the model
@@ -136,8 +135,8 @@ using interface1::Model;
 using interface1::ModelPtr;
 using interface1::ModelConstPtr;
 
-}
-}
-}
-}
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal
 #endif

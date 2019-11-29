@@ -35,82 +35,54 @@ namespace low_order_moments
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-services::Status LowOrderMomentsBatchKernel<algorithmFPType, method, cpu>::compute( NumericTable *dataTable,
-                                                                                    Result *result,
-                                                                                    const Parameter *parameter )
+template <typename algorithmFPType, Method method, CpuType cpu>
+services::Status LowOrderMomentsBatchKernel<algorithmFPType, method, cpu>::compute(NumericTable * dataTable, Result * result,
+                                                                                   const Parameter * parameter)
 {
-    if( method == defaultDense)
+    if (method == defaultDense)
     {
-        switch(parameter->estimatesToCompute)
+        switch (parameter->estimatesToCompute)
         {
-            case estimatesMinMax:
-                return estimates_batch_minmax::compute_estimates<algorithmFPType,cpu>(dataTable, result);
-            case estimatesMeanVariance:
-                return estimates_batch_meanvariance::compute_estimates<algorithmFPType,cpu>(dataTable, result);
-            default /* estimatesAll */:
-                break;
+        case estimatesMinMax: return estimates_batch_minmax::compute_estimates<algorithmFPType, cpu>(dataTable, result);
+        case estimatesMeanVariance: return estimates_batch_meanvariance::compute_estimates<algorithmFPType, cpu>(dataTable, result);
+        default /* estimatesAll */: break;
         }
         return estimates_batch_all::compute_estimates<algorithmFPType, cpu>(dataTable, result);
     }
 
     LowOrderMomentsBatchTask<algorithmFPType, cpu> task(dataTable, result);
 
-
     if (method == sumDense || method == sumCSR)
     {
-        Status s = retrievePrecomputedStatsIfPossible<algorithmFPType, cpu>(task.nFeatures,
-                                                                            task.nVectors,
-                                                                            dataTable,
-                                                                            task.resultArray[(int)sum],
+        Status s = retrievePrecomputedStatsIfPossible<algorithmFPType, cpu>(task.nFeatures, task.nVectors, dataTable, task.resultArray[(int)sum],
                                                                             task.resultArray[(int)mean]);
 
         DAAL_CHECK_STATUS_VAR(s)
     }
-    Status s = computeSum_Mean_SecondOrderRawMoment_Variance_Variation<algorithmFPType, method, cpu>(task.nFeatures,
-                                                                                                     task.nVectors,
-                                                                                                     task.dataBlock,
-                                                                                                     task.resultArray[(int)sum],
-                                                                                                     task.resultArray[(int)mean],
-                                                                                                     task.resultArray[(int)secondOrderRawMoment],
-                                                                                                     task.resultArray[(int)variance],
-                                                                                                     task.resultArray[(int)variation]);
-
+    Status s = computeSum_Mean_SecondOrderRawMoment_Variance_Variation<algorithmFPType, method, cpu>(
+        task.nFeatures, task.nVectors, task.dataBlock, task.resultArray[(int)sum], task.resultArray[(int)mean],
+        task.resultArray[(int)secondOrderRawMoment], task.resultArray[(int)variance], task.resultArray[(int)variation]);
 
     DAAL_CHECK_STATUS_VAR(s)
 
     const bool isOnline = false;
 
     /* Compute standard deviation */
-    daal::internal::Math<algorithmFPType,cpu>::vSqrt( task.nFeatures,
-                                                      task.resultArray[(int)variance],
-                                                      task.resultArray[(int)standardDeviation] );
+    daal::internal::Math<algorithmFPType, cpu>::vSqrt(task.nFeatures, task.resultArray[(int)variance], task.resultArray[(int)standardDeviation]);
 
-    s = computeMinMaxAndSumOfSquared<algorithmFPType, cpu> (task.nFeatures,
-                                            task.nVectors,
-                                            task.dataBlock,
-                                            task.resultArray[(int)minimum],
-                                            task.resultArray[(int)maximum],
-                                            task.resultArray[(int)sumSquares],
-                                            isOnline);
+    s = computeMinMaxAndSumOfSquared<algorithmFPType, cpu>(task.nFeatures, task.nVectors, task.dataBlock, task.resultArray[(int)minimum],
+                                                           task.resultArray[(int)maximum], task.resultArray[(int)sumSquares], isOnline);
 
-
-    computeSumOfSquaredDiffsFromMean<algorithmFPType, cpu>( task.nFeatures,
-                                                            task.nVectors,
-                                                            0,
-                                                            task.resultArray[(int)variance],
-                                                            task.resultArray[(int)sum],
-                                                            task.resultArray[(int)sum],
-                                                            task.resultArray[(int)sumSquaresCentered],
-                                                            isOnline);
+    computeSumOfSquaredDiffsFromMean<algorithmFPType, cpu>(task.nFeatures, task.nVectors, 0, task.resultArray[(int)variance],
+                                                           task.resultArray[(int)sum], task.resultArray[(int)sum],
+                                                           task.resultArray[(int)sumSquaresCentered], isOnline);
 
     return s;
 }
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace low_order_moments
+} // namespace algorithms
+} // namespace daal
 
 #endif

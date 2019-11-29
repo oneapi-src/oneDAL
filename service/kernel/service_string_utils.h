@@ -31,25 +31,26 @@ namespace services
 {
 namespace internal
 {
-
-template<class T>
-void toStringBuffer(T number, char *buffer)
+template <class T>
+void toStringBuffer(T number, char * buffer)
 {}
 
-template<> void toStringBuffer<int>(int value, char *buffer)
+template <>
+void toStringBuffer<int>(int value, char * buffer)
 {
     daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, value);
 }
 
-template<> void toStringBuffer<double>(double value, char *buffer)
+template <>
+void toStringBuffer<double>(double value, char * buffer)
 {
     daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, value);
 }
 
-template<> void toStringBuffer<String>(String value, char *buffer)
+template <>
+void toStringBuffer<String>(String value, char * buffer)
 {
-    daal::internal::Service<>::serv_strncpy_s(buffer, DAAL_MAX_STRING_SIZE, value.c_str(),
-                                              DAAL_MAX_STRING_SIZE - value.length() );
+    daal::internal::Service<>::serv_strncpy_s(buffer, DAAL_MAX_STRING_SIZE, value.c_str(), DAAL_MAX_STRING_SIZE - value.length());
 }
 
 } // namespace internal

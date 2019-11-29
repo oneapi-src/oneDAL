@@ -27,8 +27,7 @@ using namespace daal::services;
  * Method:    cGetCpuId
  * Signature: (I)V
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cGetCpuId
-(JNIEnv *, jclass, jint enable)
+JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cGetCpuId(JNIEnv *, jclass, jint enable)
 {
     return Environment::getInstance()->getCpuId(enable);
 }
@@ -38,8 +37,7 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cGetCpuId
  * Method:    cSetCpuId
  * Signature: (I)V
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cSetCpuId
-(JNIEnv *, jclass, jint cpuid)
+JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cSetCpuId(JNIEnv *, jclass, jint cpuid)
 {
     return Environment::getInstance()->setCpuId(cpuid);
 }
@@ -49,8 +47,7 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cSetCpuId
  * Method:    cEnableInstructionsSet
  * Signature: (I)V
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cEnableInstructionsSet
-(JNIEnv *, jclass, jint enable)
+JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cEnableInstructionsSet(JNIEnv *, jclass, jint enable)
 {
     return Environment::getInstance()->enableInstructionsSet(enable);
 }
@@ -60,8 +57,7 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cEnableInstructi
  * Method:    cSetNumberOfThreads
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_services_Environment_cSetNumberOfThreads
-(JNIEnv *, jclass, jint numThreads)
+JNIEXPORT void JNICALL Java_com_intel_daal_services_Environment_cSetNumberOfThreads(JNIEnv *, jclass, jint numThreads)
 {
     Environment::getInstance()->setNumberOfThreads(numThreads);
 }
@@ -71,8 +67,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_services_Environment_cSetNumberOfThre
  * Method:    cGetNumberOfThreads
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cGetNumberOfThreads
-(JNIEnv *, jclass)
+JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cGetNumberOfThreads(JNIEnv *, jclass)
 {
     return Environment::getInstance()->getNumberOfThreads();
 }
@@ -82,8 +77,7 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_services_Environment_cGetNumberOfThre
  * Method:    cEnableThreadPinning
  * Signature: (Z)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_services_Environment_cEnableThreadPinning
-  (JNIEnv *, jclass, jboolean enableThreadPinningFlag)
+JNIEXPORT void JNICALL Java_com_intel_daal_services_Environment_cEnableThreadPinning(JNIEnv *, jclass, jboolean enableThreadPinningFlag)
 {
     return Environment::getInstance()->enableThreadPinning(enableThreadPinningFlag);
 }

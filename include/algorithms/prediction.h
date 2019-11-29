@@ -39,9 +39,11 @@ namespace algorithms
  *         and supports the methods for computing the prediction results based on the trained model.
  *         The methods of the container are defined in derivative containers defined for each prediction algorithm.
  */
-class PredictionContainerIface : public AlgorithmContainerImpl<batch> {};
+class PredictionContainerIface : public AlgorithmContainerImpl<batch>
+{};
 
-class DistributedPredictionContainerIface : public AlgorithmContainerImpl<distributed> {};
+class DistributedPredictionContainerIface : public AlgorithmContainerImpl<distributed>
+{};
 /**
  *  <a name="DAAL-CLASS-ALGORITHMS__PREDICTION"></a>
  *  \brief Provides prediction methods depending on the model such as linear_regression::Model.
@@ -49,10 +51,12 @@ class DistributedPredictionContainerIface : public AlgorithmContainerImpl<distri
  *         Classes that implement specific algorithms of the model based data prediction are derived classes of the Prediction class.
  *         The class additionally provides virtual methods for validation of input and output parameters of the algorithms.
  */
-class Prediction               : public AlgorithmImpl<batch>       {};
+class Prediction : public AlgorithmImpl<batch>
+{};
 
-class DistributedPrediction    : public AlgorithmImpl<distributed> {};
+class DistributedPrediction : public AlgorithmImpl<distributed>
+{};
 /** @} */
-}
-}
+} // namespace algorithms
+} // namespace daal
 #endif

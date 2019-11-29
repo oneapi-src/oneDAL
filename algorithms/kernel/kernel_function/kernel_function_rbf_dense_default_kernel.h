@@ -39,14 +39,15 @@ namespace rbf
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-struct KernelImplRBF<defaultDense, algorithmFPType, cpu> :
-    public daal::algorithms::kernel_function::internal::KernelImplBase<algorithmFPType, cpu>
+struct KernelImplRBF<defaultDense, algorithmFPType, cpu> : public daal::algorithms::kernel_function::internal::KernelImplBase<algorithmFPType, cpu>
 {
-    virtual services::Status computeInternalVectorVector(const NumericTable *a1, const NumericTable *a2, NumericTable *r, const ParameterBase *par);
-    virtual services::Status computeInternalMatrixVector(const NumericTable *a1, const NumericTable *a2, NumericTable *r, const ParameterBase *par);
-    virtual services::Status computeInternalMatrixMatrix(const NumericTable *a1, const NumericTable *a2, NumericTable *r, const ParameterBase *par);
+    virtual services::Status computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
+                                                         const ParameterBase * par);
+    virtual services::Status computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
+                                                         const ParameterBase * par);
+    virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
+                                                         const ParameterBase * par);
 };
 
 } // namespace internal

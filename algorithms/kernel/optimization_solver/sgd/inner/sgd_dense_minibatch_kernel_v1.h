@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate sgd.
 //--
 
-
 #ifndef __SGD_DENSE_MINIBATCH_KERNEL_V1_H__
 #define __SGD_DENSE_MINIBATCH_KERNEL_V1_H__
 
@@ -46,69 +45,46 @@ namespace sgd
 {
 namespace internal
 {
-
 /**
 * Statuses of the indices of objective function terms that are used for gradient
 */
 enum IndicesStatus
 {
-    random = 0,     /*!< Indices of the terms are generated randomly */
-    user   = 1,     /*!< Indices of the terms are provided by user */
-    all    = 2      /*!< All objective function terms are used for computations */
+    random = 0, /*!< Indices of the terms are generated randomly */
+    user   = 1, /*!< Indices of the terms are provided by user */
+    all    = 2  /*!< All objective function terms are used for computations */
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class I1SGDKernel<algorithmFPType, miniBatch, cpu> : public iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable *inputArgument, NumericTable *minimum, NumericTable *nIterations,
-                 interface1::Parameter<miniBatch> *parameter, NumericTable *learningRateSequence,
-                 NumericTable *batchIndices, OptionalArgument *optionalArgument, OptionalArgument *optionalResult, engines::BatchBase &engine);
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTable * minimum, NumericTable * nIterations,
+                             interface1::Parameter<miniBatch> * parameter, NumericTable * learningRateSequence, NumericTable * batchIndices,
+                             OptionalArgument * optionalArgument, OptionalArgument * optionalResult, engines::BatchBase & engine);
     using iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>::vectorNorm;
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct I1SGDMiniBatchTask
 {
-    I1SGDMiniBatchTask(
-        size_t nFeatures_,
-        NumericTable *resultTable,
-        NumericTable *startValueTable,
-        NumericTable *nIterationsTable
-    );
+    I1SGDMiniBatchTask(size_t nFeatures_, NumericTable * resultTable, NumericTable * startValueTable, NumericTable * nIterationsTable);
 
-    I1SGDMiniBatchTask(
-        size_t batchSize_,
-        size_t nFeatures_,
-        size_t maxIterations_,
-        size_t nTerms_,
-        NumericTable *resultTable,
-        NumericTable *startValueTable,
-        NumericTable *learningRateSequenceTable,
-        NumericTable *conservativeSequenceTable,
-        NumericTable *nIterationsTable,
-        NumericTable *batchIndicesTable,
-        NumericTable *pastWorkValueResultNT,
-        NumericTable *lastIterationResultNT
-    );
+    I1SGDMiniBatchTask(size_t batchSize_, size_t nFeatures_, size_t maxIterations_, size_t nTerms_, NumericTable * resultTable,
+                       NumericTable * startValueTable, NumericTable * learningRateSequenceTable, NumericTable * conservativeSequenceTable,
+                       NumericTable * nIterationsTable, NumericTable * batchIndicesTable, NumericTable * pastWorkValueResultNT,
+                       NumericTable * lastIterationResultNT);
 
     virtual ~I1SGDMiniBatchTask();
 
-    services::Status init(NumericTable *startValueTable);
+    services::Status init(NumericTable * startValueTable);
 
-    services::Status init(NumericTable *startValueTable,
-        NumericTable *learningRateSequenceTable,
-        NumericTable *conservativeSequenceTable,
-        NumericTable *nIterationsTable,
-        NumericTable *batchIndicesTable,
-        OptionalArgument *optionalInput);
+    services::Status init(NumericTable * startValueTable, NumericTable * learningRateSequenceTable, NumericTable * conservativeSequenceTable,
+                          NumericTable * nIterationsTable, NumericTable * batchIndicesTable, OptionalArgument * optionalInput);
 
-    services::Status setStartValue(NumericTable *startValueTable);
+    services::Status setStartValue(NumericTable * startValueTable);
 
-    void makeStep(const algorithmFPType *gradient,
-        algorithmFPType learningRate,
-        algorithmFPType consCoeff,
-        size_t argumentSize);
+    void makeStep(const algorithmFPType * gradient, algorithmFPType learningRate, algorithmFPType consCoeff, size_t argumentSize);
 
     size_t batchSize;
     size_t argumentSize;
@@ -119,17 +95,17 @@ struct I1SGDMiniBatchTask
 
     services::Status _status;
 
-    int             *nProceededIterations;
-    const algorithmFPType *learningRateArray;
-    const algorithmFPType *consCoeffsArray;
-    size_t          learningRateLength;
-    size_t          consCoeffsLength;
+    int * nProceededIterations;
+    const algorithmFPType * learningRateArray;
+    const algorithmFPType * consCoeffsArray;
+    size_t learningRateLength;
+    size_t consCoeffsLength;
     TArray<algorithmFPType, cpu> prevWorkValue;
-    IndicesStatus   indicesStatus;
+    IndicesStatus indicesStatus;
 
     WriteRows<algorithmFPType, cpu> mtWorkValue;
-    SharedPtr<daal::internal::HomogenNumericTableCPU<int, cpu>> ntBatchIndices;
-    SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu>> ntWorkValue;
+    SharedPtr<daal::internal::HomogenNumericTableCPU<int, cpu> > ntBatchIndices;
+    SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > ntWorkValue;
     ReadRows<algorithmFPType, cpu> mtLearningRate;
     ReadRows<algorithmFPType, cpu> mtConsCoeffs;
     WriteRows<int, cpu> mtNIterations;
@@ -139,7 +115,7 @@ struct I1SGDMiniBatchTask
     NumericTablePtr pastWorkValueResult;
 };
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace sgd
 

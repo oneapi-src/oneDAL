@@ -44,26 +44,21 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class ClassificationTrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y,
-        decision_forest::classification::Model& m,
-        Result& res, const decision_forest::classification::training::interface1::Parameter& par);
-    services::Status compute(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y,
-        decision_forest::classification::Model& m,
-        Result& res, const decision_forest::classification::training::Parameter& par);
-
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
+                             Result & res, const decision_forest::classification::training::interface1::Parameter & par);
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::classification::Model & m,
+                             Result & res, const decision_forest::classification::training::Parameter & par);
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
-
 
 #endif

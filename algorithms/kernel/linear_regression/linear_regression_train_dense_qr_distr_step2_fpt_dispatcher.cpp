@@ -27,7 +27,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(linear_regression::training::DistributedContainer, distributed,   \
-    step2Master, DAAL_FPTYPE, linear_regression::training::qrDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(linear_regression::training::DistributedContainer, distributed, step2Master, DAAL_FPTYPE,
+                                      linear_regression::training::qrDense)
 }
 } // namespace daal

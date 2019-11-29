@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __PCA_TRANSFORM_TYPES_H__
 #define __PCA_TRANSFORM_TYPES_H__
 
@@ -61,8 +60,8 @@ enum Method
  */
 enum InputId
 {
-    data = 0,           /*!< Input data table */
-    eigenvectors,       /*!< Transformation matrix of eigenvectors */
+    data = 0,     /*!< Input data table */
+    eigenvectors, /*!< Transformation matrix of eigenvectors */
     lastInputId = eigenvectors
 };
 
@@ -83,7 +82,7 @@ enum TransformComponentId
  */
 enum TransformDataInputId
 {
-    dataForTransform = lastInputId + 1,   /*!< Data for transform */
+    dataForTransform            = lastInputId + 1, /*!< Data for transform */
     lastdataForTransformInputId = dataForTransform
 };
 
@@ -93,10 +92,9 @@ enum TransformDataInputId
  */
 enum ResultId
 {
-    transformedData = 0,   /*!< Transformed data */
-    lastResultId = transformedData
+    transformedData = 0, /*!< Transformed data */
+    lastResultId    = transformedData
 };
-
 
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -115,7 +113,7 @@ public:
     Input();
 
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
 
     /** Destructor */
     virtual ~Input() {}
@@ -147,14 +145,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] value Pointer to the input object
      */
-    void set(InputId id, const data_management::NumericTablePtr &value);
+    void set(InputId id, const data_management::NumericTablePtr & value);
 
     /**
      * Sets input object for the PCA transformation algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] value Pointer to the input object
      */
-    void set(TransformDataInputId id, const data_management::KeyValueDataCollectionPtr &value);
+    void set(TransformDataInputId id, const data_management::KeyValueDataCollectionPtr & value);
 
     /**
      * Sets input transform object for the PCA transformation algorithm
@@ -162,16 +160,15 @@ public:
      * \param[in] id    Identifier of the transform data contained object
      * \param[in] value Pointer to the input object
      */
-    void set(TransformDataInputId wid, TransformComponentId id, const data_management::NumericTablePtr &value);
+    void set(TransformDataInputId wid, TransformComponentId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks parameters of the algorithm
      * \param[in] parameter Pointer to the parameters
      * \param[in] method Computation method
      */
-    virtual services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__TRANSFORM__RESULT"></a>
@@ -202,15 +199,14 @@ public:
      * \param[in] method    Algorithm method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
-
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Sets an input object for the PCA transformation algorithm
      * \param[in] id    Identifier of the result
      * \param[in] value Pointer to the result
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks final results of the algorithm
@@ -218,8 +214,8 @@ public:
      * \param[in] par    Pointer to parameters
      * \param[in] method Computation method
      */
-    virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
-
+    virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                   int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<daal::algorithms::pca::transform::interface1::Result> ResultPtr;
 
@@ -248,8 +244,8 @@ using interface1::Result;
 using interface1::ResultPtr;
 using interface1::Parameter;
 
-} // namespace daal::algorithms::transform
-} // namespace daal::algorithms::pca
-} // namespace daal::algorithms
+} // namespace transform
+} // namespace pca
+} // namespace algorithms
 } // namespace daal
 #endif

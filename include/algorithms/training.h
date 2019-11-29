@@ -49,7 +49,9 @@ namespace algorithms
  *         The methods of the container are defined in derivative containers defined for each training algorithm.
  * \tparam mode Computation mode of the algorithm, \ref ComputeMode
  */
-template<ComputeMode mode> class TrainingContainerIface : public AlgorithmContainerImpl<mode> {};
+template <ComputeMode mode>
+class TrainingContainerIface : public AlgorithmContainerImpl<mode>
+{};
 /**
  *  <a name="DAAL-CLASS-ALGORITHMS__TRAINING"></a>
  *  \brief Provides methods to train models that depend on the data provided. For example, these methods enable training the linear regression model.
@@ -59,8 +61,10 @@ template<ComputeMode mode> class TrainingContainerIface : public AlgorithmContai
  *         of the algorithms.
  * \tparam mode Computation mode of the algorithm, \ref ComputeMode
  */
-template<ComputeMode mode> class Training               : public AlgorithmImpl<mode>     {};
+template <ComputeMode mode>
+class Training : public AlgorithmImpl<mode>
+{};
 /** @} */
-}
-}
+} // namespace algorithms
+} // namespace daal
 #endif

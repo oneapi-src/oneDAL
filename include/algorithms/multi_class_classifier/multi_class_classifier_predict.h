@@ -43,7 +43,6 @@ namespace multi_class_classifier
  */
 namespace prediction
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface
  */
@@ -62,7 +61,7 @@ namespace interface1
  * \tparam pmethod          Computation method for the algorithm, \ref prediction::Method
  * \tparam tmethod          Computation method that was used to train the multi-class classifier model, \ref training::Method
  */
-template<typename algorithmFPType, prediction::Method pmethod, training::Method tmethod, CpuType cpu>
+template <typename algorithmFPType, prediction::Method pmethod, training::Method tmethod, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -71,7 +70,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     DAAL_DEPRECATED ~BatchContainer();
     /**
@@ -103,36 +102,31 @@ public:
  *      - \ref interface1::Model "Model" class
  *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, prediction::Method pmethod = defaultDense, training::Method tmethod = training::oneAgainstOne>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, prediction::Method pmethod = defaultDense,
+          training::Method tmethod = training::oneAgainstOne>
 class Batch : public classifier::prediction::interface1::Batch
 {
 public:
     typedef classifier::prediction::interface1::Batch super;
 
     typedef algorithms::multi_class_classifier::prediction::Input InputType;
-    typedef algorithms::multi_class_classifier::interface1::Parameter         ParameterType;
-    typedef typename super::ResultType                            ResultType;
+    typedef algorithms::multi_class_classifier::interface1::Parameter ParameterType;
+    typedef typename super::ResultType ResultType;
 
-    InputType input;                /*!< Input objects of the algorithm */
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    InputType input;         /*!< Input objects of the algorithm */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
 
     /**
      * Default constructor
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED Batch() : parameter(0)
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Batch() : parameter(0) { initialize(); }
 
     /**
      * Default constructor
      * \param[in] nClasses                         Number of classes
      */
-    DAAL_DEPRECATED Batch(size_t nClasses) : parameter(nClasses)
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Batch(size_t nClasses) : parameter(nClasses) { initialize(); }
 
     /**
      * Constructs multi-class classifier prediction algorithm by copying input objects and parameters
@@ -140,8 +134,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, pmethod, tmethod> &other) : classifier::prediction::interface1::Batch(other),
-        parameter(other.parameter), input(other.input)
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, pmethod, tmethod> & other)
+        : classifier::prediction::interface1::Batch(other), parameter(other.parameter), input(other.input)
     {
         initialize();
     }
@@ -158,7 +152,7 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)pmethod; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)pmethod; }
 
     /**
      * Returns a pointer to the newly allocated multi-class classifier prediction algorithm
@@ -178,15 +172,15 @@ protected:
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s  = _result->allocate<algorithmFPType>(&input, &parameter, (int) pmethod);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)pmethod);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, pmethod, tmethod)(&_env);
+        _in  = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, pmethod, tmethod)(&_env);
         _par = &parameter;
     }
 };
@@ -211,7 +205,7 @@ namespace interface2
  * \tparam pmethod          Computation method for the algorithm, \ref prediction::Method
  * \tparam tmethod          Computation method that was used to train the multi-class classifier model, \ref training::Method
  */
-template<typename algorithmFPType, prediction::Method pmethod, training::Method tmethod, CpuType cpu>
+template <typename algorithmFPType, prediction::Method pmethod, training::Method tmethod, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -220,7 +214,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -252,36 +246,31 @@ public:
  *      - \ref interface1::Model "Model" class
  *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, prediction::Method pmethod = defaultDense, training::Method tmethod = training::oneAgainstOne>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, prediction::Method pmethod = defaultDense,
+          training::Method tmethod = training::oneAgainstOne>
 class Batch : public classifier::prediction::Batch
 {
 public:
     typedef classifier::prediction::Batch super;
 
     typedef algorithms::multi_class_classifier::prediction::Input InputType;
-    typedef algorithms::multi_class_classifier::Parameter         ParameterType;
-    typedef typename super::ResultType                            ResultType;
+    typedef algorithms::multi_class_classifier::Parameter ParameterType;
+    typedef typename super::ResultType ResultType;
 
-    InputType input;                /*!< Input objects of the algorithm */
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    InputType input;         /*!< Input objects of the algorithm */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
 
     /**
      * Default constructor
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED Batch() : parameter(0)
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Batch() : parameter(0) { initialize(); }
 
     /**
      * Default constructor
      * \param[in] nClasses                         Number of classes
      */
-    Batch(size_t nClasses) : parameter(nClasses)
-    {
-        initialize();
-    }
+    Batch(size_t nClasses) : parameter(nClasses) { initialize(); }
 
     /**
      * Constructs multi-class classifier prediction algorithm by copying input objects and parameters
@@ -289,8 +278,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, pmethod, tmethod> &other) : classifier::prediction::Batch(other),
-        parameter(other.parameter), input(other.input)
+    Batch(const Batch<algorithmFPType, pmethod, tmethod> & other)
+        : classifier::prediction::Batch(other), parameter(other.parameter), input(other.input)
     {
         initialize();
     }
@@ -307,7 +296,7 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)pmethod; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)pmethod; }
 
     /**
      * Returns a pointer to the newly allocated multi-class classifier prediction algorithm
@@ -320,7 +309,6 @@ public:
     }
 
 protected:
-
     virtual Batch<algorithmFPType, pmethod, tmethod> * cloneImpl() const DAAL_C11_OVERRIDE
     {
         return new Batch<algorithmFPType, pmethod, tmethod>(*this);
@@ -328,15 +316,15 @@ protected:
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s  = _result->allocate<algorithmFPType>(&input, &parameter, (int) pmethod);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)pmethod);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, pmethod, tmethod)(&_env);
+        _in  = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, pmethod, tmethod)(&_env);
         _par = &parameter;
     }
 };

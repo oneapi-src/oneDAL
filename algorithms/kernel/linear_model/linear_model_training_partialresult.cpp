@@ -35,10 +35,9 @@ namespace training
 {
 namespace interface1
 {
-PartialResult::PartialResult(size_t nElements) : regression::training::PartialResult(nElements)
-{}
-}
-}
-}
-}
-}
+PartialResult::PartialResult(size_t nElements) : regression::training::PartialResult(nElements) {}
+} // namespace interface1
+} // namespace training
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

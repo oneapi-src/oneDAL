@@ -30,7 +30,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * @defgroup tree_utils Tree utils
  * \brief Contains classes for work with the tree-based algorithms
@@ -38,16 +37,13 @@ namespace algorithms
  */
 namespace tree_utils
 {
-
 namespace regression
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__REGRESSION__LEAFNODEDESCRIPTOR"></a>
  * \brief %Struct containing description of leaf node in regression descision tree
@@ -60,13 +56,13 @@ struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
 typedef daal::algorithms::tree_utils::TreeNodeVisitor<LeafNodeDescriptor> TreeNodeVisitor;
 typedef daal::algorithms::tree_utils::SplitNodeDescriptor SplitNodeDescriptor;
 
-} // interface1
+} // namespace interface1
 using interface1::TreeNodeVisitor;
 using interface1::SplitNodeDescriptor;
 using interface1::LeafNodeDescriptor;
-} // regression
-} // tree_utils
-} // algorithms
-} // daal
+} // namespace regression
+} // namespace tree_utils
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -43,8 +43,8 @@ namespace internal
 {
 template class StumpTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

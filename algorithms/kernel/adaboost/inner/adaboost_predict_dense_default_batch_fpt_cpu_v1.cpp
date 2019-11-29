@@ -42,7 +42,7 @@ namespace internal
 {
 template class I1AdaBoostPredictKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace prediction
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal

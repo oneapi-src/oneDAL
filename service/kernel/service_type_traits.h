@@ -24,18 +24,25 @@ namespace services
 {
 namespace internal
 {
+template <CpuType cpu, typename T>
+struct RemoveReference
+{
+    typedef T type;
+};
 
-template<CpuType cpu, typename T>
-struct RemoveReference { typedef T type; };
+template <CpuType cpu, typename T>
+struct RemoveReference<cpu, T &>
+{
+    typedef T type;
+};
 
-template<CpuType cpu, typename T>
-struct RemoveReference<cpu, T&> { typedef T type; };
+template <CpuType cpu, typename T>
+struct RemoveReference<cpu, T &&>
+{
+    typedef T type;
+};
 
-template<CpuType cpu, typename T>
-struct RemoveReference<cpu, T&&> { typedef T type; };
-
-
-template<CpuType cpu, bool templateValue>
+template <CpuType cpu, bool templateValue>
 struct BoolConstant
 {
 #if (_MSC_VER <= 1800)
@@ -45,39 +52,43 @@ struct BoolConstant
 #endif
 };
 
-template<CpuType cpu>
+template <CpuType cpu>
 using TrueConstant = BoolConstant<cpu, true>;
 
-template<CpuType cpu>
+template <CpuType cpu>
 using FalseConstant = BoolConstant<cpu, false>;
 
 // Mark all types as non-primitive
-template<typename T, CpuType cpu>
-struct IsPrimitiveType : FalseConstant<cpu> { };
+template <typename T, CpuType cpu>
+struct IsPrimitiveType : FalseConstant<cpu>
+{};
 
 // Mark all pointer types as primitive
-template<typename T, CpuType cpu>
-struct IsPrimitiveType<T *, cpu> : TrueConstant<cpu> { };
+template <typename T, CpuType cpu>
+struct IsPrimitiveType<T *, cpu> : TrueConstant<cpu>
+{};
 
-#define __DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(type) \
-    template<CpuType cpu> struct IsPrimitiveType<type, cpu> : TrueConstant<cpu> { };
+#define __DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(type)       \
+    template <CpuType cpu>                                \
+    struct IsPrimitiveType<type, cpu> : TrueConstant<cpu> \
+    {};
 
 // Mark built-in types as primitive
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( bool               );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( char               );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( signed char        );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( unsigned char      );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( short              );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( unsigned short     );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( int                );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( unsigned int       );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( long               );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( unsigned long      );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( long long          );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( unsigned long long );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( float              );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( double             );
-__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE( long double        );
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(bool);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(char);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(signed char);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(unsigned char);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(short);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(unsigned short);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(int);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(unsigned int);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(long);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(unsigned long);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(long long);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(unsigned long long);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(float);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(double);
+__DAAL_INTERNAL_DEFINE_PRIMITIVE_TYPE(long double);
 
 } // namespace internal
 } // namespace services

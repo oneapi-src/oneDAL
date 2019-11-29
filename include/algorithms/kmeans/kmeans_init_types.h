@@ -82,7 +82,7 @@ enum Method
  */
 enum InputId
 {
-    data,  /*!< %Input data table */
+    data, /*!< %Input data table */
     lastInputId = data
 };
 
@@ -92,7 +92,7 @@ enum InputId
  */
 enum DistributedStep2MasterInputId
 {
-    partialResults,   /*!< Collection of partial results computed on local nodes */
+    partialResults, /*!< Collection of partial results computed on local nodes */
     lastDistributedStep2MasterInputId = partialResults
 };
 
@@ -103,7 +103,8 @@ enum DistributedStep2MasterInputId
 */
 enum DistributedLocalPlusPlusInputDataId
 {
-    internalInput = lastDistributedStep2MasterInputId + 1, /*!< %DataCollection with internal algorithm data calculated by previous steps on this node*/
+    internalInput =
+        lastDistributedStep2MasterInputId + 1, /*!< %DataCollection with internal algorithm data calculated by previous steps on this node*/
     lastDistributedLocalPlusPlusInputDataId = internalInput
 };
 
@@ -114,7 +115,8 @@ enum DistributedLocalPlusPlusInputDataId
 */
 enum DistributedStep2LocalPlusPlusInputId
 {
-    inputOfStep2 = lastDistributedLocalPlusPlusInputDataId + 1, /*!< %Numeric table with the new centroids calculated by previous steps of initialization algorithm */
+    inputOfStep2 = lastDistributedLocalPlusPlusInputDataId
+                   + 1, /*!< %Numeric table with the new centroids calculated by previous steps of initialization algorithm */
     lastDistributedStep2LocalPlusPlusInputId = inputOfStep2
 };
 
@@ -159,7 +161,7 @@ enum DistributedStep5MasterPlusPlusInputId
 */
 enum DistributedStep5MasterPlusPlusInputDataId
 {
-    inputOfStep5FromStep3 = lastDistributedStep5MasterPlusPlusInputId + 1,  /*!< %Service data generated as the output of step3Master */
+    inputOfStep5FromStep3 = lastDistributedStep5MasterPlusPlusInputId + 1, /*!< %Service data generated as the output of step3Master */
     lastDistributedStep5MasterPlusPlusInputDataId = inputOfStep5FromStep3
 };
 
@@ -169,9 +171,9 @@ enum DistributedStep5MasterPlusPlusInputDataId
 */
 enum PartialResultId
 {
-    partialCentroids,  /*!< Table with the sum of observations assigned to centroids */
-    partialClusters = partialCentroids,  /*!< Table with the sum of observations assigned to centroids \DAAL_DEPRECATED */
-    partialClustersNumber,  /*!< Table with the number of observations assigned to centroids \DAAL_DEPRECATED */
+    partialCentroids,                   /*!< Table with the sum of observations assigned to centroids */
+    partialClusters = partialCentroids, /*!< Table with the sum of observations assigned to centroids \DAAL_DEPRECATED */
+    partialClustersNumber,              /*!< Table with the number of observations assigned to centroids \DAAL_DEPRECATED */
     lastPartialResultId = partialClustersNumber
 };
 
@@ -182,8 +184,8 @@ enum PartialResultId
 */
 enum DistributedStep2LocalPlusPlusPartialResultId
 {
-    outputOfStep2ForStep3,  /*!< %Numeric table containing output from step 2 on the local node used by step 3 on a master node*/
-    outputOfStep2ForStep5,   /*!< %Numeric table containing output from step 2 on the local node used by step 5 on a master node*/
+    outputOfStep2ForStep3, /*!< %Numeric table containing output from step 2 on the local node used by step 3 on a master node*/
+    outputOfStep2ForStep5, /*!< %Numeric table containing output from step 2 on the local node used by step 5 on a master node*/
     lastDistributedStep2LocalPlusPlusPartialResultId = outputOfStep2ForStep5
 };
 
@@ -194,7 +196,8 @@ enum DistributedStep2LocalPlusPlusPartialResultId
 */
 enum DistributedStep2LocalPlusPlusPartialResultDataId
 {
-    internalResult = lastDistributedStep2LocalPlusPlusPartialResultId + 1,  /*!< %DataCollection with internal algorithm data required as an input for the future steps on the node*/
+    internalResult = lastDistributedStep2LocalPlusPlusPartialResultId
+                     + 1, /*!< %DataCollection with internal algorithm data required as an input for the future steps on the node*/
     lastDistributedStep2LocalPlusPlusPartialResultDataId = internalResult
 };
 
@@ -216,8 +219,9 @@ enum DistributedStep3MasterPlusPlusPartialResultId
 */
 enum DistributedStep3MasterPlusPlusPartialResultDataId
 {
-    rngState = lastDistributedStep3MasterPlusPlusPartialResultId + 1, /*!< %Service data generated as the output of step3Master to be used in step5Master*/
-    outputOfStep3ForStep5 = rngState,                                 /*!< %Service data generated as the output of step3Master to be used in step5Master*/
+    rngState =
+        lastDistributedStep3MasterPlusPlusPartialResultId + 1, /*!< %Service data generated as the output of step3Master to be used in step5Master*/
+    outputOfStep3ForStep5 = rngState,                          /*!< %Service data generated as the output of step3Master to be used in step5Master*/
     lastDistributedStep3MasterPlusPlusPartialResultDataId = outputOfStep3ForStep5
 };
 
@@ -250,10 +254,9 @@ enum DistributedStep5MasterPlusPlusPartialResultId
  */
 enum ResultId
 {
-    centroids,  /*!< Table for cluster centroids */
+    centroids, /*!< Table for cluster centroids */
     lastResultId = centroids
 };
-
 
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -282,12 +285,12 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
      * by copying another parameters object
      * \param[in] other    Parameters of K-Means algorithm
      */
-    Parameter(const Parameter &other);
+    Parameter(const Parameter & other);
 
-    size_t nClusters;          /*!< Number of clusters */
-    size_t nRowsTotal;         /*!< Total number of rows in the data set  */
-    size_t offset;             /*!< Offset in the total data set specifying the start of a block stored on a given local node */
-    size_t seed;               /*!< Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine } */
+    size_t nClusters;  /*!< Number of clusters */
+    size_t nRowsTotal; /*!< Total number of rows in the data set  */
+    size_t offset;     /*!< Offset in the total data set specifying the start of a block stored on a given local node */
+    size_t seed;       /*!< Seed for generating random numbers for the initialization \DAAL_DEPRECATED_USE{ engine } */
 
     double oversamplingFactor; /*!< Kmeans|| only. A fraction of nClusters being chosen in each of nRounds of kmeans||.\
                                                    L = nClusters* oversamplingFactor points are sampled in a round. */
@@ -333,7 +336,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Returns the number of features in the Input data table
@@ -346,7 +349,7 @@ public:
     * \param[in] par     %Input object
     * \param[in] method  Method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     Input(size_t nElements);
@@ -371,7 +374,7 @@ public:
      * \param[in] method    Computation method of the algorithm
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns a partial result of computing initial centroids for K-Means algorithm
@@ -385,7 +388,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the object
      */
-    void set(PartialResultId id, const data_management::NumericTablePtr &ptr);
+    void set(PartialResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the number of features in the result table of K-Means algorithm
@@ -399,19 +402,19 @@ public:
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks a partial result of computing initial centroids for K-Means algorithm
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -438,7 +441,7 @@ public:
      * \param[in] method       Computation method of the algorithm
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory to store the results of computing initial centroids for K-Means algorithm
@@ -447,7 +450,8 @@ public:
      * \param[in] method        Computation method of the algorithm
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
+                                          const int method);
 
     /**
      * Returns the result of computing initial centroids for K-Means algorithm
@@ -461,7 +465,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &ptr);
+    void set(ResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the result of computing initial centroids for K-Means algorithm
@@ -469,7 +473,7 @@ public:
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks the result of computing initial centroids for K-Means algorithm
@@ -477,12 +481,12 @@ public:
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::PartialResult *pres, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -515,7 +519,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(DistributedStep2MasterInputId id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedStep2MasterInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds a value to the data collection of input objects for computing initial centroids for K-Means algorithm
@@ -523,7 +527,7 @@ public:
      * \param[in] id    Identifier of the parameter
      * \param[in] value Pointer to the new parameter value
      */
-    void add(DistributedStep2MasterInputId id, const PartialResultPtr &value);
+    void add(DistributedStep2MasterInputId id, const PartialResultPtr & value);
 
     /**
      * Returns the number of features in the Input data table in the second step of the distributed processing mode
@@ -537,7 +541,7 @@ public:
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -556,10 +560,10 @@ struct DAAL_EXPORT DistributedStep2LocalPlusPlusParameter : public Parameter
     * by copying another parameters object
     * \param[in] other    Parameters of K-Means algorithm
     */
-    DistributedStep2LocalPlusPlusParameter(const DistributedStep2LocalPlusPlusParameter &other);
+    DistributedStep2LocalPlusPlusParameter(const DistributedStep2LocalPlusPlusParameter & other);
 
-    bool firstIteration;          /*!< True if step2 is called for the first time */
-    bool outputForStep5Required;  /*!< True if the last iteration of parallelPlus algorithm processing is performed */
+    bool firstIteration;         /*!< True if step2 is called for the first time */
+    bool outputForStep5Required; /*!< True if the last iteration of parallelPlus algorithm processing is performed */
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 
@@ -572,7 +576,7 @@ class DAAL_EXPORT DistributedStep2LocalPlusPlusInput : public Input
 {
 public:
     DistributedStep2LocalPlusPlusInput();
-    DistributedStep2LocalPlusPlusInput(const DistributedStep2LocalPlusPlusInput& o);
+    DistributedStep2LocalPlusPlusInput(const DistributedStep2LocalPlusPlusInput & o);
 
     virtual ~DistributedStep2LocalPlusPlusInput() {}
 
@@ -588,7 +592,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Returns input objects for computing initial centroids for K-Means algorithm
@@ -602,7 +606,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
-    void set(DistributedLocalPlusPlusInputDataId id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedLocalPlusPlusInputDataId id, const data_management::DataCollectionPtr & ptr);
 
     /**
     * Returns input objects for computing initial centroids for K-Means algorithm
@@ -616,14 +620,14 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
-    void set(DistributedStep2LocalPlusPlusInputId id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedStep2LocalPlusPlusInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks an input object for computing initial centroids for K-Means algorithm
     * \param[in] par     %Input object
     * \param[in] method  Method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -635,7 +639,7 @@ class DAAL_EXPORT DistributedStep3MasterPlusPlusInput : public daal::algorithms:
 {
 public:
     DistributedStep3MasterPlusPlusInput();
-    DistributedStep3MasterPlusPlusInput(const DistributedStep3MasterPlusPlusInput& o);
+    DistributedStep3MasterPlusPlusInput(const DistributedStep3MasterPlusPlusInput & o);
 
     /**
     * Returns input objects for computing initial centroids for K-Means algorithm
@@ -649,7 +653,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
-    void set(DistributedStep3MasterPlusPlusInputId id, const data_management::KeyValueDataCollectionPtr &ptr);
+    void set(DistributedStep3MasterPlusPlusInputId id, const data_management::KeyValueDataCollectionPtr & ptr);
 
     /**
     * Add an input object for computing initial centroids for K-Means algorithm
@@ -657,14 +661,14 @@ public:
     * \param[in] key   Identifier of the node this object comes from
     * \param[in] ptr   Pointer to the input object
     */
-    void add(DistributedStep3MasterPlusPlusInputId id, size_t key, const data_management::NumericTablePtr &ptr);
+    void add(DistributedStep3MasterPlusPlusInputId id, size_t key, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks an input object for computing initial centroids for K-Means algorithm
     * \param[in] par     %Input object
     * \param[in] method  Method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -676,7 +680,7 @@ class DAAL_EXPORT DistributedStep4LocalPlusPlusInput : public Input
 {
 public:
     DistributedStep4LocalPlusPlusInput();
-    DistributedStep4LocalPlusPlusInput(const DistributedStep4LocalPlusPlusInput& o);
+    DistributedStep4LocalPlusPlusInput(const DistributedStep4LocalPlusPlusInput & o);
 
     /**
     * Returns input objects for computing initial centroids for K-Means algorithm
@@ -690,7 +694,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Returns input objects for computing initial centroids for K-Means algorithm
@@ -704,7 +708,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
-    void set(DistributedLocalPlusPlusInputDataId id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedLocalPlusPlusInputDataId id, const data_management::DataCollectionPtr & ptr);
 
     /**
     * Returns input objects for computing initial centroids for K-Means algorithm
@@ -718,14 +722,14 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the input object
     */
-    void set(DistributedStep4LocalPlusPlusInputId id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedStep4LocalPlusPlusInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks an input object for computing initial centroids for K-Means algorithm
     * \param[in] par     %Input object
     * \param[in] method  Method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -736,7 +740,7 @@ class DAAL_EXPORT DistributedStep5MasterPlusPlusInput : public daal::algorithms:
 {
 public:
     DistributedStep5MasterPlusPlusInput();
-    DistributedStep5MasterPlusPlusInput(const DistributedStep5MasterPlusPlusInput& o);
+    DistributedStep5MasterPlusPlusInput(const DistributedStep5MasterPlusPlusInput & o);
 
     virtual ~DistributedStep5MasterPlusPlusInput() {}
 
@@ -754,7 +758,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    void set(DistributedStep5MasterPlusPlusInputId id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedStep5MasterPlusPlusInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
     * Adds a value to the data collection of input objects for computing initial centroids for K-Means algorithm
@@ -762,7 +766,7 @@ public:
     * \param[in] id    Identifier of the parameter
     * \param[in] value Pointer to the new parameter value
     */
-    void add(DistributedStep5MasterPlusPlusInputId id, const data_management::NumericTablePtr &value);
+    void add(DistributedStep5MasterPlusPlusInputId id, const data_management::NumericTablePtr & value);
 
     /**
     * Returns an input object for computing initial centroids for K-Means algorithm
@@ -778,7 +782,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    void set(DistributedStep5MasterPlusPlusInputDataId id, const data_management::SerializationIfacePtr &ptr);
+    void set(DistributedStep5MasterPlusPlusInputDataId id, const data_management::SerializationIfacePtr & ptr);
 
     /**
     * Checks an input object for computing initial centroids for K-Means algorithm
@@ -786,7 +790,7 @@ public:
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -808,7 +812,7 @@ public:
     * \param[in] method    Computation method of the algorithm
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
     * Returns a partial result of computing initial centroids for K-Means algorithm
@@ -822,7 +826,7 @@ public:
     * \param[in] id    Identifier of the partial result
     * \param[in] ptr   Pointer to the object
     */
-    void set(DistributedStep2LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedStep2LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Returns a partial result of computing initial centroids for K-Means algorithm
@@ -836,7 +840,7 @@ public:
     * \param[in] id    Identifier of the partial result
     * \param[in] ptr   Pointer to the object
     */
-    void set(DistributedStep2LocalPlusPlusPartialResultDataId id, const data_management::DataCollectionPtr &ptr);
+    void set(DistributedStep2LocalPlusPlusPartialResultDataId id, const data_management::DataCollectionPtr & ptr);
 
     /**
     * Checks a partial result of computing initial centroids for K-Means algorithm
@@ -844,14 +848,14 @@ public:
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Initializes the partial result data
@@ -859,13 +863,12 @@ public:
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    void initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method);
+    void initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method);
 
 protected:
-
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -891,7 +894,7 @@ public:
     * \param[in] method    Computation method of the algorithm
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
     * Returns a partial result of computing initial centroids for K-Means algorithm
@@ -921,7 +924,7 @@ public:
     * \param[in] key   Identifier of the node this partial result comes from
     * \param[in] ptr   Pointer to the object
     */
-    void add(DistributedStep3MasterPlusPlusPartialResultId id, size_t key, const data_management::NumericTablePtr &ptr);
+    void add(DistributedStep3MasterPlusPlusPartialResultId id, size_t key, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks a partial result of computing initial centroids for K-Means algorithm
@@ -929,14 +932,14 @@ public:
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Initializes the partial result data
@@ -944,13 +947,12 @@ public:
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    void initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method);
+    void initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method);
 
 protected:
-
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -976,7 +978,7 @@ public:
     * \param[in] method    Computation method of the algorithm
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
     * Returns a partial result of computing initial centroids for K-Means algorithm
@@ -990,7 +992,7 @@ public:
     * \param[in] id    Identifier of the partial result
     * \param[in] ptr   Pointer to the object
     */
-    void set(DistributedStep4LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedStep4LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks a partial result of computing initial centroids for K-Means algorithm
@@ -998,20 +1000,19 @@ public:
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -1037,7 +1038,7 @@ public:
     * \param[in] method    Computation method of the algorithm
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
     * Returns a partial result of computing initial centroids for K-Means algorithm
@@ -1051,7 +1052,7 @@ public:
     * \param[in] id    Identifier of the partial result
     * \param[in] ptr   Pointer to the object
     */
-    void set(DistributedStep5MasterPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedStep5MasterPlusPlusPartialResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks a partial result of computing initial centroids for K-Means algorithm
@@ -1059,20 +1060,19 @@ public:
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks a partial result of computing initial centroids for K-Means algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -1096,9 +1096,9 @@ struct DAAL_EXPORT Parameter : public interface1::Parameter
      * by copying another parameters object
      * \param[in] other    Parameters of K-Means algorithm
      */
-    Parameter(const Parameter &other);
+    Parameter(const Parameter & other);
 
-    size_t nTrials;     /*!< Kmeans++ only. The number of trials to generate all clusters but the first initial cluster. */
+    size_t nTrials; /*!< Kmeans++ only. The number of trials to generate all clusters but the first initial cluster. */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
@@ -1127,9 +1127,9 @@ using interface1::DistributedStep4LocalPlusPlusPartialResultPtr;
 using interface1::DistributedStep5MasterPlusPlusPartialResult;
 using interface1::DistributedStep5MasterPlusPlusPartialResultPtr;
 
-} // namespace daal::algorithms::kmeans::init
+} // namespace init
 /** @} */
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal
 #endif

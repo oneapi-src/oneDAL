@@ -26,7 +26,7 @@
 
 #ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
     #if !(defined(__clang__))
-      #undef ONEAPI_DAAL_USE_MKL_GPU_FUNC
+        #undef ONEAPI_DAAL_USE_MKL_GPU_FUNC
     #endif
 #endif
 
@@ -51,7 +51,6 @@ namespace math
 {
 namespace interface1
 {
-
 /**
  * @defgroup oneapi_internal oneAPIInternal
  * \brief Contains classes of SYCL* abstraction layer
@@ -67,31 +66,48 @@ class GemmExecutor
 private:
     struct Execute
     {
-        cl::sycl::queue &queue;
+        cl::sycl::queue & queue;
         const math::Transpose transa;
         const math::Transpose transb;
-        const size_t m; const size_t n; const size_t k;
+        const size_t m;
+        const size_t n;
+        const size_t k;
         const double alpha;
-        const UniversalBuffer &a_buffer; const size_t lda; const size_t offsetA;
-        const UniversalBuffer &b_buffer; const size_t ldb; const size_t offsetB;
+        const UniversalBuffer & a_buffer;
+        const size_t lda;
+        const size_t offsetA;
+        const UniversalBuffer & b_buffer;
+        const size_t ldb;
+        const size_t offsetB;
         const double beta;
-        UniversalBuffer &c_buffer; const size_t ldc; const size_t offsetC;
-        services::Status *status;
+        UniversalBuffer & c_buffer;
+        const size_t ldc;
+        const size_t offsetC;
+        services::Status * status;
 
-        explicit Execute(cl::sycl::queue &queue,
-            const math::Transpose transa, const math::Transpose transb,
-            const size_t m, const size_t n, const size_t k,
-            const double alpha,
-            const UniversalBuffer &a_buffer, const size_t lda, const size_t offsetA,
-            const UniversalBuffer &b_buffer, const size_t ldb, const size_t offsetB,
-            const double beta,
-            UniversalBuffer &c_buffer, const size_t ldc, const size_t offsetC,
-            services::Status *status) :
-            queue(queue), transa(transa), transb(transb),
-            m(m), n(n), k(k), alpha(alpha), a_buffer(a_buffer), lda(lda),
-            offsetA(offsetA), b_buffer(b_buffer), ldb(ldb), offsetB(offsetB), beta(beta),
-            c_buffer(c_buffer), ldc(ldc), offsetC(offsetC), status(status)
-        { }
+        explicit Execute(cl::sycl::queue & queue, const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n,
+                         const size_t k, const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA,
+                         const UniversalBuffer & b_buffer, const size_t ldb, const size_t offsetB, const double beta, UniversalBuffer & c_buffer,
+                         const size_t ldc, const size_t offsetC, services::Status * status)
+            : queue(queue),
+              transa(transa),
+              transb(transb),
+              m(m),
+              n(n),
+              k(k),
+              alpha(alpha),
+              a_buffer(a_buffer),
+              lda(lda),
+              offsetA(offsetA),
+              b_buffer(b_buffer),
+              ldb(ldb),
+              offsetB(offsetB),
+              beta(beta),
+              c_buffer(c_buffer),
+              ldc(ldc),
+              offsetC(offsetC),
+              status(status)
+        {}
 
         template <typename T>
         void operator()(Typelist<T>)
@@ -100,38 +116,26 @@ private:
             auto b_buffer_t = b_buffer.template get<T>();
             auto c_buffer_t = c_buffer.template get<T>();
 
-            #ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-                MKLGemm<T> functor(queue);
-            #else
-                ReferenceGemm<T> functor;
-            #endif
+#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
+            MKLGemm<T> functor(queue);
+#else
+            ReferenceGemm<T> functor;
+#endif
 
-            services::Status statusGemm = functor(
-                transa, transb, m, n, k,
-                (T)alpha,
-                a_buffer_t, lda, offsetA,
-                b_buffer_t, ldb, offsetB,
-                (T)beta,
-                c_buffer_t, ldc, offsetC);
+            services::Status statusGemm =
+                functor(transa, transb, m, n, k, (T)alpha, a_buffer_t, lda, offsetA, b_buffer_t, ldb, offsetB, (T)beta, c_buffer_t, ldc, offsetC);
 
             services::internal::tryAssignStatus(status, statusGemm);
         }
     };
 
 public:
-    static void run(cl::sycl::queue &queue,
-            const math::Transpose transa, const math::Transpose transb,
-            const size_t m, const size_t n, const size_t k,
-            const double alpha,
-            const UniversalBuffer &a_buffer, const size_t lda, const size_t offsetA,
-            const UniversalBuffer &b_buffer, const size_t ldb, const size_t offsetB,
-            const double beta,
-            UniversalBuffer &c_buffer, const size_t ldc, const size_t offsetC,
-            services::Status *status)
+    static void run(cl::sycl::queue & queue, const math::Transpose transa, const math::Transpose transb, const size_t m, const size_t n,
+                    const size_t k, const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA,
+                    const UniversalBuffer & b_buffer, const size_t ldb, const size_t offsetB, const double beta, UniversalBuffer & c_buffer,
+                    const size_t ldc, const size_t offsetC, services::Status * status)
     {
-
-        Execute op(queue, transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB,
-            beta, c_buffer, ldc, offsetC, status);
+        Execute op(queue, transa, transb, m, n, k, alpha, a_buffer, lda, offsetA, b_buffer, ldb, offsetB, beta, c_buffer, ldc, offsetC, status);
         TypeDispatcher::floatDispatch(a_buffer.type(), op);
     }
 };
@@ -145,30 +149,39 @@ class SyrkExecutor
 private:
     struct Execute
     {
-        cl::sycl::queue &queue;
+        cl::sycl::queue & queue;
         const math::UpLo upper_lower;
         const math::Transpose trans;
-        const size_t n; const size_t k;
+        const size_t n;
+        const size_t k;
         const double alpha;
-        const UniversalBuffer &a_buffer; const size_t lda; const size_t offsetA;
+        const UniversalBuffer & a_buffer;
+        const size_t lda;
+        const size_t offsetA;
         const double beta;
-        UniversalBuffer &c_buffer; const size_t ldc; const size_t offsetC;
-        services::Status *status;
+        UniversalBuffer & c_buffer;
+        const size_t ldc;
+        const size_t offsetC;
+        services::Status * status;
 
-        explicit Execute(cl::sycl::queue &queue,
-            const math::UpLo upper_lower,
-            const math::Transpose trans,
-            const size_t n, const size_t k, const double alpha,
-            const UniversalBuffer &a_buffer, const size_t lda, const size_t offsetA,
-            const double beta,
-            UniversalBuffer &c_buffer, const size_t ldc, const size_t offsetC,
-            services::Status *status) :
-            queue(queue), upper_lower(upper_lower), trans(trans),
-            n(n), k(k), alpha(alpha), a_buffer(a_buffer), lda(lda),
-            offsetA(offsetA),
-            beta(beta),
-            c_buffer(c_buffer), ldc(ldc), offsetC(offsetC), status(status)
-        { }
+        explicit Execute(cl::sycl::queue & queue, const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
+                         const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const double beta,
+                         UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, services::Status * status)
+            : queue(queue),
+              upper_lower(upper_lower),
+              trans(trans),
+              n(n),
+              k(k),
+              alpha(alpha),
+              a_buffer(a_buffer),
+              lda(lda),
+              offsetA(offsetA),
+              beta(beta),
+              c_buffer(c_buffer),
+              ldc(ldc),
+              offsetC(offsetC),
+              status(status)
+        {}
 
         template <typename T>
         void operator()(Typelist<T>)
@@ -176,45 +189,27 @@ private:
             auto a_buffer_t = a_buffer.template get<T>();
             auto c_buffer_t = c_buffer.template get<T>();
 
-            const math::Transpose transInv =
-                        trans == math::Transpose::NoTrans ? math::Transpose::Trans : math::Transpose::NoTrans;
+            const math::Transpose transInv = trans == math::Transpose::NoTrans ? math::Transpose::Trans : math::Transpose::NoTrans;
 
             services::Status statusSyrk;
-            #ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-                MKLSyrk<T> functor(queue);
-                statusSyrk = functor(
-                upper_lower, transInv, k, n,
-                (T)alpha,
-                a_buffer_t, lda, offsetA,
-                (T)beta,
-                c_buffer_t, ldc, offsetC);
-            #else
-                ReferenceGemm<T> functor;
-                statusSyrk = functor(
-                transInv, trans, k, k, n,
-                (T)alpha,
-                a_buffer_t, lda, offsetA,
-                a_buffer_t, lda, offsetA,
-                (T)beta,
-                c_buffer_t, ldc, offsetC);
-            #endif
+#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
+            MKLSyrk<T> functor(queue);
+            statusSyrk = functor(upper_lower, transInv, k, n, (T)alpha, a_buffer_t, lda, offsetA, (T)beta, c_buffer_t, ldc, offsetC);
+#else
+            ReferenceGemm<T> functor;
+            statusSyrk =
+                functor(transInv, trans, k, k, n, (T)alpha, a_buffer_t, lda, offsetA, a_buffer_t, lda, offsetA, (T)beta, c_buffer_t, ldc, offsetC);
+#endif
 
             services::internal::tryAssignStatus(status, statusSyrk);
         }
     };
 
 public:
-    static void run(cl::sycl::queue &queue,
-            const math::UpLo upper_lower,
-            const math::Transpose trans,
-            const size_t n, const size_t k,
-            const double alpha,
-            const UniversalBuffer &a_buffer, const size_t lda, const size_t offsetA,
-            const double beta,
-            UniversalBuffer &c_buffer, const size_t ldc, const size_t offsetC,
-            services::Status *status)
+    static void run(cl::sycl::queue & queue, const math::UpLo upper_lower, const math::Transpose trans, const size_t n, const size_t k,
+                    const double alpha, const UniversalBuffer & a_buffer, const size_t lda, const size_t offsetA, const double beta,
+                    UniversalBuffer & c_buffer, const size_t ldc, const size_t offsetC, services::Status * status)
     {
-
         Execute op(queue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
         TypeDispatcher::floatDispatch(a_buffer.type(), op);
     }
@@ -228,8 +223,8 @@ using interface1::GemmExecutor;
 using interface1::SyrkExecutor;
 
 } // namespace math
-} // namespace oneapi
 } // namespace internal
+} // namespace oneapi
 } // namespace daal
 
 #endif

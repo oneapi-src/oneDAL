@@ -56,7 +56,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the SVM prediction algorithm, double or float
  * \tparam method           SVM model-based prediction method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -64,7 +64,7 @@ public:
      * Constructs a container for SVM model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -92,7 +92,7 @@ public:
  *      - \ref interface1::Model "Model" class
  *      - \ref interface1::Result "Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public classifier::prediction::interface1::Batch
 {
 public:
@@ -102,14 +102,11 @@ public:
     typedef algorithms::svm::interface1::Parameter ParameterType;
     typedef typename super::ResultType ResultType;
 
-    InputType input;                /*!< %Input objects of the algorithm */
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameter" of the algorithm */
+    InputType input;         /*!< %Input objects of the algorithm */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameter" of the algorithm */
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs an SVM prediction algorithm by copying input objects and parameters
@@ -117,8 +114,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : classifier::prediction::interface1::Batch(other),
-        input(other.input), parameter(other.parameter)
+    Batch(const Batch<algorithmFPType, method> & other)
+        : classifier::prediction::interface1::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
@@ -135,36 +132,28 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
-
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated SVM prediction algorithm with a copy of input objects
      * and parameters of this SVM prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s  = _result->allocate<algorithmFPType>(&input, 0, 0);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, 0, 0);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
+        _in  = &input;
         _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
     }
@@ -191,7 +180,7 @@ namespace interface2
  * \tparam algorithmFPType  Data type to use in intermediate computations for the SVM prediction algorithm, double or float
  * \tparam method           SVM model-based prediction method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -199,7 +188,7 @@ public:
      * Constructs a container for SVM model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -227,24 +216,21 @@ public:
  *      - \ref interface1::Model "Model" class
  *      - \ref interface1::Result "Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public classifier::prediction::Batch
 {
 public:
     typedef classifier::prediction::Batch super;
 
     typedef algorithms::svm::prediction::Input InputType;
-    typedef algorithms::svm::Parameter         ParameterType;
-    typedef typename super::ResultType         ResultType;
+    typedef algorithms::svm::Parameter ParameterType;
+    typedef typename super::ResultType ResultType;
 
-    InputType input;                /*!< %Input objects of the algorithm */
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameter" of the algorithm */
+    InputType input;         /*!< %Input objects of the algorithm */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameter" of the algorithm */
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs an SVM prediction algorithm by copying input objects and parameters
@@ -252,8 +238,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : classifier::prediction::Batch(other),
-        input(other.input), parameter(other.parameter)
+    Batch(const Batch<algorithmFPType, method> & other) : classifier::prediction::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
@@ -270,36 +255,28 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
-
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated SVM prediction algorithm with a copy of input objects
      * and parameters of this SVM prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s  = _result->allocate<algorithmFPType>(&input, &parameter, 0);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, 0);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
+        _in  = &input;
         _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
     }

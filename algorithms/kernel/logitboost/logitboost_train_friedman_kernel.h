@@ -58,15 +58,15 @@ namespace internal
  *  \brief Specialization of the structure that contains kernels for
  *  Logit Boost model training using Friedman method
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct LogitBoostTrainKernel<friedman, algorithmFPType, cpu> : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    services::Status compute(const size_t na, NumericTablePtr a[], Model *r, const Parameter *par);
+    services::Status compute(const size_t na, NumericTablePtr a[], Model * r, const Parameter * par);
 };
-} // namepsace internal
-} // namespace prediction
+} // namespace internal
+} // namespace training
 } // namespace logitboost
 } // namespace algorithms
 } // namespace daal

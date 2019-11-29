@@ -36,7 +36,6 @@ namespace weak_learner
 {
 namespace training
 {
-
 namespace interface1
 {
 /**
@@ -62,8 +61,8 @@ class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
 public:
     typedef classifier::training::interface1::Batch super;
 
-    typedef super::InputType                           InputType;
-    typedef super::ParameterType                       ParameterType;
+    typedef super::InputType InputType;
+    typedef super::ParameterType ParameterType;
     typedef algorithms::weak_learner::training::Result ResultType;
 
     Batch() {}
@@ -74,7 +73,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch &other) : classifier::training::interface1::Batch(other) {}
+    Batch(const Batch & other) : classifier::training::interface1::Batch(other) {}
 
     virtual ~Batch() {}
 
@@ -92,10 +91,7 @@ public:
      * with a copy of input objects and parameters of this algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
@@ -104,8 +100,8 @@ protected:
 } // namespace interface1
 using interface1::Batch;
 
-} // namespace daal::algorithms::weak_learner::training
-}
-}
+} // namespace training
+} // namespace weak_learner
+} // namespace algorithms
 } // namespace daal
 #endif // __WEAK_LEARNER_TRAINING_BATCH_H__

@@ -38,18 +38,18 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_NORMALIZATION_ZSCORE_RESULT_ID);
 
-Result::Result() : daal::algorithms::Result(lastResultId + 1) {
+Result::Result() : daal::algorithms::Result(lastResultId + 1)
+{
     Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(lastResultId + 1)));
 }
 
-Result::Result(const Result& o)
+Result::Result(const Result & o)
 {
-    ResultImpl* pImpl = dynamic_cast<ResultImpl*>(getStorage(o).get());
+    ResultImpl * pImpl = dynamic_cast<ResultImpl *>(getStorage(o).get());
     DAAL_ASSERT(pImpl);
     Argument::setStorage(data_management::DataCollectionPtr(new ResultImpl(*pImpl)));
 }
@@ -69,7 +69,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id        Identifier of the Result object
  * \param[in] value     Pointer to the Result object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -80,17 +80,16 @@ void Result::set(ResultId id, const NumericTablePtr &value)
  * \param[in] par    Pointer to the parameter object
  * \param[in] method Algorithm computation method
  */
-Status Result::check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const
 {
     auto impl = ResultImpl::cast(getStorage(*this));
     DAAL_CHECK(impl.get(), ErrorNullPtr);
     return impl->check(in);
 }
 
-}// namespace interface1
+} // namespace interface1
 
-
-}// namespace zscore
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace zscore
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

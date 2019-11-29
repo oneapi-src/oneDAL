@@ -58,7 +58,7 @@ daal::algorithms::stump::classification::ModelPtr Result::get(classifier::traini
  * \param[in] id      Identifier of the result, \ref classifier::training::ResultId
  * \param[in] value   Pointer to the training result
  */
-void Result::set(classifier::training::ResultId id, daal::algorithms::stump::classification::ModelPtr &value)
+void Result::set(classifier::training::ResultId id, daal::algorithms::stump::classification::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -69,11 +69,11 @@ void Result::set(classifier::training::ResultId id, daal::algorithms::stump::cla
  * \param[in] parameter Pointer to the parameters structure
  * \param[in] method    Algorithm computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, checkImpl(input, parameter));
-    const classifier::Parameter *algPar = static_cast<const classifier::Parameter *>(parameter);
+    const classifier::Parameter * algPar = static_cast<const classifier::Parameter *>(parameter);
     DAAL_CHECK(algPar->nClasses >= 2, services::ErrorModelNotFullInitialized);
     return services::Status();
 }
@@ -83,15 +83,14 @@ data_management::NumericTablePtr Result::get(ResultNumericTableId id) const
     return services::staticPointerCast<data_management::NumericTable, data_management::SerializationIface>(Argument::get(id));
 }
 
-void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr &value)
+void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
 
-
-}// namespace interface1
-}// namespace training
-}// namespace classification
-}// namespace stump
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

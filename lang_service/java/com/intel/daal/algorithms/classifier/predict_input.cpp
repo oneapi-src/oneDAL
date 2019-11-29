@@ -32,15 +32,12 @@ using namespace daal::algorithms::classifier::prediction;
  * Method:    cInit
  * Signature: (JIJ)I
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionInput_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr )
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionInput_cInit(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    classifier::prediction::Input *inputPtr = NULL;
+    classifier::prediction::Input * inputPtr = NULL;
 
-    SharedPtr<Batch> alg =
-        staticPointerCast<Batch, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
-    inputPtr = alg->getInput();
+    SharedPtr<Batch> alg = staticPointerCast<Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
+    inputPtr             = alg->getInput();
 
     return (jlong)inputPtr;
 }
@@ -50,10 +47,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_prediction_Pre
  * Method:    cSetInputTable
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionInput_cSetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionInput_cSetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong inputAddr, jint id, jlong ntAddr)
 {
-    if(id != classifier::prediction::data) return;
+    if (id != classifier::prediction::data) return;
 
     jniInput<classifier::prediction::Input>::set<classifier::prediction::NumericTableInputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -63,10 +60,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_prediction_Pred
  * Method:    cSetInputModel
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionInput_cSetInputModel
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionInput_cSetInputModel(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong inputAddr, jint id, jlong ntAddr)
 {
-    if(id != classifier::prediction::model) return;
+    if (id != classifier::prediction::model) return;
 
     jniInput<classifier::prediction::Input>::set<classifier::prediction::ModelInputId, classifier::Model>(inputAddr, id, ntAddr);
 }
@@ -76,10 +73,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_prediction_Pred
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionInput_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionInput_cGetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong inputAddr, jint id)
 {
-    if(id != classifier::prediction::data) return (jlong)-1;
+    if (id != classifier::prediction::data) return (jlong)-1;
 
     return jniInput<classifier::prediction::Input>::get<classifier::prediction::NumericTableInputId, NumericTable>(inputAddr, id);
 }
@@ -89,10 +86,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_prediction_Pre
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionInput_cGetInputModel
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_classifier_prediction_PredictionInput_cGetInputModel(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong inputAddr, jint id)
 {
-    if(id != classifier::prediction::model) return (jlong)-1;
+    if (id != classifier::prediction::model) return (jlong)-1;
 
     return jniInput<classifier::prediction::Input>::get<classifier::prediction::ModelInputId, classifier::Model>(inputAddr, id);
 }

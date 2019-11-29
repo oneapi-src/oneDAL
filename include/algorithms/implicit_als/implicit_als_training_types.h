@@ -47,15 +47,14 @@ namespace implicit_als
  */
 namespace training
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__IMPLICIT_ALS__TRAINING__METHOD"></a>
  * Available methods for training the implicit ALS model
  */
 enum Method
 {
-    defaultDense = 0,   /*!< Default: method proposed by Hu, Koren, Volinsky for input data stored in the dense format */
-    fastCSR = 1         /*!< Method proposed by Hu, Koren, Volinsky for input data stored in the compressed sparse row (CSR) format */
+    defaultDense = 0, /*!< Default: method proposed by Hu, Koren, Volinsky for input data stored in the dense format */
+    fastCSR      = 1  /*!< Method proposed by Hu, Koren, Volinsky for input data stored in the compressed sparse row (CSR) format */
 };
 
 /**
@@ -64,7 +63,7 @@ enum Method
  */
 enum NumericTableInputId
 {
-    data,                        /*!< Input data table that contains ratings */
+    data, /*!< Input data table that contains ratings */
     lastNumericTableInputId = data
 };
 
@@ -74,7 +73,7 @@ enum NumericTableInputId
  */
 enum ModelInputId
 {
-    inputModel = lastNumericTableInputId + 1,       /*!< Initial model that contains initialized factors */
+    inputModel       = lastNumericTableInputId + 1, /*!< Initial model that contains initialized factors */
     lastModelInputId = inputModel
 };
 
@@ -84,7 +83,7 @@ enum ModelInputId
  */
 enum PartialModelInputId
 {
-    partialModel,                /*!< Partial model that contains factors obtained
+    partialModel, /*!< Partial model that contains factors obtained
                                          in the previous step of the distributed processing mode */
     lastPartialModelInputId = partialModel
 };
@@ -96,7 +95,7 @@ enum PartialModelInputId
  */
 enum MasterInputId
 {
-    inputOfStep2FromStep1,       /*!< Partial results of the implicit ALS training algorithm computed in the first step
+    inputOfStep2FromStep1, /*!< Partial results of the implicit ALS training algorithm computed in the first step
                                          and to be transferred to the second step of the distributed processing mode */
     lastMasterInputId = inputOfStep2FromStep1
 };
@@ -108,7 +107,7 @@ enum MasterInputId
  */
 enum DistributedPartialResultStep1Id
 {
-    outputOfStep1ForStep2,       /*!< Partial results of the implicit ALS training algorithm computed in the first step
+    outputOfStep1ForStep2, /*!< Partial results of the implicit ALS training algorithm computed in the first step
                                          and to be transferred to the second step of the distributed processing mode */
     lastDistributedPartialResultStep1Id = outputOfStep1ForStep2
 };
@@ -120,7 +119,7 @@ enum DistributedPartialResultStep1Id
  */
 enum DistributedPartialResultStep2Id
 {
-    outputOfStep2ForStep4 ,       /*!< Partial results of the implicit ALS training algorithm computed in the second step
+    outputOfStep2ForStep4, /*!< Partial results of the implicit ALS training algorithm computed in the second step
                                          and to be transferred to the fourth step of the distributed processing mode */
     lastDistributedPartialResultStep2Id = outputOfStep2ForStep4
 };
@@ -132,10 +131,10 @@ enum DistributedPartialResultStep2Id
  */
 enum Step3LocalCollectionInputId
 {
-    partialModelBlocksToNode = lastDistributedPartialResultStep2Id + 1,   /*!< \DAAL_DEPRECATED_USE{ inputOfStep3FromInit }
+    partialModelBlocksToNode        = lastDistributedPartialResultStep2Id + 1, /*!< \DAAL_DEPRECATED_USE{ inputOfStep3FromInit }
                                          Partial results of the implicit ALS initialization algorithm to be transferred
                                          to the third step of the implicit ALS training algorithm in the distributed processing mode */
-    inputOfStep3FromInit = partialModelBlocksToNode,    /*!< Partial results of the implicit ALS initialization algorithm to be transferred
+    inputOfStep3FromInit            = partialModelBlocksToNode, /*!< Partial results of the implicit ALS initialization algorithm to be transferred
                                                         to the third step of the implicit ALS training algorithm in the distributed processing mode */
     lastStep3LocalCollectionInputId = inputOfStep3FromInit
 };
@@ -147,7 +146,7 @@ enum Step3LocalCollectionInputId
  */
 enum Step3LocalNumericTableInputId
 {
-    offset = lastStep3LocalCollectionInputId + 1,  /*!< Pointer to the 1x1 numeric table that holds the global index of the starting row
+    offset = lastStep3LocalCollectionInputId + 1, /*!< Pointer to the 1x1 numeric table that holds the global index of the starting row
                                                    of the input partial model */
     lastStep3LocalNumericTableInputId = offset
 };
@@ -159,7 +158,7 @@ enum Step3LocalNumericTableInputId
  */
 enum DistributedPartialResultStep3Id
 {
-    outputOfStep3ForStep4,       /*!< Partial results of the implicit ALS training algorithm computed in the third step
+    outputOfStep3ForStep4, /*!< Partial results of the implicit ALS training algorithm computed in the third step
                                          and to be transferred to the fourth step of the distributed processing mode */
     lastDistributedPartialResultStep3Id = outputOfStep3ForStep4
 };
@@ -171,7 +170,7 @@ enum DistributedPartialResultStep3Id
  */
 enum Step4LocalPartialModelsInputId
 {
-    partialModels,               /*!< Key-value data collection that contains partial models consisting of user factors/item factors
+    partialModels, /*!< Key-value data collection that contains partial models consisting of user factors/item factors
                                          computed in the third step of the distributed processing mode.
                                          Each element of the collection contains an object of the PartialModel class. */
     lastStep4LocalPartialModelsInputId = partialModels
@@ -184,8 +183,9 @@ enum Step4LocalPartialModelsInputId
  */
 enum Step4LocalNumericTableInputId
 {
-    partialData = lastStep4LocalPartialModelsInputId + 1, /*!< Pointer to the CSR numeric table that holds a block of either users or items from the input data set */
-    inputOfStep4FromStep2,                            /*!< Pointer to the nFactors x nFactors numeric table computed in the second step
+    partialData = lastStep4LocalPartialModelsInputId
+                  + 1,     /*!< Pointer to the CSR numeric table that holds a block of either users or items from the input data set */
+    inputOfStep4FromStep2, /*!< Pointer to the nFactors x nFactors numeric table computed in the second step
                                                           of the distributed processing mode */
     lastStep4LocalNumericTableInputId = inputOfStep4FromStep2
 };
@@ -197,11 +197,11 @@ enum Step4LocalNumericTableInputId
  */
 enum DistributedPartialResultStep4Id
 {
-    outputOfStep4ForStep1,      /*!< Partial results of the implicit ALS training algorithm computed in the fourth step
+    outputOfStep4ForStep1,                         /*!< Partial results of the implicit ALS training algorithm computed in the fourth step
                                          and to be transferred to the first step of the distributed processing mode */
-    outputOfStep4ForStep3 = outputOfStep4ForStep1,      /*!< Partial results of the implicit ALS training algorithm computed in the fourth step
+    outputOfStep4ForStep3 = outputOfStep4ForStep1, /*!< Partial results of the implicit ALS training algorithm computed in the fourth step
                                                         and to be transferred to the third step of the distributed processing mode */
-    outputOfStep4 = outputOfStep4ForStep3,               /*!< Partial results of the implicit ALS training algorithm computed in the fourth step
+    outputOfStep4         = outputOfStep4ForStep3, /*!< Partial results of the implicit ALS training algorithm computed in the fourth step
                                                         and to be used in implicit ALS PartialModel-based prediction */
     lastDistributedPartialResultStep4Id = outputOfStep4
 };
@@ -212,7 +212,7 @@ enum DistributedPartialResultStep4Id
  */
 enum ResultId
 {
-    model,                        /*!< Implicit ALS model */
+    model, /*!< Implicit ALS model */
     lastResultId = model
 };
 
@@ -229,7 +229,7 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     Input();
-    Input(const Input& other) : daal::algorithms::Input(other){}
+    Input(const Input & other) : daal::algorithms::Input(other) {}
 
     virtual ~Input() {}
 
@@ -252,14 +252,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input initial model object for the implicit ALS training algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(ModelInputId id, const ModelPtr &ptr);
+    void set(ModelInputId id, const ModelPtr & ptr);
 
     /**
      * Returns the number of users equal to the number of rows in the input data set
@@ -278,14 +278,14 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__TRAINING__DISTRIBUTEDINPUT"></a>
  * \brief %Input objects for the implicit ALS training algorithm in the distributed processing mode
  */
-template<ComputeStep step>
+template <ComputeStep step>
 class DistributedInput
 {};
 
@@ -294,7 +294,7 @@ class DistributedInput
  * \brief %Input objects for the implicit ALS training algorithm in the first step
  * of the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step1Local> : public daal::algorithms::Input
 {
 public:
@@ -302,7 +302,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -318,7 +318,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(PartialModelInputId id, const PartialModelPtr &ptr);
+    void set(PartialModelInputId id, const PartialModelPtr & ptr);
 
     /**
      * Checks the parameters and input objects for the implicit ALS training algorithm
@@ -326,7 +326,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -355,7 +355,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep1Id id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep1Id id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the implicit ALS training algorithm
@@ -364,7 +364,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the implicit ALS algorithm
@@ -372,25 +372,24 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
 };
-typedef services::SharedPtr<DistributedPartialResultStep1>  DistributedPartialResultStep1Ptr;
+typedef services::SharedPtr<DistributedPartialResultStep1> DistributedPartialResultStep1Ptr;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__TRAINING__DISTRIBUTEDINPUT_STEP2MASTER"></a>
  * \brief %Input objects for the implicit ALS training algorithm in the second step of the
  * distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step2Master> : public daal::algorithms::Input
 {
 public:
@@ -398,7 +397,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -414,7 +413,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(MasterInputId id, const data_management::DataCollectionPtr &ptr);
+    void set(MasterInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Adds an input object for the implicit ALS training algorithm in the second step
@@ -422,7 +421,7 @@ public:
      * \param[in] id            Identifier of the input object
      * \param[in] partialResult Pointer to the partial result obtained in the previous step of the distributed processing mode
      */
-    void add(MasterInputId id, const DistributedPartialResultStep1Ptr &partialResult);
+    void add(MasterInputId id, const DistributedPartialResultStep1Ptr & partialResult);
 
     /**
      * Checks the parameters and input objects for the implicit ALS training algorithm in the second step
@@ -430,7 +429,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -459,7 +458,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(DistributedPartialResultStep2Id id, const data_management::NumericTablePtr &ptr);
+    void set(DistributedPartialResultStep2Id id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Allocates memory to store a partial result of the implicit ALS training algorithm
@@ -468,7 +467,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks a partial result of the implicit ALS training algorithm
@@ -476,25 +475,24 @@ public:
      * \param[in] parameter Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
 };
-typedef services::SharedPtr<DistributedPartialResultStep2>  DistributedPartialResultStep2Ptr;
+typedef services::SharedPtr<DistributedPartialResultStep2> DistributedPartialResultStep2Ptr;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__TRAINING__DISTRIBUTEDINPUT_STEP3LOCAL"></a>
  * \brief %Input objects for the implicit ALS training algorithm in the third step of
  * the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step3Local> : public daal::algorithms::Input
 {
 public:
@@ -502,7 +500,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -532,21 +530,21 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(PartialModelInputId id, const PartialModelPtr &ptr);
+    void set(PartialModelInputId id, const PartialModelPtr & ptr);
 
     /**
      * Sets an input key-value data collection object for the implicit ALS training algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step3LocalCollectionInputId id, const data_management::KeyValueDataCollectionPtr &ptr);
+    void set(Step3LocalCollectionInputId id, const data_management::KeyValueDataCollectionPtr & ptr);
 
     /**
      * Sets an input numeric table object for the implicit ALS training algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step3LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(Step3LocalNumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the number of blocks of data used in distributed computations
@@ -573,7 +571,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -597,7 +595,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns a partial result of the implicit ALS training algorithm
@@ -622,7 +620,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(DistributedPartialResultStep3Id id, const data_management::KeyValueDataCollectionPtr &ptr);
+    void set(DistributedPartialResultStep3Id id, const data_management::KeyValueDataCollectionPtr & ptr);
 
     /**
      * Checks a partial result of the implicit ALS training algorithm
@@ -630,25 +628,24 @@ public:
      * \param[in] parameter Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
 };
-typedef services::SharedPtr<DistributedPartialResultStep3>  DistributedPartialResultStep3Ptr;
+typedef services::SharedPtr<DistributedPartialResultStep3> DistributedPartialResultStep3Ptr;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__TRAINING__DISTRIBUTEDINPUT_STEP4LOCAL"></a>
  * \brief %Input objects for the implicit ALS training algorithm in the fourth step of
  * the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step4Local> : public daal::algorithms::Input
 {
 public:
@@ -656,7 +653,7 @@ public:
     DistributedInput();
 
     /** Copy constructor */
-    DistributedInput(const DistributedInput& other) : daal::algorithms::Input(other){}
+    DistributedInput(const DistributedInput & other) : daal::algorithms::Input(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -682,14 +679,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step4LocalPartialModelsInputId id, const data_management::KeyValueDataCollectionPtr &ptr);
+    void set(Step4LocalPartialModelsInputId id, const data_management::KeyValueDataCollectionPtr & ptr);
 
     /**
      * Sets an input numeric table object for the implicit ALS training algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(Step4LocalNumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(Step4LocalNumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the number of rows in the partial matrix of users factors/items factors
@@ -703,8 +700,7 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
-
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -728,7 +724,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns a partial result of the implicit ALS training algorithm
@@ -742,7 +738,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the partial result
      */
-    void set(DistributedPartialResultStep4Id id, const PartialModelPtr &ptr);
+    void set(DistributedPartialResultStep4Id id, const PartialModelPtr & ptr);
 
     /**
      * Checks a partial result of the implicit ALS training algorithm
@@ -750,18 +746,17 @@ public:
      * \param[in] parameter Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
 };
-typedef services::SharedPtr<DistributedPartialResultStep4>  DistributedPartialResultStep4Ptr;
+typedef services::SharedPtr<DistributedPartialResultStep4> DistributedPartialResultStep4Ptr;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__TRAINING__RESULT"></a>
@@ -782,7 +777,7 @@ public:
      * \param[in] method        Computation method of the algorithm
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns the result of the implicit ALS training algorithm
@@ -796,7 +791,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the result
      */
-    void set(ResultId id, const daal::algorithms::implicit_als::ModelPtr &ptr);
+    void set(ResultId id, const daal::algorithms::implicit_als::ModelPtr & ptr);
 
     /**
      * Checks the result of the implicit ALS training algorithm
@@ -804,19 +799,18 @@ public:
      * \param[in] parameter   %Parameter of the algorithm
      * \param[in] method      Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter,
-               int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
 };
-typedef services::SharedPtr<Result>                         ResultPtr;
-} // interface1
+typedef services::SharedPtr<Result> ResultPtr;
+} // namespace interface1
 using interface1::Input;
 using interface1::DistributedInput;
 using interface1::DistributedPartialResultStep1;
@@ -830,10 +824,10 @@ using interface1::DistributedPartialResultStep4Ptr;
 using interface1::Result;
 using interface1::ResultPtr;
 
-}
+} // namespace training
 /** @} */
-}
-}
-}
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal
 
 #endif

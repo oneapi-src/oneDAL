@@ -34,42 +34,41 @@ namespace algorithms
 {
 namespace svm
 {
-
 namespace interface1
 {
 services::Status Parameter::check() const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, classifier::interface1::Parameter::check());
-    if(C <= 0)
+    if (C <= 0)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, cBoundStr()));
     }
-    if(accuracyThreshold <= 0 || accuracyThreshold >= 1)
+    if (accuracyThreshold <= 0 || accuracyThreshold >= 1)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, accuracyThresholdStr()));
     }
-    if(tau <= 0)
+    if (tau <= 0)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, tauStr()));
     }
-    if(maxIterations == 0)
+    if (maxIterations == 0)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr()));
     }
-    if(!kernel.get())
+    if (!kernel.get())
     {
         return services::Status(services::Error::create(services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, kernelFunctionStr()));
     }
-    if(shrinkingStep == 0)
+    if (shrinkingStep == 0)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, shrinkingStepStr()));
     }
     return s;
 }
 
-}
+} // namespace interface1
 
-}// namespace svm
-}// namespace algorithms
-}// namespace daal
+} // namespace svm
+} // namespace algorithms
+} // namespace daal

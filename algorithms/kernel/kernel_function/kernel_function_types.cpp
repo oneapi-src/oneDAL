@@ -32,9 +32,7 @@ namespace algorithms
 {
 namespace kernel_function
 {
-
-Result::Result() : daal::algorithms::Result(lastResultId + 1)
-{}
+Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
 
 } // namespace kernel_function
 } // namespace algorithms

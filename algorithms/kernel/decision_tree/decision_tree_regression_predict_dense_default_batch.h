@@ -41,7 +41,6 @@ namespace prediction
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 
 template <typename algorithmFPType, prediction::Method method, CpuType cpu>

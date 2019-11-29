@@ -48,7 +48,7 @@ namespace internal
 {
 struct DecisionTreeNode
 {
-    int featureIndex; //split: index of the feature, leaf: -1
+    int featureIndex;                   //split: index of the feature, leaf: -1
     ClassIndexType leftIndexOrClass;    //split: left node index, classification leaf: class index
     ModelFPType featureValueOrResponse; //split: feature value, regression tree leaf: response
     DAAL_FORCEINLINE bool isSplit() const { return featureIndex != -1; }
@@ -76,28 +76,28 @@ public:
     TResponse value; //majority votes response
 
 #ifdef KEEP_CLASSES_PROBABILITIIES
-    THistogramm* hist;  //histogramm
-    size_t       size;  //number of classes in histogramm
-    ClassifierResponse() : hist(nullptr), value(0){}
+    THistogramm * hist; //histogramm
+    size_t size;        //number of classes in histogramm
+    ClassifierResponse() : hist(nullptr), value(0) {}
     ~ClassifierResponse()
     {
-        if(hist) daal::services::daal_free(hist);
+        if (hist) daal::services::daal_free(hist);
         hist = nullptr;
     }
 #else
-    ClassifierResponse() : value(0){}
+    ClassifierResponse() : value(0) {}
 #endif
-    ClassifierResponse(const ClassifierResponse&) = delete;
-    ClassifierResponse& operator=(const ClassifierResponse& o) = delete;
+    ClassifierResponse(const ClassifierResponse &) = delete;
+    ClassifierResponse & operator=(const ClassifierResponse & o) = delete;
 };
 
 struct TreeNodeBase
 {
-    virtual ~TreeNodeBase(){}
-    virtual bool isSplit() const = 0;
+    virtual ~TreeNodeBase() {}
+    virtual bool isSplit() const       = 0;
     virtual size_t numChildren() const = 0;
 
-    TreeNodeBase() : count(0), impurity(0){}
+    TreeNodeBase() : count(0), impurity(0) {}
     size_t count;
     double impurity;
 };
@@ -107,21 +107,21 @@ struct TreeNodeSplit : public TreeNodeBase
 {
     typedef algorithmFPType FeatureType;
     FeatureType featureValue;
-    TreeNodeBase* kid[2];
+    TreeNodeBase * kid[2];
     int featureIdx;
     bool featureUnordered;
 
     TreeNodeSplit() { kid[0] = kid[1] = nullptr; }
-    const TreeNodeBase* left() const { return kid[0]; }
-    const TreeNodeBase* right() const { return kid[1]; }
-    TreeNodeBase* left()  { return kid[0]; }
-    TreeNodeBase* right() { return kid[1]; }
+    const TreeNodeBase * left() const { return kid[0]; }
+    const TreeNodeBase * right() const { return kid[1]; }
+    TreeNodeBase * left() { return kid[0]; }
+    TreeNodeBase * right() { return kid[1]; }
 
     void set(int featIdx, algorithmFPType featValue, bool bUnordered)
     {
         DAAL_ASSERT(featIdx >= 0);
-        featureValue = featValue;
-        featureIdx = featIdx;
+        featureValue     = featValue;
+        featureIdx       = featIdx;
         featureUnordered = bUnordered;
     }
     virtual bool isSplit() const { return true; }
@@ -129,15 +129,15 @@ struct TreeNodeSplit : public TreeNodeBase
 };
 
 template <typename TResponseType>
-struct TreeNodeLeaf: public TreeNodeBase
+struct TreeNodeLeaf : public TreeNodeBase
 {
     TResponseType response;
-    double* hist;
+    double * hist;
 
     TreeNodeLeaf() {}
 
     // nCLasses = 0 for regression
-    TreeNodeLeaf(double* memoryForHist) : hist(memoryForHist) {}
+    TreeNodeLeaf(double * memoryForHist) : hist(memoryForHist) {}
 
     virtual ~TreeNodeLeaf() {}
 
@@ -145,81 +145,91 @@ struct TreeNodeLeaf: public TreeNodeBase
     virtual size_t numChildren() const { return 0; }
 };
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct TreeNodeRegression
 {
     typedef TreeNodeBase Base;
     typedef TreeNodeSplit<algorithmFPType> Split;
     typedef TreeNodeLeaf<algorithmFPType> Leaf;
 
-    static Leaf* castLeaf(Base* n) { return static_cast<Leaf*>(n); }
-    static const Leaf* castLeaf(const Base* n) { return static_cast<const Leaf*>(n); }
-    static Split* castSplit(Base* n) { return static_cast<Split*>(n); }
-    static const Split* castSplit(const Base* n) { return static_cast<const Split*>(n); }
+    static Leaf * castLeaf(Base * n) { return static_cast<Leaf *>(n); }
+    static const Leaf * castLeaf(const Base * n) { return static_cast<const Leaf *>(n); }
+    static Split * castSplit(Base * n) { return static_cast<Split *>(n); }
+    static const Split * castSplit(const Base * n) { return static_cast<const Split *>(n); }
 };
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct TreeNodeClassification
 {
     typedef TreeNodeBase Base;
     typedef TreeNodeSplit<algorithmFPType> Split;
-    typedef TreeNodeLeaf<ClassifierResponse<ClassIndexType, size_t>> Leaf;
+    typedef TreeNodeLeaf<ClassifierResponse<ClassIndexType, size_t> > Leaf;
 
-    static Leaf* castLeaf(Base* n) { return static_cast<Leaf*>(n); }
-    static const Leaf* castLeaf(const Base* n) { return static_cast<const Leaf*>(n); }
-    static Split* castSplit(Base* n) { return static_cast<Split*>(n); }
-    static const Split* castSplit(const Base* n) { return static_cast<const Split*>(n); }
+    static Leaf * castLeaf(Base * n) { return static_cast<Leaf *>(n); }
+    static const Leaf * castLeaf(const Base * n) { return static_cast<const Leaf *>(n); }
+    static Split * castSplit(Base * n) { return static_cast<Split *>(n); }
+    static const Split * castSplit(const Base * n) { return static_cast<const Split *>(n); }
 };
 
 template <typename NodeType>
 class HeapMemoryAllocator
 {
 public:
-    HeapMemoryAllocator(size_t dummy){}
-    typename NodeType::Leaf* allocLeaf();
-    typename NodeType::Split* allocSplit();
-    void free(typename NodeType::Base* n);
-    void reset(){}
+    HeapMemoryAllocator(size_t dummy) {}
+    typename NodeType::Leaf * allocLeaf();
+    typename NodeType::Split * allocSplit();
+    void free(typename NodeType::Base * n);
+    void reset() {}
     bool deleteRecursive() const { return true; }
 };
 template <typename NodeType>
-typename NodeType::Leaf* HeapMemoryAllocator<NodeType>::allocLeaf() { return new typename NodeType::Leaf(); }
+typename NodeType::Leaf * HeapMemoryAllocator<NodeType>::allocLeaf()
+{
+    return new typename NodeType::Leaf();
+}
 
 template <typename NodeType>
-typename NodeType::Split* HeapMemoryAllocator<NodeType>::allocSplit() { return new typename NodeType::Split(); }
+typename NodeType::Split * HeapMemoryAllocator<NodeType>::allocSplit()
+{
+    return new typename NodeType::Split();
+}
 
 template <typename NodeType>
-void HeapMemoryAllocator<NodeType>::free(typename NodeType::Base* n) { delete n; }
+void HeapMemoryAllocator<NodeType>::free(typename NodeType::Base * n)
+{
+    delete n;
+}
 
 class MemoryManager
 {
 public:
-    MemoryManager(size_t chunkSize) : _chunkSize(chunkSize), _posInChunk(0), _iCurChunk(-1){}
+    MemoryManager(size_t chunkSize) : _chunkSize(chunkSize), _posInChunk(0), _iCurChunk(-1) {}
     ~MemoryManager() { destroy(); }
 
-    void* alloc(size_t nBytes);
+    void * alloc(size_t nBytes);
     //free all allocated memory without destroying of internal storage
     void reset();
     //physically destroy internal storage
     void destroy();
 
 private:
-    services::Collection<byte*> _aChunk;
+    services::Collection<byte *> _aChunk;
     const size_t _chunkSize; //size of a chunk to be allocated
-    size_t _posInChunk; //index of the first free byte in the current chunk
-    int _iCurChunk;     //index of the current chunk to allocate from
+    size_t _posInChunk;      //index of the first free byte in the current chunk
+    int _iCurChunk;          //index of the current chunk to allocate from
 };
 
 template <typename NodeType>
 class ChunkAllocator
 {
 public:
-     ChunkAllocator(size_t nNodesInChunk, size_t nClasses = 0) :
-        _man(nNodesInChunk*(sizeof(typename NodeType::Leaf) + sizeof(typename NodeType::Split))){}
-    typename NodeType::Leaf* allocLeaf(size_t nClasses);
-    typename NodeType::Leaf* allocLeaf();
-    typename NodeType::Split* allocSplit();
-    void free(typename NodeType::Base* n);
+    ChunkAllocator(size_t nNodesInChunk, size_t nClasses = 0)
+        : _man(nNodesInChunk * (sizeof(typename NodeType::Leaf) + sizeof(typename NodeType::Split)))
+    {}
+    typename NodeType::Leaf * allocLeaf(size_t nClasses);
+    typename NodeType::Leaf * allocLeaf();
+    typename NodeType::Split * allocSplit();
+    void free(typename NodeType::Base * n);
     void reset() { _man.reset(); }
     bool deleteRecursive() const { return false; }
 
@@ -227,40 +237,36 @@ private:
     MemoryManager _man;
 };
 template <typename NodeType>
-typename NodeType::Leaf* ChunkAllocator<NodeType>::allocLeaf(size_t nClasses)
+typename NodeType::Leaf * ChunkAllocator<NodeType>::allocLeaf(size_t nClasses)
 {
-    void* memory =
-        _man.alloc(sizeof(typename NodeType::Leaf) + nClasses * sizeof(double));
-    return new (memory) typename NodeType::Leaf(reinterpret_cast<double*>(
-        static_cast<typename NodeType::Leaf*>(memory) + 1));
+    void * memory = _man.alloc(sizeof(typename NodeType::Leaf) + nClasses * sizeof(double));
+    return new (memory) typename NodeType::Leaf(reinterpret_cast<double *>(static_cast<typename NodeType::Leaf *>(memory) + 1));
 }
 
 template <typename NodeType>
-typename NodeType::Leaf* ChunkAllocator<NodeType>::allocLeaf()
+typename NodeType::Leaf * ChunkAllocator<NodeType>::allocLeaf()
 {
     return new (_man.alloc(sizeof(typename NodeType::Leaf))) typename NodeType::Leaf();
 }
 
 template <typename NodeType>
-typename NodeType::Split* ChunkAllocator<NodeType>::allocSplit()
+typename NodeType::Split * ChunkAllocator<NodeType>::allocSplit()
 {
     return new (_man.alloc(sizeof(typename NodeType::Split))) typename NodeType::Split();
 }
 
 template <typename NodeType>
-void ChunkAllocator<NodeType>::free(typename NodeType::Base* n) {}
-
+void ChunkAllocator<NodeType>::free(typename NodeType::Base * n)
+{}
 
 template <typename NodeType, typename Allocator>
-void deleteNode(typename NodeType::Base* n, Allocator& a)
+void deleteNode(typename NodeType::Base * n, Allocator & a)
 {
-    if(n->isSplit())
+    if (n->isSplit())
     {
-        typename NodeType::Split* s = static_cast<typename NodeType::Split*>(n);
-        if(s->left())
-            deleteNode<NodeType, Allocator>(s->left(), a);
-        if(s->right())
-            deleteNode<NodeType, Allocator>(s->right(), a);
+        typename NodeType::Split * s = static_cast<typename NodeType::Split *>(n);
+        if (s->left()) deleteNode<NodeType, Allocator>(s->left(), a);
+        if (s->right()) deleteNode<NodeType, Allocator>(s->right(), a);
     }
     a.free(n);
 }
@@ -268,7 +274,7 @@ void deleteNode(typename NodeType::Base* n, Allocator& a)
 class Tree : public Base
 {
 public:
-    Tree(){}
+    Tree() {}
     virtual ~Tree();
 };
 typedef services::SharedPtr<Tree> TreePtr;
@@ -281,75 +287,76 @@ public:
     typedef TNodeType NodeType;
     typedef TreeImpl<TNodeType, TAllocator> ThisType;
 
-    TreeImpl(typename NodeType::Base* t, bool bHasUnorderedFeatureSplits) :
-        _allocator(_cNumNodesHint), _top(t), _hasUnorderedFeatureSplits(bHasUnorderedFeatureSplits){}
-    TreeImpl() : _allocator(_cNumNodesHint), _top(nullptr), _hasUnorderedFeatureSplits(false){}
+    TreeImpl(typename NodeType::Base * t, bool bHasUnorderedFeatureSplits)
+        : _allocator(_cNumNodesHint), _top(t), _hasUnorderedFeatureSplits(bHasUnorderedFeatureSplits)
+    {}
+    TreeImpl() : _allocator(_cNumNodesHint), _top(nullptr), _hasUnorderedFeatureSplits(false) {}
     ~TreeImpl() { destroy(); }
     void destroy();
-    void reset(typename NodeType::Base* t, bool bHasUnorderedFeatureSplits)
+    void reset(typename NodeType::Base * t, bool bHasUnorderedFeatureSplits)
     {
         destroy();
-        _top = t;
+        _top                       = t;
         _hasUnorderedFeatureSplits = bHasUnorderedFeatureSplits;
     }
-    const typename NodeType::Base* top() const { return _top; }
-    Allocator& allocator() { return _allocator; }
+    const typename NodeType::Base * top() const { return _top; }
+    Allocator & allocator() { return _allocator; }
     bool hasUnorderedFeatureSplits() const { return _hasUnorderedFeatureSplits; }
     size_t getNumberOfNodes() const { return top() ? top()->numChildren() + 1 : 0; }
-    void convertToTable(DecisionTreeTable *treeTable,
-        data_management::HomogenNumericTable<double> *impurities,
-        data_management::HomogenNumericTable<int> *nNodeSamples, data_management::HomogenNumericTable<double> *prob, size_t nClasses) const;
+    void convertToTable(DecisionTreeTable * treeTable, data_management::HomogenNumericTable<double> * impurities,
+                        data_management::HomogenNumericTable<int> * nNodeSamples, data_management::HomogenNumericTable<double> * prob,
+                        size_t nClasses) const;
 
 private:
     static const size_t _cNumNodesHint = 512; //number of nodes as a hint for allocator to grow by
     Allocator _allocator;
-    typename NodeType::Base* _top;
+    typename NodeType::Base * _top;
     bool _hasUnorderedFeatureSplits;
 };
-template<typename Allocator = ChunkAllocator<TreeNodeRegression<RegressionFPType> > >
+template <typename Allocator = ChunkAllocator<TreeNodeRegression<RegressionFPType> > >
 using TreeImpRegression = TreeImpl<TreeNodeRegression<RegressionFPType>, Allocator>;
 
-template<typename Allocator = ChunkAllocator<TreeNodeClassification<ClassificationFPType> > >
+template <typename Allocator = ChunkAllocator<TreeNodeClassification<ClassificationFPType> > >
 using TreeImpClassification = TreeImpl<TreeNodeClassification<ClassificationFPType>, Allocator>;
 
-
 #define __NODE_RESERVED_ID -2
-#define __NODE_FREE_ID -3
-#define __N_CHILDS 2
+#define __NODE_FREE_ID     -3
+#define __N_CHILDS         2
 
 template <typename ModelImplType, typename ModelTypePtr>
-ModelImplType& getModelRef(ModelTypePtr& modelPtr)
+ModelImplType & getModelRef(ModelTypePtr & modelPtr)
 {
-    ModelImplType* modelImplPtr = static_cast<ModelImplType*>(modelPtr.get());
+    ModelImplType * modelImplPtr = static_cast<ModelImplType *>(modelPtr.get());
     DAAL_ASSERT(modelImplPtr);
     return *modelImplPtr;
 }
 
-services::Status createTreeInternal(data_management::DataCollectionPtr& serializationData, size_t nNodes, size_t& resId);
+services::Status createTreeInternal(data_management::DataCollectionPtr & serializationData, size_t nNodes, size_t & resId);
 
-void setNode(DecisionTreeNode& node, int featureIndex, size_t classLabel);
+void setNode(DecisionTreeNode & node, int featureIndex, size_t classLabel);
 
-void setNode(DecisionTreeNode& node, int featureIndex, double response);
+void setNode(DecisionTreeNode & node, int featureIndex, double response);
 
-services::Status addSplitNodeInternal(data_management::DataCollectionPtr& serializationData,size_t treeId, size_t parentId, size_t position, size_t featureIndex, double featureValue, size_t& res);
+services::Status addSplitNodeInternal(data_management::DataCollectionPtr & serializationData, size_t treeId, size_t parentId, size_t position,
+                                      size_t featureIndex, double featureValue, size_t & res);
 
-template<typename ClassOrResponseType>
-static services::Status addLeafNodeInternal(data_management::DataCollectionPtr& serializationData, size_t treeId, size_t parentId, size_t position, ClassOrResponseType response, size_t& res)
+template <typename ClassOrResponseType>
+static services::Status addLeafNodeInternal(data_management::DataCollectionPtr & serializationData, size_t treeId, size_t parentId, size_t position,
+                                            ClassOrResponseType response, size_t & res)
 {
     const size_t noParent = static_cast<size_t>(-1);
 
     services::Status s;
-    if ((treeId > (*(serializationData)).size()) || (position != 0 && position != 1 ))
+    if ((treeId > (*(serializationData)).size()) || (position != 0 && position != 1))
     {
         return services::Status(services::ErrorID::ErrorIncorrectParameter);
     }
 
-    const DecisionTreeTable* const pTreeTable = static_cast<DecisionTreeTable*>((*(serializationData))[treeId].get());
-    if (!pTreeTable)
-        return services::Status(services::ErrorID::ErrorNullPtr);
-    const size_t nRows = pTreeTable->getNumberOfRows();
-    DecisionTreeNode* const aNode = (DecisionTreeNode*)pTreeTable->getArray();
-    size_t nodeId = 0;
+    const DecisionTreeTable * const pTreeTable = static_cast<DecisionTreeTable *>((*(serializationData))[treeId].get());
+    if (!pTreeTable) return services::Status(services::ErrorID::ErrorNullPtr);
+    const size_t nRows             = pTreeTable->getNumberOfRows();
+    DecisionTreeNode * const aNode = (DecisionTreeNode *)pTreeTable->getArray();
+    size_t nodeId                  = 0;
     if (parentId == noParent)
     {
         setNode(aNode[0], -1, response);
@@ -365,7 +372,7 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr& 
         if ((aNode[parentId].leftIndexOrClass > 0) && (position == 1))
         {
             const size_t reservedId = aNode[parentId].leftIndexOrClass + 1;
-            nodeId = reservedId;
+            nodeId                  = reservedId;
             if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
             {
                 setNode(aNode[nodeId], -1, response);
@@ -374,7 +381,7 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr& 
         else if ((aNode[parentId].leftIndexOrClass > 0) && (position == 0))
         {
             const size_t reservedId = aNode[parentId].leftIndexOrClass;
-            nodeId = reservedId;
+            nodeId                  = reservedId;
             if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
             {
                 setNode(aNode[nodeId], -1, response);
@@ -383,7 +390,7 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr& 
         else if ((aNode[parentId].leftIndexOrClass == 0) && (position == 0))
         {
             size_t i;
-            for(i = parentId + 1; i < nRows; i++)
+            for (i = parentId + 1; i < nRows; i++)
             {
                 if (aNode[i].featureIndex == __NODE_FREE_ID)
                 {
@@ -392,15 +399,15 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr& 
                 }
             }
             /* no space left */
-            if(i == nRows)
+            if (i == nRows)
             {
                 return services::Status(services::ErrorID::ErrorIncorrectParameter);
             }
             setNode(aNode[nodeId], -1, response);
             aNode[parentId].leftIndexOrClass = nodeId;
-            if (((nodeId + 1) < nRows) && (aNode[nodeId+1].featureIndex == __NODE_FREE_ID))
+            if (((nodeId + 1) < nRows) && (aNode[nodeId + 1].featureIndex == __NODE_FREE_ID))
             {
-                    aNode[nodeId+1].featureIndex = __NODE_RESERVED_ID;
+                aNode[nodeId + 1].featureIndex = __NODE_RESERVED_ID;
             }
             else
             {
@@ -411,7 +418,7 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr& 
         {
             size_t leftEmptyId = 0;
             size_t i;
-            for(i = parentId + 1; i < nRows; i++)
+            for (i = parentId + 1; i < nRows; i++)
             {
                 if (aNode[i].featureIndex == __NODE_FREE_ID)
                 {
@@ -424,9 +431,9 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr& 
             {
                 return services::Status(services::ErrorID::ErrorIncorrectParameter);
             }
-            aNode[leftEmptyId].featureIndex = __NODE_RESERVED_ID;
+            aNode[leftEmptyId].featureIndex  = __NODE_RESERVED_ID;
             aNode[parentId].leftIndexOrClass = leftEmptyId;
-            nodeId = leftEmptyId + 1;
+            nodeId                           = leftEmptyId + 1;
             if (nodeId < nRows)
             {
                 setNode(aNode[nodeId], -1, response);
@@ -452,50 +459,43 @@ public:
     bool resize(const size_t nTrees);
     void clear();
 
-    const data_management::DataCollection* serializationData() const
+    const data_management::DataCollection * serializationData() const { return _serializationData.get(); }
+
+    const DecisionTreeTable * at(const size_t i) const { return (const DecisionTreeTable *)(*_serializationData)[i].get(); }
+
+    const double * getImpVals(size_t i) const
     {
-        return _serializationData.get();
+        return _impurityTables ? ((const data_management::HomogenNumericTable<double> *)(*_impurityTables)[i].get())->getArray() : nullptr;
     }
 
-    const DecisionTreeTable* at(const size_t i) const
+    const int * getNodeSampleCount(size_t i) const
     {
-        return (const DecisionTreeTable*)(*_serializationData)[i].get();
+        return _nNodeSampleTables ? ((const data_management::HomogenNumericTable<int> *)(*_nNodeSampleTables)[i].get())->getArray() : nullptr;
     }
 
-    const double* getImpVals(size_t i) const
+    const double * getProbas(size_t i) const
     {
-        return _impurityTables ? ((const data_management::HomogenNumericTable<double>*)(*_impurityTables)[i].get())->getArray() : nullptr;
-    }
-
-    const int* getNodeSampleCount(size_t i) const
-    {
-        return _nNodeSampleTables ? ((const data_management::HomogenNumericTable<int>*)(*_nNodeSampleTables)[i].get())->getArray() : nullptr;
-    }
-
-    const double* getProbas(size_t i) const
-    {
-        return _probTbl ? ((const data_management::HomogenNumericTable<double>*)(*_probTbl)[i].get())->getArray() : nullptr;
+        return _probTbl ? ((const data_management::HomogenNumericTable<double> *)(*_probTbl)[i].get())->getArray() : nullptr;
     }
 
 protected:
     void destroy();
-    template<typename Archive, bool onDeserialize>
+    template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch, int daalVersion = INTEL_DAAL_VERSION)
     {
         arch->setSharedPtrObj(_serializationData);
 
-        if((daalVersion >= COMPUTE_DAAL_VERSION(2019, 0, 0)))
+        if ((daalVersion >= COMPUTE_DAAL_VERSION(2019, 0, 0)))
         {
             arch->setSharedPtrObj(_impurityTables);
             arch->setSharedPtrObj(_nNodeSampleTables);
         }
-        if((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0)))
+        if ((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0)))
         {
             arch->setSharedPtrObj(_probTbl);
         }
 
-        if(onDeserialize)
-            _nTree.set(_serializationData->size());
+        if (onDeserialize) _nTree.set(_serializationData->size());
 
         return services::Status();
     }
@@ -512,10 +512,9 @@ protected:
 template <typename NodeType, typename Allocator>
 void TreeImpl<NodeType, Allocator>::destroy()
 {
-    if(_top)
+    if (_top)
     {
-        if(allocator().deleteRecursive())
-            deleteNode<NodeType, Allocator>(_top, allocator());
+        if (allocator().deleteRecursive()) deleteNode<NodeType, Allocator>(_top, allocator());
         _top = nullptr;
         allocator().reset();
     }

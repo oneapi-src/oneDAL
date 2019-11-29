@@ -36,18 +36,16 @@ using namespace daal::data_management;
 string datasetFileName = "../data/batch/mse.csv";
 
 const size_t nIterations = 1000;
-const size_t nFeatures = 3;
+const size_t nFeatures   = 3;
 
 const double accuracyThreshold = 0.000001;
 
-float initialPoint[nFeatures + 1] = {0, 0, 0, 0};
+float initialPoint[nFeatures + 1] = { 0, 0, 0, 0 };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
-            DataSource::notAllocateNumericTable,
-            DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for data and values for dependent variable */
     NumericTablePtr data(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -64,15 +62,16 @@ int main(int argc, char *argv[])
     mseObjectiveFunction->input.set(optimization_solver::mse::dependentVariables, dependentVariables);
 
     /* Create objects to compute the Coordinate descent result using the default method */
-    optimization_solver::coordinate_descent::interface1::Batch<>* cdAlgorithm = new optimization_solver::coordinate_descent::interface1::Batch<>(mseObjectiveFunction);
+    optimization_solver::coordinate_descent::interface1::Batch<> * cdAlgorithm =
+        new optimization_solver::coordinate_descent::interface1::Batch<>(mseObjectiveFunction);
 
     /* Set input objects for the the Coordinate descent algorithm */
     cdAlgorithm->input.set(optimization_solver::iterative_solver::inputArgument,
                            NumericTablePtr(new HomogenNumericTable<>(initialPoint, 1, nFeatures + 1)));
 
-    cdAlgorithm->parameter().nIterations = nIterations;
+    cdAlgorithm->parameter().nIterations       = nIterations;
     cdAlgorithm->parameter().accuracyThreshold = accuracyThreshold;
-    cdAlgorithm->parameter().selection = optimization_solver::coordinate_descent::cyclic;
+    cdAlgorithm->parameter().selection         = optimization_solver::coordinate_descent::cyclic;
 
     /* Compute the Coordinate descent result */
     cdAlgorithm->compute();

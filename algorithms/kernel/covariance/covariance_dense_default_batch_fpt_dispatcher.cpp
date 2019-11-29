@@ -29,4 +29,4 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(covariance::BatchContainer, batch, DAAL_FPTYPE, covariance::defaultDense)
 }
-}
+} // namespace daal

@@ -29,8 +29,8 @@ using namespace daal::algorithms::dbscan;
 * Method:    cSetDataCollection
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep9MasterInput_cSetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep9MasterInput_cSetDataCollection(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                            jint id, jlong dcAddr)
 {
     jniInput<DistributedInput<step9Master> >::set<Step9MasterCollectionInputId, DataCollection>(inputAddr, id, dcAddr);
 }
@@ -40,8 +40,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep9Mas
 * Method:    cAddNumericTable
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep9MasterInput_cAddNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep9MasterInput_cAddNumericTable(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                          jlong ntAddr)
 {
     jniInput<DistributedInput<step9Master> >::add<Step9MasterCollectionInputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -51,8 +51,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep9Mas
 * Method:    cGetDataCollection
 * Signature:(JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep9MasterInput_cGetDataCollection
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep9MasterInput_cGetDataCollection(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                             jint id)
 {
     return jniInput<DistributedInput<step9Master> >::get<Step9MasterCollectionInputId, DataCollection>(inputAddr, id);
 }

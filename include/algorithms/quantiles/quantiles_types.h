@@ -47,7 +47,7 @@ namespace quantiles
  */
 enum Method
 {
-    defaultDense = 0    /*!< Default: performance-oriented method. Works with all types of input numeric tables */
+    defaultDense = 0 /*!< Default: performance-oriented method. Works with all types of input numeric tables */
 };
 
 /**
@@ -56,7 +56,7 @@ enum Method
  */
 enum InputId
 {
-    data,             /*!< %Input data table */
+    data, /*!< %Input data table */
     lastInputId = data
 };
 
@@ -66,7 +66,7 @@ enum InputId
  */
 enum ResultId
 {
-    quantiles,        /*!< Values of quantiles */
+    quantiles, /*!< Values of quantiles */
     lastResultId = quantiles
 };
 
@@ -82,7 +82,7 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter(const data_management::NumericTablePtr quantileOrders = data_management::NumericTablePtr());
-    data_management::NumericTablePtr quantileOrders;    /*!< Numeric table with quantile orders. Default value is 0.5 (median) */
+    data_management::NumericTablePtr quantileOrders; /*!< Numeric table with quantile orders. Default value is 0.5 (median) */
 };
 
 /**
@@ -93,7 +93,7 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -109,14 +109,14 @@ public:
      * \param[in] id    Identifier of the %input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Check the correctness of the %Input object
      * \param[in] parameter Pointer to the parameters structure
      * \param[in] method    Algorithm computation method
      */
-    virtual services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -139,7 +139,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns the final result of the quantiles algorithm
@@ -153,7 +153,7 @@ public:
      * \param[in] id        Identifier of the Result object
      * \param[in] value     Pointer to the Result object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks the correctness of the Result object
@@ -161,12 +161,12 @@ public:
      * \param[in] par    Pointer to the parameters structure
      * \param[in] method Algorithm computation method
      */
-    virtual services::Status check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -180,7 +180,7 @@ using interface1::Input;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace daal::algorithms::quantiles
-} // namespace daal::algorithms
+} // namespace quantiles
+} // namespace algorithms
 } // namespace daal
 #endif

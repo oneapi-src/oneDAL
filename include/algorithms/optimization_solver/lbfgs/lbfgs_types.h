@@ -58,7 +58,6 @@ namespace optimization_solver
  */
 namespace lbfgs
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__OPTIMIZATION_SOLVER__LBFGS__METHOD"></a>
  * Available methods for computing LBFGS
@@ -66,7 +65,7 @@ namespace lbfgs
  */
 enum Method
 {
-    defaultDense = 0       /*!< Default: performance-oriented method. */
+    defaultDense = 0 /*!< Default: performance-oriented method. */
 };
 
 /**
@@ -75,13 +74,13 @@ enum Method
 */
 enum OptionalDataId
 {
-    correctionPairs = iterative_solver::lastOptionalData + 1,            /*!< Correction pairs table. Numeric table 2*m x n, where
+    correctionPairs = iterative_solver::lastOptionalData + 1, /*!< Correction pairs table. Numeric table 2*m x n, where
                                          rows (0, m-1) represent correction vectors S and
                                          rows (m, 2*m-1) represent correction vectors Y */
-    correctionIndices,          /*!< Numeric table of size 1 x 2 with 32-bit integer indexes.
+    correctionIndices,                                        /*!< Numeric table of size 1 x 2 with 32-bit integer indexes.
                                          The first value is the index of correction pair t,
                                          the second value is the index of the last iteration k from the previous run */
-    averageArgumentLIterations, /*!< Numeric table of size 2 x n, where
+    averageArgumentLIterations,                               /*!< Numeric table of size 2 x n, where
                                          row 0 represent average arguments for the previous L iterations and
                                          row 1 represent average arguments for the last L iterations.
                                          These values are required to compute S correction vectors on the next step */
@@ -93,7 +92,6 @@ enum OptionalDataId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__LBFGS__PARAMETER"></a>
  * \brief %Parameter class for LBFGS algorithm      \DAAL_DEPRECATED
@@ -114,19 +112,18 @@ struct DAAL_EXPORT Parameter : public optimization_solver::iterative_solver::int
      * \param[in] L                         The number of iterations between the curvature estimates calculations
      * \param[in] seed                      Seed for random choosing terms from objective function \DAAL_DEPRECATED_USE{ engine }
      */
-    DAAL_DEPRECATED Parameter(sum_of_functions::interface1::BatchPtr function = sum_of_functions::interface1::BatchPtr(),
-              size_t nIterations = 100, double accuracyThreshold = 1.0e-5,
-              size_t batchSize = 10, size_t correctionPairBatchSize_ = 100,
-              size_t m = 10, size_t L = 10, size_t seed = 777);
+    DAAL_DEPRECATED Parameter(sum_of_functions::interface1::BatchPtr function = sum_of_functions::interface1::BatchPtr(), size_t nIterations = 100,
+                              double accuracyThreshold = 1.0e-5, size_t batchSize = 10, size_t correctionPairBatchSize_ = 100, size_t m = 10,
+                              size_t L = 10, size_t seed = 777);
 
     DAAL_DEPRECATED_VIRTUAL virtual ~Parameter() {}
 
-    size_t m;                       /*!< Memory parameter of LBFGS.
+    size_t m;                  /*!< Memory parameter of LBFGS.
                                          The maximum number of correction pairs that define the approximation
                                          of inverse Hessian matrix. */
-    size_t L;                       /*!< The number of iterations between the curvature estimates calculations */
-    size_t seed;                    /*!< Seed for random choosing terms from objective function. \DAAL_DEPRECATED_USE{ engine } */
-    engines::EnginePtr engine;      /*!< Engine for random choosing terms from objective function. */
+    size_t L;                  /*!< The number of iterations between the curvature estimates calculations */
+    size_t seed;               /*!< Seed for random choosing terms from objective function. \DAAL_DEPRECATED_USE{ engine } */
+    engines::EnginePtr engine; /*!< Engine for random choosing terms from objective function. */
 
     data_management::NumericTablePtr batchIndices;
 
@@ -160,7 +157,7 @@ class DAAL_EXPORT Input : public optimization_solver::iterative_solver::interfac
 public:
     typedef optimization_solver::iterative_solver::interface1::Input super;
     DAAL_DEPRECATED Input();
-    DAAL_DEPRECATED Input(const Input& other);
+    DAAL_DEPRECATED Input(const Input & other);
     using super::set;
     using super::get;
 
@@ -176,7 +173,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the correctness of the input
@@ -185,7 +182,7 @@ public:
     *
      * \return Status of computations
     */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Input source code] */
 
@@ -210,7 +207,8 @@ public:
     * \param[in] method Computation method of the algorithm
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                          const int method);
 
     /**
     * Returns optional result of the algorithm
@@ -224,7 +222,7 @@ public:
     * \param[in] id    Identifier of the optional result
     * \param[in] ptr   Pointer to the optional result
     */
-    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the result of the iterative solver algorithm
@@ -234,8 +232,8 @@ public:
     *
      * \return Status of computations
     */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-                       int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                           int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /* [Result source code] */
@@ -243,10 +241,8 @@ typedef services::SharedPtr<Result> ResultPtr;
 /** @} */
 } // namespace interface1
 
-
 namespace interface2
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__LBFGS__PARAMETER"></a>
  * \brief %Parameter class for LBFGS algorithm
@@ -267,19 +263,17 @@ struct DAAL_EXPORT Parameter : public optimization_solver::iterative_solver::Par
      * \param[in] L                         The number of iterations between the curvature estimates calculations
      * \param[in] seed                      Seed for random choosing terms from objective function \DAAL_DEPRECATED_USE{ engine }
      */
-    Parameter(sum_of_functions::BatchPtr function = sum_of_functions::BatchPtr(),
-              size_t nIterations = 100, double accuracyThreshold = 1.0e-5,
-              size_t batchSize = 10, size_t correctionPairBatchSize_ = 100,
-              size_t m = 10, size_t L = 10, size_t seed = 777);
+    Parameter(sum_of_functions::BatchPtr function = sum_of_functions::BatchPtr(), size_t nIterations = 100, double accuracyThreshold = 1.0e-5,
+              size_t batchSize = 10, size_t correctionPairBatchSize_ = 100, size_t m = 10, size_t L = 10, size_t seed = 777);
 
     virtual ~Parameter() {}
 
-    size_t m;                       /*!< Memory parameter of LBFGS.
+    size_t m;                  /*!< Memory parameter of LBFGS.
                                          The maximum number of correction pairs that define the approximation
                                          of inverse Hessian matrix. */
-    size_t L;                       /*!< The number of iterations between the curvature estimates calculations */
-    size_t seed;                    /*!< Seed for random choosing terms from objective function. \DAAL_DEPRECATED_USE{ engine } */
-    engines::EnginePtr engine;      /*!< Engine for random choosing terms from objective function. */
+    size_t L;                  /*!< The number of iterations between the curvature estimates calculations */
+    size_t seed;               /*!< Seed for random choosing terms from objective function. \DAAL_DEPRECATED_USE{ engine } */
+    engines::EnginePtr engine; /*!< Engine for random choosing terms from objective function. */
 
     data_management::NumericTablePtr batchIndices;
 
@@ -313,7 +307,7 @@ class DAAL_EXPORT Input : public optimization_solver::iterative_solver::Input
 public:
     typedef optimization_solver::iterative_solver::Input super;
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
     using super::set;
     using super::get;
 
@@ -329,7 +323,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the correctness of the input
@@ -338,7 +332,7 @@ public:
     *
      * \return Status of computations
     */
-    virtual services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /* [Input source code] */
 
@@ -363,7 +357,7 @@ public:
     * \param[in] method Computation method of the algorithm
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
     * Returns optional result of the algorithm
@@ -377,7 +371,7 @@ public:
     * \param[in] id    Identifier of the optional result
     * \param[in] ptr   Pointer to the optional result
     */
-    void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the result of the iterative solver algorithm
@@ -387,8 +381,8 @@ public:
     *
      * \return Status of computations
     */
-    virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-                       int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                   int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /* [Result source code] */
@@ -402,6 +396,6 @@ using interface2::ResultPtr;
 
 } // namespace lbfgs
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

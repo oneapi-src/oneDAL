@@ -34,20 +34,19 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
-typedef float  dataFPType;          /* Data floating-point type */
+typedef float dataFPType; /* Data floating-point type */
 
 /* Input data set parameters */
-const std::string datasetFileName = "../data/batch/em_gmm.csv" ;
-const size_t nComponents   = 2;
+const std::string datasetFileName = "../data/batch/em_gmm.csv";
+const size_t nComponents          = 2;
 size_t nFeatures;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable,
-            DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
     nFeatures = dataSource.getNumberOfColumns();
 
     /* Retrieve the data from the input file */
@@ -57,7 +56,7 @@ int main(int argc, char *argv[])
      * computing the number of components using the default method */
     em_gmm::init::Batch<> initAlgorihm(nComponents);
 
-   /* Set an input data table for the initialization algorithm */
+    /* Set an input data table for the initialization algorithm */
     initAlgorihm.input.set(em_gmm::init::data, dataSource.getNumericTable());
 
     /* Compute initial values for the EM algorithm for the GMM with the default parameters */
@@ -80,7 +79,7 @@ int main(int argc, char *argv[])
     /* Print the results */
     printNumericTable(result->get(em_gmm::weights), "Weights");
     printNumericTable(result->get(em_gmm::means), "Means");
-    for(size_t i = 0; i < nComponents; i++)
+    for (size_t i = 0; i < nComponents; i++)
     {
         printNumericTable(result->get(em_gmm::covariances, i), "Covariance");
     }

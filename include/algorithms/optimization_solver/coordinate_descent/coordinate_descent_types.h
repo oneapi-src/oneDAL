@@ -48,7 +48,6 @@ namespace optimization_solver
  */
 namespace coordinate_descent
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__OPTIMIZATION_SOLVER__COORDINATE_DESCENT__METHOD"></a>
  * Available methods for computing the Coordinate descent
@@ -64,15 +63,14 @@ enum Method
  */
 enum SelectionStrategy
 {
-    cyclic,           /*!< Cyclic selection of coordinate to be optomized */
-    random            /*!< Random selection of coordinate to be optomized */
+    cyclic, /*!< Cyclic selection of coordinate to be optomized */
+    random  /*!< Random selection of coordinate to be optomized */
 };
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__OPTIMIZATION_SOLVER__COORDINATE_DESCENT__PARAMETER"></a>
  * \brief %Parameter base class for the Coordinate descent algorithm
@@ -90,14 +88,9 @@ struct DAAL_EXPORT Parameter : public optimization_solver::iterative_solver::Par
      *                                      If no indices are provided, the implementation will generate random indices.
      * \param[in] seed                     Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    Parameter(
-        const sum_of_functions::BatchPtr &function,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        size_t seed = 777
-    );
+    Parameter(const sum_of_functions::BatchPtr & function, size_t nIterations = 100, double accuracyThreshold = 1.0e-05, size_t seed = 777);
 
-    virtual ~Parameter(){}
+    virtual ~Parameter() {}
 
     /**
      * Checks the correctness of the parameter
@@ -106,13 +99,13 @@ struct DAAL_EXPORT Parameter : public optimization_solver::iterative_solver::Par
      */
     virtual services::Status check() const DAAL_C11_OVERRIDE;
 
-    size_t              seed;                    /*!< Seed for random generation of 32 bit integer indices of terms
+    size_t seed;               /*!< Seed for random generation of 32 bit integer indices of terms
                                                       in the objective function. \DAAL_DEPRECATED_USE{ engine } */
-    engines::EnginePtr  engine;                  /*!< Engine for random generation of 32 bit integer indices of terms
+    engines::EnginePtr engine; /*!< Engine for random generation of 32 bit integer indices of terms
                                                                    in the objective function. */
-    SelectionStrategy  selection;
-    bool               positive;
-    bool               skipTheFirstComponents;
+    SelectionStrategy selection;
+    bool positive;
+    bool skipTheFirstComponents;
 };
 /* [Parameter source code] */
 
@@ -127,9 +120,10 @@ class DAAL_EXPORT Input : public optimization_solver::iterative_solver::Input
 {
 private:
     typedef optimization_solver::iterative_solver::Input super;
+
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     using super::set;
     using super::get;
@@ -141,7 +135,7 @@ public:
     *
      * \return Status of computations
     */
-    virtual services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /* [Input source code] */
 
@@ -168,7 +162,7 @@ public:
      * \return Status of computations
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
     * Checks the result of the iterative solver algorithm
@@ -178,7 +172,7 @@ public:
     *
      * \return Status of computations
     */
-    virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
+    virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
                                    int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Result> ResultPtr;
@@ -193,6 +187,6 @@ using interface1::ResultPtr;
 
 } // namespace coordinate_descent
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

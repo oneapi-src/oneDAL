@@ -27,7 +27,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(covariance::DistributedContainer, distributed,    \
-    step2Master, DAAL_FPTYPE, covariance::singlePassCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(covariance::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, covariance::singlePassCSR)
 }
-}
+} // namespace daal

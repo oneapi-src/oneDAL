@@ -29,7 +29,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -55,13 +54,13 @@ public:
      * \param _preHeadBytes  Size in bytes of section 1 of the LZO compressed block header
      * \param _postHeadBytes Size in bytes of section 4 of the LZO compressed block header
      */
-    LzoCompressionParameter( size_t _preHeadBytes = 0, size_t _postHeadBytes = 0 ) :
-        data_management::CompressionParameter(defaultLevel), preHeadBytes(_preHeadBytes), postHeadBytes(_postHeadBytes)
+    LzoCompressionParameter(size_t _preHeadBytes = 0, size_t _postHeadBytes = 0)
+        : data_management::CompressionParameter(defaultLevel), preHeadBytes(_preHeadBytes), postHeadBytes(_postHeadBytes)
     {}
     ~LzoCompressionParameter() {}
 
-    size_t preHeadBytes;   /*!< Size in bytes of section 1 of the LZO compressed block header */
-    size_t postHeadBytes;  /*!< Size in bytes of section 4 of the LZO compressed block header */
+    size_t preHeadBytes;  /*!< Size in bytes of section 1 of the LZO compressed block header */
+    size_t postHeadBytes; /*!< Size in bytes of section 4 of the LZO compressed block header */
 };
 /* [LzoCompressionParameter source code] */
 
@@ -75,7 +74,8 @@ public:
  *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
  *      - \ref LzoCompressionParameter class
  */
-template<> class DAAL_EXPORT Compressor<lzo> : public data_management::CompressorImpl
+template <>
+class DAAL_EXPORT Compressor<lzo> : public data_management::CompressorImpl
 {
 public:
     /**
@@ -89,15 +89,12 @@ public:
      * \param[in] size     Number of bytes to compress in inBlock
      * \param[in] offset   Offset in bytes, the starting position for compression in inBlock
      */
-    void setInputDataBlock( byte *inBlock, size_t size, size_t offset );
+    void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
     /**
      * Associates an input data block with a compressor
      * \param[in] inBlock Reference to the data block to compress
      */
-    void setInputDataBlock( DataBlock &inBlock )
-    {
-        setInputDataBlock( inBlock.getPtr(), inBlock.getSize(), 0 );
-    }
+    void setInputDataBlock(DataBlock & inBlock) { setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
 
     /**
      * Performs LZO compression of a data block
@@ -105,15 +102,12 @@ public:
      * \param[in] size       Number of bytes available in outBlock
      * \param[in] offset     Offset in bytes, the starting position for compression in outBlock
      */
-    void run( byte *outBlock, size_t size, size_t offset );
+    void run(byte * outBlock, size_t size, size_t offset);
     /**
      * Performs LZO compression of a data block
      * \param[out] outBlock Reference to the data block where compression results are stored
      */
-    void run( DataBlock &outBlock )
-    {
-        run( outBlock.getPtr(), outBlock.getSize(), 0 );
-    }
+    void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     LzoCompressionParameter parameter; /*!< LZO compression parameters structure */
 
@@ -121,11 +115,11 @@ protected:
     void initialize();
 
 private:
-    void *_next_in;
+    void * _next_in;
     size_t _avail_in;
-    void *_next_out;
+    void * _next_out;
     size_t _avail_out;
-    void *_p_lzo_state;
+    void * _p_lzo_state;
     size_t _preHeadBytes;
     size_t _postHeadBytes;
 
@@ -142,7 +136,8 @@ private:
  *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
  *      - \ref LzoCompressionParameter class
  */
-template<> class DAAL_EXPORT Decompressor<lzo> : public data_management::DecompressorImpl
+template <>
+class DAAL_EXPORT Decompressor<lzo> : public data_management::DecompressorImpl
 {
 public:
     /**
@@ -156,16 +151,13 @@ public:
      * \param[in] size     Number of bytes to decompress in inBlock
      * \param[in] offset   Offset in bytes, the starting position for decompression in inBlock
      */
-    void setInputDataBlock( byte *inBlock, size_t size, size_t offset );
+    void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
 
     /**
      * Associates an input data stream with a decompressor
      * \param[in] inBlock Reference to the data block to decompress
      */
-    void setInputDataBlock( DataBlock &inBlock )
-    {
-        return setInputDataBlock( inBlock.getPtr(), inBlock.getSize(), 0 );
-    }
+    void setInputDataBlock(DataBlock & inBlock) { return setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
 
     /**
      * Performs LZO decompression of a data block
@@ -173,16 +165,13 @@ public:
      * \param[in] size       Number of bytes available in outBlock
      * \param[in] offset     Offset in bytes, the starting position for decompression in outBlock
      */
-    void run( byte *outBlock, size_t size, size_t offset );
+    void run(byte * outBlock, size_t size, size_t offset);
 
     /**
      * Performs LZO decompression of a data block
      * \param[out] outBlock Reference to the data block where decompression results are stored
      */
-    void run( DataBlock &outBlock )
-    {
-        run( outBlock.getPtr(), outBlock.getSize(), 0 );
-    }
+    void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     LzoCompressionParameter parameter; /*!< LZO compression parameters structure */
 
@@ -190,15 +179,15 @@ protected:
     void initialize();
 
 private:
-    void *_next_in;
+    void * _next_in;
     size_t _avail_in;
-    void *_next_out;
+    void * _next_out;
     size_t _avail_out;
-    void *_p_lzo_state;
+    void * _p_lzo_state;
     size_t _preHeadBytes;
     size_t _postHeadBytes;
 
-    void *_internalBuff;
+    void * _internalBuff;
     size_t _internalBuffOff;
     size_t _internalBuffLen;
 

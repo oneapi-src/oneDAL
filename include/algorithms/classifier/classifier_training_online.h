@@ -34,7 +34,6 @@ namespace classifier
 {
 namespace training
 {
-
 namespace interface1
 {
 /**
@@ -57,17 +56,14 @@ namespace interface1
 class DAAL_EXPORT Online : public Training<online>
 {
 public:
-    typedef algorithms::classifier::training::Input         InputType;
+    typedef algorithms::classifier::training::Input InputType;
     typedef algorithms::classifier::interface1::Parameter ParameterType;
-    typedef algorithms::classifier::training::Result        ResultType;
+    typedef algorithms::classifier::training::Result ResultType;
     typedef algorithms::classifier::training::PartialResult PartialResultType;
 
-    InputType input;     /*!< %Input objects of the algorithm */
+    InputType input; /*!< %Input objects of the algorithm */
 
-    DAAL_DEPRECATED Online()
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Online() { initialize(); }
 
     /**
      * Constructs a classifier training algorithm by copying input objects and parameters
@@ -75,10 +71,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Online(const Online &other) : input(other.input)
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Online(const Online & other) : input(other.input) { initialize(); }
 
     DAAL_DEPRECATED_VIRTUAL virtual ~Online() {}
 
@@ -87,11 +80,11 @@ public:
      * \param[in] partialResult Structure for storing partial results
      * \param[in] initFlag Flag if partial result initialized or not
      */
-    DAAL_DEPRECATED services::Status setPartialResult(const PartialResultPtr &partialResult, bool initFlag = false)
+    DAAL_DEPRECATED services::Status setPartialResult(const PartialResultPtr & partialResult, bool initFlag = false)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult)
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         setInitFlag(initFlag);
         return services::Status();
     }
@@ -100,11 +93,11 @@ public:
      * Registers user-allocated memory for storing results of the classifier model training algorithm
      * \param[in] res    Structure for storing results of the classifier model training algorithm
      */
-    DAAL_DEPRECATED services::Status setResult(const ResultPtr& res)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -125,19 +118,13 @@ public:
      * and parameters of this classifier training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    DAAL_DEPRECATED services::SharedPtr<Online> clone() const
-    {
-        return services::SharedPtr<Online>(cloneImpl());
-    }
+    DAAL_DEPRECATED services::SharedPtr<Online> clone() const { return services::SharedPtr<Online>(cloneImpl()); }
 
 protected:
     PartialResultPtr _partialResult;
     ResultPtr _result;
 
-    void initialize()
-    {
-        _in = &input;
-    }
+    void initialize() { _in = &input; }
     virtual Online * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };
 /** @} */
@@ -164,13 +151,12 @@ namespace interface2
 class DAAL_EXPORT Online : public Training<online>
 {
 public:
-    typedef algorithms::classifier::training::Input  InputType;
-    typedef algorithms::classifier::Parameter               ParameterType;
-    typedef algorithms::classifier::training::Result        ResultType;
+    typedef algorithms::classifier::training::Input InputType;
+    typedef algorithms::classifier::Parameter ParameterType;
+    typedef algorithms::classifier::training::Result ResultType;
     typedef algorithms::classifier::training::PartialResult PartialResultType;
 
-    Online()
-    {}
+    Online() {}
 
     /**
      * Constructs a classifier training algorithm by copying input objects and parameters
@@ -178,8 +164,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online &other)
-    {}
+    Online(const Online & other) {}
 
     virtual ~Online() {}
 
@@ -194,11 +179,11 @@ public:
      * \param[in] partialResult Structure for storing partial results
      * \param[in] initFlag Flag if partial result initialized or not
      */
-    services::Status setPartialResult(const PartialResultPtr &partialResult, bool initFlag = false)
+    services::Status setPartialResult(const PartialResultPtr & partialResult, bool initFlag = false)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult)
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         setInitFlag(initFlag);
         return services::Status();
     }
@@ -207,11 +192,11 @@ public:
      * Registers user-allocated memory for storing results of the classifier model training algorithm
      * \param[in] res    Structure for storing results of the classifier model training algorithm
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -232,10 +217,7 @@ public:
      * and parameters of this classifier training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Online> clone() const
-    {
-        return services::SharedPtr<Online>(cloneImpl());
-    }
+    services::SharedPtr<Online> clone() const { return services::SharedPtr<Online>(cloneImpl()); }
 
 protected:
     PartialResultPtr _partialResult;
@@ -244,11 +226,11 @@ protected:
     virtual Online * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 };
 /** @} */
-} // namespace interface1
+} // namespace interface2
 using interface2::Online;
 
-}
-}
-}
-}
+} // namespace training
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 #endif

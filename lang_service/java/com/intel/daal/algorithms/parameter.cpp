@@ -26,30 +26,26 @@ using namespace daal::services;
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Parameter_cDispose
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Parameter_cDispose(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    delete(daal::algorithms::Parameter *)parAddr;
+    delete (daal::algorithms::Parameter *)parAddr;
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Parameter_cCheck
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_Parameter_cCheck(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
     ((daal::algorithms::Parameter *)parAddr)->check();
 }
 
 namespace daal
 {
-
-void throwError(JNIEnv *env, const char *message)
+void throwError(JNIEnv * env, const char * message)
 {
     env->ThrowNew(env->FindClass("java/lang/Exception"), message);
 }
 
-void checkError(JNIEnv *env, const services::Status& s)
+void checkError(JNIEnv * env, const services::Status & s)
 {
-    if(!s)
-        throwError(env, s.getDescription());
+    if (!s) throwError(env, s.getDescription());
 }
 
-}
+} // namespace daal

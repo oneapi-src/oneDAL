@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __COVARIANCE_KERNEL_ONEAPI_H__
 #define __COVARIANCE_KERNEL_ONEAPI_H__
 
@@ -42,31 +41,22 @@ namespace oneapi
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class CovarianceDenseBatchKernelOneAPI : public Kernel
 {
 public:
-    services::Status compute(NumericTable *dataTable, NumericTable *covTable,
-                             NumericTable *meanTable, const Parameter *parameter);
+    services::Status compute(NumericTable * dataTable, NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter);
 };
 
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class CovarianceDenseOnlineKernelOneAPI : public Kernel
 {
 public:
-    services::Status compute(NumericTable *dataTable,
-                             NumericTable *nObsTable,
-                             NumericTable *crossProductTable,
-                             NumericTable *sumTable,
-                             const Parameter *parameter);
+    services::Status compute(NumericTable * dataTable, NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable,
+                             const Parameter * parameter);
 
-    services::Status finalizeCompute(NumericTable *nObservationsTable,
-                                     NumericTable *crossProductTable,
-                                     NumericTable *sumTable,
-                                     NumericTable *covTable,
-                                     NumericTable *meanTable,
-                                     const Parameter *parameter);
+    services::Status finalizeCompute(NumericTable * nObservationsTable, NumericTable * crossProductTable, NumericTable * sumTable,
+                                     NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter);
 };
 
 } // namespace internal

@@ -32,10 +32,10 @@ using namespace daal::services;
 * Method:    cInit
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_ModelBuilder_cInit
-(JNIEnv *, jobject, jint method, jlong nFeatures, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_ModelBuilder_cInit(JNIEnv *, jobject, jint method, jlong nFeatures,
+                                                                                                   jlong nClasses)
 {
-    return (jlong)(new SharedPtr<ModelBuilder<>>(new ModelBuilder<>(nFeatures, nClasses)));
+    return (jlong)(new SharedPtr<ModelBuilder<> >(new ModelBuilder<>(nFeatures, nClasses)));
 }
 
 /*
@@ -43,13 +43,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cGetModel
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_ModelBuilder_cGetModel
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_ModelBuilder_cGetModel(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    ModelPtr *model = new ModelPtr;
-    services::SharedPtr<ModelBuilder<>> *ptr = new services::SharedPtr<ModelBuilder<>>();
-    *ptr = staticPointerCast<ModelBuilder<>>(*(SharedPtr<ModelBuilder<>> *)algAddr);
-    *model = staticPointerCast<Model>((*ptr)->getModel());
+    ModelPtr * model                           = new ModelPtr;
+    services::SharedPtr<ModelBuilder<> > * ptr = new services::SharedPtr<ModelBuilder<> >();
+    *ptr                                       = staticPointerCast<ModelBuilder<> >(*(SharedPtr<ModelBuilder<> > *)algAddr);
+    *model                                     = staticPointerCast<Model>((*ptr)->getModel());
     return (jlong)model;
 }
 
@@ -58,12 +57,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cSetTwoClassClassifierModel
  * Signature:(JII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_ModelBuilder_cSetTwoClassClassifierModel
-(JNIEnv *env, jobject thisObj, jlong algAddr, jlong negativeClassIdx, jlong positiveClassIdx, jlong modelAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_ModelBuilder_cSetTwoClassClassifierModel(
+    JNIEnv * env, jobject thisObj, jlong algAddr, jlong negativeClassIdx, jlong positiveClassIdx, jlong modelAddr)
 {
-    daal::algorithms::classifier::ModelPtr *twoClassModel = (daal::algorithms::classifier::ModelPtr *)modelAddr;
-    services::SharedPtr<ModelBuilder<>> *ptr = new services::SharedPtr<ModelBuilder<>>();
-    *ptr = staticPointerCast<ModelBuilder<>>(*(SharedPtr<ModelBuilder<>> *)algAddr);
+    daal::algorithms::classifier::ModelPtr * twoClassModel = (daal::algorithms::classifier::ModelPtr *)modelAddr;
+    services::SharedPtr<ModelBuilder<> > * ptr             = new services::SharedPtr<ModelBuilder<> >();
+    *ptr                                                   = staticPointerCast<ModelBuilder<> >(*(SharedPtr<ModelBuilder<> > *)algAddr);
     (*ptr)->setTwoClassClassifierModel(negativeClassIdx, positiveClassIdx, staticPointerCast<daal::algorithms::classifier::Model>(*twoClassModel));
     DAAL_CHECK_THROW((*ptr)->getStatus());
 }

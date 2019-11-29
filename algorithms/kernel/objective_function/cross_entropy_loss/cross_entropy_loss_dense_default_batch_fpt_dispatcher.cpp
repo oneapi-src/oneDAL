@@ -19,40 +19,39 @@
 //  Implementation of cross_entropy_loss calculation algorithm container.
 //--
 
-
 #include "cross_entropy_loss_dense_default_batch_container.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(optimization_solver::cross_entropy_loss::interface2::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::cross_entropy_loss::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(optimization_solver::cross_entropy_loss::interface2::BatchContainer, batch, DAAL_FPTYPE,
+                                           optimization_solver::cross_entropy_loss::defaultDense)
 
 namespace optimization_solver
 {
 namespace cross_entropy_loss
 {
-
 namespace interface2
 {
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::cross_entropy_loss::defaultDense>;
 
-template<>
+template <>
 BatchType::Batch(size_t nClasses, size_t numberOfTerms) : sum_of_functions::Batch(numberOfTerms, &input, new ParameterType(nClasses, numberOfTerms))
 {
     initialize();
     _par = sumOfFunctionsParameter;
 }
 
-template<>
-BatchType::Batch(const BatchType &other) :
-    sum_of_functions::Batch(other.parameter().numberOfTerms, &input, new ParameterType(other.parameter())), input(other.input)
+template <>
+BatchType::Batch(const BatchType & other)
+    : sum_of_functions::Batch(other.parameter().numberOfTerms, &input, new ParameterType(other.parameter())), input(other.input)
 {
     initialize();
     _par = sumOfFunctionsParameter;
 }
 
-template<>
+template <>
 services::SharedPtr<BatchType> BatchType::create(size_t nClasses, size_t numberOfTerms)
 {
     return services::SharedPtr<BatchType>(new BatchType(nClasses, numberOfTerms));

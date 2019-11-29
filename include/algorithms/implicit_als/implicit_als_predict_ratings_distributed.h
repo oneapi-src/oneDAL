@@ -38,7 +38,6 @@ namespace prediction
 {
 namespace ratings
 {
-
 namespace interface1
 {
 /**
@@ -50,7 +49,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__PREDICTION__RATINGS__DISTRIBUTEDCONTAINER"></a>
  * \brief Class that contains methods to run implicit ALS model-based prediction in the distributed processing mode
  */
-template<ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
+template <ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer
 {};
 
@@ -59,16 +58,16 @@ class DistributedContainer
  * \brief Class that contains methods to run implicit ALS model-based prediction in the first step of
  *        the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public DistributedPredictionContainerIface
 {
 public:
-     /**
+    /**
      * Constructs a container for implicit ALS model-based ratings prediction with a specified environment
      * in the first step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     ~DistributedContainer();
 
     /**
@@ -100,8 +99,9 @@ public:
  *      - \ref implicit_als::interface1::Parameter "implicit_als::Parameter" class
  *      - \ref Distributed class
  */
-template<ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class Distributed : public daal::algorithms::DistributedPrediction {};
+template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+class Distributed : public daal::algorithms::DistributedPrediction
+{};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__PREDICTION__RATINGS__DISTRIBUTED_STEP1LOCAL_ALGORITHMFPTYPE_METHOD"></a>
@@ -117,25 +117,22 @@ class Distributed : public daal::algorithms::DistributedPrediction {};
  * \par References
  *      - \ref DistributedInput<step1Local> class
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class Distributed<step1Local, algorithmFPType, method> : public daal::algorithms::DistributedPrediction
 {
 public:
     typedef algorithms::implicit_als::prediction::ratings::DistributedInput<step1Local> InputType;
-    typedef algorithms::implicit_als::Parameter                                         ParameterType;
-    typedef algorithms::implicit_als::prediction::ratings::Result                       ResultType;
-    typedef algorithms::implicit_als::prediction::ratings::PartialResult                PartialResultType;
+    typedef algorithms::implicit_als::Parameter ParameterType;
+    typedef algorithms::implicit_als::prediction::ratings::Result ResultType;
+    typedef algorithms::implicit_als::prediction::ratings::PartialResult PartialResultType;
 
-    DistributedInput<step1Local> input;                 /*!< %Input data structure */
-    ParameterType parameter;        /*!< \ref implicit_als::interface1::Parameter "Parameters" of the algorithm */
+    DistributedInput<step1Local> input; /*!< %Input data structure */
+    ParameterType parameter;            /*!< \ref implicit_als::interface1::Parameter "Parameters" of the algorithm */
 
     /**
      * Default constructor
      */
-    Distributed()
-    {
-        initialize();
-    }
+    Distributed() { initialize(); }
 
     /**
      * Constructs an implicit ALS ratings prediction algorithm by copying input objects and parameters
@@ -143,10 +140,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step1Local, algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Distributed(const Distributed<step1Local, algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     virtual ~Distributed() {}
 
@@ -154,25 +148,19 @@ public:
      * Returns the structure that contains the results of the implicit ALS ratings prediction algorithm
      * \return Structure that contains the results of the implicit ALS ratings prediction algorithm
      */
-    ResultPtr getResult()
-    {
-        return _partialResult->get(finalResult);
-    }
+    ResultPtr getResult() { return _partialResult->get(finalResult); }
 
     /**
      * Returns the structure that contains computed partial results of the implicit ALS ratings prediction algorithm
      * \return Structure that contains computed partial results of the implicit ALS ratings prediction algorithm
      */
-    PartialResultPtr getPartialResult()
-    {
-        return _partialResult;
-    }
+    PartialResultPtr getPartialResult() { return _partialResult; }
 
     /**
      * Registers user-allocated memory for storing the prediction results
      * \param[in] result Structure for storing the prediction results
      */
-    services::Status setResult(const ResultPtr &result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _partialResult->set(finalResult, result);
@@ -185,12 +173,12 @@ public:
      * \param[in] partialResult  Structure for storing partial results of the implicit ALS ratings prediction algorithm
      * \param[in] initFlag       Flag that specifies whether partial results are initialized
      */
-    services::Status setPartialResult(const PartialResultPtr& partialResult, bool initFlag = false)
+    services::Status setPartialResult(const PartialResultPtr & partialResult, bool initFlag = false)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult)
         DAAL_CHECK(partialResult->get(finalResult), services::ErrorNullResult)
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         setInitFlag(initFlag);
         return services::Status();
     }
@@ -199,7 +187,7 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated ALS ratings prediction algorithm with a copy of input objects
@@ -219,40 +207,33 @@ protected:
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->allocate<algorithmFPType>(&input, &parameter, (int)method);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
-        _ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step1Local, algorithmFPType, method)(&_env);
-        _in = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step1Local, algorithmFPType, method)(&_env);
+        _in  = &input;
         _par = &parameter;
         _partialResult.reset(new PartialResultType());
     }
-
 };
 /** @} */
-} // interface1
+} // namespace interface1
 using interface1::DistributedContainer;
 using interface1::Distributed;
 
-}
-}
-}
-}
-}
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal
 #endif

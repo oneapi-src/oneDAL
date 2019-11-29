@@ -60,7 +60,7 @@ namespace training
  */
 enum Method
 {
-    xboost = 0,       /*!< Extreme boosting (second-order approximation of objective function,
+    xboost       = 0, /*!< Extreme boosting (second-order approximation of objective function,
                            regularization on number of leaves and their weights), Chen et al. */
     defaultDense = 0  /*!< Default training method */
 };
@@ -71,8 +71,8 @@ enum Method
 */
 enum LossFunctionType
 {
-    squared,       /* L(y,f) = ([y-f(x)]^2)/2 */
-    custom         /* Should be differentiable up to the second order */
+    squared, /* L(y,f) = ([y-f(x)]^2)/2 */
+    custom   /* Should be differentiable up to the second order */
 };
 
 /**
@@ -92,7 +92,7 @@ enum InputId
  */
 enum ResultId
 {
-    model = algorithms::regression::training::model,   /*!< model */
+    model        = algorithms::regression::training::model, /*!< model */
     lastResultId = model
 };
 
@@ -124,7 +124,7 @@ public:
     Parameter();
     services::Status check() const DAAL_C11_OVERRIDE;
 
-    LossFunctionType loss; /*!< Loss function type */
+    LossFunctionType loss;     /*!< Loss function type */
     DAAL_UINT64 varImportance; /*!< 64 bit integer flag VariableImportanceModes that indicates the variable importance computation modes */
 };
 /* [Parameter source code] */
@@ -140,7 +140,7 @@ public:
     Input();
 
     /** Copy constructor */
-    Input(const Input& other) : algorithms::regression::training::Input(other){}
+    Input(const Input & other) : algorithms::regression::training::Input(other) {}
 
     virtual ~Input() {};
 
@@ -156,7 +156,7 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &value);
+    void set(InputId id, const data_management::NumericTablePtr & value);
 
     /**
     * Checks an input object for the gradient boosted trees algorithm
@@ -164,7 +164,7 @@ public:
     * \param[in] method  Computation method
     * \return Status of checking
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -185,8 +185,8 @@ public:
      * \param[in] parameter %Parameter of model-based training
      * \return Status of allocation
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const Parameter *parameter, const int method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method);
 
     /**
      * Returns the result of model-based training
@@ -200,7 +200,7 @@ public:
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
      */
-    void set(ResultId id, const ModelPtr &value);
+    void set(ResultId id, const ModelPtr & value);
 
     /**
      * Returns the result of model-based training
@@ -214,7 +214,7 @@ public:
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
      */
-    void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
+    void set(ResultNumericTableId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks the result of model-based training
@@ -223,12 +223,12 @@ public:
      * \param[in] method  Computation method
      * \return Status of checking
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -244,7 +244,7 @@ using interface1::ResultPtr;
 } // namespace training
 /** @} */
 } // namespace regression
-}
-}
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal
 #endif

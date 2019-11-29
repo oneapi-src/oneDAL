@@ -36,7 +36,6 @@ namespace training
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 

@@ -30,8 +30,8 @@ using namespace daal::algorithms::univariate_outlier_detection;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detection_Input_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detection_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                     jint id, jlong ntAddr)
 {
     jniInput<univariate_outlier_detection::Input>::set<univariate_outlier_detection::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -41,8 +41,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detec
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detection_Input_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_univariate_1outlier_1detection_Input_cGetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong inputAddr, jint id)
 {
     return jniInput<univariate_outlier_detection::Input>::get<univariate_outlier_detection::InputId, NumericTable>(inputAddr, id);
 }

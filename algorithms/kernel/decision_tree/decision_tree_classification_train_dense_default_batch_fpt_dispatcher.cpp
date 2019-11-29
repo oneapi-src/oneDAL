@@ -27,7 +27,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_tree::classification::training::BatchContainer, batch, DAAL_FPTYPE, \
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_tree::classification::training::BatchContainer, batch, DAAL_FPTYPE,
                                       decision_tree::classification::training::defaultDense)
 
 } // namespace algorithms

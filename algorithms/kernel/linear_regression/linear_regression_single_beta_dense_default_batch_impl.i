@@ -48,91 +48,85 @@ namespace single_beta
 {
 namespace internal
 {
-
-template<Method method, typename algorithmFPType, CpuType cpu>
-Status SingleBetaKernel<method, algorithmFPType, cpu>::computeTestStatistics(
-    const NumericTable* betas,
-    const algorithmFPType* v,
-    algorithmFPType alpha, algorithmFPType accuracyThreshold, SingleBetaOutput& out)
+template <Method method, typename algorithmFPType, CpuType cpu>
+Status SingleBetaKernel<method, algorithmFPType, cpu>::computeTestStatistics(const NumericTable * betas, const algorithmFPType * v,
+                                                                             algorithmFPType alpha, algorithmFPType accuracyThreshold,
+                                                                             SingleBetaOutput & out)
 {
-    const size_t nBeta = betas->getNumberOfColumns();
+    const size_t nBeta     = betas->getNumberOfColumns();
     const size_t nResponse = betas->getNumberOfRows();
 
-    ReadRows<algorithmFPType, cpu> betasBD(*const_cast<NumericTable*>(betas), 0, nResponse);
+    ReadRows<algorithmFPType, cpu> betasBD(*const_cast<NumericTable *>(betas), 0, nResponse);
     DAAL_CHECK_BLOCK_STATUS(betasBD);
-    const algorithmFPType* beta = betasBD.get();
+    const algorithmFPType * beta = betasBD.get();
 
     WriteRows<algorithmFPType, cpu> zScoreBD(*out.zScore, 0, nResponse);
     DAAL_CHECK_BLOCK_STATUS(zScoreBD);
-    algorithmFPType* zScore = zScoreBD.get();
+    algorithmFPType * zScore = zScoreBD.get();
 
     WriteRows<algorithmFPType, cpu> confidenceIntervalsBD(*out.confidenceIntervals, 0, nResponse);
     DAAL_CHECK_BLOCK_STATUS(confidenceIntervalsBD);
-    algorithmFPType* confInt = confidenceIntervalsBD.get();
+    algorithmFPType * confInt = confidenceIntervalsBD.get();
 
     ReadRows<algorithmFPType, cpu> varianceBD(*out.variance, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(varianceBD);
-    const algorithmFPType* variance = varianceBD.get();
+    const algorithmFPType * variance = varianceBD.get();
 
-    const algorithmFPType z_1_alpha = daal::internal::Math<algorithmFPType,cpu>::sCdfNormInv(1 - alpha);
-    for(size_t i = 0; i < nResponse; ++i)
+    const algorithmFPType z_1_alpha = daal::internal::Math<algorithmFPType, cpu>::sCdfNormInv(1 - alpha);
+    for (size_t i = 0; i < nResponse; ++i)
     {
-        const algorithmFPType sigma = z_1_alpha*daal::internal::Math<algorithmFPType,cpu>::sSqrt(variance[i]);
-        for(size_t j = 0; j < nBeta; ++j)
+        const algorithmFPType sigma = z_1_alpha * daal::internal::Math<algorithmFPType, cpu>::sSqrt(variance[i]);
+        for (size_t j = 0; j < nBeta; ++j)
         {
-            algorithmFPType vsigma = sigma*v[j];
-            if(vsigma < accuracyThreshold)
-                vsigma = accuracyThreshold;
-            const algorithmFPType betaVal = beta[i*nBeta + j];
-            zScore[i*nBeta + j] = betaVal/vsigma;
-            confInt[i*2*nBeta + 2*j] = betaVal - vsigma;
-            confInt[i*2*nBeta + 2*j + 1] = betaVal + vsigma;
+            algorithmFPType vsigma = sigma * v[j];
+            if (vsigma < accuracyThreshold) vsigma = accuracyThreshold;
+            const algorithmFPType betaVal      = beta[i * nBeta + j];
+            zScore[i * nBeta + j]              = betaVal / vsigma;
+            confInt[i * 2 * nBeta + 2 * j]     = betaVal - vsigma;
+            confInt[i * 2 * nBeta + 2 * j + 1] = betaVal + vsigma;
         }
     }
     return Status();
 }
 
-template<typename algorithmFPType, CpuType cpu>
-static bool regularizeTriangularMatrix(algorithmFPType* pMat, size_t dim)
+template <typename algorithmFPType, CpuType cpu>
+static bool regularizeTriangularMatrix(algorithmFPType * pMat, size_t dim)
 {
     const algorithmFPType DIAGVALUE_THRESHOLD = 10 * daal::services::internal::MinVal<algorithmFPType>::get();
-    const algorithmFPType minShift = 2 * daal::services::internal::MinVal<algorithmFPType>::get();
-    algorithmFPType shift = 0;
+    const algorithmFPType minShift            = 2 * daal::services::internal::MinVal<algorithmFPType>::get();
+    algorithmFPType shift                     = 0;
     //find minimal absolute value of diagonal elements assuming they are > -DIAGVALUE_THRESHOLD
-    for(auto i = 0; i < dim; ++i)
+    for (auto i = 0; i < dim; ++i)
     {
-        if(pMat[dim*i + i] < -DIAGVALUE_THRESHOLD)
-            return false;
-        const algorithmFPType val = pMat[dim*i + i] < 0 ? -pMat[dim*i + i] : pMat[dim*i + i];
-        if((val < DIAGVALUE_THRESHOLD) && (shift > val))
-            shift = val;
+        if (pMat[dim * i + i] < -DIAGVALUE_THRESHOLD) return false;
+        const algorithmFPType val = pMat[dim * i + i] < 0 ? -pMat[dim * i + i] : pMat[dim * i + i];
+        if ((val < DIAGVALUE_THRESHOLD) && (shift > val)) shift = val;
     }
-    if(shift < minShift)
-        shift = minShift;
-    for(auto i = 0; i < dim; ++i)
+    if (shift < minShift) shift = minShift;
+    for (auto i = 0; i < dim; ++i)
     {
-        algorithmFPType val = pMat[dim*i + i] < 0 ? -pMat[dim*i + i] : pMat[dim*i + i];
-        if(val < DIAGVALUE_THRESHOLD)
-            pMat[dim*i + i] = DIAGVALUE_THRESHOLD + shift;
+        algorithmFPType val = pMat[dim * i + i] < 0 ? -pMat[dim * i + i] : pMat[dim * i + i];
+        if (val < DIAGVALUE_THRESHOLD)
+            pMat[dim * i + i] = DIAGVALUE_THRESHOLD + shift;
         else
-            pMat[dim*i + i] += shift;
+            pMat[dim * i + i] += shift;
     }
     return true;
 }
 
-template<Method method, typename algorithmFPType, CpuType cpu>
-Status SingleBetaKernel<method, algorithmFPType, cpu>::computeInverseXtX(const NumericTable* xtx, bool bModelNe, NumericTable* xtxInv)
+template <Method method, typename algorithmFPType, CpuType cpu>
+Status SingleBetaKernel<method, algorithmFPType, cpu>::computeInverseXtX(const NumericTable * xtx, bool bModelNe, NumericTable * xtxInv)
 {
     const auto nBetas = xtx->getNumberOfColumns();
-    int result = 0;
+    int result        = 0;
 
-    ReadRows<algorithmFPType, cpu> xtxBD(*const_cast<NumericTable*>(xtx), 0, nBetas);
+    ReadRows<algorithmFPType, cpu> xtxBD(*const_cast<NumericTable *>(xtx), 0, nBetas);
     DAAL_CHECK_BLOCK_STATUS(xtxBD);
-    const algorithmFPType *pXtX = xtxBD.get();
+    const algorithmFPType * pXtX = xtxBD.get();
 
     WriteRows<algorithmFPType, cpu> xtxInvBD(*xtxInv, 0, nBetas);
     DAAL_CHECK_BLOCK_STATUS(xtxInvBD);
-    algorithmFPType *pXtXInv = xtxInvBD.get();
+    algorithmFPType * pXtXInv = xtxInvBD.get();
 
     //if bModelNe == true then xtx contains X' * X
     //else xtx contains Rt matrix from QR (xtx is assumed Rt*R)
@@ -151,34 +145,28 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeInverseXtX(const N
     if (bModelNe)
     {
         Lapack<algorithmFPType, cpu>::xpotrf(&uplo, &nBeta, pXtXInv, &nBeta, &info);
-        if (info != 0)
-            return Status(ErrorLinRegXtXInvFailed);
+        if (info != 0) return Status(ErrorLinRegXtXInvFailed);
     }
 
     Lapack<algorithmFPType, cpu>::xpotri(&uplo, &nBeta, pXtXInv, &nBeta, &info);
-    if(info == 0)
-        return Status();
-    if(info < 0)
-        return Status(ErrorLinRegXtXInvFailed);
+    if (info == 0) return Status();
+    if (info < 0) return Status(ErrorLinRegXtXInvFailed);
     result |= services::internal::daal_memcpy_s(pXtXInv, dataSize, pXtX, dataSize);
     DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
     if (bModelNe)
     {
         Lapack<algorithmFPType, cpu>::xpotrf(&uplo, &nBeta, pXtXInv, &nBeta, &info);
-        if (info != 0)
-            return Status(ErrorLinRegXtXInvFailed);
+        if (info != 0) return Status(ErrorLinRegXtXInvFailed);
     }
-    if(!regularizeTriangularMatrix<algorithmFPType, cpu>(pXtXInv, nBetas))
-        return Status(ErrorLinRegXtXInvFailed);
+    if (!regularizeTriangularMatrix<algorithmFPType, cpu>(pXtXInv, nBetas)) return Status(ErrorLinRegXtXInvFailed);
     Lapack<algorithmFPType, cpu>::xpotri(&uplo, &nBeta, pXtXInv, &nBeta, &info);
     return (info == 0) ? Status() : Status(ErrorLinRegXtXInvFailed);
 }
 
-template<Method method, typename algorithmFPType, CpuType cpu>
-Status SingleBetaKernel<method, algorithmFPType, cpu>::compute(
-    const NumericTable* y, const NumericTable* z, size_t p,
-    const NumericTable* betas, const NumericTable* xtx, bool bModelNe,
-    algorithmFPType accuracyThreshold, algorithmFPType alpha, SingleBetaOutput& out)
+template <Method method, typename algorithmFPType, CpuType cpu>
+Status SingleBetaKernel<method, algorithmFPType, cpu>::compute(const NumericTable * y, const NumericTable * z, size_t p, const NumericTable * betas,
+                                                               const NumericTable * xtx, bool bModelNe, algorithmFPType accuracyThreshold,
+                                                               algorithmFPType alpha, SingleBetaOutput & out)
 {
     Status s;
     DAAL_CHECK_STATUS(s, computeRmsVariance(y, z, p, out.rms, out.variance));
@@ -192,53 +180,52 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::compute(
 
     //Compute vector V (sqrt of inverse (Xt*X) diagonal elements)
     TArray<algorithmFPType, cpu> aDiagElem(nBetas);
-    algorithmFPType* v = aDiagElem.get();
+    algorithmFPType * v = aDiagElem.get();
     DAAL_CHECK_MALLOC(v);
 
     {
         ReadRows<algorithmFPType, cpu> xtxInvBD(*out.inverseOfXtX, 0, nBetas);
         DAAL_CHECK_BLOCK_STATUS(xtxInvBD);
-        const algorithmFPType *xtxInv = xtxInvBD.get();
+        const algorithmFPType * xtxInv = xtxInvBD.get();
 
-        const algorithmFPType* pXtxInv = xtxInv;
-        algorithmFPType* pV = v;
-        for(auto i = 0; i < nBetas; ++i, pXtxInv += nBetas + 1, ++pV)
-            *pV = (*pXtxInv < 0 ? daal::internal::Math<algorithmFPType,cpu>::sSqrt(-*pXtxInv) :
-                                  daal::internal::Math<algorithmFPType,cpu>::sSqrt(*pXtxInv));
+        const algorithmFPType * pXtxInv = xtxInv;
+        algorithmFPType * pV            = v;
+        for (auto i = 0; i < nBetas; ++i, pXtxInv += nBetas + 1, ++pV)
+            *pV = (*pXtxInv < 0 ? daal::internal::Math<algorithmFPType, cpu>::sSqrt(-*pXtxInv) :
+                                  daal::internal::Math<algorithmFPType, cpu>::sSqrt(*pXtxInv));
 
         //Compute beta variance-covariance matrices
         ReadRows<algorithmFPType, cpu> varianceBD(*out.variance, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(varianceBD);
-        const algorithmFPType* variance = varianceBD.get();
+        const algorithmFPType * variance = varianceBD.get();
 
         const auto k = y->getNumberOfColumns();
-        for(auto i = 0; i < k; ++i)
+        for (auto i = 0; i < k; ++i)
         {
             WriteRows<algorithmFPType, cpu> betaCovBD(*out.betaCovariances[i], 0, nBetas);
             DAAL_CHECK_BLOCK_STATUS(betaCovBD);
-            algorithmFPType *betaCov = betaCovBD.get();
+            algorithmFPType * betaCov     = betaCovBD.get();
             const algorithmFPType sigmaSq = variance[i];
-            for(auto j = 0; j < nBetas*nBetas; ++j)
-                betaCov[j] = xtxInv[j]*sigmaSq;
+            for (auto j = 0; j < nBetas * nBetas; ++j) betaCov[j] = xtxInv[j] * sigmaSq;
         }
     }
     return computeTestStatistics(betas, v, alpha, accuracyThreshold, out);
 }
 
-template<Method method, typename algorithmFPType, CpuType cpu>
-Status SingleBetaKernel<method, algorithmFPType, cpu>::computeRmsVariance(const NumericTable* y,
-    const NumericTable* z, size_t p, NumericTable* rms, NumericTable* variance)
+template <Method method, typename algorithmFPType, CpuType cpu>
+Status SingleBetaKernel<method, algorithmFPType, cpu>::computeRmsVariance(const NumericTable * y, const NumericTable * z, size_t p,
+                                                                          NumericTable * rms, NumericTable * variance)
 {
     const auto nInputRows = y->getNumberOfRows();
-    const auto k = y->getNumberOfColumns();
+    const auto k          = y->getNumberOfColumns();
 
     WriteRows<algorithmFPType, cpu> rmsBD(*rms, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(rmsBD);
-    algorithmFPType *pRms = rmsBD.get();
+    algorithmFPType * pRms = rmsBD.get();
 
     WriteRows<algorithmFPType, cpu> varBD(*variance, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(varBD);
-    algorithmFPType *pVar = varBD.get();
+    algorithmFPType * pVar = varBD.get();
 
     for (size_t j = 0; j < k; ++j)
     {
@@ -248,12 +235,12 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeRmsVariance(const 
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, k, sizeof(algorithmFPType));
 
-    daal::tls<algorithmFPType *> rmsPartial([=]()-> algorithmFPType*
-    {
-        const size_t nCols = k;
-        algorithmFPType* ptr = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(nCols * sizeof(algorithmFPType));
-        if(ptr)
-            for(size_t j = 0; j < nCols; ptr[j] = 0, ++j);
+    daal::tls<algorithmFPType *> rmsPartial([=]() -> algorithmFPType * {
+        const size_t nCols    = k;
+        algorithmFPType * ptr = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(nCols * sizeof(algorithmFPType));
+        if (ptr)
+            for (size_t j = 0; j < nCols; ptr[j] = 0, ++j)
+                ;
         return ptr;
     });
 
@@ -261,37 +248,31 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeRmsVariance(const 
     nBlocks += (nBlocks * _nRowsInBlock != nInputRows);
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [=, &rmsPartial, &safeStat](size_t block)
-    {
-        algorithmFPType* pRmsPartial = rmsPartial.local();
+    daal::threader_for(nBlocks, nBlocks, [=, &rmsPartial, &safeStat](size_t block) {
+        algorithmFPType * pRmsPartial = rmsPartial.local();
         DAAL_CHECK_THR(pRmsPartial, ErrorMemoryAllocationFailed);
         size_t nRowsToProcess = _nRowsInBlock;
-        if(block == nBlocks - 1)
-            nRowsToProcess = nInputRows - block * _nRowsInBlock;
+        if (block == nBlocks - 1) nRowsToProcess = nInputRows - block * _nRowsInBlock;
         const size_t nRowsProcessed = block * _nRowsInBlock;
-        const size_t nCols = k;
+        const size_t nCols          = k;
 
-        ReadRows<algorithmFPType, cpu> yBD(*const_cast<NumericTable*>(y), nRowsProcessed, nRowsToProcess);
+        ReadRows<algorithmFPType, cpu> yBD(*const_cast<NumericTable *>(y), nRowsProcessed, nRowsToProcess);
         DAAL_CHECK_BLOCK_STATUS_THR(yBD);
-        const algorithmFPType* py = yBD.get();
+        const algorithmFPType * py = yBD.get();
 
-        ReadRows<algorithmFPType, cpu> zBD(*const_cast<NumericTable*>(z), nRowsProcessed, nRowsToProcess);
+        ReadRows<algorithmFPType, cpu> zBD(*const_cast<NumericTable *>(z), nRowsProcessed, nRowsToProcess);
         DAAL_CHECK_BLOCK_STATUS_THR(zBD);
-        const algorithmFPType* pz = zBD.get();
+        const algorithmFPType * pz = zBD.get();
 
-        for(size_t i = 0; i < nRowsToProcess; ++i, py += nCols, pz += nCols)
+        for (size_t i = 0; i < nRowsToProcess; ++i, py += nCols, pz += nCols)
         {
-            for(size_t j = 0; j < nCols; ++j)
-                pRmsPartial[j] += (py[j] - pz[j])*(py[j] - pz[j]);
+            for (size_t j = 0; j < nCols; ++j) pRmsPartial[j] += (py[j] - pz[j]) * (py[j] - pz[j]);
         }
     });
-    rmsPartial.reduce([=](algorithmFPType * pRmsPartial)-> void
-    {
-        if(!pRmsPartial)
-            return;
+    rmsPartial.reduce([=](algorithmFPType * pRmsPartial) -> void {
+        if (!pRmsPartial) return;
         const size_t nCols = k;
-        for(size_t j = 0; j < nCols; ++j)
-            pRms[j] += pRmsPartial[j];
+        for (size_t j = 0; j < nCols; ++j) pRms[j] += pRmsPartial[j];
         daal_free(pRmsPartial);
         pRmsPartial = nullptr;
     });
@@ -299,19 +280,19 @@ Status SingleBetaKernel<method, algorithmFPType, cpu>::computeRmsVariance(const 
 
     const algorithmFPType div1 = 1. / nInputRows;
     const algorithmFPType div2 = 1. / (nInputRows - p - 1);
-    for(size_t j = 0; j < k; ++j)
+    for (size_t j = 0; j < k; ++j)
     {
-        pVar[j] = div2*pRms[j];
-        pRms[j] = daal::internal::Math<algorithmFPType,cpu>::sSqrt(div1*pRms[j]);
+        pVar[j] = div2 * pRms[j];
+        pRms[j] = daal::internal::Math<algorithmFPType, cpu>::sSqrt(div1 * pRms[j]);
     }
     return Status();
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace single_beta
+} // namespace quality_metric
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

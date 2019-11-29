@@ -55,7 +55,7 @@ namespace multiclass_confusion_matrix
  */
 enum Method
 {
-    defaultDense = 0    /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -64,8 +64,8 @@ enum Method
  */
 enum InputId
 {
-    predictedLabels,     /*!< Labels computed in the prediction stage of the classification  algorithm */
-    groundTruthLabels,       /*!< Expected labels */
+    predictedLabels,   /*!< Labels computed in the prediction stage of the classification  algorithm */
+    groundTruthLabels, /*!< Expected labels */
     lastInputId = groundTruthLabels
 };
 
@@ -75,8 +75,8 @@ enum InputId
  */
 enum ResultId
 {
-    confusionMatrix,        /*!< Confusion matrix */
-    multiClassMetrics,        /*!< Table that contains quality metrics (precision, recall, etc.) for binary classifiers */
+    confusionMatrix,   /*!< Confusion matrix */
+    multiClassMetrics, /*!< Table that contains quality metrics (precision, recall, etc.) for binary classifiers */
     lastResultId = multiClassMetrics
 };
 
@@ -86,14 +86,14 @@ enum ResultId
  */
 enum MultiClassMetricsId
 {
-    averageAccuracy,        /*!< Average accuracy */
-    errorRate,              /*!< Error rate */
-    microPrecision,         /*!< Microprecision */
-    microRecall,            /*!< Microrecall */
-    microFscore,            /*!< Micro-F-score */
-    macroPrecision,         /*!< Macroprecision */
-    macroRecall,            /*!< Macrorecall */
-    macroFscore             /*!< Macro-F-score */
+    averageAccuracy, /*!< Average accuracy */
+    errorRate,       /*!< Error rate */
+    microPrecision,  /*!< Microprecision */
+    microRecall,     /*!< Microrecall */
+    microFscore,     /*!< Micro-F-score */
+    macroPrecision,  /*!< Macroprecision */
+    macroRecall,     /*!< Macrorecall */
+    macroFscore      /*!< Macro-F-score */
 };
 
 /**
@@ -113,8 +113,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     Parameter(size_t nClasses = 0, double beta = 1.0);
     virtual ~Parameter() {}
 
-    size_t nClasses;        /*!< Number of classes */
-    double beta;            /*!< Parameter of the F-score */
+    size_t nClasses; /*!< Number of classes */
+    double beta;     /*!< Parameter of the F-score */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
@@ -128,7 +128,7 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     Input();
-    Input(const Input& other) : daal::algorithms::Input(other){}
+    Input(const Input & other) : daal::algorithms::Input(other) {}
 
     virtual ~Input() {}
 
@@ -144,14 +144,14 @@ public:
      * \param[in] id    Identifier of the input object, \ref InputId
      * \param[in] value Pointer to the input object
      */
-    void set(InputId id, const data_management::NumericTablePtr &value);
+    void set(InputId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks the correctness of the input object
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Input> InputPtr;
 
@@ -179,7 +179,7 @@ public:
      * \param[in] id    Identifier of the result, \ref ResultId
      * \param[in] value Pointer to the training result
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory for storing the computed quality metric
@@ -187,8 +187,8 @@ public:
      * \param[in] parameter Pointer to the parameter structure
      * \param[in] method    Computation method of the algorithm
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks the correctness of the Result object
@@ -196,12 +196,12 @@ public:
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -214,10 +214,10 @@ using interface1::InputPtr;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace daal::algorithms::classifier::quality_metric::multiclass_confusion_matrix
+} // namespace multiclass_confusion_matrix
 /** @} */
-} // namespace daal::algorithms::classifier::quality_metric
-} // namespace daal::algorithms::classifier
-} // namespace daal::algorithms
+} // namespace quality_metric
+} // namespace classifier
+} // namespace algorithms
 } // namespace daal
 #endif

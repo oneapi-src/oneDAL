@@ -57,7 +57,7 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0        /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -66,11 +66,11 @@ enum Method
 */
 enum ResultNumericTableId
 {
-    variableImportance = daal::algorithms::regression::training::lastResultId + 1, /*!< %Numeric table 1x(number of features) containing variable importance value.
+    variableImportance =
+        daal::algorithms::regression::training::lastResultId + 1, /*!< %Numeric table 1x(number of features) containing variable importance value.
                                                                Computed when parameter.varImportance != none */
     lastResultId = variableImportance
 };
-
 
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -102,7 +102,7 @@ public:
      * \param[in] id      Identifier of the result, \ref daal::algorithms::regression::training::ResultId
      * \param[in] value   Pointer to the training result
      */
-    void set(daal::algorithms::regression::training::ResultId id, daal::algorithms::stump::regression::ModelPtr &value);
+    void set(daal::algorithms::regression::training::ResultId id, daal::algorithms::stump::regression::ModelPtr & value);
 
     /**
     * Returns the result of the stump algorithm
@@ -116,7 +116,7 @@ public:
     * \param[in] id      Identifier of the result
     * \param[in] value   Result
     */
-    void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
+    void set(ResultNumericTableId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory to store final results of the decision stump training algorithm
@@ -126,12 +126,12 @@ public:
      * \param[in] method        Decision stump training method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -141,10 +141,10 @@ typedef services::SharedPtr<Result> ResultPtr;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace daal::algorithms::stump::regression::training
+} // namespace training
 /** @} */
-}
-}
-}
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 #endif // __stump__regression_TRAINING_TYPES_H__

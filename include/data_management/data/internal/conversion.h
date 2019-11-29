@@ -27,7 +27,6 @@ namespace data_management
 {
 namespace internal
 {
-
 /**
  * @defgroup data_management_internal DataManagementInternal
  * \brief Internal classes of data management
@@ -46,20 +45,30 @@ enum ConversionDataType
 /**
  * \return Internal numeric type
  */
-template<typename T>
-inline ConversionDataType getConversionDataType()          { return DAAL_OTHER;  }
-template<>
-inline ConversionDataType getConversionDataType<int>()     { return DAAL_INT32;  }
-template<>
-inline ConversionDataType getConversionDataType<double>()  { return DAAL_DOUBLE; }
-template<>
-inline ConversionDataType getConversionDataType<float>()   { return DAAL_SINGLE; }
+template <typename T>
+inline ConversionDataType getConversionDataType()
+{
+    return DAAL_OTHER;
+}
+template <>
+inline ConversionDataType getConversionDataType<int>()
+{
+    return DAAL_INT32;
+}
+template <>
+inline ConversionDataType getConversionDataType<double>()
+{
+    return DAAL_DOUBLE;
+}
+template <>
+inline ConversionDataType getConversionDataType<float>()
+{
+    return DAAL_SINGLE;
+}
 
+typedef void (*vectorConvertFuncType)(size_t n, const void * src, void * dst);
 
-typedef void(*vectorConvertFuncType)(size_t n, const void *src, void *dst);
-
-typedef void(*vectorStrideConvertFuncType)(size_t n, const void *src, size_t srcByteStride,
-                                                     void *dst, size_t dstByteStride);
+typedef void (*vectorStrideConvertFuncType)(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride);
 
 DAAL_EXPORT vectorConvertFuncType getVectorUpCast(int, int);
 DAAL_EXPORT vectorConvertFuncType getVectorDownCast(int, int);
@@ -71,20 +80,16 @@ DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideDownCast(int, int);
  *  <a name="DAAL-CLASS-DATAMANAGEMENT-INTERNAL__VECTORUPCAST"></a>
  *  \brief Class to cast vector up from T type to U
  */
-template<typename T, typename U>
+template <typename T, typename U>
 class VectorUpCast
 {
 public:
     typedef T SourceType;
     typedef U DestType;
 
-    VectorUpCast() : _func(
-        getVectorUpCast(features::internal::getIndexNumType<T>(),
-                        getConversionDataType<U>())
-    ) { }
+    VectorUpCast() : _func(getVectorUpCast(features::internal::getIndexNumType<T>(), getConversionDataType<U>())) {}
 
-    void operator()(size_t size, const T *src, U *dst) const
-    { _func(size, src, dst); }
+    void operator()(size_t size, const T * src, U * dst) const { _func(size, src, dst); }
 
 private:
     vectorConvertFuncType _func;
@@ -94,41 +99,37 @@ private:
  *  <a name="DAAL-CLASS-DATAMANAGEMENT-INTERNAL__VECTORDOWNCAST"></a>
  *  \brief Class to cast vector down from T type to U
  */
-template<typename T, typename U>
+template <typename T, typename U>
 class VectorDownCast
 {
 public:
     typedef T SourceType;
     typedef U DestType;
 
-    VectorDownCast() : _func(
-        getVectorDownCast(features::internal::getIndexNumType<U>(),
-                          getConversionDataType<T>())
-    ) { }
+    VectorDownCast() : _func(getVectorDownCast(features::internal::getIndexNumType<U>(), getConversionDataType<T>())) {}
 
-    void operator()(size_t size, const T *src, U *dst) const
-    { _func(size, src, dst); }
+    void operator()(size_t size, const T * src, U * dst) const { _func(size, src, dst); }
 
 private:
     vectorConvertFuncType _func;
 };
 
-
 #define DAAL_REGISTER_WITH_HOMOGEN_NT_TYPES(FUNC) \
-FUNC(float)                                       \
-FUNC(double)                                      \
-FUNC(int)                                         \
-FUNC(unsigned int)                                \
-FUNC(DAAL_INT64)                                  \
-FUNC(DAAL_UINT64)                                 \
-FUNC(char)                                        \
-FUNC(unsigned char)                               \
-FUNC(short)                                       \
-FUNC(unsigned short)                              \
-FUNC(long)                                        \
-FUNC(unsigned long)
+    FUNC(float)                                   \
+    FUNC(double)                                  \
+    FUNC(int)                                     \
+    FUNC(unsigned int)                            \
+    FUNC(DAAL_INT64)                              \
+    FUNC(DAAL_UINT64)                             \
+    FUNC(char)                                    \
+    FUNC(unsigned char)                           \
+    FUNC(short)                                   \
+    FUNC(unsigned short)                          \
+    FUNC(long)                                    \
+    FUNC(unsigned long)
 
-template<typename T> DAAL_EXPORT void vectorAssignValueToArray(T* const ptr, const size_t n, const T value);
+template <typename T>
+DAAL_EXPORT void vectorAssignValueToArray(T * const ptr, const size_t n, const T value);
 
 /** @} */
 

@@ -30,8 +30,8 @@ using namespace daal::algorithms::low_order_moments;
  * Method:    cSetInput
  * Signature:(JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Input_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                          jlong ntAddr)
 {
     jniInput<low_order_moments::Input>::set<low_order_moments::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -41,21 +41,20 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Input_
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Input_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Input_cGetInputTable(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                jint id)
 {
     return jniInput<low_order_moments::Input>::get<low_order_moments::InputId, NumericTable>(inputAddr, id);
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_low_order_moments_Input
  * Method:    cSetCInputObject
  * Signature: (JJIIII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Input_cSetCInputObjectBatch
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jlong algAddr, jint prec, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Input_cSetCInputObjectBatch(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                      jlong algAddr, jint prec, jint method)
 {
-    jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        setInput<low_order_moments::Input>(prec, method, algAddr, inputAddr);
+    jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+             sumCSR>::setInput<low_order_moments::Input>(prec, method, algAddr, inputAddr);
 }

@@ -34,8 +34,8 @@ using namespace daal::algorithms::implicit_als::training::init;
  * Method:    cInit
  * Signature: (JIII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitInput_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitInput_cInit(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                   jint prec, jint method, jint cmode)
 {
     if (cmode == jBatch)
     {
@@ -54,20 +54,19 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitInput_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitInput_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                      jint id, jlong ntAddr)
 {
     jniInput<implicit_als::training::init::Input>::set<InputId, NumericTable>(inputAddr, data, ntAddr);
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_implicit_als_training_init_InitInput
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitInput_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitInput_cGetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong inputAddr, jint id)
 
 {
     return jniInput<implicit_als::training::init::Input>::get<InputId, NumericTable>(inputAddr, data);

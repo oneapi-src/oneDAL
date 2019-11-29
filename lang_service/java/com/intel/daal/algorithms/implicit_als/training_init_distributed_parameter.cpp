@@ -30,10 +30,10 @@ using namespace daal::data_management;
  * Method:    cSetPartition
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedParameter_cSetPartition
-(JNIEnv *, jobject, jlong parAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedParameter_cSetPartition(JNIEnv *, jobject,
+                                                                                                                         jlong parAddr, jlong ntAddr)
 {
-    NumericTablePtr nt = NumericTable::cast(*(SerializationIfacePtr *)ntAddr);
+    NumericTablePtr nt                           = NumericTable::cast(*(SerializationIfacePtr *)ntAddr);
     ((DistributedParameter *)parAddr)->partition = nt;
 }
 
@@ -42,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_ini
  * Method:    cGetPartition
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL ava_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedParameter_cGetPartition
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL ava_com_intel_daal_algorithms_implicit_1als_training_init_InitDistributedParameter_cGetPartition(JNIEnv *, jobject,
+                                                                                                                         jlong parAddr)
 {
     return (jlong)(new SerializationIfacePtr(((DistributedParameter *)parAddr)->partition));
 }

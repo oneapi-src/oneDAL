@@ -18,7 +18,19 @@
 #ifndef __SERVICE_DEFINES_ONEAPI_H__
 #define __SERVICE_DEFINES_ONEAPI_H__
 
-#define DAAL_CHECK_STATUS_PTR(status_ptr) { if (status_ptr != nullptr && *status_ptr != daal::services::Status()) { return; } }
-#define DAAL_CHECK_STATUS_RETURN_IF_FAIL(status_ptr, return_obj) { if (status_ptr != nullptr && *status_ptr != daal::services::Status()) { return return_obj; } }
+#define DAAL_CHECK_STATUS_PTR(status_ptr)                                     \
+    {                                                                         \
+        if (status_ptr != nullptr && *status_ptr != daal::services::Status()) \
+        {                                                                     \
+            return;                                                           \
+        }                                                                     \
+    }
+#define DAAL_CHECK_STATUS_RETURN_IF_FAIL(status_ptr, return_obj)              \
+    {                                                                         \
+        if (status_ptr != nullptr && *status_ptr != daal::services::Status()) \
+        {                                                                     \
+            return return_obj;                                                \
+        }                                                                     \
+    }
 
 #endif

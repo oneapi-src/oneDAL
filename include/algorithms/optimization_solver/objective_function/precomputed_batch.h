@@ -55,7 +55,7 @@ namespace interface1
  * \tparam method           The objective function with precomputed characteristics method
  */
 
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -64,7 +64,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv) {}
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv) {}
     DAAL_DEPRECATED_VIRTUAL virtual ~BatchContainer() {}
     /**
      * Runs implementations of the objective function with precomputed characteristics in the batch processing mode
@@ -92,27 +92,24 @@ public:
  * <!--     - <a href="DAAL-REF-PRECOMPUTED-ALGORITHM">The objective function with precomputed characteristics algorithm description and usage models</a> -->
  *      - \ref objective_function::interface1::Result "objective_function::Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public sum_of_functions::interface1::Batch
 {
 public:
     typedef sum_of_functions::interface1::Batch super;
 
-    typedef typename super::InputType     InputType;
+    typedef typename super::InputType InputType;
     typedef typename super::ParameterType ParameterType;
-    typedef typename super::ResultType    ResultType;
+    typedef typename super::ResultType ResultType;
 
-    InputType input;           /*!< %Input data structure
+    InputType input;         /*!< %Input data structure
                                                   \note The algorithm does not use the provided input objects */
-    ParameterType parameter;   /*!< %Parameter data structure
+    ParameterType parameter; /*!< %Parameter data structure
                                                   \note The algorithm does not use the provided parameters */
     /**
      *  Main constructor
      */
-    DAAL_DEPRECATED Batch() : parameter(1), super(1, &input, &parameter)
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Batch() : parameter(1), super(1, &input, &parameter) { initialize(); }
 
     DAAL_DEPRECATED_VIRTUAL virtual ~Batch() {}
 
@@ -122,20 +119,20 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) :
-        parameter(other.parameter), super(other.parameter.numberOfTerms, &input, &parameter), input(other.input)
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other)
+        : parameter(other.parameter), super(other.parameter.numberOfTerms, &input, &parameter), input(other.input)
     {
         initialize();
-        const ResultType *otherResult = const_cast<Batch<algorithmFPType, method> &>(other).getResult().get();
+        const ResultType * otherResult = const_cast<Batch<algorithmFPType, method> &>(other).getResult().get();
         if (otherResult)
         {
             bool isResultInitialized = false;
-            isResultInitialized = (isResultInitialized || otherResult->get(objective_function::gradientIdx));
+            isResultInitialized      = (isResultInitialized || otherResult->get(objective_function::gradientIdx));
             _result->set(objective_function::gradientIdx, otherResult->get(objective_function::gradientIdx));
             isResultInitialized = (isResultInitialized || otherResult->get(objective_function::valueIdx));
-            _result->set(objective_function::valueIdx,    otherResult->get(objective_function::valueIdx));
+            _result->set(objective_function::valueIdx, otherResult->get(objective_function::valueIdx));
             isResultInitialized = (isResultInitialized || otherResult->get(objective_function::hessianIdx));
-            _result->set(objective_function::hessianIdx,  otherResult->get(objective_function::hessianIdx));
+            _result->set(objective_function::hessianIdx, otherResult->get(objective_function::hessianIdx));
             if (isResultInitialized)
             {
                 _res = _result.get();
@@ -164,35 +161,28 @@ public:
      *
      * \return Status of computations
      */
-    DAAL_DEPRECATED services::Status allocate()
-    {
-        return allocateResult();
-    }
+    DAAL_DEPRECATED services::Status allocate() { return allocateResult(); }
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new BatchContainer<algorithmFPType, method>(&_env);
-        _in  = &input;
-        _par = &parameter;
-        _result = objective_function::ResultPtr(new ResultType());
+        _in                  = &input;
+        _par                 = &parameter;
+        _result              = objective_function::ResultPtr(new ResultType());
     }
 };
 /** @} */
 } // namespace interface1
-
 
 namespace interface2
 {
@@ -211,7 +201,7 @@ namespace interface2
  * \tparam method           The objective function with precomputed characteristics method
  */
 
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -220,7 +210,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv) {}
+    BatchContainer(daal::services::Environment::env * daalEnv) {}
     virtual ~BatchContainer() {}
     /**
      * Runs implementations of the objective function with precomputed characteristics in the batch processing mode
@@ -248,27 +238,24 @@ public:
  * <!--     - <a href="DAAL-REF-PRECOMPUTED-ALGORITHM">The objective function with precomputed characteristics algorithm description and usage models</a> -->
  *      - \ref objective_function::interface2::Result "objective_function::Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public sum_of_functions::Batch
 {
 public:
     typedef sum_of_functions::Batch super;
 
-    typedef typename super::InputType     InputType;
+    typedef typename super::InputType InputType;
     typedef typename super::ParameterType ParameterType;
-    typedef typename super::ResultType    ResultType;
+    typedef typename super::ResultType ResultType;
 
-    InputType input;           /*!< %Input data structure
+    InputType input;         /*!< %Input data structure
                                                   \note The algorithm does not use the provided input objects */
-    ParameterType parameter;   /*!< %Parameter data structure
+    ParameterType parameter; /*!< %Parameter data structure
                                                   \note The algorithm does not use the provided parameters */
     /**
      *  Main constructor
      */
-    Batch() : parameter(1), super(1, &input, &parameter)
-    {
-        initialize();
-    }
+    Batch() : parameter(1), super(1, &input, &parameter) { initialize(); }
 
     virtual ~Batch() {}
 
@@ -278,20 +265,20 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) :
-        parameter(other.parameter), super(other.parameter.numberOfTerms, &input, &parameter), input(other.input)
+    Batch(const Batch<algorithmFPType, method> & other)
+        : parameter(other.parameter), super(other.parameter.numberOfTerms, &input, &parameter), input(other.input)
     {
         initialize();
-        const ResultType *otherResult = const_cast<Batch<algorithmFPType, method> &>(other).getResult().get();
+        const ResultType * otherResult = const_cast<Batch<algorithmFPType, method> &>(other).getResult().get();
         if (otherResult)
         {
             bool isResultInitialized = false;
-            isResultInitialized = (isResultInitialized || otherResult->get(objective_function::gradientIdx));
+            isResultInitialized      = (isResultInitialized || otherResult->get(objective_function::gradientIdx));
             _result->set(objective_function::gradientIdx, otherResult->get(objective_function::gradientIdx));
             isResultInitialized = (isResultInitialized || otherResult->get(objective_function::valueIdx));
-            _result->set(objective_function::valueIdx,    otherResult->get(objective_function::valueIdx));
+            _result->set(objective_function::valueIdx, otherResult->get(objective_function::valueIdx));
             isResultInitialized = (isResultInitialized || otherResult->get(objective_function::hessianIdx));
-            _result->set(objective_function::hessianIdx,  otherResult->get(objective_function::hessianIdx));
+            _result->set(objective_function::hessianIdx, otherResult->get(objective_function::hessianIdx));
             if (isResultInitialized)
             {
                 _res = _result.get();
@@ -310,40 +297,31 @@ public:
      * with a copy of input objects of this objective function with precomputed characteristics algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
     /**
      * Allocates memory buffers needed for the computations
      *
      * \return Status of computations
      */
-    services::Status allocate()
-    {
-        return allocateResult();
-    }
+    services::Status allocate() { return allocateResult(); }
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new BatchContainer<algorithmFPType, method>(&_env);
-        _in  = &input;
-        _par = &parameter;
-        _result = objective_function::ResultPtr(new ResultType());
+        _in                  = &input;
+        _par                 = &parameter;
+        _result              = objective_function::ResultPtr(new ResultType());
     }
 };
 /** @} */

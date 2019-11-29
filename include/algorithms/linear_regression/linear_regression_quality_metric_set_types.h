@@ -48,8 +48,8 @@ namespace quality_metric_set
  */
 enum QualityMetricId
 {
-    singleBeta,     /*!< Single coefficient metrics*/
-    groupOfBetas,   /*!< Group of coefficients metrics*/
+    singleBeta,   /*!< Single coefficient metrics*/
+    groupOfBetas, /*!< Group of coefficients metrics*/
     lastQualityMetricId = groupOfBetas
 };
 
@@ -58,7 +58,6 @@ enum QualityMetricId
  */
 namespace interface1
 {
-
 /**
 * <a name="DAAL-STRUCT-ALGORITHMS__LINEAR_REGRESSION__QUALITY_METRIC_SET__PARAMETER"></a>
 * \brief Parameters for the quality metrics set compute() method
@@ -72,10 +71,11 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 
     virtual ~Parameter() {}
 
-    double alpha;                /*!< Significance level used in the computation of betas confidence intervals */
-    double accuracyThreshold;    /*!< Values below this threshold are considered equal to it*/
-    size_t numBeta;              /*!< Number of beta coefficients (p) of linear regression model used for prediction */
-    size_t numBetaReducedModel;  /*!< Number of beta coefficients (p0) used for prediction with reduced linear regression model where p - p0 of p beta coefficients are set to 0 */
+    double alpha;             /*!< Significance level used in the computation of betas confidence intervals */
+    double accuracyThreshold; /*!< Values below this threshold are considered equal to it*/
+    size_t numBeta;           /*!< Number of beta coefficients (p) of linear regression model used for prediction */
+    size_t
+        numBetaReducedModel; /*!< Number of beta coefficients (p0) used for prediction with reduced linear regression model where p - p0 of p beta coefficients are set to 0 */
 
     /**
     * Checks the correctness of the parameter
@@ -91,7 +91,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
  * \brief Class that implements functionality of the collection of result objects of the quality metrics algorithm
  *        specialized for using with the linear regression training algorithm
  */
-class DAAL_EXPORT ResultCollection: public algorithms::quality_metric_set::ResultCollection
+class DAAL_EXPORT ResultCollection : public algorithms::quality_metric_set::ResultCollection
 {
 public:
     ResultCollection() {}
@@ -111,7 +111,7 @@ typedef services::SharedPtr<ResultCollection> ResultCollectionPtr;
  * \brief Class that implements functionality of the collection of input objects of the quality metrics algorithm
  *        specialized for using with the linear regression training algorithm
  */
-class DAAL_EXPORT InputDataCollection: public algorithms::quality_metric_set::InputDataCollection
+class DAAL_EXPORT InputDataCollection : public algorithms::quality_metric_set::InputDataCollection
 {
 public:
     InputDataCollection() {}
@@ -126,17 +126,17 @@ public:
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
 
-}
+} // namespace interface1
 using interface1::Parameter;
 using interface1::ResultCollection;
 using interface1::InputDataCollection;
 using interface1::ResultCollectionPtr;
 using interface1::InputDataCollectionPtr;
 
-}
+} // namespace quality_metric_set
 /** @} */
-}
-}
-}
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif // __LINEAR_REGRESSION_QUALITY_METRIC_SET_TYPES_H__

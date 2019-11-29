@@ -38,16 +38,17 @@ namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_OUTLIER_DETECTION_BACON_RESULT_ID);
 
-Parameter::Parameter(InitializationMethod initMethod, double alpha, double toleranceToConverge) :
-        initMethod(initMethod), alpha(alpha), toleranceToConverge(toleranceToConverge) {}
+Parameter::Parameter(InitializationMethod initMethod, double alpha, double toleranceToConverge)
+    : initMethod(initMethod), alpha(alpha), toleranceToConverge(toleranceToConverge)
+{}
 
 services::Status Parameter::check() const
 {
-    if(alpha <= 0 || alpha >= 1)
+    if (alpha <= 0 || alpha >= 1)
     {
         return services::Status(Error::create(ErrorIncorrectParameter, ParameterName, alphaStr()));
     }
-    if(toleranceToConverge <= 0 || toleranceToConverge >= 1)
+    if (toleranceToConverge <= 0 || toleranceToConverge >= 1)
     {
         return services::Status(Error::create(ErrorIncorrectParameter, ParameterName, toleranceToConvergeStr()));
     }
@@ -55,7 +56,7 @@ services::Status Parameter::check() const
 }
 
 Input::Input() : daal::algorithms::Input(1) {}
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 /**
  * Returns input object for the multivariate outlier detection algorithm
@@ -72,7 +73,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the %input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -82,7 +83,7 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
  * \param[in] par     Algorithm parameters
  * \param[in] method  Computation method for the algorithm
       */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     return checkNumericTable(get(data).get(), dataStr());
 }
@@ -103,7 +104,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the result
  */
-void Result::set(ResultId id, const NumericTablePtr &ptr)
+void Result::set(ResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -113,10 +114,10 @@ void Result::set(ResultId id, const NumericTablePtr &ptr)
  * \param[in] par     Pointer to the parameters of the algorithm
  * \param[in] method  Computation method
       */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
-    size_t nVectors  = algInput->get(data)->getNumberOfRows();
+    Input * algInput      = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    size_t nVectors       = algInput->get(data)->getNumberOfRows();
     int unexpectedLayouts = packed_mask;
     return checkNumericTable(get(weights).get(), weightsStr(), unexpectedLayouts, 0, 1, nVectors);
 }

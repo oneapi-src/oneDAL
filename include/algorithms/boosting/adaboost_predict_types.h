@@ -42,10 +42,8 @@ namespace adaboost
  */
 namespace prediction
 {
-
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the adaboost algorithm  \DAAL_DEPRECATED
@@ -53,9 +51,10 @@ namespace interface1
 class DAAL_EXPORT Input : public classifier::prediction::interface1::Input
 {
     typedef classifier::prediction::interface1::Input super;
+
 public:
     DAAL_DEPRECATED Input() {}
-    DAAL_DEPRECATED Input(const Input& other) : classifier::prediction::interface1::Input(other){}
+    DAAL_DEPRECATED Input(const Input & other) : classifier::prediction::interface1::Input(other) {}
     DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     using super::get;
@@ -80,28 +79,26 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    DAAL_DEPRECATED void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the AdaBoost algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    DAAL_DEPRECATED void set(classifier::prediction::ModelInputId id, const daal::algorithms::adaboost::interface1::ModelPtr &ptr);
+    DAAL_DEPRECATED void set(classifier::prediction::ModelInputId id, const daal::algorithms::adaboost::interface1::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
-
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 } // namespace interface1
 
 namespace interface2
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the adaboost algorithm
@@ -109,9 +106,10 @@ namespace interface2
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
     typedef classifier::prediction::Input super;
+
 public:
     Input() {}
-    Input(const Input& other) : classifier::prediction::Input(other){}
+    Input(const Input & other) : classifier::prediction::Input(other) {}
     virtual ~Input() {}
 
     using super::get;
@@ -136,29 +134,28 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the AdaBoost algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const ModelPtr &ptr);
+    void set(classifier::prediction::ModelInputId id, const ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
-
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface2
 using interface2::Input;
-}
+} // namespace prediction
 /** @} */
-}
-}
-}
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal
 #endif // __ADABOOST_PREDICT_TYPES_H__

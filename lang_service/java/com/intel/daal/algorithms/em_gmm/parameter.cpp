@@ -31,10 +31,9 @@ using namespace daal::algorithms::em_gmm;
  * Method:    cGetNComponents
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetNComponents
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetNComponents(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((em_gmm::Parameter *)parameterAddress)->nComponents;
+    return ((em_gmm::Parameter *)parameterAddress)->nComponents;
 }
 
 /*
@@ -42,10 +41,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetNCo
  * Method:    cGetMaxIterations
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetMaxIterations
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetMaxIterations(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((em_gmm::Parameter *)parameterAddress)->maxIterations;
+    return ((em_gmm::Parameter *)parameterAddress)->maxIterations;
 }
 
 /*
@@ -53,10 +51,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetMax
  * Method:    cGetAccuracyThreshold
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetAccuracyThreshold
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetAccuracyThreshold(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((em_gmm::Parameter *)parameterAddress)->accuracyThreshold;
+    return ((em_gmm::Parameter *)parameterAddress)->accuracyThreshold;
 }
 
 /*
@@ -64,8 +61,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetA
  * Method:    cSetNComponents
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetNComponents
-(JNIEnv *, jobject, jlong parameterAddress, jlong nComponents)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetNComponents(JNIEnv *, jobject, jlong parameterAddress, jlong nComponents)
 {
     ((em_gmm::Parameter *)parameterAddress)->nComponents = nComponents;
 }
@@ -75,8 +71,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetNCom
  * Method:    cSetMaxIterations
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetMaxIterations
-(JNIEnv *, jobject, jlong parameterAddress, jlong maxIterations)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetMaxIterations(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                          jlong maxIterations)
 {
     ((em_gmm::Parameter *)parameterAddress)->maxIterations = maxIterations;
 }
@@ -86,8 +82,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetMaxI
  * Method:    cSetAccuracyThreshold
  * Signature:(JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetAccuracyThreshold
-(JNIEnv *, jobject, jlong parameterAddress, jdouble accuracyThreshold)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetAccuracyThreshold(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                              jdouble accuracyThreshold)
 {
     ((em_gmm::Parameter *)parameterAddress)->accuracyThreshold = accuracyThreshold;
 }
@@ -97,10 +93,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetAccu
  * Method:    cGetRegularizationFactor
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetRegularizationFactor
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetRegularizationFactor(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((em_gmm::Parameter *)parameterAddress)->regularizationFactor;
+    return ((em_gmm::Parameter *)parameterAddress)->regularizationFactor;
 }
 
 /*
@@ -108,8 +103,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetR
  * Method:    cSetRegularizationFactor
  * Signature:(JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetRegularizationFactor
-(JNIEnv *, jobject, jlong parameterAddress, jdouble regularizationFactor)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetRegularizationFactor(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                                 jdouble regularizationFactor)
 {
     ((em_gmm::Parameter *)parameterAddress)->regularizationFactor = regularizationFactor;
 }
@@ -119,8 +114,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetRegu
  * Method:    cGetCovarianceStorage
  * Signature:(J)D
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetCovarianceStorage
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetCovarianceStorage(JNIEnv *, jobject, jlong parameterAddress)
 {
     return (jint)((em_gmm::Parameter *)parameterAddress)->covarianceStorage;
 }
@@ -130,8 +124,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cGetCova
  * Method:    cGetCovarianceStorage
  * Signature: (J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetCovarianceStorage
-(JNIEnv *, jobject, jlong parameterAddress, jint covarianceStorage)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_em_1gmm_Parameter_cSetCovarianceStorage(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                              jint covarianceStorage)
 {
     ((em_gmm::Parameter *)parameterAddress)->covarianceStorage = (em_gmm::CovarianceStorageId)covarianceStorage;
 }

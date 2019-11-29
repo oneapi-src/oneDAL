@@ -31,7 +31,6 @@ namespace sql
 {
 namespace interface1
 {
-
 /**
  * @ingroup data_source_modifiers_sql
  * @{
@@ -42,7 +41,7 @@ namespace interface1
  * \tparam  Modifier  Type of modifier to be constructed
  * \return  Shared pointer to the modifier
  */
-template<typename Modifier>
+template <typename Modifier>
 inline FeatureModifierIfacePtr custom()
 {
     return services::internal::wrapSharedAndTryThrow<Modifier>(new Modifier());
@@ -54,8 +53,7 @@ inline FeatureModifierIfacePtr custom()
  */
 inline FeatureModifierIfacePtr continuous()
 {
-    return services::internal::wrapSharedAndTryThrow<FeatureModifier>(
-        new internal::ContinuousFeatureModifier());
+    return services::internal::wrapSharedAndTryThrow<FeatureModifier>(new internal::ContinuousFeatureModifier());
 }
 
 /** @} */

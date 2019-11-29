@@ -34,9 +34,9 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-string trainDatasetFileName            = "../data/batch/decision_tree_train.csv";
-string pruneDatasetFileName            = "../data/batch/decision_tree_prune.csv";
-string testDatasetFileName             = "../data/batch/decision_tree_test.csv";
+string trainDatasetFileName = "../data/batch/decision_tree_train.csv";
+string pruneDatasetFileName = "../data/batch/decision_tree_prune.csv";
+string testDatasetFileName  = "../data/batch/decision_tree_test.csv";
 
 const size_t nFeatures = 5; /* Number of features in training and testing data sets */
 
@@ -48,7 +48,7 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
@@ -62,9 +62,7 @@ int main(int argc, char *argv[])
 void trainModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
-                                                      DataSource::notAllocateNumericTable,
-                                                      DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -75,9 +73,7 @@ void trainModel()
     trainDataSource.loadDataBlock(mergedData.get());
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the pruning input data from a .csv file */
-    FileDataSource<CSVFeatureManager> pruneDataSource(pruneDatasetFileName,
-                                                      DataSource::notAllocateNumericTable,
-                                                      DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> pruneDataSource(pruneDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for pruning data and dependent variables */
     NumericTablePtr pruneData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -106,9 +102,7 @@ void trainModel()
 void testModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
-                                                     DataSource::notAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and dependent variables */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
@@ -134,8 +128,6 @@ void testModel()
 
 void printResults()
 {
-    printNumericTables<float, float>(testGroundTruth,
-                                 predictionResult->get(decision_tree::regression::prediction::prediction),
-                                 "Ground truth", "Regression results",
-                                 "Decision tree regression results (first 20 observations):", 20);
+    printNumericTables<float, float>(testGroundTruth, predictionResult->get(decision_tree::regression::prediction::prediction), "Ground truth",
+                                     "Regression results", "Decision tree regression results (first 20 observations):", 20);
 }

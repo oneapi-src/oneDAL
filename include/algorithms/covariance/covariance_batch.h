@@ -36,7 +36,6 @@ namespace algorithms
 {
 namespace covariance
 {
-
 namespace interface1
 {
 /**
@@ -72,7 +71,7 @@ public:
  * \tparam algorithmFPType  Data type to use in intermediate computations of the correlation or variance-covariance matrix, double or float
  * \tparam method           Computation method of the algorithm, \ref daal::algorithms::covariance::Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer
 {};
 
@@ -84,16 +83,16 @@ class BatchContainer
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class BatchContainer<algorithmFPType, defaultDense, cpu> : public BatchContainerIface
 {
 public:
-     /**
+    /**
      * Constructs a container for the correlation or variance-covariance matrix algorithm with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
 
@@ -112,7 +111,7 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class BatchContainer<algorithmFPType, singlePassDense, cpu> : public BatchContainerIface
 {
 public:
@@ -121,7 +120,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
 
@@ -140,7 +139,7 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class BatchContainer<algorithmFPType, sumDense, cpu> : public BatchContainerIface
 {
 public:
@@ -149,7 +148,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
 
@@ -168,16 +167,16 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class BatchContainer<algorithmFPType, fastCSR, cpu> : public BatchContainerIface
 {
 public:
-   /**
+    /**
      * Constructs a container for the correlation or variance-covariance matrix algorithm with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
 
@@ -196,7 +195,7 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class BatchContainer<algorithmFPType, singlePassCSR, cpu> : public BatchContainerIface
 {
 public:
@@ -205,11 +204,11 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
 
-   /**
+    /**
      * Computes the result of the correlation or variance-covariance matrix algorithm
      * in the batch processing mode
      */
@@ -224,7 +223,7 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class BatchContainer<algorithmFPType, sumCSR, cpu> : public BatchContainerIface
 {
 public:
@@ -233,7 +232,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
 
@@ -252,15 +251,12 @@ public:
 class DAAL_EXPORT BatchImpl : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::covariance::Input     InputType;
+    typedef algorithms::covariance::Input InputType;
     typedef algorithms::covariance::Parameter ParameterType;
-    typedef algorithms::covariance::Result    ResultType;
+    typedef algorithms::covariance::Result ResultType;
 
     /** Default constructor */
-    BatchImpl()
-    {
-        initialize();
-    }
+    BatchImpl() { initialize(); }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -269,29 +265,23 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    BatchImpl(const BatchImpl &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    BatchImpl(const BatchImpl & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
      * Returns the structure that contains correlation or variance-covariance matrix
      * \return Structure that contains the computed matrix
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory to store results of computation of the correlation or variance-covariance matrix
      * \param[in] result    Structure to store the results
      */
-    virtual services::Status setResult(const ResultPtr &result)
+    virtual services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -301,15 +291,12 @@ public:
      * matrix computation
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<BatchImpl> clone() const
-    {
-        return services::SharedPtr<BatchImpl>(cloneImpl());
-    }
+    services::SharedPtr<BatchImpl> clone() const { return services::SharedPtr<BatchImpl>(cloneImpl()); }
 
     virtual ~BatchImpl() {}
 
-    InputType input;                    /*!< %Input data structure */
-    ParameterType parameter;            /*!< %Parameter structure */
+    InputType input;         /*!< %Input data structure */
+    ParameterType parameter; /*!< %Parameter structure */
 
 protected:
     ResultPtr _result;
@@ -341,21 +328,18 @@ protected:
  *      - Parameter class
  *      - Result class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public BatchImpl
 {
 public:
     typedef BatchImpl super;
 
-    typedef typename super::InputType     InputType;
+    typedef typename super::InputType InputType;
     typedef typename super::ParameterType ParameterType;
-    typedef typename super::ResultType    ResultType;
+    typedef typename super::ResultType ResultType;
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -364,10 +348,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : BatchImpl(other)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : BatchImpl(other) { initialize(); }
 
     virtual ~Batch() {}
 
@@ -375,7 +356,7 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated algorithm for correlation or variance-covariance matrix computation
@@ -383,28 +364,19 @@ public:
      * matrix computation
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, _par, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
-    void initialize()
-    {
-        this->_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-    }
+    void initialize() { this->_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env); }
 };
 /** @} */
 } // namespace interface1
@@ -413,7 +385,7 @@ using interface1::BatchContainer;
 using interface1::BatchImpl;
 using interface1::Batch;
 
-} // namespace daal::algorithms::covariance
-}
+} // namespace covariance
+} // namespace algorithms
 } // namespace daal
-#endif  // __COVARIANCE_BATCH_H__
+#endif // __COVARIANCE_BATCH_H__

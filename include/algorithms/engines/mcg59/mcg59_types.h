@@ -52,7 +52,7 @@ namespace mcg59
  */
 enum Method
 {
-    defaultDense = 0    /*!< Default: performance-oriented method. */
+    defaultDense = 0 /*!< Default: performance-oriented method. */
 };
 
 } // namespace mcg59

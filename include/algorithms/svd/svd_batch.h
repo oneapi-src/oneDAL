@@ -35,7 +35,6 @@ namespace algorithms
 {
 namespace svd
 {
-
 namespace interface1
 {
 /**
@@ -51,7 +50,7 @@ namespace interface1
  * \tparam method           SVD computation method, \ref daal::algorithms::svd::Method
  *
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -60,7 +59,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
     /**
@@ -80,21 +79,18 @@ public:
  * \par Enumerations
  *      - \ref Method   Computation methods
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::svd::Input     InputType;
+    typedef algorithms::svd::Input InputType;
     typedef algorithms::svd::Parameter ParameterType;
-    typedef algorithms::svd::Result    ResultType;
+    typedef algorithms::svd::Result ResultType;
 
-    InputType input;            /*!< %Input data structure */
-    ParameterType parameter;    /*!< SVD parameters structure */
+    InputType input;         /*!< %Input data structure */
+    ParameterType parameter; /*!< SVD parameters structure */
 
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs an SVD algorithm by copying input objects and parameters
@@ -102,34 +98,28 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed results of the SVD algorithm
      * \return Structure that contains computed results of the SVD algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory to store computed results of the SVD algorithm
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -138,30 +128,24 @@ public:
      * with a copy of input objects and parameters of this SVD algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
         services::Status s = _result->allocate<algorithmFPType>(_in, 0, 0);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = &parameter;
+        _in                  = &input;
+        _par                 = &parameter;
     }
 
 private:
@@ -172,7 +156,7 @@ private:
 using interface1::BatchContainer;
 using interface1::Batch;
 
-} // namespace daal::algorithms::svd
-}
+} // namespace svd
+} // namespace algorithms
 } // namespace daal
 #endif
