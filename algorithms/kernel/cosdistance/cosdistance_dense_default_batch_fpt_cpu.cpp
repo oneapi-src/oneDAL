@@ -21,7 +21,6 @@
 //--
 */
 
-
 #include "cosdistance_batch_container.h"
 #include "cosdistance_kernel.h"
 #include "cosdistance_batch_impl.i"
@@ -34,13 +33,11 @@ namespace cosine_distance
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
 namespace internal
 {
-
 template class DistanceKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 } // namespace internal

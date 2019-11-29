@@ -27,8 +27,8 @@ USING_COMMON_NAMESPACES();
  * Method:    cSetK
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cSetK
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong k)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cSetK(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                  jlong k)
 {
     (*(kdtree_knn_classification::Parameter *)parAddr).k = k;
 }
@@ -38,10 +38,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classificatio
  * Method:    cGetK
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cGetK
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cGetK(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(*(kdtree_knn_classification::Parameter *)parAddr).k;
+    return (*(kdtree_knn_classification::Parameter *)parAddr).k;
 }
 
 /*
@@ -49,8 +48,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classificati
  * Method:    cSetSeed
  * Signature:(JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cSetSeed
-(JNIEnv *env, jobject thisObj, jlong parAddr, jint seed)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cSetSeed(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                     jint seed)
 {
     (*(kdtree_knn_classification::Parameter *)parAddr).seed = seed;
 }
@@ -60,10 +59,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classificatio
  * Method:    cGetSeed
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cGetSeed
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cGetSeed(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(*(kdtree_knn_classification::Parameter *)parAddr).seed;
+    return (*(kdtree_knn_classification::Parameter *)parAddr).seed;
 }
 
 /*
@@ -71,10 +69,11 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classificatio
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cSetEngine(JNIEnv * env, jobject thisObj,
+                                                                                                       jlong cParameter, jlong engineAddr)
 {
-    (((kdtree_knn_classification::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((kdtree_knn_classification::Parameter *)cParameter))->engine =
+        staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }
 
 /*
@@ -82,8 +81,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classificatio
  * Method:    cSetDataUseInModel
  * Signature:(JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cSetDataUseInModel
-(JNIEnv *env, jobject thisObj, jlong parAddr, jint flag)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cSetDataUseInModel(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong parAddr, jint flag)
 {
     (*(kdtree_knn_classification::Parameter *)parAddr).dataUseInModel = (kdtree_knn_classification::DataUseInModel)flag;
 }
@@ -93,8 +92,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classificatio
  * Method:    cGetDataUseInModel
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cGetDataUseInModel
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_kdtree_1knn_1classification_Parameter_cGetDataUseInModel(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong parAddr)
 {
     return (jint)((*(kdtree_knn_classification::Parameter *)parAddr).dataUseInModel);
 }

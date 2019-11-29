@@ -33,13 +33,11 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * \brief Contains classes of the KD-tree based kNN algorithm
  */
 namespace kdtree_knn_classification
 {
-
 /**
  * @defgroup kdtree_knn_classification_prediction Prediction
  * \copydoc daal::algorithms::kdtree_knn_classification::prediction
@@ -51,7 +49,6 @@ namespace kdtree_knn_classification
  */
 namespace prediction
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__METHOD"></a>
  * \brief Available methods for making KD-tree based kNN model-based prediction
@@ -66,7 +63,6 @@ enum Method
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__INPUT"></a>
  * \brief Provides an interface for input objects for making KD-tree based kNN model-based prediction
@@ -74,6 +70,7 @@ namespace interface1
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
     typedef classifier::prediction::Input super;
+
 public:
     /** Default constructor */
     Input();
@@ -93,7 +90,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the KD-tree based kNN algorithm
@@ -107,7 +104,7 @@ public:
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface1

@@ -25,10 +25,8 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
-
 typedef KeyValueCollection<algorithms::Input> KeyValueInputCollection;
 typedef services::SharedPtr<KeyValueInputCollection> KeyValueInputCollectionPtr;
 typedef services::SharedPtr<const KeyValueInputCollection> KeyValueInputCollectionConstPtr;
@@ -39,7 +37,7 @@ using interface1::KeyValueInputCollection;
 using interface1::KeyValueInputCollectionPtr;
 using interface1::KeyValueInputCollectionConstPtr;
 
-}
-}
+} // namespace data_management
+} // namespace daal
 
 #endif

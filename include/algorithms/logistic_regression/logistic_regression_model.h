@@ -87,8 +87,7 @@ public:
     virtual const data_management::NumericTablePtr getBeta() const = 0;
 
 protected:
-    Model() : classifier::Model()
-    {}
+    Model() : classifier::Model() {}
 };
 /** @} */
 typedef services::SharedPtr<Model> ModelPtr;

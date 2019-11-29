@@ -47,14 +47,13 @@ namespace classification
  * \brief Contains classes for making prediction based on the classifier model */
 namespace prediction
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__METHOD"></a>
  * Available methods for predictions based on the gbt model
  */
 enum Method
 {
-    defaultDense = 0        /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -62,7 +61,6 @@ enum Method
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__PARAMETER"></a>
  * \brief Parameters of the prediction algorithm   \DAAL_DEPRECATED
@@ -73,18 +71,17 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
 {
     DAAL_DEPRECATED Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses), nIterations(0) {}
-    DAAL_DEPRECATED Parameter(const Parameter& o) : daal::algorithms::classifier::interface1::Parameter(o), nIterations(o.nIterations){}
-    size_t nIterations;        /*!< Number of iterations of the trained model to be used for prediction */
+    DAAL_DEPRECATED Parameter(const Parameter & o) : daal::algorithms::classifier::interface1::Parameter(o), nIterations(o.nIterations) {}
+    size_t nIterations; /*!< Number of iterations of the trained model to be used for prediction */
 };
 /* [interface1::Parameter source code] */
-}
+} // namespace interface1
 
 /**
  * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface2
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__GBT__CLASSIFICATION__PREDICTION__PARAMETER"></a>
  * \brief Parameters of the prediction algorithm
@@ -95,11 +92,11 @@ namespace interface2
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
 {
     Parameter(size_t nClasses = 2) : daal::algorithms::classifier::Parameter(nClasses), nIterations(0) {}
-    Parameter(const Parameter& o) : daal::algorithms::classifier::Parameter(o), nIterations(o.nIterations){}
-    size_t nIterations;        /*!< Number of iterations of the trained model to be used for prediction */
+    Parameter(const Parameter & o) : daal::algorithms::classifier::Parameter(o), nIterations(o.nIterations) {}
+    size_t nIterations; /*!< Number of iterations of the trained model to be used for prediction */
 };
 /* [Parameter source code] */
-}
+} // namespace interface2
 
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -113,9 +110,10 @@ namespace interface1
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
     typedef classifier::prediction::Input super;
+
 public:
-    Input() : super(){}
-    Input(const Input& other) : super(other){}
+    Input() : super() {}
+    Input(const Input & other) : super(other) {}
     virtual ~Input() {}
 
     using super::get;
@@ -140,14 +138,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the GBT_CLASSIFICATION algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const gbt::classification::ModelPtr &ptr);
+    void set(classifier::prediction::ModelInputId id, const gbt::classification::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
@@ -155,16 +153,16 @@ public:
      * \param[in] method    Computation method
      * \return Status of checking
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface1
 using interface2::Parameter;
 using interface1::Input;
-}
+} // namespace prediction
 /** @} */
-}
-}
-}
-}
+} // namespace classification
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal
 #endif // __GBT_CLASSIFICATION_PREDICT_TYPES_H__

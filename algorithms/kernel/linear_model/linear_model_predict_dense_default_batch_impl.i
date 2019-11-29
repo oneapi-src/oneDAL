@@ -59,74 +59,79 @@ using namespace daal::services;
  *  \param findBeta0[in]        Flag. True if regression coefficient contain intercept term;
  *                              false - otherwise.
  */
-template<typename algorithmFPType, CpuType cpu>
-void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(
-    DAAL_INT *numFeatures, DAAL_INT *numRows, const algorithmFPType *dataBlock,
-    DAAL_INT *numBetas, const algorithmFPType *beta,
-    DAAL_INT *numResponses, algorithmFPType *responseBlock, bool findBeta0)
+template <typename algorithmFPType, CpuType cpu>
+void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(DAAL_INT * numFeatures, DAAL_INT * numRows,
+                                                                                const algorithmFPType * dataBlock, DAAL_INT * numBetas,
+                                                                                const algorithmFPType * beta, DAAL_INT * numResponses,
+                                                                                algorithmFPType * responseBlock, bool findBeta0)
 {
     /* GEMM parameters */
-    char trans   = 'T';
-    char notrans = 'N';
+    char trans           = 'T';
+    char notrans         = 'N';
     algorithmFPType one  = 1.0;
     algorithmFPType zero = 0.0;
 
-    Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, numResponses, numRows, numFeatures,
-                                       &one, beta + 1, numBetas, dataBlock, numFeatures, &zero,
+    Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, numResponses, numRows, numFeatures, &one, beta + 1, numBetas, dataBlock, numFeatures, &zero,
                                        responseBlock, numResponses);
 
     if (findBeta0)
     {
         /* Add intercept term to linear regression results */
-        DAAL_INT iZero = 0;
+        DAAL_INT iZero             = 0;
         DAAL_INT numFeaturesValue  = *numFeatures;
         DAAL_INT numBetasValue     = *numBetas;
         DAAL_INT numResponsesValue = *numResponses;
         for (DAAL_INT j = 0; j < numResponsesValue; j++)
         {
-            Blas<algorithmFPType, cpu>::xxaxpy(numRows, &one, const_cast<algorithmFPType *>(beta + j * numBetasValue), &iZero,
-                                               responseBlock + j, numResponses);
+            Blas<algorithmFPType, cpu>::xxaxpy(numRows, &one, const_cast<algorithmFPType *>(beta + j * numBetasValue), &iZero, responseBlock + j,
+                                               numResponses);
         }
     } /* if (findBeta0) */
 } /* void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses */
 
-
-template<typename algorithmFPType, CpuType cpu>
-services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(
-    const NumericTable *a, const linear_model::Model *m, NumericTable *r)
+template <typename algorithmFPType, CpuType cpu>
+services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r)
 {
-    linear_model::Model *model = const_cast<linear_model::Model *>(m);
+    linear_model::Model * model = const_cast<linear_model::Model *>(m);
 
     /* Get numeric tables with input data */
-    NumericTable *dataTable = const_cast<NumericTable *>(a);
+    NumericTable * dataTable = const_cast<NumericTable *>(a);
 
     /* Get numeric table to store results */
-    DAAL_INT numVectors  = dataTable->getNumberOfRows();
+    DAAL_INT numVectors = dataTable->getNumberOfRows();
 
     /* Get linear regression coefficients */
-    NumericTable *betaTable = model->getBeta().get();
-    DAAL_INT numResponses = betaTable->getNumberOfRows();
+    NumericTable * betaTable = model->getBeta().get();
+    DAAL_INT numResponses    = betaTable->getNumberOfRows();
 
     /* Retrieve data associated with coefficients */
     ReadRows<algorithmFPType, cpu> betaRows(betaTable, 0, numResponses);
     DAAL_CHECK_BLOCK_STATUS(betaRows)
-    const algorithmFPType *beta = betaRows.get();
+    const algorithmFPType * beta = betaRows.get();
 
     size_t numRowsInBlock = _numRowsInBlock;
 
-    if (numRowsInBlock < 1) { numRowsInBlock = 1; }
+    if (numRowsInBlock < 1)
+    {
+        numRowsInBlock = 1;
+    }
 
     /* Calculate number of blocks of rows including tail block */
     size_t numBlocks = numVectors / numRowsInBlock;
-    if (numBlocks * numRowsInBlock < numVectors) { numBlocks++; }
+    if (numBlocks * numRowsInBlock < numVectors)
+    {
+        numBlocks++;
+    }
 
     SafeStatus safeStat;
     /* Loop over input data blocks */
-    daal::threader_for( numBlocks, numBlocks, [ =, &safeStat ](int iBlock)
-    {
+    daal::threader_for(numBlocks, numBlocks, [=, &safeStat](int iBlock) {
         size_t startRow = iBlock * numRowsInBlock;
-        size_t endRow = startRow + numRowsInBlock;
-        if (endRow > numVectors) { endRow = numVectors; }
+        size_t endRow   = startRow + numRowsInBlock;
+        if (endRow > numVectors)
+        {
+            endRow = numVectors;
+        }
 
         DAAL_INT numRows = endRow - startRow;
 
@@ -142,7 +147,7 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(
             safeStat |= s;
             return;
         }
-        const algorithmFPType *dataBlock = dataRows.get();
+        const algorithmFPType * dataBlock = dataRows.get();
 
         WriteOnlyRows<algorithmFPType, cpu> responseRows(r, startRow, endRow - startRow);
         s = responseRows.status();
@@ -151,13 +156,12 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(
             safeStat |= s;
             return;
         }
-        algorithmFPType *responseBlock = responseRows.get();
-        DAAL_INT*  pnumResponses = (DAAL_INT*)&numResponses;
+        algorithmFPType * responseBlock = responseRows.get();
+        DAAL_INT * pnumResponses        = (DAAL_INT *)&numResponses;
 
         /* Calculate predictions */
-        computeBlockOfResponses(&numFeatures, &numRows, dataBlock, &nAllBetas,
-                                beta, pnumResponses, responseBlock, model->getInterceptFlag());
-    } ); /* daal::threader_for */
+        computeBlockOfResponses(&numFeatures, &numRows, dataBlock, &nAllBetas, beta, pnumResponses, responseBlock, model->getInterceptFlag());
+    }); /* daal::threader_for */
 
     return safeStat.detach();
 } /* void PredictKernel<algorithmFPType, defaultDense, cpu>::compute */

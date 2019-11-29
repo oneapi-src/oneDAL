@@ -48,7 +48,6 @@ namespace optimization_solver
  */
 namespace sgd
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__OPTIMIZATION_SOLVER__SGD__METHOD"></a>
  * Available methods for computing the Stochastic gradient descent
@@ -56,8 +55,8 @@ namespace sgd
 enum Method
 {
     defaultDense = 0, /*!< Default: Required gradient is computed using only one term of objective function */
-    miniBatch = 1,    /*!< Required gradient is computed using batchSize terms of objective function  */
-    momentum = 2      /*!< Required gradient is computed using batchSize terms of objective function, perform momentum update rule  */
+    miniBatch    = 1, /*!< Required gradient is computed using batchSize terms of objective function  */
+    momentum     = 2  /*!< Required gradient is computed using batchSize terms of objective function, perform momentum update rule  */
 };
 
 /**
@@ -66,8 +65,10 @@ enum Method
 */
 enum OptionalDataId
 {
-    pastUpdateVector = iterative_solver::lastOptionalData + 1, /*!< NumericTable of size p x 1 with vector update from past iteration. Applied for momentum method */
-    pastWorkValue = pastUpdateVector + 1 ,                     /*!< NumericTable of size p x 1 with work vector value from past main iteration. Applied for minibatch method */
+    pastUpdateVector =
+        iterative_solver::lastOptionalData + 1, /*!< NumericTable of size p x 1 with vector update from past iteration. Applied for momentum method */
+    pastWorkValue =
+        pastUpdateVector + 1, /*!< NumericTable of size p x 1 with work vector value from past main iteration. Applied for minibatch method */
     lastOptionalData = pastWorkValue
 };
 
@@ -76,7 +77,6 @@ enum OptionalDataId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__SGD__BASEPARAMETER"></a>
  * \brief %BaseParameter base class for the Stochastic gradient descent algorithm     \DAAL_DEPRECATED
@@ -97,16 +97,11 @@ struct DAAL_EXPORT BaseParameter : public optimization_solver::iterative_solver:
      * \param[in] batchSize            Batch size
      * \param[in] seed                 Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    BaseParameter(
-        const sum_of_functions::interface1::BatchPtr &function,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-        data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
-                                                                    new data_management::HomogenNumericTable<double>(
-                                                                        1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
-        size_t batchSize = 1,
-        size_t seed = 777 );
+    BaseParameter(const sum_of_functions::interface1::BatchPtr & function, size_t nIterations = 100, double accuracyThreshold = 1.0e-05,
+                  data_management::NumericTablePtr batchIndices         = data_management::NumericTablePtr(),
+                  data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
+                      new data_management::HomogenNumericTable<double>(1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
+                  size_t batchSize = 1, size_t seed = 777);
 
     virtual ~BaseParameter() {}
 
@@ -121,15 +116,16 @@ struct DAAL_EXPORT BaseParameter : public optimization_solver::iterative_solver:
                                                                 in the objective function. If no indices are provided,
                                                                 the implementation will generate random indices. */
     data_management::NumericTablePtr learningRateSequence; /*!< Numeric table that contains values of the learning rate sequence */
-    size_t                           seed;                 /*!< Seed for random generation of 32 bit integer indices of terms
+    size_t seed;                                           /*!< Seed for random generation of 32 bit integer indices of terms
                                                                   in the objective function. \DAAL_DEPRECATED_USE{ engine } */
     engines::EnginePtr engine;                             /*!< Engine for random generation of 32 bit integer indices of terms
                                                                   in the objective function. */
 };
 /* [interface1::BaseParameter source code] */
 
-template<Method method>
-struct Parameter : public BaseParameter {};
+template <Method method>
+struct Parameter : public BaseParameter
+{};
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__SGD__PARAMETER_DEFAULTDENSE"></a>
@@ -138,7 +134,7 @@ struct Parameter : public BaseParameter {};
  * \snippet optimization_solver/sgd/sgd_types.h interface1::ParameterDefaultDense source code
  */
 /* [interface1::ParameterDefaultDense source code] */
-template<>
+template <>
 struct DAAL_EXPORT Parameter<defaultDense> : public BaseParameter
 {
     /**
@@ -150,15 +146,11 @@ struct DAAL_EXPORT Parameter<defaultDense> : public BaseParameter
      * \param[in] learningRateSequence Numeric table that contains values of the learning rate sequence
      * \param[in] seed                 Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    DAAL_DEPRECATED Parameter(
-        const sum_of_functions::interface1::BatchPtr &function,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-        data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
-                                                                    new data_management::HomogenNumericTable<double>(
-                                                                        1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
-        size_t seed = 777 );
+    DAAL_DEPRECATED Parameter(const sum_of_functions::interface1::BatchPtr & function, size_t nIterations = 100, double accuracyThreshold = 1.0e-05,
+                              data_management::NumericTablePtr batchIndices         = data_management::NumericTablePtr(),
+                              data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
+                                  new data_management::HomogenNumericTable<double>(1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
+                              size_t seed = 777);
 
     /**
      * Checks the correctness of the parameter
@@ -178,7 +170,7 @@ struct DAAL_EXPORT Parameter<defaultDense> : public BaseParameter
  * \snippet optimization_solver/sgd/sgd_types.h interface1::ParameterMiniBatch source code
  */
 /* [interface1::ParameterMiniBatch source code] */
-template<>
+template <>
 struct DAAL_EXPORT Parameter<miniBatch> : public BaseParameter
 {
     /**
@@ -196,20 +188,14 @@ struct DAAL_EXPORT Parameter<miniBatch> : public BaseParameter
      * \param[in] learningRateSequence Numeric table that contains values of the learning rate sequence
      * \param[in] seed                 Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    DAAL_DEPRECATED Parameter(
-        const sum_of_functions::interface1::BatchPtr &function,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-        size_t batchSize = 128,
-        data_management::NumericTablePtr conservativeSequence = data_management::NumericTablePtr(
-                                                                    new data_management::HomogenNumericTable<double>(
-                                                                        1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
-        size_t innerNIterations = 5,
-        data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
-                                                                    new data_management::HomogenNumericTable<double>(
-                                                                        1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
-        size_t seed = 777 );
+    DAAL_DEPRECATED Parameter(const sum_of_functions::interface1::BatchPtr & function, size_t nIterations = 100, double accuracyThreshold = 1.0e-05,
+                              data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(), size_t batchSize = 128,
+                              data_management::NumericTablePtr conservativeSequence = data_management::NumericTablePtr(
+                                  new data_management::HomogenNumericTable<double>(1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
+                              size_t innerNIterations                               = 5,
+                              data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
+                                  new data_management::HomogenNumericTable<double>(1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
+                              size_t seed = 777);
 
     /**
      * Checks the correctness of the parameter
@@ -221,7 +207,7 @@ struct DAAL_EXPORT Parameter<miniBatch> : public BaseParameter
     DAAL_DEPRECATED_VIRTUAL virtual ~Parameter() {}
 
     data_management::NumericTablePtr conservativeSequence; /*!< Numeric table of values of the conservative coefficient sequence */
-    size_t                           innerNIterations;
+    size_t innerNIterations;
 };
 /* [interface1::ParameterMiniBatch source code] */
 /** @} */
@@ -233,7 +219,7 @@ struct DAAL_EXPORT Parameter<miniBatch> : public BaseParameter
  * \snippet optimization_solver/sgd/sgd_types.h interface1::ParameterMomentum source code
  */
 /* [interface1::ParameterMomentum source code] */
-template<>
+template <>
 struct DAAL_EXPORT Parameter<momentum> : public BaseParameter
 {
     /**
@@ -250,17 +236,12 @@ struct DAAL_EXPORT Parameter<momentum> : public BaseParameter
      * \param[in] learningRateSequence Numeric table that contains values of the learning rate sequence
      * \param[in] seed                 Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    DAAL_DEPRECATED Parameter(
-        const sum_of_functions::interface1::BatchPtr& function,
-        double momentum = 0.9,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-        size_t batchSize = 128,
-        data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
-                    new data_management::HomogenNumericTable<double>(
-                        1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
-        size_t seed = 777 );
+    DAAL_DEPRECATED Parameter(const sum_of_functions::interface1::BatchPtr & function, double momentum = 0.9, size_t nIterations = 100,
+                              double accuracyThreshold = 1.0e-05, data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
+                              size_t batchSize                                      = 128,
+                              data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
+                                  new data_management::HomogenNumericTable<double>(1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
+                              size_t seed = 777);
 
     /**
      * Checks the correctness of the parameter
@@ -271,7 +252,7 @@ struct DAAL_EXPORT Parameter<momentum> : public BaseParameter
 
     DAAL_DEPRECATED_VIRTUAL virtual ~Parameter() {}
 
-    double momentum;     /*!< Momentum value */
+    double momentum; /*!< Momentum value */
 };
 /* [interface1::ParameterMomentum source code] */
 /** @} */
@@ -288,7 +269,7 @@ class DAAL_EXPORT Input : public optimization_solver::iterative_solver::interfac
 public:
     typedef optimization_solver::iterative_solver::interface1::Input super;
     DAAL_DEPRECATED Input();
-    DAAL_DEPRECATED Input(const Input& other);
+    DAAL_DEPRECATED Input(const Input & other);
     using super::set;
     using super::get;
 
@@ -304,7 +285,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the correctness of the input
@@ -313,7 +294,7 @@ public:
     *
      * \return Status of computations
     */
-    DAAL_DEPRECATED virtual services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Input source code] */
 /** @} */
@@ -342,7 +323,8 @@ public:
      * \return Status of computations
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                          const int method);
 
     /**
     * Returns optional result of the algorithm
@@ -356,7 +338,7 @@ public:
     * \param[in] id    Identifier of the optional result
     * \param[in] ptr   Pointer to the optional result
     */
-    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the result of the iterative solver algorithm
@@ -366,9 +348,8 @@ public:
     *
      * \return Status of computations
     */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-                       int method) const DAAL_C11_OVERRIDE;
-
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                           int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /* [interface1::Result source code] */
@@ -376,13 +357,11 @@ typedef services::SharedPtr<Result> ResultPtr;
 
 } // namespace interface1
 
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface2
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__SGD__BASEPARAMETER"></a>
  * \brief %BaseParameter base class for the Stochastic gradient descent algorithm
@@ -403,16 +382,11 @@ struct DAAL_EXPORT BaseParameter : public optimization_solver::iterative_solver:
      * \param[in] batchSize            Batch size
      * \param[in] seed                 Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    BaseParameter(
-        const sum_of_functions::BatchPtr &function,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-        data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
-                                                                    new data_management::HomogenNumericTable<double>(
-                                                                        1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
-        size_t batchSize = 1,
-        size_t seed = 777 );
+    BaseParameter(const sum_of_functions::BatchPtr & function, size_t nIterations = 100, double accuracyThreshold = 1.0e-05,
+                  data_management::NumericTablePtr batchIndices         = data_management::NumericTablePtr(),
+                  data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
+                      new data_management::HomogenNumericTable<double>(1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
+                  size_t batchSize = 1, size_t seed = 777);
 
     virtual ~BaseParameter() {}
 
@@ -427,15 +401,16 @@ struct DAAL_EXPORT BaseParameter : public optimization_solver::iterative_solver:
                                                                 in the objective function. If no indices are provided,
                                                                 the implementation will generate random indices. */
     data_management::NumericTablePtr learningRateSequence; /*!< Numeric table that contains values of the learning rate sequence */
-    size_t                           seed;                 /*!< Seed for random generation of 32 bit integer indices of terms
+    size_t seed;                                           /*!< Seed for random generation of 32 bit integer indices of terms
                                                                   in the objective function. \DAAL_DEPRECATED_USE{ engine } */
     engines::EnginePtr engine;                             /*!< Engine for random generation of 32 bit integer indices of terms
                                                                   in the objective function. */
 };
 /* [BaseParameter source code] */
 
-template<Method method>
-struct Parameter : public BaseParameter {};
+template <Method method>
+struct Parameter : public BaseParameter
+{};
 
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__SGD__PARAMETER_DEFAULTDENSE"></a>
@@ -444,7 +419,7 @@ struct Parameter : public BaseParameter {};
  * \snippet optimization_solver/sgd/sgd_types.h ParameterDefaultDense source code
  */
 /* [ParameterDefaultDense source code] */
-template<>
+template <>
 struct DAAL_EXPORT Parameter<defaultDense> : public BaseParameter
 {
     /**
@@ -456,15 +431,11 @@ struct DAAL_EXPORT Parameter<defaultDense> : public BaseParameter
      * \param[in] learningRateSequence Numeric table that contains values of the learning rate sequence
      * \param[in] seed                 Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    Parameter(
-        const sum_of_functions::BatchPtr &function,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-        data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
-                                                                    new data_management::HomogenNumericTable<double>(
-                                                                        1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
-        size_t seed = 777 );
+    Parameter(const sum_of_functions::BatchPtr & function, size_t nIterations = 100, double accuracyThreshold = 1.0e-05,
+              data_management::NumericTablePtr batchIndices         = data_management::NumericTablePtr(),
+              data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
+                  new data_management::HomogenNumericTable<double>(1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
+              size_t seed = 777);
 
     /**
      * Checks the correctness of the parameter
@@ -484,7 +455,7 @@ struct DAAL_EXPORT Parameter<defaultDense> : public BaseParameter
  * \snippet optimization_solver/sgd/sgd_types.h ParameterMiniBatch source code
  */
 /* [ParameterMiniBatch source code] */
-template<>
+template <>
 struct DAAL_EXPORT Parameter<miniBatch> : public BaseParameter
 {
     /**
@@ -502,20 +473,14 @@ struct DAAL_EXPORT Parameter<miniBatch> : public BaseParameter
      * \param[in] learningRateSequence Numeric table that contains values of the learning rate sequence
      * \param[in] seed                 Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    Parameter(
-        const sum_of_functions::BatchPtr &function,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-        size_t batchSize = 128,
-        data_management::NumericTablePtr conservativeSequence = data_management::NumericTablePtr(
-                                                                    new data_management::HomogenNumericTable<double>(
-                                                                        1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
-        size_t innerNIterations = 5,
-        data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
-                                                                    new data_management::HomogenNumericTable<double>(
-                                                                        1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
-        size_t seed = 777 );
+    Parameter(const sum_of_functions::BatchPtr & function, size_t nIterations = 100, double accuracyThreshold = 1.0e-05,
+              data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(), size_t batchSize = 128,
+              data_management::NumericTablePtr conservativeSequence = data_management::NumericTablePtr(
+                  new data_management::HomogenNumericTable<double>(1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
+              size_t innerNIterations                               = 5,
+              data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
+                  new data_management::HomogenNumericTable<double>(1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
+              size_t seed = 777);
 
     /**
      * Checks the correctness of the parameter
@@ -527,7 +492,7 @@ struct DAAL_EXPORT Parameter<miniBatch> : public BaseParameter
     virtual ~Parameter() {}
 
     data_management::NumericTablePtr conservativeSequence; /*!< Numeric table of values of the conservative coefficient sequence */
-    size_t                           innerNIterations;
+    size_t innerNIterations;
 };
 /* [ParameterMiniBatch source code] */
 /** @} */
@@ -539,7 +504,7 @@ struct DAAL_EXPORT Parameter<miniBatch> : public BaseParameter
  * \snippet optimization_solver/sgd/sgd_types.h ParameterMomentum source code
  */
 /* [ParameterMomentum source code] */
-template<>
+template <>
 struct DAAL_EXPORT Parameter<momentum> : public BaseParameter
 {
     /**
@@ -556,17 +521,11 @@ struct DAAL_EXPORT Parameter<momentum> : public BaseParameter
      * \param[in] learningRateSequence Numeric table that contains values of the learning rate sequence
      * \param[in] seed                 Seed for random generation of 32 bit integer indices of terms in the objective function. \DAAL_DEPRECATED_USE{ engine }
      */
-    Parameter(
-        const sum_of_functions::BatchPtr& function,
-        double momentum = 0.9,
-        size_t nIterations = 100,
-        double accuracyThreshold = 1.0e-05,
-        data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-        size_t batchSize = 128,
-        data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
-                    new data_management::HomogenNumericTable<double>(
-                        1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
-        size_t seed = 777 );
+    Parameter(const sum_of_functions::BatchPtr & function, double momentum = 0.9, size_t nIterations = 100, double accuracyThreshold = 1.0e-05,
+              data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(), size_t batchSize = 128,
+              data_management::NumericTablePtr learningRateSequence = data_management::NumericTablePtr(
+                  new data_management::HomogenNumericTable<double>(1, 1, data_management::NumericTableIface::doAllocate, 1.0)),
+              size_t seed = 777);
 
     /**
      * Checks the correctness of the parameter
@@ -577,7 +536,7 @@ struct DAAL_EXPORT Parameter<momentum> : public BaseParameter
 
     virtual ~Parameter() {}
 
-    double momentum;     /*!< Momentum value */
+    double momentum; /*!< Momentum value */
 };
 /* [ParameterMomentum source code] */
 /** @} */
@@ -594,7 +553,7 @@ class DAAL_EXPORT Input : public optimization_solver::iterative_solver::Input
 public:
     typedef optimization_solver::iterative_solver::Input super;
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
     using super::set;
     using super::get;
 
@@ -610,7 +569,7 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the correctness of the input
@@ -619,7 +578,7 @@ public:
     *
      * \return Status of computations
     */
-    virtual services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /* [Input source code] */
 /** @} */
@@ -648,7 +607,7 @@ public:
      * \return Status of computations
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
     * Returns optional result of the algorithm
@@ -662,7 +621,7 @@ public:
     * \param[in] id    Identifier of the optional result
     * \param[in] ptr   Pointer to the optional result
     */
-    void set(OptionalDataId id, const data_management::NumericTablePtr &ptr);
+    void set(OptionalDataId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the result of the iterative solver algorithm
@@ -672,9 +631,8 @@ public:
     *
      * \return Status of computations
     */
-    virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-                       int method) const DAAL_C11_OVERRIDE;
-
+    virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                   int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 /* [Result source code] */
@@ -689,6 +647,6 @@ using interface2::ResultPtr;
 
 } // namespace sgd
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

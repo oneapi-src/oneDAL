@@ -29,10 +29,11 @@ using namespace daal::algorithms::logistic_regression::prediction;
  * Method:    cSetInputTable
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionInput_cSetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionInput_cSetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong inputAddr, jint id,
+                                                                                                                     jlong ntAddr)
 {
-    if(id != classifier::prediction::data) return;
+    if (id != classifier::prediction::data) return;
 
     jniInput<logistic_regression::prediction::Input>::set<classifier::prediction::NumericTableInputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -42,10 +43,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_predi
  * Method:    cSetInputModel
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionInput_cSetInputModel
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionInput_cSetInputModel(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong inputAddr, jint id,
+                                                                                                                     jlong ntAddr)
 {
-    if(id != classifier::prediction::model) return;
+    if (id != classifier::prediction::model) return;
 
     jniInput<logistic_regression::prediction::Input>::set<classifier::prediction::ModelInputId, logistic_regression::Model>(inputAddr, id, ntAddr);
 }
@@ -55,10 +57,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_predi
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionInput_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionInput_cGetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong inputAddr, jint id)
 {
-    if(id != classifier::prediction::data) return (jlong)-1;
+    if (id != classifier::prediction::data) return (jlong)-1;
 
     return jniInput<logistic_regression::prediction::Input>::get<classifier::prediction::NumericTableInputId, NumericTable>(inputAddr, id);
 }
@@ -68,10 +70,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_pred
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionInput_cGetInputModel
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_prediction_PredictionInput_cGetInputModel(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong inputAddr, jint id)
 {
-    if(id != classifier::prediction::model) return (jlong)-1;
+    if (id != classifier::prediction::model) return (jlong)-1;
 
     return jniInput<logistic_regression::prediction::Input>::get<classifier::prediction::ModelInputId, logistic_regression::Model>(inputAddr, id);
 }

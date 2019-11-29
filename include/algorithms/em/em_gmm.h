@@ -35,7 +35,6 @@ namespace algorithms
 {
 namespace em_gmm
 {
-
 namespace interface1
 {
 /**
@@ -51,16 +50,16 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the EM for GMM algorithm, double or float
  * \tparam method           EM for GMM computation method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
-     /**
+    /**
      * Constructs a container for the EM for GMM algorithm with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -82,13 +81,13 @@ public:
  *      - \ref InputId  Identifiers of input objects for EM for GMM
  *      - \ref ResultId Result identifiers for EM for GMM
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::em_gmm::Input     InputType;
+    typedef algorithms::em_gmm::Input InputType;
     typedef algorithms::em_gmm::Parameter ParameterType;
-    typedef algorithms::em_gmm::Result    ResultType;
+    typedef algorithms::em_gmm::Result ResultType;
 
     Batch(const size_t nComponents);
 
@@ -98,35 +97,29 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of the EM for GMM algorithm
      * \return Structure that contains results of the EM for GMM algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Sets the memory for storing results of the EM for GMM algorithm
      * \param[in] result  Structure for storing results of the EM for GMM algorithm
      */
-    services::Status setResult(const ResultPtr& result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -135,29 +128,23 @@ public:
      * of this EM for GMM algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize();
 
 public:
-    InputType input;           /*!< %Input data structure */
-    ParameterType parameter;   /*!< %Parameter data structure */
+    InputType input;         /*!< %Input data structure */
+    ParameterType parameter; /*!< %Parameter data structure */
 
 private:
     ResultPtr _result;
@@ -168,6 +155,6 @@ using interface1::BatchContainer;
 using interface1::Batch;
 
 } // namespace em_gmm
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

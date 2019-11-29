@@ -17,24 +17,23 @@
 #ifndef __DAAL_H__
 #define __DAAL_H__
 
-#pragma warning(disable:809)
+#pragma warning(disable : 809)
 
 #if defined(_DAAL_SEQ_DYNAMIC)
-    #pragma comment(lib, "daal_core_dll.lib" )
+    #pragma comment(lib, "daal_core_dll.lib")
 #elif defined(_DAAL_SEQ_STATIC)
-    #pragma comment(lib, "daal_core.lib" )
-    #pragma comment(lib, "daal_sequential.lib" )
+    #pragma comment(lib, "daal_core.lib")
+    #pragma comment(lib, "daal_sequential.lib")
 #elif defined(_DAAL_PAR_DYNAMIC)
-    #pragma comment(lib, "daal_core_dll.lib" )
-    #pragma comment(lib, "tbb.lib" )
-    #pragma comment(lib, "tbbmalloc.lib" )
+    #pragma comment(lib, "daal_core_dll.lib")
+    #pragma comment(lib, "tbb.lib")
+    #pragma comment(lib, "tbbmalloc.lib")
 #elif defined(_DAAL_PAR_STATIC)
-    #pragma comment(lib, "daal_core.lib" )
-    #pragma comment(lib, "daal_thread.lib" )
-    #pragma comment(lib, "tbb.lib" )
-    #pragma comment(lib, "tbbmalloc.lib" )
+    #pragma comment(lib, "daal_core.lib")
+    #pragma comment(lib, "daal_thread.lib")
+    #pragma comment(lib, "tbb.lib")
+    #pragma comment(lib, "tbbmalloc.lib")
 #endif
-
 
 #include "services/daal_defines.h"
 #include "services/daal_memory.h"

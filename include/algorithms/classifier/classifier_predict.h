@@ -35,7 +35,6 @@ namespace classifier
 {
 namespace prediction
 {
-
 namespace interface1
 {
 /**
@@ -61,7 +60,7 @@ namespace interface1
 class Batch : public daal::algorithms::Prediction
 {
 public:
-    typedef algorithms::classifier::prediction::interface1::Input  InputType;
+    typedef algorithms::classifier::prediction::interface1::Input InputType;
     typedef algorithms::classifier::interface1::Parameter ParameterType;
     typedef algorithms::classifier::prediction::interface1::Result ResultType;
 
@@ -69,10 +68,7 @@ public:
      * Constructs a classifier prediction algorithm by default
      * \DAAL_DEPRECATED
      */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a classifier prediction algorithm by copying input objects and parameters
@@ -81,10 +77,7 @@ public:
      *                  and parameters of the algorithm
      * \DAAL_DEPRECATED
      */
-    Batch(const Batch &other)
-    {
-        initialize();
-    }
+    Batch(const Batch & other) { initialize(); }
 
     virtual ~Batch() {}
 
@@ -98,10 +91,7 @@ public:
      * Returns the structure that contains computed prediction results
      * \return Structure that contains computed prediction results
      */
-    DAAL_DEPRECATED interface1::ResultPtr getResult()
-    {
-        return _result;
-    }
+    DAAL_DEPRECATED interface1::ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory for storing the prediction results
@@ -109,11 +99,11 @@ public:
      *
      * \return Status of computation
      */
-    DAAL_DEPRECATED services::Status setResult(const interface1::ResultPtr &result)
+    DAAL_DEPRECATED services::Status setResult(const interface1::ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -122,17 +112,10 @@ public:
      * and parameters of this classifier prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    DAAL_DEPRECATED services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    DAAL_DEPRECATED services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
-
-    void initialize()
-    {
-        _result.reset(new ResultType());
-    }
+    void initialize() { _result.reset(new ResultType()); }
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     interface1::ResultPtr _result;
 };
@@ -164,14 +147,11 @@ namespace interface2
 class Batch : public daal::algorithms::Prediction
 {
 public:
-    typedef algorithms::classifier::prediction::Input  InputType;
-    typedef algorithms::classifier::Parameter          ParameterType;
+    typedef algorithms::classifier::prediction::Input InputType;
+    typedef algorithms::classifier::Parameter ParameterType;
     typedef algorithms::classifier::prediction::Result ResultType;
 
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a classifier prediction algorithm by copying input objects and parameters
@@ -179,10 +159,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch &other)
-    {
-        initialize();
-    }
+    Batch(const Batch & other) { initialize(); }
 
     virtual ~Batch() {}
 
@@ -196,7 +173,7 @@ public:
      * Gets parameter objects for the classifier model prediction algorithm
      * \return %Parameter objects for the classifier model prediction algorithm
      */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(this->getBaseParameter()); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(this->getBaseParameter()); }
 
     /**
      * Gets parameter objects for the classifier model prediction algorithm
@@ -208,10 +185,7 @@ public:
      * Returns the structure that contains computed prediction results
      * \return Structure that contains computed prediction results
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory for storing the prediction results
@@ -219,11 +193,11 @@ public:
      *
      * \return Status of computation
      */
-    services::Status setResult(const ResultPtr &result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -232,17 +206,10 @@ public:
      * and parameters of this classifier prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
-
-    void initialize()
-    {
-        _result.reset(new ResultType());
-    }
+    void initialize() { _result.reset(new ResultType()); }
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     ResultPtr _result;
 };
@@ -250,8 +217,8 @@ protected:
 } // namespace interface2
 using interface2::Batch;
 
-}
-}
-}
-}
+} // namespace prediction
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 #endif

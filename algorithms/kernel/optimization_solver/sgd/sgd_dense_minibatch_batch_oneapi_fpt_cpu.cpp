@@ -19,7 +19,6 @@
 //  Implementation of sgd calculation functions.
 //--
 
-
 #include "sgd_batch_container.h"
 #include "oneapi/sgd_dense_kernel_oneapi_instance.h"
 
@@ -31,7 +30,6 @@ namespace optimization_solver
 {
 namespace sgd
 {
-
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, miniBatch, DAAL_CPU>;
@@ -42,7 +40,7 @@ namespace internal
 template class SGDKernelOneAPI<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 template class SGDKernelOneAPI<DAAL_FPTYPE, miniBatch, DAAL_CPU>;
 template class SGDKernelOneAPI<DAAL_FPTYPE, momentum, DAAL_CPU>;
-}
+} // namespace internal
 
 } // namespace sgd
 

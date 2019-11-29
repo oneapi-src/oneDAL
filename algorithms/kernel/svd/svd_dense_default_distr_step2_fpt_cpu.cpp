@@ -39,6 +39,6 @@ namespace internal
 {
 template class SVDDistributedStep2Kernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace svd
+} // namespace algorithms
+} // namespace daal

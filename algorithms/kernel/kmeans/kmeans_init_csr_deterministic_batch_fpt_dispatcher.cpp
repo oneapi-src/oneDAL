@@ -35,18 +35,17 @@ namespace init
 {
 namespace interface2
 {
-
 template <>
-Batch<DAAL_FPTYPE, kmeans::init::deterministicCSR>::Batch(size_t nClasses) : BatchBase(new ParameterType(nClasses)),
-    parameter(*static_cast<ParameterType*>(_par))
+Batch<DAAL_FPTYPE, kmeans::init::deterministicCSR>::Batch(size_t nClasses)
+    : BatchBase(new ParameterType(nClasses)), parameter(*static_cast<ParameterType *>(_par))
 {
     initialize();
 }
 
 using BatchType = Batch<DAAL_FPTYPE, kmeans::init::deterministicCSR>;
 template <>
-Batch<DAAL_FPTYPE, kmeans::init::deterministicCSR>::Batch(const BatchType &other) : BatchBase(new ParameterType(other.parameter)),
-    parameter(*static_cast<ParameterType*>(_par)), input(other.input)
+Batch<DAAL_FPTYPE, kmeans::init::deterministicCSR>::Batch(const BatchType & other)
+    : BatchBase(new ParameterType(other.parameter)), parameter(*static_cast<ParameterType *>(_par)), input(other.input)
 {
     initialize();
 }
@@ -55,5 +54,5 @@ Batch<DAAL_FPTYPE, kmeans::init::deterministicCSR>::Batch(const BatchType &other
 } // namespace init
 } // namespace kmeans
 
-} // namespace daal::algorithms
+} // namespace algorithms
 } // namespace daal

@@ -38,7 +38,6 @@ namespace classification
 {
 namespace training
 {
-
 namespace interface1
 {
 /**
@@ -55,7 +54,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the the decision stump training algorithm, double or float
  * \tparam method           the decision stump training method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
@@ -64,7 +63,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -90,17 +89,17 @@ public:
  *      - \ref interface1::Model "Model" class
  *      - Result class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
 {
 public:
     typedef classifier::training::Batch super;
 
-    typedef typename super::InputType           InputType;
-    typedef algorithms::stump::classification::Parameter        ParameterType;
+    typedef typename super::InputType InputType;
+    typedef algorithms::stump::classification::Parameter ParameterType;
     typedef algorithms::stump::classification::training::Result ResultType;
 
-    InputType input;                    /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
     Batch(size_t nClasses = 2);
 
@@ -110,24 +109,21 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    Batch(const Batch<algorithmFPType, method> & other);
 
-    virtual ~Batch()
-    {
-        delete _par;
-    }
+    virtual ~Batch() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
      * Get input objects for the stump training algorithm
@@ -139,16 +135,13 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed results of the decision stump training algorithm
      * \return Structure that contains computed results of the decision stump training algorithm
      */
-    training::ResultPtr getResult()
-    {
-        return ResultType::cast(_result);
-    }
+    training::ResultPtr getResult() { return ResultType::cast(_result); }
 
     /**
      * Resets the training results of the classification algorithm
@@ -166,41 +159,35 @@ public:
      * with a copy of input objects and parameters of this decision stump training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         training::ResultPtr res = getResult();
         DAAL_CHECK(res, services::ErrorNullResult);
         services::Status s = res->template allocate<algorithmFPType>(&input, _par, method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in = &input;
         _result.reset(new ResultType());
     }
 };
 /** @} */
-}
+} // namespace interface1
 using interface1::BatchContainer;
 using interface1::Batch;
 
-} // namespace daal::algorithms::stump::classification::training
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 #endif // __stump__classification_TRAINING_BATCH_H__

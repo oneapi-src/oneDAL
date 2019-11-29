@@ -53,7 +53,6 @@ namespace decision_tree
  */
 namespace regression
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -75,18 +74,16 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     /**
      *  Main constructor
      */
-    Parameter() : daal::algorithms::Parameter(),
-                  pruning(reducedErrorPruning), maxTreeDepth(0), minObservationsInLeafNodes(5)
-    {}
+    Parameter() : daal::algorithms::Parameter(), pruning(reducedErrorPruning), maxTreeDepth(0), minObservationsInLeafNodes(5) {}
 
     /**
      * Checks a parameter of the Decision tree algorithm
      */
     services::Status check() const DAAL_C11_OVERRIDE;
 
-    Pruning pruning;                    /*!< Pruning method for Decision tree */
-    size_t maxTreeDepth;                /*!< Maximum tree depth. 0 means unlimited depth. */
-    size_t minObservationsInLeafNodes;  /*!< Minimum number of observations in the leaf node. Can be any positive number. */
+    Pruning pruning;                   /*!< Pruning method for Decision tree */
+    size_t maxTreeDepth;               /*!< Maximum tree depth. 0 means unlimited depth. */
+    size_t minObservationsInLeafNodes; /*!< Minimum number of observations in the leaf node. Can be any positive number. */
 };
 /* [Parameter source code] */
 
@@ -131,7 +128,7 @@ public:
      * Constructs the model of decision tree algorithm
      * \param[out] stat      Status of the model construction
      */
-    static services::SharedPtr<Model> create(services::Status *stat = NULL);
+    static services::SharedPtr<Model> create(services::Status * stat = NULL);
 
     /**
      * \copydoc regression::Model::getNumberOfFeatures
@@ -143,36 +140,36 @@ public:
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     *  \DAAL_DEPRECATED_USE{ Model::traverseDFS }
     */
-    void traverseDF(algorithms::regression::TreeNodeVisitor& visitor) const;
+    void traverseDF(algorithms::regression::TreeNodeVisitor & visitor) const;
 
     /**
     *  Perform Breadth First Traversal of tree
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     *  \DAAL_DEPRECATED_USE{ Model::traverseBFS }
     */
-    void traverseBF(algorithms::regression::TreeNodeVisitor& visitor) const;
+    void traverseBF(algorithms::regression::TreeNodeVisitor & visitor) const;
 
     /**
     *  Perform Depth First Traversal of tree
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     */
-    void traverseDFS(tree_utils::regression::TreeNodeVisitor& visitor) const;
+    void traverseDFS(tree_utils::regression::TreeNodeVisitor & visitor) const;
 
     /**
     *  Perform Breadth First Traversal of tree
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     */
-    void traverseBFS(tree_utils::regression::TreeNodeVisitor& visitor) const;
+    void traverseBFS(tree_utils::regression::TreeNodeVisitor & visitor) const;
 
 protected:
-    Model(services::Status &st);
+    Model(services::Status & st);
 
     services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
 
     services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 
 private:
-    ModelImplPtr _impl;  /*!< Model implementation */
+    ModelImplPtr _impl; /*!< Model implementation */
 };
 
 typedef services::SharedPtr<Model> ModelPtr;

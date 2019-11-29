@@ -39,7 +39,6 @@ namespace svm
  */
 namespace quality_metric_set
 {
-
 namespace interface1
 {
 /**
@@ -82,8 +81,7 @@ public:
      */
     ResultCollectionPtr getResultCollection()
     {
-        return services::staticPointerCast<ResultCollection,
-                                           algorithms::quality_metric_set::ResultCollection>(_resultCollection);
+        return services::staticPointerCast<ResultCollection, algorithms::quality_metric_set::ResultCollection>(_resultCollection);
     }
 
     /**
@@ -92,25 +90,24 @@ public:
      */
     InputDataCollectionPtr getInputDataCollection()
     {
-        return services::staticPointerCast<InputDataCollection,
-                                           algorithms::quality_metric_set::InputDataCollection>(_inputData);
+        return services::staticPointerCast<InputDataCollection, algorithms::quality_metric_set::InputDataCollection>(_inputData);
     }
 
 protected:
     virtual void initializeQualityMetrics()
     {
         inputAlgorithms[confusionMatrix] = services::SharedPtr<classifier::quality_metric::binary_confusion_matrix::Batch<> >(
-                new classifier::quality_metric::binary_confusion_matrix::Batch<>());
+            new classifier::quality_metric::binary_confusion_matrix::Batch<>());
         _inputData->add(confusionMatrix, classifier::quality_metric::binary_confusion_matrix::InputPtr(
-                new classifier::quality_metric::binary_confusion_matrix::Input));
+                                             new classifier::quality_metric::binary_confusion_matrix::Input));
     }
 };
 /** @} */
 } // namespace interface1
 using interface1::Batch;
 
-}
-}
-}
-}
+} // namespace quality_metric_set
+} // namespace svm
+} // namespace algorithms
+} // namespace daal
 #endif

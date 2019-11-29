@@ -37,15 +37,15 @@ using namespace daal::algorithms;
 const string datasetFileName = "../data/online/covcormoments_dense.csv";
 const size_t nVectorsInBlock = 50;
 
-void printResults(const low_order_moments::ResultPtr &res);
+void printResults(const low_order_moments::ResultPtr & res);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
-    for (const auto& deviceSelector : getListOfDevices())
+    for (const auto & deviceSelector : getListOfDevices())
     {
-        const auto& nameDevice = deviceSelector.first;
-        const auto& device = deviceSelector.second;
+        const auto & nameDevice = deviceSelector.first;
+        const auto & device     = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -54,12 +54,11 @@ int main(int argc, char *argv[])
 
         auto data = SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);
 
-        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
         low_order_moments::Online<> algorithm;
 
-        while(dataSource.loadDataBlock(nVectorsInBlock) == nVectorsInBlock)
+        while (dataSource.loadDataBlock(nVectorsInBlock) == nVectorsInBlock)
         {
             /* Set input objects for the algorithm */
             algorithm.input.set(low_order_moments::data, dataSource.getNumericTable());
@@ -79,16 +78,16 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void printResults(const low_order_moments::ResultPtr &res)
+void printResults(const low_order_moments::ResultPtr & res)
 {
-    printNumericTable(res->get(low_order_moments::minimum),              "Minimum:");
-    printNumericTable(res->get(low_order_moments::maximum),              "Maximum:");
-    printNumericTable(res->get(low_order_moments::sum),                  "Sum:");
-    printNumericTable(res->get(low_order_moments::sumSquares),           "Sum of squares:");
-    printNumericTable(res->get(low_order_moments::sumSquaresCentered),   "Sum of squared difference from the means:");
-    printNumericTable(res->get(low_order_moments::mean),                 "Mean:");
+    printNumericTable(res->get(low_order_moments::minimum), "Minimum:");
+    printNumericTable(res->get(low_order_moments::maximum), "Maximum:");
+    printNumericTable(res->get(low_order_moments::sum), "Sum:");
+    printNumericTable(res->get(low_order_moments::sumSquares), "Sum of squares:");
+    printNumericTable(res->get(low_order_moments::sumSquaresCentered), "Sum of squared difference from the means:");
+    printNumericTable(res->get(low_order_moments::mean), "Mean:");
     printNumericTable(res->get(low_order_moments::secondOrderRawMoment), "Second order raw moment:");
-    printNumericTable(res->get(low_order_moments::variance),             "Variance:");
-    printNumericTable(res->get(low_order_moments::standardDeviation),    "Standard deviation:");
-    printNumericTable(res->get(low_order_moments::variation),            "Variation:");
+    printNumericTable(res->get(low_order_moments::variance), "Variance:");
+    printNumericTable(res->get(low_order_moments::standardDeviation), "Standard deviation:");
+    printNumericTable(res->get(low_order_moments::variation), "Variation:");
 }

@@ -34,7 +34,6 @@ namespace daal
  */
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -62,9 +61,7 @@ public:
      *  \param[in] clevel   %Compression level, \ref CompressionLevel.
      *                      defaultLevel is equal to bzip2 compression level 9
      */
-    Bzip2CompressionParameter( CompressionLevel clevel = defaultLevel ) :
-        data_management::CompressionParameter(clevel)
-    {}
+    Bzip2CompressionParameter(CompressionLevel clevel = defaultLevel) : data_management::CompressionParameter(clevel) {}
     ~Bzip2CompressionParameter() {}
 };
 /* [Bzip2CompressionParameter source code] */
@@ -79,7 +76,8 @@ public:
  *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
  *      - \ref Bzip2CompressionParameter class
  */
-template<> class DAAL_EXPORT Compressor<bzip2> : public data_management::CompressorImpl
+template <>
+class DAAL_EXPORT Compressor<bzip2> : public data_management::CompressorImpl
 {
 public:
     /**
@@ -93,30 +91,24 @@ public:
      * \param[in] size     Number of bytes to compress in inBlock
      * \param[in] offset   Offset in bytes, the starting position for compression in inBlock
      */
-    void setInputDataBlock( byte *inBlock, size_t size, size_t offset );
+    void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
     /**
      * Associates an input data block with a compressor
      * \param[in] inBlock Reference to the data block to compress
      */
-    void setInputDataBlock( DataBlock &inBlock )
-    {
-        return setInputDataBlock( inBlock.getPtr(), inBlock.getSize(), 0 );
-    }
+    void setInputDataBlock(DataBlock & inBlock) { return setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
     /**
      * Performs bzip2 compression of a data block
      * \param[out] outBlock Pointer to the data block where compression results are stored. Must be at least size+offset bytes
      * \param[in] size       Number of bytes available in outBlock
      * \param[in] offset     Offset in bytes, the starting position for compression in outBlock
      */
-    void run( byte *outBlock, size_t size, size_t offset );
+    void run(byte * outBlock, size_t size, size_t offset);
     /**
      * Performs bzip2 compression of a data block
      * \param[out] outBlock Reference to the data block where compression results are stored
      */
-    void run( DataBlock &outBlock )
-    {
-        run( outBlock.getPtr(), outBlock.getSize(), 0 );
-    }
+    void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     Bzip2CompressionParameter parameter; /*!< Bzip2 compression parameters structure */
 
@@ -124,7 +116,7 @@ protected:
     void initialize();
 
 private:
-    void *_strmp;
+    void * _strmp;
     int _flush;
     int _blockSize100k;
     size_t _comprLen;
@@ -147,7 +139,8 @@ private:
  *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
  *      - \ref Bzip2CompressionParameter class
  */
-template<> class DAAL_EXPORT Decompressor<bzip2> : public data_management::DecompressorImpl
+template <>
+class DAAL_EXPORT Decompressor<bzip2> : public data_management::DecompressorImpl
 {
 public:
     /**
@@ -161,30 +154,24 @@ public:
      * \param[in] size     Number of bytes to decompress in inBlock
      * \param[in] offset   Offset in bytes, the starting position for decompression in inBlock
      */
-    void setInputDataBlock( byte *inBlock, size_t size, size_t offset );
+    void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
     /**
      * Associates an input data block with a decompressor
      * \param[in] inBlock Reference to the data block to decompress
      */
-    void setInputDataBlock( DataBlock &inBlock )
-    {
-        setInputDataBlock( inBlock.getPtr(), inBlock.getSize(), 0 );
-    }
+    void setInputDataBlock(DataBlock & inBlock) { setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
     /**
      * Performs bzip2 decompression of a data block
      * \param[out] outBlock Pointer to the data block where decompression results are stored. Must be at least size+offset bytes
      * \param[in] size       Number of bytes available in outBlock
      * \param[in] offset     Offset in bytes, the starting position for decompression in outBlock
      */
-    void run( byte *outBlock, size_t size, size_t offset );
+    void run(byte * outBlock, size_t size, size_t offset);
     /**
      * Performs bzip2 decompression of a data block
      * \param[out] outBlock Reference to the data block where decompression results are stored
      */
-    void run( DataBlock &outBlock )
-    {
-        run( outBlock.getPtr(), outBlock.getSize(), 0 );
-    }
+    void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     Bzip2CompressionParameter parameter; /*!< Bzip2 compression parameters structure */
 
@@ -192,12 +179,11 @@ protected:
     void initialize();
 
 private:
-    void *_strmp;
+    void * _strmp;
 
     void finalizeCompression();
     void resetCompression();
     void checkBZipError(int error);
-
 };
 } // namespace interface1
 using interface1::Bzip2CompressionParameter;

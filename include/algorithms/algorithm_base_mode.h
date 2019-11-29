@@ -37,7 +37,6 @@ namespace algorithms
 {
 namespace interface1
 {
-
 /**
  * @addtogroup base_algorithms
  * @{
@@ -49,15 +48,16 @@ namespace interface1
  *         for the classes interfacing the major stages of data processing: Analysis, Training and Prediction.
  * \tparam mode Computation mode of the algorithm, \ref ComputeMode
  */
-template<ComputeMode mode> class Algorithm : public AlgorithmIfaceImpl
+template <ComputeMode mode>
+class Algorithm : public AlgorithmIfaceImpl
 {
 public:
     /** Default constructor */
-    Algorithm() : _ac(0), _in(0), _pres(0), _res(0), _par(0) { }
+    Algorithm() : _ac(0), _in(0), _pres(0), _res(0), _par(0) {}
 
     virtual ~Algorithm()
     {
-        if(_ac)
+        if (_ac)
         {
             delete _ac;
         }
@@ -76,9 +76,9 @@ public:
     virtual services::Status checkFinalizeComputeParams() = 0;
 
 protected:
-    PartialResult *allocatePartialResultMemory()
+    PartialResult * allocatePartialResultMemory()
     {
-        if(_pres == 0)
+        if (_pres == 0)
         {
             allocatePartialResult();
         }
@@ -90,31 +90,27 @@ protected:
 
     services::Status allocateResultMemory()
     {
-        if(_res == 0)
-            return allocateResult();
+        if (_res == 0) return allocateResult();
         return services::Status();
     }
 
-    services::Status initPartialResult()
-    {
-        return initializePartialResult();
-    }
+    services::Status initPartialResult() { return initializePartialResult(); }
 
     virtual services::Status allocatePartialResult() = 0;
-    virtual services::Status allocateResult() = 0;
+    virtual services::Status allocateResult()        = 0;
 
     virtual services::Status initializePartialResult() = 0;
-    virtual Algorithm<mode> *cloneImpl() const = 0;
+    virtual Algorithm<mode> * cloneImpl() const        = 0;
 
     bool getInitFlag() { return _pres->getInitFlag(); }
     void setInitFlag(bool flag) { _pres->setInitFlag(flag); }
 
-    AlgorithmContainerImpl<mode> *_ac;
+    AlgorithmContainerImpl<mode> * _ac;
 
-    Input         *_in;
-    PartialResult *_pres;
-    Result        *_res;
-    Parameter     *_par;
+    Input * _in;
+    PartialResult * _pres;
+    Result * _res;
+    Parameter * _par;
 };
 
 /**
@@ -123,15 +119,16 @@ protected:
  *        for the classes interfacing the major stages of data processing in %batch mode:
  *        Analysis<batch>, Training<batch> and Prediction.
  */
-template<> class Algorithm<batch> : public AlgorithmIfaceImpl
+template <>
+class Algorithm<batch> : public AlgorithmIfaceImpl
 {
 public:
     /** Default constructor */
-    Algorithm() : _ac(0), _par(0), _in(0), _res(0) { }
+    Algorithm() : _ac(0), _par(0), _in(0), _res(0) {}
 
     virtual ~Algorithm()
     {
-        if(_ac)
+        if (_ac)
         {
             delete _ac;
         }
@@ -147,8 +144,7 @@ public:
 protected:
     services::Status allocateResultMemory()
     {
-        if(_res == 0)
-            return allocateResult();
+        if (_res == 0) return allocateResult();
         return services::Status();
     }
 
@@ -156,19 +152,19 @@ protected:
 
     virtual services::Status allocateResult() = 0;
 
-    virtual Algorithm<batch> *cloneImpl() const = 0;
+    virtual Algorithm<batch> * cloneImpl() const = 0;
 
-    daal::algorithms::AlgorithmContainerImpl<batch> *_ac;
+    daal::algorithms::AlgorithmContainerImpl<batch> * _ac;
 
-    Parameter *_par;
-    Input     *_in;
-    Result    *_res;
+    Parameter * _par;
+    Input * _in;
+    Result * _res;
 };
 
 /** @} */
 } // namespace interface1
 using interface1::Algorithm;
 
-}
-}
+} // namespace algorithms
+} // namespace daal
 #endif

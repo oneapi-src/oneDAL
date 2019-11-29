@@ -19,7 +19,6 @@
 //  Implementation of PCA SVD algorithm container.
 //--
 
-
 #include "pca_distributed.h"
 #include "pca_dense_svd_distr_step2_container.h"
 #include "pca_dense_svd_distr_step2_kernel.h"

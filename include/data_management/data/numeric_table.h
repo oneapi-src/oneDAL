@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __NUMERIC_TABLE_H__
 #define __NUMERIC_TABLE_H__
 
@@ -41,7 +40,6 @@ namespace daal
 /** \brief Contains classes that implement data management functionality, including NumericTables, DataSources, and Compression */
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -54,13 +52,12 @@ class NumericTable;
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__BLOCKDESCRIPTOR"></a>
  *  \brief %Base class that manages buffer memory for read/write operations required by numeric tables.
  */
-template<typename DataType = DAAL_DATA_TYPE>
+template <typename DataType = DAAL_DATA_TYPE>
 class DAAL_EXPORT BlockDescriptor
 {
 public:
     /** \private */
-    BlockDescriptor() : _ptr(), _buffer(), _capacity(0), _ncols(0), _nrows(0), _colsOffset(0), _rowsOffset(0), _rwFlag(0), _pPtr(0), _rawPtr(0)
-    {}
+    BlockDescriptor() : _ptr(), _buffer(), _capacity(0), _ncols(0), _nrows(0), _colsOffset(0), _rowsOffset(0), _rwFlag(0), _pPtr(0), _rawPtr(0) {}
 
     /** \private */
     ~BlockDescriptor() { freeBuffer(); }
@@ -69,7 +66,7 @@ public:
      *  Gets a pointer to the buffer
      *  \return Pointer to the block
      */
-    inline DataType *getBlockPtr() const
+    inline DataType * getBlockPtr() const
     {
         if (_rawPtr)
         {
@@ -144,9 +141,9 @@ public:
     {
         _colsOffset = 0;
         _rowsOffset = 0;
-        _rwFlag = 0;
-        _pPtr = NULL;
-        _rawPtr = NULL;
+        _rwFlag     = 0;
+        _pPtr       = NULL;
+        _rawPtr     = NULL;
         _hostSharedPtr.reset();
     }
 
@@ -157,7 +154,7 @@ public:
      *  \param[in] nColumns Number of columns
      *  \param[in] nRows    Number of rows
      */
-    inline void setPtr(DataType *ptr, size_t nColumns, size_t nRows)
+    inline void setPtr(DataType * ptr, size_t nColumns, size_t nRows)
     {
         _xBuffer.reset();
         _hostSharedPtr.reset();
@@ -172,14 +169,14 @@ public:
      *  \param[in] nColumns Number of columns
      *  \param[in] nRows Number of rows
      */
-    inline void setPtr(services::SharedPtr<byte> *pPtr, byte *rawPtr, size_t nColumns, size_t nRows)
+    inline void setPtr(services::SharedPtr<byte> * pPtr, byte * rawPtr, size_t nColumns, size_t nRows)
     {
         _xBuffer.reset();
         _hostSharedPtr.reset();
-        _pPtr = pPtr;
+        _pPtr   = pPtr;
         _rawPtr = rawPtr;
-        _ncols = nColumns;
-        _nrows = nRows;
+        _ncols  = nColumns;
+        _nrows  = nRows;
     }
 
     /**
@@ -188,14 +185,14 @@ public:
      *  \param[in] nColumns Number of columns
      *  \param[in] nRows Number of rows
      */
-    inline void setBuffer(const daal::services::Buffer<DataType> &buffer, size_t nColumns, size_t nRows)
+    inline void setBuffer(const daal::services::Buffer<DataType> & buffer, size_t nColumns, size_t nRows)
     {
         _xBuffer = buffer;
         _hostSharedPtr.reset();
-        _pPtr = NULL;
+        _pPtr   = NULL;
         _rawPtr = NULL;
-        _ncols = nColumns;
-        _nrows = nRows;
+        _ncols  = nColumns;
+        _nrows  = nRows;
     }
 
     /**
@@ -206,7 +203,7 @@ public:
      *
      *  \return true if memory of (\p nColumns * \p nRows + \p auxMemorySize) size is allocated successfully
      */
-    inline bool resizeBuffer( size_t nColumns, size_t nRows, size_t auxMemorySize = 0 )
+    inline bool resizeBuffer(size_t nColumns, size_t nRows, size_t auxMemorySize = 0)
     {
         // TOOD: Resize _xBuffer
         _xBuffer.reset();
@@ -216,11 +213,11 @@ public:
 
         size_t newSize = nColumns * nRows * sizeof(DataType) + auxMemorySize;
 
-        if ( newSize  > _capacity )
+        if (newSize > _capacity)
         {
             freeBuffer();
             _buffer = services::SharedPtr<DataType>((DataType *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
-            if ( _buffer != 0 )
+            if (_buffer != 0)
             {
                 _capacity = newSize;
             }
@@ -228,13 +225,12 @@ public:
             {
                 return false;
             }
-
         }
 
         _ptr = _buffer;
-        if(!auxMemorySize)
+        if (!auxMemorySize)
         {
-            if(_aux_ptr)
+            if (_aux_ptr)
             {
                 _aux_ptr = services::SharedPtr<DataType>();
             }
@@ -253,7 +249,7 @@ public:
      *  \param[in]  rowIdx      Index of the first row in the block
      *  \param[in]  rwFlag      Flag specifying read/write access to the block
      */
-    inline void setDetails( size_t columnIdx, size_t rowIdx, int rwFlag )
+    inline void setDetails(size_t columnIdx, size_t rowIdx, int rwFlag)
     {
         _colsOffset = columnIdx;
         _rowsOffset = rowIdx;
@@ -284,7 +280,7 @@ public:
      *  Gets a pointer to the additional memory buffer
      *  \return pointer
      */
-    inline void  *getAdditionalBufferPtr() const { return _aux_ptr.get(); }
+    inline void * getAdditionalBufferPtr() const { return _aux_ptr.get(); }
     inline services::SharedPtr<DataType> getAdditionalBufferSharedPtr() const { return _aux_ptr; }
 
 protected:
@@ -293,7 +289,7 @@ protected:
      */
     void freeBuffer()
     {
-        if(_buffer)
+        if (_buffer)
         {
             _buffer = services::SharedPtr<DataType>();
         }
@@ -316,20 +312,20 @@ protected:
 
 private:
     services::SharedPtr<DataType> _ptr;
-    size_t    _nrows;
-    size_t    _ncols;
+    size_t _nrows;
+    size_t _ncols;
 
     size_t _colsOffset;
     size_t _rowsOffset;
-    int    _rwFlag;
+    int _rwFlag;
 
     services::SharedPtr<DataType> _aux_ptr;
 
     services::SharedPtr<DataType> _buffer; /*<! Pointer to the buffer */
-    size_t    _capacity;                   /*<! Buffer size in bytes */
+    size_t _capacity;                      /*<! Buffer size in bytes */
 
-    services::SharedPtr<byte> *_pPtr;
-    byte *_rawPtr;
+    services::SharedPtr<byte> * _pPtr;
+    byte * _rawPtr;
 
     daal::services::Buffer<DataType> _xBuffer;
     mutable services::SharedPtr<DataType> _hostSharedPtr; // owns pointer returned from getBlockPtr() method
@@ -343,8 +339,7 @@ private:
 class NumericTableIface
 {
 public:
-    virtual ~NumericTableIface()
-    {}
+    virtual ~NumericTableIface() {}
     /**
      * <a name="DAAL-ENUM-DATA_MANAGEMENT__MEMORYSTATUS"></a>
      * \brief Enumeration to specify the status of memory related to the Numeric Table
@@ -362,9 +357,10 @@ public:
      */
     enum AllocationFlag
     {
-        doNotAllocate = 0,    /*!< Memory will not be allocated by NumericTable */
-        notAllocate = 0,    /*!< Memory will not be allocated by NumericTable \DAAL_DEPRECATED_USE{ \ref daal::data_management::interface1::NumericTableIface::doNotAllocate "doNotAllocate" }*/
-        doAllocate = 1      /*!< Memory will be allocated by NumericTable when needed */
+        doNotAllocate = 0, /*!< Memory will not be allocated by NumericTable */
+        notAllocate =
+            0, /*!< Memory will not be allocated by NumericTable \DAAL_DEPRECATED_USE{ \ref daal::data_management::interface1::NumericTableIface::doNotAllocate "doNotAllocate" }*/
+        doAllocate = 1 /*!< Memory will be allocated by NumericTable when needed */
     };
 
     /**
@@ -405,8 +401,8 @@ public:
      */
     enum StorageLayout
     {
-        soa                         = 1,    // 1
-        aos                         = 2,    // 2
+        soa                         = 1, // 1
+        aos                         = 2, // 2
         csrArray                    = 1 << 4,
         upperPackedSymmetricMatrix  = 1 << 8,
         lowerPackedSymmetricMatrix  = 2 << 8,
@@ -414,7 +410,7 @@ public:
         lowerPackedTriangularMatrix = 4 << 8,
         arrow                       = 8 << 8,
 
-        layout_unknown      = 0x80000000 // the last bit set
+        layout_unknown = 0x80000000 // the last bit set
     };
 
     /**
@@ -422,14 +418,14 @@ public:
      *  \param[in] ddict Pointer to the data dictionary
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status setDictionary( NumericTableDictionary *ddict ) { return services::Status(); }
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status setDictionary(NumericTableDictionary * ddict) { return services::Status(); }
 
     /**
      *  Returns a pointer to a data dictionary
      *  \return Pointer to the data dictionary
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual NumericTableDictionary *getDictionary() const = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual NumericTableDictionary * getDictionary() const = 0;
 
     /**
      *  Returns a shared pointer to a data dictionary
@@ -507,18 +503,15 @@ public:
      * \param[in] checkDataAllocation   Flag that specifies whether to check the data allocation status
      * \return                  Check status: True if the table satisfies the requirements, false otherwise.
      */
-    virtual services::Status check(const char *description, bool checkDataAllocation = true) const = 0;
-
+    virtual services::Status check(const char * description, bool checkDataAllocation = true) const = 0;
 };
 } // namespace interface1
 using interface1::BlockDescriptor;
 using interface1::NumericTableIface;
 
-const int packed_mask = (int)NumericTableIface::csrArray                   |
-                        (int)NumericTableIface::upperPackedSymmetricMatrix |
-                        (int)NumericTableIface::lowerPackedSymmetricMatrix |
-                        (int)NumericTableIface::upperPackedTriangularMatrix |
-                        (int)NumericTableIface::lowerPackedTriangularMatrix;
+const int packed_mask = (int)NumericTableIface::csrArray | (int)NumericTableIface::upperPackedSymmetricMatrix
+                        | (int)NumericTableIface::lowerPackedSymmetricMatrix | (int)NumericTableIface::upperPackedTriangularMatrix
+                        | (int)NumericTableIface::lowerPackedTriangularMatrix;
 
 namespace interface1
 {
@@ -530,8 +523,7 @@ namespace interface1
 class DenseNumericTableIface
 {
 public:
-    virtual ~DenseNumericTableIface()
-    {}
+    virtual ~DenseNumericTableIface() {}
     /**
      *  Gets a block of rows from a table.
      *
@@ -542,19 +534,7 @@ public:
      *
      *  \return Actual number of feature vectors returned by the method.
      */
-    virtual services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> &block) = 0;
-
-    /**
-     *  Gets a block of rows from a table.
-     *
-     *  \param[in] vector_idx Index of the first row to include into the block.
-     *  \param[in] vector_num Number of rows in the block.
-     *  \param[in] rwflag     Flag specifying read/write access to the block of feature vectors.
-     *  \param[out] block     The block of feature vectors.
-     *
-     *  \return Actual number of feature vectors returned by the method.
-     */
-    virtual services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> &block) = 0;
+    virtual services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) = 0;
 
     /**
      *  Gets a block of rows from a table.
@@ -566,25 +546,37 @@ public:
      *
      *  \return Actual number of feature vectors returned by the method.
      */
-    virtual services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> &block) = 0;
+    virtual services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> & block) = 0;
+
+    /**
+     *  Gets a block of rows from a table.
+     *
+     *  \param[in] vector_idx Index of the first row to include into the block.
+     *  \param[in] vector_num Number of rows in the block.
+     *  \param[in] rwflag     Flag specifying read/write access to the block of feature vectors.
+     *  \param[out] block     The block of feature vectors.
+     *
+     *  \return Actual number of feature vectors returned by the method.
+     */
+    virtual services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> & block) = 0;
 
     /**
      *  Releases a block of rows.
      *  \param[in] block      The block of rows.
      */
-    virtual services::Status releaseBlockOfRows(BlockDescriptor<double> &block) = 0;
+    virtual services::Status releaseBlockOfRows(BlockDescriptor<double> & block) = 0;
 
     /**
      *  Releases a block of rows.
      *  \param[in] block      The block of rows.
      */
-    virtual services::Status releaseBlockOfRows(BlockDescriptor<float> &block) = 0;
+    virtual services::Status releaseBlockOfRows(BlockDescriptor<float> & block) = 0;
 
     /**
      *  Releases a block of rows.
      *  \param[in] block      The block of rows.
      */
-    virtual services::Status releaseBlockOfRows(BlockDescriptor<int> &block) = 0;
+    virtual services::Status releaseBlockOfRows(BlockDescriptor<int> & block) = 0;
 
     /**
      *  Gets a block of values for a given feature.
@@ -597,8 +589,8 @@ public:
      *
      *  \return Actual number of feature values returned by the method.
      */
-    virtual services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-            ReadWriteMode rwflag, BlockDescriptor<double> &block) = 0;
+    virtual services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                                    BlockDescriptor<double> & block) = 0;
 
     /**
      *  Gets a block of values for a given feature.
@@ -611,8 +603,8 @@ public:
      *
      *  \return Actual number of feature values returned by the method.
      */
-    virtual services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-            ReadWriteMode rwflag, BlockDescriptor<float> &block) = 0;
+    virtual services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                                    BlockDescriptor<float> & block) = 0;
 
     /**
      *  Gets a block of values for a given feature.
@@ -625,26 +617,26 @@ public:
      *
      *  \return Actual number of feature values returned by the method.
      */
-    virtual services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-            ReadWriteMode rwflag, BlockDescriptor<int> &block) = 0;
+    virtual services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                                    BlockDescriptor<int> & block) = 0;
 
     /**
      *  Releases a block of values for a given feature.
      *  \param[in] block       The block of feature values.
      */
-    virtual services::Status releaseBlockOfColumnValues(BlockDescriptor<double> &block) = 0;
+    virtual services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) = 0;
 
     /**
      *  Releases a block of values for a given feature.
      *  \param[in] block       The block of feature values.
      */
-    virtual services::Status releaseBlockOfColumnValues(BlockDescriptor<float> &block) = 0;
+    virtual services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) = 0;
 
     /**
      *  Releases a block of values for a given feature.
      *  \param[in] block       The block of feature values.
      */
-    virtual services::Status releaseBlockOfColumnValues(BlockDescriptor<int> &block) = 0;
+    virtual services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) = 0;
 };
 
 /**
@@ -662,12 +654,12 @@ public:
      *  \param[in]  ddict          Pointer to the data dictionary
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED NumericTable( NumericTableDictionary *ddict )
+    DAAL_DEPRECATED NumericTable(NumericTableDictionary * ddict)
     {
-        _obsnum       = 0;
-        _ddict        = NumericTableDictionaryPtr(ddict, services::EmptyDeleter());
-        _layout       = layout_unknown;
-        _memStatus    = notAllocated;
+        _obsnum            = 0;
+        _ddict             = NumericTableDictionaryPtr(ddict, services::EmptyDeleter());
+        _layout            = layout_unknown;
+        _memStatus         = notAllocated;
         _normalizationFlag = NumericTable::nonNormalized;
     }
 
@@ -675,12 +667,12 @@ public:
      *  Constructor for a Numeric Table with predefined dictionary
      *  \param[in]  ddict          Pointer to the data dictionary
      */
-    NumericTable( NumericTableDictionaryPtr ddict )
+    NumericTable(NumericTableDictionaryPtr ddict)
     {
-        _obsnum       = 0;
-        _ddict        = ddict;
-        _layout       = layout_unknown;
-        _memStatus    = notAllocated;
+        _obsnum            = 0;
+        _ddict             = ddict;
+        _layout            = layout_unknown;
+        _memStatus         = notAllocated;
         _normalizationFlag = NumericTable::nonNormalized;
     }
 
@@ -690,25 +682,25 @@ public:
      *  \param[in]  obsnum         Number of rows in the table
      *  \param[in]  featuresEqual  Flag that makes all features in the Numeric Table Data Dictionary equal
      */
-    NumericTable( size_t featnum, size_t obsnum, DictionaryIface::FeaturesEqual featuresEqual = DictionaryIface::notEqual )
+    NumericTable(size_t featnum, size_t obsnum, DictionaryIface::FeaturesEqual featuresEqual = DictionaryIface::notEqual)
     {
-        _obsnum       = obsnum;
-        _ddict        = NumericTableDictionaryPtr(new NumericTableDictionary(featnum, featuresEqual));
-        _layout       = layout_unknown;
-        _memStatus    = notAllocated;
+        _obsnum            = obsnum;
+        _ddict             = NumericTableDictionaryPtr(new NumericTableDictionary(featnum, featuresEqual));
+        _layout            = layout_unknown;
+        _memStatus         = notAllocated;
         _normalizationFlag = NumericTable::nonNormalized;
     }
 
     /** \private */
     virtual ~NumericTable() {}
 
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status setDictionary( NumericTableDictionary *ddict ) DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status setDictionary(NumericTableDictionary * ddict) DAAL_C11_OVERRIDE
     {
         _ddict = NumericTableDictionaryPtr(ddict, services::EmptyDeleter());
         return services::Status();
     }
 
-    DAAL_DEPRECATED_VIRTUAL virtual NumericTableDictionary *getDictionary() const DAAL_C11_OVERRIDE { return _ddict.get(); }
+    DAAL_DEPRECATED_VIRTUAL virtual NumericTableDictionary * getDictionary() const DAAL_C11_OVERRIDE { return _ddict.get(); }
 
     virtual NumericTableDictionaryPtr getDictionarySharedPtr() const DAAL_C11_OVERRIDE { return _ddict; }
 
@@ -716,9 +708,9 @@ public:
 
     virtual services::Status resize(size_t nrows) DAAL_C11_OVERRIDE
     {
-        size_t obsnum = _obsnum;
+        size_t obsnum      = _obsnum;
         services::Status s = setNumberOfRowsImpl(nrows);
-        if((_memStatus != userAllocated && obsnum < nrows) || _memStatus == notAllocated)
+        if ((_memStatus != userAllocated && obsnum < nrows) || _memStatus == notAllocated)
         {
             s |= allocateDataMemoryImpl();
         }
@@ -729,10 +721,7 @@ public:
      *  Returns the number of columns in the Numeric Table
      *  \return Number of columns
      */
-    size_t getNumberOfColumns() const
-    {
-        return _ddict->getNumberOfFeatures();
-    }
+    size_t getNumberOfColumns() const { return _ddict->getNumberOfFeatures(); }
 
     /**
      *  Returns the number of rows in the Numeric Table
@@ -740,36 +729,24 @@ public:
      */
     size_t getNumberOfRows() const { return _obsnum; }
 
-    DAAL_DEPRECATED_VIRTUAL services::Status setNumberOfColumns(size_t ncol) DAAL_C11_OVERRIDE
-    {
-        return setNumberOfColumnsImpl(ncol);
-    }
+    DAAL_DEPRECATED_VIRTUAL services::Status setNumberOfColumns(size_t ncol) DAAL_C11_OVERRIDE { return setNumberOfColumnsImpl(ncol); }
 
-    DAAL_DEPRECATED_VIRTUAL services::Status setNumberOfRows(size_t nrow) DAAL_C11_OVERRIDE
-    {
-        return setNumberOfRowsImpl(nrow);
-    }
+    DAAL_DEPRECATED_VIRTUAL services::Status setNumberOfRows(size_t nrow) DAAL_C11_OVERRIDE { return setNumberOfRowsImpl(nrow); }
 
     DAAL_DEPRECATED_VIRTUAL services::Status allocateDataMemory(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
     {
         return allocateDataMemoryImpl(type);
     }
 
-    DAAL_DEPRECATED_VIRTUAL void freeDataMemory() DAAL_C11_OVERRIDE
-    {
-        freeDataMemoryImpl();
-    }
+    DAAL_DEPRECATED_VIRTUAL void freeDataMemory() DAAL_C11_OVERRIDE { freeDataMemoryImpl(); }
 
-    StorageLayout getDataLayout() const DAAL_C11_OVERRIDE
-    {
-        return _layout;
-    }
+    StorageLayout getDataLayout() const DAAL_C11_OVERRIDE { return _layout; }
 
     features::FeatureType getFeatureType(size_t feature_idx) const DAAL_C11_OVERRIDE
     {
-        if ( _ddict.get() != NULL && _ddict->getNumberOfFeatures() > feature_idx )
+        if (_ddict.get() != NULL && _ddict->getNumberOfFeatures() > feature_idx)
         {
-            const NumericTableFeature &f = (*_ddict)[feature_idx];
+            const NumericTableFeature & f = (*_ddict)[feature_idx];
             return f.featureType;
         }
         else
@@ -781,10 +758,9 @@ public:
 
     size_t getNumberOfCategories(size_t feature_idx) const DAAL_C11_OVERRIDE
     {
-        if ( _ddict.get() != NULL && _ddict->getNumberOfFeatures() > feature_idx &&
-             getFeatureType(feature_idx) != features::DAAL_CONTINUOUS )
+        if (_ddict.get() != NULL && _ddict->getNumberOfFeatures() > feature_idx && getFeatureType(feature_idx) != features::DAAL_CONTINUOUS)
         {
-            const NumericTableFeature &f = (*_ddict)[feature_idx];
+            const NumericTableFeature & f = (*_ddict)[feature_idx];
             return f.categoryNumber;
         }
         else
@@ -804,10 +780,7 @@ public:
      *  \param[in] flag Normalization flag to check
      *  \return Check result
      */
-    bool isNormalized(NormalizationType flag) const
-    {
-        return (_normalizationFlag == flag);
-    }
+    bool isNormalized(NormalizationType flag) const { return (_normalizationFlag == flag); }
 
     /**
      *  Sets the normalization flag for dataset stored in the numeric table
@@ -817,7 +790,7 @@ public:
     NormalizationType setNormalizationFlag(NormalizationType flag)
     {
         NormalizationType oldValue = _normalizationFlag;
-        _normalizationFlag = flag;
+        _normalizationFlag         = flag;
         return oldValue;
     }
 
@@ -826,10 +799,7 @@ public:
      *  \return Errors during the computation
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED services::SharedPtr<services::KernelErrorCollection> getErrors()
-    {
-        return _status.getCollection()->getErrors();
-    }
+    DAAL_DEPRECATED services::SharedPtr<services::KernelErrorCollection> getErrors() { return _status.getCollection()->getErrors(); }
 
     /**
      *  Allocates Numeric Tables for basic statistics
@@ -839,7 +809,7 @@ public:
     /**
      * \copydoc NumericTableIface::check
      */
-    virtual services::Status check(const char *description, bool checkDataAllocation = true) const DAAL_C11_OVERRIDE
+    virtual services::Status check(const char * description, bool checkDataAllocation = true) const DAAL_C11_OVERRIDE
     {
         if (getDataMemoryStatus() == notAllocated && checkDataAllocation)
         {
@@ -863,19 +833,19 @@ public:
      *  Fills a numeric table with a constant
      *  \param[in]  value  Constant to initialize entries of the numeric table
      */
-    virtual services::Status assign(float value) {return assignImpl<float>(value);}
+    virtual services::Status assign(float value) { return assignImpl<float>(value); }
 
     /**
      *  Fills a numeric table with a constant
      *  \param[in]  value  Constant to initialize entries of the numeric table
      */
-    virtual services::Status assign(double value) {return assignImpl<double>(value);}
+    virtual services::Status assign(double value) { return assignImpl<double>(value); }
 
     /**
      *  Fills a numeric table with a constant
      *  \param[in]  value  Constant to initialize entries of the numeric table
      */
-    virtual services::Status assign(int value) {return assignImpl<int>(value);}
+    virtual services::Status assign(int value) { return assignImpl<int>(value); }
 
     /**
      *  Returns value by given column and row from the numeric table
@@ -918,10 +888,7 @@ public:
             return services::staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
         }
 
-        void set(BasicStatisticsId id, const services::SharedPtr<NumericTable> &value)
-        {
-            Argument::set(id, value);
-        }
+        void set(BasicStatisticsId id, const services::SharedPtr<NumericTable> & value) { Argument::set(id, value); }
     };
 
     BasicStatisticsDataCollection basicStatistics; /** Basic statistics container */
@@ -931,7 +898,7 @@ protected:
 
     size_t _obsnum;
 
-    MemoryStatus  _memStatus;
+    MemoryStatus _memStatus;
     StorageLayout _layout;
 
     NormalizationType _normalizationFlag;
@@ -939,23 +906,18 @@ protected:
     services::Status _status;
 
 protected:
+    NumericTable(NumericTableDictionaryPtr ddict, services::Status & st)
+        : _obsnum(0), _ddict(ddict), _layout(layout_unknown), _memStatus(notAllocated), _normalizationFlag(NumericTable::nonNormalized)
+    {}
 
-    NumericTable(NumericTableDictionaryPtr ddict, services::Status &st) :
-        _obsnum(0), _ddict(ddict), _layout(layout_unknown), _memStatus(notAllocated), _normalizationFlag(NumericTable::nonNormalized)
-    {
-    }
-
-    NumericTable(size_t featnum, size_t obsnum, DictionaryIface::FeaturesEqual featuresEqual, services::Status &st):
-        _obsnum(obsnum), _layout(layout_unknown), _memStatus(notAllocated), _normalizationFlag(NumericTable::nonNormalized)
+    NumericTable(size_t featnum, size_t obsnum, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
+        : _obsnum(obsnum), _layout(layout_unknown), _memStatus(notAllocated), _normalizationFlag(NumericTable::nonNormalized)
     {
         _ddict = NumericTableDictionary::create(featnum, featuresEqual, &st);
         if (!st) return;
     }
 
-    virtual services::Status setNumberOfColumnsImpl(size_t ncol)
-    {
-        return _ddict->setNumberOfFeatures(ncol);
-    }
+    virtual services::Status setNumberOfColumnsImpl(size_t ncol) { return _ddict->setNumberOfFeatures(ncol); }
 
     virtual services::Status setNumberOfRowsImpl(size_t nrow)
     {
@@ -971,46 +933,38 @@ protected:
     DataType getValueImpl(size_t column, size_t row, services::Status & status) const
     {
         const DataType defaultValue = 0;
-        if (!status)
-            return defaultValue;
+        if (!status) return defaultValue;
         BlockDescriptor<DataType> bd;
         status |= const_cast<NumericTable *>(this)->getBlockOfColumnValues(column, row, 1, readOnly, bd);
-        if (!status)
-            return defaultValue;
+        if (!status) return defaultValue;
         const DataType v = *(bd.getBlockPtr());
         status |= const_cast<NumericTable *>(this)->releaseBlockOfColumnValues(bd);
         return v;
     }
 
-    virtual float getFloatValueImpl(size_t column, size_t row, services::Status & status) const
-    {
-        return getValueImpl<float>(column, row, status);
-    }
+    virtual float getFloatValueImpl(size_t column, size_t row, services::Status & status) const { return getValueImpl<float>(column, row, status); }
 
     virtual double getDoubleValueImpl(size_t column, size_t row, services::Status & status) const
     {
         return getValueImpl<double>(column, row, status);
     }
 
-    virtual int getIntValueImpl(size_t column, size_t row, services::Status & status) const
-    {
-        return getValueImpl<int>(column, row, status);
-    }
+    virtual int getIntValueImpl(size_t column, size_t row, services::Status & status) const { return getValueImpl<int>(column, row, status); }
 
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl( Archive *arch )
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
-        arch->setSharedPtrObj( _ddict );
+        arch->setSharedPtrObj(_ddict);
 
-        arch->set( _obsnum );
+        arch->set(_obsnum);
 
-        if( onDeserialize )
+        if (onDeserialize)
         {
             _memStatus = notAllocated;
         }
 
-        arch->set( _layout );
+        arch->set(_layout);
 
         return services::Status();
     }
@@ -1023,8 +977,11 @@ private:
         size_t nCols = getNumberOfColumns();
         BlockDescriptor<T> block;
         DAAL_CHECK(getBlockOfRows(0, nRows, writeOnly, block), services::ErrorMemoryAllocationFailed)
-        T* array = block.getBlockSharedPtr().get();
-        for(size_t i = 0; i < nCols * nRows; i++) {array[i] = value;}
+        T * array = block.getBlockSharedPtr().get();
+        for (size_t i = 0; i < nCols * nRows; i++)
+        {
+            array[i] = value;
+        }
         releaseBlockOfRows(block);
         return services::Status();
     }
@@ -1092,17 +1049,16 @@ using interface1::NumericTableConstPtr;
  * \param[in]  checkDataAllocation Flag that specifies whether to check the data allocation status
  * \return                         Check status: True if the table satisfies the requirements, false otherwise.
  */
-DAAL_EXPORT services::Status checkNumericTable(const NumericTable *nt, const char *description,
-        const int unexpectedLayouts = 0, const int expectedLayouts = 0, size_t nColumns = 0, size_t nRows = 0,
-        bool checkDataAllocation = true);
+DAAL_EXPORT services::Status checkNumericTable(const NumericTable * nt, const char * description, const int unexpectedLayouts = 0,
+                                               const int expectedLayouts = 0, size_t nColumns = 0, size_t nRows = 0, bool checkDataAllocation = true);
 /**
  * Converts numeric table with arbitrary storage layout to homogen numeric table of the given type
  * \param[in]  src               Pointer to numeric table
  * \param[in]  type              Type of result numeric table memory
  * \return                       Pointer to homogen numeric table
  */
-template<typename DataType>
-DAAL_EXPORT daal::data_management::NumericTablePtr convertToHomogen(NumericTable &src, daal::MemType type = daal::dram);
-}
+template <typename DataType>
+DAAL_EXPORT daal::data_management::NumericTablePtr convertToHomogen(NumericTable & src, daal::MemType type = daal::dram);
+} // namespace data_management
 } // namespace daal
 #endif

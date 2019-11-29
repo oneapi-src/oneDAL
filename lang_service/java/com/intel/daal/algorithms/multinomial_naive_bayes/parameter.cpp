@@ -26,32 +26,31 @@ using namespace daal::algorithms;
 using namespace daal::data_management;
 using namespace daal::services;
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Parameter_cSetPriorClassEstimates
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Parameter_cSetPriorClassEstimates(JNIEnv * env, jobject thisObj,
+                                                                                                                  jlong parAddr, jlong ntAddr)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)ntAddr;
+    SerializationIfacePtr * ntShPtr                                      = (SerializationIfacePtr *)ntAddr;
     (*(multinomial_naive_bayes::Parameter *)parAddr).priorClassEstimates = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Parameter_cGetPriorClassEstimates
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Parameter_cGetPriorClassEstimates(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong parAddr)
 {
-    SerializationIfacePtr *ntShPtr = new SerializationIfacePtr();
-    *ntShPtr = (*(multinomial_naive_bayes::Parameter *)parAddr).priorClassEstimates;
+    SerializationIfacePtr * ntShPtr = new SerializationIfacePtr();
+    *ntShPtr                        = (*(multinomial_naive_bayes::Parameter *)parAddr).priorClassEstimates;
     return (jlong)ntShPtr;
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Parameter_cSetAlpha
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Parameter_cSetAlpha(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                    jlong ntAddr)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)ntAddr;
+    SerializationIfacePtr * ntShPtr                        = (SerializationIfacePtr *)ntAddr;
     (*(multinomial_naive_bayes::Parameter *)parAddr).alpha = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Parameter_cGetAlpha
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_Parameter_cGetAlpha(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    SerializationIfacePtr *ntShPtr = new SerializationIfacePtr();
-    *ntShPtr = (*(multinomial_naive_bayes::Parameter *)parAddr).alpha;
+    SerializationIfacePtr * ntShPtr = new SerializationIfacePtr();
+    *ntShPtr                        = (*(multinomial_naive_bayes::Parameter *)parAddr).alpha;
     return (jlong)ntShPtr;
 }

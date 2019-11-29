@@ -41,9 +41,7 @@ namespace training
 {
 namespace internal
 {
-
 // using namespace daal::algorithms::linear_model::normal_equations::training::internal;
-
 
 template <typename algorithmFPType, training::Method method>
 class BatchKernelOneAPI
@@ -53,20 +51,21 @@ template <typename algorithmFPType>
 class KernelHelperOneAPI : public linear_model::normal_equations::training::internal::KernelHelperOneAPIIface<algorithmFPType>
 {
 public:
-    services::Status computeBetasImpl(const size_t p, services::Buffer<algorithmFPType> &a,
-                                      const size_t ny, services::Buffer<algorithmFPType> &b, const bool inteceptFlag) const;
-    services::Status copyBetaToResult(const services::Buffer<algorithmFPType> &betaTmp, services::Buffer<algorithmFPType> &betaRes,
+    services::Status computeBetasImpl(const size_t p, services::Buffer<algorithmFPType> & a, const size_t ny, services::Buffer<algorithmFPType> & b,
+                                      const bool inteceptFlag) const;
+    services::Status copyBetaToResult(const services::Buffer<algorithmFPType> & betaTmp, services::Buffer<algorithmFPType> & betaRes,
                                       const size_t nBetas, const size_t nResponses, const bool interceptFlag) const;
 };
 
 template <typename algorithmFPType>
 class BatchKernelOneAPI<algorithmFPType, training::normEqDense> : public daal::algorithms::Kernel
 {
-    typedef linear_model::normal_equations::training::internal::UpdateKernelOneAPI<algorithmFPType>     UpdateKernelType;
-    typedef linear_model::normal_equations::training::internal::FinalizeKernelOneAPI<algorithmFPType>    FinalizeKernelType;
+    typedef linear_model::normal_equations::training::internal::UpdateKernelOneAPI<algorithmFPType> UpdateKernelType;
+    typedef linear_model::normal_equations::training::internal::FinalizeKernelOneAPI<algorithmFPType> FinalizeKernelType;
+
 public:
-    services::Status compute(NumericTable &x, NumericTable &y, NumericTable &xtx,
-                             NumericTable &xty, NumericTable &beta, bool interceptFlag) const;
+    services::Status compute(NumericTable & x, NumericTable & y, NumericTable & xtx, NumericTable & xty, NumericTable & beta,
+                             bool interceptFlag) const;
 };
 
 } // namespace internal

@@ -32,8 +32,10 @@ namespace dtct = daal::algorithms::decision_tree::classification::training;
 * Method:    cGetResultTable
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_training_TrainingInput_cSetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_training_TrainingInput_cSetInputTable(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong inputAddr, jint id,
+                                                                                                                          jlong ntAddr)
 {
     jniInput<dtct::Input>::set<dtct::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -43,8 +45,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1tree_classificat
 * Method:    cGetResultTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_training_TrainingInput_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_classification_training_TrainingInput_cGetInputTable(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong inputAddr, jint id)
 {
     return jniInput<dtct::Input>::get<dtct::InputId, NumericTable>(inputAddr, id);
 }

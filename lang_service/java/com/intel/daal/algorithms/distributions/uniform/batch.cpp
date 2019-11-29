@@ -30,11 +30,10 @@ using namespace daal::algorithms;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jdouble a, jdouble b)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method,
+                                                                                         jdouble a, jdouble b)
 {
-    return jniBatch<distributions::uniform::Method, distributions::uniform::Batch, distributions::uniform::defaultDense>::newObj(
-               prec, method, a, b);
+    return jniBatch<distributions::uniform::Method, distributions::uniform::Batch, distributions::uniform::defaultDense>::newObj(prec, method, a, b);
 }
 
 /*
@@ -42,11 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Bat
  * Method:    cInitParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Batch_cInitParameter
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Batch_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                  jint prec, jint method)
 {
-    return jniBatch<distributions::uniform::Method, distributions::uniform::Batch, distributions::uniform::defaultDense>::getParameter(
-        prec, method, algAddr);
+    return jniBatch<distributions::uniform::Method, distributions::uniform::Batch, distributions::uniform::defaultDense>::getParameter(prec, method,
+                                                                                                                                       algAddr);
 }
 
 /*
@@ -54,11 +53,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Bat
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Batch_cGetResult
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Batch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                              jint method)
 {
-    return jniBatch<distributions::uniform::Method, distributions::uniform::Batch, distributions::uniform::defaultDense>::getResult(
-        prec, method, algAddr);
+    return jniBatch<distributions::uniform::Method, distributions::uniform::Batch, distributions::uniform::defaultDense>::getResult(prec, method,
+                                                                                                                                    algAddr);
 }
 
 /*
@@ -66,9 +65,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Bat
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Batch_cClone
-  (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                          jint method)
 {
-    return jniBatch<distributions::uniform::Method, distributions::uniform::Batch, distributions::uniform::defaultDense>::getClone(
-        prec, method, algAddr);
+    return jniBatch<distributions::uniform::Method, distributions::uniform::Batch, distributions::uniform::defaultDense>::getClone(prec, method,
+                                                                                                                                   algAddr);
 }

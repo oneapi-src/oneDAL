@@ -29,7 +29,7 @@
 #include "data_management/data/numeric_types.h"
 
 #ifdef DAAL_SYCL_INTERFACE
-#include <CL/sycl.hpp>
+    #include <CL/sycl.hpp>
 #endif
 
 namespace daal
@@ -38,24 +38,25 @@ namespace services
 {
 namespace internal
 {
-
 /** @ingroup services_internal
  * @{
  */
 
-template<typename T> class HostSharedPtrBufferImpl;
-template<typename T> class SyclBufferImplIface;
+template <typename T>
+class HostSharedPtrBufferImpl;
+template <typename T>
+class SyclBufferImplIface;
 
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__BUFFERIMPLVISITOR"></a>
  *  \brief Visitor pattern implementation for Buffer class
  */
-template<typename T>
+template <typename T>
 class BufferImplVisitor : public Base
 {
 public:
-    virtual void operator()(const HostSharedPtrBufferImpl<T> &bufferImpl) = 0;
-    virtual void operator()(const SyclBufferImplIface<T> &bufferImpl) = 0;
+    virtual void operator()(const HostSharedPtrBufferImpl<T> & bufferImpl) = 0;
+    virtual void operator()(const SyclBufferImplIface<T> & bufferImpl)     = 0;
 };
 
 /**
@@ -65,57 +66,51 @@ public:
 class BufferImplIface
 {
 public:
-    virtual ~BufferImplIface() { }
+    virtual ~BufferImplIface() {}
 };
 
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__BUFFERIMPLTEMPLATEIFACE"></a>
  *  \brief Templated buffer interface
  */
-template<typename T>
+template <typename T>
 class BufferImplTemplateIface : public BufferImplIface
 {
 public:
-    virtual size_t size() const = 0;
-    virtual void apply(BufferImplVisitor<T> &visitor) const = 0;
-    virtual BufferImplTemplateIface<T> *getSubBuffer(size_t offset, size_t size) const = 0;
-    virtual SharedPtr< BufferImplTemplateIface<T> > allocateLike(size_t size) const = 0;
+    virtual size_t size() const                                                         = 0;
+    virtual void apply(BufferImplVisitor<T> & visitor) const                            = 0;
+    virtual BufferImplTemplateIface<T> * getSubBuffer(size_t offset, size_t size) const = 0;
+    virtual SharedPtr<BufferImplTemplateIface<T> > allocateLike(size_t size) const      = 0;
 };
 
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__HOSTSHAREDPTRBUFFERIMPL"></a>
  *  \brief Implementation of Buffer as host shared pointer
  */
-template<typename T>
-class HostSharedPtrBufferImpl : public Base,
-                                public BufferImplTemplateIface<T>
+template <typename T>
+class HostSharedPtrBufferImpl : public Base, public BufferImplTemplateIface<T>
 {
 public:
-    explicit HostSharedPtrBufferImpl(const SharedPtr<T> &data, size_t size)
-        : _data(data), _size(size) { }
+    explicit HostSharedPtrBufferImpl(const SharedPtr<T> & data, size_t size) : _data(data), _size(size) {}
 
-    explicit HostSharedPtrBufferImpl(T* data, size_t size)
-        : _data(data, services::EmptyDeleter()), _size(size) { }
+    explicit HostSharedPtrBufferImpl(T * data, size_t size) : _data(data, services::EmptyDeleter()), _size(size) {}
 
-    size_t size() const DAAL_C11_OVERRIDE
-    { return _size; }
+    size_t size() const DAAL_C11_OVERRIDE { return _size; }
 
-    void apply(BufferImplVisitor<T> &visitor) const DAAL_C11_OVERRIDE
-    { visitor(*this); }
+    void apply(BufferImplVisitor<T> & visitor) const DAAL_C11_OVERRIDE { visitor(*this); }
 
-    HostSharedPtrBufferImpl<T> *getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
+    HostSharedPtrBufferImpl<T> * getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT( offset + size <= _size );
+        DAAL_ASSERT(offset + size <= _size);
         return new HostSharedPtrBufferImpl<T>(SharedPtr<T>(_data, _data.get() + offset), size);
     }
 
-    const SharedPtr<T> &get() const
-    { return _data; }
+    const SharedPtr<T> & get() const { return _data; }
 
-    SharedPtr< BufferImplTemplateIface<T> > allocateLike(size_t size) const DAAL_C11_OVERRIDE
+    SharedPtr<BufferImplTemplateIface<T> > allocateLike(size_t size) const DAAL_C11_OVERRIDE
     {
         SharedPtr<T> data(new T[size]);
-        return SharedPtr< HostSharedPtrBufferImpl<T> >(new HostSharedPtrBufferImpl<T>(data, size));
+        return SharedPtr<HostSharedPtrBufferImpl<T> >(new HostSharedPtrBufferImpl<T>(data, size));
     }
 
 private:
@@ -131,9 +126,9 @@ template <typename T>
 class SyclBufferImplIface : public BufferImplTemplateIface<T>
 {
 public:
-    virtual SharedPtr<T> getReadHostSharedPtr() const = 0;
+    virtual SharedPtr<T> getReadHostSharedPtr() const      = 0;
     virtual SharedPtr<T> getReadWriteHostSharedPtr() const = 0;
-    virtual SharedPtr<T> getWriteHostSharedPtr() const = 0;
+    virtual SharedPtr<T> getWriteHostSharedPtr() const     = 0;
 };
 
 #ifdef DAAL_SYCL_INTERFACE
@@ -146,50 +141,37 @@ template <typename T, cl::sycl::access::mode mode>
 class SyclHostSharedPtrDeleter
 {
 public:
-    typedef cl::sycl::accessor<T, 1, mode,
-                                     cl::sycl::access::target::host_buffer> HostAccessorType;
+    typedef cl::sycl::accessor<T, 1, mode, cl::sycl::access::target::host_buffer> HostAccessorType;
 
 public:
-    SyclHostSharedPtrDeleter(HostAccessorType* accessor)
-        : _hostAccessor( accessor )
-    {}
+    SyclHostSharedPtrDeleter(HostAccessorType * accessor) : _hostAccessor(accessor) {}
 
-    void operator() (const void *ptr)
-    {
-        delete _hostAccessor;
-    }
+    void operator()(const void * ptr) { delete _hostAccessor; }
 
 private:
-    HostAccessorType* _hostAccessor;
+    HostAccessorType * _hostAccessor;
 };
 
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__SYCLBUFFERIMPL"></a>
  *  \brief Implementation of Buffer as SYCL* buffer
  */
-template<typename T>
-class SyclBufferImpl : public Base,
-                       public SyclBufferImplIface<T>
+template <typename T>
+class SyclBufferImpl : public Base, public SyclBufferImplIface<T>
 {
 private:
     typedef cl::sycl::buffer<T, 1> BufferType;
 
 public:
-    explicit SyclBufferImpl(size_t size) :
-        _syclBuffer(cl::sycl::range<1>(size))
-    { }
+    explicit SyclBufferImpl(size_t size) : _syclBuffer(cl::sycl::range<1>(size)) {}
 
-    explicit SyclBufferImpl(const BufferType &syclBuffer) :
-        _syclBuffer(syclBuffer)
-    { }
+    explicit SyclBufferImpl(const BufferType & syclBuffer) : _syclBuffer(syclBuffer) {}
 
-    size_t size() const DAAL_C11_OVERRIDE
-    { return _syclBuffer.get_count(); }
+    size_t size() const DAAL_C11_OVERRIDE { return _syclBuffer.get_count(); }
 
-    void apply(BufferImplVisitor<T> &visitor) const DAAL_C11_OVERRIDE
-    { visitor(*this); }
+    void apply(BufferImplVisitor<T> & visitor) const DAAL_C11_OVERRIDE { visitor(*this); }
 
-    SyclBufferImpl<T> *getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
+    SyclBufferImpl<T> * getSubBuffer(size_t offset, size_t size) const DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(offset + size <= _size);
 
@@ -202,26 +184,23 @@ public:
          * Instead, they provide the method that accepts the first argument via
          * non-const reference, so we remove cv-qualifier for _syclBuffer
         */
-        BufferType &buffer = const_cast<BufferType &>(_syclBuffer);
+        BufferType & buffer = const_cast<BufferType &>(_syclBuffer);
         return new SyclBufferImpl<T>(BufferType(buffer, offset, size));
     }
 
-    const BufferType &get() const
-    {
-        return _syclBuffer;
-    }
+    const BufferType & get() const { return _syclBuffer; }
 
-    SharedPtr< BufferImplTemplateIface<T> > allocateLike(size_t size) const DAAL_C11_OVERRIDE
+    SharedPtr<BufferImplTemplateIface<T> > allocateLike(size_t size) const DAAL_C11_OVERRIDE
     {
-        return SharedPtr< SyclBufferImpl<T> >(new SyclBufferImpl<T>(size));
+        return SharedPtr<SyclBufferImpl<T> >(new SyclBufferImpl<T>(size));
     }
 
     virtual SharedPtr<T> getReadHostSharedPtr() const DAAL_C11_OVERRIDE
     {
         using DeleterType = SyclHostSharedPtrDeleter<T, cl::sycl::access::mode::read>;
 
-        auto* accessor = new typename DeleterType::HostAccessorType(const_cast<BufferType&>(_syclBuffer));
-        DeleterType deleter( accessor );
+        auto * accessor = new typename DeleterType::HostAccessorType(const_cast<BufferType &>(_syclBuffer));
+        DeleterType deleter(accessor);
 
         return SharedPtr<T>(accessor->get_pointer(), deleter);
     }
@@ -230,8 +209,8 @@ public:
     {
         using DeleterType = SyclHostSharedPtrDeleter<T, cl::sycl::access::mode::read_write>;
 
-        auto* accessor = new typename DeleterType::HostAccessorType(const_cast<BufferType&>(_syclBuffer));
-        DeleterType deleter( accessor );
+        auto * accessor = new typename DeleterType::HostAccessorType(const_cast<BufferType &>(_syclBuffer));
+        DeleterType deleter(accessor);
 
         return SharedPtr<T>(accessor->get_pointer(), deleter);
     }
@@ -240,8 +219,8 @@ public:
     {
         using DeleterType = SyclHostSharedPtrDeleter<T, cl::sycl::access::mode::write>;
 
-        auto* accessor = new typename DeleterType::HostAccessorType(const_cast<BufferType&>(_syclBuffer));
-        DeleterType deleter( accessor );
+        auto * accessor = new typename DeleterType::HostAccessorType(const_cast<BufferType &>(_syclBuffer));
+        DeleterType deleter(accessor);
 
         return SharedPtr<T>(accessor->get_pointer(), deleter);
     }
@@ -256,30 +235,19 @@ private:
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__SYCLBUFFERIMPL"></a>
  *  \brief Implementation of Buffer as SYCL* buffer
  */
-template<typename T>
-class SyclBufferImpl : public Base,
-                       public SyclBufferImplIface<T>
+template <typename T>
+class SyclBufferImpl : public Base, public SyclBufferImplIface<T>
 {
 public:
-    size_t size() const DAAL_C11_OVERRIDE
-    { return 0; }
+    size_t size() const DAAL_C11_OVERRIDE { return 0; }
 
-    void apply(BufferImplVisitor<T> &visitor) const DAAL_C11_OVERRIDE { }
+    void apply(BufferImplVisitor<T> & visitor) const DAAL_C11_OVERRIDE {}
 
-    virtual SharedPtr<T> getReadHostSharedPtr() const DAAL_C11_OVERRIDE
-    {
-        return SharedPtr<T>();
-    }
+    virtual SharedPtr<T> getReadHostSharedPtr() const DAAL_C11_OVERRIDE { return SharedPtr<T>(); }
 
-    virtual SharedPtr<T> getReadWriteHostSharedPtr() const DAAL_C11_OVERRIDE
-    {
-        return SharedPtr<T>();
-    }
+    virtual SharedPtr<T> getReadWriteHostSharedPtr() const DAAL_C11_OVERRIDE { return SharedPtr<T>(); }
 
-    virtual SharedPtr<T> getWriteHostSharedPtr() const DAAL_C11_OVERRIDE
-    {
-        return SharedPtr<T>();
-    }
+    virtual SharedPtr<T> getWriteHostSharedPtr() const DAAL_C11_OVERRIDE { return SharedPtr<T>(); }
 };
 
 #endif
@@ -288,20 +256,15 @@ public:
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__CONVERTTOHOSTSHAREDPTR"></a>
  *  \brief Buffer converter to host shared pointer
  */
-template<typename T>
-class ConvertToHostSharedPtr: public BufferImplVisitor<T>
+template <typename T>
+class ConvertToHostSharedPtr : public BufferImplVisitor<T>
 {
 public:
-    ConvertToHostSharedPtr(const data_management::ReadWriteMode& rwFlag)
-        : _rwFlag(rwFlag)
-    {}
+    ConvertToHostSharedPtr(const data_management::ReadWriteMode & rwFlag) : _rwFlag(rwFlag) {}
 
-    void operator()(const HostSharedPtrBufferImpl<T> &bufferImpl)
-    {
-        _hostSharedPtr = bufferImpl.get();
-    }
+    void operator()(const HostSharedPtrBufferImpl<T> & bufferImpl) { _hostSharedPtr = bufferImpl.get(); }
 
-    void operator()(const SyclBufferImplIface<T> &bufferImpl)
+    void operator()(const SyclBufferImplIface<T> & bufferImpl)
     {
         if (_rwFlag == data_management::readOnly)
         {
@@ -321,9 +284,7 @@ public:
         }
     }
 
-    const SharedPtr<T> &getHostSharedPtr() const {
-        return _hostSharedPtr;
-    }
+    const SharedPtr<T> & getHostSharedPtr() const { return _hostSharedPtr; }
 
 private:
     SharedPtr<T> _hostSharedPtr;
@@ -336,31 +297,21 @@ private:
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__CONVERTTOSYCL"></a>
  *  \brief Buffer converter to SYCL* buffer
  */
-template<typename T>
-class ConvertToSycl: public BufferImplVisitor<T>
+template <typename T>
+class ConvertToSycl : public BufferImplVisitor<T>
 {
 private:
     typedef cl::sycl::buffer<T, 1> SyclBufferType;
 
 public:
-    void operator()(const HostSharedPtrBufferImpl<T> &bufferImpl)
-    {
-        _syclBuffer = wrap(bufferImpl.get().get(), bufferImpl.size());
-    }
+    void operator()(const HostSharedPtrBufferImpl<T> & bufferImpl) { _syclBuffer = wrap(bufferImpl.get().get(), bufferImpl.size()); }
 
-    void operator()(const SyclBufferImplIface<T> &bufferImpl)
-    {
-        _syclBuffer = static_cast<const SyclBufferImpl<T>&>(bufferImpl).get();
-    }
+    void operator()(const SyclBufferImplIface<T> & bufferImpl) { _syclBuffer = static_cast<const SyclBufferImpl<T> &>(bufferImpl).get(); }
 
-    const SyclBufferType &getSyclBuffer() const {
-        return _syclBuffer.get<SyclBufferType>();
-    }
+    const SyclBufferType & getSyclBuffer() const { return _syclBuffer.get<SyclBufferType>(); }
 
 private:
-    static SyclBufferType wrap(T *ptr, size_t size) {
-        return SyclBufferType(ptr, cl::sycl::range<1>(size));
-    }
+    static SyclBufferType wrap(T * ptr, size_t size) { return SyclBufferType(ptr, cl::sycl::range<1>(size)); }
 
     services::internal::Any _syclBuffer;
 };
@@ -370,12 +321,11 @@ private:
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__BUFFERCONVERTER"></a>
  *  \brief Buffer converter
  */
-template<typename T>
+template <typename T>
 class BufferConverter
 {
 public:
-    static SharedPtr<T> toHostSharedPtr(const internal::BufferImplTemplateIface<T> &bufferImpl,
-                                        const data_management::ReadWriteMode& rwMode)
+    static SharedPtr<T> toHostSharedPtr(const internal::BufferImplTemplateIface<T> & bufferImpl, const data_management::ReadWriteMode & rwMode)
     {
         ConvertToHostSharedPtr<T> action(rwMode);
         bufferImpl.apply(action);
@@ -383,7 +333,7 @@ public:
     }
 
 #ifdef DAAL_SYCL_INTERFACE
-    static cl::sycl::buffer<T, 1> toSycl(const internal::BufferImplTemplateIface<T> &bufferImpl)
+    static cl::sycl::buffer<T, 1> toSycl(const internal::BufferImplTemplateIface<T> & bufferImpl)
     {
         ConvertToSycl<T> action;
         bufferImpl.apply(action);
@@ -408,67 +358,55 @@ namespace interface1
  *  Can hold data on the host side using shared pointer,
  *  or on host/device sides using SYCL* buffer.
  */
-template<typename T>
+template <typename T>
 class Buffer : public Base
 {
 public:
     /**
      *   Creates empty Buffer object
      */
-    Buffer() { }
+    Buffer() {}
 
 #ifdef DAAL_SYCL_INTERFACE
     /**
      *  Creates a Buffer object referencing a SYCL* buffer.
      *  Does not copy the data from the SYCL* buffer.
      */
-    Buffer(const cl::sycl::buffer<T, 1> &buffer) :
-        _impl(new internal::SyclBufferImpl<T>(buffer)) { }
+    Buffer(const cl::sycl::buffer<T, 1> & buffer) : _impl(new internal::SyclBufferImpl<T>(buffer)) {}
 #endif
 
     /**
      *   Creates a Buffer object from host-allocated raw pointer.
      *   Buffer does not own this pointer.
      */
-    Buffer(T *data, size_t size) :
-        _impl(new internal::HostSharedPtrBufferImpl<T>(data, size)) { }
+    Buffer(T * data, size_t size) : _impl(new internal::HostSharedPtrBufferImpl<T>(data, size)) {}
 
     /**
      *   Creates a Buffer object referencing the shared pointer to the host-allocated data.
      */
-    Buffer(const SharedPtr<T> &data, size_t size) :
-        _impl(new internal::HostSharedPtrBufferImpl<T>(data, size)) { }
+    Buffer(const SharedPtr<T> & data, size_t size) : _impl(new internal::HostSharedPtrBufferImpl<T>(data, size)) {}
 
     /**
      *  Returns true if Buffer points to any data
      */
-    operator bool() const
-    {
-        return _impl;
-    }
+    operator bool() const { return _impl; }
 
     /**
      *  Returns true if Buffer is equal to \p other
      */
-    bool operator==(const Buffer &other) const
-    {
-        return _impl.get() == other._impl.get();
-    }
+    bool operator==(const Buffer & other) const { return _impl.get() == other._impl.get(); }
 
     /**
      *  Returns true if Buffer is not equal to \p other
      */
-    bool operator!=(const Buffer &other) const
-    {
-        return _impl.get() != other._impl.get();
-    }
+    bool operator!=(const Buffer & other) const { return _impl.get() != other._impl.get(); }
 
     /**
      *  Converts data inside the buffer to the host side.
      *  \param[in] rwFlag  Access flag to the data
      *  \return host-allocated shared pointer to the data.
      */
-    inline SharedPtr<T> toHost(const data_management::ReadWriteMode& rwFlag) const
+    inline SharedPtr<T> toHost(const data_management::ReadWriteMode & rwFlag) const
     {
         return internal::BufferConverter<T>::toHostSharedPtr(*_impl, rwFlag);
     }
@@ -500,10 +438,7 @@ public:
      *   \param[in] size Number of elements to allocate
      *   \return Buffer with allocated memory
      */
-    inline Buffer reallocate(size_t size)
-    {
-        return Buffer(_impl->allocateLike(size));
-    }
+    inline Buffer reallocate(size_t size) { return Buffer(_impl->allocateLike(size)); }
 
     /**
      *   Drops underlying reference to the data from the buffer and makes it empty
@@ -519,14 +454,11 @@ public:
      *   \param[in] offset Offset in elements from start of the parent buffer
      *   \param[in] size   Number of elements in the sub-buffer
      */
-    inline Buffer<T> getSubBuffer(size_t offset, size_t size) const
-    {
-        return Buffer<T>(_impl->getSubBuffer(offset, size));
-    }
+    inline Buffer<T> getSubBuffer(size_t offset, size_t size) const { return Buffer<T>(_impl->getSubBuffer(offset, size)); }
 
 private:
-    explicit Buffer(internal::BufferImplTemplateIface<T> *impl) : _impl(impl) { }
-    explicit Buffer(const SharedPtr< internal::BufferImplTemplateIface<T> >& impl) : _impl(impl) { }
+    explicit Buffer(internal::BufferImplTemplateIface<T> * impl) : _impl(impl) {}
+    explicit Buffer(const SharedPtr<internal::BufferImplTemplateIface<T> > & impl) : _impl(impl) {}
 
     SharedPtr<internal::BufferImplTemplateIface<T> > _impl;
 };

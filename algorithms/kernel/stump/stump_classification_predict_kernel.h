@@ -43,21 +43,22 @@ namespace prediction
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPtype, CpuType cpu>
 class StumpPredictKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTable *x, const stump::classification::Model *m, NumericTable *rLabels, NumericTable *rPred, const Parameter *par);
+    services::Status compute(const NumericTable * x, const stump::classification::Model * m, NumericTable * rLabels, NumericTable * rPred,
+                             const Parameter * par);
+
 private:
-    services::Status changeZeroToMinusOne(NumericTable *yTable);
+    services::Status changeZeroToMinusOne(NumericTable * yTable);
 };
 
-} // namespace daal::algorithms::stump::classification::prediction::internal
-}
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

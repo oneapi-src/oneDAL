@@ -51,9 +51,9 @@ namespace training
  */
 enum InputId
 {
-    data = 0,                 /*!< %Input data table */
-    dependentVariables = 1,   /*!< Values of the dependent variable for the input data */
-    weights = 4,              /*!< Optional. Weights of the observations in the training data set. Some values are skipped for backward compatibility. */
+    data               = 0, /*!< %Input data table */
+    dependentVariables = 1, /*!< Values of the dependent variable for the input data */
+    weights     = 4, /*!< Optional. Weights of the observations in the training data set. Some values are skipped for backward compatibility. */
     lastInputId = weights
 };
 
@@ -63,7 +63,7 @@ enum InputId
  */
 enum ResultId
 {
-    model,                /*!< Regression model */
+    model, /*!< Regression model */
     lastResultId = model
 };
 
@@ -84,7 +84,7 @@ public:
      * \param[in] nElements Number of input objects
      */
     Input(size_t nElements = lastInputId + 1);
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -100,7 +100,7 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   Input numeric table
      */
-    void set(InputId id, const data_management::NumericTablePtr &value);
+    void set(InputId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks an input object for the linear regression algorithm
@@ -109,7 +109,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -120,6 +120,7 @@ public:
 class DAAL_EXPORT PartialResult : public daal::algorithms::PartialResult
 {
     DECLARE_SERIALIZABLE_IMPL();
+
 public:
     DAAL_CAST_OPERATOR(PartialResult);
 
@@ -128,10 +129,11 @@ public:
      * \param[in] nElements Number of partial results
      */
     PartialResult(size_t nElements = 0);
+
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -145,6 +147,7 @@ protected:
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
     DECLARE_SERIALIZABLE_IMPL();
+
 public:
     DAAL_CAST_OPERATOR(Result);
 
@@ -166,7 +169,7 @@ public:
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
      */
-    void set(ResultId id, const regression::ModelPtr &value);
+    void set(ResultId id, const regression::ModelPtr & value);
 
     /**
      * Checks the result of the regression model-based training
@@ -176,12 +179,12 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -190,7 +193,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<const Result> ResultConstPtr;
 typedef services::SharedPtr<PartialResult> PartialResultPtr;
 typedef services::SharedPtr<const PartialResult> PartialResultConstPtr;
-}
+} // namespace interface1
 using interface1::Input;
 using interface1::Result;
 using interface1::ResultPtr;
@@ -198,9 +201,9 @@ using interface1::ResultConstPtr;
 using interface1::PartialResult;
 using interface1::PartialResultPtr;
 using interface1::PartialResultConstPtr;
-}
+} // namespace training
 /** @} */
-}
-}
-}
+} // namespace regression
+} // namespace algorithms
+} // namespace daal
 #endif

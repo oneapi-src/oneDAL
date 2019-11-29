@@ -35,7 +35,7 @@ using namespace daal::algorithms;
 /* Input data set parameters */
 const string datasetFileName = "../data/batch/qr.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 

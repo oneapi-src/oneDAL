@@ -46,7 +46,6 @@ namespace optimization_solver
 */
 namespace sum_of_functions
 {
-
 /**
   * <a name="DAAL-ENUM-ALGORITHMS__OPTIMIZATION_SOLVER__SUM_OF_FUNCTIONS__INPUTID"></a>
   * Available identifiers of input objects of the Sum of functions
@@ -79,15 +78,14 @@ struct DAAL_EXPORT Parameter : public objective_function::Parameter
                                    all terms will be used in the computations.
      * \param[in] resultsToCompute 64 bit integer flag that indicates the results to compute
      */
-    Parameter(size_t numberOfTerms,
-              data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
+    Parameter(size_t numberOfTerms, data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
               const DAAL_UINT64 resultsToCompute = objective_function::gradient);
 
     /**
      * Constructs an Parameter by copying input objects and parameters of another Parameter
      * \param[in] other An object to be used as the source to initialize object
      */
-    Parameter(const Parameter &other);
+    Parameter(const Parameter & other);
 
     /**
      * Checks the correctness of the parameter
@@ -98,8 +96,8 @@ struct DAAL_EXPORT Parameter : public objective_function::Parameter
 
     virtual ~Parameter() {}
 
-    size_t numberOfTerms;                                              /*!< The number of terms in the function */
-    data_management::NumericTablePtr batchIndices;   /*!< Numeric table of size 1 x m where m is batch size that represent
+    size_t numberOfTerms;                          /*!< The number of terms in the function */
+    data_management::NumericTablePtr batchIndices; /*!< Numeric table of size 1 x m where m is batch size that represent
                                                                             a batch of indices used to compute the function results, e.g.,
                                                                             value of the sum of the functions. If no indices are provided,
                                                                             all terms will be used in the computations.  */
@@ -117,7 +115,7 @@ public:
     Input(size_t n = 1);
 
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
 
     /** Destructor */
     virtual ~Input() {}
@@ -127,7 +125,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the input numeric table for Sum of functions
@@ -143,7 +141,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
 } // namespace interface1
@@ -168,15 +166,14 @@ struct DAAL_EXPORT Parameter : public objective_function::Parameter
                                    all terms will be used in the computations.
      * \param[in] resultsToCompute 64 bit integer flag that indicates the results to compute
      */
-    Parameter(size_t numberOfTerms,
-              data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
+    Parameter(size_t numberOfTerms, data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
               const DAAL_UINT64 resultsToCompute = objective_function::gradient);
 
     /**
      * Constructs an Parameter by copying input objects and parameters of another Parameter
      * \param[in] other An object to be used as the source to initialize object
      */
-    Parameter(const Parameter &other);
+    Parameter(const Parameter & other);
 
     /**
      * Checks the correctness of the parameter
@@ -187,12 +184,12 @@ struct DAAL_EXPORT Parameter : public objective_function::Parameter
 
     virtual ~Parameter() {}
 
-    size_t numberOfTerms;                                              /*!< The number of terms in the function */
-    data_management::NumericTablePtr batchIndices;   /*!< Numeric table of size 1 x m where m is batch size that represent
+    size_t numberOfTerms;                          /*!< The number of terms in the function */
+    data_management::NumericTablePtr batchIndices; /*!< Numeric table of size 1 x m where m is batch size that represent
                                                                             a batch of indices used to compute the function results, e.g.,
                                                                             value of the sum of the functions. If no indices are provided,
                                                                             all terms will be used in the computations.  */
-    size_t featureId;                                /*!< The feature index to compute part of gradient/hessian/proximal projection */
+    size_t featureId;                              /*!< The feature index to compute part of gradient/hessian/proximal projection */
 };
 /* [Parameter source code] */
 
@@ -207,7 +204,7 @@ public:
     Input(size_t n = 1);
 
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
 
     /** Destructor */
     virtual ~Input() {}
@@ -217,7 +214,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the input numeric table for Sum of functions
@@ -233,16 +230,16 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
-}
+} // namespace interface2
 
 using interface2::Parameter;
 using interface2::Input;
 
 } // namespace sum_of_functions
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

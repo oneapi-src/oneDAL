@@ -34,17 +34,14 @@ namespace covariance
 {
 namespace interface1
 {
-
 /** Default constructor */
-OnlineParameter::OnlineParameter() : Parameter()
-{}
+OnlineParameter::OnlineParameter() : Parameter() {}
 
 /**
 *  Constructs parameters of the Covariance Online algorithm by copying another parameters of the Covariance Online algorithm
 *  \param[in] other    Parameters of the Covariance Online algorithm
 */
-OnlineParameter::OnlineParameter(const OnlineParameter &other) : Parameter(other)
-{}
+OnlineParameter::OnlineParameter(const OnlineParameter & other) : Parameter(other) {}
 
 /**
  * Check the correctness of the %OnlineParameter object
@@ -54,8 +51,8 @@ services::Status OnlineParameter::check() const
     return services::Status();
 }
 
-}//namespace interface1
+} //namespace interface1
 
-}//namespace covariance
-}// namespace algorithms
-}// namespace daal
+} //namespace covariance
+} // namespace algorithms
+} // namespace daal

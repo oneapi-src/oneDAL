@@ -32,11 +32,9 @@ using namespace daal::algorithms::covariance;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Online_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Online_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
-    return jniOnline<covariance::Method, Online, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::newObj(prec, method);
+    return jniOnline<covariance::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::newObj(prec, method);
 }
 
 /*
@@ -44,11 +42,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Online_cInit
  * Method:    cInitParameter
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Online_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Online_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                        jint method)
 {
-    return jniOnline<covariance::Method, Online, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::getParameter(prec, method, algAddr);
+    return jniOnline<covariance::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getParameter(prec, method,
+                                                                                                                                        algAddr);
 }
 
 /*
@@ -56,9 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Online_cInitPa
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Online_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Online_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniOnline<covariance::Method, Online, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::getClone(prec, method, algAddr);
+    return jniOnline<covariance::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getClone(prec, method,
+                                                                                                                                    algAddr);
 }

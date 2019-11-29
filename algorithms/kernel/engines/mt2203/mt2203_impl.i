@@ -34,9 +34,8 @@ namespace mt2203
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status Mt2203Kernel<algorithmFPType, method, cpu>::compute(NumericTable *resultTensor)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status Mt2203Kernel<algorithmFPType, method, cpu>::compute(NumericTable * resultTensor)
 {
     return Status();
 }

@@ -37,16 +37,14 @@ namespace training
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
-services::Status csr2csc(size_t nItems, size_t nUsers,
-            const algorithmFPType *csrdata, const size_t *colIndices, const size_t *rowOffsets,
-            algorithmFPType *cscdata, size_t *rowIndices, size_t *colOffsets)
+template <typename algorithmFPType, CpuType cpu>
+services::Status csr2csc(size_t nItems, size_t nUsers, const algorithmFPType * csrdata, const size_t * colIndices, const size_t * rowOffsets,
+                         algorithmFPType * cscdata, size_t * rowIndices, size_t * colOffsets)
 {
     /* Convert CSR to COO */
     size_t dataSize = rowOffsets[nUsers] - rowOffsets[0];
     TArray<size_t, cpu> cooColIndicesPtr(dataSize);
-    size_t *cooColIndices = cooColIndicesPtr.get();
+    size_t * cooColIndices = cooColIndicesPtr.get();
     DAAL_CHECK_MALLOC(cooColIndices);
     int result = 0;
 
@@ -58,7 +56,7 @@ services::Status csr2csc(size_t nItems, size_t nUsers,
     /* Create array of row indices for COO data */
     for (size_t i = 1; i <= nUsers; i++)
     {
-        size_t rowStart = rowOffsets[i-1] - 1;
+        size_t rowStart = rowOffsets[i - 1] - 1;
         size_t rowEnd   = rowOffsets[i] - 1;
         for (size_t k = rowStart; k < rowEnd; k++)
         {
@@ -71,7 +69,7 @@ services::Status csr2csc(size_t nItems, size_t nUsers,
     daal::algorithms::internal::qSort<size_t, algorithmFPType, size_t, cpu>(dataSize, cooColIndices, cscdata, rowIndices);
 
     /* Create an array of columns offsets for the data in CSC format */
-    size_t colOffset = 1;
+    size_t colOffset      = 1;
     size_t colOffsetIndex = 0;
     for (; colOffsetIndex < cooColIndices[0]; colOffsetIndex++)
     {
@@ -102,9 +100,9 @@ services::Status csr2csc(size_t nItems, size_t nUsers,
     return Status();
 }
 
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal
 #endif

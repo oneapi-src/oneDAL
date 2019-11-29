@@ -36,7 +36,6 @@ namespace algorithms
 {
 namespace dbscan
 {
-
 namespace interface1
 {
 /**
@@ -50,7 +49,7 @@ namespace interface1
  * \brief Class containing methods to compute the result of DBSCAN algorithm
  * in the distributed processing mode
  */
-template<ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
+template <ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer
 {};
 
@@ -58,9 +57,8 @@ class DistributedContainer
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP1LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the first step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -68,7 +66,7 @@ public:
      * in the first step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -88,9 +86,8 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP2LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the second step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step2Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step2Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -98,7 +95,7 @@ public:
      * in the second step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -113,15 +110,13 @@ public:
      */
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP3LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the third step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step3Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step3Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -129,7 +124,7 @@ public:
      * in the third step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -144,15 +139,13 @@ public:
      */
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP4LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the fourth step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step4Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step4Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -160,7 +153,7 @@ public:
      * in the fourth step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -175,15 +168,13 @@ public:
      */
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP5LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the fifth step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step5Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step5Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -191,7 +182,7 @@ public:
      * in the fifth step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -206,15 +197,13 @@ public:
      */
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP6LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the sixth step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step6Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step6Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -222,7 +211,7 @@ public:
      * in the sixth step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -237,15 +226,13 @@ public:
      */
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP7MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the seventh step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step7Master, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step7Master, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -253,7 +240,7 @@ public:
      * in the seventh step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -268,15 +255,13 @@ public:
      */
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP8LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the eighth step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step8Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step8Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -284,7 +269,7 @@ public:
      * in the eighth step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -299,15 +284,13 @@ public:
      */
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP9MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the ninth step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step9Master, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step9Master, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -315,7 +298,7 @@ public:
      * in the ninth step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -330,15 +313,13 @@ public:
      */
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP10LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the tenth step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step10Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step10Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -346,7 +327,7 @@ public:
      * in the tenth step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -361,15 +342,13 @@ public:
      */
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP11LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the eleventh step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step11Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step11Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -377,7 +356,7 @@ public:
      * in the eleventh step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -392,15 +371,13 @@ public:
      */
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP12LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the twelfth step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step12Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step12Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -408,7 +385,7 @@ public:
      * in the twelfth step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -424,14 +401,12 @@ public:
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
 
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTEDCONTAINER_STEP13LOCAL_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing computation methods for the DBSCAN algorithm in the thirteenth step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step13Local, algorithmFPType, method, cpu> : public
-    TrainingContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step13Local, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
     /**
@@ -439,7 +414,7 @@ public:
      * in the thirteenth step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -472,8 +447,9 @@ public:
  *      - Input class
  *      - Result class
  */
-template<ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Distributed {};
+template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+class DAAL_EXPORT Distributed
+{};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DBSCAN__DISTRIBUTED_STEP1LOCAL_ALGORITHMFPTYPE_METHOD"></a>
@@ -488,12 +464,12 @@ class DAAL_EXPORT Distributed {};
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step1Local>  InputType;
-    typedef algorithms::dbscan::Parameter                     ParameterType;
+    typedef algorithms::dbscan::DistributedInput<step1Local> InputType;
+    typedef algorithms::dbscan::Parameter ParameterType;
     typedef algorithms::dbscan::DistributedPartialResultStep1 PartialResultType;
 
     /**
@@ -509,48 +485,42 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step1Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step1Local, algorithmFPType, method> & other);
 
-    ~Distributed()
-    {
-        delete _par;
-    }
+    ~Distributed() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep1Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep1Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep1Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep1Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -570,32 +540,26 @@ protected:
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step1Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep1Ptr _partialResult;
@@ -614,12 +578,12 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step2Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step2Local>  InputType;
-    typedef algorithms::dbscan::Parameter                     ParameterType;
+    typedef algorithms::dbscan::DistributedInput<step2Local> InputType;
+    typedef algorithms::dbscan::Parameter ParameterType;
     typedef algorithms::dbscan::DistributedPartialResultStep2 PartialResultType;
 
     /**
@@ -635,48 +599,42 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step2Local, algorithmFPType, method> & other);
 
-    ~Distributed()
-    {
-        delete _par;
-    }
+    ~Distributed() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep2Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep2Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep2Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep2Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -696,32 +654,26 @@ protected:
         return new Distributed<step2Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep2Ptr _partialResult;
@@ -740,12 +692,12 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step3Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step3Local>  InputType;
-    typedef algorithms::dbscan::Parameter                     ParameterType;
+    typedef algorithms::dbscan::DistributedInput<step3Local> InputType;
+    typedef algorithms::dbscan::Parameter ParameterType;
     typedef algorithms::dbscan::DistributedPartialResultStep3 PartialResultType;
 
     /**
@@ -763,48 +715,42 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step3Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step3Local, algorithmFPType, method> & other);
 
-    ~Distributed()
-    {
-        delete _par;
-    }
+    ~Distributed() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep3Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep3Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep3Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep3Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -824,32 +770,26 @@ protected:
         return new Distributed<step3Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step3Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep3Ptr _partialResult;
@@ -868,12 +808,12 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step4Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step4Local>  InputType;
-    typedef algorithms::dbscan::Parameter                     ParameterType;
+    typedef algorithms::dbscan::DistributedInput<step4Local> InputType;
+    typedef algorithms::dbscan::Parameter ParameterType;
     typedef algorithms::dbscan::DistributedPartialResultStep4 PartialResultType;
 
     /**
@@ -891,48 +831,42 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step4Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step4Local, algorithmFPType, method> & other);
 
-    ~Distributed()
-    {
-        delete _par;
-    }
+    ~Distributed() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep4Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep4Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep4Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep4Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -952,32 +886,26 @@ protected:
         return new Distributed<step4Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step4Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep4Ptr _partialResult;
@@ -996,12 +924,12 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step5Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step5Local>  InputType;
-    typedef algorithms::dbscan::Parameter                     ParameterType;
+    typedef algorithms::dbscan::DistributedInput<step5Local> InputType;
+    typedef algorithms::dbscan::Parameter ParameterType;
     typedef algorithms::dbscan::DistributedPartialResultStep5 PartialResultType;
 
     /**
@@ -1018,48 +946,42 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step5Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step5Local, algorithmFPType, method> & other);
 
-    ~Distributed()
-    {
-        delete _par;
-    }
+    ~Distributed() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep5Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep5Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep5Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep5Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -1079,32 +1001,26 @@ protected:
         return new Distributed<step5Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step5Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep5Ptr _partialResult;
@@ -1123,13 +1039,13 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step6Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step6Local>   InputType;
-    typedef algorithms::dbscan::Parameter                      ParameterType;
-    typedef algorithms::dbscan::DistributedPartialResultStep6  PartialResultType;
+    typedef algorithms::dbscan::DistributedInput<step6Local> InputType;
+    typedef algorithms::dbscan::Parameter ParameterType;
+    typedef algorithms::dbscan::DistributedPartialResultStep6 PartialResultType;
 
     /**
      * Constructs a DBSCAN algorithm
@@ -1146,48 +1062,42 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step6Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step6Local, algorithmFPType, method> & other);
 
-    ~Distributed()
-    {
-        delete _par;
-    }
+    ~Distributed() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep6Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep6Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep6Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep6Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -1207,32 +1117,26 @@ protected:
         return new Distributed<step6Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step6Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep6Ptr _partialResult;
@@ -1251,7 +1155,7 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step7Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
@@ -1269,7 +1173,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step7Master, algorithmFPType, method> &other);
+    Distributed(const Distributed<step7Master, algorithmFPType, method> & other);
 
     ~Distributed() {}
 
@@ -1277,25 +1181,22 @@ public:
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep7Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep7Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep7Ptr& partialResult)
+    services::Status setPartialResult(const DistributedPartialResultStep7Ptr & partialResult)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult)
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -1312,10 +1213,7 @@ public:
     /**
      * Validates result parameters of the finalizeCompute method
      */
-    virtual services::Status checkPartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status checkPartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
 protected:
     virtual Distributed<step7Master, algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
@@ -1323,32 +1221,26 @@ protected:
         return new Distributed<step7Master, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return services::Status();
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step7Master, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep7Ptr _partialResult;
@@ -1367,12 +1259,12 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step8Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step8Local>  InputType;
-    typedef algorithms::dbscan::Parameter                     ParameterType;
+    typedef algorithms::dbscan::DistributedInput<step8Local> InputType;
+    typedef algorithms::dbscan::Parameter ParameterType;
     typedef algorithms::dbscan::DistributedPartialResultStep8 PartialResultType;
 
     /**
@@ -1388,48 +1280,42 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step8Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step8Local, algorithmFPType, method> & other);
 
-    ~Distributed()
-    {
-        delete _par;
-    }
+    ~Distributed() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep8Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep8Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep8Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep8Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -1449,32 +1335,26 @@ protected:
         return new Distributed<step8Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step8Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep8Ptr _partialResult;
@@ -1493,12 +1373,12 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step9Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::dbscan::DistributedInput<step9Master> InputType;
-    typedef algorithms::dbscan::DistributedResultStep9        ResultType;
+    typedef algorithms::dbscan::DistributedResultStep9 ResultType;
     typedef algorithms::dbscan::DistributedPartialResultStep9 PartialResultType;
 
     /**
@@ -1512,7 +1392,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step9Master, algorithmFPType, method> &other);
+    Distributed(const Distributed<step9Master, algorithmFPType, method> & other);
 
     ~Distributed() {}
 
@@ -1520,25 +1400,22 @@ public:
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed results
      * \return Structure that contains computed results
      */
-    DistributedResultStep9Ptr getResult()
-    {
-        return _result;
-    }
+    DistributedResultStep9Ptr getResult() { return _result; }
 
     /**
      * Sets the structure that contains computed results
      */
-    services::Status setResult(const DistributedResultStep9Ptr& result)
+    services::Status setResult(const DistributedResultStep9Ptr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -1546,19 +1423,16 @@ public:
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep9Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep9Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep9Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep9Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -1580,33 +1454,30 @@ protected:
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(_pres, _par, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(_pres, _par, (int)method);
+        _res               = _result.get();
         return services::Status();
     }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step9Master, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedResultStep9Ptr _result;
@@ -1626,12 +1497,12 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step10Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step10Local>  InputType;
-    typedef algorithms::dbscan::Parameter                      ParameterType;
+    typedef algorithms::dbscan::DistributedInput<step10Local> InputType;
+    typedef algorithms::dbscan::Parameter ParameterType;
     typedef algorithms::dbscan::DistributedPartialResultStep10 PartialResultType;
 
     /**
@@ -1647,48 +1518,42 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step10Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step10Local, algorithmFPType, method> & other);
 
-    ~Distributed()
-    {
-        delete _par;
-    }
+    ~Distributed() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep10Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep10Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep10Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep10Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -1708,32 +1573,26 @@ protected:
         return new Distributed<step10Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step10Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep10Ptr _partialResult;
@@ -1752,12 +1611,12 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step11Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step11Local>  InputType;
-    typedef algorithms::dbscan::Parameter                      ParameterType;
+    typedef algorithms::dbscan::DistributedInput<step11Local> InputType;
+    typedef algorithms::dbscan::Parameter ParameterType;
     typedef algorithms::dbscan::DistributedPartialResultStep11 PartialResultType;
 
     /**
@@ -1773,48 +1632,42 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step11Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step11Local, algorithmFPType, method> & other);
 
-    ~Distributed()
-    {
-        delete _par;
-    }
+    ~Distributed() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep11Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep11Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep11Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep11Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -1834,32 +1687,26 @@ protected:
         return new Distributed<step11Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step11Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep11Ptr _partialResult;
@@ -1878,12 +1725,12 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step12Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step12Local>  InputType;
-    typedef algorithms::dbscan::Parameter                      ParameterType;
+    typedef algorithms::dbscan::DistributedInput<step12Local> InputType;
+    typedef algorithms::dbscan::Parameter ParameterType;
     typedef algorithms::dbscan::DistributedPartialResultStep12 PartialResultType;
 
     /**
@@ -1899,48 +1746,42 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step12Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step12Local, algorithmFPType, method> & other);
 
-    ~Distributed()
-    {
-        delete _par;
-    }
+    ~Distributed() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep12Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep12Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep12Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep12Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -1960,32 +1801,26 @@ protected:
         return new Distributed<step12Local, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step12Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedPartialResultStep12Ptr _partialResult;
@@ -2004,12 +1839,12 @@ private:
  *      - \ref InputId  Identifiers of input objects for the  DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step13Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::dbscan::DistributedInput<step13Local>  InputType;
-    typedef algorithms::dbscan::DistributedResultStep13        ResultType;
+    typedef algorithms::dbscan::DistributedInput<step13Local> InputType;
+    typedef algorithms::dbscan::DistributedResultStep13 ResultType;
     typedef algorithms::dbscan::DistributedPartialResultStep13 PartialResultType;
 
     /**
@@ -2023,7 +1858,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step13Local, algorithmFPType, method> &other);
+    Distributed(const Distributed<step13Local, algorithmFPType, method> & other);
 
     ~Distributed() {}
 
@@ -2031,25 +1866,22 @@ public:
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed results
      * \return Structure that contains computed results
      */
-    DistributedResultStep13Ptr getResult()
-    {
-        return _result;
-    }
+    DistributedResultStep13Ptr getResult() { return _result; }
 
     /**
      * Sets the structure that contains computed results
      */
-    services::Status setResult(const DistributedResultStep13Ptr& result)
+    services::Status setResult(const DistributedResultStep13Ptr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -2057,19 +1889,16 @@ public:
      * Returns the structure that contains computed partial results
      * \return Structure that contains computed partial results
      */
-    DistributedPartialResultStep13Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep13Ptr getPartialResult() { return _partialResult; }
 
     /**
      * Sets the structure that contains computed partial results
      */
-    services::Status setPartialResult(const DistributedPartialResultStep13Ptr& partialResult)
+    services::Status setPartialResult(const DistributedPartialResultStep13Ptr & partialResult)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult)
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -2086,10 +1915,7 @@ public:
     /**
      * Validates result parameters of the finalizeCompute method
      */
-    virtual services::Status checkPartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status checkPartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
 protected:
     virtual Distributed<step13Local, algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
@@ -2099,33 +1925,30 @@ protected:
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(_pres, _par, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(_pres, _par, (int)method);
+        _res               = _result.get();
         return services::Status();
     }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int) method);
-        _pres = _partialResult.get();
+        services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
+        _pres              = _partialResult.get();
         return services::Status();
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step13Local, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                        = &input;
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     DistributedResultStep13Ptr _result;
@@ -2137,7 +1960,7 @@ private:
 using interface1::DistributedContainer;
 using interface1::Distributed;
 
-} // namespace daal::algorithms::dbscan
-} // namespace daal::algorithms
+} // namespace dbscan
+} // namespace algorithms
 } // namespace daal
 #endif

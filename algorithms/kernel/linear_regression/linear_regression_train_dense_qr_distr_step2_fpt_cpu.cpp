@@ -40,7 +40,7 @@ namespace internal
 {
 template class DistributedKernel<DAAL_FPTYPE, qrDense, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

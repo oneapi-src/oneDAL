@@ -23,25 +23,24 @@ namespace data_management
 {
 namespace interface1
 {
+#define DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(T)                                                                                    \
+    template <>                                                                                                                       \
+    CSRBlockDescriptor<T>::CSRBlockDescriptor()                                                                                       \
+        : _rows_capacity(0), _values_capacity(0), _ncols(0), _nrows(0), _rowsOffset(0), _rwFlag(0), _rawPtr(0), _pPtr(0), _nvalues(0) \
+    {}
 
-
-#define DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(T)                                                  \
-template<>                                                                                          \
-CSRBlockDescriptor<T>::CSRBlockDescriptor() : _rows_capacity(0), _values_capacity(0),               \
-    _ncols(0), _nrows(0), _rowsOffset(0), _rwFlag(0), _rawPtr(0), _pPtr(0), _nvalues(0) {}
-
-DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(float         )
-DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(double        )
-DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(int           )
-DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(unsigned int  )
-DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(DAAL_INT64    )
-DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(DAAL_UINT64   )
-DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(char          )
-DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(unsigned char )
-DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(short         )
+DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(float)
+DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(double)
+DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(int)
+DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(unsigned int)
+DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(DAAL_INT64)
+DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(DAAL_UINT64)
+DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(char)
+DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(unsigned char)
+DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(short)
 DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(unsigned short)
-DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(unsigned long )
+DAAL_IMPL_CSRBLOCKDESCRIPTORCONSTRUCTOR(unsigned long)
 
-}
-}
-}
+} // namespace interface1
+} // namespace data_management
+} // namespace daal

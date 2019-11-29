@@ -36,7 +36,6 @@ namespace algorithms
 {
 namespace interface1
 {
-
 /**
  * @addtogroup base_algorithms
  * @{
@@ -88,10 +87,7 @@ class AlgorithmIfaceImpl : public AlgorithmIface
 {
 public:
     /** Default constructor */
-    AlgorithmIfaceImpl() : _enableChecks(true)
-    {
-        getEnvironment();
-    }
+    AlgorithmIfaceImpl() : _enableChecks(true) { getEnvironment(); }
 
     virtual ~AlgorithmIfaceImpl() {}
 
@@ -99,29 +95,20 @@ public:
      * Sets flag of requiring parameters checks
      * \param enableChecksFlag True if checks are needed, false if no checks are required
      */
-    void enableChecks(bool enableChecksFlag)
-    {
-        _enableChecks = enableChecksFlag;
-    }
+    void enableChecks(bool enableChecksFlag) { _enableChecks = enableChecksFlag; }
 
     /**
      * Returns flag of checking necessity
      * \return flag of checking necessity
      */
-    bool isChecksEnabled() const
-    {
-        return _enableChecks;
-    }
+    bool isChecksEnabled() const { return _enableChecks; }
 
     /**
      * For backward compatibility. Returns error collection of the algorithm
      * \return Error collection of the algorithm
      * \DAAL_DEPRECATED
      */
-    services::SharedPtr<services::ErrorCollection> getErrors()
-    {
-        return _status.getCollection();
-    }
+    services::SharedPtr<services::ErrorCollection> getErrors() { return _status.getCollection(); }
 
 private:
     bool _enableChecks;
@@ -130,14 +117,13 @@ protected:
     services::Status getEnvironment()
     {
         int cpuid = (int)daal::services::Environment::getInstance()->getCpuId();
-        if(cpuid < 0)
-            return services::Status(services::ErrorCpuNotSupported);
-        _env.cpuid = cpuid;
+        if (cpuid < 0) return services::Status(services::ErrorCpuNotSupported);
+        _env.cpuid           = cpuid;
         _env.cpuid_init_flag = true;
         return services::Status();
     }
 
-    daal::services::Environment::env    _env;
+    daal::services::Environment::env _env;
     services::Status _status;
 };
 
@@ -146,6 +132,6 @@ protected:
 using interface1::AlgorithmIface;
 using interface1::AlgorithmIfaceImpl;
 
-}
-}
+} // namespace algorithms
+} // namespace daal
 #endif

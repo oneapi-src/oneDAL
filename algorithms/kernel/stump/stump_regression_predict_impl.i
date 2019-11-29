@@ -52,15 +52,17 @@ using namespace daal::algorithms;
 using namespace daal::services;
 
 template <Method method, typename algorithmFPtype, CpuType cpu>
-services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const NumericTable *xTable,
-        const stump::regression::Model *m, NumericTable *rTable,
-        const Parameter *par)
+services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const NumericTable * xTable, const stump::regression::Model * m,
+                                                                           NumericTable * rTable, const Parameter * par)
 {
     services::Status s;
     decision_tree::regression::prediction::Batch<> treeAlgorithm;
 
-    treeAlgorithm.input.set(daal::algorithms::decision_tree::regression::prediction::data, NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
-    treeAlgorithm.input.set(daal::algorithms::decision_tree::regression::prediction::model, decision_tree::regression::ModelPtr(static_cast<decision_tree::regression::Model*>(const_cast<stump::regression::Model*>(m)), EmptyDeleter()));
+    treeAlgorithm.input.set(daal::algorithms::decision_tree::regression::prediction::data,
+                            NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
+    treeAlgorithm.input.set(daal::algorithms::decision_tree::regression::prediction::model,
+                            decision_tree::regression::ModelPtr(
+                                static_cast<decision_tree::regression::Model *>(const_cast<stump::regression::Model *>(m)), EmptyDeleter()));
     decision_tree::regression::prediction::ResultPtr treeResult(new decision_tree::regression::prediction::Result());
     treeResult->set(decision_tree::regression::prediction::prediction, NumericTablePtr(rTable, EmptyDeleter()));
     treeAlgorithm.setResult(treeResult);
@@ -70,11 +72,11 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
     return s;
 }
 
-} // namespace daal::algorithms::stump::regression::prediction::internal
-}
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

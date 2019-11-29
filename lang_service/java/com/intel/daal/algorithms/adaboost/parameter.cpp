@@ -23,52 +23,43 @@
 
 USING_COMMON_NAMESPACES()
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cSetWeakLearnerTraining
-(JNIEnv *, jobject, jlong self, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cSetWeakLearnerTraining(JNIEnv *, jobject, jlong self, jlong value)
 {
-    unpack<adaboost::Parameter>(self).weakLearnerTraining =
-        unpackAlgorithm<classifier::training::Batch>(value);
+    unpack<adaboost::Parameter>(self).weakLearnerTraining = unpackAlgorithm<classifier::training::Batch>(value);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cSetWeakLearnerPrediction
-(JNIEnv *, jobject, jlong self, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cSetWeakLearnerPrediction(JNIEnv *, jobject, jlong self, jlong value)
 {
-    unpack<adaboost::Parameter>(self).weakLearnerPrediction =
-        unpackAlgorithm<classifier::prediction::Batch>(value);
+    unpack<adaboost::Parameter>(self).weakLearnerPrediction = unpackAlgorithm<classifier::prediction::Batch>(value);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cSetAccuracyThreshold
-(JNIEnv *env, jobject, jlong self, jdouble accuracyThreshold)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cSetAccuracyThreshold(JNIEnv * env, jobject, jlong self,
+                                                                                               jdouble accuracyThreshold)
 {
     unpack<adaboost::Parameter>(self).accuracyThreshold = accuracyThreshold;
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cGetAccuracyThreshold
-(JNIEnv *env, jobject, jlong self)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cGetAccuracyThreshold(JNIEnv * env, jobject, jlong self)
 {
-    return (jdouble)( unpack<adaboost::Parameter>(self).accuracyThreshold );
+    return (jdouble)(unpack<adaboost::Parameter>(self).accuracyThreshold);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cSetMaxIterations
-(JNIEnv *env, jobject, jlong self, jlong maxIterations)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cSetMaxIterations(JNIEnv * env, jobject, jlong self, jlong maxIterations)
 {
     unpack<adaboost::Parameter>(self).maxIterations = maxIterations;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cGetMaxIterations
-(JNIEnv *env, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cGetMaxIterations(JNIEnv * env, jobject, jlong self)
 {
-    return (jlong)( unpack<adaboost::Parameter>(self).maxIterations );
+    return (jlong)(unpack<adaboost::Parameter>(self).maxIterations);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cSetLearningRate
-(JNIEnv *env, jobject, jlong self, jlong learningRate)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cSetLearningRate(JNIEnv * env, jobject, jlong self, jlong learningRate)
 {
     unpack<adaboost::Parameter>(self).learningRate = learningRate;
 }
 
-JNIEXPORT double JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cGetLearningRate
-(JNIEnv *env, jobject, jlong self)
+JNIEXPORT double JNICALL Java_com_intel_daal_algorithms_adaboost_Parameter_cGetLearningRate(JNIEnv * env, jobject, jlong self)
 {
-    return (double)( unpack<adaboost::Parameter>(self).learningRate );
+    return (double)(unpack<adaboost::Parameter>(self).learningRate);
 }

@@ -35,7 +35,6 @@ namespace classification
 {
 namespace interface1
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -45,17 +44,17 @@ Model::Model(size_t nFeatures) : daal::algorithms::classifier::Model(), _impl(ne
 
 Model::~Model() {}
 
-Model::Model(size_t nFeatures, services::Status &st) : _impl(new ModelImpl(nFeatures))
+Model::Model(size_t nFeatures, services::Status & st) : _impl(new ModelImpl(nFeatures))
 {
     DAAL_CHECK_COND_ERROR(_impl, st, services::ErrorMemoryAllocationFailed);
 }
 
-services::SharedPtr<Model> Model::create(size_t nFeatures, services::Status *stat)
+services::SharedPtr<Model> Model::create(size_t nFeatures, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures);
 }
 
-services::Status Model::serializeImpl(data_management::InputDataArchive  * arch)
+services::Status Model::serializeImpl(data_management::InputDataArchive * arch)
 {
     daal::algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     _impl->serialImpl<data_management::InputDataArchive, false>(arch);
@@ -66,8 +65,8 @@ services::Status Model::serializeImpl(data_management::InputDataArchive  * arch)
 services::Status Model::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
     daal::algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
-    _impl->serialImpl<const data_management::OutputDataArchive, true>(arch,
-        COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion()));
+    _impl->serialImpl<const data_management::OutputDataArchive, true>(
+        arch, COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion()));
 
     return services::Status();
 }
@@ -77,13 +76,25 @@ size_t Model::getNumberOfFeatures() const
     return _impl->getNumberOfFeatures();
 }
 
-void Model::traverseDF(classifier::TreeNodeVisitor& visitor) const { _impl->traverseDF(visitor); }
+void Model::traverseDF(classifier::TreeNodeVisitor & visitor) const
+{
+    _impl->traverseDF(visitor);
+}
 
-void Model::traverseBF(classifier::TreeNodeVisitor& visitor) const { _impl->traverseBF(visitor); }
+void Model::traverseBF(classifier::TreeNodeVisitor & visitor) const
+{
+    _impl->traverseBF(visitor);
+}
 
-void Model::traverseDFS(tree_utils::classification::TreeNodeVisitor& visitor) const { _impl->traverseDFS(visitor); }
+void Model::traverseDFS(tree_utils::classification::TreeNodeVisitor & visitor) const
+{
+    _impl->traverseDFS(visitor);
+}
 
-void Model::traverseBFS(tree_utils::classification::TreeNodeVisitor& visitor) const { _impl->traverseBFS(visitor); }
+void Model::traverseBFS(tree_utils::classification::TreeNodeVisitor & visitor) const
+{
+    _impl->traverseBFS(visitor);
+}
 
 } // namespace interface1
 

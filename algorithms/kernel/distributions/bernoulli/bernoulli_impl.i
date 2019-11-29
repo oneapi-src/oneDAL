@@ -37,12 +37,11 @@ namespace bernoulli
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status BernoulliKernel<algorithmFPType, method, cpu>::computeInt(int *resultArray, size_t n, algorithmFPType p, engines::BatchBase &engine)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status BernoulliKernel<algorithmFPType, method, cpu>::computeInt(int * resultArray, size_t n, algorithmFPType p, engines::BatchBase & engine)
 {
-    const int one  = 1;
-    const int zero = 0;
+    const int one              = 1;
+    const int zero             = 0;
     const size_t nElemsInBlock = 1024;
 
     size_t nBlocks = n / nElemsInBlock;
@@ -52,17 +51,17 @@ Status BernoulliKernel<algorithmFPType, method, cpu>::computeInt(int *resultArra
 
     size_t nElemsToProcess = nElemsInBlock;
     Status s;
-    for(size_t block = 0; block < nBlocks; block++)
+    for (size_t block = 0; block < nBlocks; block++)
     {
         size_t nProcessed = block * nElemsInBlock;
-        int *array = resultArray + nProcessed;
-        if(block == nBlocks - 1)
+        int * array       = resultArray + nProcessed;
+        if (block == nBlocks - 1)
         {
             nElemsToProcess = n - nProcessed;
         }
         DAAL_CHECK_STATUS(s, (UniformKernelDefault<algorithmFPType, cpu>::compute(0.0, 1.0, engine, nElemsToProcess, buffer)));
 
-        for(size_t j = 0; j < nElemsToProcess; j++)
+        for (size_t j = 0; j < nElemsToProcess; j++)
         {
             array[j] = ((buffer[j] < p) ? one : zero);
         }
@@ -70,8 +69,8 @@ Status BernoulliKernel<algorithmFPType, method, cpu>::computeInt(int *resultArra
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status BernoulliKernel<algorithmFPType, method, cpu>::computeFPType(NumericTable *resultTable, algorithmFPType p, engines::BatchBase &engine)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status BernoulliKernel<algorithmFPType, method, cpu>::computeFPType(NumericTable * resultTable, algorithmFPType p, engines::BatchBase & engine)
 {
     const algorithmFPType one  = 1;
     const algorithmFPType zero = 0;
@@ -82,25 +81,25 @@ Status BernoulliKernel<algorithmFPType, method, cpu>::computeFPType(NumericTable
 
     Status s;
 
-    if(nElemsInBlock > nCols)
+    if (nElemsInBlock > nCols)
     {
         size_t nRowsInBlock = nElemsInBlock / nCols;
-        size_t nRowBlocks = nRows / nRowsInBlock;
+        size_t nRowBlocks   = nRows / nRowsInBlock;
         nRowBlocks += (nRowBlocks * nRowsInBlock != nRows);
 
-        for(size_t block = 0; block < nRowBlocks; block++) /* blocking by rows */
+        for (size_t block = 0; block < nRowBlocks; block++) /* blocking by rows */
         {
             size_t nProcessedRows = block * nRowsInBlock;
             size_t nRowsToProcess = (block == nRowBlocks - 1) ? (nRows - nProcessedRows) : nRowsInBlock;
 
             daal::internal::WriteRows<algorithmFPType, cpu> resultBlock(resultTable, nProcessedRows, nRowsToProcess);
             DAAL_CHECK_BLOCK_STATUS(resultBlock);
-            algorithmFPType *resultArray = resultBlock.get();
+            algorithmFPType * resultArray = resultBlock.get();
 
             size_t nElemsToProcess = nRowsToProcess * nCols;
             DAAL_CHECK_STATUS(s, (UniformKernelDefault<algorithmFPType, cpu>::compute(0.0, 1.0, engine, nElemsToProcess, resultArray)));
 
-            for(size_t j = 0; j < nElemsToProcess; j++)
+            for (size_t j = 0; j < nElemsToProcess; j++)
             {
                 resultArray[j] = ((resultArray[j] < p) ? one : zero);
             }
@@ -111,21 +110,21 @@ Status BernoulliKernel<algorithmFPType, method, cpu>::computeFPType(NumericTable
         size_t nColBlocks = nCols / nElemsInBlock;
         nColBlocks += (nColBlocks * nElemsInBlock != nCols);
 
-        for(size_t block = 0; block < nRows; block++) /* blocking by rows */
+        for (size_t block = 0; block < nRows; block++) /* blocking by rows */
         {
             daal::internal::WriteRows<algorithmFPType, cpu> resultBlock(resultTable, block, 1);
             DAAL_CHECK_BLOCK_STATUS(resultBlock);
-            algorithmFPType *resultArray = resultBlock.get();
+            algorithmFPType * resultArray = resultBlock.get();
 
-            for(size_t colBlock = 0; colBlock < nColBlocks; colBlock++) /* blocking within one column */
+            for (size_t colBlock = 0; colBlock < nColBlocks; colBlock++) /* blocking within one column */
             {
                 size_t nProcessedElems = nElemsInBlock * colBlock;
                 size_t nElemsToProcess = (colBlock == nColBlocks - 1) ? (nCols - nProcessedElems) : nElemsInBlock;
 
-                algorithmFPType *array = resultArray + nProcessedElems;
+                algorithmFPType * array = resultArray + nProcessedElems;
                 DAAL_CHECK_STATUS(s, (UniformKernelDefault<algorithmFPType, cpu>::compute(0.0, 1.0, engine, nElemsToProcess, array)));
 
-                for(size_t j = 0; j < nElemsToProcess; j++)
+                for (size_t j = 0; j < nElemsToProcess; j++)
                 {
                     array[j] = ((array[j] < p) ? one : zero);
                 }
@@ -135,15 +134,15 @@ Status BernoulliKernel<algorithmFPType, method, cpu>::computeFPType(NumericTable
     return s;
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-Status BernoulliKernel<algorithmFPType, method, cpu>::compute(algorithmFPType p, engines::BatchBase &engine, NumericTable *resultTable)
+template <typename algorithmFPType, Method method, CpuType cpu>
+Status BernoulliKernel<algorithmFPType, method, cpu>::compute(algorithmFPType p, engines::BatchBase & engine, NumericTable * resultTable)
 {
-    NumericTableDictionary *resultDict = resultTable->getDictionary();
-    if(resultDict->getFeaturesEqual() == DictionaryIface::equal && resultTable->getDataLayout() == NumericTableIface::aos &&
-      (*resultDict)[0].indexType      == features::DAAL_INT32_S)  /* if table is HomogenNT<int> */
+    NumericTableDictionary * resultDict = resultTable->getDictionary();
+    if (resultDict->getFeaturesEqual() == DictionaryIface::equal && resultTable->getDataLayout() == NumericTableIface::aos
+        && (*resultDict)[0].indexType == features::DAAL_INT32_S) /* if table is HomogenNT<int> */
     {
-        size_t n = resultTable->getNumberOfRows() * resultTable->getNumberOfColumns();
-        int *resultArray = ((HomogenNumericTable<int> *)resultTable)->getArray();
+        size_t n          = resultTable->getNumberOfRows() * resultTable->getNumberOfColumns();
+        int * resultArray = ((HomogenNumericTable<int> *)resultTable)->getArray();
         return computeInt(resultArray, n, p, engine);
     }
     else

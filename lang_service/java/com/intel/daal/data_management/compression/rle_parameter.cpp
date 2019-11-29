@@ -28,8 +28,8 @@ using namespace daal::data_management;
  * Method:    cInit
  * Signature:(I)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_rle_RleCompressionParameter_cSetBlockHeader
-(JNIEnv *env, jobject, jlong parAddr, jboolean header)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_rle_RleCompressionParameter_cSetBlockHeader(JNIEnv * env, jobject,
+                                                                                                                    jlong parAddr, jboolean header)
 {
     (*((RleCompressionParameter *)parAddr)).isBlockHeader = header;
 }
@@ -39,8 +39,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_rle_RleC
 * Method:    cGetCompressionLevel
 * Signature:(J)I
 */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_data_1management_compression_rle_RleCompressionParameter_cGetBlockHeader
-(JNIEnv *env, jobject, jlong parAddr)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_data_1management_compression_rle_RleCompressionParameter_cGetBlockHeader(JNIEnv * env, jobject,
+                                                                                                                        jlong parAddr)
 {
-    return(jboolean)(*((RleCompressionParameter *)parAddr)).isBlockHeader;
+    return (jboolean)(*((RleCompressionParameter *)parAddr)).isBlockHeader;
 }

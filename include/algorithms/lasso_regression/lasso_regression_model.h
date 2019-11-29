@@ -38,13 +38,11 @@ namespace algorithms
  */
 namespace lasso_regression
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LASSO_REGRESSION__MODEL"></a>
  * \brief %Base class for models trained with the lasso regression algorithm
@@ -79,8 +77,8 @@ using interface1::ModelConstPtr;
  *
  * \return Status of computations
  */
-DAAL_EXPORT services::Status checkModel(
-    lasso_regression::Model* model, const daal::algorithms::Parameter &par, size_t nBeta, size_t nResponses, int method);
+DAAL_EXPORT services::Status checkModel(lasso_regression::Model * model, const daal::algorithms::Parameter & par, size_t nBeta, size_t nResponses,
+                                        int method);
 
 } // namespace lasso_regression
 } // namespace algorithms

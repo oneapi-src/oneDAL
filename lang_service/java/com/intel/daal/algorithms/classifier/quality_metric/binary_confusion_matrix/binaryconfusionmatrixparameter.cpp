@@ -34,8 +34,8 @@ using namespace daal::algorithms::classifier::quality_metric::binary_confusion_m
  * Method:    cSetBeta
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixParameter_cSetBeta
-  (JNIEnv *, jobject, jlong parAddr, jdouble beta)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixParameter_cSetBeta(
+    JNIEnv *, jobject, jlong parAddr, jdouble beta)
 {
     (*(binary_confusion_matrix::Parameter *)parAddr).beta = beta;
 }
@@ -45,8 +45,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric
  * Method:    cGetBeta
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixParameter_cGetBeta
-  (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_classifier_quality_1metric_binary_1confusion_1matrix_BinaryConfusionMatrixParameter_cGetBeta(
+    JNIEnv *, jobject, jlong parAddr)
 {
     return (jdouble)(*(binary_confusion_matrix::Parameter *)parAddr).beta;
 }

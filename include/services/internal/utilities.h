@@ -26,16 +26,21 @@ namespace services
 {
 namespace internal
 {
-
 /** @ingroup services_internal
  * @{
  */
 
 template <typename T>
-inline const T & minValue(const T & a, const T & b) { return !(b < a) ? a : b; }
+inline const T & minValue(const T & a, const T & b)
+{
+    return !(b < a) ? a : b;
+}
 
 template <typename T>
-inline const T & maxValue(const T & a, const T & b) { return (a < b) ? b : a; }
+inline const T & maxValue(const T & a, const T & b)
+{
+    return (a < b) ? b : a;
+}
 
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__IMPLACCESSOR"></a>
@@ -45,12 +50,14 @@ inline const T & maxValue(const T & a, const T & b) { return (a < b) ? b : a; }
 class ImplAccessor
 {
 public:
-    template<typename Impl, typename Class>
-    static const SharedPtr<Impl> &getImplPtr(const Class &object)
-    { return object.getImplPtr(); }
+    template <typename Impl, typename Class>
+    static const SharedPtr<Impl> & getImplPtr(const Class & object)
+    {
+        return object.getImplPtr();
+    }
 
 private:
-    ImplAccessor() { }
+    ImplAccessor() {}
 };
 
 /** @} */

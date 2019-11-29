@@ -30,12 +30,12 @@ using namespace daal::data_management;
  * Method:    getIndexType
  * Signature:(J)I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getIndexType
-(JNIEnv *env, jobject thisobj, jlong numTableAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getIndexType(JNIEnv * env, jobject thisobj,
+                                                                                                                   jlong numTableAddr)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
-    NumericTableDictionary *dict = nt->getDictionary();
-    return(jint)((*dict)[0].indexType);
+    NumericTable * nt             = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTableDictionary * dict = nt->getDictionary();
+    return (jint)((*dict)[0].indexType);
 }
 
 /*
@@ -43,27 +43,27 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    dInit
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_dInit
-(JNIEnv *env, jobject thisobj, jlong nDim, jint layout)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_dInit(JNIEnv * env, jobject thisobj,
+                                                                                                             jlong nDim, jint layout)
 {
     NumericTablePtr tbl;
     services::Status s;
-    if(layout == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    if (layout == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
     {
-        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, double>::create(nDim,
-            NumericTableIface::AllocationFlag::doNotAllocate, &s);
+        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, double>::create(
+            nDim, NumericTableIface::AllocationFlag::doNotAllocate, &s);
     }
     else
     {
-        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, double>::create(nDim,
-            NumericTableIface::AllocationFlag::doNotAllocate, &s);
+        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, double>::create(
+            nDim, NumericTableIface::AllocationFlag::doNotAllocate, &s);
     }
-    if(!s)
+    if (!s)
     {
         tbl = NumericTablePtr();
         DAAL_CHECK_THROW(s);
     }
-    return (jlong)new SerializationIfacePtr(tbl);
+    return (jlong) new SerializationIfacePtr(tbl);
 }
 
 /*
@@ -71,27 +71,27 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangul
  * Method:    sInit
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_sInit
-(JNIEnv *env, jobject thisobj, jlong nDim, jint layout)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_sInit(JNIEnv * env, jobject thisobj,
+                                                                                                             jlong nDim, jint layout)
 {
     NumericTablePtr tbl;
     services::Status s;
-    if(layout == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    if (layout == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
     {
-        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, float>::create(nDim,
-            NumericTableIface::AllocationFlag::doNotAllocate, &s);
+        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, float>::create(
+            nDim, NumericTableIface::AllocationFlag::doNotAllocate, &s);
     }
     else
     {
-        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, float>::create(nDim,
-            NumericTableIface::AllocationFlag::doNotAllocate, &s);
+        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, float>::create(
+            nDim, NumericTableIface::AllocationFlag::doNotAllocate, &s);
     }
-    if(!s)
+    if (!s)
     {
         tbl = NumericTablePtr();
         DAAL_CHECK_THROW(s);
     }
-    return (jlong)new SerializationIfacePtr(tbl);
+    return (jlong) new SerializationIfacePtr(tbl);
 }
 
 /*
@@ -99,27 +99,27 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangul
  * Method:    lInit
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_lInit
-(JNIEnv *env, jobject thisobj, jlong nDim, jint layout)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_lInit(JNIEnv * env, jobject thisobj,
+                                                                                                             jlong nDim, jint layout)
 {
     NumericTablePtr tbl;
     services::Status s;
-    if(layout == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    if (layout == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
     {
-        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, long>::create(nDim,
-            NumericTableIface::AllocationFlag::doNotAllocate, &s);
+        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, long>::create(
+            nDim, NumericTableIface::AllocationFlag::doNotAllocate, &s);
     }
     else
     {
-        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, long>::create(nDim,
-            NumericTableIface::AllocationFlag::doNotAllocate, &s);
+        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, long>::create(
+            nDim, NumericTableIface::AllocationFlag::doNotAllocate, &s);
     }
-    if(!s)
+    if (!s)
     {
         tbl = NumericTablePtr();
         DAAL_CHECK_THROW(s);
     }
-    return (jlong)new SerializationIfacePtr(tbl);
+    return (jlong) new SerializationIfacePtr(tbl);
 }
 
 /*
@@ -127,27 +127,27 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangul
  * Method:    iInit
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_iInit
-(JNIEnv *env, jobject thisobj, jlong nDim, jint layout)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_iInit(JNIEnv * env, jobject thisobj,
+                                                                                                             jlong nDim, jint layout)
 {
     NumericTablePtr tbl;
     services::Status s;
-    if(layout == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    if (layout == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
     {
-        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, int>::create(nDim,
-            NumericTableIface::AllocationFlag::doNotAllocate, &s);
+        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, int>::create(
+            nDim, NumericTableIface::AllocationFlag::doNotAllocate, &s);
     }
     else
     {
-        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, int>::create(nDim,
-            NumericTableIface::AllocationFlag::doNotAllocate, &s);
+        tbl = PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, int>::create(
+            nDim, NumericTableIface::AllocationFlag::doNotAllocate, &s);
     }
-    if(!s)
+    if (!s)
     {
         tbl = NumericTablePtr();
         DAAL_CHECK_THROW(s);
     }
-    return (jlong)new SerializationIfacePtr(tbl);
+    return (jlong) new SerializationIfacePtr(tbl);
 }
 
 /*
@@ -155,19 +155,19 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_PackedTriangul
  * Method:    releaseFloatBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseFloatBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseFloatBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, writeOnly, block));
 
-    float* data = block.getBlockPtr();
-    const float *src = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * data      = block.getBlockPtr();
+    const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         data[i] = src[i];
     }
@@ -180,19 +180,19 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    releaseDoubleBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseDoubleBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseDoubleBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, writeOnly, block));
 
-    double *data = block.getBlockPtr();
-    const double *src = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * data      = block.getBlockPtr();
+    const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         data[i] = src[i];
     }
@@ -205,19 +205,19 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    releaseIntBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseIntBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseIntBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, writeOnly, block));
 
-    int* data = block.getBlockPtr();
-    const int *src = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    int * data      = block.getBlockPtr();
+    const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         data[i] = src[i];
     }
@@ -230,20 +230,20 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    getDoubleBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getDoubleBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getDoubleBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, readOnly, block));
 
-    const double *data = block.getBlockPtr();
+    const double * data = block.getBlockPtr();
 
-    double *dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         dst[i] = data[i];
     }
@@ -257,20 +257,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    getFloatBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getFloatBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getFloatBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, readOnly, block));
 
-    const float *data = block.getBlockPtr();
+    const float * data = block.getBlockPtr();
 
-    float *dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         dst[i] = data[i];
     }
@@ -284,20 +284,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    getIntBlockBuffer
  * Signature:(JJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getIntBlockBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getIntBlockBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfRows(vectorIndex, vectorNum, readOnly, block));
 
-    const int *data = block.getBlockPtr();
+    const int * data = block.getBlockPtr();
 
-    int *dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum * nCols; i++)
+    for (size_t i = 0; i < vectorNum * nCols; i++)
     {
         dst[i] = data[i];
     }
@@ -311,20 +311,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    getDoubleColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getDoubleColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getDoubleColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
-    const double *data = block.getBlockPtr();
+    const double * data = block.getBlockPtr();
 
-    double *dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         dst[i] = data[i];
     }
@@ -338,20 +338,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    getFloatColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getFloatColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getFloatColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
-    const float *data = block.getBlockPtr();
+    const float * data = block.getBlockPtr();
 
-    float *dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         dst[i] = data[i];
     }
@@ -365,20 +365,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    getIntColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getIntColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getIntColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
-    const int *data = block.getBlockPtr();
+    const int * data = block.getBlockPtr();
 
-    int *dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         dst[i] = data[i];
     }
@@ -392,20 +392,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    releaseFloatColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseFloatColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseFloatColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
-    float* data = block.getBlockPtr();
+    float * data = block.getBlockPtr();
 
-    const float *src = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    const float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         data[i] = src[i];
     }
@@ -418,20 +418,20 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    releaseDoubleColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseDoubleColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseDoubleColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
-    double *data = block.getBlockPtr();
+    double * data = block.getBlockPtr();
 
-    const double *src = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    const double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         data[i] = src[i];
     }
@@ -444,20 +444,20 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    releaseIntColumnBuffer
  * Signature:(JJJJLjava/nio/ByteBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseIntColumnBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseIntColumnBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jlong featureIndex, jlong vectorIndex, jlong vectorNum, jobject byteBuffer)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
-    int* data = block.getBlockPtr();
+    int * data = block.getBlockPtr();
 
-    const int *src = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    const int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < vectorNum; i++)
+    for (size_t i = 0; i < vectorNum; i++)
     {
         data[i] = src[i];
     }
@@ -470,17 +470,20 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    assignLong
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_assignLong
-(JNIEnv *env, jobject, jlong numTableAddr, jlong constValue)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_assignLong(JNIEnv * env, jobject,
+                                                                                                                 jlong numTableAddr, jlong constValue)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
-    if (nt->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix) {
-        PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, long long> *ntPacked =
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    if (nt->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    {
+        PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, long long> * ntPacked =
             static_cast<PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, long long> *>(
                 ((SerializationIfacePtr *)numTableAddr)->get());
         ntPacked->assign((long long)constValue);
-    } else {
-        PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, long long> *ntPacked =
+    }
+    else
+    {
+        PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, long long> * ntPacked =
             static_cast<PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, long long> *>(
                 ((SerializationIfacePtr *)numTableAddr)->get());
         ntPacked->assign((long long)constValue);
@@ -492,17 +495,20 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    assignInt
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_assignInt
-(JNIEnv *env, jobject, jlong numTableAddr, jint constValue)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_assignInt(JNIEnv * env, jobject,
+                                                                                                                jlong numTableAddr, jint constValue)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
-    if (nt->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix) {
-        PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, int> *ntPacked =
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    if (nt->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    {
+        PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, int> * ntPacked =
             static_cast<PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, int> *>(
                 ((SerializationIfacePtr *)numTableAddr)->get());
         ntPacked->assign((int)constValue);
-    } else {
-        PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, int> *ntPacked =
+    }
+    else
+    {
+        PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, int> * ntPacked =
             static_cast<PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, int> *>(
                 ((SerializationIfacePtr *)numTableAddr)->get());
         ntPacked->assign((int)constValue);
@@ -514,17 +520,21 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    assignDouble
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_assignDouble
-(JNIEnv *env, jobject, jlong numTableAddr, jdouble constValue)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_assignDouble(JNIEnv * env, jobject,
+                                                                                                                   jlong numTableAddr,
+                                                                                                                   jdouble constValue)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
-    if (nt->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix) {
-        PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, double> *ntPacked =
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    if (nt->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    {
+        PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, double> * ntPacked =
             static_cast<PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, double> *>(
                 ((SerializationIfacePtr *)numTableAddr)->get());
         ntPacked->assign((double)constValue);
-    } else {
-        PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, double> *ntPacked =
+    }
+    else
+    {
+        PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, double> * ntPacked =
             static_cast<PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, double> *>(
                 ((SerializationIfacePtr *)numTableAddr)->get());
         ntPacked->assign((double)constValue);
@@ -536,17 +546,21 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    assignFloat
  * Signature: (JF)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_assignFloat
-(JNIEnv *env, jobject, jlong numTableAddr, jfloat constValue)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_assignFloat(JNIEnv * env, jobject,
+                                                                                                                  jlong numTableAddr,
+                                                                                                                  jfloat constValue)
 {
-    NumericTable *nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
-    if (nt->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix) {
-        PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, float> *ntPacked =
+    NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
+    if (nt->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    {
+        PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, float> * ntPacked =
             static_cast<PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, float> *>(
                 ((SerializationIfacePtr *)numTableAddr)->get());
         ntPacked->assign((float)constValue);
-    } else {
-        PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, float> *ntPacked =
+    }
+    else
+    {
+        PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, float> * ntPacked =
             static_cast<PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, float> *>(
                 ((SerializationIfacePtr *)numTableAddr)->get());
         ntPacked->assign((float)constValue);
@@ -558,20 +572,22 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    getDoublePackedBuffer
  * Signature:(JILjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getDoublePackedBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getDoublePackedBuffer(JNIEnv * env,
+                                                                                                                               jobject thisObj,
+                                                                                                                               jlong numTableAddr,
+                                                                                                                               jobject byteBuffer)
 {
-    PackedArrayNumericTableIface *nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
+    PackedArrayNumericTableIface * nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     DAAL_CHECK_THROW(nt->getPackedArray(readOnly, block));
 
-    double *data = block.getBlockPtr();
-    size_t nSize = block.getNumberOfColumns();
+    double * data = block.getBlockPtr();
+    size_t nSize  = block.getNumberOfColumns();
 
-    double *dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * dst = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < nSize; i++)
+    for (size_t i = 0; i < nSize; i++)
     {
         dst[i] = data[i];
     }
@@ -586,20 +602,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    getFloatPackedBuffer
  * Signature:(JILjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getFloatPackedBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jint nDim, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getFloatPackedBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jint nDim, jobject byteBuffer)
 {
-    PackedArrayNumericTableIface *nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
+    PackedArrayNumericTableIface * nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     DAAL_CHECK_THROW(nt->getPackedArray(readOnly, block));
 
-    float *data = block.getBlockPtr();
+    float * data = block.getBlockPtr();
     size_t nSize = block.getNumberOfColumns();
 
-    float *dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * dst = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < nSize; i++)
+    for (size_t i = 0; i < nSize; i++)
     {
         dst[i] = data[i];
     }
@@ -614,20 +630,20 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    getIntPackedBuffer
  * Signature:(JILjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getIntPackedBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jint nDim, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_getIntPackedBuffer(
+    JNIEnv * env, jobject thisObj, jlong numTableAddr, jint nDim, jobject byteBuffer)
 {
-    PackedArrayNumericTableIface *nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
+    PackedArrayNumericTableIface * nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     DAAL_CHECK_THROW(nt->getPackedArray(readOnly, block));
 
-    int *data = block.getBlockPtr();
+    int * data   = block.getBlockPtr();
     size_t nSize = block.getNumberOfColumns();
 
-    int *dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    int * dst = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < nSize; i++)
+    for (size_t i = 0; i < nSize; i++)
     {
         dst[i] = data[i];
     }
@@ -642,20 +658,22 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    releaseDoublePackedBuffer
  * Signature:(JLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseDoublePackedBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseDoublePackedBuffer(JNIEnv * env,
+                                                                                                                                   jobject thisObj,
+                                                                                                                                   jlong numTableAddr,
+                                                                                                                                   jobject byteBuffer)
 {
-    PackedArrayNumericTableIface *nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
+    PackedArrayNumericTableIface * nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
     DAAL_CHECK_THROW(nt->getPackedArray(writeOnly, block));
 
-    double *data = block.getBlockPtr();
-    size_t nSize = block.getNumberOfColumns();
+    double * data = block.getBlockPtr();
+    size_t nSize  = block.getNumberOfColumns();
 
-    double *src = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * src = (double *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < nSize; i++)
+    for (size_t i = 0; i < nSize; i++)
     {
         data[i] = src[i];
     }
@@ -670,20 +688,22 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    releaseFloatPackedBuffer
  * Signature:(JLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseFloatPackedBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseFloatPackedBuffer(JNIEnv * env,
+                                                                                                                                  jobject thisObj,
+                                                                                                                                  jlong numTableAddr,
+                                                                                                                                  jobject byteBuffer)
 {
-    PackedArrayNumericTableIface *nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
+    PackedArrayNumericTableIface * nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
     DAAL_CHECK_THROW(nt->getPackedArray(writeOnly, block));
 
-    float *data = block.getBlockPtr();
+    float * data = block.getBlockPtr();
     size_t nSize = block.getNumberOfColumns();
 
-    float *src = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * src = (float *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < nSize; i++)
+    for (size_t i = 0; i < nSize; i++)
     {
         data[i] = src[i];
     }
@@ -698,20 +718,22 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    releaseIntPackedBuffer
  * Signature:(JLjava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseIntPackedBuffer
-(JNIEnv *env, jobject thisObj, jlong numTableAddr, jobject byteBuffer)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_releaseIntPackedBuffer(JNIEnv * env,
+                                                                                                                                jobject thisObj,
+                                                                                                                                jlong numTableAddr,
+                                                                                                                                jobject byteBuffer)
 {
-    PackedArrayNumericTableIface *nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
+    PackedArrayNumericTableIface * nt = dynamic_cast<PackedArrayNumericTableIface *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
     DAAL_CHECK_THROW(nt->getPackedArray(writeOnly, block));
 
-    int *data = block.getBlockPtr();
+    int * data   = block.getBlockPtr();
     size_t nSize = block.getNumberOfColumns();
 
-    int *src = (int *)(env->GetDirectBufferAddress(byteBuffer));
+    int * src = (int *)(env->GetDirectBufferAddress(byteBuffer));
 
-    for(size_t i = 0; i < nSize; i++)
+    for (size_t i = 0; i < nSize; i++)
     {
         data[i] = src[i];
     }
@@ -726,14 +748,18 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_PackedTriang
  * Method:    cAllocateDataMemoryDouble
  * Signature:(J)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_cAllocateDataMemoryDouble
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_cAllocateDataMemoryDouble(JNIEnv * env,
+                                                                                                                                jobject thisObj,
+                                                                                                                                jlong numTableAddr)
 {
-    NumericTable *tbl = ((NumericTablePtr *)numTableAddr)->get();
+    NumericTable * tbl = ((NumericTablePtr *)numTableAddr)->get();
     services::Status s;
-    if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix) {
+    if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, double> *)tbl)->allocateDataMemory();
-    } else {
+    }
+    else
+    {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, double> *)tbl)->allocateDataMemory();
     }
     DAAL_CHECK_THROW(s);
@@ -744,15 +770,19 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    cAllocateDataMemoryFloat
  * Signature:(J)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_cAllocateDataMemoryFloat
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_cAllocateDataMemoryFloat(JNIEnv * env,
+                                                                                                                               jobject thisObj,
+                                                                                                                               jlong numTableAddr)
 {
-    NumericTable *tbl = ((NumericTablePtr *)numTableAddr)->get();
+    NumericTable * tbl = ((NumericTablePtr *)numTableAddr)->get();
     services::Status s;
 
-    if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix) {
+    if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, float> *)tbl)->allocateDataMemory();
-    } else {
+    }
+    else
+    {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, float> *)tbl)->allocateDataMemory();
     }
 
@@ -764,15 +794,19 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    cAllocateDataMemoryLong
  * Signature:(J)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_cAllocateDataMemoryLong
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_cAllocateDataMemoryLong(JNIEnv * env,
+                                                                                                                              jobject thisObj,
+                                                                                                                              jlong numTableAddr)
 {
-    NumericTable *tbl = ((NumericTablePtr *)numTableAddr)->get();
+    NumericTable * tbl = ((NumericTablePtr *)numTableAddr)->get();
     services::Status s;
 
-    if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix) {
+    if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, long> *)tbl)->allocateDataMemory();
-    } else {
+    }
+    else
+    {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, long> *)tbl)->allocateDataMemory();
     }
 
@@ -784,15 +818,19 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangula
  * Method:    cAllocateDataMemoryInt
  * Signature:(J)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_cAllocateDataMemoryInt
-(JNIEnv *env, jobject thisObj, jlong numTableAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_PackedTriangularMatrixByteBufferImpl_cAllocateDataMemoryInt(JNIEnv * env,
+                                                                                                                             jobject thisObj,
+                                                                                                                             jlong numTableAddr)
 {
-    NumericTable *tbl = ((NumericTablePtr *)numTableAddr)->get();
+    NumericTable * tbl = ((NumericTablePtr *)numTableAddr)->get();
 
     services::Status s;
-    if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix) {
+    if (tbl->getDataLayout() == NumericTableIface::StorageLayout::upperPackedTriangularMatrix)
+    {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::upperPackedTriangularMatrix, int> *)tbl)->allocateDataMemory();
-    } else {
+    }
+    else
+    {
         s = ((PackedTriangularMatrix<NumericTableIface::StorageLayout::lowerPackedTriangularMatrix, int> *)tbl)->allocateDataMemory();
     }
 

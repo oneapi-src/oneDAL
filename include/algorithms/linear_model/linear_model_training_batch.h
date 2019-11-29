@@ -54,8 +54,8 @@ namespace interface1
 class DAAL_EXPORT Batch : public regression::training::Batch
 {
 public:
-    typedef algorithms::linear_model::training::Input  InputType;
-    typedef algorithms::linear_model::Parameter        ParameterType;
+    typedef algorithms::linear_model::training::Input InputType;
+    typedef algorithms::linear_model::Parameter ParameterType;
     typedef algorithms::linear_model::training::Result ResultType;
 
     /**
@@ -65,10 +65,10 @@ public:
     ResultPtr getResult() { return ResultType::cast(_result); }
 };
 /** @} */
-}
+} // namespace interface1
 using interface1::Batch;
-}
-}
-}
-}
+} // namespace training
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal
 #endif

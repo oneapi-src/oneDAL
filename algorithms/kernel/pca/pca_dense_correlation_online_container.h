@@ -34,9 +34,8 @@ namespace algorithms
 {
 namespace pca
 {
-
 template <typename algorithmFPType, CpuType cpu>
-OnlineContainer<algorithmFPType, correlationDense, cpu>::OnlineContainer(daal::services::Environment::env *daalEnv)
+OnlineContainer<algorithmFPType, correlationDense, cpu>::OnlineContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, online, algorithmFPType);
 }
@@ -50,35 +49,35 @@ OnlineContainer<algorithmFPType, correlationDense, cpu>::~OnlineContainer()
 template <typename algorithmFPType, CpuType cpu>
 services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    OnlineParameter<algorithmFPType, correlationDense> *parameter = static_cast<OnlineParameter<algorithmFPType, correlationDense> *>(_par);
-    PartialResult<correlationDense> *partialResult = static_cast<PartialResult<correlationDense> *>(_pres);
-    services::Environment::env &env = *_env;
+    Input * input                                                  = static_cast<Input *>(_in);
+    OnlineParameter<algorithmFPType, correlationDense> * parameter = static_cast<OnlineParameter<algorithmFPType, correlationDense> *>(_par);
+    PartialResult<correlationDense> * partialResult                = static_cast<PartialResult<correlationDense> *>(_pres);
+    services::Environment::env & env                               = *_env;
 
     data_management::NumericTablePtr data = input->get(pca::data);
 
-    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType),
-                       compute, data, partialResult, parameter);
+    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType), compute, data, partialResult,
+                       parameter);
 }
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::finalizeCompute()
 {
-    Input *input = static_cast<Input *>(_in);
-    OnlineParameter<algorithmFPType, correlationDense> *parameter = static_cast<OnlineParameter<algorithmFPType, correlationDense> *>(_par);
-    PartialResult<correlationDense> *partialResult = static_cast<PartialResult<correlationDense> *>(_pres);
-    Result *result = static_cast<Result *>(_res);
-    services::Environment::env &env = *_env;
+    Input * input                                                  = static_cast<Input *>(_in);
+    OnlineParameter<algorithmFPType, correlationDense> * parameter = static_cast<OnlineParameter<algorithmFPType, correlationDense> *>(_par);
+    PartialResult<correlationDense> * partialResult                = static_cast<PartialResult<correlationDense> *>(_pres);
+    Result * result                                                = static_cast<Result *>(_res);
+    services::Environment::env & env                               = *_env;
 
     data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
     data_management::NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
 
-    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType),
-                       finalize, partialResult, parameter, *eigenvectors, *eigenvalues);
+    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType), finalize, partialResult, parameter,
+                       *eigenvectors, *eigenvalues);
 }
 
-}
-}
+} // namespace pca
+} // namespace algorithms
 } // namespace daal
 
 #endif

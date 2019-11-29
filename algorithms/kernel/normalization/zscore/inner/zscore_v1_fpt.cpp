@@ -34,7 +34,6 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface1
 {
 /**
@@ -43,18 +42,18 @@ namespace interface1
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const int method)
 {
     auto impl = ResultImpl::cast(getStorage(*this));
     DAAL_CHECK(impl, ErrorNullPtr);
     return impl->allocate<algorithmFPType>(input);
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const int method);
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const int method);
 
-}// namespace interface1
+} // namespace interface1
 
-}// namespace zscore
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace zscore
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

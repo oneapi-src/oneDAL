@@ -32,7 +32,6 @@ namespace algorithms
 {
 namespace linear_regression
 {
-
 namespace interface1
 {
 /**
@@ -78,7 +77,7 @@ using interface1::ModelNormEq;
 using interface1::ModelNormEqPtr;
 using interface1::ModelNormEqConstPtr;
 
-}
-}
-}
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 #endif

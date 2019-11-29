@@ -56,7 +56,7 @@ class DAAL_EXPORT ModelNormEq : public Model
 public:
     DECLARE_MODEL(ModelNormEq, ridge_regression::Model);
 
-    virtual ~ModelNormEq() { }
+    virtual ~ModelNormEq() {}
 
     /**
      * Returns a Numeric table that contains partial sums X'*X

@@ -37,24 +37,24 @@ namespace zscore
 namespace interface1
 {
 /** Constructs z-score normalization parameters */
-template<typename algorithmFPType>
-DAAL_EXPORT Parameter<algorithmFPType, defaultDense>::Parameter(const SharedPtr<low_order_moments::BatchImpl> &moments) : moments(moments) {};
+template <typename algorithmFPType>
+DAAL_EXPORT Parameter<algorithmFPType, defaultDense>::Parameter(const SharedPtr<low_order_moments::BatchImpl> & moments) : moments(moments) {};
 /**
  * Check the correctness of the %Parameter object
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT Status Parameter<algorithmFPType, defaultDense>::check() const
 {
     DAAL_CHECK(moments.get() != 0, ErrorNullParameterNotSupported);
     return Status();
 }
 
-template DAAL_EXPORT Parameter<DAAL_FPTYPE, defaultDense>::Parameter(const SharedPtr<low_order_moments::BatchImpl> &moments);
+template DAAL_EXPORT Parameter<DAAL_FPTYPE, defaultDense>::Parameter(const SharedPtr<low_order_moments::BatchImpl> & moments);
 template DAAL_EXPORT Status Parameter<DAAL_FPTYPE, defaultDense>::check() const;
 
-}// namespace interface1
+} // namespace interface1
 
-}// namespace zscore
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace zscore
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

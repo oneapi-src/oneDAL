@@ -54,7 +54,7 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0  /*!< Bagging, random choice of features, Gini impurity */
+    defaultDense = 0 /*!< Bagging, random choice of features, Gini impurity */
 };
 
 /**
@@ -63,11 +63,11 @@ enum Method
 */
 enum ResultNumericTableId
 {
-    outOfBagError = classifier::training::model + 1,  /*!< %Numeric table 1x1 containing out-of-bag erro.
+    outOfBagError = classifier::training::model + 1, /*!< %Numeric table 1x1 containing out-of-bag erro.
                                                            Computed when computeOutOfBagError option is on */
-    variableImportance,                               /*!< %Numeric table 1x(number of features) containing variable importance value.
+    variableImportance,                              /*!< %Numeric table 1x(number of features) containing variable importance value.
                                                            Computed when parameter.varImportance != none */
-    outOfBagErrorPerObservation,                      /*!< %Numeric table 1x(number of observations) containing out-of-bag error value computed.
+    outOfBagErrorPerObservation,                     /*!< %Numeric table 1x(number of observations) containing out-of-bag error value computed.
                                                            Computed when computeOutOfBagErrorPerObservation option is on */
     lastResultId = outOfBagErrorPerObservation
 };
@@ -78,7 +78,7 @@ enum ResultNumericTableId
 */
 enum ResultEngineId
 {
-    updatedEngine = lastResultId + 1,  /*!< %Engine updated after computations. */
+    updatedEngine      = lastResultId + 1, /*!< %Engine updated after computations. */
     lastResultEngineId = updatedEngine
 };
 
@@ -101,7 +101,7 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public 
     DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
-}
+} // namespace interface1
 
 /**
  * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -122,7 +122,7 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algori
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-}
+} // namespace interface2
 
 namespace interface1
 {
@@ -151,7 +151,7 @@ public:
     * \param[in] id      Identifier of the result
     * \param[in] value   Result
     */
-    void set(classifier::training::ResultId id, const ModelPtr &value);
+    void set(classifier::training::ResultId id, const ModelPtr & value);
 
     /**
     * Returns the result of decision forest model-based training
@@ -165,7 +165,7 @@ public:
     * \param[in] id      Identifier of the result
     * \param[in] value   Result
     */
-    void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
+    void set(ResultNumericTableId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory to store final results of the LogitBoost training algorithm
@@ -175,7 +175,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**s
     * Checks the result of decision forest model-based training
@@ -184,7 +184,7 @@ public:
     * \param[in] method  Computation method
     * \return Status of checking
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Returns the engine updated after computations
@@ -195,8 +195,8 @@ public:
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -204,12 +204,12 @@ protected:
 public:
     class ResultImpl;
 
-    ResultImpl* impl() { return _impl; }
+    ResultImpl * impl() { return _impl; }
 
-    Result( const Result& other );
+    Result(const Result & other);
 
 private:
-    ResultImpl* _impl;
+    ResultImpl * _impl;
 };
 typedef services::SharedPtr<Result> ResultPtr;
 
@@ -218,10 +218,10 @@ using interface2::Parameter;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace daal::algorithms::decision_forest::classification::training
+} // namespace training
 /** @} */
-}
-}
-}
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
 #endif // __DECISION_FOREST_CLASSIFICATION_TRAINING_TYPES_H__

@@ -31,8 +31,7 @@ using namespace daal::algorithms::pca;
  * Method:    cNewResult
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Result_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Result_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<pca::Result>::newObj();
 }
@@ -42,8 +41,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Result_cNewResult
  * Method:    cGetResultTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Result_cGetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Result_cGetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id)
 {
     return jniArgument<pca::Result>::get<pca::ResultId, NumericTable>(resAddr, id);
 }
@@ -53,8 +51,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_Result_cGetResultTabl
  * Method:    cSetResultTable
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Result_cSetResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_Result_cSetResultTable(JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<pca::Result>::set<pca::ResultId, NumericTable>(resAddr, id, ntAddr);
 }

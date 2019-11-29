@@ -44,19 +44,19 @@ using namespace daal::data_management;
  * \param[in] dummy   Dummy variable for the templated constructor
  */
 template <typename modelFPType>
-ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter &par, modelFPType dummy, Status &st):
-    super(featnum, nrhs, par, dummy)
+ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter & par, modelFPType dummy, Status & st)
+    : super(featnum, nrhs, par, dummy)
 {
     size_t dimWithoutBeta = getNumberOfBetas();
-    if(!_interceptFlag)
+    if (!_interceptFlag)
     {
         dimWithoutBeta--;
     }
 
-    auto &context = oneapi::internal::getDefaultContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
 
-    if(deviceInfo.isCpu)
+    if (deviceInfo.isCpu)
     {
         _xtxTable = HomogenNumericTable<modelFPType>::create(dimWithoutBeta, dimWithoutBeta, NumericTable::doAllocate, 0, &st);
         if (!st) return;
@@ -70,11 +70,11 @@ ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const line
         _xtyTable = SyclHomogenNumericTable<modelFPType>::create(dimWithoutBeta, nrhs, NumericTable::doAllocate, 0, &st);
         if (!st) return;
     }
-
 }
 
-template ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter &par, DAAL_FPTYPE dummy, Status &st);
-}// namespace internal
-}// namespace linear_regression
-}// namespace algorithms
-}// namespace daal
+template ModelNormEqInternal::ModelNormEqInternal(size_t featnum, size_t nrhs, const linear_regression::Parameter & par, DAAL_FPTYPE dummy,
+                                                  Status & st);
+} // namespace internal
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

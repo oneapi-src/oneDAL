@@ -45,20 +45,22 @@ namespace interface1
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                     const int method)
 {
-    Result *result = new Result();
+    Result * result    = new Result();
     services::Status s = result->allocate<algorithmFPType>(input, parameter, method);
-    if(!s) return s;
+    if (!s) return s;
     Argument::set(finalResult, ResultPtr(result));
     return s;
 }
 
-template DAAL_EXPORT services::Status PartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status PartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                           const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace ratings
-}// namespace prediction
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

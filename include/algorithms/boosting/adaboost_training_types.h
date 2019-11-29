@@ -56,9 +56,9 @@ namespace training
  */
 enum Method
 {
-    defaultDense = 0,     /*!< Default method */
-    samme = defaultDense, /*!< SAMME algorithm */
-    sammeR = 1            /*!< SAMME.R algorithm, need probabilities from weak learner prediction result */
+    defaultDense = 0,            /*!< Default method */
+    samme        = defaultDense, /*!< SAMME algorithm */
+    sammeR       = 1             /*!< SAMME.R algorithm, need probabilities from weak learner prediction result */
 };
 
 /**
@@ -67,7 +67,7 @@ enum Method
 */
 enum ResultNumericTableId
 {
-    weakLearnersErrors = classifier::training::model + 1,  /*!< %Numeric table 1 x maxIterations containing
+    weakLearnersErrors       = classifier::training::model + 1, /*!< %Numeric table 1 x maxIterations containing
                                                                 weak learners classification errors */
     lastResultNumericTableId = weakLearnersErrors
 };
@@ -95,7 +95,8 @@ public:
      * \param[in] method        AdaBoost computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                          const int method);
 
     /**
      * Returns the model trained with the AdaBoost algorithm
@@ -104,12 +105,13 @@ public:
      */
     DAAL_DEPRECATED daal::algorithms::adaboost::interface1::ModelPtr get(classifier::training::ResultId id) const;
 
-    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                           int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -142,7 +144,7 @@ public:
      * \param[in] method        AdaBoost computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns the model trained with the AdaBoost algorithm
@@ -156,7 +158,7 @@ public:
     * \param[in] id      Identifier of the result
     * \param[in] value   Result
     */
-    void set(classifier::training::ResultId id, const ModelPtr &value);
+    void set(classifier::training::ResultId id, const ModelPtr & value);
 
     /**
     * Returns the result of AdaBoost model-based training
@@ -170,14 +172,14 @@ public:
     * \param[in] id      Identifier of the result
     * \param[in] value   Result
     */
-    void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
+    void set(ResultNumericTableId id, const data_management::NumericTablePtr & value);
 
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -187,9 +189,9 @@ typedef services::SharedPtr<Result> ResultPtr;
 using interface2::Result;
 using interface2::ResultPtr;
 
-} // namespace daal::algorithms::adaboost::training
+} // namespace training
 /** @} */
-}
-}
+} // namespace adaboost
+} // namespace algorithms
 } // namespace daal
 #endif // __ADA_BOOST_TRAINING_TYPES_H__

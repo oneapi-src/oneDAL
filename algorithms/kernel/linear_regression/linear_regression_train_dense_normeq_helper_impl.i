@@ -40,16 +40,15 @@ namespace internal
 using namespace daal::algorithms::linear_model::normal_equations::training::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const algorithmFPType *a,
-                                                            algorithmFPType *aCopy, DAAL_INT ny,
-                                                            algorithmFPType *b, bool inteceptFlag) const
+Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const algorithmFPType * a, algorithmFPType * aCopy, DAAL_INT ny,
+                                                            algorithmFPType * b, bool inteceptFlag) const
 {
     return FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, ny, b, ErrorLinearRegressionInternal);
 }
-} // internal
-} // training
-} // linear_regression
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

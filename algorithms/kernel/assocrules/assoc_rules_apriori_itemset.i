@@ -38,11 +38,10 @@ namespace association_rules
 {
 namespace internal
 {
-
 /**
  *  \brief Structure describing itemset
  */
-template<CpuType cpu>
+template <CpuType cpu>
 struct assocrules_itemset
 {
     DAAL_NEW_DELETE();
@@ -56,12 +55,11 @@ struct assocrules_itemset
     /**
      *  \brief Construct itemset of size (iset_size) from itemset of size (iset_size - 1) and item
      */
-    assocrules_itemset(const size_t iset_size, const size_t *first_items,
-                       const size_t second_item, const size_t _support = 0) :
-                       support(_support), items(nullptr), size(0)
+    assocrules_itemset(const size_t iset_size, const size_t * first_items, const size_t second_item, const size_t _support = 0)
+        : support(_support), items(nullptr), size(0)
     {
         allocItems(iset_size);
-        int result = daal::services::internal::daal_memcpy_s(items, iset_size*sizeof(size_t), first_items, (iset_size - 1)*sizeof(size_t));
+        int result = daal::services::internal::daal_memcpy_s(items, iset_size * sizeof(size_t), first_items, (iset_size - 1) * sizeof(size_t));
         if (result)
         {
             _status |= services::Status(services::ErrorMemoryCopyFailedInternal);
@@ -72,13 +70,10 @@ struct assocrules_itemset
         }
     }
 
-    ~assocrules_itemset()
-    {
-        daal::services::daal_free(items);
-    }
+    ~assocrules_itemset() { daal::services::daal_free(items); }
 
     /** \brief Copy constructor */
-    assocrules_itemset(const assocrules_itemset &iset): items(nullptr), size(0)
+    assocrules_itemset(const assocrules_itemset & iset) : items(nullptr), size(0)
     {
         allocItems(iset.size);
         support.set(iset.support.get());
@@ -89,7 +84,7 @@ struct assocrules_itemset
         }
     }
 
-    assocrules_itemset &operator=(const assocrules_itemset &iset)
+    assocrules_itemset & operator=(const assocrules_itemset & iset)
     {
         if (this != &iset)
         {
@@ -107,8 +102,8 @@ struct assocrules_itemset
     }
 
     Atomic<size_t> support;
-    size_t *items;              /*<! Array of items */
-    size_t size;                /*<! Itemset size */
+    size_t * items; /*<! Array of items */
+    size_t size;    /*<! Itemset size */
 
     bool ok() const { return _status.ok(); }
     services::Status getLastStatus() const { return _status; }
@@ -118,11 +113,11 @@ protected:
 
     void allocItems(size_t n)
     {
-        items = (size_t*)daal::services::daal_malloc(sizeof(size_t)*n);
+        items = (size_t *)daal::services::daal_malloc(sizeof(size_t) * n);
         if (items)
         {
             _status = services::Status();
-            size = n;
+            size    = n;
         }
         else
         {
@@ -132,7 +127,7 @@ protected:
 };
 
 /** \brief Structure describing an itemset list */
-template<CpuType cpu>
+template <CpuType cpu>
 struct ItemSetList
 {
     DAAL_NEW_DELETE();
@@ -140,28 +135,28 @@ struct ItemSetList
     {
         DAAL_NEW_DELETE();
         Node() : _next(NULL), _itemSet(NULL) {}
-        Node(assocrules_itemset<cpu>* s) : _next(NULL), _itemSet(s) {}
+        Node(assocrules_itemset<cpu> * s) : _next(NULL), _itemSet(s) {}
 
-        Node* next() { return _next; }
-        const Node* next() const { return _next; }
-        void setNext(Node* n) { _next = n; }
+        Node * next() { return _next; }
+        const Node * next() const { return _next; }
+        void setNext(Node * n) { _next = n; }
 
-        const assocrules_itemset<cpu>* itemSet() const { return _itemSet; }
-        assocrules_itemset<cpu>* itemSet() { return _itemSet; }
+        const assocrules_itemset<cpu> * itemSet() const { return _itemSet; }
+        assocrules_itemset<cpu> * itemSet() { return _itemSet; }
 
     protected:
-        Node* _next;
-        assocrules_itemset<cpu>* _itemSet;
+        Node * _next;
+        assocrules_itemset<cpu> * _itemSet;
     };
 
     /* Create list of zero length */
-    ItemSetList() : start(NULL), end(NULL), current(NULL), size(0), _bDataOwner(){}
+    ItemSetList() : start(NULL), end(NULL), current(NULL), size(0), _bDataOwner() {}
     void setDataOwner(bool bOn) { _bDataOwner = bOn; }
 
     /* Destructor */
     virtual ~ItemSetList()
     {
-        while(start)
+        while (start)
         {
             auto next = start->next();
             deleteNode(start);
@@ -170,11 +165,10 @@ struct ItemSetList
     }
 
     /* Add new Node to the end of the list */
-    bool insert(assocrules_itemset<cpu> *itemSet)
+    bool insert(assocrules_itemset<cpu> * itemSet)
     {
-        Node *newNode = new Node(itemSet);
-        if(!newNode)
-            return false;
+        Node * newNode = new Node(itemSet);
+        if (!newNode) return false;
         if (size > 0)
             end->setNext(newNode);
         else
@@ -185,31 +179,28 @@ struct ItemSetList
     }
 
     /* Removes current Node and its content */
-    void removeNode(Node* node, Node* prev)
+    void removeNode(Node * node, Node * prev)
     {
         DAAL_ASSERT(node);
         DAAL_ASSERT(!prev || prev->next() == node);
-        if(prev)
-            prev->setNext(node->next());
-        if(node == start)
-            start = start->next();
-            size--;
+        if (prev) prev->setNext(node->next());
+        if (node == start) start = start->next();
+        size--;
         deleteNode(node);
-        }
+    }
 
 protected:
-    void deleteNode(Node* node)
-        {
-        if(_bDataOwner)
-            delete node->itemSet();
+    void deleteNode(Node * node)
+    {
+        if (_bDataOwner) delete node->itemSet();
         delete node;
         node = nullptr;
-        }
+    }
 
 public:
-    Node *start;
-    Node *end;
-    Node *current;
+    Node * start;
+    Node * end;
+    Node * current;
     size_t size;
     bool _bDataOwner;
 };

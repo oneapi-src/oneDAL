@@ -37,22 +37,22 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-services::Status BoostingPredictKernel<algorithmFPType, cpu>::compute(const NumericTablePtr& xTable,
-    const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par)
+services::Status BoostingPredictKernel<algorithmFPType, cpu>::compute(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners,
+                                                                      const algorithmFPType * alpha, algorithmFPType * r, const Parameter * par)
 {
-    const size_t nVectors  = xTable->getNumberOfRows();
-    Model *boostModel = const_cast<Model *>(m);
-    Parameter *parameter = const_cast<Parameter *>(par);
+    const size_t nVectors = xTable->getNumberOfRows();
+    Model * boostModel    = const_cast<Model *>(m);
+    Parameter * parameter = const_cast<Parameter *>(par);
 
     services::Status s;
-    services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > rWeakTable = daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu>::create(1, nVectors, &s);
+    services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > rWeakTable =
+        daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu>::create(1, nVectors, &s);
     DAAL_CHECK_STATUS_VAR(s);
-    const algorithmFPType *rWeak = rWeakTable->getArray();
+    const algorithmFPType * rWeak = rWeakTable->getArray();
 
     services::SharedPtr<weak_learner::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction->clone();
-    classifier::prediction::interface1::Input *learnerInput = learnerPredict->getInput();
+    classifier::prediction::interface1::Input * learnerInput            = learnerPredict->getInput();
     DAAL_CHECK(learnerInput, services::ErrorNullInput);
     learnerInput->set(classifier::prediction::data, xTable);
 
@@ -69,7 +69,7 @@ services::Status BoostingPredictKernel<algorithmFPType, cpu>::compute(const Nume
     }
 
     const algorithmFPType one = (algorithmFPType)1.0;
-    for(size_t i = 0; i < nWeakLearners; i++)
+    for (size_t i = 0; i < nWeakLearners; i++)
     {
         /* Get  weak learner's classification results */
         weak_learner::ModelPtr learnerModel = boostModel->getWeakLearnerModel(i);
@@ -87,10 +87,10 @@ services::Status BoostingPredictKernel<algorithmFPType, cpu>::compute(const Nume
     return s;
 }
 
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace boosting
+} // namespace algorithms
+} // namespace daal
 
 #endif

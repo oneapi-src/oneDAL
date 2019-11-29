@@ -33,7 +33,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * @addtogroup base_algorithms
  * @{
@@ -43,7 +42,6 @@ namespace algorithms
 */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ALGORITHMCONTAINERIFACE"></a>
  * \brief Implements the abstract interface AlgorithmContainerIface. It is associated with the Algorithm class
@@ -71,7 +69,7 @@ public:
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainerIfaceImpl(daal::services::Environment::env *daalEnv) : _env(daalEnv), _kernel(NULL) {}
+    AlgorithmContainerIfaceImpl(daal::services::Environment::env * daalEnv) : _env(daalEnv), _kernel(NULL) {}
 
     virtual ~AlgorithmContainerIfaceImpl() {}
 
@@ -79,14 +77,11 @@ public:
      * Sets the information about the environment
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    void setEnvironment(daal::services::Environment::env *daalEnv)
-    {
-        _env = daalEnv;
-    }
+    void setEnvironment(daal::services::Environment::env * daalEnv) { _env = daalEnv; }
 
 protected:
-    daal::services::Environment::env     *_env;
-    Kernel *_kernel;
+    daal::services::Environment::env * _env;
+    Kernel * _kernel;
 };
 
 /**
@@ -98,14 +93,15 @@ protected:
  *        The methods of the container are defined in derivative containers defined for each algorithm.
  * \tparam mode Computation mode of the algorithm, \ref ComputeMode
  */
-template<ComputeMode mode> class AlgorithmContainer : public AlgorithmContainerIfaceImpl
+template <ComputeMode mode>
+class AlgorithmContainer : public AlgorithmContainerIfaceImpl
 {
 public:
     /**
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainer(daal::services::Environment::env *daalEnv) : AlgorithmContainerIfaceImpl(daalEnv) {}
+    AlgorithmContainer(daal::services::Environment::env * daalEnv) : AlgorithmContainerIfaceImpl(daalEnv) {}
 
     virtual ~AlgorithmContainer() {}
 
@@ -152,14 +148,15 @@ public:
  *        The methods of the container are defined in derivative containers defined for each algorithm.
  * \tparam mode Computation mode of the algorithm, \ref ComputeMode
  */
-template<ComputeMode mode> class AlgorithmContainerImpl : public AlgorithmContainer<mode>
+template <ComputeMode mode>
+class AlgorithmContainerImpl : public AlgorithmContainer<mode>
 {
 public:
     /**
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainerImpl(daal::services::Environment::env *daalEnv = 0) : AlgorithmContainer<mode>(daalEnv), _in(0), _pres(0), _res(0), _par(0) {}
+    AlgorithmContainerImpl(daal::services::Environment::env * daalEnv = 0) : AlgorithmContainer<mode>(daalEnv), _in(0), _pres(0), _res(0), _par(0) {}
 
     virtual ~AlgorithmContainerImpl() {}
 
@@ -169,7 +166,7 @@ public:
      * \param[in] pres  Pointer to the partial results of the algorithm
      * \param[in] par   Pointer to the parameters of the algorithm
      */
-    void setArguments(Input *in, PartialResult *pres, Parameter *par)
+    void setArguments(Input * in, PartialResult * pres, Parameter * par)
     {
         _in   = in;
         _pres = pres;
@@ -180,30 +177,21 @@ public:
      * Sets partial results of the algorithm
      * \param[in] pres   Pointer to the partial results of the algorithm
      */
-    void setPartialResult(PartialResult *pres)
-    {
-        _pres = pres;
-    }
+    void setPartialResult(PartialResult * pres) { _pres = pres; }
 
     /**
      * Sets final results of the algorithm
      * \param[in] res   Pointer to the final results of the algorithm
      */
-    void setResult(Result *res)
-    {
-        _res = res;
-    }
+    void setResult(Result * res) { _res = res; }
 
     /**
      * Retrieves final results of the algorithm
      * \return   Pointer to the final results of the algorithm
      */
-    Result *getResult() const
-    {
-        return _res;
-    }
+    Result * getResult() const { return _res; }
 
-    virtual services::Status setupCompute() DAAL_C11_OVERRIDE { return services::Status();  }
+    virtual services::Status setupCompute() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status resetCompute() DAAL_C11_OVERRIDE { return services::Status(); }
 
@@ -212,10 +200,10 @@ public:
     virtual services::Status resetFinalizeCompute() DAAL_C11_OVERRIDE { return services::Status(); }
 
 protected:
-    Input                                *_in;
-    PartialResult                        *_pres;
-    Result                               *_res;
-    Parameter                            *_par;
+    Input * _in;
+    PartialResult * _pres;
+    Result * _res;
+    Parameter * _par;
 };
 
 /** @} */
@@ -223,6 +211,6 @@ protected:
 using interface1::AlgorithmContainerImpl;
 using interface1::AlgorithmContainerIface;
 
-}
-}
+} // namespace algorithms
+} // namespace daal
 #endif

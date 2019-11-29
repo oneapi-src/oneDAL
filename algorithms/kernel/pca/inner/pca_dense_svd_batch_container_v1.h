@@ -31,7 +31,6 @@
 #include "pca/inner/pca_batch_v2.h"
 #include "pca/inner/pca_types_v2.h"
 
-
 namespace daal
 {
 namespace algorithms
@@ -40,12 +39,10 @@ namespace pca
 {
 namespace interface1
 {
-
 template <typename algorithmFPType, CpuType cpu>
-BatchContainer<algorithmFPType, svdDense, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+BatchContainer<algorithmFPType, svdDense, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::PCASVDBatchKernel, algorithmFPType, interface2::BatchParameter
-                       <algorithmFPType, pca::svdDense>);
+    __DAAL_INITIALIZE_KERNELS(internal::PCASVDBatchKernel, algorithmFPType, interface2::BatchParameter<algorithmFPType, pca::svdDense>);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -57,23 +54,24 @@ BatchContainer<algorithmFPType, svdDense, cpu>::~BatchContainer()
 template <typename algorithmFPType, CpuType cpu>
 Status BatchContainer<algorithmFPType, svdDense, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    Result *result = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
     internal::InputDataType dtype = getInputDataType(input);
 
-    data_management::NumericTablePtr data = input->get(pca::data);
+    data_management::NumericTablePtr data         = input->get(pca::data);
     data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
     data_management::NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::PCASVDBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, interface2::BatchParameter
-                       <algorithmFPType, pca::svdDense>), compute, dtype, data, *eigenvalues, *eigenvectors);
+    __DAAL_CALL_KERNEL(env, internal::PCASVDBatchKernel,
+                       __DAAL_KERNEL_ARGUMENTS(algorithmFPType, interface2::BatchParameter<algorithmFPType, pca::svdDense>), compute, dtype, data,
+                       *eigenvalues, *eigenvectors);
 }
 
-} // interface1
-}
-}
+} // namespace interface1
+} // namespace pca
+} // namespace algorithms
 } // namespace daal
 #endif

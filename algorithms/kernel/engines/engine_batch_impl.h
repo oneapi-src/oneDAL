@@ -32,26 +32,23 @@ namespace engines
 {
 namespace internal
 {
-
 enum ParallelizationTechnique
 {
     skipahead = 1,
-    leapfrog = 2,
-    family = 4
+    leapfrog  = 2,
+    family    = 4
 };
 
 class BatchBaseImpl
 {
 public:
     BatchBaseImpl(size_t seed) : _seed(seed) {}
-    size_t getSeed() const
-    {
-        return _seed;
-    }
-    virtual void *getState() = 0;
+    size_t getSeed() const { return _seed; }
+    virtual void * getState()        = 0;
     virtual int getStateSize() const = 0;
     virtual ~BatchBaseImpl() {}
     virtual bool hasSupport(ParallelizationTechnique technique) const = 0;
+
 protected:
     const size_t _seed;
 };

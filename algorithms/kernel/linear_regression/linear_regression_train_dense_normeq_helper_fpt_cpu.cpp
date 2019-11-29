@@ -36,7 +36,7 @@ namespace internal
 {
 template class KernelHelper<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

@@ -28,17 +28,16 @@ using namespace daal::data_management;
  * Method:    cIsOutputDataBlockFull
  * Signature:(J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_data_1management_compression_Compression_cIsOutputDataBlockFull
-(JNIEnv *env, jobject, jlong compressionAddress)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_data_1management_compression_Compression_cIsOutputDataBlockFull(JNIEnv * env, jobject,
+                                                                                                               jlong compressionAddress)
 {
     using namespace daal;
 
-    if(((Compression *)compressionAddress)->getErrors()->size() > 0)
+    if (((Compression *)compressionAddress)->getErrors()->size() > 0)
     {
-        env->ThrowNew(env->FindClass("java/lang/Exception"),
-                      ((Compression *)compressionAddress)->getErrors()->getDescription());
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
     }
-    return((Compression *)compressionAddress)->isOutputDataBlockFull();
+    return ((Compression *)compressionAddress)->isOutputDataBlockFull();
 }
 
 /*
@@ -46,17 +45,16 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_data_1management_compression_Comp
  * Method:    cGetUsedOutputDataBlockSize
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_Compression_cGetUsedOutputDataBlockSize
-(JNIEnv *env, jobject, jlong compressionAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_Compression_cGetUsedOutputDataBlockSize(JNIEnv * env, jobject,
+                                                                                                                 jlong compressionAddress)
 {
     using namespace daal;
 
-    if(((Compression *)compressionAddress)->getErrors()->size() > 0)
+    if (((Compression *)compressionAddress)->getErrors()->size() > 0)
     {
-        env->ThrowNew(env->FindClass("java/lang/Exception"),
-                      ((Compression *)compressionAddress)->getErrors()->getDescription());
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
     }
-    return((Compression *)compressionAddress)->getUsedOutputDataBlockSize();
+    return ((Compression *)compressionAddress)->getUsedOutputDataBlockSize();
 }
 
 /*
@@ -64,11 +62,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_compression_Compres
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compression_cDispose
-(JNIEnv *env, jobject, jlong compressionAddress)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compression_cDispose(JNIEnv * env, jobject, jlong compressionAddress)
 {
     using namespace daal;
-    delete(Compression *)compressionAddress;
+    delete (Compression *)compressionAddress;
 }
 
 /*
@@ -76,19 +73,19 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compress
  * Method:    cSetInputDataBlock
  * Signature:(J[BJJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compression_cSetInputDataBlock
-(JNIEnv *env, jobject, jlong compressionAddress, jbyteArray inStream, jlong size, jlong offset)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compression_cSetInputDataBlock(JNIEnv * env, jobject,
+                                                                                                       jlong compressionAddress, jbyteArray inStream,
+                                                                                                       jlong size, jlong offset)
 {
     using namespace daal;
 
-    jbyte *inStreamBuffer = env->GetByteArrayElements(inStream, 0);
+    jbyte * inStreamBuffer = env->GetByteArrayElements(inStream, 0);
 
     ((Compression *)compressionAddress)->setInputDataBlock((byte *)inStreamBuffer, size, offset);
 
-    if(((Compression *)compressionAddress)->getErrors()->size() > 0)
+    if (((Compression *)compressionAddress)->getErrors()->size() > 0)
     {
-        env->ThrowNew(env->FindClass("java/lang/Exception"),
-                      ((Compression *)compressionAddress)->getErrors()->getDescription());
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
     }
 }
 
@@ -97,19 +94,18 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compress
  * Method:    cRun
  * Signature:(J[BJJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compression_cRun
-(JNIEnv *env, jobject, jlong compressionAddress, jbyteArray outStream, jlong chunkSize, jlong offset)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compression_cRun(JNIEnv * env, jobject, jlong compressionAddress,
+                                                                                         jbyteArray outStream, jlong chunkSize, jlong offset)
 {
     using namespace daal;
 
-    jbyte *outStreamBuffer = env->GetByteArrayElements(outStream, 0);
+    jbyte * outStreamBuffer = env->GetByteArrayElements(outStream, 0);
     ((Compression *)compressionAddress)->run((byte *)outStreamBuffer, (size_t)chunkSize, (size_t)offset);
     env->ReleaseByteArrayElements(outStream, outStreamBuffer, 0);
 
-    if(((Compression *)compressionAddress)->getErrors()->size() > 0)
+    if (((Compression *)compressionAddress)->getErrors()->size() > 0)
     {
-        env->ThrowNew(env->FindClass("java/lang/Exception"),
-                      ((Compression *)compressionAddress)->getErrors()->getDescription());
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
     }
 }
 
@@ -118,19 +114,18 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compress
  * Method:    cCheckInputParams
  * Signature:(J[BJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compression_cCheckInputParams
-(JNIEnv *env, jobject, jlong compressionAddress, jbyteArray inStream, jlong size)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compression_cCheckInputParams(JNIEnv * env, jobject, jlong compressionAddress,
+                                                                                                      jbyteArray inStream, jlong size)
 {
     using namespace daal;
 
-    jbyte *inStreamBuffer = env->GetByteArrayElements(inStream, 0);
+    jbyte * inStreamBuffer = env->GetByteArrayElements(inStream, 0);
 
     ((Compression *)compressionAddress)->checkInputParams((byte *)inStreamBuffer, (size_t)size);
 
-    if(((Compression *)compressionAddress)->getErrors()->size() > 0)
+    if (((Compression *)compressionAddress)->getErrors()->size() > 0)
     {
-        env->ThrowNew(env->FindClass("java/lang/Exception"),
-                      ((Compression *)compressionAddress)->getErrors()->getDescription());
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
     }
 }
 
@@ -139,18 +134,18 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compress
  * Method:    cCheckOutputParams
  * Signature:(J[BJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compression_cCheckOutputParams
-(JNIEnv *env, jobject, jlong compressionAddress, jbyteArray outStream, jlong size)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_compression_Compression_cCheckOutputParams(JNIEnv * env, jobject,
+                                                                                                       jlong compressionAddress, jbyteArray outStream,
+                                                                                                       jlong size)
 {
     using namespace daal;
 
-    jbyte *outStreamBuffer = env->GetByteArrayElements(outStream, 0);
+    jbyte * outStreamBuffer = env->GetByteArrayElements(outStream, 0);
 
     ((Compression *)compressionAddress)->checkOutputParams((byte *)outStreamBuffer, (size_t)size);
 
-    if(((Compression *)compressionAddress)->getErrors()->size() > 0)
+    if (((Compression *)compressionAddress)->getErrors()->size() > 0)
     {
-        env->ThrowNew(env->FindClass("java/lang/Exception"),
-                      ((Compression *)compressionAddress)->getErrors()->getDescription());
+        env->ThrowNew(env->FindClass("java/lang/Exception"), ((Compression *)compressionAddress)->getErrors()->getDescription());
     }
 }

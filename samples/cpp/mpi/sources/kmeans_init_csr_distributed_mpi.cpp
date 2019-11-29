@@ -40,20 +40,17 @@ typedef std::vector<byte> ByteBuffer;
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* K-Means algorithm parameters */
-const size_t nClusters = 20;
+const size_t nClusters   = 20;
 const size_t nIterations = 5;
-const size_t nBlocks = 4;
+const size_t nBlocks     = 4;
 
 /* Input data set parameters */
-const string dataFileNames[4] =
-{
-    "./data/distributed/kmeans_csr.csv", "./data/distributed/kmeans_csr.csv",
-    "./data/distributed/kmeans_csr.csv", "./data/distributed/kmeans_csr.csv"
-};
+const string dataFileNames[4] = { "./data/distributed/kmeans_csr.csv", "./data/distributed/kmeans_csr.csv", "./data/distributed/kmeans_csr.csv",
+                                  "./data/distributed/kmeans_csr.csv" };
 
 #define mpi_root 0
 const int step3ResultSizeTag = 1;
-const int step3ResultTag = 2;
+const int step3ResultTag     = 2;
 
 NumericTablePtr loadData(int rankId)
 {
@@ -61,23 +58,20 @@ NumericTablePtr loadData(int rankId)
 }
 
 template <kmeans::init::Method method>
-NumericTablePtr initCentroids(int rankId, const NumericTablePtr& pData);
-NumericTablePtr computeCentroids(int rankId, const NumericTablePtr& pData, const NumericTablePtr& initialCentroids);
+NumericTablePtr initCentroids(int rankId, const NumericTablePtr & pData);
+NumericTablePtr computeCentroids(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids);
 
 template <kmeans::init::Method method>
-void runKMeans(int rankId, const NumericTablePtr& pData, const char* methodName)
+void runKMeans(int rankId, const NumericTablePtr & pData, const char * methodName)
 {
-    if(rankId == mpi_root)
-        std::cout << "K-means init parameters: method = " << methodName << std::endl;
+    if (rankId == mpi_root) std::cout << "K-means init parameters: method = " << methodName << std::endl;
     NumericTablePtr centroids = initCentroids<method>(rankId, pData);
-    for(size_t it = 0; it < nIterations; it++)
-        centroids = computeCentroids(rankId, pData, centroids);
+    for (size_t it = 0; it < nIterations; it++) centroids = computeCentroids(rankId, pData, centroids);
     /* Print the clusterization results */
-    if(rankId == mpi_root)
-        printNumericTable(centroids, "First 10 dimensions of centroids:", 20, 10);
+    if (rankId == mpi_root) printNumericTable(centroids, "First 10 dimensions of centroids:", 20, 10);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     int rankId, comm_size;
     MPI_Init(&argc, &argv);
@@ -96,105 +90,90 @@ int main(int argc, char *argv[])
 static int lengthsToShifts(const int lengths[nBlocks], int shifts[nBlocks])
 {
     int shift = 0;
-    for(size_t i = 0; i < nBlocks; shift += lengths[i], ++i)
-        shifts[i] = shift;
+    for (size_t i = 0; i < nBlocks; shift += lengths[i], ++i) shifts[i] = shift;
     return shift;
 }
 
 /* Send the value to all processes in the group and collect received values into one table */
-static NumericTablePtr allToAll(const NumericTablePtr& value)
+static NumericTablePtr allToAll(const NumericTablePtr & value)
 {
     std::vector<NumericTablePtr> aRes;
     ByteBuffer dataToSend;
-    if(value.get())
-        serializeDAALObject(value.get(), dataToSend);
+    if (value.get()) serializeDAALObject(value.get(), dataToSend);
     const int dataToSendLength = dataToSend.size();
     int perNodeArchLength[nBlocks];
-    for(size_t i = 0; i < nBlocks; i++)
-        perNodeArchLength[i] = 0;
+    for (size_t i = 0; i < nBlocks; i++) perNodeArchLength[i] = 0;
 
     MPI_Allgather(&dataToSendLength, sizeof(int), MPI_CHAR, perNodeArchLength, sizeof(int), MPI_CHAR, MPI_COMM_WORLD);
 
     int perNodeArchShift[nBlocks];
     const int totalToReceive = lengthsToShifts(perNodeArchLength, perNodeArchShift);
-    if(!totalToReceive)
-        return NumericTablePtr();
+    if (!totalToReceive) return NumericTablePtr();
 
     ByteBuffer dataToReceive(totalToReceive);
     MPI_Allgatherv(&dataToSend[0], dataToSendLength, MPI_CHAR, &dataToReceive[0], perNodeArchLength, perNodeArchShift, MPI_CHAR, MPI_COMM_WORLD);
 
-    for(size_t i = 0, shift = 0; i < nBlocks; shift += perNodeArchLength[i], ++i)
+    for (size_t i = 0, shift = 0; i < nBlocks; shift += perNodeArchLength[i], ++i)
     {
-        if(!perNodeArchLength[i])
-            continue;
+        if (!perNodeArchLength[i]) continue;
         NumericTablePtr pTbl = NumericTable::cast(deserializeDAALObject(&dataToReceive[shift], perNodeArchLength[i]));
         aRes.push_back(pTbl);
     }
-    if(!aRes.size())
-        return NumericTablePtr();
-    if(aRes.size() == 1)
-        return aRes[0];
+    if (!aRes.size()) return NumericTablePtr();
+    if (aRes.size() == 1) return aRes[0];
 
     /* For parallelPlus algorithm */
     RowMergedNumericTablePtr pMerged(new RowMergedNumericTable());
-    for(size_t i = 0; i < aRes.size(); ++i)
-        pMerged->addNumericTable(aRes[i]);
+    for (size_t i = 0; i < aRes.size(); ++i) pMerged->addNumericTable(aRes[i]);
     return NumericTable::cast(pMerged);
 }
 
 /* Send the value to all processes in the group and collect received values into one table */
-static void allToMaster(int rankId, const NumericTablePtr& value, std::vector<NumericTablePtr>& aRes)
+static void allToMaster(int rankId, const NumericTablePtr & value, std::vector<NumericTablePtr> & aRes)
 {
     const bool isRoot = (rankId == mpi_root);
     aRes.clear();
     ByteBuffer dataToSend;
-    if(value.get())
-        serializeDAALObject(value.get(), dataToSend);
+    if (value.get()) serializeDAALObject(value.get(), dataToSend);
     const int dataToSendLength = dataToSend.size();
     int perNodeArchLength[nBlocks];
-    for(size_t i = 0; i < nBlocks; i++)
-        perNodeArchLength[i] = 0;
+    for (size_t i = 0; i < nBlocks; i++) perNodeArchLength[i] = 0;
 
-    MPI_Gather(&dataToSendLength, sizeof(int), MPI_CHAR, isRoot ? perNodeArchLength : NULL, sizeof(int),
-        MPI_CHAR, mpi_root, MPI_COMM_WORLD);
+    MPI_Gather(&dataToSendLength, sizeof(int), MPI_CHAR, isRoot ? perNodeArchLength : NULL, sizeof(int), MPI_CHAR, mpi_root, MPI_COMM_WORLD);
 
     ByteBuffer dataToReceive;
     int perNodeArchShift[nBlocks];
-    if(isRoot)
+    if (isRoot)
     {
         const int totalToReceive = lengthsToShifts(perNodeArchLength, perNodeArchShift);
-        if(!totalToReceive)
-            return;
+        if (!totalToReceive) return;
         dataToReceive.resize(totalToReceive);
     }
-    MPI_Gatherv(&dataToSend[0], dataToSendLength, MPI_CHAR, isRoot ? &dataToReceive[0] : NULL,
-        perNodeArchLength, perNodeArchShift, MPI_CHAR, mpi_root, MPI_COMM_WORLD);
+    MPI_Gatherv(&dataToSend[0], dataToSendLength, MPI_CHAR, isRoot ? &dataToReceive[0] : NULL, perNodeArchLength, perNodeArchShift, MPI_CHAR,
+                mpi_root, MPI_COMM_WORLD);
 
-    if(!isRoot)
-        return;
+    if (!isRoot) return;
     aRes.resize(nBlocks);
-    for(size_t i = 0, shift = 0; i < nBlocks; shift += perNodeArchLength[i], ++i)
+    for (size_t i = 0, shift = 0; i < nBlocks; shift += perNodeArchLength[i], ++i)
     {
-        if(perNodeArchLength[i])
-            aRes[i] = NumericTable::cast(deserializeDAALObject(&dataToReceive[shift], perNodeArchLength[i]));
+        if (perNodeArchLength[i]) aRes[i] = NumericTable::cast(deserializeDAALObject(&dataToReceive[shift], perNodeArchLength[i]));
     }
 }
 
 template <kmeans::init::Method method>
-NumericTablePtr initStep1(int rankId, const NumericTablePtr& pData)
+NumericTablePtr initStep1(int rankId, const NumericTablePtr & pData)
 {
     const size_t nVectorsInBlock = pData->getNumberOfRows();
     /* Create an algorithm object for the K-Means algorithm */
-    kmeans::init::Distributed<step1Local, algorithmFPType, method> local(nClusters, nBlocks*nVectorsInBlock, rankId*nVectorsInBlock);
+    kmeans::init::Distributed<step1Local, algorithmFPType, method> local(nClusters, nBlocks * nVectorsInBlock, rankId * nVectorsInBlock);
     local.input.set(kmeans::init::data, pData);
     local.compute();
     return allToAll(local.getPartialResult()->get(kmeans::init::partialCentroids));
 }
 
 template <kmeans::init::Method method>
-void initStep2(int rankId, const NumericTablePtr& pData, DataCollectionPtr& localNodeData,
-    const NumericTablePtr& step2Input, bool bFirstIteration, std::vector<NumericTablePtr>& step2Results,
-    bool bOutputForStep5Required = false)
+void initStep2(int rankId, const NumericTablePtr & pData, DataCollectionPtr & localNodeData, const NumericTablePtr & step2Input, bool bFirstIteration,
+               std::vector<NumericTablePtr> & step2Results, bool bOutputForStep5Required = false)
 {
     kmeans::init::Distributed<step2Local, algorithmFPType, method> step2(nClusters, bFirstIteration);
     step2.parameter.outputForStep5Required = bOutputForStep5Required;
@@ -202,24 +181,23 @@ void initStep2(int rankId, const NumericTablePtr& pData, DataCollectionPtr& loca
     step2.input.set(kmeans::init::internalInput, localNodeData);
     step2.input.set(kmeans::init::inputOfStep2, step2Input);
     step2.compute();
-    if(bFirstIteration)
-        localNodeData = step2.getPartialResult()->get(kmeans::init::internalResult);
-    allToMaster(rankId, step2.getPartialResult()->get(
-        bOutputForStep5Required ? kmeans::init::outputOfStep2ForStep5 : kmeans::init::outputOfStep2ForStep3), step2Results);
+    if (bFirstIteration) localNodeData = step2.getPartialResult()->get(kmeans::init::internalResult);
+    allToMaster(rankId,
+                step2.getPartialResult()->get(bOutputForStep5Required ? kmeans::init::outputOfStep2ForStep5 : kmeans::init::outputOfStep2ForStep3),
+                step2Results);
 }
 
 template <kmeans::init::Method method>
-NumericTablePtr initStep3(kmeans::init::Distributed<step3Master, algorithmFPType, method>& step3, std::vector<NumericTablePtr>& step2Results)
+NumericTablePtr initStep3(kmeans::init::Distributed<step3Master, algorithmFPType, method> & step3, std::vector<NumericTablePtr> & step2Results)
 {
-    for(size_t i = 0; i < step2Results.size(); ++i)
-        step3.input.add(kmeans::init::inputOfStep3FromStep2, i, step2Results[i]);
+    for (size_t i = 0; i < step2Results.size(); ++i) step3.input.add(kmeans::init::inputOfStep3FromStep2, i, step2Results[i]);
     step3.compute();
     ByteBuffer buff;
     NumericTablePtr step4InputOnRoot;
-    for(size_t i = 0; i < nBlocks; ++i)
+    for (size_t i = 0; i < nBlocks; ++i)
     {
         NumericTablePtr pTbl = step3.getPartialResult()->get(kmeans::init::outputOfStep3ForStep4, i); /* can be null */
-        if(i == mpi_root)
+        if (i == mpi_root)
         {
             step4InputOnRoot = pTbl;
             continue;
@@ -227,8 +205,7 @@ NumericTablePtr initStep3(kmeans::init::Distributed<step3Master, algorithmFPType
         buff.clear();
         size_t size = pTbl.get() ? serializeDAALObject(pTbl.get(), buff) : 0;
         MPI_Send(&size, sizeof(size_t), MPI_BYTE, int(i), step3ResultSizeTag, MPI_COMM_WORLD);
-        if(size)
-            MPI_Send(&buff[0], size, MPI_BYTE, int(i), step3ResultTag, MPI_COMM_WORLD);
+        if (size) MPI_Send(&buff[0], size, MPI_BYTE, int(i), step3ResultTag, MPI_COMM_WORLD);
     }
     return step4InputOnRoot;
 }
@@ -238,7 +215,7 @@ NumericTablePtr receiveStep3Output(int rankId)
     size_t size = 0;
     MPI_Status status;
     MPI_Recv(&size, sizeof(size_t), MPI_BYTE, mpi_root, step3ResultSizeTag, MPI_COMM_WORLD, &status);
-    if(size)
+    if (size)
     {
         ByteBuffer buff(size);
         MPI_Recv(&buff[0], size, MPI_BYTE, mpi_root, step3ResultTag, MPI_COMM_WORLD, &status);
@@ -248,11 +225,10 @@ NumericTablePtr receiveStep3Output(int rankId)
 }
 
 template <kmeans::init::Method method>
-NumericTablePtr initStep4(int rankId, const NumericTablePtr& pData, const DataCollectionPtr& localNodeData,
-    const NumericTablePtr& step4Input)
+NumericTablePtr initStep4(int rankId, const NumericTablePtr & pData, const DataCollectionPtr & localNodeData, const NumericTablePtr & step4Input)
 {
     NumericTablePtr step4Result;
-    if(step4Input)
+    if (step4Input)
     {
         /* Create an algorithm object for the step 4 */
         kmeans::init::Distributed<step4Local, algorithmFPType, method> step4(nClusters);
@@ -267,10 +243,10 @@ NumericTablePtr initStep4(int rankId, const NumericTablePtr& pData, const DataCo
     return allToAll(step4Result);
 }
 
-template<>
-NumericTablePtr initCentroids<kmeans::init::plusPlusCSR>(int rankId, const NumericTablePtr& pData)
+template <>
+NumericTablePtr initCentroids<kmeans::init::plusPlusCSR>(int rankId, const NumericTablePtr & pData)
 {
-    const bool isRoot = (rankId == mpi_root);
+    const bool isRoot                 = (rankId == mpi_root);
     const kmeans::init::Method method = kmeans::init::plusPlusCSR;
     /* Internal data to be stored on the local nodes */
     DataCollectionPtr localNodeData;
@@ -282,21 +258,21 @@ NumericTablePtr initCentroids<kmeans::init::plusPlusCSR>(int rankId, const Numer
     /* Create an algorithm object for the step 3 */
     typedef kmeans::init::Distributed<step3Master, algorithmFPType, method> Step3Master;
     SharedPtr<Step3Master> step3(isRoot ? new Step3Master(nClusters) : NULL);
-    for(size_t iCenter = 1; iCenter < nClusters; ++iCenter)
+    for (size_t iCenter = 1; iCenter < nClusters; ++iCenter)
     {
         std::vector<NumericTablePtr> step2ResultsOnMaster;
         initStep2<method>(rankId, pData, localNodeData, step2Input, iCenter == 1, step2ResultsOnMaster);
         NumericTablePtr step4Input = (step3 ? initStep3<method>(*step3, step2ResultsOnMaster) : receiveStep3Output(rankId));
-        step2Input = initStep4<method>(rankId, pData, localNodeData, step4Input);
+        step2Input                 = initStep4<method>(rankId, pData, localNodeData, step4Input);
         pCentroids->addNumericTable(step2Input);
     }
     return daal::data_management::convertToHomogen<float>(*pCentroids); /* can be returned as pCentroids as well */
 }
 
-template<>
-NumericTablePtr initCentroids<kmeans::init::parallelPlusCSR>(int rankId, const NumericTablePtr& pData)
+template <>
+NumericTablePtr initCentroids<kmeans::init::parallelPlusCSR>(int rankId, const NumericTablePtr & pData)
 {
-    const bool isRoot = (rankId == mpi_root);
+    const bool isRoot                 = (rankId == mpi_root);
     const kmeans::init::Method method = kmeans::init::parallelPlusCSR;
     /* default value of nRounds used by all steps */
     const size_t nRounds = kmeans::init::Parameter(nClusters).nRounds;
@@ -310,13 +286,12 @@ NumericTablePtr initCentroids<kmeans::init::parallelPlusCSR>(int rankId, const N
 
     /* First step on the local nodes */
     NumericTablePtr step2Input = initStep1<method>(rankId, pData);
-    if(step5)
-        step5->input.add(kmeans::init::inputCentroids, step2Input);
+    if (step5) step5->input.add(kmeans::init::inputCentroids, step2Input);
 
     /* Create an algorithm object for the step 3 */
     typedef kmeans::init::Distributed<step3Master, algorithmFPType, method> Step3Master;
     SharedPtr<Step3Master> step3(isRoot ? new Step3Master(nClusters) : NULL);
-    for(size_t iRound = 0; iRound < nRounds; ++iRound)
+    for (size_t iRound = 0; iRound < nRounds; ++iRound)
     {
         /* Perform step 2 */
         std::vector<NumericTablePtr> step2ResultsOnMaster;
@@ -325,17 +300,15 @@ NumericTablePtr initCentroids<kmeans::init::parallelPlusCSR>(int rankId, const N
         NumericTablePtr step4Input = (step3 ? initStep3<method>(*step3, step2ResultsOnMaster) : receiveStep3Output(rankId));
         /* Perform step 4 */
         step2Input = initStep4<method>(rankId, pData, localNodeData, step4Input);
-        if(step5)
-            step5->input.add(kmeans::init::inputCentroids, step2Input);
+        if (step5) step5->input.add(kmeans::init::inputCentroids, step2Input);
     }
 
     /* One more step 2 */
     std::vector<NumericTablePtr> step2Results;
     initStep2<method>(rankId, pData, localNodeData, step2Input, false, step2Results, true);
-    if(step5) /* isRoot == true */
+    if (step5) /* isRoot == true */
     {
-        for(size_t i = 0; i < step2Results.size(); ++i)
-            step5->input.add(kmeans::init::inputOfStep5FromStep2, step2Results[i]);
+        for (size_t i = 0; i < step2Results.size(); ++i) step5->input.add(kmeans::init::inputOfStep5FromStep2, step2Results[i]);
         step5->input.set(kmeans::init::inputOfStep5FromStep3, step3->getPartialResult()->get(kmeans::init::outputOfStep3ForStep5));
         step5->compute();
         step5->finalizeCompute();
@@ -344,7 +317,7 @@ NumericTablePtr initCentroids<kmeans::init::parallelPlusCSR>(int rankId, const N
     return NumericTablePtr();
 }
 
-NumericTablePtr computeCentroids(int rankId, const NumericTablePtr& pData, const NumericTablePtr& initialCentroids)
+NumericTablePtr computeCentroids(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids)
 {
     const bool isRoot = (rankId == mpi_root);
     ByteBuffer nodeCentroids;
@@ -353,8 +326,7 @@ NumericTablePtr computeCentroids(int rankId, const NumericTablePtr& pData, const
     /* Get centroids from the root node */
     MPI_Bcast(&CentroidsArchLength, sizeof(size_t), MPI_CHAR, mpi_root, MPI_COMM_WORLD);
 
-    if(!isRoot)
-        nodeCentroids.resize(CentroidsArchLength);
+    if (!isRoot) nodeCentroids.resize(CentroidsArchLength);
     MPI_Bcast(&nodeCentroids[0], CentroidsArchLength, MPI_CHAR, mpi_root, MPI_COMM_WORLD);
 
     NumericTablePtr centroids = NumericTable::cast(deserializeDAALObject(&nodeCentroids[0], CentroidsArchLength));
@@ -375,22 +347,21 @@ NumericTablePtr computeCentroids(int rankId, const NumericTablePtr& pData, const
 
     /* Serialized data is of equal size on each node if each node called compute() equal number of times */
     ByteBuffer serializedData;
-    if(isRoot)
-        serializedData.resize(perNodeArchLength * nBlocks);
+    if (isRoot) serializedData.resize(perNodeArchLength * nBlocks);
 
     /* Transfer partial results to step 2 on the root node */
-    MPI_Gather(&nodeResults[0], perNodeArchLength, MPI_CHAR, serializedData.size() ? &serializedData[0] : NULL,
-        perNodeArchLength, MPI_CHAR, mpi_root, MPI_COMM_WORLD);
+    MPI_Gather(&nodeResults[0], perNodeArchLength, MPI_CHAR, serializedData.size() ? &serializedData[0] : NULL, perNodeArchLength, MPI_CHAR, mpi_root,
+               MPI_COMM_WORLD);
 
-    if(isRoot)
+    if (isRoot)
     {
         /* Create an algorithm to compute k-means on the master node */
         kmeans::Distributed<step2Master, algorithmFPType, kmeans::lloydCSR> masterAlgorithm(nClusters);
 
-        for(size_t i = 0; i < nBlocks; i++)
+        for (size_t i = 0; i < nBlocks; i++)
         {
             /* Deserialize partial results from step 1 */
-            SerializationIfacePtr ptr = deserializeDAALObject(&serializedData[perNodeArchLength * i], perNodeArchLength);
+            SerializationIfacePtr ptr                      = deserializeDAALObject(&serializedData[perNodeArchLength * i], perNodeArchLength);
             kmeans::PartialResultPtr dataForStep2FromStep1 = dynamicPointerCast<kmeans::PartialResult, SerializationIface>(ptr);
 
             /* Set local partial results as input for the master-node algorithm */

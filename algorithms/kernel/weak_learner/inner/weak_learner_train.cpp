@@ -55,13 +55,13 @@ daal::algorithms::weak_learner::ModelPtr Result::get(classifier::training::Resul
  * \param[in] id      Identifier of the result, \ref classifier::training::ResultId
  * \param[in] value   Pointer to the training result
  */
-void Result::set(classifier::training::ResultId id, daal::algorithms::weak_learner::ModelPtr &value)
+void Result::set(classifier::training::ResultId id, daal::algorithms::weak_learner::ModelPtr & value)
 {
     Argument::set(id, value);
 }
 
-}// namespace interface1
-}// namespace training
-}// namespace weak_learner
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace weak_learner
+} // namespace algorithms
+} // namespace daal

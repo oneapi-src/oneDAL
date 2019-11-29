@@ -26,7 +26,7 @@
 
 #ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
     #if !(defined(__clang__))
-      #undef ONEAPI_DAAL_USE_MKL_GPU_FUNC
+        #undef ONEAPI_DAAL_USE_MKL_GPU_FUNC
     #endif
 #endif
 
@@ -51,7 +51,7 @@ namespace math
 {
 namespace interface1
 {
- /** @ingroup oneapi_internal
+/** @ingroup oneapi_internal
  * @{
  */
 
@@ -64,36 +64,36 @@ class PotrfExecutor
 private:
     struct Execute
     {
-        cl::sycl::queue &queue;
+        cl::sycl::queue & queue;
         const math::UpLo uplo;
         const size_t n;
-        UniversalBuffer& a_buffer;
+        UniversalBuffer & a_buffer;
         const size_t lda;
-        services::Status *status;
+        services::Status * status;
 
-        explicit Execute(cl::sycl::queue &queue, const math::UpLo uplo,
-            const size_t n, UniversalBuffer& a_buffer, const size_t lda, services::Status *status) :
-            queue(queue), uplo(uplo), n(n), a_buffer(a_buffer), lda(lda), status(status)
-        { }
+        explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda,
+                         services::Status * status)
+            : queue(queue), uplo(uplo), n(n), a_buffer(a_buffer), lda(lda), status(status)
+        {}
 
         template <typename T>
         void operator()(Typelist<T>)
         {
             auto a_buffer_t = a_buffer.template get<T>();
 
-            #ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-                MKLPotrf<T> functor(queue);
-            #else
-                ReferencePotrf<T> functor;
-            #endif
+#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
+            MKLPotrf<T> functor(queue);
+#else
+            ReferencePotrf<T> functor;
+#endif
 
             services::internal::tryAssignStatus(status, functor(uplo, n, a_buffer_t, lda));
         }
     };
 
 public:
-    static void run(cl::sycl::queue &queue, const math::UpLo uplo,
-            const size_t n, UniversalBuffer& a_buffer, const size_t lda, services::Status *status)
+    static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, UniversalBuffer & a_buffer, const size_t lda,
+                    services::Status * status)
     {
         Execute op(queue, uplo, n, a_buffer, lda, status);
         TypeDispatcher::floatDispatch(a_buffer.type(), op);
@@ -109,21 +109,20 @@ class PotrsExecutor
 private:
     struct Execute
     {
-        cl::sycl::queue &queue;
+        cl::sycl::queue & queue;
         const math::UpLo uplo;
         const size_t n;
         const size_t ny;
-        UniversalBuffer& a_buffer;
+        UniversalBuffer & a_buffer;
         const size_t lda;
-        UniversalBuffer& b_buffer;
+        UniversalBuffer & b_buffer;
         const size_t ldb;
-        services::Status *status;
+        services::Status * status;
 
-        explicit Execute(cl::sycl::queue &queue, const math::UpLo uplo,
-            const size_t n, const size_t ny, UniversalBuffer& a_buffer, const size_t lda,
-            UniversalBuffer& b_buffer, const size_t ldb, services::Status *status) :
-            queue(queue), uplo(uplo), ny(ny), n(n), a_buffer(a_buffer), lda(lda), b_buffer(b_buffer), ldb(ldb), status(status)
-        { }
+        explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer,
+                         const size_t lda, UniversalBuffer & b_buffer, const size_t ldb, services::Status * status)
+            : queue(queue), uplo(uplo), ny(ny), n(n), a_buffer(a_buffer), lda(lda), b_buffer(b_buffer), ldb(ldb), status(status)
+        {}
 
         template <typename T>
         void operator()(Typelist<T>)
@@ -131,20 +130,19 @@ private:
             auto a_buffer_t = a_buffer.template get<T>();
             auto b_buffer_t = b_buffer.template get<T>();
 
-            #ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-                MKLPotrs<T> functor(queue);
-            #else
-                ReferencePotrs<T> functor;
-            #endif
+#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
+            MKLPotrs<T> functor(queue);
+#else
+            ReferencePotrs<T> functor;
+#endif
 
             services::internal::tryAssignStatus(status, functor(uplo, n, ny, a_buffer_t, lda, b_buffer_t, ldb));
         }
     };
 
 public:
-    static void run(cl::sycl::queue &queue, const math::UpLo uplo,
-            const size_t n, const size_t ny, UniversalBuffer& a_buffer, const size_t lda,
-            UniversalBuffer& b_buffer, const size_t ldb, services::Status *status)
+    static void run(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer, const size_t lda,
+                    UniversalBuffer & b_buffer, const size_t ldb, services::Status * status)
     {
         Execute op(queue, uplo, n, ny, a_buffer, lda, b_buffer, ldb, status);
         TypeDispatcher::floatDispatch(a_buffer.type(), op);
@@ -158,8 +156,8 @@ using interface1::PotrfExecutor;
 using interface1::PotrsExecutor;
 
 } // namespace math
-} // namespace oneapi
 } // namespace internal
+} // namespace oneapi
 } // namespace daal
 
 #endif

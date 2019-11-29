@@ -38,7 +38,6 @@ namespace algorithms
  */
 namespace weak_learner
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -75,8 +74,8 @@ using interface1::Parameter;
 using interface1::Model;
 using interface1::ModelPtr;
 
-} // namespace daal::algorithms::weak_learner
+} // namespace weak_learner
 /** @} */
-}
+} // namespace algorithms
 } // namespace daal
 #endif // __WEAK_LEARNER_MODEL_H__

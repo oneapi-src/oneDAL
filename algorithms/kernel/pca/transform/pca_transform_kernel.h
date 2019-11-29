@@ -42,7 +42,6 @@ namespace transform
 {
 namespace internal
 {
-
 template <typename algorithmFPType, transform::Method method, CpuType cpu>
 class TransformKernel : public Kernel
 {
@@ -57,13 +56,8 @@ public:
      *  \param eigenvalues[in]        PCA eigenvalues
      *  \param transformedData[out] Transformed data
      */
-    services::Status compute(NumericTable& data,
-                             NumericTable& eigenvectors,
-                             NumericTable* pMeans,
-                             NumericTable* pVariances,
-                             NumericTable* pEigenvalues,
-                             NumericTable& transformedData);
-
+    services::Status compute(NumericTable & data, NumericTable & eigenvectors, NumericTable * pMeans, NumericTable * pVariances,
+                             NumericTable * pEigenvalues, NumericTable & transformedData);
 
     /**
     *  \brief Function that computes PCA transformation
@@ -76,13 +70,10 @@ public:
     *  \param eigenvectors[in]     Eigenvectors
     *  \param resultBlock[out]     Resulting block of responses
     */
-    void computeTransformedBlock(DAAL_INT *numRows, DAAL_INT *numFeatures, DAAL_INT *numComponents,
-                                 const algorithmFPType *dataBlock,
-                                 const algorithmFPType *eigenvectors,
-                                 algorithmFPType *resultBlock);
+    void computeTransformedBlock(DAAL_INT * numRows, DAAL_INT * numFeatures, DAAL_INT * numComponents, const algorithmFPType * dataBlock,
+                                 const algorithmFPType * eigenvectors, algorithmFPType * resultBlock);
 
     static const size_t _numRowsInBlock = 256;
-
 };
 } // namespace internal
 } // namespace transform

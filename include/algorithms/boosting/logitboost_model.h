@@ -41,7 +41,6 @@ namespace algorithms
  */
 namespace logitboost
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -73,15 +72,15 @@ struct DAAL_EXPORT Parameter : public boosting::Parameter
      * \param[in] wThr                      Threshold to avoid degenerate cases when calculating weights W
      * \param[in] zThr                      Threshold to avoid degenerate cases when calculating responses Z
      */
-    DAAL_DEPRECATED Parameter(const services::SharedPtr<weak_learner::training::Batch>&   wlTrainForParameter,
-              const services::SharedPtr<weak_learner::prediction::Batch>& wlPredictForParameter,
-              double acc = 0.0, size_t maxIter = 10, size_t nC = 0, double wThr = 1e-10, double zThr = 1e-10);
+    DAAL_DEPRECATED Parameter(const services::SharedPtr<weak_learner::training::Batch> & wlTrainForParameter,
+                              const services::SharedPtr<weak_learner::prediction::Batch> & wlPredictForParameter, double acc = 0.0,
+                              size_t maxIter = 10, size_t nC = 0, double wThr = 1e-10, double zThr = 1e-10);
 
-    double accuracyThreshold;       /*!< Accuracy of the LogitBoost training algorithm */
-    size_t maxIterations;           /*!< Maximal number of terms in additive regression */
-    size_t nClasses;                /*!< Number of classes */
-    double weightsDegenerateCasesThreshold;     /*!< Threshold to avoid degenerate cases when  calculating weights W */
-    double responsesDegenerateCasesThreshold;   /*!< Threshold to avoid degenerate cases when  calculating responses Z */
+    double accuracyThreshold;                 /*!< Accuracy of the LogitBoost training algorithm */
+    size_t maxIterations;                     /*!< Maximal number of terms in additive regression */
+    size_t nClasses;                          /*!< Number of classes */
+    double weightsDegenerateCasesThreshold;   /*!< Threshold to avoid degenerate cases when  calculating weights W */
+    double responsesDegenerateCasesThreshold; /*!< Threshold to avoid degenerate cases when  calculating responses Z */
 
     DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
@@ -109,13 +108,13 @@ public:
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
     template <typename modelFPType>
-    DAAL_EXPORT DAAL_DEPRECATED Model(size_t nFeatures, const Parameter *par, modelFPType dummy);
+    DAAL_EXPORT DAAL_DEPRECATED Model(size_t nFeatures, const Parameter * par, modelFPType dummy);
 
     /**
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    DAAL_DEPRECATED Model() : boosting::Model(), _nIterations(0) { }
+    DAAL_DEPRECATED Model() : boosting::Model(), _nIterations(0) {}
 
     /**
      * Constructs the LogitBoost model
@@ -123,10 +122,9 @@ public:
      * \param[in]  par       Pointer to the parameter structure of the LogitBoost algorithm
      * \param[out] stat      Status of the model construction
      */
-    DAAL_DEPRECATED static services::SharedPtr<Model> create(size_t nFeatures, const Parameter *par,
-                                             services::Status *stat = NULL);
+    DAAL_DEPRECATED static services::SharedPtr<Model> create(size_t nFeatures, const Parameter * par, services::Status * stat = NULL);
 
-    DAAL_DEPRECATED_VIRTUAL virtual ~Model() { }
+    DAAL_DEPRECATED_VIRTUAL virtual ~Model() {}
 
     /**
      * Sets the number of iterations for the algorithm
@@ -143,18 +141,17 @@ public:
 protected:
     size_t _nIterations;
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st = boosting::Model::serialImpl<Archive, onDeserialize>(arch);
-        if (!st)
-            return st;
+        if (!st) return st;
         arch->set(_nIterations);
 
         return st;
     }
 
-    Model(size_t nFeatures, const Parameter *par, services::Status &st);
+    Model(size_t nFeatures, const Parameter * par, services::Status & st);
 };
 typedef services::SharedPtr<Model> ModelPtr;
 /** @} */
@@ -191,16 +188,16 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
      * \param[in] wThr                      Threshold to avoid degenerate cases when calculating weights W
      * \param[in] zThr                      Threshold to avoid degenerate cases when calculating responses Z
      */
-    Parameter(const services::SharedPtr<regression::training::Batch>&   wlTrainForParameter,
-              const services::SharedPtr<regression::prediction::Batch>& wlPredictForParameter,
-              double acc = 0.0, size_t maxIter = 10, size_t nC = 0, double wThr = 1e-10, double zThr = 1e-10);
+    Parameter(const services::SharedPtr<regression::training::Batch> & wlTrainForParameter,
+              const services::SharedPtr<regression::prediction::Batch> & wlPredictForParameter, double acc = 0.0, size_t maxIter = 10, size_t nC = 0,
+              double wThr = 1e-10, double zThr = 1e-10);
 
-    services::SharedPtr<regression::training::Batch>   weakLearnerTraining; /*!< The algorithm for weak learner model training */
+    services::SharedPtr<regression::training::Batch> weakLearnerTraining;     /*!< The algorithm for weak learner model training */
     services::SharedPtr<regression::prediction::Batch> weakLearnerPrediction; /*!< The algorithm for prediction based on a weak learner model */
-    double accuracyThreshold;       /*!< Accuracy of the LogitBoost training algorithm */
-    size_t maxIterations;           /*!< Maximal number of terms in additive regression */
-    double weightsDegenerateCasesThreshold;     /*!< Threshold to avoid degenerate cases when  calculating weights W */
-    double responsesDegenerateCasesThreshold;   /*!< Threshold to avoid degenerate cases when  calculating responses Z */
+    double accuracyThreshold;                                                 /*!< Accuracy of the LogitBoost training algorithm */
+    size_t maxIterations;                                                     /*!< Maximal number of terms in additive regression */
+    double weightsDegenerateCasesThreshold;                                   /*!< Threshold to avoid degenerate cases when  calculating weights W */
+    double responsesDegenerateCasesThreshold; /*!< Threshold to avoid degenerate cases when  calculating responses Z */
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
@@ -227,13 +224,13 @@ public:
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, const Parameter *par, modelFPType dummy);
+    DAAL_EXPORT Model(size_t nFeatures, const Parameter * par, modelFPType dummy);
 
     /**
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model(size_t nFeatures = 0) : _models(new data_management::DataCollection()), _nFeatures(nFeatures), _nIterations(0) { }
+    Model(size_t nFeatures = 0) : _models(new data_management::DataCollection()), _nFeatures(nFeatures), _nIterations(0) {}
 
     /**
      * Constructs the LogitBoost model
@@ -241,10 +238,9 @@ public:
      * \param[in]  par       Pointer to the parameter structure of the LogitBoost algorithm
      * \param[out] stat      Status of the model construction
      */
-    static services::SharedPtr<Model> create(size_t nFeatures, const Parameter *par,
-                                             services::Status *stat = NULL);
+    static services::SharedPtr<Model> create(size_t nFeatures, const Parameter * par, services::Status * stat = NULL);
 
-    virtual ~Model() { }
+    virtual ~Model() {}
 
     /**
      *  Returns the number of weak learners constructed during training of the LogitBoost algorithm
@@ -293,8 +289,8 @@ protected:
     data_management::DataCollectionPtr _models;
     size_t _nIterations;
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st;
         DAAL_CHECK_STATUS(st, (classifier::Model::serialImpl<Archive, onDeserialize>(arch)));
@@ -305,7 +301,7 @@ protected:
         return st;
     }
 
-    Model(size_t nFeatures, const Parameter *par, services::Status &st);
+    Model(size_t nFeatures, const Parameter * par, services::Status & st);
 };
 typedef services::SharedPtr<Model> ModelPtr;
 /** @} */
@@ -314,8 +310,7 @@ using interface2::Parameter;
 using interface2::Model;
 using interface2::ModelPtr;
 
-
-} // namespace daal::algorithms::logitboost
-}
+} // namespace logitboost
+} // namespace algorithms
 } // namespace daal
 #endif

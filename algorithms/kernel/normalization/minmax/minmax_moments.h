@@ -30,13 +30,10 @@ namespace minmax
 {
 namespace internal
 {
+services::Status computeMinimumsAndMaximums(low_order_moments::BatchImpl * moments, daal::data_management::NumericTablePtr & dataTable,
+                                            daal::data_management::NumericTablePtr & minimums, daal::data_management::NumericTablePtr & maximums);
 
-services::Status computeMinimumsAndMaximums(low_order_moments::BatchImpl *moments,
-                                            daal::data_management::NumericTablePtr &dataTable,
-                                            daal::data_management::NumericTablePtr &minimums,
-                                            daal::data_management::NumericTablePtr &maximums);
-
-} // namespace daal::internal
+} // namespace internal
 } // namespace minmax
 } // namespace normalization
 } // namespace algorithms

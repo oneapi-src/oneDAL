@@ -32,7 +32,6 @@ namespace daal
 {
 namespace services
 {
-
 namespace interface1
 {
 /**
@@ -52,12 +51,12 @@ public:
     * Constructs error detail from error identifier
     * \param[in] id    Error identifier
     */
-    ErrorDetail(ErrorDetailID id) : _id(id), _next(NULL){}
+    ErrorDetail(ErrorDetailID id) : _id(id), _next(NULL) {}
 
     /**
     * Destructor
     */
-    virtual ~ErrorDetail(){}
+    virtual ~ErrorDetail() {}
 
     /**
     * Returns identifier of an error detail
@@ -69,36 +68,36 @@ public:
     * Returns copy of this object
     * \return copy of this object
     */
-    virtual ErrorDetail* clone() const = 0;
+    virtual ErrorDetail * clone() const = 0;
 
     /**
     * Adds description of the error detail to the given string
     * \param[in] str String to add descrition to
     */
-    virtual void describe(char* str) const = 0;
+    virtual void describe(char * str) const = 0;
 
     /**
     * Access to the pointer of the next detail
     * \return pointer to the next detail
     */
-    const ErrorDetail* next() const { return _next; }
+    const ErrorDetail * next() const { return _next; }
 
 protected:
     /**
     * Access to the pointer of the next detail
     * \return pointer to the next detail
     */
-    ErrorDetail* next() { return _next; }
+    ErrorDetail * next() { return _next; }
 
     /**
     * Set pointer to the next detail
     * \param[in] ptr Pointer to the next detail
     */
-    void addNext(ErrorDetail* ptr) { _next = ptr; }
+    void addNext(ErrorDetail * ptr) { _next = ptr; }
 
 private:
     const ErrorDetailID _id;
-    ErrorDetail* _next;
+    ErrorDetail * _next;
     friend class Error;
 };
 /** @} */
@@ -106,6 +105,6 @@ private:
 } // namespace interface1
 using interface1::ErrorDetail;
 
-}
-}
+} // namespace services
+} // namespace daal
 #endif

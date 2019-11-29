@@ -33,10 +33,8 @@ namespace algorithms
 {
 namespace pca
 {
-
 namespace interface3
 {
-
 /**
 * Checks the results of the PCA algorithm implementation
 * \param[in] nFeatures      Number of features

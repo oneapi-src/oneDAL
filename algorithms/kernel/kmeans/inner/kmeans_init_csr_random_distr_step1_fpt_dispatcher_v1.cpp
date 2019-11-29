@@ -27,6 +27,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(kmeans::init::interface1::DistributedContainer, distributed, step1Local,  DAAL_FPTYPE, kmeans::init::randomCSR)
-} // namespace daal::algorithms
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_KM(kmeans::init::interface1::DistributedContainer, distributed, step1Local, DAAL_FPTYPE,
+                                         kmeans::init::randomCSR)
+} // namespace algorithms
 } // namespace daal

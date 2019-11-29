@@ -45,14 +45,13 @@ namespace quality_metric
  */
 namespace single_beta
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__LINEAR_REGRESSION__QUALITY_METRIC__SINGLE_BETA__METHOD"></a>
  * Available methods for computing the quality metrics for a single beta coefficient
  */
 enum Method
 {
-    defaultDense = 0    /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -61,8 +60,8 @@ enum Method
 */
 enum DataInputId
 {
-    expectedResponses,   /*!< NumericTable n x k. Expected responses (Y), dependent variables */
-    predictedResponses,  /*!< NumericTable n x k. Predicted responses (Z) */
+    expectedResponses,  /*!< NumericTable n x k. Expected responses (Y), dependent variables */
+    predictedResponses, /*!< NumericTable n x k. Predicted responses (Z) */
     lastDataInputId = predictedResponses
 };
 
@@ -72,7 +71,7 @@ enum DataInputId
 */
 enum ModelInputId
 {
-    model = lastDataInputId + 1,  /*!< Linear regression model */
+    model            = lastDataInputId + 1, /*!< Linear regression model */
     lastModelInputId = model
 };
 
@@ -96,7 +95,9 @@ enum ResultId
 */
 enum ResultDataCollectionId
 {
-    betaCovariances = lastResultId + 1,  /*!< DataColection, contains k numeric tables with nBeta x nBeta variance-covariance matrix for betas of each response (dependent variable) */
+    betaCovariances =
+        lastResultId
+        + 1, /*!< DataColection, contains k numeric tables with nBeta x nBeta variance-covariance matrix for betas of each response (dependent variable) */
     lastResultDataCollectionId = betaCovariances
 };
 
@@ -105,7 +106,6 @@ enum ResultDataCollectionId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__LINEAR_REGRESSION__QUALITY_METRIC__SINGLE_BETA__PARAMETER"></a>
  * \brief Parameters for the compute() method of single beta quality metrics
@@ -113,13 +113,13 @@ namespace interface1
  * \snippet linear_regression/linear_regression_single_beta_types.h Parameter source code
  */
 /* [Parameter source code] */
-struct DAAL_EXPORT Parameter: public daal::algorithms::Parameter
+struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter(double alphaVal = 0.05, double accuracyVal = 0.001);
     virtual ~Parameter() {}
 
-    double alpha;                /*!< Significance level used in the computation of betas confidence intervals */
-    double accuracyThreshold;    /*!< Values below this threshold are considered equal to it*/
+    double alpha;             /*!< Significance level used in the computation of betas confidence intervals */
+    double accuracyThreshold; /*!< Values below this threshold are considered equal to it*/
     /**
     * Checks the correctness of the parameter
     *
@@ -133,7 +133,7 @@ struct DAAL_EXPORT Parameter: public daal::algorithms::Parameter
 * <a name="DAAL-CLASS-ALGORITHMS__LINEAR_REGRESSION__QUALITY_METRIC__SINGLE_BETA__INPUT"></a>
 * \brief %Input objects for single beta quality metrics
 */
-class DAAL_EXPORT Input: public daal::algorithms::Input
+class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     DAAL_CAST_OPERATOR(Input);
@@ -156,7 +156,7 @@ public:
     * \param[in] id      Identifier of the input object
     * \param[in] value   Pointer to the object
     */
-    void set(DataInputId id, const data_management::NumericTablePtr &value);
+    void set(DataInputId id, const data_management::NumericTablePtr & value);
 
     /**
     * Returns an input object representing linear regression model
@@ -170,7 +170,7 @@ public:
     * \param[in] id      Identifier of the input object
     * \param[in] value   %Input object
     */
-    void set(ModelInputId id, const linear_regression::ModelPtr &value);
+    void set(ModelInputId id, const linear_regression::ModelPtr & value);
 
     /**
     * Checks an input object for the linear regression algorithm
@@ -179,7 +179,7 @@ public:
     *
     * \return Status of computations
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Input> InputPtr;
 
@@ -187,7 +187,7 @@ typedef services::SharedPtr<Input> InputPtr;
 * <a name="DAAL-CLASS-ALGORITHMS__LINEAR_REGRESSION__QUALITY_METRIC__SINGLE_BETA__RESULT"></a>
 * \brief Provides interface for the result of linear regression quality metrics
 */
-class DAAL_EXPORT Result: public daal::algorithms::Result
+class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DAAL_CAST_OPERATOR(Result);
@@ -207,7 +207,7 @@ public:
     * \param[in] id      Identifier of the input object
     * \param[in] value   %Input object
     */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
     * Returns the result of linear regression quality metrics
@@ -229,7 +229,7 @@ public:
     * \param[in] id      Identifier of the input object
     * \param[in] value   %Input object
     */
-    void set(ResultDataCollectionId id, const data_management::DataCollectionPtr &value);
+    void set(ResultDataCollectionId id, const data_management::DataCollectionPtr & value);
 
     /**
     * Allocates memory to store
@@ -240,7 +240,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
     * Checks the result of linear regression quality metrics
@@ -250,7 +250,7 @@ public:
     *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
@@ -259,22 +259,22 @@ public:
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
 
         return services::Status();
     }
 
-    services::Status serializeImpl(data_management::InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         serialImpl<data_management::InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         serialImpl<const data_management::OutputDataArchive, true>(arch);
 
@@ -283,18 +283,18 @@ protected:
 };
 typedef services::SharedPtr<Result> ResultPtr;
 
-}
+} // namespace interface1
 using interface1::Parameter;
 using interface1::Result;
 using interface1::ResultPtr;
 using interface1::Input;
 using interface1::InputPtr;
 
-}
+} // namespace single_beta
 /** @} */
-}
-}
-}
-}
+} // namespace quality_metric
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif // __LINEAR_REGRESSION_SINGLE_BETA_TYPES_H__

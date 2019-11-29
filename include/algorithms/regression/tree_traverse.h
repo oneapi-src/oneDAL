@@ -28,7 +28,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * @defgroup trees_regression Tree regression
  * \copydoc daal::algorithms::trees::regression
@@ -40,7 +39,6 @@ namespace algorithms
  */
 namespace regression
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -62,7 +60,7 @@ namespace interface1
 class DAAL_EXPORT TreeNodeVisitor
 {
 public:
-    virtual ~TreeNodeVisitor(){}
+    virtual ~TreeNodeVisitor() {}
     /**
     *  This method is called by traversal method when a leaf node is visited.
     *  \param[in] level    Level in the tree where this node is located

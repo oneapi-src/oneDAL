@@ -50,7 +50,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations, double or float
  * \tparam method           logistic regression model training method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
@@ -59,7 +59,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     DAAL_DEPRECATED ~BatchContainer();
     /**
@@ -87,25 +87,25 @@ public:
  *      - \ref logistic_regression::interface1::Model "Model" class
  *      - \ref classifier::training::interface1::Input "classifier::training::Input" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
 {
 public:
     typedef classifier::training::interface1::Batch super;
     typedef optimization_solver::iterative_solver::interface1::BatchPtr SolverPtr;
 
-    typedef typename super::InputType                            InputType;
+    typedef typename super::InputType InputType;
     typedef algorithms::logistic_regression::training::interface1::Parameter ParameterType;
-    typedef algorithms::logistic_regression::training::interface1::Result    ResultType;
+    typedef algorithms::logistic_regression::training::interface1::Result ResultType;
 
-    InputType input;  /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
     /**
      * Constructs the logistic regression training algorithm
      * \param[in] nClasses  Number of classes
      * \param[in] solver    Optimization solver
      */
-    DAAL_DEPRECATED Batch(size_t nClasses, const SolverPtr& solver = SolverPtr());
+    DAAL_DEPRECATED Batch(size_t nClasses, const SolverPtr & solver = SolverPtr());
 
     /**
      * Constructs a logistic regression training algorithm by copying input objects and parameters
@@ -113,25 +113,22 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other);
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other);
 
     /** Destructor */
-    DAAL_DEPRECATED ~Batch()
-    {
-        delete _par;
-    }
+    DAAL_DEPRECATED ~Batch() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    DAAL_DEPRECATED ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    DAAL_DEPRECATED ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    DAAL_DEPRECATED const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    DAAL_DEPRECATED const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
      * Get input objects for the logistic regression training algorithm
@@ -143,16 +140,13 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of logistic regression training
      * \return Structure that contains results of logistic regression training
      */
-    DAAL_DEPRECATED interface1::ResultPtr getResult()
-    {
-        return ResultType::cast(_result);
-    }
+    DAAL_DEPRECATED interface1::ResultPtr getResult() { return ResultType::cast(_result); }
 
     /**
      * Resets the training results of the algorithm
@@ -176,24 +170,21 @@ public:
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         ResultPtr res = getResult();
         DAAL_CHECK(res, services::ErrorNullResult);
         services::Status s = res->template allocate<algorithmFPType>(&input, &parameter(), method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in = &input;
         _result.reset(new ResultType());
     }
 };
@@ -215,7 +206,7 @@ namespace interface2
  * \tparam algorithmFPType  Data type to use in intermediate computations, double or float
  * \tparam method           logistic regression model training method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
@@ -224,7 +215,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -252,25 +243,25 @@ public:
  *      - \ref logistic_regression::interface1::Model "Model" class
  *      - \ref classifier::training::interface1::Input "classifier::training::Input" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
 {
 public:
     typedef classifier::training::interface1::Batch super;
     typedef optimization_solver::iterative_solver::BatchPtr SolverPtr;
 
-    typedef typename super::InputType                            InputType;
+    typedef typename super::InputType InputType;
     typedef algorithms::logistic_regression::training::interface2::Parameter ParameterType;
-    typedef algorithms::logistic_regression::training::Result    ResultType;
+    typedef algorithms::logistic_regression::training::Result ResultType;
 
-    InputType input;  /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
     /**
      * Constructs the logistic regression training algorithm
      * \param[in] nClasses  Number of classes
      * \param[in] solver    Optimization solver
      */
-    Batch(size_t nClasses, const SolverPtr& solver = SolverPtr());
+    Batch(size_t nClasses, const SolverPtr & solver = SolverPtr());
 
     /**
      * Constructs a logistic regression training algorithm by copying input objects and parameters
@@ -278,25 +269,22 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    Batch(const Batch<algorithmFPType, method> & other);
 
     /** Destructor */
-    ~Batch()
-    {
-        delete _par;
-    }
+    ~Batch() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
      * Get input objects for the logistic regression training algorithm
@@ -308,16 +296,13 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of logistic regression training
      * \return Structure that contains results of logistic regression training
      */
-    ResultPtr getResult()
-    {
-        return ResultType::cast(_result);
-    }
+    ResultPtr getResult() { return ResultType::cast(_result); }
 
     /**
      * Resets the training results of the algorithm
@@ -335,30 +320,24 @@ public:
      * and parameters of this logistic regression training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         ResultPtr res = getResult();
         DAAL_CHECK(res, services::ErrorNullResult);
         services::Status s = res->template allocate<algorithmFPType>(&input, &parameter(), method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in = &input;
         _result.reset(new ResultType());
     }
 };
@@ -380,7 +359,7 @@ namespace interface3
  * \tparam algorithmFPType  Data type to use in intermediate computations, double or float
  * \tparam method           logistic regression model training method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
@@ -389,7 +368,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -417,25 +396,25 @@ public:
  *      - \ref logistic_regression::interface1::Model "Model" class
  *      - \ref classifier::training::interface1::Input "classifier::training::Input" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
 {
 public:
     typedef classifier::training::Batch super;
     typedef optimization_solver::iterative_solver::BatchPtr SolverPtr;
 
-    typedef typename super::InputType                            InputType;
+    typedef typename super::InputType InputType;
     typedef algorithms::logistic_regression::training::Parameter ParameterType;
-    typedef algorithms::logistic_regression::training::Result    ResultType;
+    typedef algorithms::logistic_regression::training::Result ResultType;
 
-    InputType input;  /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
     /**
      * Constructs the logistic regression training algorithm
      * \param[in] nClasses  Number of classes
      * \param[in] solver    Optimization solver
      */
-    Batch(size_t nClasses, const SolverPtr& solver = SolverPtr());
+    Batch(size_t nClasses, const SolverPtr & solver = SolverPtr());
 
     /**
      * Constructs a logistic regression training algorithm by copying input objects and parameters
@@ -443,25 +422,22 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    Batch(const Batch<algorithmFPType, method> & other);
 
     /** Destructor */
-    ~Batch()
-    {
-        delete _par;
-    }
+    ~Batch() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
      * Get input objects for the logistic regression training algorithm
@@ -473,16 +449,13 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of logistic regression training
      * \return Structure that contains results of logistic regression training
      */
-    ResultPtr getResult()
-    {
-        return ResultType::cast(_result);
-    }
+    ResultPtr getResult() { return ResultType::cast(_result); }
 
     /**
      * Resets the training results of the algorithm
@@ -500,30 +473,24 @@ public:
      * and parameters of this logistic regression training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         ResultPtr res = getResult();
         DAAL_CHECK(res, services::ErrorNullResult);
         services::Status s = res->template allocate<algorithmFPType>(&input, &parameter(), method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in = &input;
         _result.reset(new ResultType());
     }
 };
@@ -532,8 +499,8 @@ protected:
 using interface3::BatchContainer;
 using interface3::Batch;
 
-} // namespace daal::algorithms::logistic_regression::training
-}
-}
+} // namespace training
+} // namespace logistic_regression
+} // namespace algorithms
 } // namespace daal
 #endif // __LOGISTIC_REGRESSION_TRAINING_BATCH_H__

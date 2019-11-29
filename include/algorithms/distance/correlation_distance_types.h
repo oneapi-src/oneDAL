@@ -45,14 +45,13 @@ namespace algorithms
 */
 namespace correlation_distance
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__CORRELATION_DISTANCE__METHOD"></a>
  * Available methods for computing the correlation distance
  */
 enum Method
 {
-    defaultDense = 0       /*!< Default: performance-oriented method. */
+    defaultDense = 0 /*!< Default: performance-oriented method. */
 };
 
 /**
@@ -61,7 +60,7 @@ enum Method
  */
 enum InputId
 {
-    data,            /*!< %Input data table */
+    data, /*!< %Input data table */
     lastInputId = data
 };
 /**
@@ -70,7 +69,7 @@ enum InputId
  */
 enum ResultId
 {
-    correlationDistance,           /*!< Table to store the result.*/
+    correlationDistance, /*!< Table to store the result.*/
     lastResultId = correlationDistance
 };
 
@@ -87,7 +86,7 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     Input();
-    Input(const Input& other) : daal::algorithms::Input(other){}
+    Input(const Input & other) : daal::algorithms::Input(other) {}
 
     virtual ~Input() {}
 
@@ -103,14 +102,14 @@ public:
     * \param[in] id    Identifier of the input object
     * \param[in] ptr   Pointer to the object
     */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the parameters of the correlation distance algorithm
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -132,7 +131,7 @@ public:
      * \param[in] method Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
      * Returns the result of the correlation distance algorithm
@@ -146,7 +145,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the value
      */
-    void set(ResultId id, const data_management::NumericTablePtr &ptr);
+    void set(ResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
     * Checks the result of the correlation distance algorithm
@@ -154,12 +153,12 @@ public:
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }

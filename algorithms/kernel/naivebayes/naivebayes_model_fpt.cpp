@@ -29,7 +29,6 @@ namespace algorithms
 {
 namespace multinomial_naive_bayes
 {
-
 /**
  * Constructs multinomial naive Bayes model
  * \param[in] nFeatures  The number of features
@@ -37,24 +36,24 @@ namespace multinomial_naive_bayes
  * \param[in] dummy      Dummy variable for the templated constructor
  * \DAAL_DEPRECATED_USE{ Model::create }
  */
-template<typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nFeatures, const interface1::Parameter &parameter, modelFPType dummy)
+template <typename modelFPType>
+DAAL_EXPORT Model::Model(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy)
 {
     using namespace data_management;
 
-    const interface1::Parameter *par = &parameter;
-    if(par->nClasses < 2 || nFeatures == 0)
+    const interface1::Parameter * par = &parameter;
+    if (par->nClasses < 2 || nFeatures == 0)
     {
         return;
     }
 
-    _logP     = NumericTablePtr(new HomogenNumericTable<modelFPType>(1,         par->nClasses, NumericTable::doAllocate));
+    _logP     = NumericTablePtr(new HomogenNumericTable<modelFPType>(1, par->nClasses, NumericTable::doAllocate));
     _logTheta = NumericTablePtr(new HomogenNumericTable<modelFPType>(nFeatures, par->nClasses, NumericTable::doAllocate));
     _auxTable = NumericTablePtr(new HomogenNumericTable<modelFPType>(nFeatures, par->nClasses, NumericTable::doAllocate));
 }
 
-template<typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nFeatures, const interface1::Parameter &parameter, modelFPType dummy, services::Status &st)
+template <typename modelFPType>
+DAAL_EXPORT Model::Model(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy, services::Status & st)
 {
     using namespace data_management;
 
@@ -69,15 +68,12 @@ DAAL_EXPORT Model::Model(size_t nFeatures, const interface1::Parameter &paramete
         return;
     }
 
-    _logP     = HomogenNumericTable<modelFPType>::create(1,         parameter.nClasses, NumericTable::doAllocate, &st);
-    if (!st)
-        return;
+    _logP = HomogenNumericTable<modelFPType>::create(1, parameter.nClasses, NumericTable::doAllocate, &st);
+    if (!st) return;
     _logTheta = HomogenNumericTable<modelFPType>::create(nFeatures, parameter.nClasses, NumericTable::doAllocate, &st);
-    if (!st)
-        return;
+    if (!st) return;
     _auxTable = HomogenNumericTable<modelFPType>::create(nFeatures, parameter.nClasses, NumericTable::doAllocate, &st);
-    if (!st)
-        return;
+    if (!st) return;
 }
 
 /**
@@ -86,8 +82,8 @@ DAAL_EXPORT Model::Model(size_t nFeatures, const interface1::Parameter &paramete
  * \param[in] parameter  The multinomial naive Bayes parameter
  * \param[out] stat      Status of the model construction
  */
-template<typename modelFPType>
-DAAL_EXPORT ModelPtr Model::create(size_t nFeatures, const interface1::Parameter &parameter, services::Status *stat)
+template <typename modelFPType>
+DAAL_EXPORT ModelPtr Model::create(size_t nFeatures, const interface1::Parameter & parameter, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, parameter, (modelFPType)0.0);
 }
@@ -99,24 +95,24 @@ DAAL_EXPORT ModelPtr Model::create(size_t nFeatures, const interface1::Parameter
  * \param[in] dummy      Dummy variable for the templated constructor
  * \DAAL_DEPRECATED_USE{ Model::create }
  */
-template<typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nFeatures, const interface2::Parameter &parameter, modelFPType dummy)
+template <typename modelFPType>
+DAAL_EXPORT Model::Model(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy)
 {
     using namespace data_management;
 
-    const interface2::Parameter *par = &parameter;
-    if(par->nClasses < 2 || nFeatures == 0)
+    const interface2::Parameter * par = &parameter;
+    if (par->nClasses < 2 || nFeatures == 0)
     {
         return;
     }
 
-    _logP     = NumericTablePtr(new HomogenNumericTable<modelFPType>(1,         par->nClasses, NumericTable::doAllocate));
+    _logP     = NumericTablePtr(new HomogenNumericTable<modelFPType>(1, par->nClasses, NumericTable::doAllocate));
     _logTheta = NumericTablePtr(new HomogenNumericTable<modelFPType>(nFeatures, par->nClasses, NumericTable::doAllocate));
     _auxTable = NumericTablePtr(new HomogenNumericTable<modelFPType>(nFeatures, par->nClasses, NumericTable::doAllocate));
 }
 
-template<typename modelFPType>
-DAAL_EXPORT Model::Model(size_t nFeatures, const interface2::Parameter &parameter, modelFPType dummy, services::Status &st)
+template <typename modelFPType>
+DAAL_EXPORT Model::Model(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy, services::Status & st)
 {
     using namespace data_management;
 
@@ -131,15 +127,12 @@ DAAL_EXPORT Model::Model(size_t nFeatures, const interface2::Parameter &paramete
         return;
     }
 
-    _logP     = HomogenNumericTable<modelFPType>::create(1,         parameter.nClasses, NumericTable::doAllocate, &st);
-    if (!st)
-        return;
+    _logP = HomogenNumericTable<modelFPType>::create(1, parameter.nClasses, NumericTable::doAllocate, &st);
+    if (!st) return;
     _logTheta = HomogenNumericTable<modelFPType>::create(nFeatures, parameter.nClasses, NumericTable::doAllocate, &st);
-    if (!st)
-        return;
+    if (!st) return;
     _auxTable = HomogenNumericTable<modelFPType>::create(nFeatures, parameter.nClasses, NumericTable::doAllocate, &st);
-    if (!st)
-        return;
+    if (!st) return;
 }
 
 /**
@@ -148,8 +141,8 @@ DAAL_EXPORT Model::Model(size_t nFeatures, const interface2::Parameter &paramete
  * \param[in] parameter  The multinomial naive Bayes parameter
  * \param[out] stat      Status of the model construction
  */
-template<typename modelFPType>
-DAAL_EXPORT ModelPtr Model::create(size_t nFeatures, const interface2::Parameter &parameter, services::Status *stat)
+template <typename modelFPType>
+DAAL_EXPORT ModelPtr Model::create(size_t nFeatures, const interface2::Parameter & parameter, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(Model, nFeatures, parameter, (modelFPType)0.0);
 }
@@ -161,23 +154,23 @@ DAAL_EXPORT ModelPtr Model::create(size_t nFeatures, const interface2::Parameter
  * \param[in] dummy      Dummy variable for the templated constructor
  * \DAAL_DEPRECATED_USE{ PartialModel::create }
  */
-template<typename modelFPType>
-DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface1::Parameter &parameter, modelFPType dummy) : _nObservations(0)
+template <typename modelFPType>
+DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy) : _nObservations(0)
 {
     using namespace data_management;
-    const interface1::Parameter *par = &parameter;
-    if(par->nClasses < 2 || nFeatures == 0)
+    const interface1::Parameter * par = &parameter;
+    if (par->nClasses < 2 || nFeatures == 0)
     {
         return;
     }
 
-    _classSize     = NumericTablePtr(new HomogenNumericTable<int>(1,         par->nClasses, NumericTable::doAllocate));
+    _classSize     = NumericTablePtr(new HomogenNumericTable<int>(1, par->nClasses, NumericTable::doAllocate));
     _classGroupSum = NumericTablePtr(new HomogenNumericTable<int>(nFeatures, par->nClasses, NumericTable::doAllocate));
 }
 
-template<typename modelFPType>
-DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface1::Parameter &parameter,
-                                       modelFPType dummy, services::Status &st) : _nObservations(0)
+template <typename modelFPType>
+DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy, services::Status & st)
+    : _nObservations(0)
 {
     using namespace data_management;
 
@@ -192,13 +185,11 @@ DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface1::Param
         return;
     }
 
-    _classSize     = HomogenNumericTable<int>::create(1,         parameter.nClasses, NumericTable::doAllocate, &st);
-    if (!st)
-        return;
+    _classSize = HomogenNumericTable<int>::create(1, parameter.nClasses, NumericTable::doAllocate, &st);
+    if (!st) return;
 
     _classGroupSum = HomogenNumericTable<int>::create(nFeatures, parameter.nClasses, NumericTable::doAllocate, &st);
-    if (!st)
-        return;
+    if (!st) return;
 }
 
 /**
@@ -208,23 +199,23 @@ DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface1::Param
  * \param[in] dummy      Dummy variable for the templated constructor
  * \DAAL_DEPRECATED_USE{ PartialModel::create }
  */
-template<typename modelFPType>
-DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface2::Parameter &parameter, modelFPType dummy) : _nObservations(0)
+template <typename modelFPType>
+DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy) : _nObservations(0)
 {
     using namespace data_management;
-    const interface2::Parameter *par = &parameter;
-    if(par->nClasses < 2 || nFeatures == 0)
+    const interface2::Parameter * par = &parameter;
+    if (par->nClasses < 2 || nFeatures == 0)
     {
         return;
     }
 
-    _classSize     = NumericTablePtr(new HomogenNumericTable<int>(1,         par->nClasses, NumericTable::doAllocate));
+    _classSize     = NumericTablePtr(new HomogenNumericTable<int>(1, par->nClasses, NumericTable::doAllocate));
     _classGroupSum = NumericTablePtr(new HomogenNumericTable<int>(nFeatures, par->nClasses, NumericTable::doAllocate));
 }
 
-template<typename modelFPType>
-DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface2::Parameter &parameter,
-                                       modelFPType dummy, services::Status &st) : _nObservations(0)
+template <typename modelFPType>
+DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy, services::Status & st)
+    : _nObservations(0)
 {
     using namespace data_management;
 
@@ -239,13 +230,11 @@ DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface2::Param
         return;
     }
 
-    _classSize     = HomogenNumericTable<int>::create(1,         parameter.nClasses, NumericTable::doAllocate, &st);
-    if (!st)
-        return;
+    _classSize = HomogenNumericTable<int>::create(1, parameter.nClasses, NumericTable::doAllocate, &st);
+    if (!st) return;
 
     _classGroupSum = HomogenNumericTable<int>::create(nFeatures, parameter.nClasses, NumericTable::doAllocate, &st);
-    if (!st)
-        return;
+    if (!st) return;
 }
 
 /**
@@ -255,8 +244,8 @@ DAAL_EXPORT PartialModel::PartialModel(size_t nFeatures, const interface2::Param
  * \param[out] stat      Status of the model construction
  * \return Multinomial naive Bayes partial model
  */
-template<typename modelFPType>
-DAAL_EXPORT PartialModelPtr PartialModel::create(size_t nFeatures, const interface1::Parameter &parameter, services::Status *stat)
+template <typename modelFPType>
+DAAL_EXPORT PartialModelPtr PartialModel::create(size_t nFeatures, const interface1::Parameter & parameter, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(PartialModel, nFeatures, parameter, (modelFPType)0.0);
 }
@@ -268,32 +257,32 @@ DAAL_EXPORT PartialModelPtr PartialModel::create(size_t nFeatures, const interfa
  * \param[out] stat      Status of the model construction
  * \return Multinomial naive Bayes partial model
  */
-template<typename modelFPType>
-DAAL_EXPORT PartialModelPtr PartialModel::create(size_t nFeatures, const interface2::Parameter &parameter, services::Status *stat)
+template <typename modelFPType>
+DAAL_EXPORT PartialModelPtr PartialModel::create(size_t nFeatures, const interface2::Parameter & parameter, services::Status * stat)
 {
     DAAL_DEFAULT_CREATE_IMPL_EX(PartialModel, nFeatures, parameter, (modelFPType)0.0);
 }
 
-template DAAL_EXPORT Model::Model(size_t, const interface1::Parameter&, DAAL_FPTYPE);
-template DAAL_EXPORT Model::Model(size_t, const interface1::Parameter&, DAAL_FPTYPE, services::Status&);
+template DAAL_EXPORT Model::Model(size_t, const interface1::Parameter &, DAAL_FPTYPE);
+template DAAL_EXPORT Model::Model(size_t, const interface1::Parameter &, DAAL_FPTYPE, services::Status &);
 
-template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, const interface1::Parameter&, services::Status*);
+template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, const interface1::Parameter &, services::Status *);
 
-template DAAL_EXPORT PartialModel::PartialModel(size_t, const interface1::Parameter&, DAAL_FPTYPE);
-template DAAL_EXPORT PartialModel::PartialModel(size_t, const interface1::Parameter&, DAAL_FPTYPE, services::Status&);
+template DAAL_EXPORT PartialModel::PartialModel(size_t, const interface1::Parameter &, DAAL_FPTYPE);
+template DAAL_EXPORT PartialModel::PartialModel(size_t, const interface1::Parameter &, DAAL_FPTYPE, services::Status &);
 
-template DAAL_EXPORT PartialModelPtr PartialModel::create<DAAL_FPTYPE>(size_t, const interface1::Parameter&, services::Status*);
+template DAAL_EXPORT PartialModelPtr PartialModel::create<DAAL_FPTYPE>(size_t, const interface1::Parameter &, services::Status *);
 
-template DAAL_EXPORT Model::Model(size_t, const interface2::Parameter&, DAAL_FPTYPE);
-template DAAL_EXPORT Model::Model(size_t, const interface2::Parameter&, DAAL_FPTYPE, services::Status&);
+template DAAL_EXPORT Model::Model(size_t, const interface2::Parameter &, DAAL_FPTYPE);
+template DAAL_EXPORT Model::Model(size_t, const interface2::Parameter &, DAAL_FPTYPE, services::Status &);
 
-template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, const interface2::Parameter&, services::Status*);
+template DAAL_EXPORT ModelPtr Model::create<DAAL_FPTYPE>(size_t, const interface2::Parameter &, services::Status *);
 
-template DAAL_EXPORT PartialModel::PartialModel(size_t, const interface2::Parameter&, DAAL_FPTYPE);
-template DAAL_EXPORT PartialModel::PartialModel(size_t, const interface2::Parameter&, DAAL_FPTYPE, services::Status&);
+template DAAL_EXPORT PartialModel::PartialModel(size_t, const interface2::Parameter &, DAAL_FPTYPE);
+template DAAL_EXPORT PartialModel::PartialModel(size_t, const interface2::Parameter &, DAAL_FPTYPE, services::Status &);
 
-template DAAL_EXPORT PartialModelPtr PartialModel::create<DAAL_FPTYPE>(size_t, const interface2::Parameter&, services::Status*);
+template DAAL_EXPORT PartialModelPtr PartialModel::create<DAAL_FPTYPE>(size_t, const interface2::Parameter &, services::Status *);
 
-}// namespace multinomial_naive_bayes
-}// namespace algorithms
-}// namespace daal
+} // namespace multinomial_naive_bayes
+} // namespace algorithms
+} // namespace daal

@@ -40,7 +40,6 @@ namespace training
 {
 namespace internal
 {
-
 /**
  * Abstract class that defines interface for the helper function that computes the regression coefficients.
  */
@@ -59,10 +58,10 @@ public:
      * \param[in] interceptFlag Flag. If true, then it is required to compute an intercept term
      * \return Status of the computations
      */
-    virtual services::Status computeBetasImpl(size_t p, services::Buffer<algorithmFPType> &a, size_t ny,
-                                              services::Buffer<algorithmFPType> &b, bool inteceptFlag) const = 0;
+    virtual services::Status computeBetasImpl(size_t p, services::Buffer<algorithmFPType> & a, size_t ny, services::Buffer<algorithmFPType> & b,
+                                              bool inteceptFlag) const = 0;
 
-    virtual services::Status copyBetaToResult(const services::Buffer<algorithmFPType> &betaTmp, services::Buffer<algorithmFPType> &betaRes,
+    virtual services::Status copyBetaToResult(const services::Buffer<algorithmFPType> & betaTmp, services::Buffer<algorithmFPType> & betaRes,
                                               const size_t nBetas, const size_t nResponses, const bool interceptFlag) const = 0;
 };
 
@@ -91,11 +90,10 @@ public:
      *                      coefficients computation
      * \return Status of the computations
      */
-    static services::Status compute(NumericTable &xtx, NumericTable &xty, NumericTable &xtxFinal,
-                                    NumericTable &xtyFinal, NumericTable &beta, bool interceptFlag,
-                                    const KernelHelperOneAPIIface<algorithmFPType> &helper);
+    static services::Status compute(NumericTable & xtx, NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
+                                    bool interceptFlag, const KernelHelperOneAPIIface<algorithmFPType> & helper);
 
-    static services::Status copyDataToFinalTable(NumericTable &srcTable, NumericTable &dstTable);
+    static services::Status copyDataToFinalTable(NumericTable & srcTable, NumericTable & dstTable);
 
     /**
      * Solves the symmetric system of linear equations
@@ -109,9 +107,9 @@ public:
      *                          are passed into lapack routines
      * \return Status of the computations
      */
-    static services::Status solveSystem(const size_t p, services::Buffer<algorithmFPType> &a, const size_t ny, services::Buffer<algorithmFPType> &b);
+    static services::Status solveSystem(const size_t p, services::Buffer<algorithmFPType> & a, const size_t ny,
+                                        services::Buffer<algorithmFPType> & b);
 };
-
 
 /**
  * Implements the common part of the partial results update with new block of input data
@@ -119,7 +117,6 @@ public:
 template <typename algorithmFPType>
 class UpdateKernelOneAPI
 {
-
 public:
     /**
      * Updates normal equations model with the new block of data
@@ -132,11 +129,11 @@ public:
      *                              - False otherwis, P' = P
      * \return Status of the computations
      */
-    static services::Status compute(NumericTable &x, NumericTable &y, NumericTable &xtx, NumericTable &xty,
-                                    bool interceptFlag);
+    static services::Status compute(NumericTable & x, NumericTable & y, NumericTable & xtx, NumericTable & xty, bool interceptFlag);
+
 private:
-    static services::Status copyReduceResultsY(const services::Buffer<algorithmFPType> &src, const size_t srcSize,
-                                               services::Buffer<algorithmFPType> &dst,  const size_t nColsDst);
+    static services::Status copyReduceResultsY(const services::Buffer<algorithmFPType> & src, const size_t srcSize,
+                                               services::Buffer<algorithmFPType> & dst, const size_t nColsDst);
 };
 
 } // namespace internal

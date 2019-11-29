@@ -36,7 +36,6 @@ namespace algorithms
 {
 namespace dbscan
 {
-
 namespace interface1
 {
 /**
@@ -53,7 +52,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations of DBSCAN, double or float
  * \tparam method           Computation method of the algorithm, \ref daal::algorithms::dbscan::Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -62,7 +61,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
     /**
@@ -84,13 +83,13 @@ public:
  *      - \ref InputId  Identifiers of input objects for the DBSCAN algorithm
  *      - \ref ResultId Identifiers of results of the DBSCAN algorithm
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::dbscan::Input     InputType;
+    typedef algorithms::dbscan::Input InputType;
     typedef algorithms::dbscan::Parameter ParameterType;
-    typedef algorithms::dbscan::Result    ResultType;
+    typedef algorithms::dbscan::Result ResultType;
 
     /**
      *  Main constructor
@@ -105,49 +104,43 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    Batch(const Batch<algorithmFPType, method> & other);
 
-    ~Batch()
-    {
-        delete _par;
-    }
+    ~Batch() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains the results of the DBSCAN algorithm
      * \return Structure that contains the results of the DBSCAN algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated  memory  to store the results of the DBSCAN algorithm
      * \param[in] result  Structure to store the results of the DBSCAN algorithm
      */
-    services::Status setResult(const ResultPtr& result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -156,34 +149,28 @@ public:
      * and parameters of this DBSCAN algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
-        services::Status s = _result->allocate<algorithmFPType>(_in, _par, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(_in, _par, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _in                  = &input;
         _result.reset(new ResultType());
     }
 
 public:
-    InputType input;            /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
 private:
     ResultPtr _result;
@@ -193,7 +180,7 @@ private:
 using interface1::BatchContainer;
 using interface1::Batch;
 
-} // namespace daal::algorithms::dbscan
-} // namespace daal::algorithms
+} // namespace dbscan
+} // namespace algorithms
 } // namespace daal
 #endif

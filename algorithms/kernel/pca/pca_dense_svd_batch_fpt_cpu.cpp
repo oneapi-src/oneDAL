@@ -32,6 +32,6 @@ namespace interface3
 {
 template class BatchContainer<DAAL_FPTYPE, svdDense, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

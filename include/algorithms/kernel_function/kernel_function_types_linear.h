@@ -46,15 +46,14 @@ namespace kernel_function
  */
 namespace linear
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KERNEL_FUNCTION__LINEAR__METHOD"></a>
  * Method of the kernel function
  */
 enum Method
 {
-    defaultDense = 0,    /*!< Default method for computing linear kernel functions */
-    fastCSR = 1          /*!< Fast: performance-oriented method. Works with Compressed Sparse Rows (CSR) numeric tables */
+    defaultDense = 0, /*!< Default method for computing linear kernel functions */
+    fastCSR      = 1  /*!< Fast: performance-oriented method. Works with Compressed Sparse Rows (CSR) numeric tables */
 };
 
 /**
@@ -69,11 +68,11 @@ namespace interface1
  * \snippet kernel_function/kernel_function_types_linear.h Linear input object source code
  */
 /* [Linear input object source code] */
-struct DAAL_EXPORT Parameter: public ParameterBase
+struct DAAL_EXPORT Parameter : public ParameterBase
 {
     Parameter(double k = 1.0, double b = 0.0);
-    double k;       /*!< Linear kernel coefficient k in the k(X,Y) + b model */
-    double b;       /*!< Linear kernel coefficient b in the k(X,Y) + b model */
+    double k; /*!< Linear kernel coefficient k in the k(X,Y) + b model */
+    double b; /*!< Linear kernel coefficient b in the k(X,Y) + b model */
 };
 /* [Linear input object source code] */
 
@@ -85,7 +84,7 @@ class DAAL_EXPORT Input : public kernel_function::Input
 {
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -94,14 +93,14 @@ public:
     * \param[in] par     %Input objects of the algorithm
     * \param[in] method  Computation method of the algorithm
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
 } // namespace interface1
 using interface1::Input;
 using interface1::Parameter;
 
-} // linear
+} // namespace linear
 } // namespace kernel_function
 } // namespace algorithms
 } // namespace daal

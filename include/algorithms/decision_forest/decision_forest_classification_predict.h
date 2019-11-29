@@ -53,7 +53,7 @@ namespace prediction
  */
 enum Method
 {
-    defaultDense = 0        /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -70,7 +70,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the decision_forest, double or float
  * \tparam method           decision_forest computation method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -78,7 +78,7 @@ public:
      * Constructs a container for decision_forest model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     DAAL_DEPRECATED ~BatchContainer();
     /**
@@ -108,27 +108,24 @@ public:
  *      - \ref classifier::prediction::interface1::Input "classifier::prediction::Input" class
  *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public classifier::prediction::interface1::Batch
 {
 public:
     typedef classifier::prediction::interface1::Batch super;
 
     typedef algorithms::decision_forest::classification::prediction::Input InputType;
-    typedef typename super::ParameterType                                  ParameterType;
-    typedef typename super::ResultType                                     ResultType;
+    typedef typename super::ParameterType ParameterType;
+    typedef typename super::ResultType ResultType;
 
-    InputType input;                /*!< %Input objects of the algorithm */
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    InputType input;         /*!< %Input objects of the algorithm */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
 
     /**
      * Constructs Decision forest prediction algorithm
      * \param[in] nClasses  Number of classes
      */
-    DAAL_DEPRECATED Batch(size_t nClasses): parameter(nClasses)
-    {
-        initialize();
-    };
+    DAAL_DEPRECATED Batch(size_t nClasses) : parameter(nClasses) { initialize(); };
 
     /**
      * Constructs a Decision forest prediction algorithm by copying input objects and parameters
@@ -136,8 +133,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) : classifier::prediction::interface1::Batch(other),
-        input(other.input), parameter(other.parameter)
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other)
+        : classifier::prediction::interface1::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
@@ -154,7 +151,7 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated Decision forest prediction algorithm with a copy of input objects
@@ -167,22 +164,19 @@ public:
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, 0, 0);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
     }
 };
@@ -203,7 +197,7 @@ namespace interface2
  * \tparam algorithmFPType  Data type to use in intermediate computations for the decision_forest, double or float
  * \tparam method           decision_forest computation method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -211,7 +205,7 @@ public:
      * Constructs a container for decision_forest model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -241,27 +235,24 @@ public:
  *      - \ref classifier::prediction::interface1::Input "classifier::prediction::Input" class
  *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public classifier::prediction::Batch
 {
 public:
     typedef classifier::prediction::Batch super;
 
     typedef algorithms::decision_forest::classification::prediction::Input InputType;
-    typedef typename super::ParameterType                                  ParameterType;
-    typedef typename super::ResultType                                     ResultType;
+    typedef typename super::ParameterType ParameterType;
+    typedef typename super::ResultType ResultType;
 
-    InputType input;                /*!< %Input objects of the algorithm */
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    InputType input;         /*!< %Input objects of the algorithm */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
 
     /**
      * Constructs Decision forest prediction algorithm
      * \param[in] nClasses  Number of classes
      */
-    Batch(size_t nClasses): parameter(nClasses)
-    {
-        initialize();
-    };
+    Batch(size_t nClasses) : parameter(nClasses) { initialize(); };
 
     /**
      * Constructs a Decision forest prediction algorithm by copying input objects and parameters
@@ -269,8 +260,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : classifier::prediction::Batch(other),
-        input(other.input), parameter(other.parameter)
+    Batch(const Batch<algorithmFPType, method> & other) : classifier::prediction::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
@@ -287,35 +277,29 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated Decision forest prediction algorithm with a copy of input objects
      * and parameters of this Decision forest prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, 0);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
     }
 };
@@ -324,9 +308,9 @@ protected:
 using interface2::BatchContainer;
 using interface2::Batch;
 
-} // namespace daal::algorithms::decision_forest::classification::prediction
-}
-}
-}
+} // namespace prediction
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
 #endif

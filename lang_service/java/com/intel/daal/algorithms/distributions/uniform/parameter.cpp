@@ -30,8 +30,8 @@ using namespace daal::algorithms;
  * Method:    cSetA
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Parameter_cSetA
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble a)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Parameter_cSetA(JNIEnv * env, jobject thisObj, jlong cParameter,
+                                                                                            jdouble a)
 {
     (((distributions::uniform::Parameter<float> *)cParameter))->a = (float)a;
 }
@@ -41,8 +41,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Para
  * Method:    cSetB
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Parameter_cSetB
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble b)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Parameter_cSetB(JNIEnv * env, jobject thisObj, jlong cParameter,
+                                                                                            jdouble b)
 {
     (((distributions::uniform::Parameter<float> *)cParameter))->b = (float)b;
 }
@@ -52,8 +52,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Para
  * Method:    cGetA
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Parameter_cGetA
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Parameter_cGetA(JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (jdouble)((((distributions::uniform::Parameter<float> *)cParameter))->a);
 }
@@ -63,8 +62,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_uniform_P
  * Method:    cGetB
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Parameter_cGetB
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_uniform_Parameter_cGetB(JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (jdouble)((((distributions::uniform::Parameter<float> *)cParameter))->b);
 }

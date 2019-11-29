@@ -25,11 +25,11 @@ namespace daal
 {
 using namespace daal::services;
 
-jlongArray getJavaLongArrayFromSizeTCollection(JNIEnv *env, const Collection<size_t> &dims);
-void throwError(JNIEnv *env, const char *message);
-void checkError(JNIEnv *env, const services::Status& s);
+jlongArray getJavaLongArrayFromSizeTCollection(JNIEnv * env, const Collection<size_t> & dims);
+void throwError(JNIEnv * env, const char * message);
+void checkError(JNIEnv * env, const services::Status & s);
 
-}
+} // namespace daal
 
 #define DAAL_CHECK_THROW(s) daal::checkError(env, s)
 

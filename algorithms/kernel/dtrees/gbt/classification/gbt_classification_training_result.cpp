@@ -34,8 +34,10 @@ namespace algorithms
 {
 namespace gbt
 {
-
-namespace training { Status checkImpl(const gbt::training::Parameter& prm); }
+namespace training
+{
+Status checkImpl(const gbt::training::Parameter & prm);
+}
 
 namespace classification
 {
@@ -51,12 +53,12 @@ gbt::classification::ModelPtr Result::get(classifier::training::ResultId id) con
     return gbt::classification::Model::cast(algorithms::classifier::training::Result::get(id));
 }
 
-void Result::set(classifier::training::ResultId id, const gbt::classification::ModelPtr &value)
+void Result::set(classifier::training::ResultId id, const gbt::classification::ModelPtr & value)
 {
     algorithms::classifier::training::Result::set(id, value);
 }
 
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     return algorithms::classifier::training::Result::check(input, par, method);
 }
@@ -66,7 +68,7 @@ data_management::NumericTablePtr Result::get(ResultNumericTableId id) const
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr &value)
+void Result::set(ResultNumericTableId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -78,7 +80,7 @@ Status Parameter::check() const
 {
     return gbt::training::checkImpl(*this);
 }
-}
+} // namespace interface2
 } // namespace training
 } // namespace classification
 } // namespace gbt

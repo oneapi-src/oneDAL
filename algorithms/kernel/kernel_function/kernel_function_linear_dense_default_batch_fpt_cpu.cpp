@@ -35,13 +35,11 @@ namespace linear
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
 namespace internal
 {
-
 template class KernelImplLinear<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 
 } // namespace internal

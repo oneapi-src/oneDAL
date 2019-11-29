@@ -42,7 +42,6 @@ namespace daal
 {
 namespace data_management
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -67,27 +66,21 @@ public:
         createDictionaryFromContext = 1 << 1
     };
 
-    static ODBCDataSourceOptions::Value unite(const ODBCDataSourceOptions::Value &lhs,
-                                              const ODBCDataSourceOptions::Value &rhs)
+    static ODBCDataSourceOptions::Value unite(const ODBCDataSourceOptions::Value & lhs, const ODBCDataSourceOptions::Value & rhs)
     {
         return internal::DataSourceOptionsImpl<Value>::unite(lhs, rhs);
     }
 
-    ODBCDataSourceOptions(Value flags = byDefault) :
-        _impl(flags) { }
+    ODBCDataSourceOptions(Value flags = byDefault) : _impl(flags) {}
 
     DataSource::NumericTableAllocationFlag getNumericTableAllocationFlag() const
     {
-        return (_impl.getFlag(allocateNumericTable))
-            ? DataSource::doAllocateNumericTable
-            : DataSource::notAllocateNumericTable;
+        return (_impl.getFlag(allocateNumericTable)) ? DataSource::doAllocateNumericTable : DataSource::notAllocateNumericTable;
     }
 
     DataSource::DictionaryCreationFlag getDictionaryCreationFlag() const
     {
-        return (_impl.getFlag(createDictionaryFromContext))
-            ? DataSource::doDictionaryFromContext
-            : DataSource::notDictionaryFromContext;
+        return (_impl.getFlag(createDictionaryFromContext)) ? DataSource::doDictionaryFromContext : DataSource::notDictionaryFromContext;
     }
 
 private:
@@ -100,7 +93,7 @@ private:
  * \tparam FeatureManager         Type of a data source, supports only \ref SQLFeatureManager
  * \tparam SummaryStatisticsType  The floating point type to compute summary statics for numeric table
  */
-template<typename FeatureManager, typename SummaryStatisticsType = DAAL_SUMMARY_STATISTICS_TYPE>
+template <typename FeatureManager, typename SummaryStatisticsType = DAAL_SUMMARY_STATISTICS_TYPE>
 class ODBCDataSource : public DataSourceTemplate<data_management::HomogenNumericTable<DAAL_DATA_TYPE>, SummaryStatisticsType>
 {
 private:
@@ -129,25 +122,25 @@ public:
      * \param[in]  initialMaxRows                          Initial value of maximum number of rows in Numeric Table allocated in
      *                                                     loadDataBlock() method
      */
-    ODBCDataSource(const std::string &dbname,
-                   const std::string &tableName = "",
-                   const std::string &userName = "",
-                   const std::string &password = "",
+    ODBCDataSource(const std::string & dbname, const std::string & tableName = "", const std::string & userName = "",
+                   const std::string & password                                          = "",
                    DataSourceIface::NumericTableAllocationFlag doAllocateNumericTable    = DataSource::notAllocateNumericTable,
                    DataSourceIface::DictionaryCreationFlag doCreateDictionaryFromContext = DataSource::notDictionaryFromContext,
-                   size_t initialMaxRows = 10) :
-        super(doAllocateNumericTable,
-              doCreateDictionaryFromContext)
+                   size_t initialMaxRows                                                 = 10)
+        : super(doAllocateNumericTable, doCreateDictionaryFromContext)
     {
-        if (dbname.find('\0') != std::string::npos || tableName.find('\0') != std::string::npos ||
-            userName.find('\0') != std::string::npos || password.find('\0') != std::string::npos)
+        if (dbname.find('\0') != std::string::npos || tableName.find('\0') != std::string::npos || userName.find('\0') != std::string::npos
+            || password.find('\0') != std::string::npos)
         {
             this->_status.add(services::throwIfPossible(services::ErrorNullByteInjection));
             return;
         }
         initialize(initialMaxRows);
         _status |= connectUsingUserNameAndPassword(dbname, userName, password);
-        if (!_status) { return; }
+        if (!_status)
+        {
+            return;
+        }
         _status |= executeSelectAllQuery(tableName);
     }
 
@@ -161,24 +154,22 @@ public:
      * \param[in]  initialMaxRows  Initial value of maximum number of rows in Numeric Table allocated in
      *                             loadDataBlock() method
      */
-    ODBCDataSource(const std::string &dbname,
-                   const std::string &tableName,
-                   const std::string &userName,
-                   const std::string &password,
-                   const ODBCDataSourceOptions &options,
-                   size_t initialMaxRows = 10) :
-        super(options.getNumericTableAllocationFlag(),
-              options.getDictionaryCreationFlag())
+    ODBCDataSource(const std::string & dbname, const std::string & tableName, const std::string & userName, const std::string & password,
+                   const ODBCDataSourceOptions & options, size_t initialMaxRows = 10)
+        : super(options.getNumericTableAllocationFlag(), options.getDictionaryCreationFlag())
     {
-        if (dbname.find('\0') != std::string::npos || tableName.find('\0') != std::string::npos ||
-            userName.find('\0') != std::string::npos || password.find('\0') != std::string::npos)
+        if (dbname.find('\0') != std::string::npos || tableName.find('\0') != std::string::npos || userName.find('\0') != std::string::npos
+            || password.find('\0') != std::string::npos)
         {
             this->_status.add(services::throwIfPossible(services::ErrorNullByteInjection));
             return;
         }
         initialize(initialMaxRows);
         _status |= connectUsingUserNameAndPassword(dbname, userName, password);
-        if (!_status) { return; }
+        if (!_status)
+        {
+            return;
+        }
         _status |= executeSelectAllQuery(tableName);
     }
 
@@ -189,11 +180,8 @@ public:
      * \param[in]  initialMaxRows    Initial value of maximum number of rows in Numeric Table allocated in
      *                               loadDataBlock() method
      */
-    ODBCDataSource(const std::string &connectionString,
-                   const ODBCDataSourceOptions &options,
-                   size_t initialMaxRows = 10) :
-        super(options.getNumericTableAllocationFlag(),
-              options.getDictionaryCreationFlag())
+    ODBCDataSource(const std::string & connectionString, const ODBCDataSourceOptions & options, size_t initialMaxRows = 10)
+        : super(options.getNumericTableAllocationFlag(), options.getDictionaryCreationFlag())
     {
         if (connectionString.find('\0') != std::string::npos)
         {
@@ -204,12 +192,9 @@ public:
         _status |= connectUsingConnectionString(connectionString);
     }
 
-    virtual ~ODBCDataSource()
-    {
-        freeHandlesInternal();
-    }
+    virtual ~ODBCDataSource() { freeHandlesInternal(); }
 
-    services::Status executeQuery(const std::string &query)
+    services::Status executeQuery(const std::string & query)
     {
         if (query.find('\0') != std::string::npos)
         {
@@ -219,23 +204,36 @@ public:
         _idxLastRead = 0;
 
         if (_autoNumericTableFlag == DataSource::doAllocateNumericTable)
-        { _spnt.reset(); }
+        {
+            _spnt.reset();
+        }
 
         if (_autoDictionaryFlag == DataSource::doDictionaryFromContext)
-        { _dict.reset(); }
+        {
+            _dict.reset();
+        }
 
         if (_hdlStmt)
         {
             SQLRETURN ret = SQLFreeHandle(SQL_HANDLE_STMT, _hdlStmt);
-            if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorSQLstmtHandle); }
+            if (!SQL_SUCCEEDED(ret))
+            {
+                return services::throwIfPossible(services::ErrorSQLstmtHandle);
+            }
             _hdlStmt = SQL_NULL_HSTMT;
         }
 
         SQLRETURN ret = SQLAllocHandle(SQL_HANDLE_STMT, _hdlDbc, &_hdlStmt);
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorSQLstmtHandle); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorSQLstmtHandle);
+        }
 
         ret = SQLExecDirect(_hdlStmt, (SQLCHAR *)query.c_str(), SQL_NTS);
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorODBC);
+        }
 
         _connectionStatus = DataSource::readyForLoad;
         return services::Status();
@@ -247,7 +245,10 @@ public:
     services::Status freeHandles()
     {
         SQLRETURN ret = freeHandlesInternal();
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorODBC);
+        }
 
         _connectionStatus = DataSource::notReady;
         return services::Status();
@@ -256,13 +257,22 @@ public:
     virtual size_t loadDataBlock(size_t maxRows) DAAL_C11_OVERRIDE
     {
         services::Status s = checkConnection();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkDictionary();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkNumericTable();
-        if (!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         return loadDataBlock(maxRows, _spnt.get());
     }
@@ -273,26 +283,36 @@ public:
      *  \param nt Externally allocated Numeric Table
      *  \return Actual number of rows loaded from the Data Source
      */
-    virtual size_t loadDataBlock(size_t maxRows, NumericTable *nt)
+    virtual size_t loadDataBlock(size_t maxRows, NumericTable * nt)
     {
         services::Status s = checkConnection();
-        if(!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkDictionary();
-        if(!s) { return 0; }
-
-        if( nt == NULL ) { this->_status.add(services::throwIfPossible(services::ErrorNullInputNumericTable)); return 0; }
-
-        super::resizeNumericTableImpl( maxRows, nt );
-
-        if(nt->getDataMemoryStatus() == NumericTableIface::userAllocated)
+        if (!s)
         {
-            if(nt->getNumberOfRows() < maxRows)
+            return 0;
+        }
+
+        if (nt == NULL)
+        {
+            this->_status.add(services::throwIfPossible(services::ErrorNullInputNumericTable));
+            return 0;
+        }
+
+        super::resizeNumericTableImpl(maxRows, nt);
+
+        if (nt->getDataMemoryStatus() == NumericTableIface::userAllocated)
+        {
+            if (nt->getNumberOfRows() < maxRows)
             {
                 this->_status.add(services::throwIfPossible(services::ErrorIncorrectNumberOfObservations));
                 return 0;
             }
-            if(nt->getNumberOfColumns() != _dict->getNumberOfFeatures())
+            if (nt->getNumberOfColumns() != _dict->getNumberOfFeatures())
             {
                 this->_status.add(services::throwIfPossible(services::ErrorIncorrectNumberOfFeatures));
                 return 0;
@@ -305,15 +325,13 @@ public:
         _idxLastRead += nRead;
 
         BlockDescriptor<DAAL_DATA_TYPE> blockNt;
-        nt->getBlockOfRows(0, nt->getNumberOfRows(), readOnly, blockNt );
-        DAAL_DATA_TYPE *row = blockNt.getBlockPtr();
+        nt->getBlockOfRows(0, nt->getNumberOfRows(), readOnly, blockNt);
+        DAAL_DATA_TYPE * row = blockNt.getBlockPtr();
 
-        if(nt->basicStatistics.get(NumericTableIface::minimum   ).get() != NULL &&
-           nt->basicStatistics.get(NumericTableIface::maximum   ).get() != NULL &&
-           nt->basicStatistics.get(NumericTableIface::sum       ).get() != NULL &&
-           nt->basicStatistics.get(NumericTableIface::sumSquares).get() != NULL)
+        if (nt->basicStatistics.get(NumericTableIface::minimum).get() != NULL && nt->basicStatistics.get(NumericTableIface::maximum).get() != NULL
+            && nt->basicStatistics.get(NumericTableIface::sum).get() != NULL && nt->basicStatistics.get(NumericTableIface::sumSquares).get() != NULL)
         {
-            for(size_t i = 0; i < nRead; i++)
+            for (size_t i = 0; i < nRead; i++)
             {
                 super::updateStatistics(i, nt, row);
             }
@@ -322,7 +340,7 @@ public:
         nt->releaseBlockOfRows(blockNt);
 
         NumericTableDictionaryPtr ntDict = nt->getDictionarySharedPtr();
-        size_t nFeatures = _dict->getNumberOfFeatures();
+        size_t nFeatures                 = _dict->getNumberOfFeatures();
         ntDict->setNumberOfFeatures(nFeatures);
         for (size_t i = 0; i < nFeatures; i++)
         {
@@ -337,36 +355,55 @@ public:
         services::Status s;
 
         s = checkConnection();
-        if(!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkDictionary();
-        if(!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkNumericTable();
-        if(!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         return loadDataBlock(_spnt.get());
     }
 
-    size_t loadDataBlock(NumericTable* nt) DAAL_C11_OVERRIDE
+    size_t loadDataBlock(NumericTable * nt) DAAL_C11_OVERRIDE
     {
         services::Status s;
 
         s = checkConnection();
-        if(!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
         s = super::checkDictionary();
-        if(!s) { return 0; }
+        if (!s)
+        {
+            return 0;
+        }
 
-        if( nt == NULL ) {this->_status.add(services::throwIfPossible(services::ErrorNullInputNumericTable)); return 0; }
+        if (nt == NULL)
+        {
+            this->_status.add(services::throwIfPossible(services::ErrorNullInputNumericTable));
+            return 0;
+        }
 
         size_t maxRows = (_initialMaxRows > 0 ? _initialMaxRows : 10);
-        size_t nrows = 0;
-        size_t ncols = _dict->getNumberOfFeatures();
+        size_t nrows   = 0;
+        size_t ncols   = _dict->getNumberOfFeatures();
 
         DataCollection tables;
 
-        for( ; ; )
+        for (;;)
         {
             NumericTablePtr ntCurrent = HomogenNumericTable<DAAL_DATA_TYPE>::create(ncols, maxRows, NumericTableIface::doAllocate, &s);
             if (!s)
@@ -377,11 +414,14 @@ public:
             tables.push_back(ntCurrent);
             size_t rows = loadDataBlock(maxRows, ntCurrent.get());
             nrows += rows;
-            if (rows < maxRows) { break; }
+            if (rows < maxRows)
+            {
+                break;
+            }
             maxRows *= 2;
         }
 
-        super::resizeNumericTableImpl( nrows, nt );
+        super::resizeNumericTableImpl(nrows, nt);
         nt->setNormalizationFlag(NumericTable::nonNormalized);
 
         BlockDescriptor<DAAL_DATA_TYPE> blockCurrent, block;
@@ -389,22 +429,26 @@ public:
         size_t pos = 0;
         int result = 0;
 
-        for (size_t i = 0; i < tables.size(); i++) {
-            NumericTable *ntCurrent = (NumericTable*)(tables[i].get());
-            size_t rows = ntCurrent->getNumberOfRows();
+        for (size_t i = 0; i < tables.size(); i++)
+        {
+            NumericTable * ntCurrent = (NumericTable *)(tables[i].get());
+            size_t rows              = ntCurrent->getNumberOfRows();
 
-            if (rows == 0) { continue; }
+            if (rows == 0)
+            {
+                continue;
+            }
 
             ntCurrent->getBlockOfRows(0, rows, readOnly, blockCurrent);
             nt->getBlockOfRows(pos, rows, writeOnly, block);
 
-            result |= services::internal::daal_memcpy_s(block.getBlockPtr(),        rows * ncols * sizeof(DAAL_DATA_TYPE),
-                                                        blockCurrent.getBlockPtr(), rows * ncols * sizeof(DAAL_DATA_TYPE));
+            result |= services::internal::daal_memcpy_s(block.getBlockPtr(), rows * ncols * sizeof(DAAL_DATA_TYPE), blockCurrent.getBlockPtr(),
+                                                        rows * ncols * sizeof(DAAL_DATA_TYPE));
 
             ntCurrent->releaseBlockOfRows(blockCurrent);
             nt->releaseBlockOfRows(block);
 
-            super::combineStatistics( ntCurrent, nt, pos == 0);
+            super::combineStatistics(ntCurrent, nt, pos == 0);
             pos += rows;
         }
         if (result)
@@ -413,7 +457,7 @@ public:
         }
 
         NumericTableDictionaryPtr ntDict = nt->getDictionarySharedPtr();
-        size_t nFeatures = _dict->getNumberOfFeatures();
+        size_t nFeatures                 = _dict->getNumberOfFeatures();
         ntDict->setNumberOfFeatures(nFeatures);
         for (size_t i = 0; i < nFeatures; i++)
         {
@@ -431,7 +475,9 @@ public:
         _connectionStatus = DataSource::notReady;
 
         if (_dict)
-        { return services::throwIfPossible(services::ErrorDictionaryAlreadyAvailable); }
+        {
+            return services::throwIfPossible(services::ErrorDictionaryAlreadyAvailable);
+        }
 
         _dict = DataSourceDictionary::create(&status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -443,20 +489,11 @@ public:
         return status;
     }
 
-    DataSourceIface::DataSourceStatus getStatus() DAAL_C11_OVERRIDE
-    {
-        return _connectionStatus;
-    }
+    DataSourceIface::DataSourceStatus getStatus() DAAL_C11_OVERRIDE { return _connectionStatus; }
 
-    size_t getNumberOfAvailableRows() DAAL_C11_OVERRIDE
-    {
-        return 0;
-    }
+    size_t getNumberOfAvailableRows() DAAL_C11_OVERRIDE { return 0; }
 
-    FeatureManager &getFeatureManager()
-    {
-        return _featureManager;
-    }
+    FeatureManager & getFeatureManager() { return _featureManager; }
 
 private:
     void initialize(size_t initialMaxRows)
@@ -470,31 +507,41 @@ private:
         _connectionStatus = DataSource::notReady;
     }
 
-    services::Status connectUsingUserNameAndPassword(const std::string &dbname,
-                                                     const std::string &username,
-                                                     const std::string &password)
+    services::Status connectUsingUserNameAndPassword(const std::string & dbname, const std::string & username, const std::string & password)
     {
         SQLRETURN ret = setupHandlesInternal();
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorHandlesSQL); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorHandlesSQL);
+        }
 
         ret = connectInternal(dbname, username, password);
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorODBC);
+        }
 
         return services::Status();
     }
 
-    services::Status connectUsingConnectionString(const std::string &connectionString)
+    services::Status connectUsingConnectionString(const std::string & connectionString)
     {
         SQLRETURN ret = setupHandlesInternal();
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorHandlesSQL); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorHandlesSQL);
+        }
 
         ret = connectDriverInternal(connectionString);
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorODBC);
+        }
 
         return services::Status();
     }
 
-    services::Status executeSelectAllQuery(const std::string &tableName)
+    services::Status executeSelectAllQuery(const std::string & tableName)
     {
         if (!tableName.empty())
         {
@@ -503,53 +550,66 @@ private:
         return services::Status();
     }
 
-    SQLRETURN connectInternal(const std::string &dbname,
-                              const std::string &username,
-                              const std::string &password)
+    SQLRETURN connectInternal(const std::string & dbname, const std::string & username, const std::string & password)
     {
-        return SQLConnect(_hdlDbc, (SQLCHAR *)dbname.c_str(), (SQLSMALLINT)dbname.size(),
-                                   (SQLCHAR *)username.c_str(), (SQLSMALLINT)username.size(),
-                                   (SQLCHAR *)password.c_str(), (SQLSMALLINT)password.size());
+        return SQLConnect(_hdlDbc, (SQLCHAR *)dbname.c_str(), (SQLSMALLINT)dbname.size(), (SQLCHAR *)username.c_str(), (SQLSMALLINT)username.size(),
+                          (SQLCHAR *)password.c_str(), (SQLSMALLINT)password.size());
     }
 
-    SQLRETURN connectDriverInternal(const std::string &connectionString)
+    SQLRETURN connectDriverInternal(const std::string & connectionString)
     {
         SQLSMALLINT outConnectionStringLength;
-        return SQLDriverConnect(_hdlDbc, SQL_NULL_HANDLE,
-                                (SQLCHAR *)connectionString.c_str(),
-                                (SQLSMALLINT)connectionString.size(),
-                                (SQLCHAR *)NULL,
-                                (SQLSMALLINT)0,
-                                &outConnectionStringLength,
-                                SQL_DRIVER_NOPROMPT);
+        return SQLDriverConnect(_hdlDbc, SQL_NULL_HANDLE, (SQLCHAR *)connectionString.c_str(), (SQLSMALLINT)connectionString.size(), (SQLCHAR *)NULL,
+                                (SQLSMALLINT)0, &outConnectionStringLength, SQL_DRIVER_NOPROMPT);
     }
 
     SQLRETURN setupHandlesInternal()
     {
         SQLRETURN ret = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &_hdlEnv);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
-        ret = SQLSetEnvAttr(_hdlEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_UINTEGER);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        ret = SQLSetEnvAttr(_hdlEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, SQL_IS_UINTEGER);
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         ret = SQLAllocHandle(SQL_HANDLE_DBC, _hdlEnv, &_hdlDbc);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         return SQL_SUCCESS;
     }
 
     SQLRETURN freeHandlesInternal()
     {
-        if (_hdlDbc == SQL_NULL_HDBC || _hdlEnv == SQL_NULL_HENV) { return SQL_SUCCESS; }
+        if (_hdlDbc == SQL_NULL_HDBC || _hdlEnv == SQL_NULL_HENV)
+        {
+            return SQL_SUCCESS;
+        }
 
         SQLRETURN ret = SQLDisconnect(_hdlDbc);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         ret = SQLFreeHandle(SQL_HANDLE_DBC, _hdlDbc);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         ret = SQLFreeHandle(SQL_HANDLE_ENV, _hdlEnv);
-        if (!SQL_SUCCEEDED(ret)) { return ret; }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return ret;
+        }
 
         _hdlDbc = SQL_NULL_HDBC;
         _hdlEnv = SQL_NULL_HENV;
@@ -560,13 +620,15 @@ private:
     services::Status checkConnection()
     {
         if (_connectionStatus == DataSource::notReady)
-        { return services::throwIfPossible(services::ErrorSourceDataNotAvailable); }
+        {
+            return services::throwIfPossible(services::ErrorSourceDataNotAvailable);
+        }
 
         return services::Status();
     }
 
 private:
-    size_t         _idxLastRead;
+    size_t _idxLastRead;
     FeatureManager _featureManager;
     DataSourceIface::DataSourceStatus _connectionStatus;
 
@@ -581,9 +643,10 @@ private:
 using interface1::ODBCDataSource;
 using interface1::ODBCDataSourceOptions;
 
-inline ODBCDataSourceOptions::Value operator |(const ODBCDataSourceOptions::Value &lhs,
-                                               const ODBCDataSourceOptions::Value &rhs)
-{ return ODBCDataSourceOptions::unite(lhs, rhs); }
+inline ODBCDataSourceOptions::Value operator|(const ODBCDataSourceOptions::Value & lhs, const ODBCDataSourceOptions::Value & rhs)
+{
+    return ODBCDataSourceOptions::unite(lhs, rhs);
+}
 
 } // namespace data_management
 } // namespace daal

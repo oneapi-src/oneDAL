@@ -30,10 +30,9 @@ using namespace daal::data_management;
  * Method:    cGetAlpha
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_Model_cGetAlpha
-(JNIEnv *env, jobject thisObj, jlong modelAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_Model_cGetAlpha(JNIEnv * env, jobject thisObj, jlong modelAddr)
 {
-    NumericTablePtr *nt = new NumericTablePtr();
+    NumericTablePtr * nt = new NumericTablePtr();
     adaboost::interface1::ModelPtr res =
         services::staticPointerCast<adaboost::interface1::Model, SerializationIface>(*((SerializationIfacePtr *)modelAddr));
 

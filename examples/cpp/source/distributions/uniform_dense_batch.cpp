@@ -34,7 +34,7 @@ using namespace daal::algorithms;
 using namespace daal::algorithms::engines;
 using namespace daal::algorithms::distributions;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     /* Create input table to fill with random numbers */
     NumericTablePtr dataTable(new HomogenNumericTable<>(1, 10, NumericTable::doAllocate));

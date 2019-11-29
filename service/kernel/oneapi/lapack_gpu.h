@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __SERVICE_ONEAPI_LAPACK_GPU_H__
 #define __SERVICE_ONEAPI_LAPACK_GPU_H__
 
@@ -38,33 +37,26 @@ namespace oneapi
 {
 namespace internal
 {
-
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 struct LapackGpu
 {
-    static services::Status xpotrf(
-        const math::UpLo uplo,
-        const uint32_t n, UniversalBuffer a_buffer, const uint32_t lda)
+    static services::Status xpotrf(const math::UpLo uplo, const uint32_t n, UniversalBuffer a_buffer, const uint32_t lda)
     {
         services::Status status;
 
-        ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
+        ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
         ctx.potrf(uplo, n, a_buffer, lda, &status);
 
         return status;
     }
 
-    static services::Status xpotrs(
-        const math::UpLo uplo,
-        const uint32_t n, const uint32_t ny, UniversalBuffer a_buffer,
-        const uint32_t lda, UniversalBuffer b_buffer, const uint32_t ldb)
+    static services::Status xpotrs(const math::UpLo uplo, const uint32_t n, const uint32_t ny, UniversalBuffer a_buffer, const uint32_t lda,
+                                   UniversalBuffer b_buffer, const uint32_t ldb)
     {
         services::Status status;
 
-        ExecutionContextIface &ctx =
-            services::Environment::getInstance()->getDefaultExecutionContext();
+        ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
         ctx.potrs(uplo, n, ny, a_buffer, lda, b_buffer, ldb, &status);
 

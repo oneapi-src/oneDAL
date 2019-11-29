@@ -37,11 +37,10 @@ namespace quantiles
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_QUANTILES_RESULT_ID);
-Parameter::Parameter(const NumericTablePtr quantileOrders)
-    : daal::algorithms::Parameter(), quantileOrders(quantileOrders)
+Parameter::Parameter(const NumericTablePtr quantileOrders) : daal::algorithms::Parameter(), quantileOrders(quantileOrders)
 {
     Status s;
-    if(quantileOrders.get() == NULL)
+    if (quantileOrders.get() == NULL)
     {
         this->quantileOrders = HomogenNumericTable<double>::create(1, 1, NumericTableIface::doAllocate, 0.5, &s);
         if (!s) return;
@@ -49,7 +48,7 @@ Parameter::Parameter(const NumericTablePtr quantileOrders)
 }
 
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 /**
  * Returns an input object for the quantiles algorithm
@@ -66,7 +65,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the %input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(InputId id, const NumericTablePtr &ptr)
+void Input::set(InputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -76,9 +75,9 @@ void Input::set(InputId id, const NumericTablePtr &ptr)
  * \param[in] parameter Pointer to the parameters structure
  * \param[in] method    Algorithm computation method
  */
-Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     Status s = checkNumericTable(algParameter->quantileOrders.get(), quantileOrdersStr(), 0, 0, 0, 1);
 
@@ -103,7 +102,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id        Identifier of the Result object
  * \param[in] value     Pointer to the Result object
  */
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -114,28 +113,26 @@ void Result::set(ResultId id, const NumericTablePtr &value)
  * \param[in] par    Pointer to the parameters structure
  * \param[in] method Algorithm computation method
  */
-Status Result::check(const daal::algorithms::Input *in, const daal::algorithms::Parameter *par, int method) const
+Status Result::check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const
 {
-    const Input *input = static_cast<const Input *>(in);
-    const Parameter *parameter = static_cast<const Parameter *>(par);
+    const Input * input         = static_cast<const Input *>(in);
+    const Parameter * parameter = static_cast<const Parameter *>(par);
 
     Status s = checkNumericTable(parameter->quantileOrders.get(), quantileOrdersStr(), 0, 0, 0, 1);
-    if(!s) return s;
+    if (!s) return s;
 
     size_t nVectors  = input->get(data)->getNumberOfColumns();
     size_t nFeatures = parameter->quantileOrders->getNumberOfColumns();
 
-    int unexpectedLayouts = (int)NumericTableIface::csrArray |
-                            (int)NumericTableIface::upperPackedTriangularMatrix |
-                            (int)NumericTableIface::lowerPackedTriangularMatrix |
-                            (int)NumericTableIface::upperPackedSymmetricMatrix |
-                            (int)NumericTableIface::lowerPackedSymmetricMatrix;
+    int unexpectedLayouts = (int)NumericTableIface::csrArray | (int)NumericTableIface::upperPackedTriangularMatrix
+                            | (int)NumericTableIface::lowerPackedTriangularMatrix | (int)NumericTableIface::upperPackedSymmetricMatrix
+                            | (int)NumericTableIface::lowerPackedSymmetricMatrix;
 
     s |= checkNumericTable(get(quantiles).get(), quantilesStr(), unexpectedLayouts, 0, nFeatures, nVectors);
     return s;
 }
 
-}// namespace interface1
-}// namespace quantiles
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace quantiles
+} // namespace algorithms
+} // namespace daal

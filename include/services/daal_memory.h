@@ -44,7 +44,7 @@ namespace services
  * \param[in] alignment Alignment constraint. Must be a power of two
  * \return Pointer to the beginning of a newly allocated block of memory
  */
-DAAL_EXPORT void *daal_malloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAULT_ALIGNMENT);
+DAAL_EXPORT void * daal_malloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAULT_ALIGNMENT);
 
 /**
  * Allocates and initializes with zero an aligned block of memory
@@ -52,13 +52,13 @@ DAAL_EXPORT void *daal_malloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAUL
  * \param[in] alignment Alignment constraint. Must be a power of two
  * \return Pointer to the beginning of a newly allocated zero-filled block of memory
  */
-DAAL_EXPORT void *daal_calloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAULT_ALIGNMENT);
+DAAL_EXPORT void * daal_calloc(size_t size, size_t alignment = DAAL_MALLOC_DEFAULT_ALIGNMENT);
 
 /**
  * Deallocates the space previously allocated by daal_malloc
  * \param[in] ptr   Pointer to the beginning of a block of memory to deallocate
  */
-DAAL_EXPORT void  daal_free(void *ptr);
+DAAL_EXPORT void daal_free(void * ptr);
 
 /**
  * Copies bytes between buffers
@@ -68,7 +68,7 @@ DAAL_EXPORT void  daal_free(void *ptr);
  * \param[in]  count              Number of bytes to copy.
  * \DAAL_DEPRECATED
  */
-DAAL_DEPRECATED DAAL_EXPORT void daal_memcpy_s(void *dest, size_t numberOfElements, const void *src, size_t count);
+DAAL_DEPRECATED DAAL_EXPORT void daal_memcpy_s(void * dest, size_t numberOfElements, const void * src, size_t count);
 
 namespace internal
 {
@@ -80,8 +80,8 @@ namespace internal
 * \param[in]  srcSize            Number of bytes to copy.
 * \return Status of memory copy, memory copy is successful if zero is returned
 */
-DAAL_EXPORT int daal_memcpy_s(void *dest, size_t destSize, const void *src, size_t srcSize);
-}
+DAAL_EXPORT int daal_memcpy_s(void * dest, size_t destSize, const void * src, size_t srcSize);
+} // namespace internal
 
 /**
  * Copies smax bytes from the region pointed to by src into the region pointed to by dest
@@ -90,7 +90,7 @@ DAAL_EXPORT int daal_memcpy_s(void *dest, size_t destSize, const void *src, size
  * \param[in]  src                Pointer to source buffer
  * \param[in]  count              Number of bytes to copy.
  */
-DAAL_EXPORT void daal_memmove_s(void *dest, size_t destSize, const void *src, size_t count);
+DAAL_EXPORT void daal_memmove_s(void * dest, size_t destSize, const void * src, size_t count);
 /** @} */
 
 DAAL_EXPORT float daal_string_to_float(const char * nptr, char ** endptr);
@@ -100,7 +100,7 @@ DAAL_EXPORT double daal_string_to_double(const char * nptr, char ** endptr);
 DAAL_EXPORT int daal_int_to_string(char * buffer, size_t n, int value);
 
 DAAL_EXPORT int daal_double_to_string(char * buffer, size_t n, double value);
-}
+} // namespace services
 } // namespace daal
 
 #endif

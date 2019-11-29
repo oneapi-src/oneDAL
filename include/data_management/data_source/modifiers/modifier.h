@@ -50,7 +50,7 @@ namespace interface1
 class ConfigIface
 {
 public:
-    virtual ~ConfigIface() { }
+    virtual ~ConfigIface() {}
 
     /**
      * Gets the number of input features
@@ -71,8 +71,7 @@ public:
      * \param[in]  featureType         The type of the feature
      * \return     Status object
      */
-    virtual services::Status setOutputFeatureType(size_t outputFeatureIndex,
-                                                  features::FeatureType featureType) = 0;
+    virtual services::Status setOutputFeatureType(size_t outputFeatureIndex, features::FeatureType featureType) = 0;
 
     /**
      * Sets the number of categories for categorical feature
@@ -80,8 +79,7 @@ public:
      * \param[in]  numberOfCategories  The number of categories
      * \return     Status object
      */
-    virtual services::Status setNumberOfCategories(size_t outputFeatureIndex,
-                                                   size_t numberOfCategories) = 0;
+    virtual services::Status setNumberOfCategories(size_t outputFeatureIndex, size_t numberOfCategories) = 0;
 
     /**
      * Sets the dictionary for the categorical feature
@@ -89,8 +87,7 @@ public:
      * \param[in]  dictionary          The categorical feature dictionary
      * \return     Status object
      */
-    virtual services::Status setCategoricalDictionary(size_t outputFeatureIndex,
-                                                      const CategoricalFeatureDictionaryPtr &dictionary) = 0;
+    virtual services::Status setCategoricalDictionary(size_t outputFeatureIndex, const CategoricalFeatureDictionaryPtr & dictionary) = 0;
 };
 
 /**
@@ -100,7 +97,7 @@ public:
 class ContextIface
 {
 public:
-    virtual ~ContextIface() { }
+    virtual ~ContextIface() {}
 
     /**
      * Gets the output buffer buffer. Buffer size must be equal to the number of
@@ -117,18 +114,18 @@ public:
  * \tparam Config Type of object to be used as configuration on initialization or finalization stages
  * \tparam Context Type of object that represents modifier context
  */
-template<typename Config, typename Context>
+template <typename Config, typename Context>
 class FeatureModifierIface
 {
 public:
-    virtual ~FeatureModifierIface() { }
+    virtual ~FeatureModifierIface() {}
 
     /**
      * Executes initialization of the modifier. This method is
      * called once before FeatureModifierIface::apply
      * \param config  The configuration of the modifier
      */
-    virtual void initialize(Config &config) = 0;
+    virtual void initialize(Config & config) = 0;
 
     /**
      * Applies the modifier. This method is supposed to extract the data from data
@@ -136,14 +133,14 @@ public:
      * context. The method may be called multiple times depending on data source
      * \param context  The context of the modifier
      */
-    virtual void apply(Context &context) = 0;
+    virtual void apply(Context & context) = 0;
 
     /**
      * Executes finalization of the modifier. This method is
      * called once after FeatureModifierIface::apply
      * \param config  The configuration of the modifier
      */
-    virtual void finalize(Config &config) = 0;
+    virtual void finalize(Config & config) = 0;
 };
 
 /** @} */

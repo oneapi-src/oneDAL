@@ -25,8 +25,7 @@ using namespace daal::algorithms::kernel_function::linear;
  * Method:    cSetK
  * Signature:(DD)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Parameter_cSetK
-(JNIEnv *env, jobject thisObj, jlong parAddr, jdouble k)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Parameter_cSetK(JNIEnv * env, jobject thisObj, jlong parAddr, jdouble k)
 {
     (*(Parameter *)parAddr).k = k;
 }
@@ -35,10 +34,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Pa
  * Method:    cSetK
  * Signature:(DD)J
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Parameter_cGetK
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Parameter_cGetK(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(jdouble)(*(Parameter *)parAddr).k;
+    return (jdouble)(*(Parameter *)parAddr).k;
 }
 
 /*
@@ -46,8 +44,7 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear
  * Method:    cSetK
  * Signature:(DD)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Parameter_cSetB
-(JNIEnv *env, jobject thisObj, jlong parAddr, jdouble b)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Parameter_cSetB(JNIEnv * env, jobject thisObj, jlong parAddr, jdouble b)
 {
     (*(Parameter *)parAddr).b = b;
 }
@@ -56,8 +53,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Pa
  * Method:    cGetB
  * Signature:(DD)J
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Parameter_cGetB
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_kernel_1function_linear_Parameter_cGetB(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(jdouble)(*(Parameter *)parAddr).b;
+    return (jdouble)(*(Parameter *)parAddr).b;
 }
