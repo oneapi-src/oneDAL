@@ -126,11 +126,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::logLoss(con
     args.set(2, result, AccessModeIds::write);
 
     KernelRange range(n);
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(logLoss.run);
-        ctx.run(range, kernel, args, &status);
-    }
-
+    ctx.run(range, kernel, args, &status);
     return status;
 }
 
@@ -161,11 +157,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(co
     args.set(3, result, AccessModeIds::write);
 
     KernelRange range(n);
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids.run);
-        ctx.run(range, kernel, args, &status);
-    }
-
+    ctx.run(range, kernel, args, &status);
     return status;
 }
 
@@ -311,7 +303,6 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
     NumericTable * gradientNT, NumericTable * hessianNT, NumericTable * nonSmoothTermValueNT, NumericTable * proximalProjectionNT,
     NumericTable * lipschitzConstantNT, const algorithmFPType l1reg, const algorithmFPType l2reg, const bool interceptFlag, const bool isSourceData)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(doCompute);
     services::Status status;
 
     ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -349,7 +340,6 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
     if (valueNT)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.valueNT);
         DAAL_ASSERT(valueNT->getNumberOfRows() == 1);
 
         BlockDescriptor<algorithmFPType> vr;
@@ -380,7 +370,6 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
     if (gradientNT)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.gradient);
         DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
 
         BlockDescriptor<algorithmFPType> gr;
@@ -392,14 +381,13 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
         // diff = sigmoid(Xb) - y
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.gradient.subVectors);
+            DAAL_ITTNOTIFY_SCOPED_TASK(subVectors);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::subVectors(sigmoidBuf, yBuff, subSigmoidYBuff, n));
         }
 
         const algorithmFPType coeffBeta = algorithmFPType(2) * l2reg;
         if (l2reg > 0)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.gradient.initL2reg);
             ctx.copy(gradientBuff, 1, argBuff, 1, nBeta - 1, &status);
             const algorithmFPType zero = algorithmFPType(0);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setElem(0, zero, gradientBuff));
@@ -410,7 +398,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
         if (interceptFlag)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.gradient.interceptFlag);
+            DAAL_ITTNOTIFY_SCOPED_TASK(interceptCalculate);
             // g[0] = sum(sigmoid(Xb) - y)/n
             algorithmFPType g0 = algorithmFPType(0);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::sum(subSigmoidYBuff, g0, n));
@@ -454,7 +442,6 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(Num
                                                                              NumericTable * proximalProjectionNT, NumericTable * lipschitzConstantNT,
                                                                              Parameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     services::Status status;
 
     const size_t nRows = data->getNumberOfRows();
@@ -475,7 +462,6 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(Num
 
     if (ntInd == nullptr || (ntInd != nullptr && ntInd->getNumberOfColumns() == nRows))
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.sourceData);
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
 
@@ -497,7 +483,6 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(Num
     }
     else
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.chunkData);
         const size_t nBatch = ntInd->getNumberOfColumns();
         // TODO: if (nBatch == 1)
 
@@ -521,6 +506,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(Num
         DAAL_CHECK_STATUS(status, dependentVariables->getBlockOfRows(0, nRows, ReadWriteMode::readOnly, yBlock));
 
         {
+            DAAL_ITTNOTIFY_SCOPED_TASK(getXY);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::getXY(xBlock.getBuffer(), yBlock.getBuffer(), indBuff, xBuff, yBuff, nBatch, p,
                                                                      parameter->interceptFlag));
         }

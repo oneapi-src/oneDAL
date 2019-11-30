@@ -59,8 +59,6 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(const H
                                                                          const NumericTablePtr & y, logistic_regression::Model & m, Result & res,
                                                                          const Parameter & par)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
-
     const size_t p = x->getNumberOfColumns() + 1;
     DAAL_ASSERT(p == m.getNumberOfBetas());
     services::SharedPtr<optimization_solver::iterative_solver::Batch> pSolver = par.optimizationSolver->clone();
@@ -148,7 +146,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(const H
     return s;
 }
 
-} /* namespace internal */
+} // namespace internal
 } /* namespace training */
 } /* namespace logistic_regression */
 } /* namespace algorithms */

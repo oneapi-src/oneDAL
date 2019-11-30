@@ -275,7 +275,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
         applyBetaThreaded(x, b, fPtr, n, p, parameter->interceptFlag);
 
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute_sigmoids);
+            DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids);
             //s = exp(-f)
             vexp<algorithmFPType, cpu>(fPtr, sgPtr, n);
 
@@ -324,7 +324,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
 
         if (gradientNT)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute_gradient);
+            DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
 
             DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
             algorithmFPType * s = sgPtr;
@@ -499,7 +499,10 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::compute(NumericTab
 
             TArrayScalable<algorithmFPType, cpu> aX(n * p);
             TArrayScalable<algorithmFPType, cpu> aY(n);
-            s |= objective_function::internal::getXY<algorithmFPType, cpu>(dataNT, dependentVariablesNT, ntInd, aX.get(), aY.get(), nRows, n, p);
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(getXY);
+                s |= objective_function::internal::getXY<algorithmFPType, cpu>(dataNT, dependentVariablesNT, ntInd, aX.get(), aY.get(), nRows, n, p);
+            }
             s |= doCompute(aX.get(), aY.get(), n, p, betaNT, valueNT, hessianNT, gradientNT, nonSmoothTermValue, proximalProjection,
                            lipschitzConstant, parameter);
         }
