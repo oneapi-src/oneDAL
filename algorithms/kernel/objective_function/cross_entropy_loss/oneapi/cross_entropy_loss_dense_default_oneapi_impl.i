@@ -109,14 +109,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
     args.set(8, alpha);
 
     KernelRange range(nBeta * nClasses, nBeta * nClasses);
-<<<<<<< HEAD
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(applyHessian.run);
-        ctx.run(range, kernel, args, &status);
-    }
-=======
     ctx.run(range, kernel, args, &status);
->>>>>>> tmp
 
     return status;
 }
@@ -337,10 +330,6 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
 
     if (gradientNT)
     {
-<<<<<<< HEAD
-        DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.gradientNT);
-=======
->>>>>>> tmp
         DAAL_ASSERT(gradientNT->getNumberOfRows() == nClasses * nBeta);
 
         BlockDescriptor<algorithmFPType> gr;
@@ -463,11 +452,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::co
         DAAL_CHECK_STATUS(status, dependentVariables->getBlockOfRows(0, nRows, ReadWriteMode::readOnly, yBlock));
 
         {
-<<<<<<< HEAD
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.chunkData.getXY);
-=======
             DAAL_ITTNOTIFY_SCOPED_TASK(getXY);
->>>>>>> tmp
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::getXY(xBlock.getBuffer(), yBlock.getBuffer(), indBuff, xBuff, yBuff, nBatch, p,
                                                                      parameter->interceptFlag));
         }

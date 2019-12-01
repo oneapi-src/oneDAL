@@ -98,7 +98,7 @@ private:
         daal::internal::ittnotify::ScopedTask __ittnotify_task(__ittnotify_domain, __ittnotify_stringhandle)
 
 #else
-    #include "services/internal/profiler.h"
+    #include "service_profiler.h"
 
     #undef DAAL_ITTNOTIFY_CONCAT
     #define DAAL_ITTNOTIFY_CONCAT(x, y)  DAAL_ITTNOTIFY_CONCAT2(x, y)
@@ -107,9 +107,8 @@ private:
     #define __DAAL_UNIQUE_ID __LINE__
 
     #define DAAL_ITTNOTIFY_DOMAIN(name)
-    #define DAAL_ITTNOTIFY_SCOPED_TASK(name)                                                 \
-        daal::services::internal::ProfilerTask DAAL_ITTNOTIFY_CONCAT(__, __DAAL_UNIQUE_ID) = \
-            daal::services::internal::ProfilerDefault::startTask(#name);
+    #define DAAL_ITTNOTIFY_SCOPED_TASK(name) \
+        daal::internal::ProfilerTask DAAL_ITTNOTIFY_CONCAT(__, __DAAL_UNIQUE_ID) = daal::internal::Profiler::startTask(#name);
 
 #endif
 #endif

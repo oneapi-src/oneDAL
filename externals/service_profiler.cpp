@@ -1,6 +1,6 @@
-/* file: profiler.h */
+/** file service_profiler.cpp */
 /*******************************************************************************
-* Copyright 2019 Intel Corporation
+* Copyright 2014-2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,45 +15,25 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "service_profiler.h"
+
 namespace daal
-{
-namespace services
 {
 namespace internal
 {
-/**
- * @defgroup services_internal ServicesInternal
- * \brief Contains internal classes definitions
- * @{
- */
-
-class ProfilerTask;
-
-/**
- *  <a name="DAAL-CLASS-SERVICES-INTERNAL__PROFILERDEFAULT"></a>
- *  \brief Profiler for measure of kernals
- */
-class ProfilerDefault
+ProfilerTask Profiler::startTask(const char * taskName)
 {
-public:
-    static ProfilerTask startTask(const char * taskName);
-    static void endTask(const char * taskName);
-};
+    return ProfilerTask(taskName);
+}
 
-/**
- *  <a name="DAAL-CLASS-SERVICES-INTERNAL__PROFILERTASK"></a>
- *  \brief Profiler task for measure of kernals
- */
-class ProfilerTask
+void Profiler::endTask(const char * taskName) {}
+
+ProfilerTask::ProfilerTask(const char * taskName) : _taskName(taskName) {}
+
+ProfilerTask::~ProfilerTask()
 {
-public:
-    ProfilerTask(const char * taskName);
-    ~ProfilerTask();
-
-private:
-    const char * _taskName;
-};
+    Profiler::endTask(_taskName);
+}
 
 } // namespace internal
-} // namespace services
 } // namespace daal

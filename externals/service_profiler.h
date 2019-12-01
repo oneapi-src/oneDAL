@@ -1,4 +1,4 @@
-/** file service_profiler.cpp */
+/* file: service_profiler.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -15,28 +15,32 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "services/internal/profiler.h"
+/*
+//++
+//  Profiler for measure of kernals
+//--
+*/
 
 namespace daal
 {
-namespace services
-{
 namespace internal
 {
-ProfilerTask ProfilerDefault::startTask(const char * taskName)
+class ProfilerTask
 {
-    return ProfilerTask(taskName);
-}
+public:
+    ProfilerTask(const char * task_name);
+    ~ProfilerTask();
 
-void ProfilerDefault::endTask(const char * taskName) {}
+private:
+    const char * _task_name;
+};
 
-ProfilerTask::ProfilerTask(const char * taskName) : _taskName(taskName) {}
-
-ProfilerTask::~ProfilerTask()
+class Profiler
 {
-    ProfilerDefault::endTask(_taskName);
-}
+public:
+    static ProfilerTask startTask(const char * task_name);
+    static void endTask(const char * task_name);
+};
 
 } // namespace internal
-} // namespace services
 } // namespace daal
