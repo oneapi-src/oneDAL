@@ -28,18 +28,18 @@ namespace internal
 class ProfilerTask
 {
 public:
-    ProfilerTask(const char * task_name);
+    ProfilerTask(const char * taskName);
     ~ProfilerTask();
 
 private:
-    const char * _task_name;
+    const char * _taskName;
 };
 
 class Profiler
 {
 public:
-    static ProfilerTask startTask(const char * task_name);
-    static void endTask(const char * task_name);
+    static ProfilerTask startTask(const char * taskName);
+    static void endTask(const char * taskName);
 };
 
 } // namespace internal

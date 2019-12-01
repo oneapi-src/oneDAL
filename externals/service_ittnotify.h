@@ -110,5 +110,5 @@ private:
     #define DAAL_ITTNOTIFY_SCOPED_TASK(name) \
         daal::internal::ProfilerTask DAAL_ITTNOTIFY_CONCAT(__, __DAAL_UNIQUE_ID) = daal::internal::Profiler::startTask(#name);
 
-#endif
-#endif
+#endif // __DAAL_ITTNOTIFY_ENABLE__
+#endif // __SERVICE_ITTNOTIFY_H__

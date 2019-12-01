@@ -146,7 +146,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(const H
     return s;
 }
 
-} // namespace internal
+} /* namespace internal */
 } /* namespace training */
 } /* namespace logistic_regression */
 } /* namespace algorithms */
