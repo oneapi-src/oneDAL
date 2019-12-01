@@ -61,8 +61,9 @@ public:
         TVector<algorithmFPType, cpu, ScalableAllocator<cpu> > aExp(n);
         auto exp                           = aExp.get();
         const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
-        const size_t nThreads = daal::threader_get_threads_number();
-        if ( n < getThrOptBorder<cpu>(nThreads) || nThreads <= 1 )
+        const size_t nThreads              = daal::threader_get_threads_number();
+        const size_t nBlocks               = getNBlocksForOpt<cpu>(nThreads, n);
+        if ( nBlocks == 1 )
         {
             if (sampleInd)
             {
@@ -114,11 +115,11 @@ public:
         }
         else
         {
-            const size_t nPerBlock = n / nThreads;
-            const size_t nSurplus = n % nThreads;
+            const size_t nPerBlock = n / nBlocks;
+            const size_t nSurplus = n % nBlocks;
             if (sampleInd)
             {
-                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
                 {
                     size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
                     size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
@@ -132,11 +133,12 @@ public:
                         if(exp[i] < expThreshold)
                             exp[i] = expThreshold;
                     }
+                    daal::internal::Math<algorithmFPType, cpu>::vExp(end - start, exp + start, exp + start);
                 });
             }
             else
             {
-                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
                 {
                     size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
                     size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
@@ -150,13 +152,13 @@ public:
                         if(exp[i] < expThreshold)
                             exp[i] = expThreshold;
                     }
+                    daal::internal::Math<algorithmFPType, cpu>::vExp(end - start, exp + start, exp + start);
                 });
             }
-            daal::internal::Math<algorithmFPType, cpu>::vExp(n, exp, exp);
 
             if(sampleInd)
             {
-                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
                 {
                     size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
                     size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
@@ -172,7 +174,7 @@ public:
             }
             else
             {
-                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
                 {
                     size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
                     size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);

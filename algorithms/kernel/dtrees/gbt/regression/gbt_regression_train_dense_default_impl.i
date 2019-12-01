@@ -56,7 +56,8 @@ public:
                               algorithmFPType * gh) DAAL_C11_OVERRIDE
     {
         const size_t nThreads = daal::threader_get_threads_number();
-        if ( n < getThrOptBorder<cpu>(nThreads) || nThreads <= 1 )
+        const size_t nBlocks  = getNBlocksForOpt<cpu>(nThreads, n);
+        if ( nBlocks == 1 )
         {
             if (sampleInd)
             {
@@ -81,11 +82,11 @@ public:
         }
         else
         {
-            const size_t nPerBlock = n / nThreads;
-            const size_t nSurplus = n % nThreads;
+            const size_t nPerBlock = n / nBlocks;
+            const size_t nSurplus = n % nBlocks;
             if (sampleInd)
             {
-                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
                 {
                     size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
                     size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
@@ -100,7 +101,7 @@ public:
             }
             else
             {
-                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
                 {
                     size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
                     size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
@@ -159,25 +160,27 @@ protected:
         const algorithmFPType div = algorithmFPType(1.) / algorithmFPType(n);
         val                       = algorithmFPType(0);
         const size_t nThreads     = super::numAvailableThreads();
-        if ( n < getThrOptBorder<cpu>(nThreads) || nThreads <= 1 )
+        const size_t nBlocks      = getNBlocksForOpt<cpu>(nThreads, n);
+        if ( nBlocks == 1 )
         {
-            for(size_t i = 0; i < n; ++i) val += div*py[i];
+            for (size_t i = 0; i < n; ++i) val += div*py[i];
         }
         else
         {
-            const size_t nPerBlock = n / nThreads;
-            const size_t nSurplus = n % nThreads;
-            services::internal::TArray<algorithmFPType, cpu> pvalsArr(nThreads);
+            const size_t nPerBlock = n / nBlocks;
+            const size_t nSurplus = n % nBlocks;
+            services::internal::TArray<algorithmFPType, cpu> pvalsArr(nBlocks);
             algorithmFPType * pvals = pvalsArr.get();
-            services::internal::service_memset<algorithmFPType, cpu>(pvals, 0, nThreads);
-            daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+            daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
             {
                 size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
                 size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
-                for (size_t i = start; i < end; i++)
-                    pvals[iBlock] += div*py[i];
+                algorithmFPType lpval = 0;
+                PRAGMA_ICC_NO16(omp simd reduction(+ : lpval))
+                for (size_t i = start; i < end; i++) lpval += div*py[i];
+                pvals[iBlock] = lpval;
             });
-            for(size_t i = 0; i < nThreads; i++) val += pvals[i];
+            for (size_t i = 0; i < nBlocks; i++) val += pvals[i];
         }
         return true;
     }

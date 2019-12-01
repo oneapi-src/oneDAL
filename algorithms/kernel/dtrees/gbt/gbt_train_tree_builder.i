@@ -263,7 +263,8 @@ protected:
         const int * aSampleToF = _ctx.aSampleToF();
 
         const size_t nThreads = _ctx.numAvailableThreads();
-        if ( nSamples < getThrOptBorder<cpu>(nThreads) || nThreads <= 1 )
+        const size_t nBlocks  = getNBlocksForOpt<cpu>(nThreads, nSamples);
+        if ( nBlocks == 1 )
         {
             if ( aSampleToF )
             {
@@ -286,43 +287,49 @@ protected:
         }
         else
         {
-            daal::services::internal::TArray<algorithmFPType, cpu> gsArr(nThreads);
-            daal::services::internal::TArray<algorithmFPType, cpu> hsArr(nThreads);
+            daal::services::internal::TArray<algorithmFPType, cpu> gsArr(nBlocks);
+            daal::services::internal::TArray<algorithmFPType, cpu> hsArr(nBlocks);
             algorithmFPType * gs = gsArr.get();
             algorithmFPType * hs = hsArr.get();
-            daal::services::internal::service_memset<algorithmFPType, cpu>(gs, 0, nThreads);
-            daal::services::internal::service_memset<algorithmFPType, cpu>(hs, 0, nThreads);
-            const size_t nPerBlock = nSamples / nThreads;
-            const size_t nSurplus = nSamples % nThreads;
+            const size_t nPerBlock = nSamples / nBlocks;
+            const size_t nSurplus = nSamples % nBlocks;
             if ( aSampleToF )
             {
-                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
                 {
                     size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
                     size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+                    algorithmFPType localG, localH;
+                    localG = localH = 0;
                     PRAGMA_VECTOR_ALWAYS
                     for (size_t i = start; i < end; i++)
                     {
-                        gs[iBlock] += pgh[aSampleToF[i]].g;
-                        hs[iBlock] += pgh[aSampleToF[i]].h;
+                        localG += pgh[aSampleToF[i]].g;
+                        localH += pgh[aSampleToF[i]].h;
                     }
+                    gs[iBlock] = localG;
+                    hs[iBlock] = localH;
                 });
             }
             else
             {
-                daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
+                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
                 {
                     size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
                     size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+                    algorithmFPType localG, localH;
+                    localG = localH = 0;
                     PRAGMA_VECTOR_ALWAYS
                     for (size_t i = start; i < end; i++)
                     {
-                        gs[iBlock] += pgh[i].g;
-                        hs[iBlock] += pgh[i].h;
+                        localG += pgh[i].g;
+                        localH += pgh[i].h;
                     }
+                    gs[iBlock] = localG;
+                    hs[iBlock] = localH;
                 });
             }
-            for (size_t i = 0; i < nThreads; i++)
+            for (size_t i = 0; i < nBlocks; i++)
             {
                 G += gs[i];
                 H += hs[i];
