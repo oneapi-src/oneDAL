@@ -264,9 +264,9 @@ protected:
 
         const size_t nThreads = _ctx.numAvailableThreads();
         const size_t nBlocks  = getNBlocksForOpt<cpu>(nThreads, nSamples);
-        if ( nBlocks == 1 )
+        if (nBlocks == 1)
         {
-            if ( aSampleToF )
+            if (aSampleToF)
             {
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t i = 0; i < nSamples; ++i)
@@ -289,16 +289,15 @@ protected:
         {
             daal::services::internal::TArray<algorithmFPType, cpu> gsArr(nBlocks);
             daal::services::internal::TArray<algorithmFPType, cpu> hsArr(nBlocks);
-            algorithmFPType * gs = gsArr.get();
-            algorithmFPType * hs = hsArr.get();
+            algorithmFPType * gs   = gsArr.get();
+            algorithmFPType * hs   = hsArr.get();
             const size_t nPerBlock = nSamples / nBlocks;
-            const size_t nSurplus = nSamples % nBlocks;
-            if ( aSampleToF )
+            const size_t nSurplus  = nSamples % nBlocks;
+            if (aSampleToF)
             {
-                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
-                {
+                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
                     size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-                    size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+                    size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
                     algorithmFPType localG, localH;
                     localG = localH = 0;
                     PRAGMA_VECTOR_ALWAYS
@@ -313,10 +312,9 @@ protected:
             }
             else
             {
-                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
-                {
+                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
                     size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-                    size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+                    size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
                     algorithmFPType localG, localH;
                     localG = localH = 0;
                     PRAGMA_VECTOR_ALWAYS

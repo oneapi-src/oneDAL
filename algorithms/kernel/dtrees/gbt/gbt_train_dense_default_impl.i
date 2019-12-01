@@ -249,11 +249,11 @@ double TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::computeLeafWeight
     const algorithmFPType inc = val * _par.shrinkage;
     const size_t nThreads     = numAvailableThreads();
     const size_t nBlocks      = getNBlocksForOpt<cpu>(nThreads, n);
-    if ( nBlocks == 1 )
+    if (nBlocks == 1)
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for(size_t i = 0; i < n; ++i)
+        for (size_t i = 0; i < n; ++i)
         {
             pf[idx[i] * this->_nTrees + iTree] += inc;
         }
@@ -261,15 +261,13 @@ double TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::computeLeafWeight
     else
     {
         const size_t nPerBlock = n / nBlocks;
-        const size_t nSurplus = n % nBlocks;
-        daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock)
-        {
+        const size_t nSurplus  = n % nBlocks;
+        daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
             size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-            size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+            size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = start; i < end; i++)
-                pf[idx[i] * this->_nTrees + iTree] += inc;
+            for (size_t i = start; i < end; i++) pf[idx[i] * this->_nTrees + iTree] += inc;
         });
     }
 
@@ -467,11 +465,10 @@ services::Status computeTypeDisp(HostAppIface * pHostApp, const NumericTable * x
         const dtrees::internal::IndexedFeatures::IndexType * fi = indexedFeatures.data(0);
 
         const size_t nPerBlock = nRows / nThreads;
-        const size_t nSurplus = nRows % nThreads;
-        daal::threader_for(nThreads, nThreads, [&](size_t iBlock)
-        {
+        const size_t nSurplus  = nRows % nThreads;
+        daal::threader_for(nThreads, nThreads, [&](size_t iBlock) {
             size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-            size_t end = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+            size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
             for (size_t i = start; i < end; i++)
             {
                 PRAGMA_IVDEP

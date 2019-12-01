@@ -63,10 +63,10 @@ void deleteTables(gbt::internal::GbtDecisionTree ** aTbl, HomogenNumericTable<do
 template <CpuType cpu>
 size_t getNBlocksForOpt(size_t nThreads, size_t n)
 {
-    if ( nThreads <= 1 || n < 128000 ) return 1;
+    if (nThreads <= 1 || n < 128000) return 1;
     const size_t blockSize = 512;
-    size_t nBlocks = n / blockSize;
-    if ( nBlocks % blockSize ) nBlocks++;
+    size_t nBlocks         = n / blockSize;
+    if (nBlocks % blockSize) nBlocks++;
     return nBlocks;
 }
 
