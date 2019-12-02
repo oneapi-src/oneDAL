@@ -1,4 +1,4 @@
-/* file: numeric_table_usm.cpp */
+/* file: datastructures_usm.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -22,8 +22,8 @@
 !******************************************************************************/
 
 /**
- * <a name="DAAL-EXAMPLE-CPP-NUMERIC_TABLE_USM"></a>
- * \example numeric_table_usm.cpp
+ * <a name="DAAL-EXAMPLE-CPP-DATASTRUCTURES_USM"></a>
+ * \example datastructures_usm.cpp
  */
 
 #include "daal_sycl.h"
