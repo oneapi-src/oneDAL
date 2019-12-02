@@ -65,7 +65,7 @@ public:
         const size_t nBlocks               = getNBlocksForOpt<cpu>(nThreads, n);
         const size_t nPerBlock             = n / nBlocks;
         const size_t nSurplus              = n % nBlocks;
-        const bool inParallel              = nBlocks > 1 ? true : false;
+        const bool inParallel              = nBlocks > 1;
         LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
             const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
             const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
@@ -78,7 +78,8 @@ public:
                     exp[i] = -f[sampleInd[i]];
                     /* make all values less than threshold as threshold value
                     to fix slow work on vExp on large negative inputs */
-                    if (exp[i] < expThreshold) exp[i] = expThreshold;
+                    if (exp[i] < expThreshold)
+                        exp[i] = expThreshold;
                 }
             }
             else
@@ -90,7 +91,8 @@ public:
                     exp[i] = -f[i];
                     /* make all values less than threshold as threshold value
                     to fix slow work on vExp on large negative inputs */
-                    if (exp[i] < expThreshold) exp[i] = expThreshold;
+                    if (exp[i] < expThreshold)
+                        exp[i] = expThreshold;
                 }
             }
             daal::internal::Math<algorithmFPType, cpu>::vExp(end - start, exp + start, exp + start);

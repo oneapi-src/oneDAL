@@ -249,7 +249,7 @@ double TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::computeLeafWeight
     const algorithmFPType inc = val * _par.shrinkage;
     const size_t nThreads     = numAvailableThreads();
     const size_t nBlocks      = getNBlocksForOpt<cpu>(nThreads, n);
-    const bool inParallel     = nBlocks > 1 ? true : false;
+    const bool inParallel     = nBlocks > 1;
     const size_t nPerBlock    = n / nBlocks;
     const size_t nSurplus     = n % nBlocks;
     LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {

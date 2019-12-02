@@ -264,11 +264,11 @@ protected:
 
         const size_t nThreads = _ctx.numAvailableThreads();
         const size_t nBlocks  = getNBlocksForOpt<cpu>(nThreads, nSamples);
-        const bool inParallel = nBlocks > 1 ? true : false;
+        const bool inParallel = nBlocks > 1;
         daal::services::internal::TArray<algorithmFPType, cpu> gsArr(nBlocks);
         daal::services::internal::TArray<algorithmFPType, cpu> hsArr(nBlocks);
-        algorithmFPType * gs   = gsArr.get();
-        algorithmFPType * hs   = hsArr.get();
+        const algorithmFPType * gs   = gsArr.get();
+        const algorithmFPType * hs   = hsArr.get();
         const size_t nPerBlock = nSamples / nBlocks;
         const size_t nSurplus  = nSamples % nBlocks;
         LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {

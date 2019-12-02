@@ -59,7 +59,7 @@ public:
         const size_t nBlocks   = getNBlocksForOpt<cpu>(nThreads, n);
         const size_t nPerBlock = n / nBlocks;
         const size_t nSurplus  = n % nBlocks;
-        const bool inParallel  = nBlocks > 1 ? true : false;
+        const bool inParallel  = nBlocks > 1;
         LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
             const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
             const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
@@ -130,11 +130,11 @@ protected:
         val                       = algorithmFPType(0);
         const size_t nThreads     = super::numAvailableThreads();
         const size_t nBlocks      = getNBlocksForOpt<cpu>(nThreads, n);
-        const bool inParallel     = nBlocks > 1 ? true : false;
+        const bool inParallel     = nBlocks > 1;
         const size_t nPerBlock    = n / nBlocks;
         const size_t nSurplus     = n % nBlocks;
         services::internal::TArray<algorithmFPType, cpu> pvalsArr(nBlocks);
-        algorithmFPType * pvals = pvalsArr.get();
+        const algorithmFPType * pvals = pvalsArr.get();
         LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
             const size_t start    = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
             const size_t end      = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
