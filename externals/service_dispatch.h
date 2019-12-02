@@ -1,6 +1,6 @@
 /* file: service_dispatch.h */
 /*******************************************************************************
-* Copyright 2019-2019 Intel Corporation
+* Copyright 2018-2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 
 #include "daal_kernel_defines.h"
 
-#define EXPAND(...) __VA_ARGS__
+#define EXPAND_CODE(...) __VA_ARGS__
 
 #define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...) \
     switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId())) { \
@@ -36,7 +36,7 @@
         DAAL_KERNEL_AVX2_ONLY_CODE       ( case daal::CpuType::avx2:       func(daal::CpuType::avx2,       __VA_ARGS__); break; ) \
         DAAL_KERNEL_AVX512_ONLY_CODE     ( case daal::CpuType::avx512:     func(daal::CpuType::avx512,     __VA_ARGS__); break; ) \
         DAAL_KERNEL_AVX512_MIC_ONLY_CODE ( case daal::CpuType::avx512_mic: func(daal::CpuType::avx512_mic, __VA_ARGS__); break; ) \
-        EXPAND                           ( default: func(daal::CpuType::sse2, __VA_ARGS__); break; )                              \
+        EXPAND_CODE                      ( default: func(daal::CpuType::sse2, __VA_ARGS__); break; )                              \
     }
 
 #endif
