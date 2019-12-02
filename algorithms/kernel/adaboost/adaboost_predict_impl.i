@@ -45,9 +45,9 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeTwoClassSamme(const NumericTablePtr & xTable, const Model * boostModel,
-                                                                                           size_t nWeakLearners, const algorithmFPType * alpha,
-                                                                                           algorithmFPType * r, const Parameter * parameter)
+services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeTwoClassSamme(const NumericTablePtr &xTable, const Model *boostModel,
+        size_t nWeakLearners, const algorithmFPType *alpha,
+        algorithmFPType *r, const Parameter *parameter)
 {
     const size_t nVectors = xTable->getNumberOfRows();
 
@@ -55,11 +55,11 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeTwo
     services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > rWeakTable =
         daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu>::create(1, nVectors, &s);
     DAAL_CHECK_STATUS_VAR(s);
-    const algorithmFPType * rWeak = rWeakTable->getArray();
+    const algorithmFPType *rWeak = rWeakTable->getArray();
 
     services::SharedPtr<classifier::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction->clone();
     learnerPredict->enableChecks(false);
-    classifier::prediction::Input * learnerInput = learnerPredict->getInput();
+    classifier::prediction::Input *learnerInput = learnerPredict->getInput();
     DAAL_CHECK(learnerInput, services::ErrorNullInput);
     learnerInput->set(classifier::prediction::data, xTable);
 
@@ -104,73 +104,71 @@ struct Task
     Task(size_t blockSizeDefault) : bufferArray(blockSizeDefault) { buffer = bufferArray.get(); }
 
     TArrayCalloc<algorithmFPType, cpu> bufferArray;
-    algorithmFPType * buffer;
+    algorithmFPType *buffer;
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeSammeProbability(const algorithmFPType * p, const size_t nClasses,
-                                                                                              algorithmFPType * h)
+services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeSammeProbability(algorithmFPType *p, const size_t nClasses)
 {
     daal::tls<Task<algorithmFPType, cpu> *> threadBuffer(
-        [=]() -> Task<algorithmFPType, cpu> * { return new Task<algorithmFPType, cpu>(_nRowsInBlock); });
-    algorithmFPType * pLog = h;
+        [ = ]() -> Task<algorithmFPType, cpu> * { return new Task<algorithmFPType, cpu>(_nRowsInBlock); });
 
     SafeStatus safeStat;
-    daal::threader_for(_nBlocks, _nBlocks, [=, &safeStat, &threadBuffer](int block) {
+    daal::threader_for(_nBlocks, _nBlocks, [ =, &safeStat, &threadBuffer](int block)
+    {
         const size_t nRowsToProcess = ((block == _nBlocks - 1) ? _nRowsInLastBlock : _nRowsInBlock);
 
-        Task<algorithmFPType, cpu> * tPtr = threadBuffer.local();
+        Task<algorithmFPType, cpu> *tPtr = threadBuffer.local();
         DAAL_CHECK_THR(tPtr && tPtr->buffer, ErrorMemoryAllocationFailed)
 
-        safeStat |= processBlock(block * _nRowsInBlock, nRowsToProcess, p, nClasses, h, pLog, tPtr->buffer);
+        safeStat |= processBlockSammeProbability(nRowsToProcess, &p[block * _nRowsInBlock * nClasses], nClasses, tPtr->buffer);
     });
-    threadBuffer.reduce([=](Task<algorithmFPType, cpu> * v) -> void { delete (v); });
+    threadBuffer.reduce([ = ](Task<algorithmFPType, cpu> *v) -> void { delete (v); });
     return safeStat.detach();
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::processBlock(size_t nProcessedRows, size_t nRowsInCurrentBlock,
-                                                                                   const algorithmFPType * p, const size_t nClasses,
-                                                                                   algorithmFPType * h, algorithmFPType * pLog,
-                                                                                   algorithmFPType * pSumLog)
+services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::processBlockSammeProbability(const size_t nRowsInCurrentBlock,
+        algorithmFPType *p_block, const size_t nClasses,
+        algorithmFPType *pSumLog)
 {
-    const size_t iStart       = nProcessedRows;
-    const size_t iFinish      = nProcessedRows + nRowsInCurrentBlock;
     const algorithmFPType eps = services::internal::EpsilonVal<algorithmFPType>::get();
-    for (size_t i = iStart * nClasses; i < iFinish * nClasses; i++)
+    algorithmFPType *pLog    = p_block;
+    algorithmFPType *h_block = p_block;
+    for (size_t i = 0; i < nRowsInCurrentBlock * nClasses; i++)
     {
-        if (p[i] < eps)
+        if (p_block[i] < eps)
         {
             pLog[i] = eps;
         }
         else
         {
-            pLog[i] = p[i];
+            pLog[i] = p_block[i];
         }
     }
 
-    Math<algorithmFPType, cpu>::vLog(nRowsInCurrentBlock * nClasses, &p[iStart * nClasses], &pLog[iStart * nClasses]);
+    Math<algorithmFPType, cpu>::vLog(nRowsInCurrentBlock * nClasses, p_block, pLog); // inplace
 
     const algorithmFPType nClassesMinusOne = nClasses - 1.0;
-    for (size_t i = iStart, i0 = 0; i < iFinish; i++, i0++)
+    for (size_t i = 0; i < nRowsInCurrentBlock; i++)
     {
         for (size_t j = 0; j < nClasses; j++)
         {
-            pSumLog[i0] += pLog[i * nClasses + j];
+            pSumLog[i] += pLog[i * nClasses + j];
         }
-        pSumLog[i0] /= nClasses;
+        pSumLog[i] /= nClasses;
         for (size_t j = 0; j < nClasses; j++)
         {
-            h[i * nClasses + j] = nClassesMinusOne * (pLog[i * nClasses + j] - pSumLog[i0]);
+            h_block[i * nClasses + j] = nClassesMinusOne * (pLog[i * nClasses + j] - pSumLog[i]); // inplace
         }
     }
     return services::Status();
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCommon(const NumericTablePtr & xTable, const Model * boostModel,
-                                                                                    size_t nWeakLearners, const algorithmFPType * alpha,
-                                                                                    algorithmFPType * r, const Parameter * parameter)
+services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCommon(const NumericTablePtr &xTable, const Model *boostModel,
+        size_t nWeakLearners, const algorithmFPType *alpha,
+        algorithmFPType *r, const Parameter *parameter)
 {
     const size_t nClasses = parameter->nClasses;
     typedef daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomoNTCPU;
@@ -182,7 +180,7 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
 
     services::SharedPtr<classifier::prediction::Batch> learnerPredict = parameter->weakLearnerPrediction->clone();
     learnerPredict->enableChecks(false);
-    classifier::prediction::Input * learnerInput = learnerPredict->getInput();
+    classifier::prediction::Input *learnerInput = learnerPredict->getInput();
     DAAL_CHECK(learnerInput, services::ErrorNullInput);
     learnerInput->set(classifier::prediction::data, xTable);
 
@@ -213,13 +211,13 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
     {
         for (size_t m = 0; m < nWeakLearners; m++)
         {
-            algorithmFPType * rWeak = weakPredictions[m]->getArray();
-            computeSammeProbability(rWeak, nClasses, rWeak);
+            algorithmFPType *rWeak = weakPredictions[m]->getArray();
+            computeSammeProbability(rWeak, nClasses);
         }
     }
 
     services::SharedPtr<HomoNTCPU> maxClassScoreTable = HomoNTCPU::create(1, nVectors, &s);
-    algorithmFPType * maxClassScore                   = maxClassScoreTable->getArray();
+    algorithmFPType *maxClassScore                   = maxClassScoreTable->getArray();
     DAAL_CHECK(maxClassScore, services::ErrorMemoryAllocationFailed);
     service_memset<algorithmFPType, cpu>(maxClassScore, 0.0, nVectors);
 
@@ -229,10 +227,11 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
     }
     if (nClasses == 2)
     {
-        daal::threader_for(_nBlocks, _nBlocks, [=](int block) {
+        daal::threader_for(_nBlocks, _nBlocks, [ = ](int block)
+        {
             const size_t nRowsToProcess = ((block == _nBlocks - 1) ? _nRowsInLastBlock : _nRowsInBlock);
 
-            algorithmFPType * r_block      = &r[block * _nRowsInBlock];
+            algorithmFPType *r_block      = &r[block * _nRowsInBlock];
             const algorithmFPType minusOne = -1.0;
             const algorithmFPType zero     = 0.0;
             for (size_t i = 0; i < nRowsToProcess; i++)
@@ -250,35 +249,38 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeCom
 template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::computeClassScore(
     const size_t k, const size_t nClasses,
-    daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > & weakPredictions,
-    algorithmFPType * r, const algorithmFPType * alpha, const size_t nWeakLearners, algorithmFPType * maxClassScore)
+    daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > &weakPredictions,
+    algorithmFPType *r, const algorithmFPType *alpha, const size_t nWeakLearners, algorithmFPType *maxClassScore)
 {
     SafeStatus safeStat;
     daal::tls<Task<algorithmFPType, cpu> *> threadBuffer(
-        [=]() -> Task<algorithmFPType, cpu> * { return new Task<algorithmFPType, cpu>(_nRowsInBlock); });
-    daal::threader_for(_nBlocks, _nBlocks, [=, &weakPredictions, &safeStat, &threadBuffer](int block) {
-        const size_t nRowsToProcess       = ((block == _nBlocks - 1) ? _nRowsInLastBlock : _nRowsInBlock);
-        Task<algorithmFPType, cpu> * tPtr = threadBuffer.local();
+        [ = ]() -> Task<algorithmFPType, cpu> * { return new Task<algorithmFPType, cpu>(_nRowsInBlock); });
+    daal::threader_for(_nBlocks, _nBlocks, [ =, &weakPredictions, &safeStat, &threadBuffer](int block)
+    {
+        const size_t nRowsToProcess = ((block == _nBlocks - 1) ? _nRowsInLastBlock : _nRowsInBlock);
+
+        Task<algorithmFPType, cpu> *tPtr = threadBuffer.local();
         DAAL_CHECK_THR(tPtr && tPtr->buffer, ErrorMemoryAllocationFailed)
+
         safeStat |= processBlockClassScore(block * _nRowsInBlock, nRowsToProcess, k, nClasses, weakPredictions, tPtr->buffer,
                                            &maxClassScore[block * _nRowsInBlock], &r[block * _nRowsInBlock], alpha, nWeakLearners);
     });
-    threadBuffer.reduce([=](Task<algorithmFPType, cpu> * v) -> void { delete (v); });
+    threadBuffer.reduce([ = ](Task<algorithmFPType, cpu> *v) -> void { delete (v); });
     return safeStat.detach();
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::processBlockClassScore(
     size_t nProcessedRows, size_t nRowsInCurrentBlock, const size_t k, const size_t nClasses,
-    daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > & weakPredictions,
-    algorithmFPType * curClassScore, algorithmFPType * maxClassScore, algorithmFPType * r_block, const algorithmFPType * alpha,
+    daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > &weakPredictions,
+    algorithmFPType *curClassScore, algorithmFPType *maxClassScore, algorithmFPType *r_block, const algorithmFPType *alpha,
     const size_t nWeakLearners)
 {
     const algorithmFPType k_fptype = (algorithmFPType)k;
     service_memset<algorithmFPType, cpu>(curClassScore, 0.0, nRowsInCurrentBlock);
     for (size_t m = 0; m < nWeakLearners; m++)
     {
-        const algorithmFPType * rWeak = &(weakPredictions[m]->getArray()[nProcessedRows]);
+        const algorithmFPType *rWeak = &(weakPredictions[m]->getArray()[nProcessedRows]);
         for (size_t i = 0; i < nRowsInCurrentBlock; i++)
         {
             if (method == samme)
@@ -303,8 +305,8 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::processBlo
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr & xTable, const Model * boostModel,
-                                                                              const NumericTablePtr & rTable, const Parameter * par)
+services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(const NumericTablePtr &xTable, const Model *boostModel,
+        const NumericTablePtr &rTable, const Parameter *par)
 {
     TileDimensions<algorithmFPType, cpu> dim(xTable);
     _nRowsInBlock     = dim.nRowsInBlock;
@@ -319,7 +321,7 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::compute(co
     services::Status s;
     WriteOnlyColumns<algorithmFPType, cpu> mtR(*rTable, 0, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtR);
-    algorithmFPType * r = mtR.get();
+    algorithmFPType *r = mtR.get();
     DAAL_ASSERT(r);
 
     const size_t nClasses = par->nClasses;

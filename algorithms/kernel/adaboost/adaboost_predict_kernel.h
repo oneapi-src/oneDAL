@@ -54,10 +54,10 @@ public:
                                           algorithmFPType * r, const Parameter * par);
     services::Status computeCommon(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPType * alpha,
                                    algorithmFPType * r, const Parameter * par);
-    services::Status computeSammeProbability(const algorithmFPType * p, size_t nClasses, algorithmFPType * h);
+    services::Status computeSammeProbability(algorithmFPType * p, size_t nClasses);
 
-    services::Status processBlock(size_t nProcessedRows, size_t nRowsInCurrentBlock, const algorithmFPType * p, const size_t nClasses,
-                                  algorithmFPType * h, algorithmFPType * pLog, algorithmFPType * pSumLog);
+    services::Status processBlockSammeProbability(const size_t nRowsInCurrentBlock, algorithmFPType * p_block, const size_t nClasses,
+                                                  algorithmFPType * pSumLog);
 
     services::Status computeClassScore(
         const size_t k, const size_t nClasses,
