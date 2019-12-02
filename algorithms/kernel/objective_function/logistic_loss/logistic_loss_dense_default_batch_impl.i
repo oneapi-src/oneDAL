@@ -79,7 +79,7 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 void LogLossKernel<algorithmFPType, method, cpu>::applyBetaThreaded(const algorithmFPType * x, const algorithmFPType * beta, algorithmFPType * xb,
                                                                     size_t nRows, size_t nCols, bool bIntercept)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(apply_beta);
+    DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
     applyBetaImpl<algorithmFPType, cpu>(x, beta, xb, nRows, nCols, bIntercept, true);
 }
 

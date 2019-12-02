@@ -1,6 +1,6 @@
 /* file: service_profiler.h */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Profiler for measure of kernals
+//  Profiler for time measurement of kernels
 //--
 */
 
@@ -35,6 +35,7 @@ private:
     const char * _taskName;
 };
 
+// This class is a stub in the library. Its redefinition will be in Bechmarks
 class Profiler
 {
 public:
