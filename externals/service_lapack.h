@@ -346,7 +346,7 @@ struct LapackAutoDispatch
 } // namespace internal
 } // namespace daal
 
-#undef DAAL_CALL_LAPACK_CPU_FUNC  
+#undef DAAL_CALL_LAPACK_CPU_FUNC
 #undef DAAL_DISPATCH_LAPACK_BY_CPU
 
 #endif

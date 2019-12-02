@@ -1,4 +1,4 @@
-/* file: service_lapack.h */
+/* file: service_dispatch.h */
 /*******************************************************************************
 * Copyright 2019-2019 Intel Corporation
 *
