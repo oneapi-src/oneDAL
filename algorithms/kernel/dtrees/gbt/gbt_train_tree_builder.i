@@ -264,74 +264,43 @@ protected:
 
         const size_t nThreads = _ctx.numAvailableThreads();
         const size_t nBlocks  = getNBlocksForOpt<cpu>(nThreads, nSamples);
-        if (nBlocks == 1)
-        {
+        const bool inParallel = nBlocks > 1 ? true : false;
+        daal::services::internal::TArray<algorithmFPType, cpu> gsArr(nBlocks);
+        daal::services::internal::TArray<algorithmFPType, cpu> hsArr(nBlocks);
+        algorithmFPType * gs   = gsArr.get();
+        algorithmFPType * hs   = hsArr.get();
+        const size_t nPerBlock = nSamples / nBlocks;
+        const size_t nSurplus  = nSamples % nBlocks;
+        LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
+            const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+            const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+            algorithmFPType localG, localH;
+            localG = localH = 0;
             if (aSampleToF)
             {
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < nSamples; ++i)
+                for (size_t i = start; i < end; i++)
                 {
-                    G += pgh[aSampleToF[i]].g;
-                    H += pgh[aSampleToF[i]].h;
+                    localG += pgh[aSampleToF[i]].g;
+                    localH += pgh[aSampleToF[i]].h;
                 }
             }
             else
             {
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < nSamples; ++i)
+                for (size_t i = start; i < end; i++)
                 {
-                    G += pgh[i].g;
-                    H += pgh[i].h;
+                    localG += pgh[i].g;
+                    localH += pgh[i].h;
                 }
             }
-        }
-        else
+            gs[iBlock] = localG;
+            hs[iBlock] = localH;
+        });
+        for (size_t i = 0; i < nBlocks; i++)
         {
-            daal::services::internal::TArray<algorithmFPType, cpu> gsArr(nBlocks);
-            daal::services::internal::TArray<algorithmFPType, cpu> hsArr(nBlocks);
-            algorithmFPType * gs   = gsArr.get();
-            algorithmFPType * hs   = hsArr.get();
-            const size_t nPerBlock = nSamples / nBlocks;
-            const size_t nSurplus  = nSamples % nBlocks;
-            if (aSampleToF)
-            {
-                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
-                    size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-                    size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
-                    algorithmFPType localG, localH;
-                    localG = localH = 0;
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = start; i < end; i++)
-                    {
-                        localG += pgh[aSampleToF[i]].g;
-                        localH += pgh[aSampleToF[i]].h;
-                    }
-                    gs[iBlock] = localG;
-                    hs[iBlock] = localH;
-                });
-            }
-            else
-            {
-                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
-                    size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-                    size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
-                    algorithmFPType localG, localH;
-                    localG = localH = 0;
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = start; i < end; i++)
-                    {
-                        localG += pgh[i].g;
-                        localH += pgh[i].h;
-                    }
-                    gs[iBlock] = localG;
-                    hs[iBlock] = localH;
-                });
-            }
-            for (size_t i = 0; i < nBlocks; i++)
-            {
-                G += gs[i];
-                H += hs[i];
-            }
+            G += gs[i];
+            H += hs[i];
         }
     }
 

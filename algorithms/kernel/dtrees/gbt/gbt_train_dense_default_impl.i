@@ -249,27 +249,16 @@ double TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::computeLeafWeight
     const algorithmFPType inc = val * _par.shrinkage;
     const size_t nThreads     = numAvailableThreads();
     const size_t nBlocks      = getNBlocksForOpt<cpu>(nThreads, n);
-    if (nBlocks == 1)
-    {
+    const bool inParallel     = nBlocks > 1 ? true : false;
+    const size_t nPerBlock    = n / nBlocks;
+    const size_t nSurplus     = n % nBlocks;
+    LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
+        const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+        const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < n; ++i)
-        {
-            pf[idx[i] * this->_nTrees + iTree] += inc;
-        }
-    }
-    else
-    {
-        const size_t nPerBlock = n / nBlocks;
-        const size_t nSurplus  = n % nBlocks;
-        daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
-            size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-            size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t i = start; i < end; i++) pf[idx[i] * this->_nTrees + iTree] += inc;
-        });
-    }
+        for (size_t i = start; i < end; i++) pf[idx[i] * this->_nTrees + iTree] += inc;
+    });
 
     return res + inc;
 }
@@ -454,9 +443,11 @@ services::Status computeTypeDisp(HostAppIface * pHostApp, const NumericTable * x
 
     if (inexactWithHistMethod)
     {
-        const size_t nThreads = threader_get_threads_number();
-        const size_t nRows    = x->getNumberOfRows();
-        const size_t nCols    = x->getNumberOfColumns();
+        size_t nThreads    = threader_get_threads_number();
+        size_t nRows       = x->getNumberOfRows();
+        size_t nCols       = x->getNumberOfColumns();
+        size_t nBlocks     = ((nThreads < nRows) ? nThreads : 1);
+        size_t sizeOfBlock = nRows / nBlocks + !!(nRows % nBlocks);
 
         newFIArr.resize(nRows * nCols);
         BinIndexType * newFI = newFIArr.get();
@@ -464,12 +455,11 @@ services::Status computeTypeDisp(HostAppIface * pHostApp, const NumericTable * x
 
         const dtrees::internal::IndexedFeatures::IndexType * fi = indexedFeatures.data(0);
 
-        const size_t nPerBlock = nRows / nThreads;
-        const size_t nSurplus  = nRows % nThreads;
-        daal::threader_for(nThreads, nThreads, [&](size_t iBlock) {
-            size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-            size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
-            for (size_t i = start; i < end; i++)
+        daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+            const size_t iStart = iBlock * sizeOfBlock;
+            const size_t iEnd   = (((iBlock + 1) * sizeOfBlock > nRows) ? nRows : iStart + sizeOfBlock);
+
+            for (size_t i = iStart; i < iEnd; ++i)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS

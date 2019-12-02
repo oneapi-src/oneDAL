@@ -63,13 +63,17 @@ public:
         const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
         const size_t nThreads              = daal::threader_get_threads_number();
         const size_t nBlocks               = getNBlocksForOpt<cpu>(nThreads, n);
-        if (nBlocks == 1)
-        {
+        const size_t nPerBlock             = n / nBlocks;
+        const size_t nSurplus              = n % nBlocks;
+        const bool inParallel              = nBlocks > 1 ? true : false;
+        LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
+            const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+            const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
             if (sampleInd)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < n; ++i)
+                for (size_t i = start; i < end; i++)
                 {
                     exp[i] = -f[sampleInd[i]];
                     /* make all values less than threshold as threshold value
@@ -81,7 +85,7 @@ public:
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < n; ++i)
+                for (size_t i = start; i < end; i++)
                 {
                     exp[i] = -f[i];
                     /* make all values less than threshold as threshold value
@@ -89,12 +93,12 @@ public:
                     if (exp[i] < expThreshold) exp[i] = expThreshold;
                 }
             }
-            daal::internal::Math<algorithmFPType, cpu>::vExp(n, exp, exp);
+            daal::internal::Math<algorithmFPType, cpu>::vExp(end - start, exp + start, exp + start);
             if (sampleInd)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < n; ++i)
+                for (size_t i = start; i < end; i++)
                 {
                     const algorithmFPType sigm = algorithmFPType(1.0) / (algorithmFPType(1.0) + exp[i]);
                     gh[2 * sampleInd[i]]       = sigm - y[sampleInd[i]];               //gradient
@@ -105,84 +109,14 @@ public:
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < n; ++i)
+                for (size_t i = start; i < end; i++)
                 {
                     const auto sigm = algorithmFPType(1.0) / (algorithmFPType(1.0) + exp[i]);
                     gh[2 * i]       = sigm - y[i];                          //gradient
                     gh[2 * i + 1]   = sigm * (algorithmFPType(1.0) - sigm); //hessian
                 }
             }
-        }
-        else
-        {
-            const size_t nPerBlock = n / nBlocks;
-            const size_t nSurplus  = n % nBlocks;
-            if (sampleInd)
-            {
-                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
-                    size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-                    size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = start; i < end; i++)
-                    {
-                        exp[i] = -f[sampleInd[i]];
-                        /* make all values less than threshold as threshold value
-                        to fix slow work on vExp on large negative inputs */
-                        if (exp[i] < expThreshold) exp[i] = expThreshold;
-                    }
-                    daal::internal::Math<algorithmFPType, cpu>::vExp(end - start, exp + start, exp + start);
-                });
-            }
-            else
-            {
-                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
-                    size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-                    size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = start; i < end; i++)
-                    {
-                        exp[i] = -f[i];
-                        /* make all values less than threshold as threshold value
-                        to fix slow work on vExp on large negative inputs */
-                        if (exp[i] < expThreshold) exp[i] = expThreshold;
-                    }
-                    daal::internal::Math<algorithmFPType, cpu>::vExp(end - start, exp + start, exp + start);
-                });
-            }
-
-            if (sampleInd)
-            {
-                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
-                    size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-                    size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = start; i < end; i++)
-                    {
-                        const algorithmFPType sigm = algorithmFPType(1.0) / (algorithmFPType(1.0) + exp[i]);
-                        gh[2 * sampleInd[i]]       = sigm - y[sampleInd[i]];               //gradient
-                        gh[2 * sampleInd[i] + 1]   = sigm * (algorithmFPType(1.0) - sigm); //hessian
-                    }
-                });
-            }
-            else
-            {
-                daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
-                    size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
-                    size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = start; i < end; i++)
-                    {
-                        const auto sigm = algorithmFPType(1.0) / (algorithmFPType(1.0) + exp[i]);
-                        gh[2 * i]       = sigm - y[i];                          //gradient
-                        gh[2 * i + 1]   = sigm * (algorithmFPType(1.0) - sigm); //hessian
-                    }
-                });
-            }
-        }
+        });
     }
 };
 
