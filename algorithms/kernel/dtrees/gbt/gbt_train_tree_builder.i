@@ -267,10 +267,10 @@ protected:
         const bool inParallel = nBlocks > 1;
         daal::services::internal::TArray<algorithmFPType, cpu> gsArr(nBlocks);
         daal::services::internal::TArray<algorithmFPType, cpu> hsArr(nBlocks);
-        const algorithmFPType * gs   = gsArr.get();
-        const algorithmFPType * hs   = hsArr.get();
-        const size_t nPerBlock = nSamples / nBlocks;
-        const size_t nSurplus  = nSamples % nBlocks;
+        algorithmFPType * const gs = gsArr.get();
+        algorithmFPType * const hs = hsArr.get();
+        const size_t nPerBlock     = nSamples / nBlocks;
+        const size_t nSurplus      = nSamples % nBlocks;
         LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
             const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
             const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);

@@ -134,7 +134,7 @@ protected:
         const size_t nPerBlock    = n / nBlocks;
         const size_t nSurplus     = n % nBlocks;
         services::internal::TArray<algorithmFPType, cpu> pvalsArr(nBlocks);
-        const algorithmFPType * pvals = pvalsArr.get();
+        algorithmFPType * const pvals = pvalsArr.get();
         LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
             const size_t start    = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
             const size_t end      = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
