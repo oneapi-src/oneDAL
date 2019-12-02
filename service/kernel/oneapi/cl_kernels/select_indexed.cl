@@ -122,7 +122,7 @@ __kernel void quick_select_group( __global  algorithmFPType           *distances
         count++;
         int split = 0;
         const algorithmFPType rnd = get_rnd(rndseq, RndPeriod, &rnd_count);
-        int pos = (int)(rnd * (end - start));
+        int pos = (int)(rnd * (end - start - 1));
         const algorithmFPType pivot = pdist[start + pos];
         int total_big_num = 0;
         partition(pdist, plabels, start, end, local_id, local_size, pivot, &split, &total_big_num);
