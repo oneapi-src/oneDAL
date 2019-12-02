@@ -147,6 +147,16 @@ public:
      */
     services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
+    /**
+     * Checks the result of the decision stump training algorithm
+     * \param[in] input   %Input object for the algorithm
+     * \param[in] par     %Parameter of the algorithm
+     * \param[in] method  Computation method
+     *
+     * \return Status of computations
+     */
+    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+
 protected:
     /** \private */
     template <typename Archive, bool onDeserialize>
