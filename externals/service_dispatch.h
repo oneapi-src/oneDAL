@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Universal dispather of abstract function with cpu parameter.
+//  Universal dispatcher of abstract function with cpu parameter.
 //--
 */
 
