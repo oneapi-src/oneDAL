@@ -47,7 +47,7 @@ template <Method method, typename algorithmFPtype, CpuType cpu>
 class StumpTrainKernel : public Kernel
 {
 public:
-    services::Status compute(size_t n, const NumericTable *const *a, Model *r, const Parameter *par);
+    services::Status compute(size_t n, const NumericTable * const * a, Model * r, const Parameter * par);
 };
 
 } // namespace internal

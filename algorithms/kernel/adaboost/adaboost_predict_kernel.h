@@ -49,29 +49,26 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 class AdaBoostPredictKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTablePtr &x, const Model *m, const NumericTablePtr &r, const Parameter *par);
-    services::Status computeTwoClassSamme(const NumericTablePtr &xTable, const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r,
-                                 const Parameter *par);
-    services::Status computeCommon(const NumericTablePtr &xTable,
-                                   const Model *m, size_t nWeakLearners, const algorithmFPType *alpha, algorithmFPType *r, const Parameter *par);
-    services::Status computeSammeProbability(const algorithmFPType *p, size_t nClasses, algorithmFPType *h);
+    services::Status compute(const NumericTablePtr & x, const Model * m, const NumericTablePtr & r, const Parameter * par);
+    services::Status computeTwoClassSamme(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPType * alpha,
+                                          algorithmFPType * r, const Parameter * par);
+    services::Status computeCommon(const NumericTablePtr & xTable, const Model * m, size_t nWeakLearners, const algorithmFPType * alpha,
+                                   algorithmFPType * r, const Parameter * par);
+    services::Status computeSammeProbability(const algorithmFPType * p, size_t nClasses, algorithmFPType * h);
 
-    services::Status processBlock(
-        size_t nProcessedRows,
-        size_t nRowsInCurrentBlock,
-        const algorithmFPType *p, const size_t nClasses, algorithmFPType *h, algorithmFPType *pLog, algorithmFPType *pSumLog);
+    services::Status processBlock(size_t nProcessedRows, size_t nRowsInCurrentBlock, const algorithmFPType * p, const size_t nClasses,
+                                  algorithmFPType * h, algorithmFPType * pLog, algorithmFPType * pSumLog);
 
     services::Status computeClassScore(
         const size_t k, const size_t nClasses,
-        daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > &weakPredictions,
-        algorithmFPType *r, const algorithmFPType *alpha, const size_t nWeakLearners, algorithmFPType* maxClassScore);
+        daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > & weakPredictions,
+        algorithmFPType * r, const algorithmFPType * alpha, const size_t nWeakLearners, algorithmFPType * maxClassScore);
 
     services::Status processBlockClassScore(
-        size_t nProcessedRows,
-        size_t nRowsInCurrentBlock,
-        const size_t k, const size_t nClasses,
-        daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > &weakPredictions,
-        algorithmFPType *curClassScore, algorithmFPType *maxClassScore, algorithmFPType *r, const algorithmFPType *alpha, const size_t nWeakLearners);
+        size_t nProcessedRows, size_t nRowsInCurrentBlock, const size_t k, const size_t nClasses,
+        daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > & weakPredictions,
+        algorithmFPType * curClassScore, algorithmFPType * maxClassScore, algorithmFPType * r, const algorithmFPType * alpha,
+        const size_t nWeakLearners);
 
 protected:
     size_t _nBlocks;
@@ -82,18 +79,17 @@ protected:
 template <typename algorithmFPType, CpuType cpu>
 struct TileDimensions
 {
-    size_t nRowsTotal = 0;
-    size_t nCols = 0;
-    size_t nRowsInBlock = 0;
+    size_t nRowsTotal       = 0;
+    size_t nCols            = 0;
+    size_t nRowsInBlock     = 0;
     size_t nRowsInLastBlock = 0;
-    size_t nDataBlocks = 0;
+    size_t nDataBlocks      = 0;
 
-    TileDimensions(const NumericTablePtr &data, size_t nYPerRow = 1) :
-        nRowsTotal(data->getNumberOfRows()), nCols(data->getNumberOfColumns())
+    TileDimensions(const NumericTablePtr & data, size_t nYPerRow = 1) : nRowsTotal(data->getNumberOfRows()), nCols(data->getNumberOfColumns())
     {
-        nRowsInBlock = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
-                       (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
-        nDataBlocks = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
+        nRowsInBlock     = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
+                                                                     (nCols + nYPerRow) * sizeof(algorithmFPType), nRowsInBlockDefault);
+        nDataBlocks      = nRowsTotal / nRowsInBlock + !!(nRowsTotal % nRowsInBlock);
         nRowsInLastBlock = nRowsTotal - (nDataBlocks - 1) * nRowsInBlock;
     }
     static const size_t nRowsInBlockDefault = 500;

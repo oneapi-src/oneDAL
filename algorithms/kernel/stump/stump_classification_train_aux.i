@@ -51,16 +51,23 @@ namespace training
 namespace internal
 {
 template <Method method, typename algorithmFPtype, CpuType cpu>
-Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeMinusOneToZero(const algorithmFPtype *yArray, algorithmFPtype *yZeroOne, size_t nVectors)
+Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeMinusOneToZero(const algorithmFPtype * yArray, algorithmFPtype * yZeroOne,
+                                                                            size_t nVectors)
 {
-    const algorithmFPtype one = 1.0;
-    const algorithmFPtype zero = 0.0;
+    const algorithmFPtype one      = 1.0;
+    const algorithmFPtype zero     = 0.0;
     const algorithmFPtype minusOne = -1.0;
-    for(size_t i = 0; i < nVectors; i++)
+    for (size_t i = 0; i < nVectors; i++)
     {
         // exact fp comparison, fp stores labels: exact numbers 1 or -1
-        if(yArray[i] == minusOne) { yZeroOne[i] = zero; }
-        else { yZeroOne[i] = one; }
+        if (yArray[i] == minusOne)
+        {
+            yZeroOne[i] = zero;
+        }
+        else
+        {
+            yZeroOne[i] = one;
+        }
     }
     return Status();
 }
@@ -69,36 +76,36 @@ Status StumpTrainKernel<method, algorithmFPtype, cpu>::changeMinusOneToZero(cons
  *  \brief Perform stump regression for data set X on responses Y with weights W
  */
 template <Method method, typename algorithmFPtype, CpuType cpu>
-Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t n, const NumericTable *const *a,
-        stump::classification::Model *stumpModel,
-        const Parameter *par)
+Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t n, const NumericTable * const * a, stump::classification::Model * stumpModel,
+                                                               const Parameter * par)
 {
     Status s;
 
-    const NumericTable *xTable = a[0];
-    NumericTable *yTable       = const_cast<NumericTable *>(a[1]);
-    const NumericTable *wTable = (n >= 3 ? a[2] : 0);
+    const NumericTable * xTable = a[0];
+    NumericTable * yTable       = const_cast<NumericTable *>(a[1]);
+    const NumericTable * wTable = (n >= 3 ? a[2] : 0);
 
     const size_t nFeatures = xTable->getNumberOfColumns();
-    const size_t nVectors = xTable->getNumberOfRows();
-    const size_t nClasses = par->nClasses;
+    const size_t nVectors  = xTable->getNumberOfRows();
+    const size_t nClasses  = par->nClasses;
     stumpModel->setNFeatures(nFeatures);
 
     SharedPtr<HomogenNumericTableCPU<algorithmFPtype, cpu> > yTableZeroOne;
-    if(nClasses == 2)
+    if (nClasses == 2)
     {
         yTableZeroOne = HomogenNumericTableCPU<algorithmFPtype, cpu>::create(1, nVectors, &s);
         DAAL_CHECK_STATUS_VAR(s);
-        algorithmFPtype *yZeroOne = yTableZeroOne->getArray();
+        algorithmFPtype * yZeroOne = yTableZeroOne->getArray();
 
         ReadColumns<algorithmFPtype, cpu> y(yTable, 0, 0, nVectors);
         DAAL_CHECK_STATUS(s, y.status());
-        const algorithmFPtype *yArray = y.get();
+        const algorithmFPtype * yArray = y.get();
 
         if (yZeroOne && yArray)
         {
             int result = 0;
-            result = daal::services::internal::daal_memcpy_s(yZeroOne, nVectors * sizeof(algorithmFPtype), yArray, nVectors * sizeof(algorithmFPtype));
+            result =
+                daal::services::internal::daal_memcpy_s(yZeroOne, nVectors * sizeof(algorithmFPtype), yArray, nVectors * sizeof(algorithmFPtype));
             if (result)
             {
                 s |= Status(ErrorMemoryCopyFailedInternal);
