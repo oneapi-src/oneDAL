@@ -20,7 +20,7 @@
 //--
 
 #include "algorithms/engines/mt19937/mt19937.h"
-#include "../engine_create_dispatcher.h"
+#include "service_dispatch.h"
 #include "mt19937_batch_impl.h"
 
 namespace daal
@@ -41,8 +41,12 @@ SharedPtr<Batch<algorithmFPType, method> > Batch<algorithmFPType, method>::creat
 {
     SharedPtr<Batch<algorithmFPType, method> > engPtr;
 
-    const daal::CpuType cpuid = static_cast<daal::CpuType>(Environment::getInstance()->getCpuId());
-    DISPATCH_RESET_ENGINE(engPtr, cpuid, algorithmFPType, method, seed);
+    #define DAAL_CREATE_ENGINE_CPU(cpuId, ...) \
+        engPtr.reset(new BatchImpl<cpuId, algorithmFPType, method>(__VA_ARGS__));
+
+    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CREATE_ENGINE_CPU, seed);
+
+    #undef CREATE_ENGINE_CPU
     return engPtr;
 }
 

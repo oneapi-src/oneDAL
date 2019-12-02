@@ -20,7 +20,7 @@
 //--
 
 #include "algorithms/engines/mcg59/mcg59.h"
-#include "../engine_create_dispatcher.h"
+#include "service_dispatch.h"
 #include "mcg59_batch_impl.h"
 
 namespace daal
@@ -40,9 +40,12 @@ template <typename algorithmFPType, Method method>
 SharedPtr<Batch<algorithmFPType, method> > Batch<algorithmFPType, method>::create(size_t seed)
 {
     SharedPtr<Batch<algorithmFPType, method> > engPtr;
+    #define DAAL_CREATE_ENGINE_CPU(cpuId, ...) \
+        engPtr.reset(new BatchImpl<cpuId, algorithmFPType, method>(__VA_ARGS__));
 
-    const daal::CpuType cpuid = static_cast<daal::CpuType>(Environment::getInstance()->getCpuId());
-    DISPATCH_RESET_ENGINE(engPtr, cpuid, algorithmFPType, method, seed);
+    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CREATE_ENGINE_CPU, seed);
+
+    #undef CREATE_ENGINE_CPU
     return engPtr;
 }
 
