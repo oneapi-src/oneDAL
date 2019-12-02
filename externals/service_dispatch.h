@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Template wrappers for LAPACK functions.
+//  Universal dispather of abstract function with cpu parameter.
 //--
 */
 
