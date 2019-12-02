@@ -24,7 +24,6 @@
 #ifndef __SERVICE_LAPACK_MKL_H__
 #define __SERVICE_LAPACK_MKL_H__
 
-#include "daal_kernel_defines.h"
 #include "daal_defines.h"
 #include "mkl_daal.h"
 
@@ -116,16 +115,6 @@
         return __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;   \
     }
 
-#define CALL_CPU_FUNCTION(fptype, cpuId, className, funcName, ...)                                                                                         \
-    switch (cpuId) {                                                                                                                                       \
-    DAAL_KERNEL_SSSE3_ONLY_CODE(case daal::CpuType::ssse3: className<fptype, daal::CpuType::ssse3>::funcName(__VA_ARGS__); break;)                         \
-    DAAL_KERNEL_SSE42_ONLY_CODE(case daal::CpuType::sse42: className<fptype, daal::CpuType::sse42>::funcName(__VA_ARGS__); break;)                         \
-    DAAL_KERNEL_AVX_ONLY_CODE(case daal::CpuType::avx:   className<fptype, daal::CpuType::avx>::funcName(__VA_ARGS__); break;)                             \
-    DAAL_KERNEL_AVX2_ONLY_CODE(case daal::CpuType::avx2:  className<fptype, daal::CpuType::avx2>::funcName(__VA_ARGS__); break;)                           \
-    DAAL_KERNEL_AVX512_ONLY_CODE(case daal::CpuType::avx512:  className<fptype, daal::CpuType::avx512>::funcName(__VA_ARGS__); break;)                     \
-    DAAL_KERNEL_AVX512_MIC_ONLY_CODE(case daal::CpuType::avx512_mic: className<fptype, daal::CpuType::avx512_mic>::funcName(__VA_ARGS__); break;)          \
-    default: className<fptype, daal::CpuType::sse2>::funcName(__VA_ARGS__); break;                                                                         \
-    }
 namespace daal
 {
 namespace internal
