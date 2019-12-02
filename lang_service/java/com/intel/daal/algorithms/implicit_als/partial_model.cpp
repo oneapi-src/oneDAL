@@ -30,15 +30,13 @@ using namespace daal::data_management;
  * Method:    cNewPartialModel
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_PartialModel_cNewPartialModel
-  (JNIEnv *env, jobject thisObj, jlong factorsAddr, jlong indicesAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_PartialModel_cNewPartialModel(JNIEnv * env, jobject thisObj, jlong factorsAddr,
+                                                                                                   jlong indicesAddr)
 {
-    SerializationIfacePtr *factorsShPtr = (SerializationIfacePtr *)factorsAddr;
-    SerializationIfacePtr *indicesShPtr = (SerializationIfacePtr *)indicesAddr;
-    NumericTablePtr factors =
-        services::staticPointerCast<NumericTable, SerializationIface>(*factorsShPtr);
-    NumericTablePtr indices =
-        services::staticPointerCast<NumericTable, SerializationIface>(*indicesShPtr);
+    SerializationIfacePtr * factorsShPtr = (SerializationIfacePtr *)factorsAddr;
+    SerializationIfacePtr * indicesShPtr = (SerializationIfacePtr *)indicesAddr;
+    NumericTablePtr factors              = services::staticPointerCast<NumericTable, SerializationIface>(*factorsShPtr);
+    NumericTablePtr indices              = services::staticPointerCast<NumericTable, SerializationIface>(*indicesShPtr);
     return (jlong)(new SerializationIfacePtr(new PartialModel(factors, indices)));
 }
 
@@ -47,11 +45,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_PartialMode
  * Method:    cGetFactors
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_PartialModel_cGetFactors
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_PartialModel_cGetFactors(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
-    SerializationIfacePtr *factors = new SerializationIfacePtr();
-    PartialModel *pModel = static_cast<PartialModel *>(((SerializationIfacePtr *)modAddr)->get());
+    SerializationIfacePtr * factors = new SerializationIfacePtr();
+    PartialModel * pModel           = static_cast<PartialModel *>(((SerializationIfacePtr *)modAddr)->get());
 
     *factors = pModel->getFactors();
 
@@ -63,11 +60,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_PartialMode
  * Method:    cGetIndices
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_PartialModel_cGetIndices
-(JNIEnv *env, jobject thisObj, jlong modAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_PartialModel_cGetIndices(JNIEnv * env, jobject thisObj, jlong modAddr)
 {
-    SerializationIfacePtr *indices = new SerializationIfacePtr();
-    PartialModel *pModel = static_cast<PartialModel *>(((SerializationIfacePtr *)modAddr)->get());
+    SerializationIfacePtr * indices = new SerializationIfacePtr();
+    PartialModel * pModel           = static_cast<PartialModel *>(((SerializationIfacePtr *)modAddr)->get());
 
     *indices = pModel->getIndices();
 

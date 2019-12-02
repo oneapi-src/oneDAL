@@ -33,13 +33,12 @@ using namespace daal::services;
  * Method:    cGetResult
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_weak_1learner_training_TrainingBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_weak_1learner_training_TrainingBatch_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SerializationIfacePtr *ptr = new SerializationIfacePtr();
+    SerializationIfacePtr * ptr = new SerializationIfacePtr();
 
     SharedPtr<wl_tr_of> alg = staticPointerCast<wl_tr_of, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
-    *ptr = alg->getResult();
+    *ptr                    = alg->getResult();
 
     return (jlong)ptr;
 }

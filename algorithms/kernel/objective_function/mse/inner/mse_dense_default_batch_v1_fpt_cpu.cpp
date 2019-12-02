@@ -32,7 +32,6 @@ namespace optimization_solver
 {
 namespace mse
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

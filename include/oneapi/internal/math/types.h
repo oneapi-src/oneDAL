@@ -28,7 +28,6 @@ namespace math
 {
 namespace interface1
 {
-
 enum class Layout
 {
     ColMajor,

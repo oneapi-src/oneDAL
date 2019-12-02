@@ -83,7 +83,7 @@ ifndef DAALROOT
     DAALROOT = ./../..
 endif
 DAAL_PATH = "$(DAALROOT)/lib"
-TBB_PATH = "$(DAALROOT)/../tbb/lib"
+TBB_PATH = "$(TBBROOT)/lib"
 
 EXT_LIB := -ldl
 

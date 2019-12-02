@@ -32,7 +32,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -58,7 +57,7 @@ public:
      *  Creates a new object of a class
      *  \return Pointer to the new object
      */
-    virtual SerializationIface *create() const = 0;
+    virtual SerializationIface * create() const = 0;
 
     /**
      *  Returns a unique class identifier associated with a class
@@ -66,7 +65,6 @@ public:
      */
     virtual int getTag() const = 0;
 };
-
 
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__CREATOR"></a>
@@ -84,15 +82,9 @@ public:
     /** \private */
     virtual ~Creator() {}
 
-    SerializationIface *create() const DAAL_C11_OVERRIDE
-    {
-        return new Derived();
-    }
+    SerializationIface * create() const DAAL_C11_OVERRIDE { return new Derived(); }
 
-    int getTag() const DAAL_C11_OVERRIDE
-    {
-        return Derived::serializationTag();
-    }
+    int getTag() const DAAL_C11_OVERRIDE { return Derived::serializationTag(); }
 };
 
 class FactoryImpl;
@@ -109,26 +101,26 @@ public:
      *  Static function that returns an instance of the Factory class
      *  \return Reference to the Factory object
      */
-    static Factory &instance();
+    static Factory & instance();
 
     /**
      *  Registers the %Creator object for an additional class
      *  \param[in]  creator  Object that implements the AbstractCreator interface to create an instance of a class
      */
-    void registerObject(AbstractCreator *creator);
+    void registerObject(AbstractCreator * creator);
 
     /**
      *  Creates a new object of a class described by an identifier
      *  \param[in]  objectId  Identifier of the class
      */
-    SerializationIface *createObject(int objectId);
+    SerializationIface * createObject(int objectId);
 
 private:
     Factory();
     Factory(const Factory &);
-    Factory &operator = (const Factory &);
+    Factory & operator=(const Factory &);
     ~Factory();
-    FactoryImpl *_impl;
+    FactoryImpl * _impl;
 };
 /** @} */
 } // namespace interface1
@@ -136,6 +128,6 @@ using interface1::AbstractCreator;
 using interface1::Creator;
 using interface1::Factory;
 
-}
+} // namespace data_management
 } // namespace daal
 #endif

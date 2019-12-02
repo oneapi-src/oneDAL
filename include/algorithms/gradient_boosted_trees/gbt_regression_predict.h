@@ -49,7 +49,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__GBT__PREDICTION__BATCHCONTAINER"></a>
  *  \brief Class containing computation methods for model-based prediction
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -57,7 +57,7 @@ public:
      * Constructs a container for model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     ~BatchContainer();
     /**
      *  Computes the result of model-based prediction
@@ -82,15 +82,15 @@ public:
  *      - \ref gbt::regression::interface1::Model "gbt::regression::Model" class
  *      - \ref training::interface1::Batch "training::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public algorithms::regression::prediction::Batch
 {
 public:
-    typedef algorithms::gbt::regression::prediction::Input     InputType;
+    typedef algorithms::gbt::regression::prediction::Input InputType;
     typedef algorithms::gbt::regression::prediction::Parameter ParameterType;
-    typedef algorithms::gbt::regression::prediction::Result    ResultType;
+    typedef algorithms::gbt::regression::prediction::Result ResultType;
 
-    InputType     input;     /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
     /** Default constructor */
     Batch();
@@ -101,37 +101,34 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    Batch(const Batch<algorithmFPType, method> & other);
 
     /** Destructor */
-    ~Batch()
-    {
-        delete _par;
-    }
+    ~Batch() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     * Get input objects for the algorithm
     * \return input objects of the algorithm
     */
-    virtual algorithms::regression::prediction::Input* getInput() DAAL_C11_OVERRIDE{ return &input; }
+    virtual algorithms::regression::prediction::Input * getInput() DAAL_C11_OVERRIDE { return &input; }
 
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains the result of model-based prediction
@@ -144,22 +141,15 @@ public:
      * with a copy of the input objects for this gradient boosted trees prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = getResult()->template allocate<algorithmFPType>(_in, _par, 0);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
@@ -175,9 +165,9 @@ protected:
 using interface1::BatchContainer;
 using interface1::Batch;
 
-}
-}
-}
-}
-}
+} // namespace prediction
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal
 #endif

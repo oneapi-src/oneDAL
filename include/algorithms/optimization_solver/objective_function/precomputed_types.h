@@ -50,9 +50,9 @@ enum Method
 {
     defaultDense = 0 /*!< Default: performance-oriented method. */
 };
-}
+} // namespace precomputed
 /** @} */
-}
-}
-}
+} // namespace optimization_solver
+} // namespace algorithms
+} // namespace daal
 #endif

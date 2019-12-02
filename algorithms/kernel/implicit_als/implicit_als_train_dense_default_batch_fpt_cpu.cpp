@@ -42,7 +42,7 @@ namespace internal
 {
 template class ImplicitALSTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

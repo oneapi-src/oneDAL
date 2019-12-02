@@ -68,12 +68,11 @@ struct DAAL_EXPORT Parameter : public boosting::Parameter
      * \param[in] acc                       Accuracy of the AdaBoost training algorithm
      * \param[in] maxIter                   Maximal number of iterations of the AdaBoost training algorithm
      */
-    DAAL_DEPRECATED Parameter(services::SharedPtr<weak_learner::training::Batch>   wlTrainForParameter,
-              services::SharedPtr<weak_learner::prediction::Batch> wlPredictForParameter,
-              double acc = 0.0, size_t maxIter = 10);
+    DAAL_DEPRECATED Parameter(services::SharedPtr<weak_learner::training::Batch> wlTrainForParameter,
+                              services::SharedPtr<weak_learner::prediction::Batch> wlPredictForParameter, double acc = 0.0, size_t maxIter = 10);
 
-    double accuracyThreshold;       /*!< Accuracy of the AdaBoost training algorithm */
-    size_t maxIterations;           /*!< Maximal number of iterations of the AdaBoost training algorithm */
+    double accuracyThreshold; /*!< Accuracy of the AdaBoost training algorithm */
+    size_t maxIterations;     /*!< Maximal number of iterations of the AdaBoost training algorithm */
 
     DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
@@ -114,10 +113,10 @@ public:
      * \param[in]  nFeatures Number of features in the dataset
      * \param[out] stat      Status of the model construction
      */
-    template<typename modelFPType>
-    DAAL_EXPORT DAAL_DEPRECATED static services::SharedPtr<Model> create(size_t nFeatures, services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT DAAL_DEPRECATED static services::SharedPtr<Model> create(size_t nFeatures, services::Status * stat = NULL);
 
-    virtual ~Model() { }
+    virtual ~Model() {}
 
     /**
      *  Returns a pointer to the array of weights of weak learners constructed
@@ -128,21 +127,20 @@ public:
     DAAL_DEPRECATED data_management::NumericTablePtr getAlpha() const;
 
 protected:
-    data_management::NumericTablePtr _alpha;     /* Boosting coefficients table */
+    data_management::NumericTablePtr _alpha; /* Boosting coefficients table */
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st = boosting::Model::serialImpl<Archive, onDeserialize>(arch);
-        if (!st)
-            return st;
+        if (!st) return st;
         arch->setSharedPtrObj(_alpha);
 
         return st;
     }
 
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status &st);
+    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status & st);
 
 }; // class Model
 typedef services::SharedPtr<Model> ModelPtr;
@@ -191,16 +189,16 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
      * \param[in] resToCompute           The 64-bit integer flag that specifies which extra characteristics of the AdaBoost compute from \ref ResultToComputeId
      * \param[in] nCl                    Number of classes
      */
-    Parameter(services::SharedPtr<classifier::training::Batch>   wlTrainForParameter,
-              services::SharedPtr<classifier::prediction::Batch> wlPredictForParameter,
-              double acc = 0.0, size_t maxIter = 10, double learnRate = 1.0, DAAL_UINT64 resToCompute = computeWeakLearnersErrors, size_t nCl = 2);
+    Parameter(services::SharedPtr<classifier::training::Batch> wlTrainForParameter,
+              services::SharedPtr<classifier::prediction::Batch> wlPredictForParameter, double acc = 0.0, size_t maxIter = 10, double learnRate = 1.0,
+              DAAL_UINT64 resToCompute = computeWeakLearnersErrors, size_t nCl = 2);
 
-    services::SharedPtr<classifier::training::Batch>   weakLearnerTraining; /*!< The algorithm for weak learner model training */
+    services::SharedPtr<classifier::training::Batch> weakLearnerTraining;     /*!< The algorithm for weak learner model training */
     services::SharedPtr<classifier::prediction::Batch> weakLearnerPrediction; /*!< The algorithm for prediction based on a weak learner model */
-    double accuracyThreshold;       /*!< Accuracy of the AdaBoost training algorithm */
-    size_t maxIterations;           /*!< Maximal number of iterations of the AdaBoost training algorithm */
-    double learningRate;            /*!< Multiplier for each classifier to shrink its contribution */
-    DAAL_UINT64 resultsToCompute;   /*!< 64 bit integer flag that indicates the results to compute */
+    double accuracyThreshold;                                                 /*!< Accuracy of the AdaBoost training algorithm */
+    size_t maxIterations;                                                     /*!< Maximal number of iterations of the AdaBoost training algorithm */
+    double learningRate;                                                      /*!< Multiplier for each classifier to shrink its contribution */
+    DAAL_UINT64 resultsToCompute;                                             /*!< 64 bit integer flag that indicates the results to compute */
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
@@ -240,10 +238,10 @@ public:
      * \param[in]  nFeatures Number of features in the dataset
      * \param[out] stat      Status of the model construction
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, services::Status * stat = NULL);
 
-    virtual ~Model() { }
+    virtual ~Model() {}
 
     /**
      *  Returns the number of weak learners constructed during training of the AdaBoost algorithm
@@ -286,10 +284,10 @@ public:
 protected:
     size_t _nFeatures;
     data_management::DataCollectionPtr _models;
-    data_management::NumericTablePtr _alpha;     /* Boosting coefficients table */
+    data_management::NumericTablePtr _alpha; /* Boosting coefficients table */
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st;
         DAAL_CHECK_STATUS(st, (classifier::Model::serialImpl<Archive, onDeserialize>(arch)));
@@ -301,7 +299,7 @@ protected:
     }
 
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status &st);
+    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status & st);
 
 }; // class Model
 typedef services::SharedPtr<Model> ModelPtr;

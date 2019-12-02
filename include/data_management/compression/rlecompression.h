@@ -29,7 +29,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -53,8 +52,7 @@ public:
      * RleCompressionParameter constructor
      * \param _isBlockHeader RLE block header presence flag. True if a RLE block header is present, false otherwise
      */
-    RleCompressionParameter(bool _isBlockHeader = 1) :
-        data_management::CompressionParameter(defaultLevel), isBlockHeader(_isBlockHeader) {}
+    RleCompressionParameter(bool _isBlockHeader = 1) : data_management::CompressionParameter(defaultLevel), isBlockHeader(_isBlockHeader) {}
 
     ~RleCompressionParameter() {}
 
@@ -72,7 +70,8 @@ public:
  *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
  *      - \ref RleCompressionParameter class
  */
-template<> class DAAL_EXPORT Compressor<rle> : public data_management::CompressorImpl
+template <>
+class DAAL_EXPORT Compressor<rle> : public data_management::CompressorImpl
 {
 public:
     /**
@@ -86,15 +85,12 @@ public:
      * \param[in] size     Number of bytes to encode in inBlock
      * \param[in] offset   Offset in bytes, the starting position for encoding in inBlock
      */
-    void setInputDataBlock( byte *inBlock, size_t size, size_t offset );
+    void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
     /**
      * Associates an input data block with a compressor
      * \param[in] inBlock Reference to the data block to encode
      */
-    void setInputDataBlock( DataBlock &inBlock )
-    {
-        setInputDataBlock( inBlock.getPtr(), inBlock.getSize(), 0 );
-    }
+    void setInputDataBlock(DataBlock & inBlock) { setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
 
     /**
      * Performs run-length encoding of a data block
@@ -102,15 +98,12 @@ public:
      * \param[in] size       Number of bytes available in outBlock
      * \param[in] offset     Offset in bytes, the starting position for encoding in outBlock
      */
-    void run( byte *outBlock, size_t size, size_t offset );
+    void run(byte * outBlock, size_t size, size_t offset);
     /**
      * Performs run-length encoding of a data block
      * \param[out] outBlock Reference to the data block where encoding results are stored
      */
-    void run( DataBlock &outBlock )
-    {
-        run( outBlock.getPtr(), outBlock.getSize(), 0 );
-    }
+    void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     RleCompressionParameter parameter; /*!< RLE compression parameters structure */
 
@@ -118,9 +111,9 @@ protected:
     void initialize();
 
 private:
-    void *_next_in;
+    void * _next_in;
     size_t _avail_in;
-    void *_next_out;
+    void * _next_out;
     size_t _avail_out;
     size_t _headBytes;
 
@@ -137,7 +130,8 @@ private:
  *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
  *      - \ref RleCompressionParameter class
  */
-template<> class DAAL_EXPORT Decompressor<rle> : public data_management::DecompressorImpl
+template <>
+class DAAL_EXPORT Decompressor<rle> : public data_management::DecompressorImpl
 {
 public:
     /**
@@ -151,30 +145,24 @@ public:
      * \param[in] size     Number of bytes to decode in inBlock
      * \param[in] offset   Offset in bytes, the starting position for decoding in inBlock
      */
-    void setInputDataBlock( byte *inBlock, size_t size, size_t offset );
+    void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
     /**
      * Associates an input data block with a decompressor
      * \param[in] inBlock Reference to the data block to decode
      */
-    void setInputDataBlock( DataBlock &inBlock )
-    {
-        setInputDataBlock( inBlock.getPtr(), inBlock.getSize(), 0 );
-    }
+    void setInputDataBlock(DataBlock & inBlock) { setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
     /**
      * Performs run-length decoding of a data block
      * \param[out] outBlock Pointer to the data block where decoding results are stored. Must be at least size+offset bytes
      * \param[in] size       Number of bytes available in outBlock
      * \param[in] offset     Offset in bytes, the starting position for decoding in outBlock
      */
-    void run( byte *outBlock, size_t size, size_t offset );
+    void run(byte * outBlock, size_t size, size_t offset);
     /**
      * Performs run-length decoding of a data block
      * \param[out] outBlock Reference to the data block where decoding results are stored
      */
-    void run( DataBlock &outBlock )
-    {
-        run( outBlock.getPtr(), outBlock.getSize(), 0 );
-    }
+    void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     RleCompressionParameter parameter; /*!< RLE compression parameters structure */
 
@@ -182,13 +170,13 @@ protected:
     void initialize();
 
 private:
-    void *_next_in;
+    void * _next_in;
     size_t _avail_in;
-    void *_next_out;
+    void * _next_out;
     size_t _avail_out;
     size_t _headBytes;
 
-    void *_internalBuff;
+    void * _internalBuff;
     size_t _internalBuffOff;
     size_t _internalBuffLen;
 

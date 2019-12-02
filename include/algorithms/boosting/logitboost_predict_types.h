@@ -47,13 +47,11 @@ namespace logitboost
  * \brief Contains classes for making prediction based on the classifier model */
 namespace prediction
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGITBOOST__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the logitboost algorithm   \DAAL_DEPRECATED
@@ -61,10 +59,10 @@ namespace interface1
 class DAAL_EXPORT Input : public classifier::prediction::interface1::Input
 {
     typedef classifier::prediction::interface1::Input super;
-public:
 
+public:
     DAAL_DEPRECATED Input() : classifier::prediction::interface1::Input() {}
-    DAAL_DEPRECATED Input(const Input& other) : classifier::prediction::interface1::Input(other){}
+    DAAL_DEPRECATED Input(const Input & other) : classifier::prediction::interface1::Input(other) {}
     DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
 
     using super::get;
@@ -89,22 +87,21 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    DAAL_DEPRECATED void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the LogitBoost algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    DAAL_DEPRECATED void set(classifier::prediction::ModelInputId id, const logitboost::interface1::ModelPtr &ptr);
+    DAAL_DEPRECATED void set(classifier::prediction::ModelInputId id, const logitboost::interface1::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
-
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface1
@@ -114,7 +111,6 @@ public:
  */
 namespace interface2
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGITBOOST__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the logitboost algorithm
@@ -122,10 +118,10 @@ namespace interface2
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
     typedef classifier::prediction::Input super;
-public:
 
+public:
     Input() : classifier::prediction::Input() {}
-    Input(const Input& other) : classifier::prediction::Input(other){}
+    Input(const Input & other) : classifier::prediction::Input(other) {}
     virtual ~Input() {}
 
     using super::get;
@@ -150,29 +146,28 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the LogitBoost algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const logitboost::ModelPtr &ptr);
+    void set(classifier::prediction::ModelInputId id, const logitboost::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
-
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface2
 using interface2::Input;
-}
+} // namespace prediction
 /** @} */
-}
-}
-}
+} // namespace logitboost
+} // namespace algorithms
+} // namespace daal
 #endif // __LOGITBOOST_PREDICT_TYPES_H__

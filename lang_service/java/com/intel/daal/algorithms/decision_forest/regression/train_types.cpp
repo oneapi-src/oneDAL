@@ -26,25 +26,24 @@
 
 USING_COMMON_NAMESPACES()
 
-namespace dfr = decision_forest::regression;
+namespace dfr  = decision_forest::regression;
 namespace dfrt = daal::algorithms::decision_forest::regression::training;
 
 #include "com_intel_daal_algorithms_decision_forest_regression_training_ResultNumericTableId.h"
-#define outOfBagErrorId  com_intel_daal_algorithms_decision_forest_regression_training_ResultNumericTableId_outOfBagErrorId
-#define outOfBagErrorPerObservationId  com_intel_daal_algorithms_decision_forest_regression_training_ResultNumericTableId_outOfBagErrorPerObservationId
-#define variableImportanceId  com_intel_daal_algorithms_decision_forest_regression_training_ResultNumericTableId_variableImportanceId
+#define outOfBagErrorId               com_intel_daal_algorithms_decision_forest_regression_training_ResultNumericTableId_outOfBagErrorId
+#define outOfBagErrorPerObservationId com_intel_daal_algorithms_decision_forest_regression_training_ResultNumericTableId_outOfBagErrorPerObservationId
+#define variableImportanceId          com_intel_daal_algorithms_decision_forest_regression_training_ResultNumericTableId_variableImportanceId
 #include "com_intel_daal_algorithms_decision_forest_regression_training_TrainingResultId.h"
-#define ModelResult  com_intel_daal_algorithms_decision_forest_regression_training_TrainingResultId_Model
+#define ModelResult com_intel_daal_algorithms_decision_forest_regression_training_TrainingResultId_Model
 
 /*
 * Class:     com_intel_daal_algorithms_decision_forest_regression_training_Parameter
 * Method:    cGetNTrees
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetNTrees
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetNTrees(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jlong)(*(dfrt::Parameter *)parAddr).nTrees;
+    return (jlong)(*(dfrt::Parameter *)parAddr).nTrees;
 }
 
 /*
@@ -52,8 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cSetNTrees
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetNTrees
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetNTrees(JNIEnv *, jobject, jlong parAddr,
+                                                                                                                jlong value)
 {
     (*(dfrt::Parameter *)parAddr).nTrees = value;
 }
@@ -63,8 +62,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cSetObservationsPerTreeFraction
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetObservationsPerTreeFraction
-(JNIEnv *, jobject, jlong parAddr, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetObservationsPerTreeFraction(JNIEnv *,
+                                                                                                                                     jobject,
+                                                                                                                                     jlong parAddr,
+                                                                                                                                     jdouble value)
 {
     (*(dfrt::Parameter *)parAddr).observationsPerTreeFraction = value;
 }
@@ -74,10 +75,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cGetObservationsPerTreeFraction
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetObservationsPerTreeFraction
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetObservationsPerTreeFraction(JNIEnv *,
+                                                                                                                                        jobject,
+                                                                                                                                        jlong parAddr)
 {
-    return(jdouble)(*(dfrt::Parameter *)parAddr).observationsPerTreeFraction;
+    return (jdouble)(*(dfrt::Parameter *)parAddr).observationsPerTreeFraction;
 }
 
 /*
@@ -85,10 +87,10 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_decision_1forest_regres
 * Method:    cGetFeaturesPerNode
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetFeaturesPerNode
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetFeaturesPerNode(JNIEnv *, jobject,
+                                                                                                                          jlong parAddr)
 {
-    return(jlong)(*(dfrt::Parameter *)parAddr).featuresPerNode;
+    return (jlong)(*(dfrt::Parameter *)parAddr).featuresPerNode;
 }
 
 /*
@@ -96,8 +98,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cSetFeaturesPerNode
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetFeaturesPerNode
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetFeaturesPerNode(JNIEnv *, jobject,
+                                                                                                                         jlong parAddr, jlong value)
 {
     (*(dfrt::Parameter *)parAddr).featuresPerNode = value;
 }
@@ -107,10 +109,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cGetMaxTreeDepth
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetMaxTreeDepth
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetMaxTreeDepth(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr)
 {
-    return(jlong)(*(dfrt::Parameter *)parAddr).maxTreeDepth;
+    return (jlong)(*(dfrt::Parameter *)parAddr).maxTreeDepth;
 }
 
 /*
@@ -118,8 +120,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cSetMaxTreeDepth
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetMaxTreeDepth
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetMaxTreeDepth(JNIEnv *, jobject,
+                                                                                                                      jlong parAddr, jlong value)
 {
     (*(dfrt::Parameter *)parAddr).maxTreeDepth = value;
 }
@@ -129,10 +131,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cGetMinObservationsInLeafNode
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetMinObservationsInLeafNode
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetMinObservationsInLeafNode(JNIEnv *, jobject,
+                                                                                                                                    jlong parAddr)
 {
-    return(jlong)(*(dfrt::Parameter *)parAddr).minObservationsInLeafNode;
+    return (jlong)(*(dfrt::Parameter *)parAddr).minObservationsInLeafNode;
 }
 
 /*
@@ -140,8 +142,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cSetMinObservationsInLeafNode
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetMinObservationsInLeafNode
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetMinObservationsInLeafNode(JNIEnv *, jobject,
+                                                                                                                                   jlong parAddr,
+                                                                                                                                   jlong value)
 {
     (*(dfrt::Parameter *)parAddr).minObservationsInLeafNode = value;
 }
@@ -151,10 +154,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cGetSeed
 * Signature: (J)I
 */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetSeed
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetSeed(JNIEnv *, jobject, jlong parAddr)
 {
-    return(jint)(*(dfrt::Parameter *)parAddr).seed;
+    return (jint)(*(dfrt::Parameter *)parAddr).seed;
 }
 
 /*
@@ -162,8 +164,8 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cSetSeed
 * Signature: (JI)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetSeed
-(JNIEnv *, jobject, jlong parAddr, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetSeed(JNIEnv *, jobject, jlong parAddr,
+                                                                                                              jint value)
 {
     (*(dfrt::Parameter *)parAddr).seed = value;
 }
@@ -173,10 +175,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetEngine(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong cParameter, jlong engineAddr)
 {
-    (((dfrt::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((dfrt::Parameter *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }
 
 /*
@@ -184,8 +186,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cSetImpurityThreshold
 * Signature: (JD)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetImpurityThreshold
-(JNIEnv *, jobject, jlong parAddr, jdouble value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetImpurityThreshold(JNIEnv *, jobject,
+                                                                                                                           jlong parAddr,
+                                                                                                                           jdouble value)
 {
     (*(dfrt::Parameter *)parAddr).impurityThreshold = value;
 }
@@ -195,10 +198,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cGetImpurityThreshold
 * Signature: (J)D
 */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetImpurityThreshold
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetImpurityThreshold(JNIEnv *, jobject,
+                                                                                                                              jlong parAddr)
 {
-    return(jdouble)(*(dfrt::Parameter *)parAddr).impurityThreshold;
+    return (jdouble)(*(dfrt::Parameter *)parAddr).impurityThreshold;
 }
 
 /*
@@ -206,8 +209,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_decision_1forest_regres
 * Method:    cSetResultsToCompute
 * Signature: (JJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetResultsToCompute
-(JNIEnv *, jobject, jlong parAddr, jlong value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetResultsToCompute(JNIEnv *, jobject,
+                                                                                                                          jlong parAddr, jlong value)
 {
     (*(dfrt::Parameter *)parAddr).resultsToCompute = value;
 }
@@ -217,10 +220,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cGetResultsToCompute
 * Signature: (J)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetResultsToCompute
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetResultsToCompute(JNIEnv *, jobject,
+                                                                                                                           jlong parAddr)
 {
-    return(jlong)(*(dfrt::Parameter *)parAddr).resultsToCompute;
+    return (jlong)(*(dfrt::Parameter *)parAddr).resultsToCompute;
 }
 
 /*
@@ -228,10 +231,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cGetVariableImportanceMode
 * Signature: (J)I
 */
-JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetVariableImportanceMode
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cGetVariableImportanceMode(JNIEnv *, jobject,
+                                                                                                                                jlong parAddr)
 {
-    return(jint)(*(dfrt::Parameter *)parAddr).varImportance;
+    return (jint)(*(dfrt::Parameter *)parAddr).varImportance;
 }
 
 /*
@@ -239,8 +242,9 @@ JNIEXPORT jint JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cSetVariableImportanceMode
 * Signature: (JI)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetVariableImportanceMode
-(JNIEnv *, jobject, jlong parAddr, jint value)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_Parameter_cSetVariableImportanceMode(JNIEnv *, jobject,
+                                                                                                                                jlong parAddr,
+                                                                                                                                jint value)
 {
     (*(dfrt::Parameter *)parAddr).varImportance = decision_forest::training::VariableImportanceMode(value);
 }
@@ -250,8 +254,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cGetResult
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingResult_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingResult_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
     return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -261,19 +266,16 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cGetModel
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingResult_cGetModel
-(JNIEnv *, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingResult_cGetModel(JNIEnv *, jobject thisObj,
+                                                                                                                     jlong resAddr, jint id)
 {
-    dfr::ModelPtr *m = new dfr::ModelPtr();
+    dfr::ModelPtr * m   = new dfr::ModelPtr();
     dfrt::ResultPtr res = services::staticPointerCast<dfrt::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
-    jlong resModel = 0;
-    switch(id)
+    jlong resModel      = 0;
+    switch (id)
     {
-    case ModelResult:
-        *m = res->get(dfrt::model);
-        break;
-    default:
-        break;
+    case ModelResult: *m = res->get(dfrt::model); break;
+    default: break;
     }
     return (jlong)m;
 }
@@ -283,23 +285,19 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cGetResultTable
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingResult_cGetResultTable
-(JNIEnv *, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingResult_cGetResultTable(JNIEnv *, jobject thisObj,
+                                                                                                                           jlong resAddr, jint id)
 {
-    NumericTablePtr* pTbl = new NumericTablePtr();
-    dfrt::ResultPtr res =
-        services::staticPointerCast<dfrt::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
+    NumericTablePtr * pTbl = new NumericTablePtr();
+    dfrt::ResultPtr res    = services::staticPointerCast<dfrt::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
 
     jlong resModel = 0;
-    switch(id)
+    switch (id)
     {
     case outOfBagErrorId:
     case variableImportanceId:
-    case outOfBagErrorPerObservationId:
-        *pTbl = res->get(dfrt::ResultNumericTableId(id));
-        break;
-    default:
-        break;
+    case outOfBagErrorPerObservationId: *pTbl = res->get(dfrt::ResultNumericTableId(id)); break;
+    default: break;
     }
     return (jlong)pTbl;
 }
@@ -309,8 +307,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cInit
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingInput_cInit
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingInput_cInit(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                jint prec, jint method)
 {
     return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -320,8 +318,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 * Method:    cSetInput
 * Signature: (JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingInput_cSetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong valAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingInput_cSetInput(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                                   jint id, jlong valAddr)
 {
     jniInput<dfrt::Input>::set<dfrt::InputId, NumericTable>(inputAddr, dfrt::InputId(id), valAddr);
 }
@@ -331,8 +329,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressio
 * Method:    cGetInput
 * Signature: (JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingInput_cGetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingInput_cGetInput(JNIEnv *, jobject,
+                                                                                                                    jlong inputAddr, jint id)
 {
     return jniInput<dfrt::Input>::get<dfrt::InputId, NumericTable>(inputAddr, dfrt::InputId(id));
 }

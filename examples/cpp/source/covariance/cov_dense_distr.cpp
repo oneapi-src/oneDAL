@@ -34,15 +34,10 @@ using namespace daal;
 using namespace daal::algorithms;
 
 /* Input data set parameters */
-const size_t nBlocks         = 4;
+const size_t nBlocks = 4;
 
-const string datasetFileNames[] =
-{
-    "../data/distributed/covcormoments_dense_1.csv",
-    "../data/distributed/covcormoments_dense_2.csv",
-    "../data/distributed/covcormoments_dense_3.csv",
-    "../data/distributed/covcormoments_dense_4.csv"
-};
+const string datasetFileNames[] = { "../data/distributed/covcormoments_dense_1.csv", "../data/distributed/covcormoments_dense_2.csv",
+                                    "../data/distributed/covcormoments_dense_3.csv", "../data/distributed/covcormoments_dense_4.csv" };
 
 covariance::PartialResultPtr partialResult[nBlocks];
 covariance::ResultPtr result;
@@ -50,11 +45,11 @@ covariance::ResultPtr result;
 void computestep1Local(size_t i);
 void computeOnMasterNode();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
 
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         computestep1Local(i);
     }
@@ -62,7 +57,7 @@ int main(int argc, char *argv[])
     computeOnMasterNode();
 
     printNumericTable(result->get(covariance::covariance), "Covariance matrix:");
-    printNumericTable(result->get(covariance::mean),       "Mean vector:");
+    printNumericTable(result->get(covariance::mean), "Mean vector:");
 
     return 0;
 }
@@ -70,8 +65,7 @@ int main(int argc, char *argv[])
 void computestep1Local(size_t block)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileNames[block], DataSource::doAllocateNumericTable,
-                                         DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileNames[block], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();

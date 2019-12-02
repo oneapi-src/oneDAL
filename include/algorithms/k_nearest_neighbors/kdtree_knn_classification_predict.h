@@ -50,7 +50,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__BATCHCONTAINER"></a>
  *  \brief Class containing computation methods for KD-tree based kNN model-based prediction   \DAAL_DEPRECATED
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -58,7 +58,7 @@ public:
      * Constructs a container for KD-tree based kNN model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
 
     DAAL_DEPRECATED ~BatchContainer();
 
@@ -84,7 +84,7 @@ public:
  *      - \ref kdtree_knn_classification::interface1::Model "kdtree_knn_classification::Model" class
  *      - \ref training::interface1::Batch "training::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public classifier::prediction::interface1::Batch
 {
 public:
@@ -92,16 +92,13 @@ public:
 
     typedef algorithms::kdtree_knn_classification::prediction::Input InputType;
     typedef algorithms::kdtree_knn_classification::interface1::Parameter ParameterType;
-    typedef typename super::ResultType                               ResultType;
+    typedef typename super::ResultType ResultType;
 
     InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< \ref kdtree_knn_classification::interface1::Parameter "Parameters" of prediction */
 
     /** Default constructor */
-    DAAL_DEPRECATED Batch()
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Batch() { initialize(); }
 
     /**
      * Constructs a KD-tree based kNN prediction algorithm by copying input objects and parameters
@@ -109,7 +106,8 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other) : classifier::prediction::interface1::Batch(other), input(other.input), parameter(other.parameter)
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other)
+        : classifier::prediction::interface1::Batch(other), input(other.input), parameter(other.parameter)
     {
         initialize();
     }
@@ -124,7 +122,7 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated KD-tree based kNN prediction algorithm with a copy of input objects
@@ -137,22 +135,19 @@ public:
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
     }
 };
@@ -172,7 +167,7 @@ namespace interface2
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PREDICTION__BATCHCONTAINER"></a>
  *  \brief Class containing computation methods for KD-tree based kNN model-based prediction
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -180,7 +175,7 @@ public:
      * Constructs a container for KD-tree based kNN model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
 
     ~BatchContainer();
 
@@ -206,24 +201,21 @@ public:
  *      - \ref kdtree_knn_classification::interface1::Model "kdtree_knn_classification::Model" class
  *      - \ref training::interface1::Batch "training::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public classifier::prediction::Batch
 {
 public:
     typedef classifier::prediction::Batch super;
 
     typedef algorithms::kdtree_knn_classification::prediction::Input InputType;
-    typedef algorithms::kdtree_knn_classification::Parameter         ParameterType;
-    typedef typename super::ResultType                               ResultType;
+    typedef algorithms::kdtree_knn_classification::Parameter ParameterType;
+    typedef typename super::ResultType ResultType;
 
     InputType input;         /*!< %Input data structure */
     ParameterType parameter; /*!< \ref kdtree_knn_classification::interface1::Parameter "Parameters" of prediction */
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a KD-tree based kNN prediction algorithm by copying input objects and parameters
@@ -246,35 +238,29 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated KD-tree based kNN prediction algorithm with a copy of input objects
      * of this KD-tree based kNN prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
     }
 };

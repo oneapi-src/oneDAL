@@ -50,11 +50,10 @@ namespace internal
  *  in case floating point type of intermediate calculations
  *  and method of calculations are different
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class ZScoreKernelBase : public Kernel
 {
 public:
-
     /**
     *  \brief Function that computes z-score normalization for interface1
     *
@@ -62,7 +61,7 @@ public:
     *  \param resultTable[out]  Table that stores algotithm's results
     *  \param parameter[in]     Parameters of the algorithm
     */
-    Status compute(NumericTable &inputTable, NumericTable &resultTable, const daal::algorithms::Parameter &parameter);
+    Status compute(NumericTable & inputTable, NumericTable & resultTable, const daal::algorithms::Parameter & parameter);
 
     /**
      *  \brief Function that computes z-score normalization
@@ -73,29 +72,22 @@ public:
      *  \param resultVariances[out]  Table that stores variances results
      *  \param parameter[in]     Parameters of the algorithm
      */
-    Status compute(NumericTable &inputTable, NumericTable &resultTable,
-                   NumericTable &resultMeans,
-                   NumericTable &resultVariances,
-                   const daal::algorithms::Parameter &parameter);
+    Status compute(NumericTable & inputTable, NumericTable & resultTable, NumericTable & resultMeans, NumericTable & resultVariances,
+                   const daal::algorithms::Parameter & parameter);
 
 protected:
-    Status common_compute(NumericTable &inputTable,
-                          NumericTable &resultTable,
-                          algorithmFPType* means_total,
-                          algorithmFPType* variances_total,
-                          const daal::algorithms::Parameter &parameter);
+    Status common_compute(NumericTable & inputTable, NumericTable & resultTable, algorithmFPType * means_total, algorithmFPType * variances_total,
+                          const daal::algorithms::Parameter & parameter);
 
-    virtual Status computeMeanVariance_thr(NumericTable &inputTable,
-                                           algorithmFPType* resultMean,
-                                           algorithmFPType* resultVariance,
-                                           const daal::algorithms::Parameter &parameter) = 0;
+    virtual Status computeMeanVariance_thr(NumericTable & inputTable, algorithmFPType * resultMean, algorithmFPType * resultVariance,
+                                           const daal::algorithms::Parameter & parameter) = 0;
 };
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 class ZScoreKernel : public ZScoreKernelBase<algorithmFPType, cpu>
 {};
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace zscore
 } // namespace normalization
 } // namespace algorithms

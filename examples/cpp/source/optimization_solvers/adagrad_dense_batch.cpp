@@ -35,20 +35,18 @@ using namespace daal::data_management;
 
 string datasetFileName = "../data/batch/mse.csv";
 
-const size_t nFeatures = 3;
+const size_t nFeatures         = 3;
 const double accuracyThreshold = 0.0000001;
-const size_t nIterations = 1000;
-const size_t batchSize = 1;
-const float  learningRate = 1;
+const size_t nIterations       = 1000;
+const size_t batchSize         = 1;
+const float learningRate       = 1;
 
-float startPoint[nFeatures + 1] = {8, 2, 1, 4};
+float startPoint[nFeatures + 1] = { 8, 2, 1, 4 };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
-            DataSource::notAllocateNumericTable,
-            DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for data and values for dependent variable */
     NumericTablePtr data(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -68,12 +66,11 @@ int main(int argc, char *argv[])
 
     /* Set input objects for the the Adaptive gradient descent algorithm */
     adagradAlgorithm.input.set(optimization_solver::iterative_solver::inputArgument,
-                           NumericTablePtr(new HomogenNumericTable<>(startPoint, 1, nFeatures + 1)));
-    adagradAlgorithm.parameter.learningRate =
-        NumericTablePtr(new HomogenNumericTable<>(1, 1, NumericTable::doAllocate, learningRate));
-    adagradAlgorithm.parameter.nIterations = nIterations;
+                               NumericTablePtr(new HomogenNumericTable<>(startPoint, 1, nFeatures + 1)));
+    adagradAlgorithm.parameter.learningRate      = NumericTablePtr(new HomogenNumericTable<>(1, 1, NumericTable::doAllocate, learningRate));
+    adagradAlgorithm.parameter.nIterations       = nIterations;
     adagradAlgorithm.parameter.accuracyThreshold = accuracyThreshold;
-    adagradAlgorithm.parameter.batchSize = batchSize;
+    adagradAlgorithm.parameter.batchSize         = batchSize;
 
     /* Compute the Adaptive gradient descent result */
     adagradAlgorithm.compute();

@@ -52,7 +52,7 @@ namespace em_gmm
  */
 enum Method
 {
-    defaultDense = 0       /*!< Default: performance-oriented method. */
+    defaultDense = 0 /*!< Default: performance-oriented method. */
 };
 
 /**
@@ -61,9 +61,9 @@ enum Method
  */
 enum InputId
 {
-    data,                   /*!< %Input data table */
-    inputWeights,           /*!< Input weights */
-    inputMeans,             /*!< Input means */
+    data,         /*!< %Input data table */
+    inputWeights, /*!< Input weights */
+    inputMeans,   /*!< Input means */
     lastInputId = inputMeans
 };
 
@@ -73,7 +73,7 @@ enum InputId
  */
 enum InputCovariancesId
 {
-    inputCovariances = lastInputId + 1,       /*!< %Collection of input covariances */
+    inputCovariances       = lastInputId + 1, /*!< %Collection of input covariances */
     lastInputCovariancesId = inputCovariances
 };
 
@@ -83,7 +83,7 @@ enum InputCovariancesId
  */
 enum InputValuesId
 {
-    inputValues = lastInputCovariancesId + 1,  /*!< Input objects of the EM for GMM algorithm */
+    inputValues       = lastInputCovariancesId + 1, /*!< Input objects of the EM for GMM algorithm */
     lastInputValuesId = inputValues
 };
 
@@ -93,10 +93,10 @@ enum InputValuesId
  */
 enum ResultId
 {
-    weights,                /*!< Weights */
-    means,                  /*!< Means */
-    goalFunction,           /*!< Table containing log-likelyhood value */
-    nIterations,            /*!< Table containing the number of executed iterations */
+    weights,      /*!< Weights */
+    means,        /*!< Means */
+    goalFunction, /*!< Table containing log-likelyhood value */
+    nIterations,  /*!< Table containing the number of executed iterations */
     lastResultId = nIterations
 };
 
@@ -106,7 +106,7 @@ enum ResultId
  */
 enum ResultCovariancesId
 {
-    covariances = lastResultId + 1,     /*!< %Collection of covariances */
+    covariances             = lastResultId + 1, /*!< %Collection of covariances */
     lastResultCovariancesId = covariances
 };
 
@@ -133,14 +133,10 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
      * \param[in] regularizationFactor     Factor for covariance regularization in case of ill-conditional data
      * \param[in] covarianceStorage        Type of covariance in the Gaussian mixture model.
      */
-    Parameter(const size_t nComponents,
-              const services::SharedPtr<covariance::BatchImpl> &covariance,
-              const size_t maxIterations = 10,
-              const double accuracyThreshold = 1.0e-04,
-              const double regularizationFactor = 0.01,
-              const CovarianceStorageId covarianceStorage = full);
+    Parameter(const size_t nComponents, const services::SharedPtr<covariance::BatchImpl> & covariance, const size_t maxIterations = 10,
+              const double accuracyThreshold = 1.0e-04, const double regularizationFactor = 0.01, const CovarianceStorageId covarianceStorage = full);
 
-    Parameter(const Parameter &other);
+    Parameter(const Parameter & other);
 
     virtual ~Parameter() {}
 
@@ -149,12 +145,12 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
      */
     virtual services::Status check() const;
 
-    size_t nComponents;                                     /*!< Number of components in the Gaussian mixture model */
-    size_t maxIterations;                                   /*!< Maximal number of iterations of the algorithm. */
-    double accuracyThreshold;                               /*!< Threshold for the termination of the algorithm.    */
+    size_t nComponents;                                    /*!< Number of components in the Gaussian mixture model */
+    size_t maxIterations;                                  /*!< Maximal number of iterations of the algorithm. */
+    double accuracyThreshold;                              /*!< Threshold for the termination of the algorithm.    */
     services::SharedPtr<covariance::BatchImpl> covariance; /*!< Pointer to the algorithm that computes the covariance */
-    double regularizationFactor;                            /*!< Factor for covariance regularization in case of ill-conditional data */
-    CovarianceStorageId covarianceStorage;                  /*!< Type of covariance in the Gaussian mixture model. */
+    double regularizationFactor;                           /*!< Factor for covariance regularization in case of ill-conditional data */
+    CovarianceStorageId covarianceStorage;                 /*!< Type of covariance in the Gaussian mixture model. */
 };
 /* [Parameter source code] */
 
@@ -169,7 +165,7 @@ public:
     Input();
 
     /** Copy constructor */
-    Input(const Input& other) : daal::algorithms::Input(other){}
+    Input(const Input & other) : daal::algorithms::Input(other) {}
 
     virtual ~Input() {}
 
@@ -178,21 +174,21 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input covariance object for the EM for GMM algorithm
      * \param[in] id    Identifier of the input covariance collection object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputCovariancesId id, const data_management::DataCollectionPtr &ptr);
+    void set(InputCovariancesId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Sets input objects for the EM for GMM algorithm
      * \param[in] id    Identifier of the input values object. Result of the EM for GMM initialization algorithm can be used.
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputValuesId id, const init::ResultPtr &ptr);
+    void set(InputValuesId id, const init::ResultPtr & ptr);
 
     /**
      * Returns the input numeric table for the EM for GMM algorithm
@@ -216,20 +212,19 @@ public:
      */
     data_management::NumericTablePtr get(InputCovariancesId id, size_t index) const;
 
-
     /**
      * Checks the correctness of the input result
      * \param[in] par       Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__EM_GMM__RESULT"></a>
  * \brief Provides methods to access final results obtained with the compute() method of the EM for GMM algorithm in the batch processing mode
  */
-class DAAL_EXPORT Result: public daal::algorithms::Result
+class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
@@ -245,21 +240,21 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Sets the result of the EM for GMM algorithm
      * \param[in] id    %Result identifier
      * \param[in] ptr   Pointer to the numeric table with the result
      */
-    void set(ResultId id, const data_management::NumericTablePtr &ptr);
+    void set(ResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the collection of covariances for the EM for GMM algorithm
      * \param[in] id    Identifier of the collection of covariances
      * \param[in] ptr   Pointer to the collection of covariances
      */
-    void set(ResultCovariancesId id, const data_management::DataCollectionPtr &ptr);
+    void set(ResultCovariancesId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Returns the result of the EM for GMM algorithm
@@ -289,12 +284,12 @@ public:
     * \param[in] par     %Parameter of algorithm
     * \param[in] method  Computation method
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -308,6 +303,6 @@ using interface1::Result;
 using interface1::ResultPtr;
 
 } // namespace em_gmm
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

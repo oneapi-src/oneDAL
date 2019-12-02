@@ -35,7 +35,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -47,7 +46,7 @@ namespace interface1
  *  \brief Specifies methods to access data stored in byte arrays in the C-string format
  *  \tparam _featureManager     FeatureManager used to get numeric data from file strings
  */
-template<typename FeatureManager, typename SummaryStatisticsType = DAAL_SUMMARY_STATISTICS_TYPE>
+template <typename FeatureManager, typename SummaryStatisticsType = DAAL_SUMMARY_STATISTICS_TYPE>
 class StringDataSource : public CsvDataSource<FeatureManager, SummaryStatisticsType>
 {
 private:
@@ -70,12 +69,10 @@ public:
      *                                              is created from the context of the File Data Source
      *  \param[in]  initialMaxRows                  Initial value of maximum number of rows in Numeric Table allocated in loadDataBlock() method
      */
-    StringDataSource(const byte *data,
-                     DataSourceIface::NumericTableAllocationFlag doAllocateNumericTable    = DataSource::notAllocateNumericTable,
+    StringDataSource(const byte * data, DataSourceIface::NumericTableAllocationFlag doAllocateNumericTable = DataSource::notAllocateNumericTable,
                      DataSourceIface::DictionaryCreationFlag doCreateDictionaryFromContext = DataSource::notDictionaryFromContext,
-                     size_t initialMaxRows = 10):
-        super(doAllocateNumericTable, doCreateDictionaryFromContext, initialMaxRows),
-        _contextDictFlag(false)
+                     size_t initialMaxRows                                                 = 10)
+        : super(doAllocateNumericTable, doCreateDictionaryFromContext, initialMaxRows), _contextDictFlag(false)
     {
         setData(data);
     }
@@ -84,9 +81,9 @@ public:
      *  Sets a new string as a source for data
      *  \param[in]  data  Byte array in the C-string format
      */
-    void setData( const byte *data )
+    void setData(const byte * data)
     {
-        if( !data )
+        if (!data)
         {
             _status.add(services::throwIfPossible(services::Status(services::ErrorNullPtr)));
             return;
@@ -99,51 +96,39 @@ public:
      *  Gets data source string data
      *  \return  Byte array in the C-string format
      */
-    const byte *getData()
-    {
-        return (const byte *)(_stringBuffer);
-    }
+    const byte * getData() { return (const byte *)(_stringBuffer); }
 
     /**
      *  Resets a data source string
      */
-    void resetData()
-    {
-        _stringBufferPos = 0;
-    }
+    void resetData() { _stringBufferPos = 0; }
 
 public:
     services::Status createDictionaryFromContext() DAAL_C11_OVERRIDE
     {
         services::Status s = super::createDictionaryFromContext();
-        _stringBufferPos = 0;
+        _stringBufferPos   = 0;
         return s;
     }
 
-    DataSourceIface::DataSourceStatus getStatus() DAAL_C11_OVERRIDE
-    {
-        return (iseof() ? DataSourceIface::endOfData : DataSourceIface::readyForLoad);
-    }
+    DataSourceIface::DataSourceStatus getStatus() DAAL_C11_OVERRIDE { return (iseof() ? DataSourceIface::endOfData : DataSourceIface::readyForLoad); }
 
 protected:
-    bool iseof() const DAAL_C11_OVERRIDE
-    {
-        return (_stringBuffer[_stringBufferPos] == '\0');
-    }
+    bool iseof() const DAAL_C11_OVERRIDE { return (_stringBuffer[_stringBufferPos] == '\0'); }
 
-    int readLine(char *buffer, int count)
+    int readLine(char * buffer, int count)
     {
         int pos = 0;
-        for(;pos<count-1;pos++)
+        for (; pos < count - 1; pos++)
         {
-            buffer[pos] = _stringBuffer[_stringBufferPos+pos];
+            buffer[pos] = _stringBuffer[_stringBufferPos + pos];
 
-            if( buffer[pos]=='\0' || buffer[pos]=='\n' )
+            if (buffer[pos] == '\0' || buffer[pos] == '\n')
             {
                 break;
             }
         }
-        if(buffer[pos]=='\n')
+        if (buffer[pos] == '\n')
         {
             pos++;
         }
@@ -155,9 +140,9 @@ protected:
     services::Status readLine() DAAL_C11_OVERRIDE
     {
         _rawLineLength = 0;
-        while(!iseof())
+        while (!iseof())
         {
-            const int readLen = readLine (_rawLineBuffer + _rawLineLength, (int)(_rawLineBufferLen - _rawLineLength));
+            const int readLen = readLine(_rawLineBuffer + _rawLineLength, (int)(_rawLineBufferLen - _rawLineLength));
             if (readLen <= 0)
             {
                 _rawLineLength = 0;
@@ -173,22 +158,21 @@ protected:
                 _rawLineBuffer[_rawLineLength] = '\0';
                 return services::Status();
             }
-            if(!super::enlargeBuffer())
-                return services::Status(services::ErrorMemoryAllocationFailed);
+            if (!super::enlargeBuffer()) return services::Status(services::ErrorMemoryAllocationFailed);
         }
         return services::Status();
     }
 
 private:
-    char  *_stringBuffer;
+    char * _stringBuffer;
     size_t _stringBufferPos;
 
-    bool  _contextDictFlag;
+    bool _contextDictFlag;
 };
 /** @} */
 } // namespace interface1
 using interface1::StringDataSource;
 
-}
-}
+} // namespace data_management
+} // namespace daal
 #endif

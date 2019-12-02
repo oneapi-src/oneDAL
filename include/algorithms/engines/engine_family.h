@@ -47,7 +47,7 @@ class DAAL_EXPORT FamilyBatchBase : public engines::BatchBase
 public:
     typedef engines::BatchBase super;
 
-    typedef super::InputType  InputType;
+    typedef super::InputType InputType;
     typedef super::ResultType ResultType;
 
     FamilyBatchBase();
@@ -89,7 +89,7 @@ protected:
     virtual size_t getNumberOfStreamsImpl() const { return 0; }
     virtual size_t getMaxNumberOfStreamsImpl() const { return 0; }
 
-    FamilyBatchBase(const FamilyBatchBase &other);
+    FamilyBatchBase(const FamilyBatchBase & other);
 };
 typedef services::SharedPtr<FamilyBatchBase> FamilyEnginePtr;
 

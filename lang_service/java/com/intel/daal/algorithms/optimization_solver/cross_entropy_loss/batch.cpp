@@ -31,10 +31,12 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cInit
  * Signature: (II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Batch_cInit
-(JNIEnv *, jobject, jint prec, jint method, jlong numberOfTerms, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Batch_cInit(JNIEnv *, jobject, jint prec,
+                                                                                                             jint method, jlong numberOfTerms,
+                                                                                                             jlong nClasses)
 {
-    return jniBatch<cross_entropy_loss::Method, cross_entropy_loss::Batch, cross_entropy_loss::defaultDense>::newObj(prec, method, numberOfTerms, nClasses);
+    return jniBatch<cross_entropy_loss::Method, cross_entropy_loss::Batch, cross_entropy_loss::defaultDense>::newObj(prec, method, numberOfTerms,
+                                                                                                                     nClasses);
 }
 
 /*
@@ -42,8 +44,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cros
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Batch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
     return jniBatch<cross_entropy_loss::Method, cross_entropy_loss::Batch, cross_entropy_loss::defaultDense>::getClone(prec, method, algAddr);
 }
@@ -53,8 +55,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cros
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Batch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                 jlong algAddr, jint prec,
+                                                                                                                 jint method)
 {
     return jniBatch<cross_entropy_loss::Method, cross_entropy_loss::Batch, cross_entropy_loss::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -64,8 +67,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cros
  * Method:    cGetParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Batch_cGetParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Batch_cGetParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                     jlong algAddr, jint prec,
+                                                                                                                     jint method)
 {
     return jniBatch<cross_entropy_loss::Method, cross_entropy_loss::Batch, cross_entropy_loss::defaultDense>::getParameter(prec, method, algAddr);
 }

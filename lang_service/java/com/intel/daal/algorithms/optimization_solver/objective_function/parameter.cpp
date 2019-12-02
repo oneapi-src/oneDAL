@@ -32,8 +32,9 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetResultsToCompute
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Parameter_cSetResultsToCompute
-(JNIEnv *, jobject, jlong parAddr, jlong resultsToCompute)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Parameter_cSetResultsToCompute(JNIEnv *, jobject,
+                                                                                                                              jlong parAddr,
+                                                                                                                              jlong resultsToCompute)
 {
     ((objective_function::Parameter *)parAddr)->resultsToCompute = resultsToCompute;
 }
@@ -43,8 +44,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objec
  * Method:    cGetResultsToCompute
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Parameter_cGetResultsToCompute
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_objective_1function_Parameter_cGetResultsToCompute(JNIEnv *, jobject,
+                                                                                                                               jlong parAddr)
 {
     return ((objective_function::Parameter *)parAddr)->resultsToCompute;
 }

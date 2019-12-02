@@ -56,8 +56,8 @@ namespace training
  */
 enum Method
 {
-    friedman = 0,       /*!< Default method proposed by Friedman et al. */
-    defaultDense = 0    /*!< Default training method */
+    friedman     = 0, /*!< Default method proposed by Friedman et al. */
+    defaultDense = 0  /*!< Default training method */
 };
 
 /**
@@ -91,12 +91,13 @@ public:
      * \param[in] method        LogitBoost computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                          const int method);
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -135,12 +136,12 @@ public:
      * \param[in] method        LogitBoost computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -150,9 +151,9 @@ typedef services::SharedPtr<Result> ResultPtr;
 using interface2::Result;
 using interface2::ResultPtr;
 
-} // namespace daal::algorithms::logitboost::training
+} // namespace training
 /** @} */
-}
-}
+} // namespace logitboost
+} // namespace algorithms
 } // namespace daal
 #endif // __LOGIT_BOOST_TRAINING_TYPES_H__

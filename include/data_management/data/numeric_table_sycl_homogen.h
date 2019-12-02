@@ -44,7 +44,7 @@ namespace interface1
  *  Table rows contain feature vectors, and columns contain values of individual features.
  *  \tparam DataType Defines the underlying data type that describes a Numeric Table
  */
-template<typename DataType = DAAL_DATA_TYPE>
+template <typename DataType = DAAL_DATA_TYPE>
 class DAAL_EXPORT SyclHomogenNumericTable : public SyclNumericTable
 {
 public:
@@ -62,14 +62,10 @@ public:
      *  \param[out] stat           Status of the numeric table construction
      *  \return     Numeric table with user-allocated memory
      */
-    static services::SharedPtr<SyclHomogenNumericTable<DataType> >
-        create(const services::Buffer<DataType> &buffer,
-               size_t nColumns = 0, size_t nRows = 0,
-               services::Status *stat = NULL)
+    static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(const services::Buffer<DataType> & buffer, size_t nColumns = 0,
+                                                                          size_t nRows = 0, services::Status * stat = NULL)
     {
-        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SyclHomogenNumericTable, DataType,
-                                             DictionaryIface::notEqual, buffer,
-                                             nColumns, nRows);
+        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SyclHomogenNumericTable, DataType, DictionaryIface::notEqual, buffer, nColumns, nRows);
     }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
@@ -104,12 +100,10 @@ public:
      *  \param[out] stat                  Status of the numeric table construction
      *  \return     Numeric table with user-allocated memory
      */
-    static services::SharedPtr<SyclHomogenNumericTable<DataType> >
-        create(size_t nColumns, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status *stat = NULL)
+    static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(size_t nColumns, size_t nRows, AllocationFlag memoryAllocationFlag,
+                                                                          services::Status * stat = NULL)
     {
-        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SyclHomogenNumericTable, DataType,
-                                             DictionaryIface::notEqual,
-                                             nColumns, nRows, memoryAllocationFlag);
+        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SyclHomogenNumericTable, DataType, DictionaryIface::notEqual, nColumns, nRows, memoryAllocationFlag);
     }
 
     /**
@@ -121,73 +115,67 @@ public:
      *  \param[out] stat                    Status of the numeric table construction
      *  \return     Numeric table initialized with a constant
      */
-    static services::SharedPtr<SyclHomogenNumericTable<DataType> >
-        create(size_t nColumns, size_t nRows, AllocationFlag memoryAllocationFlag,
-               const DataType &constValue, services::Status *stat = NULL)
+    static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(size_t nColumns, size_t nRows, AllocationFlag memoryAllocationFlag,
+                                                                          const DataType & constValue, services::Status * stat = NULL)
     {
-        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SyclHomogenNumericTable, DataType,
-                                             DictionaryIface::notEqual,
-                                             nColumns, nRows, memoryAllocationFlag, constValue);
+        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(SyclHomogenNumericTable, DataType, DictionaryIface::notEqual, nColumns, nRows, memoryAllocationFlag,
+                                             constValue);
     }
 
-    SyclHomogenNumericTable() : SyclNumericTable(0, 0, DictionaryIface::notEqual) { }
+    SyclHomogenNumericTable() : SyclNumericTable(0, 0, DictionaryIface::notEqual) {}
 
-    ~SyclHomogenNumericTable() DAAL_C11_OVERRIDE
+    ~SyclHomogenNumericTable() DAAL_C11_OVERRIDE { freeDataMemoryImpl(); }
+
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
-        freeDataMemoryImpl();
+        return getTBlock<double>(vector_idx, vector_num, rwflag, block);
     }
 
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag,
-                                    BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
-    { return getTBlock<double>(vector_idx, vector_num, rwflag, block); }
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    {
+        return getTBlock<float>(vector_idx, vector_num, rwflag, block);
+    }
 
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag,
-                                    BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
-    { return getTBlock<float>(vector_idx, vector_num, rwflag, block); }
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    {
+        return getTBlock<int>(vector_idx, vector_num, rwflag, block);
+    }
 
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag,
-                                    BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
-    { return getTBlock<int>(vector_idx, vector_num, rwflag, block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTBlock<double>(block); }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
-    { return releaseTBlock<double>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTBlock<float>(block); }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
-    { return releaseTBlock<float>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTBlock<int>(block); }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
-    { return releaseTBlock<int>(block); }
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    {
+        return getTFeature<double>(feature_idx, vector_idx, value_num, rwflag, block);
+    }
 
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-                                            ReadWriteMode rwflag, BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
-    { return getTFeature<double>(feature_idx, vector_idx, value_num, rwflag, block); }
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    {
+        return getTFeature<float>(feature_idx, vector_idx, value_num, rwflag, block);
+    }
 
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-                                            ReadWriteMode rwflag, BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
-    { return getTFeature<float>(feature_idx, vector_idx, value_num, rwflag, block); }
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    {
+        return getTFeature<int>(feature_idx, vector_idx, value_num, rwflag, block);
+    }
 
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-                                            ReadWriteMode rwflag, BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
-    { return getTFeature<int>(feature_idx, vector_idx, value_num, rwflag, block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTFeature<double>(block); }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
-    { return releaseTFeature<double>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
-    { return releaseTFeature<float>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
-    { return releaseTFeature<int>(block); }
+    services::Status assign(float value) DAAL_C11_OVERRIDE { return assignImpl<float>(value); }
 
-    services::Status assign(float value) DAAL_C11_OVERRIDE
-    { return assignImpl<float>(value); }
+    services::Status assign(double value) DAAL_C11_OVERRIDE { return assignImpl<double>(value); }
 
-    services::Status assign(double value) DAAL_C11_OVERRIDE
-    { return assignImpl<double>(value); }
-
-    services::Status assign(int value) DAAL_C11_OVERRIDE
-    { return assignImpl<int>(value); }
-
+    services::Status assign(int value) DAAL_C11_OVERRIDE { return assignImpl<int>(value); }
 
 protected:
     SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
@@ -309,7 +297,7 @@ protected:
     }
 
     template <typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *archive)
+    services::Status serialImpl(Archive * archive)
     {
         NumericTable::serialImpl<Archive, onDeserialize>(archive);
 
@@ -358,8 +346,7 @@ private:
     template <typename T, typename U>
     struct BufferIO
     {
-        static services::Status read(const services::Buffer<U> &buffer, BlockDescriptor<T> &block,
-                                     size_t nRows, size_t nCols)
+        static services::Status read(const services::Buffer<U> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             DAAL_ASSERT(buffer.size() == nRows * nCols);
 
@@ -377,8 +364,7 @@ private:
             return services::Status();
         }
 
-        static services::Status write(services::Buffer<U> buffer, const BlockDescriptor<T> &block,
-                                      size_t nRows, size_t nCols)
+        static services::Status write(services::Buffer<U> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             DAAL_ASSERT(block.getNumberOfRows() == nRows);
             DAAL_ASSERT(block.getNumberOfColumns() == nCols);
@@ -395,8 +381,7 @@ private:
     template <typename T>
     struct BufferIO<T, T>
     {
-        static services::Status read(const services::Buffer<T> &buffer, BlockDescriptor<T> &block,
-                                     size_t nRows, size_t nCols)
+        static services::Status read(const services::Buffer<T> & buffer, BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             DAAL_ASSERT(buffer.size() == nRows * nCols);
 
@@ -404,8 +389,7 @@ private:
             return services::Status();
         }
 
-        static services::Status write(services::Buffer<T> buffer, const BlockDescriptor<T> &block,
-                                      size_t nRows, size_t nCols)
+        static services::Status write(services::Buffer<T> buffer, const BlockDescriptor<T> & block, size_t nRows, size_t nCols)
         {
             // TODO: Support case when block.getBuffer() != buffer
             // It means that user calls block.setBuffer on their side
@@ -415,9 +399,9 @@ private:
 
     services::Buffer<DataType> getSubBuffer(size_t rowOffset, size_t nRows)
     {
-        const size_t nCols = getNumberOfColumns();
+        const size_t nCols  = getNumberOfColumns();
         const size_t offset = rowOffset * nCols;
-        const size_t size = nRows * nCols;
+        const size_t size   = nRows * nCols;
         if (size == _buffer.size())
         {
             return _buffer;
@@ -426,8 +410,7 @@ private:
     }
 
     template <typename T>
-    services::Status getTBlock(size_t rowOffset, size_t nRowsBlockDesired,
-                               ReadWriteMode rwFlag, BlockDescriptor<T> &block)
+    services::Status getTBlock(size_t rowOffset, size_t nRowsBlockDesired, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         if (isCpuTable())
         {
@@ -444,15 +427,13 @@ private:
             return services::Status();
         }
 
-        const size_t nRowsBlock = (rowOffset + nRowsBlockDesired < nRows)
-            ? nRowsBlockDesired : nRows - rowOffset;
+        const size_t nRowsBlock = (rowOffset + nRowsBlockDesired < nRows) ? nRowsBlockDesired : nRows - rowOffset;
 
-        return BufferIO<T, DataType>::read(getSubBuffer(rowOffset, nRowsBlock),
-                                           block, nRowsBlock, nCols);
+        return BufferIO<T, DataType>::read(getSubBuffer(rowOffset, nRowsBlock), block, nRowsBlock, nCols);
     }
 
     template <typename T>
-    services::Status releaseTBlock(BlockDescriptor<T> &block)
+    services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
         if (isCpuTable())
         {
@@ -463,12 +444,11 @@ private:
 
         if (block.getRWFlag() & (int)writeOnly)
         {
-            const size_t nCols = getNumberOfColumns();
-            const size_t nRows = block.getNumberOfRows();
+            const size_t nCols     = getNumberOfColumns();
+            const size_t nRows     = block.getNumberOfRows();
             const size_t rowOffset = block.getRowsOffset();
 
-            status |= BufferIO<T, DataType>::write(getSubBuffer(rowOffset, nRows),
-                                                   block, nRows, nCols);
+            status |= BufferIO<T, DataType>::write(getSubBuffer(rowOffset, nRows), block, nRows, nCols);
         }
 
         block.reset();
@@ -476,13 +456,11 @@ private:
     }
 
     template <typename T>
-    services::Status getTFeature(size_t columnIndex, size_t rowOffset, size_t nRowsBlockDesired,
-                                 ReadWriteMode rwFlag, BlockDescriptor<T> &block)
+    services::Status getTFeature(size_t columnIndex, size_t rowOffset, size_t nRowsBlockDesired, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         if (isCpuTable())
         {
-            return _cpuTable->getBlockOfColumnValues(
-                columnIndex, rowOffset, nRowsBlockDesired, rwFlag, block);
+            return _cpuTable->getBlockOfColumnValues(columnIndex, rowOffset, nRowsBlockDesired, rwFlag, block);
         }
 
         services::throwIfPossible(services::ErrorMethodNotImplemented);
@@ -490,7 +468,7 @@ private:
     }
 
     template <typename T>
-    services::Status releaseTFeature(BlockDescriptor<T> &block)
+    services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
         if (isCpuTable())
         {
@@ -505,22 +483,14 @@ private:
     {
         services::Status status;
 
-        _cpuTable = HomogenNumericTable<DataType>::create(
-            getNumberOfColumns(), getNumberOfRows(),
-            NumericTableIface::doAllocate, &status);
+        _cpuTable = HomogenNumericTable<DataType>::create(getNumberOfColumns(), getNumberOfRows(), NumericTableIface::doAllocate, &status);
 
         return status;
     }
 
-    inline bool isCpuTable() const
-    {
-        return (bool)_cpuTable;
-    }
+    inline bool isCpuTable() const { return (bool)_cpuTable; }
 
-    static bool isCpuContext()
-    {
-        return oneapi::internal::getDefaultContext().getInfoDevice().isCpu;
-    }
+    static bool isCpuContext() { return oneapi::internal::getDefaultContext().getInfoDevice().isCpu; }
 
     services::Buffer<DataType> _buffer;
     services::SharedPtr<HomogenNumericTable<DataType> > _cpuTable;

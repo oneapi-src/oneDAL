@@ -41,7 +41,7 @@ namespace internal
 {
 template struct I1LogitBoostTrainKernel<friedman, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace logitboost
+} // namespace algorithms
+} // namespace daal

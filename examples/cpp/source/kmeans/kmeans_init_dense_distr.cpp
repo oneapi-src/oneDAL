@@ -35,24 +35,20 @@ using namespace daal::algorithms;
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* K-Means algorithm parameters */
-const size_t nClusters = 20;
-const size_t nIterations = 5;
-const size_t nBlocks = 4;
+const size_t nClusters       = 20;
+const size_t nIterations     = 5;
+const size_t nBlocks         = 4;
 const size_t nVectorsInBlock = 2500;
 
-const string dataFileNames[] =
-{
-    "../data/distributed/kmeans_dense_1.csv", "../data/distributed/kmeans_dense_2.csv",
-    "../data/distributed/kmeans_dense_3.csv", "../data/distributed/kmeans_dense_4.csv"
-};
+const string dataFileNames[] = { "../data/distributed/kmeans_dense_1.csv", "../data/distributed/kmeans_dense_2.csv",
+                                 "../data/distributed/kmeans_dense_3.csv", "../data/distributed/kmeans_dense_4.csv" };
 
 void loadData(NumericTablePtr data[nBlocks])
 {
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> dataSource(dataFileNames[i], DataSource::doAllocateNumericTable,
-            DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(dataFileNames[i], DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
         /* Retrieve the data from the input file */
         dataSource.loadDataBlock();
@@ -63,17 +59,17 @@ void loadData(NumericTablePtr data[nBlocks])
 template <kmeans::init::Method method>
 NumericTablePtr initCentroids(const NumericTablePtr data[nBlocks]);
 
-void calculateCentroids(const NumericTablePtr& initialCentroids, const NumericTablePtr data[nBlocks]);
+void calculateCentroids(const NumericTablePtr & initialCentroids, const NumericTablePtr data[nBlocks]);
 
 template <kmeans::init::Method method>
-void runKMeans(const NumericTablePtr data[nBlocks], const char* methodName)
+void runKMeans(const NumericTablePtr data[nBlocks], const char * methodName)
 {
     std::cout << "K-means init parameters: method = " << methodName << std::endl;
     NumericTablePtr centroids = initCentroids<method>(data);
     calculateCentroids(centroids, data);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &dataFileNames[0], &dataFileNames[1], &dataFileNames[2], &dataFileNames[3]);
 
@@ -89,32 +85,30 @@ int main(int argc, char *argv[])
 template <kmeans::init::Method method>
 NumericTablePtr initStep1(const NumericTablePtr data[nBlocks])
 {
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         /* Create an algorithm object for the K-Means algorithm */
-        kmeans::init::Distributed<step1Local, algorithmFPType, method> local(nClusters, nBlocks*nVectorsInBlock, i*nVectorsInBlock);
+        kmeans::init::Distributed<step1Local, algorithmFPType, method> local(nClusters, nBlocks * nVectorsInBlock, i * nVectorsInBlock);
         local.input.set(kmeans::init::data, data[i]);
         local.compute();
         NumericTablePtr pNewCenters = local.getPartialResult()->get(kmeans::init::partialCentroids);
-        if(pNewCenters.get())
-            return pNewCenters;
+        if (pNewCenters.get()) return pNewCenters;
     }
     return NumericTablePtr();
 }
 
 template <kmeans::init::Method method>
-void initStep23(const NumericTablePtr data[nBlocks], DataCollectionPtr localNodeData[nBlocks], const NumericTablePtr& step2Input,
-    kmeans::init::Distributed<step3Master, algorithmFPType, method>& step3, bool bFirstIteration)
+void initStep23(const NumericTablePtr data[nBlocks], DataCollectionPtr localNodeData[nBlocks], const NumericTablePtr & step2Input,
+                kmeans::init::Distributed<step3Master, algorithmFPType, method> & step3, bool bFirstIteration)
 {
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         kmeans::init::Distributed<step2Local, algorithmFPType, method> step2(nClusters, bFirstIteration);
         step2.input.set(kmeans::init::data, data[i]);
         step2.input.set(kmeans::init::internalInput, localNodeData[i]);
         step2.input.set(kmeans::init::inputOfStep2, step2Input);
         step2.compute();
-        if(bFirstIteration)
-            localNodeData[i] = step2.getPartialResult()->get(kmeans::init::internalResult);
+        if (bFirstIteration) localNodeData[i] = step2.getPartialResult()->get(kmeans::init::internalResult);
         step3.input.add(kmeans::init::inputOfStep3FromStep2, i, step2.getPartialResult()->get(kmeans::init::outputOfStep2ForStep3));
     }
     step3.compute();
@@ -122,15 +116,14 @@ void initStep23(const NumericTablePtr data[nBlocks], DataCollectionPtr localNode
 
 template <kmeans::init::Method method>
 NumericTablePtr initStep4(const NumericTablePtr data[nBlocks], DataCollectionPtr localNodeData[nBlocks],
-    kmeans::init::Distributed<step3Master, algorithmFPType, method>& step3)
+                          kmeans::init::Distributed<step3Master, algorithmFPType, method> & step3)
 {
     std::vector<NumericTablePtr> aRes;
-    for(size_t i = 0; i < nBlocks; ++i)
+    for (size_t i = 0; i < nBlocks; ++i)
     {
         /* Get an input for step 4 on this node if any */
         NumericTablePtr step3Output = step3.getPartialResult()->get(kmeans::init::outputOfStep3ForStep4, i);
-        if(!step3Output)
-            continue; /* can be null */
+        if (!step3Output) continue; /* can be null */
 
         /* Create an algorithm object for the step 4 */
         kmeans::init::Distributed<step4Local, algorithmFPType, method> step4(nClusters);
@@ -142,18 +135,15 @@ NumericTablePtr initStep4(const NumericTablePtr data[nBlocks], DataCollectionPtr
         step4.compute();
         aRes.push_back(step4.getPartialResult()->get(kmeans::init::outputOfStep4));
     }
-    if(!aRes.size())
-        return NumericTablePtr();
-    if(aRes.size() == 1)
-        return aRes[0];
+    if (!aRes.size()) return NumericTablePtr();
+    if (aRes.size() == 1) return aRes[0];
     /* For parallelPlus algorithm */
     RowMergedNumericTablePtr pMerged(new RowMergedNumericTable());
-    for(size_t i = 0; i < aRes.size(); ++i)
-        pMerged->addNumericTable(aRes[i]);
+    for (size_t i = 0; i < aRes.size(); ++i) pMerged->addNumericTable(aRes[i]);
     return NumericTable::cast(pMerged);
 }
 
-template<>
+template <>
 NumericTablePtr initCentroids<kmeans::init::plusPlusDense>(const NumericTablePtr data[nBlocks])
 {
     /* Internal data to be stored on the local nodes */
@@ -166,7 +156,7 @@ NumericTablePtr initCentroids<kmeans::init::plusPlusDense>(const NumericTablePtr
 
     /* Create an algorithm object for the step 3 */
     kmeans::init::Distributed<step3Master, algorithmFPType, kmeans::init::plusPlusDense> step3(nClusters);
-    for(size_t iCenter = 1; iCenter < nClusters; ++iCenter)
+    for (size_t iCenter = 1; iCenter < nClusters; ++iCenter)
     {
         /* Perform steps 2 and 3 */
         initStep23<kmeans::init::plusPlusDense>(data, localNodeData, pNewCentroids, step3, iCenter == 1);
@@ -177,7 +167,7 @@ NumericTablePtr initCentroids<kmeans::init::plusPlusDense>(const NumericTablePtr
     return NumericTable::cast(pCentroids);
 }
 
-template<>
+template <>
 NumericTablePtr initCentroids<kmeans::init::parallelPlusDense>(const NumericTablePtr data[nBlocks])
 {
     /* Internal data to be stored on the local nodes */
@@ -190,7 +180,7 @@ NumericTablePtr initCentroids<kmeans::init::parallelPlusDense>(const NumericTabl
     step5.input.add(kmeans::init::inputCentroids, pNewCentroids);
     /* Create an algorithm object for the step 3 */
     kmeans::init::Distributed<step3Master, algorithmFPType, kmeans::init::parallelPlusDense> step3(nClusters);
-    for(size_t iRound = 0; iRound < step5.parameter.nRounds; ++iRound)
+    for (size_t iRound = 0; iRound < step5.parameter.nRounds; ++iRound)
     {
         /* Perform steps 2 and 3 */
         initStep23<kmeans::init::parallelPlusDense>(data, localNodeData, pNewCentroids, step3, iRound == 0);
@@ -199,7 +189,7 @@ NumericTablePtr initCentroids<kmeans::init::parallelPlusDense>(const NumericTabl
         step5.input.add(kmeans::init::inputCentroids, pNewCentroids);
     }
     /* One more step 2 */
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         /* Create an algorithm object for the step 2 */
         kmeans::init::Distributed<step2Local, algorithmFPType, kmeans::init::parallelPlusDense> local(nClusters, false);
@@ -219,7 +209,7 @@ NumericTablePtr initCentroids<kmeans::init::parallelPlusDense>(const NumericTabl
     return step5.getResult()->get(kmeans::init::centroids);
 }
 
-void calculateCentroids(const NumericTablePtr& initialCentroids, const NumericTablePtr data[nBlocks])
+void calculateCentroids(const NumericTablePtr & initialCentroids, const NumericTablePtr data[nBlocks])
 {
     kmeans::Distributed<step2Master> masterAlgorithm(nClusters);
 
@@ -231,9 +221,9 @@ void calculateCentroids(const NumericTablePtr& initialCentroids, const NumericTa
     NumericTablePtr objectiveFunction;
 
     /* Calculate centroids */
-    for(size_t it = 0; it < nIterations; it++)
+    for (size_t it = 0; it < nIterations; it++)
     {
-        for(size_t i = 0; i < nBlocks; i++)
+        for (size_t i = 0; i < nBlocks; i++)
         {
             /* Create an algorithm object for the K-Means algorithm */
             kmeans::Distributed<step1Local> localAlgorithm(nClusters, false);
@@ -249,12 +239,12 @@ void calculateCentroids(const NumericTablePtr& initialCentroids, const NumericTa
         masterAlgorithm.compute();
         masterAlgorithm.finalizeCompute();
 
-        centroids = masterAlgorithm.getResult()->get(kmeans::centroids);
+        centroids         = masterAlgorithm.getResult()->get(kmeans::centroids);
         objectiveFunction = masterAlgorithm.getResult()->get(kmeans::objectiveFunction);
     }
 
     /* Calculate assignments */
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         /* Create an algorithm object for the K-Means algorithm */
         kmeans::Batch<> localAlgorithm(nClusters, 0);

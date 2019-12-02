@@ -32,38 +32,37 @@ namespace mt2203
 {
 namespace interface1
 {
-
 using namespace daal::services;
 using namespace mt2203::internal;
 
-template<typename algorithmFPType, Method method>
-SharedPtr<Batch<algorithmFPType, method> > Batch<algorithmFPType, method>::create(size_t seed, services::Status *st)
+template <typename algorithmFPType, Method method>
+SharedPtr<Batch<algorithmFPType, method> > Batch<algorithmFPType, method>::create(size_t seed, services::Status * st)
 {
     SharedPtr<Batch<algorithmFPType, method> > engPtr;
 
     int cpuid = (int)Environment::getInstance()->getCpuId();
-        switch(cpuid)
-        {
+    switch (cpuid)
+    {
 #ifdef DAAL_KERNEL_AVX512
-            case avx512: DAAL_KERNEL_AVX512_ONLY_CODE(engPtr.reset(new BatchImpl<avx512, algorithmFPType, method>(seed, st))); break;
+    case avx512: DAAL_KERNEL_AVX512_ONLY_CODE(engPtr.reset(new BatchImpl<avx512, algorithmFPType, method>(seed, st))); break;
 #endif
 #ifdef DAAL_KERNEL_AVX512_MIC
-            case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(engPtr.reset(new BatchImpl<avx512_mic, algorithmFPType, method>(seed, st))); break;
+    case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(engPtr.reset(new BatchImpl<avx512_mic, algorithmFPType, method>(seed, st))); break;
 #endif
 #ifdef DAAL_KERNEL_AVX2
-            case avx2: DAAL_KERNEL_AVX2_ONLY_CODE(engPtr.reset(new BatchImpl<avx2, algorithmFPType, method>(seed, st))); break;
+    case avx2: DAAL_KERNEL_AVX2_ONLY_CODE(engPtr.reset(new BatchImpl<avx2, algorithmFPType, method>(seed, st))); break;
 #endif
 #ifdef DAAL_KERNEL_AVX
-            case avx: DAAL_KERNEL_AVX_ONLY_CODE(engPtr.reset(new BatchImpl<avx, algorithmFPType, method>(seed, st))); break;
+    case avx: DAAL_KERNEL_AVX_ONLY_CODE(engPtr.reset(new BatchImpl<avx, algorithmFPType, method>(seed, st))); break;
 #endif
 #ifdef DAAL_KERNEL_SSE42
-            case sse42: DAAL_KERNEL_SSE42_ONLY_CODE(engPtr.reset(new BatchImpl<sse42, algorithmFPType, method>(seed, st))); break;
+    case sse42: DAAL_KERNEL_SSE42_ONLY_CODE(engPtr.reset(new BatchImpl<sse42, algorithmFPType, method>(seed, st))); break;
 #endif
 #ifdef DAAL_KERNEL_SSSE3
-            case ssse3: DAAL_KERNEL_SSSE3_ONLY_CODE(engPtr.reset(new BatchImpl<ssse3, algorithmFPType, method>(seed, st))); break;
+    case ssse3: DAAL_KERNEL_SSSE3_ONLY_CODE(engPtr.reset(new BatchImpl<ssse3, algorithmFPType, method>(seed, st))); break;
 #endif
-            default: engPtr.reset(new BatchImpl<sse2, algorithmFPType, method>(seed, st)); break;
-        };
+    default: engPtr.reset(new BatchImpl<sse2, algorithmFPType, method>(seed, st)); break;
+    };
     return engPtr;
 }
 

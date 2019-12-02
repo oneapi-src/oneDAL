@@ -36,13 +36,13 @@ using namespace daal;
 using namespace daal::algorithms::ridge_regression;
 
 /* Input data set parameters */
-string trainDatasetFileName            = "../data/online/linear_regression_train.csv";
-string testDatasetFileName             = "../data/online/linear_regression_test.csv";
+string trainDatasetFileName = "../data/online/linear_regression_train.csv";
+string testDatasetFileName  = "../data/online/linear_regression_test.csv";
 
 const size_t nTrainVectorsInBlock = 250;
 
-const size_t nFeatures           = 10;  /* Number of features in training and testing data sets */
-const size_t nDependentVariables = 2;   /* Number of dependent variables that correspond to each observation */
+const size_t nFeatures           = 10; /* Number of features in training and testing data sets */
+const size_t nDependentVariables = 2;  /* Number of dependent variables that correspond to each observation */
 
 void trainModel();
 void testModel();
@@ -50,7 +50,7 @@ void testModel();
 training::ResultPtr trainingResult;
 prediction::ResultPtr predictionResult;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
@@ -63,9 +63,7 @@ int main(int argc, char *argv[])
 void trainModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
-                                                      DataSource::notAllocateNumericTable,
-                                                      DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
     NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -75,7 +73,7 @@ void trainModel()
     /* Create an algorithm object to train the ridge regression model */
     training::Online<> algorithm;
 
-    while(trainDataSource.loadDataBlock(nTrainVectorsInBlock, mergedData.get()) == nTrainVectorsInBlock)
+    while (trainDataSource.loadDataBlock(nTrainVectorsInBlock, mergedData.get()) == nTrainVectorsInBlock)
     {
         /* Pass a training data set and dependent values to the algorithm */
         algorithm.input.set(training::data, trainData);
@@ -96,9 +94,7 @@ void trainModel()
 void testModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
-                                                     DataSource::doAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and ground truth values */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -120,7 +116,6 @@ void testModel()
 
     /* Retrieve the algorithm results */
     predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(prediction::prediction),
-        "Ridge Regression prediction results: (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(prediction::prediction), "Ridge Regression prediction results: (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }

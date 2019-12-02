@@ -47,14 +47,14 @@ namespace interface1
  *  Can hold data on the host side using shared pointer,
  *  or on host/device sides using SYCL* buffer
  */
-template<typename T>
+template <typename T>
 class Buffer : public Base
 {
 public:
     /**
      *   Creates empty Buffer object
      */
-    Buffer() { }
+    Buffer() {}
 
 #ifdef DAAL_SYCL_INTERFACE
     /**
@@ -105,26 +105,17 @@ public:
     /**
      *  Returns true if Buffer points to any data
      */
-    operator bool() const
-    {
-        return _impl;
-    }
+    operator bool() const { return _impl; }
 
     /**
      *  Returns true if Buffer is equal to \p other
      */
-    bool operator==(const Buffer &other) const
-    {
-        return _impl.get() == other._impl.get();
-    }
+    bool operator==(const Buffer & other) const { return _impl.get() == other._impl.get(); }
 
     /**
      *  Returns true if Buffer is not equal to \p other
      */
-    bool operator!=(const Buffer &other) const
-    {
-        return _impl.get() != other._impl.get();
-    }
+    bool operator!=(const Buffer & other) const { return _impl.get() != other._impl.get(); }
 
     /**
      *  Converts data inside the buffer to the host side

@@ -36,7 +36,6 @@ namespace algorithms
 {
 namespace covariance
 {
-
 namespace interface1
 {
 /**
@@ -79,7 +78,7 @@ public:
  * \tparam method           Computation method for correlation or variance-covariance matrix, \ref daal::algorithms::covariance::Method
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class OnlineContainer
 {};
 
@@ -91,7 +90,7 @@ class OnlineContainer
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class OnlineContainer<algorithmFPType, defaultDense, cpu> : public OnlineContainerIface
 {
 public:
@@ -100,7 +99,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~OnlineContainer();
 
@@ -124,7 +123,7 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class OnlineContainer<algorithmFPType, singlePassDense, cpu> : public OnlineContainerIface
 {
 public:
@@ -133,7 +132,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~OnlineContainer();
 
@@ -157,7 +156,7 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class OnlineContainer<algorithmFPType, sumDense, cpu> : public OnlineContainerIface
 {
 public:
@@ -166,7 +165,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~OnlineContainer();
 
@@ -190,7 +189,7 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class OnlineContainer<algorithmFPType, fastCSR, cpu> : public OnlineContainerIface
 {
 public:
@@ -199,7 +198,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~OnlineContainer();
 
@@ -223,7 +222,7 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class OnlineContainer<algorithmFPType, singlePassCSR, cpu> : public OnlineContainerIface
 {
 public:
@@ -232,7 +231,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~OnlineContainer();
 
@@ -256,7 +255,7 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of correlation or variance-covariance matrix, double or float
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class OnlineContainer<algorithmFPType, sumCSR, cpu> : public OnlineContainerIface
 {
 public:
@@ -265,7 +264,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~OnlineContainer();
 
@@ -289,16 +288,13 @@ public:
 class DAAL_EXPORT OnlineImpl : public daal::algorithms::Analysis<online>
 {
 public:
-    typedef algorithms::covariance::Input           InputType;
+    typedef algorithms::covariance::Input InputType;
     typedef algorithms::covariance::OnlineParameter ParameterType;
-    typedef algorithms::covariance::Result          ResultType;
-    typedef algorithms::covariance::PartialResult   PartialResultType;
+    typedef algorithms::covariance::Result ResultType;
+    typedef algorithms::covariance::PartialResult PartialResultType;
 
     /** Default constructor */
-    OnlineImpl()
-    {
-        initialize();
-    }
+    OnlineImpl() { initialize(); }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -307,10 +303,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    OnlineImpl(const OnlineImpl &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    OnlineImpl(const OnlineImpl & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     virtual ~OnlineImpl() {}
 
@@ -318,20 +311,17 @@ public:
      * Returns the structure that contains final results of the correlation or variance-covariance matrix algorithm
      * \return Structure that contains the final results
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory to store final results of the correlation or variance-covariance matrix algorithm
      * \param[in] result    Structure to store the results
      */
-    virtual services::Status setResult(const ResultPtr &result)
+    virtual services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -339,21 +329,18 @@ public:
      * Returns the structure that contains partial results of the correlation or variance-covariance matrix algorithm
      * \return Structure that contains partial results
      */
-    PartialResultPtr getPartialResult()
-    {
-        return _partialResult;
-    }
+    PartialResultPtr getPartialResult() { return _partialResult; }
 
     /**
      * Registers user-allocated memory to store partial results of the correlation or variance-covariance matrix algorithm
      * \param[in] partialResult    Structure to store partial results
      * \param[in] initFlag        Flag that specifies whether the partial results are initialized
      */
-    virtual services::Status setPartialResult(const PartialResultPtr &partialResult, bool initFlag = false)
+    virtual services::Status setPartialResult(const PartialResultPtr & partialResult, bool initFlag = false)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult);
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         setInitFlag(initFlag);
         return services::Status();
     }
@@ -364,19 +351,16 @@ public:
      * matrix computation
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<OnlineImpl> clone() const
-    {
-        return services::SharedPtr<OnlineImpl>(cloneImpl());
-    }
+    services::SharedPtr<OnlineImpl> clone() const { return services::SharedPtr<OnlineImpl>(cloneImpl()); }
 
-    InputType input;            /*!< %Input data structure */
-    ParameterType parameter;    /*!< %Parameter structure */
+    InputType input;         /*!< %Input data structure */
+    ParameterType parameter; /*!< %Parameter structure */
 
 protected:
     void initialize()
     {
-        _in     = &input;
-        _par    = &parameter;
+        _in  = &input;
+        _par = &parameter;
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResult());
     }
@@ -386,7 +370,6 @@ protected:
     PartialResultPtr _partialResult;
     ResultPtr _result;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__COVARIANCE__ONLINE"></a>
@@ -408,22 +391,19 @@ protected:
  *      - PartialResult class
  *      - Result class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Online : public OnlineImpl
 {
 public:
     typedef OnlineImpl super;
 
-    typedef typename super::InputType         InputType;
-    typedef typename super::ParameterType     ParameterType;
-    typedef typename super::ResultType        ResultType;
+    typedef typename super::InputType InputType;
+    typedef typename super::ParameterType ParameterType;
+    typedef typename super::ResultType ResultType;
     typedef typename super::PartialResultType PartialResultType;
 
     /** Default constructor */
-    Online()
-    {
-        initialize();
-    }
+    Online() { initialize(); }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -432,10 +412,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online<algorithmFPType, method> &other) : OnlineImpl(other)
-    {
-        initialize();
-    }
+    Online(const Online<algorithmFPType, method> & other) : OnlineImpl(other) { initialize(); }
 
     virtual ~Online() {}
 
@@ -451,43 +428,34 @@ public:
      * matrix computation
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Online<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Online<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Online<algorithmFPType, method> > clone() const { return services::SharedPtr<Online<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Online<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Online<algorithmFPType, method>(*this);
-    }
+    virtual Online<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Online<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(_partialResult.get(), _par, (int)method);
-        _res    = _result.get();
-        _pres   = _partialResult.get();
+        _res               = _result.get();
+        _pres              = _partialResult.get();
         return services::Status();
     }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->allocate<algorithmFPType>(&input, _par, (int)method);
-        _pres   = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
     virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->initialize<algorithmFPType>(&input, _par, (int)method);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return services::Status();
     }
 
-    void initialize()
-    {
-        this->_ac = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, method)(&_env);
-    }
+    void initialize() { this->_ac = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, method)(&_env); }
 };
 /** @} */
 } // namespace interface1
@@ -496,7 +464,7 @@ using interface1::OnlineContainer;
 using interface1::OnlineImpl;
 using interface1::Online;
 
-} // namespace daal::algorithms::covariance
-} // namespace daal::algorithms
+} // namespace covariance
+} // namespace algorithms
 } // namespace daal
 #endif

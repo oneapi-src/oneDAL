@@ -33,15 +33,14 @@ namespace algorithms
 {
 namespace covariance
 {
-
 namespace oneapi
 {
 namespace internal
 {
 template class CovarianceDenseOnlineKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 }
-}
+} // namespace oneapi
 
-}
-}
-}
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal

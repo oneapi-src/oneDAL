@@ -35,14 +35,14 @@ using namespace daal::algorithms::svd;
  * Method:    cGetDataCollection
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_OnlinePartialResult_cGetDataCollection
-(JNIEnv *env, jobject thisObj, jlong presAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_OnlinePartialResult_cGetDataCollection(JNIEnv * env, jobject thisObj, jlong presAddr,
+                                                                                                  jint id)
 {
-    if ( id == outputOfStep1ForStep3Val )
+    if (id == outputOfStep1ForStep3Val)
     {
         return jniArgument<svd::OnlinePartialResult>::get<svd::PartialResultId, DataCollection>(presAddr, svd::outputOfStep1ForStep3);
     }
-    else if(id == outputOfStep1ForStep2Val)
+    else if (id == outputOfStep1ForStep2Val)
     {
         return jniArgument<svd::OnlinePartialResult>::get<svd::PartialResultId, DataCollection>(presAddr, svd::outputOfStep1ForStep2);
     }
@@ -55,27 +55,26 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_OnlinePartialResult_c
  * Method:    cGetKeyValueDataCollection
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL
-Java_com_intel_daal_algorithms_svd_DistributedStep2MasterPartialResult_cGetKeyValueDataCollection
-(JNIEnv *env, jobject thisObj, jlong presAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svd_DistributedStep2MasterPartialResult_cGetKeyValueDataCollection(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong presAddr, jint id)
 {
-    if(id == inputOfStep2FromStep1Val)
+    if (id == inputOfStep2FromStep1Val)
     {
-        return jniArgument<svd::DistributedPartialResult>::
-            get<svd::DistributedPartialResultCollectionId, KeyValueDataCollection>(presAddr, svd::outputOfStep2ForStep3);
+        return jniArgument<svd::DistributedPartialResult>::get<svd::DistributedPartialResultCollectionId, KeyValueDataCollection>(
+            presAddr, svd::outputOfStep2ForStep3);
     }
 
     return (jlong)0;
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_svd_DistributedStep2MasterPartialResult
  * Method:    cGetResult
  * Signature:(JI)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_OnlinePartialResult_cSetOnlinePartialResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_OnlinePartialResult_cSetOnlinePartialResultTable(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<svd::OnlinePartialResult>::set<svd::PartialResultId, DataCollection>(resAddr, id, ntAddr);
 }
@@ -85,9 +84,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_OnlinePartialResult_cS
  * Method:    cGetResult
  * Signature:(JI)J
  */
-JNIEXPORT void JNICALL
-Java_com_intel_daal_algorithms_svd_DistributedStep2MasterPartialResult_cSetDistributedStep2MasterPartialResultTable
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_svd_DistributedStep2MasterPartialResult_cSetDistributedStep2MasterPartialResultTable(
+    JNIEnv * env, jobject thisObj, jlong resAddr, jint id, jlong ntAddr)
 {
     jniArgument<svd::DistributedPartialResult>::set<svd::DistributedPartialResultId, svd::Result>(resAddr, id, ntAddr);
 }

@@ -25,12 +25,12 @@
 using namespace daal::data_management;
 using namespace daal::services;
 
-inline static jlong getDataFeatureObject(JNIEnv *env, jobject thisObj)
+inline static jlong getDataFeatureObject(JNIEnv * env, jobject thisObj)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    jclass cls = env->FindClass("com/intel/daal/data_management/data/DataFeature");
+    jclass cls          = env->FindClass("com/intel/daal/data_management/data/DataFeature");
     jfieldID objFieldID = env->GetFieldID(cls, "cObject", "J");
     return env->GetLongField(thisObj, objFieldID);
 }
@@ -40,14 +40,13 @@ inline static jlong getDataFeatureObject(JNIEnv *env, jobject thisObj)
  * Method:    init
  * Signature:()J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataFeature_init
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataFeature_init(JNIEnv * env, jobject thisObj)
 {
     using namespace daal;
 
     // Create C++ object of the class NumericTableFeature
-    NumericTableFeaturePtr *df = new SharedPtr<NumericTableFeature>(new NumericTableFeature());
-    return(jlong)df;
+    NumericTableFeaturePtr * df = new SharedPtr<NumericTableFeature>(new NumericTableFeature());
+    return (jlong)df;
 }
 
 /*
@@ -55,35 +54,33 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataFeature_in
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cDispose
-(JNIEnv *env, jobject thisObj, jlong dataFeatureAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cDispose(JNIEnv * env, jobject thisObj, jlong dataFeatureAddr)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    if(dataFeatureAddr) delete (NumericTableFeaturePtr *)dataFeatureAddr;
+    if (dataFeatureAddr) delete (NumericTableFeaturePtr *)dataFeatureAddr;
 }
-
 
 /*
  * Class:     com_intel_daal_data_1management_data_DataFeature
  * Method:    cSerializeCObject
  * Signature:(J)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSerializeCObject
-(JNIEnv *env, jobject thisObj, jlong dataFeatureAddr)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSerializeCObject(JNIEnv * env, jobject thisObj,
+                                                                                                  jlong dataFeatureAddr)
 {
     using namespace daal;
     using namespace daal::services;
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
 
     InputDataArchive dataArch;
     df->serialize(dataArch);
 
     size_t length = dataArch.getSizeOfArchive();
 
-    byte *buffer = (byte *)daal_malloc(length);
+    byte * buffer = (byte *)daal_malloc(length);
     dataArch.copyArchiveToArray(buffer, length);
 
     return env->NewDirectByteBuffer(buffer, length);
@@ -94,15 +91,15 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_DataFeature_
  * Method:    cDeserializeCObject
  * Signature:(Ljava/nio/ByteBuffer;J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cDeserializeCObject
-(JNIEnv *env, jobject thisObj, jobject byteBuffer, jlong size)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cDeserializeCObject(JNIEnv * env, jobject thisObj, jobject byteBuffer,
+                                                                                                  jlong size)
 {
     using namespace daal;
-    byte *buffer = (byte *)(env->GetDirectBufferAddress(byteBuffer));
+    byte * buffer = (byte *)(env->GetDirectBufferAddress(byteBuffer));
     OutputDataArchive dataArch(buffer, (size_t)size);
-    NumericTableFeature *df = new NumericTableFeature();
+    NumericTableFeature * df = new NumericTableFeature();
     df->deserialize(dataArch);
-    return(jlong)df;
+    return (jlong)df;
 }
 
 /*
@@ -110,13 +107,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cD
  * Method:    cSetInternalNumType
  * Signature:(JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetInternalNumType
-(JNIEnv *env, jobject thisObj, jlong dataFeatureAddr, jint newIntType)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetInternalNumType(JNIEnv * env, jobject thisObj, jlong dataFeatureAddr,
+                                                                                                 jint newIntType)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
     //df->int_type =(DataFeatureUtils::InternalNumType)((int)newIntType);
 }
 
@@ -125,14 +122,14 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSe
  * Method:    cSetPMMLNumType
  * Signature:(JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetPMMLNumType
-(JNIEnv *env, jobject thisObj, jlong dataFeatureAddr, jint newPMMLType)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetPMMLNumType(JNIEnv * env, jobject thisObj, jlong dataFeatureAddr,
+                                                                                             jint newPMMLType)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
-    df->pmmlType = (features::PMMLNumType)((int)newPMMLType);
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
+    df->pmmlType             = (features::PMMLNumType)((int)newPMMLType);
 }
 
 /*
@@ -140,14 +137,14 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSe
  * Method:    cSetFeatureType
  * Signature:(JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetFeatureType
-(JNIEnv *env, jobject thisObj, jlong dataFeatureAddr, jint newFeatureType)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetFeatureType(JNIEnv * env, jobject thisObj, jlong dataFeatureAddr,
+                                                                                             jint newFeatureType)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
-    df->featureType = (features::FeatureType)((int)newFeatureType);
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
+    df->featureType          = (features::FeatureType)((int)newFeatureType);
 }
 
 /*
@@ -155,14 +152,14 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSe
  * Method:    cSetCategoryNumber
  * Signature:(JI)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetCategoryNumber
-(JNIEnv *env, jobject thisObj, jlong dataFeatureAddr, jint categoryNumber)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetCategoryNumber(JNIEnv * env, jobject thisObj, jlong dataFeatureAddr,
+                                                                                                jint categoryNumber)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
-    df->categoryNumber = (int)categoryNumber;
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
+    df->categoryNumber       = (int)categoryNumber;
 }
 
 /*
@@ -170,64 +167,63 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSe
  * Method:    getPMMLNumType
  * Signature:()Lcom/intel/daal/data_management/data/DataFeatureUtils/PMMLNumType;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_DataFeature_getPMMLNumType
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_DataFeature_getPMMLNumType(JNIEnv * env, jobject thisObj)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)getDataFeatureObject(env, thisObj))->get();
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)getDataFeatureObject(env, thisObj))->get();
 
     // Wrap resulting C++ table with Java object
     jclass resultClass = env->FindClass("com/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType");
-    if(resultClass == 0)
+    if (resultClass == 0)
     {
         /* printf("Couldn't find class DataFeatureUtils$InternalNumType\n"); fflush(0); */
         return NULL;
     }
 
-    switch((long long)(df->pmmlType))
+    switch ((long long)(df->pmmlType))
     {
     case com_intel_daal_data_management_data_DataFeatureUtils_cDaalGenFloat:
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_GEN_FLOAT",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_GEN_FLOAT", "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     case com_intel_daal_data_management_data_DataFeatureUtils_cDaalGenDouble:
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_GEN_DOUBLE",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_GEN_DOUBLE", "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     case com_intel_daal_data_management_data_DataFeatureUtils_cDaalGenInteger:
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_GEN_INTEGER",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_GEN_INTEGER", "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     case com_intel_daal_data_management_data_DataFeatureUtils_cDaalGenBoolean:
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_GEN_BOOLEAN",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_GEN_BOOLEAN", "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     case com_intel_daal_data_management_data_DataFeatureUtils_cDaalGenString:
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_GEN_STRING",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_GEN_STRING", "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     case com_intel_daal_data_management_data_DataFeatureUtils_cDaalGenUnknown:
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_GEN_UNKNOWN",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_GEN_UNKNOWN", "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     default: /* DAAL_GEN_UNKNOWN */
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_GEN_UNKNOWN",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_GEN_UNKNOWN", "Lcom/intel/daal/data_management/data/DataFeatureUtils$PMMLNumType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     }
@@ -240,45 +236,44 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_DataFeature_
  * Method:    getFeatureType
  * Signature:()Lcom/intel/daal/data_management/data/DataFeatureUtils/FeatureType;
  */
-JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_DataFeature_getFeatureType
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_DataFeature_getFeatureType(JNIEnv * env, jobject thisObj)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)getDataFeatureObject(env, thisObj))->get();
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)getDataFeatureObject(env, thisObj))->get();
 
     // Wrap resulting C++ table with Java object
     jclass resultClass = env->FindClass("com/intel/daal/data_management/data/DataFeatureUtils$FeatureType");
-    if(resultClass == 0)
+    if (resultClass == 0)
     {
         /* printf("Couldn't find class DataFeatureUtils$InternalNumType\n"); fflush(0); */
         return NULL;
     }
-    switch((long long)(df->featureType))
+    switch ((long long)(df->featureType))
     {
     case com_intel_daal_data_management_data_DataFeatureUtils_cDaalCategorical:
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_CATEGORICAL",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$FeatureType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_CATEGORICAL", "Lcom/intel/daal/data_management/data/DataFeatureUtils$FeatureType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     case com_intel_daal_data_management_data_DataFeatureUtils_cDaalOrdinal:
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_ORDINAL",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$FeatureType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_ORDINAL", "Lcom/intel/daal/data_management/data/DataFeatureUtils$FeatureType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     case com_intel_daal_data_management_data_DataFeatureUtils_cDaalContinuous:
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_CONTINUOUS",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$FeatureType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_CONTINUOUS", "Lcom/intel/daal/data_management/data/DataFeatureUtils$FeatureType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     default: /* DAAL_CONTINUOUS */
     {
-        jfieldID staticFieldID = env->GetStaticFieldID(resultClass , "DAAL_CONTINUOUS",
-                                                       "Lcom/intel/daal/data_management/data/DataFeatureUtils$FeatureType;");
+        jfieldID staticFieldID =
+            env->GetStaticFieldID(resultClass, "DAAL_CONTINUOUS", "Lcom/intel/daal/data_management/data/DataFeatureUtils$FeatureType;");
         return env->GetStaticObjectField(resultClass, staticFieldID);
     }
     }
@@ -291,14 +286,13 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_DataFeature_
  * Method:    getCategoryNumber
  * Signature:()I
  */
-JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_DataFeature_getCategoryNumber
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jint JNICALL Java_com_intel_daal_data_1management_data_DataFeature_getCategoryNumber(JNIEnv * env, jobject thisObj)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)getDataFeatureObject(env, thisObj))->get();
-    return(jint)(df->categoryNumber);
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)getDataFeatureObject(env, thisObj))->get();
+    return (jint)(df->categoryNumber);
 }
 
 /*
@@ -323,13 +317,12 @@ JNIEXPORT jstring JNICALL Java_com_intel_daal_data_1management_data_DataFeature_
  * Method:    cSetDoubleType
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetDoubleType
-(JNIEnv *env, jobject thisObj, jlong dataFeatureAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetDoubleType(JNIEnv * env, jobject thisObj, jlong dataFeatureAddr)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
     df->setType<double>();
 }
 
@@ -338,13 +331,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSe
  * Method:    cSetFloatType
  * Signature:()V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetFloatType
-(JNIEnv *env, jobject thisObj, jlong dataFeatureAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetFloatType(JNIEnv * env, jobject thisObj, jlong dataFeatureAddr)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
     df->setType<float>();
 }
 
@@ -353,13 +345,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSe
  * Method:    cSetLongType
  * Signature:()V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetLongType
-(JNIEnv *env, jobject thisObj, jlong dataFeatureAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetLongType(JNIEnv * env, jobject thisObj, jlong dataFeatureAddr)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
     df->setType<long>();
 }
 
@@ -368,12 +359,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSe
  * Method:    cSetIntType
  * Signature:()V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetIntType
-(JNIEnv *env, jobject thisObj, jlong dataFeatureAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetIntType(JNIEnv * env, jobject thisObj, jlong dataFeatureAddr)
 {
     using namespace daal;
 
     // Get a class reference for Java NumericTableFeature
-    NumericTableFeature *df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
+    NumericTableFeature * df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
     df->setType<int>();
 }

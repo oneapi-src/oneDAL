@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __COVARIANCE_KERNEL_H__
 #define __COVARIANCE_KERNEL_H__
 
@@ -40,60 +39,51 @@ namespace covariance
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class CovarianceDenseBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(NumericTable *dataTable, NumericTable *covTable,
-                             NumericTable *meanTable, const Parameter *parameter);
+    services::Status compute(NumericTable * dataTable, NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter);
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class CovarianceCSRBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(NumericTable *dataTable, NumericTable *covTable,
-                             NumericTable *meanTable, const Parameter *parameter);
+    services::Status compute(NumericTable * dataTable, NumericTable * covTable, NumericTable * meanTable, const Parameter * parameter);
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class CovarianceDenseOnlineKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(NumericTable *dataTable, NumericTable *nObsTable,
-                             NumericTable *crossProductTable, NumericTable *sumTable,
-                             const Parameter *parameter);
+    services::Status compute(NumericTable * dataTable, NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable,
+                             const Parameter * parameter);
 
-    services::Status finalizeCompute(NumericTable *nObsTable, NumericTable *crossProductTable,
-                                     NumericTable *sumTable, NumericTable *covTable,
-                                     NumericTable *meanTable, const Parameter *parameter);
+    services::Status finalizeCompute(NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable, NumericTable * covTable,
+                                     NumericTable * meanTable, const Parameter * parameter);
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class CovarianceCSROnlineKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(NumericTable *dataTable, NumericTable *nObsTable,
-                             NumericTable *crossProductTable, NumericTable *sumTable,
-                             const Parameter *parameter);
+    services::Status compute(NumericTable * dataTable, NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable,
+                             const Parameter * parameter);
 
-    services::Status finalizeCompute(NumericTable *nObsTable, NumericTable *crossProductTable,
-                                     NumericTable *sumTable, NumericTable *covTable,
-                                     NumericTable *meanTable, const Parameter *parameter);
+    services::Status finalizeCompute(NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable, NumericTable * covTable,
+                                     NumericTable * meanTable, const Parameter * parameter);
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class CovarianceDistributedKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(DataCollection *partialResultsCollection,
-                             NumericTable *nObsTable, NumericTable *crossProductTable,
-                             NumericTable *sumTable, const Parameter *parameter);
+    services::Status compute(DataCollection * partialResultsCollection, NumericTable * nObsTable, NumericTable * crossProductTable,
+                             NumericTable * sumTable, const Parameter * parameter);
 
-    services::Status finalizeCompute(NumericTable *nObsTable, NumericTable *crossProductTable,
-                                     NumericTable *sumTable, NumericTable *covTable,
-                                     NumericTable *meanTable, const Parameter *parameter);
+    services::Status finalizeCompute(NumericTable * nObsTable, NumericTable * crossProductTable, NumericTable * sumTable, NumericTable * covTable,
+                                     NumericTable * meanTable, const Parameter * parameter);
 };
 
 } // namespace internal

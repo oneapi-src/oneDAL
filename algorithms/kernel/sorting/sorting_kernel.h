@@ -41,17 +41,16 @@ namespace sorting
 {
 namespace internal
 {
-
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 struct SortingKernel : public Kernel
 {
     virtual ~SortingKernel() {}
-    Status compute(const NumericTable &inputTable, NumericTable &outputTable);
+    Status compute(const NumericTable & inputTable, NumericTable & outputTable);
 };
 
-} // namespace daal::algorithms::sorting::internal
-} // namespace daal::algorithms::sorting
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace sorting
+} // namespace algorithms
 } // namespace daal
 
 #endif

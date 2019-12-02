@@ -34,7 +34,7 @@ using namespace daal;
 
 std::string wrongDatasetFileName = "../data/batch/wrong.csv";
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
     FileDataSource<CSVFeatureManager> wrongDataSource(wrongDatasetFileName);

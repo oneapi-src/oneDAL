@@ -32,18 +32,18 @@
 using namespace std;
 using namespace daal::services;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     LibraryVersionInfo ver;
 
-    std::cout << "Major version:          " << ver.majorVersion  << std::endl;
-    std::cout << "Minor version:          " << ver.minorVersion  << std::endl;
+    std::cout << "Major version:          " << ver.majorVersion << std::endl;
+    std::cout << "Minor version:          " << ver.minorVersion << std::endl;
     std::cout << "Update version:         " << ver.updateVersion << std::endl;
     std::cout << "Product status:         " << ver.productStatus << std::endl;
-    std::cout << "Build:                  " << ver.build         << std::endl;
-    std::cout << "Build revision:         " << ver.build_rev     << std::endl;
-    std::cout << "Name:                   " << ver.name          << std::endl;
-    std::cout << "Processor optimization: " << ver.processor     << std::endl;
+    std::cout << "Build:                  " << ver.build << std::endl;
+    std::cout << "Build revision:         " << ver.build_rev << std::endl;
+    std::cout << "Name:                   " << ver.name << std::endl;
+    std::cout << "Processor optimization: " << ver.processor << std::endl;
 
     return 0;
 }

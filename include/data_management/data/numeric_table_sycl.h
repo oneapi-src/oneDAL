@@ -42,19 +42,17 @@ public:
     DAAL_CAST_OPERATOR(SyclNumericTable);
 
 protected:
-    explicit SyclNumericTable(size_t nColumns, size_t nRows,
-                              DictionaryIface::FeaturesEqual featuresEqual,
-                              services::Status &st) :
-        NumericTable(nColumns, nRows, featuresEqual, st) { }
+    explicit SyclNumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
+        : NumericTable(nColumns, nRows, featuresEqual, st)
+    {}
 
-    explicit SyclNumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual) :
-        NumericTable(nColumns, nRows, featuresEqual) { }
+    explicit SyclNumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual)
+        : NumericTable(nColumns, nRows, featuresEqual)
+    {}
 
-    explicit SyclNumericTable(NumericTableDictionaryPtr ddict,
-                              services::Status &st) :
-        NumericTable(ddict, st) { }
+    explicit SyclNumericTable(NumericTableDictionaryPtr ddict, services::Status & st) : NumericTable(ddict, st) {}
 
-    ~SyclNumericTable() { }
+    ~SyclNumericTable() {}
 };
 typedef services::SharedPtr<SyclNumericTable> SyclNumericTablePtr;
 typedef services::SharedPtr<const SyclNumericTable> SyclNumericTableConstPtr;

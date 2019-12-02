@@ -39,37 +39,34 @@ namespace training
 {
 namespace internal
 {
-
 using namespace daal::oneapi::internal;
 
-
 template <typename algorithmFPType>
-services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const size_t p, services::Buffer<algorithmFPType> &a, const size_t ny,
-                                                                       services::Buffer<algorithmFPType> &b, const bool inteceptFlag) const
+services::Status KernelHelperOneAPI<algorithmFPType>::computeBetasImpl(const size_t p, services::Buffer<algorithmFPType> & a, const size_t ny,
+                                                                       services::Buffer<algorithmFPType> & b, const bool inteceptFlag) const
 {
     return linear_model::normal_equations::training::internal::FinalizeKernelOneAPI<algorithmFPType>::solveSystem(p, a, ny, b);
 }
 
 template <typename algorithmFPType>
-services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const services::Buffer<algorithmFPType> &betaTmp,
-                                                                       services::Buffer<algorithmFPType> &betaRes,
-                                                                       const size_t nBetas, const size_t nResponses,
-                                                                       const bool interceptFlag) const
+services::Status KernelHelperOneAPI<algorithmFPType>::copyBetaToResult(const services::Buffer<algorithmFPType> & betaTmp,
+                                                                       services::Buffer<algorithmFPType> & betaRes, const size_t nBetas,
+                                                                       const size_t nResponses, const bool interceptFlag) const
 {
     services::Status status;
     const size_t nBetasIntercept = interceptFlag ? nBetas : (nBetas - 1);
-    const size_t intercept = interceptFlag ? 1 : 0;
+    const size_t intercept       = interceptFlag ? 1 : 0;
 
-    ExecutionContextIface &ctx = getDefaultContext();
-    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+    ExecutionContextIface & ctx    = getDefaultContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_linear_regression_training_helper_");
     cachekey.add(options);
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelHelperBetaCopy, options.c_str());
 
-    const char* const kernelName = "copyBeta";
-    KernelPtr kernel = factory.getKernel(kernelName);
+    const char * const kernelName = "copyBeta";
+    KernelPtr kernel              = factory.getKernel(kernelName);
 
     KernelArguments args(5);
     args.set(0, betaTmp, AccessModeIds::read);

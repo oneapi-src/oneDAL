@@ -31,7 +31,6 @@
 using namespace daal::data_management;
 using namespace daal::services;
 
-
 namespace daal
 {
 namespace algorithms
@@ -42,9 +41,7 @@ namespace quality_metric_set
 {
 namespace interface1
 {
-
-Parameter::Parameter(size_t nComponents, size_t nFeatures):
-        nComponents(nComponents), nFeatures(nFeatures) {}
+Parameter::Parameter(size_t nComponents, size_t nFeatures) : nComponents(nComponents), nFeatures(nFeatures) {}
 
 services::Status Parameter::check() const
 {
@@ -55,8 +52,7 @@ void Batch::initializeQualityMetrics()
 {
     inputAlgorithms[explainedVariancesMetrics] = SharedPtr<pca::quality_metric::explained_variance::Batch<> >(
         new pca::quality_metric::explained_variance::Batch<>(parameter.nFeatures, parameter.nComponents));
-    _inputData->add(explainedVariancesMetrics, pca::quality_metric::explained_variance::InputPtr(
-        new pca::quality_metric::explained_variance::Input));
+    _inputData->add(explainedVariancesMetrics, pca::quality_metric::explained_variance::InputPtr(new pca::quality_metric::explained_variance::Input));
 }
 
 /**
@@ -81,8 +77,8 @@ algorithms::InputPtr InputDataCollection::getInput(QualityMetricId id) const
     return algorithms::quality_metric_set::InputDataCollection::getInput((size_t)id);
 }
 
-}//namespace interface1
-}//namespace quality_metric_set
+} //namespace interface1
+} //namespace quality_metric_set
 
 namespace quality_metric
 {
@@ -90,10 +86,9 @@ namespace explained_variance
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_PCA_QUALITY_METRIC_RESULT_ID);
 
-Parameter::Parameter(size_t nFeatures, size_t nComponents): nFeatures(nFeatures), nComponents(nComponents) {}
+Parameter::Parameter(size_t nFeatures, size_t nComponents) : nFeatures(nFeatures), nComponents(nComponents) {}
 services::Status Parameter::check() const
 {
     return services::Status();
@@ -117,18 +112,17 @@ data_management::NumericTablePtr Input::get(InputId id) const
 * \param[in] id      Identifier of the input object
 * \param[in] value   Pointer to the object
 */
-void Input::set(InputId id, const data_management::NumericTablePtr &value)
+void Input::set(InputId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
-
 
 /**
 * Checks an input object for the pca algorithm
 * \param[in] par     Algorithm parameter
 * \param[in] method  Computation method
     */
-services::Status Input::check(const daal::algorithms::Parameter *par, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     services::Status s;
     DAAL_CHECK(Argument::size() == 1, ErrorIncorrectNumberOfInputNumericTables);
@@ -138,9 +132,9 @@ services::Status Input::check(const daal::algorithms::Parameter *par, int method
     size_t nColumnsEigenValues = eigenValuesPtr->getNumberOfColumns();
     DAAL_CHECK_STATUS(s, checkNumericTable(eigenValuesPtr.get(), eigenvaluesStr(), packed_mask, 0, nColumnsEigenValues, 1));
 
-    const Parameter* parameter = static_cast<const Parameter *>(par);
-    size_t nComponents = parameter->nComponents == 0 ? nColumnsEigenValues : parameter->nComponents;
-    size_t nFeatures = parameter->nFeatures == 0 ? nColumnsEigenValues : parameter->nFeatures;
+    const Parameter * parameter = static_cast<const Parameter *>(par);
+    size_t nComponents          = parameter->nComponents == 0 ? nColumnsEigenValues : parameter->nComponents;
+    size_t nFeatures            = parameter->nFeatures == 0 ? nColumnsEigenValues : parameter->nFeatures;
 
     DAAL_CHECK(nComponents <= nColumnsEigenValues, services::ErrorIncorrectNComponents);
     DAAL_CHECK_EX(nFeatures == nColumnsEigenValues, services::ErrorIncorrectParameter, ArgumentName, nFeaturesStr());
@@ -165,11 +159,10 @@ data_management::NumericTablePtr Result::get(ResultId id) const
 * \param[in] id      Identifier of the input object
 * \param[in] value   %Input object
 */
-void Result::set(ResultId id, const data_management::NumericTablePtr &value)
+void Result::set(ResultId id, const data_management::NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
-
 
 /**
  * Checks the result of pca quality metrics
@@ -177,7 +170,7 @@ void Result::set(ResultId id, const data_management::NumericTablePtr &value)
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     services::Status s;
     DAAL_CHECK(Argument::size() == 3, ErrorIncorrectNumberOfElementsInResultCollection);
@@ -186,8 +179,9 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     DAAL_CHECK_EX(get(explainedVariancesRatios).get(), ErrorNullOutputNumericTable, ArgumentName, explainedVariancesRatiosStr());
     DAAL_CHECK_EX(get(noiseVariance).get(), ErrorNullOutputNumericTable, ArgumentName, noiseVarianceStr());
 
-    const Parameter* parameter = (static_cast<const Parameter *>(par));
-    size_t nComponents = parameter->nComponents == 0 ? static_cast<const Input *>(input)->get(eigenvalues)->getNumberOfColumns() : parameter->nComponents;
+    const Parameter * parameter = (static_cast<const Parameter *>(par));
+    size_t nComponents =
+        parameter->nComponents == 0 ? static_cast<const Input *>(input)->get(eigenvalues)->getNumberOfColumns() : parameter->nComponents;
 
     DAAL_CHECK_STATUS(s, checkNumericTable(get(explainedVariances).get(), explainedVariancesStr(), packed_mask, 0, nComponents, 1));
     DAAL_CHECK_STATUS(s, checkNumericTable(get(explainedVariancesRatios).get(), explainedVariancesRatiosStr(), packed_mask, 0, nComponents, 1));
@@ -196,9 +190,9 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     return s;
 }
 
-}//namespace interface1
-}//namespace explained_variance
-}//namespace quality_metric
-}//namespace pca
-}//namespace algorithms
-}//namespace daal
+} //namespace interface1
+} //namespace explained_variance
+} //namespace quality_metric
+} //namespace pca
+} //namespace algorithms
+} //namespace daal

@@ -31,8 +31,8 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetInput
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Input_cSetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Input_cSetInput(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                                jint id, jlong ntAddr)
 {
     jniInput<cross_entropy_loss::Input>::set<cross_entropy_loss::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -42,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Input_cGetInput
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_cross_1entropy_1loss_Input_cGetInput(JNIEnv *, jobject, jlong inputAddr,
+                                                                                                                 jint id)
 {
     return jniInput<cross_entropy_loss::Input>::get<cross_entropy_loss::InputId, NumericTable>(inputAddr, id);
 }

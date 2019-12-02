@@ -44,14 +44,13 @@ namespace quality_metric
  */
 namespace explained_variance
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__PCA__QUALITY_METRIC__EXPLAINED_VARIANCE__METHOD"></a>
  * Available methods for computing the quality metrics for a explained variance
  */
 enum Method
 {
-    defaultDense = 0    /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -60,7 +59,7 @@ enum Method
 */
 enum InputId
 {
-    eigenvalues,   /*!< NumericTable 1 x k. Eigenvalues of PCA */
+    eigenvalues, /*!< NumericTable 1 x k. Eigenvalues of PCA */
     lastInputId = eigenvalues
 };
 
@@ -70,9 +69,9 @@ enum InputId
 */
 enum ResultId
 {
-    explainedVariances,     /*!< NumericTable 1 x k. Explained variances */
+    explainedVariances,       /*!< NumericTable 1 x k. Explained variances */
     explainedVariancesRatios, /*!< NumericTable 1 x k. Explained variances ratios */
-    noiseVariance,          /*!< NumericTable 1 x 1. Noise variance */
+    noiseVariance,            /*!< NumericTable 1 x 1. Noise variance */
     lastResultId = noiseVariance
 };
 
@@ -81,7 +80,6 @@ enum ResultId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__PCA__QUALITY_METRIC__EXPLAINED_VARIANCE__PARAMETER"></a>
  * \brief Parameters for the compute() method of explained variance quality metrics
@@ -89,13 +87,13 @@ namespace interface1
  * \snippet pca/pca_explained_variance_types.h Parameter source code
  */
 /* [Parameter source code] */
-struct DAAL_EXPORT Parameter: public daal::algorithms::Parameter
+struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter(size_t nFeatures, size_t nComponents);
     virtual ~Parameter() {}
 
-    size_t nFeatures;      /*!< Number of features */
-    size_t nComponents;    /*!< Number of components*/
+    size_t nFeatures;   /*!< Number of features */
+    size_t nComponents; /*!< Number of components*/
 
     /**
     * Checks the correctness of the parameter
@@ -110,7 +108,7 @@ struct DAAL_EXPORT Parameter: public daal::algorithms::Parameter
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__QUALITY_METRIC__EXPLAINED_VARIANCE__INPUT"></a>
 * \brief %Input objects for explained variance quality metrics
 */
-class DAAL_EXPORT Input: public daal::algorithms::Input
+class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     DAAL_CAST_OPERATOR(Input);
@@ -133,7 +131,7 @@ public:
     * \param[in] id      Identifier of the input object
     * \param[in] value   Pointer to the object
     */
-    void set(InputId id, const data_management::NumericTablePtr &value);
+    void set(InputId id, const data_management::NumericTablePtr & value);
 
     /**
     * Checks an input object for the linear regression algorithm
@@ -142,7 +140,7 @@ public:
     *
     * \return Status of computations
     */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 typedef services::SharedPtr<Input> InputPtr;
 
@@ -150,7 +148,7 @@ typedef services::SharedPtr<Input> InputPtr;
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__QUALITY_METRIC__EXPLAINED_VARIANCE__RESULT"></a>
 * \brief Provides interface for the result of linear regression quality metrics
 */
-class DAAL_EXPORT Result: public daal::algorithms::Result
+class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
@@ -170,7 +168,7 @@ public:
     * \param[in] id      Identifier of the input object
     * \param[in] value   %Input object
     */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory to store
@@ -181,7 +179,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
      * Checks the result of linear regression quality metrics
@@ -191,30 +189,30 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
 };
 typedef services::SharedPtr<Result> ResultPtr;
 
-}
+} // namespace interface1
 using interface1::Parameter;
 using interface1::Result;
 using interface1::ResultPtr;
 using interface1::Input;
 using interface1::InputPtr;
 
-}
+} // namespace explained_variance
 /** @} */
-}
-}
-}
-}
+} // namespace quality_metric
+} // namespace pca
+} // namespace algorithms
+} // namespace daal
 
 #endif // __PCA_QUALITY_METRIC_TYPES_H__

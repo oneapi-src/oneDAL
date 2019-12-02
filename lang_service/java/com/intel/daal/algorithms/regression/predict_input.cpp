@@ -31,15 +31,12 @@ using namespace daal::algorithms::regression::prediction;
  * Method:    cInit
  * Signature: (JIJ)I
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionInput_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr )
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionInput_cInit(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    regression::prediction::Input *inputPtr = NULL;
+    regression::prediction::Input * inputPtr = NULL;
 
-    SharedPtr<Batch> alg =
-        staticPointerCast<Batch, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
-    inputPtr = alg->getInput();
+    SharedPtr<Batch> alg = staticPointerCast<Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
+    inputPtr             = alg->getInput();
 
     return (jlong)inputPtr;
 }
@@ -49,8 +46,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_Pre
  * Method:    cSetInputTable
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionInput_cSetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionInput_cSetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong inputAddr, jint id, jlong ntAddr)
 {
     jniInput<regression::prediction::Input>::set<regression::prediction::NumericTableInputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -60,8 +57,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_prediction_Pred
  * Method:    cSetInputModel
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionInput_cSetInputModel
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionInput_cSetInputModel(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong inputAddr, jint id, jlong ntAddr)
 {
     jniInput<regression::prediction::Input>::set<regression::prediction::ModelInputId, regression::Model>(inputAddr, id, ntAddr);
 }
@@ -71,8 +68,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_regression_prediction_Pred
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionInput_cGetInputTable
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionInput_cGetInputTable(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong inputAddr, jint id)
 {
     return jniInput<regression::prediction::Input>::get<regression::prediction::NumericTableInputId, NumericTable>(inputAddr, id);
 }
@@ -82,8 +79,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_Pre
  * Method:    cGetInputTable
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionInput_cGetInputModel
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_regression_prediction_PredictionInput_cGetInputModel(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong inputAddr, jint id)
 {
     return jniInput<regression::prediction::Input>::get<regression::prediction::ModelInputId, regression::Model>(inputAddr, id);
 }

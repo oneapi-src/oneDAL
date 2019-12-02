@@ -51,16 +51,14 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__OPTIMIZATION_SOLVER__ITERATIVE_SOLVER__BATCH"></a>
  * \brief Interface for computing the iterative solver in the %batch processing mode.    \DAAL_DEPRECATED
  */
-class DAAL_EXPORT Batch : public  optimization_solver::BatchIface
+class DAAL_EXPORT Batch : public optimization_solver::BatchIface
 {
 public:
-    typedef algorithms::optimization_solver::iterative_solver::interface1::Input     InputType;
+    typedef algorithms::optimization_solver::iterative_solver::interface1::Input InputType;
     typedef algorithms::optimization_solver::iterative_solver::interface1::Parameter ParameterType;
-    typedef algorithms::optimization_solver::iterative_solver::interface1::Result    ResultType;
+    typedef algorithms::optimization_solver::iterative_solver::interface1::Result ResultType;
 
-    Batch()
-    {
-    }
+    Batch() {}
 
     /**
      * Constructs a iterative solver algorithm by copying input objects
@@ -68,9 +66,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch &other)
-    {
-    }
+    Batch(const Batch & other) {}
 
     virtual ~Batch() {}
 
@@ -90,10 +86,7 @@ public:
      * Returns the structure that contains results of the iterative solver algorithm
      * \return Structure that contains results of the iterative solver algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Creates user-allocated memory to store results of the iterative solver algorithm
@@ -107,13 +100,10 @@ public:
      * of this iterative solver algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
-    virtual Batch *cloneImpl() const DAAL_C11_OVERRIDE = 0;
+    virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
     ResultPtr _result;
 };
@@ -135,16 +125,14 @@ namespace interface2
  * <a name="DAAL-CLASS-ALGORITHMS__OPTIMIZATION_SOLVER__ITERATIVE_SOLVER__BATCH"></a>
  * \brief Interface for computing the iterative solver in the %batch processing mode.
  */
-class DAAL_EXPORT Batch : public  optimization_solver::BatchIface
+class DAAL_EXPORT Batch : public optimization_solver::BatchIface
 {
 public:
-    typedef algorithms::optimization_solver::iterative_solver::Input     InputType;
+    typedef algorithms::optimization_solver::iterative_solver::Input InputType;
     typedef algorithms::optimization_solver::iterative_solver::Parameter ParameterType;
-    typedef algorithms::optimization_solver::iterative_solver::Result    ResultType;
+    typedef algorithms::optimization_solver::iterative_solver::Result ResultType;
 
-    Batch()
-    {
-    }
+    Batch() {}
 
     /**
      * Constructs a iterative solver algorithm by copying input objects
@@ -152,9 +140,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch &other)
-    {
-    }
+    Batch(const Batch & other) {}
 
     virtual ~Batch() {}
 
@@ -174,10 +160,7 @@ public:
      * Returns the structure that contains results of the iterative solver algorithm
      * \return Structure that contains results of the iterative solver algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Creates user-allocated memory to store results of the iterative solver algorithm
@@ -191,13 +174,10 @@ public:
      * of this iterative solver algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
-    virtual Batch *cloneImpl() const DAAL_C11_OVERRIDE = 0;
+    virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
     ResultPtr _result;
 };
@@ -208,8 +188,8 @@ typedef services::SharedPtr<Batch> BatchPtr;
 using interface2::Batch;
 using interface2::BatchPtr;
 
-} // namespace optimization_solver
 } // namespace iterative_solver
-} // namespace algorithm
+} // namespace optimization_solver
+} // namespace algorithms
 } // namespace daal
 #endif

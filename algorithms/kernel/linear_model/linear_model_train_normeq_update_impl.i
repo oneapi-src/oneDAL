@@ -45,18 +45,16 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-ThreadingTask<algorithmFPType, cpu>::ThreadingTask(size_t nBetasIntercept, size_t nResponses, Status &st) :
-    _nBetasIntercept(nBetasIntercept), _nResponses(nResponses)
+ThreadingTask<algorithmFPType, cpu>::ThreadingTask(size_t nBetasIntercept, size_t nResponses, Status & st)
+    : _nBetasIntercept(nBetasIntercept), _nResponses(nResponses)
 {
     _xtx = service_scalable_calloc<algorithmFPType, cpu>(nBetasIntercept * nBetasIntercept);
     _xty = service_scalable_calloc<algorithmFPType, cpu>(nBetasIntercept * nResponses);
-    if (!_xtx || !_xty)
-        st.add(ErrorMemoryAllocationFailed);
+    if (!_xtx || !_xty) st.add(ErrorMemoryAllocationFailed);
 }
 
 template <typename algorithmFPType, CpuType cpu>
-ThreadingTask<algorithmFPType, cpu> * ThreadingTask<algorithmFPType, cpu>::create(size_t nBetasIntercept,
-                                                                                  size_t nResponses)
+ThreadingTask<algorithmFPType, cpu> * ThreadingTask<algorithmFPType, cpu>::create(size_t nBetasIntercept, size_t nResponses)
 {
     Status st;
     ThreadingTask<algorithmFPType, cpu> * res = new ThreadingTask<algorithmFPType, cpu>(nBetasIntercept, nResponses, st);
@@ -69,8 +67,7 @@ ThreadingTask<algorithmFPType, cpu> * ThreadingTask<algorithmFPType, cpu>::creat
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT nRows,
-                                                   const NumericTable &xTable, const NumericTable &yTable)
+Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT nRows, const NumericTable & xTable, const NumericTable & yTable)
 {
     DAAL_INT nFeatures(xTable.getNumberOfColumns());
 
@@ -82,29 +79,28 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
 
     _xBlock.set(const_cast<NumericTable &>(xTable), startRow, nRows);
     DAAL_CHECK_BLOCK_STATUS(_xBlock);
-    const algorithmFPType *x = _xBlock.get();
+    const algorithmFPType * x = _xBlock.get();
 
     _yBlock.set(const_cast<NumericTable &>(yTable), startRow, nRows);
     DAAL_CHECK_BLOCK_STATUS(_yBlock);
-    const algorithmFPType *y = _yBlock.get();
+    const algorithmFPType * y = _yBlock.get();
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.syrkX);
-        Blas<algorithmFPType, cpu>::xxsyrk(&up, &notrans, &nFeatures, &nRows, &alpha,
-                                        const_cast<algorithmFPType *>(x), &nFeatures, &alpha,
-                                        _xtx, &_nBetasIntercept);
+        Blas<algorithmFPType, cpu>::xxsyrk(&up, &notrans, &nFeatures, &nRows, &alpha, const_cast<algorithmFPType *>(x), &nFeatures, &alpha, _xtx,
+                                           &_nBetasIntercept);
     }
 
     if (nFeatures < _nBetasIntercept)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemm1X);
-        algorithmFPType *xtxPtr = _xtx + nFeatures * _nBetasIntercept;
-        const algorithmFPType *xPtr = x;
+        algorithmFPType * xtxPtr     = _xtx + nFeatures * _nBetasIntercept;
+        const algorithmFPType * xPtr = x;
 
         for (DAAL_INT i = 0; i < nRows; i++, xPtr += nFeatures)
         {
-          PRAGMA_IVDEP
-          PRAGMA_VECTOR_ALWAYS
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for (DAAL_INT j = 0; j < nFeatures; j++)
             {
                 xtxPtr[j] += xPtr[j];
@@ -116,18 +112,18 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemmXY);
-        Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &nFeatures, &_nResponses, &nRows, &alpha, x,
-                                        &nFeatures, y, &_nResponses, &alpha, _xty, &_nBetasIntercept);
+        Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans, &nFeatures, &_nResponses, &nRows, &alpha, x, &nFeatures, y, &_nResponses, &alpha, _xty,
+                                           &_nBetasIntercept);
     }
 
     if (nFeatures < _nBetasIntercept)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemm1Y);
-        const algorithmFPType *yPtr = y;
+        const algorithmFPType * yPtr = y;
         for (DAAL_INT i = 0; i < nRows; i++, yPtr += _nResponses)
         {
-          PRAGMA_IVDEP
-          PRAGMA_VECTOR_ALWAYS
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for (DAAL_INT j = 0; j < _nResponses; j++)
             {
                 _xty[j * _nBetasIntercept + nFeatures] += yPtr[j];
@@ -138,13 +134,13 @@ Status ThreadingTask<algorithmFPType, cpu>::update(DAAL_INT startRow, DAAL_INT n
 }
 
 template <typename algorithmFPType, CpuType cpu>
-void ThreadingTask<algorithmFPType, cpu>::reduce(algorithmFPType *xtx, algorithmFPType *xty)
+void ThreadingTask<algorithmFPType, cpu>::reduce(algorithmFPType * xtx, algorithmFPType * xty)
 {
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.syrkX);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for( size_t i = 0; i < (_nBetasIntercept * _nBetasIntercept); i++)
+        for (size_t i = 0; i < (_nBetasIntercept * _nBetasIntercept); i++)
         {
             xtx[i] += _xtx[i];
         }
@@ -154,7 +150,7 @@ void ThreadingTask<algorithmFPType, cpu>::reduce(algorithmFPType *xtx, algorithm
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.gemmXY);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for( size_t i = 0; i < (_nBetasIntercept * _nResponses); i++)
+        for (size_t i = 0; i < (_nBetasIntercept * _nResponses); i++)
         {
             xty[i] += _xty[i];
         }
@@ -169,27 +165,26 @@ ThreadingTask<algorithmFPType, cpu>::~ThreadingTask()
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable &xTable, const NumericTable &yTable,
-                                                   NumericTable &xtxTable, NumericTable &xtyTable,
-                                                   bool initializeResult, bool interceptFlag)
+Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, const NumericTable & yTable, NumericTable & xtxTable,
+                                                   NumericTable & xtyTable, bool initializeResult, bool interceptFlag)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate);
-    DAAL_INT nRows     (xTable.getNumberOfRows());          /* observations */
-    DAAL_INT nResponses(yTable.getNumberOfColumns());       /* responses */
-    DAAL_INT nBetas    (xTable.getNumberOfColumns() + 1);   /* coefficients */
+    DAAL_INT nRows(xTable.getNumberOfRows());         /* observations */
+    DAAL_INT nResponses(yTable.getNumberOfColumns()); /* responses */
+    DAAL_INT nBetas(xTable.getNumberOfColumns() + 1); /* coefficients */
 
     size_t nBetasIntercept = (interceptFlag ? nBetas : (nBetas - 1));
 
     WriteRowsType xtxBlock(xtxTable, 0, nBetasIntercept);
     DAAL_CHECK_BLOCK_STATUS(xtxBlock);
-    algorithmFPType *xtx = xtxBlock.get();
+    algorithmFPType * xtx = xtxBlock.get();
 
     WriteRowsType xtyBlock(xtyTable, 0, nResponses);
     DAAL_CHECK_BLOCK_STATUS(xtyBlock);
-    algorithmFPType *xty = xtyBlock.get();
+    algorithmFPType * xty = xtyBlock.get();
 
     /* Initialize output arrays by zero in case of batch mode */
-    if(initializeResult)
+    if (initializeResult)
     {
         service_memset<algorithmFPType, cpu>(xtx, 0, nBetasIntercept * nBetasIntercept);
         service_memset<algorithmFPType, cpu>(xty, 0, nResponses * nBetasIntercept);
@@ -199,18 +194,17 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable &xTable, c
     size_t nRowsInBlock = 128;
 
     size_t nBlocks = nRows / nRowsInBlock;
-    if (nBlocks * nRowsInBlock < nRows) { nBlocks++; }
+    if (nBlocks * nRowsInBlock < nRows)
+    {
+        nBlocks++;
+    }
 
     /* Create TLS */
-    daal::tls<ThreadingTaskType *> tls( [ = ]() -> ThreadingTaskType*
-    {
-        return ThreadingTaskType::create(nBetasIntercept, nResponses);
-    } );
+    daal::tls<ThreadingTaskType *> tls([=]() -> ThreadingTaskType * { return ThreadingTaskType::create(nBetasIntercept, nResponses); });
 
     SafeStatus safeStat;
-    daal::threader_for( nBlocks, nBlocks, [ =, &tls, &xTable, &yTable, &safeStat ](int iBlock)
-    {
-        ThreadingTaskType *tlsLocal = tls.local();
+    daal::threader_for(nBlocks, nBlocks, [=, &tls, &xTable, &yTable, &safeStat](int iBlock) {
+        ThreadingTaskType * tlsLocal = tls.local();
 
         if (!tlsLocal)
         {
@@ -219,29 +213,29 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable &xTable, c
         }
 
         size_t startRow = iBlock * nRowsInBlock;
-        size_t endRow = startRow + nRowsInBlock;
-        if (endRow > nRows) { endRow = nRows; }
+        size_t endRow   = startRow + nRowsInBlock;
+        if (endRow > nRows)
+        {
+            endRow = nRows;
+        }
 
         Status localSt = tlsLocal->update(startRow, endRow - startRow, xTable, yTable);
         DAAL_CHECK_STATUS_THR(localSt);
-    } );
+    });
 
     Status st = safeStat.detach();
-    tls.reduce([ =, &st ](ThreadingTaskType *tlsLocal) -> void
-    {
-        if (!tlsLocal)
-            return;
-        if (st)
-            tlsLocal->reduce(xtx, xty);
+    tls.reduce([=, &st](ThreadingTaskType * tlsLocal) -> void {
+        if (!tlsLocal) return;
+        if (st) tlsLocal->reduce(xtx, xty);
         delete tlsLocal;
-    } );
+    });
 
     return st;
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace normal_equations
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

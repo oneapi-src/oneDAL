@@ -29,17 +29,16 @@ using namespace daal::algorithms::covariance;
 
 extern "C"
 {
-
     /*
      * Class:     com_intel_daal_algorithms_covariance_DistributedIface
      * Method:    cGetResult
      * Signature: (JII)J
      */
-    JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cGetResult
-    (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+    JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                  jint prec, jint method)
     {
-        return jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense,
-            fastCSR, singlePassCSR, sumCSR>::getResult(prec, method, algAddr);
+        return jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+                              sumCSR>::getResult(prec, method, algAddr);
     }
 
     /*
@@ -47,11 +46,11 @@ extern "C"
      * Method:    cSetResult
      * Signature: (JIIJ)V
      */
-    JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cSetResult
-    (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+    JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                 jint prec, jint method, jlong resultAddr)
     {
-        jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense,
-            fastCSR, singlePassCSR, sumCSR>::setResult<covariance::Result>(prec, method, algAddr, resultAddr);
+        jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+                       sumCSR>::setResult<covariance::Result>(prec, method, algAddr, resultAddr);
     }
 
     /*
@@ -59,11 +58,11 @@ extern "C"
      * Method:    cGetPartialResult
      * Signature: (JII)J
      */
-    JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cGetPartialResult
-    (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+    JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cGetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                         jint prec, jint method)
     {
-        return jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense,
-            fastCSR, singlePassCSR, sumCSR>::getPartialResult(prec, method, algAddr);
+        return jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+                              sumCSR>::getPartialResult(prec, method, algAddr);
     }
 
     /*
@@ -71,11 +70,12 @@ extern "C"
      * Method:    cSetPartialResult
      * Signature: (JIIJZ)V
      */
-    JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cSetPartialResult
-    (JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong partialResultAddr, jboolean initFlag)
+    JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cSetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                        jint prec, jint method,
+                                                                                                        jlong partialResultAddr, jboolean initFlag)
     {
-        jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense,
-            fastCSR, singlePassCSR, sumCSR>::setPartialResult<covariance::PartialResult>(prec, method, algAddr, partialResultAddr, initFlag);
+        jniDistributed<step2Master, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+                       sumCSR>::setPartialResult<covariance::PartialResult>(prec, method, algAddr, partialResultAddr, initFlag);
     }
 
     /*
@@ -83,18 +83,17 @@ extern "C"
      * Method:    cInitDistributedIface
      * Signature: ()J
      */
-    JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cInitDistributedIface
-    (JNIEnv *env, jobject thisObj)
+    JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cInitDistributedIface(JNIEnv * env, jobject thisObj)
     {
-        JavaVM *jvm;
+        JavaVM * jvm;
         // Get pointer to the Java VM interface function table
         jint status = env->GetJavaVM(&jvm);
-        if(status != 0)
+        if (status != 0)
         {
             env->ThrowNew(env->FindClass("java/lang/Exception"), "Unable to get pointer to the Java VM interface function table");
             return 0;
         }
-        SharedPtr<JavaDistributed> *covDistributed = new SharedPtr<JavaDistributed>(new JavaDistributed(jvm, thisObj));
+        SharedPtr<JavaDistributed> * covDistributed = new SharedPtr<JavaDistributed>(new JavaDistributed(jvm, thisObj));
         return (jlong)covDistributed;
     }
 
@@ -103,10 +102,12 @@ extern "C"
      * Method:    cDispose
      * Signature: (J)V
      */
-    JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cDispose
-    (JNIEnv *env, jobject thisObj, jlong initAddr)
+    JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_DistributedIface_cDispose(JNIEnv * env, jobject thisObj, jlong initAddr)
     {
-        SharedPtr<DistributedIface<step2Master> > *covDistributed = (SharedPtr<DistributedIface<step2Master> > *)initAddr;
-        if(initAddr) { delete covDistributed; }
+        SharedPtr<DistributedIface<step2Master> > * covDistributed = (SharedPtr<DistributedIface<step2Master> > *)initAddr;
+        if (initAddr)
+        {
+            delete covDistributed;
+        }
     }
 }

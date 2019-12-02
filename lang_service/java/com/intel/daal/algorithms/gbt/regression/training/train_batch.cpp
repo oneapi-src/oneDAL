@@ -30,8 +30,7 @@ namespace gbtrt = daal::algorithms::gbt::regression::training;
 * Method:    cInit
 * Signature: (II)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingBatch_cInit
-(JNIEnv *, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingBatch_cInit(JNIEnv *, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<gbtrt::Method, gbtrt::Batch, gbtrt::defaultDense>::newObj(prec, method);
 }
@@ -41,8 +40,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_T
 * Method:    cInitParameter
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingBatch_cInitParameter
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingBatch_cInitParameter(JNIEnv *, jobject thisObj, jlong algAddr,
+                                                                                                            jint prec, jint method, jint cmode)
 {
     return jniBatch<gbtrt::Method, gbtrt::Batch, gbtrt::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -52,8 +51,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_T
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingBatch_cClone
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_TrainingBatch_cClone(JNIEnv *, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
     return jniBatch<gbtrt::Method, gbtrt::Batch, gbtrt::defaultDense>::getClone(prec, method, algAddr);
 }

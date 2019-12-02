@@ -140,41 +140,41 @@ private:
  * \tparam T Type of objects which are stored in the container
  * \tparam Deleter Type of deleter to be called on collection disposal
  */
-template<typename T, typename Deleter = ObjectDeleter<T> >
+template <typename T, typename Deleter = ObjectDeleter<T> >
 class ObjectPtrCollection : public Base
 {
 public:
-    ObjectPtrCollection() { }
+    ObjectPtrCollection() {}
 
-    ObjectPtrCollection(const Deleter &deleter) :
-        _deleter(deleter) { }
+    ObjectPtrCollection(const Deleter & deleter) : _deleter(deleter) {}
 
     virtual ~ObjectPtrCollection()
     {
         for (size_t i = 0; i < _objects.size(); i++)
-        { _deleter( (const void *)_objects[i] ); }
+        {
+            _deleter((const void *)_objects[i]);
+        }
     }
 
-    T &operator [] (size_t index) const
+    T & operator[](size_t index) const
     {
-        DAAL_ASSERT( index < _objects.size() );
+        DAAL_ASSERT(index < _objects.size());
         return *(_objects[index]);
     }
 
-    size_t size() const
-    {
-        return _objects.size();
-    }
+    size_t size() const { return _objects.size(); }
 
-    bool push_back(T *object)
+    bool push_back(T * object)
     {
         if (!object)
-        { return false; }
+        {
+            return false;
+        }
 
         return _objects.safe_push_back(object);
     }
 
-    template<typename U>
+    template <typename U>
     bool safe_push_back()
     {
         return _objects.push_back(new U());
@@ -182,7 +182,7 @@ public:
 
 private:
     ObjectPtrCollection(const ObjectPtrCollection &);
-    ObjectPtrCollection &operator = (const ObjectPtrCollection &);
+    ObjectPtrCollection & operator=(const ObjectPtrCollection &);
 
 private:
     Deleter _deleter;
@@ -195,15 +195,15 @@ private:
  *           memory using internal new/delete operators
  *  \tparam  T  Type of an object stored in the container
  */
-template<typename T>
+template <typename T>
 class HeapAllocatableCollection : public Base, public services::Collection<T>
 {
 public:
-    static SharedPtr<HeapAllocatableCollection<T> > create(services::Status *status = NULL)
+    static SharedPtr<HeapAllocatableCollection<T> > create(services::Status * status = NULL)
     {
         typedef SharedPtr<HeapAllocatableCollection<T> > PtrType;
 
-        HeapAllocatableCollection<T> *collection = new internal::HeapAllocatableCollection<T>();
+        HeapAllocatableCollection<T> * collection = new internal::HeapAllocatableCollection<T>();
         if (!collection)
         {
             services::internal::tryAssignStatusAndThrow(status, services::ErrorMemoryAllocationFailed);
@@ -213,11 +213,11 @@ public:
         return PtrType(collection);
     }
 
-    static SharedPtr<HeapAllocatableCollection<T> > create(size_t n, services::Status *status = NULL)
+    static SharedPtr<HeapAllocatableCollection<T> > create(size_t n, services::Status * status = NULL)
     {
         typedef SharedPtr<HeapAllocatableCollection<T> > PtrType;
 
-        HeapAllocatableCollection<T> *collection = new internal::HeapAllocatableCollection<T>(n);
+        HeapAllocatableCollection<T> * collection = new internal::HeapAllocatableCollection<T>(n);
         if (!collection || !collection->data())
         {
             delete collection;
@@ -228,10 +228,9 @@ public:
         return PtrType(collection);
     }
 
-    HeapAllocatableCollection() { }
+    HeapAllocatableCollection() {}
 
-    explicit HeapAllocatableCollection(size_t n) :
-        services::Collection<T>(n) { }
+    explicit HeapAllocatableCollection(size_t n) : services::Collection<T>(n) {}
 };
 
 /**
@@ -239,23 +238,26 @@ public:
  *  \brief   Shared pointer to the Collection object
  *  \tparam  T  Type of an object stored in the container
  */
-template<class T>
+template <class T>
 class CollectionPtr : public SharedPtr<HeapAllocatableCollection<T> >
 {
 private:
     typedef SharedPtr<HeapAllocatableCollection<T> > super;
 
 public:
-    CollectionPtr() { }
+    CollectionPtr() {}
 
-    template<class U>
-    CollectionPtr(const SharedPtr<U> &other) : super(other) { }
+    template <class U>
+    CollectionPtr(const SharedPtr<U> & other) : super(other)
+    {}
 
-    template<class U>
-    explicit CollectionPtr(U *ptr) : super(ptr) { }
+    template <class U>
+    explicit CollectionPtr(U * ptr) : super(ptr)
+    {}
 
-    template<class U, class D>
-    explicit CollectionPtr(U *ptr, const D& deleter) : super(ptr, deleter) { }
+    template <class U, class D>
+    explicit CollectionPtr(U * ptr, const D & deleter) : super(ptr, deleter)
+    {}
 };
 
 } // namespace internal

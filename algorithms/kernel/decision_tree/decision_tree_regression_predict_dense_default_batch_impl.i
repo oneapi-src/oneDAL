@@ -46,14 +46,13 @@ namespace prediction
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 using namespace daal::services::internal;
 using namespace decision_tree::internal;
 
-template<typename algorithmFPType, CpuType cpu>
-services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
-    compute(const NumericTable * x, const daal::algorithms::Model * m, NumericTable * y, const daal::algorithms::Parameter * par)
+template <typename algorithmFPType, CpuType cpu>
+services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::compute(const NumericTable * x, const daal::algorithms::Model * m,
+                                                                                        NumericTable * y, const daal::algorithms::Parameter * par)
 {
     typedef daal::services::internal::SignBit<algorithmFPType, cpu> SignBitType;
 
@@ -61,27 +60,26 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
     DAAL_ASSERT(y);
 
     const decision_tree::regression::Parameter * const parameter = static_cast<const decision_tree::regression::Parameter *>(par);
-    const decision_tree::regression::Model * const model = static_cast<const decision_tree::regression::Model *>(m);
+    const decision_tree::regression::Model * const model         = static_cast<const decision_tree::regression::Model *>(m);
 
     DAAL_ASSERT(parameter);
     DAAL_ASSERT(model);
 
     FeatureTypesCache featureTypesCache(*x);
-    const DecisionTreeTable & treeTable = *(model->impl()->getTreeTable());
+    const DecisionTreeTable & treeTable  = *(model->impl()->getTreeTable());
     const DecisionTreeNode * const nodes = static_cast<const DecisionTreeNode *>(treeTable.getArray());
     DAAL_ASSERT(treeTable.getNumberOfRows());
 
-    const size_t xRowCount = x->getNumberOfRows();
+    const size_t xRowCount    = x->getNumberOfRows();
     const size_t xColumnCount = x->getNumberOfColumns();
     const size_t yColumnCount = y->getNumberOfColumns();
     DAAL_ASSERT(xRowCount == y->getNumberOfRows());
 
     const auto rowsPerBlock = 512;
-    const auto blockCount = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
-    daal::threader_for(blockCount, blockCount, [=, &featureTypesCache, &treeTable](int iBlock)
-    {
+    const auto blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
+    daal::threader_for(blockCount, blockCount, [=, &featureTypesCache, &treeTable](int iBlock) {
         const size_t first = iBlock * rowsPerBlock;
-        const size_t last = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+        const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
         BlockDescriptor<algorithmFPType> xBD;
         const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);
@@ -92,24 +90,22 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
         for (size_t i = 0; i < last - first; ++i)
         {
             const algorithmFPType * const xRow = &dx[i * xColumnCount];
-            size_t nodeIndex = 0;
+            size_t nodeIndex                   = 0;
             DAAL_ASSERT(nodeIndex < treeTable.getNumberOfRows());
             while (nodes[nodeIndex].dimension != static_cast<size_t>(-1))
             {
                 switch (featureTypesCache[nodes[nodeIndex].dimension])
                 {
                 case data_management::features::DAAL_CATEGORICAL:
-                    nodeIndex = nodes[nodeIndex].leftIndex
-                        + ((nodes[nodeIndex].cutPointOrDependantVariable == xRow[nodes[nodeIndex].dimension]) ? 0 : 1);
+                    nodeIndex =
+                        nodes[nodeIndex].leftIndex + ((nodes[nodeIndex].cutPointOrDependantVariable == xRow[nodes[nodeIndex].dimension]) ? 0 : 1);
                     break;
                 case data_management::features::DAAL_ORDINAL:
                 case data_management::features::DAAL_CONTINUOUS:
-                    nodeIndex = nodes[nodeIndex].leftIndex + SignBitType::get(nodes[nodeIndex].cutPointOrDependantVariable
-                                                                              - xRow[nodes[nodeIndex].dimension]);
+                    nodeIndex = nodes[nodeIndex].leftIndex
+                                + SignBitType::get(nodes[nodeIndex].cutPointOrDependantVariable - xRow[nodes[nodeIndex].dimension]);
                     break;
-                default:
-                    DAAL_ASSERT(false);
-                    break;
+                default: DAAL_ASSERT(false); break;
                 }
                 DAAL_ASSERT(nodeIndex < treeTable.getNumberOfRows());
             }
@@ -118,7 +114,7 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
         }
         y->releaseBlockOfRows(yBD);
         const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
-    } );
+    });
     return Status();
 }
 

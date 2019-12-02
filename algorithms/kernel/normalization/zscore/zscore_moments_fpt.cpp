@@ -30,16 +30,15 @@ namespace zscore
 {
 namespace internal
 {
-template<typename algorithmFPType>
-services::Status computeMeansAndVariances(daal::algorithms::low_order_moments::BatchImpl *moments,
-                                          const daal::data_management::NumericTable &dataTable,
-                                          algorithmFPType* resultMean,
-                                          algorithmFPType* resultVariance)
+template <typename algorithmFPType>
+services::Status computeMeansAndVariances(daal::algorithms::low_order_moments::BatchImpl * moments,
+                                          const daal::data_management::NumericTable & dataTable, algorithmFPType * resultMean,
+                                          algorithmFPType * resultVariance)
 {
     moments->parameter.estimatesToCompute = low_order_moments::estimatesMeanVariance;
-    const size_t _nFeatures = dataTable.getNumberOfColumns();
-    auto meansPtr = HomogenNumericTable<algorithmFPType>::create(resultMean, _nFeatures, 1);
-    auto variancesPtr = HomogenNumericTable<algorithmFPType>::create(resultVariance, _nFeatures, 1);
+    const size_t _nFeatures               = dataTable.getNumberOfColumns();
+    auto meansPtr                         = HomogenNumericTable<algorithmFPType>::create(resultMean, _nFeatures, 1);
+    auto variancesPtr                     = HomogenNumericTable<algorithmFPType>::create(resultVariance, _nFeatures, 1);
 
     low_order_moments::ResultPtr meanVarianceResult(new low_order_moments::Result());
     meanVarianceResult->allocate<algorithmFPType>(&(moments->input), &(moments->parameter), defaultDense);
@@ -52,13 +51,10 @@ services::Status computeMeansAndVariances(daal::algorithms::low_order_moments::B
     return Status();
 }
 
-
-template
-services::Status computeMeansAndVariances<DAAL_FPTYPE>(low_order_moments::BatchImpl *moments,
-                                                       const daal::data_management::NumericTable &dataTable,
-                                                       DAAL_FPTYPE* resultMean,
-                                                       DAAL_FPTYPE* resultVariance);
-} // namespace daal::internal
+template services::Status computeMeansAndVariances<DAAL_FPTYPE>(low_order_moments::BatchImpl * moments,
+                                                                const daal::data_management::NumericTable & dataTable, DAAL_FPTYPE * resultMean,
+                                                                DAAL_FPTYPE * resultVariance);
+} // namespace internal
 } // namespace zscore
 } // namespace normalization
 } // namespace algorithms

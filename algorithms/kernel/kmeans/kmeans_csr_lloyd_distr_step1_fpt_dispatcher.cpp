@@ -28,6 +28,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::DistributedContainer, distributed, step1Local,  DAAL_FPTYPE, kmeans::lloydCSR)
-} // namespace daal::algorithms
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::DistributedContainer, distributed, step1Local, DAAL_FPTYPE, kmeans::lloydCSR)
+} // namespace algorithms
 } // namespace daal

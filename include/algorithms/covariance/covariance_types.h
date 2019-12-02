@@ -47,15 +47,15 @@ namespace covariance
  */
 enum Method
 {
-    defaultDense    = 0,        /*!< Default: performance-oriented method. Works with all types of numeric tables */
-    singlePassDense = 1,        /*!< Single-pass: implementation of the single-pass algorithm proposed by D.H.D. West.
+    defaultDense    = 0, /*!< Default: performance-oriented method. Works with all types of numeric tables */
+    singlePassDense = 1, /*!< Single-pass: implementation of the single-pass algorithm proposed by D.H.D. West.
                                      Works with all types of numeric tables */
-    sumDense        = 2,        /*!< Precomputed sum: implementation of moments computation algorithm in the case of a precomputed sum.
+    sumDense        = 2, /*!< Precomputed sum: implementation of moments computation algorithm in the case of a precomputed sum.
                                      Works with all types of numeric tables */
-    fastCSR         = 3,        /*!< Fast: performance-oriented method. Works with Compressed Sparse Rows (CSR) numeric tables */
-    singlePassCSR   = 4,        /*!< Single-pass: implementation of the single-pass algorithm proposed by D.H.D. West.
+    fastCSR         = 3, /*!< Fast: performance-oriented method. Works with Compressed Sparse Rows (CSR) numeric tables */
+    singlePassCSR   = 4, /*!< Single-pass: implementation of the single-pass algorithm proposed by D.H.D. West.
                                      Works with CSR numeric tables */
-    sumCSR          = 5         /*!< Precomputed sum: implementation of the algorithm in the case of a precomputed sum.
+    sumCSR          = 5  /*!< Precomputed sum: implementation of the algorithm in the case of a precomputed sum.
                                      Works with CSR numeric tables */
 };
 
@@ -65,7 +65,7 @@ enum Method
  */
 enum InputId
 {
-    data,                 /*!< %Input data table */
+    data, /*!< %Input data table */
     lastInputId = data
 };
 
@@ -75,9 +75,9 @@ enum InputId
  */
 enum PartialResultId
 {
-    nObservations,      /*!< Number of observations processed so far */
-    crossProduct,       /*!< Cross-product matrix computed so far */
-    sum,                /*!< Vector of sums computed so far */
+    nObservations, /*!< Number of observations processed so far */
+    crossProduct,  /*!< Cross-product matrix computed so far */
+    sum,           /*!< Vector of sums computed so far */
     lastPartialResultId = sum
 };
 
@@ -87,9 +87,9 @@ enum PartialResultId
  */
 enum ResultId
 {
-    covariance,                  /*!< Variance-covariance matrix */
-    correlation = covariance,    /*!< Correlation matrix */
-    mean,                        /*!< Vector of means */
+    covariance,               /*!< Variance-covariance matrix */
+    correlation = covariance, /*!< Correlation matrix */
+    mean,                     /*!< Vector of means */
     lastResultId = mean
 };
 
@@ -99,8 +99,8 @@ enum ResultId
  */
 enum OutputMatrixType
 {
-    covarianceMatrix,           /*!< Variance-Covariance matrix */
-    correlationMatrix           /*!< Correlation matrix */
+    covarianceMatrix, /*!< Variance-Covariance matrix */
+    correlationMatrix /*!< Correlation matrix */
 };
 
 /**
@@ -126,7 +126,7 @@ class DAAL_EXPORT InputIface : public daal::algorithms::Input
 {
 public:
     InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
-    InputIface(const InputIface& other) : daal::algorithms::Input(other){}
+    InputIface(const InputIface & other) : daal::algorithms::Input(other) {}
     virtual size_t getNumberOfFeatures() const = 0;
     virtual ~InputIface() {}
 };
@@ -139,7 +139,7 @@ class DAAL_EXPORT Input : public InputIface
 {
 public:
     Input();
-    Input(const Input& other) : InputIface(other){}
+    Input(const Input & other) : InputIface(other) {}
 
     virtual ~Input() {}
 
@@ -161,14 +161,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks algorithm parameters
      * \param[in] parameter Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -183,8 +183,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(PartialResult);
     PartialResult();
 
-    virtual ~PartialResult()
-    {}
+    virtual ~PartialResult() {}
 
     /**
      * Allocates memory to store partial results of the correlation or variance-covariance matrix algorithm
@@ -193,7 +192,7 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Initializes memory to store partial results of the correlation or variance-covariance matrix algorithm
@@ -203,7 +202,7 @@ public:
      * \return Status of initialization
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Gets the number of columns in the partial result of the correlation or variance-covariance matrix algorithm
@@ -223,7 +222,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the partial result
      */
-    void set(PartialResultId id, const data_management::NumericTablePtr &ptr);
+    void set(PartialResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Check correctness of the partial result
@@ -231,22 +230,21 @@ public:
      * \param[in] parameter Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Check the correctness of PartialResult object
     * \param[in] parameter Pointer to the structure of the parameters of the algorithm
     * \param[in] method    Computation method
     */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-
     services::Status checkImpl(size_t nFeatures) const;
 
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -261,7 +259,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     /** Default constructor */
     Parameter();
-    OutputMatrixType outputMatrixType;      /*!< Type of the computed matrix */
+    OutputMatrixType outputMatrixType; /*!< Type of the computed matrix */
 };
 
 /**
@@ -277,7 +275,7 @@ struct DAAL_EXPORT OnlineParameter : public Parameter
     *  Constructs parameters of the Covariance Online algorithm by copying another parameters of the Covariance Online algorithm
     *  \param[in] other    Parameters of the Covariance Online algorithm
     */
-    OnlineParameter(const OnlineParameter& other);
+    OnlineParameter(const OnlineParameter & other);
 
     /**
      * Check the correctness of the %OnlineParameter object
@@ -305,7 +303,7 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT  services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory for storing Covariance final results
@@ -314,7 +312,8 @@ public:
      * \param[in] method             Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT  services::Status allocate(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
+                                          const int method);
 
     /**
      * Returns the final result of the correlation or variance-covariance matrix algorithm
@@ -328,7 +327,7 @@ public:
      * \param[in] id        Identifier of the result
      * \param[in] value     Pointer to the object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Check correctness of the result
@@ -336,7 +335,8 @@ public:
      * \param[in] parameter         Pointer to the structure of the parameters of the algorithm
      * \param[in] method            Computation method
      */
-    services::Status check(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
+                           int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Check correctness of the result
@@ -344,15 +344,14 @@ public:
      * \param[in] parameter Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
-
     services::Status checkImpl(size_t nFeatures, OutputMatrixType outputMatrixType) const;
 
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -365,25 +364,23 @@ typedef services::SharedPtr<Result> ResultPtr;
  *
  * \tparam step             Step of the distributed computing algorithm, \ref ComputeStep
  */
-template<ComputeStep step>
-class DistributedInput {};
+template <ComputeStep step>
+class DistributedInput
+{};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__COVARIANCE__DISTRIBUTEDINPUT_STEP1LOCAL"></a>
  * \brief Input parameters of the distributed Covariance algorithm.
  *        Represents inputs of the algorithm on local node.
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step1Local> : public Input
 {
 public:
-    DistributedInput() : Input()
-    {}
-    DistributedInput(const DistributedInput& other) : Input(other)
-    {}
+    DistributedInput() : Input() {}
+    DistributedInput(const DistributedInput & other) : Input(other) {}
 
-    virtual ~DistributedInput()
-    {}
+    virtual ~DistributedInput() {}
 };
 
 /**
@@ -391,16 +388,14 @@ public:
  * \brief Input parameters of the distributed Covariance algorithm.
  *        Represents inputs of the algorithm on master node.
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step2Master> : public InputIface
 {
 public:
     DistributedInput();
-    DistributedInput(const DistributedInput& other) : InputIface(other)
-    {}
+    DistributedInput(const DistributedInput & other) : InputIface(other) {}
 
-    virtual ~DistributedInput()
-    {}
+    virtual ~DistributedInput() {}
 
     /**
      * Returns number of columns in the input data set
@@ -413,7 +408,7 @@ public:
      * \param[in] id            Input arguments's identifier
      * \param[in] partialResult Partial result obtained on the first step of the distributed algorithm
      */
-    void add(MasterInputId id, const PartialResultPtr &partialResult);
+    void add(MasterInputId id, const PartialResultPtr & partialResult);
 
     /**
      * Returns collectionof inputs
@@ -427,7 +422,7 @@ public:
      * \param[in] parameter Pointer to the structure of the parameters of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
 } // namespace interface1
@@ -441,7 +436,7 @@ using interface1::Result;
 using interface1::ResultPtr;
 using interface1::DistributedInput;
 
-} // namespace daal::algorithms::covariance
-}
+} // namespace covariance
+} // namespace algorithms
 } // namespace daal
 #endif // __COVARIANCE_TYPES_H__

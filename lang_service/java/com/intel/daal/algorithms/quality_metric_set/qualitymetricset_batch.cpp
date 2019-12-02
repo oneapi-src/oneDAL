@@ -25,16 +25,14 @@
  * Method:    cCompute
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_QualityMetricSetBatch_cCompute
-  (JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_QualityMetricSetBatch_cCompute(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong algAddr)
 {
     (*(daal::algorithms::quality_metric_set::Batch *)algAddr).compute();
-    if((*(daal::algorithms::quality_metric_set::Batch *)algAddr).getErrors()->size() > 0)
+    if ((*(daal::algorithms::quality_metric_set::Batch *)algAddr).getErrors()->size() > 0)
     {
-        env->ThrowNew(env->FindClass("java/lang/Exception"), (*(daal::algorithms::quality_metric_set::Batch *)
-                                                              algAddr).getErrors()->getDescription());
+        env->ThrowNew(env->FindClass("java/lang/Exception"), (*(daal::algorithms::quality_metric_set::Batch *)algAddr).getErrors()->getDescription());
     }
-
 }
 
 /*
@@ -42,8 +40,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_Quali
  * Method:    cDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_QualityMetricSetBatch_cDispose
-  (JNIEnv *, jobject, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_QualityMetricSetBatch_cDispose(JNIEnv *, jobject, jlong algAddr)
 {
-    delete(daal::algorithms::quality_metric_set::Batch *)algAddr;
+    delete (daal::algorithms::quality_metric_set::Batch *)algAddr;
 }

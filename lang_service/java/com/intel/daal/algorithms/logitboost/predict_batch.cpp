@@ -24,20 +24,20 @@
 USING_COMMON_NAMESPACES()
 using namespace daal::algorithms::logitboost::prediction;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_prediction_PredictionBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_prediction_PredictionBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                   jint method, jlong nClasses)
 {
     return jniBatch<logitboost::prediction::Method, Batch, defaultDense>::newObj(prec, method, (size_t)nClasses);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_prediction_PredictionBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_prediction_PredictionBatch_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong algAddr, jint prec, jint method)
 {
     return jniBatch<logitboost::prediction::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_prediction_PredictionBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logitboost_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                    jint prec, jint method)
 {
     return jniBatch<logitboost::prediction::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

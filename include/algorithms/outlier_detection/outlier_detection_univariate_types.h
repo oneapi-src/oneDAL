@@ -48,7 +48,7 @@ namespace univariate_outlier_detection
  */
 enum Method
 {
-    defaultDense = 0       /*!< Default: performance-oriented method */
+    defaultDense = 0 /*!< Default: performance-oriented method */
 };
 
 /**
@@ -57,10 +57,10 @@ enum Method
  */
 enum InputId
 {
-    data      , /*!< %Input data table */
-    location  , /*!< Vector of mean estimates of size 1 x p */
-    scatter   , /*!< Measure of spread, the array of standard deviations of size 1 x p */
-    threshold , /*!< Limit that defines the outlier region, the array of non-negative numbers of size 1 x p */
+    data,      /*!< %Input data table */
+    location,  /*!< Vector of mean estimates of size 1 x p */
+    scatter,   /*!< Measure of spread, the array of standard deviations of size 1 x p */
+    threshold, /*!< Limit that defines the outlier region, the array of non-negative numbers of size 1 x p */
     lastInputId = threshold
 };
 
@@ -70,7 +70,7 @@ enum InputId
  */
 enum ResultId
 {
-    weights,           /*!< Table with results */
+    weights, /*!< Table with results */
     lastResultId = weights
 };
 
@@ -92,10 +92,8 @@ struct InitIface
     * \param[in] scatter       Measure of spread, the array of standard deviations of size 1 x p
     * \param[in] threshold     Limit that defines the outlier region, the array of non-negative numbers of size 1 x p
     */
-    virtual void operator()(data_management::NumericTable *data,
-                            data_management::NumericTable *location,
-                            data_management::NumericTable *scatter,
-                            data_management::NumericTable *threshold) = 0;
+    virtual void operator()(data_management::NumericTable * data, data_management::NumericTable * location, data_management::NumericTable * scatter,
+                            data_management::NumericTable * threshold) = 0;
     virtual ~InitIface() {}
 };
 
@@ -112,10 +110,9 @@ struct DAAL_EXPORT DefaultInit : public InitIface
     * \param[in] scatter       Measure of spread, the array of standard deviations of size 1 x p
     * \param[in] threshold     Limit that defines the outlier region, the array of non-negative numbers of size 1 x p
     */
-    virtual void operator()(data_management::NumericTable *data,
-                            data_management::NumericTable *location,
-                            data_management::NumericTable *scatter,
-                            data_management::NumericTable *threshold) {}
+    virtual void operator()(data_management::NumericTable * data, data_management::NumericTable * location, data_management::NumericTable * scatter,
+                            data_management::NumericTable * threshold)
+    {}
 };
 
 /**
@@ -128,14 +125,14 @@ struct DAAL_EXPORT DefaultInit : public InitIface
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter() {}
-    services::SharedPtr<InitIface> initializationProcedure;     /*!< Initialization procedure for setting initial parameters of the algorithm*/
+    services::SharedPtr<InitIface> initializationProcedure; /*!< Initialization procedure for setting initial parameters of the algorithm*/
 
     /**
     * Check the correctness of the %Parameter object
     *
      * \return Status of computations
     */
-    virtual services::Status check() const DAAL_C11_OVERRIDE {return services::Status();}
+    virtual services::Status check() const DAAL_C11_OVERRIDE { return services::Status(); }
 };
 /* [Parameter source code] */
 
@@ -147,7 +144,7 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -163,7 +160,7 @@ public:
      * \param[in] id    Identifier of the %input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks input objects for the univariate outlier detection algorithm
@@ -172,7 +169,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -196,7 +193,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns a result of the univariate outlier detection algorithm
@@ -210,7 +207,7 @@ public:
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the result
      */
-    void set(ResultId id, const data_management::NumericTablePtr &ptr);
+    void set(ResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks the result object of the univariate outlier detection algorithm
@@ -220,12 +217,12 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -242,6 +239,6 @@ using interface1::Result;
 using interface1::ResultPtr;
 
 } // namespace univariate_outlier_detection
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

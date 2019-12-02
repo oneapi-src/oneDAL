@@ -42,7 +42,6 @@ namespace algorithms
  */
 namespace implicit_als
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface
  */
@@ -65,10 +64,8 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
      * \param[in] lambda              Regularization parameter
      * \param[in] preferenceThreshold Threshold used to define preference values
      */
-    Parameter(size_t nFactors = 10, size_t maxIterations = 5, double alpha = 40.0, double lambda = 0.01,
-              double preferenceThreshold = 0.0) :
-        nFactors(nFactors), maxIterations(maxIterations), alpha(alpha), lambda(lambda),
-        preferenceThreshold(preferenceThreshold)
+    Parameter(size_t nFactors = 10, size_t maxIterations = 5, double alpha = 40.0, double lambda = 0.01, double preferenceThreshold = 0.0)
+        : nFactors(nFactors), maxIterations(maxIterations), alpha(alpha), lambda(lambda), preferenceThreshold(preferenceThreshold)
     {}
 
     size_t nFactors;            /*!< Number of factors */
@@ -91,7 +88,6 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
  */
 class DAAL_EXPORT Model : public daal::algorithms::Model
 {
-
 public:
     DECLARE_MODEL(Model, daal::algorithms::Model);
 
@@ -103,8 +99,8 @@ public:
      * \param[in]  dummy     Dummy variable for the templated constructor
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    template<typename modelFPType>
-    DAAL_EXPORT Model(size_t nUsers, size_t nItems, const Parameter &parameter, modelFPType dummy);
+    template <typename modelFPType>
+    DAAL_EXPORT Model(size_t nUsers, size_t nItems, const Parameter & parameter, modelFPType dummy);
 
     /**
      * Empty constructor for deserialization
@@ -119,12 +115,10 @@ public:
      * \param[in]  parameter Implicit ALS parameters
      * \param[out] stat      Status of the model construction
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nUsers, size_t nItems,
-                                                         const Parameter &parameter,
-                                                         services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nUsers, size_t nItems, const Parameter & parameter, services::Status * stat = NULL);
 
-    virtual ~Model() { }
+    virtual ~Model() {}
 
     /**
      * Returns a pointer to the numeric table of users factors constructed during the training
@@ -141,13 +135,12 @@ public:
     data_management::NumericTablePtr getItemsFactors() const { return _itemsFactors; }
 
 private:
-    data_management::NumericTablePtr _usersFactors;    /* Table of resulting users factors */
-    data_management::NumericTablePtr _itemsFactors;    /* Table of resulting items factors */
+    data_management::NumericTablePtr _usersFactors; /* Table of resulting users factors */
+    data_management::NumericTablePtr _itemsFactors; /* Table of resulting items factors */
 
 protected:
-
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         daal::algorithms::Model::serialImpl<Archive, onDeserialize>(arch);
 
@@ -157,10 +150,8 @@ protected:
         return services::Status();
     }
 
-    template<typename modelFPType>
-    DAAL_EXPORT Model(size_t nUsers, size_t nItems, const Parameter &parameter,
-                      modelFPType dummy, services::Status &st);
-
+    template <typename modelFPType>
+    DAAL_EXPORT Model(size_t nUsers, size_t nItems, const Parameter & parameter, modelFPType dummy, services::Status & st);
 };
 typedef services::SharedPtr<Model> ModelPtr;
 
@@ -184,8 +175,8 @@ public:
      * \param[in] dummy     Dummy variable for the templated constructor
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    template<typename modelFPType>
-    DAAL_EXPORT PartialModel(const Parameter &parameter, size_t size, modelFPType dummy);
+    template <typename modelFPType>
+    DAAL_EXPORT PartialModel(const Parameter & parameter, size_t size, modelFPType dummy);
 
     /**
      * Constructs a partial implicit ALS model from the indices of factors
@@ -195,9 +186,8 @@ public:
      * \param[in] dummy     Dummy variable for the templated constructor
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    template<typename modelFPType>
-    DAAL_EXPORT PartialModel(const Parameter &parameter, size_t offset,
-                             data_management::NumericTablePtr indices, modelFPType dummy);
+    template <typename modelFPType>
+    DAAL_EXPORT PartialModel(const Parameter & parameter, size_t offset, data_management::NumericTablePtr indices, modelFPType dummy);
 
     /**
      * Constructs a partial implicit ALS model from the indices and factors stored in the numeric tables
@@ -205,8 +195,7 @@ public:
      * \param[in] indices   Pointer to the numeric table with the indices of factors
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    PartialModel(data_management::NumericTablePtr factors,
-                 data_management::NumericTablePtr indices);
+    PartialModel(data_management::NumericTablePtr factors, data_management::NumericTablePtr indices);
 
     /**
      * Empty constructor for deserialization
@@ -221,9 +210,8 @@ public:
      * \param[out] stat     Status of the model construction
      * \return Partial implicit ALS model of a specified size
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<PartialModel> create(const Parameter &parameter, size_t size,
-                                                                services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<PartialModel> create(const Parameter & parameter, size_t size, services::Status * stat = NULL);
     /**
      * Constructs a partial implicit ALS model from the indices of factors
      * \param[in] parameter Implicit ALS parameters
@@ -232,10 +220,9 @@ public:
      * \param[out] stat     Status of the model construction
      * \return Partial implicit ALS model with the specified indices and factors
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<PartialModel> create(const Parameter &parameter, size_t offset,
-                                                                const data_management::NumericTablePtr &indices,
-                                                                services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<PartialModel> create(const Parameter & parameter, size_t offset,
+                                                                const data_management::NumericTablePtr & indices, services::Status * stat = NULL);
     /**
      * Constructs a partial implicit ALS model from the indices and factors stored in the numeric tables
      * \param[in] factors   Pointer to the numeric table with factors stored in row-major order
@@ -243,11 +230,10 @@ public:
      * \param[out] stat     Status of the model construction
      * \return Partial implicit ALS model with the specified indices and factors
      */
-    static services::SharedPtr<PartialModel> create(const data_management::NumericTablePtr &factors,
-                                                    const data_management::NumericTablePtr &indices,
-                                                    services::Status *stat = NULL);
+    static services::SharedPtr<PartialModel> create(const data_management::NumericTablePtr & factors,
+                                                    const data_management::NumericTablePtr & indices, services::Status * stat = NULL);
 
-    virtual ~PartialModel() { }
+    virtual ~PartialModel() {}
 
     /**
      * Returns pointer to the numeric table with factors stored in row-major order
@@ -262,11 +248,11 @@ public:
     data_management::NumericTablePtr getIndices() const { return _indices; }
 
 protected:
-    data_management::NumericTablePtr _factors;      /* Factors in row-major format */
-    data_management::NumericTablePtr _indices;      /* Indices of the factors */
+    data_management::NumericTablePtr _factors; /* Factors in row-major format */
+    data_management::NumericTablePtr _indices; /* Indices of the factors */
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         daal::algorithms::Model::serialImpl<Archive, onDeserialize>(arch);
 
@@ -276,25 +262,21 @@ protected:
         return services::Status();
     }
 
-    template<typename modelFPType>
-    DAAL_EXPORT PartialModel(const Parameter &parameter, size_t size, modelFPType dummy, services::Status &st);
+    template <typename modelFPType>
+    DAAL_EXPORT PartialModel(const Parameter & parameter, size_t size, modelFPType dummy, services::Status & st);
 
-    template<typename modelFPType>
-    DAAL_EXPORT PartialModel(const Parameter &parameter, size_t offset,
-                             const data_management::NumericTablePtr &indices,
-                             modelFPType dummy, services::Status &st);
+    template <typename modelFPType>
+    DAAL_EXPORT PartialModel(const Parameter & parameter, size_t offset, const data_management::NumericTablePtr & indices, modelFPType dummy,
+                             services::Status & st);
 
-    PartialModel(const data_management::NumericTablePtr &factors,
-                 const data_management::NumericTablePtr &indices,
-                 services::Status &st);
+    PartialModel(const data_management::NumericTablePtr & factors, const data_management::NumericTablePtr & indices, services::Status & st);
 
 private:
-    template<typename modelFPType>
-    DAAL_EXPORT services::Status initialize(const Parameter &parameter, size_t size);
+    template <typename modelFPType>
+    DAAL_EXPORT services::Status initialize(const Parameter & parameter, size_t size);
 
-    template<typename modelFPType>
-    DAAL_EXPORT services::Status initialize(const Parameter &parameter, size_t offset,
-                                            const data_management::NumericTablePtr &indices);
+    template <typename modelFPType>
+    DAAL_EXPORT services::Status initialize(const Parameter & parameter, size_t offset, const data_management::NumericTablePtr & indices);
 };
 
 typedef services::SharedPtr<PartialModel> PartialModelPtr;
@@ -305,9 +287,9 @@ using interface1::Model;
 using interface1::PartialModelPtr;
 using interface1::PartialModel;
 
-}
+} // namespace implicit_als
 /** @} */
-}
-}
+} // namespace algorithms
+} // namespace daal
 
 #endif

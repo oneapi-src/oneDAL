@@ -48,7 +48,6 @@ namespace weak_learner
  */
 namespace training
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -78,12 +77,12 @@ public:
      * \param[in] id      Identifier of the result, \ref classifier::training::ResultId
      * \param[in] value   Pointer to the training result
      */
-    void set(classifier::training::ResultId id, daal::algorithms::weak_learner::ModelPtr &value);
+    void set(classifier::training::ResultId id, daal::algorithms::weak_learner::ModelPtr & value);
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::classifier::training::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -93,9 +92,9 @@ typedef services::SharedPtr<Result> ResultPtr;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace daal::algorithms::weak_learner::training
+} // namespace training
 /** @} */
-} // namespace daal::algorithms::weak_learner
-} // namespace daal::algorithms
+} // namespace weak_learner
+} // namespace algorithms
 } // namespace daal
 #endif

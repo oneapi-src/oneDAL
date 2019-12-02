@@ -52,16 +52,16 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for implicit ALS model-based prediction, double or float
  * \tparam method           Implicit ALS prediction method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
-     /**
+    /**
      * Constructs a container for implicit ALS model-based ratings prediction with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -82,24 +82,21 @@ public:
  *  \par Enumerations
  *      - \ref Method Implicit ALS prediction methods
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public daal::algorithms::Prediction
 {
 public:
-    typedef algorithms::implicit_als::prediction::ratings::Input  InputType;
-    typedef algorithms::implicit_als::Parameter                   ParameterType;
+    typedef algorithms::implicit_als::prediction::ratings::Input InputType;
+    typedef algorithms::implicit_als::Parameter ParameterType;
     typedef algorithms::implicit_als::prediction::ratings::Result ResultType;
 
-    InputType input;            /*!< Input objects for the algorithm */
-    ParameterType parameter;    /*!< \ref implicit_als::interface1::Parameter "Parameters" of the ratings prediction algorithm */
+    InputType input;         /*!< Input objects for the algorithm */
+    ParameterType parameter; /*!< \ref implicit_als::interface1::Parameter "Parameters" of the ratings prediction algorithm */
 
     /**
      * Default constructor
      */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs an implicit ALS ratings prediction algorithm by copying input objects and parameters
@@ -107,10 +104,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     virtual ~Batch() {}
 
@@ -118,20 +112,17 @@ public:
      * Returns the structure that contains the computed prediction results
      * \return Structure that contains the computed prediction results
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory for storing the prediction results
      * \param[in] result Structure for storing the prediction results
      */
-    services::Status setResult(const ResultPtr &result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -139,50 +130,43 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated ALS ratings prediction algorithm with a copy of input objects
      * of this ALS ratings prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
     ResultPtr _result;
 
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
         _par = &parameter;
         _result.reset(new ResultType());
     }
-
 };
 /** @} */
-} // interface1
+} // namespace interface1
 using interface1::BatchContainer;
 using interface1::Batch;
 
-}
-}
-}
-}
-}
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal
 #endif

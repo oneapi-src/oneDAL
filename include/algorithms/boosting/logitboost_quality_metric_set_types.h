@@ -48,7 +48,7 @@ namespace quality_metric_set
  */
 enum QualityMetricId
 {
-    confusionMatrix,    /*!< Confusion matrix */
+    confusionMatrix, /*!< Confusion matrix */
     lastQualityMetricId = confusionMatrix
 };
 
@@ -69,7 +69,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     Parameter(size_t nClasses = 2);
     virtual ~Parameter() {}
 
-    size_t nClasses;        /*!< Number of classes */
+    size_t nClasses; /*!< Number of classes */
 };
 /* [Parameter source code] */
 
@@ -112,17 +112,17 @@ public:
     classifier::quality_metric::multiclass_confusion_matrix::InputPtr getInput(QualityMetricId id) const;
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
-}
+} // namespace interface1
 using interface1::Parameter;
 using interface1::ResultCollection;
 using interface1::ResultCollectionPtr;
 using interface1::InputDataCollection;
 using interface1::InputDataCollectionPtr;
 
-}
+} // namespace quality_metric_set
 /** @} */
-}
-}
-}
+} // namespace logitboost
+} // namespace algorithms
+} // namespace daal
 
 #endif // __LOGITBOOST_QUALITY_METRIC_SET_TYPES_H__

@@ -42,8 +42,8 @@ template class KMeansInitDenseBatchKernelUCAPI<deterministicCSR, DAAL_FPTYPE>;
 template class KMeansInitDenseBatchKernelUCAPI<randomCSR, DAAL_FPTYPE>;
 template class KMeansInitDenseBatchKernelUCAPI<plusPlusCSR, DAAL_FPTYPE>;
 template class KMeansInitDenseBatchKernelUCAPI<parallelPlusCSR, DAAL_FPTYPE>;
-} // namespace daal::algorithms::kmeans::init::internal
-} // namespace daal::algorithms::kmeans::init
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace init
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal

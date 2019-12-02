@@ -38,23 +38,23 @@ using namespace daal;
 using namespace daal::algorithms::linear_regression;
 
 /* Input data set parameters */
-string trainDatasetFileName            = "../data/batch/linear_regression_train.csv";
-string testDatasetFileName             = "../data/batch/linear_regression_test.csv";
+string trainDatasetFileName = "../data/batch/linear_regression_train.csv";
+string testDatasetFileName  = "../data/batch/linear_regression_test.csv";
 
-const size_t nFeatures           = 10;  /* Number of features in training and testing data sets */
-const size_t nDependentVariables = 2;   /* Number of dependent variables that correspond to each observation */
+const size_t nFeatures           = 10; /* Number of features in training and testing data sets */
+const size_t nDependentVariables = 2;  /* Number of dependent variables that correspond to each observation */
 
-training::ResultPtr trainModel(const NumericTablePtr& trainData, const NumericTablePtr& trainDependentVariable);
-void testModel(const training::ResultPtr& res, const NumericTablePtr& testData, const NumericTablePtr& testGroundTruth);
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar);
+training::ResultPtr trainModel(const NumericTablePtr & trainData, const NumericTablePtr & trainDependentVariable);
+void testModel(const training::ResultPtr & res, const NumericTablePtr & testData, const NumericTablePtr & testGroundTruth);
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar);
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
-    for (const auto& deviceSelector : getListOfDevices())
+    for (const auto & deviceSelector : getListOfDevices())
     {
-        const auto& nameDevice = deviceSelector.first;
-        const auto& device = deviceSelector.second;
+        const auto & nameDevice = deviceSelector.first;
+        const auto & device     = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-training::ResultPtr trainModel(const NumericTablePtr& trainData, const NumericTablePtr& trainDependentVariables)
+training::ResultPtr trainModel(const NumericTablePtr & trainData, const NumericTablePtr & trainDependentVariables)
 {
     /* Create an algorithm object to train the multiple linear regression model with the normal equations method */
     training::Batch<> algorithm;
@@ -94,7 +94,7 @@ training::ResultPtr trainModel(const NumericTablePtr& trainData, const NumericTa
     return trainingResult;
 }
 
-void testModel(const training::ResultPtr& trainingResult, const NumericTablePtr& testData, const NumericTablePtr& testGroundTruth)
+void testModel(const training::ResultPtr & trainingResult, const NumericTablePtr & testData, const NumericTablePtr & testGroundTruth)
 {
     /* Create an algorithm object to predict values of multiple linear regression */
     prediction::Batch<> algorithm;
@@ -108,20 +108,17 @@ void testModel(const training::ResultPtr& trainingResult, const NumericTablePtr&
 
     /* Retrieve the algorithm results */
     prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(prediction::prediction),
-        "Linear Regression prediction results: (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(prediction::prediction), "Linear Regression prediction results: (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }
 
-void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTablePtr& pDependentVar)
+void loadData(const std::string & fileName, NumericTablePtr & pData, NumericTablePtr & pDependentVar)
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> trainDataSource(fileName,
-        DataSource::notAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> trainDataSource(fileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
-    pData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
+    pData         = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
     pDependentVar = SyclHomogenNumericTable<>::create(nDependentVariables, 0, NumericTable::notAllocate);
     NumericTablePtr mergedData(new MergedNumericTable(pData, pDependentVar));
 

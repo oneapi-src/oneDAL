@@ -40,7 +40,6 @@ namespace algorithms
  */
 namespace brownboost
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -72,15 +71,15 @@ struct DAAL_EXPORT Parameter : public boosting::Parameter
      * \param[in] nrMaxIter                 Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm
      * \param[in] dcThreshold               Threshold needed  to avoid degenerate cases in the BrownBoost training algorithm
      */
-    DAAL_DEPRECATED Parameter(services::SharedPtr<weak_learner::training::Batch>   wlTrainForParameter,
-              services::SharedPtr<weak_learner::prediction::Batch> wlPredictForParameter,
-              double acc = 0.3, size_t maxIter = 10, double nrAcc = 1.0e-3, size_t nrMaxIter = 100, double dcThreshold = 1.0e-2);
+    DAAL_DEPRECATED Parameter(services::SharedPtr<weak_learner::training::Batch> wlTrainForParameter,
+                              services::SharedPtr<weak_learner::prediction::Batch> wlPredictForParameter, double acc = 0.3, size_t maxIter = 10,
+                              double nrAcc = 1.0e-3, size_t nrMaxIter = 100, double dcThreshold = 1.0e-2);
 
-    double accuracyThreshold;       /*!< Accuracy of the BrownBoost training algorithm */
-    size_t maxIterations;           /*!< Maximal number of iterations of the BrownBoost training algorithm */
-    double newtonRaphsonAccuracyThreshold;  /*!< Accuracy threshold for Newton-Raphson iterations in the BrownBoost training algorithm */
-    size_t newtonRaphsonMaxIterations;      /*!< Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm */
-    double degenerateCasesThreshold;        /*!< Threshold needed to avoid degenerate cases in the BrownBoost training algorithm */
+    double accuracyThreshold;              /*!< Accuracy of the BrownBoost training algorithm */
+    size_t maxIterations;                  /*!< Maximal number of iterations of the BrownBoost training algorithm */
+    double newtonRaphsonAccuracyThreshold; /*!< Accuracy threshold for Newton-Raphson iterations in the BrownBoost training algorithm */
+    size_t newtonRaphsonMaxIterations;     /*!< Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm */
+    double degenerateCasesThreshold;       /*!< Threshold needed to avoid degenerate cases in the BrownBoost training algorithm */
 
     DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
@@ -113,8 +112,7 @@ public:
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    DAAL_DEPRECATED Model() : boosting::Model(), _alpha() { }
-
+    DAAL_DEPRECATED Model() : boosting::Model(), _alpha() {}
 
     /**
      * Constructs the BrownBoost model
@@ -122,10 +120,10 @@ public:
      * \param[in]  nFeatures Number of features in the dataset
      * \param[out] stat      Status of the model construction
      */
-    template<typename modelFPType>
-    DAAL_EXPORT DAAL_DEPRECATED static services::SharedPtr<Model> create(size_t nFeatures, services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT DAAL_DEPRECATED static services::SharedPtr<Model> create(size_t nFeatures, services::Status * stat = NULL);
 
-    DAAL_DEPRECATED_VIRTUAL virtual ~Model() { }
+    DAAL_DEPRECATED_VIRTUAL virtual ~Model() {}
 
     /**
      *  Returns a pointer to the array of weights of weak learners constructed
@@ -136,21 +134,20 @@ public:
     DAAL_DEPRECATED data_management::NumericTablePtr getAlpha();
 
 protected:
-    data_management::NumericTablePtr _alpha;     /* Boosting coefficients table */
+    data_management::NumericTablePtr _alpha; /* Boosting coefficients table */
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st = boosting::Model::serialImpl<Archive, onDeserialize>(arch);
-        if (!st)
-            return st;
+        if (!st) return st;
         arch->setSharedPtrObj(_alpha);
 
         return st;
     }
 
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status &st);
+    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status & st);
 
 }; // class Model
 typedef services::SharedPtr<Model> ModelPtr;
@@ -188,17 +185,17 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter
      * \param[in] nrMaxIter                 Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm
      * \param[in] dcThreshold               Threshold needed  to avoid degenerate cases in the BrownBoost training algorithm
      */
-    Parameter(services::SharedPtr<classifier::training::Batch>   wlTrainForParameter,
-              services::SharedPtr<classifier::prediction::Batch> wlPredictForParameter,
-              double acc = 0.3, size_t maxIter = 10, double nrAcc = 1.0e-3, size_t nrMaxIter = 100, double dcThreshold = 1.0e-2);
+    Parameter(services::SharedPtr<classifier::training::Batch> wlTrainForParameter,
+              services::SharedPtr<classifier::prediction::Batch> wlPredictForParameter, double acc = 0.3, size_t maxIter = 10, double nrAcc = 1.0e-3,
+              size_t nrMaxIter = 100, double dcThreshold = 1.0e-2);
 
-    services::SharedPtr<classifier::training::Batch>   weakLearnerTraining; /*!< The algorithm for weak learner model training */
+    services::SharedPtr<classifier::training::Batch> weakLearnerTraining;     /*!< The algorithm for weak learner model training */
     services::SharedPtr<classifier::prediction::Batch> weakLearnerPrediction; /*!< The algorithm for prediction based on a weak learner model */
-    double accuracyThreshold;       /*!< Accuracy of the BrownBoost training algorithm */
-    size_t maxIterations;           /*!< Maximal number of iterations of the BrownBoost training algorithm */
-    double newtonRaphsonAccuracyThreshold;  /*!< Accuracy threshold for Newton-Raphson iterations in the BrownBoost training algorithm */
-    size_t newtonRaphsonMaxIterations;      /*!< Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm */
-    double degenerateCasesThreshold;        /*!< Threshold needed to avoid degenerate cases in the BrownBoost training algorithm */
+    double accuracyThreshold;                                                 /*!< Accuracy of the BrownBoost training algorithm */
+    size_t maxIterations;                  /*!< Maximal number of iterations of the BrownBoost training algorithm */
+    double newtonRaphsonAccuracyThreshold; /*!< Accuracy threshold for Newton-Raphson iterations in the BrownBoost training algorithm */
+    size_t newtonRaphsonMaxIterations;     /*!< Maximal number of Newton-Raphson iterations in the BrownBoost training algorithm */
+    double degenerateCasesThreshold;       /*!< Threshold needed to avoid degenerate cases in the BrownBoost training algorithm */
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
@@ -230,8 +227,7 @@ public:
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model(size_t nFeatures = 0) : _models(new data_management::DataCollection()), _nFeatures(nFeatures), _alpha() { }
-
+    Model(size_t nFeatures = 0) : _models(new data_management::DataCollection()), _nFeatures(nFeatures), _alpha() {}
 
     /**
      * Constructs the BrownBoost model
@@ -239,10 +235,10 @@ public:
      * \param[in]  nFeatures Number of features in the dataset
      * \param[out] stat      Status of the model construction
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, services::Status * stat = NULL);
 
-    virtual ~Model() { }
+    virtual ~Model() {}
 
     /**
      *  Returns the number of weak learners constructed during training of the BrownBoost algorithm
@@ -285,10 +281,10 @@ public:
 protected:
     size_t _nFeatures;
     data_management::DataCollectionPtr _models;
-    data_management::NumericTablePtr _alpha;     /* Boosting coefficients table */
+    data_management::NumericTablePtr _alpha; /* Boosting coefficients table */
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st;
         DAAL_CHECK_STATUS(st, (classifier::Model::serialImpl<Archive, onDeserialize>(arch)));
@@ -300,7 +296,7 @@ protected:
     }
 
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status &st);
+    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status & st);
 
 }; // class Model
 typedef services::SharedPtr<Model> ModelPtr;
@@ -310,7 +306,7 @@ using interface2::Parameter;
 using interface2::Model;
 using interface2::ModelPtr;
 
-} // namespace daal::algorithms::brownboost
-}
+} // namespace brownboost
+} // namespace algorithms
 } // namespace daal
 #endif

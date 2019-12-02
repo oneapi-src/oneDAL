@@ -36,7 +36,6 @@ namespace dbscan
 {
 namespace interface1
 {
-
 DistributedInput<step1Local>::DistributedInput() : daal::algorithms::Input(lastStep1LocalNumericTableInputId + 1) {}
 
 /**
@@ -54,7 +53,7 @@ NumericTablePtr DistributedInput<step1Local>::get(Step1LocalNumericTableInputId 
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step1Local>::set(Step1LocalNumericTableInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step1Local>::set(Step1LocalNumericTableInputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -64,9 +63,9 @@ void DistributedInput<step1Local>::set(Step1LocalNumericTableInputId id, const N
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step1Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step1Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
     DAAL_CHECK_EX(par->nBlocks > 0, ErrorIncorrectParameter, ParameterName, nBlocksStr());
     DAAL_CHECK_EX(par->blockIndex < par->nBlocks, ErrorIncorrectParameter, ParameterName, blockIndexStr());
 
@@ -74,7 +73,6 @@ services::Status DistributedInput<step1Local>::check(const daal::algorithms::Par
 
     return services::Status();
 }
-
 
 DistributedInput<step2Local>::DistributedInput() : daal::algorithms::Input(lastLocalCollectionInputId + 1) {}
 
@@ -93,7 +91,7 @@ DataCollectionPtr DistributedInput<step2Local>::get(LocalCollectionInputId id) c
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step2Local>::set(LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step2Local>::set(LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -103,12 +101,18 @@ void DistributedInput<step2Local>::set(LocalCollectionInputId id, const DataColl
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step2Local>::add(LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step2Local>::add(LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -117,7 +121,7 @@ void DistributedInput<step2Local>::add(LocalCollectionInputId id, const NumericT
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step2Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step2Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DataCollectionPtr dcPartialData = get(partialData);
     DAAL_CHECK_EX(dcPartialData, ErrorNullInputDataCollection, ArgumentName, partialDataStr());
@@ -142,7 +146,6 @@ services::Status DistributedInput<step2Local>::check(const daal::algorithms::Par
 
     return services::Status();
 }
-
 
 DistributedInput<step3Local>::DistributedInput() : daal::algorithms::Input(lastStep3LocalCollectionInputId + 1) {}
 
@@ -171,7 +174,7 @@ DataCollectionPtr DistributedInput<step3Local>::get(Step3LocalCollectionInputId 
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step3Local>::set(LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step3Local>::set(LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -181,7 +184,7 @@ void DistributedInput<step3Local>::set(LocalCollectionInputId id, const DataColl
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step3Local>::set(Step3LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step3Local>::set(Step3LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -191,12 +194,18 @@ void DistributedInput<step3Local>::set(Step3LocalCollectionInputId id, const Dat
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step3Local>::add(LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step3Local>::add(LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -205,12 +214,18 @@ void DistributedInput<step3Local>::add(LocalCollectionInputId id, const NumericT
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step3Local>::add(Step3LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step3Local>::add(Step3LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -219,9 +234,9 @@ void DistributedInput<step3Local>::add(Step3LocalCollectionInputId id, const Num
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step3Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step3Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     DAAL_CHECK_EX(par->leftBlocks > 0, ErrorIncorrectParameter, ParameterName, leftBlocksStr());
     DAAL_CHECK_EX(par->rightBlocks > 0, ErrorIncorrectParameter, ParameterName, rightBlocksStr());
@@ -266,7 +281,6 @@ services::Status DistributedInput<step3Local>::check(const daal::algorithms::Par
     return services::Status();
 }
 
-
 DistributedInput<step4Local>::DistributedInput() : daal::algorithms::Input(lastStep4LocalCollectionInputId + 1) {}
 
 /**
@@ -294,7 +308,7 @@ DataCollectionPtr DistributedInput<step4Local>::get(Step4LocalCollectionInputId 
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step4Local>::set(LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step4Local>::set(LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -304,7 +318,7 @@ void DistributedInput<step4Local>::set(LocalCollectionInputId id, const DataColl
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step4Local>::set(Step4LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step4Local>::set(Step4LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -314,12 +328,18 @@ void DistributedInput<step4Local>::set(Step4LocalCollectionInputId id, const Dat
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step4Local>::add(LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step4Local>::add(LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -328,12 +348,18 @@ void DistributedInput<step4Local>::add(LocalCollectionInputId id, const NumericT
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step4Local>::add(Step4LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step4Local>::add(Step4LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -342,16 +368,16 @@ void DistributedInput<step4Local>::add(Step4LocalCollectionInputId id, const Num
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step4Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step4Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     DAAL_CHECK_EX(par->leftBlocks > 0, ErrorIncorrectParameter, ParameterName, leftBlocksStr());
     DAAL_CHECK_EX(par->rightBlocks > 0, ErrorIncorrectParameter, ParameterName, rightBlocksStr());
 
     const size_t nBlocks = par->leftBlocks + par->rightBlocks;
 
-    DataCollectionPtr dcPartialData = get(partialData);
+    DataCollectionPtr dcPartialData   = get(partialData);
     DataCollectionPtr dcPartialOrders = get(step4PartialOrders);
     DAAL_CHECK_EX(dcPartialData, ErrorNullInputDataCollection, ArgumentName, partialDataStr());
     DAAL_CHECK_EX(dcPartialOrders, ErrorNullInputDataCollection, ArgumentName, step4PartialOrdersStr());
@@ -399,7 +425,6 @@ services::Status DistributedInput<step4Local>::check(const daal::algorithms::Par
     return services::Status();
 }
 
-
 DistributedInput<step5Local>::DistributedInput() : daal::algorithms::Input(lastStep5LocalCollectionInputId + 1) {}
 
 /**
@@ -427,7 +452,7 @@ DataCollectionPtr DistributedInput<step5Local>::get(Step5LocalCollectionInputId 
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step5Local>::set(LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step5Local>::set(LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -437,7 +462,7 @@ void DistributedInput<step5Local>::set(LocalCollectionInputId id, const DataColl
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step5Local>::set(Step5LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step5Local>::set(Step5LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -447,12 +472,18 @@ void DistributedInput<step5Local>::set(Step5LocalCollectionInputId id, const Dat
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step5Local>::add(LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step5Local>::add(LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -461,12 +492,18 @@ void DistributedInput<step5Local>::add(LocalCollectionInputId id, const NumericT
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step5Local>::add(Step5LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step5Local>::add(Step5LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -475,9 +512,9 @@ void DistributedInput<step5Local>::add(Step5LocalCollectionInputId id, const Num
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step5Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step5Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     DAAL_CHECK_EX(par->nBlocks > 0, ErrorIncorrectParameter, ParameterName, nBlocksStr());
     DAAL_CHECK_EX(par->blockIndex < par->nBlocks, ErrorIncorrectParameter, ParameterName, blockIndexStr());
@@ -522,7 +559,6 @@ services::Status DistributedInput<step5Local>::check(const daal::algorithms::Par
     return services::Status();
 }
 
-
 DistributedInput<step6Local>::DistributedInput() : daal::algorithms::Input(lastStep6LocalCollectionInputId + 1) {}
 
 /**
@@ -550,7 +586,7 @@ DataCollectionPtr DistributedInput<step6Local>::get(Step6LocalCollectionInputId 
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step6Local>::set(LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step6Local>::set(LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -560,7 +596,7 @@ void DistributedInput<step6Local>::set(LocalCollectionInputId id, const DataColl
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step6Local>::set(Step6LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step6Local>::set(Step6LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -570,12 +606,18 @@ void DistributedInput<step6Local>::set(Step6LocalCollectionInputId id, const Dat
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step6Local>::add(LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step6Local>::add(LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -584,12 +626,18 @@ void DistributedInput<step6Local>::add(LocalCollectionInputId id, const NumericT
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step6Local>::add(Step6LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step6Local>::add(Step6LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -598,9 +646,9 @@ void DistributedInput<step6Local>::add(Step6LocalCollectionInputId id, const Num
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step6Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step6Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     DAAL_CHECK_STATUS_VAR(par->check());
     DAAL_CHECK_EX(par->nBlocks > 0, ErrorIncorrectParameter, ParameterName, nBlocksStr());
@@ -627,9 +675,9 @@ services::Status DistributedInput<step6Local>::check(const daal::algorithms::Par
         DAAL_CHECK_STATUS_VAR(checkNumericTable(ntPartialData.get(), partialDataStr(), 0, 0, nFeatures, 0));
     }
 
-    DataCollectionPtr dcHaloData = get(haloData);
+    DataCollectionPtr dcHaloData        = get(haloData);
     DataCollectionPtr dcHaloDataIndices = get(haloDataIndices);
-    DataCollectionPtr dcHaloBlocks = get(haloBlocks);
+    DataCollectionPtr dcHaloBlocks      = get(haloBlocks);
     DAAL_CHECK_EX(dcHaloData, ErrorNullInputDataCollection, ArgumentName, haloDataStr());
     DAAL_CHECK_EX(dcHaloDataIndices, ErrorNullInputDataCollection, ArgumentName, haloDataIndicesStr());
     DAAL_CHECK_EX(dcHaloBlocks, ErrorNullInputDataCollection, ArgumentName, haloBlocksStr());
@@ -661,7 +709,6 @@ services::Status DistributedInput<step6Local>::check(const daal::algorithms::Par
     return services::Status();
 }
 
-
 DistributedInput<step7Master>::DistributedInput() : daal::algorithms::Input(lastStep7MasterCollectionInputId + 1) {}
 
 /**
@@ -679,7 +726,7 @@ DataCollectionPtr DistributedInput<step7Master>::get(Step7MasterCollectionInputI
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step7Master>::set(Step7MasterCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step7Master>::set(Step7MasterCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -689,12 +736,18 @@ void DistributedInput<step7Master>::set(Step7MasterCollectionInputId id, const D
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step7Master>::add(Step7MasterCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step7Master>::add(Step7MasterCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -703,7 +756,7 @@ void DistributedInput<step7Master>::add(Step7MasterCollectionInputId id, const N
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step7Master>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step7Master>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DataCollectionPtr dcFinishedFlags = get(partialFinishedFlags);
     DAAL_CHECK_EX(dcFinishedFlags, ErrorNullInputDataCollection, ArgumentName, partialFinishedFlagsStr());
@@ -723,7 +776,6 @@ services::Status DistributedInput<step7Master>::check(const daal::algorithms::Pa
 
     return services::Status();
 }
-
 
 DistributedInput<step8Local>::DistributedInput() : daal::algorithms::Input(lastStep8LocalCollectionInputId + 1) {}
 
@@ -752,7 +804,7 @@ DataCollectionPtr DistributedInput<step8Local>::get(Step8LocalCollectionInputId 
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step8Local>::set(Step8LocalNumericTableInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step8Local>::set(Step8LocalNumericTableInputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -762,7 +814,7 @@ void DistributedInput<step8Local>::set(Step8LocalNumericTableInputId id, const N
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step8Local>::set(Step8LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step8Local>::set(Step8LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -772,12 +824,18 @@ void DistributedInput<step8Local>::set(Step8LocalCollectionInputId id, const Dat
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step8Local>::add(Step8LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step8Local>::add(Step8LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -786,9 +844,9 @@ void DistributedInput<step8Local>::add(Step8LocalCollectionInputId id, const Num
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step8Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step8Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     DAAL_CHECK_STATUS_VAR(par->check());
     DAAL_CHECK_EX(par->nBlocks > 0, ErrorIncorrectParameter, ParameterName, nBlocksStr());
@@ -828,7 +886,6 @@ services::Status DistributedInput<step8Local>::check(const daal::algorithms::Par
     return services::Status();
 }
 
-
 DistributedInput<step9Master>::DistributedInput() : daal::algorithms::Input(lastStep9MasterCollectionInputId + 1) {}
 
 /**
@@ -846,7 +903,7 @@ DataCollectionPtr DistributedInput<step9Master>::get(Step9MasterCollectionInputI
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step9Master>::set(Step9MasterCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step9Master>::set(Step9MasterCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -856,12 +913,18 @@ void DistributedInput<step9Master>::set(Step9MasterCollectionInputId id, const D
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step9Master>::add(Step9MasterCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step9Master>::add(Step9MasterCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -870,7 +933,7 @@ void DistributedInput<step9Master>::add(Step9MasterCollectionInputId id, const N
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step9Master>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step9Master>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DataCollectionPtr dcNClusters = get(partialNClusters);
     DAAL_CHECK_EX(dcNClusters, ErrorNullInputDataCollection, ArgumentName, partialNClustersStr());
@@ -891,7 +954,6 @@ services::Status DistributedInput<step9Master>::check(const daal::algorithms::Pa
     return services::Status();
 }
 
-
 DistributedInput<step10Local>::DistributedInput() : daal::algorithms::Input(lastStep10LocalNumericTableInputId + 1) {}
 
 /**
@@ -909,7 +971,7 @@ NumericTablePtr DistributedInput<step10Local>::get(Step10LocalNumericTableInputI
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step10Local>::set(Step10LocalNumericTableInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step10Local>::set(Step10LocalNumericTableInputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -919,9 +981,9 @@ void DistributedInput<step10Local>::set(Step10LocalNumericTableInputId id, const
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step10Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step10Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     DAAL_CHECK_STATUS_VAR(par->check());
     DAAL_CHECK_EX(par->nBlocks > 0, ErrorIncorrectParameter, ParameterName, nBlocksStr());
@@ -945,7 +1007,6 @@ services::Status DistributedInput<step10Local>::check(const daal::algorithms::Pa
 
     return services::Status();
 }
-
 
 DistributedInput<step11Local>::DistributedInput() : daal::algorithms::Input(lastStep11LocalCollectionInputId + 1) {}
 
@@ -974,7 +1035,7 @@ DataCollectionPtr DistributedInput<step11Local>::get(Step11LocalCollectionInputI
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step11Local>::set(Step11LocalNumericTableInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step11Local>::set(Step11LocalNumericTableInputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -984,7 +1045,7 @@ void DistributedInput<step11Local>::set(Step11LocalNumericTableInputId id, const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step11Local>::set(Step11LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step11Local>::set(Step11LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -994,12 +1055,18 @@ void DistributedInput<step11Local>::set(Step11LocalCollectionInputId id, const D
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step11Local>::add(Step11LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step11Local>::add(Step11LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -1008,9 +1075,9 @@ void DistributedInput<step11Local>::add(Step11LocalCollectionInputId id, const N
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step11Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step11Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     DAAL_CHECK_STATUS_VAR(par->check());
     DAAL_CHECK_EX(par->nBlocks > 0, ErrorIncorrectParameter, ParameterName, nBlocksStr());
@@ -1042,7 +1109,6 @@ services::Status DistributedInput<step11Local>::check(const daal::algorithms::Pa
     return services::Status();
 }
 
-
 DistributedInput<step12Local>::DistributedInput() : daal::algorithms::Input(lastStep12LocalCollectionInputId + 1) {}
 
 /**
@@ -1070,7 +1136,7 @@ DataCollectionPtr DistributedInput<step12Local>::get(Step12LocalCollectionInputI
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step12Local>::set(Step12LocalNumericTableInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step12Local>::set(Step12LocalNumericTableInputId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -1080,7 +1146,7 @@ void DistributedInput<step12Local>::set(Step12LocalNumericTableInputId id, const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step12Local>::set(Step12LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step12Local>::set(Step12LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -1090,12 +1156,18 @@ void DistributedInput<step12Local>::set(Step12LocalCollectionInputId id, const D
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step12Local>::add(Step12LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step12Local>::add(Step12LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -1104,9 +1176,9 @@ void DistributedInput<step12Local>::add(Step12LocalCollectionInputId id, const N
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step12Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step12Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
 
     DAAL_CHECK_STATUS_VAR(par->check());
     DAAL_CHECK_EX(par->nBlocks > 0, ErrorIncorrectParameter, ParameterName, nBlocksStr());
@@ -1139,7 +1211,6 @@ services::Status DistributedInput<step12Local>::check(const daal::algorithms::Pa
     return services::Status();
 }
 
-
 DistributedInput<step13Local>::DistributedInput() : daal::algorithms::Input(lastStep13LocalCollectionInputId + 1) {}
 
 /**
@@ -1157,7 +1228,7 @@ DataCollectionPtr DistributedInput<step13Local>::get(Step13LocalCollectionInputI
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step13Local>::set(Step13LocalCollectionInputId id, const DataCollectionPtr &ptr)
+void DistributedInput<step13Local>::set(Step13LocalCollectionInputId id, const DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -1167,12 +1238,18 @@ void DistributedInput<step13Local>::set(Step13LocalCollectionInputId id, const D
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void DistributedInput<step13Local>::add(Step13LocalCollectionInputId id, const NumericTablePtr &ptr)
+void DistributedInput<step13Local>::add(Step13LocalCollectionInputId id, const NumericTablePtr & ptr)
 {
     data_management::DataCollectionPtr collection =
-            services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
-    if (!collection) { return; }
-    if (!ptr)        { return; }
+        services::staticPointerCast<data_management::DataCollection, data_management::SerializationIface>(Argument::get(id));
+    if (!collection)
+    {
+        return;
+    }
+    if (!ptr)
+    {
+        return;
+    }
     collection->push_back(ptr);
 }
 
@@ -1181,7 +1258,7 @@ void DistributedInput<step13Local>::add(Step13LocalCollectionInputId id, const N
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status DistributedInput<step13Local>::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status DistributedInput<step13Local>::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     DataCollectionPtr dcAssignmentQueries = get(partialAssignmentQueries);
     DAAL_CHECK_EX(dcAssignmentQueries, ErrorNullInputDataCollection, ArgumentName, partialAssignmentQueriesStr());
@@ -1201,8 +1278,7 @@ services::Status DistributedInput<step13Local>::check(const daal::algorithms::Pa
     return services::Status();
 }
 
-
-}// namespace interface1
-}// namespace dbscan
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace dbscan
+} // namespace algorithms
+} // namespace daal

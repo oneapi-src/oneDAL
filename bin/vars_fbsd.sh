@@ -52,13 +52,8 @@ set_daal_env() {
         ia32|intel64)
             export DAALROOT=$__daal_tmp_dir
             export CPATH=$__daal_tmp_dir/include${CPATH+:${CPATH}}
-            if [ -z "$TBBROOT" ]; then
-                export LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre:$__daal_tmp_dir/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4${LIBRARY_PATH+:${LIBRARY_PATH}}
-                export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre:$__daal_tmp_dir/../tbb/lib/${__daal_tmp_target_arch}_fre/gcc4.4${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-            else
-                export LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre${LIBRARY_PATH+:${LIBRARY_PATH}}
-                export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
-            fi
+            export LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre${LIBRARY_PATH+:${LIBRARY_PATH}}
+            export LD_LIBRARY_PATH=$__daal_tmp_dir/lib/${__daal_tmp_target_arch}_fre${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}
             export CLASSPATH=$__daal_tmp_dir/lib/daal.jar${CLASSPATH+:${CLASSPATH}}
             ;;
         *) daal_help

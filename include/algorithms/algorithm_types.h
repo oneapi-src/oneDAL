@@ -44,7 +44,6 @@ namespace daal
  */
 namespace algorithms
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -63,7 +62,7 @@ struct Parameter
 {
     DAAL_NEW_DELETE();
 
-    Parameter(){}
+    Parameter() {}
     virtual ~Parameter() {}
 
     virtual services::Status check() const { return services::Status(); }
@@ -94,7 +93,7 @@ public:
      * \param[in] val   Element to insert
      * \return Updated argument structure
      */
-    Argument &operator <<(const data_management::SerializationIfacePtr &val)
+    Argument & operator<<(const data_management::SerializationIfacePtr & val)
     {
         (*_storage) << val;
         return *this;
@@ -104,24 +103,21 @@ public:
      * Retrieves number of elements in the argument
      * \return  Number of elements in the argument
      */
-    size_t size() const
-    {
-        return _storage->size();
-    }
+    size_t size() const { return _storage->size(); }
 
 protected:
     /**
     * Copy constructor
     * \param[in] other Instance of the same class to copy
     */
-    Argument(const Argument& other);
+    Argument(const Argument & other);
 
     /**
      * Retrieves specified element
      * \param[in] index Index of the element
      * \return Reference to the requested element
      */
-    const data_management::SerializationIfacePtr &get(size_t index) const;
+    const data_management::SerializationIfacePtr & get(size_t index) const;
 
     /**
      * Sets the element to the specified position in the Argument
@@ -129,29 +125,28 @@ protected:
      * \param[in] value Pointer to the element
      * \return Reference to the requested element
      */
-    void set(size_t index, const data_management::SerializationIfacePtr &value);
+    void set(size_t index, const data_management::SerializationIfacePtr & value);
 
     /**
     * Sets the custom storage in the Argument
     * \param[in] storage custom defined storage
     */
-    void setStorage(const data_management::DataCollectionPtr& storage);
+    void setStorage(const data_management::DataCollectionPtr & storage);
 
     /**
     * Gets the storage in the Argument
     * \return Storage
     */
-    static data_management::DataCollectionPtr& getStorage(Argument& a);
+    static data_management::DataCollectionPtr & getStorage(Argument & a);
 
     /**
     * Gets the const storage in the Argument
     * \return Storage
     */
-    static const data_management::DataCollectionPtr& getStorage(const Argument& a);
+    static const data_management::DataCollectionPtr & getStorage(const Argument & a);
 
-
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         arch->set(idx);
         arch->setObj(_storage.get());
@@ -211,14 +206,14 @@ public:
      * \param[in] parameter     Pointer to the parameters of the algorithm
      * \param[in] method        Computation method
      */
-    virtual services::Status check(const Parameter *parameter, int method) const { return services::Status(); }
+    virtual services::Status check(const Parameter * parameter, int method) const { return services::Status(); }
 
 protected:
     /**
     * Copy constructor
     * \param[in] other Instance of the same class to copy
     */
-    Input(const Input& other) : Argument(other){}
+    Input(const Input & other) : Argument(other) {}
 };
 
 /**
@@ -265,25 +260,22 @@ public:
      * \param[in] parameter     Pointer to the parameters of the algorithm
      * \param[in] method        Computation method
      */
-    virtual services::Status check(const Input *input, const Parameter *parameter, int method) const
-    {
-        return services::Status();
-    }
+    virtual services::Status check(const Input * input, const Parameter * parameter, int method) const { return services::Status(); }
 
     /**
     * Checks the correctness of the partial results structure
     * \param[in] parameter     Pointer to the parameters of the algorithm
     * \param[in] method        Computation method
     */
-    virtual services::Status check(const Parameter *parameter, int method) const { return services::Status(); }
+    virtual services::Status check(const Parameter * parameter, int method) const { return services::Status(); }
 
 private:
     bool _initFlag;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         Argument::serialImpl<Archive, onDeserialize>(arch);
 
@@ -291,14 +283,8 @@ protected:
 
         return services::Status();
     }
-    virtual services::Status serializeImpl(data_management::InputDataArchive *archive)
-    {
-        return services::Status();
-    }
-    virtual services::Status deserializeImpl(const data_management::OutputDataArchive *archive)
-    {
-        return services::Status();
-    }
+    virtual services::Status serializeImpl(data_management::InputDataArchive * archive) { return services::Status(); }
+    virtual services::Status deserializeImpl(const data_management::OutputDataArchive * archive) { return services::Status(); }
 };
 
 /**
@@ -333,10 +319,7 @@ public:
      * \param[in] parameter     Pointer to the parameters of the algorithm
      * \param[in] method        Computation method
      */
-    virtual services::Status check(const Input *input, const Parameter *parameter,  int method) const
-    {
-        return services::Status();
-    }
+    virtual services::Status check(const Input * input, const Parameter * parameter, int method) const { return services::Status(); }
 
     /**
     * Checks the correctness of the partial result structure
@@ -344,29 +327,19 @@ public:
     * \param[in] parameter     Pointer to the parameters of the algorithm
     * \param[in] method        Computation method
     */
-    virtual services::Status check(const PartialResult *partialResult, const Parameter *parameter, int method) const
-    {
-        return services::Status();
-    }
-
+    virtual services::Status check(const PartialResult * partialResult, const Parameter * parameter, int method) const { return services::Status(); }
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         Argument::serialImpl<Archive, onDeserialize>(arch);
 
         return services::Status();
     }
-    virtual services::Status serializeImpl(data_management::InputDataArchive *archive)
-    {
-        return services::Status();
-    }
-    virtual services::Status deserializeImpl(const data_management::OutputDataArchive *archive)
-    {
-        return services::Status();
-    }
+    virtual services::Status serializeImpl(data_management::InputDataArchive * archive) { return services::Status(); }
+    virtual services::Status deserializeImpl(const data_management::OutputDataArchive * archive) { return services::Status(); }
 };
 
 /**
@@ -392,7 +365,7 @@ public:
     * \param[in] index Index of the element
     * \return Reference to the requested element
     */
-    const data_management::SerializationIfacePtr &get(size_t index) const { return SerializableArgument::get(index); }
+    const data_management::SerializationIfacePtr & get(size_t index) const { return SerializableArgument::get(index); }
 
     /**
     * Sets the element to the specified position in the Argument
@@ -400,26 +373,26 @@ public:
     * \param[in] value Pointer to the element
     * \return Reference to the requested element
     */
-    void set(size_t index, const data_management::SerializationIfacePtr &value) { return SerializableArgument::set(index, value); }
+    void set(size_t index, const data_management::SerializationIfacePtr & value) { return SerializableArgument::set(index, value); }
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         Argument::serialImpl<Archive, onDeserialize>(arch);
 
         return services::Status();
     }
 
-    services::Status serializeImpl(data_management::InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         serialImpl<data_management::InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         serialImpl<const data_management::OutputDataArchive, true>(arch);
 
@@ -444,6 +417,6 @@ using interface1::ResultPtr;
 using interface1::OptionalArgument;
 using interface1::OptionalArgumentPtr;
 
-}
-}
+} // namespace algorithms
+} // namespace daal
 #endif

@@ -20,15 +20,13 @@
 //
 //--
 
-
 #include "zscore_batch_container_v1.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(normalization::zscore::interface1::BatchContainer, batch, DAAL_FPTYPE,
-                                      normalization::zscore::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(normalization::zscore::interface1::BatchContainer, batch, DAAL_FPTYPE, normalization::zscore::defaultDense)
 
 }
 } // namespace daal

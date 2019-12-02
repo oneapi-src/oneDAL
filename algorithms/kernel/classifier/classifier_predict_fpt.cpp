@@ -32,12 +32,10 @@ namespace classifier
 {
 namespace prediction
 {
-
 using namespace daal::data_management;
 
 namespace interface2
 {
-
 /**
  * Allocates memory for storing prediction results of the classification algorithm
  * \tparam  algorithmFPType     Data type for storing prediction results
@@ -46,19 +44,19 @@ namespace interface2
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     services::Status st;
-    const Parameter *par = static_cast<const Parameter *>(parameter);
+    const Parameter * par = static_cast<const Parameter *>(parameter);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
-    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
-    const size_t nRows = (static_cast<const InputIface *>(input))->getNumberOfRows();
+    const size_t nRows    = (static_cast<const InputIface *>(input))->getNumberOfRows();
     const size_t nClasses = par->nClasses;
 
-    if(par->resultsToEvaluate & computeClassLabels)
+    if (par->resultsToEvaluate & computeClassLabels)
     {
         data_management::NumericTablePtr nt;
         if (deviceInfo.isCpu)
@@ -68,7 +66,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
 
         set(prediction, nt);
     }
-    if(par->resultsToEvaluate & computeClassProbabilities)
+    if (par->resultsToEvaluate & computeClassProbabilities)
     {
         data_management::NumericTablePtr nt;
         if (deviceInfo.isCpu)
@@ -78,7 +76,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
 
         set(probabilities, nt);
     }
-    if(par->resultsToEvaluate & computeClassLogProbabilities)
+    if (par->resultsToEvaluate & computeClassLogProbabilities)
     {
         data_management::NumericTablePtr nt;
         if (deviceInfo.isCpu)
@@ -91,12 +89,12 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return st;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par,
-        const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
-}
+} // namespace interface2
 
-}
-}
-}
-}
+} // namespace prediction
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal

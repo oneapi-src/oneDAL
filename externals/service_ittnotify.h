@@ -25,94 +25,80 @@
 #define __SERVICE_ITTNOTIFY_H__
 
 #ifdef __DAAL_ITTNOTIFY_ENABLE__
-  #include <ittnotify.h>
+    #include <ittnotify.h>
 
-  namespace daal
-  {
-  namespace internal
-  {
-  namespace ittnotify
-  {
+namespace daal
+{
+namespace internal
+{
+namespace ittnotify
+{
+class Domain
+{
+public:
+    explicit Domain(const char * name) : _itt_domain(__itt_domain_create(name)) {}
 
-  class Domain
-  {
-  public:
-    explicit Domain(const char* name)
-      : _itt_domain( __itt_domain_create(name) ) { }
+    __itt_domain * Get() const { return _itt_domain; }
 
-    __itt_domain *Get() const { return _itt_domain; }
+private:
+    __itt_domain * _itt_domain;
+};
 
-  private:
-    __itt_domain* _itt_domain;
-  };
+class StringHandle
+{
+public:
+    explicit StringHandle(const char * name) : _handle(__itt_string_handle_create(name)) {}
 
-  class StringHandle
-  {
-  public:
-    explicit StringHandle(const char* name)
-      : _handle( __itt_string_handle_create(name) ) { }
+    __itt_string_handle * Get() const { return _handle; }
 
-    __itt_string_handle *Get() const { return _handle; }
+private:
+    __itt_string_handle * _handle;
+};
 
-  private:
-    __itt_string_handle* _handle;
-  };
-
-  inline void Pause()
-  {
+inline void Pause()
+{
     __itt_pause();
-  }
+}
 
-  inline void Resume()
-  {
+inline void Resume()
+{
     __itt_resume();
-  }
+}
 
-  inline void TaskBegin(const Domain& domain, const StringHandle& handle)
-  {
-    __itt_task_begin(domain.Get(),
-                    __itt_null,
-                    __itt_null,
-                    handle.Get());
-  }
+inline void TaskBegin(const Domain & domain, const StringHandle & handle)
+{
+    __itt_task_begin(domain.Get(), __itt_null, __itt_null, handle.Get());
+}
 
-  inline void TaskEnd(const Domain& domain)
-  {
+inline void TaskEnd(const Domain & domain)
+{
     __itt_task_end(domain.Get());
-  }
+}
 
-  class ScopedTask
-  {
-  public:
-    ScopedTask(const Domain& domain, const StringHandle& handle)
-      : _domain(domain)
-    {
-      TaskBegin(domain, handle);
-    }
+class ScopedTask
+{
+public:
+    ScopedTask(const Domain & domain, const StringHandle & handle) : _domain(domain) { TaskBegin(domain, handle); }
 
-    ~ScopedTask()
-    {
-      TaskEnd(_domain);
-    }
+    ~ScopedTask() { TaskEnd(_domain); }
 
-  private:
-    const Domain& _domain;
-  };
+private:
+    const Domain & _domain;
+};
 
-  } // namespace ittnotify
-  } // namespace internal
-  } // namespace daal
+} // namespace ittnotify
+} // namespace internal
+} // namespace daal
 
-  // There must be only one domain on the translation unit regarding to this macro
-  #define DAAL_ITTNOTIFY_DOMAIN(name) \
-    static daal::internal::ittnotify::Domain __ittnotify_domain(#name)
+    // There must be only one domain on the translation unit regarding to this macro
+    #define DAAL_ITTNOTIFY_DOMAIN(name) static daal::internal::ittnotify::Domain __ittnotify_domain(#name)
 
-  #define DAAL_ITTNOTIFY_SCOPED_TASK(name) \
-    static daal::internal::ittnotify::StringHandle __ittnotify_stringhandle(#name); \
-    daal::internal::ittnotify::ScopedTask __ittnotify_task(__ittnotify_domain, __ittnotify_stringhandle)
+    #define DAAL_ITTNOTIFY_SCOPED_TASK(name)                                            \
+        static daal::internal::ittnotify::StringHandle __ittnotify_stringhandle(#name); \
+        daal::internal::ittnotify::ScopedTask __ittnotify_task(__ittnotify_domain, __ittnotify_stringhandle)
 #else
-  #define DAAL_ITTNOTIFY_DOMAIN(name)
-  #define DAAL_ITTNOTIFY_SCOPED_TASK(name)
+    #define DAAL_ITTNOTIFY_DOMAIN(name)
+    #define DAAL_ITTNOTIFY_SCOPED_TASK(name)
 
 #endif // __DAAL_ITTNOTIFY_ENABLE__
 

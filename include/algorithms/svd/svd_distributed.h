@@ -36,7 +36,6 @@ namespace algorithms
 {
 namespace svd
 {
-
 namespace interface1
 {
 /**
@@ -53,7 +52,7 @@ namespace interface1
  * \tparam method           Computation method, \ref daal::algorithms::svd::Method
  *
  */
-template<ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
+template <ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer
 {};
 
@@ -65,13 +64,12 @@ class DistributedContainer
  * \tparam method           SVD computation method, \ref daal::algorithms::svd::Method
  *
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public
-    OnlineContainer<algorithmFPType, method, cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step1Local, algorithmFPType, method, cpu> : public OnlineContainer<algorithmFPType, method, cpu>
 {
 public:
     /** Default constructor */
-    DistributedContainer(daal::services::Environment::env *daalEnv) : OnlineContainer<algorithmFPType, method, cpu>(daalEnv) {}
+    DistributedContainer(daal::services::Environment::env * daalEnv) : OnlineContainer<algorithmFPType, method, cpu>(daalEnv) {}
     /** Default destructor */
     virtual ~DistributedContainer() {}
 };
@@ -84,9 +82,8 @@ public:
  * \tparam method           SVD computation method, \ref daal::algorithms::svd::Method
  *
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step2Master, algorithmFPType, method, cpu> :
-    public daal::algorithms::AnalysisContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public daal::algorithms::AnalysisContainerIface<distributed>
 {
 public:
     /**
@@ -94,7 +91,7 @@ public:
      * in the second step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
@@ -117,9 +114,8 @@ public:
  * \tparam method           SVD computation method, \ref daal::algorithms::svd::Method
  *
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step3Local, algorithmFPType, method, cpu> :
-    public daal::algorithms::AnalysisContainerIface<distributed>
+template <typename algorithmFPType, Method method, CpuType cpu>
+class DistributedContainer<step3Local, algorithmFPType, method, cpu> : public daal::algorithms::AnalysisContainerIface<distributed>
 {
 public:
     /**
@@ -127,7 +123,7 @@ public:
      * in the third step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
@@ -154,8 +150,9 @@ public:
  * \par Enumerations
  *      - \ref Method   SVD computation methods
  */
-template<ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Distributed : public daal::algorithms::Analysis<distributed> {};
+template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+class DAAL_EXPORT Distributed : public daal::algorithms::Analysis<distributed>
+{};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__SVD__DISTRIBUTED_STEP1LOCAL_ALGORITHMFPTYPE_METHOD"></a>
@@ -168,15 +165,15 @@ class DAAL_EXPORT Distributed : public daal::algorithms::Analysis<distributed> {
  * \par Enumerations
  *      - \ref Method   Computation methods
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
 {
 public:
     typedef Online<algorithmFPType, method> super;
 
-    typedef typename super::InputType         InputType;
-    typedef typename super::ParameterType     ParameterType;
-    typedef typename super::ResultType        ResultType;
+    typedef typename super::InputType InputType;
+    typedef typename super::ParameterType ParameterType;
+    typedef typename super::ResultType ResultType;
     typedef typename super::PartialResultType PartialResultType;
 
     Distributed() : Online<algorithmFPType, method>() {}
@@ -187,9 +184,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step1Local, algorithmFPType, method> &other) :
-        Online<algorithmFPType, method>(other)
-    {}
+    Distributed(const Distributed<step1Local, algorithmFPType, method> & other) : Online<algorithmFPType, method>(other) {}
 
     /**
      * Returns a pointer to the newly allocated SVD algorithm
@@ -219,22 +214,19 @@ protected:
  * \par Enumerations
  *      - \ref Method   SVD computation methods
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::svd::DistributedStep2Input    InputType;
-    typedef algorithms::svd::Parameter                ParameterType;
-    typedef algorithms::svd::Result                   ResultType;
+    typedef algorithms::svd::DistributedStep2Input InputType;
+    typedef algorithms::svd::Parameter ParameterType;
+    typedef algorithms::svd::Result ResultType;
     typedef algorithms::svd::DistributedPartialResult PartialResultType;
 
     InputType input;         /*!< %DistributedStep2Input data structure */
     ParameterType parameter; /*!< SVD parameters structure */
 
-    Distributed()
-    {
-        initialize();
-    }
+    Distributed() { initialize(); }
 
     /**
      * Constructs a QR decomposition algorithm by copying input objects and parameters
@@ -242,44 +234,35 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Distributed(const Distributed<step2Master, algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results of the SVD algorithm
      * \return Structure that contains computed partial results of the SVD algorithm
      */
-    ResultPtr getResult()
-    {
-        return _partialResult->get(finalResultFromStep2Master);
-    }
+    ResultPtr getResult() { return _partialResult->get(finalResultFromStep2Master); }
 
     /**
      * Returns the structure that contains computed partial results of the SVD algorithm
      * \return Structure that contains computed partial results of the SVD algorithm
      */
-    DistributedPartialResultPtr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultPtr getPartialResult() { return _partialResult; }
 
     /**
      * Registers user-allocated memory to store computed results of the SVD algorithm
      */
-    services::Status setPartialResult(const DistributedPartialResultPtr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultPtr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         DAAL_CHECK(partialRes->get(finalResultFromStep2Master), services::ErrorNullResult)
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -288,8 +271,7 @@ public:
      */
     services::Status checkFinalizeComputeParams() DAAL_C11_OVERRIDE
     {
-        if(!_partialResult)
-            return services::Status(services::ErrorNullResult);
+        if (!_partialResult) return services::Status(services::ErrorNullResult);
         return _partialResult->check(_par, method);
     }
 
@@ -309,13 +291,13 @@ protected:
         return new Distributed<step2Master, algorithmFPType, method>(*this);
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE{ return services::Status(); }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         _partialResult.reset(new PartialResultType());
         services::Status s = _partialResult->allocate<algorithmFPType>(_in, 0, 0);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
@@ -328,8 +310,8 @@ protected:
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, method)(&_env);
-        _in   = &input;
-        _par  = &parameter;
+        _in                        = &input;
+        _par                       = &parameter;
     }
 
 private:
@@ -347,23 +329,19 @@ private:
  * \par Enumerations
  *      - \ref Method   SVD computation methods
  */
-template<typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step3Local, algorithmFPType, method> : public
-    daal::algorithms::Analysis<distributed>
+template <typename algorithmFPType, Method method>
+class DAAL_EXPORT Distributed<step3Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
-    typedef algorithms::svd::DistributedStep3Input         InputType;
-    typedef algorithms::svd::Parameter                     ParameterType;
-    typedef algorithms::svd::Result                        ResultType;
+    typedef algorithms::svd::DistributedStep3Input InputType;
+    typedef algorithms::svd::Parameter ParameterType;
+    typedef algorithms::svd::Result ResultType;
     typedef algorithms::svd::DistributedPartialResultStep3 PartialResultType;
 
     InputType input;         /*!< %DistributedStep3Input data structure */
     ParameterType parameter; /*!< SVD parameters structure */
 
-    Distributed()
-    {
-        initialize();
-    }
+    Distributed() { initialize(); }
 
     /**
      * Constructs an SVD algorithm by copying input objects and parameters
@@ -371,45 +349,36 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step3Local, algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Distributed(const Distributed<step3Local, algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed partial results of the SVD algorithm
      * \return Structure that contains computed partial results of the SVD algorithm
      */
-    ResultPtr getResult()
-    {
-        return _partialResult->get(finalResultFromStep3);
-    }
+    ResultPtr getResult() { return _partialResult->get(finalResultFromStep3); }
 
     /**
      * Returns the structure that contains computed partial results of the SVD algorithm
      * \return Structure that contains computed partial results of the SVD algorithm
      */
-    DistributedPartialResultStep3Ptr getPartialResult()
-    {
-        return _partialResult;
-    }
+    DistributedPartialResultStep3Ptr getPartialResult() { return _partialResult; }
 
     /**
     * Registers user-allocated memory to store computed results of the SVD algorithm
 
     */
-    services::Status setPartialResult(const DistributedPartialResultStep3Ptr& partialRes)
+    services::Status setPartialResult(const DistributedPartialResultStep3Ptr & partialRes)
     {
         DAAL_CHECK(partialRes, services::ErrorNullPartialResult);
         DAAL_CHECK(partialRes->get(finalResultFromStep3), services::ErrorNullResult)
         _partialResult = partialRes;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -417,15 +386,14 @@ public:
     * Registers user-allocated memory to store computed results of the SVD algorithm
 
     */
-    services::Status setResult(const ResultPtr& res) { return services::Status(); }
+    services::Status setResult(const ResultPtr & res) { return services::Status(); }
 
     /**
      * Validates parameters of the finalizeCompute() method
      */
     services::Status checkFinalizeComputeParams() DAAL_C11_OVERRIDE
     {
-        if(!_partialResult)
-            return services::Status(services::ErrorNullResult);
+        if (!_partialResult) return services::Status(services::ErrorNullResult);
         return _partialResult->check(_par, method);
     }
 
@@ -450,8 +418,7 @@ protected:
         _partialResult.reset(new PartialResultType());
 
         services::Status s = _partialResult->allocate<algorithmFPType>(_in, 0, 0);
-        if(!s)
-            return s;
+        if (!s) return s;
 
         data_management::DataCollectionPtr qCollection = input.get(inputOfStep3FromStep1);
 
@@ -461,15 +428,15 @@ protected:
         return s;
     }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE{ return services::Status(); }
+    virtual services::Status allocateResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE{ return services::Status(); }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
         Analysis<distributed>::_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step3Local, algorithmFPType, method)(&_env);
-        _in   = &input;
-        _par  = &parameter;
+        _in                        = &input;
+        _par                       = &parameter;
     }
 
 private:
@@ -480,7 +447,7 @@ private:
 using interface1::DistributedContainer;
 using interface1::Distributed;
 
-} // namespace daal::algorithms::svd
-} // namespace daal::algorithms
+} // namespace svd
+} // namespace algorithms
 } // namespace daal
 #endif

@@ -29,8 +29,8 @@ using namespace daal::algorithms::dbscan;
 * Method:    cSetNumericTable
 * Signature:(JIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep1LocalInput_cSetNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep1LocalInput_cSetNumericTable(JNIEnv *, jobject, jlong inputAddr, jint id,
+                                                                                                         jlong dcAddr)
 {
     jniInput<DistributedInput<step1Local> >::set<Step1LocalNumericTableInputId, NumericTable>(inputAddr, id, dcAddr);
 }
@@ -40,8 +40,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep1Loc
 * Method:    cGetNumericTable
 * Signature:(JI)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep1LocalInput_cGetNumericTable
-(JNIEnv *, jobject, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedStep1LocalInput_cGetNumericTable(JNIEnv *, jobject, jlong inputAddr, jint id)
 {
     return jniInput<DistributedInput<step1Local> >::get<Step1LocalNumericTableInputId, NumericTable>(inputAddr, id);
 }

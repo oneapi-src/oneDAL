@@ -43,8 +43,8 @@ namespace internal
 template class RegressionTrainBatchKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
 
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace regression
+} // namespace decision_forest
+} // namespace algorithms
+} // namespace daal

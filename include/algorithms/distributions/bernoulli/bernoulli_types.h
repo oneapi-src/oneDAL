@@ -49,7 +49,7 @@ namespace bernoulli
  */
 enum Method
 {
-    defaultDense = 0    /*!< Default: performance-oriented method. */
+    defaultDense = 0 /*!< Default: performance-oriented method. */
 };
 
 /**
@@ -57,22 +57,21 @@ enum Method
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DISTRIBUTIONS__BERNOULLI__PARAMETER"></a>
  * \brief Bernoulli distribution parameters
  */
-template<typename algorithmFPType>
-class DAAL_EXPORT Parameter: public distributions::ParameterBase
+template <typename algorithmFPType>
+class DAAL_EXPORT Parameter : public distributions::ParameterBase
 {
 public:
     /**
      *  Main constructor
      *  \param[in] _p    Success probability of a trial, value from [0.0; 1.0]
      */
-    Parameter(algorithmFPType _p): p(_p) {}
+    Parameter(algorithmFPType _p) : p(_p) {}
 
-    algorithmFPType p;    /*!< Success probability of a trial, value from [0.0; 1.0] */
+    algorithmFPType p; /*!< Success probability of a trial, value from [0.0; 1.0] */
 
     /**
      * Check the correctness of the %Parameter object

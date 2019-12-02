@@ -24,14 +24,13 @@ namespace services
 {
 namespace internal
 {
-
-GpuSupportChecker& GpuSupportChecker::GetInstance()
+GpuSupportChecker & GpuSupportChecker::GetInstance()
 {
     static GpuSupportChecker instance;
     return instance;
 }
 
-bool isImplementedForDevice(const oneapi::internal::InfoDevice& deviceInfo,  algorithms::AlgorithmContainerIface* iface)
+bool isImplementedForDevice(const oneapi::internal::InfoDevice & deviceInfo, algorithms::AlgorithmContainerIface * iface)
 {
     bool ret = true;
     if (!deviceInfo.isCpu)

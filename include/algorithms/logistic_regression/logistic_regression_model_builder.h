@@ -57,11 +57,10 @@ namespace interface1
  * \tparam modelFPType  Data type to store logistic regression model data, double or float
  *
  */
-template<typename modelFPType = DAAL_ALGORITHM_FP_TYPE>
+template <typename modelFPType = DAAL_ALGORITHM_FP_TYPE>
 class DAAL_EXPORT ModelBuilder
 {
 public:
-
     /**
      * Constructs the Logistic Regression model builder
      * \param[in] nFeatures      Number of features in training data
@@ -76,20 +75,20 @@ public:
      *  \param[in] first      Iterator which point to first element of support vectors
      *  \param[in] last       Iterator which point to last element of support vectors
      */
-    template<typename RandomIterator>
+    template <typename RandomIterator>
     void setBeta(RandomIterator first, RandomIterator last)
     {
         data_management::BlockDescriptor<modelFPType> pBlock;
         const size_t nVectorsBeta = _nClasses == 2 ? 1 : _nClasses;
         _modelPtr->getBeta()->getBlockOfRows(0, nVectorsBeta, data_management::readWrite, pBlock);
-        modelFPType* sp = pBlock.getBlockPtr();
-        if((last - first) == _nFeatures*nVectorsBeta)
+        modelFPType * sp = pBlock.getBlockPtr();
+        if ((last - first) == _nFeatures * nVectorsBeta)
         {
             setInterceptFlag(false);
             size_t i = 0;
-            while(first != last)
+            while (first != last)
             {
-                if((i % (_nFeatures + 1)) == 0)
+                if ((i % (_nFeatures + 1)) == 0)
                 {
                     sp[i] = 0;
                     ++i;
@@ -99,10 +98,10 @@ public:
                 ++i;
             }
         }
-        else if((last - first) == (_nFeatures + 1)*nVectorsBeta)
+        else if ((last - first) == (_nFeatures + 1) * nVectorsBeta)
         {
             setInterceptFlag(true);
-            while(first != last)
+            while (first != last)
             {
                 *sp = *first;
                 ++first;
@@ -123,19 +122,13 @@ public:
      *  Get built model
      *  \return Model pointer
      */
-    ModelPtr getModel()
-    {
-        return _modelPtr;
-    }
+    ModelPtr getModel() { return _modelPtr; }
 
     /**
      *  Get status of model building
      *  \return Status
      */
-    services::Status getStatus()
-    {
-        return _s;
-    }
+    services::Status getStatus() { return _s; }
 
 private:
     ModelPtr _modelPtr;

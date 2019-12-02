@@ -37,7 +37,6 @@ namespace kernel_function
 {
 namespace linear
 {
-
 namespace interface1
 {
 /**
@@ -55,16 +54,16 @@ namespace interface1
  * \tparam method           Computation method of the algorithm, \ref Method
  */
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
-     /**
+    /**
      * Constructs a container for the linear kernel function algorithm with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -89,24 +88,21 @@ public:
  * \par References
  *      - \ref interface1::Result "Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public KernelIface
 {
 public:
     typedef KernelIface super;
 
-    typedef algorithms::kernel_function::linear::Input     InputType;
+    typedef algorithms::kernel_function::linear::Input InputType;
     typedef algorithms::kernel_function::linear::Parameter ParameterType;
-    typedef typename super::ResultType                     ResultType;
+    typedef typename super::ResultType ResultType;
 
-    ParameterType parameter;  /*!< Parameter of the kernel function*/
-    InputType input;                /*!< %Input data structure */
+    ParameterType parameter; /*!< Parameter of the kernel function*/
+    InputType input;         /*!< %Input data structure */
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs linear kernel function algorithm by copying input objects and parameters
@@ -114,16 +110,13 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : KernelIface(other), parameter(other.parameter), input(other.input)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : KernelIface(other), parameter(other.parameter), input(other.input) { initialize(); }
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Get input objects for the kernel function algorithm
@@ -142,28 +135,22 @@ public:
      * and parameters of this linear kernel function algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
-        _par = &parameter;
+        _in                  = &input;
+        _par                 = &parameter;
     }
 
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        _res               = _result.get();
         return s;
     }
 };
@@ -172,8 +159,8 @@ protected:
 using interface1::BatchContainer;
 using interface1::Batch;
 
-} // linear
+} // namespace linear
 } // namespace kernel_function
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

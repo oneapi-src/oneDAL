@@ -41,14 +41,14 @@ namespace interface2
 template <>
 Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(size_t nClasses)
 {
-    _par = new ParameterType();
+    _par                 = new ParameterType();
     parameter().nClasses = nClasses;
     initialize();
 }
 
 using BatchType = Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(const BatchType &other) : classifier::prediction::Batch(other), input(other.input)
+Batch<DAAL_FPTYPE, logitboost::prediction::defaultDense>::Batch(const BatchType & other) : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

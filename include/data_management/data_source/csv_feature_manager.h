@@ -35,34 +35,27 @@ namespace daal
 {
 namespace data_management
 {
-
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__FEATUREAUXDATA"></a>
  *  \brief Structure for auxiliary data used for feature extraction.
  */
 struct FeatureAuxData
 {
-    FeatureAuxData() :
-        idx(0), wide(1),
-        dsFeat(0), ntFeat(0), nCats(0) { }
+    FeatureAuxData() : idx(0), wide(1), dsFeat(0), ntFeat(0), nCats(0) {}
 
-    explicit FeatureAuxData(size_t index,
-                            DataSourceFeature *dataSourceFeature,
-                            NumericTableFeature *numericTableFeature) :
-        idx(index),
-        dsFeat(dataSourceFeature),
-        ntFeat(numericTableFeature),
-        wide(1), nCats(0), buffer() { }
+    explicit FeatureAuxData(size_t index, DataSourceFeature * dataSourceFeature, NumericTableFeature * numericTableFeature)
+        : idx(index), dsFeat(dataSourceFeature), ntFeat(numericTableFeature), wide(1), nCats(0), buffer()
+    {}
 
     size_t idx;
     size_t wide;
     size_t nCats;
-    DataSourceFeature   *dsFeat;
-    NumericTableFeature *ntFeat;
+    DataSourceFeature * dsFeat;
+    NumericTableFeature * ntFeat;
     std::string buffer;
 };
 
-typedef void (*functionT)(const char* word, FeatureAuxData& aux, DAAL_DATA_TYPE* arr);
+typedef void (*functionT)(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr);
 
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERIFACE"></a>
@@ -71,57 +64,57 @@ typedef void (*functionT)(const char* word, FeatureAuxData& aux, DAAL_DATA_TYPE*
 class ModifierIface
 {
 public:
-    virtual void apply(services::Collection<functionT> &funcList, services::Collection<FeatureAuxData> &auxVect) const = 0;
+    virtual void apply(services::Collection<functionT> & funcList, services::Collection<FeatureAuxData> & auxVect) const = 0;
 
     virtual ~ModifierIface() {}
 
-    static void contFunc(const char* word, FeatureAuxData& aux, DAAL_DATA_TYPE* arr)
+    static void contFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr)
     {
         DAAL_DATA_TYPE f;
-        readNumeric<>( word, f );
-        arr[ aux.idx ] = f;
+        readNumeric<>(word, f);
+        arr[aux.idx] = f;
     }
 
-    static void catFunc(const char* word, FeatureAuxData& aux, DAAL_DATA_TYPE* arr)
+    static void catFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr)
     {
         aux.buffer.assign(word);
 
-        CategoricalFeatureDictionary *catDict = aux.dsFeat->getCategoricalDictionary();
-        CategoricalFeatureDictionary::iterator it = catDict->find( aux.buffer );
+        CategoricalFeatureDictionary * catDict    = aux.dsFeat->getCategoricalDictionary();
+        CategoricalFeatureDictionary::iterator it = catDict->find(aux.buffer);
 
-        if( it != catDict->end() )
+        if (it != catDict->end())
         {
-            arr[ aux.idx ] = (DAAL_DATA_TYPE)it->second.first;
+            arr[aux.idx] = (DAAL_DATA_TYPE)it->second.first;
             it->second.second++;
         }
         else
         {
             int index = (int)(catDict->size());
-            catDict->insert( std::pair<std::string, std::pair<int, int> >( aux.buffer, std::pair<int, int>(index, 1) ) );
-            arr[ aux.idx ] = (DAAL_DATA_TYPE)index;
+            catDict->insert(std::pair<std::string, std::pair<int, int> >(aux.buffer, std::pair<int, int>(index, 1)));
+            arr[aux.idx]               = (DAAL_DATA_TYPE)index;
             aux.ntFeat->categoryNumber = index + 1;
         }
     }
 
-    static void nullFunc(const char* word, FeatureAuxData& aux, DAAL_DATA_TYPE* arr) { }
+    static void nullFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr) {}
 
 protected:
-    template<class T>
-    static void readNumeric(const char *text, T &f)
+    template <class T>
+    static void readNumeric(const char * text, T & f)
     {
         f = daal::services::daal_string_to_float(text, 0);
     }
 
-    static void binFunc(const char* word, FeatureAuxData& aux, DAAL_DATA_TYPE* arr)
+    static void binFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr)
     {
         aux.buffer.assign(word);
 
-        CategoricalFeatureDictionary *catDict = aux.dsFeat->getCategoricalDictionary();
-        CategoricalFeatureDictionary::iterator it = catDict->find( aux.buffer );
+        CategoricalFeatureDictionary * catDict    = aux.dsFeat->getCategoricalDictionary();
+        CategoricalFeatureDictionary::iterator it = catDict->find(aux.buffer);
 
         size_t index = 0;
 
-        if( it != catDict->end() )
+        if (it != catDict->end())
         {
             index = it->second.first;
             it->second.second++;
@@ -129,15 +122,15 @@ protected:
         else
         {
             index = catDict->size();
-            catDict->insert( std::pair<std::string, std::pair<int, int> >( aux.buffer, std::pair<int, int>((int)index, 1) ) );
+            catDict->insert(std::pair<std::string, std::pair<int, int> >(aux.buffer, std::pair<int, int>((int)index, 1)));
             aux.ntFeat->categoryNumber = index + 1;
         }
 
         size_t nCats = aux.nCats;
 
-        for(size_t i=0; i<nCats; i++)
+        for (size_t i = 0; i < nCats; i++)
         {
-            arr[ aux.idx + i ] = (DAAL_DATA_TYPE)(i == index);
+            arr[aux.idx + i] = (DAAL_DATA_TYPE)(i == index);
         }
     }
 };
@@ -149,16 +142,17 @@ protected:
 class MakeCategorical : public ModifierIface
 {
     size_t idx;
+
 public:
     MakeCategorical(size_t idx) : idx(idx) {}
 
     virtual ~MakeCategorical() {}
 
-    virtual void apply(services::Collection<functionT> &funcList, services::Collection<FeatureAuxData> &auxVect) const
+    virtual void apply(services::Collection<functionT> & funcList, services::Collection<FeatureAuxData> & auxVect) const
     {
         size_t nCols = funcList.size();
 
-        if(idx < nCols)
+        if (idx < nCols)
         {
             funcList[idx] = catFunc;
             auxVect[idx].buffer.resize(1024);
@@ -174,16 +168,17 @@ class OneHotEncoder : public ModifierIface
 {
     size_t idx;
     size_t nCats;
+
 public:
     OneHotEncoder(size_t idx, size_t nCats) : idx(idx), nCats(nCats) {}
 
     virtual ~OneHotEncoder() {}
 
-    virtual void apply(services::Collection<functionT> &funcList, services::Collection<FeatureAuxData> &auxVect) const
+    virtual void apply(services::Collection<functionT> & funcList, services::Collection<FeatureAuxData> & auxVect) const
     {
         size_t nCols = funcList.size();
 
-        if(idx < nCols)
+        if (idx < nCols)
         {
             funcList[idx] = binFunc;
             auxVect[idx].buffer.resize(1024);
@@ -192,7 +187,7 @@ public:
         }
 
         size_t nNTCols = 0;
-        for(size_t i=0; i<nCols; i++)
+        for (size_t i = 0; i < nCols; i++)
         {
             auxVect[i].idx = nNTCols;
             nNTCols += auxVect[i].wide;
@@ -211,75 +206,93 @@ class ColumnFilter : public ModifierIface
     bool noneFlag;
     bool listFlag;
     services::Collection<size_t> validList;
+
 public:
     ColumnFilter() : oddFlag(false), evenFlag(false), noneFlag(false), listFlag(false) {}
 
     virtual ~ColumnFilter() {}
 
-    ColumnFilter& odd()  { oddFlag=true; return *this;}
-    ColumnFilter& even() {evenFlag=true; return *this;}
-    ColumnFilter& none() {noneFlag=true; return *this;}
-    ColumnFilter& list(services::Collection<size_t> valid) {validList=valid; listFlag=true; return *this;}
+    ColumnFilter & odd()
+    {
+        oddFlag = true;
+        return *this;
+    }
+    ColumnFilter & even()
+    {
+        evenFlag = true;
+        return *this;
+    }
+    ColumnFilter & none()
+    {
+        noneFlag = true;
+        return *this;
+    }
+    ColumnFilter & list(services::Collection<size_t> valid)
+    {
+        validList = valid;
+        listFlag  = true;
+        return *this;
+    }
 
-    virtual void apply(services::Collection<functionT> &funcList, services::Collection<FeatureAuxData> &auxVect) const
+    virtual void apply(services::Collection<functionT> & funcList, services::Collection<FeatureAuxData> & auxVect) const
     {
         size_t nCols = funcList.size();
 
-        if( oddFlag )
+        if (oddFlag)
         {
-            for(size_t i=0; i<nCols; i+=2)
+            for (size_t i = 0; i < nCols; i += 2)
             {
-                funcList[i] = nullFunc;
+                funcList[i]     = nullFunc;
                 auxVect[i].wide = 0;
             }
         }
 
-        if( evenFlag )
+        if (evenFlag)
         {
-            for(size_t i=1; i<nCols; i+=2)
+            for (size_t i = 1; i < nCols; i += 2)
             {
-                funcList[i] = nullFunc;
+                funcList[i]     = nullFunc;
                 auxVect[i].wide = 0;
             }
         }
 
-        if( noneFlag )
+        if (noneFlag)
         {
-            for(size_t i=0; i<nCols; i++)
+            for (size_t i = 0; i < nCols; i++)
             {
-                funcList[i] = nullFunc;
+                funcList[i]     = nullFunc;
                 auxVect[i].wide = 0;
             }
         }
 
-        if( listFlag )
+        if (listFlag)
         {
             services::Collection<bool> flags(nCols);
 
-            for(size_t i=0; i<nCols; i++)
+            for (size_t i = 0; i < nCols; i++)
             {
                 flags[i] = false;
             }
 
-            for(size_t i=0; i<validList.size(); i++)
+            for (size_t i = 0; i < validList.size(); i++)
             {
                 size_t el = validList[i];
-                if(el<nCols)
+                if (el < nCols)
                 {
                     flags[el] = true;
                 }
             }
 
-            for(size_t i=0; i<nCols; i++)
+            for (size_t i = 0; i < nCols; i++)
             {
-                if(flags[i]) continue;
-                funcList[i] = nullFunc;
+                if (flags[i]) continue;
+                funcList[i]     = nullFunc;
                 auxVect[i].wide = 0;
             }
         }
 
         size_t nNTCols = 0;
-        for(size_t i=0; i<nCols; i++)
+        for (size_t i = 0; i < nCols; i++)
         {
             auxVect[i].idx = nNTCols;
             nNTCols += auxVect[i].wide;
@@ -289,7 +302,6 @@ public:
 
 namespace interface1
 {
-
 /**
  * @defgroup data_sources Data Sources
  * \brief Specifies methods to access data
@@ -306,20 +318,14 @@ public:
     /**
      *  Default constructor
      */
-    CSVFeatureManager() :
-        _delimiter(','),
-        _numberOfTokens(0),
-        _isHeaderParsed(false) { }
+    CSVFeatureManager() : _delimiter(','), _numberOfTokens(0), _isHeaderParsed(false) {}
 
-    virtual ~CSVFeatureManager() { }
+    virtual ~CSVFeatureManager() {}
 
     /**
      *  Sets a new character as a delimiter for parsing CSV data (default ',')
      */
-    void setDelimiter( char delimiter )
-    {
-        _delimiter = delimiter;
-    }
+    void setDelimiter(char delimiter) { _delimiter = delimiter; }
 
 public:
     /**
@@ -341,9 +347,9 @@ public:
      * Sets information about features from the given dictionary
      * \param dictionary The data source dictionary
      */
-    services::Status setFeatureDetailsFromDictionary(DataSourceDictionary *dictionary)
+    services::Status setFeatureDetailsFromDictionary(DataSourceDictionary * dictionary)
     {
-        DAAL_CHECK( dictionary, services::ErrorNullPtr );
+        DAAL_CHECK(dictionary, services::ErrorNullPtr);
 
         auxVect.clear();
         funcList.clear();
@@ -357,10 +363,7 @@ public:
      * Adds a simple feature modifier
      * \param[in]  modifier The modifier
      */
-    void addModifier(const ModifierIface &modifier)
-    {
-        modifier.apply(funcList, auxVect);
-    }
+    void addModifier(const ModifierIface & modifier) { modifier.apply(funcList, auxVect); }
 
     /**
      * Adds extended feature modifier
@@ -369,9 +372,8 @@ public:
      * \param[out]  status     (optional) The pointer to status object
      * \return Reference to itself
      */
-    CSVFeatureManager &addModifier(const features::FeatureIdCollectionIfacePtr &featureIds,
-                                   const modifiers::csv::FeatureModifierIfacePtr &modifier,
-                                   services::Status *status = NULL)
+    CSVFeatureManager & addModifier(const features::FeatureIdCollectionIfacePtr & featureIds,
+                                    const modifiers::csv::FeatureModifierIfacePtr & modifier, services::Status * status = NULL)
     {
         services::Status localStatus;
         if (!_modifiersManager)
@@ -399,9 +401,9 @@ public:
      * \param[in]  rawRowData   Array of characters with the string that represents the feature vector
      * \param[in]  rawDataSize  Size of the rawRowData array
      */
-    void parseRowAsHeader(char *rawRowData, size_t rawDataSize)
+    void parseRowAsHeader(char * rawRowData, size_t rawDataSize)
     {
-        DAAL_ASSERT( rawRowData );
+        DAAL_ASSERT(rawRowData);
 
         internal::CSVRowTokenizer tokenizer(rawRowData, rawDataSize, _delimiter);
         for (tokenizer.reset(); tokenizer.good(); tokenizer.next())
@@ -416,11 +418,10 @@ public:
      * \param[in]  rawDataSize  Size of the rawRowData array
      * \param[in]  dictionary   Pointer to the dictionary
      */
-    virtual void parseRowAsDictionary(char *rawRowData, size_t rawDataSize,
-                                      DataSourceDictionary *dictionary) DAAL_C11_OVERRIDE
+    virtual void parseRowAsDictionary(char * rawRowData, size_t rawDataSize, DataSourceDictionary * dictionary) DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT( rawRowData );
-        DAAL_ASSERT( dictionary );
+        DAAL_ASSERT(rawRowData);
+        DAAL_ASSERT(dictionary);
 
         _numberOfTokens = 0;
 
@@ -450,11 +451,11 @@ public:
      *  \param[out] rowBuffer    Pointer to a Buffer View to store the result of parsing
      *  \param[in]  ntRowIndex   Position in the Numeric Table at which to store the result of parsing
      */
-    virtual void parseRowIn(char *rawRowData, size_t rawDataSize, DataSourceDictionary *dictionary,
-                            services::BufferView<DAAL_DATA_TYPE> &rowBuffer, size_t ntRowIndex) DAAL_C11_OVERRIDE
+    virtual void parseRowIn(char * rawRowData, size_t rawDataSize, DataSourceDictionary * dictionary,
+                            services::BufferView<DAAL_DATA_TYPE> & rowBuffer, size_t ntRowIndex) DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT( dictionary );
-        DAAL_ASSERT( rawRowData );
+        DAAL_ASSERT(dictionary);
+        DAAL_ASSERT(rawRowData);
 
         size_t i = 0;
         internal::CSVRowTokenizer tokenizer(rawRowData, rawDataSize, _delimiter);
@@ -469,7 +470,7 @@ public:
         }
         else
         {
-            DAAL_DATA_TYPE *row = rowBuffer.data();
+            DAAL_DATA_TYPE * row = rowBuffer.data();
             for (tokenizer.reset(); tokenizer.good() && i < _numberOfTokens; tokenizer.next(), i++)
             {
                 const services::StringView token = tokenizer.getCurrentToken();
@@ -482,7 +483,7 @@ public:
      * Finalizes CSV data parsing
      * \param[in]  dictionary  Pointer to the dictionary
      */
-    void finalize(DataSourceDictionary *dictionary)
+    void finalize(DataSourceDictionary * dictionary)
     {
         if (_modifiersManager)
         {
@@ -492,33 +493,29 @@ public:
     }
 
 private:
-    void fillDictionaryWithoutModifiers(DataSourceDictionary &dictionary)
+    void fillDictionaryWithoutModifiers(DataSourceDictionary & dictionary)
     {
         const size_t nFeatures = _featuresInfo.getNumberOfFeatures();
         dictionary.setNumberOfFeatures(nFeatures);
 
         for (size_t i = 0; i < nFeatures; i++)
         {
-            features::FeatureType fType = _featuresInfo.getDetectedFeatureType(i);
+            features::FeatureType fType         = _featuresInfo.getDetectedFeatureType(i);
             dictionary[i].ntFeature.featureType = fType;
 
             switch (fType)
             {
-                case features::DAAL_CONTINUOUS:
-                    dictionary[i].ntFeature.setType<DAAL_DATA_TYPE>();
-                    break;
+            case features::DAAL_CONTINUOUS: dictionary[i].ntFeature.setType<DAAL_DATA_TYPE>(); break;
 
-                case features::DAAL_ORDINAL:
-                case features::DAAL_CATEGORICAL:
-                    dictionary[i].ntFeature.setType<int>();
-                    break;
+            case features::DAAL_ORDINAL:
+            case features::DAAL_CATEGORICAL: dictionary[i].ntFeature.setType<int>(); break;
             }
         }
 
         fillAuxVectAndFuncList(dictionary);
     }
 
-    void fillAuxVectAndFuncList(DataSourceDictionary &dictionary)
+    void fillAuxVectAndFuncList(DataSourceDictionary & dictionary)
     {
         const size_t nFeatures = dictionary.getNumberOfFeatures();
         auxVect.resize(nFeatures);
@@ -526,24 +523,22 @@ private:
 
         for (size_t i = 0; i < nFeatures; i++)
         {
-            DataSourceFeature &feature = dictionary[i];
-            NumericTableFeature &ntFeature = feature.ntFeature;
+            DataSourceFeature & feature     = dictionary[i];
+            NumericTableFeature & ntFeature = feature.ntFeature;
 
             auxVect.push_back(FeatureAuxData(i, &feature, &ntFeature));
             funcList.push_back(getModifierFunctionPtr(ntFeature));
         }
     }
 
-    static functionT getModifierFunctionPtr(const NumericTableFeature &ntFeature)
+    static functionT getModifierFunctionPtr(const NumericTableFeature & ntFeature)
     {
         switch (ntFeature.featureType)
         {
-            case features::DAAL_CONTINUOUS:
-                return ModifierIface::contFunc;
+        case features::DAAL_CONTINUOUS: return ModifierIface::contFunc;
 
-            case features::DAAL_ORDINAL:
-            case features::DAAL_CATEGORICAL:
-                return ModifierIface::catFunc;
+        case features::DAAL_ORDINAL:
+        case features::DAAL_CATEGORICAL: return ModifierIface::catFunc;
         }
         return ModifierIface::nullFunc;
     }

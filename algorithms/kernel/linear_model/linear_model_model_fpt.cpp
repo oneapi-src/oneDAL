@@ -29,16 +29,15 @@ namespace internal
 {
 using namespace daal::data_management;
 
-template<typename modelFPType>
-ModelInternal::ModelInternal(size_t nFeatures, size_t nResponses, const Parameter &par, modelFPType dummy) :
-    _interceptFlag(par.interceptFlag)
+template <typename modelFPType>
+ModelInternal::ModelInternal(size_t nFeatures, size_t nResponses, const Parameter & par, modelFPType dummy) : _interceptFlag(par.interceptFlag)
 {
     services::Status st;
 
-    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
-    if(deviceInfo.isCpu)
+    if (deviceInfo.isCpu)
     {
         _beta = HomogenNumericTable<modelFPType>::create(nFeatures + 1, nResponses, NumericTable::doAllocate, 0, &st);
     }
@@ -49,8 +48,8 @@ ModelInternal::ModelInternal(size_t nFeatures, size_t nResponses, const Paramete
     if (!st) return;
 }
 
-template ModelInternal::ModelInternal(size_t nFeatures, size_t nResponses, const Parameter &par, DAAL_FPTYPE dummy);
-}
-}
-}
-}
+template ModelInternal::ModelInternal(size_t nFeatures, size_t nResponses, const Parameter & par, DAAL_FPTYPE dummy);
+} // namespace internal
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

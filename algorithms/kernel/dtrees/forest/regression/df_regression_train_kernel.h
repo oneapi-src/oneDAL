@@ -44,21 +44,19 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class RegressionTrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y,
-        decision_forest::regression::Model& m, Result& res, const Parameter& par);
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, decision_forest::regression::Model & m,
+                             Result & res, const Parameter & par);
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace training
+} // namespace regression
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
-
 
 #endif

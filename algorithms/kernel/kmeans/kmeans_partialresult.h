@@ -34,7 +34,6 @@ namespace algorithms
 {
 namespace kmeans
 {
-
 /**
  * Allocates memory to store partial results of the K-Means algorithm
  * \param[in] input        Pointer to the structure of the input objects
@@ -42,9 +41,10 @@ namespace kmeans
  * \param[in] method       Computation method of the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                     const int method)
 {
-    const Parameter *kmPar = static_cast<const Parameter *>(parameter);
+    const Parameter * kmPar = static_cast<const Parameter *>(parameter);
 
     size_t nFeatures = static_cast<const InputIface *>(input)->getNumberOfFeatures();
     size_t nClusters = kmPar->nClusters;
@@ -61,7 +61,7 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
     set(partialCandidatesCentroids, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
     DAAL_CHECK_STATUS_VAR(status);
 
-    const Input *step1Input = dynamic_cast<const Input *>(input);
+    const Input * step1Input = dynamic_cast<const Input *>(input);
     if (kmPar->assignFlag && step1Input)
     {
         const size_t nRows = step1Input->get(data)->getNumberOfRows();

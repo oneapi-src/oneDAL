@@ -33,8 +33,9 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cSetInnerNIterations
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMiniBatch_cSetInnerNIterations
-(JNIEnv *, jobject, jlong parAddr, jlong innerNIterations)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMiniBatch_cSetInnerNIterations(JNIEnv *, jobject,
+                                                                                                                       jlong parAddr,
+                                                                                                                       jlong innerNIterations)
 {
     ((sgd::Parameter<sgd::miniBatch> *)parAddr)->innerNIterations = innerNIterations;
 }
@@ -44,8 +45,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_P
  * Method:    cGetInnerNIterations
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMiniBatch_cGetInnerNIterations
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMiniBatch_cGetInnerNIterations(JNIEnv *, jobject,
+                                                                                                                        jlong parAddr)
 {
     return ((sgd::Parameter<sgd::miniBatch> *)parAddr)->innerNIterations;
 }
@@ -55,10 +56,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_
  * Method:    cSetConservativeSequence
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMiniBatch_cSetConservativeSequence
-(JNIEnv *, jobject, jlong parAddr, jlong cConservativeSequence)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMiniBatch_cSetConservativeSequence(
+    JNIEnv *, jobject, jlong parAddr, jlong cConservativeSequence)
 {
-    SerializationIfacePtr *ntShPtr = (SerializationIfacePtr *)cConservativeSequence;
+    SerializationIfacePtr * ntShPtr                                   = (SerializationIfacePtr *)cConservativeSequence;
     ((sgd::Parameter<sgd::miniBatch> *)parAddr)->conservativeSequence = staticPointerCast<NumericTable, SerializationIface>(*ntShPtr);
 }
 
@@ -67,11 +68,11 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_P
  * Method:    cGetConservativeSequence
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMiniBatch_cGetConservativeSequence
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMiniBatch_cGetConservativeSequence(JNIEnv *, jobject,
+                                                                                                                            jlong parAddr)
 {
-    NumericTablePtr *ntShPtr = new NumericTablePtr();
-    *ntShPtr = ((sgd::Parameter<sgd::miniBatch> *)parAddr)->conservativeSequence;
+    NumericTablePtr * ntShPtr = new NumericTablePtr();
+    *ntShPtr                  = ((sgd::Parameter<sgd::miniBatch> *)parAddr)->conservativeSequence;
     return (jlong)ntShPtr;
 }
 
@@ -80,8 +81,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_
  * Method:    cSetMomentum
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMomentum_cSetMomentum
-(JNIEnv *, jobject, jlong parAddr, jdouble momentum)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMomentum_cSetMomentum(JNIEnv *, jobject, jlong parAddr,
+                                                                                                              jdouble momentum)
 {
     ((sgd::Parameter<sgd::momentum> *)parAddr)->momentum = momentum;
 }
@@ -91,8 +92,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_P
  * Method:    cGetMomentum
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMomentum_cGetMomentum
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_optimization_1solver_sgd_ParameterMomentum_cGetMomentum(JNIEnv *, jobject, jlong parAddr)
 {
     return ((sgd::Parameter<sgd::momentum> *)parAddr)->momentum;
 }

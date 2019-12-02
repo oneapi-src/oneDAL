@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate coordinate_descent.
 //--
 
-
 #ifndef __COORDINATE_DESCENT_DENSE_DEFAULT_KERNEL_H__
 #define __COORDINATE_DESCENT_DENSE_DEFAULT_KERNEL_H__
 
@@ -43,15 +42,16 @@ namespace coordinate_descent
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-class CoordinateDescentKernel: public Kernel
+template <typename algorithmFPType, Method method, CpuType cpu>
+class CoordinateDescentKernel : public Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable *inputArgument, NumericTable *minimum, NumericTable *nIterations, Parameter *parameter, engines::BatchBase &engine, optimization_solver::objective_function::ResultPtr& hesGr, optimization_solver::objective_function::ResultPtr& prox);
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTable * minimum, NumericTable * nIterations,
+                             Parameter * parameter, engines::BatchBase & engine, optimization_solver::objective_function::ResultPtr & hesGr,
+                             optimization_solver::objective_function::ResultPtr & prox);
 };
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace coordinate_descent
 

@@ -39,20 +39,20 @@ namespace interface1
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const int method)
 {
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
 
     const size_t nFeatures = in->get(data)->getNumberOfColumns();
-    const size_t nVectors = in->get(data)->getNumberOfRows();
+    const size_t nVectors  = in->get(data)->getNumberOfRows();
     services::Status st;
     set(sortedData, HomogenNumericTable<algorithmFPType>::create(nFeatures, nVectors, NumericTable::doAllocate, &st));
     return st;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const int method);
 
-}// namespace interface1
-}// namespace sorting
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace sorting
+} // namespace algorithms
+} // namespace daal

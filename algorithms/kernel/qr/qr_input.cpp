@@ -35,10 +35,9 @@ namespace qr
 {
 namespace interface1
 {
-
 /** Default constructor */
 Input::Input() : daal::algorithms::Input(lastInputId + 1) {}
-Input::Input(const Input& other) : daal::algorithms::Input(other){}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 /**
  * Returns input object of the QR decomposition algorithm
@@ -55,15 +54,15 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] value Pointer to the input object
  */
-void Input::set(InputId id, const NumericTablePtr &value)
+void Input::set(InputId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
 
-Status Input::getNumberOfColumns(size_t *nFeatures) const
+Status Input::getNumberOfColumns(size_t * nFeatures) const
 {
     NumericTablePtr dataTable = get(data);
-    if(dataTable)
+    if (dataTable)
     {
         *nFeatures = dataTable->getNumberOfColumns();
     }
@@ -74,10 +73,10 @@ Status Input::getNumberOfColumns(size_t *nFeatures) const
     return Status();
 }
 
-Status Input::getNumberOfRows(size_t *nRows) const
+Status Input::getNumberOfRows(size_t * nRows) const
 {
     NumericTablePtr dataTable = get(data);
-    if(dataTable)
+    if (dataTable)
     {
         *nRows = dataTable->getNumberOfRows();
     }
@@ -93,11 +92,14 @@ Status Input::getNumberOfRows(size_t *nRows) const
  * \param[in] parameter Pointer to the parameters
  * \param[in] method Computation method
  */
-Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     NumericTablePtr dataTable = get(data);
-    Status s = checkNumericTable(dataTable.get(), dataStr());
-    if(!s) { return s; }
+    Status s                  = checkNumericTable(dataTable.get(), dataStr());
+    if (!s)
+    {
+        return s;
+    }
 
     DAAL_CHECK_EX(dataTable->getNumberOfColumns() <= dataTable->getNumberOfRows(), ErrorIncorrectNumberOfRows, ArgumentName, dataStr());
     return Status();
@@ -105,5 +107,5 @@ Status Input::check(const daal::algorithms::Parameter *parameter, int method) co
 
 } // namespace interface1
 } // namespace qr
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

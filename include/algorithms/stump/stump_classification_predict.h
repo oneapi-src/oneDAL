@@ -52,7 +52,7 @@ namespace prediction
  */
 enum Method
 {
-    defaultDense = 0        /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -69,7 +69,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the decision stump prediction algorithm, double or float
  * \tparam method           Decision stump model-based prediction method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -77,7 +77,7 @@ public:
      * Constructs a container for decision stump model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -106,17 +106,17 @@ public:
  *      - \ref classifier::prediction::interface1::Input "classifier::prediction::Input" class
  *      - \ref classifier::prediction::interface1::Result "classifier::prediction::Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::prediction::Batch
 {
 public:
     typedef classifier::prediction::Batch super;
 
     typedef algorithms::stump::classification::prediction::Input InputType;
-    typedef typename super::ParameterType        ParameterType;
-    typedef typename super::ResultType           ResultType;
+    typedef typename super::ParameterType ParameterType;
+    typedef typename super::ResultType ResultType;
 
-    InputType input;                    /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
     Batch(size_t nClasses = 2);
 
@@ -126,24 +126,21 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    Batch(const Batch<algorithmFPType, method> & other);
 
-    virtual ~Batch()
-    {
-        delete _par;
-    }
+    virtual ~Batch() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
      * Get input objects for the decision stump prediction algorithm
@@ -155,47 +152,41 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated decision stump classification algorithm
      * with a copy of input objects and parameters of this decision stump classification algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
     using classifier::prediction::Batch::_result;
 
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, _par, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in = &input;
     }
 };
-}
+} // namespace interface1
 using interface1::BatchContainer;
 using interface1::Batch;
 
-} // namespace daal::algorithms::stump::classification::prediction
+} // namespace prediction
 /** @} */
-}
-}
-}
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 #endif

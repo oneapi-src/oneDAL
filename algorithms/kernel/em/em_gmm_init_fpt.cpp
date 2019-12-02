@@ -31,10 +31,10 @@ namespace em_gmm
 {
 namespace init
 {
-
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
 } // namespace init
 } // namespace em_gmm
-}// namespace algorithms
-}// namespace daal
+} // namespace algorithms
+} // namespace daal
