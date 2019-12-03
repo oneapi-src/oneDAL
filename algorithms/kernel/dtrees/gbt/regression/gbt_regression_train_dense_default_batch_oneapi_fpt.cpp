@@ -1,4 +1,4 @@
-/* file: gbt_regression_train_dense_default_batch_fpt_cpu.cpp */
+/* file: gbt_regression_train_dense_default_batch_oneapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
