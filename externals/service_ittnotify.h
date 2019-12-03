@@ -100,15 +100,14 @@ private:
 #else
     #include "service_profiler.h"
 
-    #undef DAAL_ITTNOTIFY_CONCAT
-    #define DAAL_ITTNOTIFY_CONCAT(x, y)  DAAL_ITTNOTIFY_CONCAT2(x, y)
     #define DAAL_ITTNOTIFY_CONCAT2(x, y) x##y
+    #define DAAL_ITTNOTIFY_CONCAT(x, y)  DAAL_ITTNOTIFY_CONCAT2(x, y)
 
-    #define __DAAL_UNIQUE_ID __LINE__
+    #define DAAL_ITTNOTIFY_UNIQUE_ID __LINE__
 
     #define DAAL_ITTNOTIFY_DOMAIN(name)
     #define DAAL_ITTNOTIFY_SCOPED_TASK(name) \
-        daal::internal::ProfilerTask DAAL_ITTNOTIFY_CONCAT(__, __DAAL_UNIQUE_ID) = daal::internal::Profiler::startTask(#name);
+        daal::internal::ProfilerTask DAAL_ITTNOTIFY_CONCAT(__profiler_taks__, DAAL_ITTNOTIFY_UNIQUE_ID) = daal::internal::Profiler::startTask(#name);
 
 #endif // __DAAL_ITTNOTIFY_ENABLE__
 #endif // __SERVICE_ITTNOTIFY_H__
