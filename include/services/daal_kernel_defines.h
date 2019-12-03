@@ -157,6 +157,8 @@ case cpuType:                                                                   
     #define DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX512_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
+
+#define DAAL_EXPAND(...) __VA_ARGS__
 /** @} */
 
 #endif
