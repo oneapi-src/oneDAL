@@ -780,20 +780,22 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     __buildProgram<algorithmFPType>(kernel_factory);
 
-    kernelScan = kernel_factory.getKernel("scan");
-    kernelReduce = kernel_factory.getKernel("reduce");
-    kernelInitializeTreeOrder = kernel_factory.getKernel("initializeTreeOrder");
-    kernelComputePartialHistograms = kernel_factory.getKernel("computePartialHistograms");
-    kernelReducePartialHistograms = kernel_factory.getKernel("reducePartialHistograms");
-    kernelComputeHistogramDiff = kernel_factory.getKernel("computeHistogramDiff");
-    kernelComputeOptCoeffs = kernel_factory.getKernel("computeOptCoeffs");
-    kernelComputeTotalOptCoeffs = kernel_factory.getKernel("computeTotalOptCoeffs");
-    kernelComputeBestSplitForFeatures = kernel_factory.getKernel("computeBestSplitForFeatures");
-    kernelPartitionScan = kernel_factory.getKernel("partitionScan");
-    kernelPartitionSumScan = kernel_factory.getKernel("partitionSumScan");
-    kernelPartitionReorder = kernel_factory.getKernel("partitionReorder");
-    kernelPartitionCopy = kernel_factory.getKernel("partitionCopy");
-    kernelUpdateResponse = kernel_factory.getKernel("updateResponse");
+    kernelScan = kernel_factory.getKernel("scan", &status);
+    kernelReduce = kernel_factory.getKernel("reduce", &status);
+    kernelInitializeTreeOrder = kernel_factory.getKernel("initializeTreeOrder", &status);
+    kernelComputePartialHistograms = kernel_factory.getKernel("computePartialHistograms", &status);
+    kernelReducePartialHistograms = kernel_factory.getKernel("reducePartialHistograms", &status);
+    kernelComputeHistogramDiff = kernel_factory.getKernel("computeHistogramDiff", &status);
+    kernelComputeOptCoeffs = kernel_factory.getKernel("computeOptCoeffs", &status);
+    kernelComputeTotalOptCoeffs = kernel_factory.getKernel("computeTotalOptCoeffs", &status);
+    kernelComputeBestSplitForFeatures = kernel_factory.getKernel("computeBestSplitForFeatures", &status);
+    kernelPartitionScan = kernel_factory.getKernel("partitionScan", &status);
+    kernelPartitionSumScan = kernel_factory.getKernel("partitionSumScan", &status);
+    kernelPartitionReorder = kernel_factory.getKernel("partitionReorder", &status);
+    kernelPartitionCopy = kernel_factory.getKernel("partitionCopy", &status);
+    kernelUpdateResponse = kernel_factory.getKernel("updateResponse", &status);
+
+    DAAL_CHECK_STATUS_VAR(status);
 
     gbt::internal::IndexedFeaturesOneAPI<algorithmFPType> indexedFeatures;
     dtrees::internal::FeatureTypes featTypes;

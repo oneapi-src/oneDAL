@@ -59,7 +59,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     }
     else
     {
-        _kernel = new internal::RegressionTrainBatchKernelOneAPI<algorithmFPType, method>();
+        __DAAL_INITIALIZE_KERNELS_SYCL(internal::RegressionTrainBatchKernelOneAPI, algorithmFPType, method);
     }
 }
 
@@ -102,7 +102,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
-        return ((internal::RegressionTrainBatchKernelOneAPI<algorithmFPType, method>*)(_kernel))->compute(daal::services::internal::hostApp(*input), x, y, *m, *result, *par, *engine);
+         __DAAL_CALL_KERNEL_SYCL(env, internal::RegressionTrainBatchKernelOneAPI,
+                                 __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
+                                 compute, daal::services::internal::hostApp(*input), x, y, *m, *result, *par, *engine);
     }
 }
 

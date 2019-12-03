@@ -234,10 +234,13 @@ __kernel void computeBestSplitForFeatures(const __global algorithmFPType* histog
                                           int nTotalBins,
                                           algorithmFPType lambda)
 {
+    if (get_sub_group_id() > 0)
+        return;
+
     const int feat_id = get_global_id(1);
 
-    const int local_id = get_local_id(0);
-    const int local_size = get_local_size(0);
+    const int local_size = get_sub_group_size();
+    const int local_id = get_sub_group_local_id();
 
     int curFeatureValue = -1;
     algorithmFPType curImpDec = -1e30;
