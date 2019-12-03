@@ -23,7 +23,7 @@
 
 #include "algorithms/gradient_boosted_trees/gbt_regression_training_types.h"
 #include "gbt_regression_model_impl.h"
-#include "gbt_regression_tree_impl.h"
+#include "gbt_regression_tree_impl.i"
 
 namespace daal
 {

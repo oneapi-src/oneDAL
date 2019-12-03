@@ -28,7 +28,7 @@
 #include "gbt_regression_train_kernel.h"
 #include "gbt_regression_model_impl.h"
 #include "gbt_regression_loss_impl.h"
-#include "gbt_regression_tree_impl.h"
+#include "gbt_regression_tree_impl.i"
 #include "gbt_train_dense_default_impl.i"
 #include "gbt_train_tree_builder.i"
 #include "gbt_train_hist_kernel.i"
@@ -418,7 +418,7 @@ services::Status RegressionTrainDistrStep3Kernel<algorithmFPType, method, cpu>::
     ConnectorType inputConnector(dynamic_cast<AOSNumericTable *>(ntInputTreeStructure));
 
     Collection<SplitRecord<algorithmFPType> > nodesForSplit;
-    inputConnector.getSplitNodesMerged(0, nodesForSplit);
+    inputConnector.getSplitNodesMerged<cpu>(0, nodesForSplit);
     size_t nNodesForSplit = nodesForSplit.size();
 
     ReadRows<int, cpu> binSizesRows(const_cast<NumericTable *>(ntBinSizes), 0, 1);
@@ -639,7 +639,7 @@ services::Status RegressionTrainDistrStep4Kernel<algorithmFPType, method, cpu>::
     ConnectorType inputConnector(dynamic_cast<AOSNumericTable *>(ntInputTreeStructure));
 
     Collection<SplitRecord<algorithmFPType> > nodesForSplit;
-    inputConnector.getSplitNodesMerged(0, nodesForSplit);
+    inputConnector.getSplitNodesMerged<cpu>(0, nodesForSplit);
     const size_t nNodesForSplit = nodesForSplit.size();
 
     const size_t nFeatures = dcFeatureIndices->size();
