@@ -37,17 +37,17 @@ namespace svd
 {
 namespace interface1
 {
-
 /**
  * Allocates memory to store partial results of the SVD algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status DistributedPartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                      const int method)
 {
     set(outputOfStep2ForStep3, KeyValueDataCollectionPtr(new KeyValueDataCollection()));
     Argument::set(finalResultFromStep2Master, ResultPtr(new Result()));
     KeyValueDataCollectionPtr inCollection = static_cast<const DistributedStep2Input *>(input)->get(inputOfStep2FromStep1);
-    size_t nBlocks = 0;
+    size_t nBlocks                         = 0;
     return setPartialResultStorage<algorithmFPType>(inCollection.get(), nBlocks);
 }
 
@@ -62,11 +62,10 @@ DAAL_EXPORT Status DistributedPartialResult::allocate(const daal::algorithms::In
  * \param[out] nBlocks         Number of rows in the input data set
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(KeyValueDataCollection *inCollection, size_t &nBlocks)
+DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(KeyValueDataCollection * inCollection, size_t & nBlocks)
 {
-    KeyValueDataCollectionPtr partialCollection =
-        staticPointerCast<KeyValueDataCollection, SerializationIface>(Argument::get(outputOfStep2ForStep3));
-    if(!partialCollection)
+    KeyValueDataCollectionPtr partialCollection = staticPointerCast<KeyValueDataCollection, SerializationIface>(Argument::get(outputOfStep2ForStep3));
+    if (!partialCollection)
     {
         return Status();
     }
@@ -76,11 +75,11 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(KeyValueDat
     const size_t inSize = inCollection->size();
     DAAL_CHECK(inSize <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfElementsInInputCollection)
 
-    DataCollection *fisrtNodeCollection = static_cast<DataCollection *>((*inCollection).getValueByIndex(0).get());
-    NumericTable *firstNumericTable     = static_cast<NumericTable *>((*fisrtNodeCollection)[0].get());
+    DataCollection * fisrtNodeCollection = static_cast<DataCollection *>((*inCollection).getValueByIndex(0).get());
+    NumericTable * firstNumericTable     = static_cast<NumericTable *>((*fisrtNodeCollection)[0].get());
 
     size_t m = firstNumericTable->getNumberOfColumns();
-    if(result->get(singularValues).get() == nullptr)
+    if (result->get(singularValues).get() == nullptr)
     {
         Status s = result->allocateImpl<algorithmFPType>(m, 0);
         DAAL_CHECK_STATUS_VAR(s)
@@ -88,27 +87,27 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(KeyValueDat
 
     nBlocks = 0;
     Status st;
-    for(size_t i = 0 ; i < inSize ; i++)
+    for (size_t i = 0; i < inSize; i++)
     {
-        DataCollection   *nodeCollection = static_cast<DataCollection *>((*inCollection).getValueByIndex((int)i).get());
-        size_t            nodeKey        = (*inCollection).getKeyByIndex((int)i);
-        size_t nodeSize = nodeCollection->size();
+        DataCollection * nodeCollection = static_cast<DataCollection *>((*inCollection).getValueByIndex((int)i).get());
+        size_t nodeKey                  = (*inCollection).getKeyByIndex((int)i);
+        size_t nodeSize                 = nodeCollection->size();
         nBlocks += nodeSize;
 
         DataCollectionPtr nodePartialResult(new DataCollection());
         DAAL_CHECK_MALLOC(nodePartialResult)
-        for(size_t j = 0 ; j < nodeSize ; j++)
+        for (size_t j = 0; j < nodeSize; j++)
         {
             nodePartialResult->push_back(HomogenNumericTable<algorithmFPType>::create(m, m, NumericTable::doAllocate, &st));
         }
-        (*partialCollection)[ nodeKey ] = nodePartialResult;
+        (*partialCollection)[nodeKey] = nodePartialResult;
     }
     return st;
 }
 
-}// namespace interface1
-}// namespace svd
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace svd
+} // namespace algorithms
+} // namespace daal
 
 #endif

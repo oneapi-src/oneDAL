@@ -31,12 +31,11 @@ namespace oneapi
 {
 namespace internal
 {
-
 /** @ingroup oneapi_internal
  * @{
  */
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 services::String getKeyFPType()
 {
     if (IsSameType<algorithmFPType, float>::value)
@@ -66,7 +65,6 @@ services::String getKeyType(services::String typeName)
 
 namespace interface1
 {
-
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__TYPEIDS"></a>
  *  \brief Mapping from standart types to enum values
@@ -104,31 +102,39 @@ private:
 };
 typedef TypeIds::Id TypeId;
 
-namespace internal {
+namespace internal
+{
 template <typename T>
-inline TypeId getTypeId() { return TypeIds::custom; }
+inline TypeId getTypeId()
+{
+    return TypeIds::custom;
+}
 
-#define DAAL_DECLARE_TYPE_ID_MAP(id_) \
-    template<> inline TypeId getTypeId<daal::oneapi::internal::id_##_t>() \
-    { return TypeIds::id_; }
+#define DAAL_DECLARE_TYPE_ID_MAP(id_)                          \
+    template <>                                                \
+    inline TypeId getTypeId<daal::oneapi::internal::id_##_t>() \
+    {                                                          \
+        return TypeIds::id_;                                   \
+    }
 
-DAAL_DECLARE_TYPE_ID_MAP( int8    );
-DAAL_DECLARE_TYPE_ID_MAP( int16   );
-DAAL_DECLARE_TYPE_ID_MAP( int32   );
-DAAL_DECLARE_TYPE_ID_MAP( int64   );
-DAAL_DECLARE_TYPE_ID_MAP( uint8   );
-DAAL_DECLARE_TYPE_ID_MAP( uint16  );
-DAAL_DECLARE_TYPE_ID_MAP( uint32  );
-DAAL_DECLARE_TYPE_ID_MAP( uint64  );
-DAAL_DECLARE_TYPE_ID_MAP( float32 );
-DAAL_DECLARE_TYPE_ID_MAP( float64 );
+DAAL_DECLARE_TYPE_ID_MAP(int8);
+DAAL_DECLARE_TYPE_ID_MAP(int16);
+DAAL_DECLARE_TYPE_ID_MAP(int32);
+DAAL_DECLARE_TYPE_ID_MAP(int64);
+DAAL_DECLARE_TYPE_ID_MAP(uint8);
+DAAL_DECLARE_TYPE_ID_MAP(uint16);
+DAAL_DECLARE_TYPE_ID_MAP(uint32);
+DAAL_DECLARE_TYPE_ID_MAP(uint64);
+DAAL_DECLARE_TYPE_ID_MAP(float32);
+DAAL_DECLARE_TYPE_ID_MAP(float64);
 
 #undef DAAL_DECLARE_TYPE_ID_MAP
 
 } // namespace internal
 
 template <typename T>
-inline TypeId TypeIds::id() {
+inline TypeId TypeIds::id()
+{
     return internal::getTypeId<T>();
 }
 
@@ -177,36 +183,32 @@ typedef AccessModeIds::Id AccessModeId;
 class UniversalBuffer : public Base
 {
 public:
-    UniversalBuffer() : _type(TypeIds::id<void>()) { }
+    UniversalBuffer() : _type(TypeIds::id<void>()) {}
 
     template <typename T>
-    UniversalBuffer(const services::Buffer<T> &buffer) :
-        _type(TypeIds::id<T>()),
-        _anyBuffer(buffer) { }
+    UniversalBuffer(const services::Buffer<T> & buffer) : _type(TypeIds::id<T>()), _anyBuffer(buffer)
+    {}
 
     template <typename T>
-    const services::Buffer<T> &get() const
+    const services::Buffer<T> & get() const
     {
-        return _anyBuffer.get< services::Buffer<T> >();
+        return _anyBuffer.get<services::Buffer<T> >();
     }
 
     template <typename T>
-    UniversalBuffer &operator=(const services::Buffer<T> &buffer)
+    UniversalBuffer & operator=(const services::Buffer<T> & buffer)
     {
-        _type = TypeIds::id<T>();
+        _type      = TypeIds::id<T>();
         _anyBuffer = buffer;
         return *this;
     }
 
-    TypeId type() const
-    { return _type; }
+    TypeId type() const { return _type; }
 
     /* TODO: Consider removing */
-    const services::internal::Any &any() const
-    { return _anyBuffer; }
+    const services::internal::Any & any() const { return _anyBuffer; }
 
-    bool empty() const
-    { return _anyBuffer.empty(); }
+    bool empty() const { return _anyBuffer.empty(); }
 
 private:
     TypeId _type;
@@ -220,9 +222,7 @@ private:
 class LocalBuffer : public Base
 {
 public:
-    LocalBuffer(TypeId id, size_t size)
-        : _id(id), _size(size)
-    { }
+    LocalBuffer(TypeId id, size_t size) : _id(id), _size(size) {}
 
     TypeId type() const { return _id; }
     size_t size() const { return _size; }

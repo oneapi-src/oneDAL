@@ -30,11 +30,10 @@ using namespace daal::algorithms::quality_metric_set;
  * Method:    cInit
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_ResultCollection_cInit
-(JNIEnv *, jobject, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_ResultCollection_cInit(JNIEnv *, jobject, jlong algAddr)
 {
-    ResultCollectionPtr *shPtr = new ResultCollectionPtr();
-    *shPtr = ((Batch *)algAddr)->getResultCollection();
+    ResultCollectionPtr * shPtr = new ResultCollectionPtr();
+    *shPtr                      = ((Batch *)algAddr)->getResultCollection();
     return (jlong)shPtr;
 }
 
@@ -43,11 +42,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_Resu
  * Method:    cAddResult
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_ResultCollection_cAddResult
-(JNIEnv *, jobject, jlong colAddr, jint key, jlong resAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_ResultCollection_cAddResult(JNIEnv *, jobject, jlong colAddr, jint key,
+                                                                                                       jlong resAddr)
 {
-    ResultCollectionPtr *shPtr = (ResultCollectionPtr *)colAddr;
-    ResultCollection *resCol = shPtr->get();
+    ResultCollectionPtr * shPtr = (ResultCollectionPtr *)colAddr;
+    ResultCollection * resCol   = shPtr->get();
     resCol->add(key, *(ResultPtr *)resAddr);
 }
 
@@ -56,11 +55,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_Resul
  * Method:    cGetResult
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_ResultCollection_cGetResult
-(JNIEnv *, jobject, jlong colAddr, jint key)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_quality_1metric_1set_ResultCollection_cGetResult(JNIEnv *, jobject, jlong colAddr, jint key)
 {
-    SerializationIfacePtr *resShPtr = new SerializationIfacePtr();
-    ResultCollectionPtr shPtr = (*(ResultCollectionPtr *)colAddr);
-    *resShPtr = shPtr->getResult((size_t)key);
+    SerializationIfacePtr * resShPtr = new SerializationIfacePtr();
+    ResultCollectionPtr shPtr        = (*(ResultCollectionPtr *)colAddr);
+    *resShPtr                        = shPtr->getResult((size_t)key);
     return (jlong)(resShPtr);
 }

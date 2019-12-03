@@ -42,23 +42,21 @@ namespace multiclass_confusion_matrix
 {
 namespace internal
 {
-
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 class MultiClassConfusionMatrixKernel : public Kernel
 {
 public:
     virtual ~MultiClassConfusionMatrixKernel() {}
 
-    services::Status compute(const NumericTable *predictedLabels, const NumericTable *groundTruthLabels,
-                             NumericTable *confusionMatrix, NumericTable *accuracyMeasures,
-                             const multiclass_confusion_matrix::Parameter *parameter);
+    services::Status compute(const NumericTable * predictedLabels, const NumericTable * groundTruthLabels, NumericTable * confusionMatrix,
+                             NumericTable * accuracyMeasures, const multiclass_confusion_matrix::Parameter * parameter);
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace multiclass_confusion_matrix
+} // namespace quality_metric
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -22,9 +22,9 @@ using namespace daal::data_management;
 
 template <typename DataType>
 HomogenNumericTable<DataType>::HomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, size_t nColumns, size_t nRows,
-                                                   NumericTable::AllocationFlag memoryAllocationFlag,
-                                                   const DataType &constValue, services::Status &st):
-        NumericTable(nColumns, nRows, featuresEqual, st)
+                                                   NumericTable::AllocationFlag memoryAllocationFlag, const DataType & constValue,
+                                                   services::Status & st)
+    : NumericTable(nColumns, nRows, featuresEqual, st)
 {
     _layout = aos;
 
@@ -33,25 +33,28 @@ HomogenNumericTable<DataType>::HomogenNumericTable(DictionaryIface::FeaturesEqua
 
     st |= _ddict->setAllFeatures(df);
 
-    if( memoryAllocationFlag == doAllocate ) { st |= allocateDataMemoryImpl(); }
+    if (memoryAllocationFlag == doAllocate)
+    {
+        st |= allocateDataMemoryImpl();
+    }
 
     st |= assign<DataType>(constValue);
 }
 
 #define DAAL_INSTANTIATE_FUNCTION(T)                                                                                                  \
     template HomogenNumericTable<T>::HomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, size_t nColumns, size_t nRows, \
-        NumericTable::AllocationFlag memoryAllocationFlag,                                                                            \
-        const T &constValue, services::Status &st)                                                                                    \
+                                                         NumericTable::AllocationFlag memoryAllocationFlag, const T & constValue,     \
+                                                         services::Status & st)
 
-DAAL_INSTANTIATE_FUNCTION(float         );
-DAAL_INSTANTIATE_FUNCTION(double        );
-DAAL_INSTANTIATE_FUNCTION(int           );
-DAAL_INSTANTIATE_FUNCTION(unsigned int  );
-DAAL_INSTANTIATE_FUNCTION(DAAL_INT64    );
-DAAL_INSTANTIATE_FUNCTION(DAAL_UINT64   );
-DAAL_INSTANTIATE_FUNCTION(char          );
-DAAL_INSTANTIATE_FUNCTION(unsigned char );
-DAAL_INSTANTIATE_FUNCTION(short         );
+DAAL_INSTANTIATE_FUNCTION(float);
+DAAL_INSTANTIATE_FUNCTION(double);
+DAAL_INSTANTIATE_FUNCTION(int);
+DAAL_INSTANTIATE_FUNCTION(unsigned int);
+DAAL_INSTANTIATE_FUNCTION(DAAL_INT64);
+DAAL_INSTANTIATE_FUNCTION(DAAL_UINT64);
+DAAL_INSTANTIATE_FUNCTION(char);
+DAAL_INSTANTIATE_FUNCTION(unsigned char);
+DAAL_INSTANTIATE_FUNCTION(short);
 DAAL_INSTANTIATE_FUNCTION(unsigned short);
-DAAL_INSTANTIATE_FUNCTION(unsigned long );
-DAAL_INSTANTIATE_FUNCTION(long          );
+DAAL_INSTANTIATE_FUNCTION(unsigned long);
+DAAL_INSTANTIATE_FUNCTION(long);

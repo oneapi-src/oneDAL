@@ -44,58 +44,58 @@ namespace init
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services;
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class GmmSigma
 {
     typedef HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef SharedPtr<HomogenNT> HomogenNTPtr;
+
 public:
-    GmmSigma(em_gmm::CovarianceStorageId _covType, size_t _nComponents, size_t _nFeatures, Status &st) : covType(_covType), nComponents(_nComponents), nFeatures(_nFeatures),
-        sigma(new DataCollection())
+    GmmSigma(em_gmm::CovarianceStorageId _covType, size_t _nComponents, size_t _nFeatures, Status & st)
+        : covType(_covType), nComponents(_nComponents), nFeatures(_nFeatures), sigma(new DataCollection())
     {
         nRows = nFeatures;
-        if (covType == em_gmm::diagonal) {nRows = 1;}
-        for(size_t i = 0; i < nComponents; i++)
+        if (covType == em_gmm::diagonal)
+        {
+            nRows = 1;
+        }
+        for (size_t i = 0; i < nComponents; i++)
         {
             sigma->push_back(HomogenNT::create(nFeatures, nRows, &st));
             if (!st) return;
         }
     }
-    void setVariance(algorithmFPType *varianceArray)
+    void setVariance(algorithmFPType * varianceArray)
     {
-        for(int k = 0; k < nComponents; k++)
+        for (int k = 0; k < nComponents; k++)
         {
-            auto workSigma = static_cast<HomogenNT *>((*sigma)[k].get());
-            algorithmFPType *sigmaArray = workSigma->getArray();
-            if(covType == em_gmm::diagonal)
+            auto workSigma               = static_cast<HomogenNT *>((*sigma)[k].get());
+            algorithmFPType * sigmaArray = workSigma->getArray();
+            if (covType == em_gmm::diagonal)
             {
-                for(int i = 0; i < nFeatures; i++)
+                for (int i = 0; i < nFeatures; i++)
                 {
                     sigmaArray[i] = varianceArray[i];
                 }
             }
             else
             {
-                for(int i = 0; i < nFeatures * nFeatures; i++)
+                for (int i = 0; i < nFeatures * nFeatures; i++)
                 {
                     sigmaArray[i] = 0.0;
                 }
-                for(int i = 0; i < nFeatures; i++)
+                for (int i = 0; i < nFeatures; i++)
                 {
                     sigmaArray[i * nFeatures + i] = varianceArray[i];
                 }
             }
         }
     }
-    DataCollectionPtr &getSigma()
-    {
-        return sigma;
-    }
+    DataCollectionPtr & getSigma() { return sigma; }
     Status writeToTables(DataCollectionPtr covariancesToInit)
     {
         for (size_t k = 0; k < nComponents; k++)
@@ -103,7 +103,7 @@ public:
             NumericTablePtr covariance = staticPointerCast<NumericTable, SerializationIface>((*covariancesToInit)[k]);
             WriteOnlyRows<algorithmFPType, cpu, NumericTable> covarianceBlock(covariance.get(), 0, nRows);
             DAAL_CHECK_BLOCK_STATUS(covarianceBlock)
-            algorithmFPType *covarianceArray = covarianceBlock.get();
+            algorithmFPType * covarianceArray = covarianceBlock.get();
 
             auto workSigma = static_cast<HomogenNT *>((*sigma)[k].get());
             for (size_t i = 0; i < nRows * nFeatures; i++)
@@ -122,23 +122,25 @@ private:
     size_t nRows;
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class EMInitKernel : public Kernel
 {
 public:
-    services::Status compute(NumericTable &data, NumericTable &weightsToInit, NumericTable &meansToInit,
-                             DataCollectionPtr &covariancesToInit, const Parameter &par, engines::BatchBase &engine);
+    services::Status compute(NumericTable & data, NumericTable & weightsToInit, NumericTable & meansToInit, DataCollectionPtr & covariancesToInit,
+                             const Parameter & par, engines::BatchBase & engine);
 };
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class EMInitKernelTask
 {
     typedef HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef SharedPtr<HomogenNT> HomogenNTPtr;
+
 public:
-    EMInitKernelTask(NumericTable &data, NumericTable &weightsToInit,
-                     NumericTable &meansToInit, DataCollectionPtr &covariancesToInit, const Parameter &parameter, engines::BatchBase &engine, Status &status);
+    EMInitKernelTask(NumericTable & data, NumericTable & weightsToInit, NumericTable & meansToInit, DataCollectionPtr & covariancesToInit,
+                     const Parameter & parameter, engines::BatchBase & engine, Status & status);
     Status compute();
+
 private:
     Status writeValuesToTables();
     Status setSelectedSetAsInitialValues();
@@ -147,11 +149,11 @@ private:
     Status initialize();
     Status computeVariance();
 
-    NumericTable &data;
-    NumericTable &weightsToInit;
-    NumericTable &meansToInit;
-    DataCollectionPtr &covariancesToInit;
-    const Parameter &parameter;
+    NumericTable & data;
+    NumericTable & weightsToInit;
+    NumericTable & meansToInit;
+    DataCollectionPtr & covariancesToInit;
+    const Parameter & parameter;
     const size_t nComponents;
     const size_t nFeatures;
     const size_t nVectors;
@@ -162,30 +164,23 @@ private:
     HomogenNTPtr means;
     algorithmFPType loglikelyhood;
     algorithmFPType maxLoglikelyhood;
-    algorithmFPType *varianceArray;
+    algorithmFPType * varianceArray;
     TArray<algorithmFPType, cpu> varianceArrayPtr;
     TArray<int, cpu> selectedSetPtr;
-    int *selectedSet;
+    int * selectedSet;
     GmmSigma<algorithmFPType, cpu> covs;
-    engines::BatchBase &engine;
+    engines::BatchBase & engine;
 };
 
-
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class EMforKernel : public daal::algorithms::em_gmm::Batch<algorithmFPType, em_gmm::defaultDense>
 {
 public:
     EMforKernel(const size_t nComponents) : daal::algorithms::em_gmm::Batch<algorithmFPType, em_gmm::defaultDense>(nComponents) {}
-    virtual ~EMforKernel()
-    {}
+    virtual ~EMforKernel() {}
 
-    ErrorID run(data_management::NumericTable &inputData,
-                data_management::NumericTable &inputWeights,
-                data_management::NumericTable &inputMeans,
-                data_management::DataCollectionPtr &inputCov,
-                const em_gmm::CovarianceStorageId covType,
-                algorithmFPType &loglikelyhood);
-
+    ErrorID run(data_management::NumericTable & inputData, data_management::NumericTable & inputWeights, data_management::NumericTable & inputMeans,
+                data_management::DataCollectionPtr & inputCov, const em_gmm::CovarianceStorageId covType, algorithmFPType & loglikelyhood);
 };
 
 } // namespace internal

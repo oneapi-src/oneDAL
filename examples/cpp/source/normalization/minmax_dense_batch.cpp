@@ -49,7 +49,7 @@ int main()
 
     /* Set lower and upper bounds for the algorithm */
     algorithm.parameter.lowerBound = -1.0;
-    algorithm.parameter.upperBound =  1.0;
+    algorithm.parameter.upperBound = 1.0;
 
     /* Set an input object for the algorithm */
     algorithm.input.set(minmax::data, data);

@@ -32,7 +32,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -58,13 +57,13 @@ public:
      *  Performs serialization
      *  \param[in]  archive  Storage for a serialized object or data structure
      */
-    void serialize(interface1::InputDataArchive &archive);
+    void serialize(interface1::InputDataArchive & archive);
 
     /**
      *  Performs deserialization
      *  \param[in]  archive  Storage for a deserialized object or data structure
      */
-    void deserialize(interface1::OutputDataArchive &archive);
+    void deserialize(interface1::OutputDataArchive & archive);
 
     /**
      * Returns a serialization tag, a unique identifier of this class used in serialization
@@ -76,13 +75,13 @@ public:
      *  Interfaces for the implementation of serialization
      *  \param[in]  archive  Storage for a serialized object or data structure
      */
-    virtual services::Status serializeImpl(interface1::InputDataArchive *archive) = 0;
+    virtual services::Status serializeImpl(interface1::InputDataArchive * archive) = 0;
 
     /**
      *  Interfaces for the implementation of deserialization
      *  \param[in]  archive  Storage for a deserialized object or data structure
      */
-    virtual services::Status deserializeImpl(const interface1::OutputDataArchive *archive) = 0;
+    virtual services::Status deserializeImpl(const interface1::OutputDataArchive * archive) = 0;
 };
 
 /// @cond
@@ -90,17 +89,17 @@ public:
 class DAAL_EXPORT SerializationDesc
 {
 public:
-    typedef SerializationIface* (*creatorFunc)();
+    typedef SerializationIface * (*creatorFunc)();
     SerializationDesc(creatorFunc func, int tag);
     int tag() const { return _tag; }
     creatorFunc creator() const { return _f; }
-    const SerializationDesc* next() const { return _next; }
-    static const SerializationDesc* first();
+    const SerializationDesc * next() const { return _next; }
+    static const SerializationDesc * first();
 
 private:
     creatorFunc _f;
     const int _tag;
-    const SerializationDesc* _next;
+    const SerializationDesc * _next;
 };
 /// @endcond
 
@@ -109,46 +108,52 @@ private:
 using interface1::SerializationIface;
 using interface1::SerializationDesc;
 
-}
-}
+} // namespace data_management
+} // namespace daal
 #define DECLARE_SERIALIZABLE_IMPL()                                                                     \
-    services::Status serializeImpl  (data_management::InputDataArchive  *arch) DAAL_C11_OVERRIDE        \
-    { return serialImpl<data_management::InputDataArchive, false>( arch ); }                            \
-    services::Status deserializeImpl(const data_management::OutputDataArchive *arch) DAAL_C11_OVERRIDE  \
-    { return serialImpl<const data_management::OutputDataArchive, true>( arch ); }
+    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE          \
+    {                                                                                                   \
+        return serialImpl<data_management::InputDataArchive, false>(arch);                              \
+    }                                                                                                   \
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE \
+    {                                                                                                   \
+        return serialImpl<const data_management::OutputDataArchive, true>(arch);                        \
+    }
 
-#define DECLARE_SERIALIZABLE()                                                          \
-private:                                                                                \
-    static data_management::SerializationDesc _desc;                                    \
-public:                                                                                 \
-    DECLARE_SERIALIZABLE_IMPL()                                                         \
-    static int serializationTag();                                                      \
+#define DECLARE_SERIALIZABLE()                       \
+private:                                             \
+    static data_management::SerializationDesc _desc; \
+                                                     \
+public:                                              \
+    DECLARE_SERIALIZABLE_IMPL()                      \
+    static int serializationTag();                   \
     virtual int getSerializationTag() const DAAL_C11_OVERRIDE;
 
-#define DECLARE_SERIALIZABLE_IFACE()                                                    \
-private:                                                                                \
-    static data_management::SerializationDesc _desc;                                    \
-public:                                                                                 \
-    static int serializationTag();                                                      \
+#define DECLARE_SERIALIZABLE_IFACE()                 \
+private:                                             \
+    static data_management::SerializationDesc _desc; \
+                                                     \
+public:                                              \
+    static int serializationTag();                   \
     virtual int getSerializationTag() const DAAL_C11_OVERRIDE;
 
-#define DECLARE_SERIALIZABLE_TAG()                                                      \
-public:                                                                                 \
-    static int serializationTag();                                                      \
+#define DECLARE_SERIALIZABLE_TAG() \
+public:                            \
+    static int serializationTag(); \
     virtual int getSerializationTag() const DAAL_C11_OVERRIDE;
 
-#define DECLARE_SERIALIZABLE_CAST(ClassName)                                            \
-    DECLARE_SERIALIZABLE();                                                             \
+#define DECLARE_SERIALIZABLE_CAST(ClassName) \
+    DECLARE_SERIALIZABLE();                  \
     DAAL_CAST_OPERATOR(ClassName);
 
-#define DECLARE_MODEL(DstClassName, SrcClassName)                                       \
-    DECLARE_SERIALIZABLE();                                                             \
-    DAAL_CAST_OPERATOR(DstClassName);                                                   \
+#define DECLARE_MODEL(DstClassName, SrcClassName) \
+    DECLARE_SERIALIZABLE();                       \
+    DAAL_CAST_OPERATOR(DstClassName);             \
     DAAL_DOWN_CAST_OPERATOR(DstClassName, SrcClassName)
 
-#define DECLARE_MODEL_IFACE(DstClassName, SrcClassName)                                 \
-    DECLARE_SERIALIZABLE_IFACE();                                                       \
-    DAAL_CAST_OPERATOR(DstClassName);                                                   \
+#define DECLARE_MODEL_IFACE(DstClassName, SrcClassName) \
+    DECLARE_SERIALIZABLE_IFACE();                       \
+    DAAL_CAST_OPERATOR(DstClassName);                   \
     DAAL_DOWN_CAST_OPERATOR(DstClassName, SrcClassName)
 
 #endif

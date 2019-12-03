@@ -31,7 +31,6 @@ namespace data_management
  */
 namespace data_feature_utils
 {
-
 const int NumOfIndexNumTypes = (int)(data_management::features::DAAL_OTHER_T);
 
 /* Usings for IndexNumType */
@@ -80,8 +79,7 @@ DAAL_EXPORT vectorConvertFuncType getVectorDownCast(int, int);
 DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideUpCast(int, int);
 DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideDownCast(int, int);
 
-
-template<typename T>
+template <typename T>
 inline InternalNumType getInternalNumType()
 {
     return data_management::internal::getConversionDataType<T>();

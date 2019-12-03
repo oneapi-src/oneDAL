@@ -37,7 +37,6 @@ namespace algorithms
 {
 namespace covariance
 {
-
 namespace interface1
 {
 /**
@@ -53,7 +52,7 @@ namespace interface1
 * \tparam algorithmFPType  Data type to use in intermediate computations of the correlation or variance-covariance matrix, double or float
 * \tparam method           Computation method of the algorithm, \ref daal::algorithms::covariance::Method
 */
-template<ComputeStep step>
+template <ComputeStep step>
 class DistributedContainerIface
 {};
 
@@ -65,7 +64,7 @@ class DistributedContainerIface
 * \tparam algorithmFPType  Data type to use in intermediate computations of the correlation or variance-covariance matrix, double or float
 * \tparam method           Computation method of the algorithm, \ref daal::algorithms::covariance::Method
 */
-template<>
+template <>
 class DistributedContainerIface<step2Master> : public daal::algorithms::AnalysisContainerIface<distributed>
 {
 public:
@@ -94,7 +93,7 @@ public:
  * \tparam method           Computation method, \ref daal::algorithms::covariance::Method
  *
  */
-template<ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
+template <ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer
 {};
 
@@ -103,7 +102,7 @@ class DistributedContainer
  * \brief Provides methods to run implementations of the correlation or variance-covariance matrix  algorithm in the distributed processing mode
           on master node.
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public DistributedContainerIface<step2Master>
 {
 public:
@@ -112,7 +111,7 @@ public:
      * in the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~DistributedContainer();
     /**
@@ -148,7 +147,7 @@ public:
  *      - PartialResult class
  *      - Result class
  */
-template<ComputeStep step>
+template <ComputeStep step>
 class DAAL_EXPORT DistributedIface : public daal::algorithms::Analysis<distributed>
 {};
 
@@ -173,20 +172,19 @@ class DAAL_EXPORT DistributedIface : public daal::algorithms::Analysis<distribut
  *      - PartialResult class
  *      - Result class
  */
-template<>
+template <>
 class DistributedIface<step1Local> : public OnlineImpl
 {
 public:
     typedef OnlineImpl super;
 
     typedef algorithms::covariance::DistributedInput<step1Local> InputType;
-    typedef super::ParameterType                                 ParameterType;
-    typedef super::ResultType                                    ResultType;
-    typedef super::PartialResultType                             PartialResultType;
+    typedef super::ParameterType ParameterType;
+    typedef super::ResultType ResultType;
+    typedef super::PartialResultType PartialResultType;
 
     /** Default constructor */
-    DistributedIface() : OnlineImpl()
-    {}
+    DistributedIface() : OnlineImpl() {}
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -195,8 +193,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DistributedIface(const DistributedIface<step1Local> &other) : OnlineImpl(other)
-    {}
+    DistributedIface(const DistributedIface<step1Local> & other) : OnlineImpl(other) {}
 
     /**
      * Returns a pointer to the newly allocated algorithm for correlation or variance-covariance matrix computation
@@ -204,10 +201,7 @@ public:
      * for correlation or variance-covariance matrix computation
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<DistributedIface<step1Local> > clone() const
-    {
-        return services::SharedPtr<DistributedIface<step1Local> >(cloneImpl());
-    }
+    services::SharedPtr<DistributedIface<step1Local> > clone() const { return services::SharedPtr<DistributedIface<step1Local> >(cloneImpl()); }
 
 protected:
     virtual DistributedIface<step1Local> * cloneImpl() const DAAL_C11_OVERRIDE = 0;
@@ -234,20 +228,17 @@ protected:
  *      - PartialResult class
  *      - Result class
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedIface<step2Master> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::covariance::DistributedInput<step2Master> InputType;
-    typedef algorithms::covariance::Parameter                     ParameterType;
-    typedef algorithms::covariance::Result                        ResultType;
-    typedef algorithms::covariance::PartialResult                 PartialResultType;
+    typedef algorithms::covariance::Parameter ParameterType;
+    typedef algorithms::covariance::Result ResultType;
+    typedef algorithms::covariance::PartialResult PartialResultType;
 
     /** Default constructor */
-    DistributedIface()
-    {
-        initialize();
-    }
+    DistributedIface() { initialize(); }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -256,14 +247,13 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DistributedIface(const DistributedIface<step2Master> &other) : parameter(other.parameter)
+    DistributedIface(const DistributedIface<step2Master> & other) : parameter(other.parameter)
     {
         initialize();
         data_management::DataCollectionPtr collection = other.input.get(partialResults);
         for (size_t i = 0; i < collection->size(); i++)
         {
-            input.add(partialResults,
-                    services::staticPointerCast<PartialResultType, data_management::SerializationIface>((*collection)[i]));
+            input.add(partialResults, services::staticPointerCast<PartialResultType, data_management::SerializationIface>((*collection)[i]));
         }
     }
 
@@ -273,20 +263,17 @@ public:
      * Returns the structure that contains final results of the correlation or variance-covariance matrix algorithm
      * \return Structure that contains final results
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory to store final results of the correlation or variance-covariance matrix algorithm
      * \param[in] result    Structure to store the results
      */
-    virtual services::Status setResult(const ResultPtr &result)
+    virtual services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -294,21 +281,18 @@ public:
      * Returns the structure that contains computed partial results of the correlation or variance-covariance matrix algorithm
      * \return Structure that contains partial results
      */
-    PartialResultPtr getPartialResult()
-    {
-        return _partialResult;
-    }
+    PartialResultPtr getPartialResult() { return _partialResult; }
 
     /**
      * Registers user-allocated memory to store partial results of the correlation or variance-covariance matrix algorithm
      * \param[in] partialResult    Structure to store partial results
      * \param[in] initFlag         Flag that specifies whether the partial results are initialized
      */
-    virtual services::Status setPartialResult(const PartialResultPtr &partialResult, bool initFlag = false)
+    virtual services::Status setPartialResult(const PartialResultPtr & partialResult, bool initFlag = false)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult);
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         setInitFlag(initFlag);
         return services::Status();
     }
@@ -319,7 +303,7 @@ public:
     services::Status checkFinalizeComputeParams() DAAL_C11_OVERRIDE
     {
         services::Status s;
-        if(this->_partialResult)
+        if (this->_partialResult)
         {
             s |= this->_partialResult->check(this->_par, getMethod());
             if (!s) return s;
@@ -329,7 +313,7 @@ public:
             return services::Status(services::ErrorNullResult);
         }
 
-        if(this->_result)
+        if (this->_result)
         {
             s |= this->_result->check(this->_pres, this->_par, getMethod());
             if (!s) return s;
@@ -347,24 +331,18 @@ public:
      * for correlation or variance-covariance matrix computation
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<DistributedIface<step2Master> > clone() const
-    {
-        return services::SharedPtr<DistributedIface<step2Master> >(cloneImpl());
-    }
+    services::SharedPtr<DistributedIface<step2Master> > clone() const { return services::SharedPtr<DistributedIface<step2Master> >(cloneImpl()); }
 
-    DistributedInput<step2Master> input;  /*!< Input data structure */
-    ParameterType parameter;           /*!< Parameters of the algorithm */
+    DistributedInput<step2Master> input; /*!< Input data structure */
+    ParameterType parameter;             /*!< Parameters of the algorithm */
 
 protected:
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
-        _in     = &input;
-        _par    = &parameter;
+        _in  = &input;
+        _par = &parameter;
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
@@ -396,7 +374,7 @@ protected:
  *      - PartialResult class
  *      - Result class
  */
-template<ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Distributed : public DistributedIface<step>
 {};
 
@@ -421,19 +399,18 @@ class DAAL_EXPORT Distributed : public DistributedIface<step>
  *      - PartialResult class
  *      - Result class
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
 {
 public:
     typedef Online<algorithmFPType, method> super;
 
     typedef algorithms::covariance::DistributedInput<step1Local> InputType;
-    typedef typename super::ParameterType                        ParameterType;
-    typedef typename super::ResultType                           ResultType;
-    typedef typename super::PartialResultType                    PartialResultType;
+    typedef typename super::ParameterType ParameterType;
+    typedef typename super::ResultType ResultType;
+    typedef typename super::PartialResultType PartialResultType;
 
-    Distributed<step1Local, algorithmFPType, method>() : Online<algorithmFPType, method>()
-    {}
+    Distributed<step1Local, algorithmFPType, method>() : Online<algorithmFPType, method>() {}
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -442,9 +419,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step1Local, algorithmFPType, method> &other) :
-            Online<algorithmFPType, method>(other)
-    {}
+    Distributed(const Distributed<step1Local, algorithmFPType, method> & other) : Online<algorithmFPType, method>(other) {}
 
     /**
      * Returns a pointer to the newly allocated algorithm for correlation or variance-covariance matrix computation
@@ -485,22 +460,19 @@ protected:
  *      - PartialResult class
  *      - Result class
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public DistributedIface<step2Master>
 {
 public:
     typedef DistributedIface<step2Master> super;
 
-    typedef typename super::InputType         InputType;
-    typedef typename super::ParameterType     ParameterType;
-    typedef typename super::ResultType        ResultType;
+    typedef typename super::InputType InputType;
+    typedef typename super::ParameterType ParameterType;
+    typedef typename super::ResultType ResultType;
     typedef typename super::PartialResultType PartialResultType;
 
     /** Default constructor */
-    Distributed()
-    {
-        initialize();
-    }
+    Distributed() { initialize(); }
 
     /**
      * Constructs an algorithm for correlation or variance-covariance matrix computation
@@ -509,11 +481,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, method> &other) :
-            DistributedIface<step2Master>(other)
-    {
-        initialize();
-    }
+    Distributed(const Distributed<step2Master, algorithmFPType, method> & other) : DistributedIface<step2Master>(other) { initialize(); }
 
     virtual ~Distributed() {}
 
@@ -521,7 +489,7 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated algorithm for correlation or variance-covariance matrix computation
@@ -542,24 +510,21 @@ protected:
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        ResultPtr result = this->getResult();
+        ResultPtr result   = this->getResult();
         services::Status s = result->template allocate<algorithmFPType>(this->_partialResult.get(), this->_par, (int)method);
-        this->_res  = this->_result.get();
-        this->_pres = this->_partialResult.get();
+        this->_res         = this->_result.get();
+        this->_pres        = this->_partialResult.get();
         return s;
     }
 
     virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = this->_partialResult->template allocate<algorithmFPType>(&(this->input), this->_par, (int)method);
-        this->_pres = this->_partialResult.get();
+        this->_pres        = this->_partialResult.get();
         return s;
     }
 
-    void initialize()
-    {
-        this->_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, method)(&_env);
-    }
+    void initialize() { this->_ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, method)(&_env); }
 };
 /** @} */
 } // namespace interface1
@@ -568,7 +533,7 @@ using interface1::DistributedContainer;
 using interface1::DistributedIface;
 using interface1::Distributed;
 
-}
-}
-}
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal
 #endif // __COVARIANCE_DISTRIBUTED_H__

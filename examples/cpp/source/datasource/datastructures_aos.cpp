@@ -42,15 +42,10 @@ int main()
 {
     std::cout << "Array of structures (AOS) numeric table example" << std::endl << std::endl;
 
-    const size_t nObservations = 5;
-    const size_t nFeatures = 4;
-    PointType points[nObservations] =
-    {
-        {0.5f, -1.3f, 1, 100.1},
-        {2.5f, -3.3f, 2, 200.2},
-        {4.5f, -5.3f, 2, 350.3},
-        {6.5f, -7.3f, 0, 470.4},
-        {8.5f, -9.3f, 1, 270.5}
+    const size_t nObservations      = 5;
+    const size_t nFeatures          = 4;
+    PointType points[nObservations] = {
+        { 0.5f, -1.3f, 1, 100.1 }, { 2.5f, -3.3f, 2, 200.2 }, { 4.5f, -5.3f, 2, 350.3 }, { 6.5f, -7.3f, 0, 470.4 }, { 8.5f, -9.3f, 1, 270.5 }
     };
 
     /* Construct AOS numericTable for a data array with nFeatures fields and nObservations elements*/
@@ -58,10 +53,10 @@ int main()
     checkPtr(dataTable.get());
 
     /* Add data to the numeric table */
-    dataTable->setFeature<float> (0, DAAL_STRUCT_MEMBER_OFFSET(PointType, x)    , data_feature_utils::DAAL_CONTINUOUS    );
-    dataTable->setFeature<float> (1, DAAL_STRUCT_MEMBER_OFFSET(PointType, y)    , data_feature_utils::DAAL_CONTINUOUS    );
-    dataTable->setFeature<int>   (2, DAAL_STRUCT_MEMBER_OFFSET(PointType, categ), data_feature_utils::DAAL_CATEGORICAL, 4);
-    dataTable->setFeature<double>(3, DAAL_STRUCT_MEMBER_OFFSET(PointType, value), data_feature_utils::DAAL_CONTINUOUS    );
+    dataTable->setFeature<float>(0, DAAL_STRUCT_MEMBER_OFFSET(PointType, x), data_feature_utils::DAAL_CONTINUOUS);
+    dataTable->setFeature<float>(1, DAAL_STRUCT_MEMBER_OFFSET(PointType, y), data_feature_utils::DAAL_CONTINUOUS);
+    dataTable->setFeature<int>(2, DAAL_STRUCT_MEMBER_OFFSET(PointType, categ), data_feature_utils::DAAL_CATEGORICAL, 4);
+    dataTable->setFeature<double>(3, DAAL_STRUCT_MEMBER_OFFSET(PointType, value), data_feature_utils::DAAL_CONTINUOUS);
 
     /* Read a block of rows */
     const size_t firstReadRow = 0;

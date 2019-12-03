@@ -35,27 +35,25 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__ALGORITHMIMPL"></a>
  * \brief Provides implementations of the compute and finalizeCompute methods of the Algorithm class.
  *        The methods of the class support different computation modes: batch, distributed and online(see \ref ComputeMode)
  * \tparam mode Computation mode of the algorithm, \ref ComputeMode
  */
-template<ComputeMode mode>
+template <ComputeMode mode>
 class DAAL_EXPORT AlgorithmImpl : public Algorithm<mode>
 {
 public:
     /** Deafult constructor */
     AlgorithmImpl() : wasSetup(false), resetFlag(true), wasFinalizeSetup(false), resetFinalizeFlag(true) {}
 
-    AlgorithmImpl(const AlgorithmImpl& other) : wasSetup(false), resetFlag(true), wasFinalizeSetup(false), resetFinalizeFlag(true) {}
+    AlgorithmImpl(const AlgorithmImpl & other) : wasSetup(false), resetFlag(true), wasFinalizeSetup(false), resetFinalizeFlag(true) {}
 
     virtual ~AlgorithmImpl()
     {
@@ -84,32 +82,27 @@ public:
      */
     services::Status finalizeComputeNoThrow()
     {
-        if(this->isChecksEnabled())
+        if (this->isChecksEnabled())
         {
             services::Status s = this->checkPartialResult();
-            if(!s)
-                return s;
+            if (!s) return s;
         }
 
         services::Status s = this->allocateResultMemory();
-        if(!s)
-            return s.add(services::ErrorMemoryAllocationFailed);
+        if (!s) return s.add(services::ErrorMemoryAllocationFailed);
 
         this->_ac->setPartialResult(this->_pres);
         this->_ac->setResult(this->_res);
 
-        if(this->isChecksEnabled())
+        if (this->isChecksEnabled())
         {
             s = this->checkFinalizeComputeParams();
-            if(!s)
-                return s;
+            if (!s) return s;
         }
 
         s = setupFinalizeCompute();
-        if(s)
-            s |= this->_ac->finalizeCompute();
-        if(resetFinalizeFlag)
-            s |= resetFinalizeCompute();
+        if (s) s |= this->_ac->finalizeCompute();
+        if (resetFinalizeFlag) s |= resetFinalizeCompute();
         return s;
     }
 
@@ -128,8 +121,7 @@ public:
     virtual services::Status checkComputeParams() DAAL_C11_OVERRIDE
     {
         services::Status s;
-        if (this->_par)
-            s = this->_par->check();
+        if (this->_par) s = this->_par->check();
         return s.add(this->_in->check(this->_par, this->getMethod()));
     }
 
@@ -138,8 +130,7 @@ public:
      */
     virtual services::Status checkResult() DAAL_C11_OVERRIDE
     {
-        return this->_pres ? this->_pres->check(this->_in, this->_par, this->getMethod()) :
-            services::Status(services::ErrorNullPartialResult);
+        return this->_pres ? this->_pres->check(this->_in, this->_par, this->getMethod()) : services::Status(services::ErrorNullPartialResult);
     }
 
     /**
@@ -147,8 +138,7 @@ public:
      */
     virtual services::Status checkPartialResult() DAAL_C11_OVERRIDE
     {
-        return this->_pres ? this->_pres->check(this->_par, this->getMethod()) :
-            services::Status(services::ErrorNullPartialResult);
+        return this->_pres ? this->_pres->check(this->_par, this->getMethod()) : services::Status(services::ErrorNullPartialResult);
     }
 
     /**
@@ -162,9 +152,9 @@ public:
     services::Status setupCompute()
     {
         services::Status s;
-        if(!wasSetup)
+        if (!wasSetup)
         {
-            s = this->_ac->setupCompute();
+            s        = this->_ac->setupCompute();
             wasSetup = true;
         }
         return s;
@@ -173,25 +163,22 @@ public:
     services::Status resetCompute()
     {
         services::Status s;
-        if(wasSetup)
+        if (wasSetup)
         {
-            s = this->_ac->resetCompute();
+            s        = this->_ac->resetCompute();
             wasSetup = false;
         }
         return s;
     }
 
-    void enableResetOnCompute(bool flag)
-    {
-        resetFlag = flag;
-    }
+    void enableResetOnCompute(bool flag) { resetFlag = flag; }
 
     services::Status setupFinalizeCompute()
     {
         services::Status s;
-        if(!wasFinalizeSetup)
+        if (!wasFinalizeSetup)
         {
-            s = this->_ac->setupFinalizeCompute();
+            s                = this->_ac->setupFinalizeCompute();
             wasFinalizeSetup = true;
         }
         return s;
@@ -200,18 +187,15 @@ public:
     services::Status resetFinalizeCompute()
     {
         services::Status s;
-        if(wasFinalizeSetup)
+        if (wasFinalizeSetup)
         {
-            s = this->_ac->resetFinalizeCompute();
+            s                = this->_ac->resetFinalizeCompute();
             wasFinalizeSetup = false;
         }
         return s;
     }
 
-    void enableResetOnFinalizeCompute(bool flag)
-    {
-        resetFinalizeFlag = flag;
-    }
+    void enableResetOnFinalizeCompute(bool flag) { resetFinalizeFlag = flag; }
     /**
     * Returns HostAppIface used by the class
     * \return HostAppIface used by the class
@@ -222,7 +206,7 @@ public:
     * Sets HostAppIface to be used by the class
     * \param pHost to be used by the class
     */
-    void setHostApp(const services::HostAppIfacePtr& pHost);
+    void setHostApp(const services::HostAppIfacePtr & pHost);
 
 private:
     bool wasSetup;
@@ -235,19 +219,16 @@ private:
  * <a name="DAAL-CLASS-ALGORITHMS__ALGORITHMIMPL_BATCH"></a>
  * \brief Provides implementations of the compute and checkComputeParams methods of the Algorithm<batch> class
  */
-template<>
+template <>
 class DAAL_EXPORT AlgorithmImpl<batch> : public Algorithm<batch>
 {
 public:
     /** Deafult constructor */
     AlgorithmImpl() : wasSetup(false), resetFlag(true) {}
 
-    AlgorithmImpl(const AlgorithmImpl& other) : wasSetup(false), resetFlag(true) {}
+    AlgorithmImpl(const AlgorithmImpl & other) : wasSetup(false), resetFlag(true) {}
 
-    virtual ~AlgorithmImpl()
-    {
-        resetCompute();
-    }
+    virtual ~AlgorithmImpl() { resetCompute(); }
 
     /**
      * Computes final results of the algorithm in the %batch mode without possibility of throwing an exception.
@@ -272,8 +253,7 @@ public:
         if (_par)
         {
             s = _par->check();
-            if(!s)
-                return s;
+            if (!s) return s;
         }
 
         return _in->check(_par, getMethod());
@@ -284,17 +264,16 @@ public:
      */
     virtual services::Status checkResult() DAAL_C11_OVERRIDE
     {
-        if (_res)
-            return _res->check(_in, _par, getMethod());
+        if (_res) return _res->check(_in, _par, getMethod());
         return services::Status(services::ErrorNullResult);
     }
 
     services::Status setupCompute()
     {
         services::Status s;
-        if(!wasSetup)
+        if (!wasSetup)
         {
-            s = this->_ac->setupCompute();
+            s        = this->_ac->setupCompute();
             wasSetup = true;
         }
         return s;
@@ -303,18 +282,15 @@ public:
     services::Status resetCompute()
     {
         services::Status s;
-        if(wasSetup)
+        if (wasSetup)
         {
-            s = this->_ac->resetCompute();
+            s        = this->_ac->resetCompute();
             wasSetup = false;
         }
         return s;
     }
 
-    void enableResetOnCompute(bool flag)
-    {
-        resetFlag = flag;
-    }
+    void enableResetOnCompute(bool flag) { resetFlag = flag; }
 
     /**
     * Returns HostAppIface used by the class
@@ -326,7 +302,7 @@ public:
     * Sets HostAppIface to be used by the class
     * \param pHost to be used by the class
     */
-    void setHostApp(const services::HostAppIfacePtr& pHost);
+    void setHostApp(const services::HostAppIfacePtr & pHost);
 
 private:
     bool wasSetup;
@@ -336,6 +312,6 @@ private:
 } // namespace interface1
 using interface1::AlgorithmImpl;
 
-}
-}
+} // namespace algorithms
+} // namespace daal
 #endif

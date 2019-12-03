@@ -39,7 +39,6 @@ namespace init
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_KMEANS_INIT_RESULT_ID);
 
 Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
@@ -59,7 +58,7 @@ NumericTablePtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the object
  */
-void Result::set(ResultId id, const NumericTablePtr &ptr)
+void Result::set(ResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -70,17 +69,17 @@ void Result::set(ResultId id, const NumericTablePtr &ptr)
 * \param[in] par     %Parameter of the algorithm
 * \param[in] method  Computation method of the algorithm
 */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const DistributedStep2MasterInput* masterInput = dynamic_cast<const DistributedStep2MasterInput*>(input);
-    size_t nFeatures = 0;
-    if(masterInput)
+    const DistributedStep2MasterInput * masterInput = dynamic_cast<const DistributedStep2MasterInput *>(input);
+    size_t nFeatures                                = 0;
+    if (masterInput)
     {
-        data_management::DataCollection* coll = masterInput->get(partialResults).get();
-        for(size_t i = 0; i < coll->size(); ++i)
+        data_management::DataCollection * coll = masterInput->get(partialResults).get();
+        for (size_t i = 0; i < coll->size(); ++i)
         {
-            data_management::NumericTable* partClusters = static_cast<PartialResult *>((*coll)[i].get())->get(partialClusters).get();
-            if(partClusters)
+            data_management::NumericTable * partClusters = static_cast<PartialResult *>((*coll)[i].get())->get(partialClusters).get();
+            if (partClusters)
             {
                 nFeatures = partClusters->getNumberOfColumns();
                 break;
@@ -90,8 +89,8 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     else
         nFeatures = (static_cast<const Input *>(input))->get(data)->getNumberOfColumns();
 
-    const interface1::Parameter *kmPar = static_cast<const interface1::Parameter *>(par);
-    const int unexpectedLayouts = (int)packed_mask;
+    const interface1::Parameter * kmPar = static_cast<const interface1::Parameter *>(par);
+    const int unexpectedLayouts         = (int)packed_mask;
     return checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, nFeatures, kmPar->nClusters);
 }
 
@@ -101,11 +100,10 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
 * \param[in] par     %Parameter of the algorithm
 * \param[in] method  Computation method of the algorithm
 */
-services::Status Result::check(const daal::algorithms::PartialResult *pres, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::PartialResult * pres, const daal::algorithms::Parameter * par, int method) const
 {
-    size_t inputFeatures = const_cast<PartialResult *>(static_cast<const PartialResult *>(pres))->get(
-                            partialClusters)->getNumberOfColumns();
-    const interface1::Parameter *kmPar = static_cast<const interface1::Parameter *>(par);
+    size_t inputFeatures = const_cast<PartialResult *>(static_cast<const PartialResult *>(pres))->get(partialClusters)->getNumberOfColumns();
+    const interface1::Parameter * kmPar = static_cast<const interface1::Parameter *>(par);
 
     int unexpectedLayouts = (int)packed_mask;
     return checkNumericTable(get(centroids).get(), centroidsStr(), unexpectedLayouts, 0, inputFeatures, kmPar->nClusters);
@@ -114,5 +112,5 @@ services::Status Result::check(const daal::algorithms::PartialResult *pres, cons
 } // namespace interface1
 } // namespace init
 } // namespace kmeans
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

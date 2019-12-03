@@ -32,9 +32,8 @@ namespace algorithms
 {
 namespace internal
 {
-
-template<typename FPType, CpuType cpu>
-FPType distancePow2(const FPType *a, const FPType *b, size_t dim)
+template <typename FPType, CpuType cpu>
+FPType distancePow2(const FPType * a, const FPType * b, size_t dim)
 {
     FPType sum = 0.0;
 
@@ -46,8 +45,8 @@ FPType distancePow2(const FPType *a, const FPType *b, size_t dim)
     return sum;
 }
 
-template<typename FPType, CpuType cpu>
-FPType distancePow(const FPType *a, const FPType *b, size_t dim, FPType p)
+template <typename FPType, CpuType cpu>
+FPType distancePow(const FPType * a, const FPType * b, size_t dim, FPType p)
 {
     FPType sum = 0.0;
 
@@ -59,8 +58,8 @@ FPType distancePow(const FPType *a, const FPType *b, size_t dim, FPType p)
     return sum;
 }
 
-template<typename FPType, CpuType cpu>
-FPType distance(const FPType *a, const FPType *b, size_t dim, FPType p)
+template <typename FPType, CpuType cpu>
+FPType distance(const FPType * a, const FPType * b, size_t dim, FPType p)
 {
     FPType sum = 0.0;
 

@@ -40,7 +40,6 @@ namespace training
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -52,8 +51,7 @@ template <typename algorithmFPType, CpuType cpu>
 class DecisionTreeTrainBatchKernel<algorithmFPType, training::defaultDense, cpu> : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(const NumericTable *x, const NumericTable *y, const NumericTable *w,
-                             const NumericTable *px, const NumericTable *py,
+    services::Status compute(const NumericTable * x, const NumericTable * y, const NumericTable * w, const NumericTable * px, const NumericTable * py,
                              decision_tree::regression::Model * r, const daal::algorithms::Parameter * par);
 };
 

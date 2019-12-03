@@ -21,10 +21,10 @@ using namespace daal;
 using namespace daal::algorithms;
 
 #include "com_intel_daal_algorithms_classifier_training_InputId.h"
-#define Data         com_intel_daal_algorithms_classifier_training_InputId_Data
-#define Labels       com_intel_daal_algorithms_classifier_training_InputId_Labels
+#define Data   com_intel_daal_algorithms_classifier_training_InputId_Data
+#define Labels com_intel_daal_algorithms_classifier_training_InputId_Labels
 
 #include "com_intel_daal_algorithms_classifier_training_TrainingResultId.h"
-#define ModelResult  com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
+#define ModelResult com_intel_daal_algorithms_classifier_training_TrainingResultId_Model
 
 typedef boosting::training::Batch b_tr_of;

@@ -28,17 +28,16 @@ namespace daal
 {
 namespace internal
 {
-
-template<CpuType cpu>
+template <CpuType cpu>
 class BaseRNGIface
 {
 public:
-    virtual int getStateSize() const = 0;
-    virtual int saveState(void* dest) const = 0;
-    virtual int loadState(const void* src) = 0;
+    virtual int getStateSize() const                        = 0;
+    virtual int saveState(void * dest) const                = 0;
+    virtual int loadState(const void * src)                 = 0;
     virtual int leapfrog(size_t threadNum, size_t nThreads) = 0;
-    virtual int skipAhead(size_t nSkip) = 0;
-    virtual void *getState() = 0;
+    virtual int skipAhead(size_t nSkip)                     = 0;
+    virtual void * getState()                               = 0;
 };
 
 } // namespace internal

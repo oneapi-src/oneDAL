@@ -33,7 +33,10 @@ namespace algorithms
 {
 namespace decision_forest
 {
-namespace training { Status checkImpl(const decision_forest::training::Parameter& prm); }
+namespace training
+{
+Status checkImpl(const decision_forest::training::Parameter & prm);
+}
 
 namespace regression
 {
@@ -41,8 +44,7 @@ namespace training
 {
 namespace interface1
 {
-
-Parameter::Parameter(){}
+Parameter::Parameter() {}
 Status Parameter::check() const
 {
     return decision_forest::training::checkImpl(*this);
@@ -66,7 +68,7 @@ NumericTablePtr Input::get(InputId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   Pointer to the object
  */
-void Input::set(InputId id, const NumericTablePtr &value)
+void Input::set(InputId id, const NumericTablePtr & value)
 {
     algorithms::regression::training::Input::set(algorithms::regression::training::InputId(id), value);
 }
@@ -77,22 +79,19 @@ void Input::set(InputId id, const NumericTablePtr &value)
 * \param[in] method  Computation method
 */
 
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::regression::training::Input::check(par, method));
-    NumericTablePtr dataTable = get(data);
+    NumericTablePtr dataTable              = get(data);
     NumericTablePtr dependentVariableTable = get(dependentVariable);
 
-    DAAL_CHECK_EX(dependentVariableTable->getNumberOfColumns() == 1,
-        ErrorIncorrectNumberOfColumns, ArgumentName, dependentVariableStr());
-    const Parameter* parameter = static_cast<const Parameter*>(par);
-    const size_t nSamplesPerTree(parameter->observationsPerTreeFraction*dataTable->getNumberOfRows());
-    DAAL_CHECK_EX(nSamplesPerTree > 0,
-        ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
+    DAAL_CHECK_EX(dependentVariableTable->getNumberOfColumns() == 1, ErrorIncorrectNumberOfColumns, ArgumentName, dependentVariableStr());
+    const Parameter * parameter = static_cast<const Parameter *>(par);
+    const size_t nSamplesPerTree(parameter->observationsPerTreeFraction * dataTable->getNumberOfRows());
+    DAAL_CHECK_EX(nSamplesPerTree > 0, ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
     const auto nFeatures = dataTable->getNumberOfColumns();
-    DAAL_CHECK_EX(parameter->featuresPerNode <= nFeatures,
-        ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
+    DAAL_CHECK_EX(parameter->featuresPerNode <= nFeatures, ErrorIncorrectParameter, ParameterName, featuresPerNodeStr());
     return s;
 }
 

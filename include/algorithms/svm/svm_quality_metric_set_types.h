@@ -48,7 +48,7 @@ namespace quality_metric_set
  */
 enum QualityMetricId
 {
-    confusionMatrix,     /*!< Confusion matrix */
+    confusionMatrix, /*!< Confusion matrix */
     lastQualityMetricId = confusionMatrix
 };
 
@@ -96,16 +96,16 @@ public:
     classifier::quality_metric::binary_confusion_matrix::InputPtr getInput(QualityMetricId id) const;
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
-}
+} // namespace interface1
 using interface1::ResultCollection;
 using interface1::ResultCollectionPtr;
 using interface1::InputDataCollection;
 using interface1::InputDataCollectionPtr;
 
-}
+} // namespace quality_metric_set
 /** @} */
-}
-}
-}
+} // namespace svm
+} // namespace algorithms
+} // namespace daal
 
 #endif // __SVM_QUALITY_METRIC_SET_TYPES_H__

@@ -45,10 +45,10 @@ namespace interface1
 class DAAL_EXPORT BatchBase : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::engines::Input  InputType;
+    typedef algorithms::engines::Input InputType;
     typedef algorithms::engines::Result ResultType;
 
-    InputType  input;   /*!< Input of the engine */
+    InputType input; /*!< Input of the engine */
 
     BatchBase() {}
     virtual ~BatchBase() {}
@@ -59,10 +59,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status saveState(byte* dest) const
-    {
-        return saveStateImpl(dest);
-    }
+    services::Status saveState(byte * dest) const { return saveStateImpl(dest); }
 
     /**
      * Rewrites current state with source one
@@ -70,10 +67,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status loadState(const byte* src)
-    {
-        return loadStateImpl(src);
-    }
+    services::Status loadState(const byte * src) { return loadStateImpl(src); }
 
     /**
      * Enables the usage of current engine in parallel regions of code with leapfrog method
@@ -82,10 +76,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status leapfrog(size_t threadIdx, size_t nThreads)
-    {
-        return leapfrogImpl(threadIdx, nThreads);
-    }
+    services::Status leapfrog(size_t threadIdx, size_t nThreads) { return leapfrogImpl(threadIdx, nThreads); }
 
     /**
      * Enables the usage of current engine in parallel regions of code with skipAhead method
@@ -93,27 +84,21 @@ public:
      *
      * \return Status of computations
      */
-    services::Status skipAhead(size_t nSkip)
-    {
-        return skipAheadImpl(nSkip);
-    }
+    services::Status skipAhead(size_t nSkip) { return skipAheadImpl(nSkip); }
 
     /**
      * Returns a pointer to the newly allocated engine
      * with a copy of input objects and parameters of this engine
      * \return Pointer to the newly allocated engine
      */
-    services::SharedPtr<BatchBase> clone() const
-    {
-        return services::SharedPtr<BatchBase>(cloneImpl());
-    }
+    services::SharedPtr<BatchBase> clone() const { return services::SharedPtr<BatchBase>(cloneImpl()); }
 
 protected:
-    virtual services::Status saveStateImpl(byte* dest) const { return services::Status(); }
-    virtual services::Status loadStateImpl(const byte* src) { return services::Status(); }
+    virtual services::Status saveStateImpl(byte * dest) const { return services::Status(); }
+    virtual services::Status loadStateImpl(const byte * src) { return services::Status(); }
     virtual services::Status leapfrogImpl(size_t threadNum, size_t nThreads) { return services::Status(services::ErrorMethodNotSupported); }
     virtual services::Status skipAheadImpl(size_t nSkip) { return services::Status(); }
-    virtual BatchBase *cloneImpl() const = 0;
+    virtual BatchBase * cloneImpl() const = 0;
 };
 typedef services::SharedPtr<BatchBase> EnginePtr;
 

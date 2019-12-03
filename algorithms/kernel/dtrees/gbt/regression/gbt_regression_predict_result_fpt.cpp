@@ -35,26 +35,26 @@ namespace regression
 {
 namespace prediction
 {
-
 using namespace daal::services;
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    const Input* algInput= (static_cast<const Input *>(input));
+    const Input * algInput                   = (static_cast<const Input *>(input));
     data_management::NumericTablePtr dataPtr = algInput->get(data);
     DAAL_CHECK_EX(dataPtr.get(), ErrorNullInputNumericTable, ArgumentName, dataStr());
     services::Status s;
     const size_t nVectors = dataPtr->getNumberOfRows();
     Argument::set(prediction,
-        data_management::HomogenNumericTable<algorithmFPType>::create(1, nVectors, data_management::NumericTableIface::doAllocate, &s));
+                  data_management::HomogenNumericTable<algorithmFPType>::create(1, nVectors, data_management::NumericTableIface::doAllocate, &s));
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
-}// namespace prediction
-}// namespace regression
-}// namespace gbt
-}// namespace algorithms
-}// namespace daal
+} // namespace prediction
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal

@@ -48,8 +48,7 @@ Input::Input(size_t nElements) : daal::algorithms::Input(nElements) {}
  */
 data_management::NumericTablePtr Input::get(InputId id) const
 {
-    return services::staticPointerCast<data_management::NumericTable,
-           data_management::SerializationIface>(Argument::get(id));
+    return services::staticPointerCast<data_management::NumericTable, data_management::SerializationIface>(Argument::get(id));
 }
 
 /**
@@ -57,7 +56,7 @@ data_management::NumericTablePtr Input::get(InputId id) const
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(InputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(InputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -76,23 +75,21 @@ size_t Input::getNumberOfItems() const
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method of the algorithm
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
-    if(method == defaultDense)
+    if (method == defaultDense)
     {
-        const int unexpectedLayouts = (int)NumericTableIface::upperPackedTriangularMatrix |
-            (int)NumericTableIface::lowerPackedTriangularMatrix |
-            (int)NumericTableIface::upperPackedSymmetricMatrix |
-            (int)NumericTableIface::lowerPackedSymmetricMatrix;
+        const int unexpectedLayouts = (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix
+                                      | (int)NumericTableIface::upperPackedSymmetricMatrix | (int)NumericTableIface::lowerPackedSymmetricMatrix;
         return checkNumericTable(get(data).get(), dataStr(), unexpectedLayouts);
     }
     const int expectedLayout = (int)NumericTableIface::csrArray;
     return checkNumericTable(get(data).get(), dataStr(), 0, expectedLayout);
 }
 
-}// namespace interface1
-}// namespace init
-}// namespace training
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace init
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

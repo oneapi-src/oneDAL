@@ -35,7 +35,6 @@ namespace logistic_regression
 {
 namespace internal
 {
-
 class ModelImpl : public logistic_regression::Model, public algorithms::classifier::internal::ModelInternal
 {
 public:
@@ -43,10 +42,10 @@ public:
 
     ModelImpl(size_t nFeatures = 0, bool interceptFlag = true);
     template <typename modelFPType>
-    ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, modelFPType dummy, services::Status* st);
-    ~ModelImpl(){}
+    ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, modelFPType dummy, services::Status * st);
+    ~ModelImpl() {}
 
-    virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE{ return ClassificationImplType::getNumberOfFeatures(); }
+    virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return ClassificationImplType::getNumberOfFeatures(); }
 
     //Implementation of classification::Model
     virtual size_t getNumberOfBetas() const DAAL_C11_OVERRIDE;
@@ -58,11 +57,11 @@ public:
     virtual services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 
     services::Status reset(bool interceptFlag);
-    static logistic_regression::ModelPtr create(size_t nFeatures, bool interceptFlag, services::Status *stat = nullptr);
+    static logistic_regression::ModelPtr create(size_t nFeatures, bool interceptFlag, services::Status * stat = nullptr);
 
 protected:
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         classifier::Model::serialImpl<Archive, onDeserialize>(arch);
         arch->set(ClassificationImplType::_nFeatures);
@@ -72,8 +71,8 @@ protected:
     }
 
 protected:
-    bool _interceptFlag; // True if the model contains the intercept term false otherwise
-    data_management::NumericTablePtr _beta;  // Model coefficients
+    bool _interceptFlag;                    // True if the model contains the intercept term false otherwise
+    data_management::NumericTablePtr _beta; // Model coefficients
 };
 
 } // namespace internal

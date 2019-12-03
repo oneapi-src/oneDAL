@@ -47,15 +47,15 @@ namespace low_order_moments
  */
 enum Method
 {
-    defaultDense    = 0,        /*!< Default: performance-oriented method. Works with all types of numeric tables */
-    singlePassDense = 1,        /*!< Single-pass: implementation of the single-pass algorithm proposed by D.H.D. West.
+    defaultDense    = 0, /*!< Default: performance-oriented method. Works with all types of numeric tables */
+    singlePassDense = 1, /*!< Single-pass: implementation of the single-pass algorithm proposed by D.H.D. West.
                                      Supports all types of numeric tables */
-    sumDense        = 2,        /*!< Precomputed sum: implementation of %moments computation algorithm in the case of a precomputed sum.
+    sumDense        = 2, /*!< Precomputed sum: implementation of %moments computation algorithm in the case of a precomputed sum.
                                      Supports all types of numeric tables */
-    fastCSR         = 3,        /*!< Fast: performance-oriented method. Works with Compressed Sparse Rows(CSR) numeric tables */
-    singlePassCSR   = 4,        /*!< Single-pass: implementation of the single-pass algorithm proposed by D.H.D. West.
+    fastCSR         = 3, /*!< Fast: performance-oriented method. Works with Compressed Sparse Rows(CSR) numeric tables */
+    singlePassCSR   = 4, /*!< Single-pass: implementation of the single-pass algorithm proposed by D.H.D. West.
                                      Supports CSR numeric tables */
-    sumCSR          = 5         /*!< Precomputed sum: implementation of the algorithm in the case of a precomputed sum.
+    sumCSR          = 5  /*!< Precomputed sum: implementation of the algorithm in the case of a precomputed sum.
                                      Supports CSR numeric tables */
 };
 
@@ -65,9 +65,9 @@ enum Method
  */
 enum EstimatesToCompute
 {
-    estimatesAll,                 /*!< Default: Compute all supported moments */
-    estimatesMinMax,              /*!< MinMAx: Compute minimum and maximum  */
-    estimatesMeanVariance         /*!< MeanVariance: Compute mean and variance  */
+    estimatesAll,         /*!< Default: Compute all supported moments */
+    estimatesMinMax,      /*!< MinMAx: Compute minimum and maximum  */
+    estimatesMeanVariance /*!< MeanVariance: Compute mean and variance  */
 };
 
 /**
@@ -76,7 +76,7 @@ enum EstimatesToCompute
  */
 enum InputId
 {
-    data,                     /*!< %Input data table */
+    data, /*!< %Input data table */
     lastInputId = data
 };
 
@@ -86,16 +86,16 @@ enum InputId
  */
 enum ResultId
 {
-    minimum,                /*!< Minimum */
-    maximum,                /*!< Maximum */
-    sum,                    /*!< Sum */
-    sumSquares,             /*!< Sum of squares */
-    sumSquaresCentered,     /*!< Sum of squared difference from the means */
-    mean,                   /*!< Mean */
-    secondOrderRawMoment,   /*!< Second raw order moment */
-    variance,               /*!< Variance */
-    standardDeviation,      /*!< Standard deviation */
-    variation,               /*!< Variation */
+    minimum,              /*!< Minimum */
+    maximum,              /*!< Maximum */
+    sum,                  /*!< Sum */
+    sumSquares,           /*!< Sum of squares */
+    sumSquaresCentered,   /*!< Sum of squared difference from the means */
+    mean,                 /*!< Mean */
+    secondOrderRawMoment, /*!< Second raw order moment */
+    variance,             /*!< Variance */
+    standardDeviation,    /*!< Standard deviation */
+    variation,            /*!< Variation */
     lastResultId = variation
 };
 
@@ -105,12 +105,12 @@ enum ResultId
  */
 enum PartialResultId
 {
-    nObservations,                  /*!< Number of observations processed so far */
-    partialMinimum,                 /*!< Partial minimum */
-    partialMaximum,                 /*!< Partial maximum */
-    partialSum,                     /*!< Partial sum */
-    partialSumSquares,              /*!< Partial sum of squares */
-    partialSumSquaresCentered,      /*!< Partial sum of squared difference from the means */
+    nObservations,             /*!< Number of observations processed so far */
+    partialMinimum,            /*!< Partial minimum */
+    partialMaximum,            /*!< Partial maximum */
+    partialSum,                /*!< Partial sum */
+    partialSumSquares,         /*!< Partial sum of squares */
+    partialSumSquaresCentered, /*!< Partial sum of squared difference from the means */
     lastPartialResultId = partialSumSquaresCentered
 };
 
@@ -137,8 +137,8 @@ class InputIface : public daal::algorithms::Input
 {
 public:
     InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
-    InputIface(const InputIface& other) : daal::algorithms::Input(other){}
-    virtual services::Status getNumberOfColumns(size_t& nCols) const = 0;
+    InputIface(const InputIface & other) : daal::algorithms::Input(other) {}
+    virtual services::Status getNumberOfColumns(size_t & nCols) const = 0;
     virtual ~InputIface() {}
 };
 
@@ -150,7 +150,7 @@ class DAAL_EXPORT Input : public InputIface
 {
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -159,7 +159,7 @@ public:
      * \param[out] nCols Number of columns in the input data set
      * \return Status of the call
      */
-    services::Status getNumberOfColumns(size_t& nCols) const DAAL_C11_OVERRIDE;
+    services::Status getNumberOfColumns(size_t & nCols) const DAAL_C11_OVERRIDE;
 
     /**
      * Returns the input object for the low order %moments algorithm
@@ -173,9 +173,9 @@ public:
      * \param[in] id    Identifier of the %input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -187,12 +187,10 @@ public:
 class DAAL_EXPORT PartialResult : public daal::algorithms::PartialResult
 {
 public:
-
     DECLARE_SERIALIZABLE_CAST(PartialResult);
     PartialResult();
 
-    virtual ~PartialResult()
-    {}
+    virtual ~PartialResult() {}
 
     /**
      * Allocates memory to store partial results of the low order %moments algorithm
@@ -201,7 +199,7 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Initializes memory to store partial results of the low order %moments algorithm
@@ -211,14 +209,14 @@ public:
      * \return Status of initialization
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
     * Get number of columns in the partial result of the low order %moments algorithm
     * \param[out] nCols Number of columns
     * \return Status of the call
      */
-    services::Status getNumberOfColumns(size_t& nCols) const;
+    services::Status getNumberOfColumns(size_t & nCols) const;
 
     /**
      * Returns the partial result of the low order %moments algorithm
@@ -232,14 +230,14 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the partial result
      */
-    void set(PartialResultId id, const data_management::NumericTablePtr &ptr);
+    void set(PartialResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Checks correctness of the partial result
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks  the correctness of partial result
@@ -247,12 +245,12 @@ public:
      * \param[in] parameter Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -269,9 +267,9 @@ typedef services::SharedPtr<PartialResult> PartialResultPtr;
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     /** Constructs default low order %moments parameters */
-    Parameter(EstimatesToCompute  _estimatesToCompute = estimatesAll);
+    Parameter(EstimatesToCompute _estimatesToCompute = estimatesAll);
 
-    EstimatesToCompute  estimatesToCompute;       /*!< Estimates to be computed by the algorithm  */
+    EstimatesToCompute estimatesToCompute; /*!< Estimates to be computed by the algorithm  */
 
     services::Status check() const DAAL_C11_OVERRIDE;
 };
@@ -296,7 +294,7 @@ public:
      * \param[in] method    Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Allocates memory for storing final results of the low order %moments algorithm
@@ -305,7 +303,8 @@ public:
      * \param[in] method            Computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *partialResult, daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+                                          const int method);
 
     /**
      * Returns final result of the low order %moments algorithm
@@ -319,7 +318,7 @@ public:
      * \param[in] id    Identifier of the final result
      * \param[in] value Pointer to the final result
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks the correctness of result
@@ -327,7 +326,8 @@ public:
      * \param[in] par           %Parameter of the algorithm
      * \param[in] method        Computation method
      */
-    services::Status check(const daal::algorithms::PartialResult *partialResult, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * par,
+                           int method) const DAAL_C11_OVERRIDE;
 
     /**
      * Checks the correctness of result
@@ -335,12 +335,12 @@ public:
      * \param[in] par       Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -355,12 +355,12 @@ typedef services::SharedPtr<Result> ResultPtr;
  *
  * \tparam step             Step of distributed processing, \ref ComputeStep
  */
-template<ComputeStep step>
+template <ComputeStep step>
 class DAAL_EXPORT DistributedInput : public InputIface
 {
 public:
     DistributedInput();
-    DistributedInput(const DistributedInput& other);
+    DistributedInput(const DistributedInput & other);
 
     virtual ~DistributedInput() {}
 
@@ -369,21 +369,21 @@ public:
      * \param[out] nCols Number of columns in the input data set
      * \return Status of the call
      */
-    services::Status getNumberOfColumns(size_t& nCols) const DAAL_C11_OVERRIDE;
+    services::Status getNumberOfColumns(size_t & nCols) const DAAL_C11_OVERRIDE;
 
     /**
      * Adds partial result to the collection of input objects for the low order moments algorithm in the distributed processing mode.
      * \param[in] id            Identifier of the input object
      * \param[in] partialResult Partial result obtained in the first step of the distributed algorithm
      */
-    void add(MasterInputId id, const PartialResultPtr &partialResult);
+    void add(MasterInputId id, const PartialResultPtr & partialResult);
 
     /**
      * Sets input object for the low order moments algorithm in the distributed processing mode.
      * \param[in] id  Identifier of the input object
      * \param[in] ptr Pointer to the input object
      */
-    void set(MasterInputId id, const data_management::DataCollectionPtr &ptr);
+    void set(MasterInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
      * Returns the collection of input objects
@@ -397,7 +397,7 @@ public:
      * \param[in] parameter Pointer to the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
 } // namespace interface1
@@ -410,7 +410,7 @@ using interface1::Result;
 using interface1::ResultPtr;
 using interface1::DistributedInput;
 
-} // namespace daal::algorithms::low_order_moments
-}
-}
+} // namespace low_order_moments
+} // namespace algorithms
+} // namespace daal
 #endif

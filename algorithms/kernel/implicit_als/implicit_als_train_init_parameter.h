@@ -36,11 +36,11 @@ namespace init
 {
 namespace internal
 {
-services::SharedPtr<data_management::HomogenNumericTable<int> > getPartition(const init::DistributedParameter *parameter, services::Status &st);
+services::SharedPtr<data_management::HomogenNumericTable<int> > getPartition(const init::DistributedParameter * parameter, services::Status & st);
 
-}// namespace internal
-}// namespace init
-}// namespace training
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace internal
+} // namespace init
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

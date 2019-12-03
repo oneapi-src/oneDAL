@@ -40,10 +40,8 @@ namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_REGRESSION_PREDICTION_RESULT_ID);
 
-Input::Input(size_t nElements) : daal::algorithms::Input(nElements)
-{}
-Input::Input(const Input &other) : daal::algorithms::Input(other)
-{}
+Input::Input(size_t nElements) : daal::algorithms::Input(nElements) {}
+Input::Input(const Input & other) : daal::algorithms::Input(other) {}
 
 NumericTablePtr Input::get(NumericTableInputId id) const
 {
@@ -55,12 +53,12 @@ regression::ModelPtr Input::get(ModelInputId id) const
     return staticPointerCast<regression::Model, SerializationIface>(Argument::get(id));
 }
 
-void Input::set(NumericTableInputId id, const NumericTablePtr &value)
+void Input::set(NumericTableInputId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
 
-void Input::set(ModelInputId id, const regression::ModelPtr &value)
+void Input::set(ModelInputId id, const regression::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -78,7 +76,6 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
     return s;
 }
 
-
 Result::Result(size_t nElements) : daal::algorithms::Result(nElements) {}
 
 NumericTablePtr Result::get(ResultId id) const
@@ -86,7 +83,7 @@ NumericTablePtr Result::get(ResultId id) const
     return NumericTable::cast(Argument::get(id));
 }
 
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
 }
@@ -94,14 +91,14 @@ void Result::set(ResultId id, const NumericTablePtr &value)
 services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     NumericTablePtr predictionTable = get(prediction);
-    const Input* in = static_cast<const Input *>(input);
+    const Input * in                = static_cast<const Input *>(input);
 
     size_t nRowsInData = in->get(data)->getNumberOfRows();
 
     return checkNumericTable(predictionTable.get(), predictionStr(), 0, 0, 0, nRowsInData);
 }
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace prediction
+} // namespace regression
+} // namespace algorithms
+} // namespace daal

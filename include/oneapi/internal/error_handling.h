@@ -15,19 +15,24 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifndef __DAAL_ONEAPI_INTERNAL_ERROR_HANDLING_H__
+#define __DAAL_ONEAPI_INTERNAL_ERROR_HANDLING_H__
+
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
+
+#include "services/internal/error_handling_helpers.h"
 #include "services/error_indexes.h"
 #include "services/daal_string.h"
 
-#define DAAL_CHECK_OPENCL(cl_error, statusPtr, ...)                        \
-{                                                                          \
-    if (statusPtr != NULL && cl_error != CL_SUCCESS)                       \
-    {                                                                      \
-        statusPtr->add(convertOpenClErrorToErrorPtr(cl_error));            \
-        return __VA_ARGS__;                                                \
-    }                                                                      \
-}
+#define DAAL_CHECK_OPENCL(cl_error, statusPtr, ...)                 \
+    {                                                               \
+        if (statusPtr != NULL && cl_error != CL_SUCCESS)            \
+        {                                                           \
+            statusPtr->add(convertOpenClErrorToErrorPtr(cl_error)); \
+            return __VA_ARGS__;                                     \
+        }                                                           \
+    }
 
 namespace daal
 {
@@ -39,7 +44,8 @@ namespace interface1
 {
 inline services::String getOpenClErrorDescription(cl_int clError)
 {
-    #define OPENCL_ERROR_CASE(x) case x: return services::String(#x);
+#define OPENCL_ERROR_CASE(x) \
+    case x: return services::String(#x);
     switch (clError)
     {
         OPENCL_ERROR_CASE(CL_BUILD_PROGRAM_FAILURE);
@@ -92,25 +98,23 @@ inline services::String getOpenClErrorDescription(cl_int clError)
 
 inline services::ErrorPtr convertOpenClErrorToErrorPtr(cl_int clError)
 {
-    return services::Error::create(services::ErrorID::ErrorExecutionContext,
-                                    services::ErrorDetailID::OpenCL,
-                                    getOpenClErrorDescription(clError));
+    return services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::OpenCL, getOpenClErrorDescription(clError));
 }
 
-inline void convertSyclExceptionToStatus(cl::sycl::exception const &e, services::Status *statusPtr)
+inline void convertSyclExceptionToStatus(cl::sycl::exception const & e, services::Status * statusPtr)
 {
     if (statusPtr != NULL)
     {
-        statusPtr->add(
-            services::Error::create(services::ErrorID::ErrorExecutionContext,
-                                    services::ErrorDetailID::Sycl,
-                                    services::String(e.what()))
-        );
+        statusPtr->add(services::Error::create(services::ErrorID::ErrorExecutionContext, services::ErrorDetailID::Sycl, services::String(e.what())));
     }
 }
 } // namespace interface1
+
 using interface1::convertOpenClErrorToErrorPtr;
 using interface1::convertSyclExceptionToStatus;
+
 } // namespace internal
 } // namespace oneapi
 } // namespace daal
+
+#endif

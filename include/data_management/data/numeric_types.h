@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __NUMERIC_TYPES_H__
 #define __NUMERIC_TYPES_H__
 
@@ -43,6 +42,6 @@ enum ReadWriteMode
 };
 /** @} */
 
-}
+} // namespace data_management
 } // namespace daal
 #endif

@@ -34,7 +34,6 @@ namespace features
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__FEATURES__FEATUREIDFACTORY"></a>
  * \brief Auxiliary class that simplifies definition of feature ids collections
@@ -46,46 +45,41 @@ public:
      * Creates feature id factory using zero feature index
      * \param[out] status  The status object
      */
-    IdFactory(services::Status *status = NULL) :
-        _featureId(internal::NumericFeatureId::create(0, status)) { }
+    IdFactory(services::Status * status = NULL) : _featureId(internal::NumericFeatureId::create(0, status)) {}
 
     /**
      * Creates feature id factory using feature index
      * \param[in]  index   The index of the feature
      * \param[out] status  The status object
      */
-    IdFactory(int index, services::Status *status = NULL) :
-        _featureId(internal::NumericFeatureId::create(index, status)) { }
+    IdFactory(int index, services::Status * status = NULL) : _featureId(internal::NumericFeatureId::create(index, status)) {}
 
     /**
      * Creates feature id factory using feature index
      * \param[in]  index   The index of the feature
      * \param[out] status  The status object
      */
-    IdFactory(long index, services::Status *status = NULL) :
-        _featureId(internal::NumericFeatureId::create(index, status)) { }
+    IdFactory(long index, services::Status * status = NULL) : _featureId(internal::NumericFeatureId::create(index, status)) {}
 
     /**
      * Creates feature id factory using name of the feature
      * \param[in]  name    The name of the feature
      * \param[out] status  The status object
      */
-    IdFactory(const services::String &name, services::Status *status = NULL) :
-        _featureId(internal::StringFeatureId::create(name, status)) { }
+    IdFactory(const services::String & name, services::Status * status = NULL) : _featureId(internal::StringFeatureId::create(name, status)) {}
 
     /**
      * Creates feature id factory using name of the feature
      * \param[in]  name    The C-style string represents a name of the feature
      * \param[out] status  The status object
      */
-    IdFactory(const char *name, services::Status *status = NULL) :
-        _featureId(internal::StringFeatureId::create(name, status)) { }
+    IdFactory(const char * name, services::Status * status = NULL) : _featureId(internal::StringFeatureId::create(name, status)) {}
 
     /**
      * Returns appropriate feature id created by the factory
      * \return Shared pointer to the feature id
      */
-    const FeatureIdIfacePtr &get() const { return _featureId; }
+    const FeatureIdIfacePtr & get() const { return _featureId; }
 
 private:
     FeatureIdIfacePtr _featureId;
@@ -96,13 +90,16 @@ private:
  * \param[in]  id  The factory of identifier
  * \return Shared pointer to feature identifiers collection
  */
-inline FeatureIdCollectionIfacePtr list(const IdFactory &id)
+inline FeatureIdCollectionIfacePtr list(const IdFactory & id)
 {
     using internal::FeatureIdList;
     using internal::FeatureIdListPtr;
 
     FeatureIdListPtr l = FeatureIdList::create();
-    if (l) { l->add(id.get()); }
+    if (l)
+    {
+        l->add(id.get());
+    }
     return l;
 }
 
@@ -112,14 +109,17 @@ inline FeatureIdCollectionIfacePtr list(const IdFactory &id)
  * \param[in]  id2  The factory of identifier
  * \return Shared pointer to feature identifiers collection
  */
-inline FeatureIdCollectionIfacePtr list(const IdFactory &id1,
-                                        const IdFactory &id2)
+inline FeatureIdCollectionIfacePtr list(const IdFactory & id1, const IdFactory & id2)
 {
     using internal::FeatureIdList;
     using internal::FeatureIdListPtr;
 
     FeatureIdListPtr l = FeatureIdList::create();
-    if (l) { l->add(id1.get()); l->add(id2.get()); }
+    if (l)
+    {
+        l->add(id1.get());
+        l->add(id2.get());
+    }
     return l;
 }
 
@@ -130,15 +130,18 @@ inline FeatureIdCollectionIfacePtr list(const IdFactory &id1,
  * \param[in]  id3  The factory of identifier
  * \return Shared pointer to feature identifiers collection
  */
-inline FeatureIdCollectionIfacePtr list(const IdFactory &id1,
-                                        const IdFactory &id2,
-                                        const IdFactory &id3)
+inline FeatureIdCollectionIfacePtr list(const IdFactory & id1, const IdFactory & id2, const IdFactory & id3)
 {
     using internal::FeatureIdList;
     using internal::FeatureIdListPtr;
 
     FeatureIdListPtr l = FeatureIdList::create();
-    if (l) { l->add(id1.get()); l->add(id2.get()); l->add(id3.get()); }
+    if (l)
+    {
+        l->add(id1.get());
+        l->add(id2.get());
+        l->add(id3.get());
+    }
     return l;
 }
 
@@ -147,7 +150,7 @@ inline FeatureIdCollectionIfacePtr list(const IdFactory &id1,
  * \param[in]  ids   The collection of feature identifier factories
  * \return Shared pointer to feature identifiers collection
  */
-inline FeatureIdCollectionIfacePtr list(const std::vector<IdFactory> &ids)
+inline FeatureIdCollectionIfacePtr list(const std::vector<IdFactory> & ids)
 {
     using internal::FeatureIdList;
     using internal::FeatureIdListPtr;
@@ -155,7 +158,7 @@ inline FeatureIdCollectionIfacePtr list(const std::vector<IdFactory> &ids)
     FeatureIdListPtr l = FeatureIdList::create();
     for (size_t i = 0; i < ids.size(); i++)
     {
-        l->add( ids[i].get() );
+        l->add(ids[i].get());
     }
     return l;
 }
@@ -167,7 +170,7 @@ inline FeatureIdCollectionIfacePtr list(const std::vector<IdFactory> &ids)
  * \return Shared pointer to the collection of feature ids that
  *         contains all feature ids between the \p begin and the \p end
  */
-inline FeatureIdCollectionIfacePtr range(const IdFactory &begin, const IdFactory &end)
+inline FeatureIdCollectionIfacePtr range(const IdFactory & begin, const IdFactory & end)
 {
     return internal::FeatureIdRange::create(begin.get(), end.get());
 }

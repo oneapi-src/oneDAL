@@ -36,18 +36,16 @@ namespace sgd
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
-class SGDKernelOneAPI<algorithmFPType, momentum, cpu>: public Kernel
+class SGDKernelOneAPI<algorithmFPType, momentum, cpu> : public Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHost,
-        NumericTable *inputArgument, NumericTablePtr minimum, NumericTable *nIterations,
-        Parameter<momentum> *parameter, NumericTable *learningRateSequence,
-        NumericTable *batchIndices, OptionalArgument *optionalArgument,
-        OptionalArgument *optionalResult, engines::BatchBase &engine)
-    { return services::ErrorMethodNotImplemented; }
-
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTablePtr minimum, NumericTable * nIterations,
+                             Parameter<momentum> * parameter, NumericTable * learningRateSequence, NumericTable * batchIndices,
+                             OptionalArgument * optionalArgument, OptionalArgument * optionalResult, engines::BatchBase & engine)
+    {
+        return services::ErrorMethodNotImplemented;
+    }
 };
 
 } // namespace internal

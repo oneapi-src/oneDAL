@@ -42,7 +42,6 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFpType, prediction::Method method>
 class PredictKernelOneAPI : public daal::algorithms::Kernel
 {
@@ -54,19 +53,18 @@ public:
      *  \param m[in]    Linear regression model obtained on training stage
      *  \param r[out]   Prediction results
      */
-    services::Status compute(const NumericTable *a, const linear_model::Model *m, NumericTable *r);
+    services::Status compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r);
 };
 
 template <typename algorithmFPType>
 class PredictKernelOneAPI<algorithmFPType, defaultDense> : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(const NumericTable *a, const linear_model::Model *m, NumericTable *r);
+    services::Status compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r);
 
 protected:
-    services::Status addBetaIntercept(const services::Buffer<algorithmFPType> &betaTable,
-                                      const size_t nBetas, services::Buffer<algorithmFPType> &yTable,
-                                      const size_t yNRows, const size_t yNCols);
+    services::Status addBetaIntercept(const services::Buffer<algorithmFPType> & betaTable, const size_t nBetas,
+                                      services::Buffer<algorithmFPType> & yTable, const size_t yNRows, const size_t yNCols);
 };
 
 } // namespace internal

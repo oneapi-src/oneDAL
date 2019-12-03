@@ -40,10 +40,8 @@ namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LM_PREDICTION_RESULT_ID);
 
-Input::Input(size_t nElements) : regression::prediction::Input(nElements)
-{}
-Input::Input(const Input &other) : regression::prediction::Input(other)
-{}
+Input::Input(size_t nElements) : regression::prediction::Input(nElements) {}
+Input::Input(const Input & other) : regression::prediction::Input(other) {}
 
 NumericTablePtr Input::get(NumericTableInputId id) const
 {
@@ -55,26 +53,25 @@ linear_model::ModelPtr Input::get(ModelInputId id) const
     return linear_model::Model::cast(regression::prediction::Input::get(regression::prediction::ModelInputId(id)));
 }
 
-void Input::set(NumericTableInputId id, const NumericTablePtr &value)
+void Input::set(NumericTableInputId id, const NumericTablePtr & value)
 {
     regression::prediction::Input::set(regression::prediction::NumericTableInputId(id), value);
 }
 
-void Input::set(ModelInputId id, const linear_model::ModelPtr &value)
+void Input::set(ModelInputId id, const linear_model::ModelPtr & value)
 {
     regression::prediction::Input::set(regression::prediction::ModelInputId(id), value);
 }
 
-Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, regression::prediction::Input::check(parameter, method));
 
-    size_t nBeta = get(data)->getNumberOfColumns() + 1;
+    size_t nBeta      = get(data)->getNumberOfColumns() + 1;
     size_t nResponses = get(model)->getNumberOfResponses();
-    return checkNumericTable(get(model)->getBeta().get(),  betaStr(), 0, 0, nBeta, nResponses);
+    return checkNumericTable(get(model)->getBeta().get(), betaStr(), 0, 0, nBeta, nResponses);
 }
-
 
 Result::Result(size_t nElements) : regression::prediction::Result(nElements) {}
 
@@ -83,7 +80,7 @@ NumericTablePtr Result::get(ResultId id) const
     return regression::prediction::Result::get(regression::prediction::ResultId(id));
 }
 
-void Result::set(ResultId id, const NumericTablePtr &value)
+void Result::set(ResultId id, const NumericTablePtr & value)
 {
     regression::prediction::Result::set(regression::prediction::ResultId(id), value);
 }
@@ -92,14 +89,14 @@ Status Result::check(const daal::algorithms::Input * input, const daal::algorith
 {
     Status s;
     DAAL_CHECK_STATUS(s, regression::prediction::Result::check(input, par, method));
-    const Input* in = static_cast<const Input *>(input);
+    const Input * in  = static_cast<const Input *>(input);
     size_t nResponses = in->get(model)->getNumberOfResponses();
 
     DAAL_CHECK_EX(get(prediction)->getNumberOfColumns() == nResponses, ErrorIncorrectNumberOfFeatures, ArgumentName, predictionStr());
     return s;
 }
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace prediction
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

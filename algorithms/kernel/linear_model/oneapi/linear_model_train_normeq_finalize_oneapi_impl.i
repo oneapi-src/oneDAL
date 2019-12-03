@@ -39,40 +39,35 @@ namespace training
 {
 namespace internal
 {
-
 using namespace daal::oneapi::internal;
 
-
 template <typename algorithmFPType>
-services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable &xtxTable,
-                                                                NumericTable &xtyTable,
-                                                                NumericTable &xtxFinalTable,
-                                                                NumericTable &xtyFinalTable,
-                                                                NumericTable &betaTable, bool interceptFlag,
-                                                                const KernelHelperOneAPIIface<algorithmFPType> &helper)
+services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable & xtxTable, NumericTable & xtyTable, NumericTable & xtxFinalTable,
+                                                                NumericTable & xtyFinalTable, NumericTable & betaTable, bool interceptFlag,
+                                                                const KernelHelperOneAPIIface<algorithmFPType> & helper)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize);
     services::Status status;
 
     const size_t nBetasIntercept = xtxTable.getNumberOfRows();
-    const size_t nBetas = interceptFlag ? nBetasIntercept : (nBetasIntercept + 1);
-    const size_t nResponses = xtyTable.getNumberOfRows();
+    const size_t nBetas          = interceptFlag ? nBetasIntercept : (nBetasIntercept + 1);
+    const size_t nResponses      = xtyTable.getNumberOfRows();
 
     {
-        if(&xtxTable != &xtxFinalTable)
+        if (&xtxTable != &xtxFinalTable)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToxtxFinalTable);
             DAAL_CHECK_STATUS(status, copyDataToFinalTable(xtxTable, xtxFinalTable));
         }
 
-        if(&xtyTable != &xtyFinalTable)
+        if (&xtyTable != &xtyFinalTable)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.copyToxtyFinalTable);
             DAAL_CHECK_STATUS(status, copyDataToFinalTable(xtyTable, xtyFinalTable));
         }
     }
 
-    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
 
     {
         BlockDescriptor<algorithmFPType> xtxBlock;
@@ -89,28 +84,27 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable &xt
 
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-        UniversalBuffer xtxCopyAlloc = context.allocate(idType, nBetasIntercept*nBetasIntercept, &status);
+        UniversalBuffer xtxCopyAlloc = context.allocate(idType, nBetasIntercept * nBetasIntercept, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         services::Buffer<algorithmFPType> xtxBufCopy = xtxCopyAlloc.get<algorithmFPType>();
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.xtxCopy);
-            context.copy(xtxBufCopy, 0, xtxBuf, 0, nBetasIntercept*nBetasIntercept, &status);
+            context.copy(xtxBufCopy, 0, xtxBuf, 0, nBetasIntercept * nBetasIntercept, &status);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer xtyCopyAlloc = context.allocate(idType, nResponses*nBetasIntercept, &status);
+        UniversalBuffer xtyCopyAlloc = context.allocate(idType, nResponses * nBetasIntercept, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         services::Buffer<algorithmFPType> betaBuf = xtyCopyAlloc.get<algorithmFPType>();
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeFinalize.betaBufCopy);
-            context.copy(betaBuf, 0, xtyBuf, 0, nResponses*nBetasIntercept, &status);
+            context.copy(betaBuf, 0, xtyBuf, 0, nResponses * nBetasIntercept, &status);
         }
         DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_CHECK_STATUS(status, helper.computeBetasImpl(nBetasIntercept, xtxBufCopy, nResponses,
-                                                          betaBuf, interceptFlag));
+        DAAL_CHECK_STATUS(status, helper.computeBetasImpl(nBetasIntercept, xtxBufCopy, nResponses, betaBuf, interceptFlag));
 
         BlockDescriptor<algorithmFPType> betaBlock;
         DAAL_CHECK_STATUS(status, betaTable.getBlockOfRows(0, nResponses, ReadWriteMode::readWrite, betaBlock));
@@ -125,7 +119,7 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::compute(NumericTable &xt
 }
 
 template <typename algorithmFPType>
-services::Status FinalizeKernelOneAPI<algorithmFPType>::copyDataToFinalTable(NumericTable &srcTable, NumericTable &dstTable)
+services::Status FinalizeKernelOneAPI<algorithmFPType>::copyDataToFinalTable(NumericTable & srcTable, NumericTable & dstTable)
 {
     services::Status status;
     BlockDescriptor<algorithmFPType> srcBlock;
@@ -138,10 +132,10 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::copyDataToFinalTable(Num
     DAAL_CHECK_STATUS(status, dstTable.getBlockOfRows(0, nRows, ReadWriteMode::readWrite, dstBlock));
 
     const services::Buffer<algorithmFPType> srcBuf = srcBlock.getBuffer();
-    services::Buffer<algorithmFPType> dstBuf = dstBlock.getBuffer();
+    services::Buffer<algorithmFPType> dstBuf       = dstBlock.getBuffer();
 
-    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
-    context.copy(dstBuf, 0, srcBuf, 0, nCols*nRows, &status);
+    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    context.copy(dstBuf, 0, srcBuf, 0, nCols * nRows, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
     DAAL_CHECK_STATUS(status, srcTable.releaseBlockOfRows(srcBlock));
@@ -151,8 +145,8 @@ services::Status FinalizeKernelOneAPI<algorithmFPType>::copyDataToFinalTable(Num
 }
 
 template <typename algorithmFPType>
-services::Status FinalizeKernelOneAPI<algorithmFPType>::solveSystem(const size_t p, services::Buffer<algorithmFPType> &a,
-                                                                    const size_t ny, services::Buffer<algorithmFPType> &b)
+services::Status FinalizeKernelOneAPI<algorithmFPType>::solveSystem(const size_t p, services::Buffer<algorithmFPType> & a, const size_t ny,
+                                                                    services::Buffer<algorithmFPType> & b)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem);
     services::Status status;

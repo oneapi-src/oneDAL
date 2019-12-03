@@ -32,7 +32,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -50,14 +49,15 @@ namespace interface1
  *        and supports the methods for computation of the algorithm results.
  *        The methods of the container are defined in derivative containers defined for each algorithm.
  */
-template<> class AlgorithmContainer<batch> : public AlgorithmContainerIfaceImpl
+template <>
+class AlgorithmContainer<batch> : public AlgorithmContainerIfaceImpl
 {
 public:
     /**
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainer(daal::services::Environment::env *daalEnv) : AlgorithmContainerIfaceImpl(daalEnv) {}
+    AlgorithmContainer(daal::services::Environment::env * daalEnv) : AlgorithmContainerIfaceImpl(daalEnv) {}
 
     virtual ~AlgorithmContainer() {}
 
@@ -76,7 +76,6 @@ public:
      * Resets internal datastructures for compute function.
      */
     virtual services::Status resetCompute() = 0;
-
 };
 
 /**
@@ -86,7 +85,8 @@ public:
  *        and supports the methods for computation of the algorithm results.
  *        The methods of the container are defined in derivative containers defined for each algorithm.
  */
-template<> class AlgorithmContainerImpl<batch> : public AlgorithmContainer<batch>
+template <>
+class AlgorithmContainerImpl<batch> : public AlgorithmContainer<batch>
 {
 public:
     DAAL_NEW_DELETE();
@@ -95,7 +95,7 @@ public:
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainerImpl(daal::services::Environment::env *daalEnv = 0): AlgorithmContainer<batch>(daalEnv), _par(0), _in(0), _res(0) {};
+    AlgorithmContainerImpl(daal::services::Environment::env * daalEnv = 0) : AlgorithmContainer<batch>(daalEnv), _par(0), _in(0), _res(0) {};
 
     virtual ~AlgorithmContainerImpl() {}
 
@@ -105,7 +105,7 @@ public:
      * \param[in] res   Pointer to the final results of the algorithm
      * \param[in] par   Pointer to the parameters of the algorithm
      */
-    void setArguments(Input *in, Result *res, Parameter *par)
+    void setArguments(Input * in, Result * res, Parameter * par)
     {
         _in  = in;
         _par = par;
@@ -116,19 +116,16 @@ public:
      * Retrieves final results of the algorithm
      * \return   Pointer to the final results of the algorithm
      */
-    Result *getResult()
-    {
-        return _res;
-    }
+    Result * getResult() { return _res; }
 
     virtual services::Status setupCompute() DAAL_C11_OVERRIDE { return services::Status(); }
 
     virtual services::Status resetCompute() DAAL_C11_OVERRIDE { return services::Status(); }
 
 protected:
-    Parameter                            *_par;
-    Input                                *_in;
-    Result                               *_res;
+    Parameter * _par;
+    Input * _in;
+    Result * _res;
 };
 
 /**
@@ -146,38 +143,28 @@ protected:
  *                              Extensions 512 (Intel(R) AVX512)
  * \tparam avx512Container      Implementation for Intel(R) Xeon(R) processors based on Intel AVX-512
  */
-template<typename sse2Container
-    DAAL_KERNEL_SSSE3_ONLY(typename ssse3Container)
-    DAAL_KERNEL_SSE42_ONLY(typename sse42Container)
-    DAAL_KERNEL_AVX_ONLY(typename avxContainer)
-    DAAL_KERNEL_AVX2_ONLY(typename avx2Container)
-    DAAL_KERNEL_AVX512_MIC_ONLY(typename avx512_micContainer)
-    DAAL_KERNEL_AVX512_ONLY(typename avx512Container)
->
-class DAAL_EXPORT AlgorithmDispatchContainer<batch, sse2Container
-    DAAL_KERNEL_SSSE3_ONLY(ssse3Container)
-    DAAL_KERNEL_SSE42_ONLY(sse42Container)
-    DAAL_KERNEL_AVX_ONLY(avxContainer)
-    DAAL_KERNEL_AVX2_ONLY(avx2Container)
-    DAAL_KERNEL_AVX512_MIC_ONLY(avx512_micContainer)
-    DAAL_KERNEL_AVX512_ONLY(avx512Container)
-> : public AlgorithmContainerImpl<batch>
+template <typename sse2Container DAAL_KERNEL_SSSE3_ONLY(typename ssse3Container) DAAL_KERNEL_SSE42_ONLY(typename sse42Container)
+              DAAL_KERNEL_AVX_ONLY(typename avxContainer) DAAL_KERNEL_AVX2_ONLY(typename avx2Container)
+                  DAAL_KERNEL_AVX512_MIC_ONLY(typename avx512_micContainer) DAAL_KERNEL_AVX512_ONLY(typename avx512Container)>
+class DAAL_EXPORT AlgorithmDispatchContainer<batch, sse2Container DAAL_KERNEL_SSSE3_ONLY(ssse3Container) DAAL_KERNEL_SSE42_ONLY(sse42Container)
+                                                        DAAL_KERNEL_AVX_ONLY(avxContainer) DAAL_KERNEL_AVX2_ONLY(avx2Container)
+                                                            DAAL_KERNEL_AVX512_MIC_ONLY(avx512_micContainer) DAAL_KERNEL_AVX512_ONLY(avx512Container)>
+    : public AlgorithmContainerImpl<batch>
 {
 public:
     /**
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmDispatchContainer(daal::services::Environment::env *daalEnv);
+    AlgorithmDispatchContainer(daal::services::Environment::env * daalEnv);
 
     virtual ~AlgorithmDispatchContainer() { delete _cntr; }
 
     virtual services::Status compute() DAAL_C11_OVERRIDE
     {
-        oneapi::internal::ExecutionContextIface& context = services::Environment::getInstance()->getDefaultExecutionContext();
-        oneapi::internal::InfoDevice& deviceInfo = context.getInfoDevice();
-        if (!daal::services::internal::isImplementedForDevice(deviceInfo, _cntr))
-            return services::Status(services::ErrorDeviceSupportNotImplemented);
+        oneapi::internal::ExecutionContextIface & context = services::Environment::getInstance()->getDefaultExecutionContext();
+        oneapi::internal::InfoDevice & deviceInfo         = context.getInfoDevice();
+        if (!daal::services::internal::isImplementedForDevice(deviceInfo, _cntr)) return services::Status(services::ErrorDeviceSupportNotImplemented);
         _cntr->setArguments(this->_in, this->_res, this->_par);
         return _cntr->compute();
     }
@@ -188,19 +175,16 @@ public:
         return _cntr->setupCompute();
     }
 
-    virtual services::Status resetCompute() DAAL_C11_OVERRIDE
-    {
-        return _cntr->resetCompute();
-    }
+    virtual services::Status resetCompute() DAAL_C11_OVERRIDE { return _cntr->resetCompute(); }
 
 protected:
-    AlgorithmContainerImpl<batch> *_cntr;
+    AlgorithmContainerImpl<batch> * _cntr;
 };
 
 /** @} */
 } // namespace interface1
 
-}
-}
+} // namespace algorithms
+} // namespace daal
 
 #endif

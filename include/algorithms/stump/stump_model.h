@@ -41,7 +41,6 @@ namespace algorithms
  */
 namespace stump
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -67,7 +66,7 @@ public:
      * \param[in] dummy     Dummy variable for the templated constructor
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy);
 
     /**
@@ -77,8 +76,8 @@ public:
      * \param[out] stat      Status of the model construction
      * \return Decision stump model
      */
-    template<typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, services::Status *stat = NULL);
+    template <typename modelFPType>
+    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, services::Status * stat = NULL);
 
     /**
      * Empty constructor for deserialization
@@ -101,42 +100,42 @@ public:
      *  Returns a value of the feature that defines the split
      *  \return Value of the feature over which the split is made
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT modelFPType getSplitValue();
 
     /**
      *  Sets a value of the feature that defines the split
      *  \param[in] splitValue   Value of the split feature
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT void setSplitValue(modelFPType splitValue);
 
     /**
      *  Returns an average of the weighted responses for the "left" subset
      *  \return Average of the weighted responses for the "left" subset
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT modelFPType getLeftSubsetAverage();
 
     /**
      *  Sets an average of the weighted responses for the "left" subset
      *  \param[in] leftSubsetAverage   An average of the weighted responses for the "left" subset
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT void setLeftSubsetAverage(modelFPType leftSubsetAverage);
 
     /**
      *  Returns an average of the weighted responses for the "right" subset
      *  \return Average of the weighted responses for the "right" subset
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT modelFPType getRightSubsetAverage();
 
     /**
      *  Sets an average of the weighted responses for the "right" subset
      *  \param[in] rightSubsetAverage   An average of the weighted responses for the "right" subset
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT void setRightSubsetAverage(modelFPType rightSubsetAverage);
 
     /**
@@ -146,24 +145,23 @@ public:
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return _nFeatures; }
 
 protected:
-    size_t      _nFeatures;                                            /*!< Number of features in the dataset was used
+    size_t _nFeatures;                                             /*!< Number of features in the dataset was used
                                                                             on the training stage */
-    size_t      _splitFeature;                                         /*!< Index of the feature over which the split is made */
-    services::SharedPtr<data_management::Matrix<double> > _values;     /*!< Table that contains 3 values:\n
+    size_t _splitFeature;                                          /*!< Index of the feature over which the split is made */
+    services::SharedPtr<data_management::Matrix<double> > _values; /*!< Table that contains 3 values:\n
                                                                         Value of the feature that defines the split,\n
                                                                         Average of the weighted responses for the "left" subset,\n
                                                                         Average of the weighted responses for the "right" subset */
 
-    template<typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status &st);
+    template <typename modelFPType>
+    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status & st);
 
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st = classifier::Model::serialImpl<Archive, onDeserialize>(arch);
-        if (!st)
-            return st;
+        if (!st) return st;
         arch->set(_nFeatures);
         arch->set(_splitFeature);
         arch->setSharedPtrObj(_values);
@@ -176,8 +174,8 @@ typedef services::SharedPtr<Model> ModelPtr;
 using interface1::Model;
 using interface1::ModelPtr;
 
-}
+} // namespace stump
 /** @} */
-}
+} // namespace algorithms
 } // namespace daal
 #endif

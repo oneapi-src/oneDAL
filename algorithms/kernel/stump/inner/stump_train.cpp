@@ -34,7 +34,6 @@ namespace algorithms
 {
 namespace stump
 {
-
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_STUMP_MODEL_ID);
@@ -62,7 +61,7 @@ daal::algorithms::stump::ModelPtr Result::get(classifier::training::ResultId id)
  * \param[in] id      Identifier of the result, \ref classifier::training::ResultId
  * \param[in] value   Pointer to the training result
  */
-void Result::set(classifier::training::ResultId id, daal::algorithms::stump::ModelPtr &value)
+void Result::set(classifier::training::ResultId id, daal::algorithms::stump::ModelPtr & value)
 {
     Argument::set(id, value);
 }
@@ -73,17 +72,17 @@ void Result::set(classifier::training::ResultId id, daal::algorithms::stump::Mod
  * \param[in] parameter Pointer to the parameters structure
  * \param[in] method    Algorithm computation method
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, checkImpl(input, parameter));
-    const classifier::interface1::Parameter *algPar = static_cast<const classifier::interface1::Parameter *>(parameter);
+    const classifier::interface1::Parameter * algPar = static_cast<const classifier::interface1::Parameter *>(parameter);
     DAAL_CHECK(algPar->nClasses == 2, services::ErrorModelNotFullInitialized);
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace training
-}// namespace stump
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

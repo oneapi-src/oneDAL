@@ -36,7 +36,6 @@ namespace regression
 {
 namespace prediction
 {
-
 /**
  * Allocates memory to store a partial result of decision forest model-based prediction
  * \param[in] input   %Input object
@@ -44,7 +43,7 @@ namespace prediction
  * \param[in] method  Algorithm method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     size_t nVectors = (static_cast<const Input *>(input))->get(data)->getNumberOfRows();
     services::Status st;

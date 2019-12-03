@@ -41,36 +41,33 @@ namespace algorithms
  */
 namespace pca
 {
-
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
 {
-
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__PCA__BATCHPARAMETER"></a>
 * \brief Class that specifies the parameters of the PCA algorithm in the batch computing mode
 */
-template<typename algorithmFPType, Method method>
-class BatchParameter: public BaseParameter<algorithmFPType, method> {};
+template <typename algorithmFPType, Method method>
+class BatchParameter : public BaseParameter<algorithmFPType, method>
+{};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__BATCHPARAMETER_ALGORITHMFPTYPE_CORRELATIONDENSE"></a>
  * \brief Class that specifies the parameters of the PCA Correlation algorithm in the batch computing mode
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class DAAL_EXPORT BatchParameter<algorithmFPType, correlationDense> : public BaseParameter<algorithmFPType, correlationDense>
 {
 public:
     /** Constructs PCA parameters */
-    BatchParameter(const services::SharedPtr<covariance::BatchImpl> &covarianceForBatchParameter =
-                       services::SharedPtr<covariance::Batch<algorithmFPType, covariance::defaultDense> >
-                   (new covariance::Batch<algorithmFPType, covariance::defaultDense>()));
+    BatchParameter(const services::SharedPtr<covariance::BatchImpl> & covarianceForBatchParameter =
+                       services::SharedPtr<covariance::Batch<algorithmFPType, covariance::defaultDense> >(
+                           new covariance::Batch<algorithmFPType, covariance::defaultDense>()));
 
     services::SharedPtr<covariance::BatchImpl> covariance; /*!< Pointer to batch covariance */
-
 
     /**
     * Checks batch parameter of the PCA correlation algorithm
@@ -78,7 +75,6 @@ public:
     */
     services::Status check() const DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__RESULT"></a>
@@ -88,7 +84,7 @@ class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
-    Result(const Result& o);
+    Result(const Result & o);
     Result();
 
     virtual ~Result() {};
@@ -105,7 +101,7 @@ public:
      * \param[in] id      Identifier of the result
      * \param[in] value   Pointer to the object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory for storing partial results of the PCA algorithm
@@ -113,16 +109,17 @@ public:
      * \param[in] parameter Algorithm parameter
      * \param[in] method Computation method
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, daal::algorithms::Parameter *parameter, const Method method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method);
 
     /**
      * Allocates memory for storing partial results of the PCA algorithm     * \param[in] partialResult Pointer to an object containing input data
      * \param[in] parameter Parameter of the algorithm
      * \param[in] method        Computation method
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult *partialResult, daal::algorithms::Parameter *parameter, const Method method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
+                                          const Method method);
 
     /**
     * Checks the results of the PCA algorithm
@@ -131,7 +128,7 @@ public:
     * \param[in] method  Computation  method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Input *_input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * _input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
     /**
     * Checks the results of the PCA algorithm
@@ -140,14 +137,14 @@ public:
     * \param[in] parameter      Algorithm %parameter
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::PartialResult *pr, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * parameter,
+                           int method) const DAAL_C11_OVERRIDE;
 
 protected:
-
     services::Status checkImpl(size_t nFeatures) const;
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }

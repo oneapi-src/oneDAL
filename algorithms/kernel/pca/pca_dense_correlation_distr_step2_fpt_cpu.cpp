@@ -25,7 +25,6 @@
 #include "pca_dense_correlation_distr_step2_kernel.h"
 #include "pca_dense_correlation_distr_step2_impl.i"
 
-
 namespace daal
 {
 namespace algorithms
@@ -40,6 +39,6 @@ namespace internal
 {
 template class PCACorrelationKernel<distributed, DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

@@ -34,7 +34,6 @@ namespace normalization
 {
 namespace zscore
 {
-
 namespace interface1
 {
 /**
@@ -43,28 +42,27 @@ namespace interface1
 * \param[in] method    Algorithm computation method
 */
 template <typename algorithmFPType>
-Status ResultImpl::allocate(const daal::algorithms::Input *input)
+Status ResultImpl::allocate(const daal::algorithms::Input * input)
 {
-    const Input *in = static_cast<const Input *>(input);
+    const Input * in = static_cast<const Input *>(input);
     DAAL_CHECK(in, ErrorNullInput);
 
     NumericTablePtr dataTable = in->get(zscore::data);
     DAAL_CHECK(dataTable, ErrorNullInputNumericTable);
 
     const size_t nFeatures = dataTable->getNumberOfColumns();
-    const size_t nVectors = dataTable->getNumberOfRows();
+    const size_t nVectors  = dataTable->getNumberOfRows();
 
     Status status;
-    (*this)[normalizedData] = HomogenNumericTable<algorithmFPType>::create
-            (nFeatures, nVectors, NumericTable::doAllocate, &status);
+    (*this)[normalizedData] = HomogenNumericTable<algorithmFPType>::create(nFeatures, nVectors, NumericTable::doAllocate, &status);
     return status;
 }
 
-template DAAL_EXPORT Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input);
+template DAAL_EXPORT Status ResultImpl::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input);
 
-}// namespace interface1
+} // namespace interface1
 
-}// namespace zscore
-}// namespace normalization
-}// namespace algorithms
-}// namespace daal
+} // namespace zscore
+} // namespace normalization
+} // namespace algorithms
+} // namespace daal

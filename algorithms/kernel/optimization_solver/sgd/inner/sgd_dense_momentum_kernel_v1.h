@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate sgd.
 //--
 
-
 #ifndef __SGD_DENSE_MOMENTUM_KERNEL_V1_H__
 #define __SGD_DENSE_MOMENTUM_KERNEL_V1_H__
 
@@ -48,72 +47,54 @@ namespace sgd
 {
 namespace internal
 {
-
 /**
 * Statuses of the indices of objective function terms that are used for gradient
 */
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class I1SGDKernel<algorithmFPType, momentum, cpu> : public iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable *inputArgument, NumericTable *minimum, NumericTable *nIterations,
-                 interface1::Parameter<momentum> *parameter, NumericTable *learningRateSequence,
-                 NumericTable *batchIndices, OptionalArgument *optionalArgument, OptionalArgument *optionalResult, engines::BatchBase &engine);
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTable * minimum, NumericTable * nIterations,
+                             interface1::Parameter<momentum> * parameter, NumericTable * learningRateSequence, NumericTable * batchIndices,
+                             OptionalArgument * optionalArgument, OptionalArgument * optionalResult, engines::BatchBase & engine);
     using iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>::vectorNorm;
 };
 
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 struct I1SGDmomentumTask
 {
-    I1SGDmomentumTask(
-        size_t batchSize_,
-        size_t nTerms_,
-        NumericTable *resultTable,
-        NumericTable *batchIndicesTable,
-        NumericTable *pastUpdateResult,
-        NumericTable *lastIterationResultNT,
-        Parameter<momentum> *parameter);
-    I1SGDmomentumTask(
-        size_t batchSize_,
-        size_t nTerms_,
-        NumericTable *resultTable,
-        NumericTable *batchIndicesTable,
-        NumericTable *pastUpdateResult,
-        NumericTable *lastIterationResultNT,
-        interface1::Parameter<momentum> *parameter);
+    I1SGDmomentumTask(size_t batchSize_, size_t nTerms_, NumericTable * resultTable, NumericTable * batchIndicesTable,
+                      NumericTable * pastUpdateResult, NumericTable * lastIterationResultNT, Parameter<momentum> * parameter);
+    I1SGDmomentumTask(size_t batchSize_, size_t nTerms_, NumericTable * resultTable, NumericTable * batchIndicesTable,
+                      NumericTable * pastUpdateResult, NumericTable * lastIterationResultNT, interface1::Parameter<momentum> * parameter);
 
     virtual ~I1SGDmomentumTask();
 
-    Status init(NumericTable *batchIndicesTable, NumericTable *resultTable, Parameter<momentum> *parameter,
-        NumericTable *pastUpdateInput,
-        NumericTable *lastIterationInput);
-    Status init(NumericTable *batchIndicesTable, NumericTable *resultTable, interface1::Parameter<momentum> *parameter,
-        NumericTable *pastUpdateInput,
-        NumericTable *lastIterationInput);
+    Status init(NumericTable * batchIndicesTable, NumericTable * resultTable, Parameter<momentum> * parameter, NumericTable * pastUpdateInput,
+                NumericTable * lastIterationInput);
+    Status init(NumericTable * batchIndicesTable, NumericTable * resultTable, interface1::Parameter<momentum> * parameter,
+                NumericTable * pastUpdateInput, NumericTable * lastIterationInput);
 
-    Status setStartValue(NumericTable *inputArgument, NumericTable *minimum);
+    Status setStartValue(NumericTable * inputArgument, NumericTable * minimum);
 
-    Status makeStep(NumericTable *gradient,
-                  NumericTable *minimum,
-                  NumericTable *pastUpdate,
-                  const algorithmFPType learningRate,
-                  const algorithmFPType momentum);
+    Status makeStep(NumericTable * gradient, NumericTable * minimum, NumericTable * pastUpdate, const algorithmFPType learningRate,
+                    const algorithmFPType momentum);
 
     size_t batchSize;
     size_t nTerms;
     size_t startIteration;
     size_t nProceededIters;
 
-    IndicesStatus   indicesStatus;
+    IndicesStatus indicesStatus;
 
-    SharedPtr<daal::internal::HomogenNumericTableCPU<int, cpu>> ntBatchIndices;
+    SharedPtr<daal::internal::HomogenNumericTableCPU<int, cpu> > ntBatchIndices;
     NumericTablePtr minimimWrapper;
     NumericTablePtr pastUpdate;
     NumericTablePtr lastIterationResult;
 };
 
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace sgd
 

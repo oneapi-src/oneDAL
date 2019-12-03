@@ -19,7 +19,6 @@
 //  Instantiation of LBFGS computation functions for specific CPUs.
 //--
 
-
 #include "lbfgs_batch_container.h"
 #include "lbfgs_dense_default_kernel.h"
 #include "lbfgs_dense_default_impl.i"
@@ -32,7 +31,6 @@ namespace optimization_solver
 {
 namespace lbfgs
 {
-
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

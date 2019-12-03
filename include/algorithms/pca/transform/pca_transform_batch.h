@@ -52,7 +52,7 @@ namespace interface1
  * \tparam method           Computation method of the PCA transformation algorithm, \ref daal::algorithms::pca::transform::Method
  *
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -61,7 +61,7 @@ public:
     * in the batch processing mode
     * \param[in] daalEnv   Environment object
     */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
     /**
@@ -81,25 +81,22 @@ public:
 * \par Enumerations
 *      - \ref Method   Computation methods for the PCA transformation algorithm
 */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::pca::transform::Input     InputType;
+    typedef algorithms::pca::transform::Input InputType;
     typedef algorithms::pca::transform::Parameter ParameterType;
-    typedef algorithms::pca::transform::Result    ResultType;
+    typedef algorithms::pca::transform::Result ResultType;
 
-    InputType input;            /*!< Input object */
-    ParameterType parameter;    /*!< PCA transformation parameters */
+    InputType input;         /*!< Input object */
+    ParameterType parameter; /*!< PCA transformation parameters */
 
     /**
     * Constructs a PCA transformation algorithm
     * \param[in] nComponents Number of principal components
     */
-    Batch(size_t nComponents = 0): parameter(nComponents)
-    {
-        initialize();
-    }
+    Batch(size_t nComponents = 0) : parameter(nComponents) { initialize(); }
 
     /**
     * Constructs a PCA transformation algorithm by copying input objects and parameters
@@ -107,35 +104,29 @@ public:
     * \param[in] other An algorithm to be used as the source to initialize the input objects
     *                  and parameters of the algorithm
     */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
     * Returns the structure that contains the results of the PCA transformation algorithm
     * \return Structure that contains the results of the PCA transformation algorithm
     */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
     * Register user-allocated memory to store the results of the PCA transformation algorithm
     * \return Structure to store the results of the PCA transformation algorithm
     */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
-            _result = res;
-        _res = _result.get();
+        _result = res;
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -150,24 +141,21 @@ public:
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
         services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, 0);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
-        _par = &parameter;
+        _in                  = &input;
+        _par                 = &parameter;
     }
 
 private:

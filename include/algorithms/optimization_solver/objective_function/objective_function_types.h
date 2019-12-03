@@ -49,14 +49,13 @@ namespace optimization_solver
 */
 namespace objective_function
 {
-
 /**
   * <a name="DAAL-ENUM-ALGORITHMS__OPTIMIZATION_SOLVER__OBJECTIVE_FUNCTION__INPUTID"></a>
   * Available identifiers of input objects of the Objective function
   */
 enum InputId
 {
-    argument,  /*!< Numeric table of size 1 x p with input argument of the objective function */
+    argument, /*!< Numeric table of size 1 x p with input argument of the objective function */
     lastInputId = argument
 };
 
@@ -68,13 +67,18 @@ enum ResultToComputeId
 {
     gradient = 0x00000001ULL, /*!< Numeric table of size 1 x p with the gradient of the objective function in the given argument */
     value    = 0x00000002ULL, /*!< Numeric table of size 1 x 1 with the value    of the objective function in the given argument */
-    hessian  = 0x00000004ULL,  /*!< Numeric table of size p x p with the hessian  of the objective function in the given argument */
-    nonSmoothTermValue = 0x00000008ULL, /*!< Numeric table of size 1 x 1 with the value of non-smooth part of the objective function in the given argument */
-    proximalProjection = 0x00000010ULL, /*!< Numeric table of size 1 x p with the proximal projection of non-smooth part of the objective function in the given argument */
-    lipschitzConstant = 0x00000020ULL,  /*!< Numeric table of size 1 x 1 with the Lipschitz constant of the objective function in the given argument */
-    componentOfGradient = 0x00000040ULL, /*!< Numeric table of size 1 x nDependentVariable with the gradient over certain feature of the objective function in the given argument */
-    componentOfHessianDiagonal = 0x00000080ULL,  /*!< Numeric table of size 1 x nDependentVariable with the dioganal element of hession matrix over certain feature of the objective function in the given argument */
-    componentOfProximalProjection = 0x00000100ULL, /*!< Numeric table of size p x nDependentVariable with proximal projection of certain of the objective function in the given argument */
+    hessian  = 0x00000004ULL, /*!< Numeric table of size p x p with the hessian  of the objective function in the given argument */
+    nonSmoothTermValue =
+        0x00000008ULL, /*!< Numeric table of size 1 x 1 with the value of non-smooth part of the objective function in the given argument */
+    proximalProjection =
+        0x00000010ULL, /*!< Numeric table of size 1 x p with the proximal projection of non-smooth part of the objective function in the given argument */
+    lipschitzConstant = 0x00000020ULL, /*!< Numeric table of size 1 x 1 with the Lipschitz constant of the objective function in the given argument */
+    componentOfGradient =
+        0x00000040ULL, /*!< Numeric table of size 1 x nDependentVariable with the gradient over certain feature of the objective function in the given argument */
+    componentOfHessianDiagonal =
+        0x00000080ULL, /*!< Numeric table of size 1 x nDependentVariable with the dioganal element of hession matrix over certain feature of the objective function in the given argument */
+    componentOfProximalProjection =
+        0x00000100ULL, /*!< Numeric table of size p x nDependentVariable with proximal projection of certain of the objective function in the given argument */
 };
 
 /**
@@ -83,15 +87,15 @@ enum ResultToComputeId
  */
 enum ResultId
 {
-    gradientIdx, /*!< Index of the gradient numeric table in the result collection */
-    valueIdx,    /*!< Index of the value numeric table in the result collection */
-    hessianIdx,  /*!< Index of the hessian numeric table in the result collection */
-    nonSmoothTermValueIdx,  /*!< Index of the  nonSmoothTermValue numeric table in the result collection */
-    proximalProjectionIdx,  /*!< Index of the proximalProjection numeric table in the result collection */
-    lipschitzConstantIdx,   /*!< Index of the lipschitzConstant numeric table in the result collection */
-    componentOfGradientIdx,          /*!< Index of the componentOfGradient numeric table in the result collection */
-    componentOfHessianDiagonalIdx,           /*!< Index of the componentOfHessianDiagonal numeric table in the result collection */
-    componentOfProximalProjectionIdx,  /*!< Index of the componentOfProximalProjection numeric table in the result collection */
+    gradientIdx,                      /*!< Index of the gradient numeric table in the result collection */
+    valueIdx,                         /*!< Index of the value numeric table in the result collection */
+    hessianIdx,                       /*!< Index of the hessian numeric table in the result collection */
+    nonSmoothTermValueIdx,            /*!< Index of the  nonSmoothTermValue numeric table in the result collection */
+    proximalProjectionIdx,            /*!< Index of the proximalProjection numeric table in the result collection */
+    lipschitzConstantIdx,             /*!< Index of the lipschitzConstant numeric table in the result collection */
+    componentOfGradientIdx,           /*!< Index of the componentOfGradient numeric table in the result collection */
+    componentOfHessianDiagonalIdx,    /*!< Index of the componentOfHessianDiagonal numeric table in the result collection */
+    componentOfProximalProjectionIdx, /*!< Index of the componentOfProximalProjection numeric table in the result collection */
     lastResultId = componentOfProximalProjectionIdx
 };
 
@@ -119,11 +123,11 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
      * Constructs an Parameter by copying input objects and parameters of another Parameter
      * \param[in] other An object to be used as the source to initialize object
      */
-    Parameter(const Parameter &other);
+    Parameter(const Parameter & other);
 
     virtual ~Parameter() {}
 
-    DAAL_UINT64 resultsToCompute;  /*!< 64 bit integer flag that indicates the results to compute */
+    DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
 };
 /* [Parameter source code] */
 
@@ -138,7 +142,7 @@ public:
     Input(size_t n = 1);
 
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
 
     /** Destructor */
     virtual ~Input() {}
@@ -148,7 +152,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the input numeric table for Objective function
@@ -164,14 +168,14 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__OPTIMIZATION_SOLVER__OBJECTIVE_FUNCTION__RESULT"></a>
  * \brief Provides methods to access final results obtained with the compute() method of the Objective function in the batch processing mode
  */
-class DAAL_EXPORT Result: public daal::algorithms::Result
+class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
@@ -190,14 +194,14 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Sets the result of the Objective function
      * \param[in] id    Identifier of the result
      * \param[in] ptr   Pointer to the numeric table with the result
      */
-    void set(ResultId id, const data_management::NumericTablePtr &ptr);
+    void set(ResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the collection of the results of the Objective function
@@ -214,12 +218,12 @@ public:
     *
      * \return Status of computations
     */
-    virtual services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                   int method) const DAAL_C11_OVERRIDE;
 
 protected:
-
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -234,6 +238,6 @@ using interface1::ResultPtr;
 
 } // namespace objective_function
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

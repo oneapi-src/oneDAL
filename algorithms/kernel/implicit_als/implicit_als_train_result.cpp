@@ -34,7 +34,6 @@ namespace algorithms
 {
 namespace implicit_als
 {
-
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Model, SERIALIZATION_IMPLICIT_ALS_MODEL_ID);
@@ -56,8 +55,7 @@ Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
  */
 daal::algorithms::implicit_als::ModelPtr Result::get(ResultId id) const
 {
-    return services::staticPointerCast<daal::algorithms::implicit_als::Model,
-           data_management::SerializationIface>(Argument::get(id));
+    return services::staticPointerCast<daal::algorithms::implicit_als::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
 /**
@@ -65,7 +63,7 @@ daal::algorithms::implicit_als::ModelPtr Result::get(ResultId id) const
  * \param[in] id    Identifier of the result
  * \param[in] ptr   Pointer to the result
  */
-void Result::set(ResultId id, const daal::algorithms::implicit_als::ModelPtr &ptr)
+void Result::set(ResultId id, const daal::algorithms::implicit_als::ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -76,15 +74,15 @@ void Result::set(ResultId id, const daal::algorithms::implicit_als::ModelPtr &pt
  * \param[in] parameter   %Parameter of the algorithm
  * \param[in] method      Computation method of the algorithm
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
-    const Input *algInput = static_cast<const Input *>(input);
+    const Input * algInput    = static_cast<const Input *>(input);
     NumericTablePtr dataTable = algInput->get(data);
-    const size_t nUsers = dataTable->getNumberOfRows();
-    const size_t nItems = dataTable->getNumberOfColumns();
+    const size_t nUsers       = dataTable->getNumberOfRows();
+    const size_t nItems       = dataTable->getNumberOfColumns();
 
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
-    const size_t nFactors = algParameter->nFactors;
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
+    const size_t nFactors          = algParameter->nFactors;
 
     ModelPtr trainedModel = get(model);
     DAAL_CHECK(trainedModel, ErrorNullModel);
@@ -96,8 +94,8 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     return s;
 }
 
-}// namespace interface1
-}// namespace training
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

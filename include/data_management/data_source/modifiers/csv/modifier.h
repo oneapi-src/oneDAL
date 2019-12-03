@@ -64,7 +64,8 @@ public:
  * \brief Base class that represents modifier configuration, object of that
  *        class is passed to the modifier on initialization and finalization stages
  */
-class Config : public Base, public ConfigIface { };
+class Config : public Base, public ConfigIface
+{};
 
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__CONTEXTIFACE"></a>
@@ -101,7 +102,7 @@ public:
      * \param[in]  index  The index of token
      * \return     The parsed token
      */
-    template<typename T>
+    template <typename T>
     T getTokenAs(size_t index) const;
 };
 
@@ -109,7 +110,8 @@ public:
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__MODIFIERS__CSV__FEATUREMODIFIERIFACE"></a>
  * \brief Specialization of modifiers::FeatureModifierIface for CSV feature modifier
  */
-class FeatureModifierIface : public modifiers::FeatureModifierIface<Config, Context> { };
+class FeatureModifierIface : public modifiers::FeatureModifierIface<Config, Context>
+{};
 typedef services::SharedPtr<FeatureModifierIface> FeatureModifierIfacePtr;
 
 /**
@@ -123,38 +125,37 @@ public:
      * Default implementation of interface method
      * \param config  The configuration of the modifier
      */
-    virtual void initialize(Config &config) DAAL_C11_OVERRIDE { }
+    virtual void initialize(Config & config) DAAL_C11_OVERRIDE {}
 
     /**
      * Default implementation of interface method
      * \param config  The configuration of the modifier
      */
-    virtual void finalize(Config &config) DAAL_C11_OVERRIDE { }
+    virtual void finalize(Config & config) DAAL_C11_OVERRIDE {}
 };
 typedef services::SharedPtr<FeatureModifier> FeatureModifierPtr;
 
-
 /* Specifications of the Context::getTokenAs method */
 
-template<>
+template <>
 inline float Context::getTokenAs<float>(size_t index) const
 {
     return (float)services::daal_string_to_float(getToken(index).c_str(), 0);
 }
 
-template<>
+template <>
 inline double Context::getTokenAs<double>(size_t index) const
 {
     return (double)services::daal_string_to_float(getToken(index).c_str(), 0);
 }
 
-template<>
+template <>
 inline services::StringView Context::getTokenAs<services::StringView>(size_t index) const
 {
     return getToken(index);
 }
 
-template<>
+template <>
 inline std::string Context::getTokenAs<std::string>(size_t index) const
 {
     services::StringView token = getToken(index);

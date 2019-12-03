@@ -34,30 +34,26 @@ namespace internal
 {
 namespace math
 {
-
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 static algorithmFPType expThreshold()
 {
     return IsSameType<algorithmFPType, double>::value ? -650.0 : -75.0f;
 }
 
-template<typename algorithmFPType>
-static services::Status vLog(const services::Buffer<algorithmFPType>& x,
-    services::Buffer<algorithmFPType>& result,
-    const uint32_t n)
+template <typename algorithmFPType>
+static services::Status vLog(const services::Buffer<algorithmFPType> & x, services::Buffer<algorithmFPType> & result, const uint32_t n)
 {
     services::Status status;
 
-    oneapi::internal::ExecutionContextIface &ctx =
-        services::Environment::getInstance()->getDefaultExecutionContext();
-    oneapi::internal::ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+    oneapi::internal::ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    oneapi::internal::ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     const services::String options = oneapi::internal::getKeyFPType<algorithmFPType>();
     services::String cachekey("__daal_algorithms_math_");
     cachekey.add(options);
     factory.build(oneapi::internal::ExecutionTargetIds::device, cachekey.c_str(), clKernelMath, options.c_str());
 
-    const char* const kernelName = "vLog";
+    const char * const kernelName      = "vLog";
     oneapi::internal::KernelPtr kernel = factory.getKernel(kernelName);
 
     oneapi::internal::KernelArguments args(2);
@@ -70,7 +66,6 @@ static services::Status vLog(const services::Buffer<algorithmFPType>& x,
 
     return status;
 }
-
 
 } // namespace math
 } // namespace internal

@@ -39,73 +39,52 @@ namespace logistic_loss
 {
 namespace internal
 {
-
 using namespace daal::services::internal;
 using namespace daal::oneapi::internal;
 using namespace daal::internal;
 
 // Calculate X^T*beta
 template <typename algorithmFPType>
-services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyBeta(
-    const services::Buffer<algorithmFPType>& x,
-    const services::Buffer<algorithmFPType>& beta,
-    services::Buffer<algorithmFPType>& xb,
-    const uint32_t n, const uint32_t p, const uint32_t offset)
+services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyBeta(const services::Buffer<algorithmFPType> & x,
+                                                                               const services::Buffer<algorithmFPType> & beta,
+                                                                               services::Buffer<algorithmFPType> & xb, const uint32_t n,
+                                                                               const uint32_t p, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
-    return BlasGpu<algorithmFPType>::xgemm(
-        math::Layout::RowMajor,
-        math::Transpose::NoTrans, math::Transpose::NoTrans,
-        n, 1, p,
-        algorithmFPType(1),
-        x, p, 0,
-        beta, 1, offset,
-        algorithmFPType(0),
-        xb, 1, 0);
+    return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::NoTrans, n, 1, p, algorithmFPType(1), x,
+                                           p, 0, beta, 1, offset, algorithmFPType(0), xb, 1, 0);
 }
 
 // Calculate X^T*(y - sigma) + 2*L2*beta
 template <typename algorithmFPType>
-services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyGradient(
-    const services::Buffer<algorithmFPType>& x,
-    const services::Buffer<algorithmFPType>& sub,
-    services::Buffer<algorithmFPType>& gradient,
-    const algorithmFPType alpha,
-    const uint32_t n, const uint32_t p,
-    const algorithmFPType beta, const uint32_t offset)
+services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyGradient(const services::Buffer<algorithmFPType> & x,
+                                                                                   const services::Buffer<algorithmFPType> & sub,
+                                                                                   services::Buffer<algorithmFPType> & gradient,
+                                                                                   const algorithmFPType alpha, const uint32_t n, const uint32_t p,
+                                                                                   const algorithmFPType beta, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
-    return BlasGpu<algorithmFPType>::xgemm(
-        math::Layout::RowMajor,
-        math::Transpose::Trans, math::Transpose::NoTrans,
-        p, 1, n,
-        alpha,
-        x, p, 0,
-        sub, 1, 0,
-        beta,
-        gradient, 1, offset);
+    return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, p, 1, n, alpha, x, p, 0, sub, 1,
+                                           0, beta, gradient, 1, offset);
 }
 
 template <typename algorithmFPType>
-services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessian(
-    const services::Buffer<algorithmFPType>& x,
-    const services::Buffer<algorithmFPType>& sigma,
-    const uint32_t n, const uint32_t p,
-    services::Buffer<algorithmFPType>& h,
-    const uint32_t nBeta, const uint32_t offset,
-    const algorithmFPType alpha)
+services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessian(const services::Buffer<algorithmFPType> & x,
+                                                                                  const services::Buffer<algorithmFPType> & sigma, const uint32_t n,
+                                                                                  const uint32_t p, services::Buffer<algorithmFPType> & h,
+                                                                                  const uint32_t nBeta, const uint32_t offset,
+                                                                                  const algorithmFPType alpha)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyHessian);
     services::Status status;
 
-    ExecutionContextIface &ctx =
-        services::Environment::getInstance()->getDefaultExecutionContext();
-    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
 
-    const char* const kernelName = "hessian";
-    KernelPtr kernel = factory.getKernel(kernelName);
+    const char * const kernelName = "hessian";
+    KernelPtr kernel              = factory.getKernel(kernelName);
 
     KernelArguments args(8);
     args.set(0, x, AccessModeIds::read);
@@ -126,23 +105,20 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyHessia
 
 // ylog(sigm) + (1-y)log(1-sigma)
 template <typename algorithmFPType>
-services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::logLoss(
-    const services::Buffer<algorithmFPType>& y,
-    const services::Buffer<algorithmFPType>& sigma,
-    services::Buffer<algorithmFPType>& result,
-    const uint32_t n)
+services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::logLoss(const services::Buffer<algorithmFPType> & y,
+                                                                             const services::Buffer<algorithmFPType> & sigma,
+                                                                             services::Buffer<algorithmFPType> & result, const uint32_t n)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(logLoss);
     services::Status status;
 
-    ExecutionContextIface &ctx =
-        services::Environment::getInstance()->getDefaultExecutionContext();
-    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
 
-    const char* const kernelName = "logLoss";
-    KernelPtr kernel = factory.getKernel(kernelName);
+    const char * const kernelName = "logLoss";
+    KernelPtr kernel              = factory.getKernel(kernelName);
 
     KernelArguments args(3);
     args.set(0, y, AccessModeIds::read);
@@ -150,34 +126,27 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::logLoss(
     args.set(2, result, AccessModeIds::write);
 
     KernelRange range(n);
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(logLoss.run);
-        ctx.run(range, kernel, args, &status);
-    }
-
+    ctx.run(range, kernel, args, &status);
     return status;
 }
 
 // sigmoid(x) = 1/(1+exp(-x))
 // if calculateInverse = true, x[i][1] = 1 - sigmoid(x[i][0])
 template <typename algorithmFPType>
-services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(
-    const services::Buffer<algorithmFPType>& x,
-    services::Buffer<algorithmFPType>& result,
-    const uint32_t n,
-    bool calculateInverse)
+services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(const services::Buffer<algorithmFPType> & x,
+                                                                              services::Buffer<algorithmFPType> & result, const uint32_t n,
+                                                                              bool calculateInverse)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids);
     services::Status status;
 
-    ExecutionContextIface &ctx =
-        services::Environment::getInstance()->getDefaultExecutionContext();
-    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
 
-    const char* const kernelName = "sigmoid";
-    KernelPtr kernel = factory.getKernel(kernelName);
+    const char * const kernelName = "sigmoid";
+    KernelPtr kernel              = factory.getKernel(kernelName);
 
     const algorithmFPType expThreshold = math::expThreshold<algorithmFPType>();
 
@@ -188,19 +157,13 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(
     args.set(3, result, AccessModeIds::write);
 
     KernelRange range(n);
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids.run);
-        ctx.run(range, kernel, args, &status);
-    }
-
+    ctx.run(range, kernel, args, &status);
     return status;
 }
 
 template <typename algorithmFPType>
-services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::betaIntercept(
-    const services::Buffer<algorithmFPType> &arg,
-    services::Buffer<algorithmFPType> &x,
-    const uint32_t n)
+services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::betaIntercept(const services::Buffer<algorithmFPType> & arg,
+                                                                                   services::Buffer<algorithmFPType> & x, const uint32_t n)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(betaIntercept);
     services::Status status;
@@ -214,17 +177,15 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::betaInterce
 }
 
 template <typename algorithmFPType>
-services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianIntercept(
-    const services::Buffer<algorithmFPType>& x,
-    const services::Buffer<algorithmFPType>& sigma,
-    const uint32_t n, const uint32_t p,
-    services::Buffer<algorithmFPType>& h,
-    const uint32_t nBeta, const algorithmFPType alpha)
+services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianIntercept(const services::Buffer<algorithmFPType> & x,
+                                                                                      const services::Buffer<algorithmFPType> & sigma,
+                                                                                      const uint32_t n, const uint32_t p,
+                                                                                      services::Buffer<algorithmFPType> & h, const uint32_t nBeta,
+                                                                                      const algorithmFPType alpha)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(hessianIntercept);
-    ExecutionContextIface &ctx =
-        services::Environment::getInstance()->getDefaultExecutionContext();
-    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
 
@@ -232,8 +193,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
 
     services::Status status;
     {
-        const char* const kernelName = "hessianIntercept";
-        KernelPtr kernel = factory.getKernel(kernelName);
+        const char * const kernelName = "hessianIntercept";
+        KernelPtr kernel              = factory.getKernel(kernelName);
 
         KernelArguments args(7);
         args.set(0, x, AccessModeIds::read);
@@ -250,8 +211,8 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
     }
     {
         // h[0][0] = alpha*sigma[i]*(1-sima[i])
-        algorithmFPType h00 = algorithmFPType(0);
-        const char* const kernelName = "hessianInterceptH0";
+        algorithmFPType h00           = algorithmFPType(0);
+        const char * const kernelName = "hessianInterceptH0";
 
         KernelPtr kernel = factory.getKernel(kernelName);
 
@@ -266,16 +227,16 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
         const size_t nWorkGroups = HelperObjectiveFunction::getWorkgroupsCount(n, workItemsPerGroup);
 
         KernelRange localRange(workItemsPerGroup);
-        KernelRange globalRange(nWorkGroups*workItemsPerGroup);
+        KernelRange globalRange(nWorkGroups * workItemsPerGroup);
 
         range.local(localRange, &status);
         range.global(globalRange, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        UniversalBuffer buffer = ctx.allocate(idType, nWorkGroups, &status);
+        UniversalBuffer buffer                            = ctx.allocate(idType, nWorkGroups, &status);
         services::Buffer<algorithmFPType> reductionBuffer = buffer.get<algorithmFPType>();
 
-        KernelArguments args(3/*4*/);
+        KernelArguments args(3 /*4*/);
         args.set(0, sigma, AccessModeIds::read);
         args.set(1, n);
         args.set(2, reductionBuffer, AccessModeIds::write);
@@ -293,23 +254,21 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianInte
 
 // ylog(sigm) + (1-y)log(1-sigma)
 template <typename algorithmFPType>
-services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianRegulization(
-    services::Buffer<algorithmFPType>& h,
-    const uint32_t nBeta, const algorithmFPType l2)
+services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianRegulization(services::Buffer<algorithmFPType> & h, const uint32_t nBeta,
+                                                                                         const algorithmFPType l2)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(hessianRegulization);
     services::Status status;
 
-    ExecutionContextIface &ctx =
-        services::Environment::getInstance()->getDefaultExecutionContext();
-    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
+    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
 
     buildProgram(factory);
 
-    const char* const kernelName = "hessianRegulization";
-    KernelPtr kernel = factory.getKernel(kernelName);
+    const char * const kernelName = "hessianRegulization";
+    KernelPtr kernel              = factory.getKernel(kernelName);
 
-    const algorithmFPType beta = l2*algorithmFPType(2);
+    const algorithmFPType beta = l2 * algorithmFPType(2);
 
     KernelArguments args(3);
     args.set(0, h, AccessModeIds::write);
@@ -324,8 +283,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::hessianRegu
 }
 
 template <typename algorithmFPType>
-void LogLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(
-    ClKernelFactoryIface &factory)
+void LogLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(ClKernelFactoryIface & factory)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(buildProgram);
     services::String options = getKeyFPType<algorithmFPType>();
@@ -340,24 +298,17 @@ void LogLossKernelOneAPI<algorithmFPType, defaultDense>::buildProgram(
 
 template <typename algorithmFPType>
 services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
-    const uint32_t nBatch, const uint32_t nFeatures,
-    const daal::services::Buffer<algorithmFPType>& xBuff,
-    const daal::services::Buffer<algorithmFPType>& yBuff,
-    const daal::services::Buffer<algorithmFPType>& argBuff,
-    NumericTable* valueNT, NumericTable* gradientNT, NumericTable* hessianNT,
-    NumericTable* nonSmoothTermValueNT, NumericTable* proximalProjectionNT,
-    NumericTable* lipschitzConstantNT,
-    const algorithmFPType l1reg, const algorithmFPType l2reg,
-    const bool interceptFlag, const bool isSourceData)
+    const uint32_t nBatch, const uint32_t nFeatures, const daal::services::Buffer<algorithmFPType> & xBuff,
+    const daal::services::Buffer<algorithmFPType> & yBuff, const daal::services::Buffer<algorithmFPType> & argBuff, NumericTable * valueNT,
+    NumericTable * gradientNT, NumericTable * hessianNT, NumericTable * nonSmoothTermValueNT, NumericTable * proximalProjectionNT,
+    NumericTable * lipschitzConstantNT, const algorithmFPType l1reg, const algorithmFPType l2reg, const bool interceptFlag, const bool isSourceData)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(doCompute);
     services::Status status;
 
-    ExecutionContextIface &ctx =
-        services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    const uint32_t nBeta = nFeatures + 1;
-    const uint32_t ldX = isSourceData ? nFeatures : nBeta;
+    const uint32_t nBeta   = nFeatures + 1;
+    const uint32_t ldX     = isSourceData ? nFeatures : nBeta;
     const uint32_t offsetX = isSourceData ? 1 : 0;
 
     const uint32_t n = nBatch;
@@ -389,14 +340,13 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
     if (valueNT)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.valueNT);
         DAAL_ASSERT(valueNT->getNumberOfRows() == 1);
 
         BlockDescriptor<algorithmFPType> vr;
         DAAL_CHECK_STATUS(status, valueNT->getBlockOfRows(0, 1, ReadWriteMode::readWrite, vr));
-        algorithmFPType& value = *vr.getBlockPtr();
+        algorithmFPType & value = *vr.getBlockPtr();
 
-        UniversalBuffer logLosUniversal = ctx.allocate(idType, n, &status);
+        UniversalBuffer logLosUniversal               = ctx.allocate(idType, n, &status);
         services::Buffer<algorithmFPType> logLossBuff = logLosUniversal.get<algorithmFPType>();
 
         value = algorithmFPType(0);
@@ -420,7 +370,6 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
     if (gradientNT)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.gradient);
         DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
 
         BlockDescriptor<algorithmFPType> gr;
@@ -432,26 +381,24 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 
         // diff = sigmoid(Xb) - y
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.gradient.subVectors);
+            DAAL_ITTNOTIFY_SCOPED_TASK(subVectors);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::subVectors(sigmoidBuf, yBuff, subSigmoidYBuff, n));
         }
 
-        const algorithmFPType coeffBeta = algorithmFPType(2)*l2reg;
+        const algorithmFPType coeffBeta = algorithmFPType(2) * l2reg;
         if (l2reg > 0)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.gradient.initL2reg);
             ctx.copy(gradientBuff, 1, argBuff, 1, nBeta - 1, &status);
             const algorithmFPType zero = algorithmFPType(0);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setElem(0, zero, gradientBuff));
         }
 
         // gradient = (X^T(sigmoid(Xb) - y)/n + 2*l2*||Beta||
-        DAAL_CHECK_STATUS(status, applyGradient(xBuff, subSigmoidYBuff, gradientBuff, div, n,
-            ldX, coeffBeta, offsetX));
+        DAAL_CHECK_STATUS(status, applyGradient(xBuff, subSigmoidYBuff, gradientBuff, div, n, ldX, coeffBeta, offsetX));
 
         if (interceptFlag)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.gradient.interceptFlag);
+            DAAL_ITTNOTIFY_SCOPED_TASK(interceptCalculate);
             // g[0] = sum(sigmoid(Xb) - y)/n
             algorithmFPType g0 = algorithmFPType(0);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::sum(subSigmoidYBuff, g0, n));
@@ -489,17 +436,16 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::doCompute(
 }
 
 template <typename algorithmFPType>
-services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(
-    NumericTable *data, NumericTable *dependentVariables,
-    NumericTable *argument, NumericTable *value, NumericTable *hessian, NumericTable *gradient,
-    NumericTable *nonSmoothTermValue, NumericTable *proximalProjectionNT, NumericTable *lipschitzConstantNT,
-    Parameter *parameter)
+services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(NumericTable * data, NumericTable * dependentVariables,
+                                                                             NumericTable * argument, NumericTable * value, NumericTable * hessian,
+                                                                             NumericTable * gradient, NumericTable * nonSmoothTermValue,
+                                                                             NumericTable * proximalProjectionNT, NumericTable * lipschitzConstantNT,
+                                                                             Parameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     services::Status status;
 
     const size_t nRows = data->getNumberOfRows();
-    const size_t p = data->getNumberOfColumns();
+    const size_t p     = data->getNumberOfColumns();
     const size_t nBeta = p + 1;
 
     DAAL_ASSERT(argument->getNumberOfColumns() == 1);
@@ -510,13 +456,12 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(
 
     const services::Buffer<algorithmFPType> argBuff = agrBlock.getBuffer();
 
-    NumericTable* ntInd = parameter->batchIndices.get();
+    NumericTable * ntInd        = parameter->batchIndices.get();
     const algorithmFPType l1reg = parameter->penaltyL1;
     const algorithmFPType l2reg = parameter->penaltyL2;
 
     if (ntInd == nullptr || (ntInd != nullptr && ntInd->getNumberOfColumns() == nRows))
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.sourceData);
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
 
@@ -526,34 +471,28 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(
         const services::Buffer<algorithmFPType> xBuff = xBlock.getBuffer();
         const services::Buffer<algorithmFPType> yBuff = yBlock.getBuffer();
 
-        const size_t nBatch = nRows;
-        const bool isSourceData = true;
+        const size_t nBatch      = nRows;
+        const bool isSourceData  = true;
         const bool interceptFlag = parameter->interceptFlag;
 
-        status = doCompute(
-            nBatch, p,
-            xBuff, yBuff, argBuff,
-            value, gradient, hessian,
-            nonSmoothTermValue, proximalProjectionNT, lipschitzConstantNT,
-            l1reg, l2reg,
-            interceptFlag, isSourceData);
+        status = doCompute(nBatch, p, xBuff, yBuff, argBuff, value, gradient, hessian, nonSmoothTermValue, proximalProjectionNT, lipschitzConstantNT,
+                           l1reg, l2reg, interceptFlag, isSourceData);
 
         DAAL_CHECK_STATUS(status, data->releaseBlockOfRows(xBlock));
         DAAL_CHECK_STATUS(status, dependentVariables->releaseBlockOfRows(yBlock));
     }
     else
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.chunkData);
         const size_t nBatch = ntInd->getNumberOfColumns();
         // TODO: if (nBatch == 1)
 
-        DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_uX, nBatch*nBeta));
+        DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_uX, nBatch * nBeta));
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_uY, nBatch));
 
         services::Buffer<algorithmFPType> xBuff = _uX.get<algorithmFPType>();
         services::Buffer<algorithmFPType> yBuff = _uY.get<algorithmFPType>();
 
-        const bool isSourceData = false;
+        const bool isSourceData  = false;
         const bool interceptFlag = false;
 
         BlockDescriptor<int> rInd;
@@ -567,19 +506,15 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(
         DAAL_CHECK_STATUS(status, dependentVariables->getBlockOfRows(0, nRows, ReadWriteMode::readOnly, yBlock));
 
         {
-            DAAL_CHECK_STATUS(status, HelperObjectiveFunction::getXY(xBlock.getBuffer(), yBlock.getBuffer(), indBuff,
-                xBuff, yBuff, nBatch, p, parameter->interceptFlag));
+            DAAL_ITTNOTIFY_SCOPED_TASK(getXY);
+            DAAL_CHECK_STATUS(status, HelperObjectiveFunction::getXY(xBlock.getBuffer(), yBlock.getBuffer(), indBuff, xBuff, yBuff, nBatch, p,
+                                                                     parameter->interceptFlag));
         }
 
         DAAL_CHECK_STATUS(status, ntInd->releaseBlockOfRows(rInd));
 
-        status = doCompute(
-            nBatch, p,
-            xBuff, yBuff, argBuff,
-            value, gradient, hessian,
-            nonSmoothTermValue, proximalProjectionNT, lipschitzConstantNT,
-            l1reg, l2reg,
-            interceptFlag, isSourceData);
+        status = doCompute(nBatch, p, xBuff, yBuff, argBuff, value, gradient, hessian, nonSmoothTermValue, proximalProjectionNT, lipschitzConstantNT,
+                           l1reg, l2reg, interceptFlag, isSourceData);
 
         DAAL_CHECK_STATUS(status, data->releaseBlockOfRows(xBlock));
         DAAL_CHECK_STATUS(status, dependentVariables->releaseBlockOfRows(yBlock));
@@ -588,7 +523,6 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::compute(
     DAAL_CHECK_STATUS(status, argument->releaseBlockOfRows(agrBlock));
     return status;
 }
-
 
 } // namespace internal
 } // namespace logistic_loss

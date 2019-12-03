@@ -37,13 +37,13 @@ namespace interface1
 {
 services::Status Parameter::check() const
 {
-    if(nClasses == 0)
+    if (nClasses == 0)
     {
         return services::Status(services::Error::create(services::ErrorIncorrectParameter, services::ParameterName, nClassesStr()));
     }
     return services::Status();
 }
-}
-}
-}
-}
+} // namespace interface1
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal

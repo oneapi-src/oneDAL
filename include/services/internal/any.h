@@ -26,7 +26,6 @@ namespace internal
 {
 namespace interface1
 {
-
 /** @ingroup services_internal
  * @{
  */
@@ -41,78 +40,77 @@ private:
     class AbstractValue : public Base
     {
     public:
-        virtual AbstractValue *copy() const = 0;
+        virtual AbstractValue * copy() const = 0;
     };
 
     template <typename T>
     class Value : public AbstractValue
     {
     public:
-        explicit Value(const T &value) :
-            _value(value) { }
+        explicit Value(const T & value) : _value(value) {}
 
-        const T &get() const
-        { return _value; }
+        const T & get() const { return _value; }
 
-        T &get()
-        { return _value; }
+        T & get() { return _value; }
 
-        Value<T> *copy() const DAAL_C11_OVERRIDE
-        { return new Value<T>(_value); }
+        Value<T> * copy() const DAAL_C11_OVERRIDE { return new Value<T>(_value); }
 
     private:
         T _value;
     };
 
 public:
-    Any() : _value(NULL) { }
+    Any() : _value(NULL) {}
 
     template <typename T>
-    Any(const T &value) :
-        _value(new Value<T>(value)) { }
+    Any(const T & value) : _value(new Value<T>(value))
+    {}
 
     Any(const Any &other) :
         _value(other._value ? other._value->copy() : NULL) { }
 
-    ~Any()
-    { delete _value; }
+    ~Any() { delete _value; }
 
-    bool empty() const
-    { return _value == NULL; }
+    bool empty() const { return _value == NULL; }
 
     template <typename T>
     bool check() const
-    { return dynamic_cast<const Value<T> *>(_value) != NULL; }
-
-    template <typename T>
-    const T &get() const
-    { return static_cast<const Value<T> *>(_value)->get(); }
-
-    template <typename T>
-    T &get()
-    { return static_cast<Value<T> *>(_value)->get(); }
-
-    Any &swap(Any &other)
     {
-        AbstractValue *tmp = _value;
-        _value = other._value;
-        other._value = tmp;
+        return dynamic_cast<const Value<T> *>(_value) != NULL;
+    }
+
+    template <typename T>
+    const T & get() const
+    {
+        return static_cast<const Value<T> *>(_value)->get();
+    }
+
+    template <typename T>
+    T & get()
+    {
+        return static_cast<Value<T> *>(_value)->get();
+    }
+
+    Any & swap(Any & other)
+    {
+        AbstractValue * tmp = _value;
+        _value              = other._value;
+        other._value        = tmp;
         return *this;
     }
 
     template <typename T>
-    Any &operator=(const T &value)
+    Any & operator=(const T & value)
     {
         delete _value;
         _value = new Value<T>(value);
         return *this;
     }
 
-    Any &operator=(Any other)
-    { return swap(other); }
+    Any & operator=(Any other) { return swap(other); }
 
 private:
-    AbstractValue *_value;
+    AbstractValue * _value;
 };
 
 /** @} */

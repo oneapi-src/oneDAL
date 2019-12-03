@@ -83,24 +83,21 @@ public:
  *      - \ref kdtree_knn_classification::interface1::Model "kdtree_knn_classification::Model" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
 {
 public:
     typedef classifier::training::interface1::Batch super;
 
-    typedef typename super::InputType                                    InputType;
+    typedef typename super::InputType InputType;
     typedef algorithms::kdtree_knn_classification::interface1::Parameter ParameterType;
-    typedef algorithms::kdtree_knn_classification::training::Result      ResultType;
+    typedef algorithms::kdtree_knn_classification::training::Result ResultType;
 
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
-    InputType input;                /*!< %Input objects of the algorithm */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    InputType input;         /*!< %Input objects of the algorithm */
 
     /** Default constructor */
-    DAAL_DEPRECATED Batch()
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Batch() { initialize(); }
 
     /**
      * Constructs a KD-tree based kNN training algorithm by copying input objects
@@ -108,8 +105,8 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other) : classifier::training::interface1::Batch(other),
-        parameter(other.parameter), input(other.input)
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other)
+        : classifier::training::interface1::Batch(other), parameter(other.parameter), input(other.input)
     {
         initialize();
     }
@@ -124,7 +121,7 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains the result of KD-tree based kNN model-based training
@@ -155,17 +152,14 @@ public:
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         const interface1::ResultPtr res = getResult();
         DAAL_CHECK(_result, services::ErrorNullResult);
         services::Status s = res->template allocate<algorithmFPType>((classifier::training::InputIface *)(&input), &parameter, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
@@ -227,24 +221,21 @@ public:
  *      - \ref kdtree_knn_classification::interface1::Model "kdtree_knn_classification::Model" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
 {
 public:
     typedef classifier::training::Batch super;
 
-    typedef typename super::InputType                               InputType;
-    typedef algorithms::kdtree_knn_classification::Parameter        ParameterType;
+    typedef typename super::InputType InputType;
+    typedef algorithms::kdtree_knn_classification::Parameter ParameterType;
     typedef algorithms::kdtree_knn_classification::training::Result ResultType;
 
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
-    InputType input;                /*!< %Input objects of the algorithm */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    InputType input;         /*!< %Input objects of the algorithm */
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a KD-tree based kNN training algorithm by copying input objects
@@ -252,8 +243,7 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) : classifier::training::Batch(other),
-        parameter(other.parameter), input(other.input)
+    Batch(const Batch<algorithmFPType, method> & other) : classifier::training::Batch(other), parameter(other.parameter), input(other.input)
     {
         initialize();
     }
@@ -268,7 +258,7 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains the result of KD-tree based kNN model-based training
@@ -293,23 +283,17 @@ public:
      * in the batch processing mode
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         const ResultPtr res = getResult();
         DAAL_CHECK(_result, services::ErrorNullResult);
         services::Status s = res->template allocate<algorithmFPType>((classifier::training::InputIface *)(&input), &parameter, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 

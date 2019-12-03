@@ -45,7 +45,6 @@ namespace algorithms
  */
 namespace multi_class_classifier
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -64,9 +63,9 @@ namespace interface1
 /* [interface1::ParameterBase source code] */
 struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::interface1::Parameter
 {
-    ParameterBase(size_t nClasses): daal::algorithms::classifier::interface1::Parameter(nClasses), training(), prediction() {}
-    services::SharedPtr<algorithms::classifier::training::interface1::Batch> training;          /*!< Two-class classifier training stage */
-    services::SharedPtr<algorithms::classifier::prediction::interface1::Batch> prediction;      /*!< Two-class classifier prediction stage */
+    ParameterBase(size_t nClasses) : daal::algorithms::classifier::interface1::Parameter(nClasses), training(), prediction() {}
+    services::SharedPtr<algorithms::classifier::training::interface1::Batch> training;     /*!< Two-class classifier training stage */
+    services::SharedPtr<algorithms::classifier::prediction::interface1::Batch> prediction; /*!< Two-class classifier prediction stage */
 };
 /* [interface1::ParameterBase source code] */
 
@@ -79,8 +78,9 @@ struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::interfac
 /* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public ParameterBase
 {
-    DAAL_DEPRECATED Parameter(size_t nClasses, size_t maxIterations = 100, double accuracyThreshold = 1.0e-12) :
-        ParameterBase(nClasses), maxIterations(maxIterations), accuracyThreshold(accuracyThreshold) {}
+    DAAL_DEPRECATED Parameter(size_t nClasses, size_t maxIterations = 100, double accuracyThreshold = 1.0e-12)
+        : ParameterBase(nClasses), maxIterations(maxIterations), accuracyThreshold(accuracyThreshold)
+    {}
 
     size_t maxIterations;     /*!< Maximum number of iterations */
     double accuracyThreshold; /*!< Convergence threshold */
@@ -88,7 +88,7 @@ struct DAAL_EXPORT Parameter : public ParameterBase
     DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [interface1::Parameter source code] */
-}
+} // namespace interface1
 
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -108,9 +108,9 @@ namespace interface2
 /* [ParameterBase source code] */
 struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::Parameter
 {
-    ParameterBase(size_t nClasses): daal::algorithms::classifier::Parameter(nClasses), training(), prediction() {}
-    services::SharedPtr<algorithms::classifier::training::Batch> training;          /*!< Two-class classifier training stage */
-    services::SharedPtr<algorithms::classifier::prediction::Batch> prediction;      /*!< Two-class classifier prediction stage */
+    ParameterBase(size_t nClasses) : daal::algorithms::classifier::Parameter(nClasses), training(), prediction() {}
+    services::SharedPtr<algorithms::classifier::training::Batch> training;     /*!< Two-class classifier training stage */
+    services::SharedPtr<algorithms::classifier::prediction::Batch> prediction; /*!< Two-class classifier prediction stage */
 };
 /* [ParameterBase source code] */
 
@@ -123,8 +123,9 @@ struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::Paramete
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public ParameterBase
 {
-    Parameter(size_t nClasses, size_t maxIterations = 100, double accuracyThreshold = 1.0e-12) :
-        ParameterBase(nClasses), maxIterations(maxIterations), accuracyThreshold(accuracyThreshold) {}
+    Parameter(size_t nClasses, size_t maxIterations = 100, double accuracyThreshold = 1.0e-12)
+        : ParameterBase(nClasses), maxIterations(maxIterations), accuracyThreshold(accuracyThreshold)
+    {}
 
     size_t maxIterations;     /*!< Maximum number of iterations */
     double accuracyThreshold; /*!< Convergence threshold */
@@ -132,13 +133,12 @@ struct DAAL_EXPORT Parameter : public ParameterBase
     services::Status check() const DAAL_C11_OVERRIDE;
 };
 /* [Parameter source code] */
-}
+} // namespace interface2
 using interface2::ParameterBase;
 using interface2::Parameter;
 
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTI_CLASS_CLASSIFIER__MODEL"></a>
  * \brief Model of the classifier trained by the multi_class_classifier::training::Batch algorithm.
@@ -154,7 +154,7 @@ public:
      * \param[in] par       Parameters of the multi-class classifier algorithm
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model(size_t nFeatures, const interface1::ParameterBase *par);
+    Model(size_t nFeatures, const interface1::ParameterBase * par);
 
     /**
      * Constructs multi-class classifier model
@@ -162,7 +162,7 @@ public:
      * \param[in] par       Parameters of the multi-class classifier algorithm
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model(size_t nFeatures, const interface2::ParameterBase *par);
+    Model(size_t nFeatures, const interface2::ParameterBase * par);
 
     /**
      * Empty constructor for deserialization
@@ -177,7 +177,7 @@ public:
      * \param[out] stat     Status of the model construction
      * \return Multi-class classifier model
      */
-    static services::SharedPtr<Model> create(size_t nFeatures, const interface1::ParameterBase *par, services::Status* stat = NULL);
+    static services::SharedPtr<Model> create(size_t nFeatures, const interface1::ParameterBase * par, services::Status * stat = NULL);
 
     /**
      * Constructs multi-class classifier model
@@ -186,7 +186,7 @@ public:
      * \param[out] stat     Status of the model construction
      * \return Multi-class classifier model
      */
-    static services::SharedPtr<Model> create(size_t nFeatures, const interface2::ParameterBase *par, services::Status* stat = NULL);
+    static services::SharedPtr<Model> create(size_t nFeatures, const interface2::ParameterBase * par, services::Status * stat = NULL);
 
     virtual ~Model();
 
@@ -194,24 +194,21 @@ public:
      * Returns a collection of two-class classifier models in a multi-class classifier model
      * \return  Collection of two-class classifier models
      */
-    data_management::DataCollectionPtr getMultiClassClassifierModel()
-    {
-        return _models;
-    }
+    data_management::DataCollectionPtr getMultiClassClassifierModel() { return _models; }
 
     /**
      * Returns a pointer to the array of two-class classifier models in a multi-class classifier model
      * \return Pointer to the array of two-class classifier models
      * \DAAL_DEPRECATED_USE{ Model::getTwoClassClassifierModel }
      */
-    DAAL_DEPRECATED classifier::ModelPtr *getTwoClassClassifierModels();
+    DAAL_DEPRECATED classifier::ModelPtr * getTwoClassClassifierModels();
 
     /**
      * Set two-class classifier model into a multi-class classifier model
      * \param[in] idx    Index of two-class classifier model in a collection
      * \param[in] model  Two-class classifier model to add into collection
      */
-    void setTwoClassClassifierModel(size_t idx, const classifier::ModelPtr& model);
+    void setTwoClassClassifierModel(size_t idx, const classifier::ModelPtr & model);
 
     /**
      * Returns a two-class classifier model in a multi-class classifier model
@@ -224,10 +221,7 @@ public:
      * Returns a number of two-class classifiers associated with the model
      * \return        Number of two-class classifiers associated with the model
      */
-    size_t getNumberOfTwoClassClassifierModels() const
-    {
-        return _models->size();
-    }
+    size_t getNumberOfTwoClassClassifierModels() const { return _models->size(); }
 
     /**
      * Retrieves the number of features in the dataset was used on the training stage
@@ -237,18 +231,17 @@ public:
 
 protected:
     size_t _nFeatures;
-    data_management::DataCollectionPtr _models;              /* Collection of two-class classifiers associated with the model */
-    classifier::ModelPtr *_modelsArray;
+    data_management::DataCollectionPtr _models; /* Collection of two-class classifiers associated with the model */
+    classifier::ModelPtr * _modelsArray;
 
-    DAAL_DEPRECATED Model(size_t nFeatures, const interface1::ParameterBase *par, services::Status &st); /* \DAAL_DEPRECATED */
-    Model(size_t nFeatures, const interface2::ParameterBase *par, services::Status &st);
+    DAAL_DEPRECATED Model(size_t nFeatures, const interface1::ParameterBase * par, services::Status & st); /* \DAAL_DEPRECATED */
+    Model(size_t nFeatures, const interface2::ParameterBase * par, services::Status & st);
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         services::Status st = classifier::Model::serialImpl<Archive, onDeserialize>(arch);
-        if (!st)
-            return st;
+        if (!st) return st;
         arch->set(_nFeatures);
         arch->setSharedPtrObj(_models);
 

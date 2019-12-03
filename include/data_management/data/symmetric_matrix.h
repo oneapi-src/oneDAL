@@ -21,7 +21,6 @@
 //--
 */
 
-
 #ifndef __SYMMETRIC_MATRIX_H__
 #define __SYMMETRIC_MATRIX_H__
 
@@ -35,7 +34,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -49,8 +47,7 @@ namespace interface1
 class PackedArrayNumericTableIface
 {
 public:
-    virtual ~PackedArrayNumericTableIface()
-    {}
+    virtual ~PackedArrayNumericTableIface() {}
     /**
      *  Gets the whole packed array of a requested data type
      *
@@ -59,17 +56,7 @@ public:
      *
      *  \return Actual number of feature vectors returned by the method.
      */
-    virtual services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<double> &block) = 0;
-
-    /**
-     *  Gets the whole packed array of a requested data type
-     *
-     *  \param[in]  rwflag  Flag specifying read/write access to a block of feature vectors.
-     *  \param[out] block   The block of feature values.
-     *
-     *  \return Actual number of feature vectors returned by the method.
-     */
-    virtual services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<float> &block) = 0;
+    virtual services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<double> & block) = 0;
 
     /**
      *  Gets the whole packed array of a requested data type
@@ -79,25 +66,35 @@ public:
      *
      *  \return Actual number of feature vectors returned by the method.
      */
-    virtual services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<int> &block) = 0;
+    virtual services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<float> & block) = 0;
+
+    /**
+     *  Gets the whole packed array of a requested data type
+     *
+     *  \param[in]  rwflag  Flag specifying read/write access to a block of feature vectors.
+     *  \param[out] block   The block of feature values.
+     *
+     *  \return Actual number of feature vectors returned by the method.
+     */
+    virtual services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<int> & block) = 0;
 
     /**
      *  Releases a packed array
      *  \param[in] block   The block of feature values.
      */
-    virtual services::Status releasePackedArray(BlockDescriptor<double> &block) = 0;
+    virtual services::Status releasePackedArray(BlockDescriptor<double> & block) = 0;
 
     /**
      *  Releases a packed array
      *  \param[in] block   The block of feature values.
      */
-    virtual services::Status releasePackedArray(BlockDescriptor<float> &block) = 0;
+    virtual services::Status releasePackedArray(BlockDescriptor<float> & block) = 0;
 
     /**
      *  Releases a packed array
      *  \param[in] block   The block of feature values.
      */
-    virtual services::Status releasePackedArray(BlockDescriptor<int> &block) = 0;
+    virtual services::Status releasePackedArray(BlockDescriptor<int> & block) = 0;
 };
 
 /**
@@ -105,7 +102,7 @@ public:
  *  \brief Class that provides methods to access symmetric matrices stored as a one-dimensional array.
  *  \tparam DataType Defines the underlying data type that describes the Numeric Table
  */
-template<NumericTableIface::StorageLayout packedLayout, typename DataType = DAAL_DATA_TYPE>
+template <NumericTableIface::StorageLayout packedLayout, typename DataType = DAAL_DATA_TYPE>
 class DAAL_EXPORT PackedSymmetricMatrix : public NumericTable, public PackedArrayNumericTableIface
 {
 public:
@@ -124,11 +121,10 @@ public:
      *  \param[in]  nDim        Matrix dimension
      *  \DAAL_DEPRECATED_USE{ PackedSymmetricMatrix::create }
      */
-    PackedSymmetricMatrix( DataType *const ptr = 0, size_t nDim = 0 ):
-        NumericTable( nDim, nDim )
+    PackedSymmetricMatrix(DataType * const ptr = 0, size_t nDim = 0) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
-        this->_status |= setArray( services::SharedPtr<DataType>(ptr, services::EmptyDeleter()) );
+        this->_status |= setArray(services::SharedPtr<DataType>(ptr, services::EmptyDeleter()));
 
         NumericTableFeature df;
         df.setType<DataType>();
@@ -141,19 +137,17 @@ public:
      *  \param[in]  nDim        Matrix dimension
      *  \DAAL_DEPRECATED_USE{ PackedSymmetricMatrix::create }
      */
-    PackedSymmetricMatrix( const services::SharedPtr<DataType> &ptr, size_t nDim ):
-        NumericTable( nDim, nDim )
+    PackedSymmetricMatrix(const services::SharedPtr<DataType> & ptr, size_t nDim) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
-        this->_status |= setArray( ptr );
+        this->_status |= setArray(ptr);
 
         NumericTableFeature df;
         df.setType<DataType>();
         this->_status |= _ddict->setAllFeatures(df);
     }
 
-    PackedSymmetricMatrix( size_t nDim /*= 0*/ ):
-        NumericTable( nDim, nDim )
+    PackedSymmetricMatrix(size_t nDim /*= 0*/) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
 
@@ -169,8 +163,7 @@ public:
      *  \param[out] stat        Status of the table construction
      *  \return Numeric table with user-allocated memory
      */
-    static services::SharedPtr<PackedSymmetricMatrix> create(DataType *const ptr = 0, size_t nDim = 0,
-                                                             services::Status* stat = NULL)
+    static services::SharedPtr<PackedSymmetricMatrix> create(DataType * const ptr = 0, size_t nDim = 0, services::Status * stat = NULL)
     {
         return create(services::SharedPtr<DataType>(ptr, services::EmptyDeleter()), nDim, stat);
     }
@@ -182,10 +175,9 @@ public:
      *  \param[out] stat        Status of the table construction
      *  \return Numeric table with user-allocated memory
      */
-    static services::SharedPtr<PackedSymmetricMatrix> create(const services::SharedPtr<DataType> &ptr, size_t nDim,
-                                                             services::Status* stat = NULL)
+    static services::SharedPtr<PackedSymmetricMatrix> create(const services::SharedPtr<DataType> & ptr, size_t nDim, services::Status * stat = NULL)
     {
-        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(PackedSymmetricMatrix, DAAL_TEMPLATE_ARGUMENTS(packedLayout,DataType), ptr, nDim);
+        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(PackedSymmetricMatrix, DAAL_TEMPLATE_ARGUMENTS(packedLayout, DataType), ptr, nDim);
     }
 
     /**
@@ -195,17 +187,16 @@ public:
      *  \param[in]  constValue  Constant to initialize entries of the packed symmetric matrix
      *  \DAAL_DEPRECATED_USE{ PackedSymmetricMatrix::create }
      */
-    PackedSymmetricMatrix( DataType *const ptr, size_t nDim, const DataType &constValue ):
-        NumericTable( nDim, nDim )
+    PackedSymmetricMatrix(DataType * const ptr, size_t nDim, const DataType & constValue) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
-        this->_status |= setArray( services::SharedPtr<DataType>(ptr, services::EmptyDeleter()) );
+        this->_status |= setArray(services::SharedPtr<DataType>(ptr, services::EmptyDeleter()));
 
         NumericTableFeature df;
         df.setType<DataType>();
         this->_status |= _ddict->setAllFeatures(df);
 
-        this->_status |= assign( constValue );
+        this->_status |= assign(constValue);
     }
 
     /**
@@ -215,17 +206,16 @@ public:
      *  \param[in]  constValue  Constant to initialize entries of the packed symmetric matrix
      *  \DAAL_DEPRECATED_USE{ PackedSymmetricMatrix::create }
      */
-    PackedSymmetricMatrix( const services::SharedPtr<DataType>& ptr, size_t nDim, const DataType &constValue ) :
-        NumericTable( nDim, nDim )
+    PackedSymmetricMatrix(const services::SharedPtr<DataType> & ptr, size_t nDim, const DataType & constValue) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
-        this->_status |= setArray( ptr );
+        this->_status |= setArray(ptr);
 
         NumericTableFeature df;
         df.setType<DataType>();
         this->_status |= _ddict->setAllFeatures(df);
 
-        this->_status |= assign( constValue );
+        this->_status |= assign(constValue);
     }
 
     /**
@@ -236,8 +226,8 @@ public:
      *  \param[out] stat        Status of the table construction
      *  \return     Numeric table with user-allocated memory initialized with a constant
      */
-    static services::SharedPtr<PackedSymmetricMatrix> create(DataType *const ptr, size_t nDim, const DataType &constValue,
-                                                             services::Status* stat = NULL)
+    static services::SharedPtr<PackedSymmetricMatrix> create(DataType * const ptr, size_t nDim, const DataType & constValue,
+                                                             services::Status * stat = NULL)
     {
         return create(services::SharedPtr<DataType>(ptr, services::EmptyDeleter()), nDim, constValue, stat);
     }
@@ -250,10 +240,10 @@ public:
      *  \param[out] stat        Status of the table construction
      *  \return     Numeric table with user-allocated memory initialized with a constant
      */
-    static services::SharedPtr<PackedSymmetricMatrix> create(const services::SharedPtr<DataType> &ptr, size_t nDim, const DataType &constValue,
-                                                             services::Status* stat = NULL)
+    static services::SharedPtr<PackedSymmetricMatrix> create(const services::SharedPtr<DataType> & ptr, size_t nDim, const DataType & constValue,
+                                                             services::Status * stat = NULL)
     {
-        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(PackedSymmetricMatrix, DAAL_TEMPLATE_ARGUMENTS(packedLayout,DataType), ptr, nDim, constValue);
+        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(PackedSymmetricMatrix, DAAL_TEMPLATE_ARGUMENTS(packedLayout, DataType), ptr, nDim, constValue);
     }
 
     /**
@@ -262,8 +252,7 @@ public:
      *  \param[in]  memoryAllocationFlag    Flag that controls internal memory allocation for data in the numeric table
      *  \DAAL_DEPRECATED_USE{ PackedSymmetricMatrix::create }
      */
-    PackedSymmetricMatrix( size_t nDim, AllocationFlag memoryAllocationFlag ):
-        NumericTable( nDim, nDim )
+    PackedSymmetricMatrix(size_t nDim, AllocationFlag memoryAllocationFlag) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
 
@@ -271,7 +260,7 @@ public:
         df.setType<DataType>();
         this->_status |= _ddict->setAllFeatures(df);
 
-        if( memoryAllocationFlag == doAllocate ) this->_status |= allocateDataMemoryImpl();
+        if (memoryAllocationFlag == doAllocate) this->_status |= allocateDataMemoryImpl();
     }
 
     /**
@@ -281,10 +270,9 @@ public:
      *  \param[out] stat                    Status of the table construction
      *  \return     Numeric table
      */
-    static services::SharedPtr<PackedSymmetricMatrix> create(size_t nDim, AllocationFlag memoryAllocationFlag,
-                                                             services::Status* stat = NULL)
+    static services::SharedPtr<PackedSymmetricMatrix> create(size_t nDim, AllocationFlag memoryAllocationFlag, services::Status * stat = NULL)
     {
-        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(PackedSymmetricMatrix, DAAL_TEMPLATE_ARGUMENTS(packedLayout,DataType), nDim, memoryAllocationFlag);
+        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(PackedSymmetricMatrix, DAAL_TEMPLATE_ARGUMENTS(packedLayout, DataType), nDim, memoryAllocationFlag);
     }
 
     /**
@@ -294,9 +282,7 @@ public:
      *  \param[in]  constValue              Constant to initialize entries of the packed symmetric matrix
      *  \DAAL_DEPRECATED_USE{ PackedSymmetricMatrix::create }
      */
-    PackedSymmetricMatrix( size_t nDim, NumericTable::AllocationFlag memoryAllocationFlag,
-                           const DataType &constValue ):
-        NumericTable( nDim, nDim )
+    PackedSymmetricMatrix(size_t nDim, NumericTable::AllocationFlag memoryAllocationFlag, const DataType & constValue) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
 
@@ -304,7 +290,7 @@ public:
         df.setType<DataType>();
         this->_status |= _ddict->setAllFeatures(df);
 
-        if( memoryAllocationFlag == doAllocate ) this->_status |= allocateDataMemoryImpl();
+        if (memoryAllocationFlag == doAllocate) this->_status |= allocateDataMemoryImpl();
         this->_status |= assign(constValue);
     }
 
@@ -317,47 +303,37 @@ public:
      *  \return     Numeric table initialized with a constant
      */
     static services::SharedPtr<PackedSymmetricMatrix> create(size_t nDim, NumericTable::AllocationFlag memoryAllocationFlag,
-                                                             const DataType &constValue, services::Status* stat = NULL)
+                                                             const DataType & constValue, services::Status * stat = NULL)
     {
-        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(PackedSymmetricMatrix, DAAL_TEMPLATE_ARGUMENTS(packedLayout,DataType), \
-                                             nDim, memoryAllocationFlag, constValue);
+        DAAL_DEFAULT_CREATE_TEMPLATE_IMPL_EX(PackedSymmetricMatrix, DAAL_TEMPLATE_ARGUMENTS(packedLayout, DataType), nDim, memoryAllocationFlag,
+                                             constValue);
     }
 
     /** \private */
-    virtual ~PackedSymmetricMatrix()
-    {
-        freeDataMemoryImpl();
-    }
+    virtual ~PackedSymmetricMatrix() { freeDataMemoryImpl(); }
 
     /**
      *  Returns a pointer to a data set registered in the packed symmetric matrix
      *  \return Pointer to the data set
      */
-    DataType *getArray() const
-    {
-        return (DataType*)_ptr.get();
-    }
+    DataType * getArray() const { return (DataType *)_ptr.get(); }
 
     /**
      *  Returns a pointer to a data set registered in the packed symmetric matrix
      *  \return Pointer to the data set
      */
-    services::SharedPtr<DataType> getArraySharedPtr() const
-    {
-        return services::reinterpretPointerCast<DataType, byte>(_ptr);
-    }
+    services::SharedPtr<DataType> getArraySharedPtr() const { return services::reinterpretPointerCast<DataType, byte>(_ptr); }
 
     /**
      *  Sets a pointer to a packed array
      *  \param[in] ptr Pointer to the data set in the packed format
      */
-    services::Status setArray( DataType *const ptr )
+    services::Status setArray(DataType * const ptr)
     {
         freeDataMemoryImpl();
-        if( ptr == 0 )
-            return services::Status(services::ErrorEmptyHomogenNumericTable);
+        if (ptr == 0) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
-        _ptr = services::SharedPtr<byte>((byte*)ptr, services::EmptyDeleter());
+        _ptr       = services::SharedPtr<byte>((byte *)ptr, services::EmptyDeleter());
         _memStatus = userAllocated;
         return services::Status();
     }
@@ -366,13 +342,12 @@ public:
      *  Sets a pointer to a packed array
      *  \param[in] ptr Pointer to the data set in the packed format
      */
-    services::Status setArray( const services::SharedPtr<DataType>& ptr )
+    services::Status setArray(const services::SharedPtr<DataType> & ptr)
     {
         freeDataMemoryImpl();
-        if( ptr == 0 )
-            return services::Status(services::ErrorEmptyHomogenNumericTable);
+        if (ptr == 0) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
-        _ptr = services::reinterpretPointerCast<byte, DataType>(ptr);
+        _ptr       = services::reinterpretPointerCast<byte, DataType>(ptr);
         _memStatus = userAllocated;
         return services::Status();
     }
@@ -384,14 +359,13 @@ public:
     template <typename T>
     services::Status assign(T value)
     {
-        if( _memStatus == notAllocated )
-            return services::Status(services::ErrorEmptyHomogenNumericTable);
+        if (_memStatus == notAllocated) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
         size_t nDim = getNumberOfColumns();
 
-        DataType * ptr = (DataType*)_ptr.get();
+        DataType * ptr         = (DataType *)_ptr.get();
         DataType valueDataType = (DataType)value;
-        for( size_t i = 0; i < (nDim * (nDim + 1)) / 2 ; i++ )
+        for (size_t i = 0; i < (nDim * (nDim + 1)) / 2; i++)
         {
             ptr[i] = valueDataType;
         }
@@ -401,130 +375,101 @@ public:
     /**
      * \copydoc NumericTable::assign
      */
-    virtual services::Status assign(float value) DAAL_C11_OVERRIDE {return assign<DataType>((DataType)value);}
+    virtual services::Status assign(float value) DAAL_C11_OVERRIDE { return assign<DataType>((DataType)value); }
 
     /**
      * \copydoc NumericTable::assign
      */
-    virtual services::Status assign(double value) DAAL_C11_OVERRIDE {return assign<DataType>((DataType)value);}
+    virtual services::Status assign(double value) DAAL_C11_OVERRIDE { return assign<DataType>((DataType)value); }
 
     /**
      * \copydoc NumericTable::assign
      */
-    virtual services::Status assign(int value) DAAL_C11_OVERRIDE {return assign<DataType>((DataType)value);}
+    virtual services::Status assign(int value) DAAL_C11_OVERRIDE { return assign<DataType>((DataType)value); }
 
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
         return getTBlock<double>(vector_idx, vector_num, rwflag, block);
     }
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
         return getTBlock<float>(vector_idx, vector_num, rwflag, block);
     }
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
         return getTBlock<int>(vector_idx, vector_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<double>(block);
-    }
-    services::Status releaseBlockOfRows(BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<float>(block);
-    }
-    services::Status releaseBlockOfRows(BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<int>(block);
-    }
+    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTBlock<double>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTBlock<float>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTBlock<int>(block); }
 
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-                                ReadWriteMode rwflag, BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
         return getTFeature<double>(feature_idx, vector_idx, value_num, rwflag, block);
     }
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-                                ReadWriteMode rwflag, BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
         return getTFeature<float>(feature_idx, vector_idx, value_num, rwflag, block);
     }
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-                                ReadWriteMode rwflag, BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
         return getTFeature<int>(feature_idx, vector_idx, value_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<double>(block);
-    }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<float>(block);
-    }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<int>(block);
-    }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTFeature<double>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
 
-
-    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
+    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
         return getTPackedArray<double>(rwflag, block);
     }
-    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
+    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
         return getTPackedArray<float>(rwflag, block);
     }
-    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
+    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
         return getTPackedArray<int>(rwflag, block);
     }
 
-    services::Status releasePackedArray(BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTPackedArray<double>(block);
-    }
-    services::Status releasePackedArray(BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTPackedArray<float>(block);
-    }
-    services::Status releasePackedArray(BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTPackedArray<int>(block);
-    }
+    services::Status releasePackedArray(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTPackedArray<double>(block); }
+    services::Status releasePackedArray(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTPackedArray<float>(block); }
+    services::Status releasePackedArray(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTPackedArray<int>(block); }
 
 protected:
     services::SharedPtr<byte> _ptr;
 
-    PackedSymmetricMatrix(const services::SharedPtr<DataType> &ptr, size_t nDim, services::Status &st):
-        NumericTable(nDim, nDim, DictionaryIface::notEqual, st)
+    PackedSymmetricMatrix(const services::SharedPtr<DataType> & ptr, size_t nDim, services::Status & st)
+        : NumericTable(nDim, nDim, DictionaryIface::notEqual, st)
     {
         _layout = packedLayout;
-        st |= setArray( ptr );
+        st |= setArray(ptr);
 
         NumericTableFeature df;
         df.setType<DataType>();
         st |= _ddict->setAllFeatures(df);
     }
 
-    PackedSymmetricMatrix(const services::SharedPtr<DataType>& ptr, size_t nDim, const DataType &constValue,
-                          services::Status &st) :
-        NumericTable(nDim, nDim, DictionaryIface::notEqual, st)
+    PackedSymmetricMatrix(const services::SharedPtr<DataType> & ptr, size_t nDim, const DataType & constValue, services::Status & st)
+        : NumericTable(nDim, nDim, DictionaryIface::notEqual, st)
     {
         _layout = packedLayout;
-        st |= setArray( ptr );
+        st |= setArray(ptr);
 
         NumericTableFeature df;
         df.setType<DataType>();
         st |= _ddict->setAllFeatures(df);
 
-        st |= assign( constValue );
+        st |= assign(constValue);
     }
 
-    PackedSymmetricMatrix(size_t nDim, AllocationFlag memoryAllocationFlag, services::Status &st):
-        NumericTable(nDim, nDim, DictionaryIface::notEqual, st)
+    PackedSymmetricMatrix(size_t nDim, AllocationFlag memoryAllocationFlag, services::Status & st)
+        : NumericTable(nDim, nDim, DictionaryIface::notEqual, st)
     {
         _layout = packedLayout;
 
@@ -532,12 +477,11 @@ protected:
         df.setType<DataType>();
         st |= _ddict->setAllFeatures(df);
 
-        if( memoryAllocationFlag == doAllocate ) st |= allocateDataMemoryImpl();
+        if (memoryAllocationFlag == doAllocate) st |= allocateDataMemoryImpl();
     }
 
-    PackedSymmetricMatrix(size_t nDim, NumericTable::AllocationFlag memoryAllocationFlag,
-                          const DataType &constValue, services::Status &st):
-        NumericTable(nDim, nDim, DictionaryIface::notEqual, st)
+    PackedSymmetricMatrix(size_t nDim, NumericTable::AllocationFlag memoryAllocationFlag, const DataType & constValue, services::Status & st)
+        : NumericTable(nDim, nDim, DictionaryIface::notEqual, st)
     {
         _layout = packedLayout;
 
@@ -545,7 +489,7 @@ protected:
         df.setType<DataType>();
         st |= _ddict->setAllFeatures(df);
 
-        if( memoryAllocationFlag == doAllocate ) st |= allocateDataMemoryImpl();
+        if (memoryAllocationFlag == doAllocate) st |= allocateDataMemoryImpl();
         st |= assign(constValue);
     }
 
@@ -556,14 +500,13 @@ protected:
         size_t nDim = getNumberOfColumns();
         size_t size = (nDim * (nDim + 1)) / 2;
 
-        if( size == 0 )
+        if (size == 0)
             return services::Status(getNumberOfColumns() == 0 ? services::ErrorIncorrectNumberOfFeatures :
-                services::ErrorIncorrectNumberOfObservations);
+                                                                services::ErrorIncorrectNumberOfObservations);
 
-        _ptr = services::SharedPtr<byte>((byte *)daal::services::daal_malloc( size * sizeof(DataType) ), services::ServiceDeleter());
+        _ptr = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(size * sizeof(DataType)), services::ServiceDeleter());
 
-        if( _ptr == 0 )
-            return services::Status(services::ErrorMemoryAllocationFailed);
+        if (_ptr == 0) return services::Status(services::ErrorMemoryAllocationFailed);
 
         _memStatus = internallyAllocated;
         return services::Status();
@@ -576,12 +519,12 @@ protected:
     }
 
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl( Archive *arch )
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
-        NumericTable::serialImpl<Archive, onDeserialize>( arch );
+        NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
-        if( onDeserialize )
+        if (onDeserialize)
         {
             allocateDataMemoryImpl();
         }
@@ -589,18 +532,18 @@ protected:
         size_t nDim = getNumberOfColumns();
         size_t size = (nDim * (nDim + 1)) / 2;
 
-        arch->set( (DataType*)_ptr.get(), size );
+        arch->set((DataType *)_ptr.get(), size);
 
         return services::Status();
     }
 
 private:
-    template<typename T1, typename T2>
-    services::Status internal_repack( size_t p, size_t n, T1 *src, T2 *dst )
+    template <typename T1, typename T2>
+    services::Status internal_repack(size_t p, size_t n, T1 * src, T2 * dst)
     {
-        if( IsSameType<T1, T2>::value )
+        if (IsSameType<T1, T2>::value)
         {
-            if( src != (T1 *)dst )
+            if (src != (T1 *)dst)
             {
                 int result = daal::services::internal::daal_memcpy_s(dst, n * p * sizeof(T1), src, n * p * sizeof(T1));
                 DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
@@ -610,9 +553,9 @@ private:
         {
             size_t i, j;
 
-            for(i = 0; i < n; i++)
+            for (i = 0; i < n; i++)
             {
-                for(j = 0; j < p; j++)
+                for (j = 0; j < p; j++)
                 {
                     dst[i * p + j] = static_cast<T2>(src[i * p + j]);
                 }
@@ -621,28 +564,28 @@ private:
         return services::Status();
     }
 
-    template<typename T1, typename T2>
-    void internal_set_col_repack( size_t p, size_t n, T1 *src, T2 *dst )
+    template <typename T1, typename T2>
+    void internal_set_col_repack(size_t p, size_t n, T1 * src, T2 * dst)
     {
         size_t i;
 
-        for(i = 0; i < n; i++)
+        for (i = 0; i < n; i++)
         {
             dst[i * p] = static_cast<T2>(src[i]);
         }
     }
 
 protected:
-    baseDataType &getBaseValue( size_t dim, size_t rowIdx, size_t colIdx )
+    baseDataType & getBaseValue(size_t dim, size_t rowIdx, size_t colIdx)
     {
         size_t offset;
 
-        if( packedLayout == upperPackedSymmetricMatrix )
+        if (packedLayout == upperPackedSymmetricMatrix)
         {
-            if( colIdx < rowIdx )
+            if (colIdx < rowIdx)
             {
                 size_t tmp;
-                tmp = colIdx;
+                tmp    = colIdx;
                 colIdx = rowIdx;
                 rowIdx = tmp;
             }
@@ -651,56 +594,55 @@ protected:
         }
         else /* here lowerPackedSymmetricMatrix is supposed */
         {
-            if( colIdx > rowIdx )
+            if (colIdx > rowIdx)
             {
                 size_t tmp;
-                tmp = colIdx;
+                tmp    = colIdx;
                 colIdx = rowIdx;
                 rowIdx = tmp;
             }
 
             offset = (2 + rowIdx) * (rowIdx + 1) / 2 - (rowIdx - colIdx) - 1;
         }
-        return *((DataType*)_ptr.get() + offset);
+        return *((DataType *)_ptr.get() + offset);
     }
 
     template <typename T>
-    T getValue( size_t dim, size_t rowIdx, size_t colIdx )
+    T getValue(size_t dim, size_t rowIdx, size_t colIdx)
     {
-        return static_cast<T>( getBaseValue( dim, rowIdx, colIdx ) );
+        return static_cast<T>(getBaseValue(dim, rowIdx, colIdx));
     }
 
     template <typename T>
-    services::Status setValue( size_t dim, size_t rowIdx, size_t colIdx, T value )
+    services::Status setValue(size_t dim, size_t rowIdx, size_t colIdx, T value)
     {
-        getBaseValue( dim, rowIdx, colIdx ) = static_cast<baseDataType>( value );
+        getBaseValue(dim, rowIdx, colIdx) = static_cast<baseDataType>(value);
         return services::Status();
     }
 
     template <typename T>
-    services::Status getTBlock(size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> &block)
+    services::Status getTBlock(size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         size_t nDim = getNumberOfColumns();
-        block.setDetails( 0, idx, rwFlag );
+        block.setDetails(0, idx, rwFlag);
 
         if (idx >= nDim)
         {
-            block.resizeBuffer( nDim, 0 );
+            block.resizeBuffer(nDim, 0);
             return services::Status();
         }
 
-        nrows = ( idx + nrows < nDim ) ? nrows : nDim - idx;
+        nrows = (idx + nrows < nDim) ? nrows : nDim - idx;
 
-        if( !block.resizeBuffer( nDim, nrows ) )
-            return services::Status(services::ErrorMemoryAllocationFailed);
+        if (!block.resizeBuffer(nDim, nrows)) return services::Status(services::ErrorMemoryAllocationFailed);
 
-        if((rwFlag & (int)readOnly))
+        if ((rwFlag & (int)readOnly))
         {
-            T *buffer = block.getBlockPtr();
+            T * buffer = block.getBlockPtr();
 
-            for(size_t iRow = 0; iRow < nrows; iRow++)
+            for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                for(size_t iCol = 0; iCol < nDim; iCol++)
+                for (size_t iCol = 0; iCol < nDim; iCol++)
                 {
                     buffer[iRow * nDim + iCol] = getValue<T>(nDim, iRow + idx, iCol);
                 }
@@ -710,21 +652,21 @@ protected:
     }
 
     template <typename T>
-    services::Status releaseTBlock( BlockDescriptor<T> &block )
+    services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
         services::Status s;
-        if(block.getRWFlag() & (int)writeOnly)
+        if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t nDim = getNumberOfColumns();
+            size_t nDim  = getNumberOfColumns();
             size_t nrows = block.getNumberOfRows();
-            size_t idx = block.getRowsOffset();
-            T     *buffer = block.getBlockPtr();
+            size_t idx   = block.getRowsOffset();
+            T * buffer   = block.getBlockPtr();
 
-            for( size_t iRow = 0; iRow < nrows; iRow++ )
+            for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                for( size_t iCol = 0; iCol < nDim; iCol++ )
+                for (size_t iCol = 0; iCol < nDim; iCol++)
                 {
-                    s |= setValue<T>( nDim, idx + iRow, iCol, buffer[ iRow * nDim + iCol ] );
+                    s |= setValue<T>(nDim, idx + iRow, iCol, buffer[iRow * nDim + iCol]);
                 }
             }
         }
@@ -733,27 +675,26 @@ protected:
     }
 
     template <typename T>
-    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> &block)
+    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         size_t nDim = getNumberOfColumns();
-        block.setDetails( feat_idx, idx, rwFlag );
+        block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nDim)
         {
-            block.resizeBuffer( nDim, 0 );
+            block.resizeBuffer(nDim, 0);
             return services::Status();
         }
 
-        nrows = ( idx + nrows < nDim ) ? nrows : nDim - idx;
+        nrows = (idx + nrows < nDim) ? nrows : nDim - idx;
 
-        if( !block.resizeBuffer( 1, nrows ) )
-            return services::Status();
+        if (!block.resizeBuffer(1, nrows)) return services::Status();
 
-        if((block.getRWFlag() & (int)readOnly))
+        if ((block.getRWFlag() & (int)readOnly))
         {
-            T *buffer = block.getBlockPtr();
+            T * buffer = block.getBlockPtr();
 
-            for(size_t iRow = 0; iRow < nrows; iRow++)
+            for (size_t iRow = 0; iRow < nrows; iRow++)
             {
                 buffer[iRow] = getValue<T>(nDim, iRow + idx, feat_idx);
             }
@@ -762,20 +703,20 @@ protected:
     }
 
     template <typename T>
-    services::Status releaseTFeature( BlockDescriptor<T> &block )
+    services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
         services::Status s;
         if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t nDim  = getNumberOfColumns();
-            size_t nrows = block.getNumberOfRows();
-            size_t idx = block.getRowsOffset();
+            size_t nDim     = getNumberOfColumns();
+            size_t nrows    = block.getNumberOfRows();
+            size_t idx      = block.getRowsOffset();
             size_t feat_idx = block.getColumnsOffset();
-            T     *buffer = block.getBlockPtr();
+            T * buffer      = block.getBlockPtr();
 
-            for( size_t iRow = 0; iRow < nrows; iRow++ )
+            for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                s |= setValue<T>( nDim, iRow + idx, feat_idx, buffer[ iRow ] );
+                s |= setValue<T>(nDim, iRow + idx, feat_idx, buffer[iRow]);
             }
         }
         block.reset();
@@ -783,45 +724,45 @@ protected:
     }
 
     template <typename T>
-    services::Status getTPackedArray( int rwFlag, BlockDescriptor<T> &block )
+    services::Status getTPackedArray(int rwFlag, BlockDescriptor<T> & block)
     {
         size_t nDim = getNumberOfColumns();
-        block.setDetails( 0, 0, rwFlag );
+        block.setDetails(0, 0, rwFlag);
 
         size_t nSize = (nDim * (nDim + 1)) / 2;
 
-        if( IsSameType<T, DataType>::value )
+        if (IsSameType<T, DataType>::value)
         {
-            block.setPtr( &_ptr, _ptr.get(), 1, nSize );
+            block.setPtr(&_ptr, _ptr.get(), 1, nSize);
             return services::Status();
         }
 
-        if( !block.resizeBuffer( 1, nSize ) ) return services::Status();
+        if (!block.resizeBuffer(1, nSize)) return services::Status();
 
-        if( !(rwFlag & (int)readOnly) ) return services::Status();
+        if (!(rwFlag & (int)readOnly)) return services::Status();
 
-        T *buffer = block.getBlockPtr();
-        DataType * ptr = (DataType*) _ptr.get();
-        for( size_t i = 0; i < nSize; i++ )
+        T * buffer     = block.getBlockPtr();
+        DataType * ptr = (DataType *)_ptr.get();
+        for (size_t i = 0; i < nSize; i++)
         {
-            buffer[ i ] = static_cast<T>(*(ptr + i));
+            buffer[i] = static_cast<T>(*(ptr + i));
         }
         return services::Status();
     }
 
     template <typename T>
-    services::Status releaseTPackedArray( BlockDescriptor<T> &block )
+    services::Status releaseTPackedArray(BlockDescriptor<T> & block)
     {
-        if( (block.getRWFlag() & (int)writeOnly) && !IsSameType<T, DataType>::value )
+        if ((block.getRWFlag() & (int)writeOnly) && !IsSameType<T, DataType>::value)
         {
-            size_t nDim  = getNumberOfColumns();
-            size_t nSize = (nDim * (nDim + 1)) / 2;
-            T *buffer = block.getBlockPtr();
-            DataType * ptr = (DataType*) _ptr.get();
+            size_t nDim    = getNumberOfColumns();
+            size_t nSize   = (nDim * (nDim + 1)) / 2;
+            T * buffer     = block.getBlockPtr();
+            DataType * ptr = (DataType *)_ptr.get();
 
-            for( size_t i = 0; i < nSize; i++ )
+            for (size_t i = 0; i < nSize; i++)
             {
-                *(ptr + i) = static_cast<baseDataType>(buffer[ i ]);
+                *(ptr + i) = static_cast<baseDataType>(buffer[i]);
             }
         }
         block.reset();
@@ -830,9 +771,9 @@ protected:
 
     virtual services::Status setNumberOfColumnsImpl(size_t nDim) DAAL_C11_OVERRIDE
     {
-        if( _ddict->getNumberOfFeatures() != nDim )
+        if (_ddict->getNumberOfFeatures() != nDim)
         {
-            _ddict->setNumberOfFeatures( nDim );
+            _ddict->setNumberOfFeatures(nDim);
 
             NumericTableFeature df;
             df.setType<DataType>();
@@ -845,7 +786,7 @@ protected:
 
     virtual services::Status setNumberOfRowsImpl(size_t nDim) DAAL_C11_OVERRIDE
     {
-        setNumberOfColumnsImpl( nDim );
+        setNumberOfColumnsImpl(nDim);
         _obsnum = nDim;
         return services::Status();
     }
@@ -856,7 +797,7 @@ protected:
  *  \brief Class that provides methods to access a packed triangular matrix stored as a one-dimensional array.
  *  \tparam DataType Defines the underlying data type that describes the packed triangular matrix
  */
-template<NumericTableIface::StorageLayout packedLayout, typename DataType = DAAL_DATA_TYPE>
+template <NumericTableIface::StorageLayout packedLayout, typename DataType = DAAL_DATA_TYPE>
 class DAAL_EXPORT PackedTriangularMatrix : public NumericTable, public PackedArrayNumericTableIface
 {
 public:
@@ -873,11 +814,10 @@ public:
      *  \param[in]  ptr         Pointer to and an array with a homogeneous data set
      *  \param[in]  nDim        Matrix dimension
      */
-    PackedTriangularMatrix( DataType *const ptr = 0, size_t nDim = 0 ):
-        NumericTable( nDim, nDim )
+    PackedTriangularMatrix(DataType * const ptr = 0, size_t nDim = 0) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
-        this->_status |= setArray( services::SharedPtr<DataType>(ptr, services::EmptyDeleter()) );
+        this->_status |= setArray(services::SharedPtr<DataType>(ptr, services::EmptyDeleter()));
 
         NumericTableFeature df;
         df.setType<DataType>();
@@ -889,19 +829,17 @@ public:
      *  \param[in]  ptr         Pointer to and an array with a homogeneous data set
      *  \param[in]  nDim        Matrix dimension
      */
-    PackedTriangularMatrix( const services::SharedPtr<DataType> &ptr, size_t nDim ):
-        NumericTable( nDim, nDim )
+    PackedTriangularMatrix(const services::SharedPtr<DataType> & ptr, size_t nDim) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
-        this->_status |= setArray( ptr );
+        this->_status |= setArray(ptr);
 
         NumericTableFeature df;
         df.setType<DataType>();
         this->_status |= _ddict->setAllFeatures(df);
     }
 
-    PackedTriangularMatrix( size_t nDim /*= 0*/ ):
-        NumericTable( nDim, nDim )
+    PackedTriangularMatrix(size_t nDim /*= 0*/) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
 
@@ -910,28 +848,23 @@ public:
         this->_status |= _ddict->setAllFeatures(df);
     }
 
-    static services::SharedPtr<PackedTriangularMatrix> create(DataType *const ptr = 0, size_t nDim = 0,
-                                                             services::Status* stat = NULL)
+    static services::SharedPtr<PackedTriangularMatrix> create(DataType * const ptr = 0, size_t nDim = 0, services::Status * stat = NULL)
     {
         return create(services::SharedPtr<DataType>(ptr, services::EmptyDeleter()), nDim, stat);
     }
 
-    static services::SharedPtr<PackedTriangularMatrix> create(const services::SharedPtr<DataType> &ptr, size_t nDim,
-                                                             services::Status* stat = NULL)
+    static services::SharedPtr<PackedTriangularMatrix> create(const services::SharedPtr<DataType> & ptr, size_t nDim, services::Status * stat = NULL)
     {
         services::SharedPtr<PackedTriangularMatrix> ntPtr(new PackedTriangularMatrix(nDim));
-        if(ntPtr.get())
+        if (ntPtr.get())
         {
             services::Status s = ntPtr->setArray(ptr);
-            if(!s)
-                ntPtr = services::SharedPtr<PackedTriangularMatrix>();
-            if(stat)
-                *stat = s;
+            if (!s) ntPtr = services::SharedPtr<PackedTriangularMatrix>();
+            if (stat) *stat = s;
         }
         else
         {
-            if(stat)
-                *stat = services::Status(services::ErrorMemoryAllocationFailed);
+            if (stat) *stat = services::Status(services::ErrorMemoryAllocationFailed);
         }
         return ntPtr;
     }
@@ -942,17 +875,16 @@ public:
      *  \param[in]  nDim        Matrix dimension
      *  \param[in]  constValue  Constant to initialize entries of the packed symmetric matrix
      */
-    PackedTriangularMatrix( DataType *const ptr, size_t nDim, const DataType &constValue ):
-        NumericTable( nDim, nDim )
+    PackedTriangularMatrix(DataType * const ptr, size_t nDim, const DataType & constValue) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
-        this->_status |= setArray( services::SharedPtr<DataType>(ptr, services::EmptyDeleter()) );
+        this->_status |= setArray(services::SharedPtr<DataType>(ptr, services::EmptyDeleter()));
 
         NumericTableFeature df;
         df.setType<DataType>();
         this->_status |= _ddict->setAllFeatures(df);
 
-        this->_status |= assign( constValue );
+        this->_status |= assign(constValue);
     }
 
     /**
@@ -961,57 +893,50 @@ public:
      *  \param[in]  nDim        Matrix dimension
      *  \param[in]  constValue  Constant to initialize entries of the packed symmetric matrix
      */
-    PackedTriangularMatrix( const services::SharedPtr<DataType>& ptr, size_t nDim, const DataType &constValue ) :
-        NumericTable( nDim, nDim )
+    PackedTriangularMatrix(const services::SharedPtr<DataType> & ptr, size_t nDim, const DataType & constValue) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
-        this->_status |= setArray( ptr );
+        this->_status |= setArray(ptr);
 
         NumericTableFeature df;
         df.setType<DataType>();
         this->_status |= _ddict->setAllFeatures(df);
 
-        this->_status |= assign( constValue );
+        this->_status |= assign(constValue);
     }
 
-    static services::SharedPtr<PackedTriangularMatrix> create(DataType *const ptr, size_t nDim, const DataType &constValue,
-                                                             services::Status* stat = NULL)
+    static services::SharedPtr<PackedTriangularMatrix> create(DataType * const ptr, size_t nDim, const DataType & constValue,
+                                                              services::Status * stat = NULL)
     {
         services::SharedPtr<PackedTriangularMatrix> ntPtr(new PackedTriangularMatrix(nDim));
-        if(ntPtr.get())
+        if (ntPtr.get())
         {
-            services::Status s = ntPtr->setArray( services::SharedPtr<DataType>(ptr, services::EmptyDeleter()) );
+            services::Status s = ntPtr->setArray(services::SharedPtr<DataType>(ptr, services::EmptyDeleter()));
             s.add(ntPtr->assign(constValue));
-            if(!s)
-                ntPtr = services::SharedPtr<PackedTriangularMatrix>();
-            if(stat)
-                *stat = s;
+            if (!s) ntPtr = services::SharedPtr<PackedTriangularMatrix>();
+            if (stat) *stat = s;
         }
         else
         {
-            if(stat)
-                *stat = services::Status(services::ErrorMemoryAllocationFailed);
+            if (stat) *stat = services::Status(services::ErrorMemoryAllocationFailed);
         }
         return ntPtr;
     }
 
-    static services::SharedPtr<PackedTriangularMatrix> create(services::SharedPtr<DataType> &ptr, size_t nDim, const DataType &constValue,
-                                                             services::Status* stat = NULL)
+    static services::SharedPtr<PackedTriangularMatrix> create(services::SharedPtr<DataType> & ptr, size_t nDim, const DataType & constValue,
+                                                              services::Status * stat = NULL)
     {
         services::SharedPtr<PackedTriangularMatrix> ntPtr(new PackedTriangularMatrix(nDim));
-        if(ntPtr.get())
+        if (ntPtr.get())
         {
             services::Status s = ntPtr->setArray(ptr);
             s.add(ntPtr->assign(constValue));
-            if(!s)
-                ntPtr = services::SharedPtr<PackedTriangularMatrix>();
-            if(stat)
-                *stat = s;
+            if (!s) ntPtr = services::SharedPtr<PackedTriangularMatrix>();
+            if (stat) *stat = s;
         }
         else
         {
-            if(stat)
-                *stat = services::Status(services::ErrorMemoryAllocationFailed);
+            if (stat) *stat = services::Status(services::ErrorMemoryAllocationFailed);
         }
         return ntPtr;
     }
@@ -1021,8 +946,7 @@ public:
      *  \param[in]  nDim                    Matrix dimension
      *  \param[in]  memoryAllocationFlag    Flag that controls internal memory allocation for data in the numeric table
      */
-    PackedTriangularMatrix( size_t nDim, AllocationFlag memoryAllocationFlag ):
-        NumericTable( nDim, nDim )
+    PackedTriangularMatrix(size_t nDim, AllocationFlag memoryAllocationFlag) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
 
@@ -1030,31 +954,26 @@ public:
         df.setType<DataType>();
         this->_status |= _ddict->setAllFeatures(df);
 
-        if( memoryAllocationFlag == doAllocate ) this->_status |= allocateDataMemoryImpl();
+        if (memoryAllocationFlag == doAllocate) this->_status |= allocateDataMemoryImpl();
     }
 
-    static services::SharedPtr<PackedTriangularMatrix> create(size_t nDim, AllocationFlag memoryAllocationFlag,
-                                                             services::Status* stat = NULL)
+    static services::SharedPtr<PackedTriangularMatrix> create(size_t nDim, AllocationFlag memoryAllocationFlag, services::Status * stat = NULL)
     {
         services::SharedPtr<PackedTriangularMatrix> ntPtr(new PackedTriangularMatrix(nDim));
-        if(ntPtr.get())
+        if (ntPtr.get())
         {
             services::Status s;
-            if(memoryAllocationFlag == doAllocate)
+            if (memoryAllocationFlag == doAllocate)
             {
                 s = ntPtr->allocateDataMemoryImpl();
-                if(!s)
-                    ntPtr = services::SharedPtr<PackedTriangularMatrix>();
+                if (!s) ntPtr = services::SharedPtr<PackedTriangularMatrix>();
             }
-            if(!s)
-                ntPtr = services::SharedPtr<PackedTriangularMatrix>();
-            if(stat)
-                *stat = s;
+            if (!s) ntPtr = services::SharedPtr<PackedTriangularMatrix>();
+            if (stat) *stat = s;
         }
         else
         {
-            if(stat)
-                *stat = services::Status(services::ErrorMemoryAllocationFailed);
+            if (stat) *stat = services::Status(services::ErrorMemoryAllocationFailed);
         }
         return ntPtr;
     }
@@ -1065,9 +984,7 @@ public:
      *  \param[in]  memoryAllocationFlag    Flag that controls internal memory allocation for data in the numeric table
      *  \param[in]  constValue              Constant to initialize entries of the packed symmetric matrix
      */
-    PackedTriangularMatrix( size_t nDim, NumericTable::AllocationFlag memoryAllocationFlag,
-                           const DataType &constValue ):
-        NumericTable( nDim, nDim )
+    PackedTriangularMatrix(size_t nDim, NumericTable::AllocationFlag memoryAllocationFlag, const DataType & constValue) : NumericTable(nDim, nDim)
     {
         _layout = packedLayout;
 
@@ -1075,48 +992,41 @@ public:
         df.setType<DataType>();
         this->_status |= _ddict->setAllFeatures(df);
 
-        if( memoryAllocationFlag == doAllocate ) this->_status |= allocateDataMemoryImpl();
+        if (memoryAllocationFlag == doAllocate) this->_status |= allocateDataMemoryImpl();
         this->_status |= assign(constValue);
     }
 
     static services::SharedPtr<PackedTriangularMatrix> create(size_t nDim, NumericTable::AllocationFlag memoryAllocationFlag,
-                                                             const DataType &constValue, services::Status* stat = NULL)
+                                                              const DataType & constValue, services::Status * stat = NULL)
     {
         services::SharedPtr<PackedTriangularMatrix> ntPtr(new PackedTriangularMatrix(nDim));
-        if(ntPtr.get())
+        if (ntPtr.get())
         {
             services::Status s;
-            if(memoryAllocationFlag == doAllocate)
+            if (memoryAllocationFlag == doAllocate)
             {
                 s = ntPtr->allocateDataMemoryImpl();
                 s.add(ntPtr->assign(constValue));
-                if(!s)
-                    ntPtr = services::SharedPtr<PackedTriangularMatrix>();
+                if (!s) ntPtr = services::SharedPtr<PackedTriangularMatrix>();
             }
-            if(!s)
-                ntPtr = services::SharedPtr<PackedTriangularMatrix>();
-            if(stat)
-                *stat = s;
+            if (!s) ntPtr = services::SharedPtr<PackedTriangularMatrix>();
+            if (stat) *stat = s;
         }
         else
         {
-            if(stat)
-                *stat = services::Status(services::ErrorMemoryAllocationFailed);
+            if (stat) *stat = services::Status(services::ErrorMemoryAllocationFailed);
         }
         return ntPtr;
     }
 
     /** \private */
-    virtual ~PackedTriangularMatrix()
-    {
-        freeDataMemoryImpl();
-    }
+    virtual ~PackedTriangularMatrix() { freeDataMemoryImpl(); }
 
     virtual services::Status setNumberOfColumns(size_t nDim) DAAL_C11_OVERRIDE
     {
-        if( _ddict->getNumberOfFeatures() != nDim )
+        if (_ddict->getNumberOfFeatures() != nDim)
         {
-            _ddict->setNumberOfFeatures( nDim );
+            _ddict->setNumberOfFeatures(nDim);
 
             NumericTableFeature df;
             df.setType<DataType>();
@@ -1127,40 +1037,30 @@ public:
         return services::Status();
     }
 
-    virtual services::Status setNumberOfRows(size_t nDim) DAAL_C11_OVERRIDE
-    {
-        return setNumberOfColumns( nDim );
-    }
+    virtual services::Status setNumberOfRows(size_t nDim) DAAL_C11_OVERRIDE { return setNumberOfColumns(nDim); }
 
     /**
      *  Returns a pointer to a data set registered in the packed symmetric matrix
      *  \return Pointer to the data set
      */
-    DataType *getArray() const
-    {
-        return (DataType*)_ptr.get();
-    }
+    DataType * getArray() const { return (DataType *)_ptr.get(); }
 
     /**
      *  Returns a pointer to a data set registered in the packed symmetric matrix
      *  \return Pointer to the data set
      */
-    services::SharedPtr<DataType> getArraySharedPtr() const
-    {
-        return services::reinterpretPointerCast<DataType, byte>(_ptr);
-    }
+    services::SharedPtr<DataType> getArraySharedPtr() const { return services::reinterpretPointerCast<DataType, byte>(_ptr); }
 
     /**
      *  Sets a pointer to an array that stores a packed triangular matrix
      *  \param[in] ptr Pointer to the array that stores the packed triangular matrix
      */
-    services::Status setArray( DataType *const ptr )
+    services::Status setArray(DataType * const ptr)
     {
         freeDataMemoryImpl();
-        if( ptr == 0 )
-            return services::Status(services::ErrorEmptyHomogenNumericTable);
+        if (ptr == 0) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
-        _ptr = services::SharedPtr<byte>((DataType*)ptr, services::EmptyDeleter());
+        _ptr       = services::SharedPtr<byte>((DataType *)ptr, services::EmptyDeleter());
         _memStatus = userAllocated;
         return services::Status();
     }
@@ -1169,13 +1069,12 @@ public:
      *  Sets a pointer to a packed array
      *  \param[in] ptr Pointer to the data set in the packed format
      */
-    services::Status setArray( const services::SharedPtr<DataType>& ptr )
+    services::Status setArray(const services::SharedPtr<DataType> & ptr)
     {
         freeDataMemoryImpl();
-        if( ptr == 0 )
-            return services::Status(services::ErrorEmptyHomogenNumericTable);
+        if (ptr == 0) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
-        _ptr = services::reinterpretPointerCast<byte, DataType>(ptr);
+        _ptr       = services::reinterpretPointerCast<byte, DataType>(ptr);
         _memStatus = userAllocated;
         return services::Status();
     }
@@ -1187,14 +1086,13 @@ public:
     template <typename T>
     services::Status assign(T value)
     {
-        if( _memStatus == notAllocated )
-            return services::Status(services::ErrorEmptyHomogenNumericTable);
+        if (_memStatus == notAllocated) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
         size_t nDim = getNumberOfColumns();
 
-        DataType * ptr = (DataType*)_ptr.get();
+        DataType * ptr         = (DataType *)_ptr.get();
         DataType valueDataType = (DataType)value;
-        for( size_t i = 0; i < (nDim * (nDim + 1)) / 2 ; i++ )
+        for (size_t i = 0; i < (nDim * (nDim + 1)) / 2; i++)
         {
             ptr[i] = valueDataType;
         }
@@ -1204,111 +1102,84 @@ public:
     /**
      * \copydoc NumericTable::assign
      */
-    virtual services::Status assign(float value) DAAL_C11_OVERRIDE {return assign<DataType>((DataType)value);}
+    virtual services::Status assign(float value) DAAL_C11_OVERRIDE { return assign<DataType>((DataType)value); }
 
     /**
      * \copydoc NumericTable::assign
      */
-    virtual services::Status assign(double value) DAAL_C11_OVERRIDE {return assign<DataType>((DataType)value);}
+    virtual services::Status assign(double value) DAAL_C11_OVERRIDE { return assign<DataType>((DataType)value); }
 
     /**
      * \copydoc NumericTable::assign
      */
-    virtual services::Status assign(int value) DAAL_C11_OVERRIDE {return assign<DataType>((DataType)value);}
+    virtual services::Status assign(int value) DAAL_C11_OVERRIDE { return assign<DataType>((DataType)value); }
 
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
         return getTBlock<double>(vector_idx, vector_num, rwflag, block);
     }
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
         return getTBlock<float>(vector_idx, vector_num, rwflag, block);
     }
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
         return getTBlock<int>(vector_idx, vector_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<double>(block);
-    }
-    services::Status releaseBlockOfRows(BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<float>(block);
-    }
-    services::Status releaseBlockOfRows(BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<int>(block);
-    }
+    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTBlock<double>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTBlock<float>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTBlock<int>(block); }
 
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-                                ReadWriteMode rwflag, BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
         return getTFeature<double>(feature_idx, vector_idx, value_num, rwflag, block);
     }
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-                                ReadWriteMode rwflag, BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
         return getTFeature<float>(feature_idx, vector_idx, value_num, rwflag, block);
     }
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
-                                ReadWriteMode rwflag, BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
+                                            BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
         return getTFeature<int>(feature_idx, vector_idx, value_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<double>(block);
-    }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<float>(block);
-    }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<int>(block);
-    }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTFeature<double>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
 
-    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
+    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
         return getTPackedArray<double>(rwflag, block);
     }
-    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
+    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
         return getTPackedArray<float>(rwflag, block);
     }
-    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
+    services::Status getPackedArray(ReadWriteMode rwflag, BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
         return getTPackedArray<int>(rwflag, block);
     }
 
-    services::Status releasePackedArray(BlockDescriptor<double> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTPackedArray<double>(block);
-    }
-    services::Status releasePackedArray(BlockDescriptor<float> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTPackedArray<float>(block);
-    }
-    services::Status releasePackedArray(BlockDescriptor<int> &block) DAAL_C11_OVERRIDE
-    {
-        return releaseTPackedArray<int>(block);
-    }
+    services::Status releasePackedArray(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTPackedArray<double>(block); }
+    services::Status releasePackedArray(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTPackedArray<float>(block); }
+    services::Status releasePackedArray(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTPackedArray<int>(block); }
 
     /** \private */
-    services::Status serializeImpl  (InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
-        serialImpl<InputDataArchive, false>( arch );
+        serialImpl<InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
     /** \private */
-    services::Status deserializeImpl(const OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
-        serialImpl<const OutputDataArchive, true>( arch );
+        serialImpl<const OutputDataArchive, true>(arch);
 
         return services::Status();
     }
@@ -1323,14 +1194,13 @@ protected:
         size_t nDim = getNumberOfColumns();
         size_t size = (nDim * (nDim + 1)) / 2;
 
-        if( size == 0 )
+        if (size == 0)
             return services::Status(getNumberOfColumns() == 0 ? services::ErrorIncorrectNumberOfFeatures :
-                services::ErrorIncorrectNumberOfObservations);
+                                                                services::ErrorIncorrectNumberOfObservations);
 
-        _ptr = services::SharedPtr<byte>((byte *)daal::services::daal_malloc( size * sizeof(DataType) ), services::ServiceDeleter());
+        _ptr = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(size * sizeof(DataType)), services::ServiceDeleter());
 
-        if( _ptr == 0 )
-            return services::Status(services::ErrorMemoryAllocationFailed);
+        if (_ptr == 0) return services::Status(services::ErrorMemoryAllocationFailed);
 
         _memStatus = internallyAllocated;
         return services::Status();
@@ -1343,12 +1213,12 @@ protected:
     }
 
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl( Archive *arch )
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
-        NumericTable::serialImpl<Archive, onDeserialize>( arch );
+        NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
-        if( onDeserialize )
+        if (onDeserialize)
         {
             allocateDataMemoryImpl();
         }
@@ -1356,18 +1226,18 @@ protected:
         size_t nDim = getNumberOfColumns();
         size_t size = (nDim * (nDim + 1)) / 2;
 
-        arch->set( (DataType*)_ptr.get(), size );
+        arch->set((DataType *)_ptr.get(), size);
 
         return services::Status();
     }
 
 private:
-    template<typename T1, typename T2>
-    services::Status internal_repack( size_t p, size_t n, T1 *src, T2 *dst )
+    template <typename T1, typename T2>
+    services::Status internal_repack(size_t p, size_t n, T1 * src, T2 * dst)
     {
-        if( IsSameType<T1, T2>::value )
+        if (IsSameType<T1, T2>::value)
         {
-            if( src != (T1 *)dst )
+            if (src != (T1 *)dst)
             {
                 int result = daal::services::internal::daal_memcpy_s(dst, n * p * sizeof(T1), src, n * p * sizeof(T1));
                 DAAL_CHECK(!result, services::ErrorMemoryCopyFailedInternal);
@@ -1377,9 +1247,9 @@ private:
         {
             size_t i, j;
 
-            for(i = 0; i < n; i++)
+            for (i = 0; i < n; i++)
             {
-                for(j = 0; j < p; j++)
+                for (j = 0; j < p; j++)
                 {
                     dst[i * p + j] = static_cast<T2>(src[i * p + j]);
                 }
@@ -1388,25 +1258,25 @@ private:
         return services::Status();
     }
 
-    template<typename T1, typename T2>
-    void internal_set_col_repack( size_t p, size_t n, T1 *src, T2 *dst )
+    template <typename T1, typename T2>
+    void internal_set_col_repack(size_t p, size_t n, T1 * src, T2 * dst)
     {
         size_t i;
 
-        for(i = 0; i < n; i++)
+        for (i = 0; i < n; i++)
         {
             dst[i * p] = static_cast<T2>(src[i]);
         }
     }
 
 protected:
-    baseDataType &getBaseValue( size_t dim, size_t rowIdx, size_t colIdx, baseDataType &zero )
+    baseDataType & getBaseValue(size_t dim, size_t rowIdx, size_t colIdx, baseDataType & zero)
     {
         size_t offset;
 
-        if( packedLayout == upperPackedTriangularMatrix )
+        if (packedLayout == upperPackedTriangularMatrix)
         {
-            if( colIdx < rowIdx )
+            if (colIdx < rowIdx)
             {
                 return zero;
             }
@@ -1415,55 +1285,54 @@ protected:
         }
         else /* here lowerPackedTriangularMatrix is supposed */
         {
-            if( colIdx > rowIdx )
+            if (colIdx > rowIdx)
             {
                 return zero;
             }
 
             offset = (2 + rowIdx) * (rowIdx + 1) / 2 - (rowIdx - colIdx) - 1;
         }
-        return *((DataType*)_ptr.get() + offset);
+        return *((DataType *)_ptr.get() + offset);
     }
 
     template <typename T>
-    T getValue( size_t dim, size_t rowIdx, size_t colIdx )
+    T getValue(size_t dim, size_t rowIdx, size_t colIdx)
     {
         baseDataType zero = (baseDataType)0;
-        return static_cast<T>( getBaseValue( dim, rowIdx, colIdx, zero ) );
+        return static_cast<T>(getBaseValue(dim, rowIdx, colIdx, zero));
     }
 
     template <typename T>
-    services::Status setValue( size_t dim, size_t rowIdx, size_t colIdx, T value )
+    services::Status setValue(size_t dim, size_t rowIdx, size_t colIdx, T value)
     {
-        baseDataType zero = (baseDataType)0;
-        getBaseValue( dim, rowIdx, colIdx, zero ) = static_cast<baseDataType>( value );
+        baseDataType zero                       = (baseDataType)0;
+        getBaseValue(dim, rowIdx, colIdx, zero) = static_cast<baseDataType>(value);
         return services::Status();
     }
 
     template <typename T>
-    services::Status getTBlock(size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> &block)
+    services::Status getTBlock(size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         size_t nDim = getNumberOfColumns();
-        block.setDetails( 0, idx, rwFlag );
+        block.setDetails(0, idx, rwFlag);
 
         if (idx >= nDim)
         {
-            block.resizeBuffer( nDim, 0 );
+            block.resizeBuffer(nDim, 0);
             return services::Status();
         }
 
-        nrows = ( idx + nrows < nDim ) ? nrows : nDim - idx;
+        nrows = (idx + nrows < nDim) ? nrows : nDim - idx;
 
-        if( !block.resizeBuffer( nDim, nrows ) )
-            return services::Status(services::ErrorMemoryAllocationFailed);
+        if (!block.resizeBuffer(nDim, nrows)) return services::Status(services::ErrorMemoryAllocationFailed);
 
-        if((rwFlag & (int)readOnly))
+        if ((rwFlag & (int)readOnly))
         {
-            T *buffer = block.getBlockPtr();
+            T * buffer = block.getBlockPtr();
 
-            for(size_t iRow = 0; iRow < nrows; iRow++)
+            for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                for(size_t iCol = 0; iCol < nDim; iCol++)
+                for (size_t iCol = 0; iCol < nDim; iCol++)
                 {
                     buffer[iRow * nDim + iCol] = getValue<T>(nDim, iRow + idx, iCol);
                 }
@@ -1473,21 +1342,21 @@ protected:
     }
 
     template <typename T>
-    services::Status releaseTBlock( BlockDescriptor<T> &block )
+    services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
         services::Status s;
-        if(block.getRWFlag() & (int)writeOnly)
+        if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t nDim = getNumberOfColumns();
+            size_t nDim  = getNumberOfColumns();
             size_t nrows = block.getNumberOfRows();
-            size_t idx = block.getRowsOffset();
-            T     *buffer = block.getBlockPtr();
+            size_t idx   = block.getRowsOffset();
+            T * buffer   = block.getBlockPtr();
 
-            for( size_t iRow = 0; iRow < nrows; iRow++ )
+            for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                for( size_t iCol = 0; iCol < nDim; iCol++ )
+                for (size_t iCol = 0; iCol < nDim; iCol++)
                 {
-                    s |= setValue<T>( nDim, iRow + idx, iCol, buffer[ iRow * nDim + iCol ] );
+                    s |= setValue<T>(nDim, iRow + idx, iCol, buffer[iRow * nDim + iCol]);
                 }
             }
         }
@@ -1496,48 +1365,47 @@ protected:
     }
 
     template <typename T>
-    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> &block)
+    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         size_t nDim = getNumberOfColumns();
-        block.setDetails( feat_idx, idx, rwFlag );
+        block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nDim)
         {
-            block.resizeBuffer( nDim, 0 );
+            block.resizeBuffer(nDim, 0);
             return services::Status();
         }
 
-        nrows = ( idx + nrows < nDim ) ? nrows : nDim - idx;
+        nrows = (idx + nrows < nDim) ? nrows : nDim - idx;
 
-        if( !block.resizeBuffer( 1, nrows ) )
-            return services::Status();
+        if (!block.resizeBuffer(1, nrows)) return services::Status();
 
-        if((block.getRWFlag() & (int)readOnly))
+        if ((block.getRWFlag() & (int)readOnly))
         {
-            T *buffer = block.getBlockPtr();
-            for( size_t iRow = 0; iRow < nrows; iRow++ )
+            T * buffer = block.getBlockPtr();
+            for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                buffer[ iRow ] = getValue<T>( nDim, iRow + idx, feat_idx );
+                buffer[iRow] = getValue<T>(nDim, iRow + idx, feat_idx);
             }
         }
         return services::Status();
     }
 
     template <typename T>
-    services::Status releaseTFeature( BlockDescriptor<T> &block )
+    services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
         services::Status s;
         if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t nDim  = getNumberOfColumns();
-            size_t nrows = block.getNumberOfRows();
-            size_t idx = block.getRowsOffset();
+            size_t nDim     = getNumberOfColumns();
+            size_t nrows    = block.getNumberOfRows();
+            size_t idx      = block.getRowsOffset();
             size_t feat_idx = block.getColumnsOffset();
-            T     *buffer = block.getBlockPtr();
+            T * buffer      = block.getBlockPtr();
 
-            for( size_t iRow = 0; iRow < nrows; iRow++ )
+            for (size_t iRow = 0; iRow < nrows; iRow++)
             {
-                s |= setValue<T>( nDim, iRow + idx, feat_idx, buffer[ iRow ] );
+                s |= setValue<T>(nDim, iRow + idx, feat_idx, buffer[iRow]);
             }
         }
         block.reset();
@@ -1545,45 +1413,45 @@ protected:
     }
 
     template <typename T>
-    services::Status getTPackedArray( int rwFlag, BlockDescriptor<T> &block )
+    services::Status getTPackedArray(int rwFlag, BlockDescriptor<T> & block)
     {
         size_t nDim = getNumberOfColumns();
-        block.setDetails( 0, 0, rwFlag );
+        block.setDetails(0, 0, rwFlag);
 
         size_t nSize = (nDim * (nDim + 1)) / 2;
 
-        if( IsSameType<T, DataType>::value )
+        if (IsSameType<T, DataType>::value)
         {
-            block.setPtr( &_ptr, _ptr.get(), 1, nSize );
+            block.setPtr(&_ptr, _ptr.get(), 1, nSize);
             return services::Status();
         }
 
-        if( !block.resizeBuffer( 1, nSize ) ) return services::Status();
+        if (!block.resizeBuffer(1, nSize)) return services::Status();
 
-        if( !(rwFlag & (int)readOnly) ) return services::Status();
+        if (!(rwFlag & (int)readOnly)) return services::Status();
 
-        T *buffer = block.getBlockPtr();
-        DataType * ptr = (DataType*)_ptr.get();
-        for( size_t i = 0; i < nSize; i++ )
+        T * buffer     = block.getBlockPtr();
+        DataType * ptr = (DataType *)_ptr.get();
+        for (size_t i = 0; i < nSize; i++)
         {
-            buffer[ i ] = static_cast<T>(*(ptr + i));
+            buffer[i] = static_cast<T>(*(ptr + i));
         }
         return services::Status();
     }
 
     template <typename T>
-    services::Status releaseTPackedArray( BlockDescriptor<T> &block )
+    services::Status releaseTPackedArray(BlockDescriptor<T> & block)
     {
-        if( (block.getRWFlag() & (int)writeOnly) && !IsSameType<T, DataType>::value )
+        if ((block.getRWFlag() & (int)writeOnly) && !IsSameType<T, DataType>::value)
         {
-            size_t nDim  = getNumberOfColumns();
-            size_t nSize = (nDim * (nDim + 1)) / 2;
-            T *buffer = block.getBlockPtr();
-            DataType * ptr = (DataType*)_ptr.get();
+            size_t nDim    = getNumberOfColumns();
+            size_t nSize   = (nDim * (nDim + 1)) / 2;
+            T * buffer     = block.getBlockPtr();
+            DataType * ptr = (DataType *)_ptr.get();
 
-            for( size_t i = 0; i < nSize; i++ )
+            for (size_t i = 0; i < nSize; i++)
             {
-                *(ptr + i) = static_cast<baseDataType>(buffer[ i ]);
+                *(ptr + i) = static_cast<baseDataType>(buffer[i]);
             }
         }
         block.reset();
@@ -1592,9 +1460,9 @@ protected:
 
     virtual services::Status setNumberOfColumnsImpl(size_t nDim) DAAL_C11_OVERRIDE
     {
-        if( _ddict->getNumberOfFeatures() != nDim )
+        if (_ddict->getNumberOfFeatures() != nDim)
         {
-            _ddict->setNumberOfFeatures( nDim );
+            _ddict->setNumberOfFeatures(nDim);
 
             NumericTableFeature df;
             df.setType<DataType>();
@@ -1607,7 +1475,7 @@ protected:
 
     virtual services::Status setNumberOfRowsImpl(size_t nDim) DAAL_C11_OVERRIDE
     {
-        setNumberOfColumnsImpl( nDim );
+        setNumberOfColumnsImpl(nDim);
         _obsnum = nDim;
         return services::Status();
     }
@@ -1618,6 +1486,6 @@ using interface1::PackedArrayNumericTableIface;
 using interface1::PackedSymmetricMatrix;
 using interface1::PackedTriangularMatrix;
 
-}
+} // namespace data_management
 } // namespace daal
 #endif

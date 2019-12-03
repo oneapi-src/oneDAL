@@ -32,10 +32,10 @@ namespace cosine_distance
 namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
-services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTable)
+services::Status cosDistanceFull(const NumericTable * xTable, NumericTable * rTable)
 {
-    size_t p   = xTable->getNumberOfColumns();      /* Dimension of input feature vector */
-    size_t n   = xTable->getNumberOfRows();         /* Number of input feature vectors   */
+    size_t p = xTable->getNumberOfColumns(); /* Dimension of input feature vector */
+    size_t n = xTable->getNumberOfRows();    /* Number of input feature vectors   */
 
     size_t i, j;
 
@@ -45,8 +45,7 @@ services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTabl
     SafeStatus safeStat;
 
     /* compute major diagonal blocks of the distance matrix */
-    daal::threader_for(nBlocks, nBlocks, [ = , &safeStat ](size_t k1)
-    {
+    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](size_t k1) {
         DAAL_INT blockSize1 = blockSizeDefault;
         if (k1 == nBlocks - 1)
         {
@@ -56,15 +55,15 @@ services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTabl
         /* read access to blockSize1 rows in input dataset at k1*blockSizeDefault*p row */
         ReadRows<algorithmFPType, cpu> xBlock(*const_cast<NumericTable *>(xTable), k1 * blockSizeDefault, blockSize1);
         DAAL_CHECK_BLOCK_STATUS_THR(xBlock)
-        const algorithmFPType *x = xBlock.get();
+        const algorithmFPType * x = xBlock.get();
 
         /* write access to blockSize1 rows in output dataset at k1*blockSizeDefault*p row */
         WriteOnlyRows<algorithmFPType, cpu> rBlock(rTable, k1 * blockSizeDefault, blockSize1);
         DAAL_CHECK_BLOCK_STATUS_THR(rBlock)
-        algorithmFPType *r = rBlock.get();
+        algorithmFPType * r = rBlock.get();
 
         /* move to respective column position in output dataset */
-        algorithmFPType *rr = r + k1 * blockSizeDefault;
+        algorithmFPType * rr = r + k1 * blockSizeDefault;
 
         algorithmFPType buf[blockSizeDefault * blockSizeDefault];
         algorithmFPType alpha = 1.0, beta = 0.0;
@@ -100,12 +99,11 @@ services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTabl
                 rr[i * n + j] = buf[i * blockSize1 + j];
             }
         }
-    } );
+    });
     DAAL_CHECK_SAFE_STATUS()
 
     /* compute off-diagonal blocks of the distance matrix */
-    daal::threader_for(nBlocks, nBlocks, [ = , &safeStat ](size_t k1)
-    {
+    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](size_t k1) {
         DAAL_INT blockSize1 = blockSizeDefault;
         if (k1 == nBlocks - 1)
         {
@@ -117,13 +115,12 @@ services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTabl
         /* read access to blockSize1 rows in input dataset at k1*blockSizeDefault row */
         ReadRows<algorithmFPType, cpu> xBlock1(*const_cast<NumericTable *>(xTable), shift1, blockSize1);
         DAAL_CHECK_BLOCK_STATUS_THR(xBlock1)
-        const algorithmFPType *x1 = xBlock1.get();
+        const algorithmFPType * x1 = xBlock1.get();
 
-        daal::threader_for(nBlocks - k1 - 1, nBlocks - k1 - 1, [ = , &safeStat ](size_t k3)
-        {
+        daal::threader_for(nBlocks - k1 - 1, nBlocks - k1 - 1, [=, &safeStat](size_t k3) {
             DAAL_INT blockSize2 = blockSizeDefault;
-            size_t k2 = k3 + k1 + 1;
-            size_t nl = n;
+            size_t k2           = k3 + k1 + 1;
+            size_t nl           = n;
 
             if (k2 == nBlocks - 1)
             {
@@ -135,15 +132,15 @@ services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTabl
             /* read access to blockSize1 rows in input dataset at k1*blockSizeDefault row */
             ReadRows<algorithmFPType, cpu> xBlock2(*const_cast<NumericTable *>(xTable), shift2, blockSize2);
             DAAL_CHECK_BLOCK_STATUS_THR(xBlock2)
-            const algorithmFPType *x2 = xBlock2.get();
+            const algorithmFPType * x2 = xBlock2.get();
 
             algorithmFPType diag[blockSizeDefault], buf[blockSizeDefault * blockSizeDefault];
 
             WriteOnlyRows<algorithmFPType, cpu> rBlock(rTable, shift2, blockSize2);
             DAAL_CHECK_BLOCK_STATUS_THR(rBlock)
-            algorithmFPType *r = rBlock.get();
+            algorithmFPType * r = rBlock.get();
 
-            for(size_t i = 0; i < blockSize2; i++ )
+            for (size_t i = 0; i < blockSize2; i++)
             {
                 diag[i] = r[i * nl + shift2 + i];
             }
@@ -152,7 +149,7 @@ services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTabl
             r = rBlock.next(shift1, blockSize1);
             DAAL_CHECK_BLOCK_STATUS_THR(rBlock)
             /* move to respective column position in output dataset */
-            algorithmFPType *rr = r + shift2;
+            algorithmFPType * rr = r + shift2;
 
             algorithmFPType alpha = 1.0, beta = 0.0;
             char transa = 'T', transb = 'N';
@@ -178,13 +175,12 @@ services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTabl
                     rr[i * nl + j] = buf[i * blockSize2 + j];
                 }
             }
-        } );
-    } );
+        });
+    });
     DAAL_CHECK_SAFE_STATUS()
 
     // copy upper triangular of r into lower triangular and unit diagonal
-    daal::threader_for(nBlocks, nBlocks, [ = , &safeStat ](size_t k1)
-    {
+    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](size_t k1) {
         size_t blockSize1 = blockSizeDefault;
         if (k1 == nBlocks - 1)
         {
@@ -195,21 +191,20 @@ services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTabl
 
         WriteRows<algorithmFPType, cpu> rBlock1(rTable, shift1, blockSize1);
         DAAL_CHECK_BLOCK_STATUS_THR(rBlock1)
-        algorithmFPType *r1 = rBlock1.get();
+        algorithmFPType * r1 = rBlock1.get();
 
-        algorithmFPType *rr1 = r1 + shift1;
+        algorithmFPType * rr1 = r1 + shift1;
 
-        for ( size_t i = 0; i < blockSize1; i++ )
+        for (size_t i = 0; i < blockSize1; i++)
         {
             rr1[i * n + i] = 0.0;
-            for ( size_t j = i + 1; j < blockSize1; j++ )
+            for (size_t j = i + 1; j < blockSize1; j++)
             {
                 rr1[j * n + i] = rr1[i * n + j];
             }
         }
 
-        daal::threader_for(nBlocks - k1 - 1, nBlocks - k1 - 1, [ = , &safeStat ](size_t k3)
-        {
+        daal::threader_for(nBlocks - k1 - 1, nBlocks - k1 - 1, [=, &safeStat](size_t k3) {
             size_t k2 = k3 + k1 + 1;
             size_t nl = n;
             algorithmFPType *rr1, *rr2;
@@ -223,7 +218,7 @@ services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTabl
 
             WriteRows<algorithmFPType, cpu> rBlock2(rTable, shift2, blockSize2);
             DAAL_CHECK_BLOCK_STATUS_THR(rBlock2)
-            algorithmFPType *r2 = rBlock2.get();
+            algorithmFPType * r2 = rBlock2.get();
 
             rr1 = r1 + shift2;
             rr2 = r2 + shift1;
@@ -235,8 +230,8 @@ services::Status cosDistanceFull(const NumericTable *xTable, NumericTable *rTabl
                     rr2[j * nl + i] = rr1[i * nl + j];
                 }
             }
-        } );
-    } );
+        });
+    });
 
     return safeStat.detach();
 }

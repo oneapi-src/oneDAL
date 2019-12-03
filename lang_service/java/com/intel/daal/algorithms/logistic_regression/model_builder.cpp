@@ -32,16 +32,16 @@ using namespace daal::services;
 * Method:    cInit
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_ModelBuilder_cInit
-(JNIEnv *, jobject, jint prec, jlong nFeatures, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_ModelBuilder_cInit(JNIEnv *, jobject, jint prec, jlong nFeatures,
+                                                                                               jlong nClasses)
 {
-    if(prec == 0)
+    if (prec == 0)
     {
-        return (jlong)(new SharedPtr<ModelBuilder<double>>(new ModelBuilder<double>(nFeatures, nClasses)));
+        return (jlong)(new SharedPtr<ModelBuilder<double> >(new ModelBuilder<double>(nFeatures, nClasses)));
     }
     else
     {
-        return (jlong)(new SharedPtr<ModelBuilder<float>>(new ModelBuilder<float>(nFeatures, nClasses)));
+        return (jlong)(new SharedPtr<ModelBuilder<float> >(new ModelBuilder<float>(nFeatures, nClasses)));
     }
 }
 
@@ -50,21 +50,21 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_Mode
  * Method:    cGetModel
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_ModelBuilder_cGetModel
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_ModelBuilder_cGetModel(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                   jint prec)
 {
-    ModelPtr *model = new ModelPtr;
-    if(prec == 0)
+    ModelPtr * model = new ModelPtr;
+    if (prec == 0)
     {
-        services::SharedPtr<ModelBuilder<double>> *ptr = new services::SharedPtr<ModelBuilder<double>>();
-        *ptr = staticPointerCast<ModelBuilder<double>>(*(SharedPtr<ModelBuilder<double>> *)algAddr);
-        *model = staticPointerCast<Model>((*ptr)->getModel());
+        services::SharedPtr<ModelBuilder<double> > * ptr = new services::SharedPtr<ModelBuilder<double> >();
+        *ptr                                             = staticPointerCast<ModelBuilder<double> >(*(SharedPtr<ModelBuilder<double> > *)algAddr);
+        *model                                           = staticPointerCast<Model>((*ptr)->getModel());
     }
     else
     {
-        services::SharedPtr<ModelBuilder<float>> *ptr = new services::SharedPtr<ModelBuilder<float>>();
-        *ptr = staticPointerCast<ModelBuilder<float>>(*(SharedPtr<ModelBuilder<float>> *)algAddr);
-        *model = staticPointerCast<Model>((*ptr)->getModel());
+        services::SharedPtr<ModelBuilder<float> > * ptr = new services::SharedPtr<ModelBuilder<float> >();
+        *ptr                                            = staticPointerCast<ModelBuilder<float> >(*(SharedPtr<ModelBuilder<float> > *)algAddr);
+        *model                                          = staticPointerCast<Model>((*ptr)->getModel());
     }
     return (jlong)model;
 }
@@ -74,13 +74,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_logistic_1regression_Mode
  * Method:    cSetBetaFloat
  * Signature:(JII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_ModelBuilder_cSetBetaFloat
-(JNIEnv *env, jobject, jlong algAddr, jobject byteBuffer, jlong nBetas)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_ModelBuilder_cSetBetaFloat(JNIEnv * env, jobject, jlong algAddr,
+                                                                                                      jobject byteBuffer, jlong nBetas)
 {
-    float *firstBeta = (float *)(env->GetDirectBufferAddress(byteBuffer));
-    float *lastBeta = firstBeta + nBetas;
-    services::SharedPtr<ModelBuilder<float>> *ptr = new services::SharedPtr<ModelBuilder<float>>();
-    *ptr = staticPointerCast<ModelBuilder<float>>(*(SharedPtr<ModelBuilder<float>> *)algAddr);
+    float * firstBeta                               = (float *)(env->GetDirectBufferAddress(byteBuffer));
+    float * lastBeta                                = firstBeta + nBetas;
+    services::SharedPtr<ModelBuilder<float> > * ptr = new services::SharedPtr<ModelBuilder<float> >();
+    *ptr                                            = staticPointerCast<ModelBuilder<float> >(*(SharedPtr<ModelBuilder<float> > *)algAddr);
     (*ptr)->setBeta(firstBeta, lastBeta);
     DAAL_CHECK_THROW((*ptr)->getStatus());
 }
@@ -90,13 +90,13 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_Model
  * Method:    cSetBetaDouble
  * Signature:(JII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_ModelBuilder_cSetBetaDouble
-(JNIEnv *env, jobject, jlong algAddr, jobject byteBuffer, jlong nBetas)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_logistic_1regression_ModelBuilder_cSetBetaDouble(JNIEnv * env, jobject, jlong algAddr,
+                                                                                                       jobject byteBuffer, jlong nBetas)
 {
-    double *firstBeta = (double *)(env->GetDirectBufferAddress(byteBuffer));
-    double *lastBeta = firstBeta + nBetas;
-    services::SharedPtr<ModelBuilder<double>> *ptr = new services::SharedPtr<ModelBuilder<double>>();
-    *ptr = staticPointerCast<ModelBuilder<double>>(*(SharedPtr<ModelBuilder<double>> *)algAddr);
+    double * firstBeta                               = (double *)(env->GetDirectBufferAddress(byteBuffer));
+    double * lastBeta                                = firstBeta + nBetas;
+    services::SharedPtr<ModelBuilder<double> > * ptr = new services::SharedPtr<ModelBuilder<double> >();
+    *ptr                                             = staticPointerCast<ModelBuilder<double> >(*(SharedPtr<ModelBuilder<double> > *)algAddr);
     (*ptr)->setBeta(firstBeta, lastBeta);
     DAAL_CHECK_THROW((*ptr)->getStatus());
 }

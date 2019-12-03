@@ -41,47 +41,46 @@ namespace kmeans
 {
 namespace internal
 {
-
-#define __DAAL_FABS(a) (((a)>(algorithmFPType)0.0)?(a):(-(a)))
+#define __DAAL_FABS(a) (((a) > (algorithmFPType)0.0) ? (a) : (-(a)))
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size_t na, const NumericTable *const *a,
-                                                                                      size_t nr, const NumericTable *const *r, const Parameter *par)
+Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_t na, const NumericTable * const * a, size_t nr,
+                                                                           const NumericTable * const * r, const Parameter * par)
 {
-    NumericTable *ntData = const_cast<NumericTable *>(a[0]);
-    NumericTable* ntAssignments = const_cast<NumericTable*>(r[5]);
+    NumericTable * ntData        = const_cast<NumericTable *>(a[0]);
+    NumericTable * ntAssignments = const_cast<NumericTable *>(r[5]);
 
-    const size_t p = ntData->getNumberOfColumns();
-    const size_t n = ntData->getNumberOfRows();
+    const size_t p         = ntData->getNumberOfColumns();
+    const size_t n         = ntData->getNumberOfRows();
     const size_t nClusters = par->nClusters;
-    int result = 0;
+    int result             = 0;
 
-    ReadRows<algorithmFPType, cpu> mtInitClusters(*const_cast<NumericTable*>(a[1]), 0, nClusters);
+    ReadRows<algorithmFPType, cpu> mtInitClusters(*const_cast<NumericTable *>(a[1]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtInitClusters);
-    algorithmFPType *initClusters = const_cast<algorithmFPType*>(mtInitClusters.get());
-    WriteOnlyRows<int, cpu> mtClusterS0(*const_cast<NumericTable*>(r[0]), 0, nClusters);
+    algorithmFPType * initClusters = const_cast<algorithmFPType *>(mtInitClusters.get());
+    WriteOnlyRows<int, cpu> mtClusterS0(*const_cast<NumericTable *>(r[0]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtClusterS0);
     /* TODO: That should be size_t or double */
     int * clusterS0 = mtClusterS0.get();
-    WriteOnlyRows<algorithmFPType, cpu> mtClusterS1(*const_cast<NumericTable*>(r[1]), 0, nClusters);
+    WriteOnlyRows<algorithmFPType, cpu> mtClusterS1(*const_cast<NumericTable *>(r[1]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtClusterS1);
-    algorithmFPType *clusterS1 = mtClusterS1.get();
-    WriteOnlyRows<algorithmFPType, cpu> mtTargetFunc(*const_cast<NumericTable*>(r[2]), 0, 1);
+    algorithmFPType * clusterS1 = mtClusterS1.get();
+    WriteOnlyRows<algorithmFPType, cpu> mtTargetFunc(*const_cast<NumericTable *>(r[2]), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(mtTargetFunc);
-    algorithmFPType *goalFunc = mtTargetFunc.get();
+    algorithmFPType * goalFunc = mtTargetFunc.get();
 
-    WriteOnlyRows<algorithmFPType, cpu> mtCValues(*const_cast<NumericTable*>(r[3]), 0, nClusters);
+    WriteOnlyRows<algorithmFPType, cpu> mtCValues(*const_cast<NumericTable *>(r[3]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtCValues);
-    algorithmFPType *cValues = mtCValues.get();
-    WriteOnlyRows<algorithmFPType, cpu> mtCCentroids(*const_cast<NumericTable*>(r[4]), 0, nClusters);
+    algorithmFPType * cValues = mtCValues.get();
+    WriteOnlyRows<algorithmFPType, cpu> mtCCentroids(*const_cast<NumericTable *>(r[4]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtCCentroids);
-    algorithmFPType *cCentroids = mtCCentroids.get();
+    algorithmFPType * cCentroids = mtCCentroids.get();
 
     /* Categorial variables check and support: begin */
     int catFlag = 0;
-    for(size_t i = 0; i < p; i++)
+    for (size_t i = 0; i < p; i++)
     {
-        if(ntData->getFeatureType(i) == features::DAAL_CATEGORICAL)
+        if (ntData->getFeatureType(i) == features::DAAL_CATEGORICAL)
         {
             catFlag = 1;
             break;
@@ -91,12 +90,12 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, p, sizeof(algorithmFPType));
 
     TArray<algorithmFPType, cpu> catCoef(catFlag ? p : 0);
-    if(catFlag)
+    if (catFlag)
     {
         DAAL_CHECK(catCoef.get(), services::ErrorMemoryAllocationFailed);
-        for(size_t i = 0; i < p; i++)
+        for (size_t i = 0; i < p; i++)
         {
-            if(ntData->getFeatureType(i) == features::DAAL_CATEGORICAL)
+            if (ntData->getFeatureType(i) == features::DAAL_CATEGORICAL)
             {
                 catCoef[i] = par->gamma;
             }
@@ -119,7 +118,7 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
         DAAL_CHECK(task.get(), services::ErrorMemoryAllocationFailed);
         DAAL_ASSERT(task);
 
-        if( par->assignFlag )
+        if (par->assignFlag)
         {
             s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get(), ntAssignments);
         }
@@ -127,7 +126,7 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
         {
             s = task->template addNTToTaskThreaded<method>(ntData, catCoef.get());
         }
-        if(!s)
+        if (!s)
         {
             task->kmeansClearClusters(&oldTargetFunc);
             return s;
@@ -148,7 +147,7 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
         for (size_t i = 0; i < cNum; i++)
         {
             ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices.get()[i], 1);
-            const algorithmFPType *row = mtRow.get();
+            const algorithmFPType * row = mtRow.get();
             result |= daal::services::internal::daal_memcpy_s(&cCentroids[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
         }
         for (size_t i = cNum; i < nClusters; i++)
@@ -162,33 +161,32 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute( size
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::finalizeCompute( size_t na, const NumericTable *const *a,
-                                                                                              size_t nr, const NumericTable *const *r, const Parameter *par)
+Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::finalizeCompute(size_t na, const NumericTable * const * a, size_t nr,
+                                                                                   const NumericTable * const * r, const Parameter * par)
 {
-    if(!par->assignFlag)
-        return Status();
+    if (!par->assignFlag) return Status();
 
-    NumericTable *ntPartialAssignments = const_cast<NumericTable *>(a[0]);
-    NumericTable *ntAssignments = const_cast<NumericTable *>(r[0]);
-    const size_t n = ntPartialAssignments->getNumberOfRows();
+    NumericTable * ntPartialAssignments = const_cast<NumericTable *>(a[0]);
+    NumericTable * ntAssignments        = const_cast<NumericTable *>(r[0]);
+    const size_t n                      = ntPartialAssignments->getNumberOfRows();
 
     ReadRows<int, cpu> inBlock(*ntPartialAssignments, 0, n);
     DAAL_CHECK_BLOCK_STATUS(inBlock);
-    const int* inAssignments = inBlock.get();
+    const int * inAssignments = inBlock.get();
 
     WriteOnlyRows<int, cpu> outBlock(*ntAssignments, 0, n);
     DAAL_CHECK_BLOCK_STATUS(outBlock);
-    int* outAssignments = outBlock.get();
+    int * outAssignments = outBlock.get();
 
-  PRAGMA_IVDEP
-    for(size_t i=0; i<n; i++)
+    PRAGMA_IVDEP
+    for (size_t i = 0; i < n; i++)
     {
         outAssignments[i] = inAssignments[i];
     }
     return Status();
 }
 
-} // namespace daal::algorithms::kmeans::internal
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal

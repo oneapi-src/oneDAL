@@ -58,7 +58,7 @@ ifndef sample
 endif
 
 DAAL_PATH = "$(DAALROOT)/lib"
-TBB_PATH = "$(DAALROOT)/../tbb/lib"
+TBB_PATH = "$(TBBROOT)/lib"
 DAAL_LIB := $(DAAL_PATH)/libdaal_core.$(RES_EXT) $(DAAL_PATH)/libdaal_thread.$(RES_EXT)
 
 ifneq ($(mode),build)

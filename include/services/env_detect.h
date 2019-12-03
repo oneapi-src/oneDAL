@@ -42,14 +42,15 @@ namespace daal
  */
 enum CpuType
 {
-    sse2          = 0,  /*!< Intel(R) Streaming SIMD Extensions 2 (Intel(R) SSE2) */
-    ssse3         = 1,  /*!< Supplemental Streaming SIMD Extensions 3 (SSSE3) */
-    sse42         = 2,  /*!< Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) */
-    avx           = 3,  /*!< Intel(R) Advanced Vector Extensions (Intel(R) AVX) */
-    avx2          = 4,  /*!< Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2) */
-    avx512_mic    = 5,  /*!< Intel(R) Xeon Phi(TM) processors/coprocessors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
-    avx512        = 6,  /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
-    avx512_mic_e1 = 7,  /*!< Intel(R) Xeon Phi(TM) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of AVX512_4FMAPS and AVX512_4VNNIW instruction groups. Should be used as parameter for setCpuId function only. Can`t be received as return value of setCpuId, getCpuId and enableInstructionsSet functions. */
+    sse2       = 0, /*!< Intel(R) Streaming SIMD Extensions 2 (Intel(R) SSE2) */
+    ssse3      = 1, /*!< Supplemental Streaming SIMD Extensions 3 (SSSE3) */
+    sse42      = 2, /*!< Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) */
+    avx        = 3, /*!< Intel(R) Advanced Vector Extensions (Intel(R) AVX) */
+    avx2       = 4, /*!< Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2) */
+    avx512_mic = 5, /*!< Intel(R) Xeon Phi(TM) processors/coprocessors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
+    avx512     = 6, /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) */
+    avx512_mic_e1 =
+        7, /*!< Intel(R) Xeon Phi(TM) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of AVX512_4FMAPS and AVX512_4VNNIW instruction groups. Should be used as parameter for setCpuId function only. Can`t be received as return value of setCpuId, getCpuId and enableInstructionsSet functions. */
     lastCpuType = avx512_mic_e1
 };
 
@@ -57,7 +58,6 @@ namespace services
 {
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-SERVICES__ENVIRONMENT"></a>
  * \brief Class that provides methods to interact with the environment, including processor detection and control by the number of threads
@@ -79,7 +79,7 @@ public:
      *  Returns the environment instance
      *  \return The environment instance
      */
-    static Environment *getInstance();
+    static Environment * getInstance();
 
     /**
      *  Decreases the instance counter
@@ -95,10 +95,12 @@ public:
      */
     enum CpuTypeEnable
     {
-        cpu_default = 0,    /*!< Default processor type */
-        avx512_mic = 1,     /*!< Intel(R) Xeon Phi(TM) processors/coprocessors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
-        avx512 = 2,         /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
-        avx512_mic_e1 = 4   /*!< Intel(R) Xeon Phi(TM) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of AVX512_4FMAPS and AVX512_4VNNIW instruction groups */
+        cpu_default = 0, /*!< Default processor type */
+        avx512_mic =
+            1, /*!< Intel(R) Xeon Phi(TM) processors/coprocessors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
+        avx512 = 2, /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
+        avx512_mic_e1 =
+            4 /*!< Intel(R) Xeon Phi(TM) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of AVX512_4FMAPS and AVX512_4VNNIW instruction groups */
     };
 
     /**
@@ -129,7 +131,7 @@ public:
      */
     enum LibraryThreadingType
     {
-        MultiThreaded = 0,  /*!< Multi-threaded mode */
+        MultiThreaded  = 0, /*!< Multi-threaded mode */
         SingleThreaded = 1  /*!< Single-threaded mode */
     };
 
@@ -137,7 +139,7 @@ public:
      *  Sets the threading mode on Windows*
      *  \param[in] type  The threading mode of the library
      */
-    void setDynamicLibraryThreadingTypeOnWindows( LibraryThreadingType type );
+    void setDynamicLibraryThreadingTypeOnWindows(LibraryThreadingType type);
 
     /**
      *  Sets the number of threads to use
@@ -149,7 +151,7 @@ public:
      *  Enables thread pinning
      *  \param[in] enableThreadPinningFlag   Flag to thread pinning enable
      */
-    void enableThreadPinning( bool enableThreadPinningFlag = true);
+    void enableThreadPinning(bool enableThreadPinningFlag = true);
 
     /**
      *  Returns the number of used threads
@@ -170,34 +172,31 @@ public:
      *  using device information from execution context.
      *  \param[in] ctx Execution context with information on how to perform computations inside the library
      */
-    void setDefaultExecutionContext(const ExecutionContext &ctx)
+    void setDefaultExecutionContext(const ExecutionContext & ctx)
     {
         _executionContext = internal::ImplAccessor::getImplPtr<oneapi::internal::ExecutionContextIface>(ctx);
     }
 
     // TODO: remove internal from public API
-    oneapi::internal::ExecutionContextIface &getDefaultExecutionContext()
-    {
-        return *_executionContext;
-    }
+    oneapi::internal::ExecutionContextIface & getDefaultExecutionContext() { return *_executionContext; }
 
 private:
     Environment();
-    Environment(const Environment &e);
+    Environment(const Environment & e);
     ~Environment();
 
     void _cpu_detect(int);
     void initNumberOfThreads();
 
     env _env;
-    void *_init;
+    void * _init;
     SharedPtr<oneapi::internal::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
 
 using interface1::Environment;
 
-}
+} // namespace services
 /** @} */
-}
+} // namespace daal
 #endif

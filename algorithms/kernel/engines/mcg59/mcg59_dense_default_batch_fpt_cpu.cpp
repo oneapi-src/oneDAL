@@ -31,7 +31,6 @@ namespace engines
 {
 namespace mcg59
 {
-
 namespace interface1
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;

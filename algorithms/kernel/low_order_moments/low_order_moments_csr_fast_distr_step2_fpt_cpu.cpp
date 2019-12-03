@@ -38,6 +38,6 @@ namespace internal
 {
 template class LowOrderMomentsDistributedKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace low_order_moments
+} // namespace algorithms
+} // namespace daal

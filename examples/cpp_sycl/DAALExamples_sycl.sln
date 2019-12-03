@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pca_cor_dense_batch", "vcpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datastructures_soa", "vcproj\datastructures_soa\datastructures_soa.vcxproj", "{0951F77E-EFD2-4A06-A012-29B275347620}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datastructures_usm", "vcproj\datastructures_usm\datastructures_usm.vcxproj", "{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gbt_reg_dense_batch", "vcproj\datastructures_soa\gbt_reg_dense_batch.vcxproj", "{6B1239AD-5E43-4E9B-8FD8-B59497129619}"
 EndProject
 Global
@@ -197,7 +199,23 @@ Global
 		{0951F77E-EFD2-4A06-A012-29B275347620}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
 		{0951F77E-EFD2-4A06-A012-29B275347620}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
 		{0951F77E-EFD2-4A06-A012-29B275347620}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
-    	{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Debug.dynamic.threaded|x64.Build.0 = Debug.dynamic.threaded|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Debug.static.sequential|x64.ActiveCfg = Debug.static.sequential|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Debug.static.sequential|x64.Build.0 = Debug.static.sequential|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Debug.static.threaded|x64.ActiveCfg = Debug.static.threaded|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Debug.static.threaded|x64.Build.0 = Debug.static.threaded|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Release.dynamic.sequential|x64.ActiveCfg = Release.dynamic.sequential|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Release.dynamic.sequential|x64.Build.0 = Release.dynamic.sequential|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Release.dynamic.threaded|x64.ActiveCfg = Release.dynamic.threaded|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Release.dynamic.threaded|x64.Build.0 = Release.dynamic.threaded|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Release.static.sequential|x64.ActiveCfg = Release.static.sequential|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
+		{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
+		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Debug.dynamic.sequential|x64.ActiveCfg = Debug.dynamic.sequential|x64
 		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Debug.dynamic.sequential|x64.Build.0 = Debug.dynamic.sequential|x64
 		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Debug.dynamic.threaded|x64.ActiveCfg = Debug.dynamic.threaded|x64
 		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Debug.dynamic.threaded|x64.Build.0 = Debug.dynamic.threaded|x64
@@ -212,7 +230,7 @@ Global
 		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Release.static.sequential|x64.ActiveCfg = Release.static.sequential|x64
 		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
 		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
-		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
+		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64    
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

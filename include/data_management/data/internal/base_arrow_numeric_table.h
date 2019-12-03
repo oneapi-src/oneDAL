@@ -45,8 +45,7 @@ public:
     virtual bool isMutable() const = 0;
 
 protected:
-    ArrowNumericTable(size_t featnum, size_t obsnum, services::Status & st)
-        : NumericTable(featnum, obsnum, DictionaryIface::notEqual, st) {}
+    ArrowNumericTable(size_t featnum, size_t obsnum, services::Status & st) : NumericTable(featnum, obsnum, DictionaryIface::notEqual, st) {}
 };
 typedef services::SharedPtr<ArrowNumericTable> ArrowNumericTablePtr;
 

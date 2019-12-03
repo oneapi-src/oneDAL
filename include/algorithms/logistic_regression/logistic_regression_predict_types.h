@@ -45,14 +45,13 @@ namespace logistic_regression
  * \brief Contains classes for making prediction based on the classifier model */
 namespace prediction
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__METHOD"></a>
  * Available methods for predictions based on the logistic regression model
  */
 enum Method
 {
-    defaultDense = 0        /*!< Default method */
+    defaultDense = 0 /*!< Default method */
 };
 
 /**
@@ -61,8 +60,8 @@ enum Method
 */
 enum ResultToComputeId
 {
-    computeClassesLabels = classifier::computeClassLabels,
-    computeClassesProbabilities = classifier::computeClassProbabilities,
+    computeClassesLabels           = classifier::computeClassLabels,
+    computeClassesProbabilities    = classifier::computeClassProbabilities,
     computeClassesLogProbabilities = classifier::computeClassLogProbabilities
 };
 
@@ -72,7 +71,7 @@ enum ResultToComputeId
 */
 enum ResultNumericTableId
 {
-    probabilities = classifier::prediction::probabilities,      /*!< Numeric table of size: n x 1, if nClasses = 2, n x nClasses, if nClasses > 2
+    probabilities    = classifier::prediction::probabilities,    /*!< Numeric table of size: n x 1, if nClasses = 2, n x nClasses, if nClasses > 2
                                                                      containing probabilities of classes computed when
                                                                      computeClassesProbabilities option is enabled.
                                                                      In case  nClasses = 2 the table contains probabilities of class _1. */
@@ -88,7 +87,6 @@ enum ResultNumericTableId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__PARAMETER"></a>
  * \brief Parameters of the prediction algorithm  \DAAL_DEPRECATED
@@ -98,9 +96,11 @@ namespace interface1
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::Parameter
 {
-    DAAL_DEPRECATED Parameter(size_t nClasses = 2) : daal::algorithms::classifier::interface1::Parameter(nClasses), resultsToCompute(computeClassesLabels) {}
-    DAAL_DEPRECATED Parameter(const Parameter& o) : daal::algorithms::classifier::interface1::Parameter(o), resultsToCompute(o.resultsToCompute){}
-    DAAL_UINT64 resultsToCompute;           /*!< 64 bit integer flag that indicates the results to compute */
+    DAAL_DEPRECATED Parameter(size_t nClasses = 2)
+        : daal::algorithms::classifier::interface1::Parameter(nClasses), resultsToCompute(computeClassesLabels)
+    {}
+    DAAL_DEPRECATED Parameter(const Parameter & o) : daal::algorithms::classifier::interface1::Parameter(o), resultsToCompute(o.resultsToCompute) {}
+    DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
 };
 /* [Parameter source code] */
 
@@ -111,9 +111,10 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
     typedef classifier::prediction::Input super;
+
 public:
-    Input() : super(){}
-    Input(const Input& other) : super(other){}
+    Input() : super() {}
+    Input(const Input & other) : super(other) {}
     virtual ~Input() {}
 
     using super::get;
@@ -138,14 +139,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the LOGISTIC_REGRESSION algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const logistic_regression::ModelPtr &ptr);
+    void set(classifier::prediction::ModelInputId id, const logistic_regression::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
@@ -153,7 +154,7 @@ public:
      * \param[in] method    Computation method
      * \return Status of checking
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -178,7 +179,7 @@ public:
     * \param[in] id      Identifier of the input object
     * \param[in] value   %Input object
     */
-    DAAL_DEPRECATED void set(classifier::prediction::ResultId id, const data_management::NumericTablePtr &value);
+    DAAL_DEPRECATED void set(classifier::prediction::ResultId id, const data_management::NumericTablePtr & value);
 
     /**
     * Returns the result of model-based prediction
@@ -192,7 +193,7 @@ public:
     * \param[in] id      Identifier of the input object
     * \param[in] value   %Input object
     */
-    DAAL_DEPRECATED void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
+    DAAL_DEPRECATED void set(ResultNumericTableId id, const data_management::NumericTablePtr & value);
 
     /**
     * Allocates memory to store a partial result of model-based prediction
@@ -202,7 +203,8 @@ public:
     * \return Status of allocation
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT DAAL_DEPRECATED services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                          const int method);
 
     /**
     * Checks the result of model-based prediction
@@ -211,12 +213,13 @@ public:
     * \param[in] method  Computation method
     * \return Status of checking
     */
-    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                           int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::classifier::prediction::interface1::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -229,9 +232,9 @@ using interface1::Input;
 using classifier::Parameter;             /* Support of static backward compatibility */
 using classifier::prediction::Result;    /* Support of static backward compatibility */
 using classifier::prediction::ResultPtr; /* Support of static backward compatibility */
-}
+} // namespace prediction
 /** @} */
-}
-}
-}
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal
 #endif // __LOGISTIC_REGRESSION_PREDICT_TYPES_H__

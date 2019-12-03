@@ -33,18 +33,13 @@ using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
-typedef float  algorithmFPType;     /* Algorithm floating-point type */
+typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Input data set parameters */
-const size_t nBlocks         = 4;
+const size_t nBlocks = 4;
 
-const string datasetFileNames[] =
-{
-    "../data/distributed/covcormoments_csr_1.csv",
-    "../data/distributed/covcormoments_csr_2.csv",
-    "../data/distributed/covcormoments_csr_3.csv",
-    "../data/distributed/covcormoments_csr_4.csv"
-};
+const string datasetFileNames[] = { "../data/distributed/covcormoments_csr_1.csv", "../data/distributed/covcormoments_csr_2.csv",
+                                    "../data/distributed/covcormoments_csr_3.csv", "../data/distributed/covcormoments_csr_4.csv" };
 
 covariance::PartialResultPtr partialResult[nBlocks];
 covariance::ResultPtr result;
@@ -52,11 +47,11 @@ covariance::ResultPtr result;
 void computestep1Local(size_t i);
 void computeOnMasterNode();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
 
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         computestep1Local(i);
     }
@@ -64,14 +59,14 @@ int main(int argc, char *argv[])
     computeOnMasterNode();
 
     printNumericTable(result->get(covariance::covariance), "Covariance matrix (upper left square 10*10) :", 10, 10);
-    printNumericTable(result->get(covariance::mean),       "Mean vector:", 1, 10);
+    printNumericTable(result->get(covariance::mean), "Mean vector:", 1, 10);
 
     return 0;
 }
 
 void computestep1Local(size_t block)
 {
-    CSRNumericTable *dataTable = createSparseTable<float>(datasetFileNames[block]);
+    CSRNumericTable * dataTable = createSparseTable<float>(datasetFileNames[block]);
 
     /* Create an algorithm to compute a variance-covariance matrix in the distributed processing mode using the default method */
     covariance::Distributed<step1Local, algorithmFPType, covariance::fastCSR> algorithm;

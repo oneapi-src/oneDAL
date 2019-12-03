@@ -30,14 +30,13 @@ namespace minmax
 {
 namespace internal
 {
-
-Status computeMinimumsAndMaximums(low_order_moments::BatchImpl *moments, NumericTablePtr &dataTable,
-                                  NumericTablePtr &minimums, NumericTablePtr &maximums)
+Status computeMinimumsAndMaximums(low_order_moments::BatchImpl * moments, NumericTablePtr & dataTable, NumericTablePtr & minimums,
+                                  NumericTablePtr & maximums)
 {
     minimums = dataTable->basicStatistics.get(NumericTableIface::minimum);
     maximums = dataTable->basicStatistics.get(NumericTableIface::maximum);
 
-    if(!minimums || !maximums)
+    if (!minimums || !maximums)
     {
         moments->parameter.estimatesToCompute = low_order_moments::estimatesMinMax;
         moments->input.set(low_order_moments::data, dataTable);
@@ -45,12 +44,12 @@ Status computeMinimumsAndMaximums(low_order_moments::BatchImpl *moments, Numeric
 
         minimums = moments->getResult()->get(low_order_moments::minimum);
         maximums = moments->getResult()->get(low_order_moments::maximum);
-   }
+    }
 
-   return Status();
+    return Status();
 }
 
-} // namespace daal::internal
+} // namespace internal
 } // namespace minmax
 } // namespace normalization
 } // namespace algorithms

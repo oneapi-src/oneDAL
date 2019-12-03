@@ -33,19 +33,16 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * \brief Contains classes of the Decision tree algorithm
  */
 namespace decision_tree
 {
-
 /**
  * \brief Contains classes of the Decision tree regression algorithm
  */
 namespace regression
 {
-
 /**
  * @defgroup decision_tree_regression_training Training
  * \copydoc daal::algorithms::decision_tree::regression::training
@@ -57,7 +54,6 @@ namespace regression
  */
 namespace training
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__DECISION_TREE__REGRESSION__TRAINING__METHOD"></a>
  * \brief Computation methods for Decision tree model-based training
@@ -73,11 +69,11 @@ enum Method
  */
 enum InputId
 {
-    data                            = algorithms::regression::training::data,               /*!< %Input data table */
-    dependentVariables              = algorithms::regression::training::dependentVariables, /*!< Values of the dependent variable for the input data */
-    dataForPruning,                                                                         /*!< Pruning data set */
-    dependentVariablesForPruning,                                                           /*!< Labels of the pruning data set */
-    weights                         = algorithms::regression::training::weights,            /*!< Optional. Weights of the observations in the training data set */
+    data               = algorithms::regression::training::data,               /*!< %Input data table */
+    dependentVariables = algorithms::regression::training::dependentVariables, /*!< Values of the dependent variable for the input data */
+    dataForPruning,                                                            /*!< Pruning data set */
+    dependentVariablesForPruning,                                              /*!< Labels of the pruning data set */
+    weights     = algorithms::regression::training::weights,                   /*!< Optional. Weights of the observations in the training data set */
     lastInputId = weights
 };
 
@@ -87,7 +83,7 @@ enum InputId
  */
 enum ResultId
 {
-    model = algorithms::regression::training::model,   /*!< Decision tree model */
+    model        = algorithms::regression::training::model, /*!< Decision tree model */
     lastResultId = model
 };
 
@@ -96,7 +92,6 @@ enum ResultId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__TRAINING__INPUT"></a>
  * \brief Base class for the input objects in the training stage of the regression algorithms
@@ -105,7 +100,7 @@ class DAAL_EXPORT Input : public algorithms::regression::training::Input
 {
 public:
     Input();
-    Input(const Input &other);
+    Input(const Input & other);
 
     /**
      * Returns the input object in the training stage of the regression algorithm
@@ -167,12 +162,12 @@ public:
      * \param[in] parameter %Parameter of Decision tree model-based training
      * \param[in] method Computation method for the algorithm
      */
-    template<typename algorithmFPType>
+    template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const Parameter * parameter, int method);
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
+    template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);

@@ -49,7 +49,6 @@ namespace optimization_solver
 */
 namespace logistic_loss
 {
-
 /**
   * <a name="DAAL-ENUM-ALGORITHMS__OPTIMIZATION_SOLVER__LOGISTIC_LOSS__INPUTID"></a>
   * Available identifiers of input objects of the Logistic loss objective function
@@ -76,7 +75,6 @@ enum Method
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__MSE__PARAMETER"></a>
  * \brief %Parameter for Logistic loss objective function     \DAAL_DEPRECATED
@@ -95,15 +93,14 @@ struct DAAL_EXPORT Parameter : public sum_of_functions::interface1::Parameter
                                    all terms will be used in the computations.
      * \param[in] resultsToCompute 64 bit integer flag that indicates the results to compute
      */
-    DAAL_DEPRECATED Parameter(size_t numberOfTerms,
-              data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
-              const DAAL_UINT64 resultsToCompute = objective_function::gradient);
+    DAAL_DEPRECATED Parameter(size_t numberOfTerms, data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
+                              const DAAL_UINT64 resultsToCompute = objective_function::gradient);
 
     /**
      * Constructs an Parameter by copying input objects and parameters of another Parameter
      * \param[in] other An object to be used as the source to initialize object
      */
-    DAAL_DEPRECATED Parameter(const Parameter &other);
+    DAAL_DEPRECATED Parameter(const Parameter & other);
     /**
      * Checks the correctness of the parameter
      *
@@ -113,9 +110,9 @@ struct DAAL_EXPORT Parameter : public sum_of_functions::interface1::Parameter
 
     DAAL_DEPRECATED_VIRTUAL virtual ~Parameter() {}
 
-    bool interceptFlag;  /*!< Whether the intercept needs to be computed. Default is true */
-    float penaltyL1;     /*!< L1 regularization coefficient. Default is 0 (not applied) */
-    float penaltyL2;     /*!< L2 regularization coefficient. Default is 0 (not applied) */
+    bool interceptFlag; /*!< Whether the intercept needs to be computed. Default is true */
+    float penaltyL1;    /*!< L1 regularization coefficient. Default is 0 (not applied) */
+    float penaltyL2;    /*!< L2 regularization coefficient. Default is 0 (not applied) */
 };
 /* [interface1::Parameter source code] */
 
@@ -130,7 +127,7 @@ public:
     DAAL_DEPRECATED Input();
 
     /** Copy constructor */
-    DAAL_DEPRECATED Input(const Input& other);
+    DAAL_DEPRECATED Input(const Input & other);
 
     /** Destructor */
     DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
@@ -140,7 +137,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    DAAL_DEPRECATED void set(InputId id, const data_management::NumericTablePtr &ptr);
+    DAAL_DEPRECATED void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the input numeric table for Logistic loss objective function
@@ -156,18 +153,16 @@ public:
      *
      * \return Status of computations
      */
-    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
 } // namespace interface1
-
 
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface2
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__OPTIMIZATION_SOLVER__MSE__PARAMETER"></a>
  * \brief %Parameter for Logistic loss objective function
@@ -186,15 +181,14 @@ struct DAAL_EXPORT Parameter : public sum_of_functions::Parameter
                                    all terms will be used in the computations.
      * \param[in] resultsToCompute 64 bit integer flag that indicates the results to compute
      */
-    Parameter(size_t numberOfTerms,
-              data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
+    Parameter(size_t numberOfTerms, data_management::NumericTablePtr batchIndices = data_management::NumericTablePtr(),
               const DAAL_UINT64 resultsToCompute = objective_function::gradient);
 
     /**
      * Constructs an Parameter by copying input objects and parameters of another Parameter
      * \param[in] other An object to be used as the source to initialize object
      */
-    Parameter(const Parameter &other);
+    Parameter(const Parameter & other);
     /**
      * Checks the correctness of the parameter
      *
@@ -204,9 +198,9 @@ struct DAAL_EXPORT Parameter : public sum_of_functions::Parameter
 
     virtual ~Parameter() {}
 
-    bool interceptFlag;  /*!< Whether the intercept needs to be computed. Default is true */
-    float penaltyL1;     /*!< L1 regularization coefficient. Default is 0 (not applied) */
-    float penaltyL2;     /*!< L2 regularization coefficient. Default is 0 (not applied) */
+    bool interceptFlag; /*!< Whether the intercept needs to be computed. Default is true */
+    float penaltyL1;    /*!< L1 regularization coefficient. Default is 0 (not applied) */
+    float penaltyL2;    /*!< L2 regularization coefficient. Default is 0 (not applied) */
 };
 /* [Parameter source code] */
 
@@ -221,7 +215,7 @@ public:
     Input();
 
     /** Copy constructor */
-    Input(const Input& other);
+    Input(const Input & other);
 
     /** Destructor */
     virtual ~Input() {}
@@ -231,7 +225,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Returns the input numeric table for Logistic loss objective function
@@ -247,7 +241,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 /** @} */
 } // namespace interface2
@@ -256,6 +250,6 @@ using interface2::Input;
 
 } // namespace logistic_loss
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

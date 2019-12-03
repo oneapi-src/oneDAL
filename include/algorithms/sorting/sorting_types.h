@@ -47,7 +47,7 @@ namespace sorting
  */
 enum Method
 {
-    defaultDense = 0      /*!< Default: radix method for sorting a data set */
+    defaultDense = 0 /*!< Default: radix method for sorting a data set */
 };
 
 /**
@@ -56,7 +56,7 @@ enum Method
  */
 enum InputId
 {
-    data,             /*!< %Input data table */
+    data, /*!< %Input data table */
     lastInputId = data
 };
 
@@ -66,7 +66,7 @@ enum InputId
  */
 enum ResultId
 {
-    sortedData,        /*!< observation sorting results */
+    sortedData, /*!< observation sorting results */
     lastResultId = sortedData
 };
 
@@ -83,7 +83,7 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 {
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -99,14 +99,14 @@ public:
      * \param[in] id    Identifier of the %input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(InputId id, const data_management::NumericTablePtr &ptr);
+    void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Check the correctness of the %Input object
      * \param[in] method    Algorithm computation method
      * \param[in] par       Pointer to the parameters of the algorithm
      */
-    virtual services::Status check(const Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const Parameter * par, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -128,7 +128,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const int method);
 
     /**
      * Returns the final result of the sorting algorithm
@@ -142,7 +142,7 @@ public:
      * \param[in] id        Identifier of the Result object
      * \param[in] value     Pointer to the Result object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Checks the correctness of the Result object
@@ -150,12 +150,12 @@ public:
      * \param[in] par     %Parameter of algorithm
      * \param[in] method Algorithm computation method
      */
-    virtual services::Status check(const daal::algorithms::Input *in, const Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    virtual services::Status check(const daal::algorithms::Input * in, const Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -168,7 +168,7 @@ using interface1::Input;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace daal::algorithms::sorting
-} // namespace daal::algorithms
+} // namespace sorting
+} // namespace algorithms
 } // namespace daal
 #endif

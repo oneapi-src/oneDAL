@@ -25,7 +25,6 @@ namespace internal
 {
 namespace interface1
 {
-
 services::String getKeyFPType(TypeId typeId)
 {
     interface1::TypeToStringConverter converter;

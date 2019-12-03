@@ -38,30 +38,24 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
 class PCASVDOnlineKernel : public PCASVDKernelBase<algorithmFPType, cpu>
 {
 public:
     PCASVDOnlineKernel() {}
 
-    services::Status compute(InputDataType type, const data_management::NumericTablePtr &data,
-                 data_management::NumericTable &nObservations,
-                 data_management::NumericTable &auxiliaryTable,
-                 data_management::NumericTable &sumSVD,
-                 data_management::NumericTable &sumSquaresSVD);
+    services::Status compute(InputDataType type, const data_management::NumericTablePtr & data, data_management::NumericTable & nObservations,
+                             data_management::NumericTable & auxiliaryTable, data_management::NumericTable & sumSVD,
+                             data_management::NumericTable & sumSquaresSVD);
 
-    services::Status finalizeMerge(InputDataType type, const data_management::NumericTablePtr &nObservationsTable,
-                       data_management::NumericTable &eigenvalues,
-                       data_management::NumericTable &eigenvectors,
-                       data_management::DataCollectionPtr &rTables);
+    services::Status finalizeMerge(InputDataType type, const data_management::NumericTablePtr & nObservationsTable,
+                                   data_management::NumericTable & eigenvalues, data_management::NumericTable & eigenvectors,
+                                   data_management::DataCollectionPtr & rTables);
 
 protected:
-    services::Status normalizeDataset(const NumericTablePtr &data,
-        size_t totalObservations,
-        NumericTable &nObservations, NumericTable &sumSVD,
-        NumericTable &sumSquaresSVD, data_management::NumericTablePtr& normalizedData);
-    services::Status decompose(const NumericTable *normalizedDataTable, NumericTable &auxiliaryTable);
+    services::Status normalizeDataset(const NumericTablePtr & data, size_t totalObservations, NumericTable & nObservations, NumericTable & sumSVD,
+                                      NumericTable & sumSquaresSVD, data_management::NumericTablePtr & normalizedData);
+    services::Status decompose(const NumericTable * normalizedDataTable, NumericTable & auxiliaryTable);
 };
 
 } // namespace internal

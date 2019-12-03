@@ -33,7 +33,6 @@ namespace daal
 {
 namespace services
 {
-
 namespace interface1
 {
 /**
@@ -58,7 +57,7 @@ public:
      * Deletes an object referenced by a pointer
      * \param[in]   ptr   Pointer to the object
      */
-    virtual void operator() (const void *ptr) = 0;
+    virtual void operator()(const void * ptr) = 0;
 };
 
 /**
@@ -67,14 +66,11 @@ public:
  *
  * \tparam T    Class of the object to delete
  */
-template<class T>
+template <class T>
 class ObjectDeleter : public DeleterIface
 {
 public:
-    void operator() (const void *ptr) DAAL_C11_OVERRIDE
-    {
-        delete (const T *)(ptr);
-    }
+    void operator()(const void * ptr) DAAL_C11_OVERRIDE { delete (const T *)(ptr); }
 };
 
 /**
@@ -86,10 +82,7 @@ public:
 class ServiceDeleter : public DeleterIface
 {
 public:
-    void operator() (const void *ptr) DAAL_C11_OVERRIDE
-    {
-        daal::services::daal_free((void *)ptr);
-    }
+    void operator()(const void * ptr) DAAL_C11_OVERRIDE { daal::services::daal_free((void *)ptr); }
 };
 
 /**
@@ -101,9 +94,7 @@ public:
 class EmptyDeleter : public DeleterIface
 {
 public:
-    void operator() (const void *ptr) DAAL_C11_OVERRIDE
-    {
-    }
+    void operator()(const void * ptr) DAAL_C11_OVERRIDE {}
 };
 
 /**
@@ -111,16 +102,16 @@ public:
  * \brief Implementation of reference counter
  *
  */
-class DAAL_EXPORT RefCounter: public AtomicInt
+class DAAL_EXPORT RefCounter : public AtomicInt
 {
 public:
     /**
      * Default constructor
      */
-    RefCounter() : AtomicInt(1){}
+    RefCounter() : AtomicInt(1) {}
     /** Destructor */
     virtual ~RefCounter() {}
-    virtual void operator() (const void *ptr) = 0;
+    virtual void operator()(const void * ptr) = 0;
 };
 
 /**
@@ -129,21 +120,19 @@ public:
  *
 * \tparam Deleter    Class of the object to delete
  */
-template<class Deleter>
-class RefCounterImp: public RefCounter
+template <class Deleter>
+class RefCounterImp : public RefCounter
 {
 public:
     /**
      * Default constructor
      */
-    RefCounterImp(){}
-    RefCounterImp(const Deleter& d) : _deleter(d){}
+    RefCounterImp() {}
+    RefCounterImp(const Deleter & d) : _deleter(d) {}
     /** Destructor */
     virtual ~RefCounterImp() {}
-    void operator() (const void *ptr) DAAL_C11_OVERRIDE
-    {
-        _deleter(ptr);
-    }
+    void operator()(const void * ptr) DAAL_C11_OVERRIDE { _deleter(ptr); }
+
 protected:
     Deleter _deleter;
 };
@@ -159,30 +148,27 @@ protected:
  *
  * \tparam T    Class of the managed object
  */
-template<class T>
+template <class T>
 class SharedPtr
 {
 public:
     DAAL_NEW_DELETE();
 
-    typedef T   ElementType;
+    typedef T ElementType;
 
     /**
      * Constructs an empty shared pointer
      */
-    SharedPtr() : _ownedPtr(NULL), _ptr(NULL), _refCount(NULL)
-    {
-    }
+    SharedPtr() : _ownedPtr(NULL), _ptr(NULL), _refCount(NULL) {}
 
     /**
      * Constructs a shared pointer that manages an input pointer
      * \param[in] ptr   Pointer to manage
      */
-    template<class U>
-    explicit SharedPtr(U *ptr) : _ownedPtr(ptr), _ptr(ptr), _refCount(NULL)
+    template <class U>
+    explicit SharedPtr(U * ptr) : _ownedPtr(ptr), _ptr(ptr), _refCount(NULL)
     {
-        if(_ownedPtr)
-            _refCount = new RefCounterImp<ObjectDeleter<U> >();
+        if (_ownedPtr) _refCount = new RefCounterImp<ObjectDeleter<U> >();
     }
 
     /**
@@ -192,23 +178,22 @@ public:
      * \param[in] ptr       Pointer to the managed object
      * \param[in] deleter   Object used to delete the pointer when the reference count becomes equal to zero
      */
-    template<class U, class D>
-    explicit SharedPtr(U *ptr, const D& deleter) : _ownedPtr(ptr), _ptr(ptr), _refCount(NULL)
+    template <class U, class D>
+    explicit SharedPtr(U * ptr, const D & deleter) : _ownedPtr(ptr), _ptr(ptr), _refCount(NULL)
     {
-        if(_ownedPtr)
-            _refCount = new RefCounterImp<D>(deleter);
+        if (_ownedPtr) _refCount = new RefCounterImp<D>(deleter);
     }
 
-    SharedPtr(const SharedPtr<T> &ptr);
+    SharedPtr(const SharedPtr<T> & ptr);
 
-    SharedPtr(const SharedPtr<T> &ptr, T* shiftedPtr);
+    SharedPtr(const SharedPtr<T> & ptr, T * shiftedPtr);
 
     /**
     * Constructs a shared pointer from another shared pointer of the same type
     * \param[in] other   Input shared pointer
     */
-    template<class U>
-    SharedPtr(const SharedPtr<U> &other);
+    template <class U>
+    SharedPtr(const SharedPtr<U> & other);
 
     /**
      * Aliasing constructor: constructs a SharedPtr that shares ownership information with r,
@@ -220,8 +205,8 @@ public:
      * as long as this SharedPtr exists, such as in the typical use cases where ptr is a member of the object
      * managed by r or is an alias (e.g., downcast) of r.get()
      */
-    template<class U>
-    SharedPtr(const SharedPtr<U> &r, T *ptr, T *shiftedPtr);
+    template <class U>
+    SharedPtr(const SharedPtr<U> & r, T * ptr, T * shiftedPtr);
 
     /**
      * Decreases the reference count
@@ -233,7 +218,7 @@ public:
      * Makes a copy of an input shared pointer and increments the reference count
      * \param[in] ptr   Shared pointer to copy
      */
-    SharedPtr<T> &operator=(const SharedPtr<T> &ptr);
+    SharedPtr<T> & operator=(const SharedPtr<T> & ptr);
 
     /**
      * Releases managed pointer
@@ -243,7 +228,7 @@ public:
         _remove();
         _ownedPtr = NULL;
         _refCount = NULL;
-        _ptr = NULL;
+        _ptr      = NULL;
     }
 
     /**
@@ -251,8 +236,8 @@ public:
      * \tparam U    Class of the managed object
      * \param[in] ptr       Pointer to the managed object
      */
-    template<class U>
-    void reset(U* ptr);
+    template <class U>
+    void reset(U * ptr);
 
     /**
      * Releases managed pointer, takes an ownership of ptr with deleter D
@@ -261,24 +246,23 @@ public:
      * \param[in] ptr       Pointer to the managed object
      * \param[in] deleter   Object used to delete the pointer when the reference count becomes equal to zero
      */
-    template<class U, class D>
-    void reset(U* ptr, const D& deleter);
+    template <class U, class D>
+    void reset(U * ptr, const D & deleter);
 
     /**
      * Makes a copy of an input shared pointer and increments the reference count
      * \param[in] ptr   Shared pointer to copy
      */
-    template<class U>
-    SharedPtr<T> &operator=(const SharedPtr<U> &ptr)
+    template <class U>
+    SharedPtr<T> & operator=(const SharedPtr<U> & ptr)
     {
         if (((void *)&ptr != (void *)this) && ((void *)(ptr.get()) != (void *)(this->_ownedPtr)))
         {
             _remove();
             _ownedPtr = ptr._ownedPtr;
             _refCount = ptr._refCount;
-            _ptr = ptr._ptr;
-            if(_refCount)
-                _refCount->inc();
+            _ptr      = ptr._ptr;
+            if (_refCount) _refCount->inc();
         }
         return *this;
     }
@@ -287,13 +271,13 @@ public:
      * Dereferences a pointer to a managed object
      * \return  Pointer to the managed object
      */
-    T *operator->() const { return  _ptr; }
+    T * operator->() const { return _ptr; }
 
     /**
      * Dereferences a pointer to a managed object
      * \return  Reference to the managed object
      */
-    T &operator* () const { return *_ptr; }
+    T & operator*() const { return *_ptr; }
 
     /**
      * Checks if the managed pointer is not null
@@ -305,13 +289,13 @@ public:
      * Returns a pointer to a managed object
      * \return Pointer to the managed object
      */
-    T *get() const { return _ptr; }
+    T * get() const { return _ptr; }
 
     /**
      * Returns a pointer to the beginning of owned memory
      * \return Pointer to the beginning of owned memory
      */
-    T *getStartPtr() const { return _ownedPtr; }
+    T * getStartPtr() const { return _ownedPtr; }
 
     /**
      * Returns the number of shared_ptr objects referring to the same managed object
@@ -320,9 +304,9 @@ public:
     int useCount() const { return _refCount ? _refCount->get() : 0; }
 
 protected:
-    T *_ownedPtr;           /* Pointer to the beginning of the owned memory */
-    T *_ptr;                /* Pointer to return */
-    RefCounter *_refCount;  /* Reference count */
+    T * _ownedPtr;          /* Pointer to the beginning of the owned memory */
+    T * _ptr;               /* Pointer to return */
+    RefCounter * _refCount; /* Reference count */
 
     /**
     * Decreases the reference count
@@ -330,88 +314,84 @@ protected:
     */
     void _remove();
 
-    template<class U> friend class SharedPtr;
+    template <class U>
+    friend class SharedPtr;
 }; // class SharedPtr
 
-template<class T>
-template<class U>
-SharedPtr<T>::SharedPtr(const SharedPtr<U> &other) : _ownedPtr(other._ownedPtr), _ptr(other._ptr), _refCount(other._refCount)
+template <class T>
+template <class U>
+SharedPtr<T>::SharedPtr(const SharedPtr<U> & other) : _ownedPtr(other._ownedPtr), _ptr(other._ptr), _refCount(other._refCount)
 {
-    if(_refCount)
-        _refCount->inc();
+    if (_refCount) _refCount->inc();
 }
 
-template<class T>
-SharedPtr<T>::SharedPtr(const SharedPtr<T> &other) : _ownedPtr(other._ownedPtr), _ptr(other._ptr), _refCount(other._refCount)
+template <class T>
+SharedPtr<T>::SharedPtr(const SharedPtr<T> & other) : _ownedPtr(other._ownedPtr), _ptr(other._ptr), _refCount(other._refCount)
 {
-    if(_refCount)
-        _refCount->inc();
+    if (_refCount) _refCount->inc();
 }
 
-template<class T>
-SharedPtr<T>::SharedPtr(const SharedPtr<T> &other, T* shiftedPtr) : _ownedPtr(other._ownedPtr), _ptr(shiftedPtr), _refCount(other._refCount)
+template <class T>
+SharedPtr<T>::SharedPtr(const SharedPtr<T> & other, T * shiftedPtr) : _ownedPtr(other._ownedPtr), _ptr(shiftedPtr), _refCount(other._refCount)
 {
-    if(_refCount)
-        _refCount->inc();
+    if (_refCount) _refCount->inc();
 }
 
-template<class T>
-template<class U>
-SharedPtr<T>::SharedPtr(const SharedPtr<U> &other, T *ptr, T* shiftedPtr) : _ownedPtr(ptr), _ptr(shiftedPtr), _refCount(other._refCount)
+template <class T>
+template <class U>
+SharedPtr<T>::SharedPtr(const SharedPtr<U> & other, T * ptr, T * shiftedPtr) : _ownedPtr(ptr), _ptr(shiftedPtr), _refCount(other._refCount)
 {
-    if(_refCount)
-        _refCount->inc();
+    if (_refCount) _refCount->inc();
 }
 
-template<class T>
+template <class T>
 void SharedPtr<T>::_remove()
 {
-    if(_refCount && (_refCount->dec() <= 0))
+    if (_refCount && (_refCount->dec() <= 0))
     {
         (*_refCount)(_ownedPtr);
         delete _refCount;
-        _refCount   = NULL;
-        _ptr        = NULL;
+        _refCount = NULL;
+        _ptr      = NULL;
     }
 }
 
-template<class T>
-SharedPtr<T> &SharedPtr<T>::operator=(const SharedPtr<T> &ptr)
+template <class T>
+SharedPtr<T> & SharedPtr<T>::operator=(const SharedPtr<T> & ptr)
 {
     if (&ptr != this || ptr._ownedPtr != this->_ownedPtr || ptr._ptr != this->_ptr)
     {
         _remove();
         _ownedPtr = ptr._ownedPtr;
         _refCount = ptr._refCount;
-        _ptr = ptr._ptr;
-        if(_refCount)
-            _refCount->inc();
+        _ptr      = ptr._ptr;
+        if (_refCount) _refCount->inc();
     }
     return *this;
 }
 
-template<class T>
-template<class U>
-void SharedPtr<T>::reset(U* ptr)
+template <class T>
+template <class U>
+void SharedPtr<T>::reset(U * ptr)
 {
-    if(ptr != this->_ownedPtr)
+    if (ptr != this->_ownedPtr)
     {
         _remove();
         _ownedPtr = ptr;
-        _ptr = ptr;
+        _ptr      = ptr;
         _refCount = (ptr ? new RefCounterImp<ObjectDeleter<U> >() : NULL);
     }
 }
 
-template<class T>
-template<class U, class D>
-void SharedPtr<T>::reset(U* ptr, const D& deleter)
+template <class T>
+template <class U, class D>
+void SharedPtr<T>::reset(U * ptr, const D & deleter)
 {
-    if(ptr != this->_ownedPtr)
+    if (ptr != this->_ownedPtr)
     {
         _remove();
         _ownedPtr = ptr;
-        _ptr = ptr;
+        _ptr      = ptr;
         _refCount = (ptr ? new RefCounterImp<D>(deleter) : NULL);
     }
 }
@@ -421,11 +401,11 @@ void SharedPtr<T>::reset(U* ptr, const D& deleter)
  * using a cast expression. Both shared pointers share ownership of the managed object.
  * The managed object of the resulting SharedPtr is obtained by calling static_cast<T*>(r.get()).
  */
-template<class T, class U>
-SharedPtr<T> staticPointerCast(const SharedPtr<U> &r)
+template <class T, class U>
+SharedPtr<T> staticPointerCast(const SharedPtr<U> & r)
 {
-    T *shifted = static_cast<T *>(r.get());
-    T *start   = static_cast<T *>(r.getStartPtr());
+    T * shifted = static_cast<T *>(r.get());
+    T * start   = static_cast<T *>(r.getStartPtr());
     return SharedPtr<T>(r, start, shifted);
 }
 
@@ -434,11 +414,11 @@ SharedPtr<T> staticPointerCast(const SharedPtr<U> &r)
  * using a cast expression. Both shared pointers share ownership of the managed object.
  * The managed object of the resulting SharedPtr is obtained by calling reinterpret_cast<T*>(r.get()).
  */
-template<class T, class U>
-SharedPtr<T> reinterpretPointerCast(const SharedPtr<U> &r)
+template <class T, class U>
+SharedPtr<T> reinterpretPointerCast(const SharedPtr<U> & r)
 {
-    T *shifted = reinterpret_cast<T *>(r.get());
-    T *start   = reinterpret_cast<T *>(r.getStartPtr());
+    T * shifted = reinterpret_cast<T *>(r.get());
+    T * start   = reinterpret_cast<T *>(r.getStartPtr());
     return SharedPtr<T>(r, start, shifted);
 }
 
@@ -447,11 +427,11 @@ SharedPtr<T> reinterpretPointerCast(const SharedPtr<U> &r)
  * using a cast expression. Both shared pointers share ownership of the managed object.
  * The managed object of the resulting SharedPtr is obtained by calling dynamic_cast<T*>(r.get()).
  */
-template<class T, class U>
-SharedPtr<T> dynamicPointerCast(const SharedPtr<U> &r)
+template <class T, class U>
+SharedPtr<T> dynamicPointerCast(const SharedPtr<U> & r)
 {
-    T *shifted = dynamic_cast<T *>(r.get());
-    T *start   = dynamic_cast<T *>(r.getStartPtr());
+    T * shifted = dynamic_cast<T *>(r.get());
+    T * start   = dynamic_cast<T *>(r.getStartPtr());
     if (!r.get() || start)
     {
         return SharedPtr<T>(r, start, shifted);
@@ -474,7 +454,7 @@ using interface1::staticPointerCast;
 using interface1::dynamicPointerCast;
 using interface1::reinterpretPointerCast;
 
-} // namespace services;
+} // namespace services
 } // namespace daal
 
 #endif

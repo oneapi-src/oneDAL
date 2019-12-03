@@ -33,7 +33,7 @@ using namespace std;
 using namespace daal;
 using namespace data_management;
 
-string datasetFileName  = "../data/batch/logitboost_train.csv";
+string datasetFileName = "../data/batch/logitboost_train.csv";
 
 DataBlock sentDataStream;        /* Data stream to compress and send */
 DataBlock uncompressedDataBlock; /* Current block of data stream to compress */
@@ -44,14 +44,14 @@ queue<DataBlock> sendReceiveQueue; /* Queue for sending and receiving compressed
 
 const size_t maxDataBlockSize = 16384; /* Maximum size of a data block */
 
-bool getUncompressedDataBlock(DataBlock &block);
-void sendCompressedDataBlock(DataBlock &block);
-bool receiveCompressedDataBlock(DataBlock &block);
+bool getUncompressedDataBlock(DataBlock & block);
+void sendCompressedDataBlock(DataBlock & block);
+bool receiveCompressedDataBlock(DataBlock & block);
 void prepareMemory();
 void releaseMemory();
 void printCRC32();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     Compressor<zlib> compressor;
 
     /* Receive the next data block for compression */
-    while(getUncompressedDataBlock(uncompressedDataBlock))
+    while (getUncompressedDataBlock(uncompressedDataBlock))
     {
         /* Associate data to compress with the compressor */
         compressor.setInputDataBlock(uncompressedDataBlock);
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     Decompressor<zlib> decompressor;
 
     /* Receive compressed data by blocks */
-    while(receiveCompressedDataBlock(compressedDataBlock))
+    while (receiveCompressedDataBlock(compressedDataBlock))
     {
         /* Associate compressed data with the decompressor */
         decompressor.setInputDataBlock(compressedDataBlock);
@@ -110,32 +110,32 @@ int main(int argc, char *argv[])
 void prepareMemory()
 {
     /* Allocate sentDataStream and read an input file */
-    byte *data;
+    byte * data;
     sentDataStream.setSize(readTextFile(datasetFileName, &data));
     sentDataStream.setPtr(data);
 
-    byte *compressedData = (byte *)daal::services::daal_malloc(maxDataBlockSize);
+    byte * compressedData = (byte *)daal::services::daal_malloc(maxDataBlockSize);
     checkAllocation(compressedData);
     compressedDataBlock.setPtr(compressedData);
     compressedDataBlock.setSize(maxDataBlockSize);
 
-    byte *receivedData = (byte *)daal::services::daal_malloc(sentDataStream.getSize());
+    byte * receivedData = (byte *)daal::services::daal_malloc(sentDataStream.getSize());
     checkAllocation(receivedData);
     receivedDataStream.setPtr(receivedData);
 }
 
-bool getUncompressedDataBlock(DataBlock &block)
+bool getUncompressedDataBlock(DataBlock & block)
 {
     static size_t availableDataSize = sentDataStream.getSize();
 
     /* Calculate the current block size and ptr */
-    if(availableDataSize >= maxDataBlockSize)
+    if (availableDataSize >= maxDataBlockSize)
     {
         block.setSize(maxDataBlockSize);
         block.setPtr(sentDataStream.getPtr() + sentDataStream.getSize() - availableDataSize);
         availableDataSize -= maxDataBlockSize;
     }
-    else if((availableDataSize < maxDataBlockSize) && (availableDataSize > 0))
+    else if ((availableDataSize < maxDataBlockSize) && (availableDataSize > 0))
     {
         block.setSize(availableDataSize);
         block.setPtr(sentDataStream.getPtr() + sentDataStream.getSize() - availableDataSize);
@@ -149,12 +149,12 @@ bool getUncompressedDataBlock(DataBlock &block)
     return true;
 }
 
-void sendCompressedDataBlock(DataBlock &block)
+void sendCompressedDataBlock(DataBlock & block)
 {
     DataBlock currentBlock;
 
     /* Allocate memory for the current compressed block in the queue */
-    byte *currentPtr = (byte *)daal::services::daal_malloc(block.getSize());
+    byte * currentPtr = (byte *)daal::services::daal_malloc(block.getSize());
     checkAllocation(currentPtr);
     currentBlock.setPtr(currentPtr);
 
@@ -168,12 +168,12 @@ void sendCompressedDataBlock(DataBlock &block)
     return;
 }
 
-bool receiveCompressedDataBlock(DataBlock &block)
+bool receiveCompressedDataBlock(DataBlock & block)
 {
     DataBlock currentBlock;
 
     /* Stop at the end of the queue */
-    if(sendReceiveQueue.empty())
+    if (sendReceiveQueue.empty())
     {
         return false;
     }
@@ -193,11 +193,11 @@ bool receiveCompressedDataBlock(DataBlock &block)
 
 void printCRC32()
 {
-    unsigned int crcSentDataStream = 0;
+    unsigned int crcSentDataStream     = 0;
     unsigned int crcReceivedDataStream = 0;
 
     /* Compute checksums for full input data and full received data */
-    crcSentDataStream = getCRC32(sentDataStream.getPtr(), crcSentDataStream, sentDataStream.getSize());
+    crcSentDataStream     = getCRC32(sentDataStream.getPtr(), crcSentDataStream, sentDataStream.getSize());
     crcReceivedDataStream = getCRC32(receivedDataStream.getPtr(), crcReceivedDataStream, receivedDataStream.getSize());
 
     cout << endl << "Compression example program results:" << endl << endl;
@@ -221,16 +221,16 @@ void printCRC32()
 
 void releaseMemory()
 {
-    if(compressedDataBlock.getPtr())
+    if (compressedDataBlock.getPtr())
     {
         daal::services::daal_free(compressedDataBlock.getPtr());
     }
-    if(receivedDataStream.getPtr())
+    if (receivedDataStream.getPtr())
     {
         daal::services::daal_free(receivedDataStream.getPtr());
     }
-    if(sentDataStream.getPtr())
+    if (sentDataStream.getPtr())
     {
-        delete [] sentDataStream.getPtr();
+        delete[] sentDataStream.getPtr();
     }
 }

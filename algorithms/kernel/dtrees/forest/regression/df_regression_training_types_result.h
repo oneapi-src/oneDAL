@@ -32,29 +32,28 @@ namespace algorithms
 {
 namespace decision_forest
 {
-
 namespace regression
 {
 namespace training
 {
 namespace interface1
 {
-
 class Result::ResultImpl
 {
 public:
     ResultImpl() {}
-    ResultImpl(const ResultImpl& other)
+    ResultImpl(const ResultImpl & other)
     {
-        if(other._engine) _engine = other._engine->clone();
+        if (other._engine) _engine = other._engine->clone();
     }
 
     void setEngine(engines::EnginePtr engine) { _engine = engine; }
     engines::EnginePtr getEngine()
     {
-        if(!_engine) _engine = engines::mt2203::Batch<>::create();
+        if (!_engine) _engine = engines::mt2203::Batch<>::create();
         return _engine;
     }
+
 private:
     engines::EnginePtr _engine;
 };

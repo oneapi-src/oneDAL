@@ -19,6 +19,7 @@
 ##******************************************************************************
 
 DAAL  = datastructures_soa                    \
+        datastructures_usm                    \
         cor_dense_batch                       \
         cor_dense_online                      \
         lin_reg_norm_eq_dense_batch           \
@@ -30,4 +31,5 @@ DAAL  = datastructures_soa                    \
         kmeans_init_dense_batch               \
         low_order_moms_dense_batch            \
         low_order_moms_dense_online           \
-        gbt_reg_dense_batch
+        gbt_reg_dense_batch                   \
+        bf_knn_dense_batch

@@ -39,7 +39,6 @@ namespace optimization_solver
 {
 namespace logistic_loss
 {
-
 namespace interface1
 {
 /**
@@ -56,7 +55,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the Logistic loss objective function, double or float
  * \tparam method           the Logistic loss objective function computation method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -65,7 +64,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     DAAL_DEPRECATED_VIRTUAL virtual ~BatchContainer();
     /**
@@ -92,14 +91,14 @@ public:
  * \par References
  *      - \ref objective_function::interface1::Result "Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public sum_of_functions::interface1::Batch
 {
 public:
     typedef sum_of_functions::interface1::Batch super;
-    typedef algorithms::optimization_solver::logistic_loss::interface1::Input     InputType;
+    typedef algorithms::optimization_solver::logistic_loss::interface1::Input InputType;
     typedef algorithms::optimization_solver::logistic_loss::interface1::Parameter ParameterType;
-    typedef typename super::ResultType                                ResultType;
+    typedef typename super::ResultType ResultType;
 
     /**
      *  Main constructor
@@ -117,8 +116,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) :
-        sum_of_functions::interface1::Batch(other.parameter().numberOfTerms, &input, new ParameterType(other.parameter())), input(other.input)
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other)
+        : sum_of_functions::interface1::Batch(other.parameter().numberOfTerms, &input, new ParameterType(other.parameter())), input(other.input)
     {
         initialize();
     }
@@ -127,7 +126,7 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated the Logistic loss objective function algorithm with a copy of input objects
@@ -144,22 +143,19 @@ public:
      *
      * \return Status of computations
      */
-    DAAL_DEPRECATED services::Status allocate()
-    {
-        return allocateResult();
-    }
+    DAAL_DEPRECATED services::Status allocate() { return allocateResult(); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    DAAL_DEPRECATED ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    DAAL_DEPRECATED ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    DAAL_DEPRECATED const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    DAAL_DEPRECATED const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     *  Creates the instance of the class
@@ -169,27 +165,24 @@ public:
     DAAL_DEPRECATED static services::SharedPtr<Batch<algorithmFPType, method> > create(size_t numberOfTerms);
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, _par, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, _par, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = sumOfFunctionsParameter;
+        _in                  = &input;
+        _par                 = sumOfFunctionsParameter;
     }
 
 public:
-    InputType input;           /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 };
 /** @} */
 } // namespace interface1
@@ -210,7 +203,7 @@ namespace interface2
  * \tparam algorithmFPType  Data type to use in intermediate computations for the Logistic loss objective function, double or float
  * \tparam method           the Logistic loss objective function computation method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -219,7 +212,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
     /**
@@ -246,14 +239,14 @@ public:
  * \par References
  *      - \ref objective_function::interface1::Result "Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public sum_of_functions::Batch
 {
 public:
     typedef sum_of_functions::Batch super;
-    typedef algorithms::optimization_solver::logistic_loss::Input     InputType;
+    typedef algorithms::optimization_solver::logistic_loss::Input InputType;
     typedef algorithms::optimization_solver::logistic_loss::Parameter ParameterType;
-    typedef typename super::ResultType                                ResultType;
+    typedef typename super::ResultType ResultType;
 
     /**
      *  Main constructor
@@ -268,45 +261,39 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    Batch(const Batch<algorithmFPType, method> & other);
 
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated the Logistic loss objective function algorithm with a copy of input objects
      * of this the Logistic loss objective function algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
     /**
      * Allocates memory buffers needed for the computations
      *
      * \return Status of computations
      */
-    services::Status allocate()
-    {
-        return allocateResult();
-    }
+    services::Status allocate() { return allocateResult(); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
     *  Creates the instance of the class
@@ -316,27 +303,24 @@ public:
     static services::SharedPtr<Batch<algorithmFPType, method> > create(size_t numberOfTerms);
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, _par, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, _par, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = sumOfFunctionsParameter;
+        _in                  = &input;
+        _par                 = sumOfFunctionsParameter;
     }
 
 public:
-    InputType input;           /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 };
 /** @} */
 } // namespace interface2
@@ -346,6 +330,6 @@ using interface2::Batch;
 
 } // namespace logistic_loss
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

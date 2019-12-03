@@ -28,9 +28,9 @@
 
 /*workaround, use STD BZIP2 while Intel(R) IPP doesn't work,
 remove 1 after fix */
-#define CompressInit BZ2_bzCompressInit
-#define Compress     BZ2_bzCompress
-#define CompressEnd  BZ2_bzCompressEnd
+#define CompressInit   BZ2_bzCompressInit
+#define Compress       BZ2_bzCompress
+#define CompressEnd    BZ2_bzCompressEnd
 #define DecompressInit BZ2_bzDecompressInit1
 #define Decompress     BZ2_bzDecompress1
 #define DecompressEnd  BZ2_bzDecompressEnd1
@@ -40,7 +40,6 @@ namespace daal
 {
 namespace data_management
 {
-
 void Compressor<bzip2>::checkBZipError(int error)
 {
     switch (error)
@@ -57,8 +56,7 @@ void Compressor<bzip2>::checkBZipError(int error)
         finalizeCompression();
         this->_errors->add(services::ErrorBzip2Internal);
         return;
-    default:
-        break;
+    default: break;
     }
 }
 
@@ -78,13 +76,11 @@ void Decompressor<bzip2>::checkBZipError(int error)
         finalizeCompression();
         this->_errors->add(services::ErrorBzip2Internal);
         return;
-    default:
-        break;
+    default: break;
     }
 }
 
-Compressor<bzip2>::Compressor() :
-    data_management::CompressorImpl()
+Compressor<bzip2>::Compressor() : data_management::CompressorImpl()
 {
     _strmp = NULL;
     _strmp = (void *)daal::services::daal_calloc(sizeof(bz_stream));
@@ -95,9 +91,9 @@ Compressor<bzip2>::Compressor() :
     }
 
     ((bz_stream *)_strmp)->bzalloc = NULL;
-    ((bz_stream *)_strmp)->bzfree = NULL;
-    ((bz_stream *)_strmp)->opaque = NULL;
-    _flush = BZ_RUN;
+    ((bz_stream *)_strmp)->bzfree  = NULL;
+    ((bz_stream *)_strmp)->opaque  = NULL;
+    _flush                         = BZ_RUN;
 
     _blockSize100k = parameter.level;
     if (_blockSize100k == defaultLevel)
@@ -112,16 +108,16 @@ Compressor<bzip2>::Compressor() :
     int errCode = CompressInit((bz_stream *)_strmp, _blockSize100k, 0, 0);
     checkBZipError(errCode);
 
-    ((bz_stream *)_strmp)->avail_in = 0;
-    ((bz_stream *)_strmp)->next_in = NULL;
+    ((bz_stream *)_strmp)->avail_in  = 0;
+    ((bz_stream *)_strmp)->next_in   = NULL;
     ((bz_stream *)_strmp)->avail_out = 0;
-    ((bz_stream *)_strmp)->next_out = NULL;
+    ((bz_stream *)_strmp)->next_out  = NULL;
 
-    this->_isOutBlockFull = 0;
+    this->_isOutBlockFull   = 0;
     this->_usedOutBlockSize = 0;
 
-    _comprLen = 0;
-    _comprLenLeft = 0;
+    _comprLen        = 0;
+    _comprLenLeft    = 0;
     _comprBlockThres = _blockSize100k * 1024 * 97;
 
     _isInitialized = false;
@@ -145,20 +141,20 @@ void Compressor<bzip2>::initialize()
 Compressor<bzip2>::~Compressor()
 {
     (void)CompressEnd(((bz_stream *)_strmp));
-    if(_strmp) daal::services::daal_free(((bz_stream *)_strmp));
+    if (_strmp) daal::services::daal_free(((bz_stream *)_strmp));
     _strmp = NULL;
 }
 
 void Compressor<bzip2>::finalizeCompression()
 {
     (void)CompressEnd(((bz_stream *)_strmp));
-    this->_isOutBlockFull = 0;
-    this->_usedOutBlockSize = 0;
-    ((bz_stream *)_strmp)->avail_in = 0;
-    ((bz_stream *)_strmp)->next_in = NULL;
+    this->_isOutBlockFull            = 0;
+    this->_usedOutBlockSize          = 0;
+    ((bz_stream *)_strmp)->avail_in  = 0;
+    ((bz_stream *)_strmp)->next_in   = NULL;
     ((bz_stream *)_strmp)->avail_out = 0;
-    ((bz_stream *)_strmp)->next_out = NULL;
-    _flush = BZ_RUN;
+    ((bz_stream *)_strmp)->next_out  = NULL;
+    _flush                           = BZ_RUN;
 }
 
 void Compressor<bzip2>::resetCompression()
@@ -169,67 +165,67 @@ void Compressor<bzip2>::resetCompression()
     int errCode = CompressInit((bz_stream *)_strmp, _blockSize100k, 0, 0);
     checkBZipError(errCode);
 
-    ((bz_stream *)_strmp)->avail_in = 0;
-    ((bz_stream *)_strmp)->next_in = NULL;
+    ((bz_stream *)_strmp)->avail_in  = 0;
+    ((bz_stream *)_strmp)->next_in   = NULL;
     ((bz_stream *)_strmp)->avail_out = 0;
-    ((bz_stream *)_strmp)->next_out = NULL;
+    ((bz_stream *)_strmp)->next_out  = NULL;
 
-    _comprLen = 0;
-    _comprLenLeft = 0;
+    _comprLen        = 0;
+    _comprLenLeft    = 0;
     _comprBlockThres = _blockSize100k * 1024 * 97;
 
     _flush = BZ_RUN;
 }
 
-void Compressor<bzip2>::setInputDataBlock(byte *in, size_t len, size_t off)
+void Compressor<bzip2>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         return;
     }
 
-    if(_isInitialized == false)
+    if (_isInitialized == false)
     {
         initialize();
     }
 
     checkInputParams(in, len);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
-    _comprLen = len;
+    _comprLen     = len;
     _comprLenLeft = len;
-    _startAddr = in + off;
+    _startAddr    = in + off;
 
     ((bz_stream *)_strmp)->avail_in = _comprLenLeft > _comprBlockThres ? _comprBlockThres : _comprLenLeft;
-    ((bz_stream *)_strmp)->next_in = (char *)(_startAddr);
+    ((bz_stream *)_strmp)->next_in  = (char *)(_startAddr);
 }
 
-void Compressor<bzip2>::run(byte *out, size_t outLen, size_t off)
+void Compressor<bzip2>::run(byte * out, size_t outLen, size_t off)
 {
-    if(_isInitialized == false)
+    if (_isInitialized == false)
     {
         this->_errors->add(services::ErrorBzip2Internal);
     }
 
     checkOutputParams(out, outLen);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
     ((bz_stream *)_strmp)->avail_out = outLen;
-    ((bz_stream *)_strmp)->next_out = (char *)(out + off);
-    this->_isOutBlockFull = 0;
-    this->_usedOutBlockSize = 0;
+    ((bz_stream *)_strmp)->next_out  = (char *)(out + off);
+    this->_isOutBlockFull            = 0;
+    this->_usedOutBlockSize          = 0;
 
-    if(_comprLen > _comprBlockThres)
+    if (_comprLen > _comprBlockThres)
     {
-        if(_flush != BZ_FINISH) _flush = BZ_FLUSH;
+        if (_flush != BZ_FINISH) _flush = BZ_FLUSH;
 
         do
         {
@@ -239,22 +235,22 @@ void Compressor<bzip2>::run(byte *out, size_t outLen, size_t off)
             switch (errCode)
             {
             case BZ_RUN_OK:
-                {
+            {
                 size_t processedSize = _comprLenLeft > _comprBlockThres ? _comprBlockThres : _comprLenLeft;
                 _comprLenLeft -= processedSize;
 
-                if (_comprLenLeft/*((bz_stream *)_strmp)->avail_in*/ == 0)
+                if (_comprLenLeft /*((bz_stream *)_strmp)->avail_in*/ == 0)
                 {
                     _flush = BZ_FINISH;
                 }
                 else
                 {
-                    size_t sizeToCompress = _comprLenLeft > _comprBlockThres ? _comprBlockThres : _comprLenLeft;
+                    size_t sizeToCompress           = _comprLenLeft > _comprBlockThres ? _comprBlockThres : _comprLenLeft;
                     ((bz_stream *)_strmp)->avail_in = sizeToCompress;
-                    ((bz_stream *)_strmp)->next_in = (char *)(_startAddr + _comprLen - _comprLenLeft);
+                    ((bz_stream *)_strmp)->next_in  = (char *)(_startAddr + _comprLen - _comprLenLeft);
                 }
-                }
-                break;
+            }
+            break;
             case BZ_STREAM_END: //normal termination, reset and return
                 this->_usedOutBlockSize = outLen - ((bz_stream *)_strmp)->avail_out;
                 resetCompression();
@@ -263,7 +259,7 @@ void Compressor<bzip2>::run(byte *out, size_t outLen, size_t off)
                 if (((bz_stream *)_strmp)->avail_out == 0)
                 {
                     this->_usedOutBlockSize = outLen - ((bz_stream *)_strmp)->avail_out;
-                    this->_isOutBlockFull = 1;
+                    this->_isOutBlockFull   = 1;
                     return;
                 }
                 break;
@@ -271,20 +267,16 @@ void Compressor<bzip2>::run(byte *out, size_t outLen, size_t off)
                 if (((bz_stream *)_strmp)->avail_out == 0)
                 {
                     this->_usedOutBlockSize = outLen - ((bz_stream *)_strmp)->avail_out;
-                    this->_isOutBlockFull = 1;
+                    this->_isOutBlockFull   = 1;
                     return;
                 }
                 break;
-            default:
-                finalizeCompression();
-                this->_errors->add(services::ErrorBzip2Internal);
+            default: finalizeCompression(); this->_errors->add(services::ErrorBzip2Internal);
             }
-        }
-        while (((bz_stream *)_strmp)->avail_out > 0);
+        } while (((bz_stream *)_strmp)->avail_out > 0);
 
         this->_usedOutBlockSize = outLen;
-        this->_isOutBlockFull = 1;
-
+        this->_isOutBlockFull   = 1;
     }
     else
     {
@@ -309,24 +301,20 @@ void Compressor<bzip2>::run(byte *out, size_t outLen, size_t off)
                 if (((bz_stream *)_strmp)->avail_out == 0)
                 {
                     this->_usedOutBlockSize = outLen - ((bz_stream *)_strmp)->avail_out;
-                    this->_isOutBlockFull = 1;
+                    this->_isOutBlockFull   = 1;
                     return;
                 }
                 break;
-            default:
-                finalizeCompression();
-                this->_errors->add(services::ErrorBzip2Internal);
+            default: finalizeCompression(); this->_errors->add(services::ErrorBzip2Internal);
             }
-        }
-        while (((bz_stream *)_strmp)->avail_out > 0);
+        } while (((bz_stream *)_strmp)->avail_out > 0);
 
         this->_usedOutBlockSize = outLen;
-        this->_isOutBlockFull = 1;
+        this->_isOutBlockFull   = 1;
     }
 }
 
-Decompressor<bzip2>::Decompressor() :
-    data_management::DecompressorImpl()
+Decompressor<bzip2>::Decompressor() : data_management::DecompressorImpl()
 {
     _strmp = NULL;
     _strmp = (void *)daal::services::daal_calloc(sizeof(bz_stream));
@@ -336,17 +324,16 @@ Decompressor<bzip2>::Decompressor() :
     }
 
     ((bz_stream *)_strmp)->bzalloc = NULL;
-    ((bz_stream *)_strmp)->bzfree = NULL;
-    ((bz_stream *)_strmp)->opaque = NULL;
-
+    ((bz_stream *)_strmp)->bzfree  = NULL;
+    ((bz_stream *)_strmp)->opaque  = NULL;
 
     int errCode = DecompressInit((bz_stream *)_strmp, 0, 0);
     checkBZipError(errCode);
 
-    ((bz_stream *)_strmp)->avail_in = 0;
-    ((bz_stream *)_strmp)->next_in = NULL;
+    ((bz_stream *)_strmp)->avail_in  = 0;
+    ((bz_stream *)_strmp)->next_in   = NULL;
     ((bz_stream *)_strmp)->avail_out = 0;
-    ((bz_stream *)_strmp)->next_out = NULL;
+    ((bz_stream *)_strmp)->next_out  = NULL;
 
     if (errCode != BZ_OK && this->_errors->size() == 0)
     {
@@ -354,9 +341,8 @@ Decompressor<bzip2>::Decompressor() :
         return;
     }
     this->_isOutBlockFull = 0;
-    _isInitialized = true;
+    _isInitialized        = true;
 }
-
 
 Decompressor<bzip2>::~Decompressor()
 {
@@ -368,11 +354,11 @@ Decompressor<bzip2>::~Decompressor()
 void Decompressor<bzip2>::finalizeCompression()
 {
     (void)DecompressEnd(((bz_stream *)_strmp));
-    this->_isOutBlockFull = 0;
-    ((bz_stream *)_strmp)->avail_in = 0;
-    ((bz_stream *)_strmp)->next_in = NULL;
+    this->_isOutBlockFull            = 0;
+    ((bz_stream *)_strmp)->avail_in  = 0;
+    ((bz_stream *)_strmp)->next_in   = NULL;
     ((bz_stream *)_strmp)->avail_out = 0;
-    ((bz_stream *)_strmp)->next_out = NULL;
+    ((bz_stream *)_strmp)->next_out  = NULL;
 }
 
 void Decompressor<bzip2>::resetCompression()
@@ -383,10 +369,10 @@ void Decompressor<bzip2>::resetCompression()
     int errCode = DecompressInit((bz_stream *)_strmp, 0, 0);
     checkBZipError(errCode);
 
-    ((bz_stream *)_strmp)->avail_in = 0;
-    ((bz_stream *)_strmp)->next_in = NULL;
+    ((bz_stream *)_strmp)->avail_in  = 0;
+    ((bz_stream *)_strmp)->next_in   = NULL;
     ((bz_stream *)_strmp)->avail_out = 0;
-    ((bz_stream *)_strmp)->next_out = NULL;
+    ((bz_stream *)_strmp)->next_out  = NULL;
 }
 
 void Decompressor<bzip2>::initialize()
@@ -394,37 +380,37 @@ void Decompressor<bzip2>::initialize()
     _isInitialized = true;
 }
 
-void Decompressor<bzip2>::setInputDataBlock(byte *in, size_t len, size_t off)
+void Decompressor<bzip2>::setInputDataBlock(byte * in, size_t len, size_t off)
 {
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         return;
     }
 
     checkInputParams(in, len);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
     ((bz_stream *)_strmp)->avail_in = len;
-    ((bz_stream *)_strmp)->next_in = (char *)(in + off);
+    ((bz_stream *)_strmp)->next_in  = (char *)(in + off);
 }
 
-void Decompressor<bzip2>::run(byte *out, size_t outLen, size_t off)
+void Decompressor<bzip2>::run(byte * out, size_t outLen, size_t off)
 {
     checkOutputParams(out, outLen);
-    if(this->_errors->size() != 0)
+    if (this->_errors->size() != 0)
     {
         finalizeCompression();
         return;
     }
 
     ((bz_stream *)_strmp)->avail_out = outLen;
-    ((bz_stream *)_strmp)->next_out = (char *)(out + off);
-    this->_isOutBlockFull = 0;
-    this->_usedOutBlockSize = 0;
+    ((bz_stream *)_strmp)->next_out  = (char *)(out + off);
+    this->_isOutBlockFull            = 0;
+    this->_usedOutBlockSize          = 0;
     do
     {
         int errCode = Decompress((bz_stream *)_strmp);
@@ -433,16 +419,16 @@ void Decompressor<bzip2>::run(byte *out, size_t outLen, size_t off)
         {
         case BZ_STREAM_END: //normal termination, reset and return
             this->_usedOutBlockSize = outLen - ((bz_stream *)_strmp)->avail_out;
-            this->_isOutBlockFull = 0;
-            if(((bz_stream *)_strmp)->avail_in > 0)
+            this->_isOutBlockFull   = 0;
+            if (((bz_stream *)_strmp)->avail_in > 0)
             {
-                byte *tmpPtrIn = (byte *)((bz_stream *)_strmp)->next_in;
-                size_t tmpSizeIn = ((bz_stream *)_strmp)->avail_in;
-                byte *tmpPtrOut = (byte *)((bz_stream *)_strmp)->next_out;
+                byte * tmpPtrIn   = (byte *)((bz_stream *)_strmp)->next_in;
+                size_t tmpSizeIn  = ((bz_stream *)_strmp)->avail_in;
+                byte * tmpPtrOut  = (byte *)((bz_stream *)_strmp)->next_out;
                 size_t tmpSizeOut = ((bz_stream *)_strmp)->avail_out;
                 resetCompression();
                 setInputDataBlock(tmpPtrIn, tmpSizeIn, 0);
-                ((bz_stream *)_strmp)->next_out = (char *)tmpPtrOut;
+                ((bz_stream *)_strmp)->next_out  = (char *)tmpPtrOut;
                 ((bz_stream *)_strmp)->avail_out = tmpSizeOut;
             }
             else
@@ -452,28 +438,19 @@ void Decompressor<bzip2>::run(byte *out, size_t outLen, size_t off)
             break;
         case BZ_OK: //need more output or input
             this->_usedOutBlockSize = outLen - ((bz_stream *)_strmp)->avail_out;
-            this->_isOutBlockFull = 0;
+            this->_isOutBlockFull   = 0;
             if (((bz_stream *)_strmp)->avail_out < 1)
             {
                 this->_isOutBlockFull = 1;
             }
             return;
         case BZ_DATA_ERROR:
-        case BZ_DATA_ERROR_MAGIC:
-            finalizeCompression();
-            this->_errors->add(services::ErrorBzip2DataFormat);
-        case BZ_PARAM_ERROR:
-            finalizeCompression();
-            this->_errors->add(services::ErrorBzip2Parameters);
-        case BZ_MEM_ERROR:
-            finalizeCompression();
-            this->_errors->add(services::ErrorBzip2MemoryAllocationFailed);
-        default:
-            finalizeCompression();
-            this->_errors->add(services::ErrorBzip2Internal);
+        case BZ_DATA_ERROR_MAGIC: finalizeCompression(); this->_errors->add(services::ErrorBzip2DataFormat);
+        case BZ_PARAM_ERROR: finalizeCompression(); this->_errors->add(services::ErrorBzip2Parameters);
+        case BZ_MEM_ERROR: finalizeCompression(); this->_errors->add(services::ErrorBzip2MemoryAllocationFailed);
+        default: finalizeCompression(); this->_errors->add(services::ErrorBzip2Internal);
         }
-    }
-    while(((bz_stream *)_strmp)->avail_in > 0);
+    } while (((bz_stream *)_strmp)->avail_in > 0);
 }
 } //namespace data_management
 } //namespace daal

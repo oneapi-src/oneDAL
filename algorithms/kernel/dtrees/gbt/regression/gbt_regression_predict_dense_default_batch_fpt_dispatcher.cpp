@@ -48,14 +48,14 @@ Batch<DAAL_FPTYPE, gbt::regression::prediction::defaultDense>::Batch()
 
 using BatchType = Batch<DAAL_FPTYPE, gbt::regression::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, gbt::regression::prediction::defaultDense>::Batch(const BatchType &other) : input(other.input)
+Batch<DAAL_FPTYPE, gbt::regression::prediction::defaultDense>::Batch(const BatchType & other) : input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
-}
-}
-}
-}
-}
+} // namespace interface1
+} // namespace prediction
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal

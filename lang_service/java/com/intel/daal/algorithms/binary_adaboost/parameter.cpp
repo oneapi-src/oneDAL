@@ -24,26 +24,25 @@
 using namespace daal;
 using namespace daal::algorithms;
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_Parameter_cSetAccuracyThreshold
-(JNIEnv *env, jobject thisObj, jlong parAddr, jdouble acc)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_Parameter_cSetAccuracyThreshold(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                       jdouble acc)
 {
     (*(adaboost::interface1::Parameter *)parAddr).accuracyThreshold = acc;
 }
 
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_Parameter_cGetAccuracyThreshold
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_Parameter_cGetAccuracyThreshold(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong parAddr)
 {
-    return(jdouble)(*(adaboost::interface1::Parameter *)parAddr).accuracyThreshold;
+    return (jdouble)(*(adaboost::interface1::Parameter *)parAddr).accuracyThreshold;
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_Parameter_cSetMaxIterations
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong nIter)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_Parameter_cSetMaxIterations(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                   jlong nIter)
 {
     (*(adaboost::interface1::Parameter *)parAddr).maxIterations = nIter;
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_Parameter_cGetMaxIterations
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_binary_1adaboost_Parameter_cGetMaxIterations(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
-    return(jlong)(*(adaboost::interface1::Parameter *)parAddr).maxIterations;
+    return (jlong)(*(adaboost::interface1::Parameter *)parAddr).maxIterations;
 }

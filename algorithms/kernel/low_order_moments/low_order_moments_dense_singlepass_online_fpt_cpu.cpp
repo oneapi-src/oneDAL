@@ -38,6 +38,6 @@ namespace internal
 {
 template class LowOrderMomentsOnlineKernel<DAAL_FPTYPE, singlePassDense, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace low_order_moments
+} // namespace algorithms
+} // namespace daal

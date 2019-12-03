@@ -47,14 +47,13 @@ namespace prediction
  */
 enum Method
 {
-    defaultDense = 0,           /*!< Default: Prediction method for the multi-class classifier proposed by Ting-Fan Wu et al. */
+    defaultDense           = 0, /*!< Default: Prediction method for the multi-class classifier proposed by Ting-Fan Wu et al. */
     multiClassClassifierWu = 0, /*!< Prediction method for the multi-class classifier proposed by Ting-Fan Wu et al. */
-    voteBased = 1               /*!< Prediction method that is based on votes returned by two-class classifiers */
+    voteBased              = 1  /*!< Prediction method that is based on votes returned by two-class classifiers */
 };
 
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the Multi-class classifier algorithm
@@ -62,9 +61,10 @@ namespace interface1
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
     typedef classifier::prediction::Input super;
+
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
     virtual ~Input() {}
 
     using super::get;
@@ -89,14 +89,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the Multi-class classifier algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const multi_class_classifier::ModelPtr &ptr);
+    void set(classifier::prediction::ModelInputId id, const multi_class_classifier::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
@@ -105,7 +105,7 @@ public:
      *
      * \return Status of computation
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace interface1

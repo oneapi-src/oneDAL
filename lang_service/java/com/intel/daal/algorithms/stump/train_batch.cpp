@@ -31,8 +31,7 @@ using namespace daal::algorithms::stump::training;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_training_TrainingBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_training_TrainingBatch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<stump::training::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -42,8 +41,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_training_TrainingBa
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_training_TrainingBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_training_TrainingBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                           jint method)
 {
     return jniBatch<stump::training::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

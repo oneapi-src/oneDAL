@@ -32,7 +32,6 @@ namespace features
 {
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-DATA_MANAGEMENT__FEATUREINDICESIFACE"></a>
  * \brief Abstract class that defines interface for mapping feature id to feature index
@@ -40,7 +39,7 @@ namespace interface1
 class FeatureIdMappingIface
 {
 public:
-    virtual ~FeatureIdMappingIface() { }
+    virtual ~FeatureIdMappingIface() {}
 
     /**
      * Gets the number of features
@@ -60,7 +59,7 @@ public:
      * \return     Feature index for specified key. If key is not
      *             found method returns FeatureIndexTraits::invalid()
      */
-    virtual FeatureIndex getIndexByKey(const services::String &key) const = 0;
+    virtual FeatureIndex getIndexByKey(const services::String & key) const = 0;
 };
 typedef services::SharedPtr<FeatureIdMappingIface> FeatureIdMappingIfacePtr;
 
@@ -69,7 +68,8 @@ typedef services::SharedPtr<FeatureIdMappingIface> FeatureIdMappingIfacePtr;
  * \brief Base class that partially implements feature mapping interface,
  *        intended for inheritance form the user side
  */
-class FeatureIdMapping : public Base, public FeatureIdMappingIface { };
+class FeatureIdMapping : public Base, public FeatureIdMappingIface
+{};
 typedef services::SharedPtr<FeatureIdMapping> FeatureIdMappingPtr;
 
 /**
@@ -79,7 +79,7 @@ typedef services::SharedPtr<FeatureIdMapping> FeatureIdMappingPtr;
 class FeatureIdIface
 {
 public:
-    virtual ~FeatureIdIface() { }
+    virtual ~FeatureIdIface() {}
 
     /**
      * Maps feature id to the respective feature index using given feature mapping
@@ -88,8 +88,7 @@ public:
      * \return Feature index for the given feature id. If key is not found
      *         method returns FeatureIndexTraits::invalid()
      */
-    virtual FeatureIndex mapToIndex(const FeatureIdMappingIface &mapping,
-                                    services::Status *status = NULL) = 0;
+    virtual FeatureIndex mapToIndex(const FeatureIdMappingIface & mapping, services::Status * status = NULL) = 0;
 };
 typedef services::SharedPtr<FeatureIdIface> FeatureIdIfacePtr;
 
@@ -98,7 +97,8 @@ typedef services::SharedPtr<FeatureIdIface> FeatureIdIfacePtr;
  * \brief Base class that partially implements abstract feature id,
  *        intended for inheritance form user side
  */
-class FeatureId : public Base, public FeatureIdIface { };
+class FeatureId : public Base, public FeatureIdIface
+{};
 typedef services::SharedPtr<FeatureId> FeatureIdPtr;
 
 /**
@@ -108,7 +108,7 @@ typedef services::SharedPtr<FeatureId> FeatureIdPtr;
 class FeatureIdCollectionIface
 {
 public:
-    virtual ~FeatureIdCollectionIface() { }
+    virtual ~FeatureIdCollectionIface() {}
 
     /**
      * Maps collection of feature ids to the respective collection
@@ -117,8 +117,7 @@ public:
      * \param[out] status   The status
      * \return Shared pointer to the collection of feature indices
      */
-    virtual FeatureIndicesIfacePtr mapToFeatureIndices(const FeatureIdMappingIface &mapping,
-                                                       services::Status *status = NULL) = 0;
+    virtual FeatureIndicesIfacePtr mapToFeatureIndices(const FeatureIdMappingIface & mapping, services::Status * status = NULL) = 0;
 };
 typedef services::SharedPtr<FeatureIdCollectionIface> FeatureIdCollectionIfacePtr;
 
@@ -127,7 +126,8 @@ typedef services::SharedPtr<FeatureIdCollectionIface> FeatureIdCollectionIfacePt
  * \brief Base class that partially implements abstract feature id collection,
  *        intended for inheritance form user side
  */
-class FeatureIdCollection : public Base, public FeatureIdCollectionIface { };
+class FeatureIdCollection : public Base, public FeatureIdCollectionIface
+{};
 typedef services::SharedPtr<FeatureIdCollection> FeatureIdCollectionPtr;
 
 } // namespace interface1

@@ -29,4 +29,4 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(low_order_moments::BatchContainer, batch, DAAL_FPTYPE, low_order_moments::defaultDense)
 }
-}
+} // namespace daal
