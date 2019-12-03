@@ -52,7 +52,6 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
                                                                           const NumericTablePtr & y, logistic_regression::Model & m, Result & res,
                                                                           const Parameter & par)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     services::Status status;
 
     const size_t p     = x->getNumberOfColumns();
@@ -106,8 +105,6 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     }
     else
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.multiclassInit);
-
         const algorithmFPType initialVal = algorithmFPType(1e-3);
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, initialVal, argumentBuff, nClasses, p));
     }
@@ -116,7 +113,6 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     pSolver->getInput()->set(optimization_solver::iterative_solver::inputArgument, argumentSNT);
 
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.solver);
         DAAL_CHECK_STATUS(status, pSolver->computeNoThrow());
     }
 
@@ -142,7 +138,6 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
 
     data_management::NumericTablePtr betaNT = m.getBeta();
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.copyBeta);
         BlockDescriptor<algorithmFPType> dataRows;
 
         DAAL_CHECK_STATUS(status, betaNT->getBlockOfRows(0, nBetaRows, ReadWriteMode::writeOnly, dataRows));

@@ -109,10 +109,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
     args.set(8, alpha);
 
     KernelRange range(nBeta * nClasses, nBeta * nClasses);
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(applyHessian.run);
-        ctx.run(range, kernel, args, &status);
-    }
+    ctx.run(range, kernel, args, &status);
 
     return status;
 }
@@ -143,10 +140,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
 
     KernelRange range(n);
 
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(softmax.run);
-        ctx.run(range, kernel, args, &status);
-    }
+    ctx.run(range, kernel, args, &status);
 
     return status;
 }
@@ -157,7 +151,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
                                                                                                     services::Buffer<algorithmFPType> & result,
                                                                                                     const uint32_t n, const uint32_t nClasses)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(softmax);
+    DAAL_ITTNOTIFY_SCOPED_TASK(softmaxAndUpdateProba);
     services::Status status;
 
     ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -179,10 +173,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
 
     KernelRange range(n);
 
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(softmax.run);
-        ctx.run(range, kernel, args, &status);
-    }
+    ctx.run(range, kernel, args, &status);
 
     return status;
 }
@@ -243,7 +234,6 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::up
 
     KernelRange range(n);
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(updateProba.run);
         ctx.run(range, kernel, args, &status);
     }
 
@@ -267,7 +257,6 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
     NumericTable * gradientNT, NumericTable * hessianNT, NumericTable * nonSmoothTermValueNT, NumericTable * proximalProjectionNT,
     NumericTable * lipschitzConstantNT, const algorithmFPType l1reg, const algorithmFPType l2reg, const bool interceptFlag, const bool isSourceData)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(doCompute);
     services::Status status;
 
     ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -341,7 +330,6 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::do
 
     if (gradientNT)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(doCompute.gradientNT);
         DAAL_ASSERT(gradientNT->getNumberOfRows() == nClasses * nBeta);
 
         BlockDescriptor<algorithmFPType> gr;
@@ -400,7 +388,6 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::co
                                                                                       NumericTable * proximalProjectionNT,
                                                                                       NumericTable * lipschitzConstantNT, Parameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     services::Status status;
 
     const size_t nRows    = data->getNumberOfRows();
@@ -422,7 +409,6 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::co
 
     if (ntInd == nullptr || (ntInd != nullptr && ntInd->getNumberOfColumns() == nRows))
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.sourceData);
         BlockDescriptor<algorithmFPType> xBlock;
         BlockDescriptor<algorithmFPType> yBlock;
 
@@ -444,7 +430,6 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::co
     }
     else
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.chunkData);
         const size_t nBatch = ntInd->getNumberOfColumns();
 
         DAAL_CHECK_STATUS(status, HelperObjectiveFunction::lazyAllocate(_uX, nBatch * nBeta));
@@ -467,7 +452,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::co
         DAAL_CHECK_STATUS(status, dependentVariables->getBlockOfRows(0, nRows, ReadWriteMode::readOnly, yBlock));
 
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.chunkData.getXY);
+            DAAL_ITTNOTIFY_SCOPED_TASK(getXY);
             DAAL_CHECK_STATUS(status, HelperObjectiveFunction::getXY(xBlock.getBuffer(), yBlock.getBuffer(), indBuff, xBuff, yBuff, nBatch, p,
                                                                      parameter->interceptFlag));
         }

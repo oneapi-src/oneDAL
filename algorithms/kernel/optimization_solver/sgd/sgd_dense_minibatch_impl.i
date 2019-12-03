@@ -112,7 +112,7 @@ services::Status SGDKernel<algorithmFPType, miniBatch, cpu>::compute(HostAppIfac
             consCoeff    = task.consCoeffsArray[(epoch / L) % task.consCoeffsLength];
             if (task.indicesStatus == user || task.indicesStatus == random)
             {
-                DAAL_ITTNOTIFY_SCOPED_TASK(compute.generate_random_indexes);
+                DAAL_ITTNOTIFY_SCOPED_TASK(generateUniform);
                 const int * pValues = nullptr;
                 s                   = rngTask.get(pValues);
                 DAAL_CHECK_BREAK(!s);
@@ -166,7 +166,7 @@ template <typename algorithmFPType, CpuType cpu>
 void SGDMiniBatchTask<algorithmFPType, cpu>::makeStep(const algorithmFPType * gradient, algorithmFPType learningRate, algorithmFPType consCoeff,
                                                       size_t argumentSize)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(make_step);
+    DAAL_ITTNOTIFY_SCOPED_TASK(makeStep);
 
     algorithmFPType * workValue = mtWorkValue.get();
     for (size_t j = 0; j < argumentSize; j++)

@@ -83,7 +83,7 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::applyBetaThreaded(con
                                                                              algorithmFPType * xb, size_t nRows, size_t nClasses, size_t nCols,
                                                                              bool bIntercept)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(apply_beta);
+    DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
     applyBetaImpl<algorithmFPType, cpu>(x, beta, xb, nRows, nClasses, nCols, bIntercept, true);
 }
 
@@ -131,7 +131,7 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmaxThreaded(const algorithmFPType * arg, algorithmFPType * res, size_t nRows,
                                                                            size_t nCols)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute_softmax);
+    DAAL_ITTNOTIFY_SCOPED_TASK(softmax);
 
     const size_t nRowsInBlockDefault = 500;
     const size_t nRowsInBlock        = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
@@ -346,7 +346,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
         if (gradientNT)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute_gradient);
+            DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
 
             const algorithmFPType * pp = f.get();
             DAAL_ASSERT(gradientNT->getNumberOfRows() == nBeta);
