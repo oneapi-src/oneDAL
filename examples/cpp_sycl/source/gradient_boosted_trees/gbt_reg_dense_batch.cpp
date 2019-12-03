@@ -127,8 +127,8 @@ void loadData(const std::string& fileName, NumericTablePtr& pData, NumericTableP
         DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for training data and dependent variables */
-    pData.reset(new SyclHomogenNumericTable<>(nFeatures, 0, NumericTable::notAllocate));
-    pDependentVar.reset(new SyclHomogenNumericTable<>(1, 0, NumericTable::notAllocate));
+    pData = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
+    pDependentVar = SyclHomogenNumericTable<>::create(1, 0, NumericTable::notAllocate);
     NumericTablePtr mergedData(new MergedNumericTable(pData, pDependentVar));
 
     /* Retrieve the data from input file */
