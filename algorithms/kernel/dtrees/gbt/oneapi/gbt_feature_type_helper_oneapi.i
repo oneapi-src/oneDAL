@@ -20,6 +20,8 @@
 //  GPU-dependent initialization of service data structure
 //--
 */
+#include "dtrees_feature_type_helper.h"
+
 #include "service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(gbt.common.oneapi);
@@ -383,7 +385,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
                                                                      UniversalBuffer& bins,
                                                                      FeatureEntry& entry,
                                                                      int nRows,
-                                                                     const BinParams* pBinPrm)
+                                                                     const dtrees::internal::BinParams* pBinPrm)
 {
     services::Status status;
 
@@ -436,7 +438,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const service
                                                                    int featureId,
                                                                    int nFeatures,
                                                                    int nRows,
-                                                                   const BinParams* pBinPrm,
+                                                                   const dtrees::internal::BinParams* pBinPrm,
                                                                    UniversalBuffer& bins,
                                                                    FeatureEntry& entry)
 {
@@ -481,8 +483,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
 }
 
 template <typename algorithmFPType>
-services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable& nt, const FeatureTypes* featureTypes,
-    const BinParams* pBinPrm)
+services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable& nt, const dtrees::internal::FeatureTypes* featureTypes,
+    const dtrees::internal::BinParams* pBinPrm)
 {
     dtrees::internal::FeatureTypes autoFT;
     if(!featureTypes)
