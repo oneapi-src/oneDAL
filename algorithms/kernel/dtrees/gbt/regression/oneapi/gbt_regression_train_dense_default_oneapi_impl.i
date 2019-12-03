@@ -25,18 +25,14 @@
 #ifndef __GBT_REGRESSION_TRAIN_DENSE_DEFAULT_ONEAPI_IMPL_I__
 #define __GBT_REGRESSION_TRAIN_DENSE_DEFAULT_ONEAPI_IMPL_I__
 
-#include "gbt_regression_train_kernel.h"
-#include "gbt_regression_model_impl.h"
-#include "gbt_train_dense_default_impl.i"
-#include "gbt_train_tree_builder.i"
 #include "oneapi/gbt_feature_type_helper_oneapi.i"
 
+#include "service_ittnotify.h"
 #include "services/buffer.h"
 #include "numeric_table.h"
 #include "env_detect.h"
 #include "error_indexes.h"
 #include "cl_kernels/gbt_batch_regression_kernels.cl"
-#include "service_ittnotify.h"
 #include "service_data_utils.h"
 #include "service_algo_utils.h"
 #include "oneapi/service_defines_oneapi.h"
@@ -1041,7 +1037,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         HomogenNumericTable<double> *pTblImp     = new HomogenNumericTable<double>(1, nNodes, NumericTable::doAllocate);
         HomogenNumericTable<int>    *pTblSmplCnt = new HomogenNumericTable<int>(1, nNodes, NumericTable::doAllocate);
 
-        connector.convertToGbtDecisionTree<sse2>(binValues.data(), nNodes, maxLevel, pTbl, pTblImp->getArray(), pTblSmplCnt->getArray(), initResp, par);
+        connector.template convertToGbtDecisionTree<sse2>(binValues.data(), nNodes, maxLevel, pTbl, pTblImp->getArray(), pTblSmplCnt->getArray(), initResp, par);
         modelImpl.add(pTbl, pTblImp, pTblSmplCnt);
 
         initResp = 0.0;

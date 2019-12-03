@@ -108,19 +108,19 @@ public:
             return services::SharedPtr<AOSNumericTable>();
         }
 
-        table->setFeature<TableRecordType::FeatureType> ( 0, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureValue    ));
-        table->setFeature<int>                          ( 1, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureIdx      ));
-        table->setFeature<char>                         ( 2, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureUnordered));
-        table->setFeature<TableRecordType::ResponseType>( 3, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, response        ));
-        table->setFeature<size_t>                       ( 4, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, level           ));
-        table->setFeature<size_t>                       ( 5, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nid             ));
-        table->setFeature<size_t>                       ( 6, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, n               ));
-        table->setFeature<size_t>                       ( 7, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, iStart          ));
-        table->setFeature<char>                         ( 8, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nodeState       ));
-        table->setFeature<char>                         ( 9, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, isFinalized     ));
-        table->setFeature<algorithmFPType>              (10, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, gTotal          ));
-        table->setFeature<algorithmFPType>              (11, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, hTotal          ));
-        table->setFeature<size_t>                       (12, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nTotal          ));
+        table->template setFeature<TableRecordType::FeatureType> ( 0, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureValue    ));
+        table->template setFeature<int>                          ( 1, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureIdx      ));
+        table->template setFeature<char>                         ( 2, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, featureUnordered));
+        table->template setFeature<TableRecordType::ResponseType>( 3, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, response        ));
+        table->template setFeature<size_t>                       ( 4, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, level           ));
+        table->template setFeature<size_t>                       ( 5, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nid             ));
+        table->template setFeature<size_t>                       ( 6, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, n               ));
+        table->template setFeature<size_t>                       ( 7, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, iStart          ));
+        table->template setFeature<char>                         ( 8, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nodeState       ));
+        table->template setFeature<char>                         ( 9, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, isFinalized     ));
+        table->template setFeature<algorithmFPType>              (10, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, gTotal          ));
+        table->template setFeature<algorithmFPType>              (11, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, hTotal          ));
+        table->template setFeature<size_t>                       (12, DAAL_STRUCT_MEMBER_OFFSET(TableRecordType, nTotal          ));
 
         table->allocateDataMemory();
 

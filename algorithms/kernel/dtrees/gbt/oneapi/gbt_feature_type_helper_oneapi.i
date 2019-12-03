@@ -67,7 +67,7 @@ IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::~FeatureEntry()
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBorders()
 {
-    auto& context = oneapi::internal::getDefaultContext();
+    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
     services::Status status;
 
     binBorders = context.allocate(TypeIds::id<algorithmFPType>(), numIndices, &status);
@@ -559,8 +559,8 @@ services::Status TreeNodeStorage::allocate(const gbt::internal::IndexedFeaturesO
 }
 
 template<typename algorithmFPType>
-BestSplitOneAPI<algorithmFPType>::BestSplitOneAPI<algorithmFPType>() : _impurityDecrease(-services::internal::MaxVal<algorithmFPType>::get()), _featureIndex(-1), _featureValue(0),
-                                                                       _leftGTotal(0.0), _leftHTotal(0.0), _rightGTotal(0.0), _rightHTotal(0.0) { }
+BestSplitOneAPI<algorithmFPType>::BestSplitOneAPI() : _impurityDecrease(-services::internal::MaxVal<algorithmFPType>::get()), _featureIndex(-1), _featureValue(0),
+                                                      _leftGTotal(0.0), _leftHTotal(0.0), _rightGTotal(0.0), _rightHTotal(0.0) { }
 
 } /* namespace internal */
 } /* namespace dtrees */
