@@ -47,12 +47,9 @@ services::Status CovarianceDenseBatchKernelOneAPI<algorithmFPType, method>::comp
 
     services::Status status;
 
-    auto & context = Environment::getInstance()->getDefaultExecutionContext();
-
     const size_t nFeatures              = dataTable->getNumberOfColumns();
     const size_t nVectors               = dataTable->getNumberOfRows();
     const algorithmFPType nObservations = static_cast<algorithmFPType>(nVectors);
-    const bool isNormalized             = dataTable->isNormalized(NumericTableIface::standardScoreNormalized);
 
     BlockDescriptor<algorithmFPType> dataBlock;
     BlockDescriptor<algorithmFPType> sumBlock;
