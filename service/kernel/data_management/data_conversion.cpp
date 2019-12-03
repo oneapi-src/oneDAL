@@ -36,34 +36,34 @@ namespace internal
 template<typename T1, typename T2>
 static void vectorConvertFunc(size_t n, const void *src, void *dst)
 {
-    #define DAAL_FUNC_CPU(cpuId, ...) \
+    #define DAAL_VECTOR_CONVERT_CPU(cpuId, ...) \
         vectorConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
 
-    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_FUNC_CPU, n, src, dst);
+    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_CONVERT_CPU, n, src, dst);
 
-    #undef DAAL_FUNC_CPU
+    #undef DAAL_VECTOR_CONVERT_CPU
 }
 
 template <typename T1, typename T2>
 static void vectorStrideConvertFunc(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride)
 {
-    #define DAAL_FUNC_CPU(cpuId, ...) \
+    #define DAAL_VECTOR_STRIDE_CONVERT_CPU(cpuId, ...) \
         vectorStrideConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
 
-    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_FUNC_CPU, n, src, srcByteStride, dst, dstByteStride);
+    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_STRIDE_CONVERT_CPU, n, src, srcByteStride, dst, dstByteStride);
 
-    #undef DAAL_FUNC_CPU
+    #undef DAAL_VECTOR_STRIDE_CONVERT_CPU
 }
 
 template <typename T>
 DAAL_EXPORT void vectorAssignValueToArray(T * const dataPtr, const size_t n, const T value)
 {
-    #define DAAL_FUNC_CPU(cpuId, ...) \
+    #define DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU(cpuId, ...) \
         vectorAssignValueToArrayCpu<T, cpuId>(__VA_ARGS__);
 
-    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_FUNC_CPU, dataPtr, n, &value);
+    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU, dataPtr, n, &value);
 
-    #undef DAAL_FUNC_CPU
+    #undef DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU
 }
 
 #define DAAL_REGISTER_VECTOR_ASSIGN(Type) \

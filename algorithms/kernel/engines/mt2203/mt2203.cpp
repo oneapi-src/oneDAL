@@ -46,7 +46,7 @@ SharedPtr<Batch<algorithmFPType, method> > Batch<algorithmFPType, method>::creat
 
     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CREATE_ENGINE_CPU, seed, st);
 
-    #undef CREATE_ENGINE_CPU
+    #undef DAAL_CREATE_ENGINE_CPU
     return engPtr;
 }
 

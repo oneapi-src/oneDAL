@@ -33,7 +33,7 @@
     Lapack<fpType, cpuId>::funcName(__VA_ARGS__)
 
 #define DAAL_DISPATCH_LAPACK_BY_CPU(...) \
-    EXPAND_CODE(DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CALL_LAPACK_CPU_FUNC, __VA_ARGS__))
+    DAAL_EXPAND(DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_CALL_LAPACK_CPU_FUNC, __VA_ARGS__))
 
 namespace daal
 {
@@ -201,13 +201,13 @@ struct LapackAutoDispatch
     }
 
     static void xpotrs(char *uplo, SizeType *p, SizeType *ny, fpType *ata, SizeType *ldata, fpType *beta, SizeType *ldaty,
-                SizeType *info)
+                       SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xpotrs, uplo, p, ny, ata, ldata, beta, ldaty, info);
     }
 
     static void xxpotrs(char *uplo, SizeType *p, SizeType *ny, fpType *ata, SizeType *ldata, fpType *beta, SizeType *ldaty,
-                SizeType *info)
+                        SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxpotrs, uplo, p, ny, ata, ldata, beta, ldaty, info);
     }
@@ -223,37 +223,37 @@ struct LapackAutoDispatch
     }
 
     static void xgerqf(SizeType *m, SizeType *n, fpType *a, SizeType *lda, fpType *tau, fpType *work, SizeType *lwork,
-                SizeType *info)
+                       SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xgerqf, m, n, a, lda, tau, work, lwork, info);
     }
 
     static void xxgerqf(SizeType *m, SizeType *n, fpType *a, SizeType *lda, fpType *tau, fpType *work, SizeType *lwork,
-                SizeType *info)
+                        SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxgerqf, m, n, a, lda, tau, work, lwork, info);
     }
 
     static void xormrq(char *side, char *trans, SizeType *m, SizeType *n, SizeType *k, fpType *a, SizeType *lda,
-                fpType *tau, fpType *c, SizeType *ldc, fpType *work, SizeType *lwork, SizeType *info)
+                       fpType *tau, fpType *c, SizeType *ldc, fpType *work, SizeType *lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xormrq, side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
     }
 
     static void xxormrq(char *side, char *trans, SizeType *m, SizeType *n, SizeType *k, fpType *a, SizeType *lda,
-                fpType *tau, fpType *c, SizeType *ldc, fpType *work, SizeType *lwork, SizeType *info)
+                        fpType *tau, fpType *c, SizeType *ldc, fpType *work, SizeType *lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxormrq, side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
     }
 
     static void xtrtrs(char *uplo, char *trans, char *diag, SizeType *n, SizeType *nrhs,
-                fpType *a, SizeType *lda, fpType *b, SizeType *ldb, SizeType *info)
+                       fpType *a, SizeType *lda, fpType *b, SizeType *ldb, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xtrtrs, uplo, trans, diag, n, nrhs, a, lda, b, ldb, info);
     }
 
     static void xxtrtrs(char *uplo, char *trans, char *diag, SizeType *n, SizeType *nrhs,
-                fpType *a, SizeType *lda, fpType *b, SizeType *ldb, SizeType *info)
+                        fpType *a, SizeType *lda, fpType *b, SizeType *ldb, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxtrtrs, uplo, trans, diag, n, nrhs, a, lda, b, ldb, info);
     }
@@ -269,75 +269,75 @@ struct LapackAutoDispatch
     }
 
     static void xgeqrf(SizeType m, SizeType n, fpType *a,
-                SizeType lda, fpType *tau, fpType *work, SizeType lwork, SizeType *info)
+                       SizeType lda, fpType *tau, fpType *work, SizeType lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xgeqrf, m, n, a, lda, tau, work, lwork, info);
     }
 
     static void xxgeqrf(SizeType m, SizeType n, fpType *a,
-                SizeType lda, fpType *tau, fpType *work, SizeType lwork, SizeType *info)
+                        SizeType lda, fpType *tau, fpType *work, SizeType lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxgeqrf, m, n, a, lda, tau, work, lwork, info);
     }
 
     static void xgeqp3(const SizeType m, const SizeType n, fpType *a,
-                const SizeType lda, SizeType *jpvt, fpType *tau, fpType *work, const SizeType lwork, SizeType *info)
+                       const SizeType lda, SizeType *jpvt, fpType *tau, fpType *work, const SizeType lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xgeqp3, m, n, a, lda, jpvt, tau, work, lwork, info);
     }
 
     static void xxgeqp3(SizeType m, SizeType n, fpType *a,
-                SizeType lda, SizeType *jpvt, fpType *tau, fpType *work, SizeType lwork, SizeType *info)
+                        SizeType lda, SizeType *jpvt, fpType *tau, fpType *work, SizeType lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxgeqp3, m, n, a, lda, jpvt, tau, work, lwork, info);
     }
 
     static void xorgqr(const SizeType m, const SizeType n, const SizeType k,
-                fpType *a, const SizeType lda, const fpType *tau, fpType *work, const SizeType lwork, SizeType *info)
+                       fpType *a, const SizeType lda, const fpType *tau, fpType *work, const SizeType lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xorgqr, m, n, k, a, lda, tau, work, lwork, info);
     }
 
     static void xxorgqr(SizeType m, SizeType n, SizeType k,
-                fpType *a, SizeType lda, fpType *tau, fpType *work, SizeType lwork, SizeType *info)
+                        fpType *a, SizeType lda, fpType *tau, fpType *work, SizeType lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxorgqr, m, n, k, a, lda, tau, work, lwork, info);
     }
 
     static void xgesvd(char jobu, char jobvt, SizeType m, SizeType n,
-                fpType *a, SizeType lda, fpType *s, fpType *u, SizeType ldu, fpType *vt, SizeType ldvt,
-                fpType *work, SizeType lwork, SizeType *info)
+                       fpType *a, SizeType lda, fpType *s, fpType *u, SizeType ldu, fpType *vt, SizeType ldvt,
+                       fpType *work, SizeType lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xgesvd, jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, info);
     }
 
     static void xxgesvd(char jobu, char jobvt, SizeType m, SizeType n,
-                fpType *a, SizeType lda, fpType *s, fpType *u, SizeType ldu, fpType *vt, SizeType ldvt,
-                fpType *work, SizeType lwork, SizeType *info)
+                        fpType *a, SizeType lda, fpType *s, fpType *u, SizeType ldu, fpType *vt, SizeType ldvt,
+                        fpType *work, SizeType lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxgesvd, jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, info);
     }
 
     static void xsyevd(char *jobz, char *uplo, SizeType *n, fpType *a, SizeType *lda, fpType *w, fpType *work,
-                SizeType *lwork, SizeType *iwork, SizeType *liwork, SizeType *info)
+                       SizeType *lwork, SizeType *iwork, SizeType *liwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xsyevd, jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
     static void xxsyevd(char *jobz, char *uplo, SizeType *n, fpType *a, SizeType *lda, fpType *w, fpType *work,
-                SizeType *lwork, SizeType *iwork, SizeType *liwork, SizeType *info)
+                        SizeType *lwork, SizeType *iwork, SizeType *liwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxsyevd, jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
     static void xormqr(char *side, char *trans, SizeType *m, SizeType *n, SizeType *k,
-                fpType *a, SizeType *lda, fpType *tau, fpType *c, SizeType *ldc, fpType *work, SizeType *lwork, SizeType *info)
+                       fpType *a, SizeType *lda, fpType *tau, fpType *c, SizeType *ldc, fpType *work, SizeType *lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xormqr, side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
     }
 
     static void xxormqr(char *side, char *trans, SizeType *m, SizeType *n, SizeType *k,
-                fpType *a, SizeType *lda, fpType *tau, fpType *c, SizeType *ldc, fpType *work, SizeType *lwork, SizeType *info)
+                        fpType *a, SizeType *lda, fpType *tau, fpType *c, SizeType *ldc, fpType *work, SizeType *lwork, SizeType *info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxormqr, side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
     }
