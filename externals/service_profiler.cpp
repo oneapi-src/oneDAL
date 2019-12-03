@@ -1,4 +1,4 @@
-/** file service_profiler.cpp */
+/* file: service_profiler.cpp */
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
