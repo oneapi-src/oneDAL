@@ -15,8 +15,13 @@
 * limitations under the License.
 *******************************************************************************/
 
+#ifndef __DAAL_ONEAPI_INTERNAL_ERROR_HANDLING_H__
+#define __DAAL_ONEAPI_INTERNAL_ERROR_HANDLING_H__
+
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
+
+#include "services/internal/error_handling_helpers.h"
 #include "services/error_indexes.h"
 #include "services/daal_string.h"
 
@@ -104,8 +109,12 @@ inline void convertSyclExceptionToStatus(cl::sycl::exception const & e, services
     }
 }
 } // namespace interface1
+
 using interface1::convertOpenClErrorToErrorPtr;
 using interface1::convertSyclExceptionToStatus;
+
 } // namespace internal
 } // namespace oneapi
 } // namespace daal
+
+#endif

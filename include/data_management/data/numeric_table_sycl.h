@@ -34,7 +34,7 @@ namespace interface1
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__SYCLNUMERICTABLE"></a>
  *  \brief Base class for all numeric tables designed to work with SYCL* runtime.
- *  These tables avoid unnesessary data transfer between devices.
+ *  These tables avoid unnecessary data transfer between devices.
  */
 class DAAL_EXPORT SyclNumericTable : public NumericTable
 {

@@ -98,6 +98,15 @@
     #define DAAL_THREAD_PINNING_DISABLED
 #endif
 
+#ifdef DAAL_SYCL_INTERFACE
+#if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191001))
+  #define DAAL_SYCL_INTERFACE_USM
+#endif
+#if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191024))
+  #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
+#endif
+#endif
+
 /**
  *  Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) namespace
  */
