@@ -93,6 +93,6 @@ CPUDST=`dirname $0`/../externals/mklfpk
 GPUDST=`dirname $0`/../externals/mklgpufpk
 
 download_fpk "${MKLFPK_URL}" "${CPUDST}" "${MKLFPK_PACKAGE}.tgz"
-if [ "${MKLFPK_OS}" != "mac" -a "{MKLFPK_ARCH}" == "intel64" ]; then
+if [ "${MKLFPK_OS}" != "mac" -a "${MKLFPK_ARCH}" == "intel64" ]; then
   download_fpk "${MKLGPUFPK_URL}" "${GPUDST}" "${MKLGPUFPK_PACKAGE}.tgz"
 fi
