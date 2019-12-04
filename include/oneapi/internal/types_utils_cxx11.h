@@ -105,6 +105,54 @@ public:
 };
 
 /**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__ARRAYCOPIER"></a>
+ *  \brief Copier from array to UniversalBuffers
+ */
+class ArrayCopier
+{
+private:
+    struct Execute
+    {
+        cl::sycl::queue &queue;
+        UniversalBuffer &dstUnivers;
+        size_t dstOffset;
+        void *srcArray;
+        size_t srcOffset;
+        size_t count;
+
+        explicit Execute(cl::sycl::queue &queue,
+            UniversalBuffer &dst, size_t desOffset,
+            void *src,  size_t srcOffset,
+            size_t count) : queue(queue), dstUnivers(dst),
+        dstOffset(desOffset),  srcArray(src),
+        srcOffset(srcOffset), count(count) { }
+
+        template <typename T>
+        void operator()(Typelist<T>)
+        {
+            auto src = (T*)srcArray;
+            auto dst = dstUnivers.get<T>().toSycl();
+            cl::sycl::event event = queue.submit([&](cl::sycl::handler &cgh) {
+                auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(
+                    cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
+                cgh.copy(src, dst_acc);
+            });
+            event.wait();
+        }
+    };
+
+public:
+    static void copy(cl::sycl::queue &queue,
+        UniversalBuffer &dest, size_t dstOffset,
+        void *src,  size_t srcOffset,
+        size_t count)
+    {
+        Execute op(queue, dest, dstOffset, src, srcOffset, count);
+        TypeDispatcher::dispatch(dest.type(), op);
+    }
+};
+
+/**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__BUFFERFILLER"></a>
  *  \brief Fills UniversalBuffers with single value
  */

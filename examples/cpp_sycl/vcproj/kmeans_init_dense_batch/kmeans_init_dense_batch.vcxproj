@@ -45,53 +45,53 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>oneAPI Data Parallel C++ Compiler</PlatformToolset>
+    <PlatformToolset>Intel(R) oneAPI DPC++ Compiler</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.sequential|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>oneAPI Data Parallel C++ Compiler</PlatformToolset>
+    <PlatformToolset>Intel(R) oneAPI DPC++ Compiler</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.threaded|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>oneAPI Data Parallel C++ Compiler</PlatformToolset>
+    <PlatformToolset>Intel(R) oneAPI DPC++ Compiler</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.sequential|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>oneAPI Data Parallel C++ Compiler</PlatformToolset>
+    <PlatformToolset>Intel(R) oneAPI DPC++ Compiler</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.threaded|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>oneAPI Data Parallel C++ Compiler</PlatformToolset>
+    <PlatformToolset>Intel(R) oneAPI DPC++ Compiler</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.sequential|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>oneAPI Data Parallel C++ Compiler</PlatformToolset>
+    <PlatformToolset>Intel(R) oneAPI DPC++ Compiler</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.threaded|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>oneAPI Data Parallel C++ Compiler</PlatformToolset>
+    <PlatformToolset>Intel(R) oneAPI DPC++ Compiler</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.sequential|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>oneAPI Data Parallel C++ Compiler</PlatformToolset>
+    <PlatformToolset>Intel(R) oneAPI DPC++ Compiler</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -175,14 +175,15 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
-      <AdditionalOptions> /link daal_core.lib daal_thread.lib /DEFAULTLIB:OpenCL.lib %(AdditionalOptions)</AdditionalOptions>
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_thread.lib;OpenCL.lib </AdditionalDependencies>
+      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.sequential|x64'">
@@ -191,14 +192,15 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
-      <AdditionalOptions> /link daal_core.lib daal_sequential.lib /DEFAULTLIB:OpenCL.lib %(AdditionalOptions)</AdditionalOptions>
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_sequential.lib;OpenCL.lib </AdditionalDependencies>
+      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.threaded|x64'">
@@ -207,14 +209,15 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
-      <AdditionalOptions> /link daal_core_dll.lib daal_thread.lib /DEFAULTLIB:OpenCL.lib %(AdditionalOptions)</AdditionalOptions>
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;daal_thread.lib;OpenCL.lib </AdditionalDependencies>
+      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.sequential|x64'">
@@ -223,14 +226,15 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
-      <AdditionalOptions> /link daal_core_dll.lib daal_sequential.lib /DEFAULTLIB:OpenCL.lib %(AdditionalOptions)</AdditionalOptions>
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;daal_sequential.lib;OpenCL.lib </AdditionalDependencies>
+      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.threaded|x64'">
@@ -239,14 +243,15 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
-      <AdditionalOptions> /link daal_core.lib daal_thread.lib /DEFAULTLIB:OpenCL.lib %(AdditionalOptions)</AdditionalOptions>
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_thread.lib;OpenCL.lib </AdditionalDependencies>
+      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.sequential|x64'">
@@ -255,14 +260,15 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
-      <AdditionalOptions> /link daal_core.lib daal_sequential.lib /DEFAULTLIB:OpenCL.lib %(AdditionalOptions)</AdditionalOptions>
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_sequential.lib;OpenCL.lib </AdditionalDependencies>
+      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.threaded|x64'">
@@ -271,14 +277,15 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
-      <AdditionalOptions> /link daal_core_dll.lib daal_thread.lib /DEFAULTLIB:OpenCL.lib %(AdditionalOptions)</AdditionalOptions>
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;daal_thread.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.sequential|x64'">
@@ -287,14 +294,15 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
-      <AdditionalOptions> /link daal_core_dll.lib daal_sequential.lib /DEFAULTLIB:OpenCL.lib %(AdditionalOptions)</AdditionalOptions>
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;daal_sequential.lib;OpenCL.lib </AdditionalDependencies>
+      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

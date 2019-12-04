@@ -81,10 +81,7 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::makeStep(cons
     args.set(4, consCoeff);
 
     KernelRange range(argumentSize);
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(makeStep.run);
-        ctx.run(range, kernel, args, &status);
-    }
+    ctx.run(range, kernel, args, &status);
 
     return status;
 }
@@ -107,7 +104,6 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::vectorNorm(const services::Buffer<algorithmFPType> & x, const uint32_t n,
                                                                               algorithmFPType & norm)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(vectorNorm);
     services::Status status;
 
     const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
@@ -177,7 +173,6 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
                                                                            NumericTable * batchIndices, OptionalArgument * optionalArgument,
                                                                            OptionalArgument * optionalResult, engines::BatchBase & engine)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     services::Status status;
 
     ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -296,25 +291,20 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
     services::internal::HostAppHelper host(pHost, 10);
     for (size_t epoch = startIteration; epoch < (startIteration + nIter); epoch++)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(compute.epochIteraion);
-
         if (epoch % L == 0 || epoch == startIteration)
         {
             learningRate = learningRateArray[(epoch / L) % learningRateLength];
             consCoeff    = consCoeffsArray[(epoch / L) % consCoeffsLength];
             if (indicesStatus == user || indicesStatus == random)
             {
-                DAAL_ITTNOTIFY_SCOPED_TASK(compute.generateUniform);
+                DAAL_ITTNOTIFY_SCOPED_TASK(generateUniform);
                 const int * pValues = nullptr;
                 DAAL_CHECK_STATUS(status, rngTask.get(pValues));
                 ntBatchIndices->setArray(const_cast<int *>(pValues), ntBatchIndices->getNumberOfRows());
             }
         }
 
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.functionRun);
-            DAAL_CHECK_STATUS(status, function->computeNoThrow());
-        }
+        DAAL_CHECK_STATUS(status, function->computeNoThrow());
 
         if (host.isCancelled(status, 1))
         {
@@ -326,7 +316,6 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
         {
             if (nIter > 1 && accuracyThreshold > 0)
             {
-                DAAL_ITTNOTIFY_SCOPED_TASK(compute.convergenceCheck);
                 algorithmFPType pointNorm = algorithmFPType(0), gradientNorm = algorithmFPType(0);
                 vectorNorm(workValueBuff, argumentSize, pointNorm);
                 vectorNorm(gradientBuff, argumentSize, gradientNorm);

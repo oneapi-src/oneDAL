@@ -22,6 +22,7 @@
 */
 
 #include "daal_kernel_defines.h"
+#include "service_dispatch.h"
 #include "data_conversion_cpu.h"
 #include "data_management/data/internal/conversion.h"
 
@@ -31,115 +32,38 @@ namespace data_management
 {
 namespace internal
 {
-template <typename T1, typename T2>
-static void vectorConvertFunc(size_t n, const void * src, void * dst)
+
+template<typename T1, typename T2>
+static void vectorConvertFunc(size_t n, const void *src, void *dst)
 {
-    typedef void (*funcType)(size_t n, const void * src, void * dst);
-    static funcType ptr = 0;
+    #define DAAL_VECTOR_CONVERT_CPU(cpuId, ...) \
+        vectorConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
 
-    if (!ptr)
-    {
-        int cpuid = (int)daal::services::Environment::getInstance()->getCpuId();
+    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_CONVERT_CPU, n, src, dst);
 
-        switch (cpuid)
-        {
-#ifdef DAAL_KERNEL_AVX512
-        case avx512: DAAL_KERNEL_AVX512_ONLY_CODE(ptr = vectorConvertFuncCpu<T1, T2, avx512>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX512_MIC
-        case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(ptr = vectorConvertFuncCpu<T1, T2, avx512_mic>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX2
-        case avx2: DAAL_KERNEL_AVX2_ONLY_CODE(ptr = vectorConvertFuncCpu<T1, T2, avx2>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX
-        case avx: DAAL_KERNEL_AVX_ONLY_CODE(ptr = vectorConvertFuncCpu<T1, T2, avx>); break;
-#endif
-#ifdef DAAL_KERNEL_SSE42
-        case sse42: DAAL_KERNEL_SSE42_ONLY_CODE(ptr = vectorConvertFuncCpu<T1, T2, sse42>); break;
-#endif
-#ifdef DAAL_KERNEL_SSSE3
-        case ssse3: DAAL_KERNEL_SSSE3_ONLY_CODE(ptr = vectorConvertFuncCpu<T1, T2, ssse3>); break;
-#endif
-        default: ptr = vectorConvertFuncCpu<T1, T2, sse2>; break;
-        };
-    }
-
-    ptr(n, src, dst);
+    #undef DAAL_VECTOR_CONVERT_CPU
 }
 
 template <typename T1, typename T2>
 static void vectorStrideConvertFunc(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride)
 {
-    typedef void (*funcType)(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride);
-    static funcType ptr = 0;
+    #define DAAL_VECTOR_STRIDE_CONVERT_CPU(cpuId, ...) \
+        vectorStrideConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
 
-    if (!ptr)
-    {
-        int cpuid = (int)daal::services::Environment::getInstance()->getCpuId();
+    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_STRIDE_CONVERT_CPU, n, src, srcByteStride, dst, dstByteStride);
 
-        switch (cpuid)
-        {
-#ifdef DAAL_KERNEL_AVX512
-        case avx512: DAAL_KERNEL_AVX512_ONLY_CODE(ptr = vectorStrideConvertFuncCpu<T1, T2, avx512>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX512_MIC
-        case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(ptr = vectorStrideConvertFuncCpu<T1, T2, avx512_mic>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX2
-        case avx2: DAAL_KERNEL_AVX2_ONLY_CODE(ptr = vectorStrideConvertFuncCpu<T1, T2, avx2>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX
-        case avx: DAAL_KERNEL_AVX_ONLY_CODE(ptr = vectorStrideConvertFuncCpu<T1, T2, avx>); break;
-#endif
-#ifdef DAAL_KERNEL_SSE42
-        case sse42: DAAL_KERNEL_SSE42_ONLY_CODE(ptr = vectorStrideConvertFuncCpu<T1, T2, sse42>); break;
-#endif
-#ifdef DAAL_KERNEL_SSSE3
-        case ssse3: DAAL_KERNEL_SSSE3_ONLY_CODE(ptr = vectorStrideConvertFuncCpu<T1, T2, ssse3>); break;
-#endif
-        default: ptr = vectorStrideConvertFuncCpu<T1, T2, sse2>; break;
-        };
-    }
-
-    ptr(n, src, srcByteStride, dst, dstByteStride);
+    #undef DAAL_VECTOR_STRIDE_CONVERT_CPU
 }
 
 template <typename T>
 DAAL_EXPORT void vectorAssignValueToArray(T * const dataPtr, const size_t n, const T value)
 {
-    typedef void (*funcType)(void * const, const size_t, const void * const);
-    static funcType ptr = 0;
+    #define DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU(cpuId, ...) \
+        vectorAssignValueToArrayCpu<T, cpuId>(__VA_ARGS__);
 
-    if (!ptr)
-    {
-        int cpuid = (int)daal::services::Environment::getInstance()->getCpuId();
+    DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU, dataPtr, n, &value);
 
-        switch (cpuid)
-        {
-#ifdef DAAL_KERNEL_AVX512
-        case avx512: DAAL_KERNEL_AVX512_ONLY_CODE(ptr = vectorAssignValueToArrayCpu<T, avx512>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX512_MIC
-        case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(ptr = vectorAssignValueToArrayCpu<T, avx512_mic>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX2
-        case avx2: DAAL_KERNEL_AVX2_ONLY_CODE(ptr = vectorAssignValueToArrayCpu<T, avx2>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX
-        case avx: DAAL_KERNEL_AVX_ONLY_CODE(ptr = vectorAssignValueToArrayCpu<T, avx>); break;
-#endif
-#ifdef DAAL_KERNEL_SSE42
-        case sse42: DAAL_KERNEL_SSE42_ONLY_CODE(ptr = vectorAssignValueToArrayCpu<T, sse42>); break;
-#endif
-#ifdef DAAL_KERNEL_SSSE3
-        case ssse3: DAAL_KERNEL_SSSE3_ONLY_CODE(ptr = vectorAssignValueToArrayCpu<T, ssse3>); break;
-#endif
-        default: ptr = vectorAssignValueToArrayCpu<T, sse2>; break;
-        };
-    }
-
-    ptr(dataPtr, n, &value);
+    #undef DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU
 }
 
 #define DAAL_REGISTER_VECTOR_ASSIGN(Type) \
