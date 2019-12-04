@@ -414,10 +414,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
         KernelRange global_range(localSize, nFeatures);
 
-        KernelNDRange range(2);
-        range.global(global_range, &status); DAAL_CHECK_STATUS_VAR(status);
-
-        context.run(range, kernel, args, &status);
+        context.run(global_range, kernel, args, &status);
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -457,6 +454,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         KernelRange global_range(localSize, nFeatures);
 
         KernelNDRange range(2);
+        range.local(local_range, &status); DAAL_CHECK_STATUS_VAR(status);
         range.global(global_range, &status); DAAL_CHECK_STATUS_VAR(status);
 
         context.run(range, kernel, args, &status);
@@ -751,7 +749,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::upda
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// RegressionTrainBatchKernel
+// RegressionTrainBatchKernelOneAPI
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, gbt::regression::training::Method method>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::compute(

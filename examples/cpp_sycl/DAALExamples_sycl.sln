@@ -25,7 +25,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datastructures_soa", "vcpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datastructures_usm", "vcproj\datastructures_usm\datastructures_usm.vcxproj", "{E6E61E4A-BD29-4CBB-BB82-6F3BEBA5DAD3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gbt_reg_dense_batch", "vcproj\gradient_boosted_trees\gbt_reg_dense_batch.vcxproj", "{6B1239AD-5E43-4E9B-8FD8-B59497129619}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gbt_reg_dense_batch", "vcproj\gbt_reg_dense_batch\gbt_reg_dense_batch.vcxproj", "{6B1239AD-5E43-4E9B-8FD8-B59497129619}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
