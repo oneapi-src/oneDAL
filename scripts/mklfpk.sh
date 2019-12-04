@@ -19,7 +19,7 @@
 MKLFPK_URL_ROOT="https://github.com/intel/daal/releases/download/Dependencies/"
 MKLFPK_VERSION="20180112_10"
 MKLGPUFPK_VERSION="20191109"
-WITH_GPU=false
+WITH_GPU=true
 
 while [ 1 ] ; do
     if [ "$1" = "--help" ] ; then
