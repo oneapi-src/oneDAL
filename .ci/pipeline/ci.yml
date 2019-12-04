@@ -23,7 +23,7 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
-      scripts/mklfpk.sh ${$(platform.type):3}
+      scripts/mklfpk.sh with_gpu=$(with_gpu)
       scripts/tbb.sh
       export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
       export PATH=$JAVA_HOME/bin:$PATH
@@ -48,7 +48,7 @@ jobs:
         with_gpu      : 'false'
   steps:
   - script: |
-      scripts/mklfpk.sh ${$(platform.type):3}
+      scripts/mklfpk.sh with_gpu=$(with_gpu)
       scripts/tbb.sh
       export JAVA_HOME=$(/usr/libexec/java_home -v 12)
       export PATH=$JAVA_HOME/bin:$PATH
