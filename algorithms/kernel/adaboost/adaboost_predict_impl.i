@@ -149,6 +149,8 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::processBlo
 
     Math<algorithmFPType, cpu>::vLog(nRowsInCurrentBlock * nClasses, p_block, pLog); // inplace
 
+    service_memset<algorithmFPType, cpu>(pSumLog, 0.0, nRowsInCurrentBlock);
+
     const algorithmFPType nClassesMinusOne = nClasses - 1.0;
     for (size_t i = 0; i < nRowsInCurrentBlock; i++)
     {
@@ -273,14 +275,14 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::processBlockClassScore(
     size_t nProcessedRows, size_t nRowsInCurrentBlock, const size_t k, const size_t nClasses,
     daal::services::Collection<services::SharedPtr<daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> > > &weakPredictions,
-    algorithmFPType *curClassScore, algorithmFPType *maxClassScore, algorithmFPType *r_block, const algorithmFPType *alpha,
+    algorithmFPType *curClassScore, algorithmFPType *maxClassScore_block, algorithmFPType *r_block, const algorithmFPType *alpha,
     const size_t nWeakLearners)
 {
     const algorithmFPType k_fptype = (algorithmFPType)k;
     service_memset<algorithmFPType, cpu>(curClassScore, 0.0, nRowsInCurrentBlock);
     for (size_t m = 0; m < nWeakLearners; m++)
     {
-        const algorithmFPType *rWeak = &(weakPredictions[m]->getArray()[nProcessedRows]);
+        const algorithmFPType *rWeak = &(weakPredictions[m]->getArray()[nProcessedRows * nClasses]);
         for (size_t i = 0; i < nRowsInCurrentBlock; i++)
         {
             if (method == samme)
@@ -295,10 +297,10 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::processBlo
     }
     for (size_t i = 0; i < nRowsInCurrentBlock; i++)
     {
-        if (curClassScore[i] > maxClassScore[i])
+        if (curClassScore[i] > maxClassScore_block[i])
         {
             r_block[i]       = k;
-            maxClassScore[i] = curClassScore[i];
+            maxClassScore_block[i] = curClassScore[i];
         }
     }
     return services::Status();
