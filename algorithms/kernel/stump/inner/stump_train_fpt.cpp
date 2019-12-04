@@ -43,7 +43,6 @@ namespace interface1
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    algorithmFPType dummy                             = 1.0;
     const classifier::training::InputIface * algInput = static_cast<const classifier::training::InputIface *>(input);
     services::Status st;
     stump::ModelPtr modelPtr = stump::Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &st);

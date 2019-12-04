@@ -56,7 +56,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
-    Parameter * par = static_cast<Parameter *>(_par);
 
     auto & explainedVariancesTable       = *(result->get(explainedVariances));
     auto & explainedVariancesRatiosTable = *(result->get(explainedVariancesRatios));

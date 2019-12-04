@@ -578,7 +578,7 @@ services::Status DistributedInput<step4Local>::check(const daal::algorithms::Par
     if (!s) return s;
     int unexpectedLayoutsPacked = (int)packed_mask;
     int unexpectedLayoutsCSR    = (int)packed_mask;
-    s |= checkNumericTable(get(inputOfStep4FromStep2).get(), crossProductStr(), unexpectedLayoutsPacked, 0, nFactors, nFactors);
+    s |= checkNumericTable(crossProduct.get(), crossProductStr(), unexpectedLayoutsPacked, 0, nFactors, nFactors);
     if (!s) return s;
     /* Check input data collection */
     KeyValueDataCollectionPtr collection = get(partialModels);

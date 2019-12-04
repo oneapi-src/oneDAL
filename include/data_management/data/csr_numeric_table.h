@@ -839,7 +839,6 @@ protected:
     template <typename T>
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
         size_t * rowOffsets = _rowOffsets.get();

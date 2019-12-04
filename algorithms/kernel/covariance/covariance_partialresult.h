@@ -58,7 +58,6 @@ DAAL_EXPORT services::Status PartialResult::initialize(const daal::algorithms::I
                                                        const int method)
 {
     const InputIface * algInput = static_cast<const InputIface *>(input);
-    size_t nColumns             = algInput->getNumberOfFeatures();
 
     get(nObservations)->assign((algorithmFPType)0.0);
     get(crossProduct)->assign((algorithmFPType)0.0);

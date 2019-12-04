@@ -115,7 +115,6 @@ public:
         DAAL_INT _c           = nCenters;
         algorithmFPType alpha = 1.0;
         algorithmFPType beta  = 0.0;
-        DAAL_INT ldaty        = nRows;
         char matdescra[6]     = { 'G', 0, 0, 'F', 0, 0 };
 
         const algorithmFPType * pData = _ntDataBD.values();

@@ -69,7 +69,6 @@ services::Status csr2csc(size_t nItems, size_t nUsers, const algorithmFPType * c
     daal::algorithms::internal::qSort<size_t, algorithmFPType, size_t, cpu>(dataSize, cooColIndices, cscdata, rowIndices);
 
     /* Create an array of columns offsets for the data in CSC format */
-    size_t colOffset      = 1;
     size_t colOffsetIndex = 0;
     for (; colOffsetIndex < cooColIndices[0]; colOffsetIndex++)
     {

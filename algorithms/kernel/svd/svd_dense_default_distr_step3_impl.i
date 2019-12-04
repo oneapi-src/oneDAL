@@ -180,14 +180,6 @@ Status SVDDistributedStep3Kernel<algorithmFPType, method, cpu>::compute(const si
                                                                         NumericTable * r[], const daal::algorithms::Parameter * par)
 {
     size_t i, j;
-    svd::Parameter defaultParams;
-    const svd::Parameter * svdPar = &defaultParams;
-
-    if (par != 0)
-    {
-        svdPar = static_cast<const svd::Parameter *>(par);
-    }
-
     size_t nBlocks     = na / 2;
     size_t mCalculated = 0;
 

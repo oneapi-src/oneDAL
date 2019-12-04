@@ -61,7 +61,6 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
     const size_t nFeatures  = dataTable->getNumberOfColumns();
     const size_t nVectors   = dataTable->getNumberOfRows();
     partialNObservations    = static_cast<algorithmFPType>(nVectors);
-    const bool isNormalized = dataTable->isNormalized(NumericTableIface::standardScoreNormalized);
 
     BlockDescriptor<algorithmFPType> dataBlock;
     BlockDescriptor<algorithmFPType> sumBlock;

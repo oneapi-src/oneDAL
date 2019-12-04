@@ -99,7 +99,6 @@ services::Status ImplicitALSInitDistrKernel<algorithmFPType, fastCSR, cpu>::comp
     NumericTable ** userOffsets, NumericTable * itemsFactorsTable, const DistributedParameter * parameter, engines::BatchBase & engine)
 {
     const size_t nItems     = dataTable->getNumberOfRows();
-    const size_t nUsers     = dataTable->getNumberOfColumns();
     const size_t nFactors   = parameter->nFactors;
     const size_t fullNUsers = parameter->fullNUsers;
 
@@ -110,7 +109,6 @@ services::Status ImplicitALSInitDistrKernel<algorithmFPType, fastCSR, cpu>::comp
     const size_t * colOffsets     = mtData.rows();
 
     Status s;
-    size_t partitionNRows = partitionTable->getNumberOfRows();
     Partition<cpu> partitionObj;
     DAAL_CHECK_STATUS(s, partitionObj.init(const_cast<NumericTable *>(partitionTable), fullNUsers));
     const size_t nParts = partitionObj.nParts;

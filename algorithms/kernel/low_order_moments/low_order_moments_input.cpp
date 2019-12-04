@@ -78,7 +78,6 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 {
     services::Status s;
     NumericTablePtr dataTable = get(data);
-    int unexpectedLayouts     = 0;
     if (method == fastCSR || method == singlePassCSR || method == sumCSR)
     {
         int expectedLayout = (int)NumericTableIface::csrArray;

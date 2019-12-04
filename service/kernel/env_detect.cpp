@@ -86,7 +86,7 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
 
     if (!_env.cpuid_init_flag)
     {
-        if (-1 == _env.cpuid)
+        if (~size_t(0) == _env.cpuid)
         {
             if (cpuid > daal::lastCpuType || cpuid < 0) return daal::services::ErrorCpuIsInvalid;
 

@@ -59,7 +59,6 @@ Status ImplicitALSTrainDistrStep1Kernel<algorithmFPType, cpu>::compute(implicit_
     if (nBlocks * nRowsInBlock < nRows) nBlocks++;
     if (nBlocks == 1) nRowsInBlock = nRows;
 
-    size_t nRowsRead = 0;
     WriteOnlyRows<algorithmFPType, cpu> mtCrossProduct(*crossProduct, 0, nFactors);
     DAAL_CHECK_BLOCK_STATUS(mtCrossProduct);
     algorithmFPType * cp = mtCrossProduct.get();
