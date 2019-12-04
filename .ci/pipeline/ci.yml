@@ -10,13 +10,14 @@ jobs:
 - job: Linux
   timeoutInMinutes: 0
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-18.04'
   strategy:
     matrix:
       lnx32:
         platform.type : 'lnx32'
+        with_gpu      : 'false'
       lnx32e:
-        platform.type : 'lnx32e'
+        with_gpu      : 'true'
     maxParallel: 2
   steps:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
@@ -44,6 +45,7 @@ jobs:
     matrix:
       mac32e:
         platform.type : 'mac32e'
+        with_gpu      : 'false'
   steps:
   - script: |
       scripts/mklfpk.sh ${$(platform.type):3}
