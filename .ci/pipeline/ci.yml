@@ -17,6 +17,7 @@ jobs:
         platform.type : 'lnx32'
         with_gpu      : 'false'
       lnx32e:
+        platform.type : 'lnx32e'
         with_gpu      : 'true'
     maxParallel: 2
   steps:
