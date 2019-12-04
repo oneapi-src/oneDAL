@@ -28,7 +28,6 @@
 #include "data_management/data/data_collection.h"
 #include "data_management/data/numeric_table.h"
 
-
 namespace daal
 {
 namespace algorithms
@@ -37,7 +36,6 @@ namespace pca
 {
 namespace interface2
 {
-
 class ResultImpl : public interface1::ResultImpl
 {
 public:
@@ -45,7 +43,7 @@ public:
 
     bool isWhitening;
     ResultImpl(const size_t n) : interface1::ResultImpl(n), isWhitening(false) {}
-    ResultImpl(const ResultImpl& o) : interface1::ResultImpl(o), isWhitening(o.isWhitening){}
+    ResultImpl(const ResultImpl & o) : interface1::ResultImpl(o), isWhitening(o.isWhitening) {}
     virtual ~ResultImpl() {};
 
     /**
@@ -56,7 +54,7 @@ public:
     * \return Status of computations
     */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input *input, size_t nComponents, DAAL_UINT64 resultsToCompute);
+    services::Status allocate(const daal::algorithms::Input * input, size_t nComponents, DAAL_UINT64 resultsToCompute);
 
     /**
     * Allocates memory for storing partial results of the PCA algorithm
@@ -66,7 +64,7 @@ public:
     * \return Status of computations
     */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::PartialResult *partialResult, size_t nComponents, DAAL_UINT64 resultsToCompute);
+    services::Status allocate(const daal::algorithms::PartialResult * partialResult, size_t nComponents, DAAL_UINT64 resultsToCompute);
 
     /**
     * Checks the results of the PCA algorithm implementation
@@ -79,7 +77,6 @@ public:
     virtual services::Status check(size_t nFeatures, size_t nComponents, size_t nTables) const;
 
 protected:
-
     /**
     * Allocates memory for storing partial results of the PCA algorithm
     * \param[in] nFeatures Number of features
@@ -91,7 +88,7 @@ protected:
     services::Status allocate(size_t nFeatures, size_t nComponents, DAAL_UINT64 resultsToCompute);
 };
 
-} // interface2
+} // namespace interface2
 } // namespace pca
 } // namespace algorithms
 } // namespace daal

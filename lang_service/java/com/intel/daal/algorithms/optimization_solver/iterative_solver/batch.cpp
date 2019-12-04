@@ -31,13 +31,11 @@ using namespace daal::algorithms::optimization_solver;
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Batch_cClone
-(JNIEnv *, jobject, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Batch_cClone(JNIEnv *, jobject, jlong algAddr)
 {
-    services::SharedPtr<AlgorithmIface> *ptr = new services::SharedPtr<AlgorithmIface>();
+    services::SharedPtr<AlgorithmIface> * ptr = new services::SharedPtr<AlgorithmIface>();
     *ptr = staticPointerCast<iterative_solver::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->clone();
     return (jlong)ptr;
-
 }
 
 /*
@@ -45,10 +43,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iter
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Batch_cGetInput
-(JNIEnv *, jobject, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Batch_cGetInput(JNIEnv *, jobject, jlong algAddr)
 {
-    return (jlong)(staticPointerCast<iterative_solver::Batch, AlgorithmIface > (*(SharedPtr<AlgorithmIface> *)algAddr))->getInput();
+    return (jlong)(staticPointerCast<iterative_solver::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr))->getInput();
 }
 
 /*
@@ -56,8 +53,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iter
  * Method:    cGetParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Batch_cGetParameter
-(JNIEnv *, jobject, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Batch_cGetParameter(JNIEnv *, jobject, jlong algAddr)
 {
     return (jlong)(staticPointerCast<iterative_solver::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr))->getParameter();
 }
@@ -67,11 +63,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iter
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Batch_cGetResult
-(JNIEnv *, jobject, jlong algAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_optimization_1solver_iterative_1solver_Batch_cGetResult(JNIEnv *, jobject, jlong algAddr)
 {
-    SerializationIfacePtr *ptr = new SerializationIfacePtr();
-    *ptr = staticPointerCast<iterative_solver::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->getResult();
+    SerializationIfacePtr * ptr = new SerializationIfacePtr();
+    *ptr                        = staticPointerCast<iterative_solver::Batch, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr)->getResult();
 
     return (jlong)ptr;
 }

@@ -34,7 +34,6 @@ namespace iterative_solver
 {
 namespace interface2
 {
-
 /**
  * Allocates memory to store the results of the iterative solver algorithm
  * \param[in] input  Pointer to the input structure
@@ -42,16 +41,16 @@ namespace interface2
  * \param[in] method Computation method of the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     using namespace daal::data_management;
-    const Input *algInput = static_cast<const Input *>(input);
-    size_t nRows = algInput->get(inputArgument)->getNumberOfRows();
+    const Input * algInput = static_cast<const Input *>(input);
+    size_t nRows           = algInput->get(inputArgument)->getNumberOfRows();
 
     services::Status status;
 
-    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
     if (!get(minimum))
     {
@@ -74,10 +73,11 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     return status;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    const int method);
 
 } // namespace interface2
 } // namespace iterative_solver
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

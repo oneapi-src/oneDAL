@@ -42,11 +42,11 @@ namespace internal
 /**
  *  \brief Kernel for mcg59 calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class Mcg59Kernel : public Kernel
 {
 public:
-    Status compute(NumericTable *resultTable);
+    Status compute(NumericTable * resultTable);
 };
 
 } // namespace internal

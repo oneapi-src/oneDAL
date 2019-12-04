@@ -39,7 +39,6 @@ namespace multinomial_naive_bayes
 {
 namespace prediction
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface
  */
@@ -57,7 +56,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for prediction based on the multinomial naive Bayes model, double or float
  * \tparam method           Multinomial naive Bayes prediction method, \ref Method
  */
-template<typename algorithmFPType, prediction::Method method, CpuType cpu>
+template <typename algorithmFPType, prediction::Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -66,7 +65,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     DAAL_DEPRECATED ~BatchContainer();
     /**
@@ -88,7 +87,7 @@ public:
  *  \par Enumerations
  *      - \ref Method Multinomial naive Bayes prediction methods
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, prediction::Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, prediction::Method method = defaultDense>
 class Batch : public classifier::prediction::interface1::Batch
 {
 public:
@@ -96,18 +95,15 @@ public:
 
     typedef algorithms::multinomial_naive_bayes::prediction::Input InputType;
     typedef algorithms::multinomial_naive_bayes::interface1::Parameter ParameterType;
-    typedef typename super::ResultType                             ResultType;
+    typedef typename super::ResultType ResultType;
 
-    InputType input;                /*!< %Input objects of the algorithm */
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the prediction algorithm */
+    InputType input;         /*!< %Input objects of the algorithm */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the prediction algorithm */
     /**
      * Default constructor
      * \param nClasses  Number of classes
      */
-    DAAL_DEPRECATED Batch(size_t nClasses) : parameter(nClasses)
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Batch(size_t nClasses) : parameter(nClasses) { initialize(); }
 
     /**
      * Constructs multinomial naive Bayes prediction algorithm by copying input objects and parameters
@@ -115,8 +111,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) :
-        classifier::prediction::interface1::Batch(other), parameter(other.parameter), input(other.input)
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other)
+        : classifier::prediction::interface1::Batch(other), parameter(other.parameter), input(other.input)
     {
         initialize();
     }
@@ -133,7 +129,7 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated multinomial naive Bayes prediction algorithm
@@ -146,23 +142,19 @@ public:
     }
 
 protected:
-
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, interface1::BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, interface1::BatchContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
     }
 };
@@ -186,7 +178,7 @@ namespace interface2
  * \tparam algorithmFPType  Data type to use in intermediate computations for prediction based on the multinomial naive Bayes model, double or float
  * \tparam method           Multinomial naive Bayes prediction method, \ref Method
  */
-template<typename algorithmFPType, prediction::Method method, CpuType cpu>
+template <typename algorithmFPType, prediction::Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -195,7 +187,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -217,26 +209,23 @@ public:
  *  \par Enumerations
  *      - \ref Method Multinomial naive Bayes prediction methods
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, prediction::Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, prediction::Method method = defaultDense>
 class Batch : public classifier::prediction::Batch
 {
 public:
     typedef classifier::prediction::Batch super;
 
     typedef algorithms::multinomial_naive_bayes::prediction::Input InputType;
-    typedef algorithms::multinomial_naive_bayes::Parameter         ParameterType;
-    typedef typename super::ResultType                             ResultType;
+    typedef algorithms::multinomial_naive_bayes::Parameter ParameterType;
+    typedef typename super::ResultType ResultType;
 
-    InputType input;                /*!< %Input objects of the algorithm */
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the prediction algorithm */
+    InputType input;         /*!< %Input objects of the algorithm */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the prediction algorithm */
     /**
      * Default constructor
      * \param nClasses  Number of classes
      */
-    Batch(size_t nClasses) : parameter(nClasses)
-    {
-        initialize();
-    }
+    Batch(size_t nClasses) : parameter(nClasses) { initialize(); }
 
     /**
      * Constructs multinomial naive Bayes prediction algorithm by copying input objects and parameters
@@ -244,8 +233,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) :
-        classifier::prediction::Batch(other), parameter(other.parameter), input(other.input)
+    Batch(const Batch<algorithmFPType, method> & other) : classifier::prediction::Batch(other), parameter(other.parameter), input(other.input)
     {
         initialize();
     }
@@ -262,36 +250,29 @@ public:
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated multinomial naive Bayes prediction algorithm
      * with a copy of input objects and parameters of this multinomial naive Bayes prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _in = &input;
-        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
     }
 };

@@ -34,19 +34,14 @@ using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 
-typedef float algorithmFPType;     /* Algorithm floating-point type */
+typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Input data set parameters */
-const size_t nBlocks = 4;
-const string datasetFileNames[] =
-{
-    "../data/online/covcormoments_csr_1.csv",
-    "../data/online/covcormoments_csr_2.csv",
-    "../data/online/covcormoments_csr_3.csv",
-    "../data/online/covcormoments_csr_4.csv"
-};
+const size_t nBlocks            = 4;
+const string datasetFileNames[] = { "../data/online/covcormoments_csr_1.csv", "../data/online/covcormoments_csr_2.csv",
+                                    "../data/online/covcormoments_csr_3.csv", "../data/online/covcormoments_csr_4.csv" };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 4, &datasetFileNames[0], &datasetFileNames[1], &datasetFileNames[2], &datasetFileNames[3]);
 
@@ -54,10 +49,10 @@ int main(int argc, char *argv[])
     pca::Online<> algorithm;
 
     /* Use covariance algorithm for sparse data inside the PCA algorithm */
-    algorithm.parameter.covariance = services::SharedPtr<covariance::Online<algorithmFPType, covariance::fastCSR> >
-                                     (new covariance::Online<algorithmFPType, covariance::fastCSR>());
+    algorithm.parameter.covariance = services::SharedPtr<covariance::Online<algorithmFPType, covariance::fastCSR> >(
+        new covariance::Online<algorithmFPType, covariance::fastCSR>());
 
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         /* Read data from a file and create a numeric table to store input data */
         CSRNumericTablePtr dataTable(createSparseTable<float>(datasetFileNames[i]));

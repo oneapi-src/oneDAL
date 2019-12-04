@@ -39,7 +39,7 @@ using namespace daal::algorithms::implicit_als;
 /* Input data set parameters */
 string trainDatasetFileName = "../data/batch/implicit_als_csr.csv";
 
-typedef float algorithmFPType;   /* Algorithm floating-point type */
+typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Algorithm parameters */
 const size_t nFactors = 2;
@@ -52,7 +52,7 @@ void initializeModel();
 void trainModel();
 void testModel();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &trainDatasetFileName);
 

@@ -36,15 +36,14 @@ namespace algorithms
 {
 namespace covariance
 {
-
 using namespace daal::data_management;
 using namespace daal::services;
 
 class JavaOnlineContainer : public OnlineContainerIface, public JavaCallback
 {
 public:
-    JavaOnlineContainer(JavaVM *_jvm, jobject _javaObject) : JavaCallback(_jvm, _javaObject), _initFlag(false), resultStorage(NULL), partialResultStorage(NULL)
-    {};
+    JavaOnlineContainer(JavaVM * _jvm, jobject _javaObject)
+        : JavaCallback(_jvm, _javaObject), _initFlag(false), resultStorage(NULL), partialResultStorage(NULL) {};
 
     virtual ~JavaOnlineContainer() {}
 
@@ -54,20 +53,29 @@ public:
     virtual services::Status compute()
     {
         JavaCallback::ThreadLocalStorage tls = _tls.local();
-        jint status = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
-        JNIEnv *env = tls.jniEnv;
+        jint status                          = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
+        JNIEnv * env                         = tls.jniEnv;
 
         jclass javaObjectClass = env->GetObjectClass(javaObject);
-        if(javaObjectClass == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaObjectClass could not be initialized"); return services::Status(); }
+        if (javaObjectClass == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaObjectClass could not be initialized");
+            return services::Status();
+        }
 
         jmethodID getContextID = env->GetMethodID(javaObjectClass, "getContext", "()Lcom/intel/daal/services/DaalContext;");
-        if(getContextID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID getContextID could not be initialized"); return services::Status(); }
+        if (getContextID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID getContextID could not be initialized");
+            return services::Status();
+        }
 
         jobject javaContextObject = env->CallObjectMethod(javaObject, getContextID);
-        if(javaContextObject == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaContextObject could not be initialized"); return services::Status(); }
+        if (javaContextObject == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaContextObject could not be initialized");
+            return services::Status();
+        }
 
         setInputToJava(env, javaObjectClass, javaObject);
 
@@ -76,18 +84,21 @@ public:
         setPartialResultToJava(env, javaObjectClass, javaObject, javaContextObject);
 
         jmethodID computeMethodID = env->GetMethodID(javaObjectClass, "compute", "()Lcom/intel/daal/algorithms/covariance/PartialResult;");
-        if(computeMethodID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID computeMethodID could not be initialized"); return services::Status(); }
+        if (computeMethodID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID computeMethodID could not be initialized");
+            return services::Status();
+        }
 
         env->CallObjectMethod(javaObject, computeMethodID);
 
-        if(!tls.is_main_thread)
+        if (!tls.is_main_thread)
         {
             status = jvm->DetachCurrentThread();
         }
 
         _tls.local() = tls;
-        _initFlag = true;
+        _initFlag    = true;
         return services::Status();
     }
 
@@ -97,20 +108,29 @@ public:
     virtual services::Status finalizeCompute()
     {
         JavaCallback::ThreadLocalStorage tls = _tls.local();
-        jint status = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
-        JNIEnv *env = tls.jniEnv;
+        jint status                          = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
+        JNIEnv * env                         = tls.jniEnv;
 
         jclass javaObjectClass = env->GetObjectClass(javaObject);
-        if(javaObjectClass == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaObjectClass could not be initialized"); return services::Status(); }
+        if (javaObjectClass == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaObjectClass could not be initialized");
+            return services::Status();
+        }
 
         jmethodID getContextID = env->GetMethodID(javaObjectClass, "getContext", "()Lcom/intel/daal/services/DaalContext;");
-        if(getContextID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID getContextID could not be initialized"); return services::Status(); }
+        if (getContextID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID getContextID could not be initialized");
+            return services::Status();
+        }
 
         jobject javaContextObject = env->CallObjectMethod(javaObject, getContextID);
-        if(javaContextObject == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaContextObject could not be initialized"); return services::Status(); }
+        if (javaContextObject == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaContextObject could not be initialized");
+            return services::Status();
+        }
 
         setPartialResultToJava(env, javaObjectClass, javaObject, javaContextObject);
 
@@ -119,12 +139,15 @@ public:
         setResultToJava(env, javaObjectClass, javaObject, javaContextObject);
 
         jmethodID finalizeComputeMethodID = env->GetMethodID(javaObjectClass, "finalizeCompute", "()Lcom/intel/daal/algorithms/covariance/Result;");
-        if(finalizeComputeMethodID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID finalizeComputeMethodID could not be initialized"); return services::Status(); }
+        if (finalizeComputeMethodID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID finalizeComputeMethodID could not be initialized");
+            return services::Status();
+        }
 
         env->CallObjectMethod(javaObject, finalizeComputeMethodID);
 
-        if(!tls.is_main_thread)
+        if (!tls.is_main_thread)
         {
             status = jvm->DetachCurrentThread();
         }
@@ -133,109 +156,151 @@ public:
         return services::Status();
     }
 
-    SerializationIfacePtr *partialResultStorage;
-    SerializationIfacePtr *resultStorage;
+    SerializationIfacePtr * partialResultStorage;
+    SerializationIfacePtr * resultStorage;
 
-    void setJavaResult(ResultPtr result)
-    {
-        _result = result;
-    };
+    void setJavaResult(ResultPtr result) { _result = result; };
 
-    void setJavaPartialResult(PartialResultPtr partialResult)
-    {
-        _partialResult = partialResult;
-    };
+    void setJavaPartialResult(PartialResultPtr partialResult) { _partialResult = partialResult; };
 
 protected:
-    void setInputToJava(JNIEnv *env, jclass javaObjectClass, jobject javaObject)
+    void setInputToJava(JNIEnv * env, jclass javaObjectClass, jobject javaObject)
     {
-        const char *javaInputClassName = "Lcom/intel/daal/algorithms/covariance/Input;";
-        jclass javaInputClass = env->FindClass(javaInputClassName);
-        if(javaInputClass == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaInputClass could not be initialized"); return; }
+        const char * javaInputClassName = "Lcom/intel/daal/algorithms/covariance/Input;";
+        jclass javaInputClass           = env->FindClass(javaInputClassName);
+        if (javaInputClass == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaInputClass could not be initialized");
+            return;
+        }
 
         jfieldID inputFieldID = env->GetFieldID(javaObjectClass, "input", "Lcom/intel/daal/algorithms/covariance/Input;");
-        if(inputFieldID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jfieldID inputFieldID could not be initialized"); return; }
+        if (inputFieldID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jfieldID inputFieldID could not be initialized");
+            return;
+        }
 
         jobject javaInput = env->GetObjectField(javaObject, inputFieldID);
-        if(javaInput == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaInput could not be initialized"); return; }
+        if (javaInput == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaInput could not be initialized");
+            return;
+        }
 
         jmethodID setterID = env->GetMethodID(javaInputClass, "setCInput", "(J)V");
-        if(setterID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID setterID could not be initialized"); return; }
+        if (setterID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID setterID could not be initialized");
+            return;
+        }
 
         env->CallVoidMethod(javaInput, setterID, (jlong)(_in));
     }
 
-    void setParameterToJava(JNIEnv *env, jclass javaObjectClass, jobject javaObject)
+    void setParameterToJava(JNIEnv * env, jclass javaObjectClass, jobject javaObject)
     {
-        const char *javaParameterClassName = "Lcom/intel/daal/algorithms/covariance/OnlineParameter;";
-        jclass javaParameterClass = env->FindClass(javaParameterClassName);
-        if(javaParameterClass == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaParameterClass could not be initialized"); return; }
+        const char * javaParameterClassName = "Lcom/intel/daal/algorithms/covariance/OnlineParameter;";
+        jclass javaParameterClass           = env->FindClass(javaParameterClassName);
+        if (javaParameterClass == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaParameterClass could not be initialized");
+            return;
+        }
 
         jfieldID parameterFieldID = env->GetFieldID(javaObjectClass, "parameter", "Lcom/intel/daal/algorithms/covariance/OnlineParameter;");
-        if(parameterFieldID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jfieldID parameterFieldID could not be initialized"); return; }
+        if (parameterFieldID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jfieldID parameterFieldID could not be initialized");
+            return;
+        }
 
         jobject javaParameter = env->GetObjectField(javaObject, parameterFieldID);
-        if(javaParameter == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaParameter could not be initialized"); return; }
+        if (javaParameter == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaParameter could not be initialized");
+            return;
+        }
 
         jmethodID setterID = env->GetMethodID(javaParameterClass, "setCParameter", "(J)V");
-        if(setterID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID setterID could not be initialized"); return; }
+        if (setterID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID setterID could not be initialized");
+            return;
+        }
 
         env->CallVoidMethod(javaParameter, setterID, (jlong)(_par));
     }
 
-    void setPartialResultToJava(JNIEnv *env, jclass javaObjectClass, jobject javaObject, jobject javaContextObject)
+    void setPartialResultToJava(JNIEnv * env, jclass javaObjectClass, jobject javaObject, jobject javaContextObject)
     {
-        const char *javaPartialResultClassName = "Lcom/intel/daal/algorithms/covariance/PartialResult;";
-        jclass javaPartialResultClass = env->FindClass(javaPartialResultClassName);
-        if(javaPartialResultClass == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaPartialResultClass could not be initialized"); return; }
+        const char * javaPartialResultClassName = "Lcom/intel/daal/algorithms/covariance/PartialResult;";
+        jclass javaPartialResultClass           = env->FindClass(javaPartialResultClassName);
+        if (javaPartialResultClass == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaPartialResultClass could not be initialized");
+            return;
+        }
 
         jmethodID constructPartialResultID = env->GetMethodID(javaPartialResultClass, "<init>", "(Lcom/intel/daal/services/DaalContext;J)V");
-        if(constructPartialResultID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID constructPartialResultID could not be initialized"); return; }
+        if (constructPartialResultID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID constructPartialResultID could not be initialized");
+            return;
+        }
 
         partialResultStorage = new SerializationIfacePtr(_partialResult);
-        jobject javaPartialResultObject = env->NewObject(javaPartialResultClass, constructPartialResultID, javaContextObject,
-                                          jlong(partialResultStorage));
-        if(javaPartialResultObject == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaPartialResultObject could not be initialized"); return; }
+        jobject javaPartialResultObject =
+            env->NewObject(javaPartialResultClass, constructPartialResultID, javaContextObject, jlong(partialResultStorage));
+        if (javaPartialResultObject == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaPartialResultObject could not be initialized");
+            return;
+        }
 
-        jmethodID setPartialResultMethodID = env->GetMethodID(javaObjectClass, "setPartialResult",
-                                             "(Lcom/intel/daal/algorithms/covariance/PartialResult;Z)V");
-        if(setPartialResultMethodID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID setPartialResultMethodID could not be initialized"); return; }
+        jmethodID setPartialResultMethodID =
+            env->GetMethodID(javaObjectClass, "setPartialResult", "(Lcom/intel/daal/algorithms/covariance/PartialResult;Z)V");
+        if (setPartialResultMethodID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID setPartialResultMethodID could not be initialized");
+            return;
+        }
 
         env->CallVoidMethod(javaObject, setPartialResultMethodID, javaPartialResultObject, _initFlag);
     }
 
-    void setResultToJava(JNIEnv *env, jclass javaObjectClass, jobject javaObject, jobject javaContextObject)
+    void setResultToJava(JNIEnv * env, jclass javaObjectClass, jobject javaObject, jobject javaContextObject)
     {
-        const char *javaResultClassName = "Lcom/intel/daal/algorithms/covariance/Result;";
-        jclass javaResultClass = env->FindClass(javaResultClassName);
-        if(javaResultClass == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaResultClass could not be initialized"); return; }
+        const char * javaResultClassName = "Lcom/intel/daal/algorithms/covariance/Result;";
+        jclass javaResultClass           = env->FindClass(javaResultClassName);
+        if (javaResultClass == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jclass javaResultClass could not be initialized");
+            return;
+        }
 
         jmethodID constructResultID = env->GetMethodID(javaResultClass, "<init>", "(Lcom/intel/daal/services/DaalContext;J)V");
-        if(constructResultID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID constructResultID could not be initialized"); return; }
+        if (constructResultID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID constructResultID could not be initialized");
+            return;
+        }
 
         resultStorage = new SerializationIfacePtr(_result);
 
         jobject javaResultObject = env->NewObject(javaResultClass, constructResultID, javaContextObject, jlong(resultStorage));
-        if(javaResultObject == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaResultObject could not be initialized"); return; }
+        if (javaResultObject == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jobject javaResultObject could not be initialized");
+            return;
+        }
 
         jmethodID setResultMethodID = env->GetMethodID(javaObjectClass, "setResult", "(Lcom/intel/daal/algorithms/covariance/Result;)V");
-        if(setResultMethodID == 0)
-        { env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID setResultMethodID could not be initialized"); return; }
+        if (setResultMethodID == 0)
+        {
+            env->ThrowNew(env->FindClass("java/lang/Exception"), "jmethodID setResultMethodID could not be initialized");
+            return;
+        }
 
         env->CallVoidMethod(javaObject, setResultMethodID, javaResultObject);
     }
@@ -245,8 +310,8 @@ protected:
     bool _initFlag;
 };
 
-} // namespace daal::algorithms::covariance
-} // namespace daal::algorithms
+} // namespace covariance
+} // namespace algorithms
 } // namespace daal
 
 #endif

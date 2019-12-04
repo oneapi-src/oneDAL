@@ -45,10 +45,10 @@ namespace interface1
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const InputIface *algInput = static_cast<const InputIface *>(input);
-    const Parameter *algParameter = static_cast<const Parameter *>(parameter);
+    const InputIface * algInput    = static_cast<const InputIface *>(input);
+    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     size_t nUsers = algInput->getNumberOfUsers();
     size_t nItems = algInput->getNumberOfItems();
@@ -57,11 +57,12 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const 
     return st;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                          const int method);
 
-}// namespace interface1
-}// namespace ratings
-}// namespace prediction
-}// namespace implicit_als
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

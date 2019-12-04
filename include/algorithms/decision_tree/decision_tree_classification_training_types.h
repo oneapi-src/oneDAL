@@ -33,19 +33,16 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * \brief Contains classes of the Decision tree algorithm
  */
 namespace decision_tree
 {
-
 /**
  * \brief Contains classes of the Decision tree classification algorithm
  */
 namespace classification
 {
-
 /**
  * @defgroup decision_tree_classification_training Training
  * \copydoc daal::algorithms::decision_tree::classification::training
@@ -57,7 +54,6 @@ namespace classification
  */
 namespace training
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__DECISION_TREE__CLASSIFICATION__TRAINING__METHOD"></a>
  * \brief Computation methods for Decision tree model-based training
@@ -73,8 +69,8 @@ enum Method
  */
 enum InputId
 {
-    dataForPruning      = algorithms::classifier::training::lastInputId + 1,  /*!< Pruning data set */
-    labelsForPruning,                                                         /*!< Labels of the pruning data set */
+    dataForPruning = algorithms::classifier::training::lastInputId + 1, /*!< Pruning data set */
+    labelsForPruning,                                                   /*!< Labels of the pruning data set */
     lastInputId = labelsForPruning
 };
 
@@ -83,7 +79,6 @@ enum InputId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__CLASSIFIER__TRAINING__INPUT"></a>
  * \brief Base class for the input objects in the training stage of the classification algorithms
@@ -92,7 +87,7 @@ class DAAL_EXPORT Input : public classifier::training::Input
 {
 public:
     Input();
-    Input(const Input& other) : classifier::training::Input(other){}
+    Input(const Input & other) : classifier::training::Input(other) {}
 
     using classifier::training::Input::get;
     using classifier::training::Input::set;
@@ -148,8 +143,9 @@ public:
      * \param[in] parameter %Parameter of Decision tree model-based training
      * \param[in] method Computation method for the algorithm
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const decision_tree::classification::Parameter * parameter, int method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const decision_tree::classification::Parameter * parameter,
+                                          int method);
 
     /**
      * Allocates memory to store the result of Decision tree model-based training
@@ -157,11 +153,13 @@ public:
      * \param[in] parameter %Parameter of Decision tree model-based training
      * \param[in] method Computation method for the algorithm
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const decision_tree::classification::interface1::Parameter * parameter, int method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input,
+                                          const decision_tree::classification::interface1::Parameter * parameter, int method);
+
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
+    template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
         return classifier::training::Result::serialImpl<Archive, onDeserialize>(arch);

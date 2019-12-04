@@ -31,8 +31,8 @@ namespace dtrp = daal::algorithms::decision_tree::regression::prediction;
 * Method:    cInit
 * Signature: (II)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionBatch_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                                  jint prec, jint method)
 {
     return jniBatch<dtrp::Method, dtrp::Batch, dtrp::defaultDense>::newObj(prec, method);
 }
@@ -42,8 +42,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
 * Method:    cInitParameter
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionBatch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionBatch_cInitParameter(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong algAddr, jint prec,
+                                                                                                                           jint method)
 {
     return jniBatch<dtrp::Method, dtrp::Batch, dtrp::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -53,8 +55,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
 * Method:    cGetInput
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
     return jniBatch<dtrp::Method, dtrp::Batch, dtrp::defaultDense>::getInput(prec, method, algAddr);
 }
@@ -64,8 +67,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
 * Method:    cGetResult
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                       jlong algAddr, jint prec,
+                                                                                                                       jint method)
 {
     return jniBatch<dtrp::Method, dtrp::Batch, dtrp::defaultDense>::getResult(prec, method, algAddr);
 }
@@ -75,8 +79,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1tree_regression_prediction_PredictionBatch_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method)
 {
     return jniBatch<dtrp::Method, dtrp::Batch, dtrp::defaultDense>::getClone(prec, method, algAddr);
 }

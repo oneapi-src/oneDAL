@@ -35,18 +35,18 @@ using namespace daal::algorithms::lasso_regression::prediction;
  * Method:    cSetInput
  * Signature:(JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_prediction_Input_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_prediction_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                   jint id, jlong ntAddr)
 {
-    if(id == dataId)
+    if (id == dataId)
     {
-        jniInput<lasso_regression::prediction::Input>::
-            set<lasso_regression::prediction::NumericTableInputId, NumericTable>(inputAddr, lasso_regression::prediction::data, ntAddr);
+        jniInput<lasso_regression::prediction::Input>::set<lasso_regression::prediction::NumericTableInputId, NumericTable>(
+            inputAddr, lasso_regression::prediction::data, ntAddr);
     }
-    else if(id == modelId)
+    else if (id == modelId)
     {
-        jniInput<lasso_regression::prediction::Input>::
-            set<lasso_regression::prediction::ModelInputId, lasso_regression::Model>(inputAddr, lasso_regression::prediction::model, ntAddr);
+        jniInput<lasso_regression::prediction::Input>::set<lasso_regression::prediction::ModelInputId, lasso_regression::Model>(
+            inputAddr, lasso_regression::prediction::model, ntAddr);
     }
 }
 
@@ -55,18 +55,18 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_lasso_1regression_predicti
  * Method:    cGetInput
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_prediction_Input_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_lasso_1regression_prediction_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                                    jint id)
 {
-    if(id == dataId)
+    if (id == dataId)
     {
-        return jniInput<lasso_regression::prediction::Input>::
-            get<lasso_regression::prediction::NumericTableInputId, NumericTable>(inputAddr, lasso_regression::prediction::data);
+        return jniInput<lasso_regression::prediction::Input>::get<lasso_regression::prediction::NumericTableInputId, NumericTable>(
+            inputAddr, lasso_regression::prediction::data);
     }
-    else if(id == modelId)
+    else if (id == modelId)
     {
-        return jniInput<lasso_regression::prediction::Input>::
-            get<lasso_regression::prediction::ModelInputId, lasso_regression::Model>(inputAddr, lasso_regression::prediction::model);
+        return jniInput<lasso_regression::prediction::Input>::get<lasso_regression::prediction::ModelInputId, lasso_regression::Model>(
+            inputAddr, lasso_regression::prediction::model);
     }
 
     return (jlong)0;

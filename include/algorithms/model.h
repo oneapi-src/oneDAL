@@ -32,7 +32,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -42,7 +41,8 @@ namespace interface1
  * @addtogroup base_algorithms
  * @{
  */
-struct ValidationMetricIface {};
+struct ValidationMetricIface
+{};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MODEL"></a>
@@ -55,19 +55,18 @@ class Model : public data_management::SerializationIface
 {
 public:
     /** Default constructor */
-    Model()
-    {}
+    Model() {}
 
     virtual ~Model() {}
 
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
      */
-    int getSerializationTag() const DAAL_C11_OVERRIDE  { return 0; }
+    int getSerializationTag() const DAAL_C11_OVERRIDE { return 0; }
 
 protected:
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return services::Status();
     }
@@ -81,6 +80,6 @@ using interface1::ValidationMetricIface;
 using interface1::Model;
 using interface1::ModelPtr;
 
-}
+} // namespace algorithms
 } // namespace daal
 #endif

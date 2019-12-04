@@ -37,7 +37,7 @@ template class PCASVDBatchKernel<DAAL_FPTYPE, interface2::BatchParameter<DAAL_FP
 
 template class PCASVDBatchKernel<DAAL_FPTYPE, interface3::BatchParameter<DAAL_FPTYPE, pca::svdDense>, DAAL_CPU>;
 
-}
-}
-}
-}
+} // namespace internal
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

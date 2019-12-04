@@ -50,8 +50,7 @@ namespace interface1
 class SQLFeatureManager
 {
 public:
-    SQLFeatureManager() : _errors(services::SharedPtr<services::ErrorCollection>(new services::ErrorCollection))
-    {}
+    SQLFeatureManager() : _errors(services::SharedPtr<services::ErrorCollection>(new services::ErrorCollection)) {}
 
     /**
      * Adds extended feature modifier
@@ -60,9 +59,8 @@ public:
      * \param[out]  status     (optional) The pointer to status object
      * \return Reference to itself
      */
-    SQLFeatureManager &addModifier(const features::FeatureIdCollectionIfacePtr &featureIds,
-                                   const modifiers::sql::FeatureModifierIfacePtr &modifier,
-                                   services::Status *status = NULL)
+    SQLFeatureManager & addModifier(const features::FeatureIdCollectionIfacePtr & featureIds,
+                                    const modifiers::sql::FeatureModifierIfacePtr & modifier, services::Status * status = NULL)
     {
         services::Status localStatus;
         if (!_modifiersManager)
@@ -91,16 +89,16 @@ public:
      *  \param[out]  nt      Numeric Table to store query results
      *  \param[in]   maxRows Maximum number of rows that can be read
      */
-    DataSourceIface::DataSourceStatus statementResultsNumericTable(SQLHSTMT hdlStmt, NumericTable *nt, size_t maxRows)
+    DataSourceIface::DataSourceStatus statementResultsNumericTable(SQLHSTMT hdlStmt, NumericTable * nt, size_t maxRows)
     {
-        DAAL_ASSERT( nt );
-        DAAL_ASSERT( hdlStmt );
+        DAAL_ASSERT(nt);
+        DAAL_ASSERT(hdlStmt);
 
         nt->resize(maxRows);
 
         nt->getBlockOfRows(0, maxRows, writeOnly, _currentRowBlock);
-        DAAL_DATA_TYPE *ntBuffer = _currentRowBlock.getBlockPtr();
-        const size_t nColumns = _currentRowBlock.getNumberOfColumns();
+        DAAL_DATA_TYPE * ntBuffer = _currentRowBlock.getBlockPtr();
+        const size_t nColumns     = _currentRowBlock.getNumberOfColumns();
 
         SQLRETURN ret;
         size_t read = 0;
@@ -118,7 +116,10 @@ public:
             }
 
             read++;
-            if (read >= maxRows) { break; }
+            if (read >= maxRows)
+            {
+                break;
+            }
         }
 
         nt->releaseBlockOfRows(_currentRowBlock);
@@ -148,18 +149,18 @@ public:
      *  \param[in]   hdlStmt     ODBC statement handle that contains an SQL query
      *  \param[out]  dictionary  Dictionary to be created
      */
-    services::Status createDictionary(SQLHSTMT hdlStmt, DataSourceDictionary *dictionary)
+    services::Status createDictionary(SQLHSTMT hdlStmt, DataSourceDictionary * dictionary)
     {
-        DAAL_ASSERT( dictionary );
-        DAAL_ASSERT( hdlStmt );
+        DAAL_ASSERT(dictionary);
+        DAAL_ASSERT(hdlStmt);
 
         services::Status status;
 
-        const internal::SQLFeaturesInfo &featuresInfo = getFeaturesInfo(hdlStmt, &status);
-        DAAL_CHECK_STATUS_VAR( status );
+        const internal::SQLFeaturesInfo & featuresInfo = getFeaturesInfo(hdlStmt, &status);
+        DAAL_CHECK_STATUS_VAR(status);
 
-        DAAL_CHECK_STATUS( status, bindSQLColumns(hdlStmt, featuresInfo) );
-        DAAL_CHECK_STATUS( status, fillDictionary(*dictionary, featuresInfo) );
+        DAAL_CHECK_STATUS(status, bindSQLColumns(hdlStmt, featuresInfo));
+        DAAL_CHECK_STATUS(status, fillDictionary(*dictionary, featuresInfo));
 
         return status;
     }
@@ -171,7 +172,7 @@ public:
      *  \param[in]   maxRows       Maximum number of rows to read
      *  \return Full limited query with the ';' symbol at the end
      */
-    std::string setLimitQuery(std::string &query, size_t idx_last_read, size_t maxRows)
+    std::string setLimitQuery(std::string & query, size_t idx_last_read, size_t maxRows)
     {
         if (query.find('\0') != std::string::npos)
         {
@@ -183,16 +184,13 @@ public:
         return ss.str();
     }
 
-    services::ErrorCollectionPtr getErrors()
-    {
-        return services::ErrorCollectionPtr(new services::ErrorCollection());
-    }
+    services::ErrorCollectionPtr getErrors() { return services::ErrorCollectionPtr(new services::ErrorCollection()); }
 
 private:
-    internal::SQLFeaturesInfo getFeaturesInfo(SQLHSTMT hdlStmt, services::Status *status = NULL)
+    internal::SQLFeaturesInfo getFeaturesInfo(SQLHSTMT hdlStmt, services::Status * status = NULL)
     {
         SQLSMALLINT nFeatures = 0;
-        SQLRETURN ret = SQLNumResultCols(hdlStmt, &nFeatures);
+        SQLRETURN ret         = SQLNumResultCols(hdlStmt, &nFeatures);
         if (!SQL_SUCCEEDED(ret))
         {
             services::internal::tryAssignStatusAndThrow(status, services::ErrorODBC);
@@ -204,7 +202,7 @@ private:
         SQLLEN sqlTypeLength;
         internal::SQLFeaturesInfo featuresInfo;
 
-        for (int i = 0 ; i < nFeatures; i++)
+        for (int i = 0; i < nFeatures; i++)
         {
             const int bufferSize = 128;
             char label[bufferSize];
@@ -235,8 +233,7 @@ private:
                 return internal::SQLFeaturesInfo();
             }
 
-            ret = SQLColAttributes(hdlStmt, (SQLUSMALLINT)(i + 1), SQL_DESC_NAME, (SQLPOINTER)label,
-                                            (SQLSMALLINT)bufferSize, &labelLenUsed, NULL);
+            ret = SQLColAttributes(hdlStmt, (SQLUSMALLINT)(i + 1), SQL_DESC_NAME, (SQLPOINTER)label, (SQLSMALLINT)bufferSize, &labelLenUsed, NULL);
             if (!SQL_SUCCEEDED(ret))
             {
                 services::internal::tryAssignStatusAndThrow(status, services::ErrorODBC);
@@ -251,62 +248,65 @@ private:
             const services::String labelStr(label);
             const bool isSigned = sqlIsUnsigned == SQL_FALSE;
 
-            featuresInfo.add( internal::SQLFeatureInfo(labelStr,
-                                                       sqlType,
-                                                       sqlOctetLength,
-                                                       isSigned) );
+            featuresInfo.add(internal::SQLFeatureInfo(labelStr, sqlType, sqlOctetLength, isSigned));
         }
 
         return featuresInfo;
     }
 
-    services::Status bindSQLColumns(SQLHSTMT hdlStmt, const internal::SQLFeaturesInfo &featuresInfo)
+    services::Status bindSQLColumns(SQLHSTMT hdlStmt, const internal::SQLFeaturesInfo & featuresInfo)
     {
-        DAAL_ASSERT( hdlStmt );
+        DAAL_ASSERT(hdlStmt);
 
         services::Status status;
 
-        const internal::SQLFetchMode::Value fetchMode = _modifiersManager
-                                                        ? internal::SQLFetchMode::useNativeSQLTypes
-                                                        : internal::SQLFetchMode::castToFloatingPointType;
+        const internal::SQLFetchMode::Value fetchMode =
+            _modifiersManager ? internal::SQLFetchMode::useNativeSQLTypes : internal::SQLFetchMode::castToFloatingPointType;
         _fetchBuffer = internal::SQLFetchBuffer::create(featuresInfo, fetchMode, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         SQLRETURN ret = SQLFreeStmt(hdlStmt, SQL_UNBIND);
-        if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+        if (!SQL_SUCCEEDED(ret))
+        {
+            return services::throwIfPossible(services::ErrorODBC);
+        }
 
         const SQLSMALLINT targetSQLType = internal::SQLFetchMode::getTargetType(fetchMode);
         for (size_t i = 0; i < featuresInfo.getNumberOfFeatures(); i++)
         {
-            char * const buffer = _fetchBuffer->getBufferForFeature(i);
-            const SQLLEN bufferSize = _fetchBuffer->getBufferSizeForFeature(i);
+            char * const buffer             = _fetchBuffer->getBufferForFeature(i);
+            const SQLLEN bufferSize         = _fetchBuffer->getBufferSizeForFeature(i);
             SQLLEN * const actualSizeBuffer = _fetchBuffer->getActualDataSizeBufferForFeature(i);
 
             SQLLEN strLenOrIndPtr;
-            ret = SQLBindCol(hdlStmt, (SQLUSMALLINT)(i + 1), targetSQLType,
-                                      (SQLPOINTER)buffer, bufferSize, actualSizeBuffer);
-            if (!SQL_SUCCEEDED(ret)) { return services::throwIfPossible(services::ErrorODBC); }
+            ret = SQLBindCol(hdlStmt, (SQLUSMALLINT)(i + 1), targetSQLType, (SQLPOINTER)buffer, bufferSize, actualSizeBuffer);
+            if (!SQL_SUCCEEDED(ret))
+            {
+                return services::throwIfPossible(services::ErrorODBC);
+            }
         }
 
         if (_modifiersManager)
         {
-            DAAL_CHECK_STATUS( status, _modifiersManager->prepare(featuresInfo, *_fetchBuffer) );
+            DAAL_CHECK_STATUS(status, _modifiersManager->prepare(featuresInfo, *_fetchBuffer));
         }
 
         return status;
     }
 
-    services::Status fillDictionary(DataSourceDictionary &dictionary,
-                                    const internal::SQLFeaturesInfo &featuresInfo)
+    services::Status fillDictionary(DataSourceDictionary & dictionary, const internal::SQLFeaturesInfo & featuresInfo)
     {
         if (_modifiersManager)
         {
             return _modifiersManager->fillDictionary(dictionary);
         }
 
-        const size_t nFeatures = featuresInfo.getNumberOfFeatures();
+        const size_t nFeatures  = featuresInfo.getNumberOfFeatures();
         services::Status status = dictionary.setNumberOfFeatures(nFeatures);
-        if (!status) { return services::throwIfPossible(status); }
+        if (!status)
+        {
+            return services::throwIfPossible(status);
+        }
 
         for (size_t i = 0; i < nFeatures; i++)
         {

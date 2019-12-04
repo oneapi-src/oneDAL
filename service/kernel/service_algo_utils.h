@@ -31,20 +31,19 @@ namespace algorithms
 {
 namespace interface1
 {
-    class AlgorithmIface;
-    class Input;
-}
-}
+class AlgorithmIface;
+class Input;
+} // namespace interface1
+} // namespace algorithms
 
 namespace services
 {
 namespace internal
 {
-
-services::HostAppIface* hostApp(algorithms::interface1::Input& inp);
-void setHostApp(const services::SharedPtr<services::HostAppIface>& pHostApp, algorithms::interface1::Input& inp);
-services::HostAppIfacePtr getHostApp(daal::algorithms::interface1::Input& inp);
-bool isCancelled(services::Status& s, services::HostAppIface* pHostApp);
+services::HostAppIface * hostApp(algorithms::interface1::Input & inp);
+void setHostApp(const services::SharedPtr<services::HostAppIface> & pHostApp, algorithms::interface1::Input & inp);
+services::HostAppIfacePtr getHostApp(daal::algorithms::interface1::Input & inp);
+bool isCancelled(services::Status & s, services::HostAppIface * pHostApp);
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Helper class handling cancellation status depending on the number of jobs to be done
@@ -52,13 +51,13 @@ bool isCancelled(services::Status& s, services::HostAppIface* pHostApp);
 class HostAppHelper
 {
 public:
-    HostAppHelper(HostAppIface* hostApp, size_t maxJobsBeforeCheck);
-    bool isCancelled(services::Status& s, size_t nJobsToDo);
+    HostAppHelper(HostAppIface * hostApp, size_t maxJobsBeforeCheck);
+    bool isCancelled(services::Status & s, size_t nJobsToDo);
     void setup(size_t maxJobsBeforeCheck);
     void reset(size_t maxJobsBeforeCheck);
 
 private:
-    services::HostAppIface* _hostApp;
+    services::HostAppIface * _hostApp;
     size_t _maxJobsBeforeCheck; //granularity
     size_t _nJobsAfterLastCheck;
 };

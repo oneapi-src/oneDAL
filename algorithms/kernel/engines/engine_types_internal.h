@@ -32,11 +32,9 @@ namespace algorithms
 {
 namespace engines
 {
-
 namespace internal
 {
-
-template<CpuType cpu>
+template <CpuType cpu>
 struct Params
 {
     size_t numberOfStreams;
@@ -45,7 +43,7 @@ struct Params
     Params(size_t numStreams) : numberOfStreams(numStreams), nSkip(numStreams) {}
 };
 
-template<CpuType cpu>
+template <CpuType cpu>
 class EnginesCollection
 {
 private:
@@ -54,91 +52,86 @@ private:
     size_t _numberOfStreams;
 
 public:
-    EnginesCollection(engines::EnginePtr engine,
-                      ParallelizationTechnique technique,
-                      Params<cpu> &params,
-                      services::internal::TArray<engines::EnginePtr, cpu> &engines, services::Status *st)
+    EnginesCollection(engines::EnginePtr engine, ParallelizationTechnique technique, Params<cpu> & params,
+                      services::internal::TArray<engines::EnginePtr, cpu> & engines, services::Status * st)
     {
         *st = initEngines(engine, technique, params, engines);
     }
 
-    engines::EnginePtr getUpdatedEngine(engines::EnginePtr engine,
-                                        services::internal::TArray<engines::EnginePtr, cpu> &engines,
-                                        services::internal::TArray<size_t, cpu> &numElems)
+    engines::EnginePtr getUpdatedEngine(engines::EnginePtr engine, services::internal::TArray<engines::EnginePtr, cpu> & engines,
+                                        services::internal::TArray<size_t, cpu> & numElems)
     {
-        switch(_technique)
+        switch (_technique)
         {
-            case skipahead:
+        case skipahead:
+        {
+            return engines[_numberOfStreams - 1]->clone();
+        }
+        case leapfrog:
+        {
+            size_t nSkip = 0;
+            for (size_t i = 0; i < _numberOfStreams; i++)
             {
-                return engines[_numberOfStreams - 1]->clone();
-            }
-            case leapfrog:
-            {
-                size_t nSkip = 0;
-                for(size_t i = 0; i < _numberOfStreams; i++)
+                if (nSkip < numElems[i])
                 {
-                    if(nSkip < numElems[i])
-                    {
-                        nSkip = numElems[i];
-                    }
+                    nSkip = numElems[i];
                 }
-                auto updatedEngine = engine->clone();
-                updatedEngine->skipAhead(nSkip);
-                return updatedEngine;
             }
-            case family: return _clonedEngine;
+            auto updatedEngine = engine->clone();
+            updatedEngine->skipAhead(nSkip);
+            return updatedEngine;
+        }
+        case family: return _clonedEngine;
         }
         return engines::EnginePtr();
     }
 
-    services::Status initEngines(engines::EnginePtr engine,
-                                 ParallelizationTechnique technique,
-                                 Params<cpu> &params,
-                                 services::internal::TArray<engines::EnginePtr, cpu> &engines)
+    services::Status initEngines(engines::EnginePtr engine, ParallelizationTechnique technique, Params<cpu> & params,
+                                 services::internal::TArray<engines::EnginePtr, cpu> & engines)
     {
-        _technique = technique;
+        _technique       = technique;
         _numberOfStreams = params.numberOfStreams;
 
-        auto engineImpl = dynamic_cast<engines::internal::BatchBaseImpl*>(engine.get());
+        auto engineImpl = dynamic_cast<engines::internal::BatchBaseImpl *>(engine.get());
         DAAL_CHECK(engineImpl, ErrorEngineNotSupported);
         DAAL_CHECK(engineImpl->hasSupport(_technique), ErrorEngineNotSupported);
-        switch(_technique)
+        switch (_technique)
         {
-            case skipahead:
+        case skipahead:
+        {
+            for (size_t i = 0; i < _numberOfStreams; i++)
             {
-                for(size_t i = 0; i < _numberOfStreams; i++)
-                {
-                    auto engineLocal = engine->clone();
-                    DAAL_CHECK_STATUS_VAR(engineLocal->skipAhead(params.nSkip[i]));
-                    engines[i] = engineLocal;
-                }
-                break;
+                auto engineLocal = engine->clone();
+                DAAL_CHECK_STATUS_VAR(engineLocal->skipAhead(params.nSkip[i]));
+                engines[i] = engineLocal;
             }
-            case leapfrog:
+            break;
+        }
+        case leapfrog:
+        {
+            for (size_t i = 0; i < _numberOfStreams; i++)
             {
-                for(size_t i = 0; i < _numberOfStreams; i++)
-                {
-                    auto engineLocal = engine->clone();
-                    DAAL_CHECK_STATUS_VAR(engineLocal->leapfrog(i, params.numberOfStreams));
-                    engines[i] = engineLocal;
-                }
-                break;
+                auto engineLocal = engine->clone();
+                DAAL_CHECK_STATUS_VAR(engineLocal->leapfrog(i, params.numberOfStreams));
+                engines[i] = engineLocal;
             }
-            case family:
+            break;
+        }
+        case family:
+        {
+            _clonedEngine = services::dynamicPointerCast<engines::FamilyBatchBase>(engine->clone());
+            DAAL_CHECK(_clonedEngine, ErrorEngineNotSupported);
+            DAAL_CHECK(_clonedEngine->getMaxNumberOfStreams() >= _numberOfStreams, ErrorEngineNotSupported);
+            size_t numStreams = _clonedEngine->getNumberOfStreams();
+            if (numStreams < _numberOfStreams)
             {
-                _clonedEngine = services::dynamicPointerCast<engines::FamilyBatchBase>(engine->clone());
-                DAAL_CHECK(_clonedEngine, ErrorEngineNotSupported);
-                DAAL_CHECK(_clonedEngine->getMaxNumberOfStreams() >= _numberOfStreams, ErrorEngineNotSupported);
-                size_t numStreams = _clonedEngine->getNumberOfStreams();
-                if(numStreams < _numberOfStreams)
-                {
-                    DAAL_CHECK_STATUS_VAR(_clonedEngine->add(_numberOfStreams - numStreams)); // silently initialize more independent streams
-                }
-                for(size_t i = 0; i < _numberOfStreams; i++)
-                {
-                    engines[i] = _clonedEngine->get(i);
-                }
+                DAAL_CHECK_STATUS_VAR(_clonedEngine->add(_numberOfStreams - numStreams)); // silently initialize more independent streams
             }
+            for (size_t i = 0; i < _numberOfStreams; i++)
+            {
+                engines[i] = _clonedEngine->get(i);
+            }
+        }
         }
         return services::Status();
     }

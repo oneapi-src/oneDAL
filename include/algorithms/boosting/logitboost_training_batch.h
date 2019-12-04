@@ -36,7 +36,6 @@ namespace logitboost
 {
 namespace training
 {
-
 namespace interface1
 {
 /**
@@ -52,7 +51,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the LogitBoost, double or float
  * \tparam method           LogitBoost model training method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
@@ -61,7 +60,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     DAAL_DEPRECATED ~BatchContainer();
     /**
@@ -87,18 +86,18 @@ public:
  *      - \ref interface1::Model "Model" class
  *      - \ref classifier::training::interface1::Input "classifier::training::interface1::Input" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = friedman>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = friedman>
 class DAAL_EXPORT Batch : public boosting::training::Batch
 {
 public:
     typedef boosting::training::Batch super;
 
-    typedef typename super::InputType                InputType;
-    typedef algorithms::logitboost::interface1::Parameter        ParameterType;
+    typedef typename super::InputType InputType;
+    typedef algorithms::logitboost::interface1::Parameter ParameterType;
     typedef algorithms::logitboost::training::interface1::Result ResultType;
 
-    ParameterType parameter;        /*!< \ref interface1::Parameter "Parameters" of the algorithm */
-    InputType input;                /*!< %Input data structure */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the algorithm */
+    InputType input;         /*!< %Input data structure */
 
     /**
      * Constructs the LogitBoost training algorithm
@@ -116,8 +115,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> &other) : boosting::training::Batch(other),
-        parameter(other.parameter), input(other.input)
+    DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other)
+        : boosting::training::Batch(other), parameter(other.parameter), input(other.input)
     {
         initialize();
     }
@@ -134,16 +133,13 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of LogitBoost training
      * \return Structure that contains results of LogitBoost training
      */
-    DAAL_DEPRECATED ResultPtr getResult()
-    {
-        return ResultType::cast(_result);
-    }
+    DAAL_DEPRECATED ResultPtr getResult() { return ResultType::cast(_result); }
 
     /**
      * Resets the training results of the classification algorithm
@@ -167,17 +163,14 @@ public:
     }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         ResultPtr res = getResult();
         DAAL_CHECK(_result, services::ErrorNullResult);
         services::Status s = res->template allocate<algorithmFPType>(&input, _par, method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
@@ -207,7 +200,7 @@ namespace interface2
  * \tparam algorithmFPType  Data type to use in intermediate computations for the LogitBoost, double or float
  * \tparam method           LogitBoost model training method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public TrainingContainerIface<batch>
 {
 public:
@@ -216,7 +209,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~BatchContainer();
     /**
@@ -241,17 +234,17 @@ public:
  *      - \ref interface2::Model "Model" class
  *      - classifier::training::Input class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = friedman>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = friedman>
 class DAAL_EXPORT Batch : public classifier::training::Batch
 {
 public:
     typedef classifier::training::Batch super;
 
-    typedef typename super::InputType                InputType;
-    typedef algorithms::logitboost::Parameter        ParameterType;
+    typedef typename super::InputType InputType;
+    typedef algorithms::logitboost::Parameter ParameterType;
     typedef algorithms::logitboost::training::Result ResultType;
 
-    InputType input;                /*!< %Input data structure */
+    InputType input; /*!< %Input data structure */
 
     /**
      * Constructs the LogitBoost training algorithm
@@ -265,24 +258,21 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other);
+    Batch(const Batch<algorithmFPType, method> & other);
 
-    virtual ~Batch()
-    {
-        delete _par;
-    }
+    virtual ~Batch() { delete _par; }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
      * Get input objects for the LogitBoost training algorithm
@@ -294,16 +284,13 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of LogitBoost training
      * \return Structure that contains results of LogitBoost training
      */
-    ResultPtr getResult()
-    {
-        return ResultType::cast(_result);
-    }
+    ResultPtr getResult() { return ResultType::cast(_result); }
 
     /**
      * Resets the training results of the classification algorithm
@@ -321,30 +308,24 @@ public:
      * and parameters of this LogitBoost training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         ResultPtr res = getResult();
         DAAL_CHECK(_result, services::ErrorNullResult);
         services::Status s = res->template allocate<algorithmFPType>(&input, _par, method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
+        _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _in = &input;
         _result.reset(new ResultType());
     }
 };
@@ -353,8 +334,8 @@ protected:
 using interface2::Batch;
 using interface2::BatchContainer;
 
-} // namespace daal::algorithms::logitboost::training
-}
-}
+} // namespace training
+} // namespace logitboost
+} // namespace algorithms
 } // namespace daal
 #endif // __LOGIT_BOOST_TRAINING_BATCH_H__

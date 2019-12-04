@@ -50,14 +50,13 @@ namespace regression
  */
 namespace prediction
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__STUMP__PREDICTION__RESULTID"></a>
  * \brief Available identifiers of the result for making decision tree model-based prediction
  */
 enum ResultId
 {
-    prediction = algorithms::regression::prediction::prediction, /*!< Result of decision tree model-based prediction */
+    prediction   = algorithms::regression::prediction::prediction, /*!< Result of decision tree model-based prediction */
     lastResultId = prediction
 };
 
@@ -66,7 +65,6 @@ enum ResultId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__STUMP__REGRESSION__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the stump algorithm
@@ -74,9 +72,10 @@ namespace interface1
 class DAAL_EXPORT Input : public daal::algorithms::regression::prediction::Input
 {
     typedef daal::algorithms::regression::prediction::Input super;
+
 public:
     Input();
-    Input(const Input &other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -102,21 +101,21 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(daal::algorithms::regression::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(daal::algorithms::regression::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the Stump algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(daal::algorithms::regression::prediction::ModelInputId id, const stump::regression::ModelPtr &ptr);
+    void set(daal::algorithms::regression::prediction::ModelInputId id, const stump::regression::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
 /**
@@ -141,7 +140,7 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   %Input object
      */
-    void set(ResultId id, const data_management::NumericTablePtr &value);
+    void set(ResultId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory to store a partial result of decision tree model-based prediction
@@ -150,7 +149,7 @@ public:
      * \param[in] method  Algorithm method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method);
 
     /**
      * Checks the result of stump model-based prediction
@@ -158,12 +157,12 @@ public:
      * \param[in] par     %Parameter of the algorithm
      * \param[in] method  Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -179,10 +178,10 @@ using interface1::Result;
 using interface1::ResultPtr;
 using interface1::ResultConstPtr;
 
-}
+} // namespace prediction
 /** @} */
-}
-}
-}
-}
+} // namespace regression
+} // namespace stump
+} // namespace algorithms
+} // namespace daal
 #endif

@@ -32,13 +32,11 @@ namespace daal
 {
 namespace services
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
 {
-
 /**
  *  <a name="DAAL-CLASS-SERVICES__HOSTAPPIFACE"></a>
  *  \brief Abstract class which defines callback interface for the host application of this library
@@ -58,7 +56,7 @@ public:
     virtual bool isCancelled() = 0;
 
 private:
-    Base* _impl;
+    Base * _impl;
 };
 typedef services::SharedPtr<HostAppIface> HostAppIfacePtr;
 
@@ -66,6 +64,6 @@ typedef services::SharedPtr<HostAppIface> HostAppIfacePtr;
 using interface1::HostAppIface;
 using interface1::HostAppIfacePtr;
 
-}
-}
+} // namespace services
+} // namespace daal
 #endif //__DAAL_HOST_APP_H__

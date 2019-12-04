@@ -61,7 +61,7 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter();
-    Parameter(const Parameter &other);
+    Parameter(const Parameter & other);
     bool interceptFlag; /*!< Flag that indicates whether the intercept needs to be computed */
 };
 /* [Parameter source code] */
@@ -79,8 +79,7 @@ class DAAL_EXPORT Model : public regression::Model
 public:
     DAAL_CAST_OPERATOR(Model)
 
-    virtual ~Model()
-    {}
+    virtual ~Model() {}
 
     /**
      * Initializes ridge regression coefficients of the regression model
@@ -115,7 +114,7 @@ public:
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
 /** @} */
-}
+} // namespace interface1
 using interface1::Parameter;
 using interface1::Model;
 using interface1::ModelPtr;
@@ -130,10 +129,9 @@ using interface1::ModelConstPtr;
  *
  * \return Status of computations
  */
-DAAL_EXPORT services::Status checkModel(
-    linear_model::Model *model, const daal::algorithms::Parameter &par, size_t nBeta, size_t nResponses);
+DAAL_EXPORT services::Status checkModel(linear_model::Model * model, const daal::algorithms::Parameter & par, size_t nBeta, size_t nResponses);
 
-}
-}
-}
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal
 #endif

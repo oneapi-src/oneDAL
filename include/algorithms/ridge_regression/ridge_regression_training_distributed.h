@@ -51,7 +51,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__TRAINING__DISTRIBUTEDCONTAINER"></a>
  * \brief Class containing methods for ridge regression model-based training in the distributed processing mode
  */
-template<ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
+template <ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer
 {};
 
@@ -59,7 +59,7 @@ class DistributedContainer
  * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__TRAINING__DISTRIBUTEDCONTAINER_STEP2MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
  * \brief Class containing methods for ridge regression model-based training in the second step of the distributed processing mode
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
 {
 public:
@@ -67,7 +67,7 @@ public:
      * Constructs a container for ridge regression model-based training with a specified environment in the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
 
     /** Default destructor */
     ~DistributedContainer();
@@ -105,8 +105,9 @@ public:
  *      - \ref ridge_regression::interface1::ModelNormEq "ridge_regression::ModelNormEq" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
  */
-template<ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = normEqDense>
-class DAAL_EXPORT Distributed : public Training<distributed> {};
+template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = normEqDense>
+class DAAL_EXPORT Distributed : public Training<distributed>
+{};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__TRAINING__DISTRIBUTED_STEP1LOCAL_ALGORITHMFPTYPE_METHOD"></a>
@@ -125,28 +126,26 @@ class DAAL_EXPORT Distributed : public Training<distributed> {};
  *      - \ref ridge_regression::interface1::ModelNormEq "ridge_regression::ModelNormEq" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
 {
 public:
     typedef Online<algorithmFPType, method> super;
 
-    typedef typename super::InputType         InputType;
-    typedef typename super::ParameterType     ParameterType;
-    typedef typename super::ResultType        ResultType;
+    typedef typename super::InputType InputType;
+    typedef typename super::ParameterType ParameterType;
+    typedef typename super::ResultType ResultType;
     typedef typename super::PartialResultType PartialResultType;
 
     /** Default constructor */
-    Distributed<step1Local, algorithmFPType, method>() : Online<algorithmFPType, method>()
-    {}
+    Distributed<step1Local, algorithmFPType, method>() : Online<algorithmFPType, method>() {}
 
     /**
      * Constructs a ridge regression training algorithm in the first step of the distributed processing mode by copying input objects and parameters
      * of another ridge regression training algorithm
      * \param[in] other Algorithm to use as the source to initialize the input objects and parameters of the algorithm
      */
-    Distributed(const Distributed<step1Local, algorithmFPType, method> &other) : Online<algorithmFPType, method>(other)
-    {}
+    Distributed(const Distributed<step1Local, algorithmFPType, method> & other) : Online<algorithmFPType, method>(other) {}
 
     ~Distributed() {}
 
@@ -184,30 +183,24 @@ protected:
  *      - \ref ridge_regression::interface1::ModelNormEq "ridge_regression::ModelNormEq" class
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
 {
 public:
     typedef algorithms::ridge_regression::training::DistributedInput<step2Master> InputType;
-    typedef algorithms::ridge_regression::TrainParameter                          ParameterType;
-    typedef algorithms::ridge_regression::training::Result                        ResultType;
-    typedef algorithms::ridge_regression::training::PartialResult                 PartialResultType;
+    typedef algorithms::ridge_regression::TrainParameter ParameterType;
+    typedef algorithms::ridge_regression::training::Result ResultType;
+    typedef algorithms::ridge_regression::training::PartialResult PartialResultType;
 
     /** Default constructor */
-    Distributed()
-    {
-        initialize();
-    }
+    Distributed() { initialize(); }
 
     /**
      * Constructs a ridge regression training algorithm in the second step of the distributed processing mode by copying input objects and parameters
      * of another ridge regression training algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Distributed(const Distributed<step2Master, algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     ~Distributed() {}
 
@@ -215,7 +208,7 @@ public:
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Registers user-allocated memory to store a partial result of ridge regression model-based training
@@ -223,11 +216,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setPartialResult(const PartialResultPtr& partialResult)
+    services::Status setPartialResult(const PartialResultPtr & partialResult)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult);
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -243,11 +236,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -268,7 +261,7 @@ public:
     }
 
     DistributedInput<step2Master> input; /*!< %Input data structure */
-    ParameterType parameter; /*!< %Training \ref interface1::Parameter "parameters" */
+    ParameterType parameter;             /*!< %Training \ref interface1::Parameter "parameters" */
 
 protected:
     PartialResultPtr _partialResult;
@@ -282,26 +275,23 @@ protected:
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(_pres, &parameter, method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->allocate<algorithmFPType>(&input, &parameter, method);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
-    services::Status initializePartialResult() DAAL_C11_OVERRIDE
-    {
-        return services::Status();
-    }
+    services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
-        _ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, method)(&_env);
-        _in = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, method)(&_env);
+        _in  = &input;
         _par = &parameter;
         _partialResult.reset(new PartialResultType());
         _result.reset(new ResultType());

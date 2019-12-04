@@ -58,8 +58,8 @@ namespace ratings
  */
 enum Method
 {
-    defaultDense = 0,       /*!< Default: predicts ratings based on the ALS model and input data in the dense format */
-    allUsersAllItems = 0    /*!< Predicts ratings for all users and items based on the ALS model and input data in the dense format */
+    defaultDense     = 0, /*!< Default: predicts ratings based on the ALS model and input data in the dense format */
+    allUsersAllItems = 0  /*!< Predicts ratings for all users and items based on the ALS model and input data in the dense format */
 };
 
 /**
@@ -69,7 +69,7 @@ enum Method
  */
 enum ModelInputId
 {
-    model,           /*!< %Input model trained by the ALS algorithm */
+    model, /*!< %Input model trained by the ALS algorithm */
     lastModelInputId = model
 };
 
@@ -80,9 +80,9 @@ enum ModelInputId
  */
 enum PartialModelInputId
 {
-    usersPartialModel,      /*!< %Input partial model with users factors trained by the implicit ALS algorithm
+    usersPartialModel, /*!< %Input partial model with users factors trained by the implicit ALS algorithm
                                      in the distributed processing mode */
-    itemsPartialModel,      /*!< %Input partial model with items factors trained by the implicit ALS algorithm
+    itemsPartialModel, /*!< %Input partial model with items factors trained by the implicit ALS algorithm
                                      in the distributed processing mode */
     lastPartialModelInputId = itemsPartialModel
 };
@@ -94,7 +94,7 @@ enum PartialModelInputId
  */
 enum PartialResultId
 {
-    finalResult,              /*!< Result of the implicit ALS ratings prediction algorithm */
+    finalResult, /*!< Result of the implicit ALS ratings prediction algorithm */
     lastPartialResultId = finalResult
 };
 
@@ -104,7 +104,7 @@ enum PartialResultId
  */
 enum ResultId
 {
-    prediction,         /*!< Numeric table with the predicted ratings */
+    prediction, /*!< Numeric table with the predicted ratings */
     lastResultId = prediction
 };
 
@@ -113,7 +113,6 @@ enum ResultId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__PREDICTION__RATINGS__INPUTIFACE"></a>
  * \brief %Input interface for the rating prediction stage of the implicit ALS algorithm
@@ -122,14 +121,14 @@ class InputIface : public daal::algorithms::Input
 {
 public:
     InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
-    InputIface(const InputIface& other) : daal::algorithms::Input(other) {}
+    InputIface(const InputIface & other) : daal::algorithms::Input(other) {}
     virtual ~InputIface() {}
 
     /**
      * Returns the number of rows in the input numeric table
      * \return Number of rows in the input numeric table
      */
-    virtual size_t getNumberOfUsers()    const = 0;
+    virtual size_t getNumberOfUsers() const = 0;
 
     /**
      * Returns the number of columns in the input numeric table
@@ -146,7 +145,7 @@ class DAAL_EXPORT Input : public InputIface
 {
 public:
     Input();
-    Input(const Input& other) : InputIface(other){}
+    Input(const Input & other) : InputIface(other) {}
     virtual ~Input() {}
 
     /**
@@ -161,7 +160,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(ModelInputId id, const ModelPtr &ptr);
+    void set(ModelInputId id, const ModelPtr & ptr);
 
     /**
      * Returns the number of rows in the input numeric table
@@ -180,16 +179,15 @@ public:
      * \param[in] parameter     Algorithm %parameter
      * \param[in] method        Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__PREDICTION__RATINGS__DISTRIBUTEDINPUT"></a>
  * \brief %Input objects for the rating prediction stage of the implicit ALS algorithm
  * in the distributed processing mode
  */
-template<ComputeStep step>
+template <ComputeStep step>
 class DistributedInput
 {};
 
@@ -198,12 +196,12 @@ class DistributedInput
  * \brief %Input objects for the first step of the rating prediction stage of the implicit ALS algorithm
  * in the distributed processing mode
  */
-template<>
+template <>
 class DAAL_EXPORT DistributedInput<step1Local> : public InputIface
 {
 public:
     DistributedInput();
-    DistributedInput(const DistributedInput& other) : InputIface(other){}
+    DistributedInput(const DistributedInput & other) : InputIface(other) {}
 
     virtual ~DistributedInput() {}
 
@@ -219,7 +217,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the new input object value
      */
-    void set(PartialModelInputId id, const PartialModelPtr &ptr);
+    void set(PartialModelInputId id, const PartialModelPtr & ptr);
 
     /**
      * Returns the number of rows in the input numeric table
@@ -238,9 +236,8 @@ public:
      * \param[in] parameter     Algorithm %parameter
      * \param[in] method        Computation method for the algorithm
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
-
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__PREDICTION__RATINGS__RESULT"></a>
@@ -252,8 +249,7 @@ class DAAL_EXPORT Result : public daal::algorithms::Result
 public:
     DECLARE_SERIALIZABLE_CAST(Result);
     Result();
-    virtual ~Result()
-    {}
+    virtual ~Result() {}
 
     /**
      * Returns the prediction result of the implicit ALS algorithm
@@ -267,7 +263,7 @@ public:
      * \param[in] id    Identifier of the prediction result, \ref ResultId
      * \param[in] ptr   Pointer to the prediction result
      */
-    void set(ResultId id, const data_management::NumericTablePtr &ptr);
+    void set(ResultId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Allocates memory to store the result of the rating prediction stage of the implicit ALS algorithm
@@ -276,7 +272,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Checks the result of the rating prediction stage of the implicit ALS algorithm
@@ -284,12 +280,12 @@ public:
      * \param[in] parameter   %Parameter of the algorithm
      * \param[in] method      Computation method of the algorithm
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -316,7 +312,7 @@ public:
      * \param[in] method    Algorithm computation method
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
      * Returns a partial result of the rating prediction stage of the implicit ALS algorithm
@@ -330,7 +326,7 @@ public:
      * \param[in] id    Identifier of the partial result
      * \param[in] ptr   Pointer to the new partial result object
      */
-    void set(PartialResultId id, const ResultPtr &ptr);
+    void set(PartialResultId id, const ResultPtr & ptr);
 
     /**
      * Checks a partial result of the implicit ALS algorithm
@@ -338,19 +334,19 @@ public:
      * \param[in] parameter %Parameter of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::PartialResult::serialImpl<Archive, onDeserialize>(arch);
     }
 };
 typedef services::SharedPtr<PartialResult> PartialResultPtr;
 
-} // interface1
+} // namespace interface1
 using interface1::InputIface;
 using interface1::Input;
 using interface1::DistributedInput;
@@ -359,11 +355,11 @@ using interface1::PartialResultPtr;
 using interface1::Result;
 using interface1::ResultPtr;
 
-}
-}
+} // namespace ratings
+} // namespace prediction
 /** @} */
-}
-}
-}
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal
 
 #endif

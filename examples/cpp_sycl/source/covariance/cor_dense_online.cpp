@@ -39,14 +39,14 @@ using namespace daal::algorithms;
 const string datasetFileName = "../data/batch/covcormoments_dense.csv";
 const size_t nObservations   = 50;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
-    for (const auto& deviceSelector : getListOfDevices())
+    for (const auto & deviceSelector : getListOfDevices())
     {
-        const auto& nameDevice = deviceSelector.first;
-        const auto& device = deviceSelector.second;
+        const auto & nameDevice = deviceSelector.first;
+        const auto & device     = deviceSelector.second;
         cl::sycl::queue queue(device);
         std::cout << "Running on " << nameDevice << "\n\n";
 
@@ -55,9 +55,7 @@ int main(int argc, char *argv[])
 
         auto data = SyclHomogenNumericTable<>::create(10, 0, NumericTable::notAllocate);
 
-        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable,
-                                                    DataSource::doDictionaryFromContext);
-
+        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
         covariance::Online<> algorithm;
         algorithm.parameter.outputMatrixType = covariance::correlationMatrix;
@@ -76,7 +74,7 @@ int main(int argc, char *argv[])
         covariance::ResultPtr res = algorithm.getResult();
 
         printNumericTable(res->get(covariance::covariance), "Covariance matrix:");
-        printNumericTable(res->get(covariance::mean),        "Mean vector:");
+        printNumericTable(res->get(covariance::mean), "Mean vector:");
     }
     return 0;
 }

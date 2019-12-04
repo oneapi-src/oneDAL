@@ -47,33 +47,25 @@ namespace pca
 {
 namespace internal
 {
-
 template <typename algorithmFPType>
-PCACorrelationKernelUCAPI<algorithmFPType>::PCACorrelationKernelUCAPI
-        (const PCACorrelationBaseIfacePtr& host_impl)
+PCACorrelationKernelUCAPI<algorithmFPType>::PCACorrelationKernelUCAPI(const PCACorrelationBaseIfacePtr & host_impl)
 {
     _host_impl = host_impl;
 }
 
 template <typename algorithmFPType>
-Status PCACorrelationKernelUCAPI<algorithmFPType>::compute
-        (bool isCorrelation,
-         bool isDeterministic,
-         NumericTable& dataTable,
-         covariance::BatchImpl* covarianceAlg,
-         DAAL_UINT64 resultsToCompute,
-         NumericTable& eigenvectors,
-         NumericTable& eigenvalues,
-         NumericTable& means,
-         NumericTable& variances)
+Status PCACorrelationKernelUCAPI<algorithmFPType>::compute(bool isCorrelation, bool isDeterministic, NumericTable & dataTable,
+                                                           covariance::BatchImpl * covarianceAlg, DAAL_UINT64 resultsToCompute,
+                                                           NumericTable & eigenvectors, NumericTable & eigenvalues, NumericTable & means,
+                                                           NumericTable & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     Status st;
 
-    auto& context = Environment::getInstance()->getDefaultExecutionContext();
-    auto& kernel_factory = context.getClKernelFactory();
+    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & kernel_factory = context.getClKernelFactory();
 
-    auto fptype_name = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
     build_options.add("-cl-std=CL1.2");
 
@@ -132,8 +124,8 @@ Status PCACorrelationKernelUCAPI<algorithmFPType>::compute
             DAAL_CHECK_STATUS(st, covarianceAlg->computeNoThrow());
         }
 
-        auto pCovarianceTable = covarianceAlg->getResult()->get(covariance::covariance);
-        NumericTable& covarianceTable = *pCovarianceTable;
+        auto pCovarianceTable          = covarianceAlg->getResult()->get(covariance::covariance);
+        NumericTable & covarianceTable = *pCovarianceTable;
 
         // copying variances. Means are computed inplace
         // with help of setResult in BatchContainer
@@ -143,8 +135,7 @@ Status PCACorrelationKernelUCAPI<algorithmFPType>::compute
             BlockDescriptor<algorithmFPType> varBlock;
             variances.getBlockOfRows(0, 1, readWrite, varBlock);
 
-            DAAL_CHECK_STATUS(st, calculateVariances(context,
-                calculateVariancesKernel, covarianceTable, varBlock.getBuffer()));
+            DAAL_CHECK_STATUS(st, calculateVariances(context, calculateVariancesKernel, covarianceTable, varBlock.getBuffer()));
 
             DAAL_CHECK_STATUS(st, correlationFromCovarianceTable(N, covarianceTable, varBlock.getBuffer()));
 
@@ -155,14 +146,10 @@ Status PCACorrelationKernelUCAPI<algorithmFPType>::compute
             auto variancesBuffer = context.allocate(TypeIds::id<algorithmFPType>(), p, &st);
             DAAL_CHECK_STATUS_VAR(st);
 
-            DAAL_CHECK_STATUS(st, calculateVariances(context,
-                calculateVariancesKernel,
-                covarianceTable,
-                variancesBuffer.template get<algorithmFPType>()));
+            DAAL_CHECK_STATUS(
+                st, calculateVariances(context, calculateVariancesKernel, covarianceTable, variancesBuffer.template get<algorithmFPType>()));
 
-            DAAL_CHECK_STATUS(st, correlationFromCovarianceTable(N,
-                covarianceTable,
-                variancesBuffer.template get<algorithmFPType>()));
+            DAAL_CHECK_STATUS(st, correlationFromCovarianceTable(N, covarianceTable, variancesBuffer.template get<algorithmFPType>()));
         }
 
         {
@@ -181,10 +168,8 @@ Status PCACorrelationKernelUCAPI<algorithmFPType>::compute
 }
 
 template <typename algorithmFPType>
-services::Status PCACorrelationKernelUCAPI<algorithmFPType>::correlationFromCovarianceTable(
-    uint32_t nObservations,
-    NumericTable& covariance,
-    const services::Buffer<algorithmFPType>& variances)
+services::Status PCACorrelationKernelUCAPI<algorithmFPType>::correlationFromCovarianceTable(uint32_t nObservations, NumericTable & covariance,
+                                                                                            const services::Buffer<algorithmFPType> & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.correlationFromCovarianceTable);
     services::Status status;
@@ -198,12 +183,8 @@ services::Status PCACorrelationKernelUCAPI<algorithmFPType>::correlationFromCova
     covariance::Parameter parameter;
     parameter.outputMatrixType = covariance::correlationMatrix;
 
-    status |= covariance::oneapi::internal::finalize<algorithmFPType>(
-        nFeatures, nObservations,
-        covBlock.getBuffer(),
-        covBlock.getBuffer(),
-        variances,
-        &parameter);
+    status |= covariance::oneapi::internal::finalize<algorithmFPType>(nFeatures, nObservations, covBlock.getBuffer(), covBlock.getBuffer(), variances,
+                                                                      &parameter);
 
     covariance.releaseBlockOfRows(covBlock);
 
@@ -211,11 +192,9 @@ services::Status PCACorrelationKernelUCAPI<algorithmFPType>::correlationFromCova
 }
 
 template <typename algorithmFPType>
-services::Status PCACorrelationKernelUCAPI<algorithmFPType>::calculateVariances(
-    ExecutionContextIface& context,
-    const KernelPtr& calculateVariancesKernel,
-    NumericTable& covariance,
-    const services::Buffer<algorithmFPType>& variances)
+services::Status PCACorrelationKernelUCAPI<algorithmFPType>::calculateVariances(ExecutionContextIface & context,
+                                                                                const KernelPtr & calculateVariancesKernel, NumericTable & covariance,
+                                                                                const services::Buffer<algorithmFPType> & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.calculateVariances);
     services::Status status;

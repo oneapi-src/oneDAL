@@ -41,8 +41,8 @@ namespace internal
 {
 template class BrownBoostTrainKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 template class NewtonRaphsonKernel<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace brownboost
+} // namespace algorithms
+} // namespace daal

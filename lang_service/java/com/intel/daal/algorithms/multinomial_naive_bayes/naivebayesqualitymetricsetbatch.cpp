@@ -27,11 +27,11 @@ using namespace daal::algorithms::multinomial_naive_bayes::quality_metric_set;
  * Method:    cInit
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_quality_1metric_1set_QualityMetricSetBatch_cInit
-(JNIEnv *, jobject, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_quality_1metric_1set_QualityMetricSetBatch_cInit(JNIEnv *, jobject,
+                                                                                                                                  jlong nClasses)
 {
     jlong addr = 0;
-    addr = (jlong)(new Batch(nClasses));
+    addr       = (jlong)(new Batch(nClasses));
     return addr;
 }
 
@@ -40,10 +40,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes
  * Method:    cInitParameter
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_quality_1metric_1set_QualityMetricSetBatch_cInitParameter
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_quality_1metric_1set_QualityMetricSetBatch_cInitParameter(
+    JNIEnv *, jobject, jlong parAddr)
 {
     jlong addr = 0;
-    addr = (jlong) & ((*(Batch *)parAddr).parameter);
+    addr       = (jlong) & ((*(Batch *)parAddr).parameter);
     return addr;
 }

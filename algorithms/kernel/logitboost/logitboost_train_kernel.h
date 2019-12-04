@@ -56,12 +56,12 @@ struct LogitBoostTrainKernel : public Kernel
 {
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
-    services::Status compute(const size_t na, NumericTablePtr a[], Model *r, const Parameter *par);
+    services::Status compute(const size_t na, NumericTablePtr a[], Model * r, const Parameter * par);
 };
-} // namespace daal::algorithms::logitboost::training::internal
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace logitboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

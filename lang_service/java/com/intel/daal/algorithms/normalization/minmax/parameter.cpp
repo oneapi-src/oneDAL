@@ -32,11 +32,11 @@ using normalization::minmax::ParameterBase;
  * Method:    cSetMoments
  * Signature: (JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Parameter_cSetMoments
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong momentsAdr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Parameter_cSetMoments(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                 jlong momentsAdr)
 {
-    auto parameter = reinterpret_cast<ParameterBase *>(parAddr);
-    auto momentsAlg = reinterpret_cast<SharedPtr<AlgorithmIface> *>(momentsAdr);
+    auto parameter        = reinterpret_cast<ParameterBase *>(parAddr);
+    auto momentsAlg       = reinterpret_cast<SharedPtr<AlgorithmIface> *>(momentsAdr);
     auto momentsBatchImpl = staticPointerCast<daal::algorithms::low_order_moments::BatchImpl>(*momentsAlg);
 
     parameter->moments = momentsBatchImpl;
@@ -47,8 +47,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Param
  * Method:    cGetLowerBound
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Parameter_cGetLowerBound
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Parameter_cGetLowerBound(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
     return (jdouble)(reinterpret_cast<ParameterBase *>(parAddr)->lowerBound);
 }
@@ -58,8 +57,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Pa
  * Method:    cSetLowerBound
  * Signature:(JD)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Parameter_cSetLowerBound
-(JNIEnv *env, jobject thisObj, jlong parAddr, jdouble lowerBound)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Parameter_cSetLowerBound(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                    jdouble lowerBound)
 {
     reinterpret_cast<ParameterBase *>(parAddr)->lowerBound = lowerBound;
 }
@@ -69,8 +68,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Param
  * Method:    cGetUpperBound
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Parameter_cGetUpperBound
-(JNIEnv *env, jobject thisObj, jlong parAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Parameter_cGetUpperBound(JNIEnv * env, jobject thisObj, jlong parAddr)
 {
     return (jdouble)(reinterpret_cast<ParameterBase *>(parAddr)->upperBound);
 }
@@ -80,8 +78,8 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Pa
  * Method:    cSetUpperBound
  * Signature:(JD)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Parameter_cSetUpperBound
-(JNIEnv *env, jobject thisObj, jlong parAddr, jdouble upperBound)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_minmax_Parameter_cSetUpperBound(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                    jdouble upperBound)
 {
     reinterpret_cast<ParameterBase *>(parAddr)->upperBound = upperBound;
 }

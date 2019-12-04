@@ -36,7 +36,6 @@ namespace em_gmm
 {
 namespace init
 {
-
 /**
  * Allocates memory for storing initial values for results of the EM for GMM algorithm
  * \param[in] input        Pointer to the input structure
@@ -44,10 +43,10 @@ namespace init
  * \param[in] method       Method of the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    Input *algInput = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
-    Parameter *algParameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter));
+    Input * algInput         = static_cast<Input *>(const_cast<daal::algorithms::Input *>(input));
+    Parameter * algParameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(parameter));
 
     size_t nFeatures   = algInput->get(data)->getNumberOfColumns();
     size_t nComponents = algParameter->nComponents;
@@ -57,9 +56,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *inp
     Argument::set(means, HomogenNumericTable<algorithmFPType>::create(nFeatures, nComponents, NumericTable::doAllocate, 0, &status));
 
     DataCollectionPtr covarianceCollection = DataCollectionPtr(new DataCollection());
-    for(size_t i = 0; i < nComponents; i++)
+    for (size_t i = 0; i < nComponents; i++)
     {
-        if(algParameter->covarianceStorage == em_gmm::diagonal)
+        if (algParameter->covarianceStorage == em_gmm::diagonal)
         {
             covarianceCollection->push_back(HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, 0, &status));
         }

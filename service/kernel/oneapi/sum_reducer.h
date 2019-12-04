@@ -33,7 +33,6 @@ namespace internal
 {
 namespace math
 {
-
 class SumReducer
 {
 public:
@@ -42,17 +41,14 @@ public:
         UniversalBuffer sum;
         UniversalBuffer sumOfSquares;
 
-        Result(ExecutionContextIface& context, uint32_t nVectors, TypeId type, services::Status* status)
-            : sum(context.allocate(type, nVectors, status)),
-              sumOfSquares(context.allocate(type, nVectors, status))
+        Result(ExecutionContextIface & context, uint32_t nVectors, TypeId type, services::Status * status)
+            : sum(context.allocate(type, nVectors, status)), sumOfSquares(context.allocate(type, nVectors, status))
         {}
     };
 
 public:
-    static Result sum(Layout vectorsLayout,
-                      const UniversalBuffer& vectors,
-                      uint32_t nVectors, uint32_t vectorSize,
-                      services::Status* status);
+    static Result sum(Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize, services::Status * status);
+
 private:
     SumReducer();
 };

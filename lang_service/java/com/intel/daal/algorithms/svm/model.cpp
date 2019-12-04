@@ -28,11 +28,10 @@ using namespace daal::algorithms::svm;
  * Method:    cGetSupportVectors
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Model_cGetSupportVectors
-(JNIEnv *env, jobject obj, jlong modelAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Model_cGetSupportVectors(JNIEnv * env, jobject obj, jlong modelAddr)
 {
-    NumericTablePtr *ptr = new NumericTablePtr();
-    *ptr = (*(ModelPtr *)modelAddr)->getSupportVectors();
+    NumericTablePtr * ptr = new NumericTablePtr();
+    *ptr                  = (*(ModelPtr *)modelAddr)->getSupportVectors();
 
     return (jlong)ptr;
 }
@@ -42,11 +41,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Model_cGetSupportVect
  * Method:    cGetClassificationCoefficients
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Model_cGetClassificationCoefficients
-(JNIEnv *env, jobject obj, jlong modelAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Model_cGetClassificationCoefficients(JNIEnv * env, jobject obj, jlong modelAddr)
 {
-    NumericTablePtr *ptr = new NumericTablePtr();
-    *ptr = (*(ModelPtr *)modelAddr)->getClassificationCoefficients();
+    NumericTablePtr * ptr = new NumericTablePtr();
+    *ptr                  = (*(ModelPtr *)modelAddr)->getClassificationCoefficients();
 
     return (jlong)ptr;
 }
@@ -56,8 +54,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_svm_Model_cGetClassificat
  * Method:    cGetBias
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Model_cGetBias
-(JNIEnv *env, jobject obj, jlong modelAddr)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_svm_Model_cGetBias(JNIEnv * env, jobject obj, jlong modelAddr)
 {
     return (jdouble)((*(ModelPtr *)modelAddr)->getBias());
 }

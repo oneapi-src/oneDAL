@@ -35,12 +35,11 @@ namespace pca
 {
 namespace interface1
 {
-
 InputIface::InputIface(size_t nElements) : daal::algorithms::Input(nElements), _isCorrelation(false) {};
-InputIface::InputIface(const InputIface& other) : daal::algorithms::Input(other), _isCorrelation(other._isCorrelation) {};
+InputIface::InputIface(const InputIface & other) : daal::algorithms::Input(other), _isCorrelation(other._isCorrelation) {};
 
 Input::Input() : InputIface(lastInputDatasetId + 1) {};
-Input::Input(const Input& other) : InputIface(other){}
+Input::Input(const Input & other) : InputIface(other) {}
 
 /**
 * Returns the input object of the PCA algorithm
@@ -57,7 +56,7 @@ NumericTablePtr Input::get(InputDatasetId id) const
  * \param[in] id      Identifier of the input object
  * \param[in] value   Pointer to the input object
  */
-void Input::set(InputDatasetId id, const NumericTablePtr &value)
+void Input::set(InputDatasetId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
     _isCorrelation = false;
@@ -68,7 +67,7 @@ void Input::set(InputDatasetId id, const NumericTablePtr &value)
  * \param[in] id      Identifier of the input object
  * \param[in] value   Pointer to the input object
  */
-void Input::set(InputCorrelationId id, const NumericTablePtr &value)
+void Input::set(InputCorrelationId id, const NumericTablePtr & value)
 {
     Argument::set(id, value);
     _isCorrelation = true;
@@ -89,12 +88,12 @@ size_t Input::getNFeatures() const
 * \param[in] method  Computation method
 * \return Errors detected while checking
 */
-Status Input::check(const daal::algorithms::Parameter *par, int method) const
+Status Input::check(const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, ErrorIncorrectNumberOfInputNumericTables);
     NumericTablePtr dataTable = get(data);
     Status s;
-    if(_isCorrelation)
+    if (_isCorrelation)
     {
         int unexpectedLayouts = (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix;
         DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), correlationStr(), unexpectedLayouts));

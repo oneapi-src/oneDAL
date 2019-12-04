@@ -52,7 +52,7 @@ namespace interface1
  * \tparam method           Computation method of the distribution, uniform::Method
  * \tparam cpu              Version of the cpu-specific implementation of the distribution, daal::CpuType
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -61,7 +61,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     ~BatchContainer();
     /**
      * Computes the result of the uniform distribution in the batch processing mode
@@ -85,40 +85,34 @@ public:
  *      - \ref distributions::interface1::Input "distributions::Input" class
  *      - \ref distributions::interface1::Result "distributions::Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public distributions::BatchBase
 {
 public:
     typedef distributions::BatchBase super;
 
-    typedef typename super::InputType                                      InputType;
+    typedef typename super::InputType InputType;
     typedef algorithms::distributions::uniform::Parameter<algorithmFPType> ParameterType;
-    typedef typename super::ResultType                                     ResultType;
+    typedef typename super::ResultType ResultType;
 
     /**
      * Constructs uniform distribution
      *  \param[in] a     Left bound a
      *  \param[in] b     Right bound b
      */
-    Batch(algorithmFPType a = 0.0, algorithmFPType b = 1.0) : parameter(a, b)
-    {
-        initialize();
-    }
+    Batch(algorithmFPType a = 0.0, algorithmFPType b = 1.0) : parameter(a, b) { initialize(); }
 
     /**
      * Constructs uniform distribution by copying input objects and parameters of another uniform distribution
      * \param[in] other Uniform distribution
      */
-    Batch(const Batch<algorithmFPType, method> &other): super(other), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : super(other), parameter(other.parameter) { initialize(); }
 
     /**
      * Returns method of the distribution
      * \return Method of the distribution
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of uniform distribution
@@ -132,11 +126,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -145,10 +139,7 @@ public:
      * with a copy of input objects and parameters of this uniform distribution
      * \return Pointer to the newly allocated distribution
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
     /**
      * Allocates memory to store the result of the uniform distribution
@@ -157,25 +148,22 @@ public:
      */
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        _par = &parameter;
-        services::Status s = this->_result->template allocate<algorithmFPType>(&(this->input), &parameter, (int) method);
-        this->_res = this->_result.get();
+        _par               = &parameter;
+        services::Status s = this->_result->template allocate<algorithmFPType>(&(this->input), &parameter, (int)method);
+        this->_res         = this->_result.get();
         return s;
     }
 
     Parameter<algorithmFPType> parameter; /*!< %Parameters of the uniform distribution */
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
-        _par = &parameter;
+        _in                  = &input;
+        _par                 = &parameter;
         _result.reset(new ResultType());
     }
 

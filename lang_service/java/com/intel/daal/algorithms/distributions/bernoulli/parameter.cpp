@@ -30,8 +30,8 @@ using namespace daal::algorithms;
  * Method:    cSetP
  * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Parameter_cSetP
-  (JNIEnv *env, jobject thisObj, jlong cParameter, jdouble p)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Parameter_cSetP(JNIEnv * env, jobject thisObj, jlong cParameter,
+                                                                                              jdouble p)
 {
     (((distributions::bernoulli::Parameter<float> *)cParameter))->p = (double)p;
 }
@@ -41,8 +41,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Pa
  * Method:    cGetP
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Parameter_cGetP
-  (JNIEnv *env, jobject thisObj, jlong cParameter)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_distributions_bernoulli_Parameter_cGetP(JNIEnv * env, jobject thisObj, jlong cParameter)
 {
     return (jdouble)((((distributions::bernoulli::Parameter<float> *)cParameter))->p);
 }

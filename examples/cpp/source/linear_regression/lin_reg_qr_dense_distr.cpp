@@ -40,17 +40,14 @@ using namespace daal::algorithms::linear_regression;
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Input data set parameters */
-const string trainDatasetFileNames[] =
-{
-    "../data/distributed/linear_regression_train_1.csv", "../data/distributed/linear_regression_train_2.csv",
-    "../data/distributed/linear_regression_train_3.csv", "../data/distributed/linear_regression_train_4.csv"
-};
-string testDatasetFileName    = "../data/distributed/linear_regression_test.csv";
+const string trainDatasetFileNames[] = { "../data/distributed/linear_regression_train_1.csv", "../data/distributed/linear_regression_train_2.csv",
+                                         "../data/distributed/linear_regression_train_3.csv", "../data/distributed/linear_regression_train_4.csv" };
+string testDatasetFileName           = "../data/distributed/linear_regression_test.csv";
 
-const size_t nBlocks              = 4;
+const size_t nBlocks = 4;
 
-const size_t nFeatures           = 10;  /* Number of features in training and testing data sets */
-const size_t nDependentVariables = 2;   /* Number of dependent variables that correspond to each observation */
+const size_t nFeatures           = 10; /* Number of features in training and testing data sets */
+const size_t nDependentVariables = 2;  /* Number of dependent variables that correspond to each observation */
 
 void trainModel();
 void testModel();
@@ -58,11 +55,10 @@ void testModel();
 training::ResultPtr trainingResult;
 prediction::ResultPtr predictionResult;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
-    checkArguments(argc, argv, 5, &testDatasetFileName,
-                   &trainDatasetFileNames[0], &trainDatasetFileNames[1],
-                   &trainDatasetFileNames[2], &trainDatasetFileNames[3]);
+    checkArguments(argc, argv, 5, &testDatasetFileName, &trainDatasetFileNames[0], &trainDatasetFileNames[1], &trainDatasetFileNames[2],
+                   &trainDatasetFileNames[3]);
 
     trainModel();
     testModel();
@@ -75,11 +71,10 @@ void trainModel()
     /* Create an algorithm object to build the final multiple linear regression model on the master node */
     training::Distributed<step2Master, algorithmFPType, training::qrDense> masterAlgorithm;
 
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileNames[i],
-                                                          DataSource::notAllocateNumericTable,
+        FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileNames[i], DataSource::notAllocateNumericTable,
                                                           DataSource::doDictionaryFromContext);
 
         /* Create Numeric Tables for training data and dependent variables */
@@ -117,8 +112,7 @@ void trainModel()
 void testModel()
 {
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable,
-                                                     DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and ground truth values */
     NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -140,7 +134,6 @@ void testModel()
 
     /* Retrieve the algorithm results */
     predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(prediction::prediction),
-        "Linear Regression prediction results: (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(prediction::prediction), "Linear Regression prediction results: (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }

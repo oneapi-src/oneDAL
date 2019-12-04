@@ -36,7 +36,6 @@ namespace qr
 {
 namespace interface1
 {
-
 /**
  * Allocates memory for storing partial results of the QR decomposition algorithm
  * \param[in] input  Pointer to input object
@@ -44,12 +43,13 @@ namespace interface1
  * \param[in] method Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResult::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT Status DistributedPartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                      const int method)
 {
     Argument::set(outputOfStep2ForStep3, data_management::KeyValueDataCollectionPtr(new data_management::KeyValueDataCollection()));
     Argument::set(finalResultFromStep2Master, ResultPtr(new Result()));
     data_management::KeyValueDataCollectionPtr inCollection = static_cast<const DistributedStep2Input *>(input)->get(inputOfStep2FromStep1);
-    size_t nBlocks = 0;
+    size_t nBlocks                                          = 0;
     return setPartialResultStorage<algorithmFPType>(inCollection.get(), nBlocks);
 }
 
@@ -64,11 +64,12 @@ DAAL_EXPORT Status DistributedPartialResult::allocate(const daal::algorithms::In
  * \param[out] nBlocks  Number of rows in the input data set
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(data_management::KeyValueDataCollection *inCollection, size_t &nBlocks)
+DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(data_management::KeyValueDataCollection * inCollection, size_t & nBlocks)
 {
     data_management::KeyValueDataCollectionPtr partialCollection =
-        services::staticPointerCast<data_management::KeyValueDataCollection, data_management::SerializationIface>(Argument::get(outputOfStep2ForStep3));
-    if(!partialCollection)
+        services::staticPointerCast<data_management::KeyValueDataCollection, data_management::SerializationIface>(
+            Argument::get(outputOfStep2ForStep3));
+    if (!partialCollection)
     {
         return Status();
     }
@@ -77,11 +78,11 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(data_manage
 
     size_t inSize = inCollection->size();
 
-    data_management::DataCollection *fisrtNodeCollection = static_cast<data_management::DataCollection *>((*inCollection).getValueByIndex(0).get());
-    data_management::NumericTable   *firstNumericTable   = static_cast<data_management::NumericTable *>((*fisrtNodeCollection)[0].get());
+    data_management::DataCollection * fisrtNodeCollection = static_cast<data_management::DataCollection *>((*inCollection).getValueByIndex(0).get());
+    data_management::NumericTable * firstNumericTable     = static_cast<data_management::NumericTable *>((*fisrtNodeCollection)[0].get());
 
     size_t m = firstNumericTable->getNumberOfColumns();
-    if(result->get(matrixR).get() == nullptr)
+    if (result->get(matrixR).get() == nullptr)
     {
         result->allocateImpl<algorithmFPType>(m, 0);
     }
@@ -89,9 +90,10 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(data_manage
     nBlocks = 0;
     Status s;
     DAAL_CHECK(inSize <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfElementsInInputCollection)
-    for(size_t i = 0 ; i < inSize ; i++)
+    for (size_t i = 0; i < inSize; i++)
     {
-        data_management::DataCollection *nodeCollection = static_cast<data_management::DataCollection *>((*inCollection).getValueByIndex((int)i).get());
+        data_management::DataCollection * nodeCollection =
+            static_cast<data_management::DataCollection *>((*inCollection).getValueByIndex((int)i).get());
         size_t nodeKey  = (*inCollection).getKeyByIndex((int)i);
         size_t nodeSize = nodeCollection->size();
         nBlocks += nodeSize;
@@ -100,18 +102,19 @@ DAAL_EXPORT Status DistributedPartialResult::setPartialResultStorage(data_manage
         DAAL_CHECK_MALLOC(pDataCollection)
         data_management::DataCollectionPtr nodePartialResult(pDataCollection);
 
-        for(size_t j = 0 ; j < nodeSize ; j++)
+        for (size_t j = 0; j < nodeSize; j++)
         {
-            nodePartialResult->push_back(data_management::HomogenNumericTable<algorithmFPType>::create(m, m, data_management::NumericTable::doAllocate, &s));
+            nodePartialResult->push_back(
+                data_management::HomogenNumericTable<algorithmFPType>::create(m, m, data_management::NumericTable::doAllocate, &s));
         }
-        (*partialCollection)[ nodeKey ] = nodePartialResult;
+        (*partialCollection)[nodeKey] = nodePartialResult;
     }
     return s;
 }
 
-}// namespace interface1
-}// namespace qr
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace qr
+} // namespace algorithms
+} // namespace daal
 
 #endif

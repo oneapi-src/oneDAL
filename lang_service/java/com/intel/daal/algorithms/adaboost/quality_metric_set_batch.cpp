@@ -23,14 +23,13 @@
 
 using namespace daal::algorithms::adaboost::quality_metric_set;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_quality_1metric_1set_QualityMetricSetBatch_cInit
-(JNIEnv *, jobject, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_quality_1metric_1set_QualityMetricSetBatch_cInit(JNIEnv *, jobject, jlong nClasses)
 {
     return daal::pack(new Batch(nClasses));
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_quality_1metric_1set_QualityMetricSetBatch_cInitParameter
-(JNIEnv *, jobject, jlong self)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_adaboost_quality_1metric_1set_QualityMetricSetBatch_cInitParameter(JNIEnv *, jobject,
+                                                                                                                          jlong self)
 {
-    return daal::pack( &(daal::unpack<Batch>(self).parameter) );
+    return daal::pack(&(daal::unpack<Batch>(self).parameter));
 }

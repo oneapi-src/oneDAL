@@ -51,7 +51,6 @@ namespace prediction
 {
 namespace internal
 {
-
 //////////////////////////////////////////////////////////////////////////////////////////
 // PredictRegressionTask
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -60,34 +59,33 @@ class PredictRegressionTask : public dtrees::regression::prediction::internal::P
 {
 public:
     typedef dtrees::regression::prediction::internal::PredictRegressionTaskBase<algorithmFPType, cpu> super;
-    PredictRegressionTask(const NumericTable *x, NumericTable *y): super(x, y){}
+    PredictRegressionTask(const NumericTable * x, NumericTable * y) : super(x, y) {}
 
-    services::Status run(const decision_forest::regression::internal::ModelImpl* m, services::HostAppIface* pHostApp);
+    services::Status run(const decision_forest::regression::internal::ModelImpl * m, services::HostAppIface * pHostApp);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // PredictKernel
 //////////////////////////////////////////////////////////////////////////////////////////
-template<typename algorithmFPType, prediction::Method method, CpuType cpu>
-services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIface* pHostApp, const NumericTable *x,
-    const regression::Model *m, NumericTable *r)
+template <typename algorithmFPType, prediction::Method method, CpuType cpu>
+services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::HostAppIface * pHostApp, const NumericTable * x,
+                                                                      const regression::Model * m, NumericTable * r)
 {
-    const daal::algorithms::decision_forest::regression::internal::ModelImpl* pModel =
-        static_cast<const daal::algorithms::decision_forest::regression::internal::ModelImpl*>(m);
+    const daal::algorithms::decision_forest::regression::internal::ModelImpl * pModel =
+        static_cast<const daal::algorithms::decision_forest::regression::internal::ModelImpl *>(m);
     PredictRegressionTask<algorithmFPType, cpu> task(x, r);
     return task.run(pModel, pHostApp);
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PredictRegressionTask<algorithmFPType, cpu>::run(const decision_forest::regression::internal::ModelImpl* m,
-    services::HostAppIface* pHostApp)
+services::Status PredictRegressionTask<algorithmFPType, cpu>::run(const decision_forest::regression::internal::ModelImpl * m,
+                                                                  services::HostAppIface * pHostApp)
 {
     DAAL_CHECK_MALLOC(this->_featHelper.init(*this->_data));
     const auto nTreesTotal = m->size();
     this->_aTree.reset(nTreesTotal);
     DAAL_CHECK_MALLOC(this->_aTree.get());
-    for(size_t i = 0; i < nTreesTotal; ++i)
-        this->_aTree[i] = m->at(i);
+    for (size_t i = 0; i < nTreesTotal; ++i) this->_aTree[i] = m->at(i);
     const algorithmFPType div = algorithmFPType(1) / algorithmFPType(nTreesTotal);
     return super::run(pHostApp, div);
 }

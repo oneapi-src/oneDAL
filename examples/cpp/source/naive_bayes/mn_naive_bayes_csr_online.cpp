@@ -40,19 +40,13 @@ using namespace daal::algorithms::multinomial_naive_bayes;
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
 /* Input data set parameters */
-const string trainDatasetFileNames[4]     =
-{
-    "../data/online/naivebayes_train_csr_1.csv", "../data/online/naivebayes_train_csr_2.csv",
-    "../data/online/naivebayes_train_csr_3.csv", "../data/online/naivebayes_train_csr_4.csv"
-};
-const string trainGroundTruthFileNames[4] =
-{
-    "../data/online/naivebayes_train_labels_1.csv", "../data/online/naivebayes_train_labels_2.csv",
-    "../data/online/naivebayes_train_labels_3.csv", "../data/online/naivebayes_train_labels_4.csv"
-};
+const string trainDatasetFileNames[4]     = { "../data/online/naivebayes_train_csr_1.csv", "../data/online/naivebayes_train_csr_2.csv",
+                                          "../data/online/naivebayes_train_csr_3.csv", "../data/online/naivebayes_train_csr_4.csv" };
+const string trainGroundTruthFileNames[4] = { "../data/online/naivebayes_train_labels_1.csv", "../data/online/naivebayes_train_labels_2.csv",
+                                              "../data/online/naivebayes_train_labels_3.csv", "../data/online/naivebayes_train_labels_4.csv" };
 
-string testDatasetFileName      = "../data/online/naivebayes_test_csr.csv";
-string testGroundTruthFileName  = "../data/online/naivebayes_test_labels.csv";
+string testDatasetFileName     = "../data/online/naivebayes_test_csr.csv";
+string testGroundTruthFileName = "../data/online/naivebayes_test_labels.csv";
 
 const size_t nTrainVectorsInBlock = 8000;
 const size_t nTestObservations    = 2000;
@@ -68,14 +62,11 @@ void trainModel();
 void testModel();
 void printResults();
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
-    checkArguments(argc, argv, 10,
-        &trainDatasetFileNames[0], &trainDatasetFileNames[1],
-        &trainDatasetFileNames[2], &trainDatasetFileNames[3],
-        &trainGroundTruthFileNames[0], &trainGroundTruthFileNames[1],
-        &trainGroundTruthFileNames[2], &trainGroundTruthFileNames[3],
-        &testDatasetFileName, &testGroundTruthFileName);
+    checkArguments(argc, argv, 10, &trainDatasetFileNames[0], &trainDatasetFileNames[1], &trainDatasetFileNames[2], &trainDatasetFileNames[3],
+                   &trainGroundTruthFileNames[0], &trainGroundTruthFileNames[1], &trainGroundTruthFileNames[2], &trainGroundTruthFileNames[3],
+                   &testDatasetFileName, &testGroundTruthFileName);
 
     trainModel();
 
@@ -91,16 +82,15 @@ void trainModel()
     /* Create an algorithm object to train the Naive Bayes model */
     training::Online<algorithmFPType, training::fastCSR> algorithm(nClasses);
 
-    for(size_t i = 0; i < nBlocks; i++)
+    for (size_t i = 0; i < nBlocks; i++)
     {
         /* Read trainDatasetFileNames and create a numeric table to store the input data */
         trainData[i] = CSRNumericTablePtr(createSparseTable<float>(trainDatasetFileNames[i]));
-        FileDataSource<CSVFeatureManager> trainLabelsSource(trainGroundTruthFileNames[i],
-                                                        DataSource::doAllocateNumericTable,
-                                                        DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> trainLabelsSource(trainGroundTruthFileNames[i], DataSource::doAllocateNumericTable,
+                                                            DataSource::doDictionaryFromContext);
         trainLabelsSource.loadDataBlock(nTrainVectorsInBlock);
         /* Pass a training data set and dependent values to the algorithm */
-        algorithm.input.set(classifier::training::data,   trainData[i]);
+        algorithm.input.set(classifier::training::data, trainData[i]);
         algorithm.input.set(classifier::training::labels, trainLabelsSource.getNumericTable());
 
         /* Build the Naive Bayes model */
@@ -122,7 +112,7 @@ void testModel()
     prediction::Batch<algorithmFPType, prediction::fastCSR> algorithm(nClasses);
 
     /* Pass a testing data set and the trained model to the algorithm */
-    algorithm.input.set(classifier::prediction::data,  testData);
+    algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
 
     /* Predict Naive Bayes values */
@@ -134,13 +124,10 @@ void testModel()
 
 void printResults()
 {
-    FileDataSource<CSVFeatureManager> testGroundTruth(testGroundTruthFileName,
-                                                      DataSource::doAllocateNumericTable,
+    FileDataSource<CSVFeatureManager> testGroundTruth(testGroundTruthFileName, DataSource::doAllocateNumericTable,
                                                       DataSource::doDictionaryFromContext);
     testGroundTruth.loadDataBlock(nTestObservations);
 
-    printNumericTables<int, int>(testGroundTruth.getNumericTable().get(),
-                                 predictionResult->get(classifier::prediction::prediction).get(),
-                                 "Ground truth", "Classification results",
-                                 "NaiveBayes classification results (first 20 observations):", 20);
+    printNumericTables<int, int>(testGroundTruth.getNumericTable().get(), predictionResult->get(classifier::prediction::prediction).get(),
+                                 "Ground truth", "Classification results", "NaiveBayes classification results (first 20 observations):", 20);
 }

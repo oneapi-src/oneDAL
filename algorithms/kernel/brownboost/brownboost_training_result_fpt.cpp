@@ -33,10 +33,11 @@ namespace training
 {
 namespace interface2
 {
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 }
 
-}// namespace training
-}// namespace brownboost
-}// namespace algorithms
-}// namespace daal
+} // namespace training
+} // namespace brownboost
+} // namespace algorithms
+} // namespace daal

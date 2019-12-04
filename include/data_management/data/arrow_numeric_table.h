@@ -34,7 +34,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -61,7 +60,10 @@ public:
     {
         if (!table)
         {
-            if (stat) { stat->add(services::ErrorNullPtr); }
+            if (stat)
+            {
+                stat->add(services::ErrorNullPtr);
+            }
             return services::SharedPtr<ArrowImmutableNumericTable>();
         }
 
@@ -79,73 +81,58 @@ public:
     {
         if (!table)
         {
-            if (stat) { stat->add(services::ErrorNullPtr); }
+            if (stat)
+            {
+                stat->add(services::ErrorNullPtr);
+            }
             return services::SharedPtr<ArrowImmutableNumericTable>();
         }
 
         DAAL_DEFAULT_CREATE_IMPL_EX(ArrowImmutableNumericTable, table);
     }
 
-    services::Status getBlockOfRows(size_t vectorIdx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double>& block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vectorIdx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
         return getTBlock<double>(vectorIdx, vector_num, rwflag, block);
     }
 
-    services::Status getBlockOfRows(size_t vectorIdx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float>& block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vectorIdx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
         return getTBlock<float>(vectorIdx, vector_num, rwflag, block);
     }
 
-    services::Status getBlockOfRows(size_t vectorIdx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int>& block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vectorIdx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
         return getTBlock<int>(vectorIdx, vector_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<double>& block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<double>(block);
-    }
+    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTBlock<double>(block); }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<float>& block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<float>(block);
-    }
+    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTBlock<float>(block); }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<int>& block) DAAL_C11_OVERRIDE
-    {
-        return releaseTBlock<int>(block);
-    }
+    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTBlock<int>(block); }
 
-    services::Status getBlockOfColumnValues(size_t featureIdx, size_t vectorIdx, size_t valueNum,
-                                            ReadWriteMode rwflag, BlockDescriptor<double>& block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t featureIdx, size_t vectorIdx, size_t valueNum, ReadWriteMode rwflag,
+                                            BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
     {
         return getTFeature<double>(featureIdx, vectorIdx, valueNum, rwflag, block);
     }
 
-    services::Status getBlockOfColumnValues(size_t featureIdx, size_t vectorIdx, size_t valueNum,
-                                            ReadWriteMode rwflag, BlockDescriptor<float>& block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t featureIdx, size_t vectorIdx, size_t valueNum, ReadWriteMode rwflag,
+                                            BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
     {
         return getTFeature<float>(featureIdx, vectorIdx, valueNum, rwflag, block);
     }
 
-    services::Status getBlockOfColumnValues(size_t featureIdx, size_t vectorIdx, size_t valueNum,
-                                            ReadWriteMode rwflag, BlockDescriptor<int>& block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t featureIdx, size_t vectorIdx, size_t valueNum, ReadWriteMode rwflag,
+                                            BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
     {
         return getTFeature<int>(featureIdx, vectorIdx, valueNum, rwflag, block);
     }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<double>& block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<double>(block);
-    }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<float>& block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<float>(block);
-    }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<int>& block) DAAL_C11_OVERRIDE
-    {
-        return releaseTFeature<int>(block);
-    }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTFeature<double>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
 
 protected:
     services::Status setNumberOfColumnsImpl(size_t ncol) DAAL_C11_OVERRIDE
@@ -159,8 +146,8 @@ protected:
         return services::Status(services::ErrorMethodNotSupported);
     }
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive* arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         if (onDeserialize)
         {
@@ -169,19 +156,19 @@ protected:
 
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
-        const size_t ncol = _ddict->getNumberOfFeatures();
+        const size_t ncol  = _ddict->getNumberOfFeatures();
         const size_t nrows = getNumberOfRows();
 
         for (size_t i = 0; i < ncol; ++i)
         {
-            const NumericTableFeature& f = (*_ddict)[i];
+            const NumericTableFeature & f = (*_ddict)[i];
 
             const std::shared_ptr<const arrow::Column> columnPtr = _table->column(i);
             DAAL_ASSERT(columnPtr);
             const std::shared_ptr<const arrow::ChunkedArray> columnChunkedArrayPtr = columnPtr->data();
             DAAL_ASSERT(columnChunkedArrayPtr);
-            const arrow::ChunkedArray& columnChunkedArray = *columnChunkedArrayPtr;
-            const int chunkCount = columnChunkedArray.num_chunks();
+            const arrow::ChunkedArray & columnChunkedArray = *columnChunkedArrayPtr;
+            const int chunkCount                           = columnChunkedArray.num_chunks();
             DAAL_ASSERT(chunkCount > 0);
 
             for (int chunk = 0; chunk < chunkCount; ++chunk)
@@ -201,7 +188,7 @@ private:
     DAAL_FORCEINLINE ArrowImmutableNumericTable(const std::shared_ptr<const arrow::Table> & table, services::Status & st)
         : BaseArrowImmutableNumericTable(table->num_columns(), table->num_rows(), st), _table(table)
     {
-        _layout = arrow;
+        _layout    = arrow;
         _memStatus = userAllocated;
         if (st) st |= updateFeatures(*table);
     }
@@ -225,22 +212,22 @@ private:
             const arrow::Type::type type = schemaPtr->field(col)->type()->id();
             switch (type)
             {
-                case arrow::Type::UINT8:     s |= setFeature<unsigned char>(col);   break;
-                case arrow::Type::INT8:      s |= setFeature<char>(col);            break;
-                case arrow::Type::UINT16:    s |= setFeature<unsigned short>(col);  break;
-                case arrow::Type::INT16:     s |= setFeature<short>(col);           break;
-                case arrow::Type::UINT32:    s |= setFeature<unsigned int>(col);    break;
-                case arrow::Type::DATE32:
-                case arrow::Type::TIME32:
-                case arrow::Type::INT32:     s |= setFeature<int>(col);             break;
-                case arrow::Type::UINT64:    s |= setFeature<DAAL_UINT64>(col);     break;
-                case arrow::Type::DATE64:
-                case arrow::Type::TIMESTAMP:
-                case arrow::Type::TIME64:
-                case arrow::Type::INT64:     s |= setFeature<DAAL_INT64>(col);      break;
-                case arrow::Type::FLOAT:     s |= setFeature<float>(col);           break;
-                case arrow::Type::DOUBLE:    s |= setFeature<double>(col);          break;
-                default: s.add(services::ErrorDataTypeNotSupported); return s;
+            case arrow::Type::UINT8: s |= setFeature<unsigned char>(col); break;
+            case arrow::Type::INT8: s |= setFeature<char>(col); break;
+            case arrow::Type::UINT16: s |= setFeature<unsigned short>(col); break;
+            case arrow::Type::INT16: s |= setFeature<short>(col); break;
+            case arrow::Type::UINT32: s |= setFeature<unsigned int>(col); break;
+            case arrow::Type::DATE32:
+            case arrow::Type::TIME32:
+            case arrow::Type::INT32: s |= setFeature<int>(col); break;
+            case arrow::Type::UINT64: s |= setFeature<DAAL_UINT64>(col); break;
+            case arrow::Type::DATE64:
+            case arrow::Type::TIMESTAMP:
+            case arrow::Type::TIME64:
+            case arrow::Type::INT64: s |= setFeature<DAAL_INT64>(col); break;
+            case arrow::Type::FLOAT: s |= setFeature<float>(col); break;
+            case arrow::Type::DOUBLE: s |= setFeature<double>(col); break;
+            default: s.add(services::ErrorDataTypeNotSupported); return s;
             }
         }
         return s;
@@ -252,13 +239,13 @@ private:
         DAAL_ASSERT(_ddict);
         services::Status s = _ddict->setFeature<T>(idx);
         if (!s) return s;
-        (*_ddict)[idx].featureType = featureType;
+        (*_ddict)[idx].featureType    = featureType;
         (*_ddict)[idx].categoryNumber = categoryNumber;
         return s;
     }
 
     template <typename T>
-    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T>& block)
+    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -266,7 +253,7 @@ private:
         }
 
         const size_t ncols = getNumberOfColumns();
-        const size_t nobs = getNumberOfRows();
+        const size_t nobs  = getNumberOfRows();
         block.setDetails(0, idx, rwFlag);
 
         if (idx >= nobs)
@@ -277,31 +264,37 @@ private:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        if (!block.resizeBuffer(ncols, nrows)) { return services::Status(services::ErrorMemoryAllocationFailed); }
+        if (!block.resizeBuffer(ncols, nrows))
+        {
+            return services::Status(services::ErrorMemoryAllocationFailed);
+        }
 
         T lbuf[32];
-        size_t di = 32;
-        T* const buffer = block.getBlockPtr();
+        size_t di        = 32;
+        T * const buffer = block.getBlockPtr();
 
         for (size_t i = 0; i < nrows; i += di)
         {
-            if (i + di > nrows) { di = nrows - i; }
+            if (i + di > nrows)
+            {
+                di = nrows - i;
+            }
 
             for (size_t j = 0; j < ncols; ++j)
             {
-                const NumericTableFeature& f = (*_ddict)[j];
+                const NumericTableFeature & f                        = (*_ddict)[j];
                 const std::shared_ptr<const arrow::Column> columnPtr = _table->column(j);
                 DAAL_ASSERT(columnPtr);
                 const std::shared_ptr<const arrow::ChunkedArray> columnChunkedArrayPtr = columnPtr->data();
                 DAAL_ASSERT(columnChunkedArrayPtr);
                 const std::shared_ptr<const arrow::ChunkedArray> sliceChunkedArrayPtr = columnChunkedArrayPtr->Slice(idx + i, di);
                 DAAL_ASSERT(sliceChunkedArrayPtr);
-                const arrow::ChunkedArray& sliceChunkedArray = *sliceChunkedArrayPtr;
-                const int chunkCount = sliceChunkedArray.num_chunks();
+                const arrow::ChunkedArray & sliceChunkedArray = *sliceChunkedArrayPtr;
+                const int chunkCount                          = sliceChunkedArray.num_chunks();
                 DAAL_ASSERT(chunkCount > 0);
                 if (chunkCount == 1)
                 {
-                    const char* const ptr = getPtr(sliceChunkedArray.chunk(0), f);
+                    const char * const ptr = getPtr(sliceChunkedArray.chunk(0), f);
                     DAAL_ASSERT(ptr);
                     internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(di, ptr, lbuf);
                 }
@@ -314,7 +307,7 @@ private:
                         DAAL_ASSERT(arrayPtr);
                         const int64_t chunkLength = arrayPtr->length();
                         DAAL_ASSERT(chunkLength > 0);
-                        const char* const ptr = getPtr(arrayPtr, f);
+                        const char * const ptr = getPtr(arrayPtr, f);
                         DAAL_ASSERT(ptr);
                         internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(chunkLength, ptr, &(lbuf[offset]));
                         offset += chunkLength;
@@ -333,7 +326,7 @@ private:
     }
 
     template <typename T>
-    services::Status releaseTBlock(BlockDescriptor<T>& block)
+    services::Status releaseTBlock(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -345,7 +338,7 @@ private:
     }
 
     template <typename T>
-    services::Status getTFeature(size_t featIdx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T>& block)
+    services::Status getTFeature(size_t featIdx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -353,7 +346,7 @@ private:
         }
 
         const size_t ncols = getNumberOfColumns();
-        const size_t nobs = getNumberOfRows();
+        const size_t nobs  = getNumberOfRows();
         block.setDetails(featIdx, idx, rwFlag);
 
         if (idx >= nobs)
@@ -364,7 +357,7 @@ private:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        const NumericTableFeature& f = (*_ddict)[featIdx];
+        const NumericTableFeature & f = (*_ddict)[featIdx];
 
         const std::shared_ptr<const arrow::Column> columnPtr = _table->column(featIdx);
         DAAL_ASSERT(columnPtr);
@@ -372,15 +365,15 @@ private:
         DAAL_ASSERT(columnChunkedArrayPtr);
         const std::shared_ptr<const arrow::ChunkedArray> sliceChunkedArrayPtr = columnChunkedArrayPtr->Slice(idx, nrows);
         DAAL_ASSERT(sliceChunkedArrayPtr);
-        const arrow::ChunkedArray& sliceChunkedArray = *sliceChunkedArrayPtr;
-        const int chunkCount = sliceChunkedArray.num_chunks();
+        const arrow::ChunkedArray & sliceChunkedArray = *sliceChunkedArrayPtr;
+        const int chunkCount                          = sliceChunkedArray.num_chunks();
         DAAL_ASSERT(chunkCount > 0);
 
         if (features::internal::getIndexNumType<T>() == f.indexType && chunkCount == 1)
         {
-            const T* const ptr = getPtr<T>(sliceChunkedArray.chunk(0), f);
+            const T * const ptr = getPtr<T>(sliceChunkedArray.chunk(0), f);
             DAAL_ASSERT(ptr);
-            block.setPtr(const_cast<T* const>(ptr), 1, nrows);
+            block.setPtr(const_cast<T * const>(ptr), 1, nrows);
         }
         else
         {
@@ -393,21 +386,21 @@ private:
 
             if (chunkCount == 1)
             {
-                const char* const ptr = getPtr(sliceChunkedArray.chunk(0), f);
+                const char * const ptr = getPtr(sliceChunkedArray.chunk(0), f);
                 DAAL_ASSERT(ptr);
                 internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(nrows, ptr, block.getBlockPtr());
             }
             else
             {
-                size_t offset = 0;
-                T* const destPtr = block.getBlockPtr();
+                size_t offset     = 0;
+                T * const destPtr = block.getBlockPtr();
                 for (int chunk = 0; chunk < chunkCount; ++chunk)
                 {
                     const std::shared_ptr<const arrow::Array> arrayPtr = sliceChunkedArray.chunk(chunk);
                     DAAL_ASSERT(arrayPtr);
                     const int64_t chunkLength = arrayPtr->length();
                     DAAL_ASSERT(chunkLength > 0);
-                    const char* const ptr = getPtr(arrayPtr, f);
+                    const char * const ptr = getPtr(arrayPtr, f);
                     DAAL_ASSERT(ptr);
                     internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(chunkLength, ptr, destPtr + offset);
                     offset += chunkLength;
@@ -419,7 +412,7 @@ private:
     }
 
     template <typename T>
-    services::Status releaseTFeature(BlockDescriptor<T>& block)
+    services::Status releaseTFeature(BlockDescriptor<T> & block)
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
@@ -431,16 +424,16 @@ private:
     }
 
     template <typename T = char>
-    const T* getPtr(const arrow::Array& array, const NumericTableFeature& f, int bufferIndex = 1) const
+    const T * getPtr(const arrow::Array & array, const NumericTableFeature & f, int bufferIndex = 1) const
     {
         const std::shared_ptr<const arrow::ArrayData> arrayDataPtr = array.data();
         DAAL_ASSERT(arrayDataPtr);
-        const arrow::ArrayData& arrayData = *arrayDataPtr;
-        return reinterpret_cast<const T*>(arrayData.template GetValues<char>(bufferIndex, arrayData.offset * f.typeSize));
+        const arrow::ArrayData & arrayData = *arrayDataPtr;
+        return reinterpret_cast<const T *>(arrayData.template GetValues<char>(bufferIndex, arrayData.offset * f.typeSize));
     }
 
     template <typename T = char>
-    const T* getPtr(const std::shared_ptr<const arrow::Array>& array, const NumericTableFeature& f, int bufferIndex = 1) const
+    const T * getPtr(const std::shared_ptr<const arrow::Array> & array, const NumericTableFeature & f, int bufferIndex = 1) const
     {
         return getPtr<T>(*array, f, bufferIndex);
     }

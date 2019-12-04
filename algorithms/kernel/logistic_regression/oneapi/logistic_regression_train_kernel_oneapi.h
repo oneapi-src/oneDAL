@@ -38,16 +38,14 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method>
 class TrainBatchKernelOneAPI : public daal::algorithms::Kernel
 {
-    using HelperObjectiveFunction =
-        optimization_solver::objective_function::internal::HelperObjectiveFunction<algorithmFPType>;
+    using HelperObjectiveFunction = optimization_solver::objective_function::internal::HelperObjectiveFunction<algorithmFPType>;
 
 public:
-    services::Status compute(const services::HostAppIfacePtr &pHost, const NumericTablePtr &x, const NumericTablePtr &y,
-        logistic_regression::Model &m, Result &res, const Parameter &par);
+    services::Status compute(const services::HostAppIfacePtr & pHost, const NumericTablePtr & x, const NumericTablePtr & y,
+                             logistic_regression::Model & m, Result & res, const Parameter & par);
 };
 
 } // namespace internal

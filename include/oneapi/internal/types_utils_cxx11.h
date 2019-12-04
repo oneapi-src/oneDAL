@@ -28,7 +28,6 @@ namespace internal
 {
 namespace interface1
 {
-
 /** @ingroup oneapi_internal
  * @{
  */
@@ -45,8 +44,7 @@ private:
         UniversalBuffer buffer;
         size_t bufferSize;
 
-        explicit Allocate(size_t size) :
-            bufferSize(size) { }
+        explicit Allocate(size_t size) : bufferSize(size) {}
 
         template <typename T>
         void operator()(Typelist<T>)
@@ -73,31 +71,71 @@ class BufferCopier
 private:
     struct Execute
     {
+        cl::sycl::queue & queue;
+        UniversalBuffer & dstUnivers;
+        size_t dstOffset;
+        UniversalBuffer & srcUnivers;
+        size_t srcOffset;
+        size_t count;
+
+        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dst, size_t desOffset, UniversalBuffer & src, size_t srcOffset, size_t count)
+            : queue(queue), dstUnivers(dst), dstOffset(desOffset), srcUnivers(src), srcOffset(srcOffset), count(count)
+        {}
+
+        template <typename T>
+        void operator()(Typelist<T>)
+        {
+            auto src              = srcUnivers.get<T>().toSycl();
+            auto dst              = dstUnivers.get<T>().toSycl();
+            cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
+                auto src_acc = src.template get_access<cl::sycl::access::mode::read>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(srcOffset));
+                auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
+                cgh.copy(src_acc, dst_acc);
+            });
+            event.wait();
+        }
+    };
+
+public:
+    static void copy(cl::sycl::queue & queue, UniversalBuffer & dest, size_t dstOffset, UniversalBuffer & src, size_t srcOffset, size_t count)
+    {
+        Execute op(queue, dest, dstOffset, src, srcOffset, count);
+        TypeDispatcher::dispatch(dest.type(), op);
+    }
+};
+
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__ARRAYCOPIER"></a>
+ *  \brief Copier from array to UniversalBuffers
+ */
+class ArrayCopier
+{
+private:
+    struct Execute
+    {
         cl::sycl::queue &queue;
         UniversalBuffer &dstUnivers;
         size_t dstOffset;
-        UniversalBuffer &srcUnivers;
+        void *srcArray;
         size_t srcOffset;
         size_t count;
 
         explicit Execute(cl::sycl::queue &queue,
             UniversalBuffer &dst, size_t desOffset,
-            UniversalBuffer &src,  size_t srcOffset,
+            void *src,  size_t srcOffset,
             size_t count) : queue(queue), dstUnivers(dst),
-        dstOffset(desOffset),  srcUnivers(src),
+        dstOffset(desOffset),  srcArray(src),
         srcOffset(srcOffset), count(count) { }
 
         template <typename T>
         void operator()(Typelist<T>)
         {
-            auto src = srcUnivers.get<T>().toSycl();
+            auto src = (T*)srcArray;
             auto dst = dstUnivers.get<T>().toSycl();
             cl::sycl::event event = queue.submit([&](cl::sycl::handler &cgh) {
-                auto src_acc = src.template get_access<cl::sycl::access::mode::read>(
-                    cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(srcOffset));
                 auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(
                     cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
-                cgh.copy(src_acc, dst_acc);
+                cgh.copy(src, dst_acc);
             });
             event.wait();
         }
@@ -106,7 +144,7 @@ private:
 public:
     static void copy(cl::sycl::queue &queue,
         UniversalBuffer &dest, size_t dstOffset,
-        UniversalBuffer &src,  size_t srcOffset,
+        void *src,  size_t srcOffset,
         size_t count)
     {
         Execute op(queue, dest, dstOffset, src, srcOffset, count);
@@ -123,18 +161,17 @@ class BufferFiller
 private:
     struct Execute
     {
-        cl::sycl::queue &queue;
-        UniversalBuffer &dstUnivers;
+        cl::sycl::queue & queue;
+        UniversalBuffer & dstUnivers;
         double value;
 
-        explicit Execute(cl::sycl::queue &queue, UniversalBuffer &dest, double value) :
-            queue(queue), dstUnivers(dest), value(value) { }
+        explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dest, double value) : queue(queue), dstUnivers(dest), value(value) {}
 
         template <typename T>
         void operator()(Typelist<T>)
         {
-            auto dst = dstUnivers.get<T>().toSycl();
-            cl::sycl::event event = queue.submit([&](cl::sycl::handler &cgh) {
+            auto dst              = dstUnivers.get<T>().toSycl();
+            cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
                 auto acc = dst.template get_access<cl::sycl::access::mode::write>(cgh);
                 cgh.fill(acc, static_cast<T>(value));
             });
@@ -143,7 +180,7 @@ private:
     };
 
 public:
-    static void fill(cl::sycl::queue &queue, UniversalBuffer &dest, double value)
+    static void fill(cl::sycl::queue & queue, UniversalBuffer & dest, double value)
     {
         Execute op(queue, dest, value);
         TypeDispatcher::dispatch(dest.type(), op);

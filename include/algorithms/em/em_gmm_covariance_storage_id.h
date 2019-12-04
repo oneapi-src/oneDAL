@@ -30,7 +30,6 @@ namespace algorithms
 {
 namespace em_gmm
 {
-
 /**
  * @ingroup em_gmm
  * @{
@@ -48,6 +47,6 @@ enum CovarianceStorageId
 /** @} */
 
 } // namespace em_gmm
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

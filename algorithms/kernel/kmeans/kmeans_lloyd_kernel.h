@@ -39,33 +39,32 @@ namespace kmeans
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPType, CpuType cpu>
-class KMeansBatchKernel: public Kernel
+class KMeansBatchKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTable *const *a, const NumericTable *const *r, const Parameter *par);
+    services::Status compute(const NumericTable * const * a, const NumericTable * const * r, const Parameter * par);
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class KMeansDistributedStep1Kernel: public Kernel
+class KMeansDistributedStep1Kernel : public Kernel
 {
 public:
-    services::Status compute(size_t na, const NumericTable *const *a, size_t nr, const NumericTable *const *r, const Parameter *par);
-    services::Status finalizeCompute(size_t na, const NumericTable *const *a, size_t nr, const NumericTable *const *r, const Parameter *par);
+    services::Status compute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
+    services::Status finalizeCompute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-class KMeansDistributedStep2Kernel: public Kernel
+class KMeansDistributedStep2Kernel : public Kernel
 {
 public:
-    services::Status compute(size_t na, const NumericTable *const *a, size_t nr, const NumericTable *const *r, const Parameter *par);
-    services::Status finalizeCompute(size_t na, const NumericTable *const *a, size_t nr, const NumericTable *const *r, const Parameter *par);
+    services::Status compute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
+    services::Status finalizeCompute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par);
 };
 
-} // namespace daal::algorithms::kmeans::internal
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal
 
 #endif

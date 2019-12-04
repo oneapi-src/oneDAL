@@ -32,8 +32,8 @@ using namespace daal::algorithms::multinomial_naive_bayes::training;
  * Method:    cInit
  * Signature: (IIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cInit(JNIEnv * env, jobject thisObj,
+                                                                                                               jint prec, jint method, jlong nClasses)
 {
     return jniOnline<multinomial_naive_bayes::training::Method, Online, defaultDense, fastCSR>::newObj(prec, method, nClasses);
 }
@@ -43,8 +43,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes
  * Method:    cInitParameter
  * Signature: (JIII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cInitParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                        jlong algAddr, jint prec,
+                                                                                                                        jint method)
 {
     return jniOnline<multinomial_naive_bayes::training::Method, Online, defaultDense, fastCSR>::getParameter(prec, method, algAddr);
 }
@@ -54,17 +55,19 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong algAddr, jint prec,
+                                                                                                                    jint method)
 {
     return jniOnline<multinomial_naive_bayes::training::Method, Online, defaultDense, fastCSR>::getResult(prec, method, algAddr);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong cObj)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                                   jlong algAddr, jint prec,
+                                                                                                                   jint method, jlong cObj)
 {
-    jniOnline<multinomial_naive_bayes::training::Method, Online, defaultDense, fastCSR>::
-        setResult<multinomial_naive_bayes::training::Result>(prec, method, algAddr, cObj);
+    jniOnline<multinomial_naive_bayes::training::Method, Online, defaultDense, fastCSR>::setResult<multinomial_naive_bayes::training::Result>(
+        prec, method, algAddr, cObj);
 }
 
 /*
@@ -72,17 +75,21 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_
  * Method:    cGetPartialResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cGetPartialResult(JNIEnv * env,
+                                                                                                                           jobject thisObj,
+                                                                                                                           jlong algAddr, jint prec,
+                                                                                                                           jint method)
 {
     return jniOnline<multinomial_naive_bayes::training::Method, Online, defaultDense, fastCSR>::getPartialResult(prec, method, algAddr);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cSetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong cObj)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cSetPartialResult(JNIEnv * env,
+                                                                                                                          jobject thisObj,
+                                                                                                                          jlong algAddr, jint prec,
+                                                                                                                          jint method, jlong cObj)
 {
-    jniOnline<multinomial_naive_bayes::training::Method, Online, defaultDense, fastCSR>::
-        setPartialResult<multinomial_naive_bayes::training::PartialResult>(prec, method, algAddr, cObj);
+    jniOnline<multinomial_naive_bayes::training::Method, Online, defaultDense,
+              fastCSR>::setPartialResult<multinomial_naive_bayes::training::PartialResult>(prec, method, algAddr, cObj);
 }
 
 /*
@@ -90,8 +97,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multinomial_1naive_1bayes_training_TrainingOnline_cClone(JNIEnv * env, jobject thisObj,
+                                                                                                                jlong algAddr, jint prec, jint method)
 {
     return jniOnline<multinomial_naive_bayes::training::Method, Online, defaultDense, fastCSR>::getClone(prec, method, algAddr);
 }

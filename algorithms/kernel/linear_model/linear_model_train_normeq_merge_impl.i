@@ -41,8 +41,8 @@ using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services::internal;
 
-template<CpuType cpu, typename F>
-void conditional_threader_for(bool condition, size_t n, size_t threadsRequest, const F &processIteration)
+template <CpuType cpu, typename F>
+void conditional_threader_for(bool condition, size_t n, size_t threadsRequest, const F & processIteration)
 {
     if (condition)
     {
@@ -50,7 +50,7 @@ void conditional_threader_for(bool condition, size_t n, size_t threadsRequest, c
     }
     else
     {
-        for(size_t i = 0; i < n; i++ )
+        for (size_t i = 0; i < n; i++)
         {
             processIteration(i);
         }
@@ -58,40 +58,33 @@ void conditional_threader_for(bool condition, size_t n, size_t threadsRequest, c
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status MergeKernel<algorithmFPType, cpu>::merge(const NumericTable &partialTable,
-                                                algorithmFPType* result,
-                                                bool threadingCondition)
+Status MergeKernel<algorithmFPType, cpu>::merge(const NumericTable & partialTable, algorithmFPType * result, bool threadingCondition)
 {
     const size_t nRows = partialTable.getNumberOfRows();
 
     ReadRowsType block(const_cast<NumericTable &>(partialTable), 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(block);
-    algorithmFPType *partialResult = const_cast<algorithmFPType *>(block.get());
+    algorithmFPType * partialResult = const_cast<algorithmFPType *>(block.get());
 
     size_t resultSize = nRows * partialTable.getNumberOfColumns();
-    conditional_threader_for<cpu>(threadingCondition, resultSize, resultSize, [ = ](size_t i)
-    {
-        result[i] += partialResult[i];
-    } );
+    conditional_threader_for<cpu>(threadingCondition, resultSize, resultSize, [=](size_t i) { result[i] += partialResult[i]; });
     return Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable **partialxtx,
-                                                  NumericTable **partialxty,
-                                                  NumericTable &xtxTable,
-                                                  NumericTable &xtyTable)
+Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable ** partialxtx, NumericTable ** partialxty, NumericTable & xtxTable,
+                                                  NumericTable & xtyTable)
 {
     const size_t nBetas     = xtxTable.getNumberOfRows();
     const size_t nResponses = xtyTable.getNumberOfRows();
 
     WriteOnlyRowsType xtxBlock(xtxTable, 0, nBetas);
     DAAL_CHECK_BLOCK_STATUS(xtxBlock);
-    algorithmFPType *xtx = xtxBlock.get();
+    algorithmFPType * xtx = xtxBlock.get();
 
     WriteOnlyRowsType xtyBlock(xtyTable, 0, nResponses);
     DAAL_CHECK_BLOCK_STATUS(xtyBlock);
-    algorithmFPType *xty = xtyBlock.get();
+    algorithmFPType * xty = xtyBlock.get();
 
     service_memset<algorithmFPType, cpu>(xtx, 0, nBetas * nBetas);
     service_memset<algorithmFPType, cpu>(xty, 0, nBetas * nResponses);
@@ -100,19 +93,17 @@ Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable **parti
     Status st;
     for (size_t i = 0; i < n; i++)
     {
-        st |= MergeKernel<algorithmFPType, cpu>::merge(*partialxtx[i], xtx,
-                    nBetas * nBetas * sizeof(algorithmFPType) > minThreadingSize);
+        st |= MergeKernel<algorithmFPType, cpu>::merge(*partialxtx[i], xtx, nBetas * nBetas * sizeof(algorithmFPType) > minThreadingSize);
         DAAL_CHECK_STATUS_VAR(st);
-        st |= MergeKernel<algorithmFPType, cpu>::merge(*partialxty[i], xty,
-                    nBetas * nResponses * sizeof(algorithmFPType) > minThreadingSize);
+        st |= MergeKernel<algorithmFPType, cpu>::merge(*partialxty[i], xty, nBetas * nResponses * sizeof(algorithmFPType) > minThreadingSize);
         DAAL_CHECK_STATUS_VAR(st);
     }
     return st;
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace normal_equations
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

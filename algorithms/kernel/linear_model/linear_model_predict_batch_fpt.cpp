@@ -36,19 +36,20 @@ using namespace daal::services;
 using namespace daal::data_management;
 
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
-    const Input *in = static_cast<const Input *>(input);
-    size_t nVectors            = in->get(data )->getNumberOfRows();
+    const Input * in           = static_cast<const Input *>(input);
+    size_t nVectors            = in->get(data)->getNumberOfRows();
     size_t nDependentVariables = in->get(model)->getNumberOfResponses();
     Status st;
     set(prediction, HomogenNumericTable<algorithmFPType>::create(nDependentVariables, nVectors, NumericTable::doAllocate, &st));
     return st;
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method);
+template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                          const int method);
 
 } // namespace prediction
-} // namespace linear_regression
+} // namespace linear_model
 } // namespace algorithms
 } // namespace daal

@@ -54,7 +54,7 @@ namespace training
  */
 enum Method
 {
-    xboost = 0,       /*!< Extreme boosting (second-order approximation of objective function,
+    xboost       = 0, /*!< Extreme boosting (second-order approximation of objective function,
                            regularization on number of leaves and their weights), Chen et al. */
     defaultDense = 0  /*!< Default training method */
 };
@@ -79,7 +79,6 @@ enum ResultNumericTableId
     lastResultNumericTableId = variableImportanceByGain
 };
 
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -100,7 +99,7 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public 
     LossFunctionType loss; /*!< Loss function type */
 };
 /* [interface1::Parameter source code] */
-}
+} // namespace interface1
 
 /**
  * \brief Contains version 2.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -119,11 +118,11 @@ struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algori
     /** Default constructor */
     Parameter(size_t nClasses) : classifier::Parameter(nClasses), loss(crossEntropy), varImportance(0) {}
     services::Status check() const DAAL_C11_OVERRIDE;
-    LossFunctionType loss; /*!< Loss function type */
+    LossFunctionType loss;     /*!< Loss function type */
     DAAL_UINT64 varImportance; /*!< 64 bit integer flag VariableImportanceModes that indicates the variable importance computation modes */
 };
 /* [Parameter source code] */
-}
+} // namespace interface2
 
 namespace interface1
 {
@@ -152,7 +151,7 @@ public:
     * \param[in] id      Identifier of the result
     * \param[in] value   Result
     */
-    void set(classifier::training::ResultId id, const ModelPtr &value);
+    void set(classifier::training::ResultId id, const ModelPtr & value);
 
     /**
      * Returns the result of model-based training
@@ -166,7 +165,7 @@ public:
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
      */
-    void set(ResultNumericTableId id, const data_management::NumericTablePtr &value);
+    void set(ResultNumericTableId id, const data_management::NumericTablePtr & value);
 
     /**
      * Allocates memory to store final results of the LogitBoost training algorithm
@@ -176,7 +175,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**s
     * Checks the result of model-based training
@@ -185,12 +184,12 @@ public:
     * \param[in] method  Computation method
     * \return Status of checking
     */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
@@ -202,10 +201,10 @@ using interface2::Parameter;
 using interface1::Result;
 using interface1::ResultPtr;
 
-} // namespace daal::algorithms::gbt::classification::training
+} // namespace training
 /** @} */
-}
-}
-}
+} // namespace classification
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal
 #endif // __GBT_CLASSIFICATION_TRAINING_TYPES_H__

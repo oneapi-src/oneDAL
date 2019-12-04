@@ -50,7 +50,7 @@ namespace regression
  */
 enum VariableImportanceMode
 {
-    none,           /* Do not compute */
+    none, /* Do not compute */
     MDI,
     MDA_Raw,
     MDA_Scaled
@@ -61,7 +61,6 @@ enum VariableImportanceMode
  */
 namespace interface1
 {
-
 // CLARIFICATION:: Added parameter class to support different split criterions for stump.
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__STUMP__REGRESSION__PARAMETER"></a>
@@ -106,7 +105,7 @@ public:
      * \param[out] stat      Status of the model construction
      * \return Decision stump model
      */
-    static services::SharedPtr<Model> create(services::Status *stat = NULL);
+    static services::SharedPtr<Model> create(services::Status * stat = NULL);
 
     /**
      * Default constructor for Model to creator
@@ -125,30 +124,29 @@ public:
      *  Returns a value of the feature that defines the split
      *  \return Value of the feature over which the split is made
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT modelFPType getSplitValue();
 
     /**
      *  Returns an average of the weighted responses for the "left" subset
      *  \return Average of the weighted responses for the "left" subset
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT modelFPType getLeftValue();
 
     /**
      *  Returns an average of the weighted responses for the "right" subset
      *  \return Average of the weighted responses for the "right" subset
      */
-    template<typename modelFPType>
+    template <typename modelFPType>
     DAAL_EXPORT modelFPType getRightValue();
 
 protected:
-    Model(services::Status &st);
+    Model(services::Status & st);
 
     services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
 
     services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
-
 };
 
 typedef services::SharedPtr<Model> ModelPtr;
@@ -161,9 +159,9 @@ using interface1::Model;
 using interface1::ModelPtr;
 using interface1::ModelConstPtr;
 
-}
+} // namespace regression
 /** @} */
-}
-}
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 #endif

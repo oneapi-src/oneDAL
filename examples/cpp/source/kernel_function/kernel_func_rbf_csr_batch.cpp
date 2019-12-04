@@ -38,9 +38,9 @@ string leftDatasetFileName  = "../data/batch/kernel_function_csr.csv";
 string rightDatasetFileName = "../data/batch/kernel_function_csr.csv";
 
 /* Kernel algorithm parameters */
-const double sigma = 1.0;       /* RBF kernel coefficient */
+const double sigma = 1.0; /* RBF kernel coefficient */
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &leftDatasetFileName);
     checkArguments(argc, argv, 1, &rightDatasetFileName);
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     kernel_function::rbf::Batch<float, kernel_function::rbf::fastCSR> algorithm;
 
     /* Set the kernel algorithm parameter */
-    algorithm.parameter.sigma = sigma;
+    algorithm.parameter.sigma           = sigma;
     algorithm.parameter.computationMode = kernel_function::matrixMatrix;
 
     /* Set an input data table for the algorithm */

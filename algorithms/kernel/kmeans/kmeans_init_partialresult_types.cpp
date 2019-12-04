@@ -41,7 +41,6 @@ namespace init
 {
 namespace interface1
 {
-
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialResult, SERIALIZATION_KMEANS_INIT_PARTIAL_RESULT_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedStep2LocalPlusPlusPartialResult, SERIALIZATION_KMEANS_INIT_STEP2LOCAL_PP_PARTIAL_RESULT_ID);
 __DAAL_REGISTER_SERIALIZATION_CLASS(DistributedStep3MasterPlusPlusPartialResult, SERIALIZATION_KMEANS_INIT_STEP3MASTER_PP_PARTIAL_RESULT_ID);
@@ -65,7 +64,7 @@ NumericTablePtr PartialResult::get(PartialResultId id) const
  * \param[in] id    Identifier of the partial result
  * \param[in] ptr   Pointer to the object
  */
-void PartialResult::set(PartialResultId id, const NumericTablePtr &ptr)
+void PartialResult::set(PartialResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -80,9 +79,9 @@ size_t PartialResult::getNumberOfFeatures() const
     return clusters->getNumberOfColumns();
 }
 
-#define isPlusPlusMethod(method)\
-    ((method == kmeans::init::plusPlusDense) || (method == kmeans::init::plusPlusCSR) || \
-    (method == kmeans::init::parallelPlusDense) || (method == kmeans::init::parallelPlusCSR))
+#define isPlusPlusMethod(method)                                                                                                     \
+    ((method == kmeans::init::plusPlusDense) || (method == kmeans::init::plusPlusCSR) || (method == kmeans::init::parallelPlusDense) \
+     || (method == kmeans::init::parallelPlusCSR))
 
 /**
 * Checks a partial result of computing initial clusters for the K-Means algorithm
@@ -90,22 +89,22 @@ size_t PartialResult::getNumberOfFeatures() const
 * \param[in] par     %Parameter of the algorithm
 * \param[in] method  Computation method of the algorithm
 */
-services::Status PartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    size_t inputFeatures = static_cast<const InputIface *>(input)->getNumberOfFeatures();
-    const interface1::Parameter *kmPar = static_cast<const interface1::Parameter *>(par);
-    const size_t nClusters = (isPlusPlusMethod(method) ? 1 : kmPar->nClusters);
+    size_t inputFeatures                = static_cast<const InputIface *>(input)->getNumberOfFeatures();
+    const interface1::Parameter * kmPar = static_cast<const interface1::Parameter *>(par);
+    const size_t nClusters              = (isPlusPlusMethod(method) ? 1 : kmPar->nClusters);
 
     int unexpectedLayouts = (int)packed_mask;
     services::Status s;
     NumericTablePtr pPartialClusters = get(partialClusters);
-    if(pPartialClusters.get())
+    if (pPartialClusters.get())
     {
         DAAL_CHECK_STATUS(s, checkNumericTable(pPartialClusters.get(), partialClustersStr(), unexpectedLayouts, 0, inputFeatures, nClusters));
     }
     DAAL_CHECK_STATUS(s, checkNumericTable(get(partialClustersNumber).get(), partialClustersNumberStr(), unexpectedLayouts, 0, 1, 1));
 
-    if(dynamic_cast<const Input*>(input))
+    if (dynamic_cast<const Input *>(input))
     {
         DAAL_CHECK_EX(kmPar->nRowsTotal > 0, ErrorIncorrectParameter, ParameterName, nRowsTotalStr());
         DAAL_CHECK_EX(kmPar->nRowsTotal != kmPar->offset, ErrorIncorrectParameter, ParameterName, offsetStr());
@@ -118,16 +117,16 @@ services::Status PartialResult::check(const daal::algorithms::Input *input, cons
  * \param[in] par     %Parameter of the algorithm
  * \param[in] method  Computation method of the algorithm
  */
-services::Status PartialResult::check(const daal::algorithms::Parameter *par, int method) const
+services::Status PartialResult::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const interface1::Parameter *kmPar = static_cast<const interface1::Parameter *>(par);
-    int unexpectedLayouts = (int)packed_mask;
-    const size_t nClusters = (isPlusPlusMethod(method) ? 1 : kmPar->nClusters);
+    const interface1::Parameter * kmPar = static_cast<const interface1::Parameter *>(par);
+    int unexpectedLayouts               = (int)packed_mask;
+    const size_t nClusters              = (isPlusPlusMethod(method) ? 1 : kmPar->nClusters);
 
     services::Status s;
     DAAL_CHECK_STATUS(s, checkNumericTable(get(partialClustersNumber).get(), partialClustersNumberStr(), unexpectedLayouts, 0, 1, 1));
     NumericTablePtr pPartialClusters = get(partialClusters);
-    if(pPartialClusters.get())
+    if (pPartialClusters.get())
     {
         const size_t nRows = pPartialClusters->getNumberOfRows();
         DAAL_CHECK_EX(nRows <= kmPar->nClusters, ErrorIncorrectNumberOfRows, ArgumentName, partialClustersStr());
@@ -135,15 +134,16 @@ services::Status PartialResult::check(const daal::algorithms::Parameter *par, in
     }
     return s;
 }
-DistributedStep2LocalPlusPlusPartialResult::DistributedStep2LocalPlusPlusPartialResult() :
-    daal::algorithms::PartialResult(lastDistributedStep2LocalPlusPlusPartialResultDataId + 1) {}
+DistributedStep2LocalPlusPlusPartialResult::DistributedStep2LocalPlusPlusPartialResult()
+    : daal::algorithms::PartialResult(lastDistributedStep2LocalPlusPlusPartialResultDataId + 1)
+{}
 
 data_management::NumericTablePtr DistributedStep2LocalPlusPlusPartialResult::get(DistributedStep2LocalPlusPlusPartialResultId id) const
 {
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedStep2LocalPlusPlusPartialResult::set(DistributedStep2LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr)
+void DistributedStep2LocalPlusPlusPartialResult::set(DistributedStep2LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -153,32 +153,34 @@ data_management::DataCollectionPtr DistributedStep2LocalPlusPlusPartialResult::g
     return staticPointerCast<DataCollection, SerializationIface>(Argument::get(id));
 }
 
-void DistributedStep2LocalPlusPlusPartialResult::set(DistributedStep2LocalPlusPlusPartialResultDataId id, const data_management::DataCollectionPtr &ptr)
+void DistributedStep2LocalPlusPlusPartialResult::set(DistributedStep2LocalPlusPlusPartialResultDataId id,
+                                                     const data_management::DataCollectionPtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-services::Status DistributedStep2LocalPlusPlusPartialResult::check(const daal::algorithms::Input *input,
-    const daal::algorithms::Parameter *par, int method) const
+services::Status DistributedStep2LocalPlusPlusPartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                   int method) const
 {
-    const interface1::DistributedStep2LocalPlusPlusParameter *kmPar = static_cast<const interface1::DistributedStep2LocalPlusPlusParameter *>(par);
+    const interface1::DistributedStep2LocalPlusPlusParameter * kmPar = static_cast<const interface1::DistributedStep2LocalPlusPlusParameter *>(par);
     services::Status s = checkNumericTable(get(outputOfStep2ForStep3).get(), outputOfStep2ForStep3Str(), (int)packed_mask, 0, 1, 1);
 
-    if(kmPar->firstIteration)
-        s |= internal::checkLocalData(get(internalResult).get(), kmPar, internalResultStr(),
-            static_cast<const Input *>(input)->get(data).get(), isParallelPlusMethod(method));
+    if (kmPar->firstIteration)
+        s |= internal::checkLocalData(get(internalResult).get(), kmPar, internalResultStr(), static_cast<const Input *>(input)->get(data).get(),
+                                      isParallelPlusMethod(method));
     return s;
 }
 
-services::Status DistributedStep2LocalPlusPlusPartialResult::check(const daal::algorithms::Parameter *par, int method) const
+services::Status DistributedStep2LocalPlusPlusPartialResult::check(const daal::algorithms::Parameter * par, int method) const
 {
     return services::Status();
 }
 
-void DistributedStep2LocalPlusPlusPartialResult::initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method)
+void DistributedStep2LocalPlusPlusPartialResult::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                            int method)
 {
-    const interface1::DistributedStep2LocalPlusPlusParameter *kmPar = static_cast<const interface1::DistributedStep2LocalPlusPlusParameter *>(par);
-    if(kmPar->firstIteration)
+    const interface1::DistributedStep2LocalPlusPlusParameter * kmPar = static_cast<const interface1::DistributedStep2LocalPlusPlusParameter *>(par);
+    if (kmPar->firstIteration)
     {
         const auto pLocalData = get(internalResult);
         const auto pNClusters = NumericTable::cast(pLocalData->get(internal::numberOfClusters));
@@ -189,8 +191,8 @@ void DistributedStep2LocalPlusPlusPartialResult::initialize(const daal::algorith
     }
 }
 
-DistributedStep3MasterPlusPlusPartialResult::DistributedStep3MasterPlusPlusPartialResult() :
-    daal::algorithms::PartialResult(lastDistributedStep3MasterPlusPlusPartialResultDataId + 1)
+DistributedStep3MasterPlusPlusPartialResult::DistributedStep3MasterPlusPlusPartialResult()
+    : daal::algorithms::PartialResult(lastDistributedStep3MasterPlusPlusPartialResultDataId + 1)
 {
     set(outputOfStep3ForStep4, KeyValueDataCollectionPtr(new KeyValueDataCollection()));
     set(rngState, SerializationIfacePtr(new MemoryBlock()));
@@ -213,19 +215,20 @@ data_management::SerializationIfacePtr DistributedStep3MasterPlusPlusPartialResu
 }
 
 void DistributedStep3MasterPlusPlusPartialResult::add(DistributedStep3MasterPlusPlusPartialResultId id, size_t key,
-    const data_management::NumericTablePtr &ptr)
+                                                      const data_management::NumericTablePtr & ptr)
 {
     data_management::KeyValueDataCollectionPtr pColl = data_management::KeyValueDataCollection::cast(Argument::get(outputOfStep3ForStep4));
     if (!pColl) return;
     (*pColl)[key] = ptr;
 }
 
-services::Status DistributedStep3MasterPlusPlusPartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status DistributedStep3MasterPlusPlusPartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    int method) const
 {
     return this->check(par, method);
 }
 
-services::Status DistributedStep3MasterPlusPlusPartialResult::check(const daal::algorithms::Parameter *par, int method) const
+services::Status DistributedStep3MasterPlusPlusPartialResult::check(const daal::algorithms::Parameter * par, int method) const
 {
     auto pArg = Argument::get(outputOfStep3ForStep4);
     DAAL_CHECK_EX(pArg.get(), ErrorNullPartialResult, ArgumentName, outputOfStep3ForStep4Str());
@@ -238,71 +241,76 @@ services::Status DistributedStep3MasterPlusPlusPartialResult::check(const daal::
     return services::Status();
 }
 
-void DistributedStep3MasterPlusPlusPartialResult::initialize(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method)
+void DistributedStep3MasterPlusPlusPartialResult::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                             int method)
 {
     auto pColl = get(outputOfStep3ForStep4);
     pColl->clear();
 }
 
-DistributedStep4LocalPlusPlusPartialResult::DistributedStep4LocalPlusPlusPartialResult() :
-    daal::algorithms::PartialResult(lastDistributedStep4LocalPlusPlusPartialResultId + 1) {}
+DistributedStep4LocalPlusPlusPartialResult::DistributedStep4LocalPlusPlusPartialResult()
+    : daal::algorithms::PartialResult(lastDistributedStep4LocalPlusPlusPartialResultId + 1)
+{}
 
 data_management::NumericTablePtr DistributedStep4LocalPlusPlusPartialResult::get(DistributedStep4LocalPlusPlusPartialResultId id) const
 {
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedStep4LocalPlusPlusPartialResult::set(DistributedStep4LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr)
+void DistributedStep4LocalPlusPlusPartialResult::set(DistributedStep4LocalPlusPlusPartialResultId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-services::Status DistributedStep4LocalPlusPlusPartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status DistributedStep4LocalPlusPlusPartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                   int method) const
 {
-    const DistributedStep4LocalPlusPlusInput* kmInput = static_cast<const DistributedStep4LocalPlusPlusInput*>(input);
-    const auto nFeatures = kmInput->get(data)->getNumberOfColumns();
-    data_management::NumericTablePtr pInput = kmInput->get(inputOfStep4FromStep3);
-    const auto nRows = pInput->getNumberOfColumns();
+    const DistributedStep4LocalPlusPlusInput * kmInput = static_cast<const DistributedStep4LocalPlusPlusInput *>(input);
+    const auto nFeatures                               = kmInput->get(data)->getNumberOfColumns();
+    data_management::NumericTablePtr pInput            = kmInput->get(inputOfStep4FromStep3);
+    const auto nRows                                   = pInput->getNumberOfColumns();
     return checkNumericTable(get(outputOfStep4).get(), outputOfStep4Str(), (int)packed_mask, 0, nFeatures, nRows);
 }
 
-services::Status DistributedStep4LocalPlusPlusPartialResult::check(const daal::algorithms::Parameter *par, int method) const
+services::Status DistributedStep4LocalPlusPlusPartialResult::check(const daal::algorithms::Parameter * par, int method) const
 {
     return services::Status();
 }
 
-DistributedStep5MasterPlusPlusPartialResult::DistributedStep5MasterPlusPlusPartialResult() :
-    daal::algorithms::PartialResult(lastDistributedStep5MasterPlusPlusPartialResultId + 1) {}
+DistributedStep5MasterPlusPlusPartialResult::DistributedStep5MasterPlusPlusPartialResult()
+    : daal::algorithms::PartialResult(lastDistributedStep5MasterPlusPlusPartialResultId + 1)
+{}
 
 data_management::NumericTablePtr DistributedStep5MasterPlusPlusPartialResult::get(DistributedStep5MasterPlusPlusPartialResultId id) const
 {
     return staticPointerCast<NumericTable, SerializationIface>(Argument::get(id));
 }
 
-void DistributedStep5MasterPlusPlusPartialResult::set(DistributedStep5MasterPlusPlusPartialResultId id, const data_management::NumericTablePtr &ptr)
+void DistributedStep5MasterPlusPlusPartialResult::set(DistributedStep5MasterPlusPlusPartialResultId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
 
-services::Status DistributedStep5MasterPlusPlusPartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status DistributedStep5MasterPlusPlusPartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                                    int method) const
 {
-    const interface1::Parameter *stepPar = static_cast<const interface1::Parameter *>(par);
-    const DistributedStep5MasterPlusPlusInput* kmInput = static_cast<const DistributedStep5MasterPlusPlusInput*>(input);
+    const interface1::Parameter * stepPar               = static_cast<const interface1::Parameter *>(par);
+    const DistributedStep5MasterPlusPlusInput * kmInput = static_cast<const DistributedStep5MasterPlusPlusInput *>(input);
 
-    const size_t nMaxCandidates = size_t(stepPar->oversamplingFactor*stepPar->nClusters)*stepPar->nRounds + 1;
-    const auto pColl = kmInput->get(inputCentroids);
+    const size_t nMaxCandidates                 = size_t(stepPar->oversamplingFactor * stepPar->nClusters) * stepPar->nRounds + 1;
+    const auto pColl                            = kmInput->get(inputCentroids);
     data_management::NumericTablePtr pCentroids = data_management::NumericTable::cast((*pColl)[0]);
-    const auto nFeatures = pCentroids->getNumberOfColumns();
+    const auto nFeatures                        = pCentroids->getNumberOfColumns();
     services::Status s = checkNumericTable(get(candidates).get(), candidatesStr(), (int)packed_mask, 0, nFeatures, nMaxCandidates);
     s |= checkNumericTable(get(weights).get(), candidateRatingStr(), (int)packed_mask, 0, nMaxCandidates, 1);
     return s;
 }
 
-services::Status DistributedStep5MasterPlusPlusPartialResult::check(const daal::algorithms::Parameter *par, int method) const
+services::Status DistributedStep5MasterPlusPlusPartialResult::check(const daal::algorithms::Parameter * par, int method) const
 {
-    const interface1::Parameter *stepPar = static_cast<const interface1::Parameter *>(par);
-    const size_t nMaxCandidates = size_t(stepPar->oversamplingFactor*stepPar->nClusters)*stepPar->nRounds + 1;
-    services::Status s = checkNumericTable(get(candidates).get(), candidatesStr(), (int)packed_mask, 0, 0, nMaxCandidates);
+    const interface1::Parameter * stepPar = static_cast<const interface1::Parameter *>(par);
+    const size_t nMaxCandidates           = size_t(stepPar->oversamplingFactor * stepPar->nClusters) * stepPar->nRounds + 1;
+    services::Status s                    = checkNumericTable(get(candidates).get(), candidatesStr(), (int)packed_mask, 0, 0, nMaxCandidates);
     s |= checkNumericTable(get(weights).get(), candidateRatingStr(), (int)packed_mask, 0, nMaxCandidates, 1);
     return s;
 }
@@ -310,5 +318,5 @@ services::Status DistributedStep5MasterPlusPlusPartialResult::check(const daal::
 } // namespace interface1
 } // namespace init
 } // namespace kmeans
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

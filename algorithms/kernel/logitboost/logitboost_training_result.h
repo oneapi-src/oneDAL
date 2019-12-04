@@ -43,17 +43,16 @@ namespace interface2
  * \param[in] method        LogitBoost computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
+    const classifier::training::Input * algInput = static_cast<const classifier::training::Input *>(input);
 
     services::Status s;
-    ModelPtr model = Model::create(algInput->getNumberOfFeatures(),
-                                   static_cast<const Parameter *>(parameter), &s);
+    ModelPtr model = Model::create(algInput->getNumberOfFeatures(), static_cast<const Parameter *>(parameter), &s);
     set(classifier::training::model, model);
     return s;
 }
-}
+} // namespace interface2
 } // namespace training
 } // namespace logitboost
 } // namespace algorithms

@@ -28,21 +28,20 @@
 
 namespace daal
 {
-
 //Thread safe holder of Status
 class SafeStatus
 {
 public:
     explicit SafeStatus();
-    explicit SafeStatus(const services::Status& s);
+    explicit SafeStatus(const services::Status & s);
 
     bool ok() const;
     operator bool() const { return ok(); }
 
-    SafeStatus& add(services::ErrorID id);
-    SafeStatus& add(const services::ErrorPtr& e);
-    SafeStatus& add(const services::Status& s);
-    SafeStatus& operator |=(const services::Status& other) { return add(other); }
+    SafeStatus & add(services::ErrorID id);
+    SafeStatus & add(const services::ErrorPtr & e);
+    SafeStatus & add(const services::Status & s);
+    SafeStatus & operator|=(const services::Status & other) { return add(other); }
 
     //Return services::Status and clean this class
     services::Status detach();

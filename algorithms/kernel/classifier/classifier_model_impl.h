@@ -37,23 +37,21 @@ namespace internal
 class ModelInternal
 {
 public:
-    ModelInternal(size_t nFeatures = 0) : _nFeatures(nFeatures)
-    {}
+    ModelInternal(size_t nFeatures = 0) : _nFeatures(nFeatures) {}
 
     void setNumberOfFeatures(size_t nFeatures) { _nFeatures = nFeatures; }
     virtual size_t getNumberOfFeatures() const { return _nFeatures; }
+
 protected:
     size_t _nFeatures;
 };
 
-class ModelImpl : public classifier::Model,
-                  public ModelInternal
+class ModelImpl : public classifier::Model, public ModelInternal
 {
 public:
-    typedef ModelInternal   ImplType;
+    typedef ModelInternal ImplType;
 
-    ModelImpl(size_t nFeatures = 0) : ImplType(nFeatures)
-    {}
+    ModelImpl(size_t nFeatures = 0) : ImplType(nFeatures) {}
 
     void setNumberOfFeatures(size_t nFeatures) { ImplType::setNumberOfFeatures(nFeatures); }
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfFeatures(); }
@@ -62,7 +60,7 @@ public:
     size_t getNFeatures() const DAAL_C11_OVERRIDE { return getNumberOfFeatures(); }
 
 protected:
-    template<typename Archive, bool onDeserialize>
+    template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
         classifier::Model::serialImpl<Archive, onDeserialize>(arch);
@@ -71,8 +69,8 @@ protected:
         return services::Status();
     }
 };
-}
-}
-}
-}
+} // namespace internal
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 #endif

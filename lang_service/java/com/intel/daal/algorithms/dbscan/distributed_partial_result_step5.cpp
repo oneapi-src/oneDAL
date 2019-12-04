@@ -24,8 +24,8 @@
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::dbscan;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep5_cNewDistributedPartialResultStep5
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep5_cNewDistributedPartialResultStep5(JNIEnv * env,
+                                                                                                                              jobject thisObj)
 {
     return jniArgument<DistributedPartialResultStep5>::newObj();
 }
@@ -35,8 +35,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cGetDataCollection
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep5_cGetDataCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep5_cGetDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                               jlong resAddr, jint id)
 {
     return jniArgument<DistributedPartialResultStep5>::get<DistributedPartialResultStep5Id, DataCollection>(resAddr, id);
 }
@@ -46,8 +46,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartial
  * Method:    cSetDataCollection
  * Signature: (JIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep5_cSetDataCollection
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id, jlong dcAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_DistributedPartialResultStep5_cSetDataCollection(JNIEnv * env, jobject thisObj,
+                                                                                                              jlong resAddr, jint id, jlong dcAddr)
 {
     jniArgument<DistributedPartialResultStep5>::set<DistributedPartialResultStep5Id, DataCollection>(resAddr, id, dcAddr);
 }

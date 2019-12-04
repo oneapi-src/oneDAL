@@ -20,11 +20,16 @@
 !    Auxiliary sycl functions used in C++ examples
 !******************************************************************************/
 
+#ifndef _SERVICE_SYCL_H
+#define _SERVICE_SYCL_H
+
 #include <list>
 #include <memory>
 
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
+
+#include "service.h"
 
 template <typename TSelector>
 std::unique_ptr<cl::sycl::device> makeDevice()
@@ -39,9 +44,9 @@ std::unique_ptr<cl::sycl::device> makeDevice()
     }
 }
 
-std::list<std::pair<std::string, cl::sycl::device>> getListOfDevices()
+std::list<std::pair<std::string, cl::sycl::device> > getListOfDevices()
 {
-    std::list<std::pair<std::string, cl::sycl::device>> selects;
+    std::list<std::pair<std::string, cl::sycl::device> > selects;
     std::unique_ptr<cl::sycl::device> device;
 
     device = makeDevice<cl::sycl::gpu_selector>();
@@ -55,3 +60,5 @@ std::list<std::pair<std::string, cl::sycl::device>> getListOfDevices()
 
     return selects;
 }
+
+#endif

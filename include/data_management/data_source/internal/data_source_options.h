@@ -24,32 +24,23 @@ namespace data_management
 {
 namespace internal
 {
-
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__DATASOURCEOPTIONSIMPL"></a>
  *  \brief Class that helps to define data source options
  */
-template<typename Value>
+template <typename Value>
 class DataSourceOptionsImpl
 {
 public:
-    static Value unite(const Value &lhs, const Value &rhs)
-    {
-        return (Value)( (int)lhs | (int)rhs );
-    }
+    static Value unite(const Value & lhs, const Value & rhs) { return (Value)((int)lhs | (int)rhs); }
 
-    explicit DataSourceOptionsImpl(Value flags) :
-        _value(flags) { }
+    explicit DataSourceOptionsImpl(Value flags) : _value(flags) {}
 
-    bool getFlag(Value flag) const
-    {
-        return ((int)_value & (int)flag) != 0;
-    }
+    bool getFlag(Value flag) const { return ((int)_value & (int)flag) != 0; }
 
 private:
     Value _value;
 };
-
 
 } // namespace internal
 } // namespace data_management

@@ -62,13 +62,27 @@ __kernel void logLoss(const __global algorithmFPType* const y,
 }
 
 __kernel void sigmoid(const __global algorithmFPType* const xb,
-  __global algorithmFPType* result, const algorithmFPType expThreshold)
+  const algorithmFPType expThreshold,
+  const uint calculateInverse,
+  __global algorithmFPType* result)
 {
     const uint i = get_global_id(0);
     const algorithmFPType one = (algorithmFPType)1.0;
 
     const algorithmFPType f = fmax(-xb[i], expThreshold);
-    result[i] = one / (one + exp(f));
+    const algorithmFPType p = one / (one + exp(f));
+
+    if (calculateInverse != 0)
+    {
+        const uint firstColIdx = 2*i;
+
+        result[firstColIdx] = one - p;
+        result[firstColIdx+1] = p;
+    }
+    else
+    {
+        result[i] = p;
+    }
 }
 
 __kernel void hessian(const __global algorithmFPType* const x, const uint ldx,

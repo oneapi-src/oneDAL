@@ -41,44 +41,35 @@ namespace training
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPType, CpuType cpu>
 class BrownBoostTrainKernel : public Kernel
 {
 public:
-    services::Status compute(size_t n, NumericTablePtr *a, Model *r, const Parameter *par);
+    services::Status compute(size_t n, NumericTablePtr * a, Model * r, const Parameter * par);
 
 private:
     typedef typename daal::internal::HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
     typedef typename services::SharedPtr<HomogenNT> HomogenNTPtr;
 
-    void updateWeights(size_t nVectors, algorithmFPType s, algorithmFPType c, algorithmFPType invSqrtC,
-                       const algorithmFPType *r, algorithmFPType *nra, algorithmFPType *nre2, algorithmFPType *w);
+    void updateWeights(size_t nVectors, algorithmFPType s, algorithmFPType c, algorithmFPType invSqrtC, const algorithmFPType * r,
+                       algorithmFPType * nra, algorithmFPType * nre2, algorithmFPType * w);
 
-    algorithmFPType *reallocateAlpha(size_t oldAlphaSize, size_t alphaSize, algorithmFPType *oldAlpha, services::Status& s);
+    algorithmFPType * reallocateAlpha(size_t oldAlphaSize, size_t alphaSize, algorithmFPType * oldAlpha, services::Status & s);
 
-    services::Status brownBoostFreundKernel(size_t nVectors,
-                                NumericTablePtr weakLearnerInputTables[],
-                                const HomogenNTPtr& hTable, const algorithmFPType *y,
-                                Model *boostModel, Parameter *parameter, size_t& nWeakLearners,
-                                algorithmFPType *&alpha);
+    services::Status brownBoostFreundKernel(size_t nVectors, NumericTablePtr weakLearnerInputTables[], const HomogenNTPtr & hTable,
+                                            const algorithmFPType * y, Model * boostModel, Parameter * parameter, size_t & nWeakLearners,
+                                            algorithmFPType *& alpha);
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>
 struct NewtonRaphsonKernel
 {
-    NewtonRaphsonKernel(size_t nVectors, brownboost::interface1::Parameter *parameter);
-    NewtonRaphsonKernel(size_t nVectors,
-        double parAccuracyThreshold,
-        double parNewtonRaphsonAccuracyThreshold,
-        double parNewtonRaphsonMaxIterations,
-        double parDegenerateCasesThreshold);
-    bool isValid() const
-    {
-        return (aNrd.get() && aNrw.get() && aNra.get() && aNrb.get() && aNre1.get() && aNre2.get());
-    }
+    NewtonRaphsonKernel(size_t nVectors, brownboost::interface1::Parameter * parameter);
+    NewtonRaphsonKernel(size_t nVectors, double parAccuracyThreshold, double parNewtonRaphsonAccuracyThreshold, double parNewtonRaphsonMaxIterations,
+                        double parDegenerateCasesThreshold);
+    bool isValid() const { return (aNrd.get() && aNrw.get() && aNra.get() && aNrb.get() && aNre1.get() && aNre2.get()); }
 
-    void compute(algorithmFPType gamma, algorithmFPType s, const algorithmFPType *h, const algorithmFPType *y);
+    void compute(algorithmFPType gamma, algorithmFPType s, const algorithmFPType * h, const algorithmFPType * y);
 
     size_t nVectors;
     algorithmFPType nrT;
@@ -102,10 +93,10 @@ struct NewtonRaphsonKernel
     algorithmFPType sqrtPiC;
 };
 
-} // namespace daal::algorithms::brownboost::training::internal
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace brownboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

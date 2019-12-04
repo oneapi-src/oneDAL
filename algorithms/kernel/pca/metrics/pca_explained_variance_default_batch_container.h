@@ -37,46 +37,42 @@ namespace quality_metric
 {
 namespace explained_variance
 {
-
 using namespace daal::data_management;
 
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::ExplainedVarianceKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input* input = static_cast<Input* >(_in);
-    Result* result = static_cast<Result* >(_res);
-    Parameter* par = static_cast<Parameter* >(_par);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
+    Parameter * par = static_cast<Parameter *>(_par);
 
-    auto& explainedVariancesTable =       *(result->get(explainedVariances));
-    auto& explainedVariancesRatiosTable = *(result->get(explainedVariancesRatios));
-    auto& noiseVarianceTable =            *(result->get(noiseVariance));
+    auto & explainedVariancesTable       = *(result->get(explainedVariances));
+    auto & explainedVariancesRatiosTable = *(result->get(explainedVariancesRatios));
+    auto & noiseVarianceTable            = *(result->get(noiseVariance));
 
-    const auto& eigenvaluesTable = *(input->get(eigenvalues));
+    const auto & eigenvaluesTable = *(input->get(eigenvalues));
 
-    daal::services::Environment::env &env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::ExplainedVarianceKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType),
-        compute, eigenvaluesTable,
-        explainedVariancesTable,
-        explainedVariancesRatiosTable,
-        noiseVarianceTable);
+    daal::services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::ExplainedVarianceKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, eigenvaluesTable,
+                       explainedVariancesTable, explainedVariancesRatiosTable, noiseVarianceTable);
 }
 
-}
-}
-}
-}
-}
+} // namespace explained_variance
+} // namespace quality_metric
+} // namespace pca
+} // namespace algorithms
+} // namespace daal
 
 #endif

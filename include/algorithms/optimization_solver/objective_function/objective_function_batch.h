@@ -38,7 +38,6 @@ namespace optimization_solver
 {
 namespace objective_function
 {
-
 namespace interface1
 {
 /** @defgroup objective_function_batch Batch
@@ -60,17 +59,14 @@ namespace interface1
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::optimization_solver::objective_function::Input     InputType;
+    typedef algorithms::optimization_solver::objective_function::Input InputType;
     typedef algorithms::optimization_solver::objective_function::Parameter ParameterType;
-    typedef algorithms::optimization_solver::objective_function::Result    ResultType;
+    typedef algorithms::optimization_solver::objective_function::Result ResultType;
 
     /**
      *  Main constructor
      */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs an Objective function by copying input objects and parameters
@@ -78,10 +74,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch &other)
-    {
-        initialize();
-    }
+    Batch(const Batch & other) { initialize(); }
 
     /** Destructor */
     virtual ~Batch() {}
@@ -90,10 +83,7 @@ public:
     * Returns the structure that contains results of the Objective function
     * \return Structure that contains results of the Objective function
     */
-    virtual objective_function::ResultPtr getResult()
-    {
-        return _result;
-    }
+    virtual objective_function::ResultPtr getResult() { return _result; }
 
     /**
      * Sets the memory for storing results of the Objective function
@@ -101,11 +91,11 @@ public:
      *
      * \return Status of computations
      */
-    virtual services::Status setResult(const objective_function::ResultPtr& result)
+    virtual services::Status setResult(const objective_function::ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult);
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -114,18 +104,12 @@ public:
      * of this Objective function algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
-    virtual Batch *cloneImpl() const DAAL_C11_OVERRIDE = 0;
+    virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
-    void initialize()
-    {
-        _result = objective_function::ResultPtr(new ResultType());
-    }
+    void initialize() { _result = objective_function::ResultPtr(new ResultType()); }
 
 protected:
     objective_function::ResultPtr _result;
@@ -136,6 +120,6 @@ using interface1::Batch;
 
 } // namespace objective_function
 } // namespace optimization_solver
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

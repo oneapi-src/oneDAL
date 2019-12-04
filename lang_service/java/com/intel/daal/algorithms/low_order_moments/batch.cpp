@@ -29,8 +29,7 @@ using namespace daal::algorithms::low_order_moments;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::newObj(prec, method);
 }
@@ -40,11 +39,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Batch
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Batch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Batch_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                           jint method)
 {
-    return jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        getInput(prec, method, algAddr);
+    return jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getInput(prec, method,
+                                                                                                                                         algAddr);
 }
 
 /*
@@ -52,9 +51,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Batch
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_low_1order_1moments_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                        jint method)
 {
-    return jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::
-        getClone(prec, method, algAddr);
+    return jniBatch<low_order_moments::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getClone(prec, method,
+                                                                                                                                         algAddr);
 }
