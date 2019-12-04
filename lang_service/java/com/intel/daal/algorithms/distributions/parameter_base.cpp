@@ -29,8 +29,9 @@ USING_COMMON_NAMESPACES();
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_ParameterBase_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_distributions_ParameterBase_cSetEngine(JNIEnv * env, jobject thisObj, jlong cParameter,
+                                                                                             jlong engineAddr)
 {
-    (((distributions::ParameterBase *)cParameter))->engine = staticPointerCast<engines::BatchBase, AlgorithmIface> (*(SharedPtr<AlgorithmIface> *)engineAddr);
+    (((distributions::ParameterBase *)cParameter))->engine =
+        staticPointerCast<engines::BatchBase, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)engineAddr);
 }

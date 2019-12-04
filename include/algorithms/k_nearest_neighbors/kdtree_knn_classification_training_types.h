@@ -33,13 +33,11 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * \brief Contains classes of the KD-tree based kNN algorithm
  */
 namespace kdtree_knn_classification
 {
-
 /**
  * @defgroup kdtree_knn_classification_training Training
  * \copydoc daal::algorithms::kdtree_knn_classification::training
@@ -51,7 +49,6 @@ namespace kdtree_knn_classification
  */
 namespace training
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__TRAINING__METHOD"></a>
  * \brief Computation methods for KD-tree based kNN model-based training
@@ -66,7 +63,6 @@ enum Method
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__TRAINING__RESULT"></a>
  * \brief Provides methods to access the result obtained with the compute() method of KD-tree based kNN model-based training
@@ -90,8 +86,8 @@ public:
      * \param[in] parameter %Parameter of KD-tree based kNN model-based training
      * \param[in] method Computation method for the algorithm
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const Parameter *parameter, int method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const Parameter * parameter, int method);
 
     /**
      * Allocates memory to store the result of KD-tree based kNN model-based training
@@ -99,13 +95,14 @@ public:
      * \param[in] parameter %Parameter of KD-tree based kNN model-based training
      * \param[in] method Computation method for the algorithm
      */
-    template<typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input *input, const kdtree_knn_classification::interface1::Parameter *parameter, int method);
+    template <typename algorithmFPType>
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const kdtree_knn_classification::interface1::Parameter * parameter,
+                                          int method);
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         return classifier::training::Result::serialImpl<Archive, onDeserialize>(arch);
     }

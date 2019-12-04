@@ -38,7 +38,7 @@ namespace internal
  * @{
  */
 
-bool isImplementedForDevice(const oneapi::internal::InfoDevice& deviceInfo,  algorithms::AlgorithmContainerIface*);
+bool isImplementedForDevice(const oneapi::internal::InfoDevice & deviceInfo, algorithms::AlgorithmContainerIface *);
 
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__TYPEREGISTRATIONCHECKERIFACE"></a>
@@ -47,23 +47,20 @@ bool isImplementedForDevice(const oneapi::internal::InfoDevice& deviceInfo,  alg
 class TypeRegistrationCheckerIface
 {
 public:
-    virtual bool operator()(algorithms::AlgorithmContainerIface*) = 0;
+    virtual bool operator()(algorithms::AlgorithmContainerIface *) = 0;
 };
 
 /**
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__DYNAMICTYPEREGISTRATIONCHECKER"></a>
  *  \brief Checker of algorithm container registration in runtime
  */
-template<class T>
+template <class T>
 class DynamicTypeRegistrationChecker : public TypeRegistrationCheckerIface
 {
 public:
     DynamicTypeRegistrationChecker() {}
 
-    virtual bool operator()(algorithms::AlgorithmContainerIface* ptr_to_check)
-    {
-        return dynamic_cast<T*>(ptr_to_check) != NULL;
-    }
+    virtual bool operator()(algorithms::AlgorithmContainerIface * ptr_to_check) { return dynamic_cast<T *>(ptr_to_check) != NULL; }
 };
 
 /**
@@ -73,31 +70,31 @@ public:
 class GpuSupportChecker
 {
 public:
-    template<class T>
+    template <class T>
     void registerClass()
     {
-        DynamicTypeRegistrationChecker<T>* detector_ptr = new DynamicTypeRegistrationChecker<T>();
+        DynamicTypeRegistrationChecker<T> * detector_ptr = new DynamicTypeRegistrationChecker<T>();
         add(detector_ptr);
     }
-    bool check(daal::algorithms::AlgorithmContainerIface* ptr_to_check)
+    bool check(daal::algorithms::AlgorithmContainerIface * ptr_to_check)
     {
-        for(Entry* it = _list.head(); it != NULL; it = it->next)
-            if((*it->checker_ptr)(ptr_to_check))
-                return true;
+        for (Entry * it = _list.head(); it != NULL; it = it->next)
+            if ((*it->checker_ptr)(ptr_to_check)) return true;
         return false;
     }
-    static GpuSupportChecker& GetInstance();
+    static GpuSupportChecker & GetInstance();
+
 private:
     GpuSupportChecker() {}
-    GpuSupportChecker(const GpuSupportChecker&);
-    GpuSupportChecker& operator= (const GpuSupportChecker&);
+    GpuSupportChecker(const GpuSupportChecker &);
+    GpuSupportChecker & operator=(const GpuSupportChecker &);
 
     struct Entry : public daal::Base
     {
-        Entry(TypeRegistrationCheckerIface* new_checker, Entry* cur_head) : checker_ptr(new_checker), next(cur_head) {}
+        Entry(TypeRegistrationCheckerIface * new_checker, Entry * cur_head) : checker_ptr(new_checker), next(cur_head) {}
 
-        TypeRegistrationCheckerIface* checker_ptr;
-        Entry* next;
+        TypeRegistrationCheckerIface * checker_ptr;
+        Entry * next;
     };
 
     class List
@@ -106,33 +103,31 @@ private:
         List() : _head(NULL) {}
         ~List()
         {
-            Entry* it = _head;
-            while(it != NULL) {
-                Entry* next = it->next;
+            Entry * it = _head;
+            while (it != NULL)
+            {
+                Entry * next = it->next;
                 delete it;
                 it = next;
             }
             _head = NULL;
         }
 
-        void add(TypeRegistrationCheckerIface* checker_ptr)
+        void add(TypeRegistrationCheckerIface * checker_ptr)
         {
-            Entry* entry = new Entry(checker_ptr, _head);
+            Entry * entry = new Entry(checker_ptr, _head);
             DAAL_ASSERT(entry != NULL);
-            if(entry)
-                _head = entry;
+            if (entry) _head = entry;
         }
-        Entry* head() {return _head;}
+        Entry * head() { return _head; }
+
     private:
-        Entry* _head;
-        List(const List&);
-        List& operator= (const List&);
+        Entry * _head;
+        List(const List &);
+        List & operator=(const List &);
     };
 
-    void add(TypeRegistrationCheckerIface* new_checker)
-    {
-        _list.add(new_checker);
-    }
+    void add(TypeRegistrationCheckerIface * new_checker) { _list.add(new_checker); }
     List _list;
 };
 
@@ -140,14 +135,11 @@ private:
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__GPUSUPPORTREGISTRAR"></a>
  *  \brief Registers Algorithm as the one has GPU support
  */
-template<class T>
+template <class T>
 class GpuSupportRegistrar
 {
 public:
-    GpuSupportRegistrar()
-    {
-        GpuSupportChecker::GetInstance().registerClass<T>();
-    }
+    GpuSupportRegistrar() { GpuSupportChecker::GetInstance().registerClass<T>(); }
 };
 
 /** @} */

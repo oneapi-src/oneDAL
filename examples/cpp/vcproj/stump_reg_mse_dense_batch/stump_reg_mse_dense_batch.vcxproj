@@ -70,6 +70,7 @@
     <ProjectGuid>{8E460210-47C5-4046-B4F3-B60EF29BD415}</ProjectGuid>
     <RootNamespace>stump_reg_mse_dense_batch</RootNamespace>
     <ProjectName>stump_reg_mse_dense_batch</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|Win32'" Label="Configuration">

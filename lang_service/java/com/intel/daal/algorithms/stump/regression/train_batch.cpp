@@ -24,26 +24,25 @@
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::stump::regression::training;
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_training_TrainingBatch_cInit
-(JNIEnv *env, jobject, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_training_TrainingBatch_cInit(JNIEnv * env, jobject, jint prec, jint method)
 {
     return jniBatch<stump::regression::training::Method, Batch, defaultDense>::newObj(prec, method);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_training_TrainingBatch_cInitParameter
-(JNIEnv *env, jobject, jlong self, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_training_TrainingBatch_cInitParameter(JNIEnv * env, jobject, jlong self,
+                                                                                                              jint prec, jint method)
 {
     return jniBatch<stump::regression::training::Method, Batch, defaultDense>::getParameter(prec, method, self);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_training_TrainingBatch_cGetResult
-(JNIEnv *env, jobject, jlong self, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_training_TrainingBatch_cGetResult(JNIEnv * env, jobject, jlong self,
+                                                                                                          jint prec, jint method)
 {
     return jniBatch<stump::regression::training::Method, Batch, defaultDense>::getResult(prec, method, self);
 }
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_training_TrainingBatch_cClone
-(JNIEnv *env, jobject, jlong self, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_stump_regression_training_TrainingBatch_cClone(JNIEnv * env, jobject, jlong self, jint prec,
+                                                                                                      jint method)
 {
     return jniBatch<stump::regression::training::Method, Batch, defaultDense>::getClone(prec, method, self);
 }

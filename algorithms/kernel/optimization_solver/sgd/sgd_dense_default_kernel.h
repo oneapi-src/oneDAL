@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate sgd.
 //--
 
-
 #ifndef __SGD_DENSE_DEFAULT_KERNEL_H__
 #define __SGD_DENSE_DEFAULT_KERNEL_H__
 
@@ -41,22 +40,19 @@ namespace sgd
 {
 namespace internal
 {
-
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class SGDKernel<algorithmFPType, defaultDense, cpu> : public iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>
 {
 public:
-    services::Status compute(HostAppIface* pHost, NumericTable *inputArgument,
-        NumericTable *minimum, NumericTable *nIterations,
-        Parameter<defaultDense> *parameter, NumericTable *learningRateSequence,
-        NumericTable *batchIndices, OptionalArgument *optionalArgument, OptionalArgument *optionalResult, engines::BatchBase &engine);
+    services::Status compute(HostAppIface * pHost, NumericTable * inputArgument, NumericTable * minimum, NumericTable * nIterations,
+                             Parameter<defaultDense> * parameter, NumericTable * learningRateSequence, NumericTable * batchIndices,
+                             OptionalArgument * optionalArgument, OptionalArgument * optionalResult, engines::BatchBase & engine);
 
     using iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>::vectorNorm;
     using iterative_solver::internal::IterativeSolverKernel<algorithmFPType, cpu>::getRandom;
 };
 
-
-} // namespace daal::internal
+} // namespace internal
 
 } // namespace sgd
 

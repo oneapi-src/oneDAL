@@ -47,7 +47,6 @@ namespace training
 {
 namespace internal
 {
-
 //////////////////////////////////////////////////////////////////////////////////////////
 // Logistic loss function, L(y,f) = -[y*ln(sigmoid(f)) + (1 - y)*ln(1-sigmoid(f))]
 // where sigmoid(f) = 1/(1 + exp(-f)
@@ -56,61 +55,58 @@ template <typename algorithmFPType, CpuType cpu>
 class LogisticLoss : public LossFunction<algorithmFPType, cpu>
 {
 public:
-    virtual void getGradients(size_t n, size_t nRows, const algorithmFPType* y, const algorithmFPType* f,
-        const IndexType* sampleInd,
-        algorithmFPType* gh) DAAL_C11_OVERRIDE
+    virtual void getGradients(size_t n, size_t nRows, const algorithmFPType * y, const algorithmFPType * f, const IndexType * sampleInd,
+                              algorithmFPType * gh) DAAL_C11_OVERRIDE
     {
-        TVector<algorithmFPType, cpu, ScalableAllocator<cpu>> aExp(n);
-        auto exp = aExp.get();
+        TVector<algorithmFPType, cpu, ScalableAllocator<cpu> > aExp(n);
+        auto exp                           = aExp.get();
         const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
-        if(sampleInd)
+        if (sampleInd)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
                 exp[i] = -f[sampleInd[i]];
                 /* make all values less than threshold as threshold value
                 to fix slow work on vExp on large negative inputs */
-                if(exp[i] < expThreshold)
-                    exp[i] = expThreshold;
+                if (exp[i] < expThreshold) exp[i] = expThreshold;
             }
         }
         else
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
                 exp[i] = -f[i];
                 /* make all values less than threshold as threshold value
                 to fix slow work on vExp on large negative inputs */
-                if(exp[i] < expThreshold)
-                    exp[i] = expThreshold;
+                if (exp[i] < expThreshold) exp[i] = expThreshold;
             }
         }
         daal::internal::Math<algorithmFPType, cpu>::vExp(n, exp, exp);
 
-        if(sampleInd)
+        if (sampleInd)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
                 const algorithmFPType sigm = algorithmFPType(1.0) / (algorithmFPType(1.0) + exp[i]);
-                gh[2 * sampleInd[i]] = sigm - y[sampleInd[i]]; //gradient
-                gh[2 * sampleInd[i] + 1] = sigm * (algorithmFPType(1.0) - sigm); //hessian
+                gh[2 * sampleInd[i]]       = sigm - y[sampleInd[i]];               //gradient
+                gh[2 * sampleInd[i] + 1]   = sigm * (algorithmFPType(1.0) - sigm); //hessian
             }
         }
         else
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
                 const auto sigm = algorithmFPType(1.0) / (algorithmFPType(1.0) + exp[i]);
-                gh[2 * i] = sigm - y[i]; //gradient
-                gh[2 * i + 1] = sigm * (algorithmFPType(1.0) - sigm); //hessian
+                gh[2 * i]       = sigm - y[i];                          //gradient
+                gh[2 * i + 1]   = sigm * (algorithmFPType(1.0) - sigm); //hessian
             }
         }
     }
@@ -123,29 +119,27 @@ template <typename algorithmFPType, CpuType cpu>
 class CrossEntropyLoss : public LossFunction<algorithmFPType, cpu>
 {
 public:
-    CrossEntropyLoss(size_t numClasses) : _nClasses(numClasses){}
-    virtual void getGradients(size_t n, size_t nRows, const algorithmFPType* y, const algorithmFPType* f,
-        const IndexType* sampleInd,
-        algorithmFPType* gh) DAAL_C11_OVERRIDE
+    CrossEntropyLoss(size_t numClasses) : _nClasses(numClasses) {}
+    virtual void getGradients(size_t n, size_t nRows, const algorithmFPType * y, const algorithmFPType * f, const IndexType * sampleInd,
+                              algorithmFPType * gh) DAAL_C11_OVERRIDE
     {
         static const size_t s_cMaxClassesBufSize = 12;
         const bool bUseTLS(_nClasses > s_cMaxClassesBufSize);
         daal::TlsMem<algorithmFPType, cpu> lsData(_nClasses);
-        daal::threader_for(n, n, [&](size_t i)
-        {
+        daal::threader_for(n, n, [&](size_t i) {
             algorithmFPType buf[s_cMaxClassesBufSize];
-            algorithmFPType* p = bUseTLS ? lsData.local() : buf;
+            algorithmFPType * p  = bUseTLS ? lsData.local() : buf;
             const size_t iSample = (sampleInd ? sampleInd[i] : i);
-            getSoftmax(f + _nClasses*iSample, p);
+            getSoftmax(f + _nClasses * iSample, p);
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for(size_t k = 0; k < _nClasses; ++k)
+            for (size_t k = 0; k < _nClasses; ++k)
             {
                 const algorithmFPType pk = p[k];
-                const algorithmFPType h = algorithmFPType(2.) * pk * (algorithmFPType(1.) - pk);
-                algorithmFPType* gh_ik = gh + 2*(k*nRows + iSample);
-                gh_ik[1] = h;
-                if(size_t(y[iSample]) == k)
+                const algorithmFPType h  = algorithmFPType(2.) * pk * (algorithmFPType(1.) - pk);
+                algorithmFPType * gh_ik  = gh + 2 * (k * nRows + iSample);
+                gh_ik[1]                 = h;
+                if (size_t(y[iSample]) == k)
                     gh_ik[0] = (pk - algorithmFPType(1.));
                 else
                     gh_ik[0] = pk;
@@ -154,43 +148,38 @@ public:
     }
 
 protected:
-    void getSoftmax(const algorithmFPType* arg, algorithmFPType* res) const
+    void getSoftmax(const algorithmFPType * arg, algorithmFPType * res) const
     {
         const algorithmFPType expThreshold = daal::internal::Math<algorithmFPType, cpu>::vExpThreshold();
-        algorithmFPType maxArg = arg[0];
+        algorithmFPType maxArg             = arg[0];
         PRAGMA_VECTOR_ALWAYS
-        for(size_t i = 1; i < _nClasses; ++i)
+        for (size_t i = 1; i < _nClasses; ++i)
         {
-            if(maxArg < arg[i])
-                maxArg = arg[i];
+            if (maxArg < arg[i]) maxArg = arg[i];
         }
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for(size_t i = 0; i < _nClasses; ++i)
+        for (size_t i = 0; i < _nClasses; ++i)
         {
             res[i] = arg[i] - maxArg;
             /* make all values less than threshold as threshold value
             to fix slow work on vExp on large negative inputs */
-            if(res[i] < expThreshold)
-                res[i] = expThreshold;
+            if (res[i] < expThreshold) res[i] = expThreshold;
         }
         daal::internal::Math<algorithmFPType, cpu>::vExp(_nClasses, res, res);
         algorithmFPType sum(0.);
         PRAGMA_VECTOR_ALWAYS
-        for(size_t i = 0; i < _nClasses; ++i)
-            sum += res[i];
+        for (size_t i = 0; i < _nClasses; ++i) sum += res[i];
 
         sum = algorithmFPType(1.) / sum;
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for(size_t i = 0; i < _nClasses; ++i)
-            res[i] *= sum;
+        for (size_t i = 0; i < _nClasses; ++i) res[i] *= sum;
     }
 
 protected:
     size_t _nClasses;
 };
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // TrainBatchTask for classification
@@ -200,27 +189,22 @@ class TrainBatchTask : public TrainBatchTaskBaseXBoost<algorithmFPType, BinIndex
 {
     typedef TrainBatchTaskBaseXBoost<algorithmFPType, BinIndexType, cpu> super;
     typedef TreeBuilder<algorithmFPType, int, BinIndexType, cpu> TreeBuilderType; // TODO: fix int
-    typedef ls<TreeBuilderType*> lsType;
+    typedef ls<TreeBuilderType *> lsType;
 
 public:
-    TrainBatchTask(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y,
-        const gbt::training::Parameter& par,
-        const dtrees::internal::FeatureTypes& featTypes,
-        const dtrees::internal::IndexedFeatures* indexedFeatures,
-        engines::internal::BatchBaseImpl& engine, size_t nClasses) :
-        super(pHostApp, x, y, par, featTypes, indexedFeatures, engine, nClasses),
-        _builder(nullptr), _ls(nullptr)
-    {
-    }
+    TrainBatchTask(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const gbt::training::Parameter & par,
+                   const dtrees::internal::FeatureTypes & featTypes, const dtrees::internal::IndexedFeatures * indexedFeatures,
+                   engines::internal::BatchBaseImpl & engine, size_t nClasses)
+        : super(pHostApp, x, y, par, featTypes, indexedFeatures, engine, nClasses), _builder(nullptr), _ls(nullptr)
+    {}
 
     ~TrainBatchTask()
     {
         delete _builder;
         _builder = nullptr;
-        if(_ls)
+        if (_ls)
         {
-            _ls->reduce([](TreeBuilderType* ptr)-> void
-            {
+            _ls->reduce([](TreeBuilderType * ptr) -> void {
                 delete ptr;
                 ptr = nullptr;
             });
@@ -233,11 +217,10 @@ public:
     virtual services::Status init() DAAL_C11_OVERRIDE
     {
         auto s = super::init();
-        if(!s)
-            return s;
-        if(this->isParallelTrees())
+        if (!s) return s;
+        if (this->isParallelTrees())
         {
-            _ls = new lsType([=]()->TreeBuilderType* { return TreeBuilderType::create(*this); });
+            _ls = new lsType([=]() -> TreeBuilderType * { return TreeBuilderType::create(*this); });
             DAAL_CHECK_MALLOC(_ls);
             return s;
         }
@@ -249,39 +232,39 @@ public:
 protected:
     virtual void initLossFunc() DAAL_C11_OVERRIDE
     {
-        switch(static_cast<const gbt::classification::training::Parameter&>(this->_par).loss)
+        switch (static_cast<const gbt::classification::training::Parameter &>(this->_par).loss)
         {
         case crossEntropy:
-            if(this->_nClasses == 2)
+            if (this->_nClasses == 2)
                 this->_loss = new LogisticLoss<algorithmFPType, cpu>();
             else
                 this->_loss = new CrossEntropyLoss<algorithmFPType, cpu>(this->_nClasses);
             break;
-        default:
-            DAAL_ASSERT(false);
+        default: DAAL_ASSERT(false);
         }
     }
 
-    virtual services::Status buildTrees(gbt::internal::GbtDecisionTree** aTbl, HomogenNumericTable<double>** aTblImp, HomogenNumericTable<int>** aTblSmplCnt, GlobalStorages<algorithmFPType, BinIndexType, cpu>& GH_SUMS_BUF) DAAL_C11_OVERRIDE
+    virtual services::Status buildTrees(gbt::internal::GbtDecisionTree ** aTbl, HomogenNumericTable<double> ** aTblImp,
+                                        HomogenNumericTable<int> ** aTblSmplCnt,
+                                        GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF) DAAL_C11_OVERRIDE
     {
-        if(this->isParallelTrees())
+        if (this->isParallelTrees())
         {
             this->_nParallelNodes.set(this->_nTrees); //highest level parallelization first
             daal::SafeStatus safeStat;
-            daal::threader_for(this->_nTrees, this->_nTrees, [&](size_t i)
-            {
-                if(safeStat)
+            daal::threader_for(this->_nTrees, this->_nTrees, [&](size_t i) {
+                if (safeStat)
                     safeStat |= buildTreeThreadLocal(aTbl[i], aTblImp[i], aTblSmplCnt[i], i, GH_SUMS_BUF);
                 else
                     return;
-                this->_nParallelNodes.dec();//allow lower levels of parallelization
+                this->_nParallelNodes.dec(); //allow lower levels of parallelization
             });
 
             return safeStat.detach();
         }
 
         services::Status s;
-        for(size_t i = 0; s.ok() && (i < this->_nTrees) && !daal::algorithms::internal::isCancelled(s, this->_hostApp); ++i)
+        for (size_t i = 0; s.ok() && (i < this->_nTrees) && !daal::algorithms::internal::isCancelled(s, this->_hostApp); ++i)
         {
             DAAL_ASSERT(this->_nParallelNodes.get() == 0);
             this->_nParallelNodes.inc();
@@ -292,73 +275,78 @@ protected:
         return s;
     }
 
-    services::Status buildTreeThreadLocal(gbt::internal::GbtDecisionTree*& tbl, HomogenNumericTable<double>*& pTblImp,
-        HomogenNumericTable<int>*& pTblSmplCnt, size_t iTree, GlobalStorages<algorithmFPType, BinIndexType, cpu>& GH_SUMS_BUF)
+    services::Status buildTreeThreadLocal(gbt::internal::GbtDecisionTree *& tbl, HomogenNumericTable<double> *& pTblImp,
+                                          HomogenNumericTable<int> *& pTblSmplCnt, size_t iTree,
+                                          GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF)
     {
         auto pBuilder = _ls->local();
         DAAL_CHECK_MALLOC(pBuilder);
         services::Status s;
-        if((pBuilder->isInitialized() || (s = pBuilder->init()).ok()) && !algorithms::internal::isCancelled(s, this->_hostApp))
+        if ((pBuilder->isInitialized() || (s = pBuilder->init()).ok()) && !algorithms::internal::isCancelled(s, this->_hostApp))
             s = pBuilder->run(tbl, pTblImp, pTblSmplCnt, iTree, GH_SUMS_BUF);
         _ls->release(pBuilder);
-        if(s)
-            algorithms::internal::isCancelled(s, this->_hostApp);
+        if (s) algorithms::internal::isCancelled(s, this->_hostApp);
         return s;
     }
 
 protected:
-    TreeBuilder<algorithmFPType, int, BinIndexType, cpu>* _builder; // TODO: replace int
-    lsType* _ls;
+    TreeBuilder<algorithmFPType, int, BinIndexType, cpu> * _builder; // TODO: replace int
+    lsType * _ls;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // ClassificationTrainBatchKernel
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, gbt::classification::training::Method method, CpuType cpu>
-services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(
-    HostAppIface* pHost, const NumericTable *x, const NumericTable *y, gbt::classification::Model& m, Result& res, const interface1::Parameter& par,
-    engines::internal::BatchBaseImpl& engine)
+services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface * pHost, const NumericTable * x,
+                                                                                       const NumericTable * y, gbt::classification::Model & m,
+                                                                                       Result & res, const interface1::Parameter & par,
+                                                                                       engines::internal::BatchBaseImpl & engine)
 {
     Parameter tmpPar(par.nClasses);
-    tmpPar.splitMethod = par.splitMethod;
-    tmpPar.maxIterations = par.maxIterations;
-    tmpPar.maxTreeDepth = par.maxTreeDepth;
-    tmpPar.shrinkage = par.shrinkage;
-    tmpPar.lambda = par.lambda;
+    tmpPar.splitMethod                 = par.splitMethod;
+    tmpPar.maxIterations               = par.maxIterations;
+    tmpPar.maxTreeDepth                = par.maxTreeDepth;
+    tmpPar.shrinkage                   = par.shrinkage;
+    tmpPar.lambda                      = par.lambda;
     tmpPar.observationsPerTreeFraction = par.observationsPerTreeFraction;
-    tmpPar.featuresPerNode = par.featuresPerNode;
-    tmpPar.minObservationsInLeafNode = par.minObservationsInLeafNode;
-    tmpPar.memorySavingMode = par.memorySavingMode;
-    tmpPar.engine = par.engine;
-    tmpPar.maxBins = par.maxBins;
-    tmpPar.minBinSize = par.minBinSize;
-    tmpPar.internalOptions = par.internalOptions;
-    tmpPar.loss = par.loss;
+    tmpPar.featuresPerNode             = par.featuresPerNode;
+    tmpPar.minObservationsInLeafNode   = par.minObservationsInLeafNode;
+    tmpPar.memorySavingMode            = par.memorySavingMode;
+    tmpPar.engine                      = par.engine;
+    tmpPar.maxBins                     = par.maxBins;
+    tmpPar.minBinSize                  = par.minBinSize;
+    tmpPar.internalOptions             = par.internalOptions;
+    tmpPar.loss                        = par.loss;
     return compute(pHost, x, y, m, res, tmpPar, engine);
 }
 template <typename algorithmFPType, gbt::classification::training::Method method, CpuType cpu>
-services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(
-    HostAppIface* pHost, const NumericTable *x, const NumericTable *y, gbt::classification::Model& m, Result& res, const Parameter& par,
-    engines::internal::BatchBaseImpl& engine)
+services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(HostAppIface * pHost, const NumericTable * x,
+                                                                                       const NumericTable * y, gbt::classification::Model & m,
+                                                                                       Result & res, const Parameter & par,
+                                                                                       engines::internal::BatchBaseImpl & engine)
 {
     const size_t nFeaturesPerNode = par.featuresPerNode ? par.featuresPerNode : x->getNumberOfColumns();
-    const bool inexactWithHistMethod = !par.memorySavingMode && par.splitMethod == gbt::training::inexact && x->getNumberOfColumns() == nFeaturesPerNode;
+    const bool inexactWithHistMethod =
+        !par.memorySavingMode && par.splitMethod == gbt::training::inexact && x->getNumberOfColumns() == nFeaturesPerNode;
 
     services::Status s;
     dtrees::internal::IndexedFeatures indexedFeatures;
     dtrees::internal::FeatureTypes featTypes;
     DAAL_CHECK_MALLOC(featTypes.init(*x));
 
-    if(!par.memorySavingMode)
+    if (!par.memorySavingMode)
     {
         BinParams prm(par.maxBins, par.minBinSize);
-        DAAL_CHECK_STATUS(s, (indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, par.splitMethod == gbt::training::inexact ? &prm : nullptr)));
+        DAAL_CHECK_STATUS(s,
+                          (indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes, par.splitMethod == gbt::training::inexact ? &prm : nullptr)));
     }
 
     WriteOnlyRows<algorithmFPType, cpu> weightsRows, totalCoverRows, coverRows, totalGainRows, gainRows;
-    const gbt::classification::training::interface2::Parameter * parPtr = dynamic_cast<const gbt::classification::training::interface2::Parameter*>(&par);
+    const gbt::classification::training::interface2::Parameter * parPtr =
+        dynamic_cast<const gbt::classification::training::interface2::Parameter *>(&par);
 
-    if(parPtr != nullptr)
+    if (parPtr != nullptr)
     {
         if (par.varImportance & gbt::training::weight)
         {
@@ -382,32 +370,32 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
         }
     }
 
-    algorithmFPType* ptrWeight     = weightsRows.get();
-    algorithmFPType* ptrTotalCover = totalCoverRows.get();
-    algorithmFPType* ptrCover      = coverRows.get();
-    algorithmFPType* ptrTotalGain  = totalGainRows.get();
-    algorithmFPType* ptrGain       = gainRows.get();
+    algorithmFPType * ptrWeight     = weightsRows.get();
+    algorithmFPType * ptrTotalCover = totalCoverRows.get();
+    algorithmFPType * ptrCover      = coverRows.get();
+    algorithmFPType * ptrTotalGain  = totalGainRows.get();
+    algorithmFPType * ptrGain       = gainRows.get();
 
-    if(inexactWithHistMethod)
+    if (inexactWithHistMethod)
     {
         if (indexedFeatures.maxNumIndices() <= 256)
-            return computeImpl<algorithmFPType, cpu, uint8_t, TrainBatchTask<algorithmFPType, uint8_t, method, cpu>, Result>
-                (pHost, x, y, *static_cast<daal::algorithms::gbt::classification::internal::ModelImpl*>(&m), par, engine, par.nClasses, indexedFeatures, featTypes,
-                &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
+            return computeImpl<algorithmFPType, cpu, uint8_t, TrainBatchTask<algorithmFPType, uint8_t, method, cpu>, Result>(
+                pHost, x, y, *static_cast<daal::algorithms::gbt::classification::internal::ModelImpl *>(&m), par, engine, par.nClasses,
+                indexedFeatures, featTypes, &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
         else if (indexedFeatures.maxNumIndices() <= 65536)
-            return computeImpl<algorithmFPType, cpu, uint16_t, TrainBatchTask<algorithmFPType, uint16_t, method, cpu>, Result>
-                (pHost, x, y, *static_cast<daal::algorithms::gbt::classification::internal::ModelImpl*>(&m), par, engine, par.nClasses, indexedFeatures, featTypes,
-                &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
+            return computeImpl<algorithmFPType, cpu, uint16_t, TrainBatchTask<algorithmFPType, uint16_t, method, cpu>, Result>(
+                pHost, x, y, *static_cast<daal::algorithms::gbt::classification::internal::ModelImpl *>(&m), par, engine, par.nClasses,
+                indexedFeatures, featTypes, &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
         else
-            return computeImpl<algorithmFPType, cpu, uint32_t, TrainBatchTask<algorithmFPType, uint32_t, method, cpu>, Result>
-                (pHost, x, y, *static_cast<daal::algorithms::gbt::classification::internal::ModelImpl*>(&m), par, engine, par.nClasses, indexedFeatures, featTypes,
-                &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
+            return computeImpl<algorithmFPType, cpu, uint32_t, TrainBatchTask<algorithmFPType, uint32_t, method, cpu>, Result>(
+                pHost, x, y, *static_cast<daal::algorithms::gbt::classification::internal::ModelImpl *>(&m), par, engine, par.nClasses,
+                indexedFeatures, featTypes, &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
     }
     else
     {
-        return computeImpl<algorithmFPType, cpu, uint32_t, TrainBatchTask<algorithmFPType, uint32_t, method, cpu>, Result>
-            (pHost, x, y, *static_cast<daal::algorithms::gbt::classification::internal::ModelImpl*>(&m), par, engine, par.nClasses, indexedFeatures, featTypes,
-            &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
+        return computeImpl<algorithmFPType, cpu, uint32_t, TrainBatchTask<algorithmFPType, uint32_t, method, cpu>, Result>(
+            pHost, x, y, *static_cast<daal::algorithms::gbt::classification::internal::ModelImpl *>(&m), par, engine, par.nClasses, indexedFeatures,
+            featTypes, &res, ptrWeight, ptrCover, ptrTotalCover, ptrGain, ptrTotalGain);
     }
 }
 

@@ -41,31 +41,32 @@ namespace training
 {
 namespace internal
 {
-
 template <typename intFPtype, Method method, CpuType cpu>
 class NaiveBayesBatchTrainKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTable *data, const NumericTable *labels, Model *r, const multinomial_naive_bayes::interface1::Parameter *par);
-    services::Status compute(const NumericTable *data, const NumericTable *labels, Model *r, const Parameter *par);
+    services::Status compute(const NumericTable * data, const NumericTable * labels, Model * r,
+                             const multinomial_naive_bayes::interface1::Parameter * par);
+    services::Status compute(const NumericTable * data, const NumericTable * labels, Model * r, const Parameter * par);
 };
 
 template <typename intFPtype, Method method, CpuType cpu>
 class NaiveBayesOnlineTrainKernel : public Kernel
 {
 public:
-    services::Status compute(const NumericTable *data, const NumericTable *labels, PartialModel *r, const Parameter *par);
-    services::Status compute(const NumericTable *data, const NumericTable *labels, PartialModel *r, const multinomial_naive_bayes::interface1::Parameter *par);
-    services::Status finalizeCompute(PartialModel *p, Model *r, const multinomial_naive_bayes::interface1::Parameter *par);
-    services::Status finalizeCompute(PartialModel *p, Model *r, const Parameter *par);
+    services::Status compute(const NumericTable * data, const NumericTable * labels, PartialModel * r, const Parameter * par);
+    services::Status compute(const NumericTable * data, const NumericTable * labels, PartialModel * r,
+                             const multinomial_naive_bayes::interface1::Parameter * par);
+    services::Status finalizeCompute(PartialModel * p, Model * r, const multinomial_naive_bayes::interface1::Parameter * par);
+    services::Status finalizeCompute(PartialModel * p, Model * r, const Parameter * par);
 };
 
 template <typename intFPtype, Method method, CpuType cpu>
 class NaiveBayesDistributedTrainKernel : public NaiveBayesOnlineTrainKernel<intFPtype, method, cpu>
 {
 public:
-    services::Status merge(size_t na, PartialModel *const *a, PartialModel *r, const multinomial_naive_bayes::interface1::Parameter *par);
-    services::Status merge(size_t na, PartialModel *const *a, PartialModel *r, const Parameter *par);
+    services::Status merge(size_t na, PartialModel * const * a, PartialModel * r, const multinomial_naive_bayes::interface1::Parameter * par);
+    services::Status merge(size_t na, PartialModel * const * a, PartialModel * r, const Parameter * par);
 };
 
 } // namespace internal

@@ -34,7 +34,6 @@ namespace algorithms
 {
 namespace multinomial_naive_bayes
 {
-
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(PartialModel, SERIALIZATION_NAIVE_BAYES_PARTIALMODEL_ID);
@@ -75,15 +74,15 @@ size_t PartialResult::getNumberOfFeatures() const
  * \param[in] parameter  Algorithm %parameter
  * \param[in] method     Computation method
  */
-services::Status PartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, classifier::training::PartialResult::checkImpl(input, parameter));
 
-    const classifier::training::InputIface *algInput = static_cast<const classifier::training::InputIface *>(input);
+    const classifier::training::InputIface * algInput = static_cast<const classifier::training::InputIface *>(input);
 
     size_t nFeatures = algInput->getNumberOfFeatures();
-    DAAL_CHECK_STATUS(s, checkImpl(nFeatures,parameter));
+    DAAL_CHECK_STATUS(s, checkImpl(nFeatures, parameter));
 
     return s;
 }
@@ -93,17 +92,17 @@ services::Status PartialResult::check(const daal::algorithms::Input *input, cons
 * \param[in] parameter  Algorithm %parameter
 * \param[in] method     Computation method
 */
-services::Status PartialResult::check(const daal::algorithms::Parameter *parameter, int method)  const
+services::Status PartialResult::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     size_t nFeatures = getNumberOfFeatures();
 
-    DAAL_CHECK_STATUS(s, checkImpl(nFeatures,parameter));
+    DAAL_CHECK_STATUS(s, checkImpl(nFeatures, parameter));
 
     return s;
 }
 
-services::Status PartialResult::checkImpl(size_t nFeatures,const daal::algorithms::Parameter* parameter) const
+services::Status PartialResult::checkImpl(size_t nFeatures, const daal::algorithms::Parameter * parameter) const
 {
     services::Status s;
     PartialModelPtr resModel = get(classifier::training::partialModel);
@@ -112,12 +111,13 @@ services::Status PartialResult::checkImpl(size_t nFeatures,const daal::algorithm
     DAAL_CHECK(trainingDataFeatures, services::ErrorModelNotFullInitialized);
     size_t nClasses = 0;
     {
-        const multinomial_naive_bayes::interface1::Parameter *algPar1 = dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
-        if(algPar1) nClasses = algPar1->nClasses;
+        const multinomial_naive_bayes::interface1::Parameter * algPar1 =
+            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
+        if (algPar1) nClasses = algPar1->nClasses;
     }
     {
-        const multinomial_naive_bayes::Parameter *algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-        if(algPar2) nClasses = algPar2->nClasses;
+        const multinomial_naive_bayes::Parameter * algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+        if (algPar2) nClasses = algPar2->nClasses;
     }
     DAAL_CHECK_EX(nClasses > 0, ErrorNullParameterNotSupported, ArgumentName, nClassesStr());
 
@@ -127,9 +127,8 @@ services::Status PartialResult::checkImpl(size_t nFeatures,const daal::algorithm
     return s;
 }
 
-
-}// namespace interface1
-}// namespace training
-}// namespace multinomial_naive_bayes
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace multinomial_naive_bayes
+} // namespace algorithms
+} // namespace daal

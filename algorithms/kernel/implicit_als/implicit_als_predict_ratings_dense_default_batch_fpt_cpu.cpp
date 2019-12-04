@@ -43,8 +43,8 @@ namespace internal
 {
 template class ImplicitALSPredictKernel<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
-}
-}
+} // namespace ratings
+} // namespace prediction
+} // namespace implicit_als
+} // namespace algorithms
+} // namespace daal

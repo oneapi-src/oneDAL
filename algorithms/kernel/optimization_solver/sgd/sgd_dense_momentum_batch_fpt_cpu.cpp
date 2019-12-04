@@ -19,7 +19,6 @@
 //  Implementation of sgd calculation functions
 //--
 
-
 #include "sgd_batch_container.h"
 #include "sgd_dense_momentum_kernel.h"
 #include "sgd_dense_momentum_impl.i"
@@ -32,7 +31,6 @@ namespace optimization_solver
 {
 namespace sgd
 {
-
 namespace interface2
 {
 template class BatchContainer<DAAL_FPTYPE, momentum, DAAL_CPU>;

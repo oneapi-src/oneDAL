@@ -35,7 +35,6 @@ namespace algorithms
  */
 namespace quality_metric
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -62,19 +61,16 @@ public:
      * Sets an input object
      * \param[in] input Pointer to the input object
      */
-    virtual void setInput(const algorithms::Input *input) = 0;
+    virtual void setInput(const algorithms::Input * input) = 0;
 
     /**
      * Returns the structure that contains computed quality metrics
      * \return Structure that contains computed quality metrics
      */
-     algorithms::ResultPtr getResult() const
-     {
-        return getResultImpl();
-     }
+    algorithms::ResultPtr getResult() const { return getResultImpl(); }
 
 protected:
-     virtual algorithms::ResultPtr getResultImpl() const = 0;
+    virtual algorithms::ResultPtr getResultImpl() const = 0;
 };
 /** @} */
 } // namespace interface1

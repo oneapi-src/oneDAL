@@ -28,7 +28,7 @@ jobs:
       export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
       export PATH=$JAVA_HOME/bin:$PATH
       export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH 
-      make daal -j4 PLAT=$(platform.type) COMPILER=gnu
+      make daal -j4 PLAT=$(platform.type) COMPILER=gnu REQCPU="avx2"
     displayName: 'make'
   - script: |
       cp -R __release_lnx_gnu $(Build.ArtifactStagingDirectory)/
@@ -53,7 +53,7 @@ jobs:
       export JAVA_HOME=$(/usr/libexec/java_home -v 12)
       export PATH=$JAVA_HOME/bin:$PATH
       export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
-      make daal -j4 PLAT=$(platform.type) COMPILER=clang
+      make daal -j4 PLAT=$(platform.type) COMPILER=clang REQCPU="avx2"
     displayName: 'make'
   - script: |
       cp -R __release_mac_clang $(Build.ArtifactStagingDirectory)/

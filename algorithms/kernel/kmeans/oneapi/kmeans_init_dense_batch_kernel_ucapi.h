@@ -43,36 +43,30 @@ namespace init
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPType>
-class KMeansInitDenseBatchKernelUCAPI: public Kernel
+class KMeansInitDenseBatchKernelUCAPI : public Kernel
 {
 public:
-    services::Status compute(size_t na, const NumericTable *const *a, size_t nr, const NumericTable *const *r, const Parameter *par, engines::BatchBase &engine);
+    services::Status compute(size_t na, const NumericTable * const * a, size_t nr, const NumericTable * const * r, const Parameter * par,
+                             engines::BatchBase & engine);
 
 private:
-    services::Status init( size_t p, size_t n, size_t nRowsTotal, size_t nClusters, NumericTable *ntClusters,
-                          NumericTable *ntData, unsigned int seed, engines::BatchBase &engine, size_t& clustersFound);
+    services::Status init(size_t p, size_t n, size_t nRowsTotal, size_t nClusters, NumericTable * ntClusters, NumericTable * ntData,
+                          unsigned int seed, engines::BatchBase & engine, size_t & clustersFound);
 
-    void gatherRandom(oneapi::internal::ExecutionContextIface& context,
-                      const oneapi::internal::KernelPtr& kernel_gather_random,
-                      const services::Buffer<algorithmFPType>& data,
-                      const services::Buffer<algorithmFPType>& clusters,
-                      oneapi::internal::UniversalBuffer& indices,
-                      uint32_t nRows,
-                      uint32_t nClusters,
-                      uint32_t nFeatures,
-                      services::Status* st);
+    void gatherRandom(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_gather_random,
+                      const services::Buffer<algorithmFPType> & data, const services::Buffer<algorithmFPType> & clusters,
+                      oneapi::internal::UniversalBuffer & indices, uint32_t nRows, uint32_t nClusters, uint32_t nFeatures, services::Status * st);
 
     uint32_t getWorkgroupsCount(uint32_t rows);
 
     const uint32_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
 };
 
-} // namespace daal::algorithms::kmeans::init::internal
-} // namespace daal::algorithms::kmeans::init
-} // namespace daal::algorithms::kmeans
-} // namespace daal::algorithms
+} // namespace internal
+} // namespace init
+} // namespace kmeans
+} // namespace algorithms
 } // namespace daal
 
 #endif

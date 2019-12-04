@@ -42,11 +42,11 @@ namespace internal
 /**
  *  \brief Kernel for mt19937 calculation
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class Mt19937Kernel : public Kernel
 {
 public:
-    Status compute(NumericTable *resultTable);
+    Status compute(NumericTable * resultTable);
 };
 
 } // namespace internal

@@ -43,19 +43,19 @@ namespace prediction
 {
 namespace internal
 {
-
 template <Method method, typename algorithmFPtype, CpuType cpu>
 class I1AdaBoostPredictKernel : public BoostingPredictKernel<algorithmFPtype, cpu>
 {
     using BoostingPredictKernel<algorithmFPtype, cpu>::compute;
+
 public:
-    services::Status compute(const NumericTablePtr &x, const daal::algorithms::adaboost::interface1::Model *m,
-                             const NumericTablePtr &r, const daal::algorithms::adaboost::interface1::Parameter *par);
+    services::Status compute(const NumericTablePtr & x, const daal::algorithms::adaboost::interface1::Model * m, const NumericTablePtr & r,
+                             const daal::algorithms::adaboost::interface1::Parameter * par);
 };
-} // namespace daal::algorithms::adaboost::prediction::internal
-}
-}
-}
+} // namespace internal
+} // namespace prediction
+} // namespace adaboost
+} // namespace algorithms
 } // namespace daal
 
 #endif

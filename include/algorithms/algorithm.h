@@ -24,7 +24,6 @@
 #ifndef __ALGORITHM_H__
 #define __ALGORITHM_H__
 
-
 #include "services/base.h"
 #include "services/daal_memory.h"
 #include "services/daal_defines.h"

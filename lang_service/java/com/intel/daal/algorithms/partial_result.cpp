@@ -20,21 +20,18 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_PartialResult.h"
 
-
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PartialResult_cCheck
-(JNIEnv *env, jobject thisObj, jlong partResAddr, jlong parAddr, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PartialResult_cCheck(JNIEnv * env, jobject thisObj, jlong partResAddr, jlong parAddr,
+                                                                           jint method)
 {
-    daal::algorithms::PartialResult *partResPtr =
-                            (daal::algorithms::PartialResult *)
-                            (((daal::data_management::SerializationIfacePtr *)partResAddr)->get());
-    partResPtr->check((daal::algorithms::Parameter*)parAddr,method);
+    daal::algorithms::PartialResult * partResPtr =
+        (daal::algorithms::PartialResult *)(((daal::data_management::SerializationIfacePtr *)partResAddr)->get());
+    partResPtr->check((daal::algorithms::Parameter *)parAddr, method);
 }
 
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PartialResult_cCheckInput
-(JNIEnv *env, jobject thisObj, jlong partResAddr, jlong inputAddr, jlong parAddr, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_PartialResult_cCheckInput(JNIEnv * env, jobject thisObj, jlong partResAddr, jlong inputAddr,
+                                                                                jlong parAddr, jint method)
 {
-    daal::algorithms::PartialResult *partResPtr =
-                            (daal::algorithms::PartialResult *)
-                            (((daal::data_management::SerializationIfacePtr *)partResAddr)->get());
-    partResPtr->check((daal::algorithms::Input*)inputAddr,(daal::algorithms::Parameter*)parAddr,method);
+    daal::algorithms::PartialResult * partResPtr =
+        (daal::algorithms::PartialResult *)(((daal::data_management::SerializationIfacePtr *)partResAddr)->get());
+    partResPtr->check((daal::algorithms::Input *)inputAddr, (daal::algorithms::Parameter *)parAddr, method);
 }

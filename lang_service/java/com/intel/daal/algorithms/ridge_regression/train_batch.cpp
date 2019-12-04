@@ -32,8 +32,8 @@ using namespace daal::algorithms::ridge_regression::training;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_TrainingBatch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_TrainingBatch_cInit(JNIEnv * env, jobject thisObj, jint prec,
+                                                                                                      jint method)
 {
     return jniBatch<ridge_regression::training::Method, Batch, normEqDense>::newObj(prec, method);
 }
@@ -43,8 +43,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_trainin
  * Method:    cInitTrainParameter
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_TrainingBatch_cInitTrainParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_TrainingBatch_cInitTrainParameter(JNIEnv * env, jobject thisObj,
+                                                                                                                    jlong algAddr, jint prec,
+                                                                                                                    jint method)
 {
     return jniBatch<ridge_regression::training::Method, Batch, normEqDense>::getParameter(prec, method, algAddr);
 }
@@ -54,8 +55,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_trainin
  * Method:    cGetInput
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_TrainingBatch_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_TrainingBatch_cGetInput(JNIEnv * env, jobject thisObj,
+                                                                                                          jlong algAddr, jint prec, jint method)
 {
     return jniBatch<ridge_regression::training::Method, Batch, normEqDense>::getInput(prec, method, algAddr);
 }
@@ -65,8 +66,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_trainin
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_TrainingBatch_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_TrainingBatch_cGetResult(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong algAddr, jint prec, jint method)
 {
     return jniBatch<ridge_regression::training::Method, Batch, normEqDense>::getResult(prec, method, algAddr);
 }
@@ -76,8 +77,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_trainin
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_TrainingBatch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_ridge_1regression_training_TrainingBatch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr,
+                                                                                                       jint prec, jint method)
 {
     return jniBatch<ridge_regression::training::Method, Batch, normEqDense>::getClone(prec, method, algAddr);
 }

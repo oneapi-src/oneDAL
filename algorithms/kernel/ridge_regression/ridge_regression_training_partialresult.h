@@ -35,7 +35,6 @@ namespace ridge_regression
 {
 namespace training
 {
-
 /**
  * Allocates memory to store a partial result of ridge regression model-based training
  * \param[in] input %Input object for the algorithm
@@ -43,7 +42,8 @@ namespace training
  * \param[in] parameter %Parameter of ridge regression model-based training
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
+DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                     const int method)
 {
     services::Status s;
     if (method == normEqDense)
@@ -52,16 +52,18 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
            Both classes have multiple inheritance with InputIface as a second base class.
            That's why we use dynamic_cast here. */
         const InputIface * const in = dynamic_cast<const InputIface *>(input);
-        const Parameter &par = *(static_cast<const Parameter *>(parameter));
+        const Parameter & par       = *(static_cast<const Parameter *>(parameter));
         const algorithmFPType dummy = 1.0;
-        set(partialModel, ridge_regression::ModelPtr(new ridge_regression::internal::ModelNormEqImpl(in->getNumberOfFeatures(), in->getNumberOfDependentVariables(), par, dummy, s)));
+        set(partialModel, ridge_regression::ModelPtr(new ridge_regression::internal::ModelNormEqImpl(
+                              in->getNumberOfFeatures(), in->getNumberOfDependentVariables(), par, dummy, s)));
     }
 
     return s;
 }
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
+DAAL_EXPORT services::Status PartialResult::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                       const int method)
 {
     return get(partialModel)->initialize();
 }

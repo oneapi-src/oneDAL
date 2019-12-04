@@ -31,8 +31,8 @@ using namespace daal::services;
  * Method:    cSetFullNUsers
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cSetFullNUsers
-  (JNIEnv *, jobject, jlong parAddr, jlong fullNUsers)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cSetFullNUsers(JNIEnv *, jobject, jlong parAddr,
+                                                                                                               jlong fullNUsers)
 {
     ((Parameter *)parAddr)->fullNUsers = fullNUsers;
 }
@@ -42,8 +42,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_ini
  * Method:    cGetFullNUsers
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cGetFullNUsers
-  (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cGetFullNUsers(JNIEnv *, jobject, jlong parAddr)
 {
     return (jlong)(((Parameter *)parAddr)->fullNUsers);
 }
@@ -53,8 +52,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cSetNFactors
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cSetNFactors
-  (JNIEnv *, jobject, jlong parAddr, jlong nFactors)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cSetNFactors(JNIEnv *, jobject, jlong parAddr,
+                                                                                                             jlong nFactors)
 {
     ((Parameter *)parAddr)->nFactors = nFactors;
 }
@@ -64,8 +63,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_ini
  * Method:    cGetNFactors
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cGetNFactors
-  (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cGetNFactors(JNIEnv *, jobject, jlong parAddr)
 {
     return ((Parameter *)parAddr)->nFactors;
 }
@@ -75,8 +73,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cSetSeed
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cSetSeed
-  (JNIEnv *, jobject, jlong parAddr, jlong seed)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cSetSeed(JNIEnv *, jobject, jlong parAddr, jlong seed)
 {
     ((Parameter *)parAddr)->seed = seed;
 }
@@ -86,8 +83,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_ini
  * Method:    cGetSeed
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cGetSeed
-    (JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cGetSeed(JNIEnv *, jobject, jlong parAddr)
 {
     return ((Parameter *)parAddr)->seed;
 }
@@ -97,8 +93,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_in
  * Method:    cSetEngine
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cSetEngine
-(JNIEnv *env, jobject thisObj, jlong cParameter, jlong engineAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_implicit_1als_training_init_InitParameter_cSetEngine(JNIEnv * env, jobject thisObj,
+                                                                                                           jlong cParameter, jlong engineAddr)
 {
-    (((Parameter *)cParameter))->engine = staticPointerCast<algorithms::engines::BatchBase, algorithms::AlgorithmIface> (*(SharedPtr<algorithms::AlgorithmIface> *)engineAddr);
+    (((Parameter *)cParameter))->engine =
+        staticPointerCast<algorithms::engines::BatchBase, algorithms::AlgorithmIface>(*(SharedPtr<algorithms::AlgorithmIface> *)engineAddr);
 }

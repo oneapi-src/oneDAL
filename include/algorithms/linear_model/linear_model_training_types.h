@@ -54,7 +54,7 @@ enum InputId
 {
     data               = regression::training::data,               /*!< %Input data table */
     dependentVariables = regression::training::dependentVariables, /*!< Values of the dependent variable for the input data */
-    lastInputId = dependentVariables
+    lastInputId        = dependentVariables
 };
 
 /**
@@ -63,7 +63,7 @@ enum InputId
  */
 enum ResultId
 {
-    model = regression::training::model,              /*!< Regression model */
+    model        = regression::training::model, /*!< Regression model */
     lastResultId = model
 };
 
@@ -84,7 +84,7 @@ public:
      * \param[in] nElements Number of input objects
      */
     Input(size_t nElements);
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -100,7 +100,7 @@ public:
      * \param[in] id      Identifier of the input object
      * \param[in] value   Input numeric table
      */
-    void set(InputId id, const data_management::NumericTablePtr &value);
+    void set(InputId id, const data_management::NumericTablePtr & value);
 };
 
 /**
@@ -117,24 +117,25 @@ public:
      * \param[in] nElements Number of partial results
      */
     PartialResult(size_t nElements = 0);
+
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         regression::training::PartialResult::serialImpl<Archive, onDeserialize>(arch);
 
         return services::Status();
     }
 
-    services::Status serializeImpl(data_management::InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         serialImpl<data_management::InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         serialImpl<const data_management::OutputDataArchive, true>(arch);
 
@@ -169,7 +170,7 @@ public:
      * \param[in] id      Identifier of the result
      * \param[in] value   Result
      */
-    void set(ResultId id, const linear_model::ModelPtr &value);
+    void set(ResultId id, const linear_model::ModelPtr & value);
 
     /**
      * Checks the result of the regression model-based training
@@ -179,26 +180,26 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         regression::training::Result::serialImpl<Archive, onDeserialize>(arch);
 
         return services::Status();
     }
 
-    services::Status serializeImpl(data_management::InputDataArchive  *arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         serialImpl<data_management::InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive *arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE
     {
         serialImpl<const data_management::OutputDataArchive, true>(arch);
 
@@ -209,7 +210,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 typedef services::SharedPtr<const Result> ResultConstPtr;
 typedef services::SharedPtr<PartialResult> PartialResultPtr;
 typedef services::SharedPtr<const PartialResult> PartialResultConstPtr;
-}
+} // namespace interface1
 using interface1::Input;
 using interface1::Result;
 using interface1::ResultPtr;
@@ -217,9 +218,9 @@ using interface1::ResultConstPtr;
 using interface1::PartialResult;
 using interface1::PartialResultPtr;
 using interface1::PartialResultConstPtr;
-}
+} // namespace training
 /** @} */
-}
-}
-}
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal
 #endif

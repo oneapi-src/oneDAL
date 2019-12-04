@@ -39,25 +39,24 @@ namespace binary_confusion_matrix
 {
 namespace internal
 {
-
 using namespace daal::internal;
 using namespace daal::services;
 using namespace daal::services::internal;
 
-template<Method method, typename algorithmFPType, CpuType cpu>
-services::Status BinaryConfusionMatrixKernel<method, algorithmFPType, cpu>::compute(const NumericTable *predictedLabelsTable,
-                                                                                    const NumericTable *groundTruthLabelsTable,
-                                                                                    NumericTable *confusionMatrixTable,
-                                                                                    NumericTable *accuracyMeasuresTable,
-                                                                                    const binary_confusion_matrix::Parameter *parameter)
+template <Method method, typename algorithmFPType, CpuType cpu>
+services::Status BinaryConfusionMatrixKernel<method, algorithmFPType, cpu>::compute(const NumericTable * predictedLabelsTable,
+                                                                                    const NumericTable * groundTruthLabelsTable,
+                                                                                    NumericTable * confusionMatrixTable,
+                                                                                    NumericTable * accuracyMeasuresTable,
+                                                                                    const binary_confusion_matrix::Parameter * parameter)
 {
     const algorithmFPType zero = 0.0;
-    const size_t nVectors = predictedLabelsTable->getNumberOfRows();
+    const size_t nVectors      = predictedLabelsTable->getNumberOfRows();
 
     /* Get input data */
-    ReadColumns<algorithmFPType, cpu> mtPredictedLabels(*const_cast<NumericTable*>(predictedLabelsTable), 0, 0, nVectors);
+    ReadColumns<algorithmFPType, cpu> mtPredictedLabels(*const_cast<NumericTable *>(predictedLabelsTable), 0, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtPredictedLabels);
-    ReadColumns<algorithmFPType, cpu> mtGroundTruthLabels(*const_cast<NumericTable*>(groundTruthLabelsTable), 0, 0, nVectors);
+    ReadColumns<algorithmFPType, cpu> mtGroundTruthLabels(*const_cast<NumericTable *>(groundTruthLabelsTable), 0, 0, nVectors);
     DAAL_CHECK_BLOCK_STATUS(mtGroundTruthLabels);
 
     /* Get memory to write the results */
@@ -67,12 +66,12 @@ services::Status BinaryConfusionMatrixKernel<method, algorithmFPType, cpu>::comp
     WriteOnlyRows<algorithmFPType, cpu> mtAccuracyMeasures(accuracyMeasuresTable, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(mtAccuracyMeasures);
 
-    const algorithmFPType *predictedLabelsData = mtPredictedLabels.get();
-    const algorithmFPType *groundTruthLabelsData = mtGroundTruthLabels.get();
-    int *confusionMatrixData = mtConfusionMatrix.get();
-    algorithmFPType *accuracyMeasuresData = mtAccuracyMeasures.get();
+    const algorithmFPType * predictedLabelsData   = mtPredictedLabels.get();
+    const algorithmFPType * groundTruthLabelsData = mtGroundTruthLabels.get();
+    int * confusionMatrixData                     = mtConfusionMatrix.get();
+    algorithmFPType * accuracyMeasuresData        = mtAccuracyMeasures.get();
 
-    algorithmFPType beta = parameter->beta;
+    algorithmFPType beta  = parameter->beta;
     algorithmFPType beta2 = beta * beta;
     service_memset<int, cpu>(confusionMatrixData, 0, nClasses * nClasses);
 
@@ -81,7 +80,7 @@ services::Status BinaryConfusionMatrixKernel<method, algorithmFPType, cpu>::comp
     PRAGMA_VECTOR_ALWAYS
     for (size_t i = 0; i < nVectors; i++)
     {
-        const int predictedLabel   = ((predictedLabelsData[i]   > zero) ? 0 : 1);
+        const int predictedLabel   = ((predictedLabelsData[i] > zero) ? 0 : 1);
         const int groundTruthLabel = ((groundTruthLabelsData[i] > zero) ? 0 : 1);
         ++confusionMatrixData[groundTruthLabel * 2 + predictedLabel];
     }
@@ -99,7 +98,7 @@ services::Status BinaryConfusionMatrixKernel<method, algorithmFPType, cpu>::comp
     /* Recall */
     accuracyMeasuresData[2] = tp / (tp + fn);
     /* F-score */
-    accuracyMeasuresData[3] = ((beta2 + 1.0)*tp)/((beta2 + 1.0)*tp + beta2*fn + fp);
+    accuracyMeasuresData[3] = ((beta2 + 1.0) * tp) / ((beta2 + 1.0) * tp + beta2 * fn + fp);
     /* Specificity */
     accuracyMeasuresData[4] = tn / (fp + tn);
     /* AUC (ability to avoid false classification) */
@@ -107,11 +106,11 @@ services::Status BinaryConfusionMatrixKernel<method, algorithmFPType, cpu>::comp
     return Status();
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace binary_confusion_matrix
+} // namespace quality_metric
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 
 #endif

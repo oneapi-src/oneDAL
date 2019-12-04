@@ -32,11 +32,9 @@ using namespace daal::algorithms::covariance;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Batch_cInit
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Batch_cInit(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
-    return jniBatch<covariance::Method, Batch, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::newObj(prec, method);
+    return jniBatch<covariance::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::newObj(prec, method);
 }
 
 /*
@@ -44,11 +42,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Batch_cInit
  * Method:    cInitParameter
  * Signature:(JIII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Batch_cInitParameter
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Batch_cInitParameter(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                       jint method, jint cmode)
 {
-    return jniBatch<covariance::Method, Batch, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::getParameter(prec,method, algAddr);
+    return jniBatch<covariance::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getParameter(prec, method,
+                                                                                                                                      algAddr);
 }
 
 /*
@@ -56,9 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Batch_cInitPar
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Batch_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Batch_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
-    return jniBatch<covariance::Method, Batch, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::getClone(prec,method, algAddr);
+    return jniBatch<covariance::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getClone(prec, method,
+                                                                                                                                  algAddr);
 }

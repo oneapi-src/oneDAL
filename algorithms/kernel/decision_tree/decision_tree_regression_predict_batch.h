@@ -38,7 +38,6 @@ namespace prediction
 {
 namespace interface1
 {
-
 template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
@@ -52,7 +51,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 } // namespace interface1
 } // namespace prediction
 } // namespace regression
-} // namespace ridge_regression
+} // namespace decision_tree
 } // namespace algorithms
 } // namespace daal
 

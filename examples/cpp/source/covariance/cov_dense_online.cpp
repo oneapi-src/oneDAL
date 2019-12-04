@@ -37,13 +37,12 @@ using namespace daal::algorithms;
 const string datasetFileName = "../data/batch/covcormoments_dense.csv";
 const size_t nObservations   = 50;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create an algorithm to compute a dense variance-covariance matrix in the online processing mode using the default method */
     covariance::Online<> algorithm;
@@ -63,7 +62,7 @@ int main(int argc, char *argv[])
     covariance::ResultPtr res = algorithm.getResult();
 
     printNumericTable(res->get(covariance::covariance), "Covariance matrix:");
-    printNumericTable(res->get(covariance::mean),       "Mean vector:");
+    printNumericTable(res->get(covariance::mean), "Mean vector:");
 
     return 0;
 }

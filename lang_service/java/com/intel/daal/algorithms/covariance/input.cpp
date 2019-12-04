@@ -24,7 +24,6 @@
 #include "common_defines.i"
 #include "covariance_types.i"
 
-
 USING_COMMON_NAMESPACES();
 using namespace daal::algorithms::covariance;
 
@@ -33,25 +32,25 @@ using namespace daal::algorithms::covariance;
  * Method:    cInit
  * Signature: (JIIII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Input_cInit
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode, jint step)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Input_cInit(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                              jint cmode, jint step)
 {
-    if(cmode == jBatch)
+    if (cmode == jBatch)
     {
-        return jniBatch<covariance::Method, Batch, defaultDense, singlePassDense, sumDense,
-            fastCSR, singlePassCSR, sumCSR>::getInput(prec, method, algAddr);
+        return jniBatch<covariance::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getInput(prec, method,
+                                                                                                                                      algAddr);
     }
-    else if(cmode == jOnline)
+    else if (cmode == jOnline)
     {
-        return jniOnline<covariance::Method, Online, defaultDense, singlePassDense, sumDense,
-            fastCSR, singlePassCSR, sumCSR>::getInput(prec, method, algAddr);
+        return jniOnline<covariance::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::getInput(prec, method,
+                                                                                                                                        algAddr);
     }
-    else if(cmode == jDistributed)
+    else if (cmode == jDistributed)
     {
-        if(step == jStep1Local)
+        if (step == jStep1Local)
         {
-            return jniDistributed<step1Local, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense,
-                fastCSR, singlePassCSR, sumCSR>::getInput(prec, method, algAddr);
+            return jniDistributed<step1Local, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+                                  sumCSR>::getInput(prec, method, algAddr);
         }
     }
 
@@ -63,12 +62,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Input_cInit
  * Method:    cSetCInputObject
  * Signature: (JJIIII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetCInputObjectBatch
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jlong algAddr, jint prec, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetCInputObjectBatch(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                             jlong algAddr, jint prec, jint method)
 // somehow this function isn't called if has >4 parameters
 {
-    jniBatch<covariance::Method, Batch, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::setInput<covariance::Input>(prec, method, algAddr, inputAddr);
+    jniBatch<covariance::Method, Batch, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::setInput<covariance::Input>(
+        prec, method, algAddr, inputAddr);
 }
 
 /*
@@ -76,12 +75,12 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetCInpu
  * Method:    cSetCInputObject
  * Signature: (JJIIII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetCInputObjectOnline
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jlong algAddr, jint prec, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetCInputObjectOnline(JNIEnv * env, jobject thisObj, jlong inputAddr,
+                                                                                              jlong algAddr, jint prec, jint method)
 // somehow this function isn't called if has >4 parameters
 {
-    jniOnline<covariance::Method, Online, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::setInput<covariance::Input>(prec, method, algAddr, inputAddr);
+    jniOnline<covariance::Method, Online, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR, sumCSR>::setInput<covariance::Input>(
+        prec, method, algAddr, inputAddr);
 }
 
 /*
@@ -89,12 +88,13 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetCInpu
  * Method:    cSetCInputObject
  * Signature: (JJIIII)J
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetCInputObjectDistributedStep1Local
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jlong algAddr, jint prec, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetCInputObjectDistributedStep1Local(JNIEnv * env, jobject thisObj,
+                                                                                                             jlong inputAddr, jlong algAddr,
+                                                                                                             jint prec, jint method)
 // somehow this function isn't called if has >4 parameters
 {
-    jniDistributed<step1Local, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense,
-        fastCSR, singlePassCSR, sumCSR>::setInput<covariance::Input>(prec, method, algAddr, inputAddr);
+    jniDistributed<step1Local, covariance::Method, Distributed, defaultDense, singlePassDense, sumDense, fastCSR, singlePassCSR,
+                   sumCSR>::setInput<covariance::Input>(prec, method, algAddr, inputAddr);
 }
 
 /*
@@ -102,8 +102,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetCInpu
  * Method:    cSetInput
  * Signature:(JIJ)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id, jlong ntAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id,
+                                                                                 jlong ntAddr)
 {
     jniInput<covariance::Input>::set<covariance::InputId, NumericTable>(inputAddr, id, ntAddr);
 }
@@ -113,8 +113,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_covariance_Input_cSetInput
  * Method:    cGetInput
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Input_cGetInput
-(JNIEnv *env, jobject thisObj, jlong inputAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_covariance_Input_cGetInput(JNIEnv * env, jobject thisObj, jlong inputAddr, jint id)
 {
     return jniInput<covariance::Input>::get<covariance::InputId, NumericTable>(inputAddr, id);
 }

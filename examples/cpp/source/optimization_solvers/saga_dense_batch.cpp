@@ -33,21 +33,19 @@ using namespace daal::algorithms;
 using namespace daal::data_management;
 
 const string datasetFileName = "../data/batch/lbfgs.csv";
-const size_t nFeatures = 10;   /* Number of features in training and testing data sets */
+const size_t nFeatures       = 10; /* Number of features in training and testing data sets */
 
 const size_t nIterations = 1000000;
-const float stepLength  = 0.00001f;
+const float stepLength   = 0.00001f;
 
-const float tol = 0.00000001f;
-float expectedPoint[nFeatures + 1] = { 11.f,   1.f,   2.f,   3.f,   4.f,   5.f,   6.f,   7.f,   8.f,   9.f,  10.f };
-int main(int argc, char *argv[])
+const float tol                    = 0.00000001f;
+float expectedPoint[nFeatures + 1] = { 11.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f };
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
-                                                 DataSource::notAllocateNumericTable,
-                                                 DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for input data and dependent variables */
     NumericTablePtr data(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
@@ -57,27 +55,24 @@ int main(int argc, char *argv[])
     /* Retrieve the data from input file */
     dataSource.loadDataBlock(mergedData.get());
 
-
-    services::SharedPtr<optimization_solver::mse::Batch<> > mseObjectiveFunction(
-        new optimization_solver::mse::Batch<float>(data->getNumberOfRows()));
+    services::SharedPtr<optimization_solver::mse::Batch<> > mseObjectiveFunction(new optimization_solver::mse::Batch<float>(data->getNumberOfRows()));
     mseObjectiveFunction->input.set(optimization_solver::mse::data, data);
     mseObjectiveFunction->input.set(optimization_solver::mse::dependentVariables, dependentVariables);
 
     const size_t nParameters = (nFeatures + 1);
     float argument[nParameters];
     //DAAL_DATA_TYPE Wk[nParameters];
-    for(int i = 0; i < nParameters; i++)
-        argument[i] = 0.f;
+    for (int i = 0; i < nParameters; i++) argument[i] = 0.f;
 
     /* Create objects to compute the SAGA result using the default method */
     daal::algorithms::optimization_solver::saga::Batch<> sagaAlgorithm(mseObjectiveFunction);
 
     /* Set input objects for the the SAGA algorithm */
     sagaAlgorithm.input.set(optimization_solver::iterative_solver::inputArgument,
-                           NumericTablePtr(new HomogenNumericTable<>(argument, 1, nParameters)));
-    sagaAlgorithm.parameter().nIterations = nIterations;
+                            NumericTablePtr(new HomogenNumericTable<>(argument, 1, nParameters)));
+    sagaAlgorithm.parameter().nIterations       = nIterations;
     sagaAlgorithm.parameter().accuracyThreshold = tol;
-    sagaAlgorithm.parameter().batchSize = 1;//data->getNumberOfRows();
+    sagaAlgorithm.parameter().batchSize         = 1; //data->getNumberOfRows();
 
     /* Compute the SAGA result */
     sagaAlgorithm.compute();
@@ -87,8 +82,7 @@ int main(int argc, char *argv[])
     printNumericTable(munimum, "Minimum:");
     printNumericTable(sagaAlgorithm.getResult()->get(optimization_solver::iterative_solver::nIterations), "nIterations:");
 
-    services::SharedPtr<optimization_solver::mse::Batch<> > func_check(
-        new optimization_solver::mse::Batch<>(data->getNumberOfRows()));
+    services::SharedPtr<optimization_solver::mse::Batch<> > func_check(new optimization_solver::mse::Batch<>(data->getNumberOfRows()));
     func_check->input.set(optimization_solver::mse::dependentVariables, dependentVariables);
     func_check->input.set(optimization_solver::mse::data, data);
 
@@ -97,7 +91,7 @@ int main(int argc, char *argv[])
     func_check->input.set(optimization_solver::mse::argument, munimum);
 
     func_check->compute();
-    printNumericTable(func_check->getResult()->get(optimization_solver::objective_function::valueIdx),"value DAAL:");
+    printNumericTable(func_check->getResult()->get(optimization_solver::objective_function::valueIdx), "value DAAL:");
 
     return 0;
 }

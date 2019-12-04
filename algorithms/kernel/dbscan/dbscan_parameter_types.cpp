@@ -36,36 +36,43 @@ namespace dbscan
 {
 namespace interface1
 {
-
 /**
  *  Constructs parameters of the DBSCAN algorithm
  */
-Parameter::Parameter() :
-    epsilon(0.5), minObservations(5), memorySavingMode(false),
-    resultsToCompute(0),
-    blockIndex(0), nBlocks(1),
-    leftBlocks(1), rightBlocks(1) {}
+Parameter::Parameter()
+    : epsilon(0.5), minObservations(5), memorySavingMode(false), resultsToCompute(0), blockIndex(0), nBlocks(1), leftBlocks(1), rightBlocks(1)
+{}
 
 /**
  *  Constructs parameters of the DBSCAN algorithm
  *  \param[in] _epsilon         Radius of neighborhood
  *  \param[in] _minObservations Minimal number of observations in neighborhood of core observation
  */
-Parameter::Parameter(double _epsilon, size_t _minObservations) :
-    epsilon(_epsilon), minObservations(_minObservations), memorySavingMode(false),
-    resultsToCompute(0),
-    blockIndex(0), nBlocks(1),
-    leftBlocks(1), rightBlocks(1) {}
+Parameter::Parameter(double _epsilon, size_t _minObservations)
+    : epsilon(_epsilon),
+      minObservations(_minObservations),
+      memorySavingMode(false),
+      resultsToCompute(0),
+      blockIndex(0),
+      nBlocks(1),
+      leftBlocks(1),
+      rightBlocks(1)
+{}
 
 /**
  *  Constructs parameters of the DBSCAN algorithm by copying another parameters of the DBSCAN algorithm
  *  \param[in] other    Parameters of the DBSCAN algorithm
  */
-Parameter::Parameter(const Parameter &other) :
-    epsilon(other.epsilon), minObservations(other.minObservations), memorySavingMode(other.memorySavingMode),
-    resultsToCompute(other.resultsToCompute),
-    blockIndex(other.blockIndex), nBlocks(other.nBlocks),
-    leftBlocks(other.leftBlocks), rightBlocks(other.rightBlocks) {}
+Parameter::Parameter(const Parameter & other)
+    : epsilon(other.epsilon),
+      minObservations(other.minObservations),
+      memorySavingMode(other.memorySavingMode),
+      resultsToCompute(other.resultsToCompute),
+      blockIndex(other.blockIndex),
+      nBlocks(other.nBlocks),
+      leftBlocks(other.leftBlocks),
+      rightBlocks(other.rightBlocks)
+{}
 
 services::Status Parameter::check() const
 {
@@ -76,5 +83,5 @@ services::Status Parameter::check() const
 
 } // namespace interface1
 } // namespace dbscan
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal

@@ -44,7 +44,6 @@ namespace boosting
  */
 namespace prediction
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -79,9 +78,9 @@ class Batch : public classifier::prediction::interface1::Batch
 public:
     typedef classifier::prediction::interface1::Batch super;
 
-    typedef super::InputType                InputType;
+    typedef super::InputType InputType;
     typedef algorithms::boosting::Parameter ParameterType;
-    typedef super::ResultType               ResultType;
+    typedef super::ResultType ResultType;
 
     Batch() {}
 
@@ -91,7 +90,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch &other) : classifier::prediction::interface1::Batch(other) {}
+    Batch(const Batch & other) : classifier::prediction::interface1::Batch(other) {}
 
     virtual ~Batch() {}
 
@@ -100,10 +99,7 @@ public:
      * and parameters of this %boosting classifier prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
@@ -112,8 +108,8 @@ protected:
 } // namespace interface1
 using interface1::Batch;
 
-} // namespace daal::algorithms::boosting::prediction
-}
-}
+} // namespace prediction
+} // namespace boosting
+} // namespace algorithms
 } // namespace daal
 #endif // __BOOSTING_PREDICT_H__

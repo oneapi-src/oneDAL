@@ -50,7 +50,7 @@ namespace prediction
  */
 enum Method
 {
-    defaultDense = 0          /*!< Default SVM model-based prediction method */
+    defaultDense = 0 /*!< Default SVM model-based prediction method */
 };
 
 /**
@@ -58,7 +58,6 @@ enum Method
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__SVM__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the svm algorithm
@@ -66,9 +65,10 @@ namespace interface1
 class DAAL_EXPORT Input : public classifier::prediction::Input
 {
     typedef classifier::prediction::Input super;
+
 public:
     Input();
-    Input(const Input& other);
+    Input(const Input & other);
 
     virtual ~Input() {}
 
@@ -94,14 +94,14 @@ public:
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr);
+    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
 
     /**
      * Sets the input Model object in the prediction stage of the SVM algorithm
      * \param[in] id    Identifier of the input object
      * \param[in] ptr   Pointer to the input object
      */
-    void set(classifier::prediction::ModelInputId id, const svm::ModelPtr &ptr);
+    void set(classifier::prediction::ModelInputId id, const svm::ModelPtr & ptr);
 
     /**
      * Checks the correctness of the input object
@@ -110,10 +110,10 @@ public:
      *
      * \return Status of computation
      */
-    services::Status check(const daal::algorithms::Parameter *parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
-}
+} // namespace interface1
 
 using interface1::Input;
 

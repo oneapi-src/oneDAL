@@ -34,15 +34,15 @@ int main()
 {
     std::cout << "Compressed spares rows (CSR) numeric table example" << std::endl << std::endl;
 
-    const size_t nObservations  = 5;
-    const size_t nFeatures = 5;
-    const size_t firstReadRow = 1;
-    const size_t nRead = 3;
+    const size_t nObservations = 5;
+    const size_t nFeatures     = 5;
+    const size_t firstReadRow  = 1;
+    const size_t nRead         = 3;
 
     /* Example of using CSR numeric table */
-    float  values[]     = {1, -1, -3, -2,  5,  4,  6,  4, -4,  2,  7,  8, -5};
-    size_t colIndices[] = {1,  2,  4,  1,  2,  3,  4,  5,  1,  3,  4,  2,  5};
-    size_t rowOffsets[] = {1,          4,      6,          9,         12,     14};
+    float values[]      = { 1, -1, -3, -2, 5, 4, 6, 4, -4, 2, 7, 8, -5 };
+    size_t colIndices[] = { 1, 2, 4, 1, 2, 3, 4, 5, 1, 3, 4, 2, 5 };
+    size_t rowOffsets[] = { 1, 4, 6, 9, 12, 14 };
 
     CSRNumericTablePtr dataTable = CSRNumericTable::create(values, colIndices, rowOffsets, nFeatures, nObservations);
     checkPtr(dataTable.get());
@@ -51,21 +51,17 @@ int main()
     BlockDescriptor<> block;
     dataTable->getBlockOfRows(firstReadRow, nRead, readOnly, block);
     std::cout << block.getNumberOfRows() << " rows are read" << std::endl << std::endl;
-    printArray<float>(block.getBlockPtr(), nFeatures, block.getNumberOfRows(),
-                       "Print 3 rows from CSR data array as dense float array:");
+    printArray<float>(block.getBlockPtr(), nFeatures, block.getNumberOfRows(), "Print 3 rows from CSR data array as dense float array:");
     dataTable->releaseBlockOfRows(block);
 
     /* Read block of rows in CSR format and write into it */
     CSRBlockDescriptor<> csrBlock;
     dataTable->getSparseBlock(firstReadRow, nRead, readWrite, csrBlock);
-    float *valuesBlock = csrBlock.getBlockValuesPtr();
+    float * valuesBlock   = csrBlock.getBlockValuesPtr();
     size_t nValuesInBlock = csrBlock.getDataSize();
-    printArray<float>(valuesBlock, nValuesInBlock, 1,
-                      "Values in 3 rows from CSR data array:");
-    printArray<size_t>(csrBlock.getBlockColumnIndicesPtr(), nValuesInBlock, 1,
-                      "Columns indices in 3 rows from CSR data array:");
-    printArray<size_t>(csrBlock.getBlockRowIndicesPtr(), nRead + 1, 1,
-                      "Rows offsets in 3 rows from CSR data array:");
+    printArray<float>(valuesBlock, nValuesInBlock, 1, "Values in 3 rows from CSR data array:");
+    printArray<size_t>(csrBlock.getBlockColumnIndicesPtr(), nValuesInBlock, 1, "Columns indices in 3 rows from CSR data array:");
+    printArray<size_t>(csrBlock.getBlockRowIndicesPtr(), nRead + 1, 1, "Rows offsets in 3 rows from CSR data array:");
     for (size_t i = 0; i < nValuesInBlock; i++)
     {
         valuesBlock[i] = -(1.0f + i);
@@ -75,8 +71,7 @@ int main()
     /* Read block of rows in dense format */
     dataTable->getBlockOfRows(firstReadRow, nRead, readOnly, block);
     std::cout << block.getNumberOfRows() << " rows are read" << std::endl << std::endl;
-    printArray<float>(block.getBlockPtr(), nFeatures, block.getNumberOfRows(),
-                       "Print 3 rows from CSR data array as dense float array:");
+    printArray<float>(block.getBlockPtr(), nFeatures, block.getNumberOfRows(), "Print 3 rows from CSR data array as dense float array:");
     dataTable->releaseBlockOfRows(block);
 
     return 0;

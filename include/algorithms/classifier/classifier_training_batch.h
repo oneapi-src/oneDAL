@@ -35,7 +35,6 @@ namespace classifier
 {
 namespace training
 {
-
 namespace interface1
 {
 /**
@@ -58,12 +57,11 @@ namespace interface1
 class Batch : public Training<batch>
 {
 public:
-    typedef algorithms::classifier::training::interface1::Input  InputType;
+    typedef algorithms::classifier::training::interface1::Input InputType;
     typedef algorithms::classifier::interface1::Parameter ParameterType;
     typedef algorithms::classifier::training::interface1::Result ResultType;
 
-    virtual ~Batch()
-    {}
+    virtual ~Batch() {}
 
     /**
      * Get input objects for the classifier model training algorithm
@@ -75,11 +73,11 @@ public:
      * Registers user-allocated memory for storing results of the classifier model training algorithm
      * \param[in] res    Structure for storing results of the classifier model training algorithm
      */
-    DAAL_DEPRECATED services::Status setResult(const ResultPtr& res)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -100,13 +98,9 @@ public:
      * and parameters of this classifier training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    DAAL_DEPRECATED services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    DAAL_DEPRECATED services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
-
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     ResultPtr _result;
 };
@@ -135,12 +129,11 @@ namespace interface2
 class Batch : public Training<batch>
 {
 public:
-    typedef algorithms::classifier::training::Input  InputType;
-    typedef algorithms::classifier::Parameter        ParameterType;
+    typedef algorithms::classifier::training::Input InputType;
+    typedef algorithms::classifier::Parameter ParameterType;
     typedef algorithms::classifier::training::Result ResultType;
 
-    virtual ~Batch()
-    {}
+    virtual ~Batch() {}
 
     /**
      * Get input objects for the classifier model training algorithm
@@ -152,7 +145,7 @@ public:
      * Gets parameter objects for the classifier model training algorithm
      * \return %Parameter objects for the classifier model training algorithm
      */
-    ParameterType& parameter() { return *static_cast<ParameterType*>(this->getBaseParameter()); }
+    ParameterType & parameter() { return *static_cast<ParameterType *>(this->getBaseParameter()); }
 
     /**
      * Gets parameter objects for the classifier model training algorithm
@@ -160,16 +153,15 @@ public:
      */
     // const ParameterType& parameter() const { return *static_cast<const ParameterType*>(this->getBaseParameter()); }
 
-
     /**
      * Registers user-allocated memory for storing results of the classifier model training algorithm
      * \param[in] res    Structure for storing results of the classifier model training algorithm
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -190,13 +182,9 @@ public:
      * and parameters of this classifier training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
-
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     ResultPtr _result;
 };
@@ -204,8 +192,8 @@ protected:
 } // namespace interface2
 using interface2::Batch;
 
-}
-}
-}
-}
+} // namespace training
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 #endif

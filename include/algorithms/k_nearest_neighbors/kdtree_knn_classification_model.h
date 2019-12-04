@@ -34,7 +34,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * @defgroup kdtree_knn_classification k-Nearest Neighbors
  * \copydoc daal::algorithms::kdtree_knn_classification
@@ -47,7 +46,6 @@ namespace algorithms
  */
 namespace kdtree_knn_classification
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__DATAUSEINMODEL"></a>
  * \brief The option to enable/disable an usage of the input dataset in kNN model
@@ -63,7 +61,6 @@ enum DataUseInModel
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PARAMETER"></a>
  * \brief KD-tree based kNN algorithm parameters   \DAAL_DEPRECATED
@@ -99,14 +96,13 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface1::
     engines::EnginePtr engine;     /*!< Engine for random choosing elements from training dataset */
 };
 /* [interface1::Parameter source code] */
-}
+} // namespace interface1
 
 /**
  * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface2
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__PARAMETER"></a>
  * \brief KD-tree based kNN algorithm parameters
@@ -142,7 +138,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     engines::EnginePtr engine;     /*!< Engine for random choosing elements from training dataset */
 };
 /* [Parameter source code] */
-}
+} // namespace interface2
 
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
@@ -176,10 +172,9 @@ public:
      * \param[in]  nFeatures Number of features in the dataset
      * \param[out] stat      Status of the model construction
      */
-    static services::SharedPtr<Model> create(size_t nFeatures = 0, services::Status *stat = NULL);
+    static services::SharedPtr<Model> create(size_t nFeatures = 0, services::Status * stat = NULL);
 
     virtual ~Model();
-
 
     class ModelImpl;
 
@@ -187,13 +182,13 @@ public:
      * Returns actual model implementation
      * \return Model implementation
      */
-    const ModelImpl *impl() const { return _impl; }
+    const ModelImpl * impl() const { return _impl; }
 
     /**
      * Returns actual model implementation
      * \return Model implementation
      */
-    ModelImpl *impl() { return _impl; }
+    ModelImpl * impl() { return _impl; }
 
     /**
      *  Retrieves the number of features in the dataset was used on the training stage
@@ -202,14 +197,14 @@ public:
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
 
 protected:
-    Model(size_t nFeatures, services::Status &st);
+    Model(size_t nFeatures, services::Status & st);
 
-    services::Status serializeImpl(data_management::InputDataArchive   *arch) DAAL_C11_OVERRIDE;
+    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive *arch) DAAL_C11_OVERRIDE;
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 
 private:
-    ModelImpl *_impl;  /*!< Model implementation */
+    ModelImpl * _impl; /*!< Model implementation */
 };
 typedef services::SharedPtr<Model> ModelPtr;
 } // namespace interface1

@@ -64,7 +64,7 @@ namespace interface1
  *      - \ref training::interface1::Online "training::Online" class
  *      - \ref training::interface1::Distributed "training::Distributed" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch
 {};
 
@@ -84,21 +84,18 @@ class Batch
  *      - \ref training::interface1::Online "training::Online" class
  *      - \ref training::interface1::Distributed "training::Distributed" class
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class Batch<algorithmFPType, defaultDense> : public linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense>
 {
 public:
-    typedef algorithms::linear_regression::prediction::Input  InputType;
-    typedef algorithms::linear_regression::Parameter          ParameterType;
+    typedef algorithms::linear_regression::prediction::Input InputType;
+    typedef algorithms::linear_regression::Parameter ParameterType;
     typedef algorithms::linear_regression::prediction::Result ResultType;
 
     InputType input; /*!< %Input data structure */
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs a linear regression prediction algorithm by copying input objects
@@ -106,16 +103,13 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  of the algorithm
      */
-    Batch(const Batch<algorithmFPType, defaultDense> &other) : input(other.input)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, defaultDense> & other) : input(other.input) { initialize(); }
 
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)defaultDense; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)defaultDense; }
 
     /**
      * Returns the structure that contains the result of linear regression model-based prediction
@@ -133,26 +127,23 @@ public:
         return services::SharedPtr<Batch<algorithmFPType, defaultDense> >(cloneImpl());
     }
 
-    virtual regression::prediction::Input* getInput() DAAL_C11_OVERRIDE { return &input; }
+    virtual regression::prediction::Input * getInput() DAAL_C11_OVERRIDE { return &input; }
 
 protected:
-
-    virtual Batch<algorithmFPType, defaultDense> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, defaultDense>(*this);
-    }
+    virtual Batch<algorithmFPType, defaultDense> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, defaultDense>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = getResult()->template allocate<algorithmFPType>(this->_in, 0, 0);
-        this->_res = this->_result.get();
+        this->_res         = this->_result.get();
         return s;
     }
 
     void initialize()
     {
-        this->_ac = new __DAAL_ALGORITHM_CONTAINER(batch, linear_model::prediction::BatchContainer, algorithmFPType, linear_model::prediction::defaultDense)(&(this->_env));
-        this->_in = &input;
+        this->_ac  = new __DAAL_ALGORITHM_CONTAINER(batch, linear_model::prediction::BatchContainer, algorithmFPType,
+                                                   linear_model::prediction::defaultDense)(&(this->_env));
+        this->_in  = &input;
         this->_par = NULL;
         this->_result.reset(new ResultType());
     }
@@ -161,8 +152,8 @@ protected:
 } // namespace interface1
 using interface1::Batch;
 
-}
-}
-}
-}
+} // namespace prediction
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 #endif

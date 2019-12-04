@@ -38,8 +38,7 @@ namespace training
 namespace interface1
 {
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_LINEAR_REGRESSION_TRAINING_RESULT_ID);
-Result::Result() : linear_model::training::Result(lastResultId + 1)
-{}
+Result::Result() : linear_model::training::Result(lastResultId + 1) {}
 
 /**
  * Returns the result of linear regression model-based training
@@ -56,7 +55,7 @@ linear_regression::ModelPtr Result::get(ResultId id) const
  * \param[in] id      Identifier of the result
  * \param[in] value   Result
  */
-void Result::set(ResultId id, const linear_regression::ModelPtr &value)
+void Result::set(ResultId id, const linear_regression::ModelPtr & value)
 {
     linear_model::training::Result::set(linear_model::training::ResultId(id), value);
 }
@@ -69,7 +68,7 @@ void Result::set(ResultId id, const linear_regression::ModelPtr &value)
  *
  * \return Status of computations
  */
-services::Status Result::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
     Status s;
     DAAL_CHECK_STATUS(s, linear_model::training::Result::check(input, par, method));
@@ -77,9 +76,9 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
     /* input object can be an instance of both Input and DistributedInput<step2Master> classes.
        Both classes have multiple inheritance with InputIface as a second base class.
        That's why we use dynamic_cast here. */
-    const InputIface *in = dynamic_cast<const InputIface *>(input);
+    const InputIface * in = dynamic_cast<const InputIface *>(input);
 
-    const size_t nBeta = in->getNumberOfFeatures() + 1;
+    const size_t nBeta      = in->getNumberOfFeatures() + 1;
     const size_t nResponses = in->getNumberOfDependentVariables();
 
     const linear_regression::ModelPtr model = get(training::model);
@@ -95,12 +94,12 @@ services::Status Result::check(const daal::algorithms::Input *input, const daal:
  *
  * \return Status of computations
  */
-services::Status Result::check(const daal::algorithms::PartialResult *pr, const daal::algorithms::Parameter *par, int method) const
+services::Status Result::check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * par, int method) const
 {
     DAAL_CHECK(Argument::size() == 1, ErrorIncorrectNumberOfOutputNumericTables);
-    const PartialResult *partRes = static_cast<const PartialResult *>(pr);
+    const PartialResult * partRes = static_cast<const PartialResult *>(pr);
 
-    size_t nBeta = partRes->getNumberOfFeatures() + 1;
+    size_t nBeta      = partRes->getNumberOfFeatures() + 1;
     size_t nResponses = partRes->getNumberOfDependentVariables();
 
     linear_regression::ModelPtr model = get(training::model);

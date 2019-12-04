@@ -36,7 +36,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -88,7 +87,7 @@ public:
      *  Returns a pointer to a data dictionary
      *  \return Pointer to the Data %Dictionary
      */
-    DAAL_DEPRECATED_VIRTUAL virtual DataSourceDictionary *getDictionary() = 0;
+    DAAL_DEPRECATED_VIRTUAL virtual DataSourceDictionary * getDictionary() = 0;
 
     /**
      *  Returns a shared pointer to a data dictionary
@@ -99,7 +98,7 @@ public:
     /**
      *  Sets a predefined Data %Dictionary
      */
-    virtual services::Status setDictionary(DataSourceDictionary *dict) = 0;
+    virtual services::Status setDictionary(DataSourceDictionary * dict) = 0;
 
     /**
      *  Creates a Data Dictionary by extracting information from a Data Source
@@ -165,7 +164,7 @@ public:
      *  \param[in] maxRows Maximum number of rows to load from a Data Source into the Numeric Table
      *  \param[in] nt      Pointer to the Numeric Table
      */
-    virtual size_t loadDataBlock(size_t maxRows, NumericTable *nt) = 0;
+    virtual size_t loadDataBlock(size_t maxRows, NumericTable * nt) = 0;
 
     /**
      *  Loads a data block of a specified size into an internally allocated Numeric Table
@@ -174,7 +173,7 @@ public:
      *  \param[in] fullRows  Maximum number of rows to allocate in the Numeric Table
      *  \param[in] nt        Pointer to the Numeric Table
      */
-    virtual size_t loadDataBlock(size_t maxRows, size_t rowOffset, size_t fullRows, NumericTable *nt) = 0;
+    virtual size_t loadDataBlock(size_t maxRows, size_t rowOffset, size_t fullRows, NumericTable * nt) = 0;
 
     /**
      *  Loads a data block into an internally allocated Numeric Table
@@ -185,7 +184,7 @@ public:
      *  Loads a data block into a provided Numeric Table
      *  \param[in] nt      Pointer to the Numeric Table
      */
-    virtual size_t loadDataBlock(NumericTable *nt) = 0;
+    virtual size_t loadDataBlock(NumericTable * nt) = 0;
 };
 
 /**
@@ -195,34 +194,36 @@ public:
 class DataSource : public DataSourceIface
 {
 public:
-    DataSource() : _dict(), _errors(new services::ErrorCollection()), _initialMaxRows(10), _autoNumericTableFlag(doAllocateNumericTable), _autoDictionaryFlag(doDictionaryFromContext) {}
+    DataSource()
+        : _dict(),
+          _errors(new services::ErrorCollection()),
+          _initialMaxRows(10),
+          _autoNumericTableFlag(doAllocateNumericTable),
+          _autoDictionaryFlag(doDictionaryFromContext)
+    {}
 
     virtual ~DataSource() {}
 
-    DAAL_DEPRECATED_VIRTUAL DataSourceDictionary *getDictionary() DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL DataSourceDictionary * getDictionary() DAAL_C11_OVERRIDE
     {
         services::Status s = checkDictionary();
-        if(!s)
-            return NULL;
+        if (!s) return NULL;
         return _dict.get();
     }
 
     DataSourceDictionaryPtr getDictionarySharedPtr() DAAL_C11_OVERRIDE
     {
         services::Status s = checkDictionary();
-        if(!s)
-            return DataSourceDictionaryPtr();
+        if (!s) return DataSourceDictionaryPtr();
         return _dict;
     }
 
-    services::Status setDictionary(DataSourceDictionary *dict) DAAL_C11_OVERRIDE
+    services::Status setDictionary(DataSourceDictionary * dict) DAAL_C11_OVERRIDE
     {
-        if(_dict)
-            return services::throwIfPossible(services::Status(services::ErrorDictionaryAlreadyAvailable));
+        if (_dict) return services::throwIfPossible(services::Status(services::ErrorDictionaryAlreadyAvailable));
 
         services::Status s = dict->checkDictionary();
-        if(!s)
-            return services::throwIfPossible(s);
+        if (!s) return services::throwIfPossible(s);
 
         _dict.reset(dict, services::EmptyDeleter());
         return services::Status();
@@ -237,7 +238,7 @@ public:
     {
         services::Status s = checkDictionary();
         s.add(checkNumericTable());
-        if(!s)
+        if (!s)
         {
             this->_status.add(services::throwIfPossible(s));
             return 0;
@@ -245,7 +246,7 @@ public:
         return loadDataBlock(maxRows, this->DataSource::_spnt.get());
     }
 
-    size_t loadDataBlock(size_t maxRows, NumericTable *nt) DAAL_C11_OVERRIDE
+    size_t loadDataBlock(size_t maxRows, NumericTable * nt) DAAL_C11_OVERRIDE
     {
         this->_status.add(services::throwIfPossible(services::ErrorMethodNotSupported));
         return 0;
@@ -254,9 +255,8 @@ public:
     size_t loadDataBlock(size_t maxRows, size_t rowOffset, size_t fullRows) DAAL_C11_OVERRIDE
     {
         services::Status s = checkDictionary();
-        if(s)
-            s.add(checkNumericTable());
-        if(!s)
+        if (s) s.add(checkNumericTable());
+        if (!s)
         {
             this->_status.add(services::throwIfPossible(s));
             return 0;
@@ -264,7 +264,7 @@ public:
         return loadDataBlock(maxRows, rowOffset, fullRows, this->DataSource::_spnt.get());
     }
 
-    size_t loadDataBlock(size_t maxRows, size_t rowOffset, size_t fullRows, NumericTable *nt) DAAL_C11_OVERRIDE
+    size_t loadDataBlock(size_t maxRows, size_t rowOffset, size_t fullRows, NumericTable * nt) DAAL_C11_OVERRIDE
     {
         this->_status.add(services::throwIfPossible(services::ErrorMethodNotSupported));
         return 0;
@@ -273,11 +273,11 @@ public:
     size_t loadDataBlock() DAAL_C11_OVERRIDE
     {
         services::Status s = checkDictionary();
-        if(s)
+        if (s)
         {
             s.add(checkNumericTable());
         }
-        if(!s)
+        if (!s)
         {
             this->_status.add(services::throwIfPossible(s));
             return 0;
@@ -285,7 +285,7 @@ public:
         return loadDataBlock(this->DataSource::_spnt.get());
     }
 
-    size_t loadDataBlock(NumericTable *nt) DAAL_C11_OVERRIDE
+    size_t loadDataBlock(NumericTable * nt) DAAL_C11_OVERRIDE
     {
         this->_status.add(services::throwIfPossible(services::ErrorMethodNotSupported));
         return 0;
@@ -320,22 +320,16 @@ public:
     *  \return Errors stored on the object
     *  \DAAL_DEPRECATED
     */
-    DAAL_DEPRECATED services::SharedPtr<services::ErrorCollection> getErrors()
-    {
-        return status().getCollection();
-    }
+    DAAL_DEPRECATED services::SharedPtr<services::ErrorCollection> getErrors() { return status().getCollection(); }
 
-    virtual size_t getNumericTableNumberOfColumns() DAAL_C11_OVERRIDE
-    {
-        return getNumberOfColumns();
-    }
+    virtual size_t getNumericTableNumberOfColumns() DAAL_C11_OVERRIDE { return getNumberOfColumns(); }
 
 protected:
     DataSourceDictionaryPtr _dict;
     NumericTablePtr _spnt;
 
     NumericTableAllocationFlag _autoNumericTableFlag;
-    DictionaryCreationFlag     _autoDictionaryFlag;
+    DictionaryCreationFlag _autoDictionaryFlag;
     services::Status _status;
     services::SharedPtr<services::ErrorCollection> _errors;
     size_t _initialMaxRows;
@@ -345,9 +339,9 @@ protected:
      */
     services::Status checkNumericTable()
     {
-        if( _spnt.get() == NULL )
+        if (_spnt.get() == NULL)
         {
-            if( _autoNumericTableFlag == notAllocateNumericTable )
+            if (_autoNumericTableFlag == notAllocateNumericTable)
                 return services::throwIfPossible(services::Status(services::ErrorNumericTableNotAllocated));
             return allocateNumericTable();
         }
@@ -359,9 +353,9 @@ protected:
      */
     services::Status checkDictionary()
     {
-        if( _dict == 0 )
+        if (_dict == 0)
         {
-            if( _autoDictionaryFlag == notDictionaryFromContext )
+            if (_autoDictionaryFlag == notDictionaryFromContext)
                 return services::throwIfPossible(services::Status(services::ErrorDictionaryNotAvailable));
             return createDictionaryFromContext();
         }
@@ -377,7 +371,8 @@ protected:
      *
      *  \return          - Allocation status: True if the table is allocated, false otherwise.
      */
-    template<typename NumericTableType> services::Status allocateNumericTableImpl(services::SharedPtr<NumericTableType> &nt);
+    template <typename NumericTableType>
+    services::Status allocateNumericTableImpl(services::SharedPtr<NumericTableType> & nt);
 
     /**
      *  Allocates a homogeneous Numeric Table that corresponds to the template type
@@ -388,13 +383,14 @@ protected:
      *
      *  \return          - Allocation status: True if the table is allocated, false otherwise.
      */
-    template<typename FPType> services::Status allocateNumericTableImpl(services::SharedPtr<HomogenNumericTable<FPType> > &nt);
+    template <typename FPType>
+    services::Status allocateNumericTableImpl(services::SharedPtr<HomogenNumericTable<FPType> > & nt);
 
     size_t getStructureSize()
     {
         size_t structureSize = 0;
-        size_t nFeatures = _dict->getNumberOfFeatures();
-        for(size_t i = 0; i < nFeatures; i++)
+        size_t nFeatures     = _dict->getNumberOfFeatures();
+        for (size_t i = 0; i < nFeatures; i++)
         {
             features::IndexNumType indexNumType = (*_dict)[i].ntFeature.indexType;
             structureSize += (*_dict)[i].ntFeature.typeSize;
@@ -410,7 +406,7 @@ protected:
 
         size_t nFeatures = ntDict->getNumberOfFeatures();
 
-        for(size_t i = 0; i < nFeatures; i++)
+        for (size_t i = 0; i < nFeatures; i++)
         {
             (*ntDict)[i] = (*_dict)[i].ntFeature;
         }
@@ -418,17 +414,17 @@ protected:
     }
 };
 
-template<typename NumericTableType>
-inline services::Status DataSource::allocateNumericTableImpl(services::SharedPtr<NumericTableType> &nt)
+template <typename NumericTableType>
+inline services::Status DataSource::allocateNumericTableImpl(services::SharedPtr<NumericTableType> & nt)
 {
     nt = services::SharedPtr<NumericTableType>();
     return services::Status();
 }
 
-template<>
-inline services::Status DataSource::allocateNumericTableImpl(AOSNumericTablePtr &nt)
+template <>
+inline services::Status DataSource::allocateNumericTableImpl(AOSNumericTablePtr & nt)
 {
-    size_t nFeatures = _dict->getNumberOfFeatures();
+    size_t nFeatures     = _dict->getNumberOfFeatures();
     size_t structureSize = getStructureSize();
     services::Status s;
     nt = AOSNumericTable::create(structureSize, nFeatures, 0, &s);
@@ -437,15 +433,15 @@ inline services::Status DataSource::allocateNumericTableImpl(AOSNumericTablePtr 
     return s;
 }
 
-template<>
-inline services::Status DataSource::allocateNumericTableImpl(SOANumericTablePtr &nt)
+template <>
+inline services::Status DataSource::allocateNumericTableImpl(SOANumericTablePtr & nt)
 {
     nt = SOANumericTablePtr();
     return services::Status();
 }
 
-template<typename FPType>
-inline services::Status DataSource::allocateNumericTableImpl(services::SharedPtr<HomogenNumericTable<FPType> > &nt)
+template <typename FPType>
+inline services::Status DataSource::allocateNumericTableImpl(services::SharedPtr<HomogenNumericTable<FPType> > & nt)
 {
     size_t nFeatures = getNumericTableNumberOfColumns();
     services::Status s;
@@ -455,20 +451,18 @@ inline services::Status DataSource::allocateNumericTableImpl(services::SharedPtr
     return s;
 }
 
-
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__DATASOURCETEMPLATE"></a>
  *  \brief Implements the abstract DataSourceIface interface
  */
-template< typename _numericTableType, typename _summaryStatisticsType = DAAL_SUMMARY_STATISTICS_TYPE >
+template <typename _numericTableType, typename _summaryStatisticsType = DAAL_SUMMARY_STATISTICS_TYPE>
 class DataSourceTemplate : public DataSource
 {
 public:
     typedef _numericTableType numericTableType;
 
 public:
-    DataSourceTemplate( NumericTableAllocationFlag doAllocateNumericTable,
-                        DictionaryCreationFlag doCreateDictionaryFromContext ) : DataSource()
+    DataSourceTemplate(NumericTableAllocationFlag doAllocateNumericTable, DictionaryCreationFlag doCreateDictionaryFromContext) : DataSource()
     {
         DataSource::_autoNumericTableFlag = doAllocateNumericTable;
         DataSource::_autoDictionaryFlag   = doCreateDictionaryFromContext;
@@ -476,53 +470,47 @@ public:
 
     virtual ~DataSourceTemplate() {}
 
-    virtual void freeNumericTable() DAAL_C11_OVERRIDE
-    {
-        _spnt = NumericTablePtr();
-    }
+    virtual void freeNumericTable() DAAL_C11_OVERRIDE { _spnt = NumericTablePtr(); }
 
     virtual services::Status allocateNumericTable() DAAL_C11_OVERRIDE
     {
-        if( _spnt.get() != NULL )
-            return services::throwIfPossible(services::Status(services::ErrorNumericTableAlreadyAllocated));
+        if (_spnt.get() != NULL) return services::throwIfPossible(services::Status(services::ErrorNumericTableAlreadyAllocated));
 
         services::Status s = checkDictionary();
-        if(!s)
-            return s;
+        if (!s) return s;
 
         services::SharedPtr<numericTableType> nt;
 
-        s |= allocateNumericTableImpl( nt );
+        s |= allocateNumericTableImpl(nt);
         _spnt = nt;
 
         services::SharedPtr<HomogenNumericTable<_summaryStatisticsType> > ssNt;
 
-        s |= allocateNumericTableImpl( ssNt );
+        s |= allocateNumericTableImpl(ssNt);
         _spnt->basicStatistics.set(NumericTable::minimum, ssNt);
 
-        s |= allocateNumericTableImpl( ssNt );
+        s |= allocateNumericTableImpl(ssNt);
         _spnt->basicStatistics.set(NumericTable::maximum, ssNt);
 
-        s |= allocateNumericTableImpl( ssNt );
+        s |= allocateNumericTableImpl(ssNt);
         _spnt->basicStatistics.set(NumericTable::sum, ssNt);
 
-        s |= allocateNumericTableImpl( ssNt );
+        s |= allocateNumericTableImpl(ssNt);
         _spnt->basicStatistics.set(NumericTable::sumSquares, ssNt);
         return s;
     }
 
 protected:
-    services::Status resizeNumericTableImpl(const size_t linesToLoad, NumericTable* nt)
+    services::Status resizeNumericTableImpl(const size_t linesToLoad, NumericTable * nt)
     {
-        if(!nt)
-            return services::Status(services::ErrorNullInputNumericTable);
+        if (!nt) return services::Status(services::ErrorNullInputNumericTable);
 
-        if(!_dict)
-            return services::Status(services::ErrorDictionaryNotAvailable);
+        if (!_dict) return services::Status(services::ErrorDictionaryNotAvailable);
 
         size_t nFeatures = getNumericTableNumberOfColumns();
 
-        if (nt->getNumberOfColumns() < nFeatures) {
+        if (nt->getNumberOfColumns() < nFeatures)
+        {
             nt->getDictionarySharedPtr()->setNumberOfFeatures(nFeatures);
         }
 
@@ -533,41 +521,41 @@ protected:
 
         nt->allocateBasicStatistics();
 
-        NumericTablePtr ntMin   = nt->basicStatistics.get(NumericTable::minimum   );
-        NumericTablePtr ntMax   = nt->basicStatistics.get(NumericTable::maximum   );
-        NumericTablePtr ntSum   = nt->basicStatistics.get(NumericTable::sum       );
+        NumericTablePtr ntMin   = nt->basicStatistics.get(NumericTable::minimum);
+        NumericTablePtr ntMax   = nt->basicStatistics.get(NumericTable::maximum);
+        NumericTablePtr ntSum   = nt->basicStatistics.get(NumericTable::sum);
         NumericTablePtr ntSumSq = nt->basicStatistics.get(NumericTable::sumSquares);
 
-        if( ntMin->getNumberOfColumns() != nCols || ntMin->getNumberOfRows() != 1 )
+        if (ntMin->getNumberOfColumns() != nCols || ntMin->getNumberOfRows() != 1)
         {
-            if( ntMin->getNumberOfColumns() != nCols )
+            if (ntMin->getNumberOfColumns() != nCols)
             {
                 ntMin->getDictionarySharedPtr()->setNumberOfFeatures(nCols);
             }
             ntMin->resize(1);
         }
 
-        if( ntMax->getNumberOfColumns() != nCols || ntMax->getNumberOfRows() != 1 )
+        if (ntMax->getNumberOfColumns() != nCols || ntMax->getNumberOfRows() != 1)
         {
-            if( ntMax->getNumberOfColumns() != nCols )
+            if (ntMax->getNumberOfColumns() != nCols)
             {
                 ntMax->getDictionarySharedPtr()->setNumberOfFeatures(nCols);
             }
             ntMax->resize(1);
         }
 
-        if( ntSum->getNumberOfColumns() != nCols || ntSum->getNumberOfRows() != 1 )
+        if (ntSum->getNumberOfColumns() != nCols || ntSum->getNumberOfRows() != 1)
         {
-            if( ntSum->getNumberOfColumns() != nCols )
+            if (ntSum->getNumberOfColumns() != nCols)
             {
                 ntSum->getDictionarySharedPtr()->setNumberOfFeatures(nCols);
             }
             ntSum->resize(1);
         }
 
-        if( ntSumSq->getNumberOfColumns() != nCols || ntSumSq->getNumberOfRows() != 1 )
+        if (ntSumSq->getNumberOfColumns() != nCols || ntSumSq->getNumberOfRows() != 1)
         {
-            if( ntSumSq->getNumberOfColumns() != nCols )
+            if (ntSumSq->getNumberOfColumns() != nCols)
             {
                 ntSumSq->getDictionarySharedPtr()->setNumberOfFeatures(nCols);
             }
@@ -576,16 +564,14 @@ protected:
         return services::Status();
     }
 
-    services::Status updateStatistics(size_t ntRowIndex, NumericTable *nt, DAAL_DATA_TYPE *row, size_t offset = 0)
+    services::Status updateStatistics(size_t ntRowIndex, NumericTable * nt, DAAL_DATA_TYPE * row, size_t offset = 0)
     {
-        if(!nt)
-            return services::Status(services::ErrorNullInputNumericTable);
-        if(!row)
-            return services::Status(services::ErrorNullPtr);
+        if (!nt) return services::Status(services::ErrorNullInputNumericTable);
+        if (!row) return services::Status(services::ErrorNullPtr);
 
-        NumericTablePtr ntMin   = nt->basicStatistics.get(NumericTable::minimum   );
-        NumericTablePtr ntMax   = nt->basicStatistics.get(NumericTable::maximum   );
-        NumericTablePtr ntSum   = nt->basicStatistics.get(NumericTable::sum       );
+        NumericTablePtr ntMin   = nt->basicStatistics.get(NumericTable::minimum);
+        NumericTablePtr ntMax   = nt->basicStatistics.get(NumericTable::maximum);
+        NumericTablePtr ntSum   = nt->basicStatistics.get(NumericTable::sum);
         NumericTablePtr ntSumSq = nt->basicStatistics.get(NumericTable::sumSquares);
 
         BlockDescriptor<_summaryStatisticsType> blockMin;
@@ -598,14 +584,14 @@ protected:
         ntSum->getBlockOfRows(0, 1, readWrite, blockSum);
         ntSumSq->getBlockOfRows(0, 1, readWrite, blockSumSq);
 
-        _summaryStatisticsType *minimum    = blockMin.getBlockPtr();
-        _summaryStatisticsType *maximum    = blockMax.getBlockPtr();
-        _summaryStatisticsType *sum        = blockSum.getBlockPtr();
-        _summaryStatisticsType *sumSquares = blockSumSq.getBlockPtr();
+        _summaryStatisticsType * minimum    = blockMin.getBlockPtr();
+        _summaryStatisticsType * maximum    = blockMax.getBlockPtr();
+        _summaryStatisticsType * sum        = blockSum.getBlockPtr();
+        _summaryStatisticsType * sumSquares = blockSumSq.getBlockPtr();
 
         size_t nCols = nt->getNumberOfColumns();
 
-        if( minimum == NULL || maximum == NULL || sum == NULL || sumSquares == NULL )
+        if (minimum == NULL || maximum == NULL || sum == NULL || sumSquares == NULL)
         {
             ntMin->releaseBlockOfRows(blockMin);
             ntMax->releaseBlockOfRows(blockMax);
@@ -616,19 +602,25 @@ protected:
 
         row += (ntRowIndex + offset) * nt->getNumberOfColumns();
 
-        if( ntRowIndex != 0 )
+        if (ntRowIndex != 0)
         {
-            for( size_t i = 0; i < nCols; i++ )
+            for (size_t i = 0; i < nCols; i++)
             {
-                if( minimum[i] > row[i] ) { minimum[i] = row[i]; }
-                if( maximum[i] < row[i] ) { maximum[i] = row[i]; }
-                sum[i]   += row[i];
+                if (minimum[i] > row[i])
+                {
+                    minimum[i] = row[i];
+                }
+                if (maximum[i] < row[i])
+                {
+                    maximum[i] = row[i];
+                }
+                sum[i] += row[i];
                 sumSquares[i] += row[i] * row[i];
             }
         }
         else
         {
-            for( size_t i = 0; i < nCols; i++ )
+            for (size_t i = 0; i < nCols; i++)
             {
                 minimum[i]    = row[i];
                 maximum[i]    = row[i];
@@ -637,17 +629,16 @@ protected:
             }
         }
 
-        ntMin->releaseBlockOfRows( blockMin );
-        ntMax->releaseBlockOfRows( blockMax );
-        ntSum->releaseBlockOfRows( blockSum );
-        ntSumSq->releaseBlockOfRows( blockSumSq );
+        ntMin->releaseBlockOfRows(blockMin);
+        ntMax->releaseBlockOfRows(blockMax);
+        ntSum->releaseBlockOfRows(blockSum);
+        ntSumSq->releaseBlockOfRows(blockSumSq);
         return services::Status();
     }
 
-    services::Status combineSingleStatistics(NumericTable *ntSrc, NumericTable *ntDst, bool wasEmpty, NumericTable::BasicStatisticsId id)
+    services::Status combineSingleStatistics(NumericTable * ntSrc, NumericTable * ntDst, bool wasEmpty, NumericTable::BasicStatisticsId id)
     {
-        if( ntSrc == NULL || ntDst == NULL )
-            return services::Status(services::ErrorNullInputNumericTable);
+        if (ntSrc == NULL || ntDst == NULL) return services::Status(services::ErrorNullInputNumericTable);
 
         NumericTablePtr ntSrcStat = ntSrc->basicStatistics.get(id);
         NumericTablePtr ntDstStat = ntDst->basicStatistics.get(id);
@@ -658,10 +649,10 @@ protected:
         ntSrcStat->getBlockOfRows(0, 1, readOnly, blockSrc);
         ntDstStat->getBlockOfRows(0, 1, readWrite, blockDst);
 
-        const _summaryStatisticsType *src = blockSrc.getBlockPtr();
-        _summaryStatisticsType *dst = blockDst.getBlockPtr();
+        const _summaryStatisticsType * src = blockSrc.getBlockPtr();
+        _summaryStatisticsType * dst       = blockDst.getBlockPtr();
 
-        if( src == NULL || dst == NULL )
+        if (src == NULL || dst == NULL)
         {
             ntSrcStat->releaseBlockOfRows(blockSrc);
             ntDstStat->releaseBlockOfRows(blockDst);
@@ -669,7 +660,7 @@ protected:
         }
 
         const size_t nColsSrc = ntSrc->getNumberOfColumns();
-        const size_t nCols = ntDst->getNumberOfColumns();
+        const size_t nCols    = ntDst->getNumberOfColumns();
 
         if (nCols != nColsSrc)
         {
@@ -678,9 +669,9 @@ protected:
             return services::Status(services::ErrorIncorrectInputNumericTable);
         }
 
-        if( wasEmpty )
+        if (wasEmpty)
         {
-            for( size_t i = 0; i < nCols; i++ )
+            for (size_t i = 0; i < nCols; i++)
             {
                 dst[i] = src[i];
             }
@@ -689,7 +680,7 @@ protected:
         {
             if (id == NumericTable::minimum)
             {
-                for( size_t i = 0; i < nCols; i++ )
+                for (size_t i = 0; i < nCols; i++)
                 {
                     if (dst[i] > src[i])
                     {
@@ -697,10 +688,9 @@ protected:
                     }
                 }
             }
-            else
-            if (id == NumericTable::maximum)
+            else if (id == NumericTable::maximum)
             {
-                for( size_t i = 0; i < nCols; i++ )
+                for (size_t i = 0; i < nCols; i++)
                 {
                     if (dst[i] < src[i])
                     {
@@ -708,30 +698,28 @@ protected:
                     }
                 }
             }
-            else
-            if (id == NumericTable::sum)
+            else if (id == NumericTable::sum)
             {
-                for( size_t i = 0; i < nCols; i++ )
+                for (size_t i = 0; i < nCols; i++)
                 {
                     dst[i] += src[i];
                 }
             }
-            else
-            if (id == NumericTable::sumSquares)
+            else if (id == NumericTable::sumSquares)
             {
-                for( size_t i = 0; i < nCols; i++ )
+                for (size_t i = 0; i < nCols; i++)
                 {
                     dst[i] += src[i];
                 }
             }
         }
 
-        ntSrcStat->releaseBlockOfRows( blockSrc );
-        ntDstStat->releaseBlockOfRows( blockDst );
+        ntSrcStat->releaseBlockOfRows(blockSrc);
+        ntDstStat->releaseBlockOfRows(blockDst);
         return services::Status();
     }
 
-    services::Status combineStatistics(NumericTable *ntSrc, NumericTable *ntDst, bool wasEmpty)
+    services::Status combineStatistics(NumericTable * ntSrc, NumericTable * ntDst, bool wasEmpty)
     {
         services::Status s;
         s.add(combineSingleStatistics(ntSrc, ntDst, wasEmpty, NumericTable::minimum));

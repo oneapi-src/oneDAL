@@ -42,11 +42,11 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable **partialr, NumericTable **partialqty,
-                          NumericTable &rTable, NumericTable &qtyTable)
+Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable ** partialr, NumericTable ** partialqty, NumericTable & rTable,
+                                                  NumericTable & qtyTable)
 {
-    size_t nBetas    (rTable.getNumberOfRows());
-    size_t nBetas2   (2 * nBetas);
+    size_t nBetas(rTable.getNumberOfRows());
+    size_t nBetas2(2 * nBetas);
     size_t nResponses(qtyTable.getNumberOfRows());
     Status st;
     int result = 0;
@@ -69,21 +69,21 @@ Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable **parti
 
     WriteRowsType rFinalBlock(rTable, 0, nBetas);
     DAAL_CHECK_BLOCK_STATUS(rFinalBlock);
-    algorithmFPType *rFinal = rFinalBlock.get();
+    algorithmFPType * rFinal = rFinalBlock.get();
 
     WriteRowsType qtyFinalBlock(qtyTable, 0, nResponses);
     DAAL_CHECK_BLOCK_STATUS(qtyFinalBlock);
-    algorithmFPType *qtyFinal = qtyFinalBlock.get();
+    algorithmFPType * qtyFinal = qtyFinalBlock.get();
 
     ReadRowsType rBlock(partialr[0], 0, nBetas);
     DAAL_CHECK_BLOCK_STATUS(rBlock);
-    const algorithmFPType *r = rBlock.get();
+    const algorithmFPType * r = rBlock.get();
 
     ReadRowsType qtyBlock(partialqty[0], 0, nResponses);
     DAAL_CHECK_BLOCK_STATUS(qtyBlock);
-    const algorithmFPType *qty = qtyBlock.get();
+    const algorithmFPType * qty = qtyBlock.get();
 
-    const size_t rSizeInBytes   =     nBetas * nBetas * sizeof(algorithmFPType);
+    const size_t rSizeInBytes   = nBetas * nBetas * sizeof(algorithmFPType);
     const size_t qtySizeInBytes = nResponses * nBetas * sizeof(algorithmFPType);
     result |= daal::services::internal::daal_memcpy_s(rFinal, rSizeInBytes, r, rSizeInBytes);
     result |= daal::services::internal::daal_memcpy_s(qtyFinal, qtySizeInBytes, qty, qtySizeInBytes);
@@ -105,17 +105,16 @@ Status MergeKernel<algorithmFPType, cpu>::compute(size_t n, NumericTable **parti
         DAAL_CHECK_BLOCK_STATUS(qtyBlock);
         qty = qtyBlock.get();
 
-        st |= CommonKernel<algorithmFPType, cpu>::merge(nBetas, nResponses,
-            r, qty, rFinal, qtyFinal, rMerge.get(), qtyMerge.get(), rFinal, qtyFinal, tau.get(), work.get(),
-            lwork);
+        st |= CommonKernel<algorithmFPType, cpu>::merge(nBetas, nResponses, r, qty, rFinal, qtyFinal, rMerge.get(), qtyMerge.get(), rFinal, qtyFinal,
+                                                        tau.get(), work.get(), lwork);
         DAAL_CHECK_STATUS_VAR(st);
     }
     return st;
 }
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace qr
+} // namespace linear_model
+} // namespace algorithms
+} // namespace daal

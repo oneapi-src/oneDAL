@@ -39,8 +39,8 @@ using namespace daal::algorithms::multi_class_classifier::training;
  * Method:    cInit
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_training_TrainingBatch_cInit
-(JNIEnv *env, jobject obj, jint prec, jint method, jlong nClasses)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_training_TrainingBatch_cInit(JNIEnv * env, jobject obj, jint prec,
+                                                                                                             jint method, jlong nClasses)
 {
     return jniBatch<multi_class_classifier::training::Method, Batch, oneAgainstOne>::newObj(prec, method, nClasses);
 }
@@ -50,8 +50,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cInitParameter
  * Signature:(JIII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_training_TrainingBatch_cInitParameter
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_training_TrainingBatch_cInitParameter(JNIEnv * env, jobject obj,
+                                                                                                                      jlong algAddr, jint prec,
+                                                                                                                      jint method)
 {
     return jniBatch<multi_class_classifier::training::Method, Batch, oneAgainstOne>::getParameter(prec, method, algAddr);
 }
@@ -61,8 +62,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cGetResult
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_training_TrainingBatch_cGetResult
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_training_TrainingBatch_cGetResult(JNIEnv * env, jobject obj,
+                                                                                                                  jlong algAddr, jint prec,
+                                                                                                                  jint method)
 {
     return jniBatch<multi_class_classifier::training::Method, Batch, oneAgainstOne>::getResult(prec, method, algAddr);
 }
@@ -72,8 +74,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cClone
  * Signature:(JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_training_TrainingBatch_cClone
-(JNIEnv *env, jobject obj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_training_TrainingBatch_cClone(JNIEnv * env, jobject obj,
+                                                                                                              jlong algAddr, jint prec, jint method)
 {
     return jniBatch<multi_class_classifier::training::Method, Batch, oneAgainstOne>::getClone(prec, method, algAddr);
 }
@@ -83,13 +85,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_
  * Method:    cGetModel
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_training_TrainingResult_cGetModel
-(JNIEnv *env, jobject obj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_multi_1class_1classifier_training_TrainingResult_cGetModel(JNIEnv * env, jobject obj,
+                                                                                                                  jlong resAddr, jint id)
 {
     if (id == innerModelID)
     {
-        return jniArgument<multi_class_classifier::training::Result>::
-            get<classifier::training::ResultId, classifier::Model>(resAddr, classifier::training::model);
+        return jniArgument<multi_class_classifier::training::Result>::get<classifier::training::ResultId, classifier::Model>(
+            resAddr, classifier::training::model);
     }
 
     return (jlong)0;

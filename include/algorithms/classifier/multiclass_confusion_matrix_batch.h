@@ -37,7 +37,6 @@ namespace quality_metric
 {
 namespace multiclass_confusion_matrix
 {
-
 namespace interface1
 {
 /**
@@ -52,16 +51,16 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations of the multi-class confusion matrix, double or float
  * \tparam method           Method for computing the multi-class confusion matrix, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
-     /**
+    /**
      * Constructs a container for the multi-class confusion matrix algorithm with a specified environment
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
     /**
@@ -83,25 +82,22 @@ public:
  *      - \ref ResultId             Result identifiers for the multi-class confusion matrix algorithm
  *      - \ref MultiClassMetricsId  Identifiers of resulting metrics associated with the multi-class confusion matrix
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::quality_metric::Batch
 {
 public:
-    typedef algorithms::classifier::quality_metric::multiclass_confusion_matrix::Input     InputType;
+    typedef algorithms::classifier::quality_metric::multiclass_confusion_matrix::Input InputType;
     typedef algorithms::classifier::quality_metric::multiclass_confusion_matrix::Parameter ParameterType;
-    typedef algorithms::classifier::quality_metric::multiclass_confusion_matrix::Result    ResultType;
+    typedef algorithms::classifier::quality_metric::multiclass_confusion_matrix::Result ResultType;
 
-    InputType input;            /*!< %Input objects of the algorithm */
-    ParameterType parameter;    /*!< Parameters of the algorithm */
+    InputType input;         /*!< %Input objects of the algorithm */
+    ParameterType parameter; /*!< Parameters of the algorithm */
 
     /**
      * Default constructor
      * \param[in] nClasses  Number of classes
      */
-    Batch(size_t nClasses = 2) : parameter(nClasses)
-    {
-        initialize();
-    }
+    Batch(size_t nClasses = 2) : parameter(nClasses) { initialize(); }
 
     /**
      * Constructs a confusion matrix algorithm by copying input objects and parameters
@@ -109,35 +105,29 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of the multi-class confusion matrix algorithm
      * \return Structure that contains results of the multi-class confusion matrix algorithm
      */
-    ResultPtr getResult() const
-    {
-        return _result;
-    }
+    ResultPtr getResult() const { return _result; }
 
     /**
      * Registers user-allocated memory to store results of the multi-class confusion matrix algorithm
      * \param[in] result  Structure to store results of the multi-class confusion matrix algorithm
      */
-    services::Status setResult(const ResultPtr& result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -145,10 +135,10 @@ public:
      * Registers user-allocated memory to store input of the multi-class confusion matrix algorithm
      * \param[in] other  Structure to store results of the multi-class confusion matrix algorithm
      */
-    virtual void setInput(const algorithms::Input *other) DAAL_C11_OVERRIDE
+    virtual void setInput(const algorithms::Input * other) DAAL_C11_OVERRIDE
     {
-        const InputType *inputPtr = static_cast<const InputType *>(other);
-        input.set(predictedLabels,   inputPtr->get(predictedLabels));
+        const InputType * inputPtr = static_cast<const InputType *>(other);
+        input.set(predictedLabels, inputPtr->get(predictedLabels));
         input.set(groundTruthLabels, inputPtr->get(groundTruthLabels));
     }
 
@@ -157,34 +147,25 @@ public:
      * and parameters of this confusion matrix algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        _res               = _result.get();
         return s;
     }
 
-    virtual algorithms::ResultPtr getResultImpl() const DAAL_C11_OVERRIDE
-    {
-        return _result;
-    }
+    virtual algorithms::ResultPtr getResultImpl() const DAAL_C11_OVERRIDE { return _result; }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
-        _par = &parameter;
+        _in                  = &input;
+        _par                 = &parameter;
         _result.reset(new ResultType());
     }
 
@@ -196,9 +177,9 @@ private:
 using interface1::BatchContainer;
 using interface1::Batch;
 
-}
-}
-}
-}
-}
+} // namespace multiclass_confusion_matrix
+} // namespace quality_metric
+} // namespace classifier
+} // namespace algorithms
+} // namespace daal
 #endif

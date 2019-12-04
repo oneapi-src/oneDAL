@@ -31,8 +31,8 @@ namespace dfrp = daal::algorithms::gbt::regression::prediction;
 * Method:    cInit
 * Signature: (II)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionBatch_cInit
-(JNIEnv *, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionBatch_cInit(JNIEnv *, jobject thisObj, jint prec,
+                                                                                                       jint method)
 {
     return jniBatch<dfrp::Method, dfrp::Batch, dfrp::defaultDense>::newObj(prec, method);
 }
@@ -42,8 +42,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction
 * Method:    cInitParameter
 * Signature: (JIII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionBatch_cInitParameter
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method, jint cmode)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionBatch_cInitParameter(JNIEnv *, jobject thisObj,
+                                                                                                                jlong algAddr, jint prec, jint method,
+                                                                                                                jint cmode)
 {
     return jniBatch<dfrp::Method, dfrp::Batch, dfrp::defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -53,8 +54,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionBatch_cClone
-(JNIEnv *, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_prediction_PredictionBatch_cClone(JNIEnv *, jobject thisObj, jlong algAddr,
+                                                                                                        jint prec, jint method)
 {
     return jniBatch<dfrp::Method, dfrp::Batch, dfrp::defaultDense>::getClone(prec, method, algAddr);
 }

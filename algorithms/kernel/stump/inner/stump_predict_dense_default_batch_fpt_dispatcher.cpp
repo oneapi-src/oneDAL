@@ -30,4 +30,4 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(stump::prediction::BatchContainer, batch, DAAL_FPTYPE, stump::prediction::defaultDense)
 }
-}
+} // namespace daal

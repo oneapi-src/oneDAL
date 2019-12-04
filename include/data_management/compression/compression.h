@@ -44,7 +44,7 @@ namespace data_management
 enum CompressionLevel
 {
     defaultLevel = -1, /*!< Default compression level */
-    level0 = 0,        /*!< Minimum compression level, maximum speed */
+    level0       = 0,  /*!< Minimum compression level, maximum speed */
     level1,            /*!< \n*/
     level2,            /*!< \n*/
     level3,            /*!< \n*/
@@ -63,10 +63,10 @@ enum CompressionLevel
  */
 enum CompressionMethod
 {
-    zlib,  /*!< DEFLATE compression method with a ZLIB block header or a simple GZIP block header */
-    lzo,   /*!< LZO1X compatible compression method */
-    rle,   /*!< Run-Length Encoding method */
-    bzip2  /*!< BZIP2 compression method */
+    zlib, /*!< DEFLATE compression method with a ZLIB block header or a simple GZIP block header */
+    lzo,  /*!< LZO1X compatible compression method */
+    rle,  /*!< Run-Length Encoding method */
+    bzip2 /*!< BZIP2 compression method */
 };
 
 /**
@@ -86,13 +86,13 @@ namespace interface1
 /* [CompressionParameter source code] */
 struct DAAL_EXPORT CompressionParameter
 {
-    CompressionLevel level;  /*!< Compression level */
+    CompressionLevel level; /*!< Compression level */
 
     /**
      *  Default constructor
      *  \param[in] clevel   %Compression level, \ref CompressionLevel
      */
-    CompressionParameter( CompressionLevel clevel = defaultLevel ) : level(clevel) {}
+    CompressionParameter(CompressionLevel clevel = defaultLevel) : level(clevel) {}
 };
 /* [CompressionParameter source code] */
 
@@ -110,12 +110,12 @@ public:
      * \param[in] size     Number of bytes to compress (or decompress) in inBlock
      * \param[in] offset   Offset in bytes, the starting position for compression (or decompression) in inBlock
      */
-    virtual void setInputDataBlock( byte *inBlock, size_t size, size_t offset ) = 0;
+    virtual void setInputDataBlock(byte * inBlock, size_t size, size_t offset) = 0;
     /**
      * Associates an input data block with a compressor (or decompressor)
      * \param[in] inBlock %DataBlock to compress (or decompress)
      */
-    virtual void setInputDataBlock( DataBlock &inBlock ) = 0;
+    virtual void setInputDataBlock(DataBlock & inBlock) = 0;
     /**
      * Reports whether an output data block is full after a call to the run() method
      * \return True if an output data block is full, false otherwise
@@ -132,12 +132,12 @@ public:
      * \param[in] size       Number of bytes available in outBlock
      * \param[in] offset     Offset in bytes, the starting position for compression (or decompression) in outBlock
      */
-    virtual void run( byte *outBlock, size_t size, size_t offset ) = 0;
+    virtual void run(byte * outBlock, size_t size, size_t offset) = 0;
     /**
      * Performs compression (or decompression) of a data block
      * \param[out] outBlock %DataBlock where compression (or decompression) results are stored
      */
-    virtual void run( DataBlock &outBlock ) = 0;
+    virtual void run(DataBlock & outBlock) = 0;
 
     virtual ~CompressionIface() {}
 };
@@ -157,31 +157,31 @@ public:
     /**
      * \brief Compression constructor
      */
-    Compression(): _errors(new services::ErrorCollection())
+    Compression() : _errors(new services::ErrorCollection())
     {
         this->_errors->setCanThrow(false);
-        _isOutBlockFull = false;
+        _isOutBlockFull   = false;
         _usedOutBlockSize = 0;
     }
-    virtual void setInputDataBlock( byte *inBlock, size_t size, size_t offset ) = 0;
-    virtual void setInputDataBlock( DataBlock &inBlock ) = 0;
+    virtual void setInputDataBlock(byte * inBlock, size_t size, size_t offset) = 0;
+    virtual void setInputDataBlock(DataBlock & inBlock)                        = 0;
     bool isOutputDataBlockFull() { return _isOutBlockFull; }
     size_t getUsedOutputDataBlockSize() { return _usedOutBlockSize; }
-    virtual void run( byte *outBlock, size_t size, size_t offset ) = 0;
-    virtual void run( DataBlock &outBlock ) = 0;
+    virtual void run(byte * outBlock, size_t size, size_t offset) = 0;
+    virtual void run(DataBlock & outBlock)                        = 0;
     virtual ~Compression() {}
     /**
      * Basic checks of input block parameters
      * \param[in] inBlock  Pointer to the input data block
      * \param[in] size     Size in bytes of the input data block
      */
-    virtual void checkInputParams( byte *inBlock, size_t size )
+    virtual void checkInputParams(byte * inBlock, size_t size)
     {
-        if ( inBlock == NULL )
+        if (inBlock == NULL)
         {
             this->_errors->add(services::ErrorCompressionNullInputStream);
         }
-        if ( size == 0 )
+        if (size == 0)
         {
             this->_errors->add(services::ErrorCompressionEmptyInputStream);
         }
@@ -191,22 +191,19 @@ public:
      * \param[in] outBlock Pointer to output data block
      * \param[in] size      Size in bytes of the output data block
      */
-    virtual void checkOutputParams( byte *outBlock, size_t size )
+    virtual void checkOutputParams(byte * outBlock, size_t size)
     {
-        if ( outBlock == NULL )
+        if (outBlock == NULL)
         {
             this->_errors->add(services::ErrorCompressionNullOutputStream);
         }
-        if ( size == 0 )
+        if (size == 0)
         {
             this->_errors->add(services::ErrorCompressionEmptyOutputStream);
         }
     }
 
-    services::SharedPtr<services::ErrorCollection> getErrors()
-    {
-        return _errors;
-    }
+    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
 
 protected:
     bool _isOutBlockFull;
@@ -230,10 +227,7 @@ public:
     /**
      * \brief %Compressor constructor
      */
-    CompressorImpl() : Compression()
-    {
-        _isInitialized = false;
-    }
+    CompressorImpl() : Compression() { _isInitialized = false; }
     virtual ~CompressorImpl() {}
 
 protected:
@@ -256,16 +250,12 @@ public:
     /**
      * \brief %Decompressor constructor
      */
-    DecompressorImpl() : Compression()
-    {
-        _isInitialized = false;
-    }
+    DecompressorImpl() : Compression() { _isInitialized = false; }
     virtual ~DecompressorImpl() {}
 
 protected:
     virtual void initialize() { _isInitialized = true; }
     bool _isInitialized;
-
 };
 
 /**
@@ -279,7 +269,7 @@ protected:
  *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
  *      - CompressionParameter structure
  */
-template<CompressionMethod dcmethod>
+template <CompressionMethod dcmethod>
 class DAAL_EXPORT Compressor : public CompressorImpl
 {
 public:
@@ -301,7 +291,7 @@ public:
  *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
  *      - CompressionParameter structure
  */
-template<CompressionMethod dcmethod>
+template <CompressionMethod dcmethod>
 class DAAL_EXPORT Decompressor : public DecompressorImpl
 {
 public:

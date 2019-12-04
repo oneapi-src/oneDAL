@@ -40,31 +40,27 @@ namespace oneapi
 {
 namespace internal
 {
-
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 inline bool isFirstDataBlock(algorithmFPType nObservations)
 {
     return (nObservations < static_cast<algorithmFPType>(0.5));
 }
 
-template<typename algorithmFPType, Method method>
-services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::compute(
-    NumericTable *dataTable,
-    NumericTable *nObsTable,
-    NumericTable *crossProductTable,
-    NumericTable *sumTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method>
+services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::compute(NumericTable * dataTable, NumericTable * nObsTable,
+                                                                                     NumericTable * crossProductTable, NumericTable * sumTable,
+                                                                                     const Parameter * parameter)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseOnline);
     services::Status status;
 
-    auto& context = Environment::getInstance()->getDefaultExecutionContext();
-    algorithmFPType *nObservations = nullptr;
+    auto & context                       = Environment::getInstance()->getDefaultExecutionContext();
+    algorithmFPType * nObservations      = nullptr;
     algorithmFPType partialNObservations = 0.0;
 
     const size_t nFeatures  = dataTable->getNumberOfColumns();
     const size_t nVectors   = dataTable->getNumberOfRows();
-    partialNObservations = static_cast<algorithmFPType>(nVectors);
+    partialNObservations    = static_cast<algorithmFPType>(nVectors);
     const bool isNormalized = dataTable->isNormalized(NumericTableIface::standardScoreNormalized);
 
     BlockDescriptor<algorithmFPType> dataBlock;
@@ -101,26 +97,16 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
         auto partialSumBlock = context.allocate(TypeIds::id<algorithmFPType>(), nFeatures, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        status |= calculateCrossProductAndSums<algorithmFPType, method>(
-            dataTable,
-            partialCrossProductBlock.template get<algorithmFPType>(),
-            partialSumBlock.template get<algorithmFPType>());
+        status |= calculateCrossProductAndSums<algorithmFPType, method>(dataTable, partialCrossProductBlock.template get<algorithmFPType>(),
+                                                                        partialSumBlock.template get<algorithmFPType>());
         DAAL_CHECK_STATUS_VAR(status);
 
-        status |= mergeCrossProduct<algorithmFPType>(
-            nFeatures,
-            partialCrossProductBlock.template get<algorithmFPType>(),
-            partialSumBlock.template get<algorithmFPType>(),
-            partialNObservations,
-            crossProductBlock.getBuffer(),
-            sumBlock.getBuffer(),
-            *nObservations);
+        status |= mergeCrossProduct<algorithmFPType>(nFeatures, partialCrossProductBlock.template get<algorithmFPType>(),
+                                                     partialSumBlock.template get<algorithmFPType>(), partialNObservations,
+                                                     crossProductBlock.getBuffer(), sumBlock.getBuffer(), *nObservations);
         DAAL_CHECK_STATUS_VAR(status);
 
-        status |= mergeSums<algorithmFPType, method>(
-            nFeatures,
-            partialSumBlock.template get<algorithmFPType>(),
-            sumBlock.getBuffer());
+        status |= mergeSums<algorithmFPType, method>(nFeatures, partialSumBlock.template get<algorithmFPType>(), sumBlock.getBuffer());
         DAAL_CHECK_STATUS_VAR(status);
     }
 
@@ -143,21 +129,18 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
     return status;
 }
 
-template<typename algorithmFPType, Method method>
-services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::finalizeCompute(
-    NumericTable *nObservationsTable,
-    NumericTable *crossProductTable,
-    NumericTable *sumTable,
-    NumericTable *covTable,
-    NumericTable *meanTable,
-    const Parameter *parameter)
+template <typename algorithmFPType, Method method>
+services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::finalizeCompute(NumericTable * nObservationsTable,
+                                                                                             NumericTable * crossProductTable,
+                                                                                             NumericTable * sumTable, NumericTable * covTable,
+                                                                                             NumericTable * meanTable, const Parameter * parameter)
 {
     services::Status status;
 
-    auto& context = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = Environment::getInstance()->getDefaultExecutionContext();
 
-    const size_t nFeatures  = crossProductTable->getNumberOfColumns();
-    algorithmFPType *nObservations = nullptr;
+    const size_t nFeatures          = crossProductTable->getNumberOfColumns();
+    algorithmFPType * nObservations = nullptr;
 
     BlockDescriptor<algorithmFPType> dataBlock;
     BlockDescriptor<algorithmFPType> sumBlock;
@@ -185,14 +168,8 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::fin
         DAAL_ASSERT(nObservations != nullptr);
     }
 
-    status |= finalizeCovariance<algorithmFPType, method>(
-        nFeatures,
-        *nObservations,
-        crossProductBlock.getBuffer(),
-        sumBlock.getBuffer(),
-        covBlock.getBuffer(),
-        meanBlock.getBuffer(),
-        parameter);
+    status |= finalizeCovariance<algorithmFPType, method>(nFeatures, *nObservations, crossProductBlock.getBuffer(), sumBlock.getBuffer(),
+                                                          covBlock.getBuffer(), meanBlock.getBuffer(), parameter);
 
     {
         status |= sumTable->releaseBlockOfRows(sumBlock);
@@ -214,10 +191,10 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::fin
     return status;
 }
 
-} // internal
-} // oneapi
-} // covariance
-} // algorithms
-} // daal
+} // namespace internal
+} // namespace oneapi
+} // namespace covariance
+} // namespace algorithms
+} // namespace daal
 
 #endif

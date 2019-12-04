@@ -38,7 +38,6 @@ namespace algorithms
 {
 namespace pca
 {
-
 namespace interface1
 {
 /**
@@ -50,7 +49,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__DISTRIBUTEDCONTAINER"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm in the distributed processing mode
  */
-template<ComputeStep computeStep, typename algorithmFPType, Method method, CpuType cpu>
+template <ComputeStep computeStep, typename algorithmFPType, Method method, CpuType cpu>
 class DistributedContainer
 {};
 
@@ -58,13 +57,12 @@ class DistributedContainer
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__DISTRIBUTEDCONTAINER_STEP1LOCAL_ALGORITHMFPTYPE_CORRELATIONDENSE_CPU"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm on the local node
  */
-template<typename algorithmFPType, CpuType cpu>
-class DistributedContainer<step1Local, algorithmFPType, correlationDense, cpu> : public
-    OnlineContainer<algorithmFPType, correlationDense, cpu>
+template <typename algorithmFPType, CpuType cpu>
+class DistributedContainer<step1Local, algorithmFPType, correlationDense, cpu> : public OnlineContainer<algorithmFPType, correlationDense, cpu>
 {
 public:
     /** \brief Constructor */
-    DistributedContainer(daal::services::Environment::env *daalEnv) : OnlineContainer<algorithmFPType, correlationDense, cpu>(daalEnv) {};
+    DistributedContainer(daal::services::Environment::env * daalEnv) : OnlineContainer<algorithmFPType, correlationDense, cpu>(daalEnv) {};
     virtual ~DistributedContainer() {}
 };
 
@@ -72,7 +70,7 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__DISTRIBUTEDCONTAINER_STEP2MASTER_ALGORITHMFPTYPE_CORRELATIONDENSE_CPU"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm on the master node
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class DistributedContainer<step2Master, algorithmFPType, correlationDense, cpu> : public AnalysisContainerIface<distributed>
 {
 public:
@@ -81,7 +79,7 @@ public:
      * in the first step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~DistributedContainer();
 
@@ -97,17 +95,16 @@ public:
     services::Status finalizeCompute() DAAL_C11_OVERRIDE;
 };
 
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__DISTRIBUTEDCONTAINER_STEP1LOCAL_ALGORITHMFPTYPE_SVDDENSE_CPU"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm on the local node
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class DistributedContainer<step1Local, algorithmFPType, svdDense, cpu> : public OnlineContainer<algorithmFPType, svdDense, cpu>
 {
 public:
     /** \brief Constructor */
-    DistributedContainer(daal::services::Environment::env *daalEnv) : OnlineContainer<algorithmFPType, svdDense, cpu>(daalEnv) {};
+    DistributedContainer(daal::services::Environment::env * daalEnv) : OnlineContainer<algorithmFPType, svdDense, cpu>(daalEnv) {};
     virtual ~DistributedContainer() {}
 };
 
@@ -115,7 +112,7 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__DISTRIBUTEDCONTAINER_STEP2MASTER_ALGORITHMFPTYPE_SVDDENSE_CPU"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm on the master node
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class DistributedContainer<step2Master, algorithmFPType, svdDense, cpu> : public AnalysisContainerIface<distributed>
 {
 public:
@@ -124,7 +121,7 @@ public:
      * in the second step of the distributed processing mode
      * \param[in] daalEnv   Environment object
      */
-    DistributedContainer(daal::services::Environment::env *daalEnv);
+    DistributedContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~DistributedContainer();
 
@@ -154,8 +151,9 @@ public:
  * \par References
  *      - \ref interface1::DistributedParameter class
  */
-template<ComputeStep computeStep, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = correlationDense>
-class DAAL_EXPORT Distributed : public Analysis<distributed> {};
+template <ComputeStep computeStep, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = correlationDense>
+class DAAL_EXPORT Distributed : public Analysis<distributed>
+{};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__DISTRIBUTED_STEP1LOCAL_ALGORITHMFPTYPE_METHOD"></a>
@@ -171,15 +169,15 @@ class DAAL_EXPORT Distributed : public Analysis<distributed> {};
  * \par References
  *      - \ref interface1::DistributedParameter class
  */
-template<typename algorithmFPType, Method method>
+template <typename algorithmFPType, Method method>
 class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
 {
 public:
     typedef Online<algorithmFPType, method> super;
 
-    typedef typename super::InputType         InputType;
-    typedef typename super::ParameterType     ParameterType;
-    typedef typename super::ResultType        ResultType;
+    typedef typename super::InputType InputType;
+    typedef typename super::ParameterType ParameterType;
+    typedef typename super::ResultType ResultType;
     typedef typename super::PartialResultType PartialResultType;
 
     /** Default constructor */
@@ -190,9 +188,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step1Local, algorithmFPType, method> &other) :
-        Online<algorithmFPType, method>(other)
-    {}
+    Distributed(const Distributed<step1Local, algorithmFPType, method> & other) : Online<algorithmFPType, method>(other) {}
 
     /**
      * Returns a pointer to the newly allocated PCA algorithm
@@ -218,28 +214,24 @@ protected:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the PCA algorithm, double or float
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class DAAL_EXPORT Distributed<step2Master, algorithmFPType, correlationDense> : public Analysis<distributed>
 {
 public:
-    typedef algorithms::pca::DistributedInput<correlationDense>                                   InputType;
+    typedef algorithms::pca::DistributedInput<correlationDense> InputType;
     typedef algorithms::pca::DistributedParameter<step2Master, algorithmFPType, correlationDense> ParameterType;
-    typedef algorithms::pca::Result                                                               ResultType;
-    typedef algorithms::pca::PartialResult<correlationDense>                                      PartialResultType;
+    typedef algorithms::pca::Result ResultType;
+    typedef algorithms::pca::PartialResult<correlationDense> PartialResultType;
 
     /** Default constructor */
-    Distributed()
-    {
-        initialize();
-    }
+    Distributed() { initialize(); }
 
     /**
      * Constructs a PCA algorithm by copying input objects and parameters of another PCA algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, correlationDense> &other) :
-        input(other.input), parameter(other.parameter)
+    Distributed(const Distributed<step2Master, algorithmFPType, correlationDense> & other) : input(other.input), parameter(other.parameter)
     {
         initialize();
     }
@@ -250,17 +242,17 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)correlationDense; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)correlationDense; }
 
     /**
      * Registers user-allocated memory to store  partial results of the PCA algorithm
      * \param[in] partialResult    Structure for storing partial results of the PCA algorithm
      */
-    services::Status setPartialResult(const services::SharedPtr<PartialResult<correlationDense> >& partialResult)
+    services::Status setPartialResult(const services::SharedPtr<PartialResult<correlationDense> > & partialResult)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult);
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -280,11 +272,11 @@ public:
      * Registers user-allocated memory to store the results of the PCA algorithm
      * \param[in] res    Structure to store the results of the PCA algorithm
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -292,10 +284,7 @@ public:
      * Returns the structure that contains the results of the PCA algorithm
      * \return Structure that contains the results of the PCA algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Returns a pointer to the newly allocated PCA algorithm
@@ -307,7 +296,7 @@ public:
         return services::SharedPtr<Distributed<step2Master, algorithmFPType, correlationDense> >(cloneImpl());
     }
 
-    DistributedInput<correlationDense> input; /*!< Input object */
+    DistributedInput<correlationDense> input;                                       /*!< Input object */
     DistributedParameter<step2Master, algorithmFPType, correlationDense> parameter; /*!< Parameters */
 
 protected:
@@ -321,15 +310,15 @@ protected:
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s =_result->allocate<algorithmFPType>(_pres, &parameter, correlationDense);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(_pres, &parameter, correlationDense);
+        _res               = _result.get();
         return s;
     }
 
     services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->allocate<algorithmFPType>(&input, &parameter, correlationDense);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
@@ -337,8 +326,8 @@ protected:
 
     void initialize()
     {
-        _ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, correlationDense)(&_env);
-        _in = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, correlationDense)(&_env);
+        _in  = &input;
         _par = &parameter;
         _partialResult.reset(new PartialResult<correlationDense>());
         _result.reset(new ResultType());
@@ -352,31 +341,24 @@ protected:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the PCA algorithm, double or float
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class DAAL_EXPORT Distributed<step2Master, algorithmFPType, svdDense> : public Analysis<distributed>
 {
 public:
-    typedef algorithms::pca::DistributedInput<svdDense>                                   InputType;
+    typedef algorithms::pca::DistributedInput<svdDense> InputType;
     typedef algorithms::pca::DistributedParameter<step2Master, algorithmFPType, svdDense> ParameterType;
-    typedef algorithms::pca::Result                                                       ResultType;
-    typedef algorithms::pca::PartialResult<svdDense>                                      PartialResultType;
+    typedef algorithms::pca::Result ResultType;
+    typedef algorithms::pca::PartialResult<svdDense> PartialResultType;
 
     /** Default constructor */
-    Distributed()
-    {
-        initialize();
-    }
+    Distributed() { initialize(); }
 
     /**
      * Constructs a PCA algorithm by copying input objects and parameters of another PCA algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, svdDense> &other) :
-        input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Distributed(const Distributed<step2Master, algorithmFPType, svdDense> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     ~Distributed() {}
 
@@ -384,17 +366,17 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)svdDense; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)svdDense; }
 
     /**
      * Registers user-allocated memory to store  partial results of the PCA algorithm
      * \param[in] partialResult    Structure for storing partial results of the PCA algorithm
      */
-    services::Status setPartialResult(const services::SharedPtr<PartialResult<svdDense> >& partialResult)
+    services::Status setPartialResult(const services::SharedPtr<PartialResult<svdDense> > & partialResult)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult);
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -402,20 +384,17 @@ public:
      * Returns structure that contains computed partial results of the PCA algorithm
      * \return Structure that contains partial results of the PCA algorithm
      */
-    services::SharedPtr<PartialResult<svdDense> > getPartialResult()
-    {
-        return _partialResult;
-    }
+    services::SharedPtr<PartialResult<svdDense> > getPartialResult() { return _partialResult; }
 
     /**
      * Registers user-allocated memory to store the results of the PCA algorithm
      * \param[in] res    Structure to store the results of the PCA algorithm
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -423,10 +402,7 @@ public:
      * Returns the structure that contains the results of the PCA algorithm
      * \return Structure that contains the results of the PCA algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Returns a pointer to the newly allocated PCA algorithm
@@ -438,7 +414,7 @@ public:
         return services::SharedPtr<Distributed<step2Master, algorithmFPType, svdDense> >(cloneImpl());
     }
 
-    DistributedInput<svdDense> input; /*!< Input object */
+    DistributedInput<svdDense> input;                                       /*!< Input object */
     DistributedParameter<step2Master, algorithmFPType, svdDense> parameter; /*!< Parameters */
 
 protected:
@@ -453,22 +429,22 @@ protected:
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(_pres, &parameter, svdDense);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->allocate<algorithmFPType>(&input, &parameter, svdDense);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
-    services::Status initializePartialResult() DAAL_C11_OVERRIDE{ return services::Status(); }
+    services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
 
     void initialize()
     {
-        _ac = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, svdDense)(&_env);
-        _in = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, svdDense)(&_env);
+        _in  = &input;
         _par = &parameter;
         _partialResult.reset(new PartialResult<svdDense>());
         _result.reset(new ResultType());
@@ -479,8 +455,8 @@ protected:
 using interface1::DistributedContainer;
 using interface1::Distributed;
 
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal
 
 #endif

@@ -73,9 +73,9 @@ class DAAL_EXPORT Batch : public classifier::training::interface1::Batch
 public:
     typedef classifier::training::interface1::Batch super;
 
-    typedef super::InputType                InputType;
+    typedef super::InputType InputType;
     typedef algorithms::boosting::Parameter ParameterType;
-    typedef super::ResultType               ResultType;
+    typedef super::ResultType ResultType;
 
     virtual ~Batch() {}
 
@@ -84,10 +84,7 @@ public:
      * and parameters of this %boosting classifier training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch> clone() const
-    {
-        return services::SharedPtr<Batch>(cloneImpl());
-    }
+    services::SharedPtr<Batch> clone() const { return services::SharedPtr<Batch>(cloneImpl()); }
 
 protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
@@ -97,8 +94,8 @@ protected:
 } // namespace interface1
 using interface1::Batch;
 
-} // namespace daal::algorithms::boosting::training
-}
-}
-}
+} // namespace training
+} // namespace boosting
+} // namespace algorithms
+} // namespace daal
 #endif // __BOOSTING_TRAINING_BATCH_H__

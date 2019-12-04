@@ -47,7 +47,7 @@ services::Status Parameter::check() const
     DAAL_CHECK_STATUS(s, decision_forest::training::checkImpl(*this));
     return s;
 }
-}
+} // namespace interface1
 
 } // namespace training
 } // namespace classification

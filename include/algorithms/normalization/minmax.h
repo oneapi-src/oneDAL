@@ -38,7 +38,6 @@ namespace normalization
 {
 namespace minmax
 {
-
 namespace interface1
 {
 /** @defgroup minmax_batch Batch
@@ -54,7 +53,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the min-max normalization algorithms, double or float
  * \tparam method           Min-max normalization computation method, daal::algorithms::normalization::minmax::Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -63,7 +62,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
 
     virtual ~BatchContainer();
 
@@ -88,32 +87,26 @@ public:
  *      - daal::algorithms::normalization::minmax::InputId  Identifiers of min-max normalization input objects
  *      - daal::algorithms::normalization::minmax::ResultId Identifiers of min-max normalization results
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::normalization::minmax::Input                      InputType;
+    typedef algorithms::normalization::minmax::Input InputType;
     typedef algorithms::normalization::minmax::Parameter<algorithmFPType> ParameterType;
-    typedef algorithms::normalization::minmax::Result                     ResultType;
+    typedef algorithms::normalization::minmax::Result ResultType;
 
-    InputType input;          /*!< %input data structure */
-    Parameter<algorithmFPType> parameter;  /*!< Parameters */
+    InputType input;                      /*!< %input data structure */
+    Parameter<algorithmFPType> parameter; /*!< Parameters */
 
     /** Default constructor */
-    Batch()
-    {
-        initialize();
-    }
+    Batch() { initialize(); }
 
     /**
      * Constructs min-max normalization algorithm by copying input objects
      * of another min-max normalization algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     virtual ~Batch() {}
 
@@ -121,16 +114,13 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains computed results of the min-max normalization
      * \return Structure that contains computed results of the min-max normalization
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory to store results of the min-max normalization algorithms
@@ -138,11 +128,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr &result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -151,34 +141,27 @@ public:
      * with a copy of input objects of this min-max normalization algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = &parameter;
+        _in                  = &input;
+        _par                 = &parameter;
         _result.reset(new ResultType());
     }
 
     ResultPtr _result;
-
 };
 /** @} */
 } // namespace interface1

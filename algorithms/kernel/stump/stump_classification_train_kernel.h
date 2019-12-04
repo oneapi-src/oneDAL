@@ -43,23 +43,22 @@ namespace training
 {
 namespace internal
 {
-
-template <Method method, typename algorithmFPtype , CpuType cpu>
+template <Method method, typename algorithmFPtype, CpuType cpu>
 class StumpTrainKernel : public Kernel
 {
 public:
-    services::Status compute(size_t n, const NumericTable *const *a, Model *r, const Parameter *par);
+    services::Status compute(size_t n, const NumericTable * const * a, Model * r, const Parameter * par);
 
 private:
-    services::Status changeMinusOneToZero(NumericTable *yTable);
-    services::Status changeZeroToMinusOne(NumericTable *yTable);
+    services::Status changeMinusOneToZero(NumericTable * yTable);
+    services::Status changeZeroToMinusOne(NumericTable * yTable);
 };
 
-} // namespace daal::algorithms::stump::classification::training::internal
-}
-}
-}
-}
+} // namespace internal
+} // namespace training
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

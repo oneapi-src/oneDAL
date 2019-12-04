@@ -31,27 +31,20 @@ using namespace daal::algorithms;
  * Method:    cCompute
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cCompute
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cCompute(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Training<online> > alg =
-        staticPointerCast<Training<online>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Training<online> > alg = staticPointerCast<Training<online>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->compute());
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_TrainingOnline
  * Method:    cFinalizeCompute
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cFinalizeCompute
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cFinalizeCompute(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Training<online> > alg =
-        staticPointerCast<Training<online>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Training<online> > alg = staticPointerCast<Training<online>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->finalizeCompute());
 }
 
@@ -60,27 +53,20 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cFinalizeCo
  * Method:    cCheckComputeParams
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cCheckComputeParams
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cCheckComputeParams(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Training<online> > alg =
-        staticPointerCast<Training<online>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Training<online> > alg = staticPointerCast<Training<online>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->checkComputeParams());
 }
-
 
 /*
  * Class:     com_intel_daal_algorithms_TrainingOnline
  * Method:    cCheckFinalizeComputeParams
  * Signature:(J)I
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cCheckFinalizeComputeParams
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cCheckFinalizeComputeParams(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    SharedPtr<Training<online> > alg =
-        staticPointerCast<Training<online>, AlgorithmIface>
-            (*(SharedPtr<AlgorithmIface> *)algAddr);
+    SharedPtr<Training<online> > alg = staticPointerCast<Training<online>, AlgorithmIface>(*(SharedPtr<AlgorithmIface> *)algAddr);
     DAAL_CHECK_THROW(alg->checkFinalizeComputeParams());
 }
 
@@ -89,8 +75,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cCheckFinal
  * Method:    cDispose
  * Signature:(J)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cDispose
-(JNIEnv *env, jobject thisObj, jlong algAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_TrainingOnline_cDispose(JNIEnv * env, jobject thisObj, jlong algAddr)
 {
-    delete(SharedPtr<AlgorithmIface> *)algAddr;
+    delete (SharedPtr<AlgorithmIface> *)algAddr;
 }

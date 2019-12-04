@@ -41,7 +41,7 @@ namespace internal
 {
 template class PredictKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }
-}// namespace prediction
-}// namespace logistic_regression
-}// namespace algorithms
-}// namespace daal
+} // namespace prediction
+} // namespace logistic_regression
+} // namespace algorithms
+} // namespace daal

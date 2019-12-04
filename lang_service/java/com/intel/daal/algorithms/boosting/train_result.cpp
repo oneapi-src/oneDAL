@@ -33,21 +33,18 @@ using namespace daal::services;
  * Method:    cGetMinimum
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_boosting_training_TrainingResult_cGetModel
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_boosting_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj, jlong resAddr,
+                                                                                                  jint id)
 {
-    boosting::ModelPtr *m = new boosting::ModelPtr();
+    boosting::ModelPtr * m = new boosting::ModelPtr();
     classifier::training::ResultPtr res =
         services::staticPointerCast<classifier::training::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
 
     jlong resModel = 0;
-    switch(id)
+    switch (id)
     {
-    case ModelResult:
-        *m = services::staticPointerCast<boosting::Model, classifier::Model>(res->get(classifier::training::model));
-        break;
-    default:
-        break;
+    case ModelResult: *m = services::staticPointerCast<boosting::Model, classifier::Model>(res->get(classifier::training::model)); break;
+    default: break;
     }
     return (jlong)m;
 }

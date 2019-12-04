@@ -29,7 +29,6 @@
 #include "numeric_table.h"
 #include "algorithm_base_common.h"
 
-
 namespace daal
 {
 namespace algorithms
@@ -42,26 +41,25 @@ namespace group_of_betas
 {
 namespace internal
 {
-
 using namespace daal::data_management;
 
-template<Method method, typename algorithmFPType, CpuType cpu>
+template <Method method, typename algorithmFPType, CpuType cpu>
 class GroupOfBetasKernel : public daal::algorithms::Kernel
 {
 public:
     virtual ~GroupOfBetasKernel() {}
-    services::Status compute(const NumericTable* y, const NumericTable* z, const NumericTable* zReducedModel,
-        size_t numBeta, size_t numBetaReducedModel, algorithmFPType accuracyThreshold, NumericTable* out[]);
+    services::Status compute(const NumericTable * y, const NumericTable * z, const NumericTable * zReducedModel, size_t numBeta,
+                             size_t numBetaReducedModel, algorithmFPType accuracyThreshold, NumericTable * out[]);
 
 protected:
     static const size_t _nRowsInBlock = 1024;
 };
 
-}
-}
-}
-}
-}
-}
+} // namespace internal
+} // namespace group_of_betas
+} // namespace quality_metric
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 
 #endif

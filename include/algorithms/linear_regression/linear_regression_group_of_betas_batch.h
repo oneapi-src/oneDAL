@@ -57,12 +57,12 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations of the quality metric, double or float
  * \tparam method           Computation method for the metric, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
     /** Default constructor */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     virtual ~BatchContainer();
 
@@ -86,22 +86,19 @@ public:
  *      - \ref DataInputId    Identifiers of input objects for the metric algorithm
  *      - \ref ResultId       Result identifiers for the metric algorithm
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public daal::algorithms::quality_metric::Batch
 {
 public:
-    typedef algorithms::linear_regression::quality_metric::group_of_betas::Input     InputType;
+    typedef algorithms::linear_regression::quality_metric::group_of_betas::Input InputType;
     typedef algorithms::linear_regression::quality_metric::group_of_betas::Parameter ParameterType;
-    typedef algorithms::linear_regression::quality_metric::group_of_betas::Result    ResultType;
+    typedef algorithms::linear_regression::quality_metric::group_of_betas::Result ResultType;
 
-    InputType input;            /*!< %Input objects of the algorithm */
-    ParameterType parameter;    /*!< Parameters of the algorithm */
+    InputType input;         /*!< %Input objects of the algorithm */
+    ParameterType parameter; /*!< Parameters of the algorithm */
 
     /** Default constructor */
-    Batch(size_t nBeta, size_t nBetaReducedModel) : parameter(nBeta, nBetaReducedModel)
-    {
-        initialize();
-    }
+    Batch(size_t nBeta, size_t nBetaReducedModel) : parameter(nBeta, nBetaReducedModel) { initialize(); }
 
     /**
      * Constructs an algorithm by copying input objects and parameters
@@ -109,7 +106,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> &other): parameter(other.parameter)
+    Batch(const Batch<algorithmFPType, method> & other) : parameter(other.parameter)
     {
         initialize();
         input.set(expectedResponses, other.input.get(expectedResponses));
@@ -121,16 +118,13 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int) method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of the algorithm
      * \return Structure that contains results of the algorithm
      */
-    ResultPtr getResult() const
-    {
-        return _result;
-    }
+    ResultPtr getResult() const { return _result; }
 
     /**
      * Registers user-allocated memory to store results of the algorithm
@@ -138,11 +132,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -150,9 +144,9 @@ public:
      * Registers user-allocated memory to store the input object for the algorithm
      * \param[in] other  Structure to store the input object for the algorithm
      */
-    virtual void setInput(const algorithms::Input *other) DAAL_C11_OVERRIDE
+    virtual void setInput(const algorithms::Input * other) DAAL_C11_OVERRIDE
     {
-        const InputType *inputPtr = static_cast<const InputType *>(other);
+        const InputType * inputPtr = static_cast<const InputType *>(other);
         input.set(expectedResponses, inputPtr->get(expectedResponses));
         input.set(predictedResponses, inputPtr->get(predictedResponses));
         input.set(predictedReducedModelResponses, inputPtr->get(predictedReducedModelResponses));
@@ -163,34 +157,25 @@ public:
      * and parameters of this algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int) method);
-        _res = _result.get();
+        services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
+        _res               = _result.get();
         return s;
     }
 
-    virtual algorithms::ResultPtr getResultImpl() const DAAL_C11_OVERRIDE
-    {
-        return _result;
-    }
+    virtual algorithms::ResultPtr getResultImpl() const DAAL_C11_OVERRIDE { return _result; }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
-        _par = &parameter;
+        _in                  = &input;
+        _par                 = &parameter;
         _result.reset(new ResultType());
     }
 
@@ -202,9 +187,9 @@ private:
 using interface1::BatchContainer;
 using interface1::Batch;
 
-}
-}
-}
-}
-}
+} // namespace group_of_betas
+} // namespace quality_metric
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal
 #endif

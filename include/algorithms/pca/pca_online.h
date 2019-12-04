@@ -36,7 +36,6 @@ namespace algorithms
 {
 namespace pca
 {
-
 namespace interface1
 {
 /**
@@ -48,14 +47,15 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__ONLINECONTAINER"></a>
  * \brief Class containing methods to compute the result of the PCA algorithm
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
-class OnlineContainer : public AnalysisContainerIface<online> {};
+template <typename algorithmFPType, Method method, CpuType cpu>
+class OnlineContainer : public AnalysisContainerIface<online>
+{};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__ONLINECONTAINER_ALGORITHMFPTYPE_CORRELATIONDENSE_CPU"></a>
  * \brief Class containing methods to compute the result of the PCA algorithm
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class OnlineContainer<algorithmFPType, correlationDense, cpu> : public AnalysisContainerIface<online>
 {
 public:
@@ -64,7 +64,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~OnlineContainer();
 
@@ -82,7 +82,7 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__ONLINECONTAINER_ALGORITHMFPTYPE_SVDDENSE_CPU"></a>
  * \brief Class containing methods to compute the results of the PCA algorithm
  */
-template<typename algorithmFPType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class OnlineContainer<algorithmFPType, svdDense, cpu> : public AnalysisContainerIface<online>
 {
 public:
@@ -91,7 +91,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~OnlineContainer();
 
@@ -112,8 +112,9 @@ public:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the PCA algorithm, double or float
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = correlationDense>
-class DAAL_EXPORT Online : public Analysis<online> {};
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = correlationDense>
+class DAAL_EXPORT Online : public Analysis<online>
+{};
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__ONLINE_ALGORITHMFPTYPE_CORRELATIONDENSE"></a>
@@ -122,30 +123,24 @@ class DAAL_EXPORT Online : public Analysis<online> {};
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the PCA algorithm, double or float
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class DAAL_EXPORT Online<algorithmFPType, correlationDense> : public Analysis<online>
 {
 public:
-    typedef algorithms::pca::Input                                              InputType;
+    typedef algorithms::pca::Input InputType;
     typedef algorithms::pca::OnlineParameter<algorithmFPType, correlationDense> ParameterType;
-    typedef algorithms::pca::Result                                             ResultType;
-    typedef algorithms::pca::PartialResult<correlationDense>                    PartialResultType;
+    typedef algorithms::pca::Result ResultType;
+    typedef algorithms::pca::PartialResult<correlationDense> PartialResultType;
 
     /** Default constructor */
-    Online()
-    {
-        initialize();
-    }
+    Online() { initialize(); }
 
     /**
      * Constructs a PCA algorithm by copying input objects and parameters of another PCA algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online<algorithmFPType, correlationDense> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Online(const Online<algorithmFPType, correlationDense> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     ~Online() {}
 
@@ -153,17 +148,17 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    int getMethod() const DAAL_C11_OVERRIDE { return(int)correlationDense; }
+    int getMethod() const DAAL_C11_OVERRIDE { return (int)correlationDense; }
 
     /**
      * Registers user-allocated  memory to store the results of the PCA algorithm
      * \param[in] partialResult    Structure for storing partial result of the PCA algorithm
      */
-    services::Status setPartialResult(const services::SharedPtr<PartialResult<correlationDense> >& partialResult)
+    services::Status setPartialResult(const services::SharedPtr<PartialResult<correlationDense> > & partialResult)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult);
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -171,11 +166,11 @@ public:
      * Registers user-allocated memory to store the results of the PCA algorithm
      * \param[in] res    Structure to store the results of the PCA algorithm
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -183,19 +178,13 @@ public:
      * Returns the structure that contains partial results of the PCA algorithm
      * \return Structure that contains partial results of the PCA algorithm
      */
-    services::SharedPtr<PartialResult<correlationDense> > getPartialResult()
-    {
-        return _partialResult;
-    }
+    services::SharedPtr<PartialResult<correlationDense> > getPartialResult() { return _partialResult; }
 
     /**
      * Returns structure that contains the results of the PCA algorithm
      * \return Structure that contains the results of the PCA algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Returns a pointer to the newly allocated PCA algorithm
@@ -207,7 +196,7 @@ public:
         return services::SharedPtr<Online<algorithmFPType, correlationDense> >(cloneImpl());
     }
 
-    InputType input; /*!< Input data structure */
+    InputType input;                                              /*!< Input data structure */
     OnlineParameter<algorithmFPType, correlationDense> parameter; /*!< Parameters */
 
 protected:
@@ -222,28 +211,28 @@ protected:
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(_pres, &parameter, correlationDense);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->allocate<algorithmFPType>(&input, &parameter, correlationDense);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
     services::Status initializePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->initialize<algorithmFPType>(&input, &parameter, correlationDense);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
     void initialize()
     {
         _ac  = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, correlationDense)(&_env);
-        _in = &input;
+        _in  = &input;
         _par = &parameter;
         _partialResult.reset(new PartialResult<correlationDense>());
         _result.reset(new ResultType());
@@ -257,30 +246,24 @@ protected:
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations of the PCA algorithm, double or float
  */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 class DAAL_EXPORT Online<algorithmFPType, svdDense> : public Analysis<online>
 {
 public:
-    typedef algorithms::pca::Input                                      InputType;
+    typedef algorithms::pca::Input InputType;
     typedef algorithms::pca::OnlineParameter<algorithmFPType, svdDense> ParameterType;
-    typedef algorithms::pca::Result                                     ResultType;
-    typedef algorithms::pca::PartialResult<svdDense>                    PartialResultType;
+    typedef algorithms::pca::Result ResultType;
+    typedef algorithms::pca::PartialResult<svdDense> PartialResultType;
 
     /** Default constructor */
-    Online()
-    {
-        initialize();
-    }
+    Online() { initialize(); }
 
     /**
      * Constructs a PCA algorithm by copying input objects and parameters of another PCA algorithm
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online<algorithmFPType, svdDense> &other) : input(other.input), parameter(other.parameter)
-    {
-        initialize();
-    }
+    Online(const Online<algorithmFPType, svdDense> & other) : input(other.input), parameter(other.parameter) { initialize(); }
 
     ~Online() {}
 
@@ -288,17 +271,17 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    int getMethod() const DAAL_C11_OVERRIDE { return(int)svdDense; }
+    int getMethod() const DAAL_C11_OVERRIDE { return (int)svdDense; }
 
     /**
      * Registers user-allocated  memory to store the results of the PCA algorithm
      * \param[in] partialResult    Structure for storing partial result of the PCA algorithm
      */
-    services::Status setPartialResult(const services::SharedPtr<PartialResult<svdDense> >& partialResult)
+    services::Status setPartialResult(const services::SharedPtr<PartialResult<svdDense> > & partialResult)
     {
         DAAL_CHECK(partialResult, services::ErrorNullPartialResult);
         _partialResult = partialResult;
-        _pres = _partialResult.get();
+        _pres          = _partialResult.get();
         return services::Status();
     }
 
@@ -306,11 +289,11 @@ public:
      * Registers user-allocated memory to store the results of the PCA algorithm
      * \param[in] res    Structure to store the results of the PCA algorithm
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -318,19 +301,13 @@ public:
      * Returns the structure that contains partial results of the PCA algorithm
      * \return Structure that contains partial results of the PCA algorithm
      */
-    services::SharedPtr<PartialResult<svdDense> > getPartialResult()
-    {
-        return _partialResult;
-    }
+    services::SharedPtr<PartialResult<svdDense> > getPartialResult() { return _partialResult; }
 
     /**
      * Returns structure that contains the results of the PCA algorithm
      * \return Structure that contains the results of the PCA algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Returns a pointer to the newly allocated PCA algorithm
@@ -342,43 +319,40 @@ public:
         return services::SharedPtr<Online<algorithmFPType, svdDense> >(cloneImpl());
     }
 
-    InputType input; /*!< Input data structure */
+    InputType input;                                      /*!< Input data structure */
     OnlineParameter<algorithmFPType, svdDense> parameter; /*!< Parameters */
 
 protected:
     services::SharedPtr<PartialResult<svdDense> > _partialResult;
     ResultPtr _result;
 
-    virtual Online<algorithmFPType, svdDense> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Online<algorithmFPType, svdDense>(*this);
-    }
+    virtual Online<algorithmFPType, svdDense> * cloneImpl() const DAAL_C11_OVERRIDE { return new Online<algorithmFPType, svdDense>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(_pres, &parameter, svdDense);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
     services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->allocate<algorithmFPType>(&input, &parameter, svdDense);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
     services::Status initializePartialResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _partialResult->initialize<algorithmFPType>(&input, &parameter, svdDense);
-        _pres = _partialResult.get();
+        _pres              = _partialResult.get();
         return s;
     }
 
     void initialize()
     {
         _ac  = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, svdDense)(&_env);
-        _in = &input;
+        _in  = &input;
         _par = &parameter;
         _partialResult.reset(new PartialResult<svdDense>());
         _result.reset(new ResultType());
@@ -389,7 +363,7 @@ protected:
 using interface1::OnlineContainer;
 using interface1::Online;
 
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal
 #endif

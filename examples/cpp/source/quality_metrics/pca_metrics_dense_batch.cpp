@@ -38,16 +38,15 @@ using namespace daal::algorithms::pca::quality_metric_set;
 
 /* Input data set parameters */
 const string dataFileName = "../data/batch/pca_normalized.csv";
-const size_t nVectors = 1000;
-const size_t nComponents = 5;
+const size_t nVectors     = 1000;
+const size_t nComponents  = 5;
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     checkArguments(argc, argv, 1, &dataFileName);
 
     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(dataFileName, DataSource::doAllocateNumericTable,
-        DataSource::doDictionaryFromContext);
+    FileDataSource<CSVFeatureManager> dataSource(dataFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
 
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock(nVectors);
@@ -64,8 +63,7 @@ int main(int argc, char *argv[])
     /* Create a quality metrics algorithm for explained variances, explained variances ratios and noise_variance */
     pca::quality_metric_set::Batch qms(nComponents);
 
-    services::SharedPtr<algorithms::Input> algInput =
-        qms.getInputDataCollection()->getInput(explainedVariancesMetrics);
+    services::SharedPtr<algorithms::Input> algInput = qms.getInputDataCollection()->getInput(explainedVariancesMetrics);
 
     explained_variance::InputPtr varianceMetrics = explained_variance::Input::cast(algInput);
     varianceMetrics->set(explained_variance::eigenvalues, algorithm.getResult()->get(pca::eigenvalues));
@@ -74,14 +72,10 @@ int main(int argc, char *argv[])
     qms.compute();
 
     /* Output quality metrics of the PCA algorithm */
-    explained_variance::ResultPtr qmsResult = explained_variance::Result::cast
-    (qms.getResultCollection()->getResult(explainedVariancesMetrics));
-    printNumericTable(qmsResult->get(explained_variance::explainedVariances),
-        "Explained variances:");
-    printNumericTable(qmsResult->get(explained_variance::explainedVariancesRatios),
-        "Explained variance ratios:");
-    printNumericTable(qmsResult->get(explained_variance::noiseVariance),
-        "Noise variance:");
+    explained_variance::ResultPtr qmsResult = explained_variance::Result::cast(qms.getResultCollection()->getResult(explainedVariancesMetrics));
+    printNumericTable(qmsResult->get(explained_variance::explainedVariances), "Explained variances:");
+    printNumericTable(qmsResult->get(explained_variance::explainedVariancesRatios), "Explained variance ratios:");
+    printNumericTable(qmsResult->get(explained_variance::noiseVariance), "Noise variance:");
 
     return 0;
 }

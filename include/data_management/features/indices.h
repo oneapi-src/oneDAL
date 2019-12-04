@@ -32,7 +32,6 @@ namespace features
 {
 namespace interface1
 {
-
 /**
  * Type that represents index of the feature in the data set
  */
@@ -48,18 +47,12 @@ public:
     /**
      * Returns the index that describes invalid value of FeatureIndex
      */
-    static FeatureIndex invalid()
-    {
-        return (std::numeric_limits<FeatureIndex>::max)();
-    }
+    static FeatureIndex invalid() { return (std::numeric_limits<FeatureIndex>::max)(); }
 
     /**
      * Returns maximal available value of FeatureIndex
      */
-    static FeatureIndex maxIndex()
-    {
-        return (std::numeric_limits<FeatureIndex>::max)() - 1;
-    }
+    static FeatureIndex maxIndex() { return (std::numeric_limits<FeatureIndex>::max)() - 1; }
 
 private:
     FeatureIndexTraits();
@@ -72,7 +65,7 @@ private:
 class FeatureIndicesIface
 {
 public:
-    virtual ~FeatureIndicesIface() { }
+    virtual ~FeatureIndicesIface() {}
 
     /**
      * Returns the number of feature indices in the collection
@@ -119,7 +112,8 @@ typedef services::SharedPtr<FeatureIndicesIface> FeatureIndicesIfacePtr;
  * \brief Base class that represents the collection of feature indices,
  *        intended for inheritance from the user side
  */
-class FeatureIndices : public Base, public FeatureIndicesIface { };
+class FeatureIndices : public Base, public FeatureIndicesIface
+{};
 typedef services::SharedPtr<FeatureIndices> FeatureIndicesPtr;
 
 } // namespace interface1

@@ -37,11 +37,12 @@ services::Status Parameter::check() const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, interface1::ParameterBase::check());
-    DAAL_CHECK_EX((accuracyThreshold > 0) && (accuracyThreshold < 1), services::ErrorIncorrectParameter, services::ParameterName, accuracyThresholdStr());
+    DAAL_CHECK_EX((accuracyThreshold > 0) && (accuracyThreshold < 1), services::ErrorIncorrectParameter, services::ParameterName,
+                  accuracyThresholdStr());
     DAAL_CHECK_EX(maxIterations, services::ErrorIncorrectParameter, services::ParameterName, maxIterationsStr());
     return s;
 }
-}
-}
-}
-}
+} // namespace interface1
+} // namespace multi_class_classifier
+} // namespace algorithms
+} // namespace daal

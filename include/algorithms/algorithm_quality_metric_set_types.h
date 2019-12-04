@@ -33,7 +33,6 @@ namespace algorithms
 {
 namespace quality_metric_set
 {
-
 /**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -63,7 +62,7 @@ public:
      * \param[in] k     Key value
      * \return Reference to SharedPtr of the quality_metric::Batch type
      */
-    const services::SharedPtr<quality_metric::Batch>& operator[](size_t k) const;
+    const services::SharedPtr<quality_metric::Batch> & operator[](size_t k) const;
 
     /**
      * Returns a reference to SharedPtr for a stored object with a given key if an object with such key is registered.
@@ -71,7 +70,7 @@ public:
      * \param[in] k     Key value
      * \return Reference to SharedPtr of the quality_metric::Batch type
      */
-    services::SharedPtr<quality_metric::Batch>& operator[](size_t k);
+    services::SharedPtr<quality_metric::Batch> & operator[](size_t k);
 
     /**
      *  Returns the number of stored elements
@@ -94,7 +93,7 @@ public:
 protected:
     services::Collection<services::SharedPtr<quality_metric::Batch> > _qualityMetrics;
     services::Collection<size_t> _keys;
-    services::SharedPtr<quality_metric::Batch> *nullPtr;
+    services::SharedPtr<quality_metric::Batch> * nullPtr;
 };
 
 /**
@@ -111,7 +110,7 @@ public:
      * \param[in] k     Key value
      * \param[in] ptr   Shared pointer to the element
      */
-    void add(size_t k, const algorithms::InputPtr& ptr);
+    void add(size_t k, const algorithms::InputPtr & ptr);
 
     /**
      * Returns the element that matches the key
@@ -133,7 +132,7 @@ class DAAL_EXPORT ResultCollection : public data_management::KeyValueDataCollect
 public:
     ResultCollection();
 
-    void add(size_t key, const algorithms::ResultPtr& ptr);
+    void add(size_t key, const algorithms::ResultPtr & ptr);
 
     algorithms::ResultPtr getResult(size_t key) const;
 

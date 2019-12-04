@@ -29,7 +29,6 @@ namespace daal
 {
 namespace data_management
 {
-
 namespace interface1
 {
 /**
@@ -56,8 +55,9 @@ public:
      *                  defaultLevel is equal to zlib compression level 6
      * \param bgzHeader Optional flag. True if a simple GZIP header is included, false otherwise
      */
-    ZlibCompressionParameter( CompressionLevel clevel = defaultLevel, bool bgzHeader = false ) :
-        data_management::CompressionParameter( clevel ), gzHeader(bgzHeader) {}
+    ZlibCompressionParameter(CompressionLevel clevel = defaultLevel, bool bgzHeader = false)
+        : data_management::CompressionParameter(clevel), gzHeader(bgzHeader)
+    {}
 
     ~ZlibCompressionParameter() {}
 
@@ -75,7 +75,8 @@ public:
  *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
  *      - \ref ZlibCompressionParameter class
  */
-template<> class DAAL_EXPORT Compressor<zlib> : public data_management::CompressorImpl
+template <>
+class DAAL_EXPORT Compressor<zlib> : public data_management::CompressorImpl
 {
 public:
     /**
@@ -89,30 +90,24 @@ public:
      * \param[in] size     Number of bytes to compress in inBlock
      * \param[in] offset   Offset in bytes, the starting position for compression in inBlock
      */
-    void setInputDataBlock( byte *inBlock, size_t size, size_t offset );
+    void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
     /**
      * Associates an input data block with a compressor
      * \param[in] inBlock Reference to the data block to compress
      */
-    void setInputDataBlock( DataBlock &inBlock )
-    {
-        setInputDataBlock( inBlock.getPtr(), inBlock.getSize(), 0 );
-    }
+    void setInputDataBlock(DataBlock & inBlock) { setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
     /**
      * Performs zlib compression of a data block
      * \param[out] outBlock Pointer to the data block where compression results are stored. Must be at least size+offset bytes
      * \param[in] size       Number of bytes available in outBlock
      * \param[in] offset     Offset in bytes, the starting position for compression in outBlock
      */
-    void run( byte *outBlock, size_t size, size_t offset );
+    void run(byte * outBlock, size_t size, size_t offset);
     /**
      * Performs zlib compression of a data block
      * \param[out] outBlock Reference to the data block where compression results are stored
      */
-    void run( DataBlock &outBlock )
-    {
-        run( outBlock.getPtr(), outBlock.getSize(), 0 );
-    }
+    void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     ZlibCompressionParameter parameter; /*!< Zlib compression parameters structure */
 
@@ -120,12 +115,11 @@ protected:
     void initialize();
 
 private:
-    void *_strmp;
+    void * _strmp;
     int _flush;
 
     void finalizeCompression();
     void resetCompression();
-
 };
 
 /**
@@ -138,7 +132,8 @@ private:
  *      - \ref services::ErrorCompressionNullInputStream "Data compression error codes"
  *      - \ref ZlibCompressionParameter class
  */
-template<> class DAAL_EXPORT Decompressor<zlib> : public data_management::DecompressorImpl
+template <>
+class DAAL_EXPORT Decompressor<zlib> : public data_management::DecompressorImpl
 {
 public:
     /**
@@ -152,30 +147,24 @@ public:
      * \param[in] size     Number of bytes to decompress in inBlock
      * \param[in] offset   Offset in bytes, the starting position for decompression in inBlock
      */
-    void setInputDataBlock( byte *inBlock, size_t size, size_t offset );
+    void setInputDataBlock(byte * inBlock, size_t size, size_t offset);
     /**
      * Associates an input data block with a decompressor
      * \param[in] inBlock Reference to the data block to decompress
      */
-    void setInputDataBlock( DataBlock &inBlock )
-    {
-        setInputDataBlock( inBlock.getPtr(), inBlock.getSize(), 0 );
-    }
+    void setInputDataBlock(DataBlock & inBlock) { setInputDataBlock(inBlock.getPtr(), inBlock.getSize(), 0); }
     /**
      * Performs zlib decompression of a data block
      * \param[out] outBlock Pointer to the data block where decompression results are stored. Must be at least size+offset bytes
      * \param[in] size       Number of bytes available in outBlock
      * \param[in] offset     Offset in bytes, the starting position for decompression in outBlock
      */
-    void run( byte *outBlock, size_t size, size_t offset );
+    void run(byte * outBlock, size_t size, size_t offset);
     /**
      * Performs zlib decompression of a data block
      * \param[out] outBlock Reference to the data block where decompression results are stored
      */
-    void run( DataBlock &outBlock )
-    {
-        run( outBlock.getPtr(), outBlock.getSize(), 0 );
-    }
+    void run(DataBlock & outBlock) { run(outBlock.getPtr(), outBlock.getSize(), 0); }
 
     ZlibCompressionParameter parameter; /*!< Zlib compression parameters structure */
 
@@ -183,7 +172,7 @@ protected:
     void initialize();
 
 private:
-    void *_strmp;
+    void * _strmp;
     int _flush;
 
     void finalizeCompression();

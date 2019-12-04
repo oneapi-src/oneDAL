@@ -41,7 +41,6 @@ namespace training
 {
 namespace interface1
 {
-
 Status Parameter::check() const
 {
     return gbt::training::checkImpl(*this);

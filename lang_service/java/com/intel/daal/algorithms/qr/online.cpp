@@ -28,8 +28,7 @@ using namespace daal::algorithms::qr;
  * Method:    InitOnline
  * Signature:(II)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_InitOnline
-(JNIEnv *env, jobject thisObj, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_InitOnline(JNIEnv * env, jobject thisObj, jint prec, jint method)
 {
     return jniOnline<qr::Method, Online, defaultDense>::newObj(prec, method);
 }
@@ -39,8 +38,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_InitOnline
  * Method:    cGetInput
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cGetInput
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cGetInput(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniOnline<qr::Method, Online, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -50,8 +48,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cGetInput
  * Method:    cGetResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cGetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cGetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniOnline<qr::Method, Online, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -61,8 +58,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cGetResult
  * Method:    cGetPartialResult
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cGetPartialResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cGetPartialResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec,
+                                                                                   jint method)
 {
     return jniOnline<qr::Method, Online, defaultDense>::getPartialResult(prec, method, algAddr);
 }
@@ -72,8 +69,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cGetPartialResu
  * Method:    cSetResult
  * Signature: (JIIJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_Online_cSetResult
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_Online_cSetResult(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method,
+                                                                           jlong resultAddr)
 {
     jniOnline<qr::Method, Online, defaultDense>::setResult<qr::Result>(prec, method, algAddr, resultAddr);
 }
@@ -83,8 +80,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_qr_Online_cSetResult
  * Method:    cClone
  * Signature: (JII)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cClone
-(JNIEnv *env, jobject thisObj, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_qr_Online_cClone(JNIEnv * env, jobject thisObj, jlong algAddr, jint prec, jint method)
 {
     return jniOnline<qr::Method, Online, defaultDense>::getClone(prec, method, algAddr);
 }

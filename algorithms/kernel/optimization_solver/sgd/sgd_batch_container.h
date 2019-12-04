@@ -42,14 +42,13 @@ namespace optimization_solver
 {
 namespace sgd
 {
-
 namespace interface2
 {
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto &context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto &deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu || method == defaultDense || method == momentum)
     {
@@ -61,44 +60,44 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     }
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    iterative_solver::Input *input = static_cast<iterative_solver::Input *>(_in);
-    iterative_solver::Result *result = static_cast<iterative_solver::Result *>(_res);
-    Parameter<method> *parameter = static_cast<Parameter<method> *>(_par);
+    iterative_solver::Input * input   = static_cast<iterative_solver::Input *>(_in);
+    iterative_solver::Result * result = static_cast<iterative_solver::Result *>(_res);
+    Parameter<method> * parameter     = static_cast<Parameter<method> *>(_par);
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
 
-    NumericTable *inputArgument = input->get(iterative_solver::inputArgument).get();
-    NumericTablePtr minimum     = result->get(iterative_solver::minimum);
-    NumericTable *nIterations   = result->get(iterative_solver::nIterations).get();
-    OptionalArgument *optionalArgument = input->get(iterative_solver::optionalArgument).get();
-    OptionalArgument *optionalResult = result->get(iterative_solver::optionalResult).get();
+    NumericTable * inputArgument        = input->get(iterative_solver::inputArgument).get();
+    NumericTablePtr minimum             = result->get(iterative_solver::minimum);
+    NumericTable * nIterations          = result->get(iterative_solver::nIterations).get();
+    OptionalArgument * optionalArgument = input->get(iterative_solver::optionalArgument).get();
+    OptionalArgument * optionalResult   = result->get(iterative_solver::optionalResult).get();
 
-    NumericTable *learningRateSequence = parameter->learningRateSequence.get();
-    NumericTable *batchIndices         = parameter->batchIndices.get();
+    NumericTable * learningRateSequence = parameter->learningRateSequence.get();
+    NumericTable * batchIndices         = parameter->batchIndices.get();
 
-    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto& deviceInfo = context.getInfoDevice();
+    auto & context    = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & deviceInfo = context.getInfoDevice();
 
     if (deviceInfo.isCpu || method == defaultDense || method == momentum)
     {
-        __DAAL_CALL_KERNEL(env, internal::SGDKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-            compute, daal::services::internal::hostApp(*input), inputArgument, minimum.get(), nIterations, parameter,
-            learningRateSequence, batchIndices, optionalArgument, optionalResult, *parameter->engine);
+        __DAAL_CALL_KERNEL(env, internal::SGDKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                           daal::services::internal::hostApp(*input), inputArgument, minimum.get(), nIterations, parameter, learningRateSequence,
+                           batchIndices, optionalArgument, optionalResult, *parameter->engine);
     }
     else
     {
-        __DAAL_CALL_KERNEL(env, internal::SGDKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-            compute, daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations, parameter,
-            learningRateSequence, batchIndices, optionalArgument, optionalResult, *parameter->engine);
+        __DAAL_CALL_KERNEL(env, internal::SGDKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                           daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations, parameter, learningRateSequence,
+                           batchIndices, optionalArgument, optionalResult, *parameter->engine);
     }
 }
 

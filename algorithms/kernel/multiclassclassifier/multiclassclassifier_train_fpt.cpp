@@ -40,30 +40,32 @@ namespace interface1
  * \param[in] method      Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
-    const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
+    const classifier::training::Input * algInput = static_cast<const classifier::training::Input *>(input);
     services::Status st;
-    const multi_class_classifier::interface1::ParameterBase *algParameter1 = dynamic_cast<const multi_class_classifier::interface1::ParameterBase *>(parameter);
-    if(algParameter1)
+    const multi_class_classifier::interface1::ParameterBase * algParameter1 =
+        dynamic_cast<const multi_class_classifier::interface1::ParameterBase *>(parameter);
+    if (algParameter1)
     {
         multi_class_classifier::ModelPtr modelPtr = Model::create(algInput->getNumberOfFeatures(), algParameter1, &st);
         set(classifier::training::model, modelPtr);
     }
     else
     {
-        const ParameterBase *algParameter2 = dynamic_cast<const ParameterBase *>(parameter);
-        ModelPtr modelPtr = Model::create(algInput->getNumberOfFeatures(), algParameter2, &st);
+        const ParameterBase * algParameter2 = dynamic_cast<const ParameterBase *>(parameter);
+        ModelPtr modelPtr                   = Model::create(algInput->getNumberOfFeatures(), algParameter2, &st);
         set(classifier::training::model, modelPtr);
     }
     DAAL_CHECK_STATUS_VAR(st);
     return st;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                    const daal::algorithms::Parameter * parameter, const int method);
 
-}// namespace interface1
-}// namespace training
-}// namespace multi_class_classifier
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace training
+} // namespace multi_class_classifier
+} // namespace algorithms
+} // namespace daal

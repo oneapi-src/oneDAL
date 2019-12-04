@@ -40,7 +40,6 @@ namespace algorithms
  */
 namespace boosting
 {
-
 /**
  * \brief Contains version 1.0 of Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
@@ -67,15 +66,14 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
      * \param[in] wlTrainForParameter       Pointer to the training algorithm of the weak learner
      * \param[in] wlPredictForParameter     Pointer to the prediction algorithm of the weak learner
      */
-    Parameter(const services::SharedPtr<weak_learner::training::Batch>&   wlTrainForParameter,
-              const services::SharedPtr<weak_learner::prediction::Batch>& wlPredictForParameter);
+    Parameter(const services::SharedPtr<weak_learner::training::Batch> & wlTrainForParameter,
+              const services::SharedPtr<weak_learner::prediction::Batch> & wlPredictForParameter);
 
     /** Copy constructor */
-    Parameter(const Parameter& other) : weakLearnerTraining(other.weakLearnerTraining),
-        weakLearnerPrediction(other.weakLearnerPrediction){}
+    Parameter(const Parameter & other) : weakLearnerTraining(other.weakLearnerTraining), weakLearnerPrediction(other.weakLearnerPrediction) {}
 
     /** The algorithm for weak learner model training */
-    services::SharedPtr<weak_learner::training::Batch>   weakLearnerTraining;
+    services::SharedPtr<weak_learner::training::Batch> weakLearnerTraining;
 
     /** The algorithm for prediction based on a weak learner model */
     services::SharedPtr<weak_learner::prediction::Batch> weakLearnerPrediction;
@@ -137,8 +135,8 @@ protected:
     size_t _nFeatures;
     data_management::DataCollectionPtr _models;
 
-    template<typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive *arch)
+    template <typename Archive, bool onDeserialize>
+    services::Status serialImpl(Archive * arch)
     {
         classifier::Model::serialImpl<Archive, onDeserialize>(arch);
         arch->set(_nFeatures);
@@ -147,7 +145,7 @@ protected:
         return services::Status();
     }
 
-    Model(size_t nFeatures, services::Status &st);
+    Model(size_t nFeatures, services::Status & st);
 };
 typedef services::SharedPtr<Model> ModelPtr;
 /** @} */
@@ -156,7 +154,7 @@ using interface1::Parameter;
 using interface1::Model;
 using interface1::ModelPtr;
 
-} // namespace daal::algorithms::boosting
-}
-}
+} // namespace boosting
+} // namespace algorithms
+} // namespace daal
 #endif // __BOOSTING_MODEL_H__

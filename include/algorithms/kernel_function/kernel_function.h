@@ -34,7 +34,6 @@ namespace algorithms
 {
 namespace kernel_function
 {
-
 namespace interface1
 {
 /**
@@ -49,14 +48,11 @@ namespace interface1
 class KernelIface : public daal::algorithms::Analysis<batch>
 {
 public:
-    typedef algorithms::kernel_function::Input         InputType;
+    typedef algorithms::kernel_function::Input InputType;
     typedef algorithms::kernel_function::ParameterBase ParameterType;
-    typedef algorithms::kernel_function::Result        ResultType;
+    typedef algorithms::kernel_function::Result ResultType;
 
-    KernelIface()
-    {
-        initialize();
-    }
+    KernelIface() { initialize(); }
 
     /**
      * Constructs an algorithm for computing kernel functions by copying input objects and parameters
@@ -64,10 +60,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    KernelIface(const KernelIface &other)
-    {
-        initialize();
-    }
+    KernelIface(const KernelIface & other) { initialize(); }
 
     /**
      * Get input objects for the kernel function algorithm
@@ -87,20 +80,17 @@ public:
      * Returns the structure that contains computed results of the kernel function algorithm
      * \returns the Structure that contains computed results of the kernel function algorithm
      */
-    ResultPtr getResult()
-    {
-        return _result;
-    }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory to store results of the kernel function algorithm
      * \param[in] res  Structure to store the results
      */
-    services::Status setResult(const ResultPtr& res)
+    services::Status setResult(const ResultPtr & res)
     {
         DAAL_CHECK(res, services::ErrorNullResult)
         _result = res;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -109,16 +99,10 @@ public:
      * and parameters of this algorithm for computing kernel functions
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<KernelIface> clone() const
-    {
-        return services::SharedPtr<KernelIface>(cloneImpl());
-    }
+    services::SharedPtr<KernelIface> clone() const { return services::SharedPtr<KernelIface>(cloneImpl()); }
 
 protected:
-    void initialize()
-    {
-        _result = ResultPtr(new kernel_function::Result());
-    }
+    void initialize() { _result = ResultPtr(new kernel_function::Result()); }
     virtual KernelIface * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     ResultPtr _result;
 };
@@ -129,6 +113,6 @@ using interface1::KernelIface;
 using interface1::KernelIfacePtr;
 
 } // namespace kernel_function
-} // namespace algorithm
+} // namespace algorithms
 } // namespace daal
 #endif

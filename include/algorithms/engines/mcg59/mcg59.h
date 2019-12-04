@@ -52,7 +52,7 @@ namespace interface1
  * \tparam method           Computation method of the engine, mcg59::Method
  * \tparam cpu              Version of the cpu-specific implementation of the engine, daal::CpuType
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -61,7 +61,7 @@ public:
      * in the batch processing mode
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
     ~BatchContainer();
     /**
      * Computes the result of the mcg59 engine in the batch processing mode
@@ -85,13 +85,13 @@ public:
  *      - \ref engines::interface1::Input  "engines::Input" class
  *      - \ref engines::interface1::Result "engines::Result" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public engines::BatchBase
 {
 public:
     typedef engines::BatchBase super;
 
-    typedef typename super::InputType  InputType;
+    typedef typename super::InputType InputType;
     typedef typename super::ResultType ResultType;
 
     /**
@@ -120,11 +120,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -133,10 +133,7 @@ public:
      * with a copy of input objects and parameters of this mcg59 engine
      * \return Pointer to the newly allocated engine
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
     /**
      * Allocates memory to store the result of the mcg59 engine
@@ -145,31 +142,22 @@ public:
      */
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = this->_result->template allocate<algorithmFPType>(&(this->input), NULL, (int) method);
-        this->_res = this->_result.get();
+        services::Status s = this->_result->template allocate<algorithmFPType>(&(this->input), NULL, (int)method);
+        this->_res         = this->_result.get();
         return s;
     }
 
 protected:
-    Batch(size_t seed = 777)
-    {
-        initialize();
-    }
+    Batch(size_t seed = 777) { initialize(); }
 
-    Batch(const Batch<algorithmFPType, method> &other): super(other)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other) : super(other) { initialize(); }
 
-    virtual Batch<algorithmFPType, method> *cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     void initialize()
     {
         Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &input;
+        _in                  = &input;
         _result.reset(new ResultType());
     }
 

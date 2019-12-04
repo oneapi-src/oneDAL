@@ -44,11 +44,11 @@ PartialResult::PartialResult() : daal::algorithms::PartialResult(lastPartialResu
  * Gets the number of columns in the partial result of the low order %moments algorithm
  * \return Number of columns in the partial result
  */
-Status PartialResult::getNumberOfColumns(size_t& nCols) const
+Status PartialResult::getNumberOfColumns(size_t & nCols) const
 {
     NumericTablePtr ntPtr = NumericTable::cast(Argument::get(partialMinimum));
-    Status s = checkNumericTable(ntPtr.get(), partialMinimumStr());
-    nCols = (s ? ntPtr->getNumberOfColumns() : 0);
+    Status s              = checkNumericTable(ntPtr.get(), partialMinimumStr());
+    nCols                 = (s ? ntPtr->getNumberOfColumns() : 0);
     return s;
 }
 
@@ -67,7 +67,7 @@ NumericTablePtr PartialResult::get(PartialResultId id) const
  * \param[in] id    Identifier of the partial result
  * \param[in] ptr   Pointer to the partial result
  */
-void PartialResult::set(PartialResultId id, const NumericTablePtr &ptr)
+void PartialResult::set(PartialResultId id, const NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -77,7 +77,7 @@ void PartialResult::set(PartialResultId id, const NumericTablePtr &ptr)
  * \param[in] parameter %Parameter of the algorithm
  * \param[in] method    Computation method
  */
-services::Status PartialResult::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status PartialResult::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     int unexpectedLayouts = (int)NumericTableIface::csrArray;
@@ -96,7 +96,7 @@ services::Status PartialResult::check(const daal::algorithms::Parameter *paramet
  * \param[in] parameter Pointer to the structure of algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status PartialResult::check(const daal::algorithms::Input *input, const daal::algorithms::Parameter *parameter, int method) const
+services::Status PartialResult::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     size_t nFeatures = 0;
@@ -110,19 +110,16 @@ services::Status PartialResult::check(const daal::algorithms::Input *input, cons
 services::Status PartialResult::checkImpl(size_t nFeatures) const
 {
     services::Status s;
-    const int unexpectedLayouts = (int)packed_mask;
-    const char* errorMessages[] = {partialMinimumStr(), partialMaximumStr(), partialSumStr(),
-        partialSumSquaresStr(), partialSumSquaresCenteredStr() };
+    const int unexpectedLayouts  = (int)packed_mask;
+    const char * errorMessages[] = { partialMinimumStr(), partialMaximumStr(), partialSumStr(), partialSumSquaresStr(),
+                                     partialSumSquaresCenteredStr() };
 
-    for(size_t i = 1; i < lastPartialResultId + 1; i++)
-        DAAL_CHECK_STATUS(s, checkNumericTable(get((PartialResultId)i).get(), errorMessages[i - 1],
-            unexpectedLayouts, 0, nFeatures, 1));
+    for (size_t i = 1; i < lastPartialResultId + 1; i++)
+        DAAL_CHECK_STATUS(s, checkNumericTable(get((PartialResultId)i).get(), errorMessages[i - 1], unexpectedLayouts, 0, nFeatures, 1));
     return s;
 }
 
-
-Parameter::Parameter(EstimatesToCompute  _estimatesToCompute) : estimatesToCompute(_estimatesToCompute)
-{}
+Parameter::Parameter(EstimatesToCompute _estimatesToCompute) : estimatesToCompute(_estimatesToCompute) {}
 
 services::Status Parameter::check() const
 {

@@ -38,41 +38,40 @@ namespace classification
 {
 namespace training
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env *daalEnv)
+template <typename algorithmFPType, Method method, CpuType cpu>
+BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
     __DAAL_INITIALIZE_KERNELS(internal::StumpTrainKernel, method, algorithmFPType);
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    classifier::training::Input *input = static_cast<classifier::training::Input *>(_in);
-    stump::classification::training::Result *result = static_cast<stump::classification::training::Result *>(_res);
+    classifier::training::Input * input              = static_cast<classifier::training::Input *>(_in);
+    stump::classification::training::Result * result = static_cast<stump::classification::training::Result *>(_res);
     DAAL_CHECK_MALLOC(_par)
-    const Parameter *par = static_cast<Parameter *>(_par);
-    size_t n = input->size();
-    NumericTable *a[3];
-    a[0] = static_cast<NumericTable *>(input->get(classifier::training::data).get());
-    a[1] = static_cast<NumericTable *>(input->get(classifier::training::labels).get());
-    a[2] = static_cast<NumericTable *>(input->get(classifier::training::weights).get());
-    stump::classification::Model *r = static_cast<stump::classification::Model *>(result->get(classifier::training::model).get());
+    const Parameter * par = static_cast<Parameter *>(_par);
+    size_t n              = input->size();
+    NumericTable * a[3];
+    a[0]                             = static_cast<NumericTable *>(input->get(classifier::training::data).get());
+    a[1]                             = static_cast<NumericTable *>(input->get(classifier::training::labels).get());
+    a[2]                             = static_cast<NumericTable *>(input->get(classifier::training::weights).get());
+    stump::classification::Model * r = static_cast<stump::classification::Model *>(result->get(classifier::training::model).get());
 
-    daal::services::Environment::env &env = *_env;
+    daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::StumpTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, n, a, r, par);
 }
 
-} // namespace daal::algorithm::stump::classification::training
-}
-}
-}
+} // namespace training
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
 } // namespace daal
 
 #endif

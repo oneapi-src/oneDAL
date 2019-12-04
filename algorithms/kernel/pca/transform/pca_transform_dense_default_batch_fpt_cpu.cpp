@@ -41,7 +41,7 @@ namespace internal
 {
 template class TransformKernel<DAAL_FPTYPE, transform::defaultDense, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace transform
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

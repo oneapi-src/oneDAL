@@ -23,7 +23,7 @@
 #include "common_helpers.h"
 
 #include "com_intel_daal_algorithms_linear_regression_training_TrainingResultId.h"
-#define ModelId     com_intel_daal_algorithms_linear_regression_training_TrainingResultId_ModelId
+#define ModelId com_intel_daal_algorithms_linear_regression_training_TrainingResultId_ModelId
 
 USING_COMMON_NAMESPACES();
 
@@ -33,8 +33,7 @@ USING_COMMON_NAMESPACES();
  * Signature: ()J
  */
 
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingResult_cNewResult
-(JNIEnv *env, jobject thisObj)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingResult_cNewResult(JNIEnv * env, jobject thisObj)
 {
     return jniArgument<linear_regression::training::Result>::newObj();
 }
@@ -44,13 +43,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_traini
  * Method:    cGetModel
  * Signature:(JI)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingResult_cGetModel
-(JNIEnv *env, jobject thisObj, jlong resAddr, jint id)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_training_TrainingResult_cGetModel(JNIEnv * env, jobject thisObj,
+                                                                                                            jlong resAddr, jint id)
 {
-    if ( id == ModelId )
+    if (id == ModelId)
     {
-        return jniArgument<linear_regression::training::Result>::
-            get<linear_regression::training::ResultId, linear_regression::Model>(resAddr, id);
+        return jniArgument<linear_regression::training::Result>::get<linear_regression::training::ResultId, linear_regression::Model>(resAddr, id);
     }
 
     return (jlong)0;

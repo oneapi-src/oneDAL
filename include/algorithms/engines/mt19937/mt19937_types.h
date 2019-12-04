@@ -52,7 +52,7 @@ namespace mt19937
  */
 enum Method
 {
-    defaultDense = 0    /*!< Default: performance-oriented method. */
+    defaultDense = 0 /*!< Default: performance-oriented method. */
 };
 
 } // namespace mt19937

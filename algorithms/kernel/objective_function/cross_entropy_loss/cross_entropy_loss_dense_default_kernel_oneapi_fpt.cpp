@@ -32,10 +32,8 @@ namespace optimization_solver
 {
 namespace cross_entropy_loss
 {
-
 namespace internal
 {
-
 template class CrossEntropyLossKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 
 } // namespace internal

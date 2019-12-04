@@ -42,20 +42,16 @@ namespace pca
 {
 namespace internal
 {
-
 using namespace daal::services::internal;
 using namespace daal::data_management;
 using namespace daal::internal;
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute
-        (bool isCorrelation,
-         const data_management::NumericTable& dataTable,
-         covariance::BatchImpl* covarianceAlg,
-         data_management::NumericTable& eigenvectors,
-         data_management::NumericTable& eigenvalues)
+services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(bool isCorrelation, const data_management::NumericTable & dataTable,
+                                                                            covariance::BatchImpl * covarianceAlg,
+                                                                            data_management::NumericTable & eigenvectors,
+                                                                            data_management::NumericTable & eigenvalues)
 {
-    if(isCorrelation)
-        return this->computeCorrelationEigenvalues(dataTable, eigenvectors, eigenvalues);
+    if (isCorrelation) return this->computeCorrelationEigenvalues(dataTable, eigenvectors, eigenvalues);
     DAAL_CHECK(covarianceAlg, services::ErrorNullPtr);
     services::Status status;
     covarianceAlg->parameter.outputMatrixType = covariance::correlationMatrix;
@@ -65,16 +61,10 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute
-        (bool isCorrelation,
-         bool isDeterministic,
-         const data_management::NumericTable& dataTable,
-         covariance::BatchImpl* covarianceAlg,
-         DAAL_UINT64 resultsToCompute,
-         data_management::NumericTable& eigenvectors,
-         data_management::NumericTable& eigenvalues,
-         data_management::NumericTable& means,
-         data_management::NumericTable& variances)
+services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute(
+    bool isCorrelation, bool isDeterministic, const data_management::NumericTable & dataTable, covariance::BatchImpl * covarianceAlg,
+    DAAL_UINT64 resultsToCompute, data_management::NumericTable & eigenvectors, data_management::NumericTable & eigenvalues,
+    data_management::NumericTable & means, data_management::NumericTable & variances)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
@@ -107,8 +97,8 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute
             DAAL_CHECK_STATUS(status, covarianceAlg->computeNoThrow());
         }
 
-        auto pCovarianceTable = covarianceAlg->getResult()->get(covariance::covariance);
-        NumericTable& covarianceTable = *pCovarianceTable;
+        auto pCovarianceTable          = covarianceAlg->getResult()->get(covariance::covariance);
+        NumericTable & covarianceTable = *pCovarianceTable;
         if (resultsToCompute & mean)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.full.copyMeans);
@@ -140,7 +130,6 @@ services::Status PCACorrelationKernel<batch, algorithmFPType, cpu>::compute
 
     return status;
 }
-
 
 } // namespace internal
 } // namespace pca

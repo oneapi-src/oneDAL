@@ -43,20 +43,19 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 class TrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(const HostAppIfacePtr& pHost, const NumericTablePtr& x, const NumericTablePtr& y,
-        lasso_regression::Model& m, Result& res, const Parameter& par, services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> >& objFunc);
+    services::Status compute(const HostAppIfacePtr & pHost, const NumericTablePtr & x, const NumericTablePtr & y, lasso_regression::Model & m,
+                             Result & res, const Parameter & par,
+                             services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> > & objFunc);
 };
 
 } // namespace internal
-}
-}
-}
+} // namespace training
+} // namespace lasso_regression
+} // namespace algorithms
 } // namespace daal
-
 
 #endif

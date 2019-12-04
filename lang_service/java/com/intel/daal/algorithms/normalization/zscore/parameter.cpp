@@ -35,24 +35,24 @@ using namespace daal::services;
  * Method:    cSetMoments
  * Signature: (JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cSetMoments
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong momentsAdr, jint prec, jint method, jint cmode)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cSetMoments(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                                 jlong momentsAdr, jint prec, jint method, jint cmode)
 {
     using namespace daal::algorithms::normalization::zscore;
-    if(method == defaultDense)
+    if (method == defaultDense)
     {
-        if(cmode == jBatch)
+        if (cmode == jBatch)
         {
-            if(prec == 0) //double
+            if (prec == 0) //double
             {
-                normalization::zscore::Parameter<double, defaultDense> *parameterAddr = (normalization::zscore::Parameter<double,
-                                                                                         defaultDense> *)parAddr;
+                normalization::zscore::Parameter<double, defaultDense> * parameterAddr =
+                    (normalization::zscore::Parameter<double, defaultDense> *)parAddr;
                 parameterAddr->moments = staticPointerCast<daal::algorithms::low_order_moments::BatchImpl>(*(SharedPtr<AlgorithmIface> *)momentsAdr);
             }
             else
             {
-                normalization::zscore::Parameter<float, defaultDense> *parameterAddr = (normalization::zscore::Parameter<float,
-                                                                                        defaultDense> *)parAddr;
+                normalization::zscore::Parameter<float, defaultDense> * parameterAddr =
+                    (normalization::zscore::Parameter<float, defaultDense> *)parAddr;
                 parameterAddr->moments = staticPointerCast<daal::algorithms::low_order_moments::BatchImpl>(*(SharedPtr<AlgorithmIface> *)momentsAdr);
             }
         }
@@ -64,8 +64,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Param
  * Method:    cSetResultsToCompute
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cSetResultsToCompute
-(JNIEnv *, jobject, jlong parAddr, jlong resultsToCompute)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cSetResultsToCompute(JNIEnv *, jobject, jlong parAddr,
+                                                                                                          jlong resultsToCompute)
 {
     ((normalization::zscore::interface3::BaseParameter *)parAddr)->resultsToCompute = resultsToCompute;
 }
@@ -75,8 +75,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Param
  * Method:    cGetResultsToCompute
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cGetResultsToCompute
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cGetResultsToCompute(JNIEnv *, jobject, jlong parAddr)
 {
     return ((normalization::zscore::interface3::BaseParameter *)parAddr)->resultsToCompute;
 }
@@ -86,8 +85,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Para
  * Method:    cSetDoScaleFlag
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cSetDoScaleFlag
-(JNIEnv *, jobject, jlong parAddr, jlong doScale)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cSetDoScaleFlag(JNIEnv *, jobject, jlong parAddr, jlong doScale)
 {
     ((normalization::zscore::interface3::BaseParameter *)parAddr)->doScale = doScale;
 }
@@ -97,8 +95,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Param
  * Method:    cGetDoScaleFlag
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cGetDoScaleFlag
-(JNIEnv *, jobject, jlong parAddr)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_normalization_zscore_Parameter_cGetDoScaleFlag(JNIEnv *, jobject, jlong parAddr)
 {
     return ((normalization::zscore::interface3::BaseParameter *)parAddr)->doScale;
 }

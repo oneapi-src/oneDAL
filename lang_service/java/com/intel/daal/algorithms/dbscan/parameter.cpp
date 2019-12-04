@@ -26,10 +26,9 @@ using namespace daal::algorithms::dbscan;
  * Method:    cGetEpsilon
  * Signature:(J)D
  */
-JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetEpsilon
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetEpsilon(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->epsilon;
+    return ((Parameter *)parameterAddress)->epsilon;
 }
 
 /*
@@ -37,10 +36,9 @@ JNIEXPORT jdouble JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetEp
  * Method:    cGetMinObservations
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetMinObservations
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetMinObservations(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->minObservations;
+    return ((Parameter *)parameterAddress)->minObservations;
 }
 
 /*
@@ -48,10 +46,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetMinO
  * Method:    cGetMemorySavingMode
  * Signature:(J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetMemorySavingMode
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetMemorySavingMode(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->memorySavingMode;
+    return ((Parameter *)parameterAddress)->memorySavingMode;
 }
 
 /*
@@ -59,10 +56,9 @@ JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetM
  * Method:    cGetResultsToCompute
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetResultsToCompute
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetResultsToCompute(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->resultsToCompute;
+    return ((Parameter *)parameterAddress)->resultsToCompute;
 }
 
 /*
@@ -70,10 +66,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetResu
  * Method:    cGetBlockIndex
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetBlockIndex
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetBlockIndex(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->blockIndex;
+    return ((Parameter *)parameterAddress)->blockIndex;
 }
 
 /*
@@ -81,10 +76,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetBloc
  * Method:    cGetNBlocks
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetNBlocks
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetNBlocks(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->nBlocks;
+    return ((Parameter *)parameterAddress)->nBlocks;
 }
 
 /*
@@ -92,10 +86,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetNBlo
  * Method:    cGetLeftBlocks
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetLeftBlocks
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetLeftBlocks(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->leftBlocks;
+    return ((Parameter *)parameterAddress)->leftBlocks;
 }
 
 /*
@@ -103,10 +96,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetLeft
  * Method:    cGetRightBlocks
  * Signature:(J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetRightBlocks
-(JNIEnv *, jobject, jlong parameterAddress)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetRightBlocks(JNIEnv *, jobject, jlong parameterAddress)
 {
-    return((Parameter *)parameterAddress)->rightBlocks;
+    return ((Parameter *)parameterAddress)->rightBlocks;
 }
 
 /*
@@ -114,8 +106,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cGetRigh
  * Method:    cSetEpsilon
  * Signature:(JD)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetEpsilon
-(JNIEnv *, jobject, jlong parameterAddress, jdouble epsilon)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetEpsilon(JNIEnv *, jobject, jlong parameterAddress, jdouble epsilon)
 {
     ((Parameter *)parameterAddress)->epsilon = epsilon;
 }
@@ -125,8 +116,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetEpsil
  * Method:    cSetMinObservations
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetMinObservations
-(JNIEnv *, jobject, jlong parameterAddress, jlong minObservations)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetMinObservations(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                           jlong minObservations)
 {
     ((Parameter *)parameterAddress)->minObservations = minObservations;
 }
@@ -136,8 +127,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetMinOb
  * Method:    cSetMemorySavingMode
  * Signature:(JZ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetMemorySavingMode
-(JNIEnv *, jobject, jlong parameterAddress, jboolean memorySavingMode)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetMemorySavingMode(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                            jboolean memorySavingMode)
 {
     ((Parameter *)parameterAddress)->memorySavingMode = memorySavingMode;
 }
@@ -147,8 +138,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetMemor
  * Method:    cSetResultsToCompute
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetResultsToCompute
-(JNIEnv *, jobject, jlong parameterAddress, jlong resultsToCompute)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetResultsToCompute(JNIEnv *, jobject, jlong parameterAddress,
+                                                                                            jlong resultsToCompute)
 {
     ((Parameter *)parameterAddress)->resultsToCompute = resultsToCompute;
 }
@@ -158,8 +149,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetResul
  * Method:    cSetBlockIndex
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetBlockIndex
-(JNIEnv *, jobject, jlong parameterAddress, jlong blockIndex)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetBlockIndex(JNIEnv *, jobject, jlong parameterAddress, jlong blockIndex)
 {
     ((Parameter *)parameterAddress)->blockIndex = blockIndex;
 }
@@ -169,8 +159,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetBlock
  * Method:    cSetNBlocks
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetNBlocks
-(JNIEnv *, jobject, jlong parameterAddress, jlong nBlocks)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetNBlocks(JNIEnv *, jobject, jlong parameterAddress, jlong nBlocks)
 {
     ((Parameter *)parameterAddress)->nBlocks = nBlocks;
 }
@@ -180,8 +169,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetNBloc
  * Method:    cSetLeftBlocks
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetLeftBlocks
-(JNIEnv *, jobject, jlong parameterAddress, jlong leftBlocks)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetLeftBlocks(JNIEnv *, jobject, jlong parameterAddress, jlong leftBlocks)
 {
     ((Parameter *)parameterAddress)->leftBlocks = leftBlocks;
 }
@@ -191,8 +179,7 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetLeftB
  * Method:    cSetRightBlocks
  * Signature:(JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetRightBlocks
-(JNIEnv *, jobject, jlong parameterAddress, jlong rightBlocks)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_dbscan_Parameter_cSetRightBlocks(JNIEnv *, jobject, jlong parameterAddress, jlong rightBlocks)
 {
     ((Parameter *)parameterAddress)->rightBlocks = rightBlocks;
 }

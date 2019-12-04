@@ -41,42 +41,25 @@ namespace multivariate_outlier_detection
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method, CpuType cpu>
 struct OutlierDetectionKernel : public Kernel
 {
     static const size_t blockSize = 1000;
 
     /** \brief Calculate Mahalanobis distance for a block of observations */
-    inline void mahalanobisDistance(const size_t nFeatures,
-                                    const size_t nVectors,
-                                    const algorithmFPType *data,
-                                    const algorithmFPType *location,
-                                    const algorithmFPType *invScatter,
-                                    algorithmFPType *distance,
-                                    algorithmFPType *buffer);
+    inline void mahalanobisDistance(const size_t nFeatures, const size_t nVectors, const algorithmFPType * data, const algorithmFPType * location,
+                                    const algorithmFPType * invScatter, algorithmFPType * distance, algorithmFPType * buffer);
 
-    inline void defaultInitialization(algorithmFPType *location,
-                                      algorithmFPType *scatter,
-                                      algorithmFPType *threshold,
-                                      const size_t nFeatures);
+    inline void defaultInitialization(algorithmFPType * location, algorithmFPType * scatter, algorithmFPType * threshold, const size_t nFeatures);
 
     /** \brief Detect outliers in the data from input micro-table
                and store resulting weights into output micro-table */
-    inline Status computeInternal(const size_t nFeatures,
-                                  const size_t nVectors,
-                                  NumericTable &dataTable,
-                                  NumericTable &resultTable,
-                                  const algorithmFPType *location,
-                                  const algorithmFPType *scatter,
-                                  const algorithmFPType threshold,
-                                  algorithmFPType *buffer);
+    inline Status computeInternal(const size_t nFeatures, const size_t nVectors, NumericTable & dataTable, NumericTable & resultTable,
+                                  const algorithmFPType * location, const algorithmFPType * scatter, const algorithmFPType threshold,
+                                  algorithmFPType * buffer);
 
-    Status compute(NumericTable &dataTable,
-                   NumericTable *locationTable,
-                   NumericTable *scatterTable,
-                   NumericTable *thresholdTable,
-                   NumericTable &resultTable);
+    Status compute(NumericTable & dataTable, NumericTable * locationTable, NumericTable * scatterTable, NumericTable * thresholdTable,
+                   NumericTable & resultTable);
 };
 
 /**
@@ -85,11 +68,11 @@ struct OutlierDetectionKernel : public Kernel
 template <typename algorithmFPType, CpuType cpu>
 struct OutlierDetectionKernel<algorithmFPType, baconDense, cpu> : public Kernel
 {
-    Status compute(NumericTable &dataTable,
-                   NumericTable *locationTable,
-                   NumericTable *scatterTable,
-                   NumericTable *thresholdTable,
-                   NumericTable &resultTable) {return services::Status();}
+    Status compute(NumericTable & dataTable, NumericTable * locationTable, NumericTable * scatterTable, NumericTable * thresholdTable,
+                   NumericTable & resultTable)
+    {
+        return services::Status();
+    }
 };
 
 } // namespace internal

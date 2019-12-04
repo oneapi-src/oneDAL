@@ -31,22 +31,21 @@ namespace pca
 {
 namespace interface2
 {
-
 /** Constructs PCA parameters */
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT BatchParameter<algorithmFPType, svdDense>::BatchParameter(
-    const services::SharedPtr<normalization::zscore::interface2::BatchImpl> &normalization) :
-    normalization(normalization) {};
+    const services::SharedPtr<normalization::zscore::interface2::BatchImpl> & normalization)
+    : normalization(normalization) {};
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT services::Status BatchParameter<algorithmFPType, svdDense>::check() const
 {
     DAAL_CHECK(normalization, services::ErrorNullAuxiliaryAlgorithm);
     return services::Status();
 }
 
-template DAAL_EXPORT BatchParameter<DAAL_FPTYPE, svdDense>::BatchParameter
-        (const services::SharedPtr<normalization::zscore::interface2::BatchImpl> &normalization);
+template DAAL_EXPORT BatchParameter<DAAL_FPTYPE, svdDense>::BatchParameter(
+    const services::SharedPtr<normalization::zscore::interface2::BatchImpl> & normalization);
 
 template DAAL_EXPORT services::Status BatchParameter<DAAL_FPTYPE, svdDense>::check() const;
 

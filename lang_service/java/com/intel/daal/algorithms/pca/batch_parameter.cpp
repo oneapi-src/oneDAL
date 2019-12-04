@@ -37,50 +37,51 @@ using namespace daal::data_management;
  * Method:    cSetCovariance
  * Signature: (JJJIIII)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetCovariance
-(JNIEnv *env, jobject thisObj, jlong parAddr, jlong covarianceAddr, jint method, jint cmode, jint computeStep, jint prec)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetCovariance(JNIEnv * env, jobject thisObj, jlong parAddr,
+                                                                                        jlong covarianceAddr, jint method, jint cmode,
+                                                                                        jint computeStep, jint prec)
 {
     using namespace daal::algorithms::pca;
 
-    if(method == CorrelationDenseValue)
+    if (method == CorrelationDenseValue)
     {
-        if(cmode == jBatch)
+        if (cmode == jBatch)
         {
-            if(prec == 0) //double
+            if (prec == 0) //double
             {
-                BatchParameter<double, pca::correlationDense> *parameterAddr = (BatchParameter<double, pca::correlationDense> *)parAddr;
+                BatchParameter<double, pca::correlationDense> * parameterAddr = (BatchParameter<double, pca::correlationDense> *)parAddr;
                 parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::BatchImpl> *)covarianceAddr);
             }
             else
             {
-                BatchParameter<float, pca::correlationDense> *parameterAddr = (BatchParameter<float, pca::correlationDense> *)parAddr;
+                BatchParameter<float, pca::correlationDense> * parameterAddr = (BatchParameter<float, pca::correlationDense> *)parAddr;
                 parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::BatchImpl> *)covarianceAddr);
             }
         }
-        else if(cmode == jOnline || (cmode == jDistributed && computeStep == jStep1Local))
+        else if (cmode == jOnline || (cmode == jDistributed && computeStep == jStep1Local))
         {
-            if(prec == 0) //double
+            if (prec == 0) //double
             {
-                OnlineParameter<double, pca::correlationDense> *parameterAddr = (OnlineParameter<double, pca::correlationDense> *)parAddr;
+                OnlineParameter<double, pca::correlationDense> * parameterAddr = (OnlineParameter<double, pca::correlationDense> *)parAddr;
                 parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::OnlineImpl> *)covarianceAddr);
             }
             else
             {
-                OnlineParameter<float, pca::correlationDense> *parameterAddr = (OnlineParameter<float, pca::correlationDense> *)parAddr;
+                OnlineParameter<float, pca::correlationDense> * parameterAddr = (OnlineParameter<float, pca::correlationDense> *)parAddr;
                 parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::OnlineImpl> *)covarianceAddr);
             }
         }
-        else if(cmode == jDistributed)
+        else if (cmode == jDistributed)
         {
-            if(prec == 0) //double
+            if (prec == 0) //double
             {
-                DistributedParameter<step2Master, double, pca::correlationDense> *parameterAddr =
+                DistributedParameter<step2Master, double, pca::correlationDense> * parameterAddr =
                     (DistributedParameter<step2Master, double, pca::correlationDense> *)parAddr;
                 parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::DistributedIface<step2Master> > *)covarianceAddr);
             }
             else
             {
-                DistributedParameter<step2Master, float, pca::correlationDense> *parameterAddr =
+                DistributedParameter<step2Master, float, pca::correlationDense> * parameterAddr =
                     (DistributedParameter<step2Master, float, pca::correlationDense> *)parAddr;
                 parameterAddr->covariance = *((SharedPtr<daal::algorithms::covariance::DistributedIface<step2Master> > *)covarianceAddr);
             }
@@ -93,14 +94,14 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetCov
  * Method:    cSetResultsToCompute
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetResultsToCompute
-(JNIEnv *, jobject, jlong parAddr, jlong resultsToCompute, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetResultsToCompute(JNIEnv *, jobject, jlong parAddr,
+                                                                                              jlong resultsToCompute, jint method)
 {
-    if(method == CorrelationDenseValue)
+    if (method == CorrelationDenseValue)
     {
         ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->resultsToCompute = resultsToCompute;
     }
-    else if(method == SVDDenseValue)
+    else if (method == SVDDenseValue)
     {
         ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->resultsToCompute = resultsToCompute;
     }
@@ -111,12 +112,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetRes
  * Method:    cGetResultsToCompute
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cGetResultsToCompute
-(JNIEnv *, jobject, jlong parAddr, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cGetResultsToCompute(JNIEnv *, jobject, jlong parAddr, jint method)
 {
-    return (method == CorrelationDenseValue) ?
-        ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->resultsToCompute:
-        ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->resultsToCompute;
+    return (method == CorrelationDenseValue) ? ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->resultsToCompute :
+                                               ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->resultsToCompute;
 }
 
 /*
@@ -124,14 +123,14 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cGetRe
  * Method:    cSetIsDeterministic
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetIsDeterministic
-(JNIEnv *, jobject, jlong parAddr, jboolean isDeterministic, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetIsDeterministic(JNIEnv *, jobject, jlong parAddr,
+                                                                                             jboolean isDeterministic, jint method)
 {
-    if(method == CorrelationDenseValue)
+    if (method == CorrelationDenseValue)
     {
         ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->isDeterministic = isDeterministic;
     }
-    else if(method == SVDDenseValue)
+    else if (method == SVDDenseValue)
     {
         ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->isDeterministic = isDeterministic;
     }
@@ -142,12 +141,10 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetIsD
  * Method:    cGetIsDeterministic
  * Signature: (J)J
  */
-JNIEXPORT jboolean  JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cGetIsDeterministic
-(JNIEnv *, jobject, jlong parAddr, jint method)
+JNIEXPORT jboolean JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cGetIsDeterministic(JNIEnv *, jobject, jlong parAddr, jint method)
 {
-    return (method == CorrelationDenseValue) ?
-        ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->isDeterministic:
-        ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->isDeterministic;
+    return (method == CorrelationDenseValue) ? ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->isDeterministic :
+                                               ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->isDeterministic;
 }
 
 /*
@@ -155,14 +152,14 @@ JNIEXPORT jboolean  JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cG
  * Method:    cSetNumberOfcomponents
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetNumberOfComponents
-(JNIEnv *, jobject, jlong parAddr, jboolean nComponents, jint method)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetNumberOfComponents(JNIEnv *, jobject, jlong parAddr,
+                                                                                                jboolean nComponents, jint method)
 {
-    if(method == CorrelationDenseValue)
+    if (method == CorrelationDenseValue)
     {
         ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->nComponents = nComponents;
     }
-    else if(method == SVDDenseValue)
+    else if (method == SVDDenseValue)
     {
         ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->nComponents = nComponents;
     }
@@ -173,10 +170,8 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cSetNum
  * Method:    cGetNumberOfComponents
  * Signature: (J)J
  */
-JNIEXPORT jlong  JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cGetNumberOfComponents
-(JNIEnv *, jobject, jlong parAddr, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_pca_BatchParameter_cGetNumberOfComponents(JNIEnv *, jobject, jlong parAddr, jint method)
 {
-    return (method == CorrelationDenseValue) ?
-        ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->nComponents:
-        ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->nComponents;
+    return (method == CorrelationDenseValue) ? ((pca::BatchParameter<double, pca::correlationDense> *)parAddr)->nComponents :
+                                               ((pca::BatchParameter<double, pca::svdDense> *)parAddr)->nComponents;
 }

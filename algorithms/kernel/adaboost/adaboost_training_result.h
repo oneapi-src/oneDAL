@@ -46,21 +46,21 @@ namespace interface2
  * \param[in] method        AdaBoost computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *par, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     services::Status s;
-    const Parameter * const parameter = static_cast<const Parameter *>(par);
-    const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
+    const Parameter * const parameter            = static_cast<const Parameter *>(par);
+    const classifier::training::Input * algInput = static_cast<const classifier::training::Input *>(input);
     set(classifier::training::model, Model::create<algorithmFPType>(algInput->getNumberOfFeatures(), &s));
-    if(parameter->resultsToCompute & adaboost::computeWeakLearnersErrors)
+    if (parameter->resultsToCompute & adaboost::computeWeakLearnersErrors)
     {
-        set(weakLearnersErrors, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(parameter->maxIterations, 1,
-                                                data_management::NumericTable::doAllocate, s)));
+        set(weakLearnersErrors, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                    parameter->maxIterations, 1, data_management::NumericTable::doAllocate, s)));
     }
     return s;
 }
 
-}
+} // namespace interface2
 } // namespace training
 } // namespace adaboost
 } // namespace algorithms

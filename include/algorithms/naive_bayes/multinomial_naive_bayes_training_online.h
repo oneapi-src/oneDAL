@@ -37,7 +37,6 @@ namespace multinomial_naive_bayes
 {
 namespace training
 {
-
 namespace interface1
 {
 /**
@@ -52,7 +51,7 @@ namespace interface1
  * \tparam algorithmFPType  Data type to use in intermediate computations for the naive Bayes in the online processing mode, double or float
  * \tparam method           Naive Bayes computation method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class OnlineContainer : public TrainingContainerIface<online>
 {
 public:
@@ -61,7 +60,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    DAAL_DEPRECATED OnlineContainer(daal::services::Environment::env *daalEnv);
+    DAAL_DEPRECATED OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     DAAL_DEPRECATED ~OnlineContainer();
 
@@ -94,25 +93,22 @@ public:
  *      - \ref Method %Training methods for the multinomial naive Bayes algorithm
  *
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Online : public classifier::training::interface1::Online
 {
 public:
     typedef classifier::training::interface1::Online super;
 
-    typedef typename super::InputType                                    InputType;
-    typedef algorithms::multinomial_naive_bayes::interface1::Parameter   ParameterType;
-    typedef algorithms::multinomial_naive_bayes::training::Result        ResultType;
+    typedef typename super::InputType InputType;
+    typedef algorithms::multinomial_naive_bayes::interface1::Parameter ParameterType;
+    typedef algorithms::multinomial_naive_bayes::training::Result ResultType;
     typedef algorithms::multinomial_naive_bayes::training::PartialResult PartialResultType;
 
     /**
      * Default constructor
      * \param nClasses  Number of classes
      */
-    DAAL_DEPRECATED Online(size_t nClasses) : parameter(nClasses)
-    {
-        initialize();
-    }
+    DAAL_DEPRECATED Online(size_t nClasses) : parameter(nClasses) { initialize(); }
 
     /**
      * Constructs multinomial naive Bayes training algorithm by copying input objects and parameters
@@ -120,8 +116,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    DAAL_DEPRECATED Online(const Online<algorithmFPType, method> &other) :
-        classifier::training::interface1::Online(other), parameter(other.parameter)
+    DAAL_DEPRECATED Online(const Online<algorithmFPType, method> & other)
+        : classifier::training::interface1::Online(other), parameter(other.parameter)
     {
         initialize();
     }
@@ -132,16 +128,13 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    DAAL_DEPRECATED_VIRTUAL virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of Naive Bayes training
      * \return Structure that contains results of Naive Bayes training
      */
-    DAAL_DEPRECATED ResultPtr getResult()
-    {
-        return services::staticPointerCast<ResultType, classifier::training::Result>(_result);
-    }
+    DAAL_DEPRECATED ResultPtr getResult() { return services::staticPointerCast<ResultType, classifier::training::Result>(_result); }
 
     /**
      * Registers user-allocated memory to store results of Naive Bayes training
@@ -149,11 +142,11 @@ public:
      *
      * \return Status of computations
      */
-    DAAL_DEPRECATED services::Status setResult(const ResultPtr& result)
+    DAAL_DEPRECATED services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -182,43 +175,39 @@ public:
         return services::SharedPtr<interface1::Online<algorithmFPType, method> >(cloneImpl());
     }
 
-    ParameterType parameter;                /*!< \ref interface1::Parameter "Parameters" of the training */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the training */
 
 protected:
-
-    virtual Online<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Online<algorithmFPType, method>(*this);
-    }
+    virtual Online<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Online<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         PartialResultPtr pres = getPartialResult();
-        ResultPtr res = services::staticPointerCast<ResultType, classifier::training::Result>(_result);
-        services::Status s = res->template allocate<algorithmFPType>(pres.get(), &parameter, (int)method);
-        _res = _result.get();
+        ResultPtr res         = services::staticPointerCast<ResultType, classifier::training::Result>(_result);
+        services::Status s    = res->template allocate<algorithmFPType>(pres.get(), &parameter, (int)method);
+        _res                  = _result.get();
         return s;
     }
 
     services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         PartialResultPtr pres = getPartialResult();
-        services::Status s = pres->template allocate<algorithmFPType>((classifier::training::InputIface *)(&input), &parameter, (int)method);
-        _pres = _partialResult.get();
+        services::Status s    = pres->template allocate<algorithmFPType>((classifier::training::InputIface *)(&input), &parameter, (int)method);
+        _pres                 = _partialResult.get();
         return s;
     }
 
     services::Status initializePartialResult() DAAL_C11_OVERRIDE
     {
         PartialResultPtr pres = getPartialResult();
-        services::Status s = pres->template initialize<algorithmFPType>((classifier::training::InputIface *)(&input), &parameter, (int)method);
-        _pres = _partialResult.get();
+        services::Status s    = pres->template initialize<algorithmFPType>((classifier::training::InputIface *)(&input), &parameter, (int)method);
+        _pres                 = _partialResult.get();
         return s;
     }
 
     void initialize()
     {
-        _ac = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, method)(&_env);
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, method)(&_env);
         _par = &parameter;
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
@@ -241,7 +230,7 @@ namespace interface2
  * \tparam algorithmFPType  Data type to use in intermediate computations for the naive Bayes in the online processing mode, double or float
  * \tparam method           Naive Bayes computation method, \ref Method
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class OnlineContainer : public TrainingContainerIface<online>
 {
 public:
@@ -250,7 +239,7 @@ public:
      * in the online processing mode
      * \param[in] daalEnv   Environment object
      */
-    OnlineContainer(daal::services::Environment::env *daalEnv);
+    OnlineContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
     ~OnlineContainer();
 
@@ -283,15 +272,15 @@ public:
  *      - \ref Method %Training methods for the multinomial naive Bayes algorithm
  *
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Online : public classifier::training::Online
 {
 public:
     typedef classifier::training::Online super;
 
     typedef algorithms::multinomial_naive_bayes::training::Input InputType;
-    typedef algorithms::multinomial_naive_bayes::Parameter   ParameterType;
-    typedef algorithms::multinomial_naive_bayes::training::Result        ResultType;
+    typedef algorithms::multinomial_naive_bayes::Parameter ParameterType;
+    typedef algorithms::multinomial_naive_bayes::training::Result ResultType;
     typedef algorithms::multinomial_naive_bayes::training::PartialResult PartialResultType;
 
     InputType input;
@@ -299,10 +288,7 @@ public:
      * Default constructor
      * \param nClasses  Number of classes
      */
-    Online(size_t nClasses) : parameter(nClasses), input()
-    {
-        initialize();
-    }
+    Online(size_t nClasses) : parameter(nClasses), input() { initialize(); }
 
     /**
      * Constructs multinomial naive Bayes training algorithm by copying input objects and parameters
@@ -310,11 +296,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online<algorithmFPType, method> &other) :
-        super(other), parameter(other.parameter), input(other.input)
-    {
-        initialize();
-    }
+    Online(const Online<algorithmFPType, method> & other) : super(other), parameter(other.parameter), input(other.input) { initialize(); }
 
     virtual ~Online() {}
 
@@ -328,16 +310,13 @@ public:
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns the structure that contains results of Naive Bayes training
      * \return Structure that contains results of Naive Bayes training
      */
-    ResultPtr getResult()
-    {
-        return services::staticPointerCast<ResultType, classifier::training::Result>(_result);
-    }
+    ResultPtr getResult() { return services::staticPointerCast<ResultType, classifier::training::Result>(_result); }
 
     /**
      * Registers user-allocated memory to store results of Naive Bayes training
@@ -345,11 +324,11 @@ public:
      *
      * \return Status of computations
      */
-    services::Status setResult(const ResultPtr& result)
+    services::Status setResult(const ResultPtr & result)
     {
         DAAL_CHECK(result, services::ErrorNullResult)
         _result = result;
-        _res = _result.get();
+        _res    = _result.get();
         return services::Status();
     }
 
@@ -373,49 +352,42 @@ public:
      * with a copy of input objects and parameters of this multinomial naive Bayes training algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Online<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Online<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Online<algorithmFPType, method> > clone() const { return services::SharedPtr<Online<algorithmFPType, method> >(cloneImpl()); }
 
-    ParameterType parameter;                /*!< \ref interface1::Parameter "Parameters" of the training */
+    ParameterType parameter; /*!< \ref interface1::Parameter "Parameters" of the training */
 
 protected:
-
-    virtual Online<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Online<algorithmFPType, method>(*this);
-    }
+    virtual Online<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Online<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         PartialResultPtr pres = getPartialResult();
-        ResultPtr res = services::staticPointerCast<ResultType, classifier::training::Result>(_result);
-        services::Status s = res->template allocate<algorithmFPType>(pres.get(), &parameter, (int)method);
-        _res = _result.get();
+        ResultPtr res         = services::staticPointerCast<ResultType, classifier::training::Result>(_result);
+        services::Status s    = res->template allocate<algorithmFPType>(pres.get(), &parameter, (int)method);
+        _res                  = _result.get();
         return s;
     }
 
     services::Status allocatePartialResult() DAAL_C11_OVERRIDE
     {
         PartialResultPtr pres = getPartialResult();
-        services::Status s = pres->template allocate<algorithmFPType>((classifier::training::InputIface *)(&input), &parameter, (int)method);
-        _pres = _partialResult.get();
+        services::Status s    = pres->template allocate<algorithmFPType>((classifier::training::InputIface *)(&input), &parameter, (int)method);
+        _pres                 = _partialResult.get();
         return s;
     }
 
     services::Status initializePartialResult() DAAL_C11_OVERRIDE
     {
         PartialResultPtr pres = getPartialResult();
-        services::Status s = pres->template initialize<algorithmFPType>((classifier::training::InputIface *)(&input), &parameter, (int)method);
-        _pres = _partialResult.get();
+        services::Status s    = pres->template initialize<algorithmFPType>((classifier::training::InputIface *)(&input), &parameter, (int)method);
+        _pres                 = _partialResult.get();
         return s;
     }
 
     void initialize()
     {
-        _ac = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, method)(&_env);
-        _in = &input;
+        _ac  = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, method)(&_env);
+        _in  = &input;
         _par = &parameter;
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());

@@ -37,6 +37,6 @@ namespace internal
 {
 template class PCASVDStep2MasterKernel<DAAL_FPTYPE, DAAL_CPU>;
 }
-}
-}
-}
+} // namespace pca
+} // namespace algorithms
+} // namespace daal

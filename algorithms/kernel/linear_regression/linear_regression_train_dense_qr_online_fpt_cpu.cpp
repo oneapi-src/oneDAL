@@ -41,7 +41,7 @@ namespace internal
 {
 template class OnlineKernel<DAAL_FPTYPE, qrDense, DAAL_CPU>;
 }
-}
-}
-}
-}
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

@@ -30,8 +30,8 @@ using namespace daal::algorithms::linear_regression::quality_metric::single_beta
 * Method:    cInit
 * Signature: (II)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cInit
-(JNIEnv *, jobject, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cInit(JNIEnv *, jobject, jint prec,
+                                                                                                                jint method)
 {
     return jniBatch<single_beta::Method, Batch, defaultDense>::newObj(prec, method);
 }
@@ -41,11 +41,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cSetResult
 * Signature: (JIIJ)V
 */
-JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cSetResult
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method, jlong resultAddr)
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cSetResult(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                    jint prec, jint method,
+                                                                                                                    jlong resultAddr)
 {
-    jniBatch<single_beta::Method, Batch, defaultDense>::
-        setResult<single_beta::Result>(prec, method, algAddr, resultAddr);
+    jniBatch<single_beta::Method, Batch, defaultDense>::setResult<single_beta::Result>(prec, method, algAddr, resultAddr);
 }
 
 /*
@@ -53,8 +53,9 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality
 * Method:    cInitParameter
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cInitParameter
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cInitParameter(JNIEnv *, jobject,
+                                                                                                                         jlong algAddr, jint prec,
+                                                                                                                         jint method)
 {
     return jniBatch<single_beta::Method, Batch, defaultDense>::getParameter(prec, method, algAddr);
 }
@@ -64,8 +65,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cGetInput
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cGetInput
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cGetInput(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                    jint prec, jint method)
 {
     return jniBatch<single_beta::Method, Batch, defaultDense>::getInput(prec, method, algAddr);
 }
@@ -75,8 +76,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cGetResult
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cGetResult
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cGetResult(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                     jint prec, jint method)
 {
     return jniBatch<single_beta::Method, Batch, defaultDense>::getResult(prec, method, algAddr);
 }
@@ -86,8 +87,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_qualit
 * Method:    cClone
 * Signature: (JII)J
 */
-JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cClone
-(JNIEnv *, jobject, jlong algAddr, jint prec, jint method)
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_linear_1regression_quality_1metric_SingleBetaBatch_cClone(JNIEnv *, jobject, jlong algAddr,
+                                                                                                                 jint prec, jint method)
 {
     return jniBatch<single_beta::Method, Batch, defaultDense>::getClone(prec, method, algAddr);
 }

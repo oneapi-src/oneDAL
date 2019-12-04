@@ -39,9 +39,8 @@ namespace prediction
 {
 namespace interface1
 {
-
 Input::Input() {}
-Input::Input(const Input& other) : classifier::prediction::Input(other){}
+Input::Input(const Input & other) : classifier::prediction::Input(other) {}
 
 /**
  * Returns the input Numeric Table object in the prediction stage of the classification algorithm
@@ -68,7 +67,7 @@ stump::classification::ModelPtr Input::get(classifier::prediction::ModelInputId 
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr &ptr)
+void Input::set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -78,7 +77,7 @@ void Input::set(classifier::prediction::NumericTableInputId id, const data_manag
  * \param[in] id    Identifier of the input object
  * \param[in] ptr   Pointer to the input object
  */
-void Input::set(classifier::prediction::ModelInputId id, const stump::classification::ModelPtr &ptr)
+void Input::set(classifier::prediction::ModelInputId id, const stump::classification::ModelPtr & ptr)
 {
     Argument::set(id, ptr);
 }
@@ -88,20 +87,20 @@ void Input::set(classifier::prediction::ModelInputId id, const stump::classifica
  * \param[in] parameter Pointer to the structure of the algorithm parameters
  * \param[in] method    Computation method
  */
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, classifier::prediction::Input::check(parameter, method));
 
     stump::classification::ModelPtr m = get(classifier::prediction::model);
-    const size_t modelSplitFeature = m->getSplitFeature();
+    const size_t modelSplitFeature    = m->getSplitFeature();
     DAAL_CHECK(modelSplitFeature < get(classifier::prediction::data)->getNumberOfColumns(), services::ErrorStumpIncorrectSplitFeature);
     return services::Status();
 }
 
-}// namespace interface1
-}// namespace prediction
-}// namespace classification
-}// namespace stump
-}// namespace algorithms
-}// namespace daal
+} // namespace interface1
+} // namespace prediction
+} // namespace classification
+} // namespace stump
+} // namespace algorithms
+} // namespace daal

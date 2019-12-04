@@ -40,39 +40,40 @@ namespace classification
 {
 namespace training
 {
-
 /**
  * Allocates memory to store the result of decision forest model-based training
  * \param[in] input Pointer to an object containing the input data
  * \param[in] method Computation method for the algorithm
  * \param[in] parameter %Parameter of decision forest model-based training
  */
-template<typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input *input, const daal::algorithms::Parameter *prm, const int method)
+template <typename algorithmFPType>
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * prm, const int method)
 {
     services::Status status;
-    const daal::algorithms::decision_forest::training::Parameter *parameter = dynamic_cast<const daal::algorithms::decision_forest::training::Parameter *>(prm);
-    const classifier::training::Input* inp = static_cast<const classifier::training::Input*>(input);
-    const size_t nFeatures = inp->get(classifier::training::data)->getNumberOfColumns();
+    const daal::algorithms::decision_forest::training::Parameter * parameter =
+        dynamic_cast<const daal::algorithms::decision_forest::training::Parameter *>(prm);
+    const classifier::training::Input * inp = static_cast<const classifier::training::Input *>(input);
+    const size_t nFeatures                  = inp->get(classifier::training::data)->getNumberOfColumns();
 
-    set(classifier::training::model, daal::algorithms::decision_forest::classification::ModelPtr(new decision_forest::classification::internal::ModelImpl(nFeatures)));
-    if(parameter->resultsToCompute & decision_forest::training::computeOutOfBagError)
+    set(classifier::training::model,
+        daal::algorithms::decision_forest::classification::ModelPtr(new decision_forest::classification::internal::ModelImpl(nFeatures)));
+    if (parameter->resultsToCompute & decision_forest::training::computeOutOfBagError)
     {
-        set(outOfBagError, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(1, 1,
-            data_management::NumericTable::doAllocate, status)));
+        set(outOfBagError,
+            NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTable::doAllocate, status)));
     }
-    if(parameter->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
+    if (parameter->resultsToCompute & decision_forest::training::computeOutOfBagErrorPerObservation)
     {
         const size_t nObs = inp->get(classifier::training::data)->getNumberOfRows();
-        set(outOfBagErrorPerObservation, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(1, nObs,
-            data_management::NumericTable::doAllocate, status)));
+        set(outOfBagErrorPerObservation, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                             1, nObs, data_management::NumericTable::doAllocate, status)));
     }
-    if(parameter->varImportance != decision_forest::training::none)
+    if (parameter->varImportance != decision_forest::training::none)
     {
-        const classifier::training::Input *inp = static_cast<const classifier::training::Input *>(input);
-        const size_t nFeatures = inp->get(classifier::training::data)->getNumberOfColumns();
-        set(variableImportance, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(nFeatures,
-            1, data_management::NumericTable::doAllocate, status)));
+        const classifier::training::Input * inp = static_cast<const classifier::training::Input *>(input);
+        const size_t nFeatures                  = inp->get(classifier::training::data)->getNumberOfColumns();
+        set(variableImportance, NumericTablePtr(data_management::HomogenNumericTable<algorithmFPType>::create(
+                                    nFeatures, 1, data_management::NumericTable::doAllocate, status)));
     }
     return status;
 }

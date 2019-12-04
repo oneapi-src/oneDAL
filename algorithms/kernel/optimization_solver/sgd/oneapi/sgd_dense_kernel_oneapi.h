@@ -19,7 +19,6 @@
 //  Declaration of template function that calculate sgd.
 //--
 
-
 #ifndef __SGD_DENSE_KERNEL_ONEAPI_H__
 #define __SGD_DENSE_KERNEL_ONEAPI_H__
 
@@ -33,8 +32,7 @@ namespace sgd
 {
 namespace internal
 {
-
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class SGDKernelOneAPI
 {};
 
