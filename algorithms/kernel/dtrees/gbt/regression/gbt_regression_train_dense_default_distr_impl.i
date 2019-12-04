@@ -418,7 +418,7 @@ services::Status RegressionTrainDistrStep3Kernel<algorithmFPType, method, cpu>::
     ConnectorType inputConnector(dynamic_cast<AOSNumericTable *>(ntInputTreeStructure));
 
     Collection<SplitRecord<algorithmFPType> > nodesForSplit;
-    inputConnector.getSplitNodesMerged<cpu>(0, nodesForSplit);
+    inputConnector.template getSplitNodesMerged<cpu>(0, nodesForSplit);
     size_t nNodesForSplit = nodesForSplit.size();
 
     ReadRows<int, cpu> binSizesRows(const_cast<NumericTable *>(ntBinSizes), 0, 1);
@@ -639,7 +639,7 @@ services::Status RegressionTrainDistrStep4Kernel<algorithmFPType, method, cpu>::
     ConnectorType inputConnector(dynamic_cast<AOSNumericTable *>(ntInputTreeStructure));
 
     Collection<SplitRecord<algorithmFPType> > nodesForSplit;
-    inputConnector.getSplitNodesMerged<cpu>(0, nodesForSplit);
+    inputConnector.template getSplitNodesMerged<cpu>(0, nodesForSplit);
     const size_t nNodesForSplit = nodesForSplit.size();
 
     const size_t nFeatures = dcFeatureIndices->size();
