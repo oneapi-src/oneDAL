@@ -92,8 +92,8 @@ void trainModel(bf_knn_classification::training::ResultPtr& trainingResult)
     bf_knn_classification::training::Batch<> algorithm;
 
     /* Pass the training data set and dependent values to the algorithm */
-    algorithm.getInput()->set(classifier::training::data, trainData);
-    algorithm.getInput()->set(classifier::training::labels, trainGroundTruth);
+    algorithm.input.set(classifier::training::data, trainData);
+    algorithm.input.set(classifier::training::labels, trainGroundTruth);
     algorithm.parameter().nClasses = nClasses;
     /* Train the BF kNN model */
     algorithm.compute();
@@ -122,8 +122,8 @@ void testModel(bf_knn_classification::training::ResultPtr& trainingResult,
     bf_knn_classification::prediction::Batch<> algorithm;
 
     /* Pass the testing data set and trained model to the algorithm */
-    algorithm.getInput()->set(classifier::prediction::data,  testData);
-    algorithm.getInput()->set(classifier::prediction::model, trainingResult->get(classifier::training::model));
+    algorithm.input.set(classifier::prediction::data,  testData);
+    algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
 
     /* Compute prediction results */
     algorithm.compute();
