@@ -45,7 +45,7 @@ struct common_moments_data_t
             resultArray[(int)nObservations][0] = 0.0;
         }
 
-        size_t rowSize = nFeatures * sizeof(algorithmFPType);
+        const size_t rowSize = nFeatures * sizeof(algorithmFPType);
 
 #if (defined _MEAN_ENABLE_) || (defined _VARC_ENABLE_)
         mean     = (algorithmFPType *)daal::services::internal::service_calloc<algorithmFPType, cpu>(rowSize);

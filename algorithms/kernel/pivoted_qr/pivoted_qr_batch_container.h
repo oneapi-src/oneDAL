@@ -53,9 +53,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Result * result       = static_cast<Result *>(_res);
     Parameter * parameter = static_cast<Parameter *>(_par);
 
-    size_t na = input->size();
-    size_t nr = result->size();
-
     NumericTable * dataTable               = static_cast<NumericTable *>(input->get(data).get());
     NumericTable * matrixQTable            = static_cast<NumericTable *>(result->get(matrixQ).get());
     NumericTable * matrixRTable            = static_cast<NumericTable *>(result->get(matrixR).get());

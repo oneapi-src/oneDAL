@@ -54,7 +54,6 @@ Status ResultImpl::allocate(const daal::algorithms::Input * input, const daal::a
     DAAL_CHECK(dataTable, ErrorNullInputNumericTable);
 
     const size_t nFeatures = dataTable->getNumberOfColumns();
-    const size_t nVectors  = dataTable->getNumberOfRows();
 
     if (parameter != NULL)
     {

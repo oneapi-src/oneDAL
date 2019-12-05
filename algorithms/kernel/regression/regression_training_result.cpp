@@ -53,8 +53,6 @@ void Result::set(ResultId id, const regression::ModelPtr & value)
 
 Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const Input * algInput          = static_cast<const Input *>(input);
-    const NumericTablePtr dataTable = algInput->get(data);
     const ModelConstPtr m           = get(model);
 
     DAAL_CHECK(m, ErrorNullModel);

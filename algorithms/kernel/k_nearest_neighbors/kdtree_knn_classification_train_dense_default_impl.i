@@ -825,7 +825,6 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     const size_t xRowCount    = x.getNumberOfRows();
     const size_t xColumnCount = x.getNumberOfColumns();
-    const auto maxThreads     = threader_get_threads_number();
 
     algorithmFpType * buffer = nullptr;
 

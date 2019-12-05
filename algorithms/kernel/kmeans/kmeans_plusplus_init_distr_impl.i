@@ -295,7 +295,6 @@ services::Status KMeansInitStep3MasterKernel<method, algorithmFPType, cpu>::comp
         aInput[i].value = value;
         overallError += value;
     }
-    size_t nOutput = 0; //generated so far
 
     DAAL_CHECK_STATUS(s,
                       (UniformKernelDefault<algorithmFPType, cpu>::compute(algorithmFPType(0.), overallError, engine, outputSize, aRngValues.get())));
@@ -430,8 +429,6 @@ services::Status KMeansInitStep5MasterKernel<method, algorithmFPType, cpu>::fina
                                                                                             const MemoryBlock * pRngState, NumericTable * pCentroids,
                                                                                             engines::BatchBase & engine)
 {
-    const auto nCandidates = ntCand->getNumberOfRows();
-
     ReadRows<algorithmFPType, cpu> weightsBD(const_cast<NumericTable *>(ntWeights), 0, 1);
     DAAL_CHECK_BLOCK_STATUS(weightsBD);
     Status s;
