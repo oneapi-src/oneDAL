@@ -49,20 +49,6 @@ services::String getKeyFPType()
     return services::String();
 }
 
-template<typename algorithmFPType>
-services::String getKeyType(services::String typeName)
-{
-    if (IsSameType<algorithmFPType, float>::value)
-    {
-        return services::String(" -D ") + typeName + services::String("=uint ");
-    }
-    if (IsSameType<algorithmFPType, double>::value)
-    {
-        return services::String(" -D ") + typeName + services::String("=ulong ");
-    }
-    return services::String();
-}
-
 namespace interface1
 {
 /**

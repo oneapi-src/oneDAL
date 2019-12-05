@@ -37,6 +37,32 @@ namespace gbt
 namespace internal
 {
 
+template <typename FPType>
+struct GetIntegerTypeForFPType;
+
+template <>
+struct GetIntegerTypeForFPType<float> {
+    using Type = std::uint32_t;
+};
+
+template <>
+struct GetIntegerTypeForFPType<double> {
+    using Type = std::uint64_t;
+};
+
+template <typename IntType>
+services::String getOpenCLKeyType(const services::String &typeName);
+
+template <>
+inline services::String getOpenCLKeyType<std::uint32_t>(const services::String &typeName) {
+    return services::String(" -D ") + typeName + services::String("=uint ");
+}
+
+template <>
+inline services::String getOpenCLKeyType<std::uint64_t>(const services::String &typeName) {
+    return services::String(" -D ") + typeName + services::String("=ulong ");
+}
+
 template <typename algorithmFPType>
 static void __buildProgram(ClKernelFactoryIface& factory)
 {
@@ -44,7 +70,7 @@ static void __buildProgram(ClKernelFactoryIface& factory)
 
     {
         auto fptype_name = getKeyFPType<algorithmFPType>();
-        auto radixtype_name = getKeyType<algorithmFPType>("radixIntType");
+        auto radixtype_name = getOpenCLKeyType<GetIntegerTypeForFPType<algorithmFPType>::Type>("radixIntType");
         auto build_options = fptype_name + radixtype_name;
         build_options.add("-cl-std=CL1.2");
 
