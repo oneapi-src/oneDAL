@@ -71,7 +71,7 @@ static void __buildProgram(ClKernelFactoryIface& factory)
 
     {
         auto fptype_name = getKeyFPType<algorithmFPType>();
-        auto radixtype_name = getOpenCLKeyType<GetIntegerTypeForFPType<algorithmFPType>::Type>("radixIntType");
+        auto radixtype_name = getOpenCLKeyType<typename GetIntegerTypeForFPType<algorithmFPType>::Type>("radixIntType");
         auto build_options = fptype_name + radixtype_name;
         build_options.add("-cl-std=CL1.2");
 
