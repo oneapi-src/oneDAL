@@ -64,7 +64,7 @@ BEGIN
             VALUE "LegalTrademarks", "\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", PRODUCT_NAME_STR
-            VALUE "ProductVersion", "2021.1-beta04\0"
+            VALUE "ProductVersion", "2021.1-beta03\0"
             VALUE "SpecialBuild", "\0"
         END
     END
