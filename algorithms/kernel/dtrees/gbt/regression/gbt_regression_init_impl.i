@@ -49,34 +49,42 @@ services::Status RegressionInitStep1LocalKernel<algorithmFPType, method, cpu>::c
     const HomogenNumericTable<size_t> * numberOfRows, const HomogenNumericTable<algorithmFPType> * binBorders,
     const HomogenNumericTable<size_t> * binSizes, const Parameter& par)
 {
-    /* inputs:
-            x - localData table
-            y - localDependentVariable table
-       outputs:
-            results - meanDependentVariable(0), numberOfRows(1), binBorders(2), binSizes(3) tables
-    */
+    services::Status s;
+
     const size_t localMaxBins = par.maxBins;
     const size_t minBinSize = 1;
-
-    services::Status s;
 
     // get local mean of dependent variable and number of rows
     const size_t nRows = y->getNumberOfRows();
     daal::internal::ReadColumns<algorithmFPType, cpu> depVarBlock;
     const algorithmFPType* pBlock = depVarBlock.set(const_cast<NumericTable*>(y), 0, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(depVarBlock);
+
+    const size_t nThreads  = daal::threader_get_threads_number();
+    const size_t nBlocks   = getNBlocksForOpt<cpu>(nThreads, nRows);
+    const bool inParallel  = nBlocks > 1;
+    const size_t nPerBlock = nRows / nBlocks;
+    const size_t nSurplus  = nRows % nBlocks;
     double sum = 0;
-    for (size_t iRow = 0; iRow < nRows; iRow++) sum += pBlock[iRow];
-    algorithmFPType localMean = sum / nRows;
+    daal::services::internal::TArray<double, cpu> pSumsArr(nBlocks);
+    double * const pSum = pSumsArr.get();
+    services::internal::service_memset<double, cpu>(pSum, 0, nBlocks);
+    LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
+        const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+        const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+        for (size_t i = start; i < end; ++i)
+            pSum[iBlock] += pBlock[i];
+    });
+    for (size_t i = 0; i < nBlocks; ++i)
+        sum += pSum[i];
 
     algorithmFPType * localMeanDepVarPtr = meanDependentVariable->getArray();
     size_t * localNRowsPtr = numberOfRows->getArray();
 
-    localMeanDepVarPtr[0] = localMean;
+    localMeanDepVarPtr[0] = sum / nRows;
     localNRowsPtr[0] = nRows;
 
     // get binBorders and binSizes
-    // dtrees::internal::IndexedFeatures indexedFeatures;
     dtrees::internal::IndexedFeaturesCPU<algorithmFPType, cpu> indexedFeatures;
     dtrees::internal::FeatureTypes featTypes;
 
@@ -92,20 +100,19 @@ services::Status RegressionInitStep1LocalKernel<algorithmFPType, method, cpu>::c
     size_t * localBinSizesPtr = binSizes->getArray();
     daal::services::internal::EpsilonVal<algorithmFPType> epsilonGetter;
     algorithmFPType epsilon = epsilonGetter.get();
-    for (size_t iCol = 0; iCol < nColumns; ++iCol)
-    {
+    LoopHelper<cpu>::run(nThreads > 1 ? true : false, nColumns, [&](size_t iCol){
         localBinBordersPtr[iCol] = indexedFeatures.minFeatureValue(iCol)*(1-epsilon) - epsilon;
-        for (size_t iBin = 0; iBin < indexedFeatures.numIndices(iCol); iBin++)
+        for (size_t iBin = 0; iBin < indexedFeatures.numIndices(iCol); ++iBin)
         {
             localBinBordersPtr[(iBin + 1) * nColumns + iCol] = indexedFeatures.binRightBorder(iCol, iBin);
             localBinSizesPtr[iBin * nColumns + iCol] = indexedFeatures.binSize(iCol, iBin);
         }
-        for (size_t iBin = indexedFeatures.numIndices(iCol); iBin < localMaxBins; iBin++)
+        for (size_t iBin = indexedFeatures.numIndices(iCol); iBin < localMaxBins; ++iBin)
         {
             localBinBordersPtr[(iBin + 1) * nColumns + iCol] = 0;
             localBinSizesPtr[iBin * nColumns + iCol] = 0;
         }
-    }
+    });
     return s;
 }
 
@@ -143,21 +150,21 @@ public:
 
         // get all bin borders from all nodes
         size_t allBinsCount = 0;
-        for (size_t iNode = 0; iNode < _nNodes; iNode++)
+        for (size_t iNode = 0; iNode < _nNodes; ++iNode)
         {
             const algorithmFPType * localBinBordersPtr = localBinBordersTables[iNode]->getArray();
             const size_t * localBinSizesPtr = localBinSizesTables[iNode]->getArray();
 
             allBinBorders[allBinsCount] = localBinBordersPtr[iCol];
-            allBinsCount++;
+            ++allBinsCount;
 
-            for (size_t iBin = 0; iBin < localMaxBins; iBin++)
+            for (size_t iBin = 0; iBin < localMaxBins; ++iBin)
             {
                 if (localBinSizesPtr[iBin*nCols + iCol] == 0) break;
                 else
                 {
                     allBinBorders[allBinsCount] = localBinBordersPtr[(iBin+1)*nCols + iCol];
-                    allBinsCount++;
+                    ++allBinsCount;
                 }
             }
         }
@@ -171,31 +178,31 @@ public:
         daal::services::internal::MaxVal<algorithmFPType> maxGetter;
         algorithmFPType maxInFPType = maxGetter.get();
         algorithmFPType lastUnique = maxInFPType;
-        for (size_t iBin = 0; iBin < allBinsCount; iBin++)
+        for (size_t iBin = 0; iBin < allBinsCount; ++iBin)
         {
             if ( allBinBorders[iBin] != lastUnique )
             {
                 mergedBinBorders[nMergedBins] = allBinBorders[iBin];
-                nMergedBins++;
+                ++nMergedBins;
                 lastUnique = allBinBorders[iBin];
             }
         }
-        nMergedBins--; // nBins = nBorders - 1
+        --nMergedBins; // nBins = nBorders - 1
         if ( nMergedBins > _maxBins )
         {
             // weights assignment
             daal::services::internal::TArray<algorithmFPType, cpu> binWeightsArray(nMergedBins);
             algorithmFPType * binWeights = binWeightsArray.get();
-            for (size_t i = 0; i < nMergedBins; i++) { binWeights[i] = 0.; }
+            for (size_t i = 0; i < nMergedBins; ++i) { binWeights[i] = 0.; }
 
             for (size_t iMergedBin = 0; iMergedBin < nMergedBins; iMergedBin++)
             {
-                for (size_t iNode = 0; iNode < _nNodes; iNode++)
+                for (size_t iNode = 0; iNode < _nNodes; ++iNode)
                 {
                     const algorithmFPType * binsBorders = localBinBordersTables[iNode]->getArray() + iCol;
                     const size_t * binSizes = localBinSizesTables[iNode]->getArray() + iCol;
 
-                    for (size_t iBin = 0; iBin < localMaxBins; iBin++)
+                    for (size_t iBin = 0; iBin < localMaxBins; ++iBin)
                     {
                         if ( binSizes[iBin * nCols] == 0 ) break;
                         if ( binsBorders[iBin * nCols] >= mergedBinBorders[iMergedBin+1] ) break;
@@ -212,7 +219,7 @@ public:
             {
                 size_t minIdx;
                 algorithmFPType minSumWeights = maxInFPType;
-                for (size_t i = 0; i < nMergedBins - 1; i++)
+                for (size_t i = 0; i < nMergedBins - 1; ++i)
                 {
                     if ( binWeights[i] + binWeights[i+1] < minSumWeights )
                     {
@@ -247,11 +254,11 @@ public:
                     if ( addToRight )
                     {
                         binWeights[iBin + 1] += binWeights[iBin];
-                        for (size_t jBin = iBin; jBin < nMergedBins - 1; jBin++)
+                        for (size_t jBin = iBin; jBin < nMergedBins - 1; ++jBin)
                         {
                             binWeights[jBin] = binWeights[jBin + 1];
                         }
-                        for (size_t jBin = iBin; jBin < nMergedBins; jBin++)
+                        for (size_t jBin = iBin; jBin < nMergedBins; ++jBin)
                         {
                             mergedBinBorders[jBin] = mergedBinBorders[jBin + 1];
                         }
@@ -259,11 +266,11 @@ public:
                     else
                     {
                         binWeights[iBin] += binWeights[iBin - 1];
-                        for (size_t jBin = iBin - 1; jBin < nMergedBins - 1; jBin++)
+                        for (size_t jBin = iBin - 1; jBin < nMergedBins - 1; ++jBin)
                         {
                             binWeights[jBin] = binWeights[jBin + 1];
                         }
-                        for (size_t jBin = iBin - 1; jBin < nMergedBins; jBin++)
+                        for (size_t jBin = iBin - 1; jBin < nMergedBins; ++jBin)
                         {
                             mergedBinBorders[jBin] = mergedBinBorders[jBin + 1];
                         }
@@ -277,7 +284,7 @@ public:
             }
         }
         binsPerFeature[0] = nMergedBins;
-        for (size_t iBin = 0; iBin < nMergedBins; iBin++)
+        for (size_t iBin = 0; iBin < nMergedBins; ++iBin)
         {
             resultBorders[iBin * nCols] = mergedBinBorders[iBin + 1];
         }
@@ -315,7 +322,7 @@ services::Status RegressionInitStep2MasterKernel<algorithmFPType, method, cpu>::
     // find global mean
     double mean = 0;
     size_t nRows = 0;
-    for (size_t iNode = 0; iNode < nNodes; iNode++)
+    for (size_t iNode = 0; iNode < nNodes; ++iNode)
     {
         NumericTable *localMeanNTPtr = (NumericTable::cast((*localMeanDepVars)[iNode])).get();
         daal::internal::ReadRows<algorithmFPType, cpu> localMeanRows(localMeanNTPtr, 0, 1);
@@ -351,7 +358,7 @@ services::Status RegressionInitStep2MasterKernel<algorithmFPType, method, cpu>::
     daal::services::internal::TArray<size_t*, cpu> binQuantitiesArray(nCols);
     algorithmFPType ** bordersPtrs = bordersArray.get();
     size_t ** binQuantitiesPtrs = binQuantitiesArray.get();
-    for (size_t iCol = 0; iCol < nCols; iCol++)
+    for (size_t iCol = 0; iCol < nCols; ++iCol)
     {
         bordersPtrs[iCol] = mergedBinBorders->getArray() + iCol;
         binQuantitiesPtrs[iCol] = binQuantities->getArray() + iCol;
@@ -371,12 +378,12 @@ services::Status RegressionInitStep2MasterKernel<algorithmFPType, method, cpu>::
 
     dcBinValues->clear();
 
-    for (size_t i = 0; i < nCols; i++)
+    for (size_t i = 0; i < nCols; ++i)
     {
         services::Status s;
         services::SharedPtr<HomogenNumericTable<algorithmFPType> > ntBinValues = HomogenNumericTable<algorithmFPType>::create(binQuantitiesPtrs[i][0], 1, NumericTable::doAllocate, &s);
         algorithmFPType * const binValues = ntBinValues->getArray();
-        for (size_t j = 0; j < binQuantitiesPtrs[i][0]; j++)
+        for (size_t j = 0; j < binQuantitiesPtrs[i][0]; ++j)
         {
             binValues[j] = bordersPtrs[i][j * nCols];
         }
@@ -400,13 +407,13 @@ services::Status step3ComputeImpl(
     const size_t maxBins = par.maxBins;
 
     ntResponse->assign(ntInitialResponse->getArray()[0]);
-    for (size_t i = 0; i < nRows; i++)
+    for (size_t i = 0; i < nRows; ++i)
     {
         ntTreeOrder->getArray()[i] = i;
     }
 
     TArray<size_t, cpu> binSizes(nFeatures);
-    for (size_t iCol = 0; iCol < nFeatures; iCol++)
+    for (size_t iCol = 0; iCol < nFeatures; ++iCol)
     {
         binSizes[iCol] = (binQuantities->getArray())[iCol];
     }
@@ -420,9 +427,9 @@ services::Status step3ComputeImpl(
     const algorithmFPType * const bordersPtr = mergedBinBorders->getArray();
 
     TArray<algorithmFPType, cpu> binBordersArray(nFeatures * maxBins);
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0; i < nFeatures; ++i)
     {
-        for (size_t j = 0; j < binSizes[i]; j++)
+        for (size_t j = 0; j < binSizes[i]; ++j)
         {
             binBordersArray[i * maxBins + j] = bordersPtr[j * nFeatures + i];
         }
@@ -437,9 +444,9 @@ services::Status step3ComputeImpl(
         const size_t iStart = block * blockSize;
         const size_t iEnd = (((block + 1) * blockSize > nRows) ? nRows : iStart + blockSize);
 
-        for (size_t iRow = iStart; iRow < iEnd; iRow++)
+        for (size_t iRow = iStart; iRow < iEnd; ++iRow)
         {
-            for (size_t iCol = 0; iCol < nFeatures; iCol++)
+            for (size_t iCol = 0; iCol < nFeatures; ++iCol)
             {
                 const algorithmFPType * const curBorders = binBordersArray.get() + iCol * maxBins;
                 const size_t curNBins = binSizes[iCol];
