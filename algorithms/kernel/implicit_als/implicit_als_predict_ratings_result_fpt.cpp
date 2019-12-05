@@ -48,7 +48,6 @@ template <typename algorithmFPType>
 DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     const InputIface * algInput    = static_cast<const InputIface *>(input);
-    const Parameter * algParameter = static_cast<const Parameter *>(parameter);
 
     size_t nUsers = algInput->getNumberOfUsers();
     size_t nItems = algInput->getNumberOfItems();

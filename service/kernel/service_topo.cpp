@@ -917,7 +917,7 @@ static unsigned long __internal_daal_getCacheTotalLize(CPUIDinfo info)
 static int __internal_daal_findEachCacheIndex(DWORD maxCPUID, unsigned cache_subleaf)
 {
     unsigned i, type;
-    unsigned long cap, lastlevcap;
+    unsigned long cap;
     CPUIDinfo info4;
     int target_index = -1;
 
@@ -937,7 +937,7 @@ static int __internal_daal_findEachCacheIndex(DWORD maxCPUID, unsigned cache_sub
 
     __internal_daal_cpuid_(&info4, 4, cache_subleaf);
     type       = __internal_daal_getBitsFromDWORD(info4.EAX, 0, 4);
-    lastlevcap = cap = __internal_daal_getCacheTotalLize(info4);
+    cap = __internal_daal_getCacheTotalLize(info4);
 
     if (type > 0)
     {
@@ -948,7 +948,6 @@ static int __internal_daal_findEachCacheIndex(DWORD maxCPUID, unsigned cache_sub
             if (glbl_obj.cacheDetail[i].type == type) glbl_obj.cacheDetail[i].how_many_caches_share_level++;
         }
         glbl_obj.cacheDetail[cache_subleaf].sizeKB = cap / 1024;
-        lastlevcap                                 = cap;
         target_index                               = cache_subleaf;
     }
 
@@ -1364,8 +1363,7 @@ static int __internal_daal_queryParseSubIDs(void)
 static int __internal_daal_analyzeCPUHierarchy(unsigned numMappings)
 {
     unsigned i, ckDim, maxPackageDetetcted = 0;
-    unsigned APICID;
-    unsigned packageID, coreID, threadID;
+    unsigned packageID, coreID;
     unsigned *pDetectCoreIDsperPkg, *pDetectedPkgIDs;
 
     // allocate workspace to sort parents and siblings in the topology
@@ -1396,10 +1394,8 @@ static int __internal_daal_analyzeCPUHierarchy(unsigned numMappings)
     {
         BOOL PkgMarked;
         unsigned h;
-        APICID    = glbl_obj.pApicAffOrdMapping[i].APICID;
         packageID = glbl_obj.pApicAffOrdMapping[i].pkg_IDAPIC;
         coreID    = glbl_obj.pApicAffOrdMapping[i].Core_IDAPIC;
-        threadID  = glbl_obj.pApicAffOrdMapping[i].SMT_IDAPIC;
 
         PkgMarked = FALSE;
         for (h = 0; h < maxPackageDetetcted; h++)
@@ -1495,7 +1491,6 @@ static int __internal_daal_analyzeEachCHierarchy(unsigned subleaf, unsigned numM
 {
     unsigned i;
     unsigned maxCacheDetected = 0, maxThreadsDetected = 0;
-    unsigned APICID;
     unsigned threadID;
     unsigned CacheID;
     unsigned *pDetectThreadIDsperEachC, *pDetectedEachCIDs;
@@ -1592,7 +1587,6 @@ static int __internal_daal_analyzeEachCHierarchy(unsigned subleaf, unsigned numM
         BOOL CacheMarked;
         unsigned h;
 
-        APICID   = glbl_obj.pApicAffOrdMapping[i].APICID;
         CacheID  = glbl_obj.pApicAffOrdMapping[i].EaCacheIDAPIC[subleaf]; // sub ID to enumerate different caches in the system
         threadID = glbl_obj.pApicAffOrdMapping[i].EaCacheSMTIDAPIC[subleaf];
 
@@ -1887,34 +1881,26 @@ unsigned _internal_daal_GetCoreCountPerEachCache(unsigned subleaf, unsigned cach
 
 unsigned _internal_daal_GetLogicalProcessorQueue(int * queue)
 {
-    int cache_desc_not_available;
-    unsigned pkg, i, j, did_header, cur_entry, max_entries, subleaf, level, level_min, level_max;
-    unsigned line_type, line_type_max, sub_lf;
-    int ht, cores, cpus, q;
-
-    cpus  = _internal_daal_GetSysLogicalProcessorCount();
-    cores = _internal_daal_GetSysProcessorCoreCount();
+    const int cpus  = _internal_daal_GetSysLogicalProcessorCount();
+    int cores = _internal_daal_GetSysProcessorCoreCount();
 
     if (cores == 0) cores = 1;
 
-    ht = cpus / cores;
+    int ht = cpus / cores;
     if (ht < 1 || ht >= cpus)
     {
         glbl_obj.error |= _MSGTYP_GENERAL_ERROR;
         return glbl_obj.error;
     }
 
-    level                    = glbl_obj.cacheDetail[0].level;
-    cache_desc_not_available = strcmp(glbl_obj.cacheDetail[0].descShort, "$");
-
-    q = 0;
-    for (pkg = 0; pkg < _internal_daal_GetSysProcessorPackageCount(); pkg++)
+    int q = 0;
+    for (unsigned pkg = 0; pkg < _internal_daal_GetSysProcessorPackageCount(); pkg++)
     {
-        for (i = 0; i < _internal_daal_GetSysEachCacheCount(0); i++)
+        for (unsigned i = 0; i < _internal_daal_GetSysEachCacheCount(0); i++)
         {
             if (_internal_daal_GetCoreCountPerEachCache(0, i) > 0)
             {
-                for (j = 0; j < _internal_daal_GetSysLogicalProcessorCount(); j++)
+                for (unsigned j = 0; j < _internal_daal_GetSysLogicalProcessorCount(); j++)
                 {
                     if (glbl_obj.pApicAffOrdMapping[j].packageORD == pkg && glbl_obj.pApicAffOrdMapping[j].EachCacheORD[0] == i)
                     {

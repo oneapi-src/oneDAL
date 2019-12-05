@@ -45,8 +45,6 @@ int main(int argc, char * argv[])
     /* Retrieve the data from the input file */
     dataSource.loadDataBlock();
 
-    size_t nFeatures = dataSource.getNumberOfColumns();
-
     univariate_outlier_detection::Batch<> algorithm;
 
     algorithm.input.set(univariate_outlier_detection::data, dataSource.getNumericTable());

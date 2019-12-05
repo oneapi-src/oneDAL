@@ -679,7 +679,7 @@ class TreeThreadCtx : public TreeThreadCtxBase<algorithmFPType, cpu>
 {
 public:
     typedef TreeThreadCtxBase<algorithmFPType, cpu> super;
-    TreeThreadCtx(algorithmFPType * _varImp = nullptr) : super(_varImp) {}
+    TreeThreadCtx(algorithmFPType * _varImp = nullptr) : super(_varImp), _nClasses(0) {}
     bool init(const decision_forest::training::Parameter & par, const NumericTable * x, size_t nClasses)
     {
         DAAL_CHECK_STATUS_VAR(super::init(par, x));
