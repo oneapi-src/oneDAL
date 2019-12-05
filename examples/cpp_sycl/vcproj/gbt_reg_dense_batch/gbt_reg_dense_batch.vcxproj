@@ -298,7 +298,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(ProjectDir)..\..\source\covariance\gbt_reg_dense_batch.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\source\gradient_boosted_trees\gbt_reg_dense_batch.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
