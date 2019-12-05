@@ -1,2 +1,3 @@
 #Documentation owner
-/docs/ @outoftardis
+/docs/      @outoftardis
+*.md        @outoftardis
