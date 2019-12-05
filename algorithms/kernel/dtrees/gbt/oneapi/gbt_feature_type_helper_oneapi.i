@@ -55,12 +55,12 @@ template <typename IntType>
 services::String getOpenCLKeyType(const services::String &typeName);
 
 template <>
-inline services::String getOpenCLKeyType<std::uint32_t>(const services::String &typeName) {
+inline services::String getOpenCLKeyType<uint32_t>(const services::String &typeName) {
     return services::String(" -D ") + typeName + services::String("=uint ");
 }
 
 template <>
-inline services::String getOpenCLKeyType<std::uint64_t>(const services::String &typeName) {
+inline services::String getOpenCLKeyType<uint64_t>(const services::String &typeName) {
     return services::String(" -D ") + typeName + services::String("=ulong ");
 }
 
