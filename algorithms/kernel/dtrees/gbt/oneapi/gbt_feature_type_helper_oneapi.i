@@ -22,6 +22,7 @@
 */
 #include "dtrees_feature_type_helper.h"
 
+#include "service_data_utils.h"
 #include "service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(gbt.common.oneapi);
@@ -42,12 +43,12 @@ struct GetIntegerTypeForFPType;
 
 template <>
 struct GetIntegerTypeForFPType<float> {
-    using Type = std::uint32_t;
+    using Type = uint32_t;
 };
 
 template <>
 struct GetIntegerTypeForFPType<double> {
-    using Type = std::uint64_t;
+    using Type = uint64_t;
 };
 
 template <typename IntType>
