@@ -144,6 +144,9 @@ public:
         return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
     }
 
+public:
+    InputType input; /*!< %Input objects of the algorithm */
+
 protected:
     virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
     {
@@ -160,9 +163,8 @@ protected:
     void initialize()
     {
         _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in = &_input;
+        _in = &input;
     }
-    InputType _input;
 };
 
 /** @} */
