@@ -280,9 +280,10 @@ services::Status AdaBoostPredictKernel<method, algorithmFPType, cpu>::processBlo
 {
     const algorithmFPType k_fptype = (algorithmFPType)k;
     service_memset<algorithmFPType, cpu>(curClassScore, 0.0, nRowsInCurrentBlock);
+    const size_t rWeakCols = (method == samme) ? 1 : nClasses;
     for (size_t m = 0; m < nWeakLearners; m++)
     {
-        const algorithmFPType *rWeak = &(weakPredictions[m]->getArray()[nProcessedRows * nClasses]);
+        const algorithmFPType *rWeak = &(weakPredictions[m]->getArray()[nProcessedRows * rWeakCols]);
         for (size_t i = 0; i < nRowsInCurrentBlock; i++)
         {
             if (method == samme)
