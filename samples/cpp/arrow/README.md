@@ -8,9 +8,9 @@ Unzip the archive with Intel® DAAL samples to your working directory (`<sample_
 You can use Intel(R) DAAL Apache Arrow\* samples on Linux\*, Windows\*, and macOS\* operating systems. For a list of Intel(R) DAAL hardware and software requirements, refer to release notes for the version of Intel(R) DAAL you are using.
 
 ### Apache Arrow\* implementations against which Intel(R) DAAL has been validated:
-- Apache Arrow\* 0.15.0
+- Apache Arrow\* 0.15.1
 
-**Note:** Intel(R) DAAL is expected to work on higher Apache Arrow\* versions as well. Let us know if you have any troubles with the distribution you are using.
+**Note:** Intel(R) DAAL is expected to work on other Apache Arrow\* version as well. Let us know if you have any troubles with the distribution you are using.
 
 ## Preparation Before Build and Run
 ### Apache Arrow\* support
@@ -25,7 +25,7 @@ vars.bat intel64`
 source vars.sh intel64`
 - On macOS\*, you can find the `vars.sh` shell script at `<install-dir>\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:
 source vars.sh`
-For more information about setting environment variables and configuring Intel(R) DAAL, refer to Getting Started guides for the library.
+Pay attention that `32-bit` architectures are not supported by Apache Arrow\*, that's why we provide building this sample on the `64-bit` architectures only. For more information about setting environment variables and configuring Intel(R) DAAL, refer to Getting Started guides for the library.
 
 ## Build and Run Instructions
 ### On Windows\*

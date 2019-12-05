@@ -935,9 +935,9 @@ For a list of Intel® DAAL hardware and software requirements, refer to release 
 for the version of Intel® DAAL you are using. </p>
     <h3>Apache Arrow* implementations against which Intel® DAAL has been validated:</h3>
     <ul>
-        <li>Apache Arrow* 0.15.0</li>
+        <li>Apache Arrow* 0.15.1</li>
     </ul>
-    <p><strong>Note:</strong> Intel® DAAL is expected to work on higher Apache Arrow* versions
+    <p><strong>Note:</strong> Intel® DAAL is expected to work on other Apache Arrow* version
     as well. Let us know if you have any troubles with the distribution you are using.</p>
     <h2><a name="Preparation_before_build">Preparation Before Build and Run</a></h2>
 <h3> Apache Arrow* support</h3>
@@ -962,7 +962,9 @@ https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#build
             </samp>
         </li>
     </ul>
-    <p>For more information about setting environment variables
+    <p>Pay attention that <samp class="codeph">32-bit</samp> architectures are not supported by Apache Arrow*, 
+        that's why we provide building this sample on the <samp class="codeph">64-bit</samp> architectures only. 
+        For more information about setting environment variables
         and configuring Intel® DAAL, refer to Getting Started guides for the
         library.</p>
     <h2><a name="Build_and_Run_Instructions">Build and Run Instructions</a></h2>

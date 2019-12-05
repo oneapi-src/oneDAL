@@ -66,15 +66,23 @@ ifneq ($(mode),build)
     override mode = run
 endif
 
+LIB_DOUBLE_CONV = $(ARROWROOT)/cpp/$(ARROWCONFIG)/double-conversion_ep-prefix/src/double-conversion_ep-build/libdouble-conversion.a
+TO_INCLUDE = ""
+
+ifeq ($(shell test -e $(LIB_DOUBLE_CONV) && echo -n yes),yes)
+    TO_INCLUDE=$(LIB_DOUBLE_CONV)
+endif
+
 EXT_LIB := -ltbb -ltbbmalloc -ldl \
 			$(ARROWROOT)/cpp/$(ARROWCONFIG)/$(ARROWCONFIG)/libarrow.a \
            	$(ARROWROOT)/cpp/$(ARROWCONFIG)/glog_ep-prefix/src/glog_ep/libglog.a \
            	$(ARROWROOT)/cpp/$(ARROWCONFIG)/jemalloc_ep-prefix/src/jemalloc_ep/lib/libjemalloc.a \
            	$(BOOST_SYSTEM_LIBRARY_PATH)/libboost_system.a \
            	$(BOOST_FILESYSTEM_LIBRARY_PATH)/libboost_filesystem.a \
-           	$(ARROWROOT)/cpp/$(ARROWCONFIG)/double-conversion_ep-prefix/src/double-conversion_ep-build/libdouble-conversion.a
+           	$(TO_INCLUDE)
 
-COPTS := -Wall -w -DDAAL_CHECK_PARAMETER -stdlib=libc++ -std=c++14 -I$(ARROWROOT)/cpp/src -I$(DAALROOT)/include
+COPTS := -Wall -w -DDAAL_CHECK_PARAMETER -stdlib=libc++ -std=c++14\
+		 -I$(ARROWROOT)/cpp/src -I$(ARROWROOT)/cpp/$(ARROWCONFIG)/src -I$(DAALROOT)/include
 LOPTS := $(DAAL_LIB) $(EXT_LIB)
 
 RES_DIR=_results/$(compiler)_$(_IA)_$(RES_EXT)

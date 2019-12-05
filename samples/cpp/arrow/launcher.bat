@@ -37,8 +37,7 @@ if not "%RMODE%"=="build" if not "%RMODE%"=="run" if not "%RMODE%"=="" (
 goto :CorrectArgs
 
 :Usage
-echo Usage: launcher.bat ^{arch^|help^} [rmode]
-echo arch  - can be intel64
+echo Usage: launcher.bat ^{help^} [rmode]
 echo rmode - optional parameter, can be build (for building samples only) or
 echo         run (for running samples only).
 echo         If not specified build and run are performed.
@@ -53,15 +52,20 @@ if not exist %RESULT_DIR% md %RESULT_DIR%
 
 echo %RESULT_DIR%
 
-set CFLAGS=-nologo -w -DDAAL_CHECK_PARAMETER -std=c++14 /I %ARROWROOT%\cpp\src /I %DAALROOT%\include
+set CFLAGS=-nologo -w -DDAAL_CHECK_PARAMETER -std=c++14 /I %ARROWROOT%\cpp\src /I %ARROWROOT%\cpp\%ARROWCONFIG%\src /I %DAALROOT%\include
 set LFLAGS=-nologo
 set LIB_DAAL=daal_core.lib daal_thread.lib
 set LIB_DAAL_DLL=daal_core_dll.lib
 set LFLAGS_DAAL=%LIB_DAAL% tbb.lib tbbmalloc.lib
 set LFLAGS_DAAL_DLL=daal_core_dll.lib
 set ARROW_LOGFILE=.\%RESULT_DIR%\build_arrow.log
-set ARROW_LIBRARIES=%ARROWROOT%\cpp\%ARROWCONFIG%\%ARROWCONFIG%\Release\arrow.lib ^
-            %ARROWROOT%\cpp\%ARROWCONFIG%\double-conversion_ep\src\double-conversion_ep\lib\double-conversion.lib
+set LIB_DOUBLE_CONV=%ARROWROOT%\cpp\%ARROWCONFIG%\double-conversion_ep\src\double-conversion_ep\lib\double-conversion.lib
+set ARROW_LIBRARIES=%ARROWROOT%\cpp\%ARROWCONFIG%\%ARROWCONFIG%\Release\arrow.lib
+
+if exist %LIB_DOUBLE_CONV% (
+    set ARROW_LIBRARIES=%ARROW_LIBRARIES% %LIB_DOUBLE_CONV%
+)
+
 if not "%RMODE%"=="run" (
     if exist %ARROW_LOGFILE% del /Q /F %ARROW_LOGFILE%
 )
