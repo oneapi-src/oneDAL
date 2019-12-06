@@ -159,7 +159,7 @@ public:
                 impVals[idxInTable]          = p->impurity;
                 spitPoints[idxInTable]       = p->featureValue;
 
-                idxInTable++;
+                ++idxInTable;
             }
 
             const size_t size = nSons * sizeof(SplitType);
@@ -235,7 +235,7 @@ public:
 protected:
     void getMaxLvl(const typename TNodeType::Base & node, size_t & maxLvl, size_t curLvl = 0) const
     {
-        curLvl++;
+        ++curLvl;
         const auto p = TNodeType::castSplit(&node);
 
         if (p->isSplit())

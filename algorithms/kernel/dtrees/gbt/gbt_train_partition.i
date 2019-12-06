@@ -198,7 +198,7 @@ public:
 
         nLeft = 0;
 
-        for (size_t iBlock = 0; iBlock < nBlocks; iBlock++)
+        for (size_t iBlock = 0; iBlock < nBlocks; ++iBlock)
         {
             nLeft += part_high_left[iBlock];
         }

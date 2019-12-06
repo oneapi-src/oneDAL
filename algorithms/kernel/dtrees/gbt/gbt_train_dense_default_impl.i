@@ -257,7 +257,7 @@ double TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::computeLeafWeight
         const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = start; i < end; i++) pf[idx[i] * this->_nTrees + iTree] += inc;
+        for (size_t i = start; i < end; ++i) pf[idx[i] * this->_nTrees + iTree] += inc;
     });
 
     return res + inc;

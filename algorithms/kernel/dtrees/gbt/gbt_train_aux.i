@@ -515,12 +515,12 @@ class GroupOfStorages
 public:
     GroupOfStorages(size_t nElems) : storages(nElems)
     {
-        for (size_t i = 0; i < nElems; i++) new (&storages[i]) BuffersStorage();
+        for (size_t i = 0; i < nElems; ++i) new (&storages[i]) BuffersStorage();
     }
 
     ~GroupOfStorages()
     {
-        for (size_t i = 0; i < storages.size(); i++) storages[i].~BuffersStorage();
+        for (size_t i = 0; i < storages.size(); ++i) storages[i].~BuffersStorage();
     }
 
     void add(size_t idx, size_t size, size_t nElem)

@@ -195,7 +195,7 @@ public:
             algorithmFPType * binWeights = binWeightsArray.get();
             for (size_t i = 0; i < nMergedBins; ++i) { binWeights[i] = 0.; }
 
-            for (size_t iMergedBin = 0; iMergedBin < nMergedBins; iMergedBin++)
+            for (size_t iMergedBin = 0; iMergedBin < nMergedBins; ++iMergedBin)
             {
                 for (size_t iNode = 0; iNode < _nNodes; ++iNode)
                 {
@@ -228,11 +228,11 @@ public:
                     }
                 }
                 binWeights[minIdx] += binWeights[minIdx+1];
-                for (size_t i = minIdx + 1; i < nMergedBins; i++)
+                for (size_t i = minIdx + 1; i < nMergedBins; ++i)
                 {
                     mergedBinBorders[i] = mergedBinBorders[i+1];
                 }
-                for (size_t i = minIdx + 1; i < nMergedBins-1; i++)
+                for (size_t i = minIdx + 1; i < nMergedBins-1; ++i)
                 {
                     binWeights[i] = binWeights[i+1];
                 }
@@ -279,7 +279,7 @@ public:
                 }
                 else
                 {
-                    iBin++;
+                    ++iBin;
                 }
             }
         }

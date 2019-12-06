@@ -283,7 +283,7 @@ protected:
             if (aSampleToF)
             {
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = start; i < end; i++)
+                for (size_t i = start; i < end; ++i)
                 {
                     localG += pgh[aSampleToF[i]].g;
                     localH += pgh[aSampleToF[i]].h;
@@ -292,7 +292,7 @@ protected:
             else
             {
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = start; i < end; i++)
+                for (size_t i = start; i < end; ++i)
                 {
                     localG += pgh[i].g;
                     localH += pgh[i].h;
@@ -301,7 +301,7 @@ protected:
             gs[iBlock] = localG;
             hs[iBlock] = localH;
         });
-        for (size_t i = 0; i < nBlocks; i++)
+        for (size_t i = 0; i < nBlocks; ++i)
         {
             G += gs[i];
             H += hs[i];

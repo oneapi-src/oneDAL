@@ -100,7 +100,6 @@ services::Status RegressionTrainDistrStep1Kernel<algorithmFPType, method, cpu>::
         inputConnector.getLeafNodes(0, leaves);
         size_t nLeaves = leaves.size();
 
-//        for (size_t t = 0; t < nLeaves; t++)
         LoopHelper<cpu>::run(true, nLeaves, [&](size_t t)
         {
             TableRecord<algorithmFPType> *node = leaves[t];
@@ -130,7 +129,7 @@ services::Status RegressionTrainDistrStep1Kernel<algorithmFPType, method, cpu>::
 
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = iStart; i < iEnd; i++)
+                    for (size_t i = iStart; i < iEnd; ++i)
                     {
                         response[inputTreeOrder[i]] = inputResponse[inputTreeOrder[i]] + inc;
                     }
@@ -182,7 +181,7 @@ services::Status RegressionTrainDistrStep1Kernel<algorithmFPType, method, cpu>::
 
         loss->getGradients(iEnd - iStart, iEnd - iStart, &(dependentVariable[iStart]), &(response[iStart]), nullptr, &(optCoeffs[2 * iStart]));
 
-        for (size_t i = iStart; i < iEnd; i++)
+        for (size_t i = iStart; i < iEnd; ++i)
         {
             treeOrder[i] = i;
         }
@@ -249,7 +248,7 @@ services::Status RegressionTrainDistrStep3Kernel<algorithmFPType, method, cpu>::
 
     int maxBinSize = 0;
 
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0; i < nFeatures; ++i)
     {
         if (binSizes[i] > maxBinSize)
         {
@@ -449,7 +448,7 @@ services::Status RegressionTrainDistrStep3Kernel<algorithmFPType, method, cpu>::
 
     size_t nHistograms = 0;
 
-    for (size_t t = 0; t < nNodesForSplit; t++)
+    for (size_t t = 0; t < nNodesForSplit; ++t)
     {
         histogramsOffsets[t] = nHistograms;
         SplitRecord<algorithmFPType>& record = nodesForSplit[t];
@@ -457,12 +456,11 @@ services::Status RegressionTrainDistrStep3Kernel<algorithmFPType, method, cpu>::
     }
 
     dcHistograms->clear();
-    for(size_t i = 0; i < nHistograms; i++)
+    for(size_t i = 0; i < nHistograms; ++i)
     {
         dcHistograms->push_back(DataCollectionPtr(new DataCollection(nFeatures)));
     }
 
-//    for (size_t t = 0; t < nNodesForSplit; t++)
     LoopHelper<cpu>::run(true, nNodesForSplit, [&](size_t t)
     {
         SplitRecord<algorithmFPType>& record = nodesForSplit[t];
@@ -649,7 +647,7 @@ services::Status RegressionTrainDistrStep4Kernel<algorithmFPType, method, cpu>::
 
     size_t nHistograms = 0;
 
-    for (size_t t = 0; t < nNodesForSplit; t++)
+    for (size_t t = 0; t < nNodesForSplit; ++t)
     {
         histogramsOffsets[t] = nHistograms;
         SplitRecord<algorithmFPType>& record = nodesForSplit[t];
@@ -659,7 +657,7 @@ services::Status RegressionTrainDistrStep4Kernel<algorithmFPType, method, cpu>::
     dcTotalHistogramsForFeatures->clear();
     dcBestSplitsForFeatures->clear();
 
-    for (size_t t = 0; t < nFeatures; t++)
+    for (size_t t = 0; t < nFeatures; ++t)
     {
         dcTotalHistogramsForFeatures->push_back(DataCollectionPtr(new DataCollection));
         dcBestSplitsForFeatures->push_back(DataCollectionPtr(new DataCollection));
@@ -681,7 +679,7 @@ services::Status RegressionTrainDistrStep4Kernel<algorithmFPType, method, cpu>::
         dcTotalHistograms->clear();
         dcBestSplits->clear();
 
-        for (size_t t = 0; t < nHistograms; t++)
+        for (size_t t = 0; t < nHistograms; ++t)
         {
             dcTotalHistograms->push_back(NumericTablePtr());
             dcBestSplits->push_back(NumericTablePtr());
@@ -715,7 +713,7 @@ services::Status RegressionTrainDistrStep4Kernel<algorithmFPType, method, cpu>::
             TArray<algorithmFPType*, cpu> ptrs(nCollections);
 //            DAAL_CHECK_MALLOC(ptrs.get());
 
-            for (size_t i = 0; i < nCollections; i++)
+            for (size_t i = 0; i < nCollections; ++i)
             {
                 NumericTablePtr ntPartialHistogram = NumericTable::cast((*DataCollection::cast((*dcPartialHistograms)[i]))[histogramsOffsets[t]]);
                 partialHistogramRowsArray[i].set(ntPartialHistogram.get(), 0, curBins);
@@ -893,7 +891,7 @@ services::Status RegressionTrainDistrStep5Kernel<algorithmFPType, method, cpu>::
 
     int maxBinSize = 0;
 
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0; i < nFeatures; ++i)
     {
         if (binSizes[i] > maxBinSize)
         {
@@ -997,7 +995,6 @@ services::Status RegressionTrainDistrStep5Kernel<algorithmFPType, method, cpu>::
         services::daal_memcpy_s(treeOrder, sizeof(int) * nRows, inputTreeOrder, sizeof(int) * nRows);
     }
 
-//    for (size_t t = 0; t < nNodesForSplit; t++)
     LoopHelper<cpu>::run(true, nNodesForSplit, [&](size_t t)
     {
         DAAL_ASSERT(DataCollection::cast((*dcPartialBestSplits)[0])->size() == nNodesForSplit);
@@ -1016,7 +1013,7 @@ services::Status RegressionTrainDistrStep5Kernel<algorithmFPType, method, cpu>::
         algorithmFPType rightHTotal;
         size_t          rightNTotal;
 
-        for (size_t i = 0; i < nCollections; i++)
+        for (size_t i = 0; i < nCollections; ++i)
         {
             NumericTablePtr ntPartialBestSplit = NumericTable::cast((*DataCollection::cast((*dcPartialBestSplits)[i]))[t]);
             SplitDataType partialBestSplit;
@@ -1112,7 +1109,7 @@ services::Status RegressionTrainDistrStep6Kernel<algorithmFPType, method, cpu>::
     TArray<algorithmFPType*, cpu> binValues(nFeatures);
     DAAL_CHECK_MALLOC(binValues.get());
 
-    for (size_t i = 0; i < nFeatures; i++)
+    for (size_t i = 0; i < nFeatures; ++i)
     {
         NumericTablePtr featureBinValues = NumericTable::cast((*dcBinValues)[i]);
         binValuesRows[i].set(featureBinValues.get(), 0, 1);
@@ -1129,7 +1126,7 @@ services::Status RegressionTrainDistrStep6Kernel<algorithmFPType, method, cpu>::
         initialF = initialResponseRows.get()[0];
     }
 
-    for (size_t i = 0; i < nTrees; i++)
+    for (size_t i = 0; i < nTrees; ++i)
     {
         NumericTablePtr ntTreeStructure = NumericTable::cast((*dcFinalizedTrees)[i]);
         ConnectorType connector(dynamic_cast<AOSNumericTable *>(ntTreeStructure.get()));

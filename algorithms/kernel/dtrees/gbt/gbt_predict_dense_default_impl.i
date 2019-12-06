@@ -59,11 +59,11 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
 
     if (featTypes.hasUnorderedFeatures())
     {
-        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+        for (FeatureIndexType itr = 0; itr < maxLvl; ++itr)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+            for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; ++k)
             {
                 const FeatureIndexType idx          = i[k];
                 const FeatureIndexType splitFeature = fIndexes[idx];
@@ -76,11 +76,11 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
     }
     else
     {
-        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+        for (FeatureIndexType itr = 0; itr < maxLvl; ++itr)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+            for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; ++k)
             {
                 const FeatureIndexType idx = i[k];
                 i[k]                       = idx * 2 + (x[fIndexes[idx] + k * nFeat] > values[idx]);
@@ -90,7 +90,7 @@ inline void predictForTreeVector(const DecisionTreeType & t, const FeatureTypes 
 
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; k++)
+    for (FeatureIndexType k = 0; k < VECTOR_BLOCK_SIZE; ++k)
     {
         v[k] = values[i[k]];
     }
@@ -108,14 +108,14 @@ inline algorithmFPType predictForTree(const DecisionTreeType & t, const FeatureT
 
     if (featTypes.hasUnorderedFeatures())
     {
-        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+        for (FeatureIndexType itr = 0; itr < maxLvl; ++itr)
         {
             i = i * 2 + (featTypes.isUnordered(fIndexes[i]) ? int(x[fIndexes[i]]) != int(values[i]) : x[fIndexes[i]] > values[i]);
         }
     }
     else
     {
-        for (FeatureIndexType itr = 0; itr < maxLvl; itr++)
+        for (FeatureIndexType itr = 0; itr < maxLvl; ++itr)
         {
             i = i * 2 + (x[fIndexes[i]] > values[i]);
         }

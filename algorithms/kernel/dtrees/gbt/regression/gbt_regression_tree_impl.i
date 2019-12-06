@@ -296,10 +296,10 @@ void TreeTableConnector<algorithmFPType>::convertToGbtDecisionTree(algorithmFPTy
     parents[0] = get(0);
     size_t idxInTable = 0;
 
-    for(size_t level = 0; level < maxLevel + 1; level++)
+    for(size_t level = 0; level < maxLevel + 1; ++level)
     {
         size_t nSons = 0;
-        for(size_t iParent = 0; iParent < nParents; iParent++)
+        for(size_t iParent = 0; iParent < nParents; ++iParent)
         {
             TableRecord<algorithmFPType>* p = parents[iParent];
 
@@ -324,7 +324,7 @@ void TreeTableConnector<algorithmFPType>::convertToGbtDecisionTree(algorithmFPTy
             nNodeSamplesVals[idxInTable] = (int)p->nTotal;
             impVals[idxInTable] = ImpurityType(p->gTotal, p->hTotal).value(par.lambda);
 
-            idxInTable++;
+            ++idxInTable;
         }
 
         if (level < maxLevel)

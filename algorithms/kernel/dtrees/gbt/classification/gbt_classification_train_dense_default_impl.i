@@ -73,7 +73,7 @@ public:
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = start; i < end; i++)
+                for (size_t i = start; i < end; ++i)
                 {
                     exp[i] = -f[sampleInd[i]];
                     /* make all values less than threshold as threshold value
@@ -86,7 +86,7 @@ public:
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = start; i < end; i++)
+                for (size_t i = start; i < end; ++i)
                 {
                     exp[i] = -f[i];
                     /* make all values less than threshold as threshold value
@@ -100,7 +100,7 @@ public:
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = start; i < end; i++)
+                for (size_t i = start; i < end; ++i)
                 {
                     const algorithmFPType sigm = algorithmFPType(1.0) / (algorithmFPType(1.0) + exp[i]);
                     gh[2 * sampleInd[i]]       = sigm - y[sampleInd[i]];               //gradient
@@ -111,7 +111,7 @@ public:
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t i = start; i < end; i++)
+                for (size_t i = start; i < end; ++i)
                 {
                     const auto sigm = algorithmFPType(1.0) / (algorithmFPType(1.0) + exp[i]);
                     gh[2 * i]       = sigm - y[i];                          //gradient

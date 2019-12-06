@@ -99,10 +99,10 @@ protected:
             const size_t end      = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
             algorithmFPType lpval = 0;
             PRAGMA_ICC_NO16(omp simd reduction(+ : lpval))
-            for (size_t i = start; i < end; i++) lpval += div * py[i];
+            for (size_t i = start; i < end; ++i) lpval += div * py[i];
             pvals[iBlock] = lpval;
         });
-        for (size_t i = 0; i < nBlocks; i++) val += pvals[i];
+        for (size_t i = 0; i < nBlocks; ++i) val += pvals[i];
         return true;
     }
 

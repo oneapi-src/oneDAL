@@ -331,7 +331,7 @@ services::Status ModelImpl::convertDecisionTreesToGbtTrees(data_management::Data
 
 void ModelImpl::getMaxLvl(const dtrees::internal::DecisionTreeNode * const arr, const size_t idx, size_t & maxLvl, size_t curLvl)
 {
-    curLvl++;
+    ++curLvl;
 
     if (arr[idx].isSplit())
     {

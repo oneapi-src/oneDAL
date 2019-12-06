@@ -253,12 +253,12 @@ struct ComputeGHSumByRows
         {
             DAAL_PREFETCH_READ_T0(pgh + 2 * aIdx[i + prefetchOffset]);
             const BinIndexType * ptr = indexedFeature + aIdx[i + prefetchOffset] * nFeatures;
-            for (RowIndexType j = 0; j < nCacheLinesToPrefetchOneRow; j++) DAAL_PREFETCH_READ_T0(ptr + elementsInCacheLine * j);
+            for (RowIndexType j = 0; j < nCacheLinesToPrefetchOneRow; ++j) DAAL_PREFETCH_READ_T0(ptr + elementsInCacheLine * j);
 
             const BinIndexType * featIdx = indexedFeature + aIdx[i] * nFeatures;
 
             PRAGMA_IVDEP
-            for (RowIndexType j = 0; j < nFeatures; j++)
+            for (RowIndexType j = 0; j < nFeatures; ++j)
             {
                 const size_t idx = 4 * (UniquesArr[j] + (size_t)featIdx[j]);
                 aGHSumFP[idx + 0] += pgh[2 * aIdx[i]];
@@ -273,7 +273,7 @@ struct ComputeGHSumByRows
             const BinIndexType * featIdx = indexedFeature + aIdx[i] * nFeatures;
 
             PRAGMA_IVDEP
-            for (RowIndexType j = 0; j < nFeatures; j++)
+            for (RowIndexType j = 0; j < nFeatures; ++j)
             {
                 const size_t idx = 4 * (UniquesArr[j] + (size_t)featIdx[j]);
                 aGHSumFP[idx + 0] += pgh[2 * aIdx[i]];
@@ -298,14 +298,14 @@ struct MergeGHSums
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < 4 * nUnique; i++) cur[i] = ptr[i];
+        for (size_t i = 0; i < 4 * nUnique; ++i) cur[i] = ptr[i];
 
         for (size_t iB = 1; iB < nBlocks; ++iB)
         {
             algorithmFPType * ptr = results[iB] + 4 * iStart;
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < 4 * nUnique; i++) cur[i] += ptr[i];
+            for (size_t i = 0; i < 4 * nUnique; ++i) cur[i] += ptr[i];
         }
 
         PRAGMA_IVDEP
@@ -362,7 +362,7 @@ struct ComputeGHSumByRows<RowIndexType, BinIndexType, float, SSE42_ALL>
         {
             DAAL_PREFETCH_READ_T0(pgh + 2 * aIdx[i + prefetchOffset]);
             const BinIndexType * ptr = indexedFeature + aIdx[i + prefetchOffset] * nFeatures;
-            for (IndexType j = 0; j < nCacheLinesToPrefetchOneRow; j++) DAAL_PREFETCH_READ_T0(ptr + elementsInCacheLine * j);
+            for (IndexType j = 0; j < nCacheLinesToPrefetchOneRow; ++j) DAAL_PREFETCH_READ_T0(ptr + elementsInCacheLine * j);
 
             const BinIndexType * featIdx = indexedFeature + aIdx[i] * nFeatures;
             addsPtr[0]                   = pgh[2 * aIdx[i]];
@@ -370,7 +370,7 @@ struct ComputeGHSumByRows<RowIndexType, BinIndexType, float, SSE42_ALL>
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (IndexType j = 0; j < nFeatures; j++)
+            for (IndexType j = 0; j < nFeatures; ++j)
             {
                 const size_t idx = 4 * (UniquesArr[j] + (size_t)featIdx[j]);
                 __m128 hist1     = _mm_load_ps(aGHSumFP + idx);
@@ -387,7 +387,7 @@ struct ComputeGHSumByRows<RowIndexType, BinIndexType, float, SSE42_ALL>
             addsPtr[1]                   = pgh[2 * aIdx[i] + 1];
 
             PRAGMA_IVDEP
-            for (IndexType j = 0; j < nFeatures; j++)
+            for (IndexType j = 0; j < nFeatures; ++j)
             {
                 const size_t idx = 4 * (UniquesArr[j] + (size_t)featIdx[j]);
                 __m128 hist1     = _mm_load_ps(aGHSumFP + idx);
@@ -423,14 +423,14 @@ struct ComputeGHSumByRows<RowIndexType, BinIndexType, double, AVX_ALL>
         {
             DAAL_PREFETCH_READ_T0(pgh + 2 * aIdx[i + prefetchOffset]);
             const BinIndexType * ptr = indexedFeature + aIdx[i + prefetchOffset] * nFeatures;
-            for (IndexType j = 0; j < nCacheLinesToPrefetchOneRow; j++) DAAL_PREFETCH_READ_T0(ptr + elementsInCacheLine * j);
+            for (IndexType j = 0; j < nCacheLinesToPrefetchOneRow; ++j) DAAL_PREFETCH_READ_T0(ptr + elementsInCacheLine * j);
 
             const BinIndexType * featIdx = indexedFeature + aIdx[i] * nFeatures;
             addsPtr[0]                   = pgh[2 * aIdx[i]];
             addsPtr[1]                   = pgh[2 * aIdx[i] + 1];
 
             PRAGMA_IVDEP
-            for (IndexType j = 0; j < nFeatures; j++)
+            for (IndexType j = 0; j < nFeatures; ++j)
             {
                 const size_t idx = 4 * (UniquesArr[j] + (size_t)featIdx[j]);
                 __m256d hist1    = _mm256_load_pd(aGHSumFP + idx);
@@ -447,7 +447,7 @@ struct ComputeGHSumByRows<RowIndexType, BinIndexType, double, AVX_ALL>
             addsPtr[1]                   = pgh[2 * aIdx[i] + 1];
 
             PRAGMA_IVDEP
-            for (IndexType j = 0; j < nFeatures; j++)
+            for (IndexType j = 0; j < nFeatures; ++j)
             {
                 const size_t idx = 4 * (UniquesArr[j] + (size_t)featIdx[j]);
                 __m256d hist1    = _mm256_load_pd(aGHSumFP + idx);
@@ -473,7 +473,7 @@ struct MergeGHSums<algorithmFPType, RowIndexType, BinIndexType, AVX512_ALL>
         {
             size_t i = 0;
 
-            for (; i < align; i++)
+            for (; i < align; ++i)
             {
                 cur[i] = results[0][4 * iStart + i];
                 for (size_t iB = 1; iB < nBlocks; ++iB) cur[i] += results[iB][4 * iStart + i];
@@ -509,7 +509,7 @@ struct MergeGHSums<algorithmFPType, RowIndexType, BinIndexType, AVX512_ALL>
             }
     #endif
 
-            for (; i < 4 * nUnique; i++)
+            for (; i < 4 * nUnique; ++i)
             {
                 cur[i] = results[0][4 * iStart + i];
                 for (size_t iB = 1; iB < nBlocks; ++iB) cur[i] += results[iB][4 * iStart + i];
@@ -518,12 +518,12 @@ struct MergeGHSums<algorithmFPType, RowIndexType, BinIndexType, AVX512_ALL>
         else
         {
             algorithmFPType * ptr = results[0] + 4 * iStart;
-            for (size_t i = 0; i < 4 * nUnique; i++) cur[i] = ptr[i];
+            for (size_t i = 0; i < 4 * nUnique; ++i) cur[i] = ptr[i];
 
             for (size_t iB = 1; iB < nBlocks; ++iB)
             {
                 algorithmFPType * ptr = results[iB] + 4 * iStart;
-                for (size_t i = 0; i < 4 * nUnique; i++) cur[i] += ptr[i];
+                for (size_t i = 0; i < 4 * nUnique; ++i) cur[i] += ptr[i];
             }
         }
 
