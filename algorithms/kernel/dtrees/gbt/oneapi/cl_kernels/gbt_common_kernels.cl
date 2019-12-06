@@ -189,8 +189,8 @@ __kernel void radixReorder(const __global radixIntType* valuesSrc,
 
     for(int i = iStart + local_id; i < iEnd; i += local_size)
     {
-        uint data_value = valuesSrc[i];
-        uint data_bits = ((invBits(data_value) >> bitOffset) & radix_range_1);
+        radixIntType data_value = valuesSrc[i];
+        radixIntType data_bits = ((invBits(data_value) >> bitOffset) & radix_range_1);
         int pos_new = 0;
         for (int j = 0; j < radix_range; j++)
         {
