@@ -822,7 +822,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
     Collection<TreeNodeStorage> treeNodeStorages(maxNodes);
     DAAL_CHECK_MALLOC(treeNodeStorages.data());
 
-    for(size_t i = 0; (i < par.maxIterations) && !algorithms::internal::isCancelled(status, pHostApp); ++i)
+    for(size_t iter = 0; (iter < par.maxIterations) && !algorithms::internal::isCancelled(status, pHostApp); ++iter)
     {
         DAAL_CHECK_STATUS_VAR(computeOptCoeffs(*const_cast<NumericTable*>(y), response, optCoeffs));
         DAAL_CHECK_STATUS_VAR(initializeTreeOrder(nRows, treeOrder));

@@ -149,10 +149,10 @@ __kernel void radixHistScan(const __global int* partialHists,
 }
 
 __kernel void radixReorder(const __global radixIntType* valuesSrc,
-                           const __global radixIntType* indicesSrc, 
+                           const __global int* indicesSrc, 
                            const __global int* partialPrefixHists,
                                  __global radixIntType* valuesDst, 
-                                 __global radixIntType* indicesDst,
+                                 __global int* indicesDst,
                            int nRows,
                            int bitOffset)
 {
@@ -189,8 +189,8 @@ __kernel void radixReorder(const __global radixIntType* valuesSrc,
 
     for(int i = iStart + local_id; i < iEnd; i += local_size)
     {
-        uint data_value = valuesSrc[i];
-        uint data_bits = ((invBits(data_value) >> bitOffset) & radix_range_1);
+        radixIntType data_value = valuesSrc[i];
+        radixIntType data_bits = ((invBits(data_value) >> bitOffset) & radix_range_1);
         int pos_new = 0;
         for (int j = 0; j < radix_range; j++)
         {
@@ -249,8 +249,8 @@ __kernel void computeBins(const __global algorithmFPType* values,
     }
 }
 
-__kernel void storeColumn(const __global algorithmFPType* data,
-                                __global algorithmFPType* fullData,
+__kernel void storeColumn(const __global int* data,
+                                __global int* fullData,
                           int featureId,
                           int nFeatures,
                           int nRows)

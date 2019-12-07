@@ -198,15 +198,19 @@ __kernel void computeTotalOptCoeffs(const __global algorithmFPType* histogram,
                                     const __global int* binOffsets,
                                     int nTotalBins)
 {
+    if (get_sub_group_id() > 0)
+        return;
+
     const int feat_id = get_global_id(1);
-    const int local_id = get_local_id(0);
-    const int local_size = get_local_size(0);
+    const int local_id = get_sub_group_local_id();
+    const int local_size = get_sub_group_size();
 
     algorithmFPType g = 0.0;
     algorithmFPType h = 0.0;
 
-    const __global algorithmFPType* histogramForFeature = histogram + binOffsets[feat_id] * 2;
     int nBins = binOffsets[feat_id + 1] - binOffsets[feat_id];
+
+    const __global algorithmFPType* histogramForFeature = histogram + binOffsets[feat_id] * 2;
 
     for (int i = local_id; i < nBins; i += local_size)
     {
@@ -239,8 +243,8 @@ __kernel void computeBestSplitForFeatures(const __global algorithmFPType* histog
 
     const int feat_id = get_global_id(1);
 
-    const int local_size = get_sub_group_size();
     const int local_id = get_sub_group_local_id();
+    const int local_size = get_sub_group_size();
 
     int curFeatureValue = -1;
     algorithmFPType curImpDec = -1e30;
