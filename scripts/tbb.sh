@@ -39,7 +39,7 @@ DST=`dirname $0`/../externals/tbb
 mkdir -p ${DST}/${OS}
 DST=`cd ${DST};pwd`
 
-if [ ! -e "${DST}/${TBB_PACKAGE}/license.txt" ]; then
+if [ ! -d "${DST}/${OS}/bin" ]; then
   if [ -x "$(command -v curl)" ]; then
     echo curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
     curl -L -o "${DST}/${TBB_PACKAGE}.tgz" "${TBB_URL}"
@@ -58,7 +58,7 @@ if [ ! -e "${DST}/${TBB_PACKAGE}/license.txt" ]; then
   
   echo tar -xvf "${DST}/${TBB_PACKAGE}.tgz" -C ${DST}
   tar -C ${DST}/${OS} --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}.tgz" ${TBB_VERSION}
-  echo "Downloaded and unpacked Intel(R) TBB to ${DST}"
+  echo "Downloaded and unpacked Intel(R) TBB to ${DST}/${OS}"
 else
-  echo "Intel(R) TBB is already installed in $DST"
+  echo "Intel(R) TBB is already installed in ${DST}/${OS}"
 fi
