@@ -203,7 +203,7 @@ public:
         }
     }
 
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors() const { return _errors; }
 
 protected:
     bool _isOutBlockFull;

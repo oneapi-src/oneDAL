@@ -42,7 +42,7 @@ namespace interface1
 class OpenClKernelFactory : public Base, public ClKernelFactoryIface
 {
 public:
-    explicit OpenClKernelFactory(cl::sycl::queue & deviceQueue) : _executionTarget(ExecutionTargetIds::unspecified), _deviceQueue(deviceQueue)
+    explicit OpenClKernelFactory(cl::sycl::queue & deviceQueue) : _clProgramRef(nullptr), _executionTarget(ExecutionTargetIds::unspecified), _deviceQueue(deviceQueue)
     {
         for (size_t i = 0; i < SIZE_CACHE_PROGRAM; i++)
         {

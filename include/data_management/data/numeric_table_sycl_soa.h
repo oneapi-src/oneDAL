@@ -552,9 +552,8 @@ private:
 
         if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t ncols = getNumberOfColumns();
-            size_t nrows = block.getNumberOfRows();
-            size_t idx   = block.getRowsOffset();
+            const size_t ncols = getNumberOfColumns();
+            const size_t nrows = block.getNumberOfRows();
 
             auto blockBuffer    = block.getBuffer();
             auto blockSharedPtr = blockBuffer.toHost(readOnly);
@@ -595,8 +594,7 @@ private:
     {
         using namespace oneapi::internal;
 
-        size_t ncols = getNumberOfColumns();
-        size_t nobs  = getNumberOfRows();
+        const size_t nobs  = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nobs)

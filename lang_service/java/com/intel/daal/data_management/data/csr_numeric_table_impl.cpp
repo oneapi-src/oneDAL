@@ -156,8 +156,6 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
 {
     CSRNumericTable * nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
 
-    size_t nRows = nt->getNumberOfRows();
-
     double * ptr;
     size_t * column_indices;
     size_t * row_offsets;
@@ -179,8 +177,6 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
 {
     CSRNumericTable * nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
 
-    size_t nRows = nt->getNumberOfRows();
-
     float * ptr;
     size_t * column_indices;
     size_t * row_offsets;
@@ -201,8 +197,6 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_CSRNumericTa
                                                                                                       jlong numTableAddr)
 {
     CSRNumericTable * nt = static_cast<CSRNumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
-
-    size_t nRows = nt->getNumberOfRows();
 
     int * ptr;
     size_t * column_indices;
