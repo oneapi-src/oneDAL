@@ -75,7 +75,7 @@ Required Software:
 
     - **Linux\***:
 
-            scripts/mklfpk.sh [32|32e]
+            scripts/mklfpk.sh
 
 6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
 
