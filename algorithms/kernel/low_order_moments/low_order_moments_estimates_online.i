@@ -283,17 +283,20 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
     const size_t numRowsBlocks      = _cd.nVectors / numRowsInBlock;
     const size_t numRowsInLastBlock = numRowsInBlock + (_cd.nVectors - numRowsBlocks * numRowsInBlock);
 
+    DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsOnlineTask.compute);
     /* TLS buffers initialization */
     daal::tls<tls_moments_data_t<algorithmFPType, cpu> *> tls_data([&]() { return new tls_moments_data_t<algorithmFPType, cpu>(_cd.nFeatures); });
 
     SafeStatus safeStat;
-    /* Compute partial results for each TLS buffer */
-    daal::threader_for(numRowsBlocks, numRowsBlocks, [&](int iBlock) {
-        struct tls_moments_data_t<algorithmFPType, cpu> * _td = tls_data.local();
-        if (_td->malloc_errors)
-        {
-            return;
-        }
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsOnlineTask.ProcessBlocks);
+        /* Compute partial results for each TLS buffer */
+        daal::threader_for(numRowsBlocks, numRowsBlocks, [&](int iBlock) {
+            struct tls_moments_data_t<algorithmFPType, cpu> * _td = tls_data.local();
+            if (_td->malloc_errors)
+            {
+                return;
+            }
 
         const size_t _startRow = iBlock * numRowsInBlock;
         const size_t _nRows    = (iBlock < (numRowsBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
@@ -343,13 +346,16 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
             _td->nvectors++;
         }
     });
+    } // end for DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsOnlineTask.ProcessBlocks);
 
-    /* Number of already merged values */
-    algorithmFPType n_current = 0;
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsOnlineTask.MergeBlocks);
+        /* Number of already merged values */
+        algorithmFPType n_current = 0;
 
-    bool bMemoryAllocationFailed = false;
+        bool bMemoryAllocationFailed = false;
 
-    /* Merge results by TLS buffers */
+        /* Merge results by TLS buffers */
     tls_data.reduce([&](tls_moments_data_t<algorithmFPType, cpu> * _td) {
         if (_td->malloc_errors)
         {
@@ -463,6 +469,7 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
         }     /* isOnline */
     }         /* if (_cd.nVectors > 0) */
 #endif
+    }// end for DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsOnlineTask.MergeBlocks);
 
     _cd.resultArray[(int)nObservations][0] += (algorithmFPType)(_cd.nVectors);
 
