@@ -306,7 +306,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(ProjectDir)..\..\source\moments\low_order_moms_dense_online.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\..\source\moments\low_order_moms_dense_online.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
