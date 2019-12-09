@@ -18,8 +18,8 @@
 # Installation from Sources
 
 Required Software:
-* C/C++ compiler (see [System Requirements](README.md#system-requirements))
-* Java\* JDK (see [System Requirements](README.md#system-requirements))
+* C/C++ compiler (see [System Requirements](https://software.intel.com/en-us/articles/intel-daal-2019-system-requirements))
+* Java\* JDK (see [System Requirements](https://software.intel.com/en-us/articles/intel-daal-2019-system-requirements))
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2 installer](http://msys2.github.io) with the msys/make package (Windows\* only); install the package as follows:
 
@@ -28,7 +28,7 @@ Required Software:
 ## Installation Steps
 1. Clone the sources from GitHub\* as follows:
 
-        git clone --recursive https://github.com/intel/daal.git
+        git clone https://github.com/intel/daal.git
 
 
 2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only). For example:
@@ -37,17 +37,21 @@ Required Software:
 
 3. Set the environment variables for one of the supported C/C++ compilers. For example:
 
-    - **Microsoft Visual Studio\***:
+    - **Microsoft Visual Studio\* 2019**:
 
-            call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
+            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
-    - **Intel Compiler (Windows\*)**:
+    - **Intel(R) C++ Compiler 19.1 (Windows\*)**:
 
             call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat" intel64
 
-    - **Intel Compiler (Linux\*)**:
+    - **Intel(R) C++ Compiler 19.1 (Linux\*)**:
 
             source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
+
+    - **Intel(R) oneAPI DPC++ Compiler 2021.1-beta03 (Windows\*)**:
+
+            call "C:\Program Files (x86)\inteloneapi\compiler\latest\env\vars.bat" intel64
 
 4. Set the environment variables for one of the supported Java\* compilers. For example:
 
@@ -75,18 +79,24 @@ Required Software:
 
 6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
 
-    - **Windows\***:
-        - Download and install free Community License Intel TBB (see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2)) or build your own Intel TBB from [Intel(R) TBB GitHub repository](https://github.com/intel/tbb).
-        - Set the environment variables for Intel TBB. For example:
+    Download and install free Community License Intel(R) TBB (see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2)).
+    Set the environment variables for for Intel(R) TBB. For example:
 
-            call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\tbb\bin\tbbvars.bat" intel64 all
+    - oneTBB (Windows\*):
 
-    - **Linux\***:
-        - Use pre-build package or build Intel TBB on your own. Alternatively, you can use scripts to do this for you:
+            call "C:\Program Files (x86)\inteloneapi\tbb\latest\env\vars.bat" intel64
 
-            scripts/tbb.sh [32|32e]
+    - Intel(R) TBB 2020 (Linux\*):
 
-7. Build oneDAL via command-line interface. Choose the appropriate commands based on the platform and the compiler you use:
+            source /opt/intel/compilers_and_libraries_2020.0.166/linux/tbb/bin/tbbvars.sh intel64
+
+    Alternatively, you can use scripts to do this for you (Linux\*):
+
+            scripts/tbb.sh
+
+7. Downloan and install Python 3.7 (Windows\* only).
+
+8. Build oneDAL via command-line interface. Choose the appropriate commands based on the platform and the compiler you use:
 
     - on **Linux\*** using **Intel(R) C++ Compiler**:
 
