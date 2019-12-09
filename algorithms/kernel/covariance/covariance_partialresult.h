@@ -57,8 +57,6 @@ template <typename algorithmFPType>
 DAAL_EXPORT services::Status PartialResult::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                                        const int method)
 {
-    const InputIface * algInput = static_cast<const InputIface *>(input);
-
     get(nObservations)->assign((algorithmFPType)0.0);
     get(crossProduct)->assign((algorithmFPType)0.0);
     get(sum)->assign((algorithmFPType)0.0);

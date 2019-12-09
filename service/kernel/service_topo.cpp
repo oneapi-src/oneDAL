@@ -194,7 +194,6 @@ unsigned int _internal_daal_GetMaxCPUSupportedByOS()
     lcl_OSProcessorCount = sysconf(_SC_NPROCESSORS_CONF); //This will tell us how many CPUs are currently enabled.
 
     #else
-    SYSTEM_INFO si;
         #if (_WIN32_WINNT >= 0x0601)
     unsigned short grpCnt;
     unsigned int cpu_cnt, i;
@@ -223,6 +222,7 @@ unsigned int _internal_daal_GetMaxCPUSupportedByOS()
     }
     for (i = 0; i < grpCnt; i++) lcl_OSProcessorCount += pSystem_rel_info->Group.GroupInfo[i].ActiveProcessorCount;
         #else
+    SYSTEM_INFO si;
     GetSystemInfo(&si);
     lcl_OSProcessorCount = si.dwNumberOfProcessors;
         #endif

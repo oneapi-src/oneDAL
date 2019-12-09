@@ -69,7 +69,7 @@ public:
     Any(const Any &other) :
         _value(other._value ? other._value->copy() : NULL) { }
 
-    ~Any() { delete _value; }
+    ~Any() DAAL_C11_OVERRIDE { delete _value; }
 
     bool empty() const { return _value == NULL; }
 

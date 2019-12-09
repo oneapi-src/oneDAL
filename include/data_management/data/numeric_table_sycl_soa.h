@@ -554,21 +554,22 @@ private:
         {
             const size_t ncols = getNumberOfColumns();
             const size_t nrows = block.getNumberOfRows();
+            services::Status st;
 
             auto blockBuffer    = block.getBuffer();
-            auto blockSharedPtr = blockBuffer.toHost(readOnly);
+            auto blockSharedPtr = blockBuffer.toHost(readOnly, &st);
+            DAAL_CHECK_STATUS_VAR(st);
             T * blockPtr        = blockSharedPtr.get();
 
-            services::Status st;
             auto & context = getDefaultContext();
-
             auto tempColumn = context.allocate(TypeIds::id<T>(), nrows, &st);
             DAAL_CHECK_STATUS_VAR(st);
 
             for (size_t j = 0; j < ncols; j++)
             {
                 {
-                    auto tempColumnSharedPtr = tempColumn.template get<T>().toHost(readWrite);
+                    auto tempColumnSharedPtr = tempColumn.template get<T>().toHost(readWrite, &st);
+                    DAAL_CHECK_STATUS_VAR(st);
                     T * tempColumnPtr        = tempColumnSharedPtr.get();
 
                     for (size_t i = 0; i < nrows; i++)

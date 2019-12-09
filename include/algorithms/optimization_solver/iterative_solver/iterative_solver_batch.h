@@ -68,7 +68,7 @@ public:
      */
     Batch(const Batch & other) {}
 
-    virtual ~Batch() {}
+    ~Batch() DAAL_C11_OVERRIDE {}
 
     /**
      * Get input objects for the iterative solver algorithm
@@ -142,7 +142,7 @@ public:
      */
     Batch(const Batch & other) {}
 
-    virtual ~Batch() {}
+    ~Batch() DAAL_C11_OVERRIDE {}
 
     /**
      * Get input objects for the iterative solver algorithm
