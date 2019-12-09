@@ -88,8 +88,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, defaultDense>::compute(con
     const size_t nResponses  = betaTable->getNumberOfRows();
     const bool interceptFlag = model->getInterceptFlag();
 
-    /* Temp workaround for compiler bug. */
-    const size_t nRowsPerBlock = nRows;
+    const size_t nRowsPerBlock = 90000;
 
     size_t nBlocks = nRows / nRowsPerBlock;
     if (nBlocks * nRowsPerBlock < nRows)
