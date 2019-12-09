@@ -66,7 +66,8 @@ public:
     Any(const T & value) : _value(new Value<T>(value))
     {}
 
-    Any(const Any & other) : _value(other._value->copy()) {}
+    Any(const Any &other) :
+        _value(other._value ? other._value->copy() : NULL) { }
 
     ~Any() { delete _value; }
 
