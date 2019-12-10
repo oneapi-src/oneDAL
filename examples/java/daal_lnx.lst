@@ -71,6 +71,7 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     gbt/GbtClsDenseBatch                             \
                     gbt/GbtClsTraversedModelBuilder                  \
                     gbt/GbtRegDenseBatch                             \
+                    gbt/GbtRegDenseDistr                             \
                     gbt/GbtRegTraversedModelBuilder                  \
                     kdtree_knn_classification/KDTreeKNNDenseBatch    \
                     kmeans/KMeansDenseBatch                          \

@@ -62,9 +62,10 @@ class GbtRegDenseDistr {
             "../data/distributed/df_regression_test_4.csv"};
 
     private static final int nFeatures = 13;
-    private static final int maxIterations = 40;
+    private static final int localMaxBins = 66000;
     private static final int maxBins = 66000;
     private static final int minBinSize = 5;
+    private static final int maxIterations = 40;
 
     private static NumericTable[] trainData = new NumericTable[nBlocks];
     private static NumericTable[] trainDependentVariable = new NumericTable[nBlocks];
@@ -103,16 +104,13 @@ class GbtRegDenseDistr {
         }
 
         init();
-        System.out.println("1");
+
         trainModel();
 
-        System.out.println("2");
         testModel();
 
-        System.out.println("3");
         printResults();
 
-        System.out.println("4");
         context.dispose();
     }
 
@@ -123,7 +121,7 @@ class GbtRegDenseDistr {
         DataCollection localBinSizes = new DataCollection(context);
 
         for (int i = 0; i < nBlocks; i++) {
-            InitDistributedStep1Local step1 = new InitDistributedStep1Local(context, Float.class, InitMethod.defaultDense, maxBins);
+            InitDistributedStep1Local step1 = new InitDistributedStep1Local(context, Float.class, InitMethod.defaultDense, localMaxBins);
             step1.input.set(InitStep1LocalNumericTableInputId.step1LocalData, trainData[i]);
             step1.input.set(InitStep1LocalNumericTableInputId.step1LocalDependentVariables, trainDependentVariable[i]);
 
@@ -223,9 +221,7 @@ class GbtRegDenseDistr {
                     step3.input.set(Step3LocalNumericTableInputId.step3InputTreeStructure, treeStructure[i]);
                     step3.input.set(Step3LocalNumericTableInputId.step3InputTreeOrder, treeOrder[i]);
                     step3.input.set(Step3LocalNumericTableInputId.step3OptCoeffs, optCoeffs[i]);
-                    if (parentHistograms[i].size() > 0) {
-                        step3.input.set(Step3LocalCollectionInputId.step3ParentHistograms, parentHistograms[i]);
-                    }
+                    step3.input.set(Step3LocalCollectionInputId.step3ParentHistograms, parentHistograms[i]);
 
                     DistributedPartialResultStep3 partialResult = step3.compute();
 
@@ -245,43 +241,12 @@ class GbtRegDenseDistr {
                     }
                 }
 
-                System.out.println("Before 4");
                 DataCollection bestSplits = new DataCollection(context);
 
                 int processedFeatures = 0;
 
                 for (int i = 0; i < nBlocks; i++) {
-                    // // System.out.print(i);
-                    // // System.out.println(")");
-
-                    // DistributedStep4Local step4 = new DistributedStep4Local(context, Float.class, Method.defaultDense);
-                    // step4.input.set(Step4LocalNumericTableInputId.step4InputTreeStructure, treeStructure[0]);
-                    // DataCollection featureIndices = new DataCollection(context);
-                    // featureIndices.pushBack(new HomogenNumericTable(context, Integer.class, 1, 1, NumericTable.AllocationFlag.DoAllocate, (int)i));
-                    // step4.input.set(Step4LocalCollectionInputId.step4FeatureIndices, featureIndices);
-                    // // step4.input.set(Step4LocalNumericTableInputId.step4FeatureIndex, new HomogenNumericTable(context, Integer.class, 1, 1, NumericTable.AllocationFlag.DoAllocate, (int)i));
-                    // // if (parentTotalHistograms[i].size() > 0)
-                    // {
-                    //     step4.input.set(Step4LocalCollectionInputId.step4ParentTotalHistograms, parentTotalHistograms[i]);
-                    // }
-                    // step4.input.set(Step4LocalCollectionInputId.step4PartialHistograms, histogramsForFeature[i]);
-
-                    // System.out.println(step4.input.get(Step4LocalNumericTableInputId.step4InputTreeStructure));
-                    // System.out.println(step4.input.get(Step4LocalCollectionInputId.step4FeatureIndices));
-                    // System.out.println(step4.input.get(Step4LocalCollectionInputId.step4ParentTotalHistograms));
-                    // System.out.println(step4.input.get(Step4LocalCollectionInputId.step4PartialHistograms));
-
-                    // System.out.println("1");
-                    // DistributedPartialResultStep4 partialResult = step4.compute();
-                    // System.out.println("2");
-
-                    // totalHistograms[i] = partialResult.get(DistributedPartialResultStep4Id.totalHistograms);
-                    // bestSplits.pushBack(partialResult.get(DistributedPartialResultStep4Id.bestSplits));
-
-
                     int featuresForBlock = (nFeatures - processedFeatures) / (nBlocks - i);
-                    System.out.print("featuresForBlock = ");
-                    System.out.println(featuresForBlock);
 
                     DataCollection featureIndices = new DataCollection(context);
                     DataCollection parentTotalHistogramsForFeatures = new DataCollection(context);
@@ -289,26 +254,17 @@ class GbtRegDenseDistr {
 
                     for (int j = 0; j < featuresForBlock; j++) {
                         featureIndices.pushBack(new HomogenNumericTable(context, Integer.class, 1, 1, NumericTable.AllocationFlag.DoAllocate, (int)(processedFeatures+j)));
-                        // if (parentTotalHistograms[i].size() > 0) {
-                            parentTotalHistogramsForFeatures.pushBack(parentTotalHistograms[processedFeatures+j]);
-                        // }
+                        parentTotalHistogramsForFeatures.pushBack(parentTotalHistograms[processedFeatures+j]);
                         partialHistogramsForFeatures.pushBack(histogramsForFeature[processedFeatures+j]);
                     }
 
                     DataCollection tmp = (DataCollection)(parentTotalHistogramsForFeatures.get(0));
-                    System.out.print("tmp.size() = ");
-                    System.out.println(tmp.size());
-                    // Service.printNumericTable("parentTotalHistogramsForFeatures[0]", (NumericTable)(tmp.get(0)), 10);
-                    // Service.printNumericTable("parentTotalHistogramsForFeatures[0]", (NumericTable)(tmp.get(1)), 10);
-                    // Service.printNumericTable("parentTotalHistogramsForFeatures[0]", (NumericTable)(tmp.get(2)), 10);
 
                     DistributedStep4Local step4 = new DistributedStep4Local(context, Float.class, Method.defaultDense);
 
                     step4.input.set(Step4LocalNumericTableInputId.step4InputTreeStructure, treeStructure[0]);
                     step4.input.set(Step4LocalCollectionInputId.step4FeatureIndices, featureIndices);
-                    // if (tmp.size() > 0) {
-                        step4.input.set(Step4LocalCollectionInputId.step4ParentTotalHistograms, parentTotalHistogramsForFeatures);
-                    // }
+                    step4.input.set(Step4LocalCollectionInputId.step4ParentTotalHistograms, parentTotalHistogramsForFeatures);
                     step4.input.set(Step4LocalCollectionInputId.step4PartialHistograms, partialHistogramsForFeatures);
 
                     DistributedPartialResultStep4 partialResult = step4.compute();
@@ -318,12 +274,9 @@ class GbtRegDenseDistr {
 
                     for (int j = 0; j < featuresForBlock; j++) {
                         totalHistograms[processedFeatures + j] = (DataCollection)(totalHistogramsForFeatures.get(j));
-                        bestSplits.pushBack((DataCollection)(totalHistogramsForFeatures.get(j)));
+                        bestSplits.pushBack((DataCollection)(bestSplitsForFeatures.get(j)));
                     }
-
-                    processedFeatures += featuresForBlock;
                 }
-                System.out.println("After 4");
 
                 for (int i = 0; i < nBlocks; i++) {
                     DistributedStep5Local step5 = new DistributedStep5Local(context, Float.class, Method.defaultDense);
@@ -339,7 +292,6 @@ class GbtRegDenseDistr {
                     treeStructure[i] = partialResult.get(DistributedPartialResultStep5Id.step5TreeStructure);
                     treeOrder[i] = partialResult.get(DistributedPartialResultStep5Id.step5TreeOrder);
                 }
-                System.out.println("After 5");
 
                 for (int j = 0; j < nBlocks; j++) {
                     parentHistograms[j] = histograms[j];

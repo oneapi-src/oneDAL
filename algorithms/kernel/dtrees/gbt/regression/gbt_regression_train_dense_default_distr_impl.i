@@ -469,7 +469,11 @@ services::Status RegressionTrainDistrStep3Kernel<algorithmFPType, method, cpu>::
         {
             // continue;
         } else {
-        DataCollectionPtr parentHistogramsForNode = dcParentHistograms ? DataCollection::cast((*dcParentHistograms)[t]) : DataCollectionPtr();
+        DataCollectionPtr parentHistogramsForNode = DataCollectionPtr();
+        if (dcParentHistograms)
+        {
+            parentHistogramsForNode = dcParentHistograms->size() ? DataCollection::cast((*dcParentHistograms)[t]) : DataCollectionPtr();
+        }
 
         if (record.first && record.second)
         {
@@ -698,7 +702,11 @@ services::Status RegressionTrainDistrStep4Kernel<algorithmFPType, method, cpu>::
                 return;
             }
 
-            NumericTablePtr parentTotalHistogram = dcParentTotalHistograms ? NumericTable::cast((*dcParentTotalHistograms)[t]) : NumericTablePtr();
+            NumericTablePtr parentTotalHistogram = NumericTablePtr();
+            if (dcParentTotalHistograms)
+            {
+                parentTotalHistogram = dcParentTotalHistograms->size() ? NumericTable::cast((*dcParentTotalHistograms)[t]) : NumericTablePtr();
+            }
 
             const size_t curBins = NumericTable::cast((*DataCollection::cast((*dcPartialHistograms)[0]))[histogramsOffsets[t]])->getNumberOfRows();
 
