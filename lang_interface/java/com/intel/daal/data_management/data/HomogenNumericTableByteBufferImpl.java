@@ -62,6 +62,10 @@ class HomogenNumericTableByteBufferImpl extends HomogenNumericTableImpl {
         } else if (indexType == DataFeatureUtils.IndexNumType.DAAL_INT32_S.getType() ||
                 indexType == DataFeatureUtils.IndexNumType.DAAL_INT32_U.getType()) {
             type = Integer.class;
+        } else if (indexType == DataFeatureUtils.IndexNumType.DAAL_INT16_U.getType()) {
+            type = Short.class;
+        } else if (indexType == DataFeatureUtils.IndexNumType.DAAL_INT8_U.getType()) {
+            type = Byte.class;
         } else {
             throw new IllegalArgumentException("type unsupported");
         }

@@ -62,8 +62,8 @@ class GbtRegDenseDistr {
             "../data/distributed/df_regression_test_4.csv"};
 
     private static final int nFeatures = 13;
-    private static final int localMaxBins = 66000;
-    private static final int maxBins = 66000;
+    private static final int localMaxBins = 256;
+    private static final int maxBins = 256;
     private static final int minBinSize = 5;
     private static final int maxIterations = 40;
 

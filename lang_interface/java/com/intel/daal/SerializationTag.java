@@ -58,6 +58,8 @@ public final class SerializationTag {
     private static final int SERIALIZATION_HOMOGEN_INT32_U_NT_ID_VALUE                             = 1003;
     private static final int SERIALIZATION_HOMOGEN_INT64_S_NT_ID_VALUE                             = 1004;
     private static final int SERIALIZATION_HOMOGEN_INT64_U_NT_ID_VALUE                             = 1005;
+    private static final int SERIALIZATION_HOMOGEN_INT8_U_NT_ID_VALUE                              = 1007;
+    private static final int SERIALIZATION_HOMOGEN_INT16_U_NT_ID_VALUE                             = 1009;
     private static final int SERIALIZATION_AOS_NT_ID_VALUE                                         = 3000;
     private static final int SERIALIZATION_SOA_NT_ID_VALUE                                         = 3001;
     private static final int SERIALIZATION_DATACOLLECTION_ID_VALUE                                 = 4000;
@@ -107,6 +109,8 @@ public final class SerializationTag {
     public static final SerializationTag SERIALIZATION_HOMOGEN_INT32_U_NT_ID     = new SerializationTag(SERIALIZATION_HOMOGEN_INT32_U_NT_ID_VALUE);
     public static final SerializationTag SERIALIZATION_HOMOGEN_INT64_S_NT_ID     = new SerializationTag(SERIALIZATION_HOMOGEN_INT64_S_NT_ID_VALUE);
     public static final SerializationTag SERIALIZATION_HOMOGEN_INT64_U_NT_ID     = new SerializationTag(SERIALIZATION_HOMOGEN_INT64_U_NT_ID_VALUE);
+    public static final SerializationTag SERIALIZATION_HOMOGEN_INT8_U_NT_ID      = new SerializationTag(SERIALIZATION_HOMOGEN_INT8_U_NT_ID_VALUE);
+    public static final SerializationTag SERIALIZATION_HOMOGEN_INT16_U_NT_ID     = new SerializationTag(SERIALIZATION_HOMOGEN_INT16_U_NT_ID_VALUE);
     public static final SerializationTag SERIALIZATION_AOS_NT_ID                 = new SerializationTag(SERIALIZATION_AOS_NT_ID_VALUE);
     public static final SerializationTag SERIALIZATION_SOA_NT_ID                 = new SerializationTag(SERIALIZATION_SOA_NT_ID_VALUE);
     public static final SerializationTag SERIALIZATION_DATACOLLECTION_ID         = new SerializationTag(SERIALIZATION_DATACOLLECTION_ID_VALUE);

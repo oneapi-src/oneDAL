@@ -40,6 +40,8 @@ public class DataFeatureUtils {
     private static final int cDaalInt32U  = 3;
     private static final int cDaalInt64S  = 4;
     private static final int cDaalInt64U  = 5;
+    private static final int cDaalInt8U   = 7;
+    private static final int cDaalInt16U  = 9;
     private static final int cDaalOtherT  = 10;
 
     /**
@@ -48,7 +50,8 @@ public class DataFeatureUtils {
      */
     static public enum IndexNumType {
         DAAL_FLOAT32(cDaalFloat32), DAAL_FLOAT64(cDaalFloat64), DAAL_INT32_S(cDaalInt32S), DAAL_INT32_U(
-                cDaalInt32U), DAAL_INT64_S(cDaalInt64S), DAAL_INT64_U(cDaalInt64U), DAAL_OTHER_T(cDaalOtherT);
+                cDaalInt32U), DAAL_INT64_S(cDaalInt64S), DAAL_INT64_U(cDaalInt64U), DAAL_OTHER_T(cDaalOtherT),
+                DAAL_INT8_U(cDaalInt8U), DAAL_INT16_U(cDaalInt16U);
 
         private final int numType;
 

@@ -480,8 +480,6 @@ services::Status RegressionInitStep3LocalKernel<algorithmFPType, method, cpu>::c
     const HomogenNumericTable<algorithmFPType> *mergedBinBorders, const HomogenNumericTable<size_t> *binQuantities, const NumericTable *x,
     const HomogenNumericTable<algorithmFPType> *ntInitialResponse, const DistributedPartialResultStep3 *partialResult, const Parameter& par)
 {
-     // need fixes in java interfaces to work
-
     HomogenNumericTable<algorithmFPType> *ntResponse = dynamic_cast<HomogenNumericTable<algorithmFPType>*>((partialResult->get(step3Response)).get());
     HomogenNumericTable<int> *ntTreeOrder = dynamic_cast<HomogenNumericTable<int>*>((partialResult->get(step3TreeOrder)).get());
 

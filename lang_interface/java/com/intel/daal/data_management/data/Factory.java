@@ -74,7 +74,9 @@ public class Factory {
             objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT32_S_NT_ID.getValue() ||
             objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT32_U_NT_ID.getValue() ||
             objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT64_S_NT_ID.getValue() ||
-            objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT64_U_NT_ID.getValue()) {
+            objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT64_U_NT_ID.getValue() ||
+            objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT8_U_NT_ID.getValue()  ||
+            objectId == SerializationTag.SERIALIZATION_HOMOGEN_INT16_U_NT_ID.getValue()) {
             return new com.intel.daal.data_management.data.HomogenNumericTable(context, cObject);
         }
         if (objectId == SerializationTag.SERIALIZATION_AOS_NT_ID.getValue()) {
