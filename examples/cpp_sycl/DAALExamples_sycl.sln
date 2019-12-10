@@ -7,9 +7,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cor_dense_batch", "vcproj\c
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cor_dense_online", "vcproj\cor_dense_online\cor_dense_online.vcxproj", "{F42E178D-1F04-498E-BC38-C90BC6E4D977}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "low_order_moms_dense_batch", "vcproj\moments\low_order_moms_dense_batch\low_order_moms_dense_batch.vcxproj", "{3529DF89-4DF8-4724-A0C0-9734341FD9FF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "low_order_moms_dense_batch", "vcproj\low_order_moms_dense_batch\low_order_moms_dense_batch.vcxproj", "{3529DF89-4DF8-4724-A0C0-9734341FD9FF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "low_order_moms_dense_online", "vcproj\moments\low_order_moms_dense_online\low_order_moms_dense_online.vcxproj", "{2735C994-D97F-4BC5-9844-0F1A2952A85B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "low_order_moms_dense_online", "vcproj\low_order_moms_dense_online\low_order_moms_dense_online.vcxproj", "{2735C994-D97F-4BC5-9844-0F1A2952A85B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lin_reg_norm_eq_dense_batch", "vcproj\lin_reg_norm_eq_dense_batch\lin_reg_norm_eq_dense_batch.vcxproj", "{45620203-512B-40BA-BCCA-4DC6608E5529}"
 EndProject
