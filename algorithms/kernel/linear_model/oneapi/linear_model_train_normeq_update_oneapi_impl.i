@@ -67,8 +67,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     DAAL_CHECK_STATUS(status, xtx.releaseBlockOfRows(xtxBlock));
     DAAL_CHECK_STATUS(status, xty.releaseBlockOfRows(xtyBlock));
 
-    /* Temp workaround for compiler bug. */
-    size_t nRowsPerBlock = nRows;
+    const size_t nRowsPerBlock = 90000;
 
     size_t nBlocks = nRows / nRowsPerBlock;
     if (nBlocks * nRowsPerBlock < nRows)
