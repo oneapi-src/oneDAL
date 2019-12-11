@@ -77,11 +77,6 @@ public:
     template <typename T>
     services::Status setArray(const services::Buffer<T> & bf, size_t idx)
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->setArray(bf.toHost(readOnly), idx);
-        }
-
         if (_partialMemStatus != notAllocated && _partialMemStatus != userAllocated)
         {
             return services::Status(services::ErrorIncorrectNumberOfFeatures);
@@ -101,6 +96,11 @@ public:
             }
 
             _arrays[idx] = oneapi::internal::UniversalBuffer(bf);
+
+            if (isCpuTable())
+            {
+                return _cpuTable->setArray(bf.toHost(readOnly), idx);
+            }
         }
         else
         {
@@ -437,8 +437,8 @@ protected:
 
     void freeDataMemoryImpl() DAAL_C11_OVERRIDE
     {
-        _arrays.clear();
         _cpuTable.reset();
+        _arrays.clear();
         _arrays.resize(_ddict->getNumberOfFeatures());
         _arraysInitialized = 0;
 
