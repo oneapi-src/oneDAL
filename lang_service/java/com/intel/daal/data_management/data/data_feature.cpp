@@ -104,21 +104,6 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cD
 
 /*
  * Class:     com_intel_daal_data_1management_data_DataFeature
- * Method:    cSetInternalNumType
- * Signature:(JI)V
- */
-JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_DataFeature_cSetInternalNumType(JNIEnv * env, jobject thisObj, jlong dataFeatureAddr,
-                                                                                                 jint newIntType)
-{
-    using namespace daal;
-
-    // Get a class reference for Java NumericTableFeature
-    NumericTableFeature * df = ((NumericTableFeaturePtr *)dataFeatureAddr)->get();
-    //df->int_type =(DataFeatureUtils::InternalNumType)((int)newIntType);
-}
-
-/*
- * Class:     com_intel_daal_data_1management_data_DataFeature
  * Method:    cSetPMMLNumType
  * Signature:(JI)V
  */

@@ -211,7 +211,7 @@ public:
 
     explicit KernelArguments(size_t argsNum) : _args(new KernelArgument[argsNum]), _size(argsNum) {}
 
-    ~KernelArguments() { delete[] _args; }
+    ~KernelArguments() DAAL_C11_OVERRIDE { delete[] _args; }
 
     template <typename T>
     void set(size_t index, const T & value)
