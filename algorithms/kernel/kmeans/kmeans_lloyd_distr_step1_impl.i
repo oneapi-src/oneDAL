@@ -51,7 +51,6 @@ Status KMeansDistributedStep1Kernel<method, algorithmFPType, cpu>::compute(size_
     NumericTable * ntAssignments = const_cast<NumericTable *>(r[5]);
 
     const size_t p         = ntData->getNumberOfColumns();
-    const size_t n         = ntData->getNumberOfRows();
     const size_t nClusters = par->nClusters;
     int result             = 0;
 

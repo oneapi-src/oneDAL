@@ -27,6 +27,7 @@
 #include "numeric_table.h"
 #include "algorithm_base_common.h"
 #include "low_order_moments_types.h"
+#include "service_ittnotify.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

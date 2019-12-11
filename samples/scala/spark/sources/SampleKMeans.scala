@@ -22,6 +22,7 @@ import org.apache.spark.SparkContext
 
 //import org.apache.spark.mllib.clustering.{KMeans, KMeansModel}
 import daal_for_mllib.{KMeans, DAALKMeansModel => KMeansModel}
+import org.apache.spark.storage.StorageLevel
 
 import org.apache.spark.mllib.linalg.Vectors
 
@@ -30,7 +31,7 @@ object SampleKMeans extends App {
     val sc = new SparkContext(conf)
 
     val data = sc.textFile("/Spark/KMeans/data/KMeans.txt")
-    val dataRDD = data.map(s => Vectors.dense(s.split(' ').map(_.toDouble))).cache()
+    val dataRDD = data.map(s => Vectors.dense(s.split(' ').map(_.toDouble))).persist(StorageLevel.MEMORY_AND_DISK)
 
     val nClusters = 20
     val nIterations = 10

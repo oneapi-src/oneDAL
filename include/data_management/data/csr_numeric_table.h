@@ -645,7 +645,7 @@ public:
 
         if (nrow == 0) return services::Status(services::ErrorIncorrectNumberOfObservations);
 
-        NumericTableFeature & f = (*_ddict)[0];
+        const NumericTableFeature & f = (*_ddict)[0];
 
         _ptr        = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(dataSize * f.typeSize), services::ServiceDeleter());
         _colIndices = services::SharedPtr<size_t>((size_t *)daal::services::daal_malloc(dataSize * sizeof(size_t)), services::ServiceDeleter());
@@ -839,7 +839,6 @@ protected:
     template <typename T>
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        size_t ncols = getNumberOfColumns();
         size_t nobs  = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
         size_t * rowOffsets = _rowOffsets.get();
@@ -905,7 +904,7 @@ protected:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        NumericTableFeature & f = (*_ddict)[0];
+        const NumericTableFeature & f = (*_ddict)[0];
 
         size_t nValues = rowOffsets[idx + nrows] - rowOffsets[idx];
 

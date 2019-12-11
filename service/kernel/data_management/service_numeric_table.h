@@ -247,7 +247,7 @@ class HomogenNumericTableCPU<int, cpu> : public HomogenNumericTable<int>
 {
 public:
     HomogenNumericTableCPU(int * const ptr, size_t featnum, size_t obsnum, services::Status & st)
-        : HomogenNumericTable<int>(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(featnum)), st)
+        : HomogenNumericTable<int>(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(featnum)), st), _cpuDict(nullptr)
     {
         NumericTableFeature df;
         df.setType<int>();
@@ -265,7 +265,7 @@ public:
     }
 
     HomogenNumericTableCPU(size_t featnum, size_t obsnum, services::Status & st)
-        : HomogenNumericTable<int>(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(featnum)), st)
+        : HomogenNumericTable<int>(services::SharedPtr<NumericTableDictionaryCPU<cpu> >(new NumericTableDictionaryCPU<cpu>(featnum)), st), _cpuDict(nullptr)
     {
         NumericTableFeature df;
         df.setType<int>();

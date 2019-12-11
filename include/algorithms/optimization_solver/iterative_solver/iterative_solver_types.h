@@ -129,14 +129,14 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     */
     Parameter(const Parameter & other);
 
-    virtual ~Parameter() {}
+    ~Parameter() DAAL_C11_OVERRIDE {}
 
     /**
      * Checks the correctness of the parameter
      *
      * \return Status of computations
      */
-    virtual services::Status check() const;
+    services::Status check() const DAAL_C11_OVERRIDE;
 
     sum_of_functions::interface1::BatchPtr function; /*!< Objective function represented as sum of functions */
     size_t nIterations;                              /*!< Maximal number of iterations of the algorithm */
@@ -161,7 +161,7 @@ public:
     Input();
     Input(const Input & other);
 
-    virtual ~Input() {}
+    ~Input() DAAL_C11_OVERRIDE {}
 
     /**
      * Returns input NumericTable of the iterative solver algorithm
@@ -224,7 +224,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     Result() : daal::algorithms::Result(lastOptionalResultId + 1) {}
 
-    virtual ~Result() {};
+    ~Result() DAAL_C11_OVERRIDE {};
 
     /**
      * Allocates memory to store the results of the iterative solver algorithm
@@ -333,14 +333,14 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     */
     Parameter(const Parameter & other);
 
-    virtual ~Parameter() {}
+    ~Parameter() DAAL_C11_OVERRIDE {}
 
     /**
      * Checks the correctness of the parameter
      *
      * \return Status of computations
      */
-    virtual services::Status check() const;
+    services::Status check() const DAAL_C11_OVERRIDE;
 
     sum_of_functions::BatchPtr function; /*!< Objective function represented as sum of functions */
     size_t nIterations;                  /*!< Maximal number of iterations of the algorithm */
@@ -365,7 +365,7 @@ public:
     Input();
     Input(const Input & other);
 
-    virtual ~Input() {}
+    ~Input() DAAL_C11_OVERRIDE {}
 
     /**
      * Returns input NumericTable of the iterative solver algorithm
@@ -428,7 +428,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
     Result() : daal::algorithms::Result(lastOptionalResultId + 1) {}
 
-    virtual ~Result() {};
+    ~Result() DAAL_C11_OVERRIDE {};
 
     /**
      * Allocates memory to store the results of the iterative solver algorithm

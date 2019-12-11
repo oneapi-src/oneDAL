@@ -74,7 +74,7 @@ protected:
     {
         services::Status s = _result->allocate<double>(_in, (daal::algorithms::Parameter *)(&parameter), 0);
         _res               = _result.get();
-        return services::Status();
+        return s;
     }
 
     virtual JavaBatch * cloneImpl() const DAAL_C11_OVERRIDE { return NULL; }

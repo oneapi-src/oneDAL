@@ -198,7 +198,7 @@ void SerializationIface::serialize(InputDataArchive & archive)
 
 void SerializationIface::deserialize(OutputDataArchive & archive)
 {
-    int tag = archive.segmentHeader();
+    archive.segmentHeader();
     deserializeImpl(&archive);
     archive.segmentFooter();
 }

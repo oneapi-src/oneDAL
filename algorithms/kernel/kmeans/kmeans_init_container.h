@@ -264,7 +264,6 @@ DistributedContainer<step4Local, algorithmFPType, method, cpu>::~DistributedCont
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status DistributedContainer<step4Local, algorithmFPType, method, cpu>::compute()
 {
-    const Parameter * par                                 = (const Parameter *)(_par);
     DistributedStep4LocalPlusPlusInput * input            = static_cast<DistributedStep4LocalPlusPlusInput *>(_in);
     const NumericTable * pData                            = input->get(data).get();
     const NumericTable * pInput                           = input->get(inputOfStep4FromStep3).get();
@@ -299,7 +298,6 @@ DistributedContainer<step5Master, algorithmFPType, method, cpu>::~DistributedCon
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status DistributedContainer<step5Master, algorithmFPType, method, cpu>::compute()
 {
-    const Parameter * par                                  = (const Parameter *)(_par);
     DistributedStep5MasterPlusPlusInput * input            = static_cast<DistributedStep5MasterPlusPlusInput *>(_in);
     const DataCollection * pCandidates                     = input->get(inputCentroids).get();
     const DataCollection * pRating                         = input->get(inputOfStep5FromStep2).get();

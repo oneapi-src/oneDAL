@@ -111,7 +111,6 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
     WriteOnlyRows<algorithmFPType, cpu> resBD(result, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(resBD);
     services::internal::service_memset<algorithmFPType, cpu>(resBD.get(), 0, dim.nRowsTotal);
-    const size_t nThreads = daal::threader_get_threads_number();
     SafeStatus safeStat;
     services::Status s;
     HostAppHelper host(pHostApp, 100);

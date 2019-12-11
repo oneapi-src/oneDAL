@@ -50,7 +50,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     NumericTable * a                  = static_cast<NumericTable *>(input->get(data).get());
     NumericTable * r                  = static_cast<NumericTable *>(result->get(weights).get());
-    daal::algorithms::Parameter * par = _par;
 
     NumericTable * locationTable  = static_cast<NumericTable *>(input->get(InputId::location).get());
     NumericTable * scatterTable   = static_cast<NumericTable *>(input->get(InputId::scatter).get());

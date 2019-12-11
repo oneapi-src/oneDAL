@@ -114,8 +114,6 @@ public class DataFeature extends SerializableBase {
     /* Constructs C++ data feature object */
     private native long init();
 
-    private native void cSetInternalNumType(long cObject, int intType);
-
     private native void cSetPMMLNumType(long cObject, int pmmlType);
 
     private native void cSetFeatureType(long cObject, int featureType);

@@ -261,8 +261,9 @@ class ALS private (
 
             object ratingsOrdering extends Ordering[Rating] {
                 def compare(a: Rating, b: Rating) = {
-                    if (a.product.compare(b.product) != 0) {
-                        a.product.compare(b.product)
+                    val diff = a.product.compare(b.product)
+                    if (diff != 0) {
+                        diff
                     } else {
                         a.user.compare(b.user)
                     }
@@ -309,7 +310,7 @@ class ALS private (
             }
 
             rowIndex(nVectors) = rpos + 1
-                                 
+
             val contextLocal = new DaalContext()
             val table = new CSRNumericTable(contextLocal, values, columns, rowIndex, nFeatures, nVectors)
 
@@ -500,7 +501,7 @@ class ALS private (
 
         partialResultLocal.map(
             (tup: Tuple2[Int, DistributedPartialResultStep4]) => {
-                
+
                 val contextLocal = new DaalContext()
                 tup._2.unpack(contextLocal)
 

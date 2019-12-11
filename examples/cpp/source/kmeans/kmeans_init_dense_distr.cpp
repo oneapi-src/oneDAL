@@ -213,9 +213,6 @@ void calculateCentroids(const NumericTablePtr & initialCentroids, const NumericT
 {
     kmeans::Distributed<step2Master> masterAlgorithm(nClusters);
 
-    const size_t nRows = initialCentroids->getNumberOfRows();
-    const size_t nCols = initialCentroids->getNumberOfColumns();
-
     NumericTablePtr assignments[nBlocks];
     NumericTablePtr centroids = initialCentroids;
     NumericTablePtr objectiveFunction;

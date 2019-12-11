@@ -45,7 +45,7 @@ namespace interface1
 class DataBlockIface : public Base
 {
 public:
-    virtual ~DataBlockIface() {}
+    ~DataBlockIface() DAAL_C11_OVERRIDE {}
     /**
     * Returns a pointer to a byte array stored in DataBlock
     * \return Pointer to the byte array stored in DataBlock
@@ -109,13 +109,9 @@ public:
      * Copy constructor. Copies a pointer and the size stored in another DataBlock
      * \param block Reference to DataBlock
      */
-    DataBlock(const DataBlock & block)
-    {
-        _ptr  = block._ptr;
-        _size = block._size;
-    }
+    DataBlock(const DataBlock & block) : _ptr(block._ptr), _size(block._size) {}
 
-    virtual ~DataBlock() {}
+    ~DataBlock() DAAL_C11_OVERRIDE {}
 
     virtual byte * getPtr() const DAAL_C11_OVERRIDE { return _ptr.get(); }
 

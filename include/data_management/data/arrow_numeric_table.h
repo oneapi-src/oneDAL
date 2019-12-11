@@ -157,7 +157,6 @@ protected:
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
         const size_t ncol  = _ddict->getNumberOfFeatures();
-        const size_t nrows = getNumberOfRows();
 
         for (size_t i = 0; i < ncol; ++i)
         {
@@ -345,7 +344,6 @@ private:
             return services::Status(services::ErrorMethodNotSupported);
         }
 
-        const size_t ncols = getNumberOfColumns();
         const size_t nobs  = getNumberOfRows();
         block.setDetails(featIdx, idx, rwFlag);
 

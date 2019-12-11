@@ -77,11 +77,6 @@ public:
     template <typename T>
     services::Status setArray(const services::Buffer<T> & bf, size_t idx)
     {
-        if (isCpuTable())
-        {
-            return _cpuTable->setArray(bf.toHost(readOnly), idx);
-        }
-
         if (_partialMemStatus != notAllocated && _partialMemStatus != userAllocated)
         {
             return services::Status(services::ErrorIncorrectNumberOfFeatures);
@@ -101,6 +96,11 @@ public:
             }
 
             _arrays[idx] = oneapi::internal::UniversalBuffer(bf);
+
+            if (isCpuTable())
+            {
+                return _cpuTable->setArray(bf.toHost(readOnly), idx);
+            }
         }
         else
         {
@@ -437,8 +437,8 @@ protected:
 
     void freeDataMemoryImpl() DAAL_C11_OVERRIDE
     {
-        _arrays.clear();
         _cpuTable.reset();
+        _arrays.clear();
         _arrays.resize(_ddict->getNumberOfFeatures());
         _arraysInitialized = 0;
 
@@ -552,24 +552,24 @@ private:
 
         if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t ncols = getNumberOfColumns();
-            size_t nrows = block.getNumberOfRows();
-            size_t idx   = block.getRowsOffset();
+            const size_t ncols = getNumberOfColumns();
+            const size_t nrows = block.getNumberOfRows();
+            services::Status st;
 
             auto blockBuffer    = block.getBuffer();
-            auto blockSharedPtr = blockBuffer.toHost(readOnly);
+            auto blockSharedPtr = blockBuffer.toHost(readOnly, &st);
+            DAAL_CHECK_STATUS_VAR(st);
             T * blockPtr        = blockSharedPtr.get();
 
-            services::Status st;
             auto & context = getDefaultContext();
-
             auto tempColumn = context.allocate(TypeIds::id<T>(), nrows, &st);
             DAAL_CHECK_STATUS_VAR(st);
 
             for (size_t j = 0; j < ncols; j++)
             {
                 {
-                    auto tempColumnSharedPtr = tempColumn.template get<T>().toHost(readWrite);
+                    auto tempColumnSharedPtr = tempColumn.template get<T>().toHost(readWrite, &st);
+                    DAAL_CHECK_STATUS_VAR(st);
                     T * tempColumnPtr        = tempColumnSharedPtr.get();
 
                     for (size_t i = 0; i < nrows; i++)
@@ -595,8 +595,7 @@ private:
     {
         using namespace oneapi::internal;
 
-        size_t ncols = getNumberOfColumns();
-        size_t nobs  = getNumberOfRows();
+        const size_t nobs  = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nobs)

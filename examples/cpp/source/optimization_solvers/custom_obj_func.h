@@ -234,7 +234,6 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
 
     const size_t p   = argumentTable->getNumberOfRows(); // size of the argument
     const size_t dim = p - 1;                            // number of features in the input data set
-    const size_t n   = xTable->getNumberOfRows();        // number of rows in the input data set
     const algorithmFPType one(1.0);
 
     daal::data_management::BlockDescriptor<int> indicesBlock;

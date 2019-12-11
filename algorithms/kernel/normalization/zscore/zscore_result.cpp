@@ -56,7 +56,6 @@ Status ResultImpl::check(const daal::algorithms::Input * in, const daal::algorit
     DAAL_CHECK(dataTable, ErrorNullInputNumericTable);
 
     const size_t nFeatures = dataTable->getNumberOfColumns();
-    const size_t nVectors  = dataTable->getNumberOfRows();
 
     const interface3::BaseParameter * parameter = static_cast<const BaseParameter *>(par);
     if (parameter->resultsToCompute & mean)

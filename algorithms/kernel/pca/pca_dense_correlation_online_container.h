@@ -63,7 +63,6 @@ services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::comput
 template <typename algorithmFPType, CpuType cpu>
 services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::finalizeCompute()
 {
-    Input * input                                                  = static_cast<Input *>(_in);
     OnlineParameter<algorithmFPType, correlationDense> * parameter = static_cast<OnlineParameter<algorithmFPType, correlationDense> *>(_par);
     PartialResult<correlationDense> * partialResult                = static_cast<PartialResult<correlationDense> *>(_pres);
     Result * result                                                = static_cast<Result *>(_res);

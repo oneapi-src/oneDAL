@@ -268,7 +268,7 @@ abstract public class DataSource extends ContextClient {
 
     public void unpack(DaalContext context) {
         if (getContext() != null) {
-            /* Error */
+            throw new IllegalArgumentException("Object is already deserialized");
         }
         changeContext(context);
     }

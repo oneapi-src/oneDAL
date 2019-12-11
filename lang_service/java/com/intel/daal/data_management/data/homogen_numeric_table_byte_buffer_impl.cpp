@@ -345,7 +345,6 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
     NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
-    const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
     const double * data = block.getBlockPtr();
@@ -372,7 +371,6 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
     NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
-    const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
     const float * data = block.getBlockPtr();
@@ -399,7 +397,6 @@ JNIEXPORT jobject JNICALL Java_com_intel_daal_data_1management_data_HomogenNumer
     NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
-    const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, readOnly, block));
 
     const int * data = block.getBlockPtr();
@@ -425,7 +422,6 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
     NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<float> block;
 
-    const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
     float * data      = block.getBlockPtr();
@@ -450,7 +446,6 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
     NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<double> block;
 
-    const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
     double * data      = block.getBlockPtr();
@@ -475,7 +470,6 @@ JNIEXPORT void JNICALL Java_com_intel_daal_data_1management_data_HomogenNumericT
     NumericTable * nt = static_cast<NumericTable *>(((SerializationIfacePtr *)numTableAddr)->get());
     BlockDescriptor<int> block;
 
-    const size_t nCols = nt->getNumberOfColumns();
     DAAL_CHECK_THROW(nt->getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, writeOnly, block));
 
     int * data = block.getBlockPtr();
