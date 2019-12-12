@@ -50,7 +50,7 @@ namespace interface1
 class SQLFeatureManager
 {
 public:
-    SQLFeatureManager() : _errors(services::SharedPtr<services::ErrorCollection>(new services::ErrorCollection)) {}
+    SQLFeatureManager() : _fetchBuffer(), _errors(services::SharedPtr<services::ErrorCollection>(new services::ErrorCollection)) {}
 
     /**
      * Adds extended feature modifier

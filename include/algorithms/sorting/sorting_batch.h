@@ -103,7 +103,7 @@ public:
      */
     Batch(const Batch<algorithmFPType, method> & other) : input(other.input) { initialize(); }
 
-    virtual ~Batch() {}
+    ~Batch() DAAL_C11_OVERRIDE {}
 
     /**
     * Returns method of the algorithm

@@ -129,13 +129,13 @@ public:
                    size_t initialMaxRows                                                 = 10)
         : super(doAllocateNumericTable, doCreateDictionaryFromContext)
     {
+        initialize(initialMaxRows);
         if (dbname.find('\0') != std::string::npos || tableName.find('\0') != std::string::npos || userName.find('\0') != std::string::npos
             || password.find('\0') != std::string::npos)
         {
             this->_status.add(services::throwIfPossible(services::ErrorNullByteInjection));
             return;
         }
-        initialize(initialMaxRows);
         _status |= connectUsingUserNameAndPassword(dbname, userName, password);
         if (!_status)
         {
@@ -158,13 +158,13 @@ public:
                    const ODBCDataSourceOptions & options, size_t initialMaxRows = 10)
         : super(options.getNumericTableAllocationFlag(), options.getDictionaryCreationFlag())
     {
+        initialize(initialMaxRows);
         if (dbname.find('\0') != std::string::npos || tableName.find('\0') != std::string::npos || userName.find('\0') != std::string::npos
             || password.find('\0') != std::string::npos)
         {
             this->_status.add(services::throwIfPossible(services::ErrorNullByteInjection));
             return;
         }
-        initialize(initialMaxRows);
         _status |= connectUsingUserNameAndPassword(dbname, userName, password);
         if (!_status)
         {
@@ -183,12 +183,12 @@ public:
     ODBCDataSource(const std::string & connectionString, const ODBCDataSourceOptions & options, size_t initialMaxRows = 10)
         : super(options.getNumericTableAllocationFlag(), options.getDictionaryCreationFlag())
     {
+        initialize(initialMaxRows);
         if (connectionString.find('\0') != std::string::npos)
         {
             this->_status.add(services::throwIfPossible(services::ErrorNullByteInjection));
             return;
         }
-        initialize(initialMaxRows);
         _status |= connectUsingConnectionString(connectionString);
     }
 
