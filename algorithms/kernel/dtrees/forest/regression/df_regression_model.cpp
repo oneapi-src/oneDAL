@@ -186,6 +186,7 @@ bool ModelImpl::add(const TreeType & tree, size_t nClasses)
     (*_serializationData)[i - 1].reset(pTbl);
     (*_impurityTables)[i - 1].reset(impTbl);
     (*_nNodeSampleTables)[i - 1].reset(nodeSamplesTbl);
+    (*_probTbl)[i - 1].reset(probTbl);
 
     return true;
 }
