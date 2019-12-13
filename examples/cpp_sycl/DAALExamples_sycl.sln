@@ -248,7 +248,7 @@ Global
 		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Release.static.sequential|x64.ActiveCfg = Release.static.sequential|x64
 		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Release.static.sequential|x64.Build.0 = Release.static.sequential|x64
 		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Release.static.threaded|x64.ActiveCfg = Release.static.threaded|x64
-		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64    
+		{6B1239AD-5E43-4E9B-8FD8-B59497129619}.Release.static.threaded|x64.Build.0 = Release.static.threaded|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
