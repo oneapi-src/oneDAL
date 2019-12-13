@@ -251,9 +251,6 @@ public:
 
         if (record.nodeState == split)
         {
-            TableRecordType& leftChild  = _records[2 * nid + 1];
-            TableRecordType& rightChild = _records[2 * nid + 2];
-
             getLeafNodes(2 * nid + 1, leaves);
             getLeafNodes(2 * nid + 2, leaves);
         }

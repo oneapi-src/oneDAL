@@ -961,7 +961,15 @@ protected:
         if (block.getRWFlag() & (int)writeOnly)
         {
             NumericTableFeature & f = (*_ddict)[0];
-            if (f.indexType != features::internal::getIndexNumType<T>())
+            const int indexType = f.indexType;
+
+            if (data_management::features::DAAL_OTHER_T == indexType && features::internal::getIndexNumType<T>() != indexType)
+            {
+                block.reset();
+                return services::Status(services::ErrorDataTypeNotSupported);
+            }
+
+            if (features::internal::getIndexNumType<T>() != indexType)
             {
                 size_t nrows   = block.getNumberOfRows();
                 size_t idx     = block.getRowsOffset();
@@ -970,7 +978,7 @@ protected:
                 services::SharedPtr<byte> ptr      = services::reinterpretPointerCast<byte, T>(block.getBlockValuesSharedPtr());
                 services::SharedPtr<byte> location = services::SharedPtr<byte>(ptr, _ptr.get() + (_rowOffsets.get()[idx] - 1) * f.typeSize);
 
-                internal::getVectorDownCast(f.indexType, internal::getConversionDataType<T>())(nValues, ptr.get(), location.get());
+                internal::getVectorDownCast(indexType, internal::getConversionDataType<T>())(nValues, ptr.get(), location.get());
             }
         }
         block.reset();

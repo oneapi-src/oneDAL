@@ -343,8 +343,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     services::Status status;
 
-    auto& context = services::Environment::getInstance()->getDefaultExecutionContext();
-
     const int localSize = _preferableSubGroup;
     const int nPartialHistograms = (nRows < _preferableGroupSize * _maxLocalHistograms) ? nRows / _preferableGroupSize + !!(nRows % _preferableGroupSize) : _maxLocalHistograms;
 
@@ -696,8 +694,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::doPa
 
     DAAL_CHECK_STATUS_VAR(status);
 
-    size_t rev = 0;
-
     DAAL_CHECK_STATUS_VAR(partitionScan(data, treeOrder, partialSums, splitValue, iStart, nRows, localSize, nLocalSums));
     DAAL_CHECK_STATUS_VAR(partitionSumScan(partialSums, partialPrefixSums, totalSum, localSize, nSubgroupSums));
     DAAL_CHECK_STATUS_VAR(partitionReorder(data, treeOrder, treeOrderBuf, partialPrefixSums, splitValue, iStart, nRows, localSize, nLocalSums));
@@ -994,9 +990,6 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         for (size_t leafId = 0; leafId < nLeaves; leafId++)
         {
             TableRecord<algorithmFPType> *node = leaves[leafId];
-
-            const size_t curRows = node->n;
-            const size_t curOffset = node->iStart;
 
             algorithmFPType res = 0;
 

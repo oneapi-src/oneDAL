@@ -149,7 +149,6 @@ protected:
     virtual services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         _result.reset(new ResultType());
-        size_t nFeatures   = input.getNumberOfFeatures();
         services::Status s = _result->allocate<algorithmFPType>(_in, _par, (int)method);
         _res               = _result.get();
         return s;

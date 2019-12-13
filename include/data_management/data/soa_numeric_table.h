@@ -487,6 +487,7 @@ private:
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
         NumericTableFeature & f = (*_ddict)[feat_idx];
+        const int indexType = f.indexType;
 
         if (features::internal::getIndexNumType<T>() == f.indexType)
         {
@@ -494,6 +495,12 @@ private:
         }
         else
         {
+            if (data_management::features::DAAL_OTHER_T == indexType)
+            {
+                block.reset();
+                return services::Status(services::ErrorDataTypeNotSupported);
+            }
+
             byte * location = _arrays[feat_idx].get() + idx * f.typeSize;
 
             if (!block.resizeBuffer(1, nrows))
@@ -503,7 +510,7 @@ private:
 
             if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
 
-            internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(nrows, location, block.getBlockPtr());
+            internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(nrows, location, block.getBlockPtr());
         }
         return services::Status();
     }
@@ -516,12 +523,19 @@ private:
             size_t feat_idx = block.getColumnsOffset();
 
             NumericTableFeature & f = (*_ddict)[feat_idx];
+            const int indexType = f.indexType;
 
-            if (features::internal::getIndexNumType<T>() != f.indexType)
+            if (data_management::features::DAAL_OTHER_T == indexType)
+            {
+                block.reset();
+                return services::Status(services::ErrorDataTypeNotSupported);
+            }
+
+            if (features::internal::getIndexNumType<T>() != indexType)
             {
                 char * ptr = (char *)_arrays[feat_idx].get() + block.getRowsOffset() * f.typeSize;
 
-                internal::getVectorDownCast(f.indexType, internal::getConversionDataType<T>())(block.getNumberOfRows(), block.getBlockPtr(), ptr);
+                internal::getVectorDownCast(indexType, internal::getConversionDataType<T>())(block.getNumberOfRows(), block.getBlockPtr(), ptr);
             }
         }
         block.reset();
