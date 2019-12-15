@@ -17,7 +17,10 @@
 Basic Usage Scenario
 ~~~~~~~~~~~~~~~~~~~~~
 
-Typical |short_name| workflow consists of the following steps:
+In this topic, the typical workflow of using |short_name| algorithm on GPU
+is provided on the example of Principal Component Analysis algorithm (PCA).
+The following steps depict how to pass the data, initialize the algorithm,
+compute results and get calculated eigenvalues and eigenvectors:
 
 #. Include the following header file to enable the DPC++ interface for
    |short_name|:
@@ -43,7 +46,7 @@ Typical |short_name| workflow consists of the following steps:
       |namespace|::services::Environment::getInstance()->setDefaultExecutionContext(
             |namespace|::services::SyclExecutionContext(queue) );
 
-#. Create a SYCL* buffer from the data allocated on host:
+#. Create a DPC++ buffer from the data allocated on host:
 
    .. parsed-literal::
 
@@ -63,9 +66,9 @@ Typical |short_name| workflow consists of the following steps:
       };
       auto dataBuffer = cl::sycl::buffer<float, 1>(dataHost, nCols * nRows);
 
-#. Create a SYCL* numeric table from a SYCL* buffer. SYCL* numeric table is a new concept
-   introduced as a part of SYCL* interfaces to work with data stored in SYCL* buffer.
-   It implements an interface of a classical numeric table acting as an adapter between SYCL*
+#. Create a DPC++ numeric table from a DPC++ buffer. DPC++ numeric table is a new concept
+   introduced as a part of DPC++ interfaces to work with data stored in DPC++ buffer.
+   It implements an interface of a classical numeric table acting as an adapter between DPC++
    and |product| APIs for data representation. See :ref:`sycl-numeric-tables` for more details.
 
    .. parsed-literal::
@@ -98,7 +101,7 @@ Typical |short_name| workflow consists of the following steps:
       NumericTablePtr eigenvalues = result->get(|namespace|::algorithms::pca::eigenvalues);
       NumericTablePtr eigenvectors = result->get(|namespace|::algorithms::pca::eigenvectors);
 
-#. Get the raw data as SYCL* buffer from the resulting numeric tables:
+#. Get the raw data as DPC++ buffer from the resulting numeric tables:
 
    .. parsed-literal::
 
