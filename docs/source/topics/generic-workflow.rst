@@ -19,8 +19,14 @@ Basic Usage Scenario
 
 In this topic, the typical workflow of using |short_name| algorithm on GPU
 is provided on the example of Principal Component Analysis algorithm (PCA).
-The following steps depict how to pass the data, initialize the algorithm,
-compute results and get calculated eigenvalues and eigenvectors:
+
+The following steps depict how to:
+
+- pass the data,
+- initialize the algorithm,
+- request statistics to be calculated (means, variances, eigenvalues),
+- compute results and get calculated eigenvalues and eigenvectors.
+
 
 #. Include the following header file to enable the DPC++ interface for
    |short_name|:
@@ -78,8 +84,7 @@ compute results and get calculated eigenvalues and eigenvectors:
 
 
 #. Create an algorithm object, configure its parameters, set up input
-   data, and run the computations. In this example, a Principal
-   Component Analysis (PCA) algorithm is used:
+   data, and run the computations.
 
    .. parsed-literal::
 
