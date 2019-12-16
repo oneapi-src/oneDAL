@@ -136,8 +136,6 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::fin
 {
     services::Status status;
 
-    auto & context = Environment::getInstance()->getDefaultExecutionContext();
-
     const size_t nFeatures          = crossProductTable->getNumberOfColumns();
     algorithmFPType * nObservations = nullptr;
 

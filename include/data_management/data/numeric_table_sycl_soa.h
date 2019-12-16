@@ -533,7 +533,8 @@ private:
             auto buffer = converter.getResult(st);
             DAAL_CHECK_STATUS_VAR(st);
 
-            auto colSharedPtr = buffer.toHost(readOnly);
+            auto colSharedPtr = buffer.toHost(readOnly, &st);
+            DAAL_CHECK_STATUS_VAR(st);
             T * colPtr        = colSharedPtr.get();
 
             for (size_t i = 0; i < nrows; i++)
@@ -610,8 +611,6 @@ private:
         }
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
-
-        NumericTableFeature & f = (*_ddict)[feat_idx];
 
         auto uniBuffer = _arrays[feat_idx];
         BufferConverterTo<T> converter(uniBuffer, idx, nrows);
