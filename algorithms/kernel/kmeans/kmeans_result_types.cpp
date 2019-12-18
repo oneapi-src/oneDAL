@@ -81,7 +81,7 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
     {
         NumericTablePtr assignmentsTable = get(assignments);
         const size_t inputRows           = algInput->get(data)->getNumberOfRows();
-        DAAL_CHECK_STATUS(s, checkNumericTable(get(assignments).get(), assignmentsStr(), unexpectedLayouts, 0, 1, inputRows));
+        DAAL_CHECK_STATUS(s, checkNumericTable(assignmentsTable.get(), assignmentsStr(), unexpectedLayouts, 0, 1, inputRows));
     }
     return s;
 }

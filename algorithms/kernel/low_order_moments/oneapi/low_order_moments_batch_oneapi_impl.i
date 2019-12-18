@@ -120,8 +120,6 @@ template <typename algorithmFPType, Method method>
 services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::compute(NumericTable * dataTable, Result * result,
                                                                                     const Parameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseBatch);
-
     services::Status status;
 
     auto & context = daal::oneapi::internal::getDefaultContext();
@@ -155,7 +153,7 @@ services::Status LowOrderMomentsBatchKernelOneAPI<algorithmFPType, method>::comp
 template <typename algorithmFPType, EstimatesToCompute scope>
 static inline services::Status buildProgram(ClKernelFactoryIface & factory, const char * buildOptions = nullptr)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildProgram);
+    DAAL_ITTNOTIFY_SCOPED_TASK(buildProgram);
 
     services::Status status;
     auto fptype_name   = getKeyFPType<algorithmFPType>();
@@ -191,13 +189,17 @@ LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::LowOrderMomentsBatchTask
 
     nColsBlocks = (nFeatures + maxWorkItemsPerGroup - 1) / maxWorkItemsPerGroup;
 
-    nRowsBlocks = 8;
+    nRowsBlocks = 128;
     if (nVectors < 5000)
         nRowsBlocks = 1;
     else if (nVectors < 10000)
-        nRowsBlocks = 2;
+        nRowsBlocks = 8;
     else if (nVectors < 20000)
-        nRowsBlocks = 4;
+        nRowsBlocks = 16;
+    else if (nVectors < 50000)
+        nRowsBlocks = 32;
+    else if (nVectors < 100000)
+        nRowsBlocks = 64;
 
     workItemsPerGroup = (maxWorkItemsPerGroup < nFeatures) ? maxWorkItemsPerGroup : nFeatures;
 
@@ -290,15 +292,18 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
                 args.set(argsI++, bAuxBuffers[i], AccessModeIds::write);
             }
 
-            context.run(range, kProcessBlocks, args, &status);
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsBatchTaskOneAPI.ProcessBlocks);
+                context.run(range, kProcessBlocks, args, &status);
+            }
             DAAL_CHECK_STATUS_VAR(status);
         }
 
         /* merge blocks */
         auto kMergeBlocks = factory.getKernel(TaskInfoBatch<algorithmFPType, scope>::kMergeBlocksName);
         {
-            KernelRange localRange(nRowsBlocks); //need to be power of two
-            KernelRange globalRange(nRowsBlocks * nFeatures);
+            KernelRange localRange(maxWorkItemsPerGroupToMerge);
+            KernelRange globalRange(maxWorkItemsPerGroupToMerge * nFeatures);
 
             KernelNDRange range(1);
             range.global(globalRange, &status);
@@ -326,7 +331,10 @@ services::Status LowOrderMomentsBatchTaskOneAPI<algorithmFPType, scope>::compute
                 args.set(argsI++, bAuxBuffers[i], AccessModeIds::write);
             }
 
-            context.run(range, kMergeBlocks, args, &status);
+            {
+                DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsBatchTaskOneAPI.MergeBlocks);
+                context.run(range, kMergeBlocks, args, &status);
+            }
             DAAL_CHECK_STATUS_VAR(status);
         }
     }

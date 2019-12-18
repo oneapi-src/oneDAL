@@ -45,7 +45,7 @@ using namespace daal::algorithms;
 using namespace daal;
 using namespace std;
 
-string dataSourceName     = "daal-examples-kdb.inn.intel.com";
+string dataSourceName     = "kdb-examples.intel.com";
 size_t dataSourcePort     = 9999;
 string dataSourceUsername = "";
 string dataSourcePassword = "";

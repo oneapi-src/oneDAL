@@ -307,6 +307,9 @@ protected:
         env->ReleaseStringUTFChars(strObj, str);
     }
 #endif
+
+private:
+    JavaCallback& operator=(const JavaCallback&);
 };
 } // namespace services
 } // namespace daal

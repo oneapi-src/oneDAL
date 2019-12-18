@@ -41,10 +41,10 @@ namespace data_management
  */
 struct FeatureAuxData
 {
-    FeatureAuxData() : idx(0), wide(1), dsFeat(0), ntFeat(0), nCats(0) {}
+    FeatureAuxData() : idx(0), wide(1), nCats(0), dsFeat(0), ntFeat(0), buffer() {}
 
     explicit FeatureAuxData(size_t index, DataSourceFeature * dataSourceFeature, NumericTableFeature * numericTableFeature)
-        : idx(index), dsFeat(dataSourceFeature), ntFeat(numericTableFeature), wide(1), nCats(0), buffer()
+        : idx(index), wide(1), nCats(0), dsFeat(dataSourceFeature), ntFeat(numericTableFeature), buffer()
     {}
 
     size_t idx;

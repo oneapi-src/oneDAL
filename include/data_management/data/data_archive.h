@@ -54,7 +54,7 @@ namespace interface1
 class DataArchiveIface : public Base
 {
 public:
-    virtual ~DataArchiveIface() {}
+    ~DataArchiveIface() DAAL_C11_OVERRIDE {}
 
     /**
      *  Copies data into an archive
@@ -151,7 +151,7 @@ class DataArchiveImpl : public DataArchiveIface
 public:
     DataArchiveImpl() : _majorVersion(0), _minorVersion(0), _updateVersion(0) {}
 
-    virtual ~DataArchiveImpl() {}
+    ~DataArchiveImpl() DAAL_C11_OVERRIDE {}
 
     void setMajorVersion(int majorVersion) DAAL_C11_OVERRIDE { _majorVersion = majorVersion; }
 
@@ -181,7 +181,7 @@ public:
     /**
      *  Constructor of an empty data archive
      */
-    DataArchive() : minBlockSize(1024 * 16), minBlocksNum(16), _errors(new services::ErrorCollection())
+    DataArchive() : minBlocksNum(16), minBlockSize(1024 * 16), _errors(new services::ErrorCollection())
     {
         blockPtr           = 0;
         blockAllocatedSize = 0;
@@ -200,7 +200,7 @@ public:
     /**
      *  Copy constructor of a data archive
      */
-    DataArchive(const DataArchive & arch) : minBlockSize(1024 * 16), minBlocksNum(16)
+    DataArchive(const DataArchive & arch) : minBlocksNum(16), minBlockSize(1024 * 16)
     {
         blockPtr           = 0;
         blockAllocatedSize = 0;
@@ -225,7 +225,7 @@ public:
      *  \param[in]  ptr  Pointer to the array that represents the data
      *  \param[in]  size Size of the data array
      */
-    DataArchive(byte * ptr, size_t size) : minBlockSize(1024 * 16), minBlocksNum(16), _errors(new services::ErrorCollection())
+    DataArchive(byte * ptr, size_t size) : minBlocksNum(16), minBlockSize(1024 * 16), _errors(new services::ErrorCollection())
     {
         blockPtr           = 0;
         blockAllocatedSize = 0;
@@ -249,10 +249,9 @@ public:
         blockOffset[currentWriteBlock] += size;
     }
 
-    ~DataArchive()
+    ~DataArchive() DAAL_C11_OVERRIDE
     {
-        int i;
-        for (i = 0; i <= currentWriteBlock; i++)
+        for (int i = 0; i <= currentWriteBlock; i++)
         {
             daal::services::daal_free(blockPtr[i]);
             blockPtr[i] = NULL;
@@ -321,9 +320,8 @@ public:
 
     size_t getSizeOfArchive() const DAAL_C11_OVERRIDE
     {
-        int i;
         size_t size = 0;
-        for (i = 0; i <= currentWriteBlock; i++)
+        for (int i = 0; i <= currentWriteBlock; i++)
         {
             size += blockOffset[i];
         }
@@ -392,10 +390,9 @@ public:
             return length;
         }
 
-        int i;
         size_t offset = 0;
         int result    = 0;
-        for (i = 0; i <= currentWriteBlock; i++)
+        for (int i = 0; i <= currentWriteBlock; i++)
         {
             size_t blockSize = blockOffset[i];
 
@@ -516,7 +513,7 @@ public:
     }
 
     /** \private */
-    ~CompressedDataArchive()
+    ~CompressedDataArchive() DAAL_C11_OVERRIDE
     {
         if (serializedBuffer)
         {
@@ -635,7 +632,7 @@ public:
     }
 
     /** \private */
-    ~DecompressedDataArchive()
+    ~DecompressedDataArchive() DAAL_C11_OVERRIDE
     {
         if (serializedBuffer)
         {
@@ -770,7 +767,7 @@ public:
         archiveHeader();
     }
 
-    ~InputDataArchive() { delete _arch; }
+    ~InputDataArchive() DAAL_C11_OVERRIDE { delete _arch; }
 
     /**
      *  Generates a header for a data archive
@@ -1036,7 +1033,7 @@ public:
         archiveHeader();
     }
 
-    ~OutputDataArchive() { delete _arch; }
+    ~OutputDataArchive() DAAL_C11_OVERRIDE { delete _arch; }
 
     /**
      *  Reads the header from a data archive

@@ -19,28 +19,7 @@
 
 TBB_URL_ROOT="https://github.com/intel/tbb/releases/download/2019_U9/"
 TBB_VERSION="tbb2019_20191006oss"
-TBB_TARGET_ARCH=32e
 TBB_TARGET_PLATFORM=linux
-
-
-while [ 1 ] ; do
-    if [ "$1" = "--help" ] ; then
-        echo "Usage: $0 [32|32e]"
-        echo "Usage example: $0 32e"
-        exit 1
-    elif [ "${1}" = "32" ] ; then
-        TBB_TARGET_ARCH=ia32
-    elif [ "${1}" = "32e" ] ; then
-        TBB_TARGET_ARCH=intel64
-    elif [ -z "${1}" ] ; then
-        break
-    else
-        echo "Error: unknown paramater $1!"
-        echo "type $0 --help"
-        exit 1
-    fi
-    shift
-done
 
 os=`uname`
 if [ "${os}" = "Linux" ]; then

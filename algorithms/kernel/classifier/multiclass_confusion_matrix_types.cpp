@@ -80,7 +80,6 @@ void Input::set(InputId id, const NumericTablePtr & value)
 Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     Status s;
-    const Parameter * algParameter         = static_cast<const Parameter *>(parameter);
     NumericTablePtr predictedLabelsTable   = get(predictedLabels);
     NumericTablePtr groundTruthLabelsTable = get(groundTruthLabels);
     const int unexpectedLayouts            = (int)packed_mask;

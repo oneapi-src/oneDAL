@@ -285,7 +285,7 @@ parameter method.
      - any
      - Not applicable
      - The number of clusters. Required.
-   * - nTrails
+   * - nTrials
      - parallelPlusDense, parallelPlusCSR
      - :math:`1`
      - The number of trails to generate all clusters but the first initial cluster. For details, see [Arthur2007]_, section 5

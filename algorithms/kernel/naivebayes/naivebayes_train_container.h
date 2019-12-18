@@ -85,7 +85,6 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::compute()
 {
     classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
     PartialResult * partialResult       = static_cast<PartialResult *>(_pres);
-    size_t na                           = input->size();
 
     const NumericTable * data   = input->get(classifier::training::data).get();
     const NumericTable * labels = input->get(classifier::training::labels).get();

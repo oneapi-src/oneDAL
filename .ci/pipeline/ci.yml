@@ -15,15 +15,17 @@ jobs:
     matrix:
       lnx32:
         platform.type : 'lnx32'
+        with_gpu      : 'false'
       lnx32e:
         platform.type : 'lnx32e'
+        with_gpu      : 'true'
     maxParallel: 2
   steps:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
-      scripts/mklfpk.sh ${$(platform.type):3}
-      scripts/tbb.sh ${$(platform.type):3}
+      scripts/mklfpk.sh with_gpu=$(with_gpu)
+      scripts/tbb.sh
       export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
       export PATH=$JAVA_HOME/bin:$PATH
       export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH 
@@ -44,10 +46,11 @@ jobs:
     matrix:
       mac32e:
         platform.type : 'mac32e'
+        with_gpu      : 'false'
   steps:
   - script: |
-      scripts/mklfpk.sh ${$(platform.type):3}
-      scripts/tbb.sh ${$(platform.type):3}
+      scripts/mklfpk.sh with_gpu=$(with_gpu)
+      scripts/tbb.sh
       export JAVA_HOME=$(/usr/libexec/java_home -v 12)
       export PATH=$JAVA_HOME/bin:$PATH
       export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH

@@ -195,7 +195,6 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
         size_t nBlocks         = n / blockSize;
         nBlocks += (nBlocks * blockSize != n);
         algorithmFPType globalMaxNorm = 0;
-        const auto nThreads           = daal::threader_get_threads_number();
 
         TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(lipschitzConstant->getNumberOfRows());
 

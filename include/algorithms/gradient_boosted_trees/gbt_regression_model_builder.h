@@ -144,7 +144,7 @@ public:
     *  Get status of model building
     *  \return Status
     */
-    services::Status getStatus() { return _status; }
+    services::Status getStatus() const { return _status; }
 
 protected:
     ModelPtr _model;

@@ -78,7 +78,6 @@ void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(
     {
         /* Add intercept term to linear regression results */
         DAAL_INT iZero             = 0;
-        DAAL_INT numFeaturesValue  = *numFeatures;
         DAAL_INT numBetasValue     = *numBetas;
         DAAL_INT numResponsesValue = *numResponses;
         for (DAAL_INT j = 0; j < numResponsesValue; j++)

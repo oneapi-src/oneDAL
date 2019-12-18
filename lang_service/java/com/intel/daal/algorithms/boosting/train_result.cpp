@@ -40,7 +40,6 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_boosting_training_Trainin
     classifier::training::ResultPtr res =
         services::staticPointerCast<classifier::training::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
 
-    jlong resModel = 0;
     switch (id)
     {
     case ModelResult: *m = services::staticPointerCast<boosting::Model, classifier::Model>(res->get(classifier::training::model)); break;

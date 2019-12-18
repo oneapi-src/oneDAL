@@ -250,7 +250,6 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
         size_t nBlocks         = n / blockSize;
         nBlocks += (nBlocks * blockSize != n);
         algorithmFPType globalMaxNorm = 0;
-        const auto nThreads           = daal::threader_get_threads_number();
 
         TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(lipschitzConstant->getNumberOfRows());
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {

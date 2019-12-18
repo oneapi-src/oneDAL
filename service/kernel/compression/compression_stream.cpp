@@ -44,12 +44,12 @@ typedef enum
 class DAAL_EXPORT ReadWriteBlock : public DataBlock
 {
 public:
-    explicit ReadWriteBlock() : DataBlock(), _w_off(0), _r_off(0), _allocState(notallocated) {}
-    ReadWriteBlock(byte * ptr, size_t size) : DataBlock(ptr, size), _w_off(size), _r_off(0), _allocState(externallocated) {}
+    explicit ReadWriteBlock() : DataBlock(), _allocState(notallocated), _w_off(0), _r_off(0) {}
+    ReadWriteBlock(byte * ptr, size_t size) : DataBlock(ptr, size), _allocState(externallocated), _w_off(size), _r_off(0) {}
     explicit ReadWriteBlock(DataBlock * block)
-        : DataBlock(block->getPtr(), block->getSize()), _w_off(block->getSize()), _r_off(0), _allocState(externallocated)
+        : DataBlock(block->getPtr(), block->getSize()), _allocState(externallocated), _w_off(block->getSize()), _r_off(0)
     {}
-    explicit ReadWriteBlock(size_t size) : DataBlock(size), _w_off(0), _r_off(0), _allocState(internallocated)
+    explicit ReadWriteBlock(size_t size) : DataBlock(size), _allocState(internallocated), _w_off(0), _r_off(0)
     {
         byte * tmp_ptr = (byte *)daal::services::daal_calloc(size);
         setPtr(tmp_ptr);

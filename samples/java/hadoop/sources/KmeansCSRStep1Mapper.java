@@ -165,28 +165,4 @@ public class KmeansCSRStep1Mapper extends Mapper<Object, Text, IntWritable, Writ
             data[offset + j] = Long.parseLong(elements[j]);
         }
     }
-
-    private static void readData(String dataset, int nFeatures, int nVectors, double[] data) {
-        System.out.println("readData " + dataset);
-        try {
-            Path pt = new Path(dataset);
-            FileSystem fs = FileSystem.get(new Configuration());
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fs.open(pt)));
-
-            int nLine = 0;
-            for (String line; ((line = bufferedReader.readLine()) != null) && (nLine < nVectors); nLine++) {
-                String[] elements = line.split(",");
-                for (int j = 0; j < nFeatures; j++) {
-                    data[nLine * nFeatures + j] = Double.parseDouble(elements[j]);
-                }
-            }
-            bufferedReader.close();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-    }
 }

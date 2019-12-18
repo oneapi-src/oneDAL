@@ -1484,7 +1484,7 @@ protected:
                         FeatureIndex winnerFeatureIndex = 0;
                         IndependentVariableType winnerCutPoint;
                         typename SplitCriterion::ValueType winnerSplitCriterionValue;
-                        size_t winnerPointsAtLeft;
+                        size_t winnerPointsAtLeft = 0;
                         typename SplitCriterion::DataStatistics winnerDataStatistics;
 
                         WorkItem & workItem   = workArray[iBlock];
@@ -1638,7 +1638,7 @@ protected:
                 FeatureIndex winnerFeatureIndex = 0;
                 IndependentVariableType winnerCutPoint;
                 typename SplitCriterion::ValueType winnerSplitCriterionValue;
-                size_t winnerPointsAtLeft;
+                size_t winnerPointsAtLeft = 0;
                 typename SplitCriterion::DataStatistics winnerDataStatistics;
 
                 for (size_t i = first; i < last; ++i)

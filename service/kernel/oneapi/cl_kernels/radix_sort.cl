@@ -113,7 +113,6 @@ __kernel void radix_sort_group( __global  sortedType      *labels,
                 int done = sub_group_broadcast(correct ? 0 : 1 , k);
                 if(done) 
                 {
-                    if(local_id == 0)
                     break;
                 }
                 int skip = sub_group_broadcast(entry < 0 ? 0 : 1, k);
@@ -139,6 +138,8 @@ __kernel void radix_sort_group( __global  sortedType      *labels,
         }
         swap(&input, &output);
     }
+    for(int i = local_id; i < N; i += local_size) 
+        output[i] = input[i];
 }
 
 );

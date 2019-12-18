@@ -823,11 +823,9 @@ Status LBFGSTask<algorithmFPType, cpu>::updateBatchIndices(size_t iPredefinedInd
 template <typename algorithmFPType, CpuType cpu>
 void LBFGSTask<algorithmFPType, cpu>::twoLoopRecursion(size_t m, size_t correctionIndex, algorithmFPType * gradient)
 {
-    size_t index = 0;
-
     for (size_t k = 0; k < m; k++)
     {
-        index                                  = mod(correctionIndex + m - 1 - k, m);
+        const size_t index                     = mod(correctionIndex + m - 1 - k, m);
         const algorithmFPType * correctionSPtr = correctionS + index * this->argumentSize;
         const algorithmFPType * correctionYPtr = correctionY + index * this->argumentSize;
 
@@ -841,7 +839,7 @@ void LBFGSTask<algorithmFPType, cpu>::twoLoopRecursion(size_t m, size_t correcti
 
     for (size_t k = 0; k < m; k++)
     {
-        index                                  = mod(correctionIndex + k, m);
+        const size_t index                     = mod(correctionIndex + k, m);
         const algorithmFPType * correctionSPtr = correctionS + index * this->argumentSize;
         const algorithmFPType * correctionYPtr = correctionY + index * this->argumentSize;
 

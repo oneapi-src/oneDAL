@@ -787,7 +787,6 @@ Status mergeSums(data_management::DataCollection * partialResultsCollection, Par
     size_t collectionSize = partialResultsCollection->size();
 
     BlockDescriptor<int> inputNObsBD;
-    int * inputNObs;
     for (size_t block = 1; block < collectionSize; ++block)
     {
         inputPartialResult = static_cast<PartialResult *>((*partialResultsCollection)[block].get());

@@ -382,9 +382,6 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na,
     const size_t n = ntAi->getNumberOfColumns();
     const size_t m = ntAi->getNumberOfRows();
 
-    DAAL_INT ldAi = m;
-    DAAL_INT ldRi = n;
-
     ReadRows<algorithmFPType, cpu, NumericTable> aiBlock(ntAi, 0, m);
     DAAL_CHECK_BLOCK_STATUS(aiBlock);
     WriteOnlyRows<algorithmFPType, cpu, NumericTable> qiBlock(ntQi, 0, m);

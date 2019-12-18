@@ -53,7 +53,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     Input * input                          = static_cast<Input *>(_in);
     Result * result                        = static_cast<Result *>(_res);
-    daal::algorithms::Parameter * par      = _par;
     daal::services::Environment::env & env = *_env;
 
     NumericTablePtr inputTable  = input->get(data);
@@ -61,8 +60,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     if (method == defaultDense)
     {
-        interface1::Parameter<algorithmFPType, defaultDense> * parameter = static_cast<interface1::Parameter<algorithmFPType, defaultDense> *>(par);
-
         interface3::Parameter<algorithmFPType, defaultDense> internalPar;
         internalPar.resultsToCompute = none;
         internalPar.doScale          = true;
@@ -72,8 +69,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
-        interface1::Parameter<algorithmFPType, sumDense> * parameter = static_cast<interface1::Parameter<algorithmFPType, sumDense> *>(par);
-
         interface3::Parameter<algorithmFPType, sumDense> internalPar;
         internalPar.resultsToCompute = none;
         internalPar.doScale          = true;

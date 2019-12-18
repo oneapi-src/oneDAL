@@ -88,8 +88,6 @@ ThreadingTask<algorithmFPType, cpu> * ThreadingTask<algorithmFPType, cpu>::creat
 template <typename algorithmFPType, CpuType cpu>
 Status ThreadingTask<algorithmFPType, cpu>::allocateWorkBuffer()
 {
-    DAAL_INT info;
-
     DAAL_INT nRowsMax = ((_nRows > _nBetasIntercept) ? _nRows + _nBetasIntercept : 2 * _nBetasIntercept);
     Status st         = CommonKernel<algorithmFPType, cpu>::computeWorkSize(nRowsMax, _nBetasIntercept, _nResponses, _lwork);
     DAAL_CHECK_STATUS_VAR(st);

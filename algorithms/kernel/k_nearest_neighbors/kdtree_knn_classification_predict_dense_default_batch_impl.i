@@ -344,7 +344,6 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
     cur.nodeIndex   = rootTreeNodeIndex;
     cur.minDistance = 0;
 
-    const size_t xRowCount    = data.getNumberOfRows();
     const size_t xColumnCount = data.getNumberOfColumns();
 
     DAAL_ALIGNAS(256) algorithmFpType distance[__KDTREE_LEAF_BUCKET_SIZE + 1];

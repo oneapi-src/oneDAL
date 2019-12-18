@@ -172,16 +172,21 @@ bool ModelImpl::add(const TreeType & tree, size_t nClasses)
     auto nodeSamplesTbl = new HomogenNumericTable<int>(1, nNode, NumericTable::doAllocate);
     auto probTbl        = new HomogenNumericTable<double>(0, 0, NumericTable::doAllocate);
 
-    DAAL_CHECK_STATUS_VAR(pTbl)
-    DAAL_CHECK_STATUS_VAR(impTbl)
-    DAAL_CHECK_STATUS_VAR(nodeSamplesTbl)
-    DAAL_CHECK_STATUS_VAR(probTbl)
+    if (!pTbl || !impTbl || !nodeSamplesTbl || !probTbl)
+    {
+        delete pTbl;
+        delete impTbl;
+        delete nodeSamplesTbl;
+        delete probTbl;
+        return false;
+    }
 
     tree.convertToTable(pTbl, impTbl, nodeSamplesTbl, probTbl, 0);
 
     (*_serializationData)[i - 1].reset(pTbl);
     (*_impurityTables)[i - 1].reset(impTbl);
     (*_nNodeSampleTables)[i - 1].reset(nodeSamplesTbl);
+    (*_probTbl)[i - 1].reset(probTbl);
 
     return true;
 }

@@ -190,9 +190,8 @@ public:
     size_t sumWeights(size_t firstIndex, size_t lastIndex, NumericTable * w) const
     {
         DAAL_ASSERT(w != nullptr)
-        const size_t wRowCount = w->getNumberOfRows();
         DAAL_ASSERT(firstIndex <= lastIndex)
-        DAAL_ASSERT(wRowCount >= lastIndex)
+        DAAL_ASSERT(w->getNumberOfRows() >= lastIndex)
         size_t count = lastIndex - firstIndex;
         BlockDescriptor<algorithmFPType> wBD;
         const_cast<NumericTable *>(w)->getBlockOfColumnValues(0, firstIndex, count, readOnly, wBD);

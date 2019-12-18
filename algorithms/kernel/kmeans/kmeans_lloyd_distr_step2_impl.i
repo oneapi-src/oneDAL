@@ -173,7 +173,6 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 Status KMeansDistributedStep2Kernel<method, algorithmFPType, cpu>::finalizeCompute(size_t na, const NumericTable * const * a, size_t nr,
                                                                                    const NumericTable * const * r, const Parameter * par)
 {
-    const size_t nBlocks   = na / 3;
     const size_t p         = a[1]->getNumberOfColumns();
     const size_t nClusters = par->nClusters;
     int result             = 0;

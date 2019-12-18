@@ -55,7 +55,6 @@ services::Status I1SGDKernel<algorithmFPType, momentum, cpu>::compute(HostAppIfa
                                                                       engines::BatchBase & engine)
 {
     services::Status s;
-    const size_t argumentSize      = inputArgument->getNumberOfRows();
     const size_t nIter             = parameter->nIterations;
     const size_t batchSize         = parameter->batchSize;
     const double accuracyThreshold = parameter->accuracyThreshold;

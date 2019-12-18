@@ -220,7 +220,6 @@ services::Status methodSpecific<fastCSR, algorithmFPType, cpu>::getPredictionDat
         const DAAL_INT _c           = c;
         const algorithmFPType alpha = 1.0;
         const algorithmFPType beta  = 0.0;
-        const DAAL_INT ldaty        = n;
         const char matdescra[6]     = { 'G', 0, 0, 'F', 0, 0 };
 
         SpBlas<algorithmFPType, cpu>::xxcsrmm(&transa, &_n, &_c, &_p, &alpha, matdescra, values, (DAAL_INT *)colIdx, (DAAL_INT *)rowIdx, aux_table,

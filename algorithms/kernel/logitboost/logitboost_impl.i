@@ -96,8 +96,6 @@ void UpdateF(size_t dim, size_t n, size_t nc, const algorithmFPType * pred, algo
 template <typename algorithmFPType, CpuType cpu>
 void UpdateP(size_t nc, size_t n, algorithmFPType * F, algorithmFPType * P, algorithmFPType * Fbuf)
 {
-    const algorithmFPType overflowThreshold = daal::services::internal::MaxVal<algorithmFPType>::get();
-
     for (size_t i = 0; i < n; i++)
     {
         daal::internal::Math<algorithmFPType, cpu>::vExp(nc, F + i * nc, Fbuf);

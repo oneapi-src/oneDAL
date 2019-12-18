@@ -56,7 +56,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
     classifier::training::Input * input = static_cast<classifier::training::Input *>(_in);
     svm::training::Result * result      = static_cast<svm::training::Result *>(_res);
-    size_t na                           = input->size();
 
     NumericTablePtr x = input->get(classifier::training::data);
     NumericTablePtr y = input->get(classifier::training::labels);

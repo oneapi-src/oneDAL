@@ -358,7 +358,6 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::stumpRegression
     }
 
     const algorithmFPtype THR = 1e-10;
-    const algorithmFPtype C05 = (algorithmFPtype)0.5;
     splitPoint                = 0.0;
     lMean                     = 0.0;
     rMean                     = 0.0;
