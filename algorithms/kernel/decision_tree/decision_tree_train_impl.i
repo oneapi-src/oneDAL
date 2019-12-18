@@ -1130,9 +1130,9 @@ protected:
 
         FeatureIndex winnerFeatureIndex = 0;
         IndependentVariableType winnerCutPoint;
-        typename SplitCriterion::ValueType winnerSplitCriterionValue, splitCriterionValue;
+        typename SplitCriterion::ValueType winnerSplitCriterionValue;
         size_t winnerPointsAtLeft;
-        typename SplitCriterion::DataStatistics winnerDataStatistics, bestCutPointDataStatistics;
+        typename SplitCriterion::DataStatistics winnerDataStatistics;
         bool winnerIsLeaf = true;
 
         const size_t featureCount = context.x.getNumberOfColumns();

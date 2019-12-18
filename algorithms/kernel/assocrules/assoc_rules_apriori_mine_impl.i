@@ -90,7 +90,6 @@ bool AssociationRulesKernel<apriori, algorithmFPType, cpu>::pruneCandidate(size_
     int levelMiss                  = 0;
     for (size_t i = 1; i < iset_size; i++)
     {
-        bool found = false;
         for (size_t k = 0; k < i; k++)
         {
             subset[k] = candidate[k];

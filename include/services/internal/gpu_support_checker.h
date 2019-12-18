@@ -60,7 +60,7 @@ class DynamicTypeRegistrationChecker : public TypeRegistrationCheckerIface
 public:
     DynamicTypeRegistrationChecker() {}
 
-    virtual bool operator()(algorithms::AlgorithmContainerIface * ptr_to_check) { return dynamic_cast<T *>(ptr_to_check) != NULL; }
+    virtual bool operator()(algorithms::AlgorithmContainerIface * ptr_to_check) DAAL_C11_OVERRIDE { return dynamic_cast<T *>(ptr_to_check) != NULL; }
 };
 
 /**

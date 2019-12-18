@@ -132,7 +132,6 @@ services::Status AdagradKernel<algorithmFPType, method, cpu>::compute(HostAppIfa
     sum_of_functions::BatchPtr function = parameter->function;
 
     /*Get random indices for SGD from parameter or from rng generator*/
-    const bool isPredefinedBatchIndices            = parameter->batchIndices;
     const size_t batchSize                         = parameter->batchSize;
     const algorithmFPType degenerateCasesThreshold = (algorithmFPType)parameter->degenerateCasesThreshold;
     ReadRows<int, cpu> predefinedBatchIndicesBD(parameter->batchIndices.get(), 0, nIter);

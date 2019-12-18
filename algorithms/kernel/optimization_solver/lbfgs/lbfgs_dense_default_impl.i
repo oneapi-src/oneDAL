@@ -192,8 +192,6 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute(
             }
             else
             {
-                algorithmFPType * gradientPrev = (algorithmFPType *)task._gradientPrevPtr.get();
-                algorithmFPType * gradientCurr = (algorithmFPType *)task._gradientCurrPtr.get();
                 DAAL_CHECK_STATUS(s, task.computeCorrectionPair(correctionIndex, ntHessian.get(), useWolfeConditions));
             }
         }
@@ -353,8 +351,6 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute1(
             }
             else
             {
-                algorithmFPType * gradientPrev = (algorithmFPType *)task._gradientPrevPtr.get();
-                algorithmFPType * gradientCurr = (algorithmFPType *)task._gradientCurrPtr.get();
                 DAAL_CHECK_STATUS(s, task.computeCorrectionPair(correctionIndex, ntHessian.get(), useWolfeConditions));
             }
         }

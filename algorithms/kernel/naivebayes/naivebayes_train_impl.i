@@ -468,9 +468,6 @@ services::Status NaiveBayesDistributedTrainKernel<algorithmFPType, method, cpu>:
     size_t c = nbPar->nClasses;
     size_t p = outPMdl->getNFeatures();
 
-    algorithmFPType * n_c;
-    algorithmFPType * n_ci;
-
     size_t merged_n = 0;
 
     Status s;
