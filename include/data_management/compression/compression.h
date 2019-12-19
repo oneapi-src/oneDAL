@@ -163,12 +163,8 @@ public:
         _isOutBlockFull   = false;
         _usedOutBlockSize = 0;
     }
-    virtual void setInputDataBlock(byte * inBlock, size_t size, size_t offset) = 0;
-    virtual void setInputDataBlock(DataBlock & inBlock)                        = 0;
-    bool isOutputDataBlockFull() { return _isOutBlockFull; }
-    size_t getUsedOutputDataBlockSize() { return _usedOutBlockSize; }
-    virtual void run(byte * outBlock, size_t size, size_t offset) = 0;
-    virtual void run(DataBlock & outBlock)                        = 0;
+    bool isOutputDataBlockFull() DAAL_C11_OVERRIDE { return _isOutBlockFull; }
+    size_t getUsedOutputDataBlockSize() DAAL_C11_OVERRIDE { return _usedOutBlockSize; }
     virtual ~Compression() {}
     /**
      * Basic checks of input block parameters

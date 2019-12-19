@@ -221,9 +221,8 @@ struct hash_tree
         /* Here if a leaf node was reached */
         for (auto * current = leaves[offset].iset_list.start; current; current = current->next())
         {
-            bool found              = true;
             const size_t * curItems = current->itemSet()->items;
-            if (!assocrules_memcmp<cpu>(subset, current->itemSet()->items, iset_size))
+            if (!assocrules_memcmp<cpu>(subset, curItems, iset_size))
             {
                 return current->itemSet();
             }

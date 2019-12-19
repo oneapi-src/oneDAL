@@ -247,7 +247,6 @@ struct MklStatistics<double, cpu>
         int errcode = 0;
 
         __int64 dataStorage = __DAAL_VSL_SS_MATRIX_STORAGE_COLS;
-        __int64 cpStorage   = __DAAL_VSL_SS_MATRIX_STORAGE_FULL;
 
         double * sum       = daal::services::internal::service_scalable_malloc<double, cpu>(nFeatures);
         double * rawSecond = daal::services::internal::service_scalable_malloc<double, cpu>(nFeatures);
@@ -563,7 +562,6 @@ struct MklStatistics<float, cpu>
         int errcode = 0;
 
         __int64 dataStorage = __DAAL_VSL_SS_MATRIX_STORAGE_COLS;
-        __int64 cpStorage   = __DAAL_VSL_SS_MATRIX_STORAGE_FULL;
 
         float * sum       = daal::services::internal::service_scalable_malloc<float, cpu>(nFeatures);
         float * rawSecond = daal::services::internal::service_scalable_malloc<float, cpu>(nFeatures);

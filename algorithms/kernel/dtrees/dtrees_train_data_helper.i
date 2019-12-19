@@ -263,7 +263,6 @@ public:
     {
         if (!_aResponse.size()) return;
 
-        const IndexType * savedDst = dst;
         size_t idx                 = _aResponse[0].idx;
         size_t iDst                = 0;
         for (; iDst < idx; dst[iDst] = iDst, ++iDst)
