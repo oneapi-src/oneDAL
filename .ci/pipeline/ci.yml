@@ -63,17 +63,17 @@ jobs:
     inputs:
       artifactName: 'Mac build'
       targetPath: '__release_mac_clang'
-# Windows build is temporary disabled
-#- job: Windows
-#  pool:
-#    vmImage: 'vs2017-win2016'
-#  steps:
-#  - script: |
-#      java -version
-#      set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
-#      call .\scripts\mklfpk.bat && call .\scripts\tbb.bat
-#      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-#      call .\externals\tbb\bin\tbbvars.bat intel64 14_uwp
-#     make daal COMPILER=vc PLAT="win32e"
+
+- job: Windows
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - script: |
+      java -version
+      set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+      call .\scripts\mklfpk.bat && call .\scripts\tbb.bat
+      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+      call .\externals\tbb\bin\tbbvars.bat intel64 14_uwp
+     make daal COMPILER=vc PLAT="win32e"
 
 
