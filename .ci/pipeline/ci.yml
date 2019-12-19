@@ -74,6 +74,7 @@ jobs:
       call .\scripts\mklfpk.bat && call .\scripts\tbb.bat
       call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
       call .\externals\tbb\bin\tbbvars.bat intel64 14_uwp
-     make daal COMPILER=vc PLAT="win32e"
+      make daal COMPILER=vc PLAT="win32e"
+    displayName: 'make'
 
 
