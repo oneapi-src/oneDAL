@@ -119,7 +119,6 @@ public:
     {
         const size_t nUnique = res.nUnique;
         auto * aGHSum        = res.ghSums;
-        size_t nLeft         = 0;
 
         ImpurityType imp(res.gTotal, res.hTotal);
 

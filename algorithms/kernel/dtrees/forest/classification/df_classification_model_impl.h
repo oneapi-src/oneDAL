@@ -48,7 +48,7 @@ public:
     typedef algorithms::classifier::internal::ModelInternal ClassifierImplType;
     typedef dtrees::internal::TreeImpClassification<> TreeType;
     ModelImpl(size_t nFeatures = 0) : ClassifierImplType(nFeatures) {}
-    ~ModelImpl() {}
+    ~ModelImpl() DAAL_C11_OVERRIDE {}
 
     //Implementation of classifier::Model
     virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return ClassifierImplType::getNumberOfFeatures(); }

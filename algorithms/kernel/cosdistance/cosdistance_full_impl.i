@@ -37,8 +37,6 @@ services::Status cosDistanceFull(const NumericTable * xTable, NumericTable * rTa
     size_t p = xTable->getNumberOfColumns(); /* Dimension of input feature vector */
     size_t n = xTable->getNumberOfRows();    /* Number of input feature vectors   */
 
-    size_t i, j;
-
     size_t nBlocks = n / blockSizeDefault;
     nBlocks += (nBlocks * blockSizeDefault != n);
 
@@ -74,7 +72,7 @@ services::Status cosDistanceFull(const NumericTable * xTable, NumericTable * rTa
         Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x, &lda, x, &ldb, &beta, buf, &ldc);
 
         PRAGMA_VECTOR_ALWAYS
-        for (int i = 0; i < blockSize1; i++)
+        for (size_t i = 0; i < blockSize1; i++)
         {
             if (buf[i * blockSize1 + i] > (algorithmFPType)0.0)
             {
@@ -82,10 +80,10 @@ services::Status cosDistanceFull(const NumericTable * xTable, NumericTable * rTa
             }
         }
 
-        for (int i = 0; i < blockSize1; i++)
+        for (size_t i = 0; i < blockSize1; i++)
         {
             PRAGMA_VECTOR_ALWAYS
-            for (int j = i + 1; j < blockSize1; j++)
+            for (size_t j = i + 1; j < blockSize1; j++)
             {
                 buf[i * blockSize1 + j] = 1.0 - buf[i * blockSize1 + j] * buf[i * blockSize1 + i] * buf[j * blockSize1 + j];
             }

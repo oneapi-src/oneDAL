@@ -130,10 +130,6 @@ struct Blas
         SizeType b_rows  = *nb;
         SizeType ab_cols = *cols;
 
-        SizeType a_ld = *lda;
-        SizeType b_ld = *ldb;
-        SizeType c_ld = *ldc;
-
         /* Read block sizes from parameters or set to deafault value */
         int a_blocksize = (a_req_blocksize > 0) ? a_req_blocksize : 128;
         int b_blocksize = (b_req_blocksize > 0) ? b_req_blocksize : 128;

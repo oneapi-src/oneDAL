@@ -197,9 +197,6 @@ private:
             return internal::SQLFeaturesInfo();
         }
 
-        SQLLEN sqlType;
-        SQLLEN sqlIsUnsigned;
-        SQLLEN sqlTypeLength;
         internal::SQLFeaturesInfo featuresInfo;
 
         for (int i = 0; i < nFeatures; i++)
@@ -278,7 +275,6 @@ private:
             const SQLLEN bufferSize         = _fetchBuffer->getBufferSizeForFeature(i);
             SQLLEN * const actualSizeBuffer = _fetchBuffer->getActualDataSizeBufferForFeature(i);
 
-            SQLLEN strLenOrIndPtr;
             ret = SQLBindCol(hdlStmt, (SQLUSMALLINT)(i + 1), targetSQLType, (SQLPOINTER)buffer, bufferSize, actualSizeBuffer);
             if (!SQL_SUCCEEDED(ret))
             {

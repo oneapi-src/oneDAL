@@ -49,7 +49,7 @@ public:
     typedef algorithms::regression::internal::ModelInternal RegressionImplType;
 
     ModelImpl(size_t nFeatures = 0) : RegressionImplType(nFeatures) {}
-    ~ModelImpl() {}
+    ~ModelImpl() DAAL_C11_OVERRIDE {}
 
     virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return RegressionImplType::getNumberOfFeatures(); }
 

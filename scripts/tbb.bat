@@ -33,13 +33,14 @@ if /i "%1"=="" (
 	set DST=%1\..\externals\tbb
 )
 
-if not exist %DST% mkdir %DST%
+if not exist %DST% powershell.exe -command "New-Item -Path \"%DST%\" -ItemType Directory"
+if not exist %DST%\win powershell.exe -command "New-Item -Path \"%DST%\win\" -ItemType Directory"
 
-if not exist "%DST%\%TBBPACKAGE%\license.txt" (
+if not exist "%DST%\win\bin" (
 	powershell.exe -command "if (Get-Command Invoke-WebRequest -errorAction SilentlyContinue){[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest %TBBURL% -OutFile %DST%\%TBBPACKAGE%.zip} else {exit 1}" && goto Unpack goto Error_load
 
 :Unpack
-	powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%TBBPACKAGE%.zip\", \"%DST%\") ; Copy-Item \"%DST%\%TBBVERSION%\*\" -Destination \"%DST%\" -Recurse }catch{$_.exception ; exit 1}} else {exit 1}" && goto Exit || goto Error_unpack
+	powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%TBBPACKAGE%.zip\", \"%DST%\") ; Copy-Item \"%DST%\%TBBVERSION%\*\" -Destination \"%DST%\win\" -Recurse }catch{$_.exception ; exit 1}} else {exit 1}" && goto Exit || goto Error_unpack
 
 :Error_load
 	echo tbb.bat : Error: Failed to load %TBBURL% to %DST%, try to load it manually

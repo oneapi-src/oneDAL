@@ -296,7 +296,6 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
         const bool bL1          = (parameter->penaltyL1 > 0);
         const bool bL2          = (parameter->penaltyL2 > 0);
-        const size_t iFirstBeta = parameter->interceptFlag ? 0 : nClasses;
 
         const algorithmFPType div = algorithmFPType(1) / algorithmFPType(n);
         if (valueNT)
@@ -307,7 +306,6 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
             WriteRows<algorithmFPType, cpu> vr(valueNT, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(vr);
             algorithmFPType & value               = *vr.get();
-            const algorithmFPType interceptFactor = (parameter->interceptFlag ? 1 : 0);
             value                                 = 0.0;
             const algorithmFPType * lp            = logP.get();
 

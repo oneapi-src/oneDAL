@@ -237,7 +237,6 @@ public class RowMergedNumericTableImpl extends NumericTableImpl {
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,DoubleBuffer) */
     @Override
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) {
-        int nColumns = (int) (getNumberOfColumns());
         int bufferSize = (int) (vectorNum);
 
         double[] data = new double[buf.capacity()];
@@ -253,7 +252,6 @@ public class RowMergedNumericTableImpl extends NumericTableImpl {
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,FloatBuffer) */
     @Override
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) {
-        int nColumns = (int) (getNumberOfColumns());
         int bufferSize = (int) (vectorNum);
 
         float[] data = new float[buf.capacity()];
@@ -269,7 +267,6 @@ public class RowMergedNumericTableImpl extends NumericTableImpl {
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,IntBuffer) */
     @Override
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) {
-        int nColumns = (int) (getNumberOfColumns());
         int bufferSize = (int) (vectorNum);
 
         int[] data = new int[buf.capacity()];

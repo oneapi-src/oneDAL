@@ -109,7 +109,6 @@ public:
 
     TResponse predict(const dtrees::internal::Tree & t, const algorithmFPType * x) const
     {
-        const TreeType & tree                           = static_cast<const TreeType &>(t);
         const typename TreeType::NodeType::Base * pNode = dtrees::prediction::internal::findNode<algorithmFPType, TreeType, cpu>(t, x);
         DAAL_ASSERT(pNode);
         return TreeType::NodeType::castLeaf(pNode)->response.value;
@@ -569,7 +568,7 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
         for (size_t i = 0; i < n; ++i)
         {
             const IndexType iSample              = aIdx[i];
-            const auto & r                       = aResponse[aIdx[i]];
+            const auto & r                       = aResponse[iSample];
             const IndexedFeatures::IndexType idx = indexedFeature[r.idx];
             ++nFeatIdx[idx];
             const ClassIndexType iClass = r.val;
