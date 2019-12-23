@@ -118,7 +118,6 @@ protected:
         DAAL_INT iBest                       = -1;
         const size_t n                       = _nodeInfo.n;
         const auto nMinSplitPart             = _sharedData.ctx.par().minObservationsInLeafNode;
-        const algorithmFPType last           = featureVal[n - nMinSplitPart];
         for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
         {
             const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + _sharedData.ctx.accuracy());

@@ -137,7 +137,6 @@ class PackedSymmetricMatrixByteBufferImpl extends PackedSymmetricMatrixImpl {
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,DoubleBuffer) */
     @Override
     public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) {
-        int nColumns = (int) getNumberOfColumns();
         int bufferSize = (int) vectorNum;
 
         // Gets data from C++ NumericTable object
@@ -150,7 +149,6 @@ class PackedSymmetricMatrixByteBufferImpl extends PackedSymmetricMatrixImpl {
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,FloatBuffer) */
     @Override
     public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) {
-        int nColumns = (int) getNumberOfColumns();
         int bufferSize = (int) vectorNum;
 
         // Gets data from C++ NumericTable object
@@ -163,7 +161,6 @@ class PackedSymmetricMatrixByteBufferImpl extends PackedSymmetricMatrixImpl {
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,IntBuffer) */
     @Override
     public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) {
-        int nColumns = (int) getNumberOfColumns();
         int bufferSize = (int) vectorNum;
 
         // Gets data from C++ NumericTable object

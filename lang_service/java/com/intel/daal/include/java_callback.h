@@ -137,7 +137,10 @@ public:
     virtual ~JavaCallback()
     {
         ThreadLocalStorage tls = _tls.local();
-        tls.jniEnv->DeleteGlobalRef(javaObject);
+        if (NULL != tls.jniEnv)
+        {
+            tls.jniEnv->DeleteGlobalRef(javaObject);
+        }
     }
 
     virtual JavaCallback * cloneImpl() { return new JavaCallback(*this); }
