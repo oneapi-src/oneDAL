@@ -182,7 +182,9 @@ WORKDIR.lib := $(WORKDIR)/daal/lib
 COVFILE   := $(subst BullseyeStub,$(RELEASEDIR.daal)/Bullseye_$(_IA).cov,$(COVFILE))
 COV.libia := $(if $(BULLSEYEROOT),$(BULLSEYEROOT)/lib)
 
-MKLFPKDIR:= $(if $(wildcard $(DIR)/externals/mklfpk/*),$(DIR)/externals/mklfpk,$(subst \,/,$(MKLFPKROOT)))
+MKLFPKDIR:= $(if $(wildcard $(DIR)/externals/mklfpk/*),$(DIR)/externals/mklfpk,                             \
+                $(if $(wildcard $(MKLFPKROOT)/include/*),$(subst \,/,$(MKLFPKROOT)),                        \
+                    $(error Can`t find MKLFPK libs nether in $(DIR)/externals/mklfpk not in MKLFPKROOT.)))
 MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
 MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib/$(_IA)
 
@@ -199,16 +201,17 @@ TBBDIR.include := $(if $(TBBDIR),$(TBBDIR)/include/tbb $(TBBDIR)/include)
 
 TBBDIR.libia.prefix := $(TBBDIR.2)/lib
 TBBDIR.libia.win  := $(if $(OS_is_win),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt)
-TBBDIR.libia.lnx.gcc := $(if $(OS_is_lnx),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8/*),gcc4.8))
-TBBDIR.libia.lnx.gcc := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc),$(TBBDIR.libia.lnx.gcc),$(error Can`t find TBB runtimes neither for gcc4.8)))
-TBBDIR.libia.lnx := $(if $(OS_is_lnx),$(TBBDIR.libia.prefix)/$(_IA)/$(TBBDIR.libia.lnx.gcc))
+TBBDIR.libia.lnx.gcc1 := $(if $(OS_is_lnx),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8/*),$(TBBDIR.libia.prefix)/$(_IA)/gcc4.8))
+TBBDIR.libia.lnx.gcc2  := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc1),,$(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH))))))
+TBBDIR.libia.lnx.gcc22 := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc2),$(wildcard $(TBBDIR.libia.lnx.gcc2)/libtbb.so)))
+TBBDIR.libia.lnx := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc22),$(TBBDIR.libia.lnx.gcc2),$(if $(TBBDIR.libia.lnx.gcc1),$(TBBDIR.libia.lnx.gcc1),$(error Can`t find TBB runtimes nether in $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8 not in $(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH)))).))))
 TBBDIR.libia.mac  := $(if $(OS_is_mac),$(TBBDIR.libia.prefix))
 TBBDIR.libia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.libia.prefix))
 TBBDIR.libia := $(TBBDIR.libia.$(_OS))
 
 TBBDIR.soia.prefix := $(TBBDIR.2)/
 TBBDIR.soia.win  := $(if $(OS_is_win),$(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt)
-TBBDIR.soia.lnx  := $(if $(OS_is_lnx),$(TBBDIR.soia.prefix)/lib/$(_IA)/$(TBBDIR.libia.lnx.gcc))
+TBBDIR.soia.lnx  := $(if $(OS_is_lnx),$(TBBDIR.libia.lnx))
 TBBDIR.soia.mac  := $(if $(OS_is_mac),$(TBBDIR.soia.prefix)/lib)
 TBBDIR.soia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.soia.prefix)/lib)
 TBBDIR.soia := $(TBBDIR.soia.$(_OS))
@@ -787,5 +790,5 @@ Flags:
 endef
 
 daal_dbg:
-	@echo "1" "!$(TBBDIR.soia)!"
-	@echo "2" "!$(TBBDIR.libia)!"
+	@echo "1" "!$(wildcard $(DIR)/externals/mklfpk/*)!"
+	@echo "2" "!$(wildcard $(MKLFPKROOT)/*)!"
