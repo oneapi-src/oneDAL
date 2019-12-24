@@ -122,7 +122,6 @@ public:
 
         ImpurityType imp(res.gTotal, res.hTotal);
 
-        ImpurityType left;
         algorithmFPType bestImpDecrease = -services::internal::MaxVal<algorithmFPType>::get();
 
         for (size_t i = 0; i < nUnique; ++i)

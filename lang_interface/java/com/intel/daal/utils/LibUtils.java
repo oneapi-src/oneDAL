@@ -128,7 +128,7 @@ public final class LibUtils{
      */
     public static String createLibraryFileName(String name) throws IOException
     {
-        String fullName = name;
+        String fullName;
 
         String OSname = System.getProperty("os.name");
         OSname = OSname.toLowerCase();

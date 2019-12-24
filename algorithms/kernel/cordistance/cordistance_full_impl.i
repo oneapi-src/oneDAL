@@ -37,8 +37,6 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
     size_t p = xTable->getNumberOfColumns(); /* Dimension of input feature vector */
     size_t n = xTable->getNumberOfRows();    /* Number of input feature vectors   */
 
-    size_t i, j;
-
     size_t nBlocks = n / blockSizeDefault;
     nBlocks += (nBlocks * blockSizeDefault != n);
 

@@ -44,7 +44,6 @@ public:
     {
         JavaCallback::ThreadLocalStorage tls = _tls.local();
         jint status                          = jvm->AttachCurrentThread((void **)(&tls.jniEnv), NULL);
-        JNIEnv * env                         = tls.jniEnv;
 
         jclass javaObjectClass = tls.jniEnv->GetObjectClass(javaObject);
         if (javaObjectClass == 0)

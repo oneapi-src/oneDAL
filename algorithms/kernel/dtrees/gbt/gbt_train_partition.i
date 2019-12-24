@@ -183,8 +183,6 @@ protected:
             RowIndexType * bestSplitIdx      = buffer + 2 * iStart;
             RowIndexType * bestSplitIdxRight = bestSplitIdx + iEnd - iStart;
 
-            RowIndexType i = iStart;
-
             if (featureUnordered)
             {
                 PRAGMA_IVDEP
