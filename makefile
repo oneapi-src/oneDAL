@@ -200,17 +200,24 @@ TBBDIR.2 := $(if $(TBBDIR.2),$(TBBDIR.2),$(error Can`t find TBB neither in $(DIR
 TBBDIR.include := $(if $(TBBDIR),$(TBBDIR)/include/tbb $(TBBDIR)/include)
 
 TBBDIR.libia.prefix := $(TBBDIR.2)/lib
-TBBDIR.libia.win  := $(if $(OS_is_win),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt)
+TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt))
+TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB))))))
+TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb.dll)))
+TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(TBBDIR.libia.prefix)/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
+TBBDIR.libia.win:= $(subst \,/,$(TBBDIR.libia.win))
+
 TBBDIR.libia.lnx.gcc1 := $(if $(OS_is_lnx),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8/*),$(TBBDIR.libia.prefix)/$(_IA)/gcc4.8))
 TBBDIR.libia.lnx.gcc2  := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc1),,$(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH))))))
 TBBDIR.libia.lnx.gcc22 := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc2),$(wildcard $(TBBDIR.libia.lnx.gcc2)/libtbb.so)))
 TBBDIR.libia.lnx := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc22),$(TBBDIR.libia.lnx.gcc2),$(if $(TBBDIR.libia.lnx.gcc1),$(TBBDIR.libia.lnx.gcc1),$(error Can`t find TBB runtimes nether in $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8 not in $(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH)))).))))
+
 TBBDIR.libia.mac  := $(if $(OS_is_mac),$(TBBDIR.libia.prefix))
 TBBDIR.libia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.libia.prefix))
 TBBDIR.libia := $(TBBDIR.libia.$(_OS))
 
 TBBDIR.soia.prefix := $(TBBDIR.2)/
-TBBDIR.soia.win  := $(if $(OS_is_win),$(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt)
+TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
+TBBDIR.soia.win  := $(subst \,/,$(TBBDIR.soia.win))
 TBBDIR.soia.lnx  := $(if $(OS_is_lnx),$(TBBDIR.libia.lnx))
 TBBDIR.soia.mac  := $(if $(OS_is_mac),$(TBBDIR.soia.prefix)/lib)
 TBBDIR.soia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.soia.prefix)/lib)
@@ -790,5 +797,12 @@ Flags:
 endef
 
 daal_dbg:
-	@echo "1" "!$(wildcard $(DIR)/externals/mklfpk/*)!"
-	@echo "2" "!$(wildcard $(MKLFPKROOT)/*)!"
+	@echo "1" "!$(TBBDIR.libia.win.vc1)!"
+	@echo "2" "!$(TBBDIR.libia.win.vc2)!"
+	@echo "3" "!$(TBBDIR.libia.win.vc22)!"
+	@echo "4" "!$(TBBDIR.libia.win)!"
+	@echo "5" "!$(LIB)!"
+	@echo "1" "!$(TBBDIR.libia.win)!"
+	@echo "2" "!$(TBBDIR.soia.win)!"
+	@echo "01" "!$(releasetbb.LIBS_A)!"
+	@echo "02" "!$(releasetbb.LIBS_Y)!"
