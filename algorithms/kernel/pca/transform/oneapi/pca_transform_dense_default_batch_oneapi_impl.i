@@ -25,8 +25,7 @@
 #define __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 
 #include "cl_kernels/pca_transform_cl_kernels.cl"
-#include "stdio.h"
-#include <iostream>
+
 using namespace daal::services;
 using namespace daal::internal;
 using namespace daal::oneapi::internal;
