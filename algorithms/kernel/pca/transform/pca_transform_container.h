@@ -28,6 +28,9 @@
 
 #include "pca_transform_batch.h"
 #include "pca_transform_kernel.h"
+#include "oneapi/internal/utils.h"
+#include "oneapi/pca_transform_dense_default_batch_oneapi.h"
+#include "oneapi/pca_transform_dense_default_batch_oneapi_impl.i"
 
 namespace daal
 {
@@ -40,7 +43,17 @@ namespace transform
 template <typename algorithmFPType, transform::Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::TransformKernel, algorithmFPType, method);
+    auto & context    = daal::oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_INITIALIZE_KERNELS(internal::TransformKernel, algorithmFPType, method);
+    }
+    else
+    {
+        __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::TransformKernelOneAPI, algorithmFPType, method);
+    }
 }
 
 template <typename algorithmFPType, transform::Method method, CpuType cpu>
@@ -62,8 +75,20 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::TransformKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *(input->get(data)),
-                       *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues, *(result->get(transformedData)));
+    auto & context    = daal::oneapi::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu)
+    {
+        __DAAL_CALL_KERNEL(env, internal::TransformKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *(input->get(data)),
+                           *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues, *(result->get(transformedData)));
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::TransformKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *(input->get(data)),
+                           *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues, *(result->get(transformedData)));
+    }
+    
 }
 
 } // namespace transform
