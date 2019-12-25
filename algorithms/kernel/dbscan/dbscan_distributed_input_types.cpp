@@ -386,7 +386,7 @@ services::Status DistributedInput<step4Local>::check(const daal::algorithms::Par
     DAAL_CHECK_EX(nDataBlocks > 0, ErrorIncorrectNumberOfInputNumericTables, ArgumentName, partialDataStr());
     DAAL_CHECK_EX(dcPartialOrders->size() == nDataBlocks, ErrorIncorrectNumberOfInputNumericTables, ArgumentName, step4PartialOrdersStr());
 
-    int unexpectedLayouts = (int)packed_mask;
+    const int unexpectedLayouts = (int)packed_mask;
 
     size_t nFeatures = 0;
     for (size_t i = 0; i < nDataBlocks; i++)
@@ -418,7 +418,6 @@ services::Status DistributedInput<step4Local>::check(const daal::algorithms::Par
         NumericTablePtr ntPartialSplit = NumericTable::cast((*dcSplits)[i]);
         DAAL_CHECK_EX(ntPartialSplit, ErrorIncorrectElementInNumericTableCollection, ArgumentName, step4PartialSplitsStr());
 
-        int unexpectedLayouts = (int)packed_mask;
         DAAL_CHECK_STATUS_VAR(checkNumericTable(ntPartialSplit.get(), step4PartialSplitsStr(), unexpectedLayouts, 0, 2, 1));
     }
 

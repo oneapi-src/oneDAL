@@ -357,7 +357,6 @@ void testModel()
     /* Create an algorithm object to predict recommendations of the implicit ALS model */
     for (size_t i = 0; i < nBlocks; i++)
     {
-        int perNodeArchLength;
         prediction::ratings::Distributed<step1Local> algorithm;
         algorithm.parameter.nFactors = nFactors;
 

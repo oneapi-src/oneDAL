@@ -62,14 +62,17 @@ int main(int argc, char * argv[])
     printNumericTable(pcaResult->get(pca::eigenvectors), "Eigenvectors:");
 
     KeyValueDataCollectionPtr resultCollection = pcaResult->get(pca::dataForTransform);
-    NumericTablePtr eigenvaluesT               = NumericTable::cast((*resultCollection)[pca::eigenvalue]);
-    if (eigenvaluesT.get() != NULL) printNumericTable(eigenvaluesT, "Eigenvalues kv:");
+    if (resultCollection.get() != NULL)
+    {
+        NumericTablePtr eigenvaluesT               = NumericTable::cast((*resultCollection)[pca::eigenvalue]);
+        if (eigenvaluesT.get() != NULL) printNumericTable(eigenvaluesT, "Eigenvalues kv:");
 
-    NumericTablePtr meansT = NumericTable::cast((*resultCollection)[pca::mean]);
-    if (meansT.get() != NULL) printNumericTable(meansT, "Means kv:");
+        NumericTablePtr meansT = NumericTable::cast((*resultCollection)[pca::mean]);
+        if (meansT.get() != NULL) printNumericTable(meansT, "Means kv:");
 
-    NumericTablePtr variancesT = NumericTable::cast((*resultCollection)[pca::variance]);
-    if (variancesT.get() != NULL) printNumericTable(variancesT, "Variances kv:");
+        NumericTablePtr variancesT = NumericTable::cast((*resultCollection)[pca::variance]);
+        if (variancesT.get() != NULL) printNumericTable(variancesT, "Variances kv:");
+    }
 
     /* Apply transform with whitening because means and eigenvalues are provided*/
     pca::transform::Batch<float> pcaTransform(nComponents);

@@ -137,7 +137,7 @@ public:
     bool getSplitLevel(size_t nid)
     {
         DAAL_ASSERT(nid < _table->getNumberOfRows());
-        TableRecordType& record = _records[nid];
+        const TableRecordType& record = _records[nid];
 
         if (record.nodeState == split)
         {
@@ -292,7 +292,7 @@ public:
 
     void getMaxLevel(size_t nid, size_t &maxLevel)
     {
-        TableRecordType& record = _records[nid];
+        const TableRecordType& record = _records[nid];
 
         if (record.level > maxLevel)
         {
@@ -308,7 +308,7 @@ public:
 
     size_t getNNodes(size_t nid)
     {
-        TableRecordType& record = _records[nid];
+        const TableRecordType& record = _records[nid];
 
         if (record.nodeState == split)
         {

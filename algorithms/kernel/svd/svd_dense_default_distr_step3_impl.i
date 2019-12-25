@@ -50,7 +50,6 @@ template <typename algorithmFPType, daal::algorithms::svd::Method method, CpuTyp
 Status SVDDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const size_t na, const NumericTable * const * a, const size_t nr,
                                                                         NumericTable * r[], const daal::algorithms::Parameter * par)
 {
-    size_t i, j;
     svd::Parameter defaultParams;
     const svd::Parameter * svdPar = &defaultParams;
 
@@ -163,9 +162,9 @@ Status SVDDistributedStep2Kernel<algorithmFPType, method, cpu>::compute(const si
         DAAL_CHECK_BLOCK_STATUS(VBlock);
         algorithmFPType * V = VBlock.get();
 
-        for (i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
         {
-            for (j = 0; j < n; j++)
+            for (size_t j = 0; j < n; j++)
             {
                 V[i + j * n] = VT[i * n + j];
             }

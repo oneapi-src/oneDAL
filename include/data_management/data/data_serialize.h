@@ -51,7 +51,7 @@ class OutputDataArchive;
 class DAAL_EXPORT SerializationIface : public Base
 {
 public:
-    virtual ~SerializationIface() {}
+    virtual ~SerializationIface() DAAL_C11_OVERRIDE {}
 
     /**
      *  Performs serialization

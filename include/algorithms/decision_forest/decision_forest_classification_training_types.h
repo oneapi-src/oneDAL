@@ -137,7 +137,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result);
 
     Result();
-    virtual ~Result();
+    virtual ~Result() DAAL_C11_OVERRIDE;
 
     /**
      * Returns the model trained with the LogitBoost algorithm

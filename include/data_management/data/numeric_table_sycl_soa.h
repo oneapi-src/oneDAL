@@ -526,8 +526,8 @@ private:
         for (size_t j = 0; j < ncols; j++)
         {
             auto featureUniBuffer = _arrays[j];
-            BufferConverterTo<T> converter(_arrays[j], idx, nrows);
-            TypeDispatcher::dispatch(_arrays[j].type(), converter);
+            BufferConverterTo<T> converter(featureUniBuffer, idx, nrows);
+            TypeDispatcher::dispatch(featureUniBuffer.type(), converter);
 
             services::Status st;
             auto buffer = converter.getResult(st);

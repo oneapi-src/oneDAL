@@ -64,7 +64,7 @@ public:
      */
     DAAL_DEPRECATED BatchContainer(daal::services::Environment::env * daalEnv);
     /** Default destructor */
-    DAAL_DEPRECATED ~BatchContainer();
+    DAAL_DEPRECATED ~BatchContainer() DAAL_C11_OVERRIDE;
     /**
      * Computes the result of the Saga algorithm in the batch processing mode
      *
@@ -108,7 +108,7 @@ public:
      */
     DAAL_DEPRECATED Batch(const Batch<algorithmFPType, method> & other);
 
-    DAAL_DEPRECATED ~Batch() { delete _par; }
+    DAAL_DEPRECATED ~Batch() DAAL_C11_OVERRIDE { delete _par; }
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
