@@ -153,7 +153,6 @@ public class RowMergedNumericTableImpl extends NumericTableImpl {
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,DoubleBuffer) */
     @Override
     public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) {
-        int nColumns = (int) getNumberOfColumns();
         int bufferSize = (int) vectorNum;
         // Gets data from C++ NumericTable object
         ByteBuffer byteBuf = ByteBuffer.allocateDirect(bufferSize * 8 /* sizeof(double) */);
@@ -165,7 +164,6 @@ public class RowMergedNumericTableImpl extends NumericTableImpl {
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,FloatBuffer) */
     @Override
     public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) {
-        int nColumns = (int) getNumberOfColumns();
         int bufferSize = (int) vectorNum;
         // Gets data from C++ NumericTable object
         ByteBuffer byteBuf = ByteBuffer.allocateDirect(bufferSize * 4 /* sizeof(float) */);
@@ -177,7 +175,6 @@ public class RowMergedNumericTableImpl extends NumericTableImpl {
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,IntBuffer) */
     @Override
     public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) {
-        int nColumns = (int) getNumberOfColumns();
         int bufferSize = (int) vectorNum;
         // Gets data from C++ NumericTable object
         ByteBuffer byteBuf = ByteBuffer.allocateDirect(bufferSize * 4 /* sizeof(int) */);
@@ -237,7 +234,6 @@ public class RowMergedNumericTableImpl extends NumericTableImpl {
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,DoubleBuffer) */
     @Override
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) {
-        int nColumns = (int) (getNumberOfColumns());
         int bufferSize = (int) (vectorNum);
 
         double[] data = new double[buf.capacity()];
@@ -253,7 +249,6 @@ public class RowMergedNumericTableImpl extends NumericTableImpl {
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,FloatBuffer) */
     @Override
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) {
-        int nColumns = (int) (getNumberOfColumns());
         int bufferSize = (int) (vectorNum);
 
         float[] data = new float[buf.capacity()];
@@ -269,7 +264,6 @@ public class RowMergedNumericTableImpl extends NumericTableImpl {
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,IntBuffer) */
     @Override
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) {
-        int nColumns = (int) (getNumberOfColumns());
         int bufferSize = (int) (vectorNum);
 
         int[] data = new int[buf.capacity()];

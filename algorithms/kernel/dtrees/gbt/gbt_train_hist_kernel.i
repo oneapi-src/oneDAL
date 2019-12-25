@@ -119,11 +119,9 @@ public:
     {
         const size_t nUnique = res.nUnique;
         auto * aGHSum        = res.ghSums;
-        size_t nLeft         = 0;
 
         ImpurityType imp(res.gTotal, res.hTotal);
 
-        ImpurityType left;
         algorithmFPType bestImpDecrease = -services::internal::MaxVal<algorithmFPType>::get();
 
         for (size_t i = 0; i < nUnique; ++i)

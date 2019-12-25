@@ -59,10 +59,9 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
     DAAL_ASSERT(x);
     DAAL_ASSERT(y);
 
-    const decision_tree::regression::Parameter * const parameter = static_cast<const decision_tree::regression::Parameter *>(par);
-    const decision_tree::regression::Model * const model         = static_cast<const decision_tree::regression::Model *>(m);
+    const decision_tree::regression::Model * const model = static_cast<const decision_tree::regression::Model *>(m);
 
-    DAAL_ASSERT(parameter);
+    DAAL_ASSERT(static_cast<const decision_tree::regression::Parameter *>(par));
     DAAL_ASSERT(model);
 
     FeatureTypesCache featureTypesCache(*x);

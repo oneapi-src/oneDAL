@@ -66,6 +66,7 @@ services::Status StumpTrainKernel<method, algorithmFPtype, cpu>::compute(size_t 
 
     /* Create an algorithm object to train the Decision tree model */
     decision_tree::regression::training::Batch<> treeAlgorithm;
+    treeAlgorithm.enableChecks(false);
     treeAlgorithm.parameter.pruning                    = decision_tree::none;
     treeAlgorithm.parameter.maxTreeDepth               = 2;
     treeAlgorithm.parameter.minObservationsInLeafNodes = 1;

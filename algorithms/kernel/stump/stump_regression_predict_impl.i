@@ -57,6 +57,7 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
 {
     services::Status s;
     decision_tree::regression::prediction::Batch<> treeAlgorithm;
+    treeAlgorithm.enableChecks(false);
 
     treeAlgorithm.input.set(daal::algorithms::decision_tree::regression::prediction::data,
                             NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));

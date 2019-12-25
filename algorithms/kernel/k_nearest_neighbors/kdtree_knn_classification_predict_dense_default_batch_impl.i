@@ -339,7 +339,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
     stack.reset();
     GlobalNeighbors<algorithmFpType, cpu> curNeighbor;
     size_t i, j;
-    SearchNode<algorithmFpType> cur, toPush, interCur;
+    SearchNode<algorithmFpType> cur, toPush;
     const KDTreeNode * node;
     cur.nodeIndex   = rootTreeNodeIndex;
     cur.minDistance = 0;

@@ -54,7 +54,7 @@ namespace interface1
  * <a name="DAAL-STRUCT-ALGORITHMS__LOGITBOOST__PARAMETER"></a>
  * \brief LogitBoost algorithm parameters    \DAAL_DEPRECATED
  *
- * \snippet boosting/brownboost_model.h Parameter source code
+ * \snippet boosting/logitboost_model.h Parameter source code
  */
 /* [interface1::Parameter source code] */
 struct DAAL_EXPORT Parameter : public boosting::Parameter
@@ -170,7 +170,7 @@ namespace interface2
  * <a name="DAAL-STRUCT-ALGORITHMS__LOGITBOOST__PARAMETER"></a>
  * \brief LogitBoost algorithm parameters
  *
- * \snippet boosting/brownboost_model.h Parameter source code
+ * \snippet boosting/logitboost_model.h Parameter source code
  */
 /* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public classifier::Parameter

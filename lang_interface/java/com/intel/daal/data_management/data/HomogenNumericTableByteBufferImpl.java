@@ -213,7 +213,6 @@ class HomogenNumericTableByteBufferImpl extends HomogenNumericTableImpl {
     public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) {
         checkCObject();
 
-        long nColumns = getNumberOfColumns();
         long bufferSize = vectorNum;
 
         // Gets data from C++ NumericTable object
@@ -231,7 +230,6 @@ class HomogenNumericTableByteBufferImpl extends HomogenNumericTableImpl {
     public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) {
         checkCObject();
 
-        long nColumns = getNumberOfColumns();
         long bufferSize = vectorNum;
 
         // Gets data from C++ NumericTable object
@@ -249,7 +247,6 @@ class HomogenNumericTableByteBufferImpl extends HomogenNumericTableImpl {
     public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) {
         checkCObject();
 
-        long nColumns = getNumberOfColumns();
         long bufferSize = vectorNum;
 
         // Gets data from C++ NumericTable object

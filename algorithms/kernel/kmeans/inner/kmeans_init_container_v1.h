@@ -278,7 +278,6 @@ DistributedContainer<step4Local, algorithmFPType, method, cpu>::~DistributedCont
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status DistributedContainer<step4Local, algorithmFPType, method, cpu>::compute()
 {
-    const interface1::Parameter * par                     = (const interface1::Parameter *)(_par);
     DistributedStep4LocalPlusPlusInput * input            = static_cast<DistributedStep4LocalPlusPlusInput *>(_in);
     const NumericTable * pData                            = input->get(data).get();
     const NumericTable * pInput                           = input->get(inputOfStep4FromStep3).get();

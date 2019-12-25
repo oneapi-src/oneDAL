@@ -148,7 +148,7 @@ public:
 
     virtual ~MakeCategorical() {}
 
-    virtual void apply(services::Collection<functionT> & funcList, services::Collection<FeatureAuxData> & auxVect) const
+    virtual void apply(services::Collection<functionT> & funcList, services::Collection<FeatureAuxData> & auxVect) const DAAL_C11_OVERRIDE
     {
         size_t nCols = funcList.size();
 
@@ -174,7 +174,7 @@ public:
 
     virtual ~OneHotEncoder() {}
 
-    virtual void apply(services::Collection<functionT> & funcList, services::Collection<FeatureAuxData> & auxVect) const
+    virtual void apply(services::Collection<functionT> & funcList, services::Collection<FeatureAuxData> & auxVect) const DAAL_C11_OVERRIDE
     {
         size_t nCols = funcList.size();
 
@@ -234,7 +234,7 @@ public:
         return *this;
     }
 
-    virtual void apply(services::Collection<functionT> & funcList, services::Collection<FeatureAuxData> & auxVect) const
+    virtual void apply(services::Collection<functionT> & funcList, services::Collection<FeatureAuxData> & auxVect) const DAAL_C11_OVERRIDE
     {
         size_t nCols = funcList.size();
 

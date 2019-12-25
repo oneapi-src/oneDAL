@@ -263,7 +263,7 @@ public:
     using TreeType = gbt::internal::TreeImpRegression<>;
     using super    = dtrees::internal::ModelImpl;
 
-    ~ModelImpl();
+    ~ModelImpl() DAAL_C11_OVERRIDE;
     size_t size() const;
     bool reserve(const size_t nTrees);
     bool resize(const size_t nTrees);

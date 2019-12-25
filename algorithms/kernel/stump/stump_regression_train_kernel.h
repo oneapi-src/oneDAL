@@ -48,30 +48,6 @@ class StumpTrainKernel : public Kernel
 {
 public:
     services::Status compute(size_t n, const NumericTable * const * a, Model * r, const Parameter * par);
-
-    // private:
-    //     services::Status changeMinusOneToZero(NumericTable *yTable);
-    //     services::Status changeZeroToMinusOne(NumericTable *yTable);
-    //     void StumpQSort( size_t n, algorithmFPtype *x, algorithmFPtype *w, algorithmFPtype *z );
-
-    //     services::Status stumpRegressionOrdered(size_t nVectors,
-    //                                 const algorithmFPtype *x, const algorithmFPtype *w, const algorithmFPtype *z,
-    //                                 algorithmFPtype sumW, algorithmFPtype sumM, algorithmFPtype sumS,
-    //                                 algorithmFPtype &minS, algorithmFPtype& splitPoint,
-    //                                 algorithmFPtype& lMean, algorithmFPtype& rMean);
-
-    //     services::Status stumpRegressionCategorical(size_t n, size_t nCategories,
-    //                                     const int *x, const algorithmFPtype *w, const algorithmFPtype *z,
-    //                                     algorithmFPtype sumW, algorithmFPtype sumM, algorithmFPtype sumS,
-    //                                     algorithmFPtype &minS, algorithmFPtype& splitPoint,
-    //                                     algorithmFPtype& lMean, algorithmFPtype& rMean);
-
-    //     void computeSums(size_t n, const algorithmFPtype *w, const algorithmFPtype *z, algorithmFPtype& sumW, algorithmFPtype& sumM,
-    //                      algorithmFPtype& sumS);
-
-    //     services::Status doStumpRegression(size_t n, size_t dim, const NumericTable *x, const algorithmFPtype *w,
-    //         const algorithmFPtype *z, size_t& splitFeature, algorithmFPtype& splitPoint,
-    //         algorithmFPtype& leftValue, algorithmFPtype& rightValue);
 };
 
 } // namespace internal

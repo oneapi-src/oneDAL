@@ -161,7 +161,7 @@ DAAL_EXPORT daal::services::Environment::~Environment()
 void daal::services::Environment::_cpu_detect(int enable)
 {
     initNumberOfThreads();
-    if (-1 == _env.cpuid)
+    if (~size_t(0) == _env.cpuid)
     {
         _env.cpuid = __daal_serv_cpu_detect(enable);
     }

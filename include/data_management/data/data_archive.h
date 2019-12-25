@@ -181,7 +181,7 @@ public:
     /**
      *  Constructor of an empty data archive
      */
-    DataArchive() : minBlocksNum(16), minBlockSize(1024 * 16), _errors(new services::ErrorCollection())
+    DataArchive() : _errors(new services::ErrorCollection()), minBlocksNum(16), minBlockSize(1024 * 16)
     {
         blockPtr           = 0;
         blockAllocatedSize = 0;

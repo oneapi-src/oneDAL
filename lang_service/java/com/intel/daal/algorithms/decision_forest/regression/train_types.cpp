@@ -271,7 +271,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 {
     dfr::ModelPtr * m   = new dfr::ModelPtr();
     dfrt::ResultPtr res = services::staticPointerCast<dfrt::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
-    jlong resModel      = 0;
+
     switch (id)
     {
     case ModelResult: *m = res->get(dfrt::model); break;
@@ -291,7 +291,6 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
     NumericTablePtr * pTbl = new NumericTablePtr();
     dfrt::ResultPtr res    = services::staticPointerCast<dfrt::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
 
-    jlong resModel = 0;
     switch (id)
     {
     case outOfBagErrorId:
