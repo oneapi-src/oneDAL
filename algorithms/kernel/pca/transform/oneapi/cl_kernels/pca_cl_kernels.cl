@@ -34,7 +34,6 @@ __kernel void computeInvSigmas(__global algorithmFPType* rawVariances,
                                __global algorithmFPType* invSigmas)
 {
     const int tid = get_global_id(0);
-    const int numFeatures = get_num_groups(0);
 
     if (rawVariances[tid] != (algorithmFPType)0)
     {
@@ -55,30 +54,29 @@ __kernel void normalize(__global algorithmFPType* pCopyBlock,
                         const uint numFeatures)
 {
     const int tid = get_local_id(0);
-    const int glid = get_global_id(0);
     const int gid = get_group_id(0);
+    const int glid = get_global_id(0);
     const int numWorkItemsPerGroup = get_local_size(0);
-    const int grnum = get_num_groups(0);
-    const int gl_size = get_global_size(0);
+    const int gnum = get_num_groups(0);
 
     if (numFeatures > maxWorkItemsPerGroup)
     {
-        uint amount = (numFeatures *  grnum) / maxWorkItemsPerGroup;
+        uint amount = (numFeatures *  gnum) / maxWorkItemsPerGroup;
 
         for(uint i = 0; i < amount + 1; i++)
         {
             if (numMeans != (algorithmFPType)0)
             {
-                if (glid + grnum * numWorkItemsPerGroup * i < numFeatures *  grnum)
+                if (glid + gnum * numWorkItemsPerGroup * i < numFeatures *  gnum)
                 {
-                    pCopyBlock[glid + grnum * numWorkItemsPerGroup * i] = pCopyBlock[glid + grnum * numWorkItemsPerGroup * i] - pRawMeans[(glid + grnum * numWorkItemsPerGroup * i) % numFeatures];
+                    pCopyBlock[glid + gnum * numWorkItemsPerGroup * i] = pCopyBlock[glid + gnum * numWorkItemsPerGroup * i] - pRawMeans[(glid + gnum * numWorkItemsPerGroup * i) % numFeatures];
                 }
             }
             if (numInvSigmas != (algorithmFPType)0)
             {
-                if (glid + grnum * numWorkItemsPerGroup * i < numFeatures *  grnum)
+                if (glid + gnum * numWorkItemsPerGroup * i < numFeatures *  gnum)
                 {
-                    pCopyBlock[glid + grnum * numWorkItemsPerGroup * i] = pCopyBlock[glid + grnum * numWorkItemsPerGroup * i] * pInvSigmas[(glid + grnum * numWorkItemsPerGroup * i) % numFeatures];
+                    pCopyBlock[glid + gnum * numWorkItemsPerGroup * i] = pCopyBlock[glid + gnum * numWorkItemsPerGroup * i] * pInvSigmas[(glid + gnum * numWorkItemsPerGroup * i) % numFeatures];
                 }
             }
         }
@@ -100,7 +98,6 @@ __kernel void whitening(__global algorithmFPType* pTransformedBlock,
                         __global algorithmFPType* pInvEigenValues) 
 {
     const int tid = get_local_id(0);
-    const int glid = get_global_id(0);
     const int gid = get_group_id(0);
     const int numFeatures = get_local_size(0);
     
