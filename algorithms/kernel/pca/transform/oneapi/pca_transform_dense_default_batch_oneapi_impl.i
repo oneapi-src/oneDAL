@@ -158,8 +158,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     DAAL_CHECK_STATUS_VAR(status);
     data.releaseBlockOfRows(dataBlock);
 
-    const uint maxWorkItemsPerGroup = 256;
-    uint workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
+    const unsigned int maxWorkItemsPerGroup = 256;
+    unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
 
     if (isNormalize)
     {
