@@ -126,7 +126,7 @@ public:
      */
     Model(size_t nFeatures = 0);
 
-    virtual ~Model();
+    virtual ~Model() DAAL_C11_OVERRIDE;
 
     class ModelImpl;
 

@@ -293,7 +293,6 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_regression_training_T
 {
     gbtr::ModelPtr * m   = new gbtr::ModelPtr();
     gbtrt::ResultPtr res = services::staticPointerCast<gbtrt::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
-    jlong resModel       = 0;
     switch (id)
     {
     case ModelResult: *m = res->get(gbtrt::model); break;

@@ -118,7 +118,6 @@ static int __internal_daal_bindContext(unsigned int cpu, void * prevAffinity)
     DWORD cnt;
     SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX * pSystem_rel_info = NULL;
     GROUP_AFFINITY grp_affinity;
-    FARPROC lpFnThrGrpAff, lpFnLpInfoEx;
     if (cpu >= MAX_WIN7_LOG_CPU) return ret;
 
     cnt = BLOCKSIZE_4K;
@@ -196,7 +195,6 @@ unsigned int _internal_daal_GetMaxCPUSupportedByOS()
     #else
         #if (_WIN32_WINNT >= 0x0601)
     unsigned short grpCnt;
-    unsigned int cpu_cnt, i;
     DWORD cnt;
     SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX * pSystem_rel_info = NULL;
 
@@ -220,7 +218,7 @@ unsigned int _internal_daal_GetMaxCPUSupportedByOS()
         glbl_obj.error |= _MSGTYP_UNKNOWNERR_OS;
         return 0;
     }
-    for (i = 0; i < grpCnt; i++) lcl_OSProcessorCount += pSystem_rel_info->Group.GroupInfo[i].ActiveProcessorCount;
+    for (unsigned int i = 0; i < grpCnt; i++) lcl_OSProcessorCount += pSystem_rel_info->Group.GroupInfo[i].ActiveProcessorCount;
         #else
     SYSTEM_INFO si;
     GetSystemInfo(&si);
@@ -438,9 +436,9 @@ static void __internal_daal_cpuid(CPUIDinfo * info, const unsigned int func)
  */
 static unsigned long __internal_daal_getBitsFromDWORD(const unsigned int val, const char from, const char to)
 {
-    unsigned long mask = (1 << (to + 1)) - 1;
-
     if (to == 31) return val >> from;
+
+    unsigned long mask = (1 << (to + 1)) - 1;
 
     return (val & mask) >> from;
 }

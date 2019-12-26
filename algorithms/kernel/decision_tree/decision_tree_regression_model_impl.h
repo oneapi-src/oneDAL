@@ -82,8 +82,11 @@ class Model::ModelImpl : public algorithms::regression::internal::ModelImpl
     {
         const DecisionTreeNode & n = aNode[iRowInTable];
         if (imp) descSplit.impurity = imp[iRowInTable];
-        DAAL_ASSERT(nodeSamplesCount[iRowInTable] >= 0)
-        if (nodeSamplesCount) descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        if (nodeSamplesCount)
+        {
+            DAAL_ASSERT(nodeSamplesCount[iRowInTable] >= 0)
+            descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        }
         descSplit.featureIndex = n.dimension;
         descSplit.featureValue = n.cutPointOrDependantVariable;
         descSplit.level        = level;
@@ -95,8 +98,11 @@ class Model::ModelImpl : public algorithms::regression::internal::ModelImpl
     {
         const DecisionTreeNode & n = aNode[iRowInTable];
         if (imp) descLeaf.impurity = imp[iRowInTable];
-        DAAL_ASSERT(nodeSamplesCount[iRowInTable] >= 0)
-        if (nodeSamplesCount) descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        if (nodeSamplesCount)
+        {
+            DAAL_ASSERT(nodeSamplesCount[iRowInTable] >= 0)
+            descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        }
         descLeaf.level    = level;
         descLeaf.response = n.cutPointOrDependantVariable;
         return visitor.onLeafNode(descLeaf);
