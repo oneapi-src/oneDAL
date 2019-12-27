@@ -19,14 +19,14 @@
 ##******************************************************************************
 
 help:
-  @echo "Usage: make {libintel64|sointel64|help}"
-  @echo "[compiler=compiler_name] [mode=mode_name] [sample=sample_name]"
-  @echo
-  @echo "compiler_name       - intel or gnu"
-  @echo "                      Intel(R) C++ Compiler as default"
-  @echo
-  @echo "mode_name           - can be build or run. Default is run"
-  @echo "sample_name         - sample name. Please see daal.lst file"
+	@echo "Usage: make {libintel64|sointel64|help}"
+	@echo "[compiler=compiler_name] [mode=mode_name] [sample=sample_name]"
+	@echo
+	@echo "compiler_name       - intel or gnu"
+	@echo "                      Intel(R) C++ Compiler as default"
+	@echo
+	@echo "mode_name           - can be build or run. Default is run"
+	@echo "sample_name         - sample name. Please see daal.lst file"
 
 ##------------------------------------------------------------------------------
 ## samples of using:
@@ -102,18 +102,19 @@ ifeq ($(compiler),gnu)
 endif
 
 
+
 .SECONDARY:
 $(RES_DIR)/%.exe: ./sources/%.cpp | $(RES_DIR)/.
-       $(CC) $(COPTS) $< -o $@ $(LOPTS)
+	$(CC) $(COPTS) $< -o $@ $(LOPTS)
 
 $(RES_DIR)/%.res: $(RES_DIR)/%.exe
-       $< > $@
+	$< > $@
 
 _make_ex: $(RES)
 
 %/.:; mkdir -p $*
 
 libintel64:
-       $(MAKE) _make_ex _IA=intel64 RES_EXT=a
+	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
 sointel64:
-       $(MAKE) _make_ex _IA=intel64 RES_EXT=so
+	$(MAKE) _make_ex _IA=intel64 RES_EXT=so
