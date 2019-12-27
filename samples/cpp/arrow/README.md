@@ -69,11 +69,11 @@ The command creates the `.\_results\intel64` directory and builds `*.exe` execut
 
 1. Go to the C++ Apache Arrow samples directory and execute the `launcher` command with the `run` parameter:
 
-  ```
-  cd <sample_dir>\cpp\arrow
+    ```
+    cd <sample_dir>\cpp\arrow
 
-  launcher.bat run
-  ```
+    launcher.bat run
+    ```
 
 2. Select the same architecture parameter as you provided to the `launcher` command with the build parameter.
 
@@ -85,11 +85,11 @@ For each sample, the results are placed into the `.\_results\intel64\<sample nam
 
 1. Go to the C++ Apache Arrow samples directory and execute the `make` command:
 
-  ```
-  cd <sample_dir>/cpp/arrow
+    ```
+    cd <sample_dir>/cpp/arrow
 
-  make {libintel64|sointel64} compiler={intel|gnu} mode=build
-  ```
+    make {libintel64|sointel64} compiler={intel|gnu} mode=build
+    ```
 
 2. From the `{libintel64|sointel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script and that has the prefix that matches the type of executables you want to build: `lib` for static and `so` for dynamic executables.
 
@@ -113,11 +113,11 @@ The `make` command builds a static library for the Intel(R) 64 architecture and 
 
 1. Go to the C++ Apache Arrow samples directory and execute the `make` command:
 
-  ```
-  cd <sample_dir>/cpp/arrow
+    ```
+    cd <sample_dir>/cpp/arrow
 
-  make {libintel64|dylibintel64} compiler={intel|gnu} mode=build
-  ```
+    make {libintel64|dylibintel64} compiler={intel|gnu} mode=build
+    ```
 
 2. From the `{libintel64|dylibintel64}` parameters, select the one that matches the architecture parameter you provided to the `vars.sh` script and that has the prefix that matches the type of executables you want to build: `lib` for static and `dylib` for dynamic executables.
 
