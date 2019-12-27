@@ -10,7 +10,7 @@ You can use Intel(R) DAAL Apache Arrow\* samples on Linux\*, Windows\*, and macO
 ### Apache Arrow\* implementations against which Intel(R) DAAL has been validated:
 - Apache Arrow\* 0.15.1
 
-**Note:** Intel(R) DAAL is expected to work on other Apache Arrow\* version as well. Let us know if you have any troubles with the distribution you are using.
+**Note:** Intel(R) DAAL is expected to work on other Apache Arrow\* versions as well. Let us know if you have any troubles with the distribution you are using.
 
 ## Preparation Before Build and Run
 ### Apache Arrow\* support
