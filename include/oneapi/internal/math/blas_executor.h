@@ -210,12 +210,73 @@ public:
     }
 };
 
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__AXPYEXECUTOR"></a>
+ *  \brief Adapter for AXPY routine
+ */
+class AxpyExecutor
+{
+private:
+    struct Execute
+    {
+        cl::sycl::queue & queue;
+        const uint32_t n;
+        const double a;
+        const UniversalBuffer& x_buffer;
+        const int incx;
+        const UniversalBuffer& y_buffer;
+        const int incy;
+        services::Status * status;
+
+        explicit Execute(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer& x_buffer, const int incx,
+               const UniversalBuffer& y_buffer, const int incy, services::Status * status = NULL)
+            : queue(queue),
+              n(n),
+              a(a),
+              x_buffer(x_buffer),
+              incx(incx),
+              y_buffer(y_buffer),
+              incy(incy),
+              status(status)
+        {}
+
+        template <typename T>
+        void operator()(Typelist<T>)
+        {
+            auto x_buffer_t = x_buffer.template get<T>();
+            auto y_buffer_t = y_buffer.template get<T>();
+
+            services::Status statusAxpy;
+#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
+            MKLAxpy<T> functor(queue);
+            statusAxpy = functor(n, (T)a, x_buffer_t, incx, y_buffer_t, incy);
+#else
+            // TODO
+            // ReferenceAxpy<T> functor;
+            // statusAxpy =
+            //     functor(transInv, trans, k, k, n, (T)alpha, a_buffer_t, lda, offsetA, a_buffer_t, lda, offsetA, (T)beta, c_buffer_t, ldc, offsetC);
+#endif
+
+            services::internal::tryAssignStatus(status, statusAxpy);
+        }
+    };
+
+public:
+    static void run(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
+                    const UniversalBuffer y_buffer, const int incy, services::Status * status = NULL)
+    {
+        Execute op(queue, n, a, x_buffer, incx, y_buffer, incy, status);
+        TypeDispatcher::floatDispatch(x_buffer.type(), op);
+    }
+};
+
 /** @} */
 
 } // namespace interface1
 
 using interface1::GemmExecutor;
 using interface1::SyrkExecutor;
+using interface1::AxpyExecutor;
 
 } // namespace math
 } // namespace internal
