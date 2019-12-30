@@ -210,7 +210,7 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::Buffer<algo
         args.set(5, sums, AccessModeIds::read);
         args.set(6, nObservations);
 
-        size_t localRangeSize = 4;
+        size_t localRangeSize = 16;
         KernelNDRange ndrange = getKernelNDRange(localRangeSize, getGlobalRangeSize(localRangeSize, nFeatures), status);
 
         context.run(ndrange, kernel, args, &status);
@@ -226,22 +226,9 @@ services::Status mergeSums(size_t nFeatures, const services::Buffer<algorithmFPT
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeSums);
     services::Status status;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
-    auto & factory = context.getClKernelFactory();
-    __buildProgram<algorithmFPType>(factory);
+    status |= BlasGpu<algorithmFPType>::xaxpy(nFeatures, 1, partialSums, 1, sums, 1);
 
-    auto kernel = factory.getKernel("mergeSums");
-
-    {
-        KernelArguments args(2);
-        args.set(0, partialSums, AccessModeIds::read);
-        args.set(1, sums, AccessModeIds::readwrite);
-
-        KernelRange range(nFeatures);
-
-        context.run(range, kernel, args, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
+    DAAL_CHECK_STATUS_VAR(status);
 
     return status;
 }
