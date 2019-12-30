@@ -48,7 +48,7 @@ class DataStructuresPackedTriangular {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException, IllegalAccessException {
         System.out.println("Packed triangular matrix example\n");
         int readFeatureIdx;
 

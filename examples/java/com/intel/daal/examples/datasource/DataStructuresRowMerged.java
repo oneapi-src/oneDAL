@@ -44,7 +44,7 @@ class DataStructuresRowMerged {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalAccessException {
         System.out.println("Row merged numeric table example\n");
         int readFeatureIdx;
 

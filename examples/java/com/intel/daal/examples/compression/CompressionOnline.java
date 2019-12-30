@@ -155,7 +155,7 @@ class CompressionOnline {
             currentBlock = Arrays.copyOfRange(sentDataStream, (int) startPosition,
                     (int) (startPosition + maxDataBlockSize));
             availableDataSize -= maxDataBlockSize;
-        } else if ((availableDataSize < maxDataBlockSize) && (availableDataSize > 0)) {
+        } else if (availableDataSize > 0) {
             currentBlock = Arrays.copyOfRange(sentDataStream, (int) startPosition, sentDataStream.length);
             availableDataSize = 0;
         } else {

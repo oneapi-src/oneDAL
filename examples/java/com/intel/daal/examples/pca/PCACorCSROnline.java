@@ -54,7 +54,7 @@ class PCACorCSROnline {
                                                                   };
     private static final int nBlocks = 4;
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, java.lang.IllegalArgumentException {
         /* Create an algorithm to compute PCA decomposition using the correlation method */
         Online pcaAlgorithm = new Online(context, Float.class, Method.correlationDense);
 

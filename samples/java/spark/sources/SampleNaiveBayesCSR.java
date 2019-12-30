@@ -45,7 +45,7 @@ import com.intel.daal.data_management.data_source.*;
 import com.intel.daal.services.*;
 
 public class SampleNaiveBayesCSR {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, IllegalAccessException {
         DaalContext context = new DaalContext();
 
         /* Create JavaSparkContext that loads defaults from the system properties and the classpath and sets the name */
@@ -84,7 +84,7 @@ public class SampleNaiveBayesCSR {
     }
 
     public static void printClassificationResult(NumericTable groundTruth, NumericTable classificationResults,
-                                                 String header1, String header2, String message, int nMaxRows) {
+                                                 String header1, String header2, String message, int nMaxRows) throws IllegalAccessException {
         int nCols = (int) groundTruth.getNumberOfColumns();
         int nRows = Math.min((int) groundTruth.getNumberOfRows(), nMaxRows);
 

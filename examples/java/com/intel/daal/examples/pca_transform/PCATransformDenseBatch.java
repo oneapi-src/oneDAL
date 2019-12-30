@@ -58,7 +58,7 @@ class PCATransformDenseBatch {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, java.lang.IllegalArgumentException {
         /* Retrieve the input data */
         FileDataSource dataSource = new FileDataSource(context, dataset,
                                                        DataSource.DictionaryCreationFlag.DoDictionaryFromContext,
@@ -79,29 +79,21 @@ class PCATransformDenseBatch {
 
         Service.printNumericTable("Eigenvalues:",result.get(ResultId.eigenValues));
         Service.printNumericTable("Eigenvectors:",result.get(ResultId.eigenVectors));
-
-        //KeyValueDataCollection resultCollection = result.get(TransformDataInputId.dataForTransform);
-
         Service.printNumericTable("Eigenvalues kv:",result.get(ResultId.eigenValues));
         Service.printNumericTable("Means kv:",result.get(ResultId.means));
         Service.printNumericTable("Variances kv:",result.get(ResultId.variances));
 
         long a=2;
-        TransformInput inputDataAlg =  new TransformInput(context,a);
-        //inputDataAlg.set(TransformInputId.eigenvectors, result.get(ResultId.eigenVectors));
+        TransformInput inputDataAlg =  new TransformInput(context, a);
 
         KeyValueDataCollection dataCollection = new KeyValueDataCollection(context);
 
         /* Create a PCA transform algorithm */
         TransformBatch transformAlgorithm = new TransformBatch(context, Float.class, TransformMethod.defaultDense, 2);
 
-
         /* Set an input object for the algorithm */
         transformAlgorithm.input.set(TransformInputId.data, input);
 
-        ResultId transformResultId = new ResultId(TransformDataInputId.dataForTransform.getValue());
-
-        //System.out.println(transformResultId.getValue());
         /* Set eigenvectors for the algorithm */
         transformAlgorithm.input.set(TransformInputId.eigenvectors, result.get(ResultId.eigenVectors));
 
@@ -111,12 +103,7 @@ class PCATransformDenseBatch {
         TransformResult transformResult = transformAlgorithm.compute();
 
         /* Print the results of stage */
-        //Service.printNumericTable("First 4 rows of the input data:", input, 4);
-        //Service.printNumericTable("First 4 rows of the PCA transformation result:",
-        //     transformResult.get(TransformResultId.transformedData), 4);
-
-
-       Service.printNumericTable("Transformed data:", transformResult.get(TransformResultId.transformedData));
+        Service.printNumericTable("Transformed data:", transformResult.get(TransformResultId.transformedData));
 
         context.dispose();
     }

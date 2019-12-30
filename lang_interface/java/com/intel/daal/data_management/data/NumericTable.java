@@ -161,7 +161,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      *
      * @return Block of table rows packed into DoubleBuffer
      */
-    public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) {
+    public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
         return tableImpl.getBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
@@ -176,7 +176,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      *
      * @return Block of table rows packed into FloatBuffer
      */
-    public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) {
+    public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
         return tableImpl.getBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
@@ -191,7 +191,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      *
      * @return Block of table rows packed into IntBuffer
      */
-    public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) {
+    public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
         return tableImpl.getBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
@@ -205,7 +205,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      * @param buf         Input DoubleBuffer with the capacity vectorNum * nColumns, where
      *                         nColumns is the number of columns in the table
      */
-    public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) {
+    public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
         tableImpl.releaseBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
@@ -219,7 +219,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      * @param buf         Input FloatBuffer with the capacity vectorNum * nColumns, where
      *                         nColumns is the number of columns in the table
      */
-    public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) {
+    public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
         tableImpl.releaseBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
@@ -233,7 +233,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      * @param buf         Input IntBuffer with the capacity vectorNum * nColumns, where
      *                    nColumns is the number of columns in the table
      */
-    public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) {
+    public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
         tableImpl.releaseBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
@@ -250,7 +250,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      * @return Block of values of the feature packed into the DoubleBuffer
      */
     public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            DoubleBuffer buf) {
+            DoubleBuffer buf) throws IllegalAccessException {
         return tableImpl.getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
@@ -267,7 +267,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      * @return Block of values of the feature packed into the FloatBuffer
      */
     public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            FloatBuffer buf) {
+            FloatBuffer buf) throws IllegalAccessException {
         return tableImpl.getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
@@ -284,7 +284,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      * @return Block of values of the feature packed into the IntBuffer
      */
     public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            IntBuffer buf) {
+            IntBuffer buf) throws IllegalAccessException {
         return tableImpl.getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
@@ -299,7 +299,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      * @param buf          Input DoubleBuffer of size vectorNum
      */
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            DoubleBuffer buf) {
+            DoubleBuffer buf) throws IllegalAccessException {
         tableImpl.releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
@@ -314,7 +314,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      * @param buf          Input FloatBuffer of size vectorNum
      */
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            FloatBuffer buf) {
+            FloatBuffer buf) throws IllegalAccessException {
         tableImpl.releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
@@ -328,7 +328,7 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
      * @param vectorNum    Number of values in the block
      * @param buf          Input IntBuffer of size vectorNum
      */
-    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) {
+    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
         tableImpl.releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
@@ -520,51 +520,51 @@ abstract public class NumericTable extends SerializableBase implements NumericTa
         }
     }
 
-    DoubleBuffer getDoubleBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    DoubleBuffer getDoubleBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         return tableImpl.getDoubleBlock(vectorIndex, vectorNum, buf);
     }
 
-    FloatBuffer getFloatBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    FloatBuffer getFloatBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         return tableImpl.getFloatBlock(vectorIndex, vectorNum, buf);
     }
 
-    IntBuffer getIntBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    IntBuffer getIntBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         return tableImpl.getIntBlock(vectorIndex, vectorNum, buf);
     }
 
-    void releaseDoubleBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseDoubleBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         tableImpl.releaseDoubleBlock(vectorIndex, vectorNum, buf);
     }
 
-    void releaseFloatBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseFloatBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         tableImpl.releaseFloatBlock(vectorIndex, vectorNum, buf);
     }
 
-    void releaseIntBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseIntBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         tableImpl.releaseIntBlock(vectorIndex, vectorNum, buf);
     }
 
-    DoubleBuffer getDoubleFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    DoubleBuffer getDoubleFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         return tableImpl.getDoubleFeature(featureIndex, vectorIndex, vectorNum, buf);
     }
 
-    FloatBuffer getFloatFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    FloatBuffer getFloatFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         return tableImpl.getFloatFeature(featureIndex, vectorIndex, vectorNum, buf);
     }
 
-    IntBuffer getIntFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    IntBuffer getIntFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         return tableImpl.getIntFeature(featureIndex, vectorIndex, vectorNum, buf);
     }
 
-    void releaseDoubleFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseDoubleFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         tableImpl.releaseDoubleFeature(featureIndex, vectorIndex, vectorNum, buf);
     }
 
-    void releaseFloatFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseFloatFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         tableImpl.getFloatFeature(featureIndex, vectorIndex, vectorNum, buf);
     }
 
-    void releaseIntFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseIntFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         tableImpl.getIntFeature(featureIndex, vectorIndex, vectorNum, buf);
     }
 }

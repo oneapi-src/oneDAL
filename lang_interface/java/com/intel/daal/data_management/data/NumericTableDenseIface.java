@@ -41,7 +41,7 @@ interface NumericTableDenseIface {
      *
      * @return Block of table rows packed into DoubleBuffer
      */
-    abstract public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf);
+    abstract public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException;
 
     /**
      * Reads block of rows from the table and returns it to
@@ -54,7 +54,7 @@ interface NumericTableDenseIface {
      *
      * @return Block of table rows packed into FloatBuffer
      */
-    abstract public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf);
+    abstract public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException;
 
     /**
      * Reads block of rows from the table and returns it to
@@ -67,7 +67,7 @@ interface NumericTableDenseIface {
      *
      * @return Block of table rows packed into IntBuffer
      */
-    abstract public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf);
+    abstract public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException;
 
     /**
      * Transfers the data from the input DoubleBuffer into a block of table
@@ -79,7 +79,7 @@ interface NumericTableDenseIface {
      * @param buf         Input DoubleBuffer with the capacity vectorNum * nColumns, where
      *                         nColumns is the number of columns in the table
      */
-    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf);
+    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException;
 
     /**
      * Transfers the data from the input FloatBuffer into a block of table
@@ -91,7 +91,7 @@ interface NumericTableDenseIface {
      * @param buf         Input FloatBuffer with the capacity vectorNum * nColumns, where
      *                         nColumns is the number of columns in the table
      */
-    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf);
+    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException;
 
     /**
      * Transfers the data from the input IntBuffer into a block of table
@@ -103,7 +103,7 @@ interface NumericTableDenseIface {
      * @param buf         Input IntBuffer with the capacity vectorNum * nColumns, where
      *                    nColumns is the number of columns in the table
      */
-    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf);
+    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException;
 
     /**
      * Gets block of values for a given feature and returns it to
@@ -118,7 +118,7 @@ interface NumericTableDenseIface {
      * @return Block of values of the feature packed into the DoubleBuffer
      */
     abstract public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            DoubleBuffer buf);
+            DoubleBuffer buf) throws IllegalAccessException;
 
     /**
      * Gets block of values for a given feature and returns it to
@@ -133,7 +133,7 @@ interface NumericTableDenseIface {
      * @return Block of values of the feature packed into the FloatBuffer
      */
     abstract public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            FloatBuffer buf);
+            FloatBuffer buf) throws IllegalAccessException;
 
     /**
      * Gets block of values for a given feature and returns it to
@@ -148,7 +148,7 @@ interface NumericTableDenseIface {
      * @return Block of values of the feature packed into the IntBuffer
      */
     abstract public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            IntBuffer buf);
+            IntBuffer buf) throws IllegalAccessException;
 
     /**
      * Transfers the values of a given feature from the input DoubleBuffer
@@ -161,7 +161,7 @@ interface NumericTableDenseIface {
      * @param buf          Input DoubleBuffer of size vectorNum
      */
     abstract public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            DoubleBuffer buf);
+            DoubleBuffer buf) throws IllegalAccessException;
 
     /**
      * Transfers the values of a given feature from the input FloatBuffer
@@ -174,7 +174,7 @@ interface NumericTableDenseIface {
      * @param buf          Input FloatBuffer of size vectorNum
      */
     abstract public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            FloatBuffer buf);
+            FloatBuffer buf) throws IllegalAccessException;
 
     /**
      * Transfers the values of a given feature from the input IntBuffer
@@ -186,6 +186,6 @@ interface NumericTableDenseIface {
      * @param vectorNum    Number of values in the block
      * @param buf          Input IntBuffer of size vectorNum
      */
-    abstract public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf);
+    abstract public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException;
 }
 /** @} */

@@ -62,7 +62,7 @@ inline void printHelp()
 }
 
 template <typename T>
-inline void printArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, std::string message, size_t interval = 10)
+inline void printArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, const std::string& message, size_t interval = 10)
 {
     std::cout << std::setiosflags(std::ios::left);
     std::cout << message << std::endl;

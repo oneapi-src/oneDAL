@@ -58,7 +58,7 @@ class DataStructuresAOS {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, IllegalAccessException {
 
         System.out.println("Array of structures (AOS) numeric table example\n");
         PointType points[] = new PointType[nVectors];
@@ -93,7 +93,6 @@ class DataStructuresAOS {
         dataInt = res.getBlockOfColumnValues(readFeatureIdx, firstReadRow, nVectors, dataInt);
         printIntBuffer(dataInt, 1, nVectors, "Print the third feature of AOS:");
         res.releaseBlockOfRows(firstReadRow, nVectors, dataInt);
-
 
         context.dispose();
     }
