@@ -192,6 +192,14 @@ public:
         math::SyrkExecutor::run(_deviceQueue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
     }
 
+     void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
+               const UniversalBuffer y_buffer, const int incy, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    {
+        DAAL_ASSERT(x_buffer.type() == y_buffer.type());
+
+        math::AxpyExecutor::run(_deviceQueue, n, a, x_buffer, incx, y_buffer, incy, status);
+    }
+
     void potrf(math::UpLo uplo, size_t n, UniversalBuffer & a_buffer, size_t lda, services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
         math::PotrfExecutor::run(_deviceQueue, uplo, n, a_buffer, lda, status);

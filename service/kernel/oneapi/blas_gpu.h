@@ -81,6 +81,18 @@ struct BlasGpu
 
         return status;
     }
+
+    static services::Status xaxpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
+                                 const UniversalBuffer y_buffer, const int incy)
+    {
+        services::Status status;
+
+        ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+
+        ctx.axpy(n, a, x_buffer, incx, y_buffer, incy, &status);
+
+        return status;
+    }
 };
 
 } // namespace internal
