@@ -48,6 +48,16 @@ namespace classification
 namespace prediction
 {
 /**
+* <a name="DAAL-ENUM-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__PREDICTION__VOTING_METHOD"></a>
+* \brief Available methods for averaging trees predictions
+*/
+enum VotingMethod
+{
+    weighted = 0,
+    unweighted,
+    lastResultId = unweighted
+};
+/**
  * \brief Contains version 1.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
  */
 namespace interface1
@@ -105,8 +115,26 @@ public:
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
 };
 
+/**
+ * <a name="DAAL-STRUCT-ALGORITHMS__CLASSIFIER__PARAMETER"></a>
+ * \brief Class for the parameters of the Decision Forest classification algorithm
+ *
+ * \snippet decision_forest/decision_forest_classification_predict_types.h Parameter source code
+ */
+/* [interface1::Parameter source code] */
+struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface2::Parameter
+{
+    Parameter(size_t nClasses, VotingMethod votingMethod = weighted) :
+        daal::algorithms::classifier::interface2::Parameter(nClasses),
+        votingMethod(votingMethod) {}
+    VotingMethod votingMethod;
+    services::Status check() const DAAL_C11_OVERRIDE;
+};
+/* [interface1::Parameter source code] */
+
 } // namespace interface1
 using interface1::Input;
+using interface1::Parameter;
 } // namespace prediction
 /** @} */
 } // namespace classification

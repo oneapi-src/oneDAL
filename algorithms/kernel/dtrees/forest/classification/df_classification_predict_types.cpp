@@ -100,6 +100,11 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     return s;
 }
 
+services::Status Parameter::check() const
+{
+    return daal::algorithms::classifier::interface2::Parameter::check();
+}
+
 } // namespace interface1
 } // namespace prediction
 } // namespace classification

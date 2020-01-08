@@ -1,4 +1,4 @@
-/* file: df_classification_predict_dense_default_batch_fpt_dispatcher_v1.cpp */
+/* file: df_classification_predict_dense_default_batch_fpt_cpu_v2.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,19 +17,30 @@
 
 /*
 //++
-//  Implementation of decision forest classification prediction algorithm container -- a class
-//  that contains fast decision forest prediction kernels
-//  for supported architectures.
+//  Implementation of prediction stage of decision forest algorithm.
 //--
 */
 
-#include "df_classification_predict_dense_default_batch_container_v1.h"
+#include "df_classification_predict_dense_default_batch.h"
+#include "df_classification_predict_dense_default_batch_impl.i"
+#include "df_classification_predict_dense_default_batch_container_v2.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE,
-                                      decision_forest::classification::prediction::defaultDense)
-}
+namespace decision_forest
+{
+namespace classification
+{
+namespace prediction
+{
+namespace interface2
+{
+template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+} // namespace interface2
+} // namespace prediction
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal
