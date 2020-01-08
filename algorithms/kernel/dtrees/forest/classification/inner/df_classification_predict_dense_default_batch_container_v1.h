@@ -55,22 +55,10 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input *input = static_cast<Input *>(_in);
-    classifier::prediction::Result *result = static_cast<classifier::prediction::Result *>(_res);
-
-    NumericTable *a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
-    decision_forest::classification::Model *m = static_cast<decision_forest::classification::Model *>(input->get(classifier::prediction::model).get());
-    NumericTable *r = static_cast<NumericTable *>(result->get(classifier::prediction::prediction).get());
-
-    const classifier::interface1::Parameter *par = static_cast<classifier::interface1::Parameter*>(_par);
-    daal::services::Environment::env &env = *_env;
-
-    __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-        daal::services::internal::hostApp(*input), a, m, r, nullptr, par->nClasses);
 }
 }
 }
 }
 }
 }
-} // namespace daal
+}
