@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __GEMM_KERNELS_CL__
-#define __GEMM_KERNELS_CL__
+#ifndef __BLAS_KERNELS_CL__
+#define __BLAS_KERNELS_CL__
 
 #include <string.h>
 
@@ -123,6 +123,18 @@ __kernel void blas_sgemm(const uint k,
 
 );
 
-static const size_t clKernelLen = strlen(clKernelGemm);
+DECLARE_SOURCE(clKernelAxpy,
 
-#endif // __GEMM_KERNELS_CL__
+__kernel void blas_axpy(const algorithmFPType a,
+                        const __global algorithmFPType *x,
+                        const int incx,
+                        __global algorithmFPType *y,
+                        const int incy) {
+    const int i_x = (get_local_id(0)) * incx;
+    const int i_y = (get_local_id(0)) * incy;
+    y[i_y] += x[i_x] * a;
+}
+
+);
+
+#endif // __BLAS_KERNELS_CL__

@@ -32,6 +32,7 @@
 #include "types.h"
 #include "services/internal/error_handling_helpers.h"
 #include "reference_gemm.h"
+#include "reference_axpy.h"
 
 #include <CL/sycl.hpp>
 
@@ -251,10 +252,9 @@ private:
             MKLAxpy<T> functor(queue);
             statusAxpy = functor(n, (T)a, x_buffer_t, incx, y_buffer_t, incy);
 #else
-            // TODO
-            // ReferenceAxpy<T> functor;
-            // statusAxpy =
-            //     functor(transInv, trans, k, k, n, (T)alpha, a_buffer_t, lda, offsetA, a_buffer_t, lda, offsetA, (T)beta, c_buffer_t, ldc, offsetC);
+            ReferenceAxpy<T> functor;
+            statusAxpy =
+                functor(n, (T)a, x_buffer_t, incx, y_buffer_t, incy);
 #endif
 
             services::internal::tryAssignStatus(status, statusAxpy);
