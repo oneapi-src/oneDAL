@@ -201,14 +201,19 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::Buffer<algo
     auto kernel = factory.getKernel("mergeCrossProduct");
 
     {
-        KernelArguments args(7);
+        const algorithmFPType invPartialNObs = (algorithmFPType)(1.0) / partialNObservations;
+        const algorithmFPType invNObs = (algorithmFPType)(1.0) / nObservations;
+        const algorithmFPType invNewNObs = (algorithmFPType)(1.0) / (nObservations + partialNObservations);
+
+        KernelArguments args(8);
         args.set(0, static_cast<uint32_t>(nFeatures));
         args.set(1, partialCrossProduct, AccessModeIds::read);
         args.set(2, partialSums, AccessModeIds::read);
-        args.set(3, partialNObservations);
-        args.set(4, crossProduct, AccessModeIds::readwrite);
-        args.set(5, sums, AccessModeIds::read);
-        args.set(6, nObservations);
+        args.set(3, crossProduct, AccessModeIds::readwrite);
+        args.set(4, sums, AccessModeIds::read);
+        args.set(5, invPartialNObs);
+        args.set(6, invNObs);
+        args.set(7, invNewNObs);
 
         size_t localRangeSize = 16;
         KernelNDRange ndrange = getKernelNDRange(localRangeSize, getGlobalRangeSize(localRangeSize, nFeatures), status);
