@@ -160,31 +160,13 @@ struct MKLAxpy
         cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = x_buffer.toSycl();
         cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = y_buffer.toSycl();
 
-        innerAxpy(n, a, x_sycl_buff, incx, y_sycl_buff, incy);
+        fpk::blas::axpy(_queue, n, a, x_sycl_buff, incx, y_sycl_buff, incy);
 
         _queue.wait();
         return services::Status();
     }
 
 private:
-    template <typename T>
-    void innerAxpy(const int n, const T a, cl::sycl::buffer<T, 1> & x_buffer, const int incx,
-                   cl::sycl::buffer<T, 1> & y_buffer, const int incy);
-
-    template <>
-    void innerAxpy(const int n, const double a, cl::sycl::buffer<double, 1> & x_buffer, const int incx,
-                   cl::sycl::buffer<double, 1> & y_buffer, const int incy)
-    {
-        fpk::blas::axpy(_queue, n, a, x_buffer, incx, y_buffer, incy);
-    }
-
-    template <>
-    void innerAxpy(const int n, const float a, cl::sycl::buffer<float, 1> & x_buffer, const int incx,
-                   cl::sycl::buffer<float, 1> & y_buffer, const int incy)
-    {
-        fpk::blas::axpy(_queue, n, a, x_buffer, incx, y_buffer, incy);
-    }
-
     cl::sycl::queue & _queue;
 };
 
