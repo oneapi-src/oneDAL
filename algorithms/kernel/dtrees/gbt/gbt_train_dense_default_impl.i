@@ -238,7 +238,6 @@ double TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::computeLeafWeight
     algorithmFPType* pf = f();
     val = -imp.g / val;
     const algorithmFPType inc = val*_par.shrinkage;
-
     const size_t nThreads     = numAvailableThreads();
     const size_t nBlocks      = getNBlocksForOpt<cpu>(nThreads, n);
     const bool inParallel     = nBlocks > 1;
