@@ -1,4 +1,4 @@
-/* file: pca_dense_correlation_batch_kernel_ucapi.h */
+/* file: pca_transform_dense_default_batch_oneapi.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *

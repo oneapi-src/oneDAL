@@ -1,4 +1,4 @@
-/* file: pca_transform_dense_default_batch_impl.i */
+/* file: pca_transform_dense_default_batch_oneapi_impl.i */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -71,7 +71,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
                                                                       const size_t numFeatures)
 {
     services::Status status;
-    
+
     if (variances != nullptr)
     {
         BlockDescriptor<algorithmFPType> varBlock;
@@ -82,7 +82,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
         args.set(1, invSigmas, AccessModeIds::write);
         KernelRange range(numFeatures);
         context.run(range, computeInvSigmasKernel, args, &status);
-        variances->releaseBlockOfRows(varBlock);    
+        variances->releaseBlockOfRows(varBlock);
     }
     return status;
 }
@@ -93,15 +93,15 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
                                                                          NumericTable *pEigenvalues, NumericTable &transformedData)
 {
     services::Status status;
-	
+
     ExecutionContextIface &ctx = services::Environment::getInstance()->getDefaultExecutionContext();
     ClKernelFactoryIface &factory = ctx.getClKernelFactory();
-	
+
     auto fptype_name = oneapi::internal::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
     build_options.add("-cl-std=CL1.2");
 
-	services::String cachekey("__daal_algorithms_pca_transform");
+    services::String cachekey("__daal_algorithms_pca_transform");
     cachekey.add(fptype_name);
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), pca_transform_cl_kernels, build_options.c_str());
 
@@ -111,7 +111,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
 
     const algorithmFPType zero = 0.0;
 
-    /* Calculating invSigmas and invEigenValues*/    
+    /* Calculating invSigmas and invEigenValues*/
     auto computeInvSigmasKernel = factory.getKernel("computeInvSigmas");
     auto invSigmas = ctx.allocate(TypeIds::id<algorithmFPType>(), numFeatures, &status);
     DAAL_CHECK_STATUS_VAR(status);
@@ -129,9 +129,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     DAAL_CHECK_STATUS_VAR(status);
     ctx.fill(invEigenvalues, zero, &status);
     size_t numEigValues = 0;
-    DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, computeInvSigmasKernel, pEigenvalues, invEigenvalues.template get<algorithmFPType>(), numComponents));
+    DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, computeInvSigmasKernel, pEigenvalues, invEigenvalues.template get<algorithmFPType>(),
+                      numComponents));
     size_t numMeans = 0;
-    
+
     auto rawMeans = ctx.allocate(TypeIds::id<algorithmFPType>(), numFeatures, &status);
     ctx.fill(rawMeans, zero, &status);
     if (pMeans != nullptr)
@@ -151,7 +152,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     SafeStatus safeStat;
 
     BlockDescriptor<algorithmFPType> dataBlock;
-	DAAL_CHECK_STATUS(status, data.getBlockOfRows(0, numVectors, ReadWriteMode::readOnly, dataBlock));
+    DAAL_CHECK_STATUS(status, data.getBlockOfRows(0, numVectors, ReadWriteMode::readOnly, dataBlock));
 
     auto copyBlock = ctx.allocate(TypeIds::id<algorithmFPType>(), numVectors * numFeatures, &status);
     ctx.copy(copyBlock, 0, dataBlock.getBuffer(), 0, numVectors * numFeatures, &status);
@@ -197,7 +198,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     DAAL_CHECK_STATUS_VAR(status);
     ctx.copy(basis, 0, eigenvectorsBlock.getBuffer(), 0, numComponents * numFeatures, &status);
     DAAL_CHECK_STATUS_VAR(status);
-    
+
     eigenvectors.releaseBlockOfRows(eigenvectorsBlock);
 
     BlockDescriptor<algorithmFPType> transformedBlock;

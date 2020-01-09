@@ -60,7 +60,7 @@ int main(int argc, char * argv[])
 
         /* Create an algorithm for principal component analysis using the SVD method */
         pca::Batch<> pcaAlgorithm;
-        
+
         pcaAlgorithm.input.set(pca::data, data);
         pcaAlgorithm.parameter.resultsToCompute = pca::mean | pca::variance | pca::eigenvalue;
 
