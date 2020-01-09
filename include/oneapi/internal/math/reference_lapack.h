@@ -68,11 +68,26 @@ struct DAAL_EXPORT ReferencePotrs
                                 const size_t lda, services::Buffer<algorithmFPType> & b_buffer, const size_t ldb);
 };
 
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__REFERENCEXSYEVD"></a>
+ *  \brief Adapter for reference XSYEVD routine
+ */
+template <typename algorithmFPType>
+struct DAAL_EXPORT ReferenceXsyevd
+{
+    ReferenceXsyevd() {}
+
+    services::Status operator()(const math::Job jobz, const math::UpLo uplo, const int64_t n, services::Buffer<algorithmFPType> & a,
+                                const int64_t lda, services::Buffer<algorithmFPType> & w, services::Buffer<algorithmFPType> & work,
+                                const int64_t lwork, services::Buffer<int64_t> & iwork, const int64_t liwork);
+};
+
 /** @} */
 } // namespace interface1
 
 using interface1::ReferencePotrf;
 using interface1::ReferencePotrs;
+using interface1::ReferenceXsyevd;
 
 } // namespace math
 } // namespace internal

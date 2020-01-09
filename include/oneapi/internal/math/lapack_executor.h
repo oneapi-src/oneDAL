@@ -143,11 +143,68 @@ public:
     }
 };
 
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__POTRSEXECUTOR"></a>
+ *  \brief Adapter for XSYEVD routine
+ */
+class XsyevdExecutor
+{
+private:
+    struct Execute
+    {
+        cl::sycl::queue & queue;
+        const math::Job jobz;
+        const math::UpLo uplo;
+        const int64_t n;
+        UniversalBuffer & a;
+        const int64_t lda;
+        UniversalBuffer & w;
+        UniversalBuffer & work;
+        const int64_t lwork;
+        UniversalBuffer & iwork;
+        const int64_t liwork;
+        services::Status * status;
+
+        explicit Execute(cl::sycl::queue & queue, const math::Job jobz, const math::UpLo uplo, const int64_t n, UniversalBuffer a, const int64_t lda,
+                         UniversalBuffer w, UniversalBuffer work, const int64_t lwork, UniversalBuffer iwork, const int64_t liwork,
+                         services::Status * status)
+            : queue(queue), jobz(jobz), uplo(uplo), n(n), a(a), lda(lda), w(w), work(work), lwork(lwork), iwork(iwork), liwork(liwork), status(status)
+        {}
+
+        template <typename T>
+        void operator()(Typelist<T>)
+        {
+            auto a_buffer_t     = a.template get<T>();
+            auto w_buffer_t     = w.template get<T>();
+            auto work_buffer_t  = work.template get<T>();
+            auto iwork_buffer_t = iwork.template get<int64_t>();
+#ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
+            ReferenceXsyevd<T> functor;
+#else
+            MKLXsyevd<T> functor(queue);
+#endif
+
+            services::internal::tryAssignStatus(status,
+                                                functor(jobz, uplo, n, a_buffer_t, lda, w_buffer_t, work_buffer_t, lwork, iwork_buffer_t, liwork));
+        }
+    };
+
+public:
+    static void run(cl::sycl::queue & queue, const math::Job jobz, const math::UpLo uplo, const int64_t n, UniversalBuffer a, const int64_t lda,
+                    UniversalBuffer w, UniversalBuffer work, const int64_t lwork, UniversalBuffer iwork, const int64_t liwork,
+                    services::Status * status)
+    {
+        Execute op(queue, jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, status);
+        TypeDispatcher::floatDispatch(a.type(), op);
+    }
+};
+
 /** @} */
 } // namespace interface1
 
 using interface1::PotrfExecutor;
 using interface1::PotrsExecutor;
+using interface1::XsyevdExecutor;
 
 } // namespace math
 } // namespace internal

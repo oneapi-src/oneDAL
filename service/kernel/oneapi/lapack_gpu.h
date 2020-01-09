@@ -62,6 +62,18 @@ struct LapackGpu
 
         return status;
     }
+
+    static services::Status xsyevd(const math::Job jobz, const math::UpLo uplo, const int64_t n, UniversalBuffer & a, const int64_t lda, UniversalBuffer & w,
+                UniversalBuffer & work, const int64_t lwork, UniversalBuffer & iwork, const int64_t liwork)
+    {
+        services::Status status;
+
+        ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+
+        ctx.xsyevd(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, &status);
+
+        return status;
+    }
 };
 
 } // namespace internal
