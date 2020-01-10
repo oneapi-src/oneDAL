@@ -544,7 +544,7 @@ DAAL_EXPORT void * _daal_get_ls_local(void * lsPtr)
 
 DAAL_EXPORT void _daal_reduce_ls(void * lsPtr, void * a, daal::tls_reduce_functype func)
 {
-    return ((LocalStorage *)lsPtr)->reduce(a, func);
+    ((LocalStorage *)lsPtr)->reduce(a, func);
 }
 
 DAAL_EXPORT void _daal_del_ls_ptr(void * lsPtr)

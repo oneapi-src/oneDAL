@@ -63,7 +63,7 @@ public:
      * \param minSize Optional parameter, minimal size of internal data blocks
      */
     CompressionStream(CompressorImpl * compr, size_t minSize = 1024 * 64);
-    virtual ~CompressionStream();
+    virtual ~CompressionStream() DAAL_C11_OVERRIDE;
 
     /**
      * Writes the next DataBlock to %CompressionStream and compresses it
@@ -140,7 +140,7 @@ public:
      * \param minSize Optional parameter, minimal size of internal data blocks
      */
     DecompressionStream(DecompressorImpl * decompr, size_t minSize = 1024 * 64);
-    virtual ~DecompressionStream();
+    virtual ~DecompressionStream() DAAL_C11_OVERRIDE;
     /**
      * Writes the next compressed DataBlock to %DecompressionStream and decompresses it
      * \param[in] inBlock  Pointer to the next DataBlock to be decompressed

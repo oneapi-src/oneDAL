@@ -310,7 +310,6 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_gbt_classification_traini
     classifier::training::ResultPtr res =
         services::staticPointerCast<classifier::training::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
 
-    jlong resModel = 0;
     switch (id)
     {
     case ModelResult: *m = services::staticPointerCast<gbtc::Model, classifier::Model>(res->get(classifier::training::model)); break;

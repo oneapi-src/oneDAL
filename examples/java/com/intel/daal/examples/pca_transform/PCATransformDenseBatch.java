@@ -89,7 +89,7 @@ class PCATransformDenseBatch {
         long a=2;
         TransformInput inputDataAlg =  new TransformInput(context,a);
         //inputDataAlg.set(TransformInputId.eigenvectors, result.get(ResultId.eigenVectors));
-        long b=3;
+
         KeyValueDataCollection dataCollection = new KeyValueDataCollection(context);
 
         /* Create a PCA transform algorithm */
@@ -100,11 +100,10 @@ class PCATransformDenseBatch {
         transformAlgorithm.input.set(TransformInputId.data, input);
 
         ResultId transformResultId = new ResultId(TransformDataInputId.dataForTransform.getValue());
-        int id = transformResultId.getValue();
-        //System.out.println(id);
+
+        //System.out.println(transformResultId.getValue());
         /* Set eigenvectors for the algorithm */
         transformAlgorithm.input.set(TransformInputId.eigenvectors, result.get(ResultId.eigenVectors));
-        NumericTable trNumTable = result.get(ResultId.means);
 
         transformAlgorithm.input.set(TransformDataInputId.dataForTransform,dataCollection);
 

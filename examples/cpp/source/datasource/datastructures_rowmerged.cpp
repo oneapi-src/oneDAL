@@ -37,8 +37,6 @@ int main()
     const size_t nObservations1 = 5;
     const size_t nObservations2 = 6;
     const size_t nFeatures      = 5;
-    const size_t firstReadRow   = 3;
-    const size_t nRead          = 6;
     const size_t featureIdx     = 2;
 
     /*Example of using homogeneous numeric table*/

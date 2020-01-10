@@ -80,8 +80,6 @@ public class SparkImplicitALSCSR {
 
         long[] usersPartition = { dataRDD.count() };
 
-        long nBlocks = usersPartition.length - 1;
-
         JavaPairRDD<Integer, NumericTable> transposedDataRDD = null;
 
         JavaPairRDD<Integer, NumericTable> userOffset = null;

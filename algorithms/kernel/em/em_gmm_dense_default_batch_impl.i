@@ -390,7 +390,6 @@ Status EMKernelTask<algorithmFPType, method, cpu>::stepM_partial(const size_t nV
 template <typename algorithmFPType, Method method, CpuType cpu>
 Status EMKernelTask<algorithmFPType, method, cpu>::stepM_merge(size_t iteration)
 {
-    algorithmFPType denominator;
     for (size_t k = 0; k < nComponents; k++)
     {
         if (alpha[k] < MinVal<algorithmFPType>::get())

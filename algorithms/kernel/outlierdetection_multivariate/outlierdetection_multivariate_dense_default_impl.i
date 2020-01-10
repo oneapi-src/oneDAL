@@ -59,7 +59,6 @@ inline void OutlierDetectionKernel<algorithmFPType, method, cpu>::mahalanobisDis
     char uplo            = 'U';
     algorithmFPType one  = (algorithmFPType)1.0;
     algorithmFPType zero = (algorithmFPType)0.0;
-    DAAL_INT info;
 
     const algorithmFPType * dataPtr = data;
     algorithmFPType * dataCenPtr    = dataCen;
@@ -133,7 +132,6 @@ inline Status OutlierDetectionKernel<algorithmFPType, method, cpu>::computeInter
         {
             nRowsInBlock = nVectors - startRow;
         }
-        DAAL_INT n = (DAAL_INT)nRowsInBlock;
 
         const algorithmFPType * data = dataBlock.next(startRow, nRowsInBlock);
         DAAL_CHECK_BLOCK_STATUS(dataBlock)

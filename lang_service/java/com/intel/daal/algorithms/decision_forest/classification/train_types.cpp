@@ -283,7 +283,6 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classifi
     classifier::training::ResultPtr res =
         services::staticPointerCast<classifier::training::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
 
-    jlong resModel = 0;
     switch (id)
     {
     case ModelResult: *m = services::staticPointerCast<dfc::Model, classifier::Model>(res->get(classifier::training::model)); break;
@@ -304,7 +303,6 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classifi
     NumericTablePtr * pTbl = new NumericTablePtr();
     dfct::ResultPtr res    = services::staticPointerCast<dfct::Result, SerializationIface>(*((SerializationIfacePtr *)resAddr));
 
-    jlong resModel = 0;
     switch (id)
     {
     case outOfBagErrorId:

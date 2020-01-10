@@ -54,14 +54,17 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::changeZeroToM
 {
     services::Status s;
     const size_t nVectors = yTable->getNumberOfRows();
-    WriteColumns<algorithmFPtype, cpu> y(const_cast<NumericTable *>(yTable), 0, 0, nVectors);
+    WriteColumns<algorithmFPtype, cpu> y(yTable, 0, 0, nVectors);
     DAAL_CHECK_STATUS(s, y.status());
     algorithmFPtype * yArray = y.get();
+    DAAL_CHECK(yArray, ErrorMemoryAllocationFailed);
+    const algorithmFPtype zero     = 0.0;
+    const algorithmFPtype minusOne = -1.0;
     for (size_t i = 0; i < nVectors; i++)
     {
-        if (yArray[i] == 0)
+        if (yArray[i] == zero)
         {
-            yArray[i] = -1;
+            yArray[i] = minusOne;
         }
     }
     return s;
@@ -76,6 +79,7 @@ services::Status StumpPredictKernel<method, algorithmFPtype, cpu>::compute(const
     const size_t nClasses = par->nClasses;
 
     decision_tree::classification::prediction::Batch<algorithmFPtype> treeAlgorithm(nClasses);
+    treeAlgorithm.enableChecks(false);
 
     treeAlgorithm.input.set(classifier::prediction::data, NumericTablePtr(const_cast<NumericTable *>(xTable), EmptyDeleter()));
     treeAlgorithm.input.set(classifier::prediction::model,

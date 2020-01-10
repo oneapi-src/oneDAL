@@ -1299,7 +1299,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     engines::BatchBase * engine, services::Status & status)
 {
     status = services::Status();
-    size_t i, j;
+    size_t i;
     const auto xRowCount = x.getNumberOfRows();
     data_management::BlockDescriptor<algorithmFpType> columnBD;
     const_cast<NumericTable &>(x).getBlockOfColumnValues(dimension, 0, xRowCount, readOnly, columnBD);

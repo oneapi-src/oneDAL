@@ -447,40 +447,40 @@ struct GiniWeighted
     typedef size_t DependentVariableType;
 
     template <typename RandomIterator>
-    ValueType operator()(RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next, DataStatistics & dataStatistics,
-                         const DataStatistics & totalDataStatistics, data_management::features::FeatureType featureType, ValueType leftWeight,
-                         ValueType rightWeight, ValueType totalWeight)
+    ValueType operator()(RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next,
+                         const DataStatistics & dataStatistics, const DataStatistics & totalDataStatistics,
+                         data_management::features::FeatureType featureType, ValueType leftWeight, ValueType rightWeight, ValueType totalWeight)
     {
         const ValueType invTotalWeight   = static_cast<ValueType>(1) / totalWeight;
         const ValueType invRightWeight   = static_cast<ValueType>(1) / rightWeight;
         const ValueType invLeftWeight    = static_cast<ValueType>(1) / leftWeight;
         const ValueType leftProbability  = leftWeight * invTotalWeight;
         const ValueType rightProbability = rightWeight * invTotalWeight;
-        ValueType leftGini               = 1;
-        ValueType rightGini              = 1;
+        ValueType leftGini               = leftWeight * leftWeight;
+        ValueType rightGini              = rightWeight * rightWeight;
         const size_t size                = dataStatistics.size();
         DAAL_ASSERT(size == totalDataStatistics.size());
         for (size_t i = 0; i < size; ++i)
         {
-            const ValueType leftP = dataStatistics[i] * invLeftWeight;
+            const ValueType leftP = dataStatistics[i];
             leftGini -= leftP * leftP;
-            const ValueType rightP = (totalDataStatistics[i] - dataStatistics[i]) * invRightWeight;
+            const ValueType rightP = (totalDataStatistics[i] - dataStatistics[i]);
             rightGini -= rightP * rightP;
         }
-        return leftProbability * leftGini + rightProbability * rightGini;
+        return leftProbability * leftGini * invLeftWeight * invLeftWeight + rightProbability * rightGini * invRightWeight * invRightWeight;
     }
 
     ValueType operator()(const DataStatistics & totalDataStatistics, algorithmFPType totalWeight)
     {
-        ValueType gini                 = 1;
-        const ValueType invTotalWeight = static_cast<ValueType>(1) / totalWeight;
-        const size_t size              = totalDataStatistics.size();
+        const ValueType sqTotalWeight = totalWeight * totalWeight;
+        ValueType gini                = sqTotalWeight;
+        const size_t size             = totalDataStatistics.size();
         for (size_t i = 0; i < size; ++i)
         {
-            const ValueType leftP = totalDataStatistics[i] * invTotalWeight;
+            const ValueType leftP = totalDataStatistics[i];
             gini -= leftP * leftP;
         }
-        return gini;
+        return gini / sqTotalWeight;
     }
 };
 
@@ -500,9 +500,9 @@ struct InfoGain
     ~InfoGain() { deallocateTempData(); }
 
     template <typename RandomIterator>
-    ValueType operator()(RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next, DataStatistics & dataStatistics,
-                         const DataStatistics & totalDataStatistics, data_management::features::FeatureType featureType, size_t leftCount,
-                         size_t rightCount, size_t totalCount)
+    ValueType operator()(RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next,
+                         const DataStatistics & dataStatistics, const DataStatistics & totalDataStatistics,
+                         data_management::features::FeatureType featureType, size_t leftCount, size_t rightCount, size_t totalCount)
     {
         typedef Math<algorithmFPType, cpu> MathType;
 
@@ -603,41 +603,6 @@ struct InfoGainWeighted
     InfoGainWeighted & operator=(const InfoGainWeighted &) { return *this; }
 
     ~InfoGainWeighted() { deallocateTempData(); }
-
-    /*
-    template <typename RandomIterator>
-    ValueType operator() (RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next, DataStatistics & dataStatistics,
-                          const DataStatistics & totalDataStatistics, data_management::features::FeatureType featureType,
-                          ValueType leftWeight, ValueType rightWeight, ValueType totalWeight)
-    {
-        const ValueType leftProbability = leftWeight * static_cast<ValueType>(1) / totalWeight;
-        const ValueType rightProbability = rightWeight * static_cast<ValueType>(1) / totalWeight;
-        ValueType leftGini = 1;
-        ValueType rightGini = 1;
-        const size_t size = dataStatistics.size();
-        DAAL_ASSERT(size == totalDataStatistics.size());
-        for (size_t i = 0; i < size; ++i)
-        {
-            const ValueType leftP = dataStatistics[i] * static_cast<ValueType>(1) / leftWeight;
-            leftGini -= leftP * leftP;
-            const ValueType rightP = (totalDataStatistics[i] - dataStatistics[i]) * static_cast<ValueType>(1) / rightWeight;
-            rightGini -= rightP * rightP;
-        }
-        return leftProbability * leftGini + rightProbability * rightGini;
-    }
-
-    ValueType operator() (const DataStatistics & totalDataStatistics, algorithmFPType totalWeight)
-    {
-        ValueType gini = 1;
-        const size_t size = totalDataStatistics.size();
-        for (size_t i = 0; i < size; ++i)
-        {
-            const ValueType leftP = totalDataStatistics[i] * static_cast<ValueType>(1) / totalWeight;
-            gini -= leftP * leftP;
-        }
-        return gini;
-    }
-*/
 
     template <typename RandomIterator>
     ValueType operator()(RandomIterator first, RandomIterator last, RandomIterator current, RandomIterator next, DataStatistics & dataStatistics,

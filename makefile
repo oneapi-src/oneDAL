@@ -112,10 +112,10 @@ USECPUS.files := $(subst sse2,nrh,$(subst ssse3,mrm,$(subst sse42,neh,$(subst av
 USECPUS.out := $(filter-out $(USECPUS),$(CPUs))
 USECPUS.out.for.grep.filter := $(addprefix _,$(addsuffix _,$(subst $(space),_|_,$(USECPUS.out))))
 USECPUS.out.grep.filter := $(if $(USECPUS.out),| grep -v -E '$(USECPUS.out.for.grep.filter)')
-USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2$$$$,$(subst ssse3,^\#define DAAL_KERNEL_SSSE3$$$$,\
-                    $(subst sse42,^\#define DAAL_KERNEL_SSE42$$$$,$(subst avx,^\#define DAAL_KERNEL_AVX$$$$,\
-                    $(subst avx2,^\#define DAAL_KERNEL_AVX2$$$$,$(subst avx512,^\#define DAAL_KERNEL_AVX512$$$$,\
-                    $(subst avx512_mic,^\#define DAAL_KERNEL_AVX512_MIC$$$$,$(USECPUS.out))))))))
+USECPUS.out.defs := $(subst sse2,^\#define DAAL_KERNEL_SSE2\b,$(subst ssse3,^\#define DAAL_KERNEL_SSSE3\b,\
+                    $(subst sse42,^\#define DAAL_KERNEL_SSE42\b,$(subst avx,^\#define DAAL_KERNEL_AVX\b,\
+                    $(subst avx2,^\#define DAAL_KERNEL_AVX2\b,$(subst avx512,^\#define DAAL_KERNEL_AVX512\b,\
+                    $(subst avx512_mic,^\#define DAAL_KERNEL_AVX512_MIC\b,$(USECPUS.out))))))))
 USECPUS.out.defs := $(subst $(space)^,|^,$(strip $(USECPUS.out.defs)))
 USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -e 's/$(USECPUS.out.defs)/$(sed.eol)/')
 
@@ -182,7 +182,9 @@ WORKDIR.lib := $(WORKDIR)/daal/lib
 COVFILE   := $(subst BullseyeStub,$(RELEASEDIR.daal)/Bullseye_$(_IA).cov,$(COVFILE))
 COV.libia := $(if $(BULLSEYEROOT),$(BULLSEYEROOT)/lib)
 
-MKLFPKDIR:= $(if $(wildcard $(DIR)/externals/mklfpk/*),$(DIR)/externals/mklfpk,$(subst \,/,$(MKLFPKROOT)))
+MKLFPKDIR:= $(if $(wildcard $(DIR)/externals/mklfpk/$(_OS)/*),$(DIR)/externals/mklfpk,                            \
+                $(if $(wildcard $(MKLFPKROOT)/include/*),$(subst \,/,$(MKLFPKROOT)),                              \
+                    $(error Can`t find MKLFPK libs nether in $(DIR)/externals/mklfpk/$(_OS) not in MKLFPKROOT.)))
 MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
 MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib/$(_IA)
 
@@ -193,23 +195,36 @@ frompf = $(shell echo $1 | sed 's/ProgramFilesx86/Program\\ Files\\ (x86)/')
 #============================= TBB folders =====================================
 TBBDIR := $(if $(wildcard $(DIR)/externals/tbb/$(_OS)/*),$(DIR)/externals/tbb/$(_OS)$(if $(OS_is_win),/tbb))
 TBBDIR.2 := $(if $(TBBDIR),$(TBBDIR),$(call topf,$$TBBROOT))
-TBBDIR.2 := $(if $(TBBDIR.2),$(TBBDIR.2),$(error Can`t find TBB neither in $(DIR)/externals/tbb nor on $$TBBROOT))
+TBBDIR.2 := $(if $(TBBDIR.2),$(TBBDIR.2),$(error Can`t find TBB neither in $(DIR)/externals/tbb nor in $$TBBROOT))
 
 TBBDIR.include := $(if $(TBBDIR),$(TBBDIR)/include/tbb $(TBBDIR)/include)
 
 TBBDIR.libia.prefix := $(TBBDIR.2)/lib
-TBBDIR.libia.win  := $(if $(OS_is_win),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt)
-TBBDIR.libia.lnx.gcc := $(if $(OS_is_lnx),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8/*),gcc4.8))
-TBBDIR.libia.lnx.gcc := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc),$(TBBDIR.libia.lnx.gcc),$(error Can`t find TBB runtimes neither for gcc4.8)))
-TBBDIR.libia.lnx := $(if $(OS_is_lnx),$(TBBDIR.libia.prefix)/$(_IA)/$(TBBDIR.libia.lnx.gcc))
-TBBDIR.libia.mac  := $(if $(OS_is_mac),$(TBBDIR.libia.prefix))
+
+TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt))
+TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB))))))
+TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb.dll)))
+TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(TBBDIR.libia.prefix)/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
+TBBDIR.libia.win:= $(subst \,/,$(TBBDIR.libia.win))
+
+TBBDIR.libia.lnx.gcc1 := $(if $(OS_is_lnx),$(if $(wildcard $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8/*),$(TBBDIR.libia.prefix)/$(_IA)/gcc4.8))
+TBBDIR.libia.lnx.gcc2  := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc1),,$(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH))))))
+TBBDIR.libia.lnx.gcc22 := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc2),$(wildcard $(TBBDIR.libia.lnx.gcc2)/libtbb.so)))
+TBBDIR.libia.lnx := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc22),$(TBBDIR.libia.lnx.gcc2),$(if $(TBBDIR.libia.lnx.gcc1),$(TBBDIR.libia.lnx.gcc1),$(error Can`t find TBB runtimes nether in $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8 not in $(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH)))).))))
+
+TBBDIR.libia.mac.clang1  := $(if $(OS_is_mac),$(if $(wildcard $(TBBDIR.libia.prefix)/*),$(TBBDIR.libia.prefix)))
+TBBDIR.libia.mac.clang2  := $(if $(OS_is_mac),$(if $(TBBDIR.libia.mac.clang1),,$(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LIBRARY_PATH))))))
+TBBDIR.libia.mac.clang22 := $(if $(OS_is_mac),$(if $(TBBDIR.libia.mac.clang2),$(wildcard $(TBBDIR.libia.mac.clang2)/libtbb.dylib)))
+TBBDIR.libia.mac := $(if $(OS_is_mac),$(if $(TBBDIR.libia.mac.clang22),$(TBBDIR.libia.mac.clang2),$(if $(TBBDIR.libia.mac.clang1),$(TBBDIR.libia.mac.clang1),$(error Can`t find TBB runtimes nether in $(TBBDIR.libia.prefix) not in $(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LIBRARY_PATH)))).))))
+
 TBBDIR.libia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.libia.prefix))
 TBBDIR.libia := $(TBBDIR.libia.$(_OS))
 
 TBBDIR.soia.prefix := $(TBBDIR.2)/
-TBBDIR.soia.win  := $(if $(OS_is_win),$(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt)
-TBBDIR.soia.lnx  := $(if $(OS_is_lnx),$(TBBDIR.soia.prefix)/lib/$(_IA)/$(TBBDIR.libia.lnx.gcc))
-TBBDIR.soia.mac  := $(if $(OS_is_mac),$(TBBDIR.soia.prefix)/lib)
+TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix)/redist/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
+TBBDIR.soia.win  := $(subst \,/,$(TBBDIR.soia.win))
+TBBDIR.soia.lnx  := $(if $(OS_is_lnx),$(TBBDIR.libia.lnx))
+TBBDIR.soia.mac  := $(if $(OS_is_mac),$(TBBDIR.libia.mac))
 TBBDIR.soia.fbsd := $(if $(OS_is_fbsd),$(TBBDIR.soia.prefix)/lib)
 TBBDIR.soia := $(TBBDIR.soia.$(_OS))
 
@@ -787,5 +802,10 @@ Flags:
 endef
 
 daal_dbg:
-	@echo "1" "!$(TBBDIR.soia)!"
-	@echo "2" "!$(TBBDIR.libia)!"
+	@echo "1" "!$(TBBDIR.libia.mac.clang1)!"
+	@echo "2" "!$(TBBDIR.libia.mac.clang2)!"
+	@echo "3" "!$(TBBDIR.libia.mac.clang22)!"
+	@echo "4" "!$(TBBDIR.libia.mac)!"
+	@echo "5" ${DYLD_LIBRARY_PATH}
+	@echo "6" ${LIBRARY_PATH}
+	@echo "7" ${TBBROOT}

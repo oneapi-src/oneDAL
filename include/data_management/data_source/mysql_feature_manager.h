@@ -50,7 +50,7 @@ namespace interface1
 class SQLFeatureManager
 {
 public:
-    SQLFeatureManager() : _errors(services::SharedPtr<services::ErrorCollection>(new services::ErrorCollection)) {}
+    SQLFeatureManager() : _fetchBuffer(), _errors(services::SharedPtr<services::ErrorCollection>(new services::ErrorCollection)) {}
 
     /**
      * Adds extended feature modifier
@@ -197,9 +197,6 @@ private:
             return internal::SQLFeaturesInfo();
         }
 
-        SQLLEN sqlType;
-        SQLLEN sqlIsUnsigned;
-        SQLLEN sqlTypeLength;
         internal::SQLFeaturesInfo featuresInfo;
 
         for (int i = 0; i < nFeatures; i++)
@@ -278,7 +275,6 @@ private:
             const SQLLEN bufferSize         = _fetchBuffer->getBufferSizeForFeature(i);
             SQLLEN * const actualSizeBuffer = _fetchBuffer->getActualDataSizeBufferForFeature(i);
 
-            SQLLEN strLenOrIndPtr;
             ret = SQLBindCol(hdlStmt, (SQLUSMALLINT)(i + 1), targetSQLType, (SQLPOINTER)buffer, bufferSize, actualSizeBuffer);
             if (!SQL_SUCCEEDED(ret))
             {

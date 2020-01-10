@@ -104,7 +104,7 @@ class SVMCacheImpl : public SVMCacheIface<algorithmFPType, cpu>
 public:
     virtual ~SVMCacheImpl() {}
 
-    virtual size_t getDataRowIndex(size_t rowIndex) const { return _doShrinking ? _shrinkingRowIndices[rowIndex] : rowIndex; }
+    virtual size_t getDataRowIndex(size_t rowIndex) const DAAL_C11_OVERRIDE { return _doShrinking ? _shrinkingRowIndices[rowIndex] : rowIndex; }
 
 protected:
     /**

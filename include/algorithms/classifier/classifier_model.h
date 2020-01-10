@@ -122,7 +122,7 @@ class DAAL_EXPORT Model : public daal::algorithms::Model
 public:
     DAAL_CAST_OPERATOR(Model);
 
-    virtual ~Model() {}
+    virtual ~Model() DAAL_C11_OVERRIDE {}
 
     /**
      *  Retrieves the number of features in the dataset was used on the training stage

@@ -331,7 +331,7 @@ public:
     services::Status setArray(DataType * const ptr)
     {
         freeDataMemoryImpl();
-        if (ptr == 0) return services::Status(services::ErrorEmptyHomogenNumericTable);
+        if (ptr == NULL) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
         _ptr       = services::SharedPtr<byte>((byte *)ptr, services::EmptyDeleter());
         _memStatus = userAllocated;
@@ -345,7 +345,7 @@ public:
     services::Status setArray(const services::SharedPtr<DataType> & ptr)
     {
         freeDataMemoryImpl();
-        if (ptr == 0) return services::Status(services::ErrorEmptyHomogenNumericTable);
+        if (ptr.get() == NULL) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
         _ptr       = services::reinterpretPointerCast<byte, DataType>(ptr);
         _memStatus = userAllocated;
@@ -361,7 +361,7 @@ public:
     {
         if (_memStatus == notAllocated) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
-        size_t nDim = getNumberOfColumns();
+        const size_t nDim = getNumberOfColumns();
 
         DataType * ptr         = (DataType *)_ptr.get();
         DataType valueDataType = (DataType)value;
@@ -497,8 +497,8 @@ protected:
     {
         freeDataMemoryImpl();
 
-        size_t nDim = getNumberOfColumns();
-        size_t size = (nDim * (nDim + 1)) / 2;
+        const size_t nDim = getNumberOfColumns();
+        const size_t size = (nDim * (nDim + 1)) / 2;
 
         if (size == 0)
             return services::Status(getNumberOfColumns() == 0 ? services::ErrorIncorrectNumberOfFeatures :
@@ -506,7 +506,7 @@ protected:
 
         _ptr = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(size * sizeof(DataType)), services::ServiceDeleter());
 
-        if (_ptr == 0) return services::Status(services::ErrorMemoryAllocationFailed);
+        if (_ptr.get() == NULL) return services::Status(services::ErrorMemoryAllocationFailed);
 
         _memStatus = internallyAllocated;
         return services::Status();
@@ -529,8 +529,8 @@ protected:
             allocateDataMemoryImpl();
         }
 
-        size_t nDim = getNumberOfColumns();
-        size_t size = (nDim * (nDim + 1)) / 2;
+        const size_t nDim = getNumberOfColumns();
+        const size_t size = (nDim * (nDim + 1)) / 2;
 
         arch->set((DataType *)_ptr.get(), size);
 
@@ -623,7 +623,7 @@ protected:
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        size_t nDim = getNumberOfColumns();
+        const size_t nDim = getNumberOfColumns();
         block.setDetails(0, idx, rwFlag);
 
         if (idx >= nDim)
@@ -657,10 +657,10 @@ protected:
         services::Status s;
         if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t nDim  = getNumberOfColumns();
-            size_t nrows = block.getNumberOfRows();
-            size_t idx   = block.getRowsOffset();
-            T * buffer   = block.getBlockPtr();
+            const size_t nDim  = getNumberOfColumns();
+            const size_t nrows = block.getNumberOfRows();
+            const size_t idx   = block.getRowsOffset();
+            T * buffer         = block.getBlockPtr();
 
             for (size_t iRow = 0; iRow < nrows; iRow++)
             {
@@ -677,7 +677,7 @@ protected:
     template <typename T>
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        size_t nDim = getNumberOfColumns();
+        const size_t nDim = getNumberOfColumns();
         block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nDim)
@@ -708,11 +708,11 @@ protected:
         services::Status s;
         if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t nDim     = getNumberOfColumns();
-            size_t nrows    = block.getNumberOfRows();
-            size_t idx      = block.getRowsOffset();
-            size_t feat_idx = block.getColumnsOffset();
-            T * buffer      = block.getBlockPtr();
+            const size_t nDim     = getNumberOfColumns();
+            const size_t nrows    = block.getNumberOfRows();
+            const size_t idx      = block.getRowsOffset();
+            const size_t feat_idx = block.getColumnsOffset();
+            T * buffer            = block.getBlockPtr();
 
             for (size_t iRow = 0; iRow < nrows; iRow++)
             {
@@ -726,10 +726,10 @@ protected:
     template <typename T>
     services::Status getTPackedArray(int rwFlag, BlockDescriptor<T> & block)
     {
-        size_t nDim = getNumberOfColumns();
+        const size_t nDim = getNumberOfColumns();
         block.setDetails(0, 0, rwFlag);
 
-        size_t nSize = (nDim * (nDim + 1)) / 2;
+        const size_t nSize = (nDim * (nDim + 1)) / 2;
 
         if (IsSameType<T, DataType>::value)
         {
@@ -755,10 +755,10 @@ protected:
     {
         if ((block.getRWFlag() & (int)writeOnly) && !IsSameType<T, DataType>::value)
         {
-            size_t nDim    = getNumberOfColumns();
-            size_t nSize   = (nDim * (nDim + 1)) / 2;
-            T * buffer     = block.getBlockPtr();
-            DataType * ptr = (DataType *)_ptr.get();
+            const size_t nDim    = getNumberOfColumns();
+            const size_t nSize   = (nDim * (nDim + 1)) / 2;
+            T * buffer           = block.getBlockPtr();
+            DataType * ptr       = (DataType *)_ptr.get();
 
             for (size_t i = 0; i < nSize; i++)
             {
@@ -1058,7 +1058,7 @@ public:
     services::Status setArray(DataType * const ptr)
     {
         freeDataMemoryImpl();
-        if (ptr == 0) return services::Status(services::ErrorEmptyHomogenNumericTable);
+        if (ptr == NULL) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
         _ptr       = services::SharedPtr<byte>((DataType *)ptr, services::EmptyDeleter());
         _memStatus = userAllocated;
@@ -1072,7 +1072,7 @@ public:
     services::Status setArray(const services::SharedPtr<DataType> & ptr)
     {
         freeDataMemoryImpl();
-        if (ptr == 0) return services::Status(services::ErrorEmptyHomogenNumericTable);
+        if (ptr.get() == NULL) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
         _ptr       = services::reinterpretPointerCast<byte, DataType>(ptr);
         _memStatus = userAllocated;
@@ -1088,7 +1088,7 @@ public:
     {
         if (_memStatus == notAllocated) return services::Status(services::ErrorEmptyHomogenNumericTable);
 
-        size_t nDim = getNumberOfColumns();
+        const size_t nDim = getNumberOfColumns();
 
         DataType * ptr         = (DataType *)_ptr.get();
         DataType valueDataType = (DataType)value;
@@ -1191,8 +1191,8 @@ protected:
     {
         freeDataMemoryImpl();
 
-        size_t nDim = getNumberOfColumns();
-        size_t size = (nDim * (nDim + 1)) / 2;
+        const size_t nDim = getNumberOfColumns();
+        const size_t size = (nDim * (nDim + 1)) / 2;
 
         if (size == 0)
             return services::Status(getNumberOfColumns() == 0 ? services::ErrorIncorrectNumberOfFeatures :
@@ -1200,7 +1200,7 @@ protected:
 
         _ptr = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(size * sizeof(DataType)), services::ServiceDeleter());
 
-        if (_ptr == 0) return services::Status(services::ErrorMemoryAllocationFailed);
+        if (_ptr.get() == NULL) return services::Status(services::ErrorMemoryAllocationFailed);
 
         _memStatus = internallyAllocated;
         return services::Status();
@@ -1223,8 +1223,8 @@ protected:
             allocateDataMemoryImpl();
         }
 
-        size_t nDim = getNumberOfColumns();
-        size_t size = (nDim * (nDim + 1)) / 2;
+        const size_t nDim = getNumberOfColumns();
+        const size_t size = (nDim * (nDim + 1)) / 2;
 
         arch->set((DataType *)_ptr.get(), size);
 
@@ -1313,7 +1313,7 @@ protected:
     template <typename T>
     services::Status getTBlock(size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        size_t nDim = getNumberOfColumns();
+        const size_t nDim = getNumberOfColumns();
         block.setDetails(0, idx, rwFlag);
 
         if (idx >= nDim)
@@ -1347,10 +1347,10 @@ protected:
         services::Status s;
         if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t nDim  = getNumberOfColumns();
-            size_t nrows = block.getNumberOfRows();
-            size_t idx   = block.getRowsOffset();
-            T * buffer   = block.getBlockPtr();
+            const size_t nDim  = getNumberOfColumns();
+            const size_t nrows = block.getNumberOfRows();
+            const size_t idx   = block.getRowsOffset();
+            T * buffer         = block.getBlockPtr();
 
             for (size_t iRow = 0; iRow < nrows; iRow++)
             {
@@ -1367,7 +1367,7 @@ protected:
     template <typename T>
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
-        size_t nDim = getNumberOfColumns();
+        const size_t nDim = getNumberOfColumns();
         block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nDim)
@@ -1397,11 +1397,11 @@ protected:
         services::Status s;
         if (block.getRWFlag() & (int)writeOnly)
         {
-            size_t nDim     = getNumberOfColumns();
-            size_t nrows    = block.getNumberOfRows();
-            size_t idx      = block.getRowsOffset();
-            size_t feat_idx = block.getColumnsOffset();
-            T * buffer      = block.getBlockPtr();
+            const size_t nDim     = getNumberOfColumns();
+            const size_t nrows    = block.getNumberOfRows();
+            const size_t idx      = block.getRowsOffset();
+            const size_t feat_idx = block.getColumnsOffset();
+            T * buffer            = block.getBlockPtr();
 
             for (size_t iRow = 0; iRow < nrows; iRow++)
             {
@@ -1415,10 +1415,10 @@ protected:
     template <typename T>
     services::Status getTPackedArray(int rwFlag, BlockDescriptor<T> & block)
     {
-        size_t nDim = getNumberOfColumns();
+        const size_t nDim = getNumberOfColumns();
         block.setDetails(0, 0, rwFlag);
 
-        size_t nSize = (nDim * (nDim + 1)) / 2;
+        const size_t nSize = (nDim * (nDim + 1)) / 2;
 
         if (IsSameType<T, DataType>::value)
         {
@@ -1444,10 +1444,10 @@ protected:
     {
         if ((block.getRWFlag() & (int)writeOnly) && !IsSameType<T, DataType>::value)
         {
-            size_t nDim    = getNumberOfColumns();
-            size_t nSize   = (nDim * (nDim + 1)) / 2;
-            T * buffer     = block.getBlockPtr();
-            DataType * ptr = (DataType *)_ptr.get();
+            const size_t nDim    = getNumberOfColumns();
+            const size_t nSize   = (nDim * (nDim + 1)) / 2;
+            T * buffer           = block.getBlockPtr();
+            DataType * ptr       = (DataType *)_ptr.get();
 
             for (size_t i = 0; i < nSize; i++)
             {

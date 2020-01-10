@@ -308,7 +308,6 @@ services::Status IndexedFeatures::init(const NumericTable & nt, const FeatureTyp
     if (!s) return s;
 
     const size_t nC = nt.getNumberOfColumns();
-    const size_t nR = nt.getNumberOfRows();
     typedef ColIndexTask<IndexType, algorithmFPType, cpu> TlsTask;
     typedef ColIndexTask<IndexType, algorithmFPType, cpu> DefaultTask;
     typedef ColIndexTaskBins<IndexType, algorithmFPType, cpu> BinningTask;

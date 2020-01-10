@@ -26,7 +26,6 @@
 
 #include "algorithms/algorithm.h"
 #include "algorithms/regression/regression_training_types.h"
-#include "algorithms/regression/regression_training_types.h"
 #include "algorithms/stump/stump_regression_model.h"
 
 namespace daal
@@ -127,6 +126,16 @@ public:
      */
     template <typename algorithmFPType>
     DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+
+    /**
+     * Checks the result of the decision stump training algorithm
+     * \param[in] input   %Input object for the algorithm
+     * \param[in] par     %Parameter of the algorithm
+     * \param[in] method  Computation method
+     *
+     * \return Status of computations
+     */
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
 
 protected:
     /** \private */

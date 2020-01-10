@@ -53,7 +53,6 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
 {
     Input * input                     = static_cast<Input *>(_in);
     Result * result                   = static_cast<Result *>(_res);
-    daal::algorithms::Parameter * par = _par;
 
     interface1::BatchParameter<algorithmFPType, correlationDense> * parameter =
         static_cast<interface1::BatchParameter<algorithmFPType, correlationDense> *>(_par);

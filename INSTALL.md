@@ -18,8 +18,8 @@
 # Installation from Sources
 
 Required Software:
-* C/C++ compiler (see [System Requirements](https://software.intel.com/en-us/articles/intel-daal-2019-system-requirements))
-* Java\* JDK (see [System Requirements](https://software.intel.com/en-us/articles/intel-daal-2019-system-requirements))
+* C/C++ compiler (see [System Requirements](https://software.intel.com/en-us/articles/intel-data-analytics-acceleration-library-2020-system-requirements))
+* Java\* JDK (see [System Requirements](https://software.intel.com/en-us/articles/intel-data-analytics-acceleration-library-2020-system-requirements))
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2 installer](http://msys2.github.io) with the msys/make package (Windows\* only); install the package as follows:
 
@@ -71,11 +71,11 @@ Required Software:
 
     - **Windows\***:
 
-            call .\scripts\mklfpk.bat
+            .\scripts\mklfpk.bat
 
     - **Linux\***:
 
-            scripts/mklfpk.sh
+            ./scripts/mklfpk.sh
 
 6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
 
@@ -92,7 +92,7 @@ Required Software:
 
     Alternatively, you can use scripts to do this for you (Linux\*):
 
-            scripts/tbb.sh
+            ./scripts/tbb.sh
 
 7. Downloan and install Python 3.7 (Windows\* only).
 

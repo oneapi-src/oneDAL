@@ -392,7 +392,6 @@ protected:
         size_t nFeatures     = _dict->getNumberOfFeatures();
         for (size_t i = 0; i < nFeatures; i++)
         {
-            features::IndexNumType indexNumType = (*_dict)[i].ntFeature.indexType;
             structureSize += (*_dict)[i].ntFeature.typeSize;
         }
         return structureSize;

@@ -782,12 +782,13 @@ protected:
         }
 
         NumericTableFeature & f = (*_ddict)[0];
+        const int indexType = f.indexType;
 
         T * buffer;
         T * castingBuffer;
         T * location = (T *)(_ptr.get() + (rowOffsets[idx] - 1) * f.typeSize);
 
-        if (features::internal::getIndexNumType<T>() == f.indexType)
+        if (features::internal::getIndexNumType<T>() == indexType)
         {
             castingBuffer = location;
 
@@ -803,7 +804,9 @@ protected:
 
             castingBuffer = (T *)block.getAdditionalBufferPtr();
 
-            internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(sparseBlockSize, location, castingBuffer);
+            if (data_management::features::DAAL_OTHER_T == indexType) return services::Status(services::ErrorDataTypeNotSupported);
+
+            internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(sparseBlockSize, location, castingBuffer);
         }
 
         T * bufRowCursor       = castingBuffer;
@@ -854,6 +857,8 @@ protected:
         if (!block.resizeBuffer(1, nrows)) return services::Status(services::ErrorMemoryAllocationFailed);
 
         NumericTableFeature & f = (*_ddict)[0];
+        const int indexType = f.indexType;
+        if (data_management::features::DAAL_OTHER_T == indexType) return services::Status(services::ErrorDataTypeNotSupported);
 
         char * rowCursor       = (char *)_ptr.get() + (rowOffsets[idx] - 1) * f.typeSize;
         size_t * indicesCursor = _colIndices.get() + (rowOffsets[idx] - 1);
@@ -870,7 +875,7 @@ protected:
             {
                 if (indicesCursor[k] - 1 == feat_idx)
                 {
-                    internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(1, rowCursor + k * f.typeSize, bufferPtr + i);
+                    internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(1, rowCursor + k * f.typeSize, bufferPtr + i);
                 }
             }
 
@@ -905,10 +910,11 @@ protected:
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
         const NumericTableFeature & f = (*_ddict)[0];
+        const int indexType = f.indexType;
 
         size_t nValues = rowOffsets[idx + nrows] - rowOffsets[idx];
 
-        if (features::internal::getIndexNumType<T>() == f.indexType)
+        if (features::internal::getIndexNumType<T>() == indexType)
         {
             block.setValuesPtr(&_ptr, _ptr.get() + (rowOffsets[idx] - 1) * f.typeSize, nValues);
         }
@@ -919,8 +925,10 @@ protected:
                 return services::Status();
             }
 
+            if (data_management::features::DAAL_OTHER_T == indexType) return services::Status(services::ErrorDataTypeNotSupported);
+
             services::SharedPtr<byte> location(_ptr, _ptr.get() + (rowOffsets[idx] - 1) * f.typeSize);
-            internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(nValues, location.get(), block.getBlockValuesPtr());
+            internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(nValues, location.get(), block.getBlockValuesPtr());
         }
 
         services::SharedPtr<size_t> shiftedColumns(_colIndices, _colIndices.get() + (rowOffsets[idx] - 1));
@@ -953,7 +961,15 @@ protected:
         if (block.getRWFlag() & (int)writeOnly)
         {
             NumericTableFeature & f = (*_ddict)[0];
-            if (f.indexType != features::internal::getIndexNumType<T>())
+            const int indexType = f.indexType;
+
+            if (data_management::features::DAAL_OTHER_T == indexType && features::internal::getIndexNumType<T>() != indexType)
+            {
+                block.reset();
+                return services::Status(services::ErrorDataTypeNotSupported);
+            }
+
+            if (features::internal::getIndexNumType<T>() != indexType)
             {
                 size_t nrows   = block.getNumberOfRows();
                 size_t idx     = block.getRowsOffset();
@@ -962,7 +978,7 @@ protected:
                 services::SharedPtr<byte> ptr      = services::reinterpretPointerCast<byte, T>(block.getBlockValuesSharedPtr());
                 services::SharedPtr<byte> location = services::SharedPtr<byte>(ptr, _ptr.get() + (_rowOffsets.get()[idx] - 1) * f.typeSize);
 
-                internal::getVectorDownCast(f.indexType, internal::getConversionDataType<T>())(nValues, ptr.get(), location.get());
+                internal::getVectorDownCast(indexType, internal::getConversionDataType<T>())(nValues, ptr.get(), location.get());
             }
         }
         block.reset();
