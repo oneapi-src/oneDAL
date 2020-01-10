@@ -183,7 +183,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_thread.lib;OpenCL.lib </AdditionalDependencies>
-      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.sequential|x64'">
@@ -200,7 +200,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_sequential.lib;OpenCL.lib </AdditionalDependencies>
-      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.threaded|x64'">
@@ -217,7 +217,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;daal_thread.lib;OpenCL.lib </AdditionalDependencies>
-      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.sequential|x64'">
@@ -234,7 +234,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;daal_sequential.lib;OpenCL.lib </AdditionalDependencies>
-      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.threaded|x64'">
@@ -251,7 +251,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_thread.lib;OpenCL.lib </AdditionalDependencies>
-      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.sequential|x64'">
@@ -268,7 +268,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>daal_sycl.lib;daal_core.lib;daal_sequential.lib;OpenCL.lib </AdditionalDependencies>
-      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.threaded|x64'">
@@ -285,7 +285,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;daal_thread.lib;OpenCL.lib</AdditionalDependencies>
-      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.sequential|x64'">
@@ -302,7 +302,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>daal_sycl.lib;daal_core_dll.lib;daal_sequential.lib;OpenCL.lib </AdditionalDependencies>
-      <AdditionalOptions>/ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
