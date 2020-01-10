@@ -30,7 +30,6 @@
 #include "pca_transform_kernel.h"
 #include "oneapi/internal/utils.h"
 #include "oneapi/pca_transform_dense_default_batch_oneapi.h"
-#include "oneapi/pca_transform_dense_default_batch_oneapi_impl.i"
 
 namespace daal
 {

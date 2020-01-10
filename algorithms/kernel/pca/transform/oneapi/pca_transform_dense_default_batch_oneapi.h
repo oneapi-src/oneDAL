@@ -1,4 +1,4 @@
-/* file: pca_transform_dense_default_batch_oneapi.h */
+/* file: pca_dense_correlation_batch_kernel_ucapi.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -29,10 +29,6 @@
 #include "pca_types.h"
 #include "oneapi/blas_gpu.h"
 
-using namespace daal::services;
-using namespace daal::data_management;
-using namespace daal::oneapi::internal;
-
 namespace daal
 {
 namespace algorithms
@@ -59,18 +55,31 @@ public:
              data_management::NumericTable &transformedData);
 
     void computeTransformedBlock
-            (DAAL_INT numRows, DAAL_INT numFeatures, DAAL_INT numComponents,
+            (uint32_t numRows, uint32_t numFeatures, uint32_t numComponents,
              daal::oneapi::internal::UniversalBuffer & dataBlock,
              daal::oneapi::internal::UniversalBuffer & eigenvectors,
-             services::Buffer<algorithmFPType> resultBlock);
+             const services::Buffer<algorithmFPType> & resultBlock);
 
 private:
     services::Status computeInvSigmas(daal::oneapi::internal::ExecutionContextIface& context,
-                                        const daal::oneapi::internal::KernelPtr& computeInvSigmasKernel,
-                                        data_management::NumericTable* variances,
-                                        const services::Buffer<algorithmFPType>& invSigmas,
-                                        const size_t numFeatures);
+                                      const daal::oneapi::internal::KernelPtr& computeInvSigmasKernel,
+                                      data_management::NumericTable* variances,
+                                      const services::Buffer<algorithmFPType>& invSigmas,
+                                      const size_t numFeatures);
 
+    services::Status normalize(daal::oneapi::internal::ExecutionContextIface& context,
+                               const daal::oneapi::internal::KernelPtr & normalizeKernel,
+                               daal::oneapi::internal::UniversalBuffer & copyBlock,
+                               daal::oneapi::internal::UniversalBuffer & rawMeans,
+                               daal::oneapi::internal::UniversalBuffer & invSigmas,
+                               size_t numMeans, size_t numInvSigmas, const unsigned int maxWorkItemsPerGroup,
+                               const size_t numFeatures, const unsigned int workItemsPerGroup, uint32_t numVectors);
+
+    services::Status whitening(daal::oneapi::internal::ExecutionContextIface& context,
+                               const daal::oneapi::internal::KernelPtr & whiteningKernel,
+                               daal::oneapi::internal::UniversalBuffer transformedBlock,
+                               daal::oneapi::internal::UniversalBuffer invEigenvalues,
+                               uint32_t numComponents, uint32_t numVectors);
 };
 
 } // namespace internal

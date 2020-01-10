@@ -49,26 +49,21 @@ using namespace daal::oneapi::internal;
 template<typename algorithmFPType, transform::Method method>
 void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock
         (DAAL_INT numRows, DAAL_INT numFeatures, DAAL_INT numComponents,
-         daal::oneapi::internal::UniversalBuffer & dataBlock,
-         daal::oneapi::internal::UniversalBuffer & eigenvectors,
+         UniversalBuffer & dataBlock, UniversalBuffer & eigenvectors,
          services::Buffer<algorithmFPType> resultBlock)
 {
-    /* GEMM parameters */
-    algorithmFPType one  = 1.0;
-    algorithmFPType zero = 0.0;
-
     BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, numComponents, numRows, numFeatures,
         1.0, eigenvectors, numFeatures, 0, dataBlock, numFeatures, 0, 0.0, resultBlock, numComponents, 0);
 
-} /* void TransformKernelOneAPI<algorithmFPType, defaultDense>::computeTransformedBlock */
+}
 
 
 template<typename algorithmFPType, transform::Method method>
 services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigmas(ExecutionContextIface& context,
-                                                                      const KernelPtr & computeInvSigmasKernel,
-                                                                      NumericTable* variances,
-                                                                      const services::Buffer<algorithmFPType> & invSigmas,
-                                                                      const size_t numFeatures)
+                                                                                  const KernelPtr & computeInvSigmasKernel,
+                                                                                  NumericTable* variances,
+                                                                                  const services::Buffer<algorithmFPType> & invSigmas,
+                                                                                  const size_t numFeatures)
 {
     services::Status status;
 
@@ -84,6 +79,74 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
         context.run(range, computeInvSigmasKernel, args, &status);
         variances->releaseBlockOfRows(varBlock);
     }
+    return status;
+}
+
+template<typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(ExecutionContextIface& context,
+                                                                           const KernelPtr & normalizeKernel,
+                                                                           UniversalBuffer & copyBlock,
+                                                                           UniversalBuffer & rawMeans,
+                                                                           UniversalBuffer & invSigmas,
+                                                                           size_t numMeans,
+                                                                           size_t numInvSigmas,
+                                                                           const unsigned int maxWorkItemsPerGroup,
+                                                                           const size_t numFeatures,
+                                                                           const unsigned int workItemsPerGroup,
+                                                                           uint32_t numVectors)
+{
+    services::Status status;
+
+    KernelArguments args(7);
+    args.set(0, copyBlock, AccessModeIds::readwrite);
+    args.set(1, rawMeans, AccessModeIds::read);
+    args.set(2, invSigmas, AccessModeIds::read);
+    args.set(3, numMeans);
+    args.set(4, numInvSigmas);
+    args.set(5, maxWorkItemsPerGroup);
+    args.set(6, numFeatures);
+
+    KernelRange local_range(workItemsPerGroup);
+    KernelRange global_range(workItemsPerGroup * numVectors);
+
+    KernelNDRange range(1);
+    range.global(global_range, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    range.local(local_range, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    context.run(range, normalizeKernel, args, &status);
+
+    DAAL_CHECK_STATUS_VAR(status);
+
+    return status;
+}
+
+template<typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(ExecutionContextIface& context,
+                                                                           const KernelPtr & whiteningKernel,
+                                                                           UniversalBuffer transformedBlock,
+                                                                           UniversalBuffer invEigenvalues,
+                                                                           uint32_t numComponents,
+                                                                           uint32_t numVectors)
+{
+    services::Status status;
+
+    KernelArguments args(2);
+    args.set(0, transformedBlock, AccessModeIds::readwrite);
+    args.set(1, invEigenvalues, AccessModeIds::read);
+
+    KernelRange local_range(numComponents);
+    KernelRange global_range(numVectors * numComponents);
+
+    KernelNDRange range(1);
+    range.global(global_range, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    range.local(local_range, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+
+    context.run(range, whiteningKernel, args, &status);
+
     return status;
 }
 
@@ -165,30 +228,9 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     if (isNormalize)
     {
         auto normalizeKernel = factory.getKernel("normalize");
-        {
-            KernelArguments args(7);
-            args.set(0, copyBlock, AccessModeIds::readwrite);
-            args.set(1, rawMeans, AccessModeIds::read);
-            args.set(2, invSigmas, AccessModeIds::read);
-            args.set(3, numMeans);
-            args.set(4, numInvSigmas);
-            args.set(5, maxWorkItemsPerGroup);
-            args.set(6, numFeatures);
 
-            KernelRange local_range(workItemsPerGroup);
-            KernelRange global_range(workItemsPerGroup * numVectors);
-
-            KernelNDRange range(1);
-            range.global(global_range, &status);
-            DAAL_CHECK_STATUS_VAR(status);
-            range.local(local_range, &status);
-            DAAL_CHECK_STATUS_VAR(status);
-
-            ctx.run(range, normalizeKernel, args, &status);
-
-            DAAL_CHECK_STATUS_VAR(status);
-
-        }
+        DAAL_CHECK_STATUS(status, normalize(ctx, normalizeKernel, copyBlock, rawMeans, invSigmas, numMeans, numInvSigmas,
+                          maxWorkItemsPerGroup, numFeatures, workItemsPerGroup, numVectors));
     }
 
     /* Retrieve data associated with coefficients */
@@ -212,23 +254,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     {
 
         auto whiteningKernel = factory.getKernel("whitening");
-        {
-            KernelArguments args(2);
-            args.set(0, transformedBlock.getBuffer(), AccessModeIds::readwrite);
-            args.set(1, invEigenvalues, AccessModeIds::read);
 
-            KernelRange local_range(numComponents);
-            KernelRange global_range(numVectors * numComponents);
-
-            KernelNDRange range(1);
-            range.global(global_range, &status);
-            DAAL_CHECK_STATUS_VAR(status);
-            range.local(local_range, &status);
-            DAAL_CHECK_STATUS_VAR(status);
-
-            ctx.run(range, whiteningKernel, args, &status);
-        }
+        DAAL_CHECK_STATUS(status, whitening(ctx, whiteningKernel, transformedBlock.getBuffer(), invEigenvalues, numComponents, numVectors));
     }
+
     transformedData.releaseBlockOfRows(transformedBlock);
     return safeStat.detach();
 } /* void TransformKernelOneAPI<algorithmFPType, defaultDense>::compute */

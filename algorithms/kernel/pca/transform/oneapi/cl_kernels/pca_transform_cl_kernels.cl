@@ -34,8 +34,9 @@ __kernel void computeInvSigmas(__global algorithmFPType* rawVariances,
                                __global algorithmFPType* invSigmas)
 {
     const int tid = get_global_id(0);
+    const int epsilon = 1e-10;
 
-    if (rawVariances[tid] != (algorithmFPType)0)
+    if (rawVariances[tid] != (algorithmFPType)epsilon)
     {
         invSigmas[tid] = (algorithmFPType)1 / (algorithmFPType)sqrt(rawVariances[tid]);
     }
@@ -54,29 +55,30 @@ __kernel void normalize(__global algorithmFPType* pCopyBlock,
                         const uint numFeatures)
 {
     const int tid = get_local_id(0);
-    const int gid = get_group_id(0);
     const int glid = get_global_id(0);
+    const int gid = get_group_id(0);
     const int numWorkItemsPerGroup = get_local_size(0);
-    const int gnum = get_num_groups(0);
+    const int grnum = get_num_groups(0);
 
     if (numFeatures > maxWorkItemsPerGroup)
     {
-        uint amount = (numFeatures *  gnum) / maxWorkItemsPerGroup;
+        uint numOfDataItemsProcessedByWI = numFeatures / maxWorkItemsPerGroup;
 
-        for(uint i = 0; i < amount + 1; i++)
+        for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
+            const int dataId = glid + grnum * numWorkItemsPerGroup * i;
             if (numMeans != (algorithmFPType)0)
             {
-                if (glid + gnum * numWorkItemsPerGroup * i < numFeatures *  gnum)
+                if (dataId < numFeatures *  grnum)
                 {
-                    pCopyBlock[glid + gnum * numWorkItemsPerGroup * i] = pCopyBlock[glid + gnum * numWorkItemsPerGroup * i] - pRawMeans[(glid + gnum * numWorkItemsPerGroup * i) % numFeatures];
+                    pCopyBlock[dataId] = pCopyBlock[dataId] - pRawMeans[dataId % numFeatures];
                 }
             }
             if (numInvSigmas != (algorithmFPType)0)
             {
-                if (glid + gnum * numWorkItemsPerGroup * i < numFeatures *  gnum)
+                if (dataId < numFeatures *  grnum)
                 {
-                    pCopyBlock[glid + gnum * numWorkItemsPerGroup * i] = pCopyBlock[glid + gnum * numWorkItemsPerGroup * i] * pInvSigmas[(glid + gnum * numWorkItemsPerGroup * i) % numFeatures];
+                    pCopyBlock[dataId] = pCopyBlock[dataId] * pInvSigmas[dataId % numFeatures];
                 }
             }
         }
@@ -95,13 +97,12 @@ __kernel void normalize(__global algorithmFPType* pCopyBlock,
 }
 
 __kernel void whitening(__global algorithmFPType* pTransformedBlock, 
-                        __global algorithmFPType* pInvEigenValues) 
+                        __global const algorithmFPType* pInvEigenValues) 
 {
     const int tid = get_local_id(0);
-    const int gid = get_group_id(0);
-    const int numFeatures = get_local_size(0);
+    const int glid = get_global_id(0);
     
-    pTransformedBlock[gid * numFeatures + tid] = pTransformedBlock[gid * numFeatures + tid] * pInvEigenValues[tid];
+    pTransformedBlock[glid] = pTransformedBlock[glid] * pInvEigenValues[tid];
     
 }
 
