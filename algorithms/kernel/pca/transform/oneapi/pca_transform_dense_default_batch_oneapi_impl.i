@@ -27,7 +27,6 @@
 #include "cl_kernels/pca_transform_cl_kernels.cl"
 
 using namespace daal::services;
-using namespace daal::internal;
 using namespace daal::oneapi::internal;
 using namespace daal::data_management;
 
@@ -48,9 +47,9 @@ using namespace daal::oneapi::internal;
 
 template<typename algorithmFPType, transform::Method method>
 void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock
-        (DAAL_INT numRows, DAAL_INT numFeatures, DAAL_INT numComponents,
+        (uint32_t numRows, uint32_t numFeatures, uint32_t numComponents,
          UniversalBuffer & dataBlock, UniversalBuffer & eigenvectors,
-         services::Buffer<algorithmFPType> resultBlock)
+         const services::Buffer<algorithmFPType> & resultBlock)
 {
     BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, numComponents, numRows, numFeatures,
         1.0, eigenvectors, numFeatures, 0, dataBlock, numFeatures, 0, 0.0, resultBlock, numComponents, 0);
@@ -165,9 +164,9 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     cachekey.add(fptype_name);
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), pca_transform_cl_kernels, build_options.c_str());
 
-    DAAL_INT numVectors  = data.getNumberOfRows();
-    DAAL_INT numFeatures = data.getNumberOfColumns();
-    DAAL_INT numComponents = transformedData.getNumberOfColumns();
+    uint32_t numVectors  = data.getNumberOfRows();
+    uint32_t numFeatures = data.getNumberOfColumns();
+    uint32_t numComponents = transformedData.getNumberOfColumns();
 
     const algorithmFPType zero = 0.0;
 
@@ -222,7 +221,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     data.releaseBlockOfRows(dataBlock);
 
     const unsigned int maxWorkItemsPerGroup = 256;
-    unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
+    const unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
 
     if (isNormalize)
     {
