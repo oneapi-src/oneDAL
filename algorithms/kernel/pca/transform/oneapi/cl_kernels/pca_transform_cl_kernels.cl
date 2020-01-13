@@ -67,14 +67,14 @@ __kernel void normalize(__global algorithmFPType* pCopyBlock,
         for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
             const int dataId = glid + grnum * numWorkItemsPerGroup * i;
-            if (numMeans != (algorithmFPType)0)
+            if (numMeans != 0)
             {
                 if (dataId < numFeatures *  grnum)
                 {
                     pCopyBlock[dataId] = pCopyBlock[dataId] - pRawMeans[dataId % numFeatures];
                 }
             }
-            if (numInvSigmas != (algorithmFPType)0)
+            if (numInvSigmas != 0)
             {
                 if (dataId < numFeatures *  grnum)
                 {
@@ -85,11 +85,11 @@ __kernel void normalize(__global algorithmFPType* pCopyBlock,
     }
     else
     {
-        if (numMeans != (algorithmFPType)0)
+        if (numMeans != 0)
         {
             pCopyBlock[gid * numWorkItemsPerGroup + tid] = pCopyBlock[gid * numWorkItemsPerGroup + tid] - pRawMeans[tid];
         }
-        if (numInvSigmas != (algorithmFPType)0)
+        if (numInvSigmas != 0)
         {
             pCopyBlock[gid * numWorkItemsPerGroup + tid] = pCopyBlock[gid * numWorkItemsPerGroup + tid] * pInvSigmas[tid];
         }

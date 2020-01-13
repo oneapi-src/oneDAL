@@ -67,18 +67,15 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
 {
     services::Status status;
 
-    if (variances != nullptr)
-    {
-        BlockDescriptor<algorithmFPType> varBlock;
-        variances->getBlockOfRows(0, numFeatures, readOnly, varBlock);
+    BlockDescriptor<algorithmFPType> varBlock;
+    variances->getBlockOfRows(0, numFeatures, readOnly, varBlock);
 
-        KernelArguments args(2);
-        args.set(0, varBlock.getBuffer(), AccessModeIds::read);
-        args.set(1, invSigmas, AccessModeIds::write);
-        KernelRange range(numFeatures);
-        context.run(range, computeInvSigmasKernel, args, &status);
-        variances->releaseBlockOfRows(varBlock);
-    }
+    KernelArguments args(2);
+    args.set(0, varBlock.getBuffer(), AccessModeIds::read);
+    args.set(1, invSigmas, AccessModeIds::write);
+    KernelRange range(numFeatures);
+    context.run(range, computeInvSigmasKernel, args, &status);
+    variances->releaseBlockOfRows(varBlock);                            
     return status;
 }
 
@@ -184,16 +181,18 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     if (pVariances != nullptr)
     {
         numInvSigmas = numFeatures;
+        DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, computeInvSigmasKernel, pVariances, invSigmas.template get<algorithmFPType>(), numFeatures));
     }
-
-    DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, computeInvSigmasKernel, pVariances, invSigmas.template get<algorithmFPType>(), numFeatures));
 
     auto invEigenvalues  = ctx.allocate(TypeIds::id<algorithmFPType>(), numComponents, &status);
     DAAL_CHECK_STATUS_VAR(status);
     ctx.fill(invEigenvalues, zero, &status);
     size_t numEigValues = 0;
-    DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, computeInvSigmasKernel, pEigenvalues, invEigenvalues.template get<algorithmFPType>(),
-                      numComponents));
+    if (pEigenvalues != nullptr)
+    {
+        DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, computeInvSigmasKernel, pEigenvalues, invEigenvalues.template get<algorithmFPType>(),
+                          numComponents));
+    }
     size_t numMeans = 0;
 
     auto rawMeans = ctx.allocate(TypeIds::id<algorithmFPType>(), numFeatures, &status);
