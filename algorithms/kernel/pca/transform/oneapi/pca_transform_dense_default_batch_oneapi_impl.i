@@ -75,7 +75,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
     args.set(1, invSigmas, AccessModeIds::write);
     KernelRange range(numFeatures);
     context.run(range, computeInvSigmasKernel, args, &status);
-    variances->releaseBlockOfRows(varBlock);                            
+    variances->releaseBlockOfRows(varBlock);
     return status;
 }
 
