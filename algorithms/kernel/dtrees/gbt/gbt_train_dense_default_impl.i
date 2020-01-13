@@ -238,13 +238,18 @@ double TrainBatchTaskBase<algorithmFPType, BinIndexType, cpu>::computeLeafWeight
     algorithmFPType* pf = f();
     val = -imp.g / val;
     const algorithmFPType inc = val*_par.shrinkage;
-
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
-    for(size_t i = 0; i < n; ++i)
-    {
-        pf[idx[i] * this->_nTrees + iTree] += inc;
-    }
+    const size_t nThreads     = numAvailableThreads();
+    const size_t nBlocks      = getNBlocksForOpt<cpu>(nThreads, n);
+    const bool inParallel     = nBlocks > 1;
+    const size_t nPerBlock    = n / nBlocks;
+    const size_t nSurplus     = n % nBlocks;
+    LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
+        const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+        const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = start; i < end; i++) pf[idx[i] * this->_nTrees + iTree] += inc;
+    });
 
     return res + inc;
 }

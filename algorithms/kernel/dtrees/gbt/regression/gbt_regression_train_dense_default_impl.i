@@ -57,26 +57,35 @@ public:
         const IndexType* sampleInd,
         algorithmFPType* gh) DAAL_C11_OVERRIDE
     {
-        if(sampleInd)
-        {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for(size_t i = 0; i < n; ++i)
+        const size_t nThreads  = daal::threader_get_threads_number();
+        const size_t nBlocks   = getNBlocksForOpt<cpu>(nThreads, n);
+        const size_t nPerBlock = n / nBlocks;
+        const size_t nSurplus  = n % nBlocks;
+        const bool inParallel  = nBlocks > 1;
+        LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
+            const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+            const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+            if (sampleInd)
             {
-                gh[2 * sampleInd[i]] = f[sampleInd[i]] - y[sampleInd[i]]; //gradient
-                gh[2 * sampleInd[i] + 1] = 1; //hessian
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = start; i < end; i++)
+                {
+                    gh[2 * sampleInd[i]]     = f[sampleInd[i]] - y[sampleInd[i]]; //gradient
+                    gh[2 * sampleInd[i] + 1] = 1;                                 //hessian
+                }
             }
-        }
-        else
-        {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for(size_t i = 0; i < n; ++i)
+            else
             {
-                gh[2 * i] = f[i] - y[i]; //gradient
-                gh[2 * i + 1] = 1; //hessian
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = start; i < end; i++)
+                {
+                    gh[2 * i]     = f[i] - y[i]; //gradient
+                    gh[2 * i + 1] = 1;           //hessian
+                }
             }
-        }
+        });
     }
 };
 
@@ -126,8 +135,22 @@ protected:
         const size_t n = this->_dataHelper.data()->getNumberOfRows();
         const algorithmFPType div = algorithmFPType(1.) / algorithmFPType(n);
         val = algorithmFPType(0);
-        for(size_t i = 0; i < n; ++i)
-            val += div*py[i];
+        const size_t nThreads     = super::numAvailableThreads();
+        const size_t nBlocks      = getNBlocksForOpt<cpu>(nThreads, n);
+        const bool inParallel     = nBlocks > 1;
+        const size_t nPerBlock    = n / nBlocks;
+        const size_t nSurplus     = n % nBlocks;
+        services::internal::TArray<algorithmFPType, cpu> pvalsArr(nBlocks);
+        algorithmFPType * const pvals = pvalsArr.get();
+        LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
+            const size_t start    = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+            const size_t end      = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+            algorithmFPType lpval = 0;
+            PRAGMA_ICC_NO16(omp simd reduction(+ : lpval))
+            for (size_t i = start; i < end; i++) lpval += div * py[i];
+            pvals[iBlock] = lpval;
+        });
+        for (size_t i = 0; i < nBlocks; i++) val += pvals[i];
         return true;
     }
 
@@ -135,7 +158,9 @@ protected:
         HomogenNumericTable<double>** aTblImp, HomogenNumericTable<int>** aTblSmplCnt, GlobalStorages<algorithmFPType, BinIndexType, cpu>& GH_SUMS_BUF) DAAL_C11_OVERRIDE
     {
         this->_nParallelNodes.inc();
-        return _builder->run(aTbl[0], aTblImp[0], aTblSmplCnt[0], 0, GH_SUMS_BUF);
+        services::Status s = _builder->run(aTbl[0], aTblImp[0], aTblSmplCnt[0], 0, GH_SUMS_BUF);
+        this->_nParallelNodes.dec();
+        return s;
     }
 
 protected:
