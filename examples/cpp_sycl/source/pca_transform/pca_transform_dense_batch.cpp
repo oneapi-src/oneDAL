@@ -64,11 +64,9 @@ int main(int argc, char * argv[])
         pcaAlgorithm.input.set(pca::data, data);
         pcaAlgorithm.parameter.resultsToCompute = pca::mean | pca::variance | pca::eigenvalue;
 
-        std::cout << "passed" << std::endl;
         /* Compute results of the PCA algorithm*/
         pcaAlgorithm.parameter.isDeterministic  = true;
         pcaAlgorithm.compute();
-        std::cout << "passed" << std::endl;
         pca::ResultPtr pcaResult = pcaAlgorithm.getResult();
 
         /* Output basis, eigenvalues and mean values*/
