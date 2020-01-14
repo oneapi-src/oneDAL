@@ -175,7 +175,7 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
@@ -192,7 +192,7 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
@@ -209,7 +209,7 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
@@ -226,7 +226,7 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
@@ -243,7 +243,7 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
@@ -260,7 +260,7 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
@@ -277,7 +277,7 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>
@@ -294,7 +294,7 @@
       <EnableSyclOffload>true</EnableSyclOffload>
       <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>ONEAPI_DAAL_USE_MKL_GPU_FUNC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
     </ClCompile>

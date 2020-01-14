@@ -101,19 +101,19 @@ COPTS := -Wall -w -I./source/utils
 
 ifeq ($(compiler),clang)
     CC = clang++
-    COPTS += -fsycl -DONEAPI_DAAL_USE_MKL_GPU_FUNC
+    COPTS += -fsycl
     EXT_LIB += -foffload-static-lib=$(DAAL_PATH)/libdaal_sycl.a
 endif
 
 ifeq ($(compiler),intel)
     CC = icc
-    COPTS += $(if $(COVFILE), -m64)
+    COPTS += $(if $(COVFILE), -m64) -DONEAPI_DAAL_NO_MKL_GPU_FUNC
     EXT_LIB += -lComputeCpp
 endif
 
 ifeq ($(compiler),gnu)
     CC = g++
-    COPTS += -m64
+    COPTS += -m64 -DONEAPI_DAAL_NO_MKL_GPU_FUNC
     EXT_LIB += -lComputeCpp
 endif
 
