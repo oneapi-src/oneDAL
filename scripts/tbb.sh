@@ -1,6 +1,6 @@
 #!/bin/bash
 #===============================================================================
-# Copyright 2014-2019 Intel Corporation
+# Copyright 2014-2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #===============================================================================
-
-
 
 TBB_URL_ROOT="https://github.com/intel/tbb/releases/download/2019_U8/"
 TBB_VERSION="tbb2019_20190605oss"
