@@ -24,7 +24,7 @@
 //--
 */
 
-#ifndef ONEAPI_DAAL_NO_MKL_GPU_FUNC
+#if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
     #include "mkl_lapack.h"
 #endif
 
