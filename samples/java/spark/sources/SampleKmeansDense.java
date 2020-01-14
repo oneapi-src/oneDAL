@@ -74,8 +74,12 @@ public class SampleKmeansDense {
         }
 
         DoubleBuffer result = DoubleBuffer.allocate((int)(nNtCols * nRows));
-        result = nt.getBlockOfRows(0, nRows, result);
-
+        try {
+            result = nt.getBlockOfRows(0, nRows, result);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         if(nPrintedCols > 0) {
             nCols = Math.min(nNtCols, nPrintedCols);
         }

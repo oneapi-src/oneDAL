@@ -65,11 +65,11 @@ class DfRegPrintNodeVisitor extends TreeNodeVisitor {
     }
 
     private void printTab(long level) {
-        String s = "";
+        StringBuffer s = new StringBuffer();
         for (long i = 0; i < level; i++) {
-            s += "  ";
+            s.append("  ");
         }
-        System.out.print(s);
+        System.out.print(s.toString());
     }
 }
 

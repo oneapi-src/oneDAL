@@ -46,7 +46,7 @@ import com.intel.daal.data_management.data_source.*;
 import com.intel.daal.services.*;
 
 public class SampleLinearRegressionQR {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalAccessException {
         DaalContext context = new DaalContext();
 
         /* Create JavaSparkContext that loads defaults from the system properties and the classpath and sets the name */
@@ -88,7 +88,7 @@ public class SampleLinearRegressionQR {
         sc.stop();
     }
 
-    public static void printNumericTable(String header, NumericTable nt, long nPrintedRows, long nPrintedCols) {
+    public static void printNumericTable(String header, NumericTable nt, long nPrintedRows, long nPrintedCols) throws IllegalAccessException {
         long nNtCols = nt.getNumberOfColumns();
         long nNtRows = nt.getNumberOfRows();
         long nRows = nNtRows;
@@ -118,11 +118,11 @@ public class SampleLinearRegressionQR {
         System.out.println(builder.toString());
     }
 
-    public static void printNumericTable(String header, NumericTable nt) {
+    public static void printNumericTable(String header, NumericTable nt) throws IllegalAccessException {
         printNumericTable(header, nt, nt.getNumberOfRows());
     }
 
-    public static void printNumericTable(String header, NumericTable nt, long nRows) {
+    public static void printNumericTable(String header, NumericTable nt, long nRows) throws IllegalAccessException {
         printNumericTable(header, nt, nRows, nt.getNumberOfColumns());
     }
 }

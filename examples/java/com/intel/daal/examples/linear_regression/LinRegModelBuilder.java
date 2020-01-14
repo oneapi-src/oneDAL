@@ -57,7 +57,7 @@ class LinRegModelBuilder {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, IllegalAccessException {
 
         buildModel();
         testModel();
@@ -65,7 +65,7 @@ class LinRegModelBuilder {
         context.dispose();
     }
 
-    public static void buildModel() {
+    public static void buildModel() throws IllegalAccessException {
         /* Initialize FileDataSource to retrieve the beta data from a .csv file */
         FileDataSource trainDataSource = new FileDataSource(context, trainDatasetFileName,
                 DataSource.DictionaryCreationFlag.DoDictionaryFromContext,

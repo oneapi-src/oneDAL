@@ -49,7 +49,7 @@ public class SampleParquet {
     private static final int rowsToPrint = 5;
     private static final int partitionsToPrint = 10;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalAccessException {
         DaalContext context = new DaalContext();
 
         /* Create JavaSparkContext that loads defaults from the system properties and the classpath and sets the name */

@@ -80,16 +80,7 @@ public class SparkImplicitALSCSR {
 
         long[] usersPartition = { dataRDD.count() };
 
-        JavaPairRDD<Integer, NumericTable> transposedDataRDD = null;
-
-        JavaPairRDD<Integer, NumericTable> userOffset = null;
-        JavaPairRDD<Integer, NumericTable> itemOffset = null;
-
-        JavaPairRDD<Integer, KeyValueDataCollection> userStep3LocalInput = null;
-        JavaPairRDD<Integer, KeyValueDataCollection> itemStep3LocalInput = null;
-
         JavaPairRDD<Integer, DistributedPartialResultStep4> usersPartialResultLocal = null;
-        JavaPairRDD<Integer, DistributedPartialResultStep4> itemsPartialResultLocal = null;
 
         /* Initialize distributed implicit ALS model */
         JavaPairRDD<Integer, Tuple4<DistributedPartialResultStep4,
@@ -104,25 +95,20 @@ public class SparkImplicitALSCSR {
                                     KeyValueDataCollection,
                                     NumericTable>> initStep2LocalResult = initializeStep2Local(initStep2LocalInput);
 
-        itemsPartialResultLocal = getRDD4Split(0, initStep1LocalResult, DistributedPartialResultStep4.class);
-        transposedDataRDD       = getRDD3Split(0, initStep2LocalResult, NumericTable.class);
+        JavaPairRDD<Integer, DistributedPartialResultStep4> itemsPartialResultLocal = getRDD4Split(0, initStep1LocalResult, DistributedPartialResultStep4.class);
+        JavaPairRDD<Integer, NumericTable>                  transposedDataRDD       = getRDD3Split(0, initStep2LocalResult, NumericTable.class);
 
-        itemStep3LocalInput     = getRDD4Split(1, initStep1LocalResult, KeyValueDataCollection.class);
-        userStep3LocalInput     = getRDD3Split(1, initStep2LocalResult, KeyValueDataCollection.class);
+        JavaPairRDD<Integer, KeyValueDataCollection> itemStep3LocalInput     = getRDD4Split(1, initStep1LocalResult, KeyValueDataCollection.class);
+        JavaPairRDD<Integer, KeyValueDataCollection> userStep3LocalInput     = getRDD3Split(1, initStep2LocalResult, KeyValueDataCollection.class);
 
-        userOffset              = getRDD4Split(2, initStep1LocalResult, NumericTable.class);
-        itemOffset              = getRDD3Split(2, initStep2LocalResult, NumericTable.class);
+        JavaPairRDD<Integer, NumericTable> userOffset              = getRDD4Split(2, initStep1LocalResult, NumericTable.class);
+        JavaPairRDD<Integer, NumericTable> itemOffset              = getRDD3Split(2, initStep2LocalResult, NumericTable.class);
 
         /* Train distributed implicit ALS model */
-        JavaPairRDD<Integer, DistributedPartialResultStep2> step2MasterResultCopies = null;
-
-        JavaPairRDD<Integer, DistributedPartialResultStep1> step1LocalResult = null;
-        JavaPairRDD<Integer, Tuple2<Integer, PartialModel>> step3LocalResult = null;
-
         for (int iteration = 0; iteration < maxIterations; iteration++) {
-            step1LocalResult = computeStep1Local(itemsPartialResultLocal);
-            step2MasterResultCopies = computeStep2Master(sc, step1LocalResult);
-            step3LocalResult = computeStep3Local(itemOffset, itemsPartialResultLocal, itemStep3LocalInput);
+            JavaPairRDD<Integer, DistributedPartialResultStep1> step1LocalResult = computeStep1Local(itemsPartialResultLocal);
+            JavaPairRDD<Integer, DistributedPartialResultStep2> step2MasterResultCopies = computeStep2Master(sc, step1LocalResult);
+            JavaPairRDD<Integer, Tuple2<Integer, PartialModel>> step3LocalResult = computeStep3Local(itemOffset, itemsPartialResultLocal, itemStep3LocalInput);
             usersPartialResultLocal = computeStep4Local(step2MasterResultCopies, step3LocalResult, transposedDataRDD).cache();
             if(iteration != (maxIterations - 1)) {
                 itemsPartialResultLocal.unpersist();

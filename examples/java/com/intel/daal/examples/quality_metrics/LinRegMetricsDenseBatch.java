@@ -66,7 +66,7 @@ class LinRegMetricsDenseBatch {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, IllegalAccessException {
 
         /* Initialize FileDataSource to retrieve the input data from a .csv file */
         FileDataSource trainDataSource = new FileDataSource(context, trainDatasetFileName,
@@ -138,7 +138,7 @@ class LinRegMetricsDenseBatch {
         return predictionResult.get(PredictionResultId.prediction);
     }
 
-    private static void reduceModel() {
+    private static void reduceModel() throws IllegalAccessException {
         final int nBeta = (int)model.getNumberOfBetas();
         savedBetas = new double[nBeta * nDependentVariables];
 
@@ -156,7 +156,7 @@ class LinRegMetricsDenseBatch {
         model.getBeta().releaseBlockOfRows(0, nDependentVariables, betas);
     }
 
-    private static void restoreModel() {
+    private static void restoreModel() throws IllegalAccessException {
         final int nBeta = (int)model.getNumberOfBetas();
 
         /* Read a block of rows */
@@ -169,7 +169,7 @@ class LinRegMetricsDenseBatch {
         model.getBeta().releaseBlockOfRows(0, nDependentVariables, betas);
     }
 
-    private static void testModelQuality() {
+    private static void testModelQuality() throws IllegalAccessException {
 
         /* Compute prediction results */
         predictedResponses = predictResults();

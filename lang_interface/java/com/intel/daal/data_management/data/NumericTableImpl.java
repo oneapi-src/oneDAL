@@ -288,19 +288,19 @@ abstract public class NumericTableImpl extends SerializableBase {
         dict = new DataDictionary(context, (long)0, cGetCDataDictionary(cObject));
     }
 
-    DoubleBuffer getDoubleBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    DoubleBuffer getDoubleBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         DoubleBuffer dBuf = getBlockOfRows(vectorIndex, vectorNum, buf.asDoubleBuffer());
         return dBuf;
     }
 
-    FloatBuffer getFloatBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    FloatBuffer getFloatBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         FloatBuffer sBuf = getBlockOfRows(vectorIndex, vectorNum, buf.asFloatBuffer());
         return sBuf;
     }
 
-    IntBuffer getIntBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    IntBuffer getIntBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         buf.position(0);
         IntBuffer iBuf = getBlockOfRows(vectorIndex, vectorNum, buf.asIntBuffer());
@@ -308,52 +308,52 @@ abstract public class NumericTableImpl extends SerializableBase {
         return iBuf;
     }
 
-    void releaseDoubleBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseDoubleBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         releaseBlockOfRows(vectorIndex, vectorNum, buf.asDoubleBuffer());
     }
 
-    void releaseFloatBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseFloatBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         releaseBlockOfRows(vectorIndex, vectorNum, buf.asFloatBuffer());
     }
 
-    void releaseIntBlock(long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseIntBlock(long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         buf.position(0);
         releaseBlockOfRows(vectorIndex, vectorNum, buf.asIntBuffer());
         buf.position(0);
     }
 
-    DoubleBuffer getDoubleFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    DoubleBuffer getDoubleFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         DoubleBuffer dBuf = getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf.asDoubleBuffer());
         return dBuf;
     }
 
-    FloatBuffer getFloatFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    FloatBuffer getFloatFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         FloatBuffer sBuf = getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf.asFloatBuffer());
         return sBuf;
     }
 
-    IntBuffer getIntFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    IntBuffer getIntFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         IntBuffer iBuf = getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf.asIntBuffer());
         return iBuf;
     }
 
-    void releaseDoubleFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseDoubleFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf.asDoubleBuffer());
     }
 
-    void releaseFloatFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseFloatFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf.asFloatBuffer());
     }
 
-    void releaseIntFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) {
+    void releaseIntFeature(long featureIndex, long vectorIndex, long vectorNum, ByteBuffer buf) throws IllegalAccessException {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf.asIntBuffer());
     }
@@ -388,33 +388,34 @@ abstract public class NumericTableImpl extends SerializableBase {
         return !dataAllocatedInJava;
     }
 
-    abstract public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf);
+    abstract public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException;
 
-    abstract public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf);
+    abstract public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException;
 
-    abstract public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf);
+    abstract public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException;
 
-    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf);
+    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException;
 
-    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf);
+    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException;
 
-    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf);
+    abstract public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException;
 
     abstract public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            DoubleBuffer buf);
+            DoubleBuffer buf) throws IllegalAccessException;
 
     abstract public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            FloatBuffer buf);
+            FloatBuffer buf) throws IllegalAccessException;
 
     abstract public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            IntBuffer buf);
+            IntBuffer buf) throws IllegalAccessException;
 
     abstract public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            DoubleBuffer buf);
+            DoubleBuffer buf) throws IllegalAccessException;
 
     abstract public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
-            FloatBuffer buf);
+            FloatBuffer buf) throws IllegalAccessException;
 
-    abstract public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf);
+    abstract public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum,
+            IntBuffer buf) throws IllegalAccessException;
 }
 /** @} */
