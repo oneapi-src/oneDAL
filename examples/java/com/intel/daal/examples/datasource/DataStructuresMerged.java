@@ -42,7 +42,7 @@ class DataStructuresMerged {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalAccessException  {
         System.out.println("Merged numeric table example\n");
         int readFeatureIdx;
 

@@ -526,8 +526,6 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVec
     algorithmFPType GMin  = fpMax; // some big positive number
     algorithmFPType GMin2 = fpMax;
 
-    const algorithmFPType zero(0.0);
-    const algorithmFPType two(2.0);
     algorithmFPType Kii = _kernelDiag[Bi];
 
     Status s;

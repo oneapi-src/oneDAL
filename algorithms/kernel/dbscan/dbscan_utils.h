@@ -406,13 +406,13 @@ public:
         const size_t outDim = _outTable->getNumberOfColumns();
         DAAL_ASSERT(outDim >= dim);
 
-        FPType epsP = Math<FPType, cpu>::sPowx(_eps, _p);
+        const FPType epsP = Math<FPType, cpu>::sPowx(_eps, _p);
 
-        size_t inBlockSize = 256;
-        size_t nInBlocks   = inRows / inBlockSize + (inRows % inBlockSize > 0);
+        const size_t inBlockSize = 256;
+        const size_t nInBlocks   = inRows / inBlockSize + (inRows % inBlockSize > 0);
 
-        size_t outBlockSize = 256;
-        size_t nOutBlocks   = outRows / outBlockSize + (outRows % outBlockSize > 0);
+        const size_t outBlockSize = 256;
+        const size_t nOutBlocks   = outRows / outBlockSize + (outRows % outBlockSize > 0);
 
         daal::threader_for(nInBlocks, nInBlocks, [&](size_t inBlock) {
             size_t i1    = inBlock * inBlockSize;

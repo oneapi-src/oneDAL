@@ -269,7 +269,7 @@ Status compute_estimates(NumericTable * dataTable, Result * result)
             DAAL_CHECK_BLOCK_STATUS_THR(dataTableBD);
             const algorithmFPType * _dataArray_block = dataTableBD.get();
 
-            for (int i = 0; i < _nRows; i++)
+            for (size_t i = 0; i < _nRows; i++)
             {
 /* loop invariants */
 #if defined _MEAN_ENABLE_
@@ -280,7 +280,7 @@ Status compute_estimates(NumericTable * dataTable, Result * result)
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < _cd.nFeatures; j++)
+                for (size_t j = 0; j < _cd.nFeatures; j++)
                 {
                     const algorithmFPType arg = argi[j];
 #if (defined _SUM2_ENABLE_ || defined _SORM_ENABLE_)
@@ -375,7 +375,7 @@ Status compute_estimates(NumericTable * dataTable, Result * result)
 
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (int j = _jstart; j < _jend; j++)
+                    for (size_t j = _jstart; j < _jend; j++)
                     {
 #if defined _MEAN_ENABLE_ || defined _SUM2C_ENABLE_ || defined _VARC_ENABLE_ || defined _STDEV_ENABLE_ || defined _VART_ENABLE_
                         algorithmFPType delta = _td->mean[j] - _mean[j];
@@ -410,7 +410,7 @@ Status compute_estimates(NumericTable * dataTable, Result * result)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < _cd.nFeatures; j++)
+                for (size_t j = 0; j < _cd.nFeatures; j++)
                 {
 #if defined _MEAN_ENABLE_ || defined _SUM2C_ENABLE_ || defined _VARC_ENABLE_ || defined _STDEV_ENABLE_ || defined _VART_ENABLE_
                     algorithmFPType delta = _td->mean[j] - _mean[j];
@@ -460,7 +460,7 @@ Status compute_estimates(NumericTable * dataTable, Result * result)
         const algorithmFPType _invN = algorithmFPType(1.0) / algorithmFPType(_cd.nVectors);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (int j = 0; j < _cd.nFeatures; j++)
+        for (size_t j = 0; j < _cd.nFeatures; j++)
         {
         #ifdef _SORM_ENABLE_
             _sorm[j] = _sum2[j] * _invN;

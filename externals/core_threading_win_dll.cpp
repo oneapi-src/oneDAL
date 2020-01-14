@@ -44,7 +44,6 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
 {
     TCHAR PathBuf[MAX_PATH];
-    LPTSTR * FilePart = NULL;
     DWORD rv;
     BOOL rv1;
     HMODULE rv2 = NULL;

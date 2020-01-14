@@ -50,19 +50,19 @@ class KMeansInitDenseBatch {
 
     private static DaalContext context = new DaalContext();
 
-    private static float getSingleFloat(NumericTable nt) {
+    private static float getSingleFloat(NumericTable nt) throws IllegalAccessException {
         FloatBuffer result = FloatBuffer.allocate(1);
         result = nt.getBlockOfRows(0, 1, result);
         return result.get(0);
     }
 
-    private static int getSingleInt(NumericTable nt) {
+    private static int getSingleInt(NumericTable nt) throws IllegalAccessException {
         IntBuffer result = IntBuffer.allocate(1);
         result = nt.getBlockOfRows(0, 1, result);
         return result.get(0);
     }
 
-    private static void runKmeans(NumericTable input, InitMethod method, final String methodName, double oversamplingFactor) {
+    private static void runKmeans(NumericTable input, InitMethod method, final String methodName, double oversamplingFactor) throws IllegalAccessException {
         /* Calculate initial clusters for K-Means clustering */
         InitBatch init = new InitBatch(context, Float.class, method, nClusters);
         init.input.set(InitInputId.data, input);
@@ -97,7 +97,7 @@ class KMeansInitDenseBatch {
             "*1E+6, number of iterations = " + nIterations + "\n");
     }
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, IllegalAccessException  {
         /* Retrieve the input data */
         FileDataSource dataSource = new FileDataSource(context, dataset,
                 DataSource.DictionaryCreationFlag.DoDictionaryFromContext,

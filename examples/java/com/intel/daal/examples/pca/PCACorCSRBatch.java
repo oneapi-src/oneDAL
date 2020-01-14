@@ -47,7 +47,7 @@ class PCACorCSRBatch {
     private static DaalContext  context = new DaalContext();
     private static final String datasetFileName = "../data/batch/covcormoments_csr.csv";
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, java.lang.IllegalArgumentException {
         /* Read a data set from a file and create a numeric table for storing the input data */
         CSRNumericTable data = Service.createSparseTable(context, datasetFileName);
 

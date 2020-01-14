@@ -69,7 +69,7 @@ class SVMMultiClassModelBuilder {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, IllegalAccessException {
 
         buildModelFromTraining();
         testModel();
@@ -77,7 +77,7 @@ class SVMMultiClassModelBuilder {
         context.dispose();
     }
 
-    public static void buildModelFromTraining() {
+    public static void buildModelFromTraining() throws IllegalAccessException {
 
         ModelBuilder multiBuilder = new ModelBuilder(context, TrainingMethod.oneAgainstOne, nFeatures, nClasses);
 

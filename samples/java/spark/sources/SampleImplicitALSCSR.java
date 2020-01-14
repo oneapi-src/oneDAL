@@ -46,7 +46,7 @@ import com.intel.daal.algorithms.implicit_als.prediction.ratings.*;
 import com.intel.daal.services.*;
 
 public class SampleImplicitALSCSR {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, IllegalAccessException {
         DaalContext context = new DaalContext();
 
         /* Create JavaSparkContext that loads defaults from the system properties and the classpath and sets the name */
@@ -71,7 +71,7 @@ public class SampleImplicitALSCSR {
         sc.stop();
     }
 
-    public static void printTrainedModel(SparkImplicitALSCSR.TrainingResult trainedModel) {
+    public static void printTrainedModel(SparkImplicitALSCSR.TrainingResult trainedModel) throws IllegalAccessException {
         DaalContext context = new DaalContext();
         List<Tuple2<Integer, DistributedPartialResultStep4>> itemsFactorsList = trainedModel.itemsFactors.collect();
         for (Tuple2<Integer, DistributedPartialResultStep4> tup : itemsFactorsList) {
@@ -91,7 +91,7 @@ public class SampleImplicitALSCSR {
         context.dispose();
     }
 
-    public static void printPredictedRatings(JavaRDD<Tuple3<Integer, Integer, RatingsResult>> predictedRatings) {
+    public static void printPredictedRatings(JavaRDD<Tuple3<Integer, Integer, RatingsResult>> predictedRatings) throws IllegalAccessException {
         DaalContext context = new DaalContext();
         List<Tuple3<Integer, Integer, RatingsResult>> predictedRatingsList = predictedRatings.collect();
         for (Tuple3<Integer, Integer, RatingsResult> tup : predictedRatingsList) {
@@ -102,7 +102,7 @@ public class SampleImplicitALSCSR {
         context.dispose();
     }
 
-    public static void printNumericTable(String header, NumericTable nt, long nPrintedRows, long nPrintedCols) {
+    public static void printNumericTable(String header, NumericTable nt, long nPrintedRows, long nPrintedCols) throws IllegalAccessException {
         long nNtCols = nt.getNumberOfColumns();
         long nNtRows = nt.getNumberOfRows();
         long nRows = nNtRows;
@@ -132,11 +132,11 @@ public class SampleImplicitALSCSR {
         System.out.println(builder.toString());
     }
 
-    public static void printNumericTable(String header, NumericTable nt, long nRows) {
+    public static void printNumericTable(String header, NumericTable nt, long nRows) throws IllegalAccessException {
         printNumericTable(header, nt, nRows, nt.getNumberOfColumns());
     }
 
-    public static void printNumericTable(String header, NumericTable nt) {
+    public static void printNumericTable(String header, NumericTable nt) throws IllegalAccessException {
         printNumericTable(header, nt, nt.getNumberOfRows());
     }
 }

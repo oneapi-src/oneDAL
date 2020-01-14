@@ -40,7 +40,7 @@ class DataStructuresCSR {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalAccessException {
         System.out.println("Compressed spares rows (CSR) numeric table example");
         int readFeatureIdx;
 
