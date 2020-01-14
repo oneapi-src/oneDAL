@@ -1,6 +1,6 @@
 /* file: neural_net_dense_asynch_distributed_mpi.cpp */
 /*******************************************************************************
-* Copyright 2017-2019 Intel Corporation
+* Copyright 2017-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
