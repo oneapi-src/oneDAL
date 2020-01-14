@@ -24,13 +24,7 @@
 //--
 */
 
-#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-    #if !(defined(__clang__))
-        #undef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-    #endif
-#endif
-
-#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
+#if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
     #include "mkl_lapack.h"
 #endif
 
@@ -81,10 +75,10 @@ private:
         {
             auto a_buffer_t = a_buffer.template get<T>();
 
-#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-            MKLPotrf<T> functor(queue);
-#else
+#ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferencePotrf<T> functor;
+#else
+            MKLPotrf<T> functor(queue);
 #endif
 
             services::internal::tryAssignStatus(status, functor(uplo, n, a_buffer_t, lda));
@@ -130,10 +124,10 @@ private:
             auto a_buffer_t = a_buffer.template get<T>();
             auto b_buffer_t = b_buffer.template get<T>();
 
-#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-            MKLPotrs<T> functor(queue);
-#else
+#ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferencePotrs<T> functor;
+#else
+            MKLPotrs<T> functor(queue);
 #endif
 
             services::internal::tryAssignStatus(status, functor(uplo, n, ny, a_buffer_t, lda, b_buffer_t, ldb));
