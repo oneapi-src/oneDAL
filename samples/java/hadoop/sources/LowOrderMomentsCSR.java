@@ -49,8 +49,13 @@ import com.intel.daal.services.*;
 /* Implement Tool to be able to pass -libjars on start */
 public class LowOrderMomentsCSR extends Configured implements Tool {
 
-    public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(new Configuration(), new LowOrderMomentsCSR(), args);
+    public static void main(String[] args) {
+        int res = -1;
+        try {
+            res = ToolRunner.run(new Configuration(), new LowOrderMomentsCSR(), args);
+        } catch (Exception e) {
+            ErrorHandling.printThrowable(e);
+        }
         System.exit(res);
     }
 

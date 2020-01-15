@@ -82,6 +82,9 @@ public class SampleCovarianceCSR {
         try {
             result = nt.getBlockOfRows(0, nRows, result);
         } catch (IllegalAccessException e) {
+            System.out.println("Error: exception caught: " + e);
+            System.out.println("Exception message: " + e.getMessage());
+            System.out.println("Exception cause: " + e.getCause());
             e.printStackTrace();
             return;
         }

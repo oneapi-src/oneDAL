@@ -37,6 +37,7 @@ import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.data_management.data.KeyValueDataCollection;
 import com.intel.daal.data_management.data_source.*;
 import com.intel.daal.services.DaalContext;
+import com.intel.daal.services.ErrorHandling;
 
 public class Service {
     public static void readRow(String line, int offset, int nCols, double[] data) throws IOException {
@@ -81,9 +82,9 @@ public class Service {
             readRow(bufferedReader.readLine(), 0, nNonZeroValues, data);
             bufferedReader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
         }
     }
 
@@ -152,7 +153,7 @@ public class Service {
             dataGroundTruth = groundTruth.getBlockOfRows(0, nRows, dataGroundTruth);
             dataClassificationResults = classificationResults.getBlockOfRows(0, nRows, dataClassificationResults);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
             return;
         }
         System.out.println(message);
@@ -247,7 +248,7 @@ public class Service {
         try {
             result = nt.getBlockOfRows(0, nRows, result);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
             return;
         }
         if (nPrintedCols > 0) {
@@ -372,7 +373,7 @@ public class Service {
             result1 = dataTable1.getBlockOfRows(0, nRows, result1);
             result2 = dataTable2.getBlockOfRows(0, nRows, result2);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
             return;
         }
         StringBuilder builder = new StringBuilder();
@@ -423,7 +424,7 @@ public class Service {
         try {
             bufLargeItemsets = largeItemsetsTable.getBlockOfRows(0, nItemsInLargeItemsets, bufLargeItemsets);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
             return;
         }
         int[] largeItemsets = new int[bufLargeItemsets.capacity()];
@@ -435,7 +436,7 @@ public class Service {
         bufLargeItemsetsSupportData = largeItemsetsSupportTable.getBlockOfRows(0, largeItemsetCount,
                 bufLargeItemsetsSupportData);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
             return;
         }
         int[] largeItemsetsSupportData = new int[bufLargeItemsetsSupportData.capacity()];
@@ -491,7 +492,7 @@ public class Service {
         try {
             bufLeftItems = leftItemsTable.getBlockOfRows(0, nLeftItems, bufLeftItems);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
             return;
         }
         int[] leftItems = new int[bufLeftItems.capacity()];
@@ -501,7 +502,7 @@ public class Service {
         try {
             bufRightItems = rightItemsTable.getBlockOfRows(0, nRightItems, bufRightItems);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
             return;
         }
         int[] rightItems = new int[bufRightItems.capacity()];
@@ -511,7 +512,7 @@ public class Service {
         try {
             bufConfidence = confidenceTable.getBlockOfRows(0, nRules, bufConfidence);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
             return;
         }
         float[] confidence = new float[bufConfidence.capacity()];
@@ -577,7 +578,7 @@ public class Service {
             usersOffsetBuf = usersOffsetTable.getBlockOfRows(0, 1, usersOffsetBuf);
             itemsOffsetBuf = itemsOffsetTable.getBlockOfRows(0, 1, itemsOffsetBuf);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
             return;
         }
         int[] usersOffsetData = new int[1];
