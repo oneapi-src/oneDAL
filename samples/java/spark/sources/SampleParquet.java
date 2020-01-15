@@ -1,6 +1,6 @@
 /* file: SampleParquet.java */
 /*******************************************************************************
-* Copyright 2017-2019 Intel Corporation
+* Copyright 2017-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class SampleParquet {
     private static final int rowsToPrint = 5;
     private static final int partitionsToPrint = 10;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalAccessException {
         DaalContext context = new DaalContext();
 
         /* Create JavaSparkContext that loads defaults from the system properties and the classpath and sets the name */

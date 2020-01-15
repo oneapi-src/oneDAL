@@ -1,6 +1,6 @@
 /* file: stump_train_impl.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ template <Method method, typename algorithmFPtype, CpuType cpu>
 void StumpTrainKernel<method, algorithmFPtype, cpu>::StumpQSort(size_t n, algorithmFPtype * x, algorithmFPtype * w, algorithmFPtype * z)
 {
     int i, ir, j, k, jstack = -1, l = 0;
-    algorithmFPtype a, b, c, tmp;
+    algorithmFPtype a, b, c;
     const int M = 7, NSTACK = 128;
     algorithmFPtype istack[NSTACK];
 

@@ -1,6 +1,6 @@
 /* file: blas_executor.h */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,13 +24,7 @@
 //--
 */
 
-#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-    #if !(defined(__clang__))
-        #undef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-    #endif
-#endif
-
-#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
+#if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
     #include "mkl_blas.h"
 #endif
 
@@ -116,10 +110,10 @@ private:
             auto b_buffer_t = b_buffer.template get<T>();
             auto c_buffer_t = c_buffer.template get<T>();
 
-#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-            MKLGemm<T> functor(queue);
-#else
+#ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferenceGemm<T> functor;
+#else
+            MKLGemm<T> functor(queue);
 #endif
 
             services::Status statusGemm =
@@ -192,13 +186,14 @@ private:
             const math::Transpose transInv = trans == math::Transpose::NoTrans ? math::Transpose::Trans : math::Transpose::NoTrans;
 
             services::Status statusSyrk;
-#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-            MKLSyrk<T> functor(queue);
-            statusSyrk = functor(upper_lower, transInv, k, n, (T)alpha, a_buffer_t, lda, offsetA, (T)beta, c_buffer_t, ldc, offsetC);
-#else
+
+#ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferenceGemm<T> functor;
             statusSyrk =
                 functor(transInv, trans, k, k, n, (T)alpha, a_buffer_t, lda, offsetA, a_buffer_t, lda, offsetA, (T)beta, c_buffer_t, ldc, offsetC);
+#else
+            MKLSyrk<T> functor(queue);
+            statusSyrk = functor(upper_lower, transInv, k, n, (T)alpha, a_buffer_t, lda, offsetA, (T)beta, c_buffer_t, ldc, offsetC);
 #endif
 
             services::internal::tryAssignStatus(status, statusSyrk);

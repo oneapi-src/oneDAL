@@ -1,6 +1,6 @@
 /* file: core_threading_win_dll.cpp */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
 {
     TCHAR PathBuf[MAX_PATH];
-    LPTSTR * FilePart = NULL;
     DWORD rv;
     BOOL rv1;
     HMODULE rv2 = NULL;

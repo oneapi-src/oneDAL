@@ -1,6 +1,6 @@
 /* file: SampleKmeansInitDense.java */
 /*******************************************************************************
-* Copyright 2017-2019 Intel Corporation
+* Copyright 2017-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import com.intel.daal.data_management.data_source.*;
 import com.intel.daal.services.*;
 
 public class SampleKmeansInitDense {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, IllegalAccessException {
         DaalContext context = new DaalContext();
 
         /* Create JavaSparkContext that loads defaults from the system properties and the classpath and sets the name */
@@ -75,7 +75,7 @@ public class SampleKmeansInitDense {
         sc.stop();
     }
 
-    public static void printNumericTable(String header, NumericTable nt, long nPrintedRows, long nPrintedCols) {
+    public static void printNumericTable(String header, NumericTable nt, long nPrintedRows, long nPrintedCols) throws IllegalAccessException {
         long nNtCols = nt.getNumberOfColumns();
         long nNtRows = nt.getNumberOfRows();
         long nRows = nNtRows;

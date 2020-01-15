@@ -1,6 +1,6 @@
 /* file: svm_train_boser_impl.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -526,8 +526,6 @@ Status SVMTrainTask<algorithmFPType, ParameterType, cpu>::WSSj(size_t nActiveVec
     algorithmFPType GMin  = fpMax; // some big positive number
     algorithmFPType GMin2 = fpMax;
 
-    const algorithmFPType zero(0.0);
-    const algorithmFPType two(2.0);
     algorithmFPType Kii = _kernelDiag[Bi];
 
     Status s;

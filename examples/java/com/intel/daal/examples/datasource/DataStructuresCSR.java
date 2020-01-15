@@ -1,6 +1,6 @@
 /* file: DataStructuresCSR.java */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ class DataStructuresCSR {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalAccessException {
         System.out.println("Compressed spares rows (CSR) numeric table example");
         int readFeatureIdx;
 

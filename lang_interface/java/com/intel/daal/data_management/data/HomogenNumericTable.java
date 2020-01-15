@@ -1,6 +1,6 @@
 /* file: HomogenNumericTable.java */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -517,73 +517,73 @@ public class HomogenNumericTable extends NumericTable {
 
     /** @copydoc NumericTable::getBlockOfRows(long,long,DoubleBuffer) */
     @Override
-    public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) {
+    public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
         return ((HomogenNumericTableImpl)tableImpl).getBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::getBlockOfRows(long,long,FloatBuffer) */
     @Override
-    public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) {
+    public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
         return ((HomogenNumericTableImpl)tableImpl).getBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::getBlockOfRows(long,long,IntBuffer) */
     @Override
-    public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) {
+    public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
         return ((HomogenNumericTableImpl)tableImpl).getBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,DoubleBuffer) */
     @Override
-    public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) {
+    public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
         return ((HomogenNumericTableImpl)tableImpl).getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,FloatBuffer) */
     @Override
-    public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) {
+    public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
         return ((HomogenNumericTableImpl)tableImpl).getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,IntBuffer) */
     @Override
-    public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) {
+    public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
         return ((HomogenNumericTableImpl)tableImpl).getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfRows(long,long,FloatBuffer) */
     @Override
-    public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) {
+    public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
         ((HomogenNumericTableImpl)tableImpl).releaseBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfRows(long,long,DoubleBuffer) */
     @Override
-    public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) {
+    public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
         ((HomogenNumericTableImpl)tableImpl).releaseBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfRows(long,long,IntBuffer) */
     @Override
-    public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) {
+    public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
         ((HomogenNumericTableImpl)tableImpl).releaseBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,DoubleBuffer) */
     @Override
-    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) {
+    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
         ((HomogenNumericTableImpl)tableImpl).releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,FloatBuffer) */
     @Override
-    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) {
+    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
         ((HomogenNumericTableImpl)tableImpl).releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,IntBuffer) */
     @Override
-    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) {
+    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
         ((HomogenNumericTableImpl)tableImpl).releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 

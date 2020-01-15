@@ -1,6 +1,6 @@
 /* file: SampleKmeansDense.java */
 /*******************************************************************************
-* Copyright 2017-2019 Intel Corporation
+* Copyright 2017-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -74,8 +74,12 @@ public class SampleKmeansDense {
         }
 
         DoubleBuffer result = DoubleBuffer.allocate((int)(nNtCols * nRows));
-        result = nt.getBlockOfRows(0, nRows, result);
-
+        try {
+            result = nt.getBlockOfRows(0, nRows, result);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         if(nPrintedCols > 0) {
             nCols = Math.min(nNtCols, nPrintedCols);
         }

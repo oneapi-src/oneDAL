@@ -1,6 +1,6 @@
 /* file: DtRegTraverseModel.java */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,11 +66,11 @@ class DtRegPrintNodeVisitor extends TreeNodeVisitor {
     }
 
     private void printTab(long level) {
-        String s = "";
+        StringBuffer s = new StringBuffer();
         for (long i = 0; i < level; i++) {
-            s += "  ";
+            s.append("  ");
         }
-        System.out.print(s);
+        System.out.print(s.toString());
     }
 }
 

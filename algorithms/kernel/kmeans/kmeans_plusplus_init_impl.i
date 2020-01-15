@@ -1,6 +1,6 @@
 /* file: kmeans_plusplus_init_impl.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ template <typename algorithmFPType, CpuType cpu, typename NumericTableType>
 class BlockHelperDense
 {
 public:
-    BlockHelperDense(NumericTableType * nt, size_t dim, size_t iStartRow, size_t nRowsToProcess) : _dim(dim), _ntDataBD(nt, iStartRow, nRowsToProcess)
+    BlockHelperDense(NumericTableType * nt, size_t dim, size_t iStartRow, size_t nRowsToProcess) : _ntDataBD(nt, iStartRow, nRowsToProcess), _dim(dim)
     {}
     const Status & status() const { return _ntDataBD.status(); }
 
@@ -103,7 +103,7 @@ template <typename algorithmFPType, CpuType cpu, typename NumericTableType>
 class BlockHelperCSR
 {
 public:
-    BlockHelperCSR(NumericTableType * nt, size_t dim, size_t iStartRow, size_t nRowsToProcess) : _dim(dim), _ntDataBD(nt, iStartRow, nRowsToProcess)
+    BlockHelperCSR(NumericTableType * nt, size_t dim, size_t iStartRow, size_t nRowsToProcess) : _ntDataBD(nt, iStartRow, nRowsToProcess), _dim(dim)
     {}
     const Status & status() const { return _ntDataBD.status(); }
 
@@ -249,7 +249,7 @@ public:
     typedef BlockHelperCSR<algorithmFPType, cpu, CSRNumericTableIface> BlockHelperType;
 
     DataHelperCSR(NumericTable * ntData)
-        : _nt(ntData), dim(ntData->getNumberOfColumns()), nRows(ntData->getNumberOfRows()), _csr(dynamic_cast<CSRNumericTableIface *>(ntData))
+        : dim(ntData->getNumberOfColumns()), nRows(ntData->getNumberOfRows()), _nt(ntData), _csr(dynamic_cast<CSRNumericTableIface *>(ntData))
     {}
     NumericTable * nt() const { return _nt; }
     CSRNumericTableIface * ntIface() const { return _csr; }
@@ -346,7 +346,7 @@ class TaskPlusPlusBatchBase
 {
 public:
     TaskPlusPlusBatchBase(NumericTable * ntData, NumericTable * ntClusters, size_t numClusters, size_t nTrials, engines::BatchBase & engine)
-        : _data(ntData), _ntClusters(ntClusters), _nClusters(numClusters), _nTrials(nTrials), _engine(engine), _trialBest(0u)
+        : _data(ntData), _ntClusters(ntClusters), _nClusters(numClusters), _nTrials(nTrials), _trialBest(0u), _engine(engine)
 
     {
         _aMinDist.reset(_data.nRows * _nTrials);
@@ -480,10 +480,10 @@ public:
     typedef TaskPlusPlusBatchBase<algorithmFPType, cpu, DataHelper> super;
     TaskParallelPlusBatch(NumericTable * ntData, NumericTable * ntClusters, const Parameter & par, engines::BatchBase & engine)
         : super(ntData, ntClusters, par.nClusters, 1, engine),
-          _nCandidates(0),
-          _aNearestCandidateIdx(this->_data.nRows),
           _L(par.oversamplingFactor * par.nClusters),
-          _R(par.nRounds)
+          _R(par.nRounds),
+          _nCandidates(0),
+          _aNearestCandidateIdx(this->_data.nRows)
     {
         this->_lastAddedCenter.reset(this->_data.dim * _L); //reserve memory for L points
         _lastAddedCenterNorm2.reset(_L);                    //reserve memory for L values

@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2019 Intel Corporation
+# Copyright 2014-2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ RES = $(example:+=.res)
 
 !IF ("$(compiler)"=="clang")
 CC=clang-cl
-COPTS=/clang:-fsycl /DONEAPI_DAAL_USE_MKL_GPU_FUNC /EHs
+COPTS=/clang:-fsycl /EHs
 OUT_OPTS=/Fe$(RES_DIR)
 RT_LIB=/link /ignore:4078 OpenCL.lib $(DAAL_PATH)\daal_sycl.lib
 CLEAN=

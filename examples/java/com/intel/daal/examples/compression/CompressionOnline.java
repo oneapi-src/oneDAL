@@ -1,6 +1,6 @@
 /* file: CompressionOnline.java */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ class CompressionOnline {
             currentBlock = Arrays.copyOfRange(sentDataStream, (int) startPosition,
                     (int) (startPosition + maxDataBlockSize));
             availableDataSize -= maxDataBlockSize;
-        } else if ((availableDataSize < maxDataBlockSize) && (availableDataSize > 0)) {
+        } else if (availableDataSize > 0) {
             currentBlock = Arrays.copyOfRange(sentDataStream, (int) startPosition, sentDataStream.length);
             availableDataSize = 0;
         } else {

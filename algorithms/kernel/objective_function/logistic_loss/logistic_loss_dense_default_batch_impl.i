@@ -1,6 +1,6 @@
 /* file: logistic_loss_dense_default_batch_impl.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -341,7 +341,7 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                 DAAL_CHECK_BLOCK_STATUS(gr);
                 g = gr.get();
             }
-
+            g[0] = 0;
             char trans          = 'T';
             char notrans        = 'N';
             algorithmFPType one = 1.0;
@@ -381,7 +381,8 @@ services::Status LogLossKernel<algorithmFPType, method, cpu>::doCompute(const al
                         ps[i] += py[i];
                     }
                 });
-                for (size_t i = 0; i < nDataBlocks; i++)
+                for(size_t j = 0; j < p; j++) g[j + 1] = gradsPtr[j];
+                for (size_t i = 1; i < nDataBlocks; i++)
                     for (size_t j = 0; j < p; j++) g[j + 1] += gradsPtr[i * p + j];
             }
             else

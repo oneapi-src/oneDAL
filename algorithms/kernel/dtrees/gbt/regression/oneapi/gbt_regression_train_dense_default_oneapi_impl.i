@@ -1,6 +1,6 @@
 /* file: gbt_regression_train_dense_default_oneapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -991,7 +991,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         {
             TableRecord<algorithmFPType> *node = leaves[leafId];
 
-            algorithmFPType res = 0;
+            algorithmFPType resp = 0;
 
             algorithmFPType val = node->hTotal + par.lambda;
             if(val != 0.0)
@@ -999,12 +999,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                 val = -node->gTotal / val;
                 const algorithmFPType inc = val * par.shrinkage;
 
-                res = inc;
+                resp = inc;
 
                 DAAL_CHECK_STATUS_VAR(updateResponse(treeOrder, response, node->iStart, node->n, inc));
             }
 
-            node->response = res;
+            node->response = resp;
             node->isFinalized = 1;
         }
 

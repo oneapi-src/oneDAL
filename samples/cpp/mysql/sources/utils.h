@@ -1,6 +1,6 @@
 /* file: utils.h */
 /*******************************************************************************
-* Copyright 2017-2019 Intel Corporation
+* Copyright 2017-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ inline void printHelp()
 }
 
 template <typename T>
-inline void printArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, std::string message, size_t interval = 10)
+inline void printArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, const std::string& message, size_t interval = 10)
 {
     std::cout << std::setiosflags(std::ios::left);
     std::cout << message << std::endl;

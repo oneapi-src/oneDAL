@@ -1,6 +1,6 @@
 /* file: Service.java */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -147,11 +147,14 @@ public class Service {
         int nRows = Math.min((int) groundTruth.getNumberOfRows(), nMaxRows);
 
         FloatBuffer dataGroundTruth = FloatBuffer.allocate(nCols * nRows);
-        dataGroundTruth = groundTruth.getBlockOfRows(0, nRows, dataGroundTruth);
-
         FloatBuffer dataClassificationResults = FloatBuffer.allocate(nCols * nRows);
-        dataClassificationResults = classificationResults.getBlockOfRows(0, nRows, dataClassificationResults);
-
+        try {
+            dataGroundTruth = groundTruth.getBlockOfRows(0, nRows, dataGroundTruth);
+            dataClassificationResults = classificationResults.getBlockOfRows(0, nRows, dataClassificationResults);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         System.out.println(message);
         System.out.println(header1 + "\t" + header2);
         for (int i = 0; i < nRows; i++) {
@@ -241,8 +244,12 @@ public class Service {
         }
 
         FloatBuffer result = FloatBuffer.allocate((int) (nNtCols * nRows));
-        result = nt.getBlockOfRows(0, nRows, result);
-
+        try {
+            result = nt.getBlockOfRows(0, nRows, result);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         if (nPrintedCols > 0) {
             nCols = Math.min(nNtCols, nPrintedCols);
         }
@@ -360,11 +367,14 @@ public class Service {
         }
 
         FloatBuffer result1 = FloatBuffer.allocate((int) (nCols1 * nRows));
-        result1 = dataTable1.getBlockOfRows(0, nRows, result1);
-
         FloatBuffer result2 = FloatBuffer.allocate((int) (nCols2 * nRows));
-        result2 = dataTable2.getBlockOfRows(0, nRows, result2);
-
+        try {
+            result1 = dataTable1.getBlockOfRows(0, nRows, result1);
+            result2 = dataTable2.getBlockOfRows(0, nRows, result2);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         StringBuilder builder = new StringBuilder();
         builder.append(message);
         builder.append("\n");
@@ -410,14 +420,24 @@ public class Service {
         /* Get item sets and their support values */
         IntBuffer bufLargeItemsets = IntBuffer
                 .allocate(nItemsInLargeItemsets * (int) largeItemsetsTable.getNumberOfColumns());
-        bufLargeItemsets = largeItemsetsTable.getBlockOfRows(0, nItemsInLargeItemsets, bufLargeItemsets);
+        try {
+            bufLargeItemsets = largeItemsetsTable.getBlockOfRows(0, nItemsInLargeItemsets, bufLargeItemsets);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         int[] largeItemsets = new int[bufLargeItemsets.capacity()];
         bufLargeItemsets.get(largeItemsets);
 
         IntBuffer bufLargeItemsetsSupportData = IntBuffer
                 .allocate(largeItemsetCount * (int) largeItemsetsSupportTable.getNumberOfColumns());
+        try {
         bufLargeItemsetsSupportData = largeItemsetsSupportTable.getBlockOfRows(0, largeItemsetCount,
                 bufLargeItemsetsSupportData);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         int[] largeItemsetsSupportData = new int[bufLargeItemsetsSupportData.capacity()];
         bufLargeItemsetsSupportData.get(largeItemsetsSupportData);
 
@@ -442,7 +462,6 @@ public class Service {
         }
 
         System.out.println("\nApriori example program results");
-
         System.out.println("\nLast " + nItemsetToPrint + " large itemsets: ");
         System.out.println("\nItemset\t\t\tSupport");
 
@@ -469,17 +488,32 @@ public class Service {
         /* Get association rules data */
 
         IntBuffer bufLeftItems = IntBuffer.allocate(nLeftItems * (int) leftItemsTable.getNumberOfColumns());
-        bufLeftItems = leftItemsTable.getBlockOfRows(0, nLeftItems, bufLeftItems);
+        try {
+            bufLeftItems = leftItemsTable.getBlockOfRows(0, nLeftItems, bufLeftItems);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         int[] leftItems = new int[bufLeftItems.capacity()];
         bufLeftItems.get(leftItems);
 
         IntBuffer bufRightItems = IntBuffer.allocate(nRightItems * (int) rightItemsTable.getNumberOfColumns());
-        bufRightItems = rightItemsTable.getBlockOfRows(0, nRightItems, bufRightItems);
+        try {
+            bufRightItems = rightItemsTable.getBlockOfRows(0, nRightItems, bufRightItems);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         int[] rightItems = new int[bufRightItems.capacity()];
         bufRightItems.get(rightItems);
 
         FloatBuffer bufConfidence = FloatBuffer.allocate(nRules * (int) confidenceTable.getNumberOfColumns());
-        bufConfidence = confidenceTable.getBlockOfRows(0, nRules, bufConfidence);
+        try {
+            bufConfidence = confidenceTable.getBlockOfRows(0, nRules, bufConfidence);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         float[] confidence = new float[bufConfidence.capacity()];
         bufConfidence.get(confidence);
 
@@ -539,8 +573,13 @@ public class Service {
         float[] ratingsData = ((HomogenNumericTable)ratings).getFloatArray();
         IntBuffer usersOffsetBuf = IntBuffer.allocate(1);
         IntBuffer itemsOffsetBuf = IntBuffer.allocate(1);
-        usersOffsetBuf = usersOffsetTable.getBlockOfRows(0, 1, usersOffsetBuf);
-        itemsOffsetBuf = itemsOffsetTable.getBlockOfRows(0, 1, itemsOffsetBuf);
+        try {
+            usersOffsetBuf = usersOffsetTable.getBlockOfRows(0, 1, usersOffsetBuf);
+            itemsOffsetBuf = itemsOffsetTable.getBlockOfRows(0, 1, itemsOffsetBuf);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
         int[] usersOffsetData = new int[1];
         int[] itemsOffsetData = new int[1];
         usersOffsetBuf.get(usersOffsetData);

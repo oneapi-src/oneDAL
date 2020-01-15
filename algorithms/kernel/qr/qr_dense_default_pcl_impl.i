@@ -1,6 +1,6 @@
 /* file: qr_dense_default_pcl_impl.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -259,7 +259,7 @@ template <typename algorithmFPType, CpuType cpu>
 static void tsqr(algorithmFPType * A, const size_t nrows, const size_t ncols, algorithmFPType * tau, const size_t nthreads, const size_t local_tiles,
                  size_t lwork, algorithmFPType * work, algorithmFPType * V, int * st)
 {
-    QR_CHECK_RETURN(!(*st), *st);
+    if (*st) return;
 
     bool onlyV = (V != NULL) ? true : false;
 
@@ -500,7 +500,7 @@ template <typename algorithmFPType, CpuType cpu>
 static void tsgetq(algorithmFPType * A, const size_t nrows, const size_t ncols, algorithmFPType * tau, const size_t nthreads,
                    const size_t local_tiles, size_t lwork, algorithmFPType * work, int * st)
 {
-    QR_CHECK_RETURN(!(*st), *st);
+    if (*st) return;
 
     DAAL_INT mkl_m;
     DAAL_INT mkl_n;
@@ -769,7 +769,7 @@ template <typename algorithmFPType, CpuType cpu>
 static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols, algorithmFPType * tau, const size_t nthreads,
                      const size_t local_tiles, algorithmFPType * Rin, const size_t Rin_lda, size_t lwork, algorithmFPType * work, int * st)
 {
-    QR_CHECK_RETURN(!(*st), *st);
+    if (*st) return;
 
     char mkl_side;
     char mkl_trans;
@@ -872,7 +872,6 @@ static void tsapplyq(algorithmFPType * A, const size_t nrows, const size_t ncols
         DAAL_INT mkl_lwork_local;
 
         algorithmFPType * tau_local = tau + tid * tiles_per_thread * ncols + ncols;
-        algorithmFPType * R_local   = R + tid * ncols;
         algorithmFPType * R2_local  = R2 + tid * ncols;
         size_t start                = tid * rows_per_thread;
         size_t end                  = (tid == (nthreads - 1)) ? nrows : (start + rows_per_thread);
@@ -1102,7 +1101,7 @@ static int qr_pcl(const algorithmFPType * A_in,                        /* nrows 
         tsqr<algorithmFPType, cpu>(Q_out, nrows, ncols, tau, nthreads, local_tiles, lwork, work, NULL, /* only for SVD usage (V output only) */
                                    &st);
 
-        QR_CHECK_BREAK(!st, st);
+        if (st) break;
 
         for (size_t i = 0; i < ncols; i++)
         {
@@ -1224,7 +1223,7 @@ static int svd_pcl(algorithmFPType * A_in,                                      
                                        nrows, ncols, tstau, nthreads, local_tiles, lwork, work, NULL, /* no separate output array */
                                        &st);
 
-            QR_CHECK_BREAK(!st, st);
+            if (st) break;
 
             for (size_t j = 0; j < ncols; j++)
             {
@@ -1249,7 +1248,7 @@ static int svd_pcl(algorithmFPType * A_in,                                      
                                        nrows, ncols, tstau, nthreads, local_tiles, lwork, work, V, /* separate output array */
                                        &st);
 
-            QR_CHECK_BREAK(!st, st);
+            if (st) break;
 
             for (size_t j = 0; j < ncols; j++)
             {

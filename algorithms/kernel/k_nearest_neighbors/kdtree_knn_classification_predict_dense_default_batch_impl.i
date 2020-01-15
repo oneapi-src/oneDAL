@@ -1,6 +1,6 @@
 /* file: kdtree_knn_classification_predict_dense_default_batch_impl.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -348,7 +348,6 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
 
     DAAL_ALIGNAS(256) algorithmFpType distance[__KDTREE_LEAF_BUCKET_SIZE + 1];
     size_t start, end;
-    algorithmFpType dist, diff, val;
 
     data_management::BlockDescriptor<algorithmFpType> xBD[2];
     size_t curBDIdx, nextBDIdx;
@@ -435,8 +434,8 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
         }
         else
         {
-            val  = query[node->dimension];
-            diff = val - node->cutPoint;
+            algorithmFpType val  = query[node->dimension];
+            const algorithmFpType diff = val - node->cutPoint;
 
             if (cur.minDistance <= radius)
             {

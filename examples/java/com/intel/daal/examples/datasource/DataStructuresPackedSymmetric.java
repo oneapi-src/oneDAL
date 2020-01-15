@@ -1,6 +1,6 @@
 /* file: DataStructuresPackedSymmetric.java */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ class DataStructuresPackedSymmetric {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException, IllegalAccessException {
         System.out.println("Packed symmetric matrix example\n");
         int readFeatureIdx;
 

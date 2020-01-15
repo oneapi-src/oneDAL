@@ -930,34 +930,75 @@ h3 .keyword{
 the Apache Arrow* library in a C++ application.</p>
   <p>Unzip the archive with Intel® DAAL samples to your working directory (<span class="filepath"><var>&lt;sample_dir&gt;</var></span>).
 <h2><a name="System_Requirements">System Requirements</a></h2>
-<p>You can use Intel® DAAL Apache Arrow samples on Linux* operating system.
+<p>You can use Intel® DAAL Apache Arrow* samples on Linux*, Windows* and MacOS* operating systems.
 For a list of Intel® DAAL hardware and software requirements, refer to release notes
 for the version of Intel® DAAL you are using. </p>
     <h3>Apache Arrow* implementations against which Intel® DAAL has been validated:</h3>
     <ul>
-        <li>Apache Arrow* 0.13.0</li>
+        <li>Apache Arrow* 0.15.1</li>
     </ul>
-    <p><strong>Note:</strong> Intel® DAAL is expected to work on other Apache Arrow* version
+    <p><strong>Note:</strong> Intel® DAAL is expected to work on other Apache Arrow* versions
     as well. Let us know if you have any troubles with the distribution you are using.</p>
     <h2><a name="Preparation_before_build">Preparation Before Build and Run</a></h2>
 <h3> Apache Arrow* support</h3>
 <p> You can download and install the Apache Arrow* library from the <a href="https://github.com/apache/arrow" target=_blank">
 https://github.com/apache/arrow </a>web page.
-Make sure to set the environment variables <samp class="codeph">ARROWROOT</samp> and <samp class="codeph">ARROWCONFIG</samp>
+Before running the sample make sure to set the environment variables <samp class="codeph">ARROWROOT</samp> and <samp class="codeph">ARROWCONFIG</samp>
  with the correct path and build type (debug or release, see <a href="https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#building" target=_blank">
-https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#building </a>web page for details.) before running the sample.</p>
+https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#building </a>web page for details.). For Linux* and MacOS* only: set variables <samp class="codeph">BOOST_SYSTEM_LIBRARY_PATH</samp> with the correct path to <samp class="codeph">libboost_system.a</samp> and <samp class="codeph">BOOST_FILESYSTEM_LIBRARY_PATH</samp> with the correct path to <samp class="codeph">libboost_filesystem.a</samp>.</p>
 <h3> Setting Up the Build Environment&nbsp;</h3>
 <p> Before you build the sample, you must set certain environment variables that define the location of related libraries. Intel® DAAL includes the <span class="filepath">vars</span> scripts that you can run to set environment variables:</p>
     <ul id="GUID-2FEE5E18-4507-402C-806D-F3C422B0D085">
+        <li>On Windows*, you can find the <span class="filepath">vars.bat</span> batch file at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\windows\daal\bin\:</span><samp class="codeph"><br />
+            vars.bat intel64
+            </samp>
+        </li>
         <li>On Linux*, you can find the <span class="filepath">vars.sh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\linux\daal\bin:</span><samp class="codeph"><br />
-            source vars.sh {ia32|intel64}
+            source vars.sh intel64
+            </samp>
+        </li>
+        <li>On macOS*, you can find the <span class="filepath">vars.sh</span> shell script at <span class="filepath">&lt;install-dir&gt;\compilers_and_libraries_xxxx.x.xxx\mac\daal\bin:</span><samp class="codeph"><br />
+            source vars.sh&nbsp;
             </samp>
         </li>
     </ul>
-    <p>For more information about setting environment variables
+    <p>Pay attention that <samp class="codeph">32-bit</samp> architectures are not supported by Apache Arrow*, 
+        that's why we provide building this sample on the <samp class="codeph">64-bit</samp> architectures only. 
+        For more information about setting environment variables
         and configuring Intel® DAAL, refer to Getting Started guides for the
         library.</p>
     <h2><a name="Build_and_Run_Instructions">Build and Run Instructions</a></h2>
+<h3>On Windows*</h3>
+    <p>
+        To build Intel® DAAL Apache Arrow* C++ samples, go to the C++ Apache Arrow* samples directory and execute the <samp class="codeph">launcher</samp> command with the <samp class="codeph">build</samp> parameter:
+    </p>
+    <p>
+        <samp class="codeph">cd <var>&lt;sample_dir&gt;</var>\cpp\arrow</samp>
+    </p>
+    <p>
+        <samp class="codeph"> launcher.bat build </samp>
+    </p>
+    <p>
+        The command creates the <samp class="codeph">.\_results\intel64 </samp>
+    directory and builds <samp class="codeph">*.exe</samp> executables, as well as creates 
+    a log file for build results. 
+    </p>
+    <p>
+        To run Intel® DAAL Apache Arrow* C++ samples, go to the C++ Apache Arrow* samples directory and execute the <samp class="codeph">launcher</samp> command with the <samp class="codeph">run</samp> parameter:
+    </p>
+    <p>
+        <samp class="codeph">cd <var>&lt;sample_dir&gt;</var>\cpp\arrow</samp>
+    </p>
+    <p>
+        <samp class="codeph"> launcher.bat run </samp>
+    </p>
+    <p>
+        Select the same architecture parameter as you provided to the <samp class="codeph">launcher</samp> command with 
+    the <samp class="codeph">build</samp> parameter.
+    </p> 
+    <p>
+        For each sample, the results are placed into the <samp class="codeph">.\_results\intel64\<em>&lt;sample name&gt;</em>\.res </samp>file. 
+    </p>
 <h3>On Linux*</h3>
       <p>To build Intel® DAAL Apache Arrow* C++ samples, go to the C++ Apache Arrow* samples directory and execute the
         <span class="keyword">make</span> command:
@@ -967,7 +1008,7 @@ https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#build
           <span class="filepath"><var>&lt;sample_dir&gt;</var></span><span class="filepath">/cpp/arrow</span></samp>
       </p>
 
-      <p><samp class="codeph">make {libia32|soia32|libintel64|sointel64}</samp>
+      <p><samp class="codeph">make {libintel64|sointel64}</samp>
        <p><samp class="codeph">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;compiler={intel|gnu}
         </samp>
       </p>
@@ -975,7 +1016,7 @@ https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#build
       </p>
 
       <p> From the
-        <samp class="codeph">{libia32|soia32|libintel64|sointel64}</samp> parameters,
+        <samp class="codeph">{libintel64|sointel64}</samp> parameters,
       select the one that matches the architecture parameter you provided to the
         <span class="filepath">vars</span><span class="filepath">.sh</span> script and
       that has the prefix that matches the type of executables you want to build:
@@ -1006,6 +1047,52 @@ https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#build
         <span class="keyword">make</span> command builds a static library for the
       Intel® 64 architecture and runs the executable.
       </p>
+<h3>On macOS*</h3>
+      <p>To build Intel® DAAL Apache Arrow* C++ samples, go to the C++ Apache Arrow* samples directory and execute the
+        <span class="keyword">make</span> command:
+      </p>
+
+      <p><samp class="codeph">cd
+          <span class="filepath"><var>&lt;sample_dir&gt;</var></span><span class="filepath">/cpp/arrow</span></samp>
+      </p>
+
+      <p><samp class="codeph">make {libintel64|dylibintel64}</samp>
+       <p><samp class="codeph">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;compiler={intel|gnu}
+        </samp>
+      </p>
+      <p><samp class="codeph">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mode=build</samp>
+      </p>
+
+      <p> From the
+        <samp class="codeph">{libintel64|dylibintel64}</samp> parameters,
+      select the one that has the prefix that matches the type of executables you want to build:
+        <samp class="codeph">lib</samp> for static and
+        <samp class="codeph">dylib</samp> for dynamic executables.
+      </p>
+
+
+      <p>The command creates a directory for the chosen compiler and library extension (<span class="filepath">a</span> or
+        <span class="filepath">dylib</span>). For example:
+        <span class="filepath">_results/intel_intel64_a</span>.
+      </p>
+
+      <p>To run Intel® DAAL Apache Arrow* C++ samples, go to the C++ Apache Arrow* samples directory and execute the
+        <span class="keyword">make</span> command in the run mode. For example, if you run the
+        <span class="filepath">vars</span> script with the
+        <span class="keyword">intel64</span> target:
+      </p>
+
+      <p><samp class="codeph">cd
+          <span class="filepath"><var>&lt;sample_dir&gt;</var></span><span class="filepath">/cpp/arrow</span></samp>
+      </p>
+
+      <p><samp class="codeph">make libintel64 mode=run</samp>
+      </p>
+
+      <p>The
+        <span class="keyword">make</span> command builds a static library for the
+      Intel® 64 architecture and runs the executable.
+      </p>
     </div>
     <h2 class="sectiontitle">Legal Information</h2>
       <p>Intel, and the Intel logo are trademarks of Intel Corporation in the
@@ -1014,7 +1101,7 @@ https://github.com/apache/arrow/blob/master/docs/source/developers/cpp.rst#build
 
       <p>*Other names and brands may be claimed as the property of others.
       </p>
-       <p>© Copyright 2019, Intel Corporation
+       <p>© Copyright 2020, Intel Corporation
       </p>
 
     </div>

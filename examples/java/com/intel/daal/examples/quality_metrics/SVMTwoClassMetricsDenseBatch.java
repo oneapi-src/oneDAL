@@ -1,6 +1,6 @@
 /* file: SVMTwoClassMetricsDenseBatch.java */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -68,16 +68,12 @@ class SVMTwoClassMetricsDenseBatch {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, IllegalAccessException {
 
         trainModel();
-
         testModel();
-
         testModelQuality();
-
         printResults();
-
         context.dispose();
     }
 
@@ -161,7 +157,7 @@ class SVMTwoClassMetricsDenseBatch {
         qualityMetricSetResult = quality_metric_set.compute();
     }
 
-    private static void printResults() {
+    private static void printResults() throws IllegalAccessException {
         /* Print the classification results */
         Service.printClassificationResult(groundTruthLabels, predictedLabels, "Ground truth", "Classification results",
                 "SVM classification results (first 20 observations):", 20);
