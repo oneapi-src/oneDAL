@@ -40,8 +40,8 @@ class DBSCANDenseBatch {
     private static final String dataset       = "../data/batch/dbscan_dense.csv";
 
     /* DBSCAN algorithm parameters */
-    private static final double epsilon = 0.02;
-    private static final long   minObservations = 180;
+    private static final double epsilon = 0.04;
+    private static final long   minObservations = 45;
 
     private static DaalContext context = new DaalContext();
 
