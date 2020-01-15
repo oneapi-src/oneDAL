@@ -34,9 +34,9 @@ __kernel void computeInvSigmas(__global const algorithmFPType* rawVariances,
                                __global algorithmFPType* invSigmas)
 {
     const int tid = get_global_id(0);
-    const int epsilon = 1e-10;
+    const algorithmFPType epsilon = 1e-10;
 
-    if (rawVariances[tid] != (algorithmFPType)epsilon)
+    if (fabs(rawVariances[tid]) > epsilon)
     {
         invSigmas[tid] = (algorithmFPType)1 / (algorithmFPType)sqrt(rawVariances[tid]);
     }
@@ -46,11 +46,10 @@ __kernel void computeInvSigmas(__global const algorithmFPType* rawVariances,
     }
 }
 
-__kernel void normalize(__global algorithmFPType* pCopyBlock,
-                        __global algorithmFPType* pRawMeans,
-                        __global algorithmFPType* pInvSigmas,
-                        const uint numMeans,
-                        const uint numInvSigmas,
+__kernel void normalize(__global algorithmFPType* copyBlock,
+                        __global const algorithmFPType* rawMeans,
+                        __global const algorithmFPType* invSigmas,
+                        uint numMeans, uint numInvSigmas,
                         const uint maxWorkItemsPerGroup,
                         const uint numFeatures)
 {
@@ -58,7 +57,7 @@ __kernel void normalize(__global algorithmFPType* pCopyBlock,
     const int glid = get_global_id(0);
     const int gid = get_group_id(0);
     const int numWorkItemsPerGroup = get_local_size(0);
-    const int grnum = get_num_groups(0);
+    const int numVec = get_num_groups(0);
 
     if (numFeatures > maxWorkItemsPerGroup)
     {
@@ -66,19 +65,19 @@ __kernel void normalize(__global algorithmFPType* pCopyBlock,
 
         for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
-            const int dataId = glid + grnum * numWorkItemsPerGroup * i;
+            const int dataId = glid + numVec * numWorkItemsPerGroup * i;
             if (numMeans != 0)
             {
-                if (dataId < numFeatures *  grnum)
+                if (dataId < numFeatures *  numVec)
                 {
-                    pCopyBlock[dataId] = pCopyBlock[dataId] - pRawMeans[dataId % numFeatures];
+                    copyBlock[dataId] = copyBlock[dataId] - rawMeans[dataId % numFeatures];
                 }
             }
             if (numInvSigmas != 0)
             {
-                if (dataId < numFeatures *  grnum)
+                if (dataId < numFeatures *  numVec)
                 {
-                    pCopyBlock[dataId] = pCopyBlock[dataId] * pInvSigmas[dataId % numFeatures];
+                    copyBlock[dataId] = copyBlock[dataId] * invSigmas[dataId % numFeatures];
                 }
             }
         }
@@ -87,23 +86,41 @@ __kernel void normalize(__global algorithmFPType* pCopyBlock,
     {
         if (numMeans != 0)
         {
-            pCopyBlock[gid * numWorkItemsPerGroup + tid] = pCopyBlock[gid * numWorkItemsPerGroup + tid] - pRawMeans[tid];
+            copyBlock[gid * numWorkItemsPerGroup + tid] = copyBlock[gid * numWorkItemsPerGroup + tid] - rawMeans[tid];
         }
         if (numInvSigmas != 0)
         {
-            pCopyBlock[gid * numWorkItemsPerGroup + tid] = pCopyBlock[gid * numWorkItemsPerGroup + tid] * pInvSigmas[tid];
+            copyBlock[gid * numWorkItemsPerGroup + tid] = copyBlock[gid * numWorkItemsPerGroup + tid] * invSigmas[tid];
         }
     }
 }
 
-__kernel void whitening(__global algorithmFPType* pTransformedBlock, 
-                        __global const algorithmFPType* pInvEigenValues) 
+__kernel void whitening(__global algorithmFPType* transformedBlock,
+                        __global const algorithmFPType* invEigenValues,
+                        const uint maxWorkItemsPerGroup,
+                        const uint numComponents)
 {
     const int tid = get_local_id(0);
     const int glid = get_global_id(0);
-    
-    pTransformedBlock[glid] = pTransformedBlock[glid] * pInvEigenValues[tid];
-    
+    const int numWorkItemsPerGroup = get_local_size(0);
+    const int numVec = get_num_groups(0);
+    if (numComponents > maxWorkItemsPerGroup)
+    {
+        uint numOfDataItemsProcessedByWI = numComponents / maxWorkItemsPerGroup;
+        for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
+        {
+            const int dataId = glid + numVec * numWorkItemsPerGroup * i;
+            if (dataId < numComponents *  numVec)
+            {
+                transformedBlock[dataId] = transformedBlock[dataId] * invEigenValues[dataId % numComponents];
+            }
+        }
+    }
+    else
+    {
+        transformedBlock[glid] = transformedBlock[glid] * invEigenValues[tid];
+    }
+
 }
 
 );

@@ -25,7 +25,7 @@
 #define __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 
 #include "cl_kernels/pca_transform_cl_kernels.cl"
-
+#include <iostream>
 using namespace daal::services;
 using namespace daal::oneapi::internal;
 using namespace daal::data_management;
@@ -47,25 +47,34 @@ using namespace daal::oneapi::internal;
 
 template<typename algorithmFPType, transform::Method method>
 void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock
-        (uint32_t numRows, uint32_t numFeatures, uint32_t numComponents,
+        (const uint32_t numRows, const uint32_t numFeatures, const uint32_t numComponents,
          UniversalBuffer & dataBlock, UniversalBuffer & eigenvectors,
          const services::Buffer<algorithmFPType> & resultBlock)
 {
     BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, numComponents, numRows, numFeatures,
-        1.0, eigenvectors, numFeatures, 0, dataBlock, numFeatures, 0, 0.0, resultBlock, numComponents, 0);
-
+                                    1.0, eigenvectors, numFeatures, 0, dataBlock, numFeatures, 0, 0.0, resultBlock, numComponents, 0);
 }
 
 
 template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigmas(ExecutionContextIface& context,
-                                                                                  const KernelPtr & computeInvSigmasKernel,
-                                                                                  NumericTable* variances,
+services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigmas(NumericTable* variances,
                                                                                   const services::Buffer<algorithmFPType> & invSigmas,
-                                                                                  const size_t numFeatures)
+                                                                                  const uint32_t numFeatures)
 {
     services::Status status;
 
+    auto fptype_name = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto build_options = fptype_name;
+    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+
+    const services::String options = getKeyFPType<algorithmFPType>();
+    services::String cachekey("__daal_algorithms_pca_transform");
+    cachekey.add(fptype_name);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), pca_transform_cl_kernels, build_options.c_str());
+
+    const char * const computeInvSigmasKernel = "computeInvSigmas";
+    KernelPtr kernel = factory.getKernel(computeInvSigmasKernel);
     BlockDescriptor<algorithmFPType> varBlock;
     variances->getBlockOfRows(0, numFeatures, readOnly, varBlock);
 
@@ -73,26 +82,36 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
     args.set(0, varBlock.getBuffer(), AccessModeIds::read);
     args.set(1, invSigmas, AccessModeIds::write);
     KernelRange range(numFeatures);
-    context.run(range, computeInvSigmasKernel, args, &status);
+    ctx.run(range, kernel, args, &status);
     variances->releaseBlockOfRows(varBlock);
     return status;
 }
 
 template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(ExecutionContextIface& context,
-                                                                           const KernelPtr & normalizeKernel,
-                                                                           UniversalBuffer & copyBlock,
+services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(UniversalBuffer & copyBlock,
                                                                            UniversalBuffer & rawMeans,
                                                                            UniversalBuffer & invSigmas,
-                                                                           size_t numMeans,
-                                                                           size_t numInvSigmas,
-                                                                           const unsigned int maxWorkItemsPerGroup,
-                                                                           const size_t numFeatures,
-                                                                           const unsigned int workItemsPerGroup,
-                                                                           uint32_t numVectors)
+                                                                           uint32_t numMeans,
+                                                                           uint32_t numInvSigmas,
+                                                                           const uint32_t numFeatures,
+                                                                           const uint32_t numVectors)
 {
     services::Status status;
 
+    auto fptype_name = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto build_options = fptype_name;
+    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+
+    const services::String options = getKeyFPType<algorithmFPType>();
+    services::String cachekey("__daal_algorithms_pca_transform");
+    cachekey.add(fptype_name);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), pca_transform_cl_kernels, build_options.c_str());
+
+    const char * const normalizeKernel = "normalize";
+    KernelPtr kernel = factory.getKernel(normalizeKernel);
+
+    const unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
     KernelArguments args(7);
     args.set(0, copyBlock, AccessModeIds::readwrite);
     args.set(1, rawMeans, AccessModeIds::read);
@@ -111,29 +130,41 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     range.local(local_range, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    context.run(range, normalizeKernel, args, &status);
-
-    DAAL_CHECK_STATUS_VAR(status);
+    ctx.run(range, kernel, args, &status);
 
     return status;
 }
 
 template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(ExecutionContextIface& context,
-                                                                           const KernelPtr & whiteningKernel,
-                                                                           UniversalBuffer transformedBlock,
-                                                                           UniversalBuffer invEigenvalues,
-                                                                           uint32_t numComponents,
-                                                                           uint32_t numVectors)
+services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(const services::Buffer<algorithmFPType> & transformedBlock,
+                                                                           UniversalBuffer & invEigenvalues,
+                                                                           const uint32_t numComponents,
+                                                                           const uint32_t numVectors)
 {
     services::Status status;
 
-    KernelArguments args(2);
+    auto fptype_name = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto build_options = fptype_name;
+    ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
+    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+
+    const services::String options = getKeyFPType<algorithmFPType>();
+    services::String cachekey("__daal_algorithms_pca_transform");
+    cachekey.add(fptype_name);
+    factory.build(ExecutionTargetIds::device, cachekey.c_str(), pca_transform_cl_kernels, build_options.c_str());
+
+    const char * const whiteningKernel = "whitening";
+    KernelPtr kernel = factory.getKernel(whiteningKernel);
+
+    const unsigned int workItemsPerGroup = (numComponents > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numComponents;
+    KernelArguments args(4);
     args.set(0, transformedBlock, AccessModeIds::readwrite);
     args.set(1, invEigenvalues, AccessModeIds::read);
+    args.set(2, maxWorkItemsPerGroup);
+    args.set(3, numComponents);
 
-    KernelRange local_range(numComponents);
-    KernelRange global_range(numVectors * numComponents);
+    KernelRange local_range(workItemsPerGroup);
+    KernelRange global_range(workItemsPerGroup * numVectors);
 
     KernelNDRange range(1);
     range.global(global_range, &status);
@@ -141,7 +172,57 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(Execu
     range.local(local_range, &status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    context.run(range, whiteningKernel, args, &status);
+    ctx.run(range, kernel, args, &status);
+
+    return status;
+}
+
+
+template<typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::allocateBuffer(ExecutionContextIface& context,
+                                                                                UniversalBuffer& returnBuffer,
+                                                                                uint32_t bufferSize)
+{
+    services::Status status;
+
+    const algorithmFPType zero = 0.0;
+    returnBuffer = context.allocate(TypeIds::id<algorithmFPType>(), bufferSize, &status);
+    DAAL_CHECK_STATUS_VAR(status);
+    context.fill(returnBuffer, zero, &status);
+
+    return status;
+}
+
+template<typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBuffer(ExecutionContextIface& context,
+                                                                            UniversalBuffer& returnBuffer,
+                                                                            NumericTable* data,
+                                                                            uint32_t nRows, uint32_t nCols)
+
+{
+    services::Status status;
+
+    BlockDescriptor<algorithmFPType> dataBlock;
+    DAAL_CHECK_STATUS(status, data->getBlockOfRows(0, nRows, ReadWriteMode::readOnly, dataBlock));
+    context.copy(returnBuffer, 0, dataBlock.getBuffer(), 0, nRows * nCols, &status);
+    data->releaseBlockOfRows(dataBlock);
+
+    return status;
+}
+
+template<typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBufferByRef(ExecutionContextIface& context,
+                                                                                 UniversalBuffer& returnBuffer,
+                                                                                 NumericTable& data,
+                                                                                 uint32_t nRows, uint32_t nCols)
+
+{
+    services::Status status;
+
+    BlockDescriptor<algorithmFPType> dataBlock;
+    DAAL_CHECK_STATUS(status, data.getBlockOfRows(0, nRows, ReadWriteMode::readOnly, dataBlock));
+    context.copy(returnBuffer, 0, dataBlock.getBuffer(), 0, nRows * nCols, &status);
+    data.releaseBlockOfRows(dataBlock);
 
     return status;
 }
@@ -152,59 +233,41 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
                                                                          NumericTable *pEigenvalues, NumericTable &transformedData)
 {
     services::Status status;
-
     ExecutionContextIface &ctx = services::Environment::getInstance()->getDefaultExecutionContext();
-    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
 
-    auto fptype_name = oneapi::internal::getKeyFPType<algorithmFPType>();
-    auto build_options = fptype_name;
-    build_options.add("-cl-std=CL1.2");
-
-    services::String cachekey("__daal_algorithms_pca_transform");
-    cachekey.add(fptype_name);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), pca_transform_cl_kernels, build_options.c_str());
-
-    uint32_t numVectors  = data.getNumberOfRows();
-    uint32_t numFeatures = data.getNumberOfColumns();
-    uint32_t numComponents = transformedData.getNumberOfColumns();
+    const uint32_t numVectors  = data.getNumberOfRows();
+    const uint32_t numFeatures = data.getNumberOfColumns();
+    const uint32_t numComponents = transformedData.getNumberOfColumns();
 
     const algorithmFPType zero = 0.0;
 
     /* Calculating invSigmas and invEigenValues*/
-    auto computeInvSigmasKernel = factory.getKernel("computeInvSigmas");
-    auto invSigmas = ctx.allocate(TypeIds::id<algorithmFPType>(), numFeatures, &status);
-    DAAL_CHECK_STATUS_VAR(status);
-    ctx.fill(invSigmas, zero, &status);
-    DAAL_CHECK_STATUS_VAR(status);
-    size_t numInvSigmas = 0;
+    UniversalBuffer invSigmas;
+    DAAL_CHECK_STATUS(status, allocateBuffer(ctx, invSigmas, numFeatures));
+
+    uint32_t numInvSigmas = 0;
     if (pVariances != nullptr)
     {
         numInvSigmas = numFeatures;
-        DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, computeInvSigmasKernel, pVariances, invSigmas.template get<algorithmFPType>(), numFeatures));
+        DAAL_CHECK_STATUS(status, computeInvSigmas(pVariances, invSigmas.template get<algorithmFPType>(), numFeatures));
     }
 
-    auto invEigenvalues  = ctx.allocate(TypeIds::id<algorithmFPType>(), numComponents, &status);
-    DAAL_CHECK_STATUS_VAR(status);
-    ctx.fill(invEigenvalues, zero, &status);
-    size_t numEigValues = 0;
+    UniversalBuffer invEigenvalues;
+    DAAL_CHECK_STATUS(status, allocateBuffer(ctx, invEigenvalues, numFeatures));
+
     if (pEigenvalues != nullptr)
     {
-        DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, computeInvSigmasKernel, pEigenvalues, invEigenvalues.template get<algorithmFPType>(),
-                          numComponents));
+        DAAL_CHECK_STATUS(status, computeInvSigmas(pEigenvalues, invEigenvalues.template get<algorithmFPType>(), numComponents));
     }
-    size_t numMeans = 0;
 
-    auto rawMeans = ctx.allocate(TypeIds::id<algorithmFPType>(), numFeatures, &status);
-    ctx.fill(rawMeans, zero, &status);
+    UniversalBuffer rawMeans;
+    DAAL_CHECK_STATUS(status, allocateBuffer(ctx, rawMeans, numFeatures));
+    uint32_t numMeans = 0;
+
     if (pMeans != nullptr)
     {
         numMeans = numFeatures;
-        BlockDescriptor<algorithmFPType> meansBlock;
-        DAAL_CHECK_STATUS(status, pMeans->getBlockOfRows(0, numMeans, ReadWriteMode::readOnly, meansBlock));
-
-        ctx.copy(rawMeans, 0, meansBlock.getBuffer(), 0, numMeans, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-        pMeans->releaseBlockOfRows(meansBlock);
+        DAAL_CHECK_STATUS(status, copyBuffer(ctx, rawMeans, pMeans, numMeans, 1));
     }
 
     bool isWhitening = pEigenvalues != nullptr;
@@ -212,48 +275,31 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
 
     SafeStatus safeStat;
 
-    BlockDescriptor<algorithmFPType> dataBlock;
-    DAAL_CHECK_STATUS(status, data.getBlockOfRows(0, numVectors, ReadWriteMode::readOnly, dataBlock));
-
     auto copyBlock = ctx.allocate(TypeIds::id<algorithmFPType>(), numVectors * numFeatures, &status);
-    ctx.copy(copyBlock, 0, dataBlock.getBuffer(), 0, numVectors * numFeatures, &status);
-    DAAL_CHECK_STATUS_VAR(status);
-    data.releaseBlockOfRows(dataBlock);
-
-    const unsigned int maxWorkItemsPerGroup = 256;
-    const unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
+    DAAL_CHECK_STATUS(status, copyBufferByRef(ctx, copyBlock, data, numVectors, numFeatures));
 
     if (isNormalize)
     {
-        auto normalizeKernel = factory.getKernel("normalize");
-
-        DAAL_CHECK_STATUS(status, normalize(ctx, normalizeKernel, copyBlock, rawMeans, invSigmas, numMeans, numInvSigmas,
-                          maxWorkItemsPerGroup, numFeatures, workItemsPerGroup, numVectors));
+        DAAL_CHECK_STATUS(status, normalize(copyBlock, rawMeans, invSigmas, numMeans, numInvSigmas,
+                          numFeatures, numVectors));
     }
 
     /* Retrieve data associated with coefficients */
-    BlockDescriptor<algorithmFPType> eigenvectorsBlock;
-    DAAL_CHECK_STATUS(status, eigenvectors.getBlockOfRows(0, numComponents, ReadWriteMode::readOnly, eigenvectorsBlock));
-    auto basis = ctx.allocate(TypeIds::id<algorithmFPType>(), numComponents * numFeatures, &status);
-    DAAL_CHECK_STATUS_VAR(status);
-    ctx.copy(basis, 0, eigenvectorsBlock.getBuffer(), 0, numComponents * numFeatures, &status);
-    DAAL_CHECK_STATUS_VAR(status);
 
-    eigenvectors.releaseBlockOfRows(eigenvectorsBlock);
+    auto basis = ctx.allocate(TypeIds::id<algorithmFPType>(), numComponents * numFeatures, &status);
+    DAAL_CHECK_STATUS(status, copyBufferByRef(ctx, basis, eigenvectors, numComponents, numFeatures));
 
     BlockDescriptor<algorithmFPType> transformedBlock;
     DAAL_CHECK_STATUS(status, transformedData.getBlockOfRows(0, transformedData.getNumberOfRows(), ReadWriteMode::readWrite, transformedBlock));
 
+
     computeTransformedBlock(numVectors, numFeatures, numComponents, copyBlock,
-        basis, transformedBlock.getBuffer());
+       basis, transformedBlock.getBuffer());
 
     /* compute whitening to unit variance of transformed data if required */
     if(isWhitening)
     {
-
-        auto whiteningKernel = factory.getKernel("whitening");
-
-        DAAL_CHECK_STATUS(status, whitening(ctx, whiteningKernel, transformedBlock.getBuffer(), invEigenvalues, numComponents, numVectors));
+        DAAL_CHECK_STATUS(status, whitening(transformedBlock.getBuffer(), invEigenvalues, numComponents, numVectors));
     }
 
     transformedData.releaseBlockOfRows(transformedBlock);

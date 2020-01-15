@@ -1,4 +1,4 @@
-/* file: pca_transform_dense_default_batch_oneapi.h */
+/* file: pca_dense_correlation_batch_kernel_ucapi.h */
 /*******************************************************************************
 * Copyright 2014-2019 Intel Corporation
 *
@@ -61,25 +61,35 @@ public:
              const services::Buffer<algorithmFPType> & resultBlock);
 
 private:
-    services::Status computeInvSigmas(daal::oneapi::internal::ExecutionContextIface& context,
-                                      const daal::oneapi::internal::KernelPtr& computeInvSigmasKernel,
-                                      data_management::NumericTable* variances,
-                                      const services::Buffer<algorithmFPType>& invSigmas,
-                                      const size_t numFeatures);
+    services::Status allocateBuffer(daal::oneapi::internal::ExecutionContextIface & context,
+                                    daal::oneapi::internal::UniversalBuffer & returnBuffer,
+                                    uint32_t bufferSize);
 
-    services::Status normalize(daal::oneapi::internal::ExecutionContextIface& context,
-                               const daal::oneapi::internal::KernelPtr & normalizeKernel,
-                               daal::oneapi::internal::UniversalBuffer & copyBlock,
+    services::Status copyBuffer(daal::oneapi::internal::ExecutionContextIface & context,
+                                daal::oneapi::internal::UniversalBuffer & returnBuffer,
+                                data_management::NumericTable *data,
+                                const uint32_t nRows, const uint32_t nCols);
+
+    services::Status copyBufferByRef(daal::oneapi::internal::ExecutionContextIface & context,
+                                     daal::oneapi::internal::UniversalBuffer & returnBuffer,
+                                     data_management::NumericTable & data,
+                                     const uint32_t nRows, const uint32_t nCols);
+
+    services::Status computeInvSigmas(data_management::NumericTable* variances,
+                                      const services::Buffer<algorithmFPType> & invSigmas,
+                                      const uint32_t numFeatures);
+
+    services::Status normalize(daal::oneapi::internal::UniversalBuffer & copyBlock,
                                daal::oneapi::internal::UniversalBuffer & rawMeans,
                                daal::oneapi::internal::UniversalBuffer & invSigmas,
-                               size_t numMeans, size_t numInvSigmas, const unsigned int maxWorkItemsPerGroup,
-                               const size_t numFeatures, const unsigned int workItemsPerGroup, uint32_t numVectors);
+                               uint32_t numMeans, uint32_t numInvSigmas,
+                               const uint32_t numFeatures, const uint32_t numVectors);
 
-    services::Status whitening(daal::oneapi::internal::ExecutionContextIface& context,
-                               const daal::oneapi::internal::KernelPtr & whiteningKernel,
-                               daal::oneapi::internal::UniversalBuffer transformedBlock,
-                               daal::oneapi::internal::UniversalBuffer invEigenvalues,
-                               uint32_t numComponents, uint32_t numVectors);
+    services::Status whitening(const services::Buffer<algorithmFPType> & transformedBlock,
+                               daal::oneapi::internal::UniversalBuffer & invEigenvalues,
+                               const uint32_t numComponents, const uint32_t numVectors);
+private:
+    const unsigned int maxWorkItemsPerGroup = 256;
 };
 
 } // namespace internal
