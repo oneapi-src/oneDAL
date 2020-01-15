@@ -248,13 +248,13 @@ private:
             auto y_buffer_t = y_buffer.template get<T>();
 
             services::Status statusAxpy;
-#ifdef ONEAPI_DAAL_USE_MKL_GPU_FUNC
-            MKLAxpy<T> functor(queue);
-            statusAxpy = functor(n, (T)a, x_buffer_t, incx, y_buffer_t, incy);
-#else
+#ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferenceAxpy<T> functor;
             statusAxpy =
                 functor(n, (T)a, x_buffer_t, incx, y_buffer_t, incy);
+#else
+            MKLAxpy<T> functor(queue);
+            statusAxpy = functor(n, (T)a, x_buffer_t, incx, y_buffer_t, incy);
 #endif
 
             services::internal::tryAssignStatus(status, statusAxpy);

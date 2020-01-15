@@ -130,8 +130,8 @@ __kernel void blas_axpy(const algorithmFPType a,
                         const int incx,
                         __global algorithmFPType *y,
                         const int incy) {
-    const int i_x = (get_local_id(0)) * incx;
-    const int i_y = (get_local_id(0)) * incy;
+    const int i_x = (get_global_id(0)) * incx;
+    const int i_y = (get_global_id(0)) * incy;
     y[i_y] += x[i_x] * a;
 }
 
