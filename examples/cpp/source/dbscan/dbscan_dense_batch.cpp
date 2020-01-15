@@ -36,8 +36,8 @@ using namespace daal::algorithms;
 string datasetFileName = "../data/batch/dbscan_dense.csv";
 
 /* DBSCAN algorithm parameters */
-const float epsilon          = 0.02f;
-const size_t minObservations = 180;
+const float epsilon          = 0.04f;
+const size_t minObservations = 45;
 
 int main(int argc, char * argv[])
 {
