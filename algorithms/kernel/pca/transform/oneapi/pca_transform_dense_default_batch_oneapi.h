@@ -65,11 +65,6 @@ private:
                                     daal::oneapi::internal::UniversalBuffer & returnBuffer,
                                     uint32_t bufferSize);
 
-    services::Status copyBuffer(daal::oneapi::internal::ExecutionContextIface & context,
-                                daal::oneapi::internal::UniversalBuffer & returnBuffer,
-                                data_management::NumericTable *data,
-                                const uint32_t nRows, const uint32_t nCols);
-
     services::Status copyBufferByRef(daal::oneapi::internal::ExecutionContextIface & context,
                                      daal::oneapi::internal::UniversalBuffer & returnBuffer,
                                      data_management::NumericTable & data,

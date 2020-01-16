@@ -52,7 +52,7 @@ void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock
          const services::Buffer<algorithmFPType> & resultBlock)
 {
     BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, numComponents, numRows, numFeatures,
-                                    1.0, eigenvectors, numFeatures, 0, dataBlock, numFeatures, 0, 0.0, resultBlock, numComponents, 0);
+        1.0, eigenvectors, numFeatures, 0, dataBlock, numFeatures, 0, 0.0, resultBlock, numComponents, 0);
 }
 
 
@@ -194,23 +194,6 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::allocateBuffer(
 }
 
 template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBuffer(ExecutionContextIface& context,
-                                                                            UniversalBuffer& returnBuffer,
-                                                                            NumericTable* data,
-                                                                            uint32_t nRows, uint32_t nCols)
-
-{
-    services::Status status;
-
-    BlockDescriptor<algorithmFPType> dataBlock;
-    DAAL_CHECK_STATUS(status, data->getBlockOfRows(0, nRows, ReadWriteMode::readOnly, dataBlock));
-    context.copy(returnBuffer, 0, dataBlock.getBuffer(), 0, nRows * nCols, &status);
-    data->releaseBlockOfRows(dataBlock);
-
-    return status;
-}
-
-template<typename algorithmFPType, transform::Method method>
 services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBufferByRef(ExecutionContextIface& context,
                                                                                  UniversalBuffer& returnBuffer,
                                                                                  NumericTable& data,
@@ -223,7 +206,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBufferByRef
     DAAL_CHECK_STATUS(status, data.getBlockOfRows(0, nRows, ReadWriteMode::readOnly, dataBlock));
     context.copy(returnBuffer, 0, dataBlock.getBuffer(), 0, nRows * nCols, &status);
     data.releaseBlockOfRows(dataBlock);
-
+    
     return status;
 }
 
@@ -263,11 +246,11 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     UniversalBuffer rawMeans;
     DAAL_CHECK_STATUS(status, allocateBuffer(ctx, rawMeans, numFeatures));
     uint32_t numMeans = 0;
-
+    
     if (pMeans != nullptr)
     {
         numMeans = numFeatures;
-        DAAL_CHECK_STATUS(status, copyBuffer(ctx, rawMeans, pMeans, numMeans, 1));
+        DAAL_CHECK_STATUS(status, copyBufferByRef(ctx, rawMeans, *pMeans, numMeans, 1));
     }
 
     bool isWhitening = pEigenvalues != nullptr;
@@ -292,10 +275,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     BlockDescriptor<algorithmFPType> transformedBlock;
     DAAL_CHECK_STATUS(status, transformedData.getBlockOfRows(0, transformedData.getNumberOfRows(), ReadWriteMode::readWrite, transformedBlock));
 
-
+ 
     computeTransformedBlock(numVectors, numFeatures, numComponents, copyBlock,
        basis, transformedBlock.getBuffer());
-
+ 
     /* compute whitening to unit variance of transformed data if required */
     if(isWhitening)
     {
