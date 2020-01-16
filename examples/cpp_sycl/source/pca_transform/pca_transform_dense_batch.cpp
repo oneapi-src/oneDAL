@@ -73,16 +73,6 @@ int main(int argc, char * argv[])
         printNumericTable(pcaResult->get(pca::eigenvalues), "Eigenvalues:");
         printNumericTable(pcaResult->get(pca::eigenvectors), "Eigenvectors:");
 
-        KeyValueDataCollectionPtr resultCollection = pcaResult->get(pca::dataForTransform);
-        SyclNumericTablePtr eigenvaluesT               = SyclNumericTable::cast((*resultCollection)[pca::eigenvalue]);
-        if (eigenvaluesT.get() != NULL) printNumericTable(eigenvaluesT, "Eigenvalues kv:");
-
-        SyclNumericTablePtr meansT = SyclNumericTable::cast((*resultCollection)[pca::mean]);
-        if (meansT.get() != NULL) printNumericTable(meansT, "Means kv:");
-
-        SyclNumericTablePtr variancesT = SyclNumericTable::cast((*resultCollection)[pca::variance]);
-        if (variancesT.get() != NULL) printNumericTable(variancesT, "Variances kv:");
-
         /* Apply transform with whitening because means and eigenvalues are provided*/
         pca::transform::Batch<float> pcaTransform(nComponents);
         pcaTransform.input.set(pca::transform::data, data);
