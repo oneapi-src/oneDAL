@@ -70,17 +70,26 @@ private:
                                      data_management::NumericTable & data,
                                      const uint32_t nRows, const uint32_t nCols);
 
-    services::Status computeInvSigmas(data_management::NumericTable* variances,
+    services::Status buildKernel(daal::oneapi::internal::ExecutionContextIface & context,
+                                 daal::oneapi::internal::ClKernelFactoryIface & factory);
+
+    services::Status checkVariances(data_management::NumericTable & pVariances,
+                                    uint32_t numRows);
+
+    services::Status computeInvSigmas(daal::oneapi::internal::ExecutionContextIface & context,
+                                      data_management::NumericTable* variances,
                                       const services::Buffer<algorithmFPType> & invSigmas,
                                       const uint32_t numFeatures);
 
-    services::Status normalize(daal::oneapi::internal::UniversalBuffer & copyBlock,
+    services::Status normalize(daal::oneapi::internal::ExecutionContextIface & context,
+                               daal::oneapi::internal::UniversalBuffer & copyBlock,
                                daal::oneapi::internal::UniversalBuffer & rawMeans,
                                daal::oneapi::internal::UniversalBuffer & invSigmas,
                                uint32_t numMeans, uint32_t numInvSigmas,
                                const uint32_t numFeatures, const uint32_t numVectors);
 
-    services::Status whitening(const services::Buffer<algorithmFPType> & transformedBlock,
+    services::Status whitening(daal::oneapi::internal::ExecutionContextIface & context,
+                               const services::Buffer<algorithmFPType> & transformedBlock,
                                daal::oneapi::internal::UniversalBuffer & invEigenvalues,
                                const uint32_t numComponents, const uint32_t numVectors);
 private:
