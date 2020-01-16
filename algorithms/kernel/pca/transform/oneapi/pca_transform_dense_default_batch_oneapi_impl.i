@@ -251,7 +251,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     {
         numInvSigmas = numFeatures;
 
-        //DAAL_CHECK_STATUS(status, checkVariances(pVariances, numFeatures));
+        DAAL_CHECK_STATUS(status, checkVariances(pVariances, numFeatures));
         DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, pVariances, invSigmas.template get<algorithmFPType>(), numFeatures));
     }
 

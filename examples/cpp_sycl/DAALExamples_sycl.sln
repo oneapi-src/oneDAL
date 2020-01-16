@@ -33,8 +33,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bf_knn_dense_batch", "vcpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gbt_reg_dense_batch", "vcproj\gbt_reg_dense_batch\gbt_reg_dense_batch.vcxproj", "{6B1239AD-5E43-4E9B-8FD8-B59497129619}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gbt_reg_dense_batch", "vcproj\gbt_reg_dense_batch\gbt_reg_dense_batch.vcxproj", "{6B1239AD-5E43-4E9B-8FD8-B59497129619}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pca_transform_dense_batch", "vcproj\pca_transform_dense_batch\pca_transform_dense_batch.vcxproj", "{40537CD7-86C1-48A3-B837-C8EE93242055}"
 EndProject
 Global

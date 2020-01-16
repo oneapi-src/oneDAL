@@ -63,13 +63,9 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
     args.set(9, (uint32_t)offsetB);
     args.set(10, beta);
     args.set(11, c_buffer, AccessModeIds::write);
-    args.set(14, (uint32_t)offsetC);
-
     args.set(12, one);
     args.set(13, (uint32_t)ldc);
-
-    size_t m_range = m;
-    size_t n_range = n;
+    args.set(14, (uint32_t)offsetC);
 
     if (transa == Transpose::NoTrans && transb == Transpose::NoTrans)
     {
@@ -85,9 +81,6 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
         args.set(4, one);
         args.set(7, one);
         args.set(8, (uint32_t)ldb);
-        m_range = n;
-        n_range = m;
-
     }
     else if (transa == Transpose::NoTrans && transb == Transpose::Trans)
     {
@@ -102,11 +95,9 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
         args.set(4, (uint32_t)lda);
         args.set(7, one);
         args.set(8, (uint32_t)ldb);
-        m_range = n;
-        n_range = m;
     }
 
-    KernelRange range(m_range, n_range);
+    KernelRange range(m, n);
 
     ctx.run(range, kernelGemm, args, &status);
 
