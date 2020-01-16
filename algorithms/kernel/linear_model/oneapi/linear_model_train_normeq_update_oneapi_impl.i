@@ -83,10 +83,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     {
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-        UniversalBuffer sumXBufTmp = context.allocate(idType, nCols, &status);
-        DAAL_CHECK_STATUS_VAR(status);
-        sumXBuf = sumXBufTmp.get<algorithmFPType>();
-        context.fill(sumXBuf, 0.0, &status);
+        sumXBuf = xtxBuff.getSubBuffer(nBetasIntercept*nCols, nBetasIntercept, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         UniversalBuffer sumYBufTmp = context.allocate(idType, nResponses, &status);
@@ -170,25 +167,22 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     if (interceptFlag)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(computeUpdate.copyResults);
-        /*Copy reduce results of xTable into XTX*/
-        context.copy(xtxBuff, nCols * nBetasIntercept, sumXBuf, 0, nCols, &status);
-        DAAL_CHECK_STATUS_VAR(status);
 
         algorithmFPType nrowsVal = static_cast<algorithmFPType>(nRows);
         const services::Buffer<algorithmFPType> nrowsBuf(&nrowsVal, 1);
-        context.copy(xtxBuff, nCols * nBetasIntercept + nBetasIntercept - 1, nrowsBuf, 0, 1, &status);
-        DAAL_CHECK_STATUS_VAR(status);
+        DAAL_CHECK_STATUS(status, copyReduce(sumXBuf, nCols, 1, nrowsBuf, 0, 1, 1));
 
         /*Copy reduce results of yTable into YTX*/
-        DAAL_CHECK_STATUS(status, copyReduceResultsY(sumYBuf, nResponses, xtyBuff, nBetasIntercept));
+        DAAL_CHECK_STATUS(status, copyReduce(xtyBuff, nCols, nBetasIntercept, sumYBuf, 0, 1, nResponses));
     }
 
     return status;
 }
 
 template <typename algorithmFPType>
-services::Status UpdateKernelOneAPI<algorithmFPType>::copyReduceResultsY(const services::Buffer<algorithmFPType> & src, const size_t srcSize,
-                                                                         services::Buffer<algorithmFPType> & dst, const size_t nColsDst)
+services::Status UpdateKernelOneAPI<algorithmFPType>::copyReduce(services::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
+                                                                        const services::Buffer<algorithmFPType> & src, size_t srcOffset,
+                                                                        size_t srcStride, size_t count)
 {
     services::Status status;
 
@@ -200,15 +194,18 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::copyReduceResultsY(const s
     cachekey.add(options);
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCopy, options.c_str());
 
-    const char * const kernelName = "copyReduceResults";
+    const char * const kernelName = "copyReduce";
     KernelPtr kernel              = factory.getKernel(kernelName);
 
-    KernelArguments args(3);
-    args.set(0, src, AccessModeIds::read);
-    args.set(1, nColsDst);
-    args.set(2, dst, AccessModeIds::write);
+    KernelArguments args(6);
+    args.set(0, dst, AccessModeIds::write);
+    args.set(1, dstOffset);
+    args.set(2, dstStride);
+    args.set(3, src, AccessModeIds::read);
+    args.set(4, srcOffset);
+    args.set(5, srcStride);
 
-    KernelRange range(srcSize);
+    KernelRange range(count);
 
     ctx.run(range, kernel, args, &status);
 

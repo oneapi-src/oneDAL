@@ -30,11 +30,12 @@
 
 DECLARE_SOURCE(clKernelCopy,
 
-__kernel void copyReduceResults(const __global algorithmFPType *src, uint nCols, __global algorithmFPType *dst)
+__kernel void copyReduce(__global algorithmFPType *dst, uint dstOffset, uint dstStride, 
+                         const __global algorithmFPType *src, uint srcOffset, uint srcStride)
 {
-    uint rowIdx = get_global_id(0);
+    uint valIdx = get_global_id(0);
 
-    dst[nCols*rowIdx + nCols - 1] = src[rowIdx];
+    dst[dstStride*valIdx + dstOffset] += src[srcStride*valIdx + srcOffset];
 }
 
 );

@@ -41,7 +41,6 @@ namespace training
 {
 namespace internal
 {
-// using namespace daal::algorithms::linear_model::normal_equations::training::internal;
 
 template <typename algorithmFPType, training::Method method>
 class BatchKernelOneAPI
@@ -66,6 +65,22 @@ class BatchKernelOneAPI<algorithmFPType, training::normEqDense> : public daal::a
 public:
     services::Status compute(NumericTable & x, NumericTable & y, NumericTable & xtx, NumericTable & xty, NumericTable & beta,
                              bool interceptFlag) const;
+};
+
+template <typename algorithmFPType, training::Method method>
+class OnlineKernelOneAPI
+{};
+
+template <typename algorithmFPType>
+class OnlineKernelOneAPI<algorithmFPType, training::normEqDense> : public daal::algorithms::Kernel
+{
+    typedef linear_model::normal_equations::training::internal::UpdateKernelOneAPI<algorithmFPType> UpdateKernelType;
+    typedef linear_model::normal_equations::training::internal::FinalizeKernelOneAPI<algorithmFPType> FinalizeKernelType;
+
+public:
+    services::Status compute(NumericTable & x, NumericTable & y, NumericTable & xtx, NumericTable & xty, bool interceptFlag) const;
+    services::Status finalizeCompute(NumericTable & xtx, NumericTable & xty, NumericTable & xtxFinal, NumericTable & xtyFinal, NumericTable & beta,
+                           bool interceptFlag) const;
 };
 
 } // namespace internal

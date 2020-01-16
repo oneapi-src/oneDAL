@@ -1,6 +1,6 @@
-/* file: linear_regression_train_dense_normeq_online_fpt_dispatcher.cpp */
+/* file: linear_regression_train_dense_normeq_online_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,17 +17,28 @@
 
 /*
 //++
-//  Implementation of linear regression container.
+//  Implementation of linear regression training functions for the method
+//  of normal equations for GPU in online compute mode.
 //--
 */
 
-#include "linear_regression_train_container.h"
+#include "oneapi/linear_regression_train_kernel_oneapi.h"
+#include "oneapi/linear_regression_train_dense_normeq_oneapi_impl.i"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(linear_regression::training::OnlineContainer, online, DAAL_FPTYPE,
-                                           linear_regression::training::normEqDense)
+namespace linear_regression
+{
+namespace training
+{
+namespace internal
+{
+template class OnlineKernelOneAPI<DAAL_FPTYPE, normEqDense>;
+
+} // namespace internal
+} // namespace training
+} // namespace linear_regression
 } // namespace algorithms
 } // namespace daal
