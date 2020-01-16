@@ -20,6 +20,7 @@
 //  Implementation of logloss algorithm
 //--
 */
+#include "service_data_utils.h"
 #include "service_math.h"
 #include "service_utils.h"
 #include "service_ittnotify.h"
