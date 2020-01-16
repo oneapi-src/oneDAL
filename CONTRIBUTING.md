@@ -1,10 +1,10 @@
-## How to Contribute
+# How to Contribute
 We welcome community contributions to Intel(R) oneAPI Data Analytics Library. If you have an idea how to improve the product, you can:
 
 * Let us know about your proposal via [Issues on oneDAL GitHub\*](https://github.com/intel/daal/issues).
 * Contribute your changes directly to the repository through [pull request](#pull-requests). 
 
-### Pull Requests
+## Pull Requests
 
 To contribute your changes directly to the repository, do the following:
 - Make sure you can build the product and run all the examples with your patch.
@@ -14,7 +14,7 @@ To contribute your changes directly to the repository, do the following:
 
 Public and private CIs are enabled for the repository. Your PR should pass all of our checks. We will review your contribution and, if any additional fixes or modifications are necessary, we may give some feedback to guide you. When accepted, your pull request will be merged into our GitHub* repository.
 
-### Code Style
+## Code Style
 
 Our repository contains [clang-format configurations](https://github.com/intel/daal/blob/master/.clang-format) that you should use on your code. 
 To do this, run:
