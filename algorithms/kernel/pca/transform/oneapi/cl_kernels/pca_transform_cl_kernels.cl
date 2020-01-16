@@ -36,7 +36,8 @@ __kernel void computeInvSigmas(__global const algorithmFPType* rawVariances,
     const int tid = get_global_id(0);
     const algorithmFPType epsilon = 1e-10;
 
-    if (fabs(rawVariances[tid]) > epsilon)
+    /*Case when rawVariances[tid] < 0 is handled inside compute method*/
+    if (rawVariances[tid] > epsilon)
     {
         invSigmas[tid] = (algorithmFPType)1 / (algorithmFPType)sqrt(rawVariances[tid]);
     }
@@ -66,31 +67,33 @@ __kernel void normalize(__global algorithmFPType* copyBlock,
         for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
             const int dataId = glid + numVec * numWorkItemsPerGroup * i;
+            const int meansId = dataId % numFeatures;
             if (numMeans != 0)
             {
                 if (dataId < numFeatures *  numVec)
                 {
-                    copyBlock[dataId] = copyBlock[dataId] - rawMeans[dataId % numFeatures];
+                    copyBlock[dataId] = copyBlock[dataId] - rawMeans[meansId];
                 }
             }
             if (numInvSigmas != 0)
             {
                 if (dataId < numFeatures *  numVec)
                 {
-                    copyBlock[dataId] = copyBlock[dataId] * invSigmas[dataId % numFeatures];
+                    copyBlock[dataId] = copyBlock[dataId] * invSigmas[meansId];
                 }
             }
         }
     }
     else
     {
+        const int dataId = gid * numWorkItemsPerGroup + tid;
         if (numMeans != 0)
         {
-            copyBlock[gid * numWorkItemsPerGroup + tid] = copyBlock[gid * numWorkItemsPerGroup + tid] - rawMeans[tid];
+            copyBlock[dataId] = copyBlock[dataId] - rawMeans[tid];
         }
         if (numInvSigmas != 0)
         {
-            copyBlock[gid * numWorkItemsPerGroup + tid] = copyBlock[gid * numWorkItemsPerGroup + tid] * invSigmas[tid];
+            copyBlock[dataId] = copyBlock[dataId] * invSigmas[tid];
         }
     }
 }
@@ -110,9 +113,10 @@ __kernel void whitening(__global algorithmFPType* transformedBlock,
         for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
             const int dataId = glid + numVec * numWorkItemsPerGroup * i;
+            const int eigValId = dataId % numComponents;
             if (dataId < numComponents *  numVec)
             {
-                transformedBlock[dataId] = transformedBlock[dataId] * invEigenValues[dataId % numComponents];
+                transformedBlock[dataId] = transformedBlock[dataId] * invEigenValues[eigValId];
             }
         }
     }
