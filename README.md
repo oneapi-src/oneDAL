@@ -17,7 +17,7 @@
 
 # Intel(R) oneAPI Data Analytics Library
 
-[Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](http://intel.github.io/daal/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Get Help](https://software.intel.com/en-us/forums/intel-data-analytics-acceleration-library)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](#how-to-contribute)&nbsp;&nbsp;&nbsp;
+[Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](http://intel.github.io/daal/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Get Help](https://software.intel.com/en-us/forums/intel-data-analytics-acceleration-library)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
 
 [![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/intel.daal?branchName=master)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=3&branchName=master) ![License](https://img.shields.io/github/license/intel/daal.svg)
 
@@ -43,7 +43,6 @@ This repository contains branches corresponding to both oneAPI and classical ver
 - [Preview Features](#preview-features)
 - [Installation](#installation)
 - [Examples](#examples)
-- [How to Contribute](#how-to-contribute)
 - [Documentation](#documentation)
 - [Python API](#python-api)
 
@@ -83,38 +82,6 @@ Data Examples for different computation modes:
 - [Batch](https://github.com/intel/daal/tree/master/examples/data/batch)
 - [Distributed](https://github.com/intel/daal/tree/master/examples/data/distributed)
 - [Online](https://github.com/intel/daal/tree/master/examples/data/online)
-
-## How to Contribute
-We welcome community contributions to Intel(R) oneAPI Data Analytics Library. If you have an idea how to improve the product, you can:
-
-* Let us know about your proposal via [Issues on oneDAL GitHub\*](https://github.com/intel/daal/issues).
-* Contribute your changes directly to the repository through [pull request](#pull-requests). 
-
-### Pull Requests
-
-To contribute your changes directly to the repository, do the following:
-- Make sure you can build the product and run all the examples with your patch.
-- Make sure your code is in line with our [coding style](#code-style).
-- For a larger feature, provide a relevant example.
-- [Submit](https://github.com/intel/daal/pulls) a pull request into the `master` branch.
-
-Public and private CIs are enabled for the repository. Your PR should pass all of our checks. We will review your contribution and, if any additional fixes or modifications are necessary, we may give some feedback to guide you. When accepted, your pull request will be merged into our GitHub* repository.
-
-### Code Style
-
-Our repository contains [clang-format configurations](https://github.com/intel/daal/blob/master/.clang-format) that you should use on your code. 
-To do this, run:
-
-```
-clang-format style=file <your file>
-```
-
-Refer to [ClangFormat documentation](https://clang.llvm.org/docs/ClangFormat.html) for more information.
-
----
-**Note:** oneDAL is licensed under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). By contributing to the project, you agree to the license and copyright terms therein and release your contribution under these terms.
-
----
 
 ## Documentation
 
