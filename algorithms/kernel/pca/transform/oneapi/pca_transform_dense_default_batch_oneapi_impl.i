@@ -188,7 +188,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBufferByRef
     DAAL_CHECK_STATUS(status, data.getBlockOfRows(0, nRows, ReadWriteMode::readOnly, dataBlock));
     ctx.copy(returnBuffer, 0, dataBlock.getBuffer(), 0, nRows * nCols, &status);
     data.releaseBlockOfRows(dataBlock);
-    
+
     return status;
 }
 
@@ -251,7 +251,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     {
         numInvSigmas = numFeatures;
 
-        DAAL_CHECK_STATUS(status, checkVariances(pVariances, numFeatures));
+        DAAL_CHECK_STATUS(status, checkVariances(*pVariances, numFeatures));
         DAAL_CHECK_STATUS(status, computeInvSigmas(ctx, pVariances, invSigmas.template get<algorithmFPType>(), numFeatures));
     }
 
@@ -266,7 +266,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     UniversalBuffer rawMeans;
     DAAL_CHECK_STATUS(status, allocateBuffer(ctx, rawMeans, numFeatures));
     uint32_t numMeans = 0;
-    
+
     if (pMeans != nullptr)
     {
         numMeans = numFeatures;
@@ -293,10 +293,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     BlockDescriptor<algorithmFPType> transformedBlock;
     DAAL_CHECK_STATUS(status, transformedData.getBlockOfRows(0, transformedData.getNumberOfRows(), ReadWriteMode::readWrite, transformedBlock));
 
- 
+
     computeTransformedBlock(numVectors, numFeatures, numComponents, copyBlock,
        basis, transformedBlock.getBuffer());
- 
+
     /* compute whitening to unit variance of transformed data if required */
     if(isWhitening)
     {
