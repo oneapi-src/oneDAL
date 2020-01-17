@@ -1,6 +1,6 @@
 /* file: conversion.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,9 +66,12 @@ inline ConversionDataType getConversionDataType<float>()
     return DAAL_SINGLE;
 }
 
-typedef void (*vectorConvertFuncType)(size_t n, const void * src, void * dst);
+typedef bool(*vectorCopy2vFuncType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests);
+typedef void(*vectorConvertFuncType)(size_t n, const void * src, void * dst);
+typedef void(*vectorStrideConvertFuncType)(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride);
 
-typedef void (*vectorStrideConvertFuncType)(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride);
+DAAL_EXPORT vectorCopy2vFuncType getVectorSingle();
+DAAL_EXPORT vectorCopy2vFuncType getVectorDouble();
 
 DAAL_EXPORT vectorConvertFuncType getVectorUpCast(int, int);
 DAAL_EXPORT vectorConvertFuncType getVectorDownCast(int, int);
@@ -127,6 +130,22 @@ private:
     FUNC(unsigned short)                          \
     FUNC(long)                                    \
     FUNC(unsigned long)
+
+#define DAAL_REGISTER_WITH_COMPATIBLE_AVX512_CPU(FUNC) \
+    FUNC(avx512)                                       \
+    FUNC(avx512_mic)
+
+#define DAAL_REGISTER_WITH_COMPATIBLE_DEFAULT_CPU(FUNC) \
+    FUNC(float, avx2)                                   \
+    FUNC(float, avx)                                    \
+    FUNC(float, sse42)                                  \
+    FUNC(float, ssse3)                                  \
+    FUNC(float, sse2)                                   \
+    FUNC(double, avx2)                                  \
+    FUNC(double, avx)                                   \
+    FUNC(double, sse42)                                 \
+    FUNC(double, ssse3)                                 \
+    FUNC(double, sse2)
 
 template <typename T>
 DAAL_EXPORT void vectorAssignValueToArray(T * const ptr, const size_t n, const T value);

@@ -1,6 +1,6 @@
 /* file: soa_numeric_table.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,11 +26,15 @@
 
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/internal/conversion.h"
+#include "services/daal_defines.h"
+#include <immintrin.h>
+#include "data_dictionary.h"
 
 namespace daal
 {
 namespace data_management
 {
+
 namespace interface1
 {
 /**
@@ -67,7 +71,7 @@ public:
      */
     static services::SharedPtr<SOANumericTable> create(size_t nColumns = 0, size_t nRows = 0,
                                                        DictionaryIface::FeaturesEqual featuresEqual = DictionaryIface::notEqual,
-                                                       services::Status * stat                      = NULL);
+                                                       services::Status *stat = NULL);
 
     /**
      *  Constructor for an empty Numeric Table with a predefined NumericTableDictionary
@@ -76,17 +80,20 @@ public:
      *  \param[in]  memoryAllocationFlag  Flag that controls internal memory allocation for data in the numeric table
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate)
-        : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
+    DAAL_DEPRECATED SOANumericTable( NumericTableDictionary *ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate ):
+        NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())),
+        _arraysInitialized(0), _partialMemStatus(notAllocated)
     {
-        _layout = soa;
-        this->_status |= setNumberOfRowsImpl(nRows);
-        if (!resizePointersArray(getNumberOfColumns()))
+        _layout     = soa;
+        _arrOffsets = NULL;
+        _index      = 0;
+        this->_status |= setNumberOfRowsImpl( nRows );
+        if( !resizePointersArray( getNumberOfColumns() ) )
         {
             this->_status.add(services::ErrorMemoryAllocationFailed);
             return;
         }
-        if (memoryAllocationFlag == doAllocate)
+        if( memoryAllocationFlag == doAllocate )
         {
             this->_status |= allocateDataMemoryImpl();
         }
@@ -99,7 +106,7 @@ public:
      *  \param[in]  memoryAllocationFlag  Flag that controls internal memory allocation for data in the numeric table
      *  \DAAL_DEPRECATED_USE{ SOANumericTable::create }
      */
-    SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate);
+    SOANumericTable( NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate );
 
     /**
      *  Constructs an empty Numeric Table with a predefined NumericTableDictionary
@@ -110,9 +117,18 @@ public:
      *  \return     Numeric table with a predefined NumericTableDictionary
      */
     static services::SharedPtr<SOANumericTable> create(NumericTableDictionaryPtr ddict, size_t nRows,
-                                                       AllocationFlag memoryAllocationFlag = notAllocate, services::Status * stat = NULL);
+                                                       AllocationFlag memoryAllocationFlag = notAllocate,
+                                                       services::Status *stat = NULL);
 
-    virtual ~SOANumericTable() { freeDataMemoryImpl(); }
+    virtual ~SOANumericTable()
+    {
+        freeDataMemoryImpl();
+        if (_arrOffsets)
+        {
+            daal::services::daal_free(_arrOffsets);
+            _arrOffsets = NULL;
+        }
+    }
 
     /**
      *  Sets a pointer to an array of values for a given feature
@@ -120,24 +136,24 @@ public:
      *  \param[in]  ptr Pointer to the array of the T type that stores feature values
      *  \param[in]  idx Feature index
      */
-    template <typename T>
-    services::Status setArray(const services::SharedPtr<T> & ptr, size_t idx)
+    template<typename T>
+    services::Status setArray(const services::SharedPtr<T> &ptr, size_t idx)
     {
-        if (_partialMemStatus != notAllocated && _partialMemStatus != userAllocated)
+        if( _partialMemStatus != notAllocated && _partialMemStatus != userAllocated )
         {
             return services::Status(services::ErrorIncorrectNumberOfFeatures);
         }
 
-        if (idx < getNumberOfColumns() && idx < _arrays.size())
+        if( idx < getNumberOfColumns() && idx < _arrays.size() )
         {
             _ddict->setFeature<T>(idx);
 
-            if (!_arrays[idx] && ptr)
+            if( !_arrays[idx] && ptr )
             {
                 _arraysInitialized++;
             }
 
-            if (_arrays[idx] && !ptr)
+            if( _arrays[idx] && !ptr )
             {
                 _arraysInitialized--;
             }
@@ -151,10 +167,18 @@ public:
 
         _partialMemStatus = userAllocated;
 
-        if (_arraysInitialized == getNumberOfColumns())
+        if(_arraysInitialized == getNumberOfColumns())
         {
             _memStatus = userAllocated;
         }
+
+        // TODO:
+        if (isHomogeneous())
+        {
+            NumericTableFeature &f0 = (*_ddict)[0];
+            searchMinPointer(getNumberOfColumns(), f0.typeSize);
+        }
+
         return services::Status();
     }
 
@@ -164,8 +188,8 @@ public:
     *  \param[in]  ptr Pointer to the array of the T type that stores feature values
     *  \param[in]  idx Feature index
     */
-    template <typename T>
-    services::Status setArray(T * ptr, size_t idx)
+    template<typename T>
+    services::Status setArray(T *ptr, size_t idx)
     {
         return setArray(services::SharedPtr<T>(ptr, services::EmptyDeleter()), idx);
     }
@@ -177,7 +201,7 @@ public:
      */
     services::SharedPtr<byte> getArraySharedPtr(size_t idx)
     {
-        if (idx < _ddict->getNumberOfFeatures())
+        if( idx < _ddict->getNumberOfFeatures() )
         {
             return _arrays[idx];
         }
@@ -193,53 +217,73 @@ public:
      *  \param[in]  idx Feature index
      *  \return Pointer to the array of values
      */
-    void * getArray(size_t idx) { return getArraySharedPtr(idx).get(); }
+    void *getArray(size_t idx)
+    {
+        return getArraySharedPtr(idx).get();
+    }    
 
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double>& block) DAAL_C11_OVERRIDE
     {
         return getTBlock<double>(vector_idx, vector_num, rwflag, block);
     }
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float>& block) DAAL_C11_OVERRIDE
     {
         return getTBlock<float>(vector_idx, vector_num, rwflag, block);
     }
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int>& block) DAAL_C11_OVERRIDE
     {
         return getTBlock<int>(vector_idx, vector_num, rwflag, block);
     }
+    services::Status releaseBlockOfRows(BlockDescriptor<double>& block) DAAL_C11_OVERRIDE
+    {
+        return releaseTBlock<double>(block);
+    }
+    services::Status releaseBlockOfRows(BlockDescriptor<float>& block) DAAL_C11_OVERRIDE
+    {
+        return releaseTBlock<float>(block);
+    }
+    services::Status releaseBlockOfRows(BlockDescriptor<int>& block) DAAL_C11_OVERRIDE
+    {
+        return releaseTBlock<int>(block);
+    }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTBlock<double>(block); }
-    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTBlock<float>(block); }
-    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTBlock<int>(block); }
-
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
-                                            BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
+                                  ReadWriteMode rwflag, BlockDescriptor<double>& block) DAAL_C11_OVERRIDE
     {
         return getTFeature<double>(feature_idx, vector_idx, value_num, rwflag, block);
     }
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
-                                            BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
+                                  ReadWriteMode rwflag, BlockDescriptor<float>& block) DAAL_C11_OVERRIDE
     {
         return getTFeature<float>(feature_idx, vector_idx, value_num, rwflag, block);
     }
-    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
-                                            BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num,
+                                  ReadWriteMode rwflag, BlockDescriptor<int>& block) DAAL_C11_OVERRIDE
     {
         return getTFeature<int>(feature_idx, vector_idx, value_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTFeature<double>(block); }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<double>& block) DAAL_C11_OVERRIDE
+    {
+        return releaseTFeature<double>(block);
+    }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<float>& block) DAAL_C11_OVERRIDE
+    {
+        return releaseTFeature<float>(block);
+    }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<int>& block) DAAL_C11_OVERRIDE
+    {
+        return releaseTFeature<int>(block);
+    }
 
-    DAAL_DEPRECATED_VIRTUAL services::Status setDictionary(NumericTableDictionary * ddict) DAAL_C11_OVERRIDE
+    DAAL_DEPRECATED_VIRTUAL services::Status setDictionary( NumericTableDictionary *ddict ) DAAL_C11_OVERRIDE
     {
         services::Status s;
-        DAAL_CHECK_STATUS(s, NumericTable::setDictionary(ddict));
+        DAAL_CHECK_STATUS(s, NumericTable::setDictionary( ddict ));
 
         size_t ncol = ddict->getNumberOfFeatures();
 
-        if (!resizePointersArray(ncol))
+        if( !resizePointersArray( ncol ) )
         {
             return services::Status(services::ErrorMemoryAllocationFailed);
         }
@@ -247,26 +291,29 @@ public:
     }
 
 protected:
-    SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st);
 
-    SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status & st);
+    SOANumericTable( size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status &st );
+
+    SOANumericTable( NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status &st );
 
     services::Collection<services::SharedPtr<byte> > _arrays;
     size_t _arraysInitialized;
     MemoryStatus _partialMemStatus;
+    int* _arrOffsets;
+    size_t _index;
 
     bool resizePointersArray(size_t nColumns)
     {
-        if (_arrays.size() >= nColumns)
+        if( _arrays.size() >= nColumns )
         {
             size_t counter = 0;
-            for (size_t i = 0; i < nColumns; i++)
+            for(size_t i = 0; i < nColumns; i++)
             {
                 counter += (_arrays[i] != 0);
             }
             _arraysInitialized = counter;
 
-            if (_arraysInitialized == nColumns)
+            if( _arraysInitialized == nColumns )
             {
                 _memStatus = _partialMemStatus;
             }
@@ -277,14 +324,17 @@ protected:
 
             return true;
         }
+        _arrays.resize(nColumns);
+        _memStatus = notAllocated;
 
-        bool is_resized = _arrays.resize(nColumns);
-        if (is_resized)
+        if (_arrOffsets)
         {
-            _memStatus = notAllocated;
+            daal::services::daal_free(_arrOffsets);
+            _arrOffsets = NULL;
+            _index = 0;
         }
 
-        return is_resized;
+        return true;
     }
 
     services::Status setNumberOfColumnsImpl(size_t ncol) DAAL_C11_OVERRIDE
@@ -292,7 +342,7 @@ protected:
         services::Status s;
         DAAL_CHECK_STATUS(s, NumericTable::setNumberOfColumnsImpl(ncol));
 
-        if (!resizePointersArray(ncol))
+        if( !resizePointersArray( ncol ) )
         {
             return services::Status(services::ErrorMemoryAllocationFailed);
         }
@@ -303,12 +353,12 @@ protected:
     {
         freeDataMemoryImpl();
 
-        size_t ncol  = _ddict->getNumberOfFeatures();
+        size_t ncol = _ddict->getNumberOfFeatures();
         size_t nrows = getNumberOfRows();
 
-        if (ncol * nrows == 0)
+        if( ncol * nrows == 0 )
         {
-            if (nrows == 0)
+            if( nrows == 0 )
             {
                 return services::Status(services::ErrorIncorrectNumberOfObservations);
             }
@@ -318,27 +368,27 @@ protected:
             }
         }
 
-        for (size_t i = 0; i < ncol; i++)
+        for(size_t i = 0; i < ncol; i++)
         {
             NumericTableFeature f = (*_ddict)[i];
-            if (f.typeSize != 0)
+            if( f.typeSize != 0 )
             {
-                _arrays[i] = services::SharedPtr<byte>((byte *)daal::services::daal_malloc(f.typeSize * nrows), services::ServiceDeleter());
+                _arrays[i] = services::SharedPtr<byte>((byte *)daal::services::daal_malloc( f.typeSize * nrows ), services::ServiceDeleter());
                 _arraysInitialized++;
             }
-            if (!_arrays[i])
+            if( !_arrays[i] )
             {
                 freeDataMemoryImpl();
                 return services::Status(services::ErrorMemoryAllocationFailed);
             }
         }
 
-        if (_arraysInitialized > 0)
+        if(_arraysInitialized > 0)
         {
             _partialMemStatus = internallyAllocated;
         }
 
-        if (_arraysInitialized == ncol)
+        if(_arraysInitialized == ncol)
         {
             _memStatus = internallyAllocated;
         }
@@ -352,90 +402,156 @@ protected:
         _arraysInitialized = 0;
 
         _partialMemStatus = notAllocated;
-        _memStatus        = notAllocated;
+        _memStatus = notAllocated;
     }
 
-    template <typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive * arch)
+    template<typename Archive, bool onDeserialize>
+    services::Status serialImpl( Archive *arch )
     {
-        NumericTable::serialImpl<Archive, onDeserialize>(arch);
+        NumericTable::serialImpl<Archive, onDeserialize>( arch );
 
-        if (onDeserialize)
+        if( onDeserialize )
         {
             allocateDataMemoryImpl();
         }
 
-        size_t ncol  = _ddict->getNumberOfFeatures();
+        size_t ncol = _ddict->getNumberOfFeatures();
         size_t nrows = getNumberOfRows();
 
-        for (size_t i = 0; i < ncol; i++)
+        for(size_t i = 0; i < ncol; i++)
         {
             NumericTableFeature f = (*_ddict)[i];
-            void * ptr            = getArraySharedPtr(i).get();
+            void *ptr = getArraySharedPtr(i).get();
 
-            arch->set((char *)ptr, nrows * f.typeSize);
+            arch->set( (char *)ptr, nrows * f.typeSize );
         }
 
         return services::Status();
     }
 
 private:
+
+    services::Status searchMinPointer(size_t ncols, size_t conversionTypeSize)
+    {
+        if (_arrOffsets)
+            daal::services::daal_free(_arrOffsets);
+
+        _arrOffsets = (int*)daal::services::daal_malloc(ncols * sizeof(int));
+        DAAL_CHECK_MALLOC(_arrOffsets)
+        _index = 0;
+        void *ptrMin = _arrays[0].get();
+
+        /* search index for min pointer */
+        for (int i = 1; i < ncols; i++)
+        {
+            if (_arrays[i].get() < ptrMin)
+                _index = i;
+        }
+
+        uint64_t pmin = (uint64_t)_arrays[_index].get();
+
+        /* compute offsets */
+        for (int i = 0; i < ncols; i++)
+        {
+            uint64_t pv = (uint64_t)(_arrays[i].get());
+            _arrOffsets[i] = (int)(pv - pmin);
+        }
+
+        return services::Status();
+    }
+
+    bool isHomogeneous()
+    {
+        /* the method checks for the fact that all columns have the same data type. */
+        size_t ncols = getNumberOfColumns();
+
+        NumericTableFeature &f0 = (*_ddict)[0];
+
+        for (size_t i = 1; i < ncols; i++)
+        {
+            NumericTableFeature &f1 = (*_ddict)[i];
+
+            if (f1.indexType != f0.indexType)
+                return false;
+        }
+
+        return f0.indexType == internal::ConversionDataType::DAAL_SINGLE ||
+                f0.indexType == internal::ConversionDataType::DAAL_DOUBLE;
+    }
+  
     template <typename T>
-    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
+    services::Status getTBlock( size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T>& block )
     {
         size_t ncols = getNumberOfColumns();
-        size_t nobs  = getNumberOfRows();
-        block.setDetails(0, idx, rwFlag);
+        size_t nobs = getNumberOfRows();
+        block.setDetails( 0, idx, rwFlag );
 
         if (idx >= nobs)
         {
-            block.resizeBuffer(ncols, 0);
+            block.resizeBuffer( ncols, 0 );
             return services::Status();
         }
 
-        nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
+        nrows = ( idx + nrows < nobs ) ? nrows : nobs - idx;
 
-        if (!block.resizeBuffer(ncols, nrows))
+        if( !block.resizeBuffer( ncols, nrows ) )
         {
             return services::Status(services::ErrorMemoryAllocationFailed);
         }
 
-        if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
+        if( !(block.getRWFlag() & (int)readOnly) ) return services::Status();
 
-        T lbuf[32];
+        T *buffer = block.getBlockPtr();    
 
-        size_t di = 32;
-
-        T * buffer = block.getBlockPtr();
-
-        for (size_t i = 0; i < nrows; i += di)
+        bool computed = false;
+        if (isHomogeneous())
         {
-            if (i + di > nrows)
+            NumericTableFeature &f = (*_ddict)[0];
+
+            if (f.indexType == internal::ConversionDataType::DAAL_SINGLE)
             {
-                di = nrows - i;
+                void *ptrMin = (float*)(_arrays[_index].get()) + idx;
+                computed = data_management::internal::getVectorSingle()(nrows, ncols, buffer, ptrMin, _arrOffsets);
             }
-
-            for (size_t j = 0; j < ncols; j++)
+            else if (f.indexType == internal::ConversionDataType::DAAL_DOUBLE)
             {
-                NumericTableFeature & f = (*_ddict)[j];
+                void *ptrMin = (double*)(_arrays[_index].get()) + idx;
+                computed = data_management::internal::getVectorDouble()(nrows, ncols, buffer, ptrMin, _arrOffsets);
+            }
+        }
+        if (!computed)
+        {
+            size_t di = 32;
+            T lbuf[32];
 
-                char * ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
+            for( size_t i = 0 ; i < nrows ; i += di )
+            {
+                if( i + di > nrows ) { di = nrows - i; }
 
-                internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(di, ptr, lbuf);
-
-                for (size_t ii = 0; ii < di; ii++)
+                for( size_t j = 0 ; j < ncols ; j++ )
                 {
-                    buffer[(i + ii) * ncols + j] = lbuf[ii];
+                    NumericTableFeature &f = (*_ddict)[j];
+
+                    char *ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
+
+                    internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())
+                    ( di, ptr, lbuf );
+
+                    for( size_t k = 0 ; k < di; k++ )
+                    {
+                        buffer[ (i + k)*ncols + j ] = lbuf[k];
+                    }
                 }
             }
         }
+
         return services::Status();
     }
 
     template <typename T>
-    services::Status releaseTBlock(BlockDescriptor<T> & block)
+    services::Status releaseTBlock( BlockDescriptor<T>& block )
     {
-        if (block.getRWFlag() & (int)writeOnly)
+        if(block.getRWFlag() & (int)writeOnly)
         {
             size_t ncols = getNumberOfColumns();
             size_t nrows = block.getNumberOfRows();
@@ -444,27 +560,25 @@ private:
 
             size_t di = 32;
 
-            T * blockPtr = block.getBlockPtr();
+            T *blockPtr = block.getBlockPtr();
 
-            for (size_t i = 0; i < nrows; i += di)
+            for( size_t i = 0 ; i < nrows ; i += di )
             {
-                if (i + di > nrows)
+                if( i + di > nrows ) { di = nrows - i; }
+
+                for( size_t j = 0 ; j < ncols ; j++ )
                 {
-                    di = nrows - i;
-                }
+                    NumericTableFeature &f = (*_ddict)[j];
 
-                for (size_t j = 0; j < ncols; j++)
-                {
-                    NumericTableFeature & f = (*_ddict)[j];
+                    char *ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
 
-                    char * ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
-
-                    for (size_t ii = 0; ii < di; ii++)
+                    for( size_t ii = 0 ; ii < di; ii++ )
                     {
-                        lbuf[ii] = blockPtr[(i + ii) * ncols + j];
-                    }
+                        lbuf[ii] = blockPtr[ (i + ii) * ncols + j ];
+                    }                    
 
-                    internal::getVectorDownCast(f.indexType, internal::getConversionDataType<T>())(di, lbuf, ptr);
+                    internal::getVectorDownCast(f.indexType, internal::getConversionDataType<T>())
+                    ( di, lbuf, ptr );
                 }
             }
         }
@@ -473,69 +587,58 @@ private:
     }
 
     template <typename T>
-    services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
+    services::Status getTFeature( size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T>& block )
     {
-        size_t nobs  = getNumberOfRows();
-        block.setDetails(feat_idx, idx, rwFlag);
+        size_t ncols = getNumberOfColumns();
+        size_t nobs = getNumberOfRows();
+        block.setDetails( feat_idx, idx, rwFlag );
 
         if (idx >= nobs)
         {
-            block.resizeBuffer(1, 0);
+            block.resizeBuffer( 1, 0 );
             return services::Status();
         }
 
-        nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
+        nrows = ( idx + nrows < nobs ) ? nrows : nobs - idx;
 
-        NumericTableFeature & f = (*_ddict)[feat_idx];
-        const int indexType = f.indexType;
+        NumericTableFeature &f = (*_ddict)[feat_idx];
 
-        if (features::internal::getIndexNumType<T>() == f.indexType)
+        if( features::internal::getIndexNumType<T>() == f.indexType )
         {
-            block.setPtr(&(_arrays[feat_idx]), _arrays[feat_idx].get() + idx * f.typeSize, 1, nrows);
+            block.setPtr(&(_arrays[feat_idx]), _arrays[feat_idx].get() + idx * f.typeSize , 1, nrows );
         }
         else
         {
-            if (data_management::features::DAAL_OTHER_T == indexType)
-            {
-                block.reset();
-                return services::Status(services::ErrorDataTypeNotSupported);
-            }
+            byte *location = _arrays[feat_idx].get() + idx * f.typeSize;
 
-            byte * location = _arrays[feat_idx].get() + idx * f.typeSize;
-
-            if (!block.resizeBuffer(1, nrows))
+            if( !block.resizeBuffer( 1, nrows ) )
             {
                 return services::Status(services::ErrorMemoryAllocationFailed);
             }
 
-            if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
+            if( !(block.getRWFlag() & (int)readOnly) ) return services::Status();
 
-            internal::getVectorUpCast(indexType, internal::getConversionDataType<T>())(nrows, location, block.getBlockPtr());
+            internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())
+            ( nrows, location, block.getBlockPtr() );
         }
         return services::Status();
     }
 
     template <typename T>
-    services::Status releaseTFeature(BlockDescriptor<T> & block)
+    services::Status releaseTFeature( BlockDescriptor<T>& block )
     {
         if (block.getRWFlag() & (int)writeOnly)
         {
             size_t feat_idx = block.getColumnsOffset();
 
-            NumericTableFeature & f = (*_ddict)[feat_idx];
-            const int indexType = f.indexType;
+            NumericTableFeature &f = (*_ddict)[feat_idx];
 
-            if (data_management::features::DAAL_OTHER_T == indexType)
+            if( features::internal::getIndexNumType<T>() != f.indexType )
             {
-                block.reset();
-                return services::Status(services::ErrorDataTypeNotSupported);
-            }
+                char *ptr = (char *)_arrays[feat_idx].get() + block.getRowsOffset() * f.typeSize;
 
-            if (features::internal::getIndexNumType<T>() != indexType)
-            {
-                char * ptr = (char *)_arrays[feat_idx].get() + block.getRowsOffset() * f.typeSize;
-
-                internal::getVectorDownCast(indexType, internal::getConversionDataType<T>())(block.getNumberOfRows(), block.getBlockPtr(), ptr);
+                internal::getVectorDownCast(f.indexType, internal::getConversionDataType<T>())
+                ( block.getNumberOfRows(), block.getBlockPtr(), ptr );
             }
         }
         block.reset();
@@ -548,6 +651,6 @@ typedef services::SharedPtr<SOANumericTable> SOANumericTablePtr;
 using interface1::SOANumericTable;
 using interface1::SOANumericTablePtr;
 
-} // namespace data_management
+}
 } // namespace daal
 #endif

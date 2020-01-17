@@ -1,6 +1,6 @@
 /** file data_conversion_cpu.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,14 +26,27 @@ namespace data_management
 {
 namespace internal
 {
-template <typename T1, typename T2, CpuType cpu>
-void vectorConvertFuncCpu(size_t n, const void * src, void * dst);
 
-template <typename T1, typename T2, CpuType cpu>
-void vectorStrideConvertFuncCpu(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride);
+template<CpuType cpu>
+void vectorCopySingleAVX512Cpu(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffsets);
 
-template <typename T, CpuType cpu>
-void vectorAssignValueToArrayCpu(void * const ptr, const size_t n, const void * const value);
+template<CpuType cpu>
+void vectorCopyDoubleAVX512Cpu(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffsets);
+
+template<typename T, CpuType cpu>
+void vectorCopy2vDefaultCpu(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, uint64_t* arrOffsets);
+
+template<typename T1, typename T2, CpuType cpu>
+void vectorCopyv2vFuncCpu(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests);
+
+template<typename T1, typename T2, CpuType cpu>
+void vectorConvertFuncCpu(size_t n, const void *src, void *dst);
+
+template<typename T1, typename T2, CpuType cpu>
+void vectorStrideConvertFuncCpu(size_t n, const void *src, size_t srcByteStride, void *dst, size_t dstByteStride);
+
+template<typename T, CpuType cpu>
+void vectorAssignValueToArrayCpu(void* const ptr, const size_t n, const void* const value);
 
 } // namespace internal
 } // namespace data_management
