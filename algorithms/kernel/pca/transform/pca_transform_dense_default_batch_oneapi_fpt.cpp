@@ -1,4 +1,4 @@
-/* file: pca_transform_dense_default_batch_fpt_dispatcher.cpp */
+/* file: pca_transform_dense_default_batch_oneapi_fpt.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,18 +17,31 @@
 
 /*
 //++
-//  Implementation of pca transformation algorithm container -- a class
-//  that contains fast pca transformation kernels
-//  for supported architectures.
+//  Implementation of pca transform kernel.
 //--
 */
 
 #include "pca_transform_container.h"
+#include "oneapi/pca_transform_dense_default_batch_oneapi_impl.i"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(pca::transform::BatchContainer, batch, DAAL_FPTYPE, pca::transform::defaultDense)
-}
+namespace pca
+{
+namespace transform
+{
+namespace oneapi
+{
+namespace internal
+{
+
+template class TransformKernelOneAPI<DAAL_FPTYPE, defaultDense>;
+
+} // namespace internal
+} // namespace oneapi
+} // namespace transform
+} // namespace pca
+} // namespace algorithms
 } // namespace daal
