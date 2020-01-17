@@ -130,6 +130,23 @@ Status PCACorrelationKernelUCAPI<algorithmFPType>::compute(bool isCorrelation, b
         // copying variances. Means are computed inplace
         // with help of setResult in BatchContainer
 
+
+        if (resultsToCompute & mean)
+        {
+            auto mean_cov = covarianceAlg->getResult()->get(covariance::mean);
+
+            BlockDescriptor<algorithmFPType> meansBlock, covMeanBlock;
+            means.getBlockOfRows(0, 1, readWrite, meansBlock);
+            mean_cov->getBlockOfRows(0, 1, readOnly, covMeanBlock);
+
+            context.copy(meansBlock.getBuffer(), 0, covMeanBlock.getBuffer(), 0, p, &st);
+
+            means.releaseBlockOfRows(meansBlock);
+            mean_cov->releaseBlockOfRows(covMeanBlock);
+
+            DAAL_CHECK_STATUS_VAR(st);
+        }
+
         if (resultsToCompute & variance)
         {
             BlockDescriptor<algorithmFPType> varBlock;
