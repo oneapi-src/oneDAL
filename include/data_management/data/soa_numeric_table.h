@@ -27,7 +27,6 @@
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/internal/conversion.h"
 #include "services/daal_defines.h"
-#include <immintrin.h>
 #include "data_dictionary.h"
 
 namespace daal
