@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /**
- * @brief Auxiliary functions used in exception handling in Java examples
+ * @brief Auxiliary function used in exception handling in Java
  * @ingroup services
  * @{
  */
@@ -24,8 +24,15 @@ package com.intel.daal.services;
 
 import java.lang.System;
 import java.lang.Throwable;
-
+/**
+ *  <a name="DAAL-CLASS-SERVICES__ERRORHANDLING"></a>
+ * @brief Provides auxiliary function used in exception handling in Java.
+ */
 public class ErrorHandling {
+    /**
+    *  Print information from a Throwable object
+    *  @param e  Throwable object
+    */
     public static void printThrowable(Throwable e) {
         System.out.println("Error: exception caught: " + e);
         System.out.println("Exception message: " + e.getMessage());
