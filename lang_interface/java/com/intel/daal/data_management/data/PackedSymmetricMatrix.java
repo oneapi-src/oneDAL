@@ -185,73 +185,73 @@ public class PackedSymmetricMatrix extends NumericTable {
     /** @copydoc NumericTable::getBlockOfRows(long,long,DoubleBuffer) */
     @Override
     public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
-        return ((PackedSymmetricMatrixImpl)tableImpl).getBlockOfRows(vectorIndex, vectorNum, buf);
+        return tableImpl.getBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::getBlockOfRows(long,long,FloatBuffer) */
     @Override
     public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
-        return ((PackedSymmetricMatrixImpl)tableImpl).getBlockOfRows(vectorIndex, vectorNum, buf);
+        return tableImpl.getBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::getBlockOfRows(long,long,IntBuffer) */
     @Override
     public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
-        return ((PackedSymmetricMatrixImpl)tableImpl).getBlockOfRows(vectorIndex, vectorNum, buf);
+        return tableImpl.getBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,DoubleBuffer) */
     @Override
     public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
-        return ((PackedSymmetricMatrixImpl)tableImpl).getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
+        return tableImpl.getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,FloatBuffer) */
     @Override
     public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
-        return ((PackedSymmetricMatrixImpl)tableImpl).getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
+        return tableImpl.getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,IntBuffer) */
     @Override
     public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
-        return ((PackedSymmetricMatrixImpl)tableImpl).getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
+        return tableImpl.getBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfRows(long,long,FloatBuffer) */
     @Override
     public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
-        ((PackedSymmetricMatrixImpl)tableImpl).releaseBlockOfRows(vectorIndex, vectorNum, buf);
+        tableImpl.releaseBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfRows(long,long,DoubleBuffer) */
     @Override
     public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
-        ((PackedSymmetricMatrixImpl)tableImpl).releaseBlockOfRows(vectorIndex, vectorNum, buf);
+        tableImpl.releaseBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfRows(long,long,IntBuffer) */
     @Override
     public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
-        ((PackedSymmetricMatrixImpl)tableImpl).releaseBlockOfRows(vectorIndex, vectorNum, buf);
+        tableImpl.releaseBlockOfRows(vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,DoubleBuffer) */
     @Override
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
-        ((PackedSymmetricMatrixImpl)tableImpl).releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
+        tableImpl.releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,FloatBuffer) */
     @Override
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
-        ((PackedSymmetricMatrixImpl)tableImpl).releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
+        tableImpl.releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,IntBuffer) */
     @Override
     public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
-        ((PackedSymmetricMatrixImpl)tableImpl).releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
+        tableImpl.releaseBlockOfColumnValues(featureIndex, vectorIndex, vectorNum, buf);
     }
 
     /**
