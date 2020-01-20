@@ -447,12 +447,12 @@ private:
                 _index = i;
         }
 
-        uint64_t pmin = (uint64_t)_arrays[_index].get();
+        unsigned long pmin = (unsigned long)_arrays[_index].get();
 
         /* compute offsets */
         for (int i = 0; i < ncols; i++)
         {
-            uint64_t pv = (uint64_t)(_arrays[i].get());
+            unsigned long pv = (unsigned long)(_arrays[i].get());
             _arrOffsets[i] = (int)(pv - pmin);
         }
 
