@@ -1,6 +1,6 @@
 /* file: compatibility.h */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -76,10 +76,6 @@ using data_management::internal::vectorConvertFuncType;
 using data_management::internal::vectorStrideConvertFuncType;
 DAAL_EXPORT vectorConvertFuncType getVectorUpCast(int, int);
 DAAL_EXPORT vectorConvertFuncType getVectorDownCast(int, int);
-
-/*using data_management::internal::vectorCopyv2vFuncType;
-DAAL_EXPORT internal::vectorCopyv2vFuncType getVectorUpv2v(int, int);
-DAAL_EXPORT internal::vectorCopyv2vFuncType getVectorDownv2v(int, int);*/
 
 DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideUpCast(int, int);
 DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideDownCast(int, int);

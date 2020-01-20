@@ -1,6 +1,6 @@
-/** file data_management_utils_cpu.cpp */
+/** file data_conversion_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -113,10 +113,10 @@ void vectorCopy2vDefaultCpu(const size_t nrows,
 }
 
 template<typename T1, typename T2, CpuType cpu>
-void vectorCopyv2vFuncCpu(const size_t nrows, 
-                          const size_t ncols, 
-                          void* dst, 
-                          void* ptrMin, 
+void vectorCopyv2vFuncCpu(const size_t nrows,
+                          const size_t ncols,
+                          void* dst,
+                          void* ptrMin,
                           int* arrOffsets)
 {
     float *pd   = (float*)dst;

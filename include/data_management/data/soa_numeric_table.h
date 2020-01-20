@@ -1,6 +1,6 @@
 /* file: soa_numeric_table.h */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -172,7 +172,6 @@ public:
             _memStatus = userAllocated;
         }
 
-        // TODO:
         if (isHomogeneous())
         {
             NumericTableFeature &f0 = (*_ddict)[0];
@@ -220,7 +219,7 @@ public:
     void *getArray(size_t idx)
     {
         return getArraySharedPtr(idx).get();
-    }    
+    }
 
     services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double>& block) DAAL_C11_OVERRIDE
     {
@@ -478,7 +477,7 @@ private:
         return f0.indexType == internal::ConversionDataType::DAAL_SINGLE ||
                 f0.indexType == internal::ConversionDataType::DAAL_DOUBLE;
     }
-  
+
     template <typename T>
     services::Status getTBlock( size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T>& block )
     {
@@ -501,7 +500,7 @@ private:
 
         if( !(block.getRWFlag() & (int)readOnly) ) return services::Status();
 
-        T *buffer = block.getBlockPtr();    
+        T *buffer = block.getBlockPtr();
 
         bool computed = false;
         if (isHomogeneous())
@@ -575,7 +574,7 @@ private:
                     for( size_t ii = 0 ; ii < di; ii++ )
                     {
                         lbuf[ii] = blockPtr[ (i + ii) * ncols + j ];
-                    }                    
+                    }
 
                     internal::getVectorDownCast(f.indexType, internal::getConversionDataType<T>())
                     ( di, lbuf, ptr );
