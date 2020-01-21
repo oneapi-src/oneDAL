@@ -82,7 +82,7 @@ public class SampleCovarianceCSR {
         try {
             result = nt.getBlockOfRows(0, nRows, result);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            ErrorHandling.printThrowable(e);
             return;
         }
         if(nPrintedCols > 0) {

@@ -297,11 +297,11 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
         auto engineImpl                = dynamic_cast<engines::internal::BatchBaseImpl *>(engines[i].get());
         DAAL_CHECK_THR(engineImpl, ErrorEngineNotSupported);
         services::Status s = task->run(engineImpl, pTree, numElems[i]);
+        DAAL_CHECK_STATUS_THR(s);
         if (pTree)
         {
             md.add((typename ModelType::TreeType &)*pTree, nClasses);
         }
-        DAAL_CHECK_STATUS_THR(s);
     });
     s                = safeStat.detach();
     const auto nRows = x->getNumberOfRows();
@@ -593,7 +593,7 @@ typename DataHelper::NodeType::Base * TrainBatchTaskBase<algorithmFPType, DataHe
                 dtrees::internal::deleteNode<typename DataHelper::NodeType, typename DataHelper::TreeType::Allocator>(right, _tree.allocator());
             return nullptr;
         }
-        bUnorderedFeaturesUsed |= split.featureUnordered;
+        bUnorderedFeaturesUsed |= bool(split.featureUnordered);
         res->count = n;
         DAAL_ASSERT(nLeft == left->count);
         DAAL_ASSERT(split.nLeft == right->count);

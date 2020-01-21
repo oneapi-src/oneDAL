@@ -486,7 +486,7 @@ private:
 
         nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        NumericTableFeature & f = (*_ddict)[feat_idx];
+        const NumericTableFeature & f = (*_ddict)[feat_idx];
         const int indexType = f.indexType;
 
         if (features::internal::getIndexNumType<T>() == f.indexType)

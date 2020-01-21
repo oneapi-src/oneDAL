@@ -48,8 +48,13 @@ public class KmeansDense extends Configured implements Tool {
 
     private static final int nIterations = 5;
 
-    public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(new Configuration(), new KmeansDense(), args);
+    public static void main(String[] args) {
+        int res = -1;
+        try {
+            res = ToolRunner.run(new Configuration(), new KmeansDense(), args);
+        } catch (Exception e) {
+            ErrorHandling.printThrowable(e);
+        }
         System.exit(res);
     }
 

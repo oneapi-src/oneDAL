@@ -97,7 +97,7 @@ services::Status LBFGSKernel<algorithmFPType, defaultDense, cpu>::compute(
 
     if (useWolfeConditions)
     {
-        gradientFunction->sumOfFunctionsParameter->resultsToCompute |= objective_function::value;
+        gradientFunction->sumOfFunctionsParameter->resultsToCompute |= static_cast<DAAL_UINT64>(objective_function::value);
     }
     gradientFunction->sumOfFunctionsInput->set(sum_of_functions::argument, argumentTable);
 

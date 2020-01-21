@@ -196,7 +196,7 @@ private:
             return services::throwIfPossible(services::ErrorOnFileOpen);
         }
 #else
-        _file = fopen((char *)(fileName.c_str()), "r");
+        _file = std::fopen((char *)(fileName.c_str()), "r");
         if (!_file)
         {
             return services::throwIfPossible(services::ErrorOnFileOpen);

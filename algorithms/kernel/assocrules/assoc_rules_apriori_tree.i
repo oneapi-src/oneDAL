@@ -157,7 +157,7 @@ struct hash_tree
         if (!is_child(node_idx, hash_res))
         {
             /* Update children mask of the root node if needed */
-            root[node_idx].mask |= (1 << hash_res);
+            root[node_idx].mask |= static_cast<__int64>(1) << hash_res;
         }
     }
 
