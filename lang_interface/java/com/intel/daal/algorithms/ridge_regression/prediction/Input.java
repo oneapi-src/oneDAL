@@ -62,9 +62,9 @@ public final class Input extends com.intel.daal.algorithms.Input {
         long addr = 0;
 
         if (id == PredictionInputId.data) {
-            addr = ((NumericTable) val).getCObject();
+            addr = val.getCObject();
         } else if (id == PredictionInputId.model) {
-            addr = ((Model) val).getCObject();
+            addr = val.getCObject();
         }
         cSetInput(this.cObject, id.getValue(), addr);
     }
