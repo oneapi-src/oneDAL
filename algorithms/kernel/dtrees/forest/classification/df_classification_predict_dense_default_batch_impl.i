@@ -110,7 +110,7 @@ protected:
     void parallelPredict(const algorithmFPType * aX, const DecisionTreeNode * aNode, size_t treeSize, size_t nBlocks, size_t nCols, size_t blockSize,
                          size_t residualSize, algorithmFPType * prob, size_t iTree);
     Status predictByAllTrees(size_t nTreesTotal, const DimType & dim);
-    Status predictOneRowByAllTrees(size_t nTreesTotal, const DimType & dim);
+    Status predictOneRowByAllTrees(size_t nTreesTotal);
     Status predictAllPointsByAllTrees(size_t nTreesTotal);
     Status predictByBlocksOfTrees(services::HostAppIface * pHostApp, size_t nTreesTotal, const DimType & dim, algorithmFPType * aClsCounters);
     size_t getMaxClass(const algorithmFPType * counts) const
@@ -209,11 +209,15 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTrees(size_t iFir
                                                                      algorithmFPType * resPtr, size_t nTreesTotal)
 {
     algorithmFPType inverseTreesCount = 1.0 / algorithmFPType(nTreesTotal);
-    const size_t iLastTree            = iFirstTree + nTrees;
+
+    const size_t iLastTree = iFirstTree + nTrees;
+
     for (size_t iTree = iFirstTree; iTree < iLastTree; ++iTree)
     {
+
         const dtrees::internal::DecisionTreeNode * pNode =
             dtrees::prediction::internal::findNode<algorithmFPType, TreeType, cpu>(*_aTree[iTree], _featHelper, x);
+
         DAAL_ASSERT(pNode);
         const dtrees::internal::DecisionTreeNode * top = (const DecisionTreeNode *)(*_aTree[iTree]).getArray();
         size_t idx                                     = pNode - top;
@@ -527,14 +531,9 @@ void PredictClassificationTask<double, avx512>::predictByTree(const double * x, 
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(size_t nTreesTotal, const DimType & dim)
 {
-    if(dim.nRowsTotal == 1)
-    {
-        //printf("\n##predictOneRowByAllTrees##\n");
-        return predictOneRowByAllTrees(nTreesTotal, dim);
-    }
-    WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, 1);
+    WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, dim.nRowsTotal);
     DAAL_CHECK_BLOCK_STATUS(resBD);
-    WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, 1);
+    WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, dim.nRowsTotal);
     DAAL_CHECK_BLOCK_STATUS(probBD);
     const bool bUseTLS(_nClasses > s_cMaxClassesBufSize);
     const size_t nCols(_data->getNumberOfColumns());
@@ -578,6 +577,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(size_t
                     res[iRow] = algorithmFPType(getMaxClass(val));
                 }
             });
+
         });
     }
 
@@ -585,8 +585,37 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(size_t
 }
 
 template <typename algorithmFPType, CpuType cpu>
-Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(size_t nTreesTotal, const DimType & dim)
+Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(size_t nTreesTotal)
 {
+    if(cachedData != _data)
+    {
+        _featHelper.clearBuf();
+        DAAL_CHECK_MALLOC(_featHelper.init(*_data));
+        cachedData = const_cast<NumericTable *>(_data);
+    }
+
+    if(_nClasses != _cachedNClasses)
+    {
+        _probas_d.reset(_nClasses);
+        _val.reset(_nClasses);
+        _cachedNClasses = _nClasses;
+    }
+
+    if(_cachedModel != _model)
+    {
+        _cachedModel = _model;
+        _aTree.reset(nTreesTotal);
+        DAAL_CHECK_MALLOC(_aTree.get());
+        _averageTreeSize = 0;
+        for (size_t i = 0; i < nTreesTotal; ++i)
+        {
+            _aTree[i] = _model->at(i);
+            _averageTreeSize += _aTree[i]->getNumberOfRows();
+        }
+        _averageTreeSize = _averageTreeSize / nTreesTotal;
+        _sumTreeSize = 0;
+    }
+
     algorithmFPType * resPtr = nullptr;
     algorithmFPType * probPtr = nullptr;
 
@@ -620,14 +649,14 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
     const size_t nCols(_data->getNumberOfColumns());
     daal::SafeStatus safeStat;
 
+    const HomogenNumericTable<algorithmFPType> * hmgData = dynamic_cast<const HomogenNumericTable<algorithmFPType> *>(_data);
+    if(hmgData == nullptr)
+        _xBD.set(const_cast<NumericTable *>(_data), 0, 1);
+    const algorithmFPType* x_ptr = hmgData != nullptr ? hmgData->getArray() : _xBD.get();
     if (probPtr != nullptr)
     {
         for(size_t i =0; i < _nClasses;++i)
             probPtr[i] = 0;
-        const HomogenNumericTable<algorithmFPType> * hmgData = dynamic_cast<const HomogenNumericTable<algorithmFPType> *>(_data);
-        if(hmgData == nullptr)
-            _xBD.set(const_cast<NumericTable *>(_data), 0, 1);
-        const algorithmFPType* x_ptr = hmgData != nullptr ? hmgData->getArray() : _xBD.get();
 
         predictByTrees(0, nTreesTotal, x_ptr, probPtr, nTreesTotal);
         if (_res)
@@ -638,24 +667,16 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
     }
     else
     {
-        ClassesCounterTls lsData(_nClasses);
-        daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
-            const size_t iStartRow      = iBlock * dim.nRowsInBlock;
-            const size_t nRowsToProcess = (iBlock == dim.nDataBlocks - 1) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
-            ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
-            DAAL_CHECK_BLOCK_STATUS_THR(xBD);
-            algorithmFPType * res = resPtr + iStartRow;
-            daal::threader_for(nRowsToProcess, nRowsToProcess, [&](size_t iRow) {
-                algorithmFPType buf[s_cMaxClassesBufSize];
-                algorithmFPType * val = bUseTLS ? lsData.local() : buf;
-                for (size_t i = 0; i < _nClasses; ++i) val[i] = 0;
-                predictByTrees(0, nTreesTotal, xBD.get() + iRow * nCols, val, nTreesTotal);
-                if (_res)
-                {
-                    res[iRow] = algorithmFPType(getMaxClass(val));
-                }
-            });
-        });
+        ClassIndexType* valPtr = _val.get();
+        for(size_t i =0; i < _nClasses;++i)
+            valPtr[i] = 0;
+
+        predictByTreesWithoutConversion(0, nTreesTotal, x_ptr, valPtr, nTreesTotal);
+        if (_res)
+        {
+            resPtr[0] = getMaxClass((const ClassIndexType*)valPtr);
+        }
+
     }
 
     return safeStat.detach();
@@ -663,12 +684,33 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
 
 #if defined(__INTEL_COMPILER)
 template <>
-Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t nTreesTotal, const DimType & dim)
+Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t nTreesTotal)
 {
+
+    if(cachedData != _data)
+    {
+        _featHelper.clearBuf();
+        DAAL_CHECK_MALLOC(_featHelper.init(*_data));
+        cachedData = const_cast<NumericTable *>(_data);
+    }
+
+    if(_cachedModel != _model)
+    {
+        _cachedModel = _model;
+        _aTree.reset(nTreesTotal);
+        DAAL_CHECK_MALLOC(_aTree.get());
+        _averageTreeSize = 0;
+        for (size_t i = 0; i < nTreesTotal; ++i)
+        {
+            _aTree[i] = _model->at(i);
+            _averageTreeSize += _aTree[i]->getNumberOfRows();
+        }
+        _averageTreeSize = _averageTreeSize / nTreesTotal;
+        _sumTreeSize = 0;
+    }
 
     if(_nClasses != _cachedNClasses)
     {
-        //std::cout << "\n--------avx512\n";
         _probas_d.reset(_nClasses);
         _val.reset(_nClasses);
         _cachedNClasses = _nClasses;
@@ -676,8 +718,6 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
 
     if(_sumTreeSize == 0)
     {
-        //double prob_d[5] = {0,0,0,0,0};
-        //printf("\n_sumTreeSize == 0\n");
         _probas.reset(nTreesTotal);
         double** pbob_ptr = _probas.get();
         _displaces.reset(nTreesTotal);
@@ -1030,28 +1070,23 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIface * pHostApp)
 {
-    if(cachedData != _data)
-    {
-        //printf("\n#####cachedData != _data#######\n");
-        DAAL_CHECK_MALLOC(_featHelper.init(*_data));
-        cachedData = const_cast<NumericTable *>(_data);
-    }
     const auto nTreesTotal = _model->size();
-    if(_cachedModel != _model)
+    if(_data->getNumberOfRows() == 1)
     {
-        //printf("\n#####cachedModel != _model#######\n");
-        _cachedModel = _model;
-        _aTree.reset(nTreesTotal);
-        DAAL_CHECK_MALLOC(_aTree.get());
-
-        for (size_t i = 0; i < nTreesTotal; ++i)
-        {
-            _aTree[i] = _model->at(i);
-            _averageTreeSize += _aTree[i]->getNumberOfRows();
-        }
-        _averageTreeSize = _averageTreeSize / nTreesTotal;
-        _sumTreeSize = 0;
+        return predictOneRowByAllTrees(nTreesTotal);
     }
+
+    _featHelper.clearBuf();
+    DAAL_CHECK_MALLOC(_featHelper.init(*_data));
+    _aTree.reset(nTreesTotal);
+    DAAL_CHECK_MALLOC(_aTree.get());
+    _averageTreeSize = 0;
+    for (size_t i = 0; i < nTreesTotal; ++i)
+    {
+        _aTree[i] = _model->at(i);
+        _averageTreeSize += _aTree[i]->getNumberOfRows();
+    }
+    _averageTreeSize = _averageTreeSize / nTreesTotal;
 
     if (_featHelper.hasUnorderedFeatures()
         || (_res->getNumberOfRows() < _averageTreeSize * _SCALE_FACTOR_FOR_VECT_PARALLEL_COMPUTE && daal::threader_get_threads_number() > 1)
@@ -1063,10 +1098,15 @@ Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIfa
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nClasses * dim.nRowsTotal, sizeof(ClassIndexType));
 
         if (dim.nTreeBlocks == 1) //all fit into LL cache
+        {
             return predictByAllTrees(nTreesTotal, dim);
+        }
 
         services::internal::TArrayCalloc<algorithmFPType, cpu> aClsCounters(dim.nRowsTotal * _nClasses);
-        if (!aClsCounters.get()) return predictByAllTrees(nTreesTotal, dim);
+        if (!aClsCounters.get()) 
+        {
+            return predictByAllTrees(nTreesTotal, dim);
+        }
 
         return predictByBlocksOfTrees(pHostApp, nTreesTotal, dim, aClsCounters.get());
     }
