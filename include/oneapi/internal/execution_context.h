@@ -340,7 +340,7 @@ public:
                       size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, services::Status * status = NULL) = 0;
 
     virtual void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
-                                 const UniversalBuffer y_buffer, const int incy, services::Status * status = NULL) = 0;
+                      const UniversalBuffer y_buffer, const int incy, services::Status * status = NULL) = 0;
 
     virtual void potrf(math::UpLo uplo, size_t n, UniversalBuffer & a_buffer, size_t lda, services::Status * status = NULL) = 0;
 
