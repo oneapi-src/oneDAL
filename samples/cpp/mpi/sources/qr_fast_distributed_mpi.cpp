@@ -67,7 +67,7 @@ int main(int argc, char * argv[])
     {
         if (rankId == mpiRoot)
         {
-            printf("%d MPI ranks != %lu datasets available, so please start exactly %lu ranks.\n", commSize, nBlocks, nBlocks);
+            std::cout << commSize << " MPI ranks != " << nBlocks << " datasets available, so please start exactly " << nBlocks << " ranks." << std::endl;
         }
         MPI_Finalize();
         return 0;
