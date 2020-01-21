@@ -1103,7 +1103,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIfa
         }
 
         services::internal::TArrayCalloc<algorithmFPType, cpu> aClsCounters(dim.nRowsTotal * _nClasses);
-        if (!aClsCounters.get()) 
+        if (!aClsCounters.get())
         {
             return predictByAllTrees(nTreesTotal, dim);
         }
