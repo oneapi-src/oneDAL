@@ -81,8 +81,8 @@ Status init(size_t p, size_t n, size_t nRowsTotal, size_t nClusters, algorithmFP
             DAAL_ASSERT(nRowsTotal <= services::internal::MaxVal<int>::get())
             DAAL_CHECK_STATUS(s, (UniformKernelDefault<int, cpu>::compute(i, (int)nRowsTotal, engine, 1, indices + i)));
             DAAL_ASSERT(indices[i] >= 0)
-            size_t c  = (size_t)indices[i];
-            int value = indices[i];
+            size_t c    = (size_t)indices[i];
+            int & value = indices[i];
             for (size_t j = i; j > 0; j--)
             {
                 if (value == indices[j - 1])
