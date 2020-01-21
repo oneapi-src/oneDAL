@@ -230,7 +230,7 @@ private:
         services::Status * status;
 
         explicit Execute(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer& x_buffer, const int incx,
-               const UniversalBuffer& y_buffer, const int incy, services::Status * status = NULL)
+                         const UniversalBuffer& y_buffer, const int incy, services::Status * status = NULL)
             : queue(queue),
               n(n),
               a(a),
@@ -250,13 +250,10 @@ private:
             services::Status statusAxpy;
 #ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
             ReferenceAxpy<T> functor;
-            statusAxpy =
-                functor(n, (T)a, x_buffer_t, incx, y_buffer_t, incy);
 #else
             MKLAxpy<T> functor(queue);
-            statusAxpy = functor(n, (T)a, x_buffer_t, incx, y_buffer_t, incy);
 #endif
-
+            statusAxpy = functor(n, (T)a, x_buffer_t, incx, y_buffer_t, incy);
             services::internal::tryAssignStatus(status, statusAxpy);
         }
     };
