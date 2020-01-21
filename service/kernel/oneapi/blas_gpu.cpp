@@ -109,9 +109,22 @@ template class ReferenceGemm<float>;
 template class ReferenceGemm<double>;
 
 template <typename algorithmFPType>
+inline bool checkSize(const int n, const services::Buffer<algorithmFPType> &buffer, const int inc)
+{
+    if ((n - 1) * inc >= static_cast<int>(buffer.size()))
+        return true;
+    return false;
+}
+
+template <typename algorithmFPType>
 services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const algorithmFPType a, const services::Buffer<algorithmFPType> & x_buffer, const int incx,
                                 const services::Buffer<algorithmFPType> & y_buffer, const int incy)
 {
+    if (checkSize(n, x_buffer, incx) || checkSize(n, y_buffer, incy))
+    {
+        return services::Status(services::ErrorIncorrectIndex);
+    }
+
     services::Status status;
 
     ExecutionContextIface & ctx    = services::Environment::getInstance()->getDefaultExecutionContext();
@@ -135,6 +148,7 @@ services::Status ReferenceAxpy<algorithmFPType>::operator()(const int n, const a
     KernelRange range(n);
 
     ctx.run(range, blas_axpy, args, &status);
+    DAAL_CHECK_STATUS_VAR(status);
 
     return status;
 }
