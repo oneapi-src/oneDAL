@@ -80,7 +80,7 @@ protected:
                             size_t nFactors, algorithmFPType * colFactors, algorithmFPType alpha, algorithmFPType * lhs, algorithmFPType * rhs,
                             algorithmFPType lambda) = 0;
 
-    virtual void computeCostFunction(size_t nItems, size_t nUsers, size_t nFactors, algorithmFPType * data, size_t * colIndices, size_t * rowOffsets,
+    virtual void computeCostFunction(size_t nUsers, size_t nItems, size_t nFactors, algorithmFPType * data, size_t * colIndices, size_t * rowOffsets,
                                      algorithmFPType * itemsFactors, algorithmFPType * usersFactors, algorithmFPType alpha, algorithmFPType lambda,
                                      algorithmFPType * costFunctionPtr) = 0;
 };
@@ -97,7 +97,7 @@ protected:
                             size_t nFactors, algorithmFPType * colFactors, algorithmFPType alpha, algorithmFPType * lhs, algorithmFPType * rhs,
                             algorithmFPType lambda) DAAL_C11_OVERRIDE;
 
-    virtual void computeCostFunction(size_t nItems, size_t nUsers, size_t nFactors, algorithmFPType * data, size_t * colIndices, size_t * rowOffsets,
+    virtual void computeCostFunction(size_t nUsers, size_t nItems, size_t nFactors, algorithmFPType * data, size_t * colIndices, size_t * rowOffsets,
                                      algorithmFPType * itemsFactors, algorithmFPType * usersFactors, algorithmFPType alpha, algorithmFPType lambda,
                                      algorithmFPType * costFunctionPtr) DAAL_C11_OVERRIDE;
 };
@@ -110,7 +110,7 @@ protected:
                             size_t nFactors, algorithmFPType * colFactors, algorithmFPType alpha, algorithmFPType * lhs, algorithmFPType * rhs,
                             algorithmFPType lambda) DAAL_C11_OVERRIDE;
 
-    virtual void computeCostFunction(size_t nItems, size_t nUsers, size_t nFactors, algorithmFPType * data, size_t * colIndices, size_t * rowOffsets,
+    virtual void computeCostFunction(size_t nUsers, size_t nItems, size_t nFactors, algorithmFPType * data, size_t * colIndices, size_t * rowOffsets,
                                      algorithmFPType * itemsFactors, algorithmFPType * usersFactors, algorithmFPType alpha, algorithmFPType lambda,
                                      algorithmFPType * costFunctionPtr) DAAL_C11_OVERRIDE;
 };
