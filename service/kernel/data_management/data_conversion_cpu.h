@@ -33,12 +33,6 @@ void vectorCopySingleAVX512Cpu(const size_t nrows, const size_t ncols, void* dst
 template<CpuType cpu>
 void vectorCopyDoubleAVX512Cpu(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffsets);
 
-template<typename T, CpuType cpu>
-void vectorCopy2vDefaultCpu(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, uint64_t* arrOffsets);
-
-template<typename T1, typename T2, CpuType cpu>
-void vectorCopyv2vFuncCpu(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests);
-
 template<typename T1, typename T2, CpuType cpu>
 void vectorConvertFuncCpu(size_t n, const void *src, void *dst);
 

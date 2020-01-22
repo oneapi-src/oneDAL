@@ -135,18 +135,6 @@ private:
     FUNC(avx512)                                       \
     FUNC(avx512_mic)
 
-#define DAAL_REGISTER_WITH_COMPATIBLE_DEFAULT_CPU(FUNC) \
-    FUNC(float, avx2)                                   \
-    FUNC(float, avx)                                    \
-    FUNC(float, sse42)                                  \
-    FUNC(float, ssse3)                                  \
-    FUNC(float, sse2)                                   \
-    FUNC(double, avx2)                                  \
-    FUNC(double, avx)                                   \
-    FUNC(double, sse42)                                 \
-    FUNC(double, ssse3)                                 \
-    FUNC(double, sse2)
-
 template <typename T>
 DAAL_EXPORT void vectorAssignValueToArray(T * const ptr, const size_t n, const T value);
 

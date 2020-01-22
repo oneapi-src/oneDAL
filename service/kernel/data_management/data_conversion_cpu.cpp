@@ -89,56 +89,6 @@ void vectorCopyDoubleAVX512Cpu(const size_t nrows,
     }
 }
 
-/* Convert T to T from columnar to row major format in default mode */
-template<typename T, CpuType cpu>
-void vectorCopy2vDefaultCpu(const size_t nrows,
-                              const size_t ncols,
-                              void* dst,
-                              void* ptrMin,
-                              uint64_t* arrOffsets)
-{
-    T *pd   = (T*)dst;
-    T *pmin = (T*)ptrMin;
-
-    for (size_t i = 0; i < nrows; i++)
-    {
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < ncols; j++)
-        {
-            char *pc = (char*)(ptrMin) + arrOffsets[j];
-            T* pi = (T*)(pc) + i;
-            pd[ i*ncols + j ] = *pi;
-        }
-    }
-}
-
-template<typename T1, typename T2, CpuType cpu>
-void vectorCopyv2vFuncCpu(const size_t nrows,
-                          const size_t ncols,
-                          void* dst,
-                          void* ptrMin,
-                          int* arrOffsets)
-{
-    float *pd   = (float*)dst;
-    float *pmin = (float*)ptrMin;
-
-    const size_t nColSize = ncols - ncols % 8;
-
-    for (size_t i = 0; i < nrows; i++, pd += ncols)
-    {
-        for (size_t j = 0; j < nColSize; j+=8)
-        {
-            __m256 ps = _mm256_i32gather_ps(pmin + i, *((__m256i*)&arrOffsets[j]), 4);
-            _mm256_storeu_ps(pd + j, ps);
-        }
-        for (size_t j = nColSize; j < ncols; j++)
-        {
-            pd[j] = pmin[ arrOffsets[j] + i ];
-        }
-    }
-}
-
 template<typename T1, typename T2, CpuType cpu>
 void vectorConvertFuncCpu(size_t n, const void *src, void *dst)
 {
@@ -192,9 +142,6 @@ template void F<int   , T, DAAL_CPU> A;
         DAAL_FUNCS_DOWN_ENTRY(F,short,A)             \
         DAAL_FUNCS_DOWN_ENTRY(F,unsigned short,A)
 
-DAAL_CONVERT_UP_FUNCS(vectorCopyv2vFuncCpu,(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests))
-DAAL_CONVERT_DOWN_FUNCS(vectorCopyv2vFuncCpu,(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests))
-
 DAAL_CONVERT_UP_FUNCS(vectorConvertFuncCpu,(size_t n, const void *src, void *dst))
 DAAL_CONVERT_DOWN_FUNCS(vectorConvertFuncCpu,(size_t n, const void *src, void *dst))
 
@@ -217,9 +164,6 @@ DAAL_REGISTER_WITH_COMPATIBLE_AVX512_CPU(DAAL_REGISTER_COPY_SINGLE_AVX512)
 
 #define DAAL_REGISTER_COPY_DOUBLE_AVX512(DAAL_CPU) template void vectorCopyDoubleAVX512Cpu<DAAL_CPU>(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffsets);
 DAAL_REGISTER_WITH_COMPATIBLE_AVX512_CPU(DAAL_REGISTER_COPY_DOUBLE_AVX512)
-
-#define DAAL_REGISTER_COPY_VECTOR_DEFAULT(Type, DAAL_CPU) template void vectorCopy2vDefaultCpu<Type, DAAL_CPU>(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, uint64_t* arrOffsets);
-DAAL_REGISTER_WITH_COMPATIBLE_DEFAULT_CPU(DAAL_REGISTER_COPY_VECTOR_DEFAULT)
 
 } // namespace internal
 } // namespace data_management

@@ -171,11 +171,7 @@ public:
             _memStatus = userAllocated;
         }
 
-        if (isHomogeneous())
-        {
-            NumericTableFeature &f0 = (*_ddict)[0];
-            searchMinPointer(getNumberOfColumns(), f0.typeSize);
-        }
+        DAAL_CHECK_STATUS_VAR(generatesOffsets())
 
         return services::Status();
     }
@@ -390,6 +386,9 @@ protected:
         {
             _memStatus = internallyAllocated;
         }
+
+        DAAL_CHECK_STATUS_VAR(generatesOffsets())
+
         return services::Status();
     }
 
@@ -429,43 +428,71 @@ protected:
 
 private:
 
-    services::Status searchMinPointer(size_t ncols, size_t conversionTypeSize)
+    services::Status generatesOffsets()
     {
+        if (isHomogeneous())
+        {
+            if (isAllComleted())
+                DAAL_CHECK_STATUS_VAR(searchMinPointer());
+        }
+
+        return services::Status();
+    }
+
+    bool isAllComleted()
+    {
+        size_t ncols = getNumberOfColumns();
+
+        for (size_t i = 0; i < ncols; i++)
+        {
+            if (!_arrays[i].get())
+                return false;
+        }
+
+        return true;
+    }
+
+    services::Status searchMinPointer()
+    {
+        size_t ncols = getNumberOfColumns();
+
         if (_arrOffsets)
             daal::services::daal_free(_arrOffsets);
 
         _arrOffsets = (int*)daal::services::daal_malloc(ncols * sizeof(int));
         DAAL_CHECK_MALLOC(_arrOffsets)
         _index = 0;
-        void *ptrMin = _arrays[0].get();
+        char *ptrMin = (char*)_arrays[0].get();
 
         /* search index for min pointer */
         for (int i = 1; i < ncols; i++)
         {
-            if (_arrays[i].get() < ptrMin)
+            if ((char*)_arrays[i].get() < ptrMin)
+            {
                 _index = i;
+                ptrMin = (char*)_arrays[i].get();
+            }
         }
-
-        unsigned long pmin = (unsigned long)_arrays[_index].get();
 
         /* compute offsets */
         for (int i = 0; i < ncols; i++)
         {
-            unsigned long pv = (unsigned long)(_arrays[i].get());
-            _arrOffsets[i] = (int)(pv - pmin);
+            char *pv = (char*)(_arrays[i].get());
+            _arrOffsets[i] = (int)(pv - ptrMin);
+            DAAL_ASSERT(_arrOffsets[i] >= 0)
         }
 
         return services::Status();
     }
 
+    /* the method checks for the fact that all columns have the same data type. */
     bool isHomogeneous()
     {
-        /* the method checks for the fact that all columns have the same data type. */
         size_t ncols = getNumberOfColumns();
 
         NumericTableFeature &f0 = (*_ddict)[0];
 
-        for (size_t i = 1; i < ncols; i++)
+        for (size_t i = 0; i < ncols; i++)
         {
             NumericTableFeature &f1 = (*_ddict)[i];
 
@@ -500,19 +527,23 @@ private:
         if( !(block.getRWFlag() & (int)readOnly) ) return services::Status();
 
         T *buffer = block.getBlockPtr();
-
         bool computed = false;
+
         if (isHomogeneous())
         {
             NumericTableFeature &f = (*_ddict)[0];
 
-            if (f.indexType == internal::ConversionDataType::DAAL_SINGLE)
+            if (internal::getConversionDataType<T>() == internal::ConversionDataType::DAAL_SINGLE &&
+                internal::getConversionDataType<T>() == f.indexType)
             {
+                DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
                 void *ptrMin = (float*)(_arrays[_index].get()) + idx;
                 computed = data_management::internal::getVectorSingle()(nrows, ncols, buffer, ptrMin, _arrOffsets);
             }
-            else if (f.indexType == internal::ConversionDataType::DAAL_DOUBLE)
+            else if (internal::getConversionDataType<T>() == internal::ConversionDataType::DAAL_DOUBLE &&
+                    internal::getConversionDataType<T>() == f.indexType)
             {
+                DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
                 void *ptrMin = (double*)(_arrays[_index].get()) + idx;
                 computed = data_management::internal::getVectorDouble()(nrows, ncols, buffer, ptrMin, _arrOffsets);
             }
