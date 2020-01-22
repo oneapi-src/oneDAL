@@ -36,6 +36,7 @@
 
 using namespace std;
 using namespace daal;
+using namespace daal::data_management;
 using namespace daal::algorithms::gbt::regression;
 
 /* Input data set parameters */

@@ -35,6 +35,7 @@
 
 using namespace std;
 using namespace daal;
+using namespace daal::data_management;
 using namespace daal::algorithms::linear_regression;
 
 const string trainDatasetFileNames[] = { "../data/distributed/linear_regression_train_1.csv", "../data/distributed/linear_regression_train_2.csv",

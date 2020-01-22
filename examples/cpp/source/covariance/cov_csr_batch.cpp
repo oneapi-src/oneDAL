@@ -33,6 +33,7 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
+using namespace daal::data_management;
 
 /* Input data set parameters
    Input matrix is stored in the compressed sparse row format with one-based indexing
