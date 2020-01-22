@@ -29,6 +29,7 @@
 #include "service.h"
 
 using namespace daal;
+using namespace daal::data_management;
 
 const char * toString(data_feature_utils::FeatureType v);
 const char * toString(data_feature_utils::InternalNumType v);
