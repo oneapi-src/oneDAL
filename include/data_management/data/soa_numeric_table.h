@@ -500,8 +500,8 @@ private:
                 return false;
         }
 
-        return f0.indexType == internal::ConversionDataType::DAAL_SINGLE ||
-                f0.indexType == internal::ConversionDataType::DAAL_DOUBLE;
+        return (int)f0.indexType == (int)internal::ConversionDataType::DAAL_SINGLE ||
+               (int)f0.indexType == (int)internal::ConversionDataType::DAAL_DOUBLE;
     }
 
     template <typename T>
