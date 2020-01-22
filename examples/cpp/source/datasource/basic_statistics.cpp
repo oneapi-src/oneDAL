@@ -30,6 +30,7 @@
 
 using namespace daal;
 using namespace daal::services;
+using namespace daal::data_management;
 
 int main()
 {

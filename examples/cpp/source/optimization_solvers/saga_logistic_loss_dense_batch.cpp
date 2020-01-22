@@ -32,6 +32,7 @@ using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
+using namespace daal::data_management;
 
 const string datasetFileName     = "../data/batch/XM_100.csv";
 const string groundTruthFileName = "../data/batch/saga_solution_100_features.csv";
