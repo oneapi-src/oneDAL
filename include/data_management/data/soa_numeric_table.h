@@ -534,14 +534,14 @@ private:
             NumericTableFeature &f = (*_ddict)[0];
 
             if (internal::getConversionDataType<T>() == internal::ConversionDataType::DAAL_SINGLE &&
-                internal::getConversionDataType<T>() == f.indexType)
+                (int)internal::getConversionDataType<T>() == (int)f.indexType)
             {
                 DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
                 void *ptrMin = (float*)(_arrays[_index].get()) + idx;
                 computed = data_management::internal::getVectorSingle()(nrows, ncols, buffer, ptrMin, _arrOffsets);
             }
             else if (internal::getConversionDataType<T>() == internal::ConversionDataType::DAAL_DOUBLE &&
-                    internal::getConversionDataType<T>() == f.indexType)
+                     (int)internal::getConversionDataType<T>() == (int)f.indexType)
             {
                 DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
                 void *ptrMin = (double*)(_arrays[_index].get()) + idx;
