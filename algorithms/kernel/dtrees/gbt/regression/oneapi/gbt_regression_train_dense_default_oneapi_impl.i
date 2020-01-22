@@ -991,7 +991,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
         {
             TableRecord<algorithmFPType> *node = leaves[leafId];
 
-            algorithmFPType res = 0;
+            algorithmFPType resp = 0;
 
             algorithmFPType val = node->hTotal + par.lambda;
             if(val != 0.0)
@@ -999,12 +999,12 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
                 val = -node->gTotal / val;
                 const algorithmFPType inc = val * par.shrinkage;
 
-                res = inc;
+                resp = inc;
 
                 DAAL_CHECK_STATUS_VAR(updateResponse(treeOrder, response, node->iStart, node->n, inc));
             }
 
-            node->response = res;
+            node->response = resp;
             node->isFinalized = 1;
         }
 

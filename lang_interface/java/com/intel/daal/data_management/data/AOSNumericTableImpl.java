@@ -143,155 +143,119 @@ public class AOSNumericTableImpl extends NumericTableImpl {
 
     /** @copydoc NumericTable::getBlockOfRows(long,long,DoubleBuffer) */
     @Override
-    public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                for (int j = 0; j < fields.length; j++) {
-                    buf.put(fields[j].getDouble(this.ptr[(int) vectorIndex + i]));
-                }
+    public DoubleBuffer getBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            for (int j = 0; j < fields.length; j++) {
+                buf.put(fields[j].getDouble(this.ptr[(int) vectorIndex + i]));
             }
-        } catch (java.lang.IllegalAccessException e) {
         }
         return buf;
     }
 
     /** @copydoc NumericTable::getBlockOfRows(long,long,FloatBuffer) */
     @Override
-    public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                for (int j = 0; j < fields.length; j++) {
-                    double d = fields[j].getDouble(this.ptr[(int) vectorIndex + i]);
-                    buf.put((float) d);
-                }
+    public FloatBuffer getBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            for (int j = 0; j < fields.length; j++) {
+                double d = fields[j].getDouble(this.ptr[(int) vectorIndex + i]);
+                buf.put((float) d);
             }
-        } catch (java.lang.IllegalAccessException e) {
         }
         return buf;
     }
 
     /** @copydoc NumericTable::getBlockOfRows(long,long,IntBuffer) */
     @Override
-    public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                for (int j = 0; j < fields.length; j++) {
-                    double d = fields[j].getDouble(this.ptr[(int) vectorIndex + i]);
-                    buf.put((int) d);
-                }
+    public IntBuffer getBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            for (int j = 0; j < fields.length; j++) {
+                double d = fields[j].getDouble(this.ptr[(int) vectorIndex + i]);
+                buf.put((int) d);
             }
-        } catch (java.lang.IllegalAccessException e) {
         }
         return buf;
     }
 
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,DoubleBuffer) */
     @Override
-    public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                buf.put(fields[(int) featureIndex].getDouble(this.ptr[(int) vectorIndex + i]));
-            }
-        } catch (java.lang.IllegalAccessException e) {
+    public DoubleBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            buf.put(fields[(int) featureIndex].getDouble(this.ptr[(int) vectorIndex + i]));
         }
         return buf;
     }
 
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,FloatBuffer) */
     @Override
-    public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                double d = fields[(int) featureIndex].getFloat(this.ptr[(int) vectorIndex + i]);
-                buf.put((float) d);
-            }
-        } catch (java.lang.IllegalAccessException e) {
+    public FloatBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            double d = fields[(int) featureIndex].getFloat(this.ptr[(int) vectorIndex + i]);
+            buf.put((float) d);
         }
         return buf;
     }
 
     /** @copydoc NumericTable::getBlockOfColumnValues(long,long,long,IntBuffer) */
     @Override
-    public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                double d = fields[(int) featureIndex].getFloat(this.ptr[(int) vectorIndex + i]);
-                buf.put((int) d);
-            }
-        } catch (java.lang.IllegalAccessException e) {
+    public IntBuffer getBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            double d = fields[(int) featureIndex].getFloat(this.ptr[(int) vectorIndex + i]);
+            buf.put((int) d);
         }
         return buf;
     }
 
     /** @copydoc NumericTable::releaseBlockOfRows(long,long,DoubleBuffer) */
     @Override
-    public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                for (int j = 0; j < fields.length; j++) {
-                    fields[j].setDouble(this.ptr[(int) vectorIndex + i], buf.get());
-                }
+    public void releaseBlockOfRows(long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            for (int j = 0; j < fields.length; j++) {
+                fields[j].setDouble(this.ptr[(int) vectorIndex + i], buf.get());
             }
-        } catch (java.lang.IllegalAccessException e) {
         }
     }
 
     /** @copydoc NumericTable::releaseBlockOfRows(long,long,FloatBuffer) */
     @Override
-    public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                for (int j = 0; j < fields.length; j++) {
-                    fields[j].setFloat(this.ptr[(int) vectorIndex + i], buf.get());
-                }
+    public void releaseBlockOfRows(long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            for (int j = 0; j < fields.length; j++) {
+                fields[j].setFloat(this.ptr[(int) vectorIndex + i], buf.get());
             }
-        } catch (java.lang.IllegalAccessException e) {
         }
     }
 
     /** @copydoc NumericTable::releaseBlockOfRows(long,long,IntBuffer) */
     @Override
-    public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                for (int j = 0; j < fields.length; j++) {
-                    fields[j].setInt(this.ptr[(int) vectorIndex + i], buf.get());
-                }
+    public void releaseBlockOfRows(long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            for (int j = 0; j < fields.length; j++) {
+                fields[j].setInt(this.ptr[(int) vectorIndex + i], buf.get());
             }
-        } catch (java.lang.IllegalAccessException e) {
         }
     }
 
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,DoubleBuffer) */
     @Override
-    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                fields[(int) featureIndex].setDouble(this.ptr[(int) vectorIndex + i], buf.get());
-            }
-        } catch (java.lang.IllegalAccessException e) {
+    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, DoubleBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            fields[(int) featureIndex].setDouble(this.ptr[(int) vectorIndex + i], buf.get());
         }
     }
 
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,FloatBuffer) */
     @Override
-    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                fields[(int) featureIndex].setFloat(this.ptr[(int) vectorIndex + i], buf.get());
-            }
-        } catch (java.lang.IllegalAccessException e) {
+    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, FloatBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            fields[(int) featureIndex].setFloat(this.ptr[(int) vectorIndex + i], buf.get());
         }
     }
 
     /** @copydoc NumericTable::releaseBlockOfColumnValues(long,long,long,IntBuffer) */
     @Override
-    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) {
-        try {
-            for (int i = 0; i < vectorNum; i++) {
-                fields[(int) featureIndex].setInt(this.ptr[(int) vectorIndex + i], buf.get());
-            }
-        } catch (java.lang.IllegalAccessException e) {
+    public void releaseBlockOfColumnValues(long featureIndex, long vectorIndex, long vectorNum, IntBuffer buf) throws IllegalAccessException {
+        for (int i = 0; i < vectorNum; i++) {
+            fields[(int) featureIndex].setInt(this.ptr[(int) vectorIndex + i], buf.get());
         }
     }
 

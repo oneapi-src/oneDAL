@@ -60,7 +60,7 @@ class SVMTwoClassModelBuilder {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, IllegalAccessException {
 
         buildModelFromTraining();
         testModel();
@@ -68,7 +68,7 @@ class SVMTwoClassModelBuilder {
         context.dispose();
     }
 
-    public static void buildModelFromTraining() {
+    public static void buildModelFromTraining() throws IllegalAccessException {
         /* Initialize FileDataSource to retrieve trained model from a .csv file */
         FileDataSource trainDataSource = new FileDataSource(context, trainedModelsFileName,
                 DataSource.DictionaryCreationFlag.DoDictionaryFromContext,

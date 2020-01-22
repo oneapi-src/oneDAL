@@ -56,7 +56,7 @@ class PCACorDenseDistr {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, java.lang.IllegalArgumentException {
 
         for (int i = 0; i < nNodes; i++) {
             DaalContext localContext = new DaalContext();

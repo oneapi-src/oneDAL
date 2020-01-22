@@ -47,7 +47,7 @@ class PCACorDenseBatch {
     private static final String dataset       = "../data/batch/pca_normalized.csv";
     private static DaalContext  context       = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, java.lang.IllegalArgumentException {
         /* Retrieve the input data from a .csv file */
         FileDataSource dataSource = new FileDataSource(context, dataset,
                                                        DataSource.DictionaryCreationFlag.DoDictionaryFromContext,

@@ -44,7 +44,7 @@ class OutDetectBaconDenseBatch {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, IllegalAccessException {
         FileDataSource dataSource = new FileDataSource(context, datasetFileName,
                 DataSource.DictionaryCreationFlag.DoDictionaryFromContext,
                 DataSource.NumericTableAllocationFlag.DoAllocateNumericTable);

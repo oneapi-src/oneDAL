@@ -670,10 +670,10 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(s
             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
             algorithmFPType * res  = resBD.get() + iStartRow;
-            algorithmFPType * prob = probBDPtr + iStartRow * _nClasses;
 
             if (probBDPtr != nullptr)
             {
+                algorithmFPType * prob = probBDPtr + iStartRow * _nClasses;
                 if (nRowsToProcess < 2 * nThreads || cpu == __avx512_mic__)
                 {
                     for (size_t iRow = 0; iRow < nRowsToProcess; ++iRow)

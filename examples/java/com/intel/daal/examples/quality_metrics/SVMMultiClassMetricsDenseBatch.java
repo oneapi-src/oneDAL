@@ -68,16 +68,12 @@ class SVMMultiClassMetricsDenseBatch {
 
     private static DaalContext context = new DaalContext();
 
-    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException {
+    public static void main(String[] args) throws java.io.FileNotFoundException, java.io.IOException, IllegalAccessException {
 
         trainModel();
-
         testModel();
-
         testModelQuality();
-
         printResults();
-
         context.dispose();
     }
 
@@ -173,7 +169,7 @@ class SVMMultiClassMetricsDenseBatch {
         qualityMetricSetResult = quality_metric_set.compute();
     }
 
-    private static void printResults() {
+    private static void printResults() throws IllegalAccessException {
         /* Print the classification results */
         Service.printClassificationResult(groundTruthLabels, predictedLabels, "Ground truth", "Classification results",
                 "SVM classification results (first 20 observations):", 20);

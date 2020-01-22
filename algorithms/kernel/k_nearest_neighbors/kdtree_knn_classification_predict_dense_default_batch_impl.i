@@ -348,7 +348,6 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
 
     DAAL_ALIGNAS(256) algorithmFpType distance[__KDTREE_LEAF_BUCKET_SIZE + 1];
     size_t start, end;
-    algorithmFpType dist, diff, val;
 
     data_management::BlockDescriptor<algorithmFpType> xBD[2];
     size_t curBDIdx, nextBDIdx;
@@ -435,8 +434,8 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
         }
         else
         {
-            val  = query[node->dimension];
-            diff = val - node->cutPoint;
+            algorithmFpType val  = query[node->dimension];
+            const algorithmFpType diff = val - node->cutPoint;
 
             if (cur.minDistance <= radius)
             {
