@@ -31,7 +31,6 @@
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
-using namespace daal::data_management;
 using namespace std;
 
 /* Input data set parameters */
