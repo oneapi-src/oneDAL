@@ -30,7 +30,8 @@
 
 using namespace std;
 using namespace daal;
-using namespace algorithms;
+using namespace daal::algorithms;
+using namespace daal::data_management;
 
 typedef double algorithmFPType; /* Algorithm floating-point type */
 

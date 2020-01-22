@@ -41,6 +41,7 @@
 using namespace std;
 using namespace daal;
 using namespace daal::services;
+using namespace daal::data_management;
 using namespace daal::algorithms::linear_regression;
 using namespace daal::algorithms::linear_regression::quality_metric;
 
