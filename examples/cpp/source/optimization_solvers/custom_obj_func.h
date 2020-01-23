@@ -315,8 +315,7 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
         ((parameter->resultsToCompute & daal::algorithms::optimization_solver::objective_function::gradient) != 0) ? true : false;
     if (gradientFlag)
     {
-        NumericTable * gradientTable =
-            result->get(daal::algorithms::optimization_solver::objective_function::gradientIdx).get();
+        NumericTable * gradientTable = result->get(daal::algorithms::optimization_solver::objective_function::gradientIdx).get();
         BlockDescriptor<algorithmFPType> gradientBlock;
         gradientTable->getBlockOfRows(0, p, writeOnly, gradientBlock);
         algorithmFPType * gradient = gradientBlock.getBlockPtr();
