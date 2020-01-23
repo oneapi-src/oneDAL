@@ -276,10 +276,10 @@ public:
             const algorithmFPType * const pAddedCenter = &pLastAddedCenter[iTrials * dim];
 
             minDistAccTrials[iTrials * nBlock + iBlock] =
-                updateMinDistForITrials(pDistSq, iTrials, nRowsToProcess, pData, colIdx, rowIdx, pAddedCenter, aWeights, pDistSqBest);
+                updateMinDistForITrials(pDistSq, iTrials, nRowsToProcess, pData, colIdx, rowIdx, pAddedCenter, weights, pDistSqBest);
         }
         minDistAccTrials[iBestTrial * nBlock + iBlock] =
-            updateMinDistForITrials(pDistSqBest, iBestTrial, nRowsToProcess, pData, colIdx, rowIdx, pLastAddedCenter, aWeights, pDistSqBest);
+            updateMinDistForITrials(pDistSqBest, iBestTrial, nRowsToProcess, pData, colIdx, rowIdx, pLastAddedCenter, weights, pDistSqBest);
 
         return Status();
     }
