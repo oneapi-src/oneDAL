@@ -218,6 +218,15 @@ public:
 class AxpyExecutor
 {
 private:
+
+    template <typename algorithmFPType>
+    static bool checkSize(const int n, const services::Buffer<algorithmFPType> &buffer, const int inc)
+    {
+        if ((n - 1) * inc >= static_cast<int>(buffer.size()))
+            return true;
+        return false;
+    }
+
     struct Execute
     {
         cl::sycl::queue & queue;
@@ -241,19 +250,26 @@ private:
               status(status)
         {}
 
-        template <typename T>
-        void operator()(Typelist<T>)
+        template <typename algorithmFPType>
+        void operator()(Typelist<algorithmFPType>)
         {
-            auto x_buffer_t = x_buffer.template get<T>();
-            auto y_buffer_t = y_buffer.template get<T>();
+            auto x_buffer_t = x_buffer.template get<algorithmFPType>();
+            auto y_buffer_t = y_buffer.template get<algorithmFPType>();
+
+            if (checkSize(n, x_buffer_t, incx) || checkSize(n, y_buffer_t, incy))
+            {
+                if (status)
+                    status->add(services::ErrorIncorrectIndex);
+                return;
+            }
 
             services::Status statusAxpy;
 #ifdef ONEAPI_DAAL_NO_MKL_GPU_FUNC
-            ReferenceAxpy<T> functor;
+            ReferenceAxpy<algorithmFPType> functor;
 #else
-            MKLAxpy<T> functor(queue);
+            MKLAxpy<algorithmFPType> functor(queue);
 #endif
-            statusAxpy = functor(n, (T)a, x_buffer_t, incx, y_buffer_t, incy);
+            statusAxpy = functor(n, (algorithmFPType)a, x_buffer_t, incx, y_buffer_t, incy);
             services::internal::tryAssignStatus(status, statusAxpy);
         }
     };
