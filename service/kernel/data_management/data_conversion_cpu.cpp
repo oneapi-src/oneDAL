@@ -20,7 +20,7 @@
 #include "service_memory.h"
 #include "service_defines.h"
 #include "service_lapack.h"
-#include <immintrin.h>
+//#include <immintrin.h>
 
 namespace daal
 {
