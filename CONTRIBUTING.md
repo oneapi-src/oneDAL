@@ -33,9 +33,9 @@ Public and private CIs are enabled for the repository. Your PR should pass all o
 
 ## Code Style
 
-Our repository contains [clang-format configurations](https://github.com/intel/daal/blob/master/.clang-format) that you should use on your code. 
-Minimal ClangFormat version: `9.0.0`.
-To do this, run:
+**Prerequisites:** ClangFormat `9.0.0` or later
+
+Our repository contains [clang-format configurations](https://github.com/intel/daal/blob/master/.clang-format) that you should use on your code. To do this, run:
 
 ```
 clang-format style=file <your file>
