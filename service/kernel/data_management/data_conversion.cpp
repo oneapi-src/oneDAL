@@ -33,6 +33,7 @@ namespace data_management
 namespace internal
 {
 
+#if defined(__INTEL_COMPILER)
 static bool tryToCopySingleFuncAVX512(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests)
 {
     typedef void (*funcType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests);
@@ -82,6 +83,7 @@ static bool tryToCopyDoubleFuncAVX512(const size_t nrows, const size_t ncols, vo
     ptr(nrows, ncols, dst, ptrMin, arrOffests);
     return true;
 }
+#endif
 
 template<typename T1, typename T2>
 static void vectorConvertFunc(size_t n, const void *src, void *dst)
@@ -148,6 +150,7 @@ DAAL_REGISTER_WITH_HOMOGEN_NT_TYPES(DAAL_REGISTER_VECTOR_ASSIGN)
             DAAL_TABLE_DOWN_ENTRY(F, unsigned char), DAAL_TABLE_DOWN_ENTRY(F, short), DAAL_TABLE_DOWN_ENTRY(F, unsigned short),                   \
     }
 
+#if defined(__INTEL_COMPILER)
 DAAL_EXPORT vectorCopy2vFuncType getVectorSingle()
 {
     return tryToCopySingleFuncAVX512;
@@ -157,6 +160,7 @@ DAAL_EXPORT vectorCopy2vFuncType getVectorDouble()
 {
     return tryToCopyDoubleFuncAVX512;
 }
+#endif
 
 DAAL_EXPORT vectorConvertFuncType getVectorUpCast(int idx1, int idx2)
 {
@@ -185,6 +189,7 @@ DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideDownCast(int idx1, int id
 } // namespace internal
 namespace data_feature_utils
 {
+#if defined(__INTEL_COMPILER)
 DAAL_EXPORT internal::vectorCopy2vFuncType getVectorDouble()
 {
     return internal::getVectorDouble();
@@ -194,6 +199,7 @@ DAAL_EXPORT internal::vectorCopy2vFuncType getVectorSingle()
 {
     return internal::getVectorSingle();
 }
+#endif
 
 DAAL_EXPORT internal::vectorConvertFuncType getVectorUpCast(int idx1, int idx2)
 {

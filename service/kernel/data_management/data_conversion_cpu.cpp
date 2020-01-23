@@ -20,7 +20,10 @@
 #include "service_memory.h"
 #include "service_defines.h"
 #include "service_lapack.h"
-//#include <immintrin.h>
+
+#if defined(__INTEL_COMPILER)
+    #include <immintrin.h>
+#endif
 
 namespace daal
 {
@@ -29,6 +32,7 @@ namespace data_management
 namespace internal
 {
 
+#if defined(__INTEL_COMPILER)
 /* Convert float to float from columnar to row major format using AVX512 architecture */
 template<CpuType cpu>
 void vectorCopySingleAVX512Cpu(const size_t nrows,
@@ -88,6 +92,7 @@ void vectorCopyDoubleAVX512Cpu(const size_t nrows,
         }
     }
 }
+#endif
 
 template<typename T1, typename T2, CpuType cpu>
 void vectorConvertFuncCpu(size_t n, const void *src, void *dst)
@@ -159,11 +164,13 @@ void vectorAssignValueToArrayCpu(void* const ptr, const size_t n, const void* co
 #define DAAL_REGISTER_VECTOR_ASSIGN_CPU(Type) template void vectorAssignValueToArrayCpu<Type, DAAL_CPU>(void* const ptr, const size_t n, const void* const value);
 DAAL_REGISTER_WITH_HOMOGEN_NT_TYPES(DAAL_REGISTER_VECTOR_ASSIGN_CPU)
 
+#if defined(__INTEL_COMPILER)
 #define DAAL_REGISTER_COPY_SINGLE_AVX512(DAAL_CPU) template void vectorCopySingleAVX512Cpu<DAAL_CPU>(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffsets);
 DAAL_REGISTER_WITH_COMPATIBLE_AVX512_CPU(DAAL_REGISTER_COPY_SINGLE_AVX512)
 
 #define DAAL_REGISTER_COPY_DOUBLE_AVX512(DAAL_CPU) template void vectorCopyDoubleAVX512Cpu<DAAL_CPU>(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffsets);
 DAAL_REGISTER_WITH_COMPATIBLE_AVX512_CPU(DAAL_REGISTER_COPY_DOUBLE_AVX512)
+#endif
 
 } // namespace internal
 } // namespace data_management

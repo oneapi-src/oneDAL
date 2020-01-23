@@ -131,9 +131,11 @@ private:
     FUNC(long)                                    \
     FUNC(unsigned long)
 
+#if defined(__INTEL_COMPILER)
 #define DAAL_REGISTER_WITH_COMPATIBLE_AVX512_CPU(FUNC) \
     FUNC(avx512)                                       \
     FUNC(avx512_mic)
+#endif
 
 template <typename T>
 DAAL_EXPORT void vectorAssignValueToArray(T * const ptr, const size_t n, const T value);

@@ -529,6 +529,7 @@ private:
         T *buffer = block.getBlockPtr();
         bool computed = false;
 
+        #if defined(__INTEL_COMPILER)
         if (isHomogeneous())
         {
             NumericTableFeature &f = (*_ddict)[0];
@@ -550,6 +551,7 @@ private:
                 }
             }
         }
+        #endif
         if (!computed)
         {
             size_t di = 32;
