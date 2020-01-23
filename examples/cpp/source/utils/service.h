@@ -146,7 +146,7 @@ daal::data_management::CSRNumericTable * createSparseTable(const std::string & d
     size_t * resultRowOffsets      = NULL;
     size_t * resultColIndices      = NULL;
     item_type * resultData         = NULL;
-    auto numericTable = new daal::data_management::CSRNumericTable(resultData, resultColIndices, resultRowOffsets, nFeatures, nVectors);
+    daal::data_management::CSRNumericTable * numericTable = new daal::data_management::CSRNumericTable(resultData, resultColIndices, resultRowOffsets, nFeatures, nVectors);
     numericTable->allocateDataMemory(nNonZeros);
     numericTable->getArrays<item_type>(&resultData, &resultColIndices, &resultRowOffsets);
     for (size_t i = 0; i < nNonZeros; ++i)
