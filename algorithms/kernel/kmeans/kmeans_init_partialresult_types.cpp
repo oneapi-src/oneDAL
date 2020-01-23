@@ -129,7 +129,7 @@ services::Status PartialResult::check(const daal::algorithms::Parameter * par, i
     if (pPartialClusters.get())
     {
         const size_t nRows = pPartialClusters->getNumberOfRows();
-        DAAL_CHECK_EX(nRows <= kmPar->nClusters, ErrorIncorrectNumberOfRows, ArgumentName, partialClustersStr());
+        DAAL_CHECK_EX(nRows <= nClusters, ErrorIncorrectNumberOfRows, ArgumentName, partialClustersStr());
         s = checkNumericTable(pPartialClusters.get(), partialClustersStr(), unexpectedLayouts);
     }
     return s;
