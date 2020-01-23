@@ -41,7 +41,7 @@ int main(int argc, char * argv[])
         FileDataSource<CSVFeatureManager> wrongDataSource(wrongDatasetFileName);
         /* An exception was generated due to absense DAAL_NOTHROW_EXCEPTIONS define by default */
     }
-    catch (daal::services::Exception& e)
+    catch (daal::services::Exception & e)
     {
         /* Retrieve the description of the generated exception. */
         std::cout << "FileDataSource expected error: " << e.what() << std::endl;
