@@ -68,7 +68,6 @@ public class Input extends com.intel.daal.algorithms.Input {
         this.prec = prec;
         this.method = method;
         this.cmode = cmode;
-        this.step = step;
         this.cObject = cInit(cAlgorithm, prec.getValue(), method.getValue(), cmode.getValue(),
                              ComputeStep.step1Local.getValue());
     }

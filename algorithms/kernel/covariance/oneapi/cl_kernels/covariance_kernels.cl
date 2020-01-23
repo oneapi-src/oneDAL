@@ -38,39 +38,22 @@ bool isFirstDataBlock(const algorithmFPType nObservations)
 __kernel void mergeCrossProduct(uint nFeatures,
                                __global const algorithmFPType *partialCrossProduct,
                                __global const algorithmFPType *partialSums,
-                               algorithmFPType partialNObservations,
                                __global algorithmFPType *crossProduct,
                                __global const algorithmFPType *sums,
-                               algorithmFPType nObservations)
+                               const algorithmFPType invPartialNObs,
+                               const algorithmFPType invNObs,
+                               const algorithmFPType invNewNObs)
 {
     const int i = get_global_id(0);
     const int j = get_global_id(1);
 
     if ((i < nFeatures) && (j < nFeatures))
     {
-        if (isFirstDataBlock(nObservations))
-        {
-            crossProduct[i * nFeatures + j] += partialCrossProduct[i * nFeatures + j];
-        }
-        else
-        {
-            algorithmFPType invPartialNObs = (algorithmFPType)(1.0) / partialNObservations;
-            algorithmFPType invNObs = (algorithmFPType)(1.0) / nObservations;
-            algorithmFPType invNewNObs = (algorithmFPType)(1.0) / (nObservations + partialNObservations);
-
-            crossProduct[i * nFeatures + j] += partialCrossProduct[i * nFeatures + j];
-            crossProduct[i * nFeatures + j] += partialSums[i] * partialSums[j] * invPartialNObs;
-            crossProduct[i * nFeatures + j] += sums[i] * sums[j] * invNObs;
-            crossProduct[i * nFeatures + j] -= (partialSums[i] + sums[i]) * (partialSums[j] + sums[j]) * invNewNObs;
-        }
+        crossProduct[i * nFeatures + j] += partialCrossProduct[i * nFeatures + j];
+        crossProduct[i * nFeatures + j] += partialSums[i] * partialSums[j] * invPartialNObs;
+        crossProduct[i * nFeatures + j] += sums[i] * sums[j] * invNObs;
+        crossProduct[i * nFeatures + j] -= (partialSums[i] + sums[i]) * (partialSums[j] + sums[j]) * invNewNObs;
     }
-}
-
-__kernel void mergeSums(__global const algorithmFPType *partialSums,
-                        __global algorithmFPType *sums)
-{
-    const int i = get_global_id(0);
-    sums[i] += partialSums[i];
 }
 
 __kernel void prepareMeansAndCrossProductDiag(unsigned int nFeatures,

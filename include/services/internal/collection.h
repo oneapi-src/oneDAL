@@ -126,7 +126,7 @@ public:
 
 private:
     PrimitiveCollection(const PrimitiveCollection &);
-    PrimitiveCollection &operator = (const PrimitiveCollection &);
+    PrimitiveCollection &operator= (const PrimitiveCollection &);
 
 private:
     T *_buffer;

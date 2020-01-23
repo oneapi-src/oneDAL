@@ -106,12 +106,10 @@ size_t OnlinePartialResult::getNumberOfRows() const
     size_t np                    = qCollection->size();
     size_t n                     = 0;
 
-    if (1 /* we need V matrices */)
+    /* we need V matrices */
+    for (size_t i = 0; i < np; i++)
     {
-        for (size_t i = 0; i < np; i++)
-        {
-            n += static_cast<NumericTable *>((*qCollection)[i].get())->getNumberOfRows();
-        }
+        n += static_cast<NumericTable *>((*qCollection)[i].get())->getNumberOfRows();
     }
 
     return n;

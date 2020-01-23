@@ -240,8 +240,6 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     const uint32_t numFeatures = data.getNumberOfColumns();
     const uint32_t numComponents = transformedData.getNumberOfColumns();
 
-    const algorithmFPType zero = 0.0;
-
     /* Calculating invSigmas and invEigenValues*/
     UniversalBuffer invSigmas;
     DAAL_CHECK_STATUS(status, allocateBuffer(ctx, invSigmas, numFeatures));
