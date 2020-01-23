@@ -533,19 +533,21 @@ private:
         {
             NumericTableFeature &f = (*_ddict)[0];
 
-            if (internal::getConversionDataType<T>() == internal::ConversionDataType::DAAL_SINGLE &&
-                (int)internal::getConversionDataType<T>() == (int)f.indexType)
+            /* no conversion */
+            if ((int)internal::getConversionDataType<T>() == (int)f.indexType)
             {
-                DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
-                void *ptrMin = (float*)(_arrays[_index].get()) + idx;
-                computed = data_management::internal::getVectorSingle()(nrows, ncols, buffer, ptrMin, _arrOffsets);
-            }
-            else if (internal::getConversionDataType<T>() == internal::ConversionDataType::DAAL_DOUBLE &&
-                     (int)internal::getConversionDataType<T>() == (int)f.indexType)
-            {
-                DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
-                void *ptrMin = (double*)(_arrays[_index].get()) + idx;
-                computed = data_management::internal::getVectorDouble()(nrows, ncols, buffer, ptrMin, _arrOffsets);
+                if (internal::getConversionDataType<T>() == internal::ConversionDataType::DAAL_SINGLE)
+                {
+                    DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
+                    void *ptrMin = (float*)(_arrays[_index].get()) + idx;
+                    computed = data_management::internal::getVectorSingle()(nrows, ncols, buffer, ptrMin, _arrOffsets);
+                }
+                else if (internal::getConversionDataType<T>() == internal::ConversionDataType::DAAL_DOUBLE)
+                {
+                    DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
+                    void *ptrMin = (double*)(_arrays[_index].get()) + idx;
+                    computed = data_management::internal::getVectorDouble()(nrows, ncols, buffer, ptrMin, _arrOffsets);
+                }
             }
         }
         if (!computed)
