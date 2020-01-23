@@ -25,7 +25,6 @@
 #include "oneapi/blas_gpu.h"
 #include "oneapi/internal/utils.h"
 #include "service_ittnotify.h"
-#include "cl_kernel/copy_reduce_results.cl"
 
 namespace daal
 {
@@ -170,44 +169,14 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
 
         algorithmFPType nrowsVal = static_cast<algorithmFPType>(nRows);
         const services::Buffer<algorithmFPType> nrowsBuf(&nrowsVal, 1);
-        DAAL_CHECK_STATUS(status, copyReduce(sumXBuf, nCols, 1, nrowsBuf, 0, 1, 1));
+        services::Buffer<algorithmFPType> dstNRowsBuf = xtxBuff.getSubBuffer(nBetasIntercept * nBetasIntercept - 1, 1, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+        DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xaxpy(1, 1, nrowsBuf, 1, dstNRowsBuf, 1));
 
-        /*Copy reduce results of yTable into YTX*/
-        DAAL_CHECK_STATUS(status, copyReduce(xtyBuff, nCols, nBetasIntercept, sumYBuf, 0, 1, nResponses));
+        services::Buffer<algorithmFPType> dstReduceBuf = xtyBuff.getSubBuffer(nBetasIntercept - 1, (nResponses - 1) * nBetasIntercept + 1, &status);
+        DAAL_CHECK_STATUS_VAR(status);
+        DAAL_CHECK_STATUS(status, BlasGpu<algorithmFPType>::xaxpy(nResponses, 1, sumYBuf, 1, dstReduceBuf, nBetasIntercept));
     }
-
-    return status;
-}
-
-template <typename algorithmFPType>
-services::Status UpdateKernelOneAPI<algorithmFPType>::copyReduce(services::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
-                                                                        const services::Buffer<algorithmFPType> & src, size_t srcOffset,
-                                                                        size_t srcStride, size_t count)
-{
-    services::Status status;
-
-    ExecutionContextIface & ctx    = getDefaultContext();
-    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
-
-    const services::String options = getKeyFPType<algorithmFPType>();
-    services::String cachekey("__daal_algorithms_linear_model_copy_");
-    cachekey.add(options);
-    factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCopy, options.c_str());
-
-    const char * const kernelName = "copyReduce";
-    KernelPtr kernel              = factory.getKernel(kernelName);
-
-    KernelArguments args(6);
-    args.set(0, dst, AccessModeIds::write);
-    args.set(1, dstOffset);
-    args.set(2, dstStride);
-    args.set(3, src, AccessModeIds::read);
-    args.set(4, srcOffset);
-    args.set(5, srcStride);
-
-    KernelRange range(count);
-
-    ctx.run(range, kernel, args, &status);
 
     return status;
 }
