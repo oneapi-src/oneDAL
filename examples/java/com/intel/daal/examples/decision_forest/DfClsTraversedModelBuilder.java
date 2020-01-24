@@ -245,6 +245,7 @@ class DfClsTraversedModelBuilder {
             parentMap.clear();
         }
 
+        modelBuilder.setNFeatures(nFeatures);
         return modelBuilder.getModel();
     }
 

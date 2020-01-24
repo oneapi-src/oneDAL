@@ -104,3 +104,17 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classifi
     *model                                  = staticPointerCast<Model>((*ptr)->getModel());
     return (jlong)model;
 }
+
+/*
+ * Class:     com_intel_daal_algorithms_decision_forest_classification_ModelBuilder
+ * Method:    cSetNFeatures
+ * Signature:(JII)J
+ */
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_ModelBuilder_cSetNFeatures(JNIEnv * env, jobject, jlong algAddr,
+                                                                                                                 jlong nFeatures)
+{
+    services::SharedPtr<ModelBuilder> * ptr = new services::SharedPtr<ModelBuilder>();
+    *ptr                                    = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
+    (*ptr)->setNFeatures(nFeatures);
+    DAAL_CHECK_THROW((*ptr)->getStatus());
+}
