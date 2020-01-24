@@ -412,19 +412,33 @@ void PredictClassificationTask<float, avx512>::predictByTree(const float * x, co
         }
         else
         {
-            __m512d prob_pd = _mm512_set1_pd(0);
             const size_t nBlocksOfClasses = _nClasses / 8;
-            const size_t tailSize = _nClasses % 8;
-            __mmask8 tail_mask = 0xff >> (8 - tailSize);
-            const size_t tailSize_16 = _nClasses % 16;
-            __mmask16 tail_mask_16 = 0xffff >> (16 - _nClasses % 16);
-            __m512d zero_pd = _mm512_set1_pd(0);
-            for (size_t i = 0; i < _DEFAULT_BLOCK_SIZE; ++i)
+            if(nBlocksOfClasses != 0)
             {
-                __m512d prob_pd = _mm512_mask_load_pd(zero_pd, tail_mask, probas + idx[i] * _nClasses);
-                _mm512_mask_store_pd(resPtr, tail_mask, _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, probas + idx[i] * _nClasses) ));
+                for (size_t i = 0; i < _DEFAULT_BLOCK_SIZE; ++i)
+                {
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t j = 0; j < _nClasses; ++j)
+                    {
+                        resPtr[i * _nClasses + j] += probas[idx[i] * _nClasses + j];
+                    }
+                }
+            }
+            else
+            {
+                __m512d prob_pd = _mm512_set1_pd(0);
+                const size_t tailSize = _nClasses % 8;
+                __mmask8 tail_mask = 0xff >> (8 - tailSize);
+                __m512d zero_pd = _mm512_set1_pd(0);
 
-                resPtr += _nClasses;
+                for (size_t i = 0; i < _DEFAULT_BLOCK_SIZE; ++i)
+                {
+                    __m512d prob_pd = _mm512_mask_load_pd(zero_pd, tail_mask, probas + idx[i] * _nClasses);
+                    _mm512_mask_store_pd(resPtr, tail_mask, _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, probas + idx[i] * _nClasses) ));
+
+                    resPtr += _nClasses;
+                }
             }
         }
     }
