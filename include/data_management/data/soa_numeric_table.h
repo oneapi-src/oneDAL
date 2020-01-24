@@ -465,7 +465,7 @@ private:
         char *ptrMin = (char*)_arrays[0].get();
 
         /* search index for min pointer */
-        for (int i = 1; i < ncols; i++)
+        for (size_t i = 1; i < ncols; i++)
         {
             if ((char*)_arrays[i].get() < ptrMin)
             {
@@ -475,7 +475,7 @@ private:
         }
 
         /* compute offsets */
-        for (int i = 0; i < ncols; i++)
+        for (size_t i = 0; i < ncols; i++)
         {
             char *pv = (char*)(_arrays[i].get());
             _arrOffsets[i] = (int)(pv - ptrMin);
@@ -500,8 +500,8 @@ private:
                 return false;
         }
 
-        return (int)f0.indexType == (int)internal::ConversionDataType::DAAL_SINGLE ||
-               (int)f0.indexType == (int)internal::ConversionDataType::DAAL_DOUBLE;
+        return (int)f0.indexType == (int)internal::getConversionDataType<float>() ||
+               (int)f0.indexType == (int)internal::getConversionDataType<double>();
     }
 
     template <typename T>
@@ -537,13 +537,13 @@ private:
             /* no conversion */
             if ((int)internal::getConversionDataType<T>() == (int)f.indexType)
             {
-                if (internal::getConversionDataType<T>() == internal::ConversionDataType::DAAL_SINGLE)
+                if (internal::getConversionDataType<T>() == internal::getConversionDataType<float>())
                 {
                     DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
                     void *ptrMin = (float*)(_arrays[_index].get()) + idx;
                     computed = data_management::internal::getVectorSingle()(nrows, ncols, buffer, ptrMin, _arrOffsets);
                 }
-                else if (internal::getConversionDataType<T>() == internal::ConversionDataType::DAAL_DOUBLE)
+                else if (internal::getConversionDataType<T>() == internal::getConversionDataType<double>())
                 {
                     DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
                     void *ptrMin = (double*)(_arrays[_index].get()) + idx;
