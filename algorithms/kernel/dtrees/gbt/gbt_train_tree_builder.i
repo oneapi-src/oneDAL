@@ -1,6 +1,6 @@
 /* file: gbt_train_tree_builder.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -274,23 +274,45 @@ protected:
         const size_t nSamples = _ctx.nSamples();
         const int* aSampleToF = _ctx.aSampleToF();
 
-        if(aSampleToF)
-        {
-            PRAGMA_VECTOR_ALWAYS
-            for(size_t i = 0; i < nSamples; ++i)
+        const size_t nThreads = _ctx.numAvailableThreads();
+        const size_t nBlocks  = getNBlocksForOpt<cpu>(nThreads, nSamples);
+        const bool inParallel = nBlocks > 1;
+        daal::services::internal::TArray<algorithmFPType, cpu> gsArr(nBlocks);
+        daal::services::internal::TArray<algorithmFPType, cpu> hsArr(nBlocks);
+        algorithmFPType * const gs = gsArr.get();
+        algorithmFPType * const hs = hsArr.get();
+        const size_t nPerBlock     = nSamples / nBlocks;
+        const size_t nSurplus      = nSamples % nBlocks;
+        LoopHelper<cpu>::run(inParallel, nBlocks, [&](size_t iBlock) {
+            const size_t start = iBlock + 1 > nSurplus ? nPerBlock * iBlock + nSurplus : (nPerBlock + 1) * iBlock;
+            const size_t end   = iBlock + 1 > nSurplus ? start + nPerBlock : start + (nPerBlock + 1);
+            algorithmFPType localG, localH;
+            localG = localH = 0;
+            if (aSampleToF)
             {
-                G += pgh[aSampleToF[i]].g;
-                H += pgh[aSampleToF[i]].h;
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = start; i < end; i++)
+                {
+                    localG += pgh[aSampleToF[i]].g;
+                    localH += pgh[aSampleToF[i]].h;
+                }
             }
-        }
-        else
-        {
-            PRAGMA_VECTOR_ALWAYS
-            for(size_t i = 0; i < nSamples; ++i)
+            else
             {
-                G += pgh[i].g;
-                H += pgh[i].h;
+                 PRAGMA_VECTOR_ALWAYS
+                for (size_t i = start; i < end; i++)
+                {
+                    localG += pgh[i].g;
+                    localH += pgh[i].h;
+                }
             }
+            gs[iBlock] = localG;
+            hs[iBlock] = localH;
+        });
+        for (size_t i = 0; i < nBlocks; i++)
+        {
+            G += gs[i];
+            H += hs[i];
         }
     }
 

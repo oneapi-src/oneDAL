@@ -1,6 +1,6 @@
 /* file: dtrees_feature_type_helper.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ template <typename IndexType, typename algorithmFPType, CpuType cpu>
 services::Status ColIndexTaskBins<IndexType, algorithmFPType, cpu>::makeIndex(NumericTable& nt,
     IndexedFeatures::FeatureEntry& entry, IndexType* aRes, size_t iCol, size_t nRows, bool bUnorderedFeature)
 {
-    if(bUnorderedFeature || nRows <= _prm.maxBins*_prm.minBinSize)
+    if(bUnorderedFeature || nRows <= _prm.maxBins)
         return this->makeIndexDefault(nt, entry, aRes, iCol, nRows, bUnorderedFeature);
 
     Status s = this->getSorted(nt, iCol, nRows);

@@ -1,6 +1,6 @@
 /* file: gbt_train_aux.i */
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
+* Copyright 2014-2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -59,6 +59,16 @@ void deleteTables(gbt::internal::GbtDecisionTree** aTbl, HomogenNumericTable<dou
         aTblImp[i]      = nullptr;
         aTblSmplCnt[i]  = nullptr;
     }
+}
+
+template <CpuType cpu>
+size_t getNBlocksForOpt(size_t nThreads, size_t n)
+{
+    if (nThreads <= 1 || n < 128000) return 1;
+    const size_t blockSize = 512;
+    size_t nBlocks         = n / blockSize;
+    if (nBlocks % blockSize) nBlocks++;
+    return nBlocks;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
