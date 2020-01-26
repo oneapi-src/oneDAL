@@ -181,6 +181,7 @@ protected:
     services::internal::TArray<leftOrClassType, cpu> _tLC;
     services::internal::TArray<algorithmFPType, cpu> _tFV;
     services::internal::TArray<int, cpu> _displaces;
+    services::internal::TArray<bool, cpu> _treeFilFlags;
     services::internal::TArray<double*, cpu> _probas;
     services::internal::TArray<double, cpu> _probas_d;
     services::internal::TArray<ClassIndexType, cpu> _val;
@@ -298,6 +299,21 @@ void PredictClassificationTask<algorithmFPType, cpu>::parallelPredict(const algo
     lc = lc + currDisplace;
     fv = fv + currDisplace;
 
+    bool* treeFlags = _treeFilFlags.get();
+
+    if(!treeFlags[iTree])
+    {
+        treeFlags[iTree] = true;
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 0; i < treeSize; i++)
+        {
+            fi[i] = aNode[i].featureIndex;
+            lc[i] = aNode[i].leftIndexOrClass;
+            fv[i] = (algorithmFPType)aNode[i].featureValueOrResponse;
+        }
+    }
+
     daal::threader_for(nBlocks, nBlocks, [&, nCols](size_t iBlock) {
         predictByTree(aX + iBlock * blockSize * nCols, blockSize, nCols, fi, lc, fv, prob + iBlock * blockSize * _nClasses, iTree);
     });
@@ -413,9 +429,9 @@ void PredictClassificationTask<float, avx512>::predictByTree(const float * x, co
         else
         {
             const size_t nBlocksOfClasses = _nClasses / 8;
-            if(nBlocksOfClasses != 0)
+/*            if(nBlocksOfClasses != 0)
             {
-                for (size_t i = 0; i < _DEFAULT_BLOCK_SIZE; ++i)
+*/                for (size_t i = 0; i < _DEFAULT_BLOCK_SIZE; ++i)
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
@@ -424,7 +440,7 @@ void PredictClassificationTask<float, avx512>::predictByTree(const float * x, co
                         resPtr[i * _nClasses + j] += probas[idx[i] * _nClasses + j];
                     }
                 }
-            }
+/*            }
             else
             {
                 __m512d prob_pd = _mm512_set1_pd(0);
@@ -439,7 +455,7 @@ void PredictClassificationTask<float, avx512>::predictByTree(const float * x, co
 
                     resPtr += _nClasses;
                 }
-            }
+            }*/
         }
     }
     else
@@ -998,7 +1014,8 @@ Status PredictClassificationTask<double, avx512>::predictAllPointsByAllTrees(siz
     {
         _displaces.reset(numberOfTrees);
         int* disp = _displaces.get();
-
+        _treeFilFlags.reset(numberOfTrees);
+        bool* treeFlags = _treeFilFlags.get();
         for(size_t iTree = 0; iTree < numberOfTrees; ++iTree)
         {
             _sumTreeSize += _aTree[iTree]->getNumberOfRows();
@@ -1010,12 +1027,12 @@ Status PredictClassificationTask<double, avx512>::predictAllPointsByAllTrees(siz
             {
                 disp[iTree] = disp[iTree - 1] + _aTree[iTree - 1]->getNumberOfRows();
             }
-
+            treeFlags[iTree] = false;
         }
         _tFI.reset(_sumTreeSize);
         _tLC.reset(_sumTreeSize);
         _tFV.reset(_sumTreeSize);
-        featureIndexType * _fi = _tFI.get();
+/*        featureIndexType * _fi = _tFI.get();
         leftOrClassType  * _lc  = _tLC.get();
         double  * _fv  = _tFV.get();
 
@@ -1035,7 +1052,7 @@ Status PredictClassificationTask<double, avx512>::predictAllPointsByAllTrees(siz
                 lc[i] = aNode[i].leftIndexOrClass;
                 fv[i] = (double)aNode[i].featureValueOrResponse;
             }
-        }
+        }*/
     }
 
 
@@ -1152,11 +1169,13 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     DAAL_CHECK_BLOCK_STATUS(xBD);
     const algorithmFPType * const aX = xBD.get();
 
+
     if(_sumTreeSize == 0)
     {
         _displaces.reset(numberOfTrees);
         int* disp = _displaces.get();
-
+        _treeFilFlags.reset(numberOfTrees);
+        bool* treeFlags = _treeFilFlags.get();
         for(size_t iTree = 0; iTree < numberOfTrees; ++iTree)
         {
             _sumTreeSize += _aTree[iTree]->getNumberOfRows();
@@ -1168,12 +1187,12 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
             {
                 disp[iTree] = disp[iTree - 1] + _aTree[iTree - 1]->getNumberOfRows();
             }
-
+            treeFlags[iTree] = false;
         }
         _tFI.reset(_sumTreeSize);
         _tLC.reset(_sumTreeSize);
         _tFV.reset(_sumTreeSize);
-        featureIndexType * _fi = _tFI.get();
+/*        featureIndexType * _fi = _tFI.get();
         leftOrClassType  * _lc  = _tLC.get();
         algorithmFPType  * _fv  = _tFV.get();
 
@@ -1193,7 +1212,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
                 lc[i] = aNode[i].leftIndexOrClass;
                 fv[i] = (algorithmFPType)aNode[i].featureValueOrResponse;
             }
-        }
+        }*/
     }
 
     if (numberOfTrees > _MIN_TREES_FOR_THREADING && threader_get_threads_number() > 1)
