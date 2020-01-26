@@ -435,7 +435,7 @@ void PredictClassificationTask<float, avx512>::predictByTree(const float * x, co
                 for (size_t i = 0; i < _DEFAULT_BLOCK_SIZE; ++i)
                 {
                     __m512d prob_pd = _mm512_mask_load_pd(zero_pd, tail_mask, probas + idx[i] * _nClasses);
-                    _mm512_mask_store_pd(resPtr, tail_mask, _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, probas + idx[i] * _nClasses) ));
+                    _mm512_mask_store_pd(resPtr, tail_mask, _mm512_add_pd(prob_pd, _mm512_mask_load_pd(zero_pd, tail_mask, resPtr) ));
 
                     resPtr += _nClasses;
                 }
