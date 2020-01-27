@@ -110,7 +110,7 @@ protected:
                              const algorithmFPType * tFV, algorithmFPType * prob, size_t iTree);
 
     void parallelPredict(const algorithmFPType * aX, const DecisionTreeNode * aNode, size_t treeSize, size_t nBlocks, size_t nCols, size_t blockSize,
-                         size_t residualSize, algorithmFPType * prob, size_t iTree);//, size_t numberOfTrees);
+                         size_t residualSize, algorithmFPType * prob, size_t iTree);
 
     Status predictByAllTrees(size_t nTreesTotal, const DimType & dim);
     Status predictOneRowByAllTrees(size_t nTreesTotal);
@@ -181,7 +181,6 @@ protected:
     services::internal::TArray<leftOrClassType, cpu> _tLC;
     services::internal::TArray<algorithmFPType, cpu> _tFV;
     services::internal::TArray<int, cpu> _displaces;
-    services::internal::TArray<bool, cpu> _treeFilFlags;
     services::internal::TArray<double*, cpu> _probas;
     services::internal::TArray<double, cpu> _probas_d;
     services::internal::TArray<ClassIndexType, cpu> _val;
@@ -289,7 +288,7 @@ void PredictClassificationTask<algorithmFPType, cpu>::predictByTreesWithoutConve
 template <typename algorithmFPType, CpuType cpu>
 void PredictClassificationTask<algorithmFPType, cpu>::parallelPredict(const algorithmFPType * aX, const DecisionTreeNode * aNode, size_t treeSize,
                                                                       size_t nBlocks, size_t nCols, size_t blockSize, size_t residualSize,
-                                                                      algorithmFPType * prob, size_t iTree)//, size_t numberOfTrees)
+                                                                      algorithmFPType * prob, size_t iTree)
 {
     services::internal::TArray<featureIndexType, cpu> tFI(treeSize);
     services::internal::TArray<leftOrClassType, cpu> tLC(treeSize);
@@ -605,10 +604,10 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
 
     HomogenNumericTable<algorithmFPType> * resNT  = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(_res);
     HomogenNumericTable<algorithmFPType> * probNT = dynamic_cast<HomogenNumericTable<algorithmFPType> *>(_prob);
-
+    const size_t nRows = _data->getNumberOfRows();
     if(resNT == nullptr)
     {
-        _resBD.set(_res, 0, 1);
+        _resBD.set(_res, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(_resBD);
         resPtr = _resBD.get();
     }
@@ -619,7 +618,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
 
     if(probNT == nullptr)
     {
-        _probBD.set(_prob, 0, 1);
+        _probBD.set(_prob, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(_probBD);
         probPtr = _probBD.get();
     }
@@ -715,10 +714,10 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
     ClassIndexType* valPtr = nullptr;
     HomogenNumericTable<float> * resNT  = dynamic_cast<HomogenNumericTable<float> *>(_res);
     HomogenNumericTable<float> * probNT = dynamic_cast<HomogenNumericTable<float> *>(_prob);
-
+    const size_t nRows = _data->getNumberOfRows();
     if(resNT == nullptr)
     {
-        _resBD.set(_res, 0, 1);
+        _resBD.set(_res, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(_resBD);
         resPtr = _resBD.get();
     }
@@ -729,7 +728,7 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
 
     if(probNT == nullptr)
     {
-        _probBD.set(_prob, 0, 1);
+        _probBD.set(_prob, 0, nRows);
         DAAL_CHECK_BLOCK_STATUS(_probBD);
         probPtr = _probBD.get();
     }
@@ -912,9 +911,10 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
 template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTrees(size_t nTreesTotal)
 {
-    WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, 1);
+    const size_t nRows           = _data->getNumberOfRows();
+    WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(resBD);
-    WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, 1);
+    WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(probBD);
     const size_t numberOfTrees   = nTreesTotal;
     const size_t nCols           = _data->getNumberOfColumns();
@@ -1088,9 +1088,9 @@ template <typename algorithmFPType, CpuType cpu>
 Status PredictClassificationTask<algorithmFPType, cpu>::predictByBlocksOfTrees(services::HostAppIface * pHostApp, size_t nTreesTotal,
                                                                                const DimType & dim, algorithmFPType * aClsCount)
 {
-    WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, 1);
+    WriteOnlyRows<algorithmFPType, cpu> resBD(_res, 0, dim.nRowsTotal);
     DAAL_CHECK_BLOCK_STATUS(resBD);
-    WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, 1);
+    WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, dim.nRowsTotal);
     DAAL_CHECK_BLOCK_STATUS(probBD);
     algorithmFPType * const probBDPtr = probBD.get();
 
