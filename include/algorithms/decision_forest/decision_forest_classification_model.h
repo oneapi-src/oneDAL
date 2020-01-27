@@ -115,6 +115,12 @@ public:
     */
     virtual size_t getNumberOfTrees() const = 0;
 
+    /**
+    *  Get number of classes in the decision forest model
+    *  \return number of classes
+    */
+    virtual size_t getNumberOfClasses() const = 0;
+
 protected:
     Model() : classifier::Model() {}
 };

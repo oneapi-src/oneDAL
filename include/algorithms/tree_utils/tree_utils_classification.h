@@ -57,9 +57,29 @@ typedef daal::algorithms::tree_utils::TreeNodeVisitor<LeafNodeDescriptor> TreeNo
 typedef daal::algorithms::tree_utils::SplitNodeDescriptor SplitNodeDescriptor;
 
 } // namespace interface1
-using interface1::TreeNodeVisitor;
-using interface1::SplitNodeDescriptor;
-using interface1::LeafNodeDescriptor;
+
+/**
+ * \brief Contains version 2.0 of the Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) interface.
+ */
+namespace interface2
+{
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__CLASSIFICATION__LEAFNODEDESCRIPTOR"></a>
+ * \brief %Struct containing description of leaf node in classification descision tree
+ */
+struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
+{
+    size_t label; /*!< Label to be predicted when reaching the leaf */
+    const double * prob; /*!< Probabilities estimation for the leaf */
+};
+
+typedef daal::algorithms::tree_utils::TreeNodeVisitor<LeafNodeDescriptor> TreeNodeVisitor;
+typedef daal::algorithms::tree_utils::SplitNodeDescriptor SplitNodeDescriptor;
+
+} // namespace interface2
+using interface2::TreeNodeVisitor;
+using interface2::SplitNodeDescriptor;
+using interface2::LeafNodeDescriptor;
 } // namespace classification
 } // namespace tree_utils
 } // namespace algorithms

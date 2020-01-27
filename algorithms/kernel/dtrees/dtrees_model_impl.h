@@ -30,6 +30,7 @@
 #include "data_management/data/homogen_numeric_table.h"
 #include "data_management/data/aos_numeric_table.h"
 #include "service_memory.h"
+#include "service_utils.h"
 
 typedef size_t ClassIndexType;
 typedef double ModelFPType;
@@ -340,18 +341,26 @@ void setNode(DecisionTreeNode & node, int featureIndex, double response);
 services::Status addSplitNodeInternal(data_management::DataCollectionPtr & serializationData, size_t treeId, size_t parentId, size_t position,
                                       size_t featureIndex, double featureValue, size_t & res);
 
+void setProbabilities(const size_t treeId, const size_t nodeId, const size_t response,
+    const data_management::DataCollectionPtr probTbl, const double * const prob);
+
 template <typename ClassOrResponseType>
-static services::Status addLeafNodeInternal(data_management::DataCollectionPtr & serializationData, size_t treeId, size_t parentId, size_t position,
-                                            ClassOrResponseType response, size_t & res)
+static services::Status addLeafNodeInternal(const data_management::DataCollectionPtr & serializationData, const size_t treeId, const size_t parentId,
+                                            const size_t position, ClassOrResponseType response, size_t & res,
+                                            const data_management::DataCollectionPtr probTbl = data_management::DataCollectionPtr(),
+                                            const double * const prob = nullptr, const size_t nClasses = 0)
 {
     const size_t noParent = static_cast<size_t>(-1);
+    if (prob != nullptr)
+    {
+        response = services::internal::getMaxElementIndex<double, sse2>(prob, nClasses);
+    }
 
     services::Status s;
     if ((treeId > (*(serializationData)).size()) || (position != 0 && position != 1))
     {
         return services::Status(services::ErrorID::ErrorIncorrectParameter);
     }
-
     const DecisionTreeTable * const pTreeTable = static_cast<DecisionTreeTable *>((*(serializationData))[treeId].get());
     if (!pTreeTable) return services::Status(services::ErrorID::ErrorNullPtr);
     const size_t nRows             = pTreeTable->getNumberOfRows();
@@ -360,6 +369,7 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr &
     if (parentId == noParent)
     {
         setNode(aNode[0], -1, response);
+        setProbabilities(treeId, 0, response, probTbl, prob);
         nodeId = 0;
     }
     else if (aNode[parentId].featureIndex < 0)
@@ -376,6 +386,7 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr &
             if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
             {
                 setNode(aNode[nodeId], -1, response);
+                setProbabilities(treeId, nodeId, response, probTbl, prob);
             }
         }
         else if ((aNode[parentId].leftIndexOrClass > 0) && (position == 0))
@@ -385,6 +396,7 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr &
             if (aNode[reservedId].featureIndex == __NODE_RESERVED_ID)
             {
                 setNode(aNode[nodeId], -1, response);
+                setProbabilities(treeId, nodeId, response, probTbl, prob);
             }
         }
         else if ((aNode[parentId].leftIndexOrClass == 0) && (position == 0))
@@ -404,6 +416,7 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr &
                 return services::Status(services::ErrorID::ErrorIncorrectParameter);
             }
             setNode(aNode[nodeId], -1, response);
+            setProbabilities(treeId, nodeId, response, probTbl, prob);
             aNode[parentId].leftIndexOrClass = nodeId;
             if (((nodeId + 1) < nRows) && (aNode[nodeId + 1].featureIndex == __NODE_FREE_ID))
             {
@@ -437,6 +450,7 @@ static services::Status addLeafNodeInternal(data_management::DataCollectionPtr &
             if (nodeId < nRows)
             {
                 setNode(aNode[nodeId], -1, response);
+                setProbabilities(treeId, nodeId, response, probTbl, prob);
             }
             else
             {
@@ -476,6 +490,14 @@ public:
     const double * getProbas(size_t i) const
     {
         return _probTbl ? ((const data_management::HomogenNumericTable<double> *)(*_probTbl)[i].get())->getArray() : nullptr;
+    }
+
+    size_t getNumClasses() const
+    {
+        if (_probTbl.get() == nullptr || _probTbl->size() == 0) {
+            return 0;
+        }
+        return ((const data_management::HomogenNumericTable<double> *)(*_probTbl)[0].get())->getNumberOfRows();
     }
 
 protected:

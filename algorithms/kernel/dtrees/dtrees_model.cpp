@@ -46,6 +46,9 @@ ModelImpl::~ModelImpl()
 void ModelImpl::destroy()
 {
     _serializationData.reset();
+    _impurityTables.reset();
+    _nNodeSampleTables.reset();
+    _probTbl.reset();
 }
 
 bool ModelImpl::reserve(const size_t nTrees)
@@ -189,6 +192,33 @@ void setNode(DecisionTreeNode & node, int featureIndex, double response)
     node.featureIndex           = featureIndex;
     node.leftIndexOrClass       = 0;
     node.featureValueOrResponse = response;
+}
+
+void setProbabilities(const size_t treeId, const size_t nodeId, const size_t response,
+    const data_management::DataCollectionPtr probTbl, const double * const prob)
+{
+    if (probTbl.get() == nullptr)
+    {
+        return;
+    }
+    const auto treeProbaTable = (const data_management::HomogenNumericTable<double> *)(*probTbl)[treeId].get();
+    const size_t nClasses = treeProbaTable->getNumberOfRows();
+    double * const probOfTree = treeProbaTable->getArray() + nodeId * nClasses;
+    if (prob != nullptr)
+    {
+        for (size_t classIndex = 0; classIndex < nClasses; ++classIndex)
+        {
+            probOfTree[classIndex] = prob[classIndex];
+        }
+    }
+    else
+    {
+        for (size_t classIndex = 0; classIndex < nClasses; ++classIndex)
+        {
+            probOfTree[classIndex] = 0.0;
+        }
+        probOfTree[response] = 1.0;
+    }
 }
 
 services::Status addSplitNodeInternal(data_management::DataCollectionPtr & serializationData, size_t treeId, size_t parentId, size_t position,
