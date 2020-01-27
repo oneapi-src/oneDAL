@@ -64,7 +64,10 @@ public:
     PredictKernel(): _task(nullptr){};
     ~PredictKernel()
     {
-        if(!_task)    delete _task;
+        if(_task)
+        {
+            delete _task;
+        }
     }
     services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const decision_forest::classification::Model * m,
                              NumericTable * r, NumericTable * prob, size_t nClasses);
