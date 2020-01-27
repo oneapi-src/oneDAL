@@ -34,9 +34,10 @@ namespace internal
 {
 
 #if defined(__INTEL_COMPILER)
-static bool tryToCopySingleFuncAVX512(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests)
+template <typename T>
+static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffests)
 {
-    typedef void (*funcType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests);
+    typedef void (*funcType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffests);
     static funcType ptr = NULL;
 
     if(!ptr)
@@ -46,10 +47,10 @@ static bool tryToCopySingleFuncAVX512(const size_t nrows, const size_t ncols, vo
         switch(cpuid)
         {
 #ifdef DAAL_KERNEL_AVX512
-            case avx512    : DAAL_KERNEL_AVX512_ONLY_CODE(ptr = vectorCopySingleAVX512Cpu<avx512>); break;
+            case avx512    : DAAL_KERNEL_AVX512_ONLY_CODE(ptr = vectorCopy<T, avx512>); break;
 #endif
 #ifdef DAAL_KERNEL_AVX512_MIC
-            case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(ptr = vectorCopySingleAVX512Cpu<avx512_mic>); break;
+            case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(ptr = vectorCopy<T, avx512_mic>); break;
 #endif
             default: return false;
         }
@@ -59,30 +60,6 @@ static bool tryToCopySingleFuncAVX512(const size_t nrows, const size_t ncols, vo
     return true;
 }
 
-static bool tryToCopyDoubleFuncAVX512(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests)
-{
-    typedef void (*funcType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests);
-    static funcType ptr = NULL;
-
-    if(!ptr)
-    {
-        int cpuid = (int)daal::services::Environment::getInstance()->getCpuId();
-
-        switch(cpuid)
-        {
-#ifdef DAAL_KERNEL_AVX512
-            case avx512    : DAAL_KERNEL_AVX512_ONLY_CODE(ptr = vectorCopyDoubleAVX512Cpu<avx512>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX512_MIC
-            case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(ptr = vectorCopyDoubleAVX512Cpu<avx512_mic>); break;
-#endif
-            default: return false;
-        }
-    }
-
-    ptr(nrows, ncols, dst, ptrMin, arrOffests);
-    return true;
-}
 #endif
 
 template<typename T1, typename T2>
@@ -151,15 +128,30 @@ DAAL_REGISTER_WITH_HOMOGEN_NT_TYPES(DAAL_REGISTER_VECTOR_ASSIGN)
     }
 
 #if defined(__INTEL_COMPILER)
-DAAL_EXPORT vectorCopy2vFuncType getVectorSingle()
+template <typename T>
+vectorCopy2vFuncType getVector()
 {
-    return tryToCopySingleFuncAVX512;
+    return tryToCopyFuncAVX512<T>;
 }
 
-DAAL_EXPORT vectorCopy2vFuncType getVectorDouble()
+template <>
+vectorCopy2vFuncType getVector<float>()
 {
-    return tryToCopyDoubleFuncAVX512;
+    return tryToCopyFuncAVX512<float>;
 }
+
+template <>
+vectorCopy2vFuncType getVector<double>()
+{
+    return tryToCopyFuncAVX512<double>;
+}
+
+template <>
+vectorCopy2vFuncType getVector<int>()
+{
+    return NULL; /* no implementation for integer */
+}
+
 #endif
 
 DAAL_EXPORT vectorConvertFuncType getVectorUpCast(int idx1, int idx2)
@@ -190,15 +182,31 @@ DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideDownCast(int idx1, int id
 namespace data_feature_utils
 {
 #if defined(__INTEL_COMPILER)
-DAAL_EXPORT internal::vectorCopy2vFuncType getVectorDouble()
+
+template <typename T>
+DAAL_EXPORT internal::vectorCopy2vFuncType getVector()
 {
-    return internal::getVectorDouble();
+    return internal::getVector<T>();
 }
 
-DAAL_EXPORT internal::vectorCopy2vFuncType getVectorSingle()
+template <>
+DAAL_EXPORT internal::vectorCopy2vFuncType getVector<float>()
 {
-    return internal::getVectorSingle();
+    return internal::getVector<float>();
 }
+
+template <>
+DAAL_EXPORT internal::vectorCopy2vFuncType getVector<double>()
+{
+    return internal::getVector<double>();
+}
+
+template <>
+DAAL_EXPORT internal::vectorCopy2vFuncType getVector<int>()
+{
+    return internal::getVector<int>();
+}
+
 #endif
 
 DAAL_EXPORT internal::vectorConvertFuncType getVectorUpCast(int idx1, int idx2)

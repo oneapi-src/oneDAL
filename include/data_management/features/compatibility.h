@@ -82,8 +82,8 @@ DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideDownCast(int, int);
 
 #if defined(__INTEL_COMPILER)
 using data_management::internal::vectorCopy2vFuncType;
-DAAL_EXPORT vectorCopy2vFuncType getVectorSingle();
-DAAL_EXPORT vectorCopy2vFuncType getVectorDouble();
+template <typename T>
+DAAL_EXPORT vectorCopy2vFuncType getVector();
 #endif
 
 

@@ -293,7 +293,7 @@ protected:
     services::Collection<services::SharedPtr<byte> > _arrays;
     size_t _arraysInitialized;
     MemoryStatus _partialMemStatus;
-    int* _arrOffsets;
+    DAAL_INT64* _arrOffsets;
     size_t _index;
 
     bool resizePointersArray(size_t nColumns)
@@ -459,7 +459,7 @@ private:
         if (_arrOffsets)
             daal::services::daal_free(_arrOffsets);
 
-        _arrOffsets = (int*)daal::services::daal_malloc(ncols * sizeof(int));
+        _arrOffsets = (DAAL_INT64*)daal::services::daal_malloc(ncols * sizeof(DAAL_INT64));
         DAAL_CHECK_MALLOC(_arrOffsets)
         _index = 0;
         char *ptrMin = (char*)_arrays[0].get();
@@ -478,7 +478,7 @@ private:
         for (size_t i = 0; i < ncols; i++)
         {
             char *pv = (char*)(_arrays[i].get());
-            _arrOffsets[i] = (int)(pv - ptrMin);
+            _arrOffsets[i] = (DAAL_INT64)(pv - ptrMin);
             DAAL_ASSERT(_arrOffsets[i] >= 0)
         }
 
@@ -534,21 +534,11 @@ private:
         {
             NumericTableFeature &f = (*_ddict)[0];
 
-            /* no conversion */
             if ((int)internal::getConversionDataType<T>() == (int)f.indexType)
             {
-                if (internal::getConversionDataType<T>() == internal::getConversionDataType<float>())
-                {
-                    DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
-                    void *ptrMin = (float*)(_arrays[_index].get()) + idx;
-                    computed = data_management::internal::getVectorSingle()(nrows, ncols, buffer, ptrMin, _arrOffsets);
-                }
-                else if (internal::getConversionDataType<T>() == internal::getConversionDataType<double>())
-                {
-                    DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
-                    void *ptrMin = (double*)(_arrays[_index].get()) + idx;
-                    computed = data_management::internal::getVectorDouble()(nrows, ncols, buffer, ptrMin, _arrOffsets);
-                }
+                DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
+                T *ptrMin = (T*)(_arrays[_index].get()) + idx;
+                computed = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _arrOffsets);
             }
         }
         #endif

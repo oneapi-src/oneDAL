@@ -32,27 +32,30 @@ namespace data_management
 namespace internal
 {
 
+
 #if defined(__INTEL_COMPILER)
-/* Convert float to float from columnar to row major format using AVX512 architecture */
-template<CpuType cpu>
-void vectorCopySingleAVX512Cpu(const size_t nrows,
-                              const size_t ncols,
-                              void* dst,
-                              void* ptrMin,
-                              int* arrOffsets)
+
+template <typename T>
+void vectorCopyInternal()
+{
+    vectorCopyInternal<T>();
+}
+
+template <>
+void vectorCopyInternal<float>(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets)
 {
     float *pd   = (float*)dst;
     float *pmin = (float*)ptrMin;
     char *ptrByte = (char*)ptrMin;
 
-    const size_t nColSize = ncols - ncols % 16;
+    const size_t nColSize = ncols - ncols % 8;
 
     for (size_t i = 0; i < nrows; i++)
     {
-        for (size_t j = 0; j < nColSize; j+=16)
+        for (size_t j = 0; j < nColSize; j+=8)
         {
-            __m512 ps = _mm512_i32gather_ps(*((__m512i*)&arrOffsets[j]), pmin + i, 1);
-            _mm512_store_ps(pd + i*ncols + j, ps);
+            __m256 ps = _mm512_i64gather_ps(*((__m512i*)&arrOffsets[j]), pmin + i, 1);
+            _mm256_store_ps(pd + i*ncols + j, ps);
         }
         for (size_t j = nColSize; j < ncols; j++)
         {
@@ -63,13 +66,8 @@ void vectorCopySingleAVX512Cpu(const size_t nrows,
     }
 }
 
-/* Convert double to double from columnar to row major format using AVX512 architecture */
-template<CpuType cpu>
-void vectorCopyDoubleAVX512Cpu(const size_t nrows,
-                              const size_t ncols,
-                              void* dst,
-                              void* ptrMin,
-                              int* arrOffsets)
+template <>
+void vectorCopyInternal<double>(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets)
 {
     double *pd   = (double*)dst;
     double *pmin = (double*)ptrMin;
@@ -81,7 +79,7 @@ void vectorCopyDoubleAVX512Cpu(const size_t nrows,
     {
         for (size_t j = 0; j < nColSize; j+=8)
         {
-            __m512d p = _mm512_i32gather_pd(*((__m256i*)&arrOffsets[j]), pmin + i, 1);
+            __m512d p = _mm512_i64gather_pd(*((__m512i*)&arrOffsets[j]), pmin + i, 1);
             _mm512_store_pd(pd + i*ncols + j, p);
         }
         for (size_t j = nColSize; j < ncols; j++)
@@ -92,6 +90,63 @@ void vectorCopyDoubleAVX512Cpu(const size_t nrows,
         }
     }
 }
+
+template<typename T, CpuType cpu>
+void vectorCopy(const size_t nrows,
+                const size_t ncols,
+                void* dst,
+                void* ptrMin,
+                DAAL_INT64* arrOffsets)
+{
+    vectorCopy<T, cpu>(nrows, ncols, dst, ptrMin, arrOffsets);
+}
+
+/* Convert float to float from columnar to row major format using AVX512 architecture */
+template<>
+void vectorCopy<float, avx512>(const size_t nrows,
+                              const size_t ncols,
+                              void* dst,
+                              void* ptrMin,
+                              DAAL_INT64* arrOffsets)
+{
+    vectorCopyInternal<float>(nrows, ncols, dst, ptrMin, arrOffsets);
+}
+
+
+/* Convert double to double from columnar to row major format using AVX512 architecture */
+template<>
+void vectorCopy<double, avx512>(const size_t nrows,
+                              const size_t ncols,
+                              void* dst,
+                              void* ptrMin,
+                              DAAL_INT64* arrOffsets)
+{
+    vectorCopyInternal<double>(nrows, ncols, dst, ptrMin, arrOffsets);
+}
+
+/* Convert float to float from columnar to row major format using AVX512 architecture */
+template<>
+void vectorCopy<float, avx512_mic>(const size_t nrows,
+                              const size_t ncols,
+                              void* dst,
+                              void* ptrMin,
+                              DAAL_INT64* arrOffsets)
+{
+    vectorCopyInternal<float>(nrows, ncols, dst, ptrMin, arrOffsets);
+}
+
+
+/* Convert double to double from columnar to row major format using AVX512 architecture */
+template<>
+void vectorCopy<double, avx512_mic>(const size_t nrows,
+                              const size_t ncols,
+                              void* dst,
+                              void* ptrMin,
+                              DAAL_INT64* arrOffsets)
+{
+    vectorCopyInternal<double>(nrows, ncols, dst, ptrMin, arrOffsets);
+}
+
 #endif
 
 template<typename T1, typename T2, CpuType cpu>
@@ -163,14 +218,6 @@ void vectorAssignValueToArrayCpu(void* const ptr, const size_t n, const void* co
 
 #define DAAL_REGISTER_VECTOR_ASSIGN_CPU(Type) template void vectorAssignValueToArrayCpu<Type, DAAL_CPU>(void* const ptr, const size_t n, const void* const value);
 DAAL_REGISTER_WITH_HOMOGEN_NT_TYPES(DAAL_REGISTER_VECTOR_ASSIGN_CPU)
-
-#if defined(__INTEL_COMPILER)
-#define DAAL_REGISTER_COPY_SINGLE_AVX512(DAAL_CPU) template void vectorCopySingleAVX512Cpu<DAAL_CPU>(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffsets);
-DAAL_REGISTER_WITH_COMPATIBLE_AVX512_CPU(DAAL_REGISTER_COPY_SINGLE_AVX512)
-
-#define DAAL_REGISTER_COPY_DOUBLE_AVX512(DAAL_CPU) template void vectorCopyDoubleAVX512Cpu<DAAL_CPU>(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffsets);
-DAAL_REGISTER_WITH_COMPATIBLE_AVX512_CPU(DAAL_REGISTER_COPY_DOUBLE_AVX512)
-#endif
 
 } // namespace internal
 } // namespace data_management

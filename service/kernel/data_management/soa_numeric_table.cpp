@@ -99,6 +99,6 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
     }
 }
 
-}
-}
-}
+} // namespace interface1
+} // namespace data_management
+} // namespace daal

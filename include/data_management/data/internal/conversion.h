@@ -70,9 +70,14 @@ typedef void(*vectorConvertFuncType)(size_t n, const void * src, void * dst);
 typedef void(*vectorStrideConvertFuncType)(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride);
 
 #if defined(__INTEL_COMPILER)
-typedef bool(*vectorCopy2vFuncType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, int* arrOffests);
-DAAL_EXPORT vectorCopy2vFuncType getVectorSingle();
-DAAL_EXPORT vectorCopy2vFuncType getVectorDouble();
+typedef bool(*vectorCopy2vFuncType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffests);
+
+template <typename T>
+DAAL_EXPORT vectorCopy2vFuncType getVector();
+
+template<> DAAL_EXPORT vectorCopy2vFuncType getVector<int>();
+template<> DAAL_EXPORT vectorCopy2vFuncType getVector<float>();
+template<> DAAL_EXPORT vectorCopy2vFuncType getVector<double>();
 #endif
 
 DAAL_EXPORT vectorConvertFuncType getVectorUpCast(int, int);
@@ -132,12 +137,6 @@ private:
     FUNC(unsigned short)                          \
     FUNC(long)                                    \
     FUNC(unsigned long)
-
-#if defined(__INTEL_COMPILER)
-#define DAAL_REGISTER_WITH_COMPATIBLE_AVX512_CPU(FUNC) \
-    FUNC(avx512)                                       \
-    FUNC(avx512_mic)
-#endif
 
 template <typename T>
 DAAL_EXPORT void vectorAssignValueToArray(T * const ptr, const size_t n, const T value);
