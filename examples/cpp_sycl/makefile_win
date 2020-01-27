@@ -100,14 +100,15 @@ COPTS=-Wall -w $(COPTS)
 COPTS=-m64 $(COPTS)
 !ENDIF
 
+!IF ("$(RES_EXT)"=="lib")
 !IF ("$(threading)"=="sequential")
 DAAL_LIB_T = $(DAAL_PATH)\daal_sequential.lib
-EXT_LIB = $(RT_LIB)
 !ELSE
 threading = parallel
 DAAL_LIB_T = $(DAAL_PATH)\daal_thread.lib
-EXT_LIB = $(RT_LIB)
 !ENDIF
+!ENDIF
+EXT_LIB = $(RT_LIB)
 
 DAAL_LIB = $(DAAL_PATH)\daal_core$(EXT) $(DAAL_LIB_T)
 
