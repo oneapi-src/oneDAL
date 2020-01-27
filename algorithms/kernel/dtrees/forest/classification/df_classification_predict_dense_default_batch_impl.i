@@ -513,7 +513,6 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictByAllTrees(const 
     const size_t nCols(_data->getNumberOfColumns());
     daal::SafeStatus safeStat;
     algorithmFPType * const probPtr = probBD.get();
-
     if (probPtr != nullptr)
     {
         daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
