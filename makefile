@@ -272,7 +272,7 @@ daaldep.win32e.vml :=
 daaldep.win32e.ipp := 
 daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb.lib tbbmalloc.lib libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.rt.seq  := libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
-daaldep.win32e.threxport := export_lnx32e.def
+daaldep.win32e.threxport := export.def
 
 daaldep.win32.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread.$a
 daaldep.win32.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
