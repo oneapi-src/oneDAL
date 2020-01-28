@@ -79,6 +79,12 @@ DAAL_EXPORT vectorConvertFuncType getVectorDownCast(int, int);
 DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideUpCast(int, int);
 DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideDownCast(int, int);
 
+#if defined(__INTEL_COMPILER)
+using data_management::internal::vectorCopy2vFuncType;
+template <typename T>
+DAAL_EXPORT vectorCopy2vFuncType getVector();
+#endif
+
 template <typename T>
 inline InternalNumType getInternalNumType()
 {

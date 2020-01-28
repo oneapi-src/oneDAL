@@ -26,6 +26,14 @@ namespace data_management
 {
 namespace internal
 {
+#if defined(__INTEL_COMPILER)
+template <typename T, CpuType cpu>
+void vectorCopy(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets);
+
+template <typename T>
+void vectorCopyInternal(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets);
+#endif
+
 template <typename T1, typename T2, CpuType cpu>
 void vectorConvertFuncCpu(size_t n, const void * src, void * dst);
 
