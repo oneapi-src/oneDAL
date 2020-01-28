@@ -781,7 +781,7 @@ protected:
             return services::Status();
         }
 
-        NumericTableFeature & f = (*_ddict)[0];
+        const NumericTableFeature & f = (*_ddict)[0];
         const int indexType = f.indexType;
 
         T * buffer;
@@ -856,7 +856,7 @@ protected:
 
         if (!block.resizeBuffer(1, nrows)) return services::Status(services::ErrorMemoryAllocationFailed);
 
-        NumericTableFeature & f = (*_ddict)[0];
+        const NumericTableFeature & f = (*_ddict)[0];
         const int indexType = f.indexType;
         if (data_management::features::DAAL_OTHER_T == indexType) return services::Status(services::ErrorDataTypeNotSupported);
 

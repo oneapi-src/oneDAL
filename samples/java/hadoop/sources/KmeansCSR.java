@@ -48,8 +48,13 @@ public class KmeansCSR extends Configured implements Tool {
 
     private static final int nIterations = 5;
 
-    public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(new Configuration(), new KmeansCSR(), args);
+    public static void main(String[] args) {
+        int res = -1;
+        try {
+            res = ToolRunner.run(new Configuration(), new KmeansCSR(), args);
+        } catch (Exception e) {
+            ErrorHandling.printThrowable(e);
+        }
         System.exit(res);
     }
 

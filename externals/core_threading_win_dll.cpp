@@ -141,7 +141,7 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
                filename);
         break;
 
-    default: printf("Intel DAAL FATAL ERROR: %s. Error code is 0x%x.\n", filename, sverif); break;
+    default: printf("Intel DAAL FATAL ERROR: %s. Error code is 0x%x.\n", filename, (unsigned int)sverif); break;
     }
 
     pWVTData.dwStateAction = WTD_STATEACTION_CLOSE;

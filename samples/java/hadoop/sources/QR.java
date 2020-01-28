@@ -44,8 +44,13 @@ import com.intel.daal.services.*;
 /* Implement Tool to be able to pass -libjars on start */
 public class QR extends Configured implements Tool {
 
-    public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(new Configuration(), new QR(), args);
+    public static void main(String[] args) {
+        int res = -1;
+        try {
+            res = ToolRunner.run(new Configuration(), new QR(), args);
+        } catch (Exception e) {
+            ErrorHandling.printThrowable(e);
+        }
         System.exit(res);
     }
 
