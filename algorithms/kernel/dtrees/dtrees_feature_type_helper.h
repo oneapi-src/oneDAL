@@ -55,11 +55,8 @@ public:
 
     bool hasUnorderedFeatures() const { return (_bAllUnordered || _nNoOrderedFeat); }
 
-    size_t getNumberOfFeatures() const
-    {
-        return _nFeat;
-    }
-
+    size_t getNumberOfFeatures() const { return _nFeat; }
+    void clearBuf() { destroyBuf(); }
 private:
     void allocBuf(size_t n);
     void destroyBuf();
