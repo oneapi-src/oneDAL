@@ -55,6 +55,17 @@ typedef void(*vectorConvertFuncType)(size_t n, const void *src,
 typedef void(*vectorStrideConvertFuncType)(size_t n, const void *src, size_t srcByteStride,
                                                      void *dst, size_t dstByteStride);
 
+#if defined(__INTEL_COMPILER)
+typedef bool(*vectorCopy2vFuncType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets);
+
+template <typename T>
+DAAL_EXPORT vectorCopy2vFuncType getVector();
+
+template<> DAAL_EXPORT vectorCopy2vFuncType getVector<int>();
+template<> DAAL_EXPORT vectorCopy2vFuncType getVector<float>();
+template<> DAAL_EXPORT vectorCopy2vFuncType getVector<double>();
+#endif
+
 DAAL_EXPORT vectorConvertFuncType getVectorUpCast(int, int);
 DAAL_EXPORT vectorConvertFuncType getVectorDownCast(int, int);
 
