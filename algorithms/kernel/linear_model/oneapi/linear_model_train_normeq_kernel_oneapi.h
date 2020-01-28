@@ -132,7 +132,7 @@ public:
     static services::Status compute(NumericTable & x, NumericTable & y, NumericTable & xtx, NumericTable & xty, bool interceptFlag);
 
 private:
-    static services::Status copyReduce(services::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
+    static services::Status reduceResults(services::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
                                        const services::Buffer<algorithmFPType> & src, size_t srcOffset, size_t srcStride, size_t count);
 };
 

@@ -25,7 +25,7 @@
 #include "oneapi/blas_gpu.h"
 #include "oneapi/internal/utils.h"
 #include "service_ittnotify.h"
-#include "cl_kernel/copy_reduce_results.cl"
+#include "cl_kernel/reduce_results.cl"
 
 namespace daal
 {
@@ -170,16 +170,16 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
 
         algorithmFPType nrowsVal = static_cast<algorithmFPType>(nRows);
         const services::Buffer<algorithmFPType> nrowsBuf(&nrowsVal, 1);
-        DAAL_CHECK_STATUS(status, copyReduce(sumXBuf, nCols, 1, nrowsBuf, 0, 1, 1));
+        DAAL_CHECK_STATUS(status, reduceResults(sumXBuf, nCols, 1, nrowsBuf, 0, 1, 1));
 
-        DAAL_CHECK_STATUS(status, copyReduce(xtyBuff, nCols, nBetasIntercept, sumYBuf, 0, 1, nResponses));
+        DAAL_CHECK_STATUS(status, reduceResults(xtyBuff, nCols, nBetasIntercept, sumYBuf, 0, 1, nResponses));
     }
 
     return status;
 }
 
 template <typename algorithmFPType>
-services::Status UpdateKernelOneAPI<algorithmFPType>::copyReduce(services::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
+services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
                                                                         const services::Buffer<algorithmFPType> & src, size_t srcOffset,
                                                                         size_t srcStride, size_t count)
 {
@@ -193,7 +193,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::copyReduce(services::Buffe
     cachekey.add(options);
     factory.build(ExecutionTargetIds::device, cachekey.c_str(), clKernelCopy, options.c_str());
 
-    const char * const kernelName = "copyReduce";
+    const char * const kernelName = "reduceResults";
     KernelPtr kernel              = factory.getKernel(kernelName);
 
     KernelArguments args(6);

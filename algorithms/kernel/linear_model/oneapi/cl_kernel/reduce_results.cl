@@ -1,4 +1,4 @@
-/* file: copy_reduce_results.cl */
+/* file: reduce_results.cl */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __COPY_REDUCE_RESULTS_CL__
-#define __COPY_REDUCE_RESULTS_CL__
+#ifndef __REDUCE_RESULTS_CL__
+#define __REDUCE_RESULTS_CL__
 
 #include <string.h>
 
@@ -30,7 +30,7 @@
 
 DECLARE_SOURCE(clKernelCopy,
 
-__kernel void copyReduce(__global algorithmFPType *dst, uint dstOffset, uint dstStride, 
+__kernel void reduceResults(__global algorithmFPType *dst, uint dstOffset, uint dstStride, 
                          const __global algorithmFPType *src, uint srcOffset, uint srcStride)
 {
     uint valIdx = get_global_id(0);
@@ -40,4 +40,4 @@ __kernel void copyReduce(__global algorithmFPType *dst, uint dstOffset, uint dst
 
 );
 
-#endif // __COPY_REDUCE_RESULTS_CL__
+#endif // __REDUCE_RESULTS_CL__
