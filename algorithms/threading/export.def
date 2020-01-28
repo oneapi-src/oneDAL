@@ -672,6 +672,7 @@ fpk_spblas_ssse3_mkl_scsrmultd
 fpk_spblas_ssse3_mkl_scsrmv
 fpk_serv_enable_instructions
 fpk_serv_cpuisknm
+fpk_serv_memmove_s
 fpk_vsl_serv_threader_for
 fpk_vsl_serv_threader_for_ordered
 fpk_vsl_serv_threader_sections
