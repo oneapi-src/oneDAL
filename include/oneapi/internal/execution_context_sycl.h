@@ -41,14 +41,75 @@ namespace interface1
 {
 class OpenClKernelFactory : public Base, public ClKernelFactoryIface
 {
+private:
+    class ProgramCacheEntry
+    {
+    private:
+        OpenClProgramRef * _program;
+
+    public:
+        ProgramCacheEntry() : _program(nullptr) {}
+
+        ~ProgramCacheEntry()
+        {
+            delete _program;
+        }
+
+        void setProgram(OpenClProgramRef *program)
+        {
+            _program = program;
+        }
+
+        OpenClProgramRef * getProgram()
+        {
+            return _program;
+        }
+
+        const char* getName(services::Status * status = nullptr)
+        {
+            if (!_program)
+            {
+                if (status)
+                {
+                    status->add(services::ErrorExecutionContext);
+                }
+                return nullptr;
+            }
+            return _program->getName();
+        }
+    };
+
+    class KernelCacheEntry
+    {
+    private:
+        KernelPtr _kernel;
+        services::String _name;
+
+    public:
+        KernelCacheEntry() : _kernel(), _name() {}
+
+        ~KernelCacheEntry() {}
+
+        void setKernel(KernelPtr kernel, const char *name)
+        {
+            _name = name;
+            _kernel = kernel;
+        }
+
+        KernelPtr getKernel()
+        {
+            return _kernel;
+        }
+
+        const char* getName()
+        {
+            return _name.c_str();
+        }
+    };
+
 public:
     explicit OpenClKernelFactory(cl::sycl::queue & deviceQueue) : _clProgramRef(nullptr), _executionTarget(ExecutionTargetIds::unspecified), _deviceQueue(deviceQueue)
-    {
-        for (size_t i = 0; i < SIZE_CACHE_PROGRAM; i++)
-        {
-            _clProgramCache[i] = nullptr;
-        }
-    }
+    {}
 
     void build(ExecutionTargetId target, const char * key, const char * program, const char * options = "",
                services::Status * status = nullptr) DAAL_C11_OVERRIDE
@@ -56,22 +117,27 @@ public:
         // TODO: Thread safe?
         // TODO Rework of "cache"
 
-        const uint64_t id = hash(key) % SIZE_CACHE_PROGRAM;
+        uint64_t id = hash(key) % SIZE_CACHE_PROGRAM;
 
-        if (_clProgramCache[id])
+        while (_clProgramCache[id].getProgram() != nullptr && strcmp(_clProgramCache[id].getName(), key) != 0)
         {
-            _clProgramRef    = _clProgramCache[id];
+            id = (id + 1) % SIZE_CACHE_PROGRAM;
+        }
+
+        if (_clProgramCache[id].getProgram())
+        {
+            _clProgramRef    = _clProgramCache[id].getProgram();
             _executionTarget = target;
         }
         else
         {
-            _clProgramCache[id] =
-                new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), key, program, options, status);
+            _clProgramCache[id].setProgram(new OpenClProgramRef(_deviceQueue.get_context().get(),
+                                           _deviceQueue.get_device().get(), key, program, options, status));
             if (status != nullptr && !status->ok())
             {
                 return;
             }
-            _clProgramRef    = _clProgramCache[id];
+            _clProgramRef    = _clProgramCache[id].getProgram();
             _executionTarget = target;
         }
     }
@@ -84,12 +150,17 @@ public:
 
         services::String keyCache = _clProgramRef->getName();
         keyCache.add(kernelName);
-        const uint64_t id = hash(keyCache.c_str()) % SIZE_CACHE_KERNEL;
+        uint64_t id = hash(keyCache.c_str()) % SIZE_CACHE_KERNEL;
         // TODO: Thread safe?
 
-        if (_kernelCache[id])
+        while (_kernelCache[id].getKernel() && strcmp(_kernelCache[id].getName(), kernelName) != 0)
         {
-            kernelPtr = _kernelCache[id];
+            id = (id + 1) % SIZE_CACHE_KERNEL;
+        }
+
+        if (_kernelCache[id].getKernel())
+        {
+            kernelPtr = _kernelCache[id].getKernel();
         }
         else
         {
@@ -99,18 +170,13 @@ public:
                 return KernelPtr();
             }
             kernelPtr        = KernelPtr(new OpenClKernel(_executionTarget, *_clProgramRef, kernelRef));
-            _kernelCache[id] = kernelPtr;
+            _kernelCache[id].setKernel(kernelPtr, kernelName);
         }
         return kernelPtr;
     }
 
     ~OpenClKernelFactory() DAAL_C11_OVERRIDE
-    {
-        for (size_t i = 0; i < SIZE_CACHE_PROGRAM; i++)
-        {
-            if (_clProgramCache[i]) delete _clProgramCache[i];
-        }
-    }
+    {}
 
 protected:
     uint64_t hash(const char * key)
@@ -129,8 +195,8 @@ protected:
 private:
     static const size_t SIZE_CACHE_PROGRAM = 512u;
     static const size_t SIZE_CACHE_KERNEL  = 2048u;
-    OpenClProgramRef * _clProgramCache[SIZE_CACHE_PROGRAM];
-    KernelPtr _kernelCache[SIZE_CACHE_KERNEL];
+    ProgramCacheEntry _clProgramCache[SIZE_CACHE_PROGRAM];
+    KernelCacheEntry _kernelCache[SIZE_CACHE_KERNEL];
 
     OpenClProgramRef * _clProgramRef;
 
