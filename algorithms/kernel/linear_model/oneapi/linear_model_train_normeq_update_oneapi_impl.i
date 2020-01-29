@@ -180,8 +180,8 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
 
 template <typename algorithmFPType>
 services::Status UpdateKernelOneAPI<algorithmFPType>::reduceResults(services::Buffer<algorithmFPType> & dst, size_t dstOffset, size_t dstStride,
-                                                                        const services::Buffer<algorithmFPType> & src, size_t srcOffset,
-                                                                        size_t srcStride, size_t count)
+                                                                    const services::Buffer<algorithmFPType> & src, size_t srcOffset, size_t srcStride,
+                                                                    size_t count)
 {
     services::Status status;
 
