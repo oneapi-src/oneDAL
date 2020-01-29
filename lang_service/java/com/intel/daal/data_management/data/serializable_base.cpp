@@ -91,12 +91,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_intel_daal_data_1management_data_Seriali
 JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_SerializableBase_cDeserializeCObject(JNIEnv * env, jobject thisObj,
                                                                                                        jobjectArray byte2dArray)
 {
-    int length2D = env->GetArrayLength(byte2dArray);
+    jsize length2D = env->GetArrayLength(byte2dArray);
 
     size_t length = 0;
-    for (int i = 0; i < length2D; i++)
+    for (jsize i = 0; i < length2D; i++)
     {
-        jbyteArray byteArray = (jbyteArray)env->GetObjectArrayElement(byte2dArray, (jsize)i);
+        jbyteArray byteArray = (jbyteArray)env->GetObjectArrayElement(byte2dArray, i);
         length += env->GetArrayLength(byteArray);
         env->DeleteLocalRef(byteArray);
     }
@@ -111,10 +111,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_data_1management_data_SerializableBa
     }
 
     size_t offset = 0;
-    for (int i = 0; i < length2D; i++)
+    for (jsize i = 0; i < length2D; i++)
     {
-        jbyteArray byteArray = (jbyteArray)env->GetObjectArrayElement(byte2dArray, (jsize)i);
-        int smallLength      = env->GetArrayLength(byteArray);
+        jbyteArray byteArray = (jbyteArray)env->GetObjectArrayElement(byte2dArray, i);
+        size_t smallLength   = env->GetArrayLength(byteArray);
         env->GetByteArrayRegion(byteArray, 0, smallLength, ((jbyte *)buffer) + offset);
         env->DeleteLocalRef(byteArray);
 

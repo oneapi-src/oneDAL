@@ -1950,13 +1950,13 @@ void glktsn::FreeArrays()
 
     if (glbl_obj.cpuid_values)
     {
-        for (int i = 0; i <= glbl_obj.OSProcessorCount; i++)
+        for (unsigned int i = 0; i <= glbl_obj.OSProcessorCount; i++)
         {
             _INTERNAL_DAAL_FREE(glbl_obj.cpuid_values[i].subleaf[0]);
 
             if ((i == 0x4 || i == 0xb))
             {
-                for (int j = 1; j < glbl_obj.cpuid_values[i].subleaf_max; j++)
+                for (unsigned int j = 1; j < glbl_obj.cpuid_values[i].subleaf_max; j++)
                 {
                     _INTERNAL_DAAL_FREE(glbl_obj.cpuid_values[i].subleaf[j]);
                 }

@@ -258,7 +258,7 @@ services::Status I1CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompu
 
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < p; j++)
+                for (size_t j = 0; j < p; j++)
                 {
                     curentNorm += x[i * p + j] * x[i * p + j];
                 }

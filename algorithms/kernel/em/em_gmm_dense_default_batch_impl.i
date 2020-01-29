@@ -604,7 +604,7 @@ ErrorPtr GmmModelFull<algorithmFPType, cpu>::regularizeCovarianceMatrix(algorith
     for (size_t i = 0; i < nFeatures; i++)
     {
         cov[i * nFeatures + i] = diagValues[i];
-        for (int j = i + 1; j < nFeatures; j++)
+        for (size_t j = i + 1; j < nFeatures; j++)
         {
             cov[i * nFeatures + j] = cov[j * nFeatures + i];
         }

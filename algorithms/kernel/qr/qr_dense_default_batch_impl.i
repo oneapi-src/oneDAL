@@ -250,10 +250,10 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
             DAAL_CHECK_THR(QT_local && RT_local, ErrorMemoryAllocationFailed);
 
             /* Get transposed Q from A */
-            for (int i = 0; i < cols_local; i++)
+            for (size_t i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++)
+                for (size_t j = 0; j < brows_local; j++)
                 {
                     QT_local[i * brows_local + j] = A_block[i + j * cols_local];
                 }
@@ -264,19 +264,19 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
             DAAL_CHECK_STATUS_THR(ec);
 
             /* Transpose Q */
-            for (int i = 0; i < cols_local; i++)
+            for (size_t i = 0; i < cols_local; i++)
             {
                 PRAGMA_IVDEP
-                for (int j = 0; j < brows_local; j++)
+                for (size_t j = 0; j < brows_local; j++)
                 {
                     Q_block[i + j * cols_local] = QT_local[i * brows_local + j];
                 }
             }
 
             /* Transpose R and zero lower values */
-            for (int i = 0; i < cols_local; i++)
+            for (size_t i = 0; i < cols_local; i++)
             {
-                int j;
+                size_t j;
                 PRAGMA_IVDEP
                 for (j = 0; j <= i; j++)
                 {
@@ -305,10 +305,10 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
         WriteOnlyRows<algorithmFPType, cpu, NumericTable> bkR_output(ntR_output, 0, n);
         DAAL_CHECK_BLOCK_STATUS(bkR_output);
         algorithmFPType * R_output = bkR_output.get();
-        for (int i = 0; i < cols; i++)
+        for (size_t i = 0; i < cols; i++)
         {
             PRAGMA_IVDEP
-            for (int j = 0; j < cols; j++)
+            for (size_t j = 0; j < cols; j++)
             {
                 R_output[i + j * cols] = R_buff[i * cols + j];
             }
@@ -334,20 +334,20 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
         DAAL_CHECK_THR(QT_local && QT_result_local && RT_local, ErrorMemoryAllocationFailed);
 
         /* Transpose RB */
-        for (int i = 0; i < cols_local; i++)
+        for (size_t i = 0; i < cols_local; i++)
         {
             PRAGMA_IVDEP
-            for (int j = 0; j < cols_local; j++)
+            for (size_t j = 0; j < cols_local; j++)
             {
                 RT_local[j * cols_local + i] = RT_buff[j * cols_local * blocks + k * cols_local + i];
             }
         }
 
         /* Transpose Q to QT */
-        for (int i = 0; i < cols_local; i++)
+        for (size_t i = 0; i < cols_local; i++)
         {
             PRAGMA_IVDEP
-            for (int j = 0; j < brows_local; j++)
+            for (size_t j = 0; j < brows_local; j++)
             {
                 QT_local[i * brows_local + j] = Q_block[i + j * cols_local];
             }
@@ -358,10 +358,10 @@ Status QRBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na,
                                                            brows_local);
 
         /* Transpose result Q */
-        for (int i = 0; i < cols_local; i++)
+        for (size_t i = 0; i < cols_local; i++)
         {
             PRAGMA_IVDEP
-            for (int j = 0; j < brows_local; j++)
+            for (size_t j = 0; j < brows_local; j++)
             {
                 Q_block[i + j * cols_local] = QT_result_local[i * brows_local + j];
             }

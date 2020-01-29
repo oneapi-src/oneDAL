@@ -529,9 +529,7 @@ public class SparkImplicitALSCSR {
 
                 DistributedPartialResultStep4 partialResultLocal = algorithm.compute();
 
-                NumericTable nt = partialResultLocal.get(DistributedPartialResultStep4Id.outputOfStep4ForStep1).getFactors();
                 partialResultLocal.pack();
-
                 dataTable.pack();
                 context.dispose();
                 return new Tuple2<Integer, DistributedPartialResultStep4>(tup._1, partialResultLocal);
