@@ -48,15 +48,15 @@ services::Status BatchKernelOneAPI<algorithmFPType, training::normEqDense>::comp
 
 template <typename algorithmFPType>
 services::Status OnlineKernelOneAPI<algorithmFPType, training::normEqDense>::compute(NumericTable & x, NumericTable & y, NumericTable & xtx,
-                                                                          NumericTable & xty, bool interceptFlag) const
+                                                                                     NumericTable & xty, bool interceptFlag) const
 {
     return UpdateKernelType::compute(x, y, xtx, xty, interceptFlag);
 }
 
 template <typename algorithmFPType>
 services::Status OnlineKernelOneAPI<algorithmFPType, training::normEqDense>::finalizeCompute(NumericTable & xtx, NumericTable & xty,
-                                                                                  NumericTable & xtxFinal, NumericTable & xtyFinal,
-                                                                                  NumericTable & beta, bool interceptFlag) const
+                                                                                             NumericTable & xtxFinal, NumericTable & xtyFinal,
+                                                                                             NumericTable & beta, bool interceptFlag) const
 {
     return FinalizeKernelType::compute(xtx, xty, xtxFinal, xtyFinal, beta, interceptFlag, KernelHelperOneAPI<algorithmFPType>());
 }
