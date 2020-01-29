@@ -79,7 +79,10 @@ public:
     DAAL_DEPRECATED SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate)
         : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
     {
-        _layout = soa;
+        _layout     = soa;
+        _arrOffsets = NULL;
+        _index      = 0;
+
         this->_status |= setNumberOfRowsImpl(nRows);
         if (!resizePointersArray(getNumberOfColumns()))
         {
@@ -112,7 +115,15 @@ public:
     static services::SharedPtr<SOANumericTable> create(NumericTableDictionaryPtr ddict, size_t nRows,
                                                        AllocationFlag memoryAllocationFlag = notAllocate, services::Status * stat = NULL);
 
-    virtual ~SOANumericTable() { freeDataMemoryImpl(); }
+    virtual ~SOANumericTable()
+    {
+        freeDataMemoryImpl();
+        if (_arrOffsets)
+        {
+            daal::services::daal_free(_arrOffsets);
+            _arrOffsets = NULL;
+        }
+    }
 
     /**
      *  Sets a pointer to an array of values for a given feature
@@ -155,6 +166,7 @@ public:
         {
             _memStatus = userAllocated;
         }
+        DAAL_CHECK_STATUS_VAR(generatesOffsets())
         return services::Status();
     }
 
@@ -254,6 +266,8 @@ protected:
     services::Collection<services::SharedPtr<byte> > _arrays;
     size_t _arraysInitialized;
     MemoryStatus _partialMemStatus;
+    DAAL_INT64* _arrOffsets;
+    size_t _index;
 
     bool resizePointersArray(size_t nColumns)
     {
@@ -282,6 +296,13 @@ protected:
         if (is_resized)
         {
             _memStatus = notAllocated;
+        }
+
+        if (_arrOffsets)
+        {
+            daal::services::daal_free(_arrOffsets);
+            _arrOffsets = NULL;
+            _index = 0;
         }
 
         return is_resized;
@@ -342,6 +363,9 @@ protected:
         {
             _memStatus = internallyAllocated;
         }
+
+        DAAL_CHECK_STATUS_VAR(generatesOffsets())
+
         return services::Status();
     }
 
@@ -380,55 +404,146 @@ protected:
     }
 
 private:
-    template <typename T>
-    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
+    services::Status generatesOffsets()
+    {
+        if (isHomogeneous())
+        {
+            if (isAllComleted())
+                DAAL_CHECK_STATUS_VAR(searchMinPointer());
+        }
+
+        return services::Status();
+    }
+
+    bool isAllComleted()
     {
         size_t ncols = getNumberOfColumns();
-        size_t nobs  = getNumberOfRows();
-        block.setDetails(0, idx, rwFlag);
+
+        for (size_t i = 0; i < ncols; i++)
+        {
+            if (!_arrays[i].get())
+                return false;
+        }
+
+        return true;
+    }
+
+    services::Status searchMinPointer()
+    {
+        size_t ncols = getNumberOfColumns();
+
+        if (_arrOffsets)
+            daal::services::daal_free(_arrOffsets);
+
+        _arrOffsets = (DAAL_INT64*)daal::services::daal_malloc(ncols * sizeof(DAAL_INT64));
+        DAAL_CHECK_MALLOC(_arrOffsets)
+        _index = 0;
+        char *ptrMin = (char*)_arrays[0].get();
+
+        /* search index for min pointer */
+        for (size_t i = 1; i < ncols; i++)
+        {
+            if ((char*)_arrays[i].get() < ptrMin)
+            {
+                _index = i;
+                ptrMin = (char*)_arrays[i].get();
+            }
+        }
+
+        /* compute offsets */
+        for (size_t i = 0; i < ncols; i++)
+        {
+            char *pv = (char*)(_arrays[i].get());
+            _arrOffsets[i] = (DAAL_INT64)(pv - ptrMin);
+            DAAL_ASSERT(_arrOffsets[i] >= 0)
+        }
+
+        return services::Status();
+    }
+
+    /* the method checks for the fact that all columns have the same data type. */
+    bool isHomogeneous()
+    {
+        size_t ncols = getNumberOfColumns();
+
+        NumericTableFeature &f0 = (*_ddict)[0];
+
+        for (size_t i = 0; i < ncols; i++)
+        {
+            NumericTableFeature &f1 = (*_ddict)[i];
+
+            if (f1.indexType != f0.indexType)
+                return false;
+        }
+
+        return (int)f0.indexType == (int)internal::getConversionDataType<float>() ||
+               (int)f0.indexType == (int)internal::getConversionDataType<double>();
+    }
+
+    template <typename T>
+    services::Status getTBlock( size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T>& block )
+    {
+        size_t ncols = getNumberOfColumns();
+        size_t nobs = getNumberOfRows();
+        block.setDetails( 0, idx, rwFlag );
 
         if (idx >= nobs)
         {
-            block.resizeBuffer(ncols, 0);
+            block.resizeBuffer( ncols, 0 );
             return services::Status();
         }
 
-        nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
+        nrows = ( idx + nrows < nobs ) ? nrows : nobs - idx;
 
-        if (!block.resizeBuffer(ncols, nrows))
+        if( !block.resizeBuffer( ncols, nrows ) )
         {
             return services::Status(services::ErrorMemoryAllocationFailed);
         }
 
-        if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
+        if( !(block.getRWFlag() & (int)readOnly) ) return services::Status();
 
-        T lbuf[32];
+        T *buffer = block.getBlockPtr();
+        bool computed = false;
 
-        size_t di = 32;
-
-        T * buffer = block.getBlockPtr();
-
-        for (size_t i = 0; i < nrows; i += di)
+        #if defined(__INTEL_COMPILER)
+        if (isHomogeneous())
         {
-            if (i + di > nrows)
+            NumericTableFeature &f = (*_ddict)[0];
+
+            if ((int)internal::getConversionDataType<T>() == (int)f.indexType)
             {
-                di = nrows - i;
+                DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
+                T *ptrMin = (T*)(_arrays[_index].get()) + idx;
+                computed = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _arrOffsets);
             }
+        }
+        #endif
+        if (!computed)
+        {
+            size_t di = 32;
+            T lbuf[32];
 
-            for (size_t j = 0; j < ncols; j++)
+            for( size_t i = 0 ; i < nrows ; i += di )
             {
-                NumericTableFeature & f = (*_ddict)[j];
+                if( i + di > nrows ) { di = nrows - i; }
 
-                char * ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
-
-                internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(di, ptr, lbuf);
-
-                for (size_t ii = 0; ii < di; ii++)
+                for( size_t j = 0 ; j < ncols ; j++ )
                 {
-                    buffer[(i + ii) * ncols + j] = lbuf[ii];
+                    NumericTableFeature &f = (*_ddict)[j];
+
+                    char *ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
+
+                    internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())
+                    ( di, ptr, lbuf );
+
+                    for( size_t k = 0 ; k < di; k++ )
+                    {
+                        buffer[ (i + k)*ncols + j ] = lbuf[k];
+                    }
                 }
             }
         }
+
         return services::Status();
     }
 
