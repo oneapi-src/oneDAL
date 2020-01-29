@@ -32,7 +32,8 @@ namespace internal
 {
 namespace selection
 {
-class QuickSelectIndexed
+
+class SelectIndexed
 {
 public:
     struct Result
@@ -40,20 +41,138 @@ public:
         UniversalBuffer values;
         UniversalBuffer indices;
 
-        Result(ExecutionContextIface & context, uint32_t K, uint32_t nVectors, TypeId valueType, TypeId indexType, services::Status * status)
-            : values(context.allocate(valueType, nVectors * K, status)), indices(context.allocate(indexType, nVectors * K, status))
+        Result() 
         {}
+        Result(ExecutionContextIface& context, uint32_t K,  uint32_t nVectors, TypeId valueType, services::Status* status)
+            : values(context.allocate(valueType, nVectors * K, status)),
+              indices(context.allocate(TypeIds::id<int>(), nVectors * K, status))
+        {}
+    };
+    struct Params
+    {
+        Params(uint32_t K, TypeId fptype, uint32_t size, daal::algorithms::engines::EnginePtr eng)
+            : nK(K), type(fptype), dataSize(size), engine(eng) {}
+        uint32_t nK;
+        TypeId type;
+        uint32_t dataSize;
+        daal::algorithms::engines::EnginePtr engine;
     };
 
 public:
-    static Result select(const UniversalBuffer & dataVectors, const UniversalBuffer & indexVectors, const UniversalBuffer & rndSeq, uint32_t nRndSeq,
-                         uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, services::Status * status);
-    static Result & select(const UniversalBuffer & dataVectors, const UniversalBuffer & indexVectors, const UniversalBuffer & rndSeq,
-                           uint32_t nRndSeq, uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, Result & result,
-                           services::Status * status);
+    virtual Result select(const UniversalBuffer& dataVectors,
+                    uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
+                    uint32_t vectorOffset, services::Status* status) = 0;
+    virtual Result& select(const UniversalBuffer& dataVectors,
+                    uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
+                    uint32_t vectorOffset, Result& result, services::Status* status) = 0;
+    static void convert(const UniversalBuffer& indices, const UniversalBuffer& labels, 
+                    uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, services::Status* status);
+    void selectLabels(const UniversalBuffer& distances, const UniversalBuffer& dataLabels,
+                    uint32_t nK, uint32_t nVectors, uint32_t vectorSize, 
+                    uint32_t vectorOffset, uint32_t labelOffset, Result& result, services::Status* status)
+    {
+        select(distances, nK, nVectors, vectorSize, vectorSize, vectorOffset, result, status);
+        DAAL_CHECK_STATUS_PTR(status);
+        convert(result.indices, dataLabels, nVectors, nK, labelOffset, status);
+    }
+    void selectLabels(const UniversalBuffer& distances, const UniversalBuffer& dataLabels,
+                    uint32_t nK, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
+                    uint32_t vectorOffset, uint32_t labelOffset, Result& result, services::Status* status)
+    {
+        select(distances, nK, nVectors, vectorSize, lastVectorSize, vectorOffset, result, status);
+        DAAL_CHECK_STATUS_PTR(status);
+        convert(result.indices, dataLabels, nVectors, nK, labelOffset, status);
+    }
+};
 
+class SelectIndexedFactory
+{
+public:
+    SelectIndexedFactory();
+    SelectIndexed* Create(int K, SelectIndexed::Params& par, daal::services::Status* st);
 private:
-    QuickSelectIndexed();
+    typedef SelectIndexed* (*CreateFuncType)(SelectIndexed::Params& par, daal::services::Status* st);
+    struct Entry {
+        int minK;
+        int maxK;
+        CreateFuncType createMethod;
+        bool inRange(int K) { return K >= minK && K <= maxK;}
+    };
+    template<class T>
+    Entry makeEntry() {
+            Entry e;
+            e.minK = T::minK;
+            e.maxK = T::maxK;
+            e.createMethod = T::Create;
+            return e;
+        }
+    daal::services::Collection<Entry> _entries;
+};
+
+class QuickSelectIndexed : public SelectIndexed
+{
+public:
+    static const int minK = 33;
+    static const int maxK = INT_MAX;
+    static SelectIndexed* Create(Params& par, daal::services::Status* st);
+    virtual Result select(const UniversalBuffer& dataVectors,
+                        uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
+                        uint32_t vectorOffset, services::Status* status) 
+    {
+        services::Status st = adjustIndexBuffer(nVectors, vectorSize);
+        DAAL_ADD_STATUS_RETURN_IF_FAIL(st, status, Result());
+        return select(dataVectors, _indices, _rndSeq, _nRndSeq,
+                      K,  nVectors, vectorSize, lastVectorSize, vectorOffset, status);
+    }
+    virtual Result& select(const UniversalBuffer& dataVectors,
+                        uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
+                        uint32_t vectorOffset,
+                        Result& result, services::Status* status)
+    {
+        services::Status st = adjustIndexBuffer(nVectors, vectorSize);
+        DAAL_ADD_STATUS_RETURN_IF_FAIL(st, status, result);
+        return select(dataVectors, _indices, _rndSeq, _nRndSeq,
+                      K,  nVectors, vectorSize, lastVectorSize, vectorOffset, result, status);
+    }
+private:
+    QuickSelectIndexed() {}
+    services::Status adjustIndexBuffer(uint32_t number, uint32_t size);
+    static Result select(const UniversalBuffer& dataVectors,
+                        const UniversalBuffer& tempIndices, const UniversalBuffer& rndSeq, uint32_t nRndSeq,
+                        uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
+                        uint32_t vectorOffset, services::Status* status);
+    static Result& select(const UniversalBuffer& dataVectors,
+                        const UniversalBuffer& tempIndices, const UniversalBuffer& rndSeq, uint32_t nRndSeq,
+                        uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
+                        uint32_t vectorOffset,
+                        Result& result, services::Status* status);
+    daal::services::Status init(Params& par);
+    static void buildProgram(ClKernelFactoryIface& kernelFactory, const TypeId& vectorTypeId, services::Status* status);
+private:
+    UniversalBuffer _indices;
+    uint32_t _indexSize = 0;
+    UniversalBuffer _rndSeq;
+    uint32_t _nRndSeq = 0;
+};
+
+class DirectSelectIndexed : public SelectIndexed
+{
+public:
+    static const int minK = 1;
+    static const int maxK = 32;
+    static SelectIndexed* Create(Params& par, daal::services::Status* st);
+    virtual Result select(const UniversalBuffer& dataVectors,
+                        uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
+                        uint32_t vectorOffset, services::Status* status);
+    virtual Result& select(const UniversalBuffer& dataVectors,
+                        uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
+                        uint32_t vectorOffset, Result& result, services::Status* status);
+private:
+    static void buildProgram(ClKernelFactoryIface& kernelFactory, const TypeId& vectorTypeId,
+                        uint32_t K, services::Status* status);
+private:
+    DirectSelectIndexed(uint32_t K) : _K(K) {}
+    uint32_t _K;
 };
 
 } // namespace selection

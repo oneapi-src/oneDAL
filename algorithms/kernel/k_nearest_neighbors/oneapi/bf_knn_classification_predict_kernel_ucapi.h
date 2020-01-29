@@ -42,20 +42,25 @@ class KNNClassificationPredictKernelUCAPI : public daal::algorithms::Kernel
 public:
     services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
 
-private:
-    void copyPartialSelections(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_gather_selection,
-                               oneapi::internal::UniversalBuffer & distances, oneapi::internal::UniversalBuffer & categories,
-                               oneapi::internal::UniversalBuffer & partialDistances, oneapi::internal::UniversalBuffer & partialCategories,
-                               uint32_t curProbeBlockSize, uint32_t nK, uint32_t & nPart, uint32_t totalParts, bool bCopyPrevious,
-                               services::Status * st);
-
-    void initCategories(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_init_categories,
-                        const services::Buffer<int> & labels, oneapi::internal::UniversalBuffer & categories, uint32_t curProbeBlockSize,
-                        uint32_t curDataBlockSize, uint32_t offset, services::Status * st);
-
-    void initDistances(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_init_distances,
-                       oneapi::internal::UniversalBuffer & dataSq, oneapi::internal::UniversalBuffer & distances, uint32_t dataBlockSize,
-                       uint32_t probesBlockSize, services::Status * st);
+    void copyPartialSelections(oneapi::internal::ExecutionContextIface& context,
+            const oneapi::internal::KernelPtr& kernel_gather_selection,
+            oneapi::internal::UniversalBuffer& distances,
+            oneapi::internal::UniversalBuffer& categories,
+            oneapi::internal::UniversalBuffer& partialDistances,
+            oneapi::internal::UniversalBuffer& partialCategories,
+            uint32_t curProbeBlockSize,
+            uint32_t nK,
+            uint32_t& nPart,
+            uint32_t totalParts,
+            bool bCopyPrevious,
+            services::Status* st);
+    void initDistances(oneapi::internal::ExecutionContextIface& context,
+            const oneapi::internal::KernelPtr& kernel_init_distances,
+            oneapi::internal::UniversalBuffer& dataSq,
+            oneapi::internal::UniversalBuffer& distances,
+            uint32_t dataBlockSize,
+            uint32_t probesBlockSize,
+            services::Status* st);
 
     void computeDistances(oneapi::internal::ExecutionContextIface & context, const services::Buffer<algorithmFpType> & data,
                           const services::Buffer<algorithmFpType> & probes, oneapi::internal::UniversalBuffer & distances, uint32_t dataBlockSize,
