@@ -69,7 +69,7 @@ services::Status cosDistanceUpperPacked(const NumericTable * xTable, NumericTabl
 
         /* compute inverse of sqrt of gemm result and save for use in computation off-diagonal blocks */
         PRAGMA_VECTOR_ALWAYS
-        for (int i = 0; i < blockSize1; i++)
+        for (DAAL_INT i = 0; i < blockSize1; i++)
         {
             if (buf[i * blockSize1 + i] > (algorithmFPType)0.0)
             {
@@ -78,10 +78,10 @@ services::Status cosDistanceUpperPacked(const NumericTable * xTable, NumericTabl
         }
 
         /* compute cosine distance for k1 block of rows in the input dataset */
-        for (int i = 0; i < blockSize1; i++)
+        for (DAAL_INT i = 0; i < blockSize1; i++)
         {
             PRAGMA_VECTOR_ALWAYS
-            for (int j = i + 1; j < blockSize1; j++)
+            for (DAAL_INT j = i + 1; j < blockSize1; j++)
             {
                 buf[i * blockSize1 + j] = 1.0 - buf[i * blockSize1 + j] * buf[i * blockSize1 + i] * buf[j * blockSize1 + j];
             }

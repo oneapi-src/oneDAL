@@ -85,9 +85,9 @@ ServiceStatus compute_pivoted_QR_on_one_node(const DAAL_INT m, const DAAL_INT n,
     }
 
     // Get R of the QR factorization formed by xgeqp3
-    for (int i = 1; i <= n; i++)
+    for (DAAL_INT i = 1; i <= n; i++)
     {
-        for (int j = 0; j < i; j++)
+        for (DAAL_INT j = 0; j < i; j++)
         {
             r[(i - 1) * ldr + j] = a_q[(i - 1) * lda_q + j];
         }
@@ -149,9 +149,9 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(const Nu
         ReadRows<algorithmFPType, cpu> blockAi(const_cast<NumericTable &>(dataTable), 0, m);
         DAAL_CHECK_BLOCK_STATUS(blockAi);
         const algorithmFPType * Ai = blockAi.get();
-        for (int i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
         {
-            for (int j = 0; j < m; j++)
+            for (size_t j = 0; j < m; j++)
             {
                 QiT[i * m + j] = Ai[i + j * n];
             }
@@ -177,9 +177,9 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(const Nu
         WriteOnlyRows<algorithmFPType, cpu> blockQi(QTable, 0, m);
         DAAL_CHECK_BLOCK_STATUS(blockQi);
         algorithmFPType * Qi = blockQi.get();
-        for (int i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
         {
-            for (int j = 0; j < m; j++)
+            for (size_t j = 0; j < m; j++)
             {
                 Qi[i + j * n] = QiT[i * m + j];
             }
@@ -190,13 +190,13 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(const Nu
         WriteOnlyRows<algorithmFPType, cpu> blockRi(RTable, 0, n);
         DAAL_CHECK_BLOCK_STATUS(blockRi);
         algorithmFPType * Ri = blockRi.get();
-        for (int i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
         {
-            for (int j = 0; j <= i; j++)
+            for (size_t j = 0; j <= i; j++)
             {
                 Ri[i + j * n] = RiT[i * n + j];
             }
-            for (int j = i + 1; j < n; j++)
+            for (size_t j = i + 1; j < n; j++)
             {
                 Ri[i + j * n] = 0.0;
             }
@@ -207,7 +207,7 @@ services::Status PivotedQRKernel<method, algorithmFPType, cpu>::compute(const Nu
         WriteOnlyRows<algorithmFPType, cpu> blockPi(PTable, 0, 1);
         DAAL_CHECK_BLOCK_STATUS(blockPi);
         algorithmFPType * Pi = blockPi.get();
-        for (int i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
         {
             Pi[i] = jpvt[i];
         }

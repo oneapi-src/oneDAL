@@ -104,7 +104,7 @@ services::Status I1LogitBoostPredictKernel<defaultDense, algorithmFPType, cpu>::
     {
         int idx              = 0;
         algorithmFPType fmax = F[i * nc];
-        for (int j = 1; j < nc; j++)
+        for (size_t j = 1; j < nc; j++)
         {
             if (F[i * nc + j] > fmax)
             {

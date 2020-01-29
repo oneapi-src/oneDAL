@@ -305,7 +305,7 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
         DAAL_CHECK_BLOCK_STATUS_THR(dataTableBD);
         const algorithmFPType * _dataArray_block = dataTableBD.get();
 
-        for (int i = 0; i < _nRows; i++)
+        for (size_t i = 0; i < _nRows; i++)
         {
             /* loop invariants */
 #if defined _MEAN_ENABLE_ || defined _SORM_ENABLE_
@@ -313,7 +313,7 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
 #endif
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (int j = 0; j < _cd.nFeatures; j++)
+            for (size_t j = 0; j < _cd.nFeatures; j++)
             {
                 const algorithmFPType arg = _dataArray_block[i * _cd.nFeatures + j];
 
@@ -378,7 +378,7 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (int j = 0; j < _cd.nFeatures; j++)
+        for (size_t j = 0; j < _cd.nFeatures; j++)
         {
 #if defined _MEAN_ENABLE_ || defined _SUM2C_ENABLE_ || defined _VARC_ENABLE_ || defined _STDEV_ENABLE_ || defined _VART_ENABLE_
             algorithmFPType delta = _td->mean[j] - _cd.mean[j];

@@ -382,7 +382,7 @@ void gather(const ByteBuffer & nodeResults, T * result)
     if (rankId == mpi_root)
     {
         int memoryBuf = 0;
-        for (int i = 0; i < nBlocks; i++)
+        for (size_t i = 0; i < nBlocks; i++)
         {
             memoryBuf += perNodeArchLengthMaster[i];
         }
