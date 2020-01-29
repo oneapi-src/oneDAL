@@ -137,7 +137,10 @@ public:
             _status |= services::ErrorNullModel;
             services::throwIfPossible(_status);
         }
-        _model->setNFeatures(nFeatures);
+        else
+        {
+            _model->setNFeatures(nFeatures);
+        }
     }
 
     /**
