@@ -41,7 +41,7 @@ public:
         UniversalBuffer values;
         UniversalBuffer indices;
 
-        Result() 
+        Result()
         {}
         Result(ExecutionContextIface& context, uint32_t K,  uint32_t nVectors, TypeId valueType, services::Status* status)
             : values(context.allocate(valueType, nVectors * K, status)),
@@ -65,10 +65,10 @@ public:
     virtual Result& select(const UniversalBuffer& dataVectors,
                     uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
                     uint32_t vectorOffset, Result& result, services::Status* status) = 0;
-    static void convert(const UniversalBuffer& indices, const UniversalBuffer& labels, 
+    static void convert(const UniversalBuffer& indices, const UniversalBuffer& labels,
                     uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, services::Status* status);
     void selectLabels(const UniversalBuffer& distances, const UniversalBuffer& dataLabels,
-                    uint32_t nK, uint32_t nVectors, uint32_t vectorSize, 
+                    uint32_t nK, uint32_t nVectors, uint32_t vectorSize,
                     uint32_t vectorOffset, uint32_t labelOffset, Result& result, services::Status* status)
     {
         select(distances, nK, nVectors, vectorSize, vectorSize, vectorOffset, result, status);
@@ -117,7 +117,7 @@ public:
     static SelectIndexed* Create(Params& par, daal::services::Status* st);
     virtual Result select(const UniversalBuffer& dataVectors,
                         uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t lastVectorSize,
-                        uint32_t vectorOffset, services::Status* status) 
+                        uint32_t vectorOffset, services::Status* status)
     {
         services::Status st = adjustIndexBuffer(nVectors, vectorSize);
         DAAL_ADD_STATUS_RETURN_IF_FAIL(st, status, Result());

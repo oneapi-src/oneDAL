@@ -105,7 +105,7 @@ void run_direct_select_simd( ExecutionContextIface& context,
     context.run(range, func_kernel, args, status);
 }
 
-void SelectIndexed::convert(const UniversalBuffer& indices, const UniversalBuffer& labels, 
+void SelectIndexed::convert(const UniversalBuffer& indices, const UniversalBuffer& labels,
                    uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, services::Status* status)
 {
     auto index2labels = labels.template get<int>().toHost(ReadWriteMode::readOnly, status);
@@ -117,7 +117,7 @@ void SelectIndexed::convert(const UniversalBuffer& indices, const UniversalBuffe
             int index = outIndex.get()[vec * vectorSize + k];
             outIndex.get()[vec * vectorSize + k] = index2labels.get()[vec * vectorOffset + index];
         }
-}                   
+}
 
 void QuickSelectIndexed::buildProgram(ClKernelFactoryIface& kernelFactory,
                   const TypeId& vectorTypeId, services::Status* status)
@@ -220,9 +220,9 @@ SelectIndexed* QuickSelectIndexed::Create(Params& par, daal::services::Status* s
 {
     QuickSelectIndexed* ret = new QuickSelectIndexed();
     daal::services::Status status;
-    if(!ret) 
+    if(!ret)
     {
-        if(st) 
+        if(st)
             *st = Status(ErrorMemoryAllocationFailed);
         return ret;
     }
@@ -293,14 +293,14 @@ SelectIndexed::Result DirectSelectIndexed::select(const UniversalBuffer& dataVec
 SelectIndexed* DirectSelectIndexed::Create(Params& par, daal::services::Status* st)
 {
     DirectSelectIndexed* ret = new DirectSelectIndexed(par.nK);
-    if(!ret && st) 
+    if(!ret && st)
         *st = daal::services::Status(ErrorMemoryAllocationFailed);
     return ret;
 }
 
-SelectIndexedFactory::SelectIndexedFactory() 
+SelectIndexedFactory::SelectIndexedFactory()
 {
-    _entries << makeEntry<DirectSelectIndexed>();    
+    _entries << makeEntry<DirectSelectIndexed>();
     _entries << makeEntry<QuickSelectIndexed>();
 }
 

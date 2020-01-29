@@ -162,7 +162,7 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
                                                    curData, curDataBlockSize, nFeatures, &st); DAAL_CHECK_STATUS_VAR(st);
             initDistances(context, init_distances, sumResult.sumOfSquares, distances, curDataBlockSize, curProbeBlockSize, &st); DAAL_CHECK_STATUS_VAR(st);
             computeDistances(context, curData, curProbes, distances, curDataBlockSize, curProbeBlockSize, nFeatures, &st); DAAL_CHECK_STATUS_VAR(st);
-            selector->selectLabels(distances, dataLabels, nK, curProbeBlockSize, curDataBlockSize, 
+            selector->selectLabels(distances, dataLabels, nK, curProbeBlockSize, curDataBlockSize,
                                     curDataBlockSize, 0, selectResult, &st);  DAAL_CHECK_STATUS_VAR(st);
             copyPartialSelections(context, gather_selection, selectResult.values, selectResult.indices, partialDistances,
                                   partialCategories, curProbeBlockSize, nK, partCount, nParts, dblock != 0 && partCount == 0, &st);  DAAL_CHECK_STATUS_VAR(st);
