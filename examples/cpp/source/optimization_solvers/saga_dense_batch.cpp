@@ -62,7 +62,7 @@ int main(int argc, char * argv[])
     const size_t nParameters = (nFeatures + 1);
     float argument[nParameters];
     //DAAL_DATA_TYPE Wk[nParameters];
-    for (int i = 0; i < nParameters; i++) argument[i] = 0.f;
+    for (size_t i = 0; i < nParameters; i++) argument[i] = 0.f;
 
     /* Create objects to compute the SAGA result using the default method */
     daal::algorithms::optimization_solver::saga::Batch<> sagaAlgorithm(mseObjectiveFunction);

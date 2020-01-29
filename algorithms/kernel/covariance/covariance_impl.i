@@ -206,11 +206,11 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(cumputeSums.local);
                 /* Sum input array elements in case of non-normalized data */
-                for (int i = 0; i < nVectors_local; i++)
+                for (DAAL_INT i = 0; i < nVectors_local; i++)
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (int j = 0; j < nFeatures_local; j++)
+                    for (DAAL_INT j = 0; j < nFeatures_local; j++)
                     {
                         sums_local[j] += dataBlock_local[i * nFeatures_local + j];
                     }
@@ -240,7 +240,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
                 {
                     PRAGMA_IVDEP
                     PRAGMA_VECTOR_ALWAYS
-                    for (int i = 0; i < nFeatures; i++)
+                    for (size_t i = 0; i < nFeatures; i++)
                     {
                         sums[i] += tls_data_local->sums[i];
                     }
@@ -254,11 +254,11 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         if (!isNormalized)
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(gemmSums);
-            for (int i = 0; i < nFeatures; i++)
+            for (size_t i = 0; i < nFeatures; i++)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nFeatures; j++)
+                for (size_t j = 0; j < nFeatures; j++)
                 {
                     crossProduct[i * nFeatures + j] -= (nVectorsInv * sums[i] * sums[j]);
                 }

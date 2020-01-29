@@ -96,7 +96,7 @@ public:
                 DAAL_CHECK_THR(normPtr, services::ErrorMemoryAllocationFailed);
                 PRAGMA_VECTOR_ALWAYS
                 PRAGMA_IVDEP
-                for (int j = 0; j < nRowsInBlock; j++)
+                for (size_t j = 0; j < nRowsInBlock; j++)
                 {
                     *normPtr += vecLocal[j] * vecLocal[j];
                 }
@@ -141,7 +141,7 @@ public:
                 DAAL_CHECK_THR(normPtr, services::ErrorMemoryAllocationFailed);
                 const algorithmFPType * vecLocal = &vec[startOffset];
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nRowsInBlock; j++)
+                for (size_t j = 0; j < nRowsInBlock; j++)
                 {
                     *normPtr += vecLocal[j] * vecLocal[j];
                 }

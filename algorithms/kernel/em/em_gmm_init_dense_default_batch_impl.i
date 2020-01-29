@@ -61,7 +61,7 @@ services::Status EMInitKernelTask<algorithmFPType, method, cpu>::compute()
     DAAL_CHECK_STATUS(s, initialize())
 
     bool isInitialized = false;
-    for (int idxTry = 0; idxTry < nTrials; idxTry++)
+    for (size_t idxTry = 0; idxTry < nTrials; idxTry++)
     {
         DAAL_CHECK_STATUS(s, generateSelectedSet())
 
@@ -162,18 +162,18 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 Status EMInitKernelTask<algorithmFPType, method, cpu>::setSelectedSetAsInitialValues()
 {
     algorithmFPType * alphaArray = alpha->getArray();
-    for (int k = 0; k < nComponents; k++)
+    for (size_t k = 0; k < nComponents; k++)
     {
         alphaArray[k] = 1.0 / nComponents;
     }
 
     algorithmFPType * meansArray = means->getArray();
     ReadRows<algorithmFPType, cpu, NumericTable> block;
-    for (int k = 0; k < nComponents; k++)
+    for (size_t k = 0; k < nComponents; k++)
     {
         const algorithmFPType * selectedRow = block.set(data, selectedSet[k], 1);
         DAAL_CHECK(selectedRow, ErrorMemoryAllocationFailed)
-        for (int j = 0; j < nFeatures; j++)
+        for (size_t j = 0; j < nFeatures; j++)
         {
             meansArray[k * nFeatures + j] = selectedRow[j];
         }
@@ -202,7 +202,7 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::generateSelectedSet()
 {
     int number;
     Status s;
-    for (int i = 0; i < nComponents; i++)
+    for (size_t i = 0; i < nComponents; i++)
     {
         bool isNumberUnique = false;
         while (isNumberUnique != true)
@@ -210,7 +210,7 @@ Status EMInitKernelTask<algorithmFPType, method, cpu>::generateSelectedSet()
             DAAL_ASSERT(nVectors <= services::internal::MaxVal<int>::get())
             DAAL_CHECK_STATUS(s, (distributions::uniform::internal::UniformKernelDefault<int, cpu>::compute(0, (int)nVectors, engine, 1, &number)));
             isNumberUnique = true;
-            for (int j = 0; j < i; j++)
+            for (size_t j = 0; j < i; j++)
             {
                 if (number == selectedSet[j])
                 {

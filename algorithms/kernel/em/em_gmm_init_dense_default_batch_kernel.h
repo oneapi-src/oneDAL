@@ -71,24 +71,24 @@ public:
     }
     void setVariance(algorithmFPType * varianceArray)
     {
-        for (int k = 0; k < nComponents; k++)
+        for (size_t k = 0; k < nComponents; k++)
         {
             auto workSigma               = static_cast<HomogenNT *>((*sigma)[k].get());
             algorithmFPType * sigmaArray = workSigma->getArray();
             if (covType == em_gmm::diagonal)
             {
-                for (int i = 0; i < nFeatures; i++)
+                for (size_t i = 0; i < nFeatures; i++)
                 {
                     sigmaArray[i] = varianceArray[i];
                 }
             }
             else
             {
-                for (int i = 0; i < nFeatures * nFeatures; i++)
+                for (size_t i = 0; i < nFeatures * nFeatures; i++)
                 {
                     sigmaArray[i] = 0.0;
                 }
-                for (int i = 0; i < nFeatures; i++)
+                for (size_t i = 0; i < nFeatures; i++)
                 {
                     sigmaArray[i * nFeatures + i] = varianceArray[i];
                 }

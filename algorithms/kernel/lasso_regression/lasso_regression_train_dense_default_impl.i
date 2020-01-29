@@ -158,7 +158,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nFeatures; j++)
+                for (size_t j = 0; j < nFeatures; j++)
                 {
                     sum[j] += xPtr[i * nFeatures + j];
                 }
@@ -167,7 +167,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
         tlsData.reduce([&](algorithmFPType * localSum) {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (int j = 0; j < nFeatures; j++)
+            for (size_t j = 0; j < nFeatures; j++)
             {
                 xMeansPtr[j] += localSum[j];
             }
@@ -185,7 +185,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nFeatures; j++)
+                for (size_t j = 0; j < nFeatures; j++)
                 {
                     xPtr[i * nFeatures + j] -= xMeansPtr[j];
                 }

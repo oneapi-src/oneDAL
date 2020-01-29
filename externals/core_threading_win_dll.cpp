@@ -230,7 +230,7 @@ FARPROC load_daal_thr_func(char * ordinal)
     FuncAddress = GetProcAddress(daal_thr_dll_handle, ordinal);
     if (FuncAddress == NULL)
     {
-        printf("GetLastError error code is %x\n", GetLastError());
+        printf("GetLastError error code is %lx\n", GetLastError());
         printf("Intel DAAL FATAL ERROR: Cannot load \"%s\" function.\n", ordinal);
         exit(1);
     }

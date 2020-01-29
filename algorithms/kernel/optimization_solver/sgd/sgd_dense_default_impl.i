@@ -180,7 +180,7 @@ services::Status SGDKernel<algorithmFPType, defaultDense, cpu>::compute(HostAppI
                 DAAL_CHECK_BLOCK_STATUS_THR(ntGradientBD);
                 const algorithmFPType * gradientLocal = ntGradientBD.get();
                 PRAGMA_VECTOR_ALWAYS
-                for (int j = 0; j < nRowsInBlock; j++)
+                for (size_t j = 0; j < nRowsInBlock; j++)
                 {
                     workLocal[j] = workLocal[j] - learningRate * gradientLocal[j];
                 }

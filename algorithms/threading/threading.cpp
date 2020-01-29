@@ -195,8 +195,8 @@ DAAL_EXPORT void _daal_parallel_reduce_tls(void * tlsPtr, void * a, daal::tls_re
         {
             size_t i = 0;
             for (auto it = p->begin(); it != p->end(); ++it) aDataPtr[i++] = *it;
-            tbb::parallel_for(tbb::blocked_range<int>(0, n, 1), [&](tbb::blocked_range<int> r) {
-                for (int i = r.begin(); i < r.end(); i++) func(aDataPtr[i], a);
+            tbb::parallel_for(tbb::blocked_range<size_t>(0, n, 1), [&](tbb::blocked_range<size_t> r) {
+                for (size_t i = r.begin(); i < r.end(); i++) func(aDataPtr[i], a);
             });
             ::free(aDataPtr);
         }

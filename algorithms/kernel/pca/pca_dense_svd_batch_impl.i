@@ -200,13 +200,13 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
         algorithmFPType * mean_local            = tls_data_local->mean;
         algorithmFPType * variance_local        = tls_data_local->variance;
 
-        for (int i = 0; i < nVectors_local; i++)
+        for (size_t i = 0; i < nVectors_local; i++)
         {
             const algorithmFPType _invN = algorithmFPType(1.0) / algorithmFPType(tls_data_local->nvectors + 1);
 
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (int j = 0; j < nFeatures; j++)
+            for (size_t j = 0; j < nFeatures; j++)
             {
                 const algorithmFPType delta_local = dataArray_local[i * nFeatures + j] - mean_local[j];
 
@@ -234,7 +234,7 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
-        for (int j = 0; j < nFeatures; j++)
+        for (size_t j = 0; j < nFeatures; j++)
         {
             const algorithmFPType _delta = tls_data_local->mean[j] - mean_total[j];
             const algorithmFPType _vl    = tls_data_local->variance[j];          /* local variances are not scaled yet */
@@ -256,7 +256,7 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
     /* Convert array of variances to inverse sigma's */
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
-    for (int j = 0; j < nFeatures; j++)
+    for (size_t j = 0; j < nFeatures; j++)
     {
         if (inv_sigma_total[j]) inv_sigma_total[j] = algorithmFPType(1.0) / daal::internal::Math<algorithmFPType, cpu>::sSqrt(inv_sigma_total[j]);
     }
@@ -269,11 +269,11 @@ services::Status PCASVDBatchKernel<algorithmFPType, ParameterType, cpu>::normali
         const algorithmFPType * dataArray_local = dataArray + startRow * nFeatures;
         algorithmFPType * normDataArray_local   = normalizedDataArray + startRow * nFeatures;
 
-        for (int i = 0; i < nVectors_local; i++)
+        for (size_t i = 0; i < nVectors_local; i++)
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            for (int j = 0; j < nFeatures; j++)
+            for (size_t j = 0; j < nFeatures; j++)
             {
                 normDataArray_local[i * nFeatures + j] = (dataArray_local[i * nFeatures + j] - mean_total[j]) * inv_sigma_total[j];
             }
