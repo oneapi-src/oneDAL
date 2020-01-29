@@ -22,33 +22,32 @@
 
 #if PRODUCT_STATUS == 'A'
     #define PRODUCTSTATUS    "alpha"
-    #define PRODUCTSTATUSDLL " alpha"
+    #define FILE_VERSION0(a, b, c) #a "." #b "-alpha0" #c
     #define SUBBUILD         0
 #endif
 #if PRODUCT_STATUS == 'B'
     #define PRODUCTSTATUS    "beta"
-    #define PRODUCTSTATUSDLL " beta"
+    #define FILE_VERSION0(a, b, c) #a "." #b "-beta0" #c
     #define SUBBUILD         0
 #endif
 #if PRODUCT_STATUS == 'P'
     #define PRODUCTSTATUS    ""
-    #define PRODUCTSTATUSDLL ""
+    #define FILE_VERSION0(a, b, c) #a "." #b "." #c
     #define SUBBUILD         1
 #endif
 
 /* Intermediate defines */
-#define FILE_VERSION1(a, b, c, d) FILE_VERSION0(a, b, c, d)
-#define FILE_VERSION0(a, b, c, d) #a "." #b "-" #c #d
-
-#define PRODUCT_VERSION1(a, b) PRODUCT_VERSION0(a, b)
-#define PRODUCT_VERSION0(a, b) #a "." #b PRODUCTSTATUSDLL
+#define FILE_VERSION1(a, b, c, d) FILE_VERSION0(a, b, c)
 
 /* The next 3 defines need to use in *.rc files */
 /* instead of symbolic constants like "10.0.2.0" */
 
 #define FILE_VERSION        MAJORVERSION, MINORVERSION, UPDATEVERSION, SUBBUILD
-#define FILE_VERSION_STR    FILE_VERSION1(MAJORVERSION, MINORVERSION, PRODUCTSTATUS, UPDATEVERSION)
-#define PRODUCT_VERSION_STR FILE_VERSION1(MAJORVERSION, MINORVERSION, PRODUCTSTATUS, UPDATEVERSION)
+
+//            VALUE "ProductVersion", "2021.1-beta05\0"
+//            VALUE "FileVersion", "2021.1-beta05\0"
+#define FILE_VERSION_STR    FILE_VERSION1(MAJORVERSION, MINORVERSION, UPDATEVERSION)
+#define PRODUCT_VERSION_STR FILE_VERSION1(MAJORVERSION, MINORVERSION, UPDATEVERSION)
 
 #define PRODUCT_NAME_STR "Intel(R) Data Analytics Acceleration Library\0"
 
