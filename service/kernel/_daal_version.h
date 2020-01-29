@@ -37,15 +37,13 @@
 #endif
 
 /* Intermediate defines */
-#define FILE_VERSION1(a, b, c, d) FILE_VERSION0(a, b, c)
+#define FILE_VERSION1(a, b, c) FILE_VERSION0(a, b, c)
 
 /* The next 3 defines need to use in *.rc files */
 /* instead of symbolic constants like "10.0.2.0" */
 
 #define FILE_VERSION        MAJORVERSION, MINORVERSION, UPDATEVERSION, SUBBUILD
 
-//            VALUE "ProductVersion", "2021.1-beta05\0"
-//            VALUE "FileVersion", "2021.1-beta05\0"
 #define FILE_VERSION_STR    FILE_VERSION1(MAJORVERSION, MINORVERSION, UPDATEVERSION)
 #define PRODUCT_VERSION_STR FILE_VERSION1(MAJORVERSION, MINORVERSION, UPDATEVERSION)
 
