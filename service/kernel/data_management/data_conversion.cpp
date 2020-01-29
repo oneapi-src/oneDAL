@@ -34,9 +34,9 @@ namespace internal
 {
 #if defined(__INTEL_COMPILER)
 template <typename T>
-static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffests)
+static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets)
 {
-    typedef void (*funcType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffests);
+    typedef void (*funcType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets);
     static funcType ptr = NULL;
 
     if(!ptr)
@@ -55,7 +55,7 @@ static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void* ds
         }
     }
 
-    ptr(nrows, ncols, dst, ptrMin, arrOffests);
+    ptr(nrows, ncols, dst, ptrMin, arrOffsets);
     return true;
 }
 #endif
