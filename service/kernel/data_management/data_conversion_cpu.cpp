@@ -42,7 +42,7 @@ void vectorCopyInternal<float>(const size_t nrows, const size_t ncols, void * ds
 
     const size_t nColSize = ncols - ncols % 8;
 
-    for (size_t i = 0; i < nrows; i++)
+    for (size_t i = 0; i < nrows; ++i)
     {
         for (size_t j = 0; j < nColSize; j += 8)
         {
@@ -67,7 +67,7 @@ void vectorCopyInternal<double>(const size_t nrows, const size_t ncols, void * d
 
     const size_t nColSize = ncols - ncols % 8;
 
-    for (size_t i = 0; i < nrows; i++)
+    for (size_t i = 0; i < nrows; ++i)
     {
         for (size_t j = 0; j < nColSize; j += 8)
         {
