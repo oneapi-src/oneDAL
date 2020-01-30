@@ -153,6 +153,9 @@ protected:
         _par = &parameter;
         _result.reset(new ResultType());
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface1
@@ -269,6 +272,9 @@ protected:
         _par = &parameter;
         _result.reset(new ResultType());
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface2
