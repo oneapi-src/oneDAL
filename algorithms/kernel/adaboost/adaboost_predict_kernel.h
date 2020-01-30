@@ -29,11 +29,9 @@
 #include "kernel.h"
 #include "numeric_table.h"
 #include "service_numeric_table.h"
-#include "boosting_predict_kernel.h"
 #include "service_environment.h"
 
 using namespace daal::data_management;
-using namespace daal::algorithms::boosting::prediction::internal;
 
 namespace daal
 {
