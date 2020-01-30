@@ -290,7 +290,7 @@ protected:
     services::Collection<services::SharedPtr<byte> > _arrays;
     size_t _arraysInitialized;
     MemoryStatus _partialMemStatus;
-    DAAL_INT64* _arrOffsets;
+    DAAL_INT64 * _arrOffsets;
     size_t _index;
 
     bool resizePointersArray(size_t nColumns)
@@ -328,7 +328,7 @@ protected:
         {
             daal::services::daal_free(_arrOffsets);
             _arrOffsets = NULL;
-            _index = 0;
+            _index      = 0;
         }
 
         return is_resized;
@@ -434,21 +434,19 @@ private:
     {
         if (isHomogeneous())
         {
-            if (isAllComleted())
-                DAAL_CHECK_STATUS_VAR(searchMinPointer());
+            if (isAllComleted()) DAAL_CHECK_STATUS_VAR(searchMinPointer());
         }
 
         return services::Status();
     }
 
-    bool isAllComleted()
+    bool isAllComleted() const
     {
         size_t ncols = getNumberOfColumns();
 
-        for (size_t i = 0; i < ncols; i++)
+        for (size_t i = 0; i < ncols; ++i)
         {
-            if (!_arrays[i].get())
-                return false;
+            if (!_arrays[i].get()) return false;
         }
 
         return true;
@@ -458,28 +456,27 @@ private:
     {
         size_t ncols = getNumberOfColumns();
 
-        if (_arrOffsets)
-            daal::services::daal_free(_arrOffsets);
+        if (_arrOffsets) daal::services::daal_free(_arrOffsets);
 
-        _arrOffsets = (DAAL_INT64*)daal::services::daal_malloc(ncols * sizeof(DAAL_INT64));
+        _arrOffsets = (DAAL_INT64 *)daal::services::daal_malloc(ncols * sizeof(DAAL_INT64));
         DAAL_CHECK_MALLOC(_arrOffsets)
-        _index = 0;
-        char *ptrMin = (char*)_arrays[0].get();
+        _index        = 0;
+        char * ptrMin = (char *)_arrays[0].get();
 
         /* search index for min pointer */
-        for (size_t i = 1; i < ncols; i++)
+        for (size_t i = 1; i < ncols; ++i)
         {
-            if ((char*)_arrays[i].get() < ptrMin)
+            if ((char *)_arrays[i].get() < ptrMin)
             {
                 _index = i;
-                ptrMin = (char*)_arrays[i].get();
+                ptrMin = (char *)_arrays[i].get();
             }
         }
 
         /* compute offsets */
-        for (size_t i = 0; i < ncols; i++)
+        for (size_t i = 0; i < ncols; ++i)
         {
-            char *pv = (char*)(_arrays[i].get());
+            char * pv      = (char *)(_arrays[i].get());
             _arrOffsets[i] = (DAAL_INT64)(pv - ptrMin);
             DAAL_ASSERT(_arrOffsets[i] >= 0)
         }
@@ -488,83 +485,85 @@ private:
     }
 
     /* the method checks for the fact that all columns have the same data type. */
-    bool isHomogeneous()
+    bool isHomogeneous() const
     {
         size_t ncols = getNumberOfColumns();
 
-        NumericTableFeature &f0 = (*_ddict)[0];
+        NumericTableFeature & f0 = (*_ddict)[0];
 
-        for (size_t i = 0; i < ncols; i++)
+        for (size_t i = 0; i < ncols; ++i)
         {
-            NumericTableFeature &f1 = (*_ddict)[i];
+            NumericTableFeature & f1 = (*_ddict)[i];
 
-            if (f1.indexType != f0.indexType)
-                return false;
+            if (f1.indexType != f0.indexType) return false;
         }
 
-        return (int)f0.indexType == (int)internal::getConversionDataType<float>() ||
-               (int)f0.indexType == (int)internal::getConversionDataType<double>();
+        return (int)f0.indexType == (int)internal::getConversionDataType<float>()
+               || (int)f0.indexType == (int)internal::getConversionDataType<double>();
     }
 
     template <typename T>
-    services::Status getTBlock( size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T>& block )
+    services::Status getTBlock(size_t idx, size_t nrows, ReadWriteMode rwFlag, BlockDescriptor<T> & block)
     {
         size_t ncols = getNumberOfColumns();
-        size_t nobs = getNumberOfRows();
-        block.setDetails( 0, idx, rwFlag );
+        size_t nobs  = getNumberOfRows();
+        block.setDetails(0, idx, rwFlag);
 
         if (idx >= nobs)
         {
-            block.resizeBuffer( ncols, 0 );
+            block.resizeBuffer(ncols, 0);
             return services::Status();
         }
 
-        nrows = ( idx + nrows < nobs ) ? nrows : nobs - idx;
+        nrows = (idx + nrows < nobs) ? nrows : nobs - idx;
 
-        if( !block.resizeBuffer( ncols, nrows ) )
+        if (!block.resizeBuffer(ncols, nrows))
         {
             return services::Status(services::ErrorMemoryAllocationFailed);
         }
 
-        if( !(block.getRWFlag() & (int)readOnly) ) return services::Status();
+        if (!(block.getRWFlag() & (int)readOnly)) return services::Status();
 
-        T *buffer = block.getBlockPtr();
+        T * buffer    = block.getBlockPtr();
         bool computed = false;
 
-        #if defined(__INTEL_COMPILER)
+/* only for AVX512 architecture with using intrinsics */
+#if defined(__INTEL_COMPILER)
         if (isHomogeneous())
         {
-            NumericTableFeature &f = (*_ddict)[0];
+            NumericTableFeature & f = (*_ddict)[0];
 
             if ((int)internal::getConversionDataType<T>() == (int)f.indexType)
             {
                 DAAL_CHECK(_arrOffsets, services::ErrorNullPtr)
-                T *ptrMin = (T*)(_arrays[_index].get()) + idx;
-                computed = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _arrOffsets);
+                T const * ptrMin = (T *)(_arrays[_index].get()) + idx;
+                computed         = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _arrOffsets);
             }
         }
-        #endif
+#endif
         if (!computed)
         {
             size_t di = 32;
             T lbuf[32];
 
-            for( size_t i = 0 ; i < nrows ; i += di )
+            for (size_t i = 0; i < nrows; i += di)
             {
-                if( i + di > nrows ) { di = nrows - i; }
-
-                for( size_t j = 0 ; j < ncols ; j++ )
+                if (i + di > nrows)
                 {
-                    NumericTableFeature &f = (*_ddict)[j];
+                    di = nrows - i;
+                }
 
-                    char *ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
+                for (size_t j = 0; j < ncols; ++j)
+                {
+                    NumericTableFeature & f = (*_ddict)[j];
 
-                    internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())
-                    ( di, ptr, lbuf );
+                    char * ptr = (char *)_arrays[j].get() + (idx + i) * f.typeSize;
 
-                    for( size_t k = 0 ; k < di; k++ )
+                    internal::getVectorUpCast(f.indexType, internal::getConversionDataType<T>())(di, ptr, lbuf);
+
+                    for (size_t k = 0; k < di; ++k)
                     {
-                        buffer[ (i + k)*ncols + j ] = lbuf[k];
+                        buffer[(i + k) * ncols + j] = lbuf[k];
                     }
                 }
             }
