@@ -23,6 +23,7 @@ DAAL  = datastructures_soa                    \
         cor_dense_batch                       \
         cor_dense_online                      \
         lin_reg_norm_eq_dense_batch           \
+        lin_reg_norm_eq_dense_online          \
         log_reg_binary_dense_batch            \
         log_reg_dense_batch                   \
         sgd_mini_log_loss_dense_batch         \

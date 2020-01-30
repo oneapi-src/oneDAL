@@ -1,6 +1,6 @@
-/* file: copy_reduce_results.cl */
+/* file: linear_regression_train_dense_normeq_online_oneapi_fpt.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,26 +17,28 @@
 
 /*
 //++
-//  Implementation of copy kernels.
+//  Implementation of linear regression training functions for the method
+//  of normal equations for GPU in online compute mode.
 //--
 */
 
-#ifndef __COPY_REDUCE_RESULTS_CL__
-#define __COPY_REDUCE_RESULTS_CL__
+#include "oneapi/linear_regression_train_kernel_oneapi.h"
+#include "oneapi/linear_regression_train_dense_normeq_oneapi_impl.i"
 
-#include <string.h>
-
-#define DECLARE_SOURCE(name, src) static const char* name = #src;
-
-DECLARE_SOURCE(clKernelCopy,
-
-__kernel void copyReduceResults(const __global algorithmFPType *src, uint nCols, __global algorithmFPType *dst)
+namespace daal
 {
-    uint rowIdx = get_global_id(0);
+namespace algorithms
+{
+namespace linear_regression
+{
+namespace training
+{
+namespace internal
+{
+template class OnlineKernelOneAPI<DAAL_FPTYPE, normEqDense>;
 
-    dst[nCols*rowIdx + nCols - 1] = src[rowIdx];
-}
-
-);
-
-#endif // __COPY_REDUCE_RESULTS_CL__
+} // namespace internal
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
+} // namespace daal

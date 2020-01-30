@@ -82,8 +82,8 @@ struct BlasGpu
         return status;
     }
 
-    static services::Status xaxpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
-                                 const UniversalBuffer y_buffer, const int incy)
+    static services::Status xaxpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, UniversalBuffer y_buffer,
+                                  const int incy)
     {
         services::Status status;
 

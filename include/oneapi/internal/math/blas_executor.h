@@ -234,12 +234,12 @@ private:
         const double a;
         const UniversalBuffer& x_buffer;
         const int incx;
-        const UniversalBuffer& y_buffer;
+        UniversalBuffer& y_buffer;
         const int incy;
         services::Status * status;
 
         explicit Execute(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer& x_buffer, const int incx,
-                         const UniversalBuffer& y_buffer, const int incy, services::Status * status = NULL)
+                         UniversalBuffer& y_buffer, const int incy, services::Status * status = NULL)
             : queue(queue),
               n(n),
               a(a),
@@ -276,7 +276,7 @@ private:
 
 public:
     static void run(cl::sycl::queue & queue, const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
-                    const UniversalBuffer y_buffer, const int incy, services::Status * status = NULL)
+                    UniversalBuffer y_buffer, const int incy, services::Status * status = NULL)
     {
         Execute op(queue, n, a, x_buffer, incx, y_buffer, incy, status);
         TypeDispatcher::floatDispatch(x_buffer.type(), op);
