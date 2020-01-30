@@ -125,6 +125,9 @@ public:
     void set(InputId id, const data_management::NumericTablePtr & value);
 
     virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+
+private:
+    Input& operator=(const Input&);
 };
 
 /**

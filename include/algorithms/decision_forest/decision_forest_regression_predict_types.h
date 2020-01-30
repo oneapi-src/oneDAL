@@ -140,6 +140,9 @@ public:
      * \return Status of checking
      */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+
+private:
+    Input& operator=(const Input&);
 };
 
 /**

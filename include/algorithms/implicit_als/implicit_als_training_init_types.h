@@ -234,6 +234,9 @@ public:
      * \param[in] method    Computation method of the algorithm
      */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+
+private:
+    Input& operator=(const Input&);
 };
 
 /**
@@ -263,6 +266,9 @@ public:
 
     using Input::get;
     using Input::set;
+
+private:
+    DistributedInput& operator=(const DistributedInput&);
 };
 
 /**

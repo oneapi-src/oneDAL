@@ -140,6 +140,9 @@ public:
     InputIface(const InputIface & other) : daal::algorithms::Input(other) {}
     virtual services::Status getNumberOfColumns(size_t & nCols) const = 0;
     virtual ~InputIface() {}
+
+private:
+    InputIface& operator=(const InputIface&);
 };
 
 /**
@@ -176,6 +179,9 @@ public:
     void set(InputId id, const data_management::NumericTablePtr & ptr);
 
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+
+private:
+    Input& operator=(const Input&);
 };
 
 /**
@@ -398,6 +404,9 @@ public:
      * \param[in] method    Computation method
      */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+
+private:
+    DistributedInput& operator=(const DistributedInput&);
 };
 /** @} */
 } // namespace interface1

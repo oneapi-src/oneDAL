@@ -135,6 +135,9 @@ public:
      * \return Number of columns in the input numeric table
      */
     virtual size_t getNumberOfItems() const = 0;
+
+private:
+    InputIface& operator=(const InputIface&);
 };
 
 /**
@@ -180,6 +183,9 @@ public:
      * \param[in] method        Computation method of the algorithm
      */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+
+private:
+    Input& operator=(const Input&);
 };
 
 /**
@@ -237,6 +243,9 @@ public:
      * \param[in] method        Computation method for the algorithm
      */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+
+private:
+    DistributedInput& operator=(const DistributedInput&);
 };
 
 /**
