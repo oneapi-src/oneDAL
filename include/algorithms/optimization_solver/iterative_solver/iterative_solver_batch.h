@@ -106,6 +106,9 @@ protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
     ResultPtr _result;
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 typedef services::SharedPtr<Batch> BatchPtr;
@@ -180,6 +183,9 @@ protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
     ResultPtr _result;
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 typedef services::SharedPtr<Batch> BatchPtr;

@@ -187,6 +187,9 @@ protected:
         _in                  = &input;
         _result              = iterative_solver::interface1::ResultPtr(new ResultType());
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface1
@@ -334,6 +337,9 @@ protected:
         _in                  = &input;
         _result              = iterative_solver::ResultPtr(new ResultType());
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface2

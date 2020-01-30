@@ -149,6 +149,9 @@ protected:
         _par    = &parameter;
         _result = training::ResultPtr(new ResultType());
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface1

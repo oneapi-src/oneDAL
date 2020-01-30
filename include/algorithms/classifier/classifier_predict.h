@@ -118,6 +118,9 @@ protected:
     void initialize() { _result.reset(new ResultType()); }
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     interface1::ResultPtr _result;
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface1
@@ -212,6 +215,9 @@ protected:
     void initialize() { _result.reset(new ResultType()); }
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
     ResultPtr _result;
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface2

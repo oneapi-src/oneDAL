@@ -184,6 +184,9 @@ protected:
         _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _result.reset(new ResultType());
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface1
@@ -323,6 +326,9 @@ protected:
         _ac = new __DAAL_ALGORITHM_CONTAINER(batch, interface2::BatchContainer, algorithmFPType, method)(&_env);
         _result.reset(new ResultType());
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface2
