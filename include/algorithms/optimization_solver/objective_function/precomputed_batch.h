@@ -180,6 +180,9 @@ protected:
         _par                 = &parameter;
         _result              = objective_function::ResultPtr(new ResultType());
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface1
@@ -323,6 +326,9 @@ protected:
         _par                 = &parameter;
         _result              = objective_function::ResultPtr(new ResultType());
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface2

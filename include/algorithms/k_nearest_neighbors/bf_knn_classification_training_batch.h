@@ -186,6 +186,9 @@ protected:
         _result.reset(new ResultType());
         _in = &input;
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 
 /** @} */

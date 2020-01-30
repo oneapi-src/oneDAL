@@ -165,6 +165,9 @@ protected:
         _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
         _in = &input;
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 
 /** @} */
