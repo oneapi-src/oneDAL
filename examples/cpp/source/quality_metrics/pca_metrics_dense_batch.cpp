@@ -33,7 +33,6 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
-using namespace daal::data_management;
 using namespace daal::algorithms::pca::quality_metric;
 using namespace daal::algorithms::pca::quality_metric_set;
 

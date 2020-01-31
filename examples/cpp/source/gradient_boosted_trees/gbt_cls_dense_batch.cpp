@@ -34,7 +34,6 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
-using namespace daal::data_management;
 using namespace daal::algorithms::gbt::classification;
 
 /* Input data set parameters */

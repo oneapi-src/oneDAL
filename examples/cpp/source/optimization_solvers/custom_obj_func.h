@@ -101,7 +101,7 @@ public:
      * \param[in] id    Identifier of the input numeric table
      * \return          %Input object that corresponds to the given identifier
      */
-    daal::data_management::NumericTablePtr get(InputId id) const { return daal::data_management::NumericTable::cast(Argument::get(id)); }
+    daal::data_management::NumericTablePtr get(InputId id) const { return NumericTable::cast(Argument::get(id)); }
 
     /**
      * Checks the correctness of the input
@@ -112,12 +112,10 @@ public:
      */
     daal::services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE
     {
-        using namespace daal::data_management;
-
         super::check(par, method);
 
-        NumericTablePtr xTable   = get(data);
-        daal::services::Status s = checkNumericTable(xTable.get(), "data", 0, 0);
+        daal::data_management::NumericTablePtr xTable = get(data);
+        daal::services::Status s                      = checkNumericTable(xTable.get(), "data", 0, 0);
         if (!s) return s;
 
         const size_t nColsInData = xTable->getNumberOfColumns();
@@ -224,23 +222,21 @@ protected:
 template <typename algorithmFPType>
 daal::services::Status BatchContainer<algorithmFPType>::compute()
 {
-    using namespace daal::data_management;
-
     Input * input = static_cast<Input *>(_in);
     daal::algorithms::optimization_solver::objective_function::Result * result =
         static_cast<daal::algorithms::optimization_solver::objective_function::Result *>(_res);
     Parameter * parameter = static_cast<Parameter *>(_par);
 
-    NumericTable * xTable        = input->get(data).get();               // input data set
-    NumericTable * yTable        = input->get(dependentVariables).get(); // array of dependent variables
-    NumericTable * argumentTable = input->get(argument).get();           // argument of the objective function
-    NumericTable * indicesTable  = parameter->batchIndices.get();        // stochastic indices
+    daal::data_management::NumericTable * xTable        = input->get(data).get();               // input data set
+    daal::data_management::NumericTable * yTable        = input->get(dependentVariables).get(); // array of dependent variables
+    daal::data_management::NumericTable * argumentTable = input->get(argument).get();           // argument of the objective function
+    daal::data_management::NumericTable * indicesTable  = parameter->batchIndices.get();        // stochastic indices
 
     const size_t p   = argumentTable->getNumberOfRows(); // size of the argument
     const size_t dim = p - 1;                            // number of features in the input data set
     const algorithmFPType one(1.0);
 
-    BlockDescriptor<int> indicesBlock;
+    daal::data_management::BlockDescriptor<int> indicesBlock;
     indicesTable->getBlockOfRows(0, 1, readOnly, indicesBlock);
     const int * indices        = indicesBlock.getBlockPtr();
     const size_t nIndices      = indicesTable->getNumberOfColumns();
@@ -253,7 +249,7 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
     for (size_t i = 0; i < nIndices; i++)
     {
         /* Get a row of data from the input data set */
-        BlockDescriptor<algorithmFPType> xBlock;
+        daal::data_management::BlockDescriptor<algorithmFPType> xBlock;
         xTable->getBlockOfRows(indices[i], 1, readOnly, xBlock);
         algorithmFPType * xRow = xBlock.getBlockPtr();
 
@@ -262,7 +258,7 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
         xTable->releaseBlockOfRows(xBlock);
 
         /* Get a dependent variable */
-        BlockDescriptor<algorithmFPType> yBlock;
+        daal::data_management::BlockDescriptor<algorithmFPType> yBlock;
         yTable->getBlockOfRows(indices[i], 1, readOnly, yBlock);
         algorithmFPType * yVal = yBlock.getBlockPtr();
 
@@ -276,7 +272,7 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
     std::vector<algorithmFPType> s(nIndices);
 
     /* Get data as an array from the dependent variables */
-    BlockDescriptor<algorithmFPType> argumentBlock;
+    daal::data_management::BlockDescriptor<algorithmFPType> argumentBlock;
     argumentTable->getBlockOfRows(0, 1, readOnly, argumentBlock);
     const algorithmFPType * argumentArray = argumentBlock.getBlockPtr();
     const algorithmFPType theta0          = argumentArray[0];
@@ -297,8 +293,8 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
     const bool valueFlag = ((parameter->resultsToCompute & daal::algorithms::optimization_solver::objective_function::value) != 0) ? true : false;
     if (valueFlag)
     {
-        NumericTable * valueTable = result->get(daal::algorithms::optimization_solver::objective_function::valueIdx).get();
-        BlockDescriptor<algorithmFPType> valueBlock;
+        daal::data_management::NumericTable * valueTable = result->get(daal::algorithms::optimization_solver::objective_function::valueIdx).get();
+        daal::data_management::BlockDescriptor<algorithmFPType> valueBlock;
         valueTable->getBlockOfRows(0, 1, writeOnly, valueBlock);
         algorithmFPType * value = valueBlock.getBlockPtr();
         value[0]                = 0.0;
@@ -315,9 +311,9 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
         ((parameter->resultsToCompute & daal::algorithms::optimization_solver::objective_function::gradient) != 0) ? true : false;
     if (gradientFlag)
     {
-        NumericTable * gradientTable =
+        daal::data_management::NumericTable * gradientTable =
             result->get(daal::algorithms::optimization_solver::objective_function::gradientIdx).get();
-        BlockDescriptor<algorithmFPType> gradientBlock;
+        daal::data_management::BlockDescriptor<algorithmFPType> gradientBlock;
         gradientTable->getBlockOfRows(0, p, writeOnly, gradientBlock);
         algorithmFPType * gradient = gradientBlock.getBlockPtr();
 
@@ -345,7 +341,7 @@ daal::services::Status BatchContainer<algorithmFPType>::compute()
     const bool hessianFlag = ((parameter->resultsToCompute & daal::algorithms::optimization_solver::objective_function::hessian) != 0) ? true : false;
     if (hessianFlag)
     {
-        NumericTable * hessianTable = result->get(daal::algorithms::optimization_solver::objective_function::hessianIdx).get();
+        daal::data_management::NumericTable * hessianTable = result->get(daal::algorithms::optimization_solver::objective_function::hessianIdx).get();
         /* Hessian computations to go here */
     }
 

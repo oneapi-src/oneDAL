@@ -32,7 +32,6 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
-using namespace daal::data_management;
 
 /* Input data set parameters */
 const string datasetFileName = "../data/batch/svd.csv";

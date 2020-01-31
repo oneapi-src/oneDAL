@@ -33,7 +33,6 @@
 
 using namespace std;
 using namespace daal;
-using namespace daal::data_management;
 using namespace daal::algorithms::decision_forest::regression;
 
 /* Input data set parameters */

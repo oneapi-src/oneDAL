@@ -25,6 +25,8 @@
 
 #include "daal.h"
 
+using namespace daal::data_management;
+
 #include <algorithm>
 #include <string>
 #include <iostream>
@@ -102,7 +104,7 @@ void readRowUnknownLength(char * line, std::vector<item_type> & data)
 }
 
 template <typename item_type>
-daal::data_management::CSRNumericTable * createSparseTable(const std::string & datasetFileName)
+CSRNumericTable * createSparseTable(const std::string & datasetFileName)
 {
     std::ifstream file(datasetFileName.c_str());
 
@@ -146,7 +148,7 @@ daal::data_management::CSRNumericTable * createSparseTable(const std::string & d
     size_t * resultRowOffsets      = NULL;
     size_t * resultColIndices      = NULL;
     item_type * resultData         = NULL;
-    auto numericTable = new daal::data_management::CSRNumericTable(resultData, resultColIndices, resultRowOffsets, nFeatures, nVectors);
+    CSRNumericTable * numericTable = new CSRNumericTable(resultData, resultColIndices, resultRowOffsets, nFeatures, nVectors);
     numericTable->allocateDataMemory(nNonZeros);
     numericTable->getArrays<item_type>(&resultData, &resultColIndices, &resultRowOffsets);
     for (size_t i = 0; i < nNonZeros; ++i)
@@ -161,10 +163,8 @@ daal::data_management::CSRNumericTable * createSparseTable(const std::string & d
     return numericTable;
 }
 
-void printAprioriItemsets(daal::data_management::NumericTablePtr largeItemsetsTable, daal::data_management::NumericTablePtr largeItemsetsSupportTable, size_t nItemsetToPrint = 20)
+void printAprioriItemsets(NumericTablePtr largeItemsetsTable, NumericTablePtr largeItemsetsSupportTable, size_t nItemsetToPrint = 20)
 {
-    using namespace daal::data_management;
-
     size_t largeItemsetCount     = largeItemsetsSupportTable->getNumberOfRows();
     size_t nItemsInLargeItemsets = largeItemsetsTable->getNumberOfRows();
 
@@ -216,10 +216,8 @@ void printAprioriItemsets(daal::data_management::NumericTablePtr largeItemsetsTa
     largeItemsetsSupportTable->releaseBlockOfRows(block2);
 }
 
-void printAprioriRules(daal::data_management::NumericTablePtr leftItemsTable, daal::data_management::NumericTablePtr rightItemsTable, daal::data_management::NumericTablePtr confidenceTable, size_t nRulesToPrint = 20)
+void printAprioriRules(NumericTablePtr leftItemsTable, NumericTablePtr rightItemsTable, NumericTablePtr confidenceTable, size_t nRulesToPrint = 20)
 {
-    using namespace daal::data_management;
-
     size_t nRules      = confidenceTable->getNumberOfRows();
     size_t nLeftItems  = leftItemsTable->getNumberOfRows();
     size_t nRightItems = rightItemsTable->getNumberOfRows();
@@ -295,20 +293,18 @@ void printAprioriRules(daal::data_management::NumericTablePtr leftItemsTable, da
     confidenceTable->releaseBlockOfRows(block3);
 }
 
-bool isFull(daal::data_management::NumericTableIface::StorageLayout layout)
+bool isFull(NumericTableIface::StorageLayout layout)
 {
     int layoutInt = (int)layout;
-    if (daal::data_management::packed_mask & layoutInt)
+    if (packed_mask & layoutInt)
     {
         return false;
     }
     return true;
 }
 
-bool isUpper(daal::data_management::NumericTableIface::StorageLayout layout)
+bool isUpper(NumericTableIface::StorageLayout layout)
 {
-    using daal::data_management::NumericTableIface;
-
     if (layout == NumericTableIface::upperPackedSymmetricMatrix || layout == NumericTableIface::upperPackedTriangularMatrix)
     {
         return true;
@@ -316,10 +312,8 @@ bool isUpper(daal::data_management::NumericTableIface::StorageLayout layout)
     return false;
 }
 
-bool isLower(daal::data_management::NumericTableIface::StorageLayout layout)
+bool isLower(NumericTableIface::StorageLayout layout)
 {
-    using daal::data_management::NumericTableIface;
-
     if (layout == NumericTableIface::lowerPackedSymmetricMatrix || layout == NumericTableIface::lowerPackedTriangularMatrix)
     {
         return true;
@@ -394,10 +388,8 @@ void printUpperArray(T * array, const size_t nPrintedCols, const size_t nPrinted
     std::cout << std::endl;
 }
 
-void printNumericTable(daal::data_management::NumericTable * dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
+void printNumericTable(NumericTable * dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
 {
-    using namespace daal::data_management;
-
     size_t nRows                            = dataTable->getNumberOfRows();
     size_t nCols                            = dataTable->getNumberOfColumns();
     NumericTableIface::StorageLayout layout = dataTable->getDataLayout();
@@ -443,21 +435,19 @@ void printNumericTable(daal::data_management::NumericTable * dataTable, const ch
     }
 }
 
-void printNumericTable(daal::data_management::NumericTable & dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
+void printNumericTable(NumericTable & dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0, size_t interval = 10)
 {
     printNumericTable(&dataTable, message, nPrintedRows, nPrintedCols, interval);
 }
 
-void printNumericTable(const daal::data_management::NumericTablePtr & dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0,
+void printNumericTable(const NumericTablePtr & dataTable, const char * message = "", size_t nPrintedRows = 0, size_t nPrintedCols = 0,
                        size_t interval = 10)
 {
     printNumericTable(dataTable.get(), message, nPrintedRows, nPrintedCols, interval);
 }
 
-void printPackedNumericTable(daal::data_management::NumericTable * dataTable, size_t nFeatures, const char * message = "", size_t interval = 10)
+void printPackedNumericTable(NumericTable * dataTable, size_t nFeatures, const char * message = "", size_t interval = 10)
 {
-    using namespace daal::data_management;
-
     BlockDescriptor<DAAL_DATA_TYPE> block;
 
     dataTable->getBlockOfRows(0, 1, readOnly, block);
@@ -481,7 +471,7 @@ void printPackedNumericTable(daal::data_management::NumericTable * dataTable, si
     dataTable->releaseBlockOfRows(block);
 }
 
-void printPackedNumericTable(daal::data_management::NumericTable & dataTable, size_t nFeatures, const char * message = "", size_t interval = 10)
+void printPackedNumericTable(NumericTable & dataTable, size_t nFeatures, const char * message = "", size_t interval = 10)
 {
     printPackedNumericTable(&dataTable, nFeatures, message);
 }
@@ -517,11 +507,9 @@ struct PrecisionValue<double>
 };
 
 template <typename type1, typename type2>
-void printNumericTables(daal::data_management::NumericTable * dataTable1, daal::data_management::NumericTable * dataTable2, const char * title1 = "", const char * title2 = "",
+void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
-    using namespace daal::data_management;
-
     size_t nRows1 = dataTable1->getNumberOfRows();
     size_t nRows2 = dataTable2->getNumberOfRows();
     size_t nCols1 = dataTable1->getNumberOfColumns();
@@ -566,17 +554,15 @@ void printNumericTables(daal::data_management::NumericTable * dataTable1, daal::
 }
 
 template <typename type1, typename type2>
-void printNumericTables(daal::data_management::NumericTable * dataTable1, daal::data_management::NumericTable & dataTable2, const char * title1 = "", const char * title2 = "",
+void printNumericTables(NumericTable * dataTable1, NumericTable & dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
     printNumericTables<type1, type2>(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
 }
 
-void printNumericTables(daal::data_management::NumericTable * dataTable1, daal::data_management::NumericTable * dataTable2, const char * title1 = "", const char * title2 = "",
+void printNumericTables(NumericTable * dataTable1, NumericTable * dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
-    using namespace daal::data_management;
-
     size_t nRows1 = dataTable1->getNumberOfRows();
     size_t nRows2 = dataTable2->getNumberOfRows();
     size_t nCols1 = dataTable1->getNumberOfColumns();
@@ -620,14 +606,14 @@ void printNumericTables(daal::data_management::NumericTable * dataTable1, daal::
     dataTable2->releaseBlockOfRows(block2);
 }
 
-void printNumericTables(daal::data_management::NumericTable * dataTable1, daal::data_management::NumericTable & dataTable2, const char * title1 = "", const char * title2 = "",
+void printNumericTables(NumericTable * dataTable1, NumericTable & dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
     printNumericTables(dataTable1, &dataTable2, title1, title2, message, nPrintedRows, interval);
 }
 
 template <typename type1, typename type2>
-void printNumericTables(daal::data_management::NumericTablePtr dataTable1, daal::data_management::NumericTablePtr dataTable2, const char * title1 = "", const char * title2 = "",
+void printNumericTables(NumericTablePtr dataTable1, NumericTablePtr dataTable2, const char * title1 = "", const char * title2 = "",
                         const char * message = "", size_t nPrintedRows = 0, size_t interval = 15)
 {
     printNumericTables<type1, type2>(dataTable1.get(), dataTable2.get(), title1, title2, message, nPrintedRows, interval);
@@ -785,10 +771,8 @@ unsigned int getCRC32(daal::byte * input, unsigned int prevRes, size_t len)
     return res;
 }
 
-void printALSRatings(daal::data_management::NumericTablePtr usersOffsetTable, daal::data_management::NumericTablePtr itemsOffsetTable, daal::data_management::NumericTablePtr ratings)
+void printALSRatings(NumericTablePtr usersOffsetTable, NumericTablePtr itemsOffsetTable, NumericTablePtr ratings)
 {
-    using namespace daal::data_management;
-
     size_t nUsers = ratings->getNumberOfRows();
     size_t nItems = ratings->getNumberOfColumns();
 

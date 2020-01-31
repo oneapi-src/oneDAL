@@ -29,7 +29,6 @@
 #include "service.h"
 
 using namespace daal;
-using namespace daal::data_management;
 
 typedef PackedSymmetricMatrix<NumericTableIface::lowerPackedSymmetricMatrix> LowerPackedSymmetricMatrix;
 typedef services::SharedPtr<LowerPackedSymmetricMatrix> LowerPackedSymmetricMatrixPtr;

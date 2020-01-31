@@ -32,7 +32,6 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
-using namespace daal::data_management;
 
 /* Input data set parameters */
 string trainedModelsFileNames[] = { "../data/batch/svm_multi_class_trained_model_01.csv", "../data/batch/svm_multi_class_trained_model_02.csv",

@@ -29,7 +29,6 @@
 #include "service.h"
 
 using namespace daal;
-using namespace daal::data_management;
 
 struct PointType
 {

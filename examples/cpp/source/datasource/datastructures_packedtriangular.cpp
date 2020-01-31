@@ -29,7 +29,6 @@
 #include "service.h"
 
 using namespace daal;
-using namespace daal::data_management;
 
 typedef PackedTriangularMatrix<NumericTableIface::lowerPackedTriangularMatrix> LowerPackedTriangularMatrix;
 typedef services::SharedPtr<LowerPackedTriangularMatrix> LowerPackedTriangularMatrixPtr;
