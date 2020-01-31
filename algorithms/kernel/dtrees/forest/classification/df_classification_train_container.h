@@ -66,6 +66,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     decision_forest::classification::Model * m = result->get(classifier::training::model).get();
 
+    m->setNFeatures(x->getNumberOfColumns());
+
     const decision_forest::classification::training::Parameter * par = static_cast<decision_forest::classification::training::Parameter *>(_par);
     daal::services::Environment::env & env                           = *_env;
 

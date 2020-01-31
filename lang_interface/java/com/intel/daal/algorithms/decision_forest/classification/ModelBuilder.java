@@ -94,11 +94,19 @@ public class ModelBuilder extends SerializableBase {
         return new Model(getContext(), cGetModel(this.cObject));
     }
 
+    /**
+     * Set number of features of decision forest model
+     * @param nFeatures   Number of features
+     */
+    public void setNFeatures(long nFeatures) {
+        cSetNFeatures(this.cObject, nFeatures);
+    }
 
     private native long cInit(long nClasses, long nTrees);
     private native long cCreateTree(long algAddr, long nNodes);
     private native long cAddSplitNode(long algAddr, long treeId, long parentId, long position, long featureIndex, double featureValue);
     private native long cAddLeafNode(long algAddr, long treeId, long parentId, long position, long classLabel);
     private native long cGetModel(long algAddr);
+    private native void cSetNFeatures(long algAddr, long nFeatures);
 }
 /** @} */
