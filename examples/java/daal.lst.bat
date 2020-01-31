@@ -67,6 +67,7 @@ decision_tree\DtRegDenseBatch ^
 decision_tree\DtRegTraverseModel ^
 distance\CorDistDenseBatch ^
 distance\CosDistDenseBatch ^
+elastic_net\ElasticNetDenseBatch ^
 em\EmGmmDenseBatch ^
 gbt\GbtClsDenseBatch ^
 gbt\GbtClsTraversedModelBuilder ^
