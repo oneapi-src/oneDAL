@@ -79,8 +79,9 @@ decision_forest::classification::ModelPtr buildModel()
     ModelBuilder::NodeId root3   = modelBuilder.addSplitNode(tree3, ModelBuilder::noParent, 0, 0, 0.303995);
     ModelBuilder::NodeId child32 = modelBuilder.addLeafNode(tree3, root3, 1, 4);
     ModelBuilder::NodeId child31 = modelBuilder.addLeafNode(tree3, root3, 0, 2);
-
+    modelBuilder.setNFeatures(nFeatures);
     return modelBuilder.getModel();
+
 }
 
 void testModel(decision_forest::classification::ModelPtr & model)

@@ -129,6 +129,20 @@ public:
         return resId;
     }
 
+
+    void setNFeatures(size_t nFeatures)
+    {
+        if(!_model.get())
+        {
+            _status |= services::ErrorNullModel;
+            services::throwIfPossible(_status);
+        }
+        else
+        {
+            _model->setNFeatures(nFeatures);
+        }
+    }
+
     /**
     *  Get built model
     *  \return Model pointer
