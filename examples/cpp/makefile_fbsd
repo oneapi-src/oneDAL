@@ -132,7 +132,8 @@ vpath %.cpp $(addprefix ./source/,association_rules boosting cholesky compressio
                                   moments naive_bayes outlier_detection qr quality_metrics serialization stump svd svm utils services  \
                                   quantiles pivoted_qr pca implicit_als set_number_of_threads sorting error_handling \
                                   optimization_solvers optimization_solver/objective_function normalization ridge_regression \
-                                  k_nearest_neighbors decision_tree distributions enable_thread_pinning pca_transform dbscan lasso_regression)
+                                  k_nearest_neighbors decision_tree distributions enable_thread_pinning pca_transform dbscan \
+                                  lasso_regression elastic_net)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
