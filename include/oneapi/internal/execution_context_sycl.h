@@ -192,8 +192,8 @@ public:
         math::SyrkExecutor::run(_deviceQueue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
     }
 
-     void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
-               const UniversalBuffer y_buffer, const int incy, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, UniversalBuffer y_buffer, const int incy,
+              services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(x_buffer.type() == y_buffer.type());
 

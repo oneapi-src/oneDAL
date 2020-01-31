@@ -1,4 +1,4 @@
-/* file: linear_regression_train_dense_normeq_online_fpt_dispatcher.cpp */
+/* file: reduce_results.cl */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -17,17 +17,27 @@
 
 /*
 //++
-//  Implementation of linear regression container.
+//  Implementation of copy kernels.
 //--
 */
 
-#include "linear_regression_train_container.h"
+#ifndef __REDUCE_RESULTS_CL__
+#define __REDUCE_RESULTS_CL__
 
-namespace daal
+#include <string.h>
+
+#define DECLARE_SOURCE(name, src) static const char* name = #src;
+
+DECLARE_SOURCE(clKernelCopy,
+
+__kernel void reduceResults(__global algorithmFPType *dst, uint dstOffset, uint dstStride, 
+                         const __global algorithmFPType *src, uint srcOffset, uint srcStride)
 {
-namespace algorithms
-{
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(linear_regression::training::OnlineContainer, online, DAAL_FPTYPE,
-                                           linear_regression::training::normEqDense)
-} // namespace algorithms
-} // namespace daal
+    uint valIdx = get_global_id(0);
+
+    dst[dstStride*valIdx + dstOffset] += src[srcStride*valIdx + srcOffset];
+}
+
+);
+
+#endif // __REDUCE_RESULTS_CL__
