@@ -26,12 +26,13 @@ namespace data_management
 {
 namespace internal
 {
+/* only for AVX512 architecture with using intrinsics */
 #if defined(__INTEL_COMPILER)
 template <typename T, CpuType cpu>
-void vectorCopy(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets);
+void vectorCopy(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets);
 
 template <typename T>
-void vectorCopyInternal(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets);
+void vectorCopyInternal(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets);
 #endif
 
 template <typename T1, typename T2, CpuType cpu>

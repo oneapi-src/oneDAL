@@ -32,26 +32,27 @@ namespace data_management
 {
 namespace internal
 {
+/* only for AVX512 architecture with using intrinsics */
 #if defined(__INTEL_COMPILER)
 template <typename T>
-static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets)
+static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
 {
-    typedef void (*funcType)(const size_t nrows, const size_t ncols, void* dst, void* ptrMin, DAAL_INT64* arrOffsets);
+    typedef void (*funcType)(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets);
     static funcType ptr = NULL;
 
-    if(!ptr)
+    if (!ptr)
     {
         int cpuid = (int)daal::services::Environment::getInstance()->getCpuId();
 
-        switch(cpuid)
+        switch (cpuid)
         {
-#ifdef DAAL_KERNEL_AVX512
-            case avx512    : DAAL_KERNEL_AVX512_ONLY_CODE(ptr = vectorCopy<T, avx512>); break;
-#endif
-#ifdef DAAL_KERNEL_AVX512_MIC
-            case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(ptr = vectorCopy<T, avx512_mic>); break;
-#endif
-            default: return false;
+    #ifdef DAAL_KERNEL_AVX512
+        case avx512: DAAL_KERNEL_AVX512_ONLY_CODE(ptr = vectorCopy<T, avx512>); break;
+    #endif
+    #ifdef DAAL_KERNEL_AVX512_MIC
+        case avx512_mic: DAAL_KERNEL_AVX512_MIC_ONLY_CODE(ptr = vectorCopy<T, avx512_mic>); break;
+    #endif
+        default: return false;
         }
     }
 
@@ -60,37 +61,34 @@ static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void* ds
 }
 #endif
 
-template<typename T1, typename T2>
-static void vectorConvertFunc(size_t n, const void *src, void *dst)
+template <typename T1, typename T2>
+static void vectorConvertFunc(size_t n, const void * src, void * dst)
 {
-    #define DAAL_VECTOR_CONVERT_CPU(cpuId, ...) \
-        vectorConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
+#define DAAL_VECTOR_CONVERT_CPU(cpuId, ...) vectorConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
 
     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_CONVERT_CPU, n, src, dst);
 
-    #undef DAAL_VECTOR_CONVERT_CPU
+#undef DAAL_VECTOR_CONVERT_CPU
 }
 
 template <typename T1, typename T2>
 static void vectorStrideConvertFunc(size_t n, const void * src, size_t srcByteStride, void * dst, size_t dstByteStride)
 {
-    #define DAAL_VECTOR_STRIDE_CONVERT_CPU(cpuId, ...) \
-        vectorStrideConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
+#define DAAL_VECTOR_STRIDE_CONVERT_CPU(cpuId, ...) vectorStrideConvertFuncCpu<T1, T2, cpuId>(__VA_ARGS__);
 
     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_STRIDE_CONVERT_CPU, n, src, srcByteStride, dst, dstByteStride);
 
-    #undef DAAL_VECTOR_STRIDE_CONVERT_CPU
+#undef DAAL_VECTOR_STRIDE_CONVERT_CPU
 }
 
 template <typename T>
 DAAL_EXPORT void vectorAssignValueToArray(T * const dataPtr, const size_t n, const T value)
 {
-    #define DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU(cpuId, ...) \
-        vectorAssignValueToArrayCpu<T, cpuId>(__VA_ARGS__);
+#define DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU(cpuId, ...) vectorAssignValueToArrayCpu<T, cpuId>(__VA_ARGS__);
 
     DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU, dataPtr, n, &value);
 
-    #undef DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU
+#undef DAAL_VECTOR_ASSIGN_VALUE_TO_ARRAY_CPU
 }
 
 #define DAAL_REGISTER_VECTOR_ASSIGN(Type) \
