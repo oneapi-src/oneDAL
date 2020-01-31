@@ -126,6 +126,7 @@ services::Status CoordinateDescentKernel<algorithmFPType, method, cpu>::compute(
     hesGrResultPtr->set(optimization_solver::objective_function::componentOfGradientIdx, gNt);
     hesGrResultPtr->set(optimization_solver::objective_function::componentOfHessianDiagonalIdx, hNt);
     proxResultPtr->set(optimization_solver::objective_function::componentOfProximalProjectionIdx, pNt);
+    proxResultPtr->set(optimization_solver::objective_function::componentOfHessianDiagonalIdx, hNt);
 
     gradientHessianFunction->setResult(hesGrResultPtr);
     proximalProjectionFunction->setResult(proxResultPtr);
