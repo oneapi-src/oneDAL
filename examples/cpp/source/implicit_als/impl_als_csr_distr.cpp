@@ -33,6 +33,7 @@
 
 using namespace std;
 using namespace daal;
+using namespace daal::data_management;
 using namespace daal::algorithms::implicit_als;
 
 /* Input data set parameters */

@@ -33,6 +33,7 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
+using namespace daal::data_management;
 
 /* Input data set parameters */
 const string dataFileName = "../data/batch/pca_transform.csv";
@@ -64,7 +65,7 @@ int main(int argc, char * argv[])
     KeyValueDataCollectionPtr resultCollection = pcaResult->get(pca::dataForTransform);
     if (resultCollection.get() != NULL)
     {
-        NumericTablePtr eigenvaluesT               = NumericTable::cast((*resultCollection)[pca::eigenvalue]);
+        NumericTablePtr eigenvaluesT = NumericTable::cast((*resultCollection)[pca::eigenvalue]);
         if (eigenvaluesT.get() != NULL) printNumericTable(eigenvaluesT, "Eigenvalues kv:");
 
         NumericTablePtr meansT = NumericTable::cast((*resultCollection)[pca::mean]);

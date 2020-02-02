@@ -34,6 +34,7 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
+using namespace daal::data_management;
 using namespace daal::algorithms::logistic_regression;
 
 /* Input data set parameters */
@@ -100,7 +101,8 @@ void testModel(const training::ResultPtr & trainingResult)
 
     /* Create an algorithm object to predict values of logistic regression */
     prediction::Batch<> algorithm(nClasses);
-    algorithm.parameter().resultsToEvaluate |= static_cast<DAAL_UINT64>(classifier::computeClassProbabilities | classifier::computeClassLogProbabilities);
+    algorithm.parameter().resultsToEvaluate |=
+        static_cast<DAAL_UINT64>(classifier::computeClassProbabilities | classifier::computeClassLogProbabilities);
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);

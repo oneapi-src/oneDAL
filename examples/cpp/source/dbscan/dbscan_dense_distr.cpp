@@ -31,6 +31,7 @@
 using namespace std;
 using namespace daal;
 using namespace daal::algorithms;
+using namespace daal::data_management;
 
 /* Input data set parameters */
 const size_t nBlocks = 4;
