@@ -823,7 +823,7 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
             idx = _mm512_mask_add_epi32(idx, isSplit, _mm512_mask_add_epi32(zero, res, one, zero), l_c);
         }
         int displaces[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-        _mm512_storeu_epi32(displaces,idx);
+        _mm512_store_epi32(displaces,idx);
 
         double** prob_ptr = _probas.get();
 
