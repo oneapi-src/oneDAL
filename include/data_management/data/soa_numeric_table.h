@@ -389,9 +389,7 @@ protected:
         {
             _memStatus = internallyAllocated;
         }
-
         DAAL_CHECK_STATUS_VAR(generatesOffsets())
-
         return services::Status();
     }
 

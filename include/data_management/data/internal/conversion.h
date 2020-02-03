@@ -57,7 +57,6 @@ typedef bool (*vectorCopy2vFuncType)(const size_t nrows, const size_t ncols, voi
 
 template <typename T>
 DAAL_EXPORT vectorCopy2vFuncType getVector();
-
 template <>
 DAAL_EXPORT vectorCopy2vFuncType getVector<int>();
 template <>
