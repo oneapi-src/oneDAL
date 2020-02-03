@@ -87,9 +87,13 @@ void run_direct_select_simd(ExecutionContextIface & context, ClKernelFactoryIfac
     args.set(4, lastVectorSize);
     args.set(5, vectorOffset);
     if(dataVectors.type() == TypeIds::float32)
+    {
         args.set(6, FLT_MAX);
-    else 
+    }
+    else
+    {
         args.set(6, DBL_MAX);
+    }
 
     context.run(range, func_kernel, args, status);
 }

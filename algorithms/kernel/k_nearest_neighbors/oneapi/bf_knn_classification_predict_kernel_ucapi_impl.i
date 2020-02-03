@@ -45,7 +45,7 @@ namespace prediction
 {
 namespace internal
 {
-    
+
 using namespace daal::oneapi::internal;
 using namespace services;
 using sort::RadixSort;
