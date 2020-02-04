@@ -39,7 +39,6 @@
 #include "services/error_indexes.h"
 #include "service/kernel/service_data_utils.h"
 #include "service/kernel/service_algo_utils.h"
-#include "service/kernel/oneapi/service_defines_oneapi.h"
 #include "oneapi/internal/types.h"
 
 using namespace daal::algorithms::dtrees::training::internal;

@@ -104,6 +104,20 @@ String & String::operator=(const String & other)
     return *this;
 }
 
+bool String::operator==(const String & other)
+{
+    if (this == &other)
+        return true;
+    if (this->length() != other.length())
+        return false;
+    return strncmp(this->c_str(), other.c_str(), this->length()) == 0;
+}
+
+bool String::operator!=(const String & other)
+{
+    return !(*this == other);
+}
+
 size_t String::length() const
 {
     if (_c_str)

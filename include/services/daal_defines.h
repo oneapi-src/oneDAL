@@ -456,6 +456,21 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
         if (!(r == (op2))) return services::Status(services::ErrorBufferSizeIntegerOverflow); \
     }
 
+
+#define DAAL_CHECK_STATUS_PTR(statusPtr)                                                        \
+{                                                                                               \
+    if (statusPtr != nullptr && !statusPtr->ok()) {                       \
+        return;                                                                                 \
+    }                                                                                           \
+}
+#define DAAL_CHECK_STATUS_RETURN_IF_FAIL(statusPtr, return_obj)                                 \
+{                                                                                               \
+    if (statusPtr != nullptr && !statusPtr->ok()) {                       \
+        return return_obj;                                                                      \
+    }                                                                                           \
+}
+
+
 #define DAAL_CHECK(cond, error) \
     if (!(cond)) return services::Status(error);
 #define DAAL_CHECK_EX(cond, error, detailType, detailValue) \
