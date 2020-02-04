@@ -418,7 +418,7 @@ CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
                  $(CORE.SERV.COMPILER.srcdir) $(EXTERNALS.srcdir)    \
                  $(CORE.SERV.srcdir)/oneapi
 
-CORE.incdirs.common := $(RELEASEDIR.include) $(WORKDIR)
+CORE.incdirs.common := $(RELEASEDIR.include) $(DIR) $(WORKDIR)
 CORE.incdirs.thirdp := $(MKLFPKDIR.include) $(TBBDIR.include)
 CORE.incdirs := $(CORE.incdirs.common) $(CORE.incdirs.thirdp)
 
