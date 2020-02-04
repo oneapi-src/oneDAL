@@ -101,9 +101,6 @@ public:
      * \param[in] method    Computation method
      */
     DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    Input& operator=(const Input&);
 };
 
 } // namespace interface1
@@ -163,9 +160,6 @@ public:
      * \param[in] method    Computation method
      */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    Input& operator=(const Input&);
 };
 
 } // namespace interface2

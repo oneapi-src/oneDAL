@@ -102,9 +102,6 @@ public:
      * \return Number of rows in the input data set
      */
     virtual size_t getNumberOfRows() const = 0;
-
-private:
-    InputIface& operator=(const InputIface&);
 };
 
 /**
@@ -161,9 +158,6 @@ public:
 
 protected:
     services::Status checkImpl(const daal::algorithms::Parameter * parameter) const;
-
-private:
-    Input& operator=(const Input&);
 };
 
 /**

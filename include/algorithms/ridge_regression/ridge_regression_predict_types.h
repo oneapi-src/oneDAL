@@ -133,9 +133,6 @@ public:
      * \param[in] value   %Input object
      */
     void set(ModelInputId id, const ridge_regression::ModelPtr & value);
-
-private:
-    Input& operator=(const Input&);
 };
 
 /**

@@ -214,9 +214,6 @@ protected:
     * \param[in] other Instance of the same class to copy
     */
     Input(const Input & other) : Argument(other) {}
-
-private:
-    Input& operator=(const Input&);
 };
 
 /**

@@ -154,9 +154,6 @@ public:
      * \return Status of computations
      */
     DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    Input& operator=(const Input&);
 };
 /** @} */
 } // namespace interface1
@@ -245,9 +242,6 @@ public:
      * \return Status of computations
      */
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    Input& operator=(const Input&);
 };
 /** @} */
 } // namespace interface2

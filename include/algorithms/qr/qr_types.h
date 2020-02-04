@@ -194,9 +194,6 @@ public:
     * \param[in] method Computation method
     */
     virtual services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    Input& operator=(const Input&);
 };
 
 /**
@@ -252,9 +249,6 @@ public:
     * \param[in] method Computation method
     */
     virtual services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    DistributedStep2Input& operator=(const DistributedStep2Input&);
 };
 
 /**
@@ -292,9 +286,6 @@ public:
     * \param[in] method Computation method
     */
     virtual services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    DistributedStep3Input& operator=(const DistributedStep3Input&);
 };
 
 /**

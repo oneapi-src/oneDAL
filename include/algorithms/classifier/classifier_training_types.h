@@ -101,9 +101,6 @@ public:
     InputIface(const InputIface & other) : daal::algorithms::Input(other) {}
     virtual ~InputIface() {}
     virtual size_t getNumberOfFeatures() const = 0;
-
-private:
-    InputIface& operator=(const InputIface&);
 };
 
 /**
@@ -143,9 +140,6 @@ public:
 
 protected:
     services::Status checkImpl(const daal::algorithms::Parameter * parameter) const;
-
-private:
-    Input& operator=(const Input&);
 };
 
 /**

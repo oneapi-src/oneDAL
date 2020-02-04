@@ -137,9 +137,6 @@ public:
 
 protected:
     services::Status checkImpl(const daal::algorithms::Parameter * parameter) const;
-
-private:
-    Input& operator=(const Input&);
 };
 
 /**

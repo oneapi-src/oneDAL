@@ -106,9 +106,6 @@ public:
      * \return Status of computation
      */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    Input& operator=(const Input&);
 };
 
 } // namespace interface1

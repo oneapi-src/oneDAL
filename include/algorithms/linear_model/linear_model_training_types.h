@@ -101,9 +101,6 @@ public:
      * \param[in] value   Input numeric table
      */
     void set(InputId id, const data_management::NumericTablePtr & value);
-
-private:
-    Input& operator=(const Input&);
 };
 
 /**

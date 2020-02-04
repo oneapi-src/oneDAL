@@ -161,9 +161,6 @@ public:
      * \return Status of computations
     */
     DAAL_DEPRECATED_VIRTUAL virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    Input& operator=(const Input&);
 };
 /* [interface1::Input source code] */
 
@@ -316,9 +313,6 @@ public:
      * \return Status of computations
     */
     virtual services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    Input& operator=(const Input&);
 };
 /* [Input source code] */
 

@@ -216,9 +216,6 @@ public:
      * \return Errors detected while checking
      */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    Input& operator=(const Input&);
 };
 
 /**
@@ -276,9 +273,6 @@ protected:
     * \return Number of columns in the input data set
     */
     services::Status getNumberOfColumns(size_t & nCols) const;
-
-private:
-    DistributedStep2Input& operator=(const DistributedStep2Input&);
 };
 
 /**
@@ -317,9 +311,6 @@ public:
      * \return Errors detected while checking
      */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    DistributedStep3Input& operator=(const DistributedStep3Input&);
 };
 
 /**

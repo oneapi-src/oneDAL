@@ -189,9 +189,6 @@ public:
 
 protected:
     bool _isCorrelation;
-
-private:
-    InputIface& operator=(const InputIface&);
 };
 
 /**
@@ -240,9 +237,6 @@ public:
     * \return Errors detected while checking
     */
     services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    Input& operator=(const Input&);
 };
 
 /**
@@ -603,9 +597,6 @@ public:
     * \return Errors detected while checking
     */
     services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
-
-private:
-    DistributedInput& operator=(const DistributedInput&);
 };
 
 /**
@@ -659,9 +650,6 @@ public:
         * \return Number of columns in the input data set
         */
     size_t getNFeatures() const DAAL_C11_OVERRIDE;
-
-private:
-    DistributedInput& operator=(const DistributedInput&);
 };
 
 } // namespace interface1
