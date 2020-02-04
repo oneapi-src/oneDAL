@@ -21,7 +21,7 @@
 //--
 */
 
-#include "quantiles_types.h"
+#include "algorithms/quantiles/quantiles_types.h"
 
 namespace daal
 {

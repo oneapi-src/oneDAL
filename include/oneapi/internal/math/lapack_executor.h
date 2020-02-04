@@ -25,13 +25,13 @@
 */
 
 #if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
-    #include "mkl_lapack.h"
+#include "oneapi/internal/math/mkl_lapack.h"
 #endif
 
 #include "oneapi/internal/types_utils.h"
 #include "services/internal/error_handling_helpers.h"
-#include "reference_lapack.h"
-#include "types.h"
+#include "oneapi/internal/math/reference_lapack.h"
+#include "oneapi/internal/math/types.h"
 
 #include <CL/sycl.hpp>
 

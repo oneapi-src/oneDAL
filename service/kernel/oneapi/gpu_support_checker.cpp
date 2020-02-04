@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 #include "services/internal/gpu_support_checker.h"
-#include "env_detect.h"
+#include "services/env_detect.h"
 
 namespace daal
 {

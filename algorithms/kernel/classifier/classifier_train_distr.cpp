@@ -21,8 +21,8 @@
 //--
 */
 
-#include "classifier_training_types.h"
-#include "serialization_utils.h"
+#include "algorithms/classifier/classifier_training_types.h"
+#include "service/kernel/serialization_utils.h"
 
 namespace daal
 {

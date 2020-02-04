@@ -24,11 +24,11 @@
 #ifndef __PCA_DENSE_SVD_BATCH_IMPL_I__
 #define __PCA_DENSE_SVD_BATCH_IMPL_I__
 
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "threading.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/threading/threading.h"
 
 namespace daal
 {

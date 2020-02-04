@@ -25,13 +25,13 @@
 #ifndef __IMPLICIT_ALS_TRAIN_KERNEL_H__
 #define __IMPLICIT_ALS_TRAIN_KERNEL_H__
 
-#include "implicit_als_training_batch.h"
-#include "implicit_als_model.h"
-#include "kernel.h"
-#include "threading.h"
+#include "algorithms/implicit_als/implicit_als_training_batch.h"
+#include "algorithms/implicit_als/implicit_als_model.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/threading/threading.h"
 
-#include "service_numeric_table.h"
-#include "service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_memory.h"
 
 using namespace daal::services::internal;
 

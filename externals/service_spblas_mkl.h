@@ -24,7 +24,7 @@
 #ifndef __SERVICE_SPBLAS_MKL_H__
 #define __SERVICE_SPBLAS_MKL_H__
 
-#include "daal_defines.h"
+#include "services/daal_defines.h"
 #include "mkl_daal.h"
 
 #if !defined(__DAAL_CONCAT4)

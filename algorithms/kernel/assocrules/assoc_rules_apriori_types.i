@@ -24,10 +24,10 @@
 #ifndef __ASSOC_RULES_APRIORI_TYPES_I__
 #define __ASSOC_RULES_APRIORI_TYPES_I__
 
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "service_sort.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_sort.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

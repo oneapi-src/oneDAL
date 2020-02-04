@@ -22,10 +22,10 @@
 */
 
 #include "algorithms/decision_forest/decision_forest_classification_model.h"
-#include "serialization_utils.h"
-#include "df_classification_model_impl.h"
-#include "collection.h"
-#include "dtrees_model_impl_common.h"
+#include "service/kernel/serialization_utils.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_model_impl.h"
+#include "services/collection.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl_common.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

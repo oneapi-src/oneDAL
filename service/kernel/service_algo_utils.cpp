@@ -21,9 +21,9 @@
 //--
 */
 
-#include "error_indexes.h"
-#include "error_handling.h"
-#include "service_algo_utils.h"
+#include "services/error_indexes.h"
+#include "services/error_handling.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

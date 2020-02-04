@@ -24,10 +24,10 @@
 #ifndef __DECISION_TREE_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
 #define __DECISION_TREE_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_H__
 
-#include "decision_tree_classification_predict.h"
-#include "decision_tree_classification_model_impl.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/decision_tree/decision_tree_classification_predict.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_model_impl.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 namespace daal
 {

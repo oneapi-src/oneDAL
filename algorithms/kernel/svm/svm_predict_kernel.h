@@ -24,11 +24,11 @@
 #ifndef __SVM_PREDICT_KERNEL_H__
 #define __SVM_PREDICT_KERNEL_H__
 
-#include "numeric_table.h"
-#include "model.h"
-#include "daal_defines.h"
-#include "svm_predict_types.h"
-#include "kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/model.h"
+#include "services/daal_defines.h"
+#include "algorithms/svm/svm_predict_types.h"
+#include "algorithms/kernel/kernel.h"
 
 using namespace daal::data_management;
 

@@ -24,7 +24,7 @@
 #ifndef __COVARIANCE_PARTIALRESULT_
 #define __COVARIANCE_PARTIALRESULT_
 
-#include "covariance_types.h"
+#include "algorithms/covariance/covariance_types.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 
 using namespace daal::data_management;

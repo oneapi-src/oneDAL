@@ -24,13 +24,13 @@
 #ifndef __KERNEL_FUNCTION_CSR_BASE_H__
 #define __KERNEL_FUNCTION_CSR_BASE_H__
 
-#include "numeric_table.h"
-#include "kernel_function_types_linear.h"
-#include "kernel_function_types_rbf.h"
-#include "kernel_function_linear.h"
-#include "kernel_function_rbf.h"
-#include "service_numeric_table.h"
-#include "kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel_function/kernel_function_types_linear.h"
+#include "algorithms/kernel_function/kernel_function_types_rbf.h"
+#include "algorithms/kernel_function/kernel_function_linear.h"
+#include "algorithms/kernel_function/kernel_function_rbf.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/kernel.h"
 
 using namespace daal::internal;
 

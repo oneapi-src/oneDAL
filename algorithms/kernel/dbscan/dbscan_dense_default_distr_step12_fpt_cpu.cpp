@@ -21,9 +21,9 @@
 //--
 */
 
-#include "dbscan_kernel.h"
-#include "dbscan_dense_default_distr_impl.i"
-#include "dbscan_container.h"
+#include "algorithms/kernel/dbscan/dbscan_kernel.h"
+#include "algorithms/kernel/dbscan/dbscan_dense_default_distr_impl.i"
+#include "algorithms/kernel/dbscan/dbscan_container.h"
 
 namespace daal
 {

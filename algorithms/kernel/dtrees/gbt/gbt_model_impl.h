@@ -24,12 +24,12 @@
 #ifndef __GBT_MODEL_IMPL__
 #define __GBT_MODEL_IMPL__
 
-#include "dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
 #include "algorithms/regression/tree_traverse.h"
-#include "gbt_predict_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_predict_dense_default_impl.i"
 #include "algorithms/tree_utils/tree_utils_regression.h"
-#include "dtrees_model_impl_common.h"
-#include "service_arrays.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl_common.h"
+#include "service/kernel/service_arrays.h"
 
 using namespace daal::data_management;
 

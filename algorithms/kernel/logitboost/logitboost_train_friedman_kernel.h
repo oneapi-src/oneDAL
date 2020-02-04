@@ -37,12 +37,12 @@
 #ifndef __LOGITBOOST_TRAIN_FRIEDMAN_KERNEL_H__
 #define __LOGITBOOST_TRAIN_FRIEDMAN_KERNEL_H__
 
-#include "threading.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "service_data_utils.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_data_utils.h"
 
-#include "logitboost_train_kernel.h"
+#include "algorithms/kernel/logitboost/logitboost_train_kernel.h"
 
 namespace daal
 {

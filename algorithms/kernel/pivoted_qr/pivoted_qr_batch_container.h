@@ -24,9 +24,9 @@
 #ifndef __PIVOTED_QR_BATCH_CONTAINER_H__
 #define __PIVOTED_QR_BATCH_CONTAINER_H__
 
-#include "pivoted_qr_types.h"
-#include "pivoted_qr_batch.h"
-#include "pivoted_qr_kernel.h"
+#include "algorithms/pivoted_qr/pivoted_qr_types.h"
+#include "algorithms/pivoted_qr/pivoted_qr_batch.h"
+#include "algorithms/kernel/pivoted_qr/pivoted_qr_kernel.h"
 
 namespace daal
 {

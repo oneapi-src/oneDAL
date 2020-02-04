@@ -21,9 +21,9 @@
 //--
 */
 
-#include "adaboost_train_batch_container.h"
-#include "adaboost_train_kernel.h"
-#include "adaboost_train_impl.i"
+#include "algorithms/kernel/adaboost/adaboost_train_batch_container.h"
+#include "algorithms/kernel/adaboost/adaboost_train_kernel.h"
+#include "algorithms/kernel/adaboost/adaboost_train_impl.i"
 
 namespace daal
 {

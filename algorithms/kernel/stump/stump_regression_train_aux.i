@@ -24,15 +24,15 @@
 #ifndef __STUMP_REGRESSION_TRAIN_AUX_I__
 #define __STUMP_REGRESSION_TRAIN_AUX_I__
 
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
-#include "decision_tree_model.h"
-#include "decision_tree_regression_training_batch.h"
-#include "regression_training_types.h"
-#include "stump_regression_model.h"
-#include "decision_tree_regression_model_impl.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/decision_tree/decision_tree_model.h"
+#include "algorithms/decision_tree/decision_tree_regression_training_batch.h"
+#include "algorithms/regression/regression_training_types.h"
+#include "algorithms/stump/stump_regression_model.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
 
 using namespace daal::data_management;
 using namespace daal::algorithms;

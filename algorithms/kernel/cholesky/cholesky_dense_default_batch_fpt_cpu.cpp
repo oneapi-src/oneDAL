@@ -19,9 +19,9 @@
 //  Implementation of cholesky calculation functions.
 //--
 
-#include "cholesky_batch_container.h"
-#include "cholesky_kernel.h"
-#include "cholesky_impl.i"
+#include "algorithms/kernel/cholesky/cholesky_batch_container.h"
+#include "algorithms/kernel/cholesky/cholesky_kernel.h"
+#include "algorithms/kernel/cholesky/cholesky_impl.i"
 
 namespace daal
 {

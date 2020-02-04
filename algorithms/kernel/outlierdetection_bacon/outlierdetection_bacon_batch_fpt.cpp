@@ -21,7 +21,7 @@
 //--
 */
 
-#include "outlierdetection_bacon_batch.h"
+#include "algorithms/kernel/outlierdetection_bacon/outlierdetection_bacon_batch.h"
 
 namespace daal
 {

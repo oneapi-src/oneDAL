@@ -21,7 +21,7 @@
 //--
 */
 
-#include "compression_stream.h"
+#include "data_management/compression/compression_stream.h"
 
 namespace daal
 {

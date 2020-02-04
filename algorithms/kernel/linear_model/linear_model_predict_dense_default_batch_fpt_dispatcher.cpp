@@ -23,7 +23,7 @@
 //--
 */
 
-#include "linear_model_predict_container.h"
+#include "algorithms/kernel/linear_model/linear_model_predict_container.h"
 
 namespace daal
 {

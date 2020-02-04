@@ -24,9 +24,9 @@
 #ifndef __SVD_FPK_H__
 #define __SVD_FPK_H__
 
-#include "svd_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/svd/svd_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

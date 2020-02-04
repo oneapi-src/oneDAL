@@ -23,7 +23,7 @@
 #ifndef __APRIORI_BATCH__
 #define __APRIORI_BATCH__
 
-#include "apriori_types.h"
+#include "algorithms/association_rules/apriori_types.h"
 
 using namespace daal::data_management;
 

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "logitboost_train_batch_container.h"
+#include "algorithms/kernel/logitboost/logitboost_train_batch_container.h"
 
 namespace daal
 {

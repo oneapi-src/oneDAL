@@ -24,9 +24,9 @@
 #ifndef __ERROR_ID__
 #define __ERROR_ID__
 
-#include "error_indexes.h"
+#include "services/error_indexes.h"
 #include "services/daal_defines.h"
-#include "daal_memory.h"
+#include "services/daal_memory.h"
 
 namespace daal
 {

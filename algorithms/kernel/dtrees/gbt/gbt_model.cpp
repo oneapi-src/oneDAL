@@ -21,9 +21,9 @@
 //--
 */
 
-#include "daal_defines.h"
-#include "gbt_model_impl.h"
-#include "dtrees_model_impl_common.h"
+#include "services/daal_defines.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl_common.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

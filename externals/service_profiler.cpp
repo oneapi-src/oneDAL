@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "service_profiler.h"
+#include "externals/service_profiler.h"
 
 namespace daal
 {

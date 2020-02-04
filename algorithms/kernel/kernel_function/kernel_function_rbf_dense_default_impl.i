@@ -24,11 +24,11 @@
 #ifndef __KERNEL_FUNCTION_RBF_DENSE_DEFAULT_IMPL_I__
 #define __KERNEL_FUNCTION_RBF_DENSE_DEFAULT_IMPL_I__
 
-#include "kernel_function_types_rbf.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
-#include "service_blas.h"
-#include "threading.h"
+#include "algorithms/kernel_function/kernel_function_types_rbf.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "externals/service_blas.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::data_management;
 

@@ -21,8 +21,8 @@
 //--
 */
 
-#include "covariance_container.h"
-#include "covariance_csr_batch_impl.i"
+#include "algorithms/kernel/covariance/covariance_container.h"
+#include "algorithms/kernel/covariance/covariance_csr_batch_impl.i"
 
 namespace daal
 {

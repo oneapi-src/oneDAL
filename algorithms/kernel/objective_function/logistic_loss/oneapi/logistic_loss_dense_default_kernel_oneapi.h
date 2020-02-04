@@ -24,8 +24,8 @@
 #ifndef __LOGISTIC_LOSS_DENSE_DEFAULT_KERNEL_ONEAPI_H__
 #define __LOGISTIC_LOSS_DENSE_DEFAULT_KERNEL_ONEAPI_H__
 
-#include "oneapi/blas_gpu.h"
-#include "common/oneapi/objective_function_utils_oneapi.h"
+#include "service/kernel/oneapi/blas_gpu.h"
+#include "algorithms/kernel/objective_function/common/oneapi/objective_function_utils_oneapi.h"
 #include "algorithms/optimization_solver/objective_function/logistic_loss_types.h"
 
 namespace daal

@@ -23,7 +23,7 @@
 #ifndef __MOMENTS_BATCH__
 #define __MOMENTS_BATCH__
 
-#include "low_order_moments_types.h"
+#include "algorithms/moments/low_order_moments_types.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 #include "oneapi/internal/utils.h"
 

@@ -24,8 +24,8 @@
 #ifndef __CORDISTANCE_BATCH_CONTAINER_H__
 #define __CORDISTANCE_BATCH_CONTAINER_H__
 
-#include "correlation_distance.h"
-#include "cordistance_kernel.h"
+#include "algorithms/distance/correlation_distance.h"
+#include "algorithms/kernel/cordistance/cordistance_kernel.h"
 
 namespace daal
 {

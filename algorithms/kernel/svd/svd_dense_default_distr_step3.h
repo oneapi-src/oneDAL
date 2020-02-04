@@ -23,7 +23,7 @@
 #ifndef __SVD_DENSE_DEFAULT_DISTR_STEP3__
 #define __SVD_DENSE_DEFAULT_DISTR_STEP3__
 
-#include "svd_types.h"
+#include "algorithms/svd/svd_types.h"
 
 using namespace daal::services;
 

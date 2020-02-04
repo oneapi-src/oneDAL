@@ -24,7 +24,7 @@
 #ifndef __OUTLIERDETECTION_UNIVARIATE_BATCH_H__
 #define __OUTLIERDETECTION_UNIVARIATE_BATCH_H__
 
-#include "outlier_detection_univariate_types.h"
+#include "algorithms/outlier_detection/outlier_detection_univariate_types.h"
 
 using namespace daal::data_management;
 

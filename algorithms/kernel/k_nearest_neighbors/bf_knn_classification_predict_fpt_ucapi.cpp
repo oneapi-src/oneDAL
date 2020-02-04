@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/bf_knn_classification_predict_kernel_ucapi_impl.i"
-#include "bf_knn_classification_predict_dense_default_batch_container.h"
+#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi_impl.i"
+#include "algorithms/kernel/k_nearest_neighbors/bf_knn_classification_predict_dense_default_batch_container.h"
 
 namespace daal
 {

@@ -25,14 +25,14 @@
 #define __COVARIANCE_ONEAPI_IMPL_I__
 
 #include "services/buffer.h"
-#include "numeric_table.h"
-#include "env_detect.h"
-#include "error_indexes.h"
-#include "oneapi/blas_gpu.h"
-#include "oneapi/sum_reducer.h"
-#include "cl_kernels/covariance_kernels.cl"
-#include "service_ittnotify.h"
-#include "service_data_utils.h"
+#include "data_management/data/numeric_table.h"
+#include "services/env_detect.h"
+#include "services/error_indexes.h"
+#include "service/kernel/oneapi/blas_gpu.h"
+#include "service/kernel/oneapi/sum_reducer.h"
+#include "algorithms/kernel/covariance/oneapi/cl_kernels/covariance_kernels.cl"
+#include "externals/service_ittnotify.h"
+#include "service/kernel/service_data_utils.h"
 
 using namespace daal::services::internal;
 using namespace daal::oneapi::internal;

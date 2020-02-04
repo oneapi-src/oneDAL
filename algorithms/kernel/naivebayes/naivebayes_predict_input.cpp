@@ -21,8 +21,8 @@
 //--
 */
 
-#include "multinomial_naive_bayes_predict_types.h"
-#include "daal_strings.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_predict_types.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

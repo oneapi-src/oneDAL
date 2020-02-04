@@ -24,7 +24,7 @@
 #ifndef __SGD_DENSE_MOMENTUM_KERNEL_ONEAPI_H__
 #define __SGD_DENSE_MOMENTUM_KERNEL_ONEAPI_H__
 
-#include "sgd_dense_kernel_oneapi.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_kernel_oneapi.h"
 
 namespace daal
 {

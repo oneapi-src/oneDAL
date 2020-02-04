@@ -24,10 +24,10 @@
 #ifndef __SVM_TRAIN_BOSER_CACHE_I__
 #define __SVM_TRAIN_BOSER_CACHE_I__
 
-#include "service_utils.h"
-#include "service_memory.h"
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
+#include "service/kernel/service_utils.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 using namespace daal::services::internal;
 
 namespace daal

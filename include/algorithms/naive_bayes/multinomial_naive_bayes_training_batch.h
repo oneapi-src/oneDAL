@@ -28,7 +28,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "multinomial_naive_bayes_training_types.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"
 #include "algorithms/classifier/classifier_training_batch.h"
 
 namespace daal

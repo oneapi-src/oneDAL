@@ -21,8 +21,8 @@
 //--
 */
 
-#include "low_order_moments_container.h"
-#include "low_order_moments_batch_impl.i"
+#include "algorithms/kernel/low_order_moments/low_order_moments_container.h"
+#include "algorithms/kernel/low_order_moments/low_order_moments_batch_impl.i"
 
 namespace daal
 {

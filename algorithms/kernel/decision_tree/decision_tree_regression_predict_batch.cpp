@@ -21,11 +21,11 @@
 //--
 */
 
-#include "algorithm.h"
-#include "serialization_utils.h"
+#include "algorithms/algorithm.h"
+#include "service/kernel/serialization_utils.h"
 #include "algorithms/decision_tree/decision_tree_regression_predict_types.h"
-#include "decision_tree_regression_model_impl.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

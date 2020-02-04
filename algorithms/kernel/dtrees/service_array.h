@@ -24,7 +24,7 @@
 #ifndef __SERVICE_ARRAY__
 #define __SERVICE_ARRAY__
 
-#include "service_memory.h"
+#include "externals/service_memory.h"
 
 namespace daal
 {

@@ -19,8 +19,8 @@
 #include <string>
 
 #include "com_intel_daal_data_management_data_DataDictionary.h"
-#include "data_dictionary.h"
-#include "numeric_table.h"
+#include "data_management/data/data_dictionary.h"
+#include "data_management/data/numeric_table.h"
 #include "common_helpers_functions.h"
 
 using namespace daal::data_management;

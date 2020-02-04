@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/decision_forest/decision_forest_training_parameter.h"
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

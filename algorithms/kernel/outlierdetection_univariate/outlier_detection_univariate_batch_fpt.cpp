@@ -21,7 +21,7 @@
 //--
 */
 
-#include "outlier_detection_univariate_batch.h"
+#include "algorithms/kernel/outlierdetection_univariate/outlier_detection_univariate_batch.h"
 
 namespace daal
 {

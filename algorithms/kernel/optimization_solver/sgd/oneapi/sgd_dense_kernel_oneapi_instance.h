@@ -24,10 +24,10 @@
 #ifndef __SGD_DENSE_KERNEL_ONEAPI_INSTANCE_H__
 #define __SGD_DENSE_KERNEL_ONEAPI_INSTANCE_H__
 
-#include "sgd_dense_minibatch_kernel_oneapi.h"
-#include "sgd_dense_minibatch_oneapi_impl.i"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_minibatch_kernel_oneapi.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_minibatch_oneapi_impl.i"
 
-#include "sgd_dense_momentum_kernel_oneapi.h"
-#include "sgd_dense_default_kernel_oneapi.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_momentum_kernel_oneapi.h"
+#include "algorithms/kernel/optimization_solver/sgd/oneapi/sgd_dense_default_kernel_oneapi.h"
 
 #endif

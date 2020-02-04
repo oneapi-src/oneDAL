@@ -25,11 +25,11 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_KERNEL_ONEAPI_H__
 #define __LINEAR_REGRESSION_TRAIN_KERNEL_ONEAPI_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "linear_regression_training_types.h"
-#include "oneapi/linear_model_train_normeq_kernel_oneapi.h"
-#include "algorithm_kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/linear_regression/linear_regression_training_types.h"
+#include "algorithms/kernel/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
+#include "algorithms/algorithm_kernel.h"
 
 namespace daal
 {

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "decision_tree_classification_model_impl.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_model_impl.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

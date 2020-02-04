@@ -21,7 +21,7 @@
 //--
 */
 
-#include "multiclass_confusion_matrix.h"
+#include "algorithms/kernel/classifier/multiclass_confusion_matrix.h"
 
 namespace daal
 {

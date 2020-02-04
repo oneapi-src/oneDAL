@@ -24,7 +24,7 @@
 #ifndef __SERVICE_DISPATCH_H__
 #define __SERVICE_DISPATCH_H__
 
-#include "daal_kernel_defines.h"
+#include "services/daal_kernel_defines.h"
 
 #define DAAL_DISPATCH_FUNCTION_BY_CPU(func, ...) \
     switch (static_cast<daal::CpuType>(daal::services::Environment::getInstance()->getCpuId())) { \

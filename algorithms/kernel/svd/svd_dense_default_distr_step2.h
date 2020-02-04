@@ -23,8 +23,8 @@
 #ifndef __SVD_DENSE_DEFAULT_DISTR_STEP2__
 #define __SVD_DENSE_DEFAULT_DISTR_STEP2__
 
-#include "svd_types.h"
-#include "service_data_utils.h"
+#include "algorithms/svd/svd_types.h"
+#include "service/kernel/service_data_utils.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "aos_numeric_table.h"
+#include "data_management/data/aos_numeric_table.h"
 
 namespace daal
 {

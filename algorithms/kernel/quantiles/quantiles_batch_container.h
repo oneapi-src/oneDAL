@@ -24,10 +24,10 @@
 #ifndef __QUANTILES_BATCH_CONTAINER_H__
 #define __QUANTILES_BATCH_CONTAINER_H__
 
-#include "quantiles_batch.h"
-#include "quantiles_kernel.h"
-#include "kernel.h"
-#include "homogen_numeric_table.h"
+#include "algorithms/quantiles/quantiles_batch.h"
+#include "algorithms/kernel/quantiles/quantiles_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {

@@ -24,10 +24,10 @@
 #ifndef __SORTING_KERNEL_H__
 #define __SORTING_KERNEL_H__
 
-#include "numeric_table.h"
-#include "sorting_batch.h"
-#include "service_numeric_table.h"
-#include "service_stat.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/sorting/sorting_batch.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_stat.h"
 
 using namespace daal::internal;
 using namespace daal::services;

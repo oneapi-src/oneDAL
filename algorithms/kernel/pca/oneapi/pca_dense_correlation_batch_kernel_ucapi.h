@@ -24,10 +24,10 @@
 #ifndef __PCA_DENSE_CORRELATION_BATCH_KERNEL_UCAPI_H__
 #define __PCA_DENSE_CORRELATION_BATCH_KERNEL_UCAPI_H__
 
-#include "pca_dense_correlation_base_iface.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_base_iface.h"
 #include "oneapi/internal/types.h"
 #include "oneapi/internal/execution_context.h"
-#include "pca_types.h"
+#include "algorithms/pca/pca_types.h"
 
 namespace daal
 {

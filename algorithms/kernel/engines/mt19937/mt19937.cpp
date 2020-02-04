@@ -20,8 +20,8 @@
 //--
 
 #include "algorithms/engines/mt19937/mt19937.h"
-#include "service_dispatch.h"
-#include "mt19937_batch_impl.h"
+#include "externals/service_dispatch.h"
+#include "algorithms/kernel/engines/mt19937/mt19937_batch_impl.h"
 
 namespace daal
 {

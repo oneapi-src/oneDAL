@@ -28,7 +28,7 @@
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_batch.h"
-#include "coordinate_descent_types.h"
+#include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_types.h"
 
 namespace daal
 {

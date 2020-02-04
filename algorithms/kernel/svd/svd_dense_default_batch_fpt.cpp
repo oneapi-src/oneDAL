@@ -21,7 +21,7 @@
 //--
 */
 
-#include "svd_dense_default_batch.h"
+#include "algorithms/kernel/svd/svd_dense_default_batch.h"
 namespace daal
 {
 namespace algorithms

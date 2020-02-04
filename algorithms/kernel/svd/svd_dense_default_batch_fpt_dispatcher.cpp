@@ -21,7 +21,7 @@
 //--
 */
 
-#include "svd_dense_default_container.h"
+#include "algorithms/kernel/svd/svd_dense_default_container.h"
 
 namespace daal
 {

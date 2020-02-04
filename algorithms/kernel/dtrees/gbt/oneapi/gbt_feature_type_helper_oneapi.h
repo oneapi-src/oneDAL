@@ -24,20 +24,20 @@
 #ifndef __GBT_FEATURE_TYPE_HELPER_ONEAPI_H__
 #define __GBT_FEATURE_TYPE_HELPER_ONEAPI_H__
 
-#include "dtrees_feature_type_helper.h"
-#include "gbt_feature_type_helper_oneapi.h"
-#include "threading.h"
-#include "service_error_handling.h"
-#include "service_sort.h"
-#include "service_array.h"
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_numeric_table.h"
+#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.h"
+#include "algorithms/kernel/dtrees/gbt/oneapi/gbt_feature_type_helper_oneapi.h"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/kernel/service_sort.h"
+#include "algorithms/kernel/dtrees/service_array.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "cl_kernels/gbt_common_kernels.cl"
+#include "algorithms/kernel/dtrees/gbt/oneapi/cl_kernels/gbt_common_kernels.cl"
 
-#include "execution_context.h"
-#include "oneapi/service_defines_oneapi.h"
+#include "oneapi/internal/execution_context.h"
+#include "service/kernel/oneapi/service_defines_oneapi.h"
 #include "oneapi/internal/types.h"
 
 namespace daal

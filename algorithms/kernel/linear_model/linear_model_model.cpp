@@ -21,10 +21,10 @@
 //--
 */
 
-#include "linear_model_model_impl.h"
+#include "algorithms/kernel/linear_model/linear_model_model_impl.h"
 #include "algorithms/linear_model/linear_model_model.h"
-#include "service_numeric_table.h"
-#include "daal_strings.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "sorting_types.h"
+#include "algorithms/sorting/sorting_types.h"
 
 using namespace daal::data_management;
 

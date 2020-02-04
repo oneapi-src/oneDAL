@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "soa_numeric_table.h"
+#include "data_management/data/soa_numeric_table.h"
 
 namespace daal
 {

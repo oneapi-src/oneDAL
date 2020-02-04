@@ -21,7 +21,7 @@
 //--
 */
 
-#include "qr_dense_default_batch.h"
+#include "algorithms/kernel/qr/qr_dense_default_batch.h"
 namespace daal
 {
 namespace algorithms

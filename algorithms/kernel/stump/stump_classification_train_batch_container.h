@@ -25,8 +25,8 @@
 #ifndef __STUMP_CLASSIFICATION_TRAIN_BATCH_CONTAINER_H__
 #define __STUMP_CLASSIFICATION_TRAIN_BATCH_CONTAINER_H__
 
-#include "stump_classification_training_batch.h"
-#include "stump_classification_train_kernel.h"
+#include "algorithms/stump/stump_classification_training_batch.h"
+#include "algorithms/kernel/stump/stump_classification_train_kernel.h"
 
 namespace daal
 {
