@@ -166,7 +166,7 @@ services::Status I1LogLossKernel<algorithmFPType, method, cpu>::doCompute(const 
         }
 
         prox[0] = b[0];
-        for (int i = 1; i < nBeta; i++)
+        for (size_t i = 1; i < nBeta; i++)
         {
             if (b[i] > parameter->penaltyL1)
             {
@@ -204,7 +204,7 @@ services::Status I1LogLossKernel<algorithmFPType, method, cpu>::doCompute(const 
             for (size_t i = startRow; i < finishRow; i++)
             {
                 curentNorm = 0;
-                for (int j = 0; j < p; j++)
+                for (size_t j = 0; j < p; j++)
                 {
                     curentNorm += x[i * p + j] * x[i * p + j];
                 }

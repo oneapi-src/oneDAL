@@ -249,7 +249,7 @@ services::Status SubTask<algorithmFPType, ClsType, cpu>::getBlockOfRowsOfResults
         algorithmFPType maxProb = p[0];
         DAAL_CHECK(nonEmptyClassMap[0] <= services::internal::MaxVal<int>::get(), services::ErrorIncorrectNumberOfClasses)
         label = (int)nonEmptyClassMap[0];
-        for (int j = 1; j < nClasses; j++)
+        for (size_t j = 1; j < nClasses; j++)
         {
             if (p[j] > maxProb)
             {

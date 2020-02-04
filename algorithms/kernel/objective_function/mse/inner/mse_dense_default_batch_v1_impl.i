@@ -54,7 +54,7 @@ inline services::Status I1MSEKernel<algorithmFPType, method, cpu>::compute(Numer
         algorithmFPType * p       = prox.get();
         const algorithmFPType * b = beta.get();
 
-        for (int i = 0; i < nBeta; i++)
+        for (size_t i = 0; i < nBeta; i++)
         {
             p[i] = b[i];
         }
@@ -85,7 +85,7 @@ inline services::Status I1MSEKernel<algorithmFPType, method, cpu>::compute(Numer
             for (size_t i = startRow; i < finishRow; i++)
             {
                 curentNorm = 0;
-                for (int j = 0; j < p; j++)
+                for (size_t j = 0; j < p; j++)
                 {
                     curentNorm += x[i * p + j] * x[i * p + j];
                 }

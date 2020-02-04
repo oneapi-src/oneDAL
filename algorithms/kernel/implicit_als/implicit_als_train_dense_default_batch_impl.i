@@ -128,7 +128,7 @@ Status ImplicitALSTrainKernelBase<algorithmFPType, cpu>::computeFactors(size_t n
             algorithmFPType * lhs_local = lhs.local();
             algorithmFPType * rhs       = rowFactors + (offset + j) * nFactors;
 
-            for (int f = 0; f < nFactors; f++)
+            for (size_t f = 0; f < nFactors; f++)
             {
                 rhs[f] = 0.0;
             }
