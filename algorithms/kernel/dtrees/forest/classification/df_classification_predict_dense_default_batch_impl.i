@@ -36,6 +36,7 @@
 #include "service_error_handling.h"
 #include "service_arrays.h"
 #include "algorithms/decision_forest/decision_forest_classification_model.h"
+#include <iostream>
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -228,6 +229,9 @@ services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::
                                                                       const decision_forest::classification::Model * const m, NumericTable * const r,
                                                                       NumericTable * const prob, const size_t nClasses, const VotingMethod votingMethod)
 {
+    std::cout << "KERNEL votingMethod: " << votingMethod << std::endl;
+    std::cout << "KERNEL prob: " << prob << std::endl;
+
     const daal::algorithms::decision_forest::classification::internal::ModelImpl * const pModel =
         static_cast<const daal::algorithms::decision_forest::classification::internal::ModelImpl * const>(m);
     if(_task == nullptr)
