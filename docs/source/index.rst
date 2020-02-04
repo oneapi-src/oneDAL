@@ -62,3 +62,9 @@ list of features and documentation are available at |daal-docs|_.
    :caption: Examples
 
    sycl_examples.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Notes
+
+   notes/known_issues.rst
