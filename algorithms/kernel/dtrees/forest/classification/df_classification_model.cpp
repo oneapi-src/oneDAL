@@ -80,12 +80,12 @@ bool visitLeaf(const size_t iRowInTable, const size_t level, tree_utils::classif
                const DecisionTreeNode * const aNode, const double * const imp, const int * const nodeSamplesCount,
                tree_utils::classification::TreeNodeVisitor & visitor, const double * const modelProb, const size_t nClasses)
 {
-    const DecisionTreeNode & n = aNode[iRowInTable];
-    if (imp) descLeaf.impurity = imp[iRowInTable];
+    const DecisionTreeNode & n                      = aNode[iRowInTable];
+    if (imp) descLeaf.impurity                      = imp[iRowInTable];
     if (nodeSamplesCount) descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
-    descLeaf.level = level;
-    descLeaf.label = n.leftIndexOrClass;
-    descLeaf.prob = modelProb + iRowInTable * nClasses;
+    descLeaf.level                                  = level;
+    descLeaf.label                                  = n.leftIndexOrClass;
+    descLeaf.prob                                   = modelProb + iRowInTable * nClasses;
     return visitor.onLeafNode(descLeaf);
 }
 
@@ -119,7 +119,7 @@ void ModelImpl::traverseDF(size_t iTree, classifier::TreeNodeVisitor& visitor) c
 {
     if(iTree >= size())
         return;
-    const DecisionTreeTable& t = *at(iTree);
+    const DecisionTreeTable& t    = *at(iTree);
     const DecisionTreeNode* aNode = (const DecisionTreeNode*)t.getArray();
     if(aNode)
     {
@@ -139,7 +139,7 @@ void ModelImpl::traverseBF(size_t iTree, classifier::TreeNodeVisitor& visitor) c
 {
     if(iTree >= size())
         return;
-    const DecisionTreeTable& t = *at(iTree);
+    const DecisionTreeTable& t    = *at(iTree);
     const DecisionTreeNode* aNode = (const DecisionTreeNode*)t.getArray();
     NodeIdxArray aCur;//nodes of current layer
     NodeIdxArray aNext;//nodes of next layer
@@ -162,12 +162,12 @@ void ModelImpl::traverseBF(size_t iTree, classifier::TreeNodeVisitor& visitor) c
 void ModelImpl::traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const
 {
     if (iTree >= size()) return;
-    const DecisionTreeTable & t    = *at(iTree);
-    const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
-    const double * const imp             = getImpVals(iTree);
-    const int * const nodeSamplesCount   = getNodeSampleCount(iTree);
-    const double * const modelProb = getProbas(iTree);
-    const size_t nClasses = getNumClasses();
+    const DecisionTreeTable & t        = *at(iTree);
+    const DecisionTreeNode * aNode     = (const DecisionTreeNode *)t.getArray();
+    const double * const imp           = getImpVals(iTree);
+    const int * const nodeSamplesCount = getNodeSampleCount(iTree);
+    const double * const modelProb     = getProbas(iTree);
+    const size_t nClasses              = getNumClasses();
     if (aNode)
     {
         tree_utils::SplitNodeDescriptor descSplit;
@@ -192,8 +192,8 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVi
     const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
     const double * imp             = getImpVals(iTree);
     const int * nodeSamplesCount   = getNodeSampleCount(iTree);
-    const double * modelProb = getProbas(iTree);
-    const size_t nClasses = getNumClasses();
+    const double * modelProb       = getProbas(iTree);
+    const size_t nClasses          = getNumClasses();
     NodeIdxArray aCur;  //nodes of current layer
     NodeIdxArray aNext; //nodes of next layer
     if (aNode)

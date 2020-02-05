@@ -36,7 +36,6 @@
 #include "service_error_handling.h"
 #include "service_arrays.h"
 #include "algorithms/decision_forest/decision_forest_classification_model.h"
-#include <iostream>
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -181,7 +180,7 @@ protected:
             for (size_t i = 0; i < blockSize; ++i)
             {
                 const algorithmFPType * const currentSample = x + i * nCols;
-                const uint32_t cnIdx                  = currentNodes[i];
+                const uint32_t cnIdx                        = currentNodes[i];
                 const size_t idx                            = isSplits[i] * fi[cnIdx];
                 const bool sn                               = currentSample[idx] > fv[cnIdx];
                 currentNodes[i] -= isSplits[i] * (cnIdx - lc[cnIdx] - sn);
@@ -229,9 +228,6 @@ services::Status PredictKernel<algorithmFPType, method, cpu>::compute(services::
                                                                       const decision_forest::classification::Model * const m, NumericTable * const r,
                                                                       NumericTable * const prob, const size_t nClasses, const VotingMethod votingMethod)
 {
-    std::cout << "KERNEL votingMethod: " << votingMethod << std::endl;
-    std::cout << "KERNEL prob: " << prob << std::endl;
-
     const daal::algorithms::decision_forest::classification::internal::ModelImpl * const pModel =
         static_cast<const daal::algorithms::decision_forest::classification::internal::ModelImpl * const>(m);
     if(_task == nullptr)
@@ -747,8 +743,8 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
 
     featureIndexType * fi = _tFI.get();
     leftOrClassType * lc  = _tLC.get();
-    float * const fv  = _tFV.get();
-    int* const disp = _displaces.get();
+    float * const fv      = _tFV.get();
+    int* const disp       = _displaces.get();
 
     const size_t nBlocksOfClasses = _nClasses / 8;
     const size_t tailSize = _nClasses % 8;
@@ -766,7 +762,7 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
             size_t displace = (iTree == 0) ? 0 : (disp[iTree - 1] + _aTree[iTree - 1]->getNumberOfRows());
             for(size_t i = 0; i < 16; ++i)
             {
-                const size_t treeSize = _aTree[iTree + i]->getNumberOfRows();
+                const size_t treeSize          = _aTree[iTree + i]->getNumberOfRows();
                 const DecisionTreeNode * aNode = (const DecisionTreeNode *)(*_aTree[iTree + i]).getArray();
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
@@ -990,7 +986,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     {
         for (size_t iTree = 0; iTree < numberOfTrees; ++iTree)
         {
-            const size_t treeSize          = _aTree[iTree]->getNumberOfRows();
+            const size_t treeSize                = _aTree[iTree]->getNumberOfRows();
             const DecisionTreeNode * const aNode = (const DecisionTreeNode *)(*_aTree[iTree]).getArray();
             parallelPredict(aX, aNode, treeSize, nBlocks, nCols, blockSize, residualSize, commonBufVal, iTree);
         }

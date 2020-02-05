@@ -107,8 +107,8 @@ void testModel(const training::ResultPtr& trainingResult)
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
-    algorithm.parameter().votingMethod = prediction::VotingMethod::weighted;
-    algorithm.parameter().resultsToEvaluate |= classifier::ResultToComputeId::computeClassProbabilities;
+    algorithm.parameter().votingMethod = prediction::weighted;
+    algorithm.parameter().resultsToEvaluate |= classifier::computeClassProbabilities;
     /* Predict values of decision forest classification */
     algorithm.compute();
 

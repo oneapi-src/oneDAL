@@ -41,7 +41,6 @@ public class Parameter extends com.intel.daal.algorithms.classifier.Parameter {
      * @param votingMethod Voting method
      */
     public void setVotingMethod(VotingMethod votingMethod) {
-        System.out.print("Java: SM: Set: " + votingMethod.getValue());
         cSetVotingMethod(this.cObject, votingMethod.getValue());
     }
 

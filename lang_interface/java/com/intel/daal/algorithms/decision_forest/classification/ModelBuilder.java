@@ -91,7 +91,7 @@ public class ModelBuilder extends SerializableBase {
      * @param treeId        Tree to which new node is added
      * @param parentId      Parent node to which new node is added (use noParent for root node)
      * @param position      Position in parent (e.g. 0 for left and 1 for right child in a binary tree)
-     * @param classLabel    Probabilities distribution for node
+     * @param proba         Probabilities distribution for node
      * @return              Positive number node identifier
      */
     public long addLeafNodeByProba(long treeId, long parentId, long position, double[] proba) {
