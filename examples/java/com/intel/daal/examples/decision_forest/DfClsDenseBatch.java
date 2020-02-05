@@ -141,7 +141,7 @@ class DfClsDenseBatch {
         Model model = trainingResult.get(TrainingResultId.model);
         algorithm.input.set(NumericTableInputId.data, testData);
         algorithm.input.set(ModelInputId.model, model);
-        algorithm.parameter.setVotingMethod(VotingMethod.unweighted);
+        algorithm.parameter.setVotingMethod(VotingMethod.weighted);
         algorithm.parameter.setResultsToEvaluate(com.intel.daal.algorithms.classifier.ResultsToComputeId.computeClassProbabilities
             | com.intel.daal.algorithms.classifier.ResultsToComputeId.computeClassLabels);
 

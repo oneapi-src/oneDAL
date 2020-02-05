@@ -123,10 +123,10 @@ public:
  * \snippet decision_forest/decision_forest_classification_predict_types.h Parameter source code
  */
 /* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::interface2::Parameter
+struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
 {
     Parameter(size_t nClasses, VotingMethod votingMethod = weighted) :
-        daal::algorithms::classifier::interface2::Parameter(nClasses),
+        daal::algorithms::classifier::Parameter(nClasses),
         votingMethod(votingMethod) {}
     VotingMethod votingMethod;
     services::Status check() const DAAL_C11_OVERRIDE;

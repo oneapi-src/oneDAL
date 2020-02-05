@@ -188,12 +188,12 @@ void ModelImpl::traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVi
 void ModelImpl::traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const
 {
     if (iTree >= size()) return;
-    const DecisionTreeTable & t    = *at(iTree);
-    const DecisionTreeNode * aNode = (const DecisionTreeNode *)t.getArray();
-    const double * imp             = getImpVals(iTree);
-    const int * nodeSamplesCount   = getNodeSampleCount(iTree);
-    const double * modelProb       = getProbas(iTree);
-    const size_t nClasses          = getNumClasses();
+    const DecisionTreeTable & t          = *at(iTree);
+    const DecisionTreeNode * const aNode = (const DecisionTreeNode *)t.getArray();
+    const double * const imp             = getImpVals(iTree);
+    const int * const nodeSamplesCount   = getNodeSampleCount(iTree);
+    const double * const modelProb       = getProbas(iTree);
+    const size_t nClasses                = getNumClasses();
     NodeIdxArray aCur;  //nodes of current layer
     NodeIdxArray aNext; //nodes of next layer
     if (aNode)

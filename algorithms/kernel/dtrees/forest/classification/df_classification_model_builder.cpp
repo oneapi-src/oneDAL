@@ -87,13 +87,13 @@ bool checkProba(const double * const proba, const size_t nClasses)
     const double epsilon = 10e-6;
     for (size_t index = 0; index < nClasses; ++index)
     {
-        if (proba[index] < 0.0 - epsilon || proba[index] > 1.0 + epsilon)
+        if (proba[index] < 0.0 || proba[index] > 1.0)
         {
             return false;
         }
         acc += proba[index];
     }
-    if (acc < 0.0 - epsilon || acc > 1.0 + epsilon)
+    if (acc < 1.0 - epsilon || acc > 1.0 + epsilon)
     {
         return false;
     }

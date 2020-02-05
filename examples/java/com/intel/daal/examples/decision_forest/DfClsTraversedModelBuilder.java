@@ -341,6 +341,9 @@ class DfClsTraversedModelBuilder {
         algorithm.input.set(NumericTableInputId.data, testData);
         algorithm.input.set(ModelInputId.model, model);
 
+        /* Set voting method */
+        algorithm.parameter.setVotingMethod(VotingMethod.unweighted);
+
         /* Compute prediction results */
         PredictionResult predictionResult = algorithm.compute();
         NumericTable predictionResults = predictionResult.get(PredictionResultId.prediction);

@@ -103,6 +103,9 @@ void testModel(decision_forest::classification::ModelPtr& model)
     /* set model obtained by builder */
     algorithm.input.set(classifier::prediction::model, model);
 
+    /* set voting method */
+    algorithm.parameter().votingMethod = prediction::unweighted;
+
     /* Predict values of decision forest classification */
     algorithm.compute();
 
