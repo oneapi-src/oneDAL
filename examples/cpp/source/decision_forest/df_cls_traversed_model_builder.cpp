@@ -131,7 +131,7 @@ daal::algorithms::decision_forest::classification::ModelPtr buildModel(Tree* tre
         buildTree(i, trees[i].root, isRoot, builder, parentMap);
         parentMap.erase(parentMap.begin(),parentMap.end());
     }
-
+    builder.setNFeatures(nFeatures);
     return builder.getModel();
 }
 

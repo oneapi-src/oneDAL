@@ -95,6 +95,7 @@ class DfClsDenseBatchModelBuilder {
         long root3 = modelBuilder.addSplitNode(tree3, modelBuilder.noParent, 0, 0, 0.303995);
         long child32 = modelBuilder.addLeafNode(tree3, root3, 1, 4);
         long child31 = modelBuilder.addLeafNode(tree3, root3, 0, 2);
+        modelBuilder.setNFeatures(nFeatures);
 
         model = modelBuilder.getModel();
     }
