@@ -95,8 +95,19 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), dataStr()));
 
     const decision_forest::classification::ModelPtr m = get(classifier::prediction::model);
-    if (!m.get()) s.add(ErrorNullModel);
-    //TODO: check input model
+
+    if (!m.get())
+    {
+        s.add(ErrorNullModel);
+        //TODO: check input model
+    }
+    else
+    {
+        const auto nFeatures = dataTable->getNumberOfColumns();
+        const auto nFeaturesModel = m->getNFeatures();
+
+        DAAL_CHECK(nFeaturesModel == nFeatures, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+    }
     return s;
 }
 
