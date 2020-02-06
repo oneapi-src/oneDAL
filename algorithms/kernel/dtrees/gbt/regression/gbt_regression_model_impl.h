@@ -52,6 +52,8 @@ public:
     ~ModelImpl() DAAL_C11_OVERRIDE {}
 
     virtual size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return RegressionImplType::getNumberOfFeatures(); }
+    virtual size_t getNFeatures() const DAAL_C11_OVERRIDE { return getNumberOfFeatures(); }
+    virtual void setNFeatures(size_t nFeatures) DAAL_C11_OVERRIDE { RegressionImplType::setNumberOfFeatures(nFeatures); }
 
     //Implementation of regression::Model
     virtual size_t numberOfTrees() const DAAL_C11_OVERRIDE;

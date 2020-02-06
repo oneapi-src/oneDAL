@@ -107,6 +107,19 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     size_t nIterations = pPrm->nIterations;
 
     DAAL_CHECK((nIterations == 0) || (nIterations <= maxNIterations), services::ErrorGbtPredictIncorrectNumberOfIterations);
+    NumericTablePtr dataTable = get(prediction::data);
+    if (!m.get())
+    {
+        s.add(ErrorNullModel);
+        // TODO: check input model
+    }
+    else
+    {
+        const auto nFeatures = dataTable->getNumberOfColumns();
+        const auto nFeaturesModel = m->getNFeatures();
+        DAAL_CHECK(nFeaturesModel == nFeatures,
+            services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+    }
     return s;
 }
 

@@ -89,6 +89,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const NumericTable * y = input->get(dependentVariable).get();
 
     gbt::regression::Model * m = result->get(model).get();
+    m->setNFeatures(x->getNumberOfColumns());
 
     const Parameter * par                  = static_cast<gbt::regression::training::Parameter *>(_par);
     daal::services::Environment::env & env = *_env;

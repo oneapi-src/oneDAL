@@ -93,11 +93,8 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::regression::prediction::Input::check(parameter, method));
-    NumericTablePtr dataTable = algorithms::regression::prediction::Input::get(
-        algorithms::regression::prediction::data);
-    const decision_forest::regression::ModelPtr m =
-        algorithms::decision_forest::regression::prediction::Input::get(
-            algorithms::decision_forest::regression::prediction::model);
+    NumericTablePtr dataTable = get(prediction::data);
+    const decision_forest::regression::ModelPtr m = get(prediction::model);
     if (!m.get())
     {
         s.add(ErrorNullModel);
