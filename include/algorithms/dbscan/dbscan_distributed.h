@@ -487,7 +487,7 @@ public:
      */
     Distributed(const Distributed<step1Local, algorithmFPType, method> & other);
 
-    ~Distributed() { delete _par; }
+    ~Distributed() { delete _par; _par = 0; }
 
     /**
     * Gets parameter of the algorithm
@@ -563,6 +563,8 @@ public:
 
 private:
     DistributedPartialResultStep1Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -601,7 +603,7 @@ public:
      */
     Distributed(const Distributed<step2Local, algorithmFPType, method> & other);
 
-    ~Distributed() { delete _par; }
+    ~Distributed() { delete _par; _par = 0; }
 
     /**
     * Gets parameter of the algorithm
@@ -677,6 +679,8 @@ public:
 
 private:
     DistributedPartialResultStep2Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -717,7 +721,7 @@ public:
      */
     Distributed(const Distributed<step3Local, algorithmFPType, method> & other);
 
-    ~Distributed() { delete _par; }
+    ~Distributed() { delete _par; _par = 0; }
 
     /**
     * Gets parameter of the algorithm
@@ -793,6 +797,8 @@ public:
 
 private:
     DistributedPartialResultStep3Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -833,7 +839,7 @@ public:
      */
     Distributed(const Distributed<step4Local, algorithmFPType, method> & other);
 
-    ~Distributed() { delete _par; }
+    ~Distributed() { delete _par; _par = 0; }
 
     /**
     * Gets parameter of the algorithm
@@ -909,6 +915,8 @@ public:
 
 private:
     DistributedPartialResultStep4Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -948,7 +956,7 @@ public:
      */
     Distributed(const Distributed<step5Local, algorithmFPType, method> & other);
 
-    ~Distributed() { delete _par; }
+    ~Distributed() { delete _par; _par = 0; }
 
     /**
     * Gets parameter of the algorithm
@@ -1024,6 +1032,8 @@ public:
 
 private:
     DistributedPartialResultStep5Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -1064,7 +1074,7 @@ public:
      */
     Distributed(const Distributed<step6Local, algorithmFPType, method> & other);
 
-    ~Distributed() { delete _par; }
+    ~Distributed() { delete _par; _par = 0; }
 
     /**
     * Gets parameter of the algorithm
@@ -1140,6 +1150,8 @@ public:
 
 private:
     DistributedPartialResultStep6Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -1244,6 +1256,8 @@ public:
 
 private:
     DistributedPartialResultStep7Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -1282,7 +1296,7 @@ public:
      */
     Distributed(const Distributed<step8Local, algorithmFPType, method> & other);
 
-    ~Distributed() { delete _par; }
+    ~Distributed() { delete _par; _par = 0; }
 
     /**
     * Gets parameter of the algorithm
@@ -1358,6 +1372,8 @@ public:
 
 private:
     DistributedPartialResultStep8Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -1482,6 +1498,8 @@ public:
 private:
     DistributedResultStep9Ptr _result;
     DistributedPartialResultStep9Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -1520,7 +1538,7 @@ public:
      */
     Distributed(const Distributed<step10Local, algorithmFPType, method> & other);
 
-    ~Distributed() { delete _par; }
+    ~Distributed() { delete _par; _par = 0; }
 
     /**
     * Gets parameter of the algorithm
@@ -1596,6 +1614,8 @@ public:
 
 private:
     DistributedPartialResultStep10Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -1634,7 +1654,7 @@ public:
      */
     Distributed(const Distributed<step11Local, algorithmFPType, method> & other);
 
-    ~Distributed() { delete _par; }
+    ~Distributed() { delete _par; _par = 0; }
 
     /**
     * Gets parameter of the algorithm
@@ -1710,6 +1730,8 @@ public:
 
 private:
     DistributedPartialResultStep11Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -1748,7 +1770,7 @@ public:
      */
     Distributed(const Distributed<step12Local, algorithmFPType, method> & other);
 
-    ~Distributed() { delete _par; }
+    ~Distributed() { delete _par; _par = 0; }
 
     /**
     * Gets parameter of the algorithm
@@ -1824,6 +1846,8 @@ public:
 
 private:
     DistributedPartialResultStep12Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -1953,6 +1977,8 @@ public:
 private:
     DistributedResultStep13Ptr _result;
     DistributedPartialResultStep13Ptr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /** @} */

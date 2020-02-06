@@ -165,6 +165,8 @@ protected:
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
 
+private:
+    Distributed& operator=(const Distributed&);
 }; // class  : public Training
 
 /**
@@ -297,6 +299,8 @@ protected:
         _result.reset(new ResultType());
     }
 
+private:
+    Distributed& operator=(const Distributed&);
 }; // class  : public Training
 /** @} */
 } // namespace interface1
