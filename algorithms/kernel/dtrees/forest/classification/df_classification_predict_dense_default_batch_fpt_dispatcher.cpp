@@ -31,5 +31,32 @@ namespace algorithms
 {
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
                                       decision_forest::classification::prediction::defaultDense)
+namespace decision_forest
+{
+namespace classification
+{
+namespace prediction
+{
+namespace interface3
+{
+template <>
+Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::Batch(size_t nClasses)
+{
+    _par = new ParameterType(nClasses);
+    initialize();
 }
+
+using BatchType = Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>;
+template <>
+Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::Batch(const BatchType & other)
+    : classifier::prediction::Batch(other), input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
+} // namespace interface3
+} // namespace prediction
+} // namespace classification
+} // namespace decision_forest
+} // namespace algorithms
 } // namespace daal

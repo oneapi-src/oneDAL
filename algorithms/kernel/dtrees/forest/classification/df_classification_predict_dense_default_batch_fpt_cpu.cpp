@@ -35,7 +35,7 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface2
+namespace interface3
 {
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 }

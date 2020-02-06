@@ -78,8 +78,9 @@ class Model::ModelImpl : public classifier::internal::ModelImpl
         return visitor.onLeafNode(level, n.leftIndexOrClass);
     }
 
-    static bool visitSplit(size_t iRowInTable, size_t level, tree_utils::SplitNodeDescriptor & descSplit, const DecisionTreeNode * aNode,
-                           const double * imp, const int * nodeSamplesCount, tree_utils::classification::TreeNodeVisitor & visitor)
+    template <typename InternalSplitNodeDescriptor, typename InternalTreeNodeVisitor>
+    static bool visitSplit(size_t iRowInTable, size_t level, InternalSplitNodeDescriptor & descSplit, const DecisionTreeNode * aNode,
+                           const double * imp, const int * nodeSamplesCount, InternalTreeNodeVisitor & visitor)
     {
         const DecisionTreeNode & n = aNode[iRowInTable];
         if (imp) descSplit.impurity = imp[iRowInTable];
@@ -94,8 +95,9 @@ class Model::ModelImpl : public classifier::internal::ModelImpl
         return visitor.onSplitNode(descSplit);
     }
 
-    static bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::classification::LeafNodeDescriptor & descLeaf, const DecisionTreeNode * aNode,
-                          const double * imp, const int * nodeSamplesCount, tree_utils::classification::TreeNodeVisitor & visitor)
+    template <typename InternalLeafNodeDescriptor, typename InternalTreeNodeVisitor>
+    static bool visitLeaf(size_t iRowInTable, size_t level, InternalLeafNodeDescriptor & descLeaf, const DecisionTreeNode * aNode, const double * imp,
+                          const int * nodeSamplesCount, InternalTreeNodeVisitor & visitor)
     {
         const DecisionTreeNode & n = aNode[iRowInTable];
         if (imp) descLeaf.impurity = imp[iRowInTable];
@@ -199,7 +201,8 @@ public:
         }
     }
 
-    void traverseDFS(tree_utils::classification::TreeNodeVisitor & visitor) const
+    template <typename InternalLeafNodeDescriptor, typename InternalTreeNodeVisitor>
+    void traverseDFS(InternalTreeNodeVisitor & visitor) const
     {
         const DecisionTreeNode * aNode = (const DecisionTreeNode *)_TreeTable->getArray();
         const double * imp             = getImpVals();
@@ -207,7 +210,7 @@ public:
         if (aNode)
         {
             tree_utils::SplitNodeDescriptor descSplit;
-            tree_utils::classification::LeafNodeDescriptor descLeaf;
+            InternalLeafNodeDescriptor descLeaf;
 
             auto onSplitNodeFunc = [&descSplit, &aNode, &imp, &nodeSamplesCount, &visitor](size_t iRowInTable, size_t level) -> bool {
                 return visitSplit(iRowInTable, level, descSplit, aNode, imp, nodeSamplesCount, visitor);
@@ -221,7 +224,8 @@ public:
         }
     }
 
-    void traverseBFS(tree_utils::classification::TreeNodeVisitor & visitor) const
+    template <typename InternalLeafNodeDescriptor, typename InternalTreeNodeVisitor>
+    void traverseBFS(InternalTreeNodeVisitor & visitor) const
     {
         const DecisionTreeNode * aNode = (const DecisionTreeNode *)_TreeTable->getArray();
         const double * imp             = getImpVals();
@@ -231,7 +235,7 @@ public:
         if (aNode)
         {
             tree_utils::SplitNodeDescriptor descSplit;
-            tree_utils::classification::LeafNodeDescriptor descLeaf;
+            InternalLeafNodeDescriptor descLeaf;
 
             auto onSplitNodeFunc = [&descSplit, &aNode, &imp, &nodeSamplesCount, &visitor](size_t iRowInTable, size_t level) -> bool {
                 return visitSplit(iRowInTable, level, descSplit, aNode, imp, nodeSamplesCount, visitor);
