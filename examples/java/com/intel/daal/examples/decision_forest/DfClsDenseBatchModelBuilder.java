@@ -84,16 +84,17 @@ class DfClsDenseBatchModelBuilder {
 
         long tree1 = modelBuilder.createTree(nNodes);
         long root1   = modelBuilder.addSplitNode(tree1, ModelBuilder.noParent, 0, 0, 0.174108);
-        long child11 = modelBuilder.addLeafNode(tree1, root1, 0, 0);
+        double[] proba11 = {0.8, 0.1, 0.0, 0.1, 0.0};
+        long child11 = modelBuilder.addLeafNodeByProba(tree1, root1, 0, proba11);
         long child12 = modelBuilder.addLeafNode(tree1, root1, 1, 4);
-
         long tree2 = modelBuilder.createTree(nNodes);
         long root2 = modelBuilder.addSplitNode(tree2, modelBuilder.noParent, 0, 1, 0.571184);
         long child22 = modelBuilder.addLeafNode(tree2, root2, 1, 4);
         long child21 = modelBuilder.addLeafNode(tree2, root2, 0, 2);
         long tree3 = modelBuilder.createTree(nNodes);
         long root3 = modelBuilder.addSplitNode(tree3, modelBuilder.noParent, 0, 0, 0.303995);
-        long child32 = modelBuilder.addLeafNode(tree3, root3, 1, 4);
+        double proba32[] = {0.05, 0.1, 0.0, 0.1, 0.75};
+        long child32 = modelBuilder.addLeafNodeByProba(tree3, root3, 1, proba32);
         long child31 = modelBuilder.addLeafNode(tree3, root3, 0, 2);
         modelBuilder.setNFeatures(nFeatures);
 
@@ -125,6 +126,9 @@ class DfClsDenseBatchModelBuilder {
         /* Pass a testing data set and the trained model to the algorithm */
         algorithm.input.set(NumericTableInputId.data, testData);
         algorithm.input.set(ModelInputId.model, model);
+
+        /* Set voting method */
+        algorithm.parameter.setVotingMethod(VotingMethod.unweighted);
 
         /* Compute prediction results */
         predictionResult = algorithm.compute();

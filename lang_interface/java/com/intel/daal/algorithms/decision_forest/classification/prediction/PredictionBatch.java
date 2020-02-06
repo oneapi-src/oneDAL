@@ -28,7 +28,7 @@ package com.intel.daal.algorithms.decision_forest.classification.prediction;
 import com.intel.daal.utils.*;
 import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.algorithms.Precision;
-import com.intel.daal.algorithms.classifier.Parameter;
+import com.intel.daal.algorithms.decision_forest.classification.prediction.Parameter;
 import com.intel.daal.services.DaalContext;
 
 /**

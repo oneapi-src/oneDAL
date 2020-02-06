@@ -107,14 +107,15 @@ void testModel(const training::ResultPtr& trainingResult)
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
-
+    algorithm.parameter().votingMethod = prediction::weighted;
+    algorithm.parameter().resultsToEvaluate |= classifier::computeClassProbabilities;
     /* Predict values of decision forest classification */
     algorithm.compute();
 
     /* Retrieve the algorithm results */
     classifier::prediction::ResultPtr predictionResult = algorithm.getResult();
-    printNumericTable(predictionResult->get(classifier::prediction::prediction),
-        "Decision forest prediction results (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(classifier::prediction::prediction), "Decision forest prediction results (first 10 rows):", 10);
+    printNumericTable(predictionResult->get(classifier::prediction::probabilities), "Decision forest probabilities results (first 10 rows):", 10);
     printNumericTable(testGroundTruth, "Ground truth (first 10 rows):", 10);
 }
 

@@ -1,4 +1,4 @@
-/* file: df_classification_predict_dense_default_batch_fpt_dispatcher.cpp */
+/* file: df_classification_predict_dense_default_batch_fpt_dispatcher_v2.cpp */
 /*******************************************************************************
 * Copyright 2014-2020 Intel Corporation
 *
@@ -23,40 +23,13 @@
 //--
 */
 
-#include "df_classification_predict_dense_default_batch_container.h"
+#include "df_classification_predict_dense_default_batch_container_v2.h"
 
 namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::prediction::interface2::BatchContainer, batch, DAAL_FPTYPE,
                                       decision_forest::classification::prediction::defaultDense)
-namespace decision_forest
-{
-namespace classification
-{
-namespace prediction
-{
-namespace interface3
-{
-template <>
-Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::Batch(size_t nClasses)
-{
-    _par = new ParameterType(nClasses);
-    initialize();
 }
-
-using BatchType = Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>;
-template <>
-Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::Batch(const BatchType & other)
-    : classifier::prediction::Batch(other), input(other.input)
-{
-    _par = new ParameterType(other.parameter());
-    initialize();
-}
-} // namespace interface3
-} // namespace prediction
-} // namespace classification
-} // namespace decision_forest
-} // namespace algorithms
 } // namespace daal
