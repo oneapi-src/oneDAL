@@ -985,6 +985,9 @@ protected:
     DataArchiveIface * _arch;
     bool _finalized;
     services::SharedPtr<services::ErrorCollection> _errors;
+
+private:
+    InputDataArchive& operator=(const InputDataArchive&);
 };
 
 /**
