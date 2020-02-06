@@ -157,6 +157,9 @@ protected:
     {
         return new interface1::Distributed<step1Local, algorithmFPType, method>(*this);
     }
+
+private:
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -311,6 +314,9 @@ protected:
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
+
+private:
+    Distributed& operator=(const Distributed&);
 };
 /** @} */
 } // namespace interface1
@@ -435,6 +441,9 @@ protected:
     {
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
+
+private:
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -589,6 +598,9 @@ protected:
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
+
+private:
+    Distributed& operator=(const Distributed&);
 };
 /** @} */
 } // namespace interface2

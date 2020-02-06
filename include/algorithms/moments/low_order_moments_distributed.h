@@ -164,6 +164,9 @@ protected:
     {
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
+
+private:
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -292,6 +295,8 @@ protected:
 private:
     PartialResultPtr _partialResult;
     ResultPtr _result;
+
+    Distributed& operator=(const Distributed&);
 };
 /** @} */
 } // namespace interface1
