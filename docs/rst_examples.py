@@ -1,4 +1,4 @@
-# file: rst_example.py
+# file: rst_examples.py
 #===============================================================================
 # Copyright 2014-2020 Intel Corporation
 #
