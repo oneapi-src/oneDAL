@@ -239,10 +239,14 @@ bool ModelImpl::add(const TreeType& tree, size_t nClasses)
     auto nodeSamplesTbl = new HomogenNumericTable<int>(1, nNode, NumericTable::doAllocate);
     auto probTbl        = new HomogenNumericTable<double>(nNode, nClasses, NumericTable::doAllocate);
 
-    DAAL_CHECK_STATUS_VAR(pTbl)
-    DAAL_CHECK_STATUS_VAR(impTbl)
-    DAAL_CHECK_STATUS_VAR(nodeSamplesTbl)
-    DAAL_CHECK_STATUS_VAR(probTbl)
+    if (!pTbl || !impTbl || !nodeSamplesTbl || !probTbl)
+    {
+        delete pTbl;
+        delete impTbl;
+        delete nodeSamplesTbl;
+        delete probTbl;
+        return false;
+    }
     auto prob = probTbl;
     double *probVals      = prob->getArray();
 
