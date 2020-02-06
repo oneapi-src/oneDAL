@@ -492,6 +492,8 @@ private:
     size_t currentReadBlockOffset;
 
     byte * serializedBuffer;
+
+    DataArchive& operator=(const DataArchive&);
 };
 
 /**
