@@ -184,6 +184,9 @@ protected:
     {
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
+
+private:
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -309,6 +312,8 @@ protected:
 
 private:
     DistributedPartialResultPtr _partialResult;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**

@@ -272,6 +272,8 @@ public:
 private:
     PartialResultPtr _partialResult;
     ResultPtr _result;
+
+    Distributed& operator=(const Distributed&);
 };
 
 /**
@@ -441,6 +443,8 @@ public:
 private:
     PartialResultPtr _partialResult;
     ResultPtr _result;
+
+    Distributed& operator=(const Distributed&);
 };
 /** @} */
 } // namespace interface1
