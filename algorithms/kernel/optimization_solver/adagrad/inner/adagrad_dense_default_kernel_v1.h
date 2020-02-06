@@ -22,11 +22,11 @@
 #ifndef __ADAGRAD_DENSE_DEFAULT_KERNEL_V1_H__
 #define __ADAGRAD_DENSE_DEFAULT_KERNEL_V1_H__
 
-#include "adagrad_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_math.h"
-#include "service_micro_table.h"
+#include "algorithms/optimization_solver/adagrad/adagrad_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_micro_table.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;

@@ -24,13 +24,13 @@
 #ifndef __LINEAR_MODEL_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __LINEAR_MODEL_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "service_blas.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "externals/service_blas.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 namespace daal
 {

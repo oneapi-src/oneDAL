@@ -80,7 +80,7 @@ using interface1::CpuExecutionContext;
 } // namespace daal
 
 #ifdef DAAL_SYCL_INTERFACE
-    #include "oneapi/internal/execution_context_sycl.h"
+#include "oneapi/internal/execution_context_sycl.h"
 
 namespace daal
 {

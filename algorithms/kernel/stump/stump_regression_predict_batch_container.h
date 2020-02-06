@@ -25,8 +25,8 @@
 #ifndef __STUMP_REGRESSION_PREDICT_BATCH_CONTAINER_H__
 #define __STUMP_REGRESSION_PREDICT_BATCH_CONTAINER_H__
 
-#include "stump_regression_predict.h"
-#include "stump_regression_predict_kernel.h"
+#include "algorithms/stump/stump_regression_predict.h"
+#include "algorithms/kernel/stump/stump_regression_predict_kernel.h"
 
 namespace daal
 {

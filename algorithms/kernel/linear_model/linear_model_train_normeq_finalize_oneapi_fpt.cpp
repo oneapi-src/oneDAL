@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/linear_model_train_normeq_kernel_oneapi.h"
-#include "oneapi/linear_model_train_normeq_finalize_oneapi_impl.i"
+#include "algorithms/kernel/linear_model/oneapi/linear_model_train_normeq_kernel_oneapi.h"
+#include "algorithms/kernel/linear_model/oneapi/linear_model_train_normeq_finalize_oneapi_impl.i"
 
 namespace daal
 {

@@ -24,9 +24,9 @@
 #ifndef __DTREES_CLASSIFICATION_MODEL_IMPL__
 #define __DTREES_CLASSIFICATION_MODEL_IMPL__
 
-#include "dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
 #include "algorithms/decision_forest/decision_forest_classification_model.h"
-#include "classifier_model_impl.h"
+#include "algorithms/kernel/classifier/classifier_model_impl.h"
 #include "algorithms/decision_forest/decision_forest_classification_model_builder.h"
 namespace daal
 {

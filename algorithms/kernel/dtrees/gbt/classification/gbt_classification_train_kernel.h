@@ -25,10 +25,10 @@
 #ifndef __GBT_CLASSIFICATION_TRAIN_KERNEL_H__
 #define __GBT_CLASSIFICATION_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "gbt_classification_training_types.h"
-#include "engine_batch_impl.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/gradient_boosted_trees/gbt_classification_training_types.h"
+#include "algorithms/kernel/engines/engine_batch_impl.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

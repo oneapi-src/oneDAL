@@ -23,8 +23,8 @@
 #ifndef __MOMENTS_ONLINE__
 #define __MOMENTS_ONLINE__
 
-#include "low_order_moments_types.h"
-#include "service_numeric_table.h"
+#include "algorithms/moments/low_order_moments_types.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 #include "oneapi/internal/utils.h"
 

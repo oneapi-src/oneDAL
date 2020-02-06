@@ -25,9 +25,9 @@
 #ifndef __ADABOOST_TRAIN_BATCH_CONTAINER_H__
 #define __ADABOOST_TRAIN_BATCH_CONTAINER_H__
 
-#include "adaboost_training_batch.h"
-#include "adaboost_train_kernel.h"
-#include "kernel.h"
+#include "algorithms/boosting/adaboost_training_batch.h"
+#include "algorithms/kernel/adaboost/adaboost_train_kernel.h"
+#include "algorithms/kernel/kernel.h"
 
 namespace daal
 {

@@ -20,7 +20,7 @@
 //  Implementation of cosine distance for result in full layout.
 //--
 */
-#include "service_defines.h"
+#include "service/kernel/service_defines.h"
 using namespace daal::internal;
 
 namespace daal

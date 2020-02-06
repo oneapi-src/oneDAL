@@ -24,7 +24,7 @@
 #ifndef __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_COMMON_I__
 #define __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_COMMON_I__
 
-#include "service_blas.h"
+#include "externals/service_blas.h"
 
 namespace daal
 {

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "stump_training_types.h"
+#include "algorithms/stump/stump_training_types.h"
 
 namespace daal
 {

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "brownboost_quality_metric_set_types.h"
+#include "algorithms/boosting/brownboost_quality_metric_set_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

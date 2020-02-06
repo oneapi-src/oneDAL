@@ -24,8 +24,8 @@
 #ifndef __LOGISTIC_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 #define __LOGISTIC_REGRESSION_PREDICT_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 
-#include "logistic_regression_model_impl.h"
-#include "cl_kernel/logistic_regression_dense_default.cl"
+#include "algorithms/kernel/logistic_regression/logistic_regression_model_impl.h"
+#include "algorithms/kernel/logistic_regression/oneapi/cl_kernel/logistic_regression_dense_default.cl"
 
 namespace daal
 {

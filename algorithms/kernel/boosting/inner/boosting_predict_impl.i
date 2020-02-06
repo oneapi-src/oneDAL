@@ -24,8 +24,8 @@
 #ifndef __BOOSTING_PREDICT_IMPL_I__
 #define __BOOSTING_PREDICT_IMPL_I__
 
-#include "service_memory.h"
-#include "service_numeric_table.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

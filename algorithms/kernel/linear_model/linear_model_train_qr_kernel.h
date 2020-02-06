@@ -24,9 +24,9 @@
 #ifndef __LINEAR_MODEL_TRAIN_QR_KERNEL_H__
 #define __LINEAR_MODEL_TRAIN_QR_KERNEL_H__
 
-#include "env_detect.h"
-#include "numeric_table.h"
-#include "service_numeric_table.h"
+#include "services/env_detect.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

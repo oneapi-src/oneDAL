@@ -21,7 +21,7 @@
 //--
 */
 
-#include "minmax_types.h"
+#include "algorithms/normalization/minmax_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

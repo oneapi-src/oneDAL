@@ -24,7 +24,7 @@
 #ifndef __PCA_RESULT_IMPL_H__
 #define __PCA_RESULT_IMPL_H__
 
-#include "inner/pca_result_v2.h"
+#include "algorithms/kernel/pca/inner/pca_result_v2.h"
 
 namespace daal
 {

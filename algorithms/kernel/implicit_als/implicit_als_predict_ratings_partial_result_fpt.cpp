@@ -21,7 +21,7 @@
 //--
 */
 
-#include "implicit_als_predict_ratings_types.h"
+#include "algorithms/implicit_als/implicit_als_predict_ratings_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

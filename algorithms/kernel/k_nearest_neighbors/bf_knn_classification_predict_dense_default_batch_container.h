@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "bf_knn_classification_predict.h"
-#include "oneapi/bf_knn_classification_predict_kernel_ucapi.h"
+#include "algorithms/k_nearest_neighbors/bf_knn_classification_predict.h"
+#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 
 namespace daal
 {

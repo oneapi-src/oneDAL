@@ -24,12 +24,12 @@
 #ifndef __SERVICE_SPBLAS_H__
 #define __SERVICE_SPBLAS_H__
 
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_arrays.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_arrays.h"
 
-#include "service_spblas_mkl.h"
+#include "externals/service_spblas_mkl.h"
 
 typedef unsigned int uint32_t;
 

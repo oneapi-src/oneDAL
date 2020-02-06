@@ -21,7 +21,7 @@
 //--
 */
 
-#include "engine_batch.h"
+#include "algorithms/kernel/engines/engine_batch.h"
 
 namespace daal
 {

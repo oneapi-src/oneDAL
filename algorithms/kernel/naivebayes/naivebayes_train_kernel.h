@@ -24,10 +24,10 @@
 #ifndef __NAIVEBAYES_TRAIN_FPK_H__
 #define __NAIVEBAYES_TRAIN_FPK_H__
 
-#include "multinomial_naive_bayes_model.h"
-#include "multinomial_naive_bayes_training_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_model.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 

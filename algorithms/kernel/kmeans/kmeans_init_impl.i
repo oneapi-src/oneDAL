@@ -21,15 +21,15 @@
 //--
 */
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "uniform_kernel.h"
-#include "uniform_impl.i"
-#include "service_data_utils.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
+#include "algorithms/kernel/distributions/uniform/uniform_impl.i"
+#include "service/kernel/service_data_utils.h"
 
 namespace daal
 {

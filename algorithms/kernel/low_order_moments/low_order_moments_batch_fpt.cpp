@@ -21,7 +21,7 @@
 //--
 */
 
-#include "moments_batch.h"
+#include "algorithms/kernel/low_order_moments/moments_batch.h"
 
 namespace daal
 {

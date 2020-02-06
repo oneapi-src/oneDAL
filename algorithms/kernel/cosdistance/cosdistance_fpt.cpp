@@ -21,7 +21,7 @@
 //--
 */
 
-#include "cosine_distance_types.h"
+#include "algorithms/distance/cosine_distance_types.h"
 
 namespace daal
 {

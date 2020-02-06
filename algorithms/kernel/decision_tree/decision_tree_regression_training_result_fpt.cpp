@@ -21,7 +21,7 @@
 //--
 */
 
-#include "decision_tree_regression_training_result.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_training_result.h"
 
 namespace daal
 {

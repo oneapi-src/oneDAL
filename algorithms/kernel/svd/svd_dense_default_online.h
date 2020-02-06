@@ -23,8 +23,8 @@
 #ifndef __SVD_DENSE_DEFAULT_ONLINE__
 #define __SVD_DENSE_DEFAULT_ONLINE__
 
-#include "svd_types.h"
-#include "daal_strings.h"
+#include "algorithms/svd/svd_types.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

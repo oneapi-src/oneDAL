@@ -24,7 +24,7 @@
 #ifndef __ONEAPI_INTERNAL_MATH_REFERENCE_GEMM_H__
 #define __ONEAPI_INTERNAL_MATH_REFERENCE_GEMM_H__
 
-#include "types.h"
+#include "oneapi/internal/math/types.h"
 #include "oneapi/internal/types_utils.h"
 #include "services/buffer.h"
 #include "services/env_detect.h"

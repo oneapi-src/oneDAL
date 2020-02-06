@@ -24,10 +24,10 @@
 #ifndef __SERVICE_MICRO_TABLE_H__
 #define __SERVICE_MICRO_TABLE_H__
 
-#include "numeric_table.h"
-#include "csr_numeric_table.h"
-#include "symmetric_matrix.h"
-#include "service_defines.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/csr_numeric_table.h"
+#include "data_management/data/symmetric_matrix.h"
+#include "service/kernel/service_defines.h"
 
 using namespace daal::data_management;
 

@@ -25,8 +25,8 @@
 #ifndef __STUMP_PREDICT_BATCH_CONTAINER_H__
 #define __STUMP_PREDICT_BATCH_CONTAINER_H__
 
-#include "stump_predict.h"
-#include "stump_predict_kernel.h"
+#include "algorithms/stump/stump_predict.h"
+#include "algorithms/kernel/stump/inner/stump_predict_kernel.h"
 
 namespace daal
 {

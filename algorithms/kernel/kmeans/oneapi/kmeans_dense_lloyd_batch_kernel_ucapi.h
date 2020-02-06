@@ -26,9 +26,9 @@
 
 #include "oneapi/internal/types.h"
 #include "oneapi/internal/execution_context.h"
-#include "kmeans_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/kmeans/kmeans_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 

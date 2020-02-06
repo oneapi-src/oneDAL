@@ -19,9 +19,9 @@
 //  Implementation of minmax calculation functions.
 //--
 
-#include "minmax_batch_container.h"
-#include "minmax_kernel.h"
-#include "minmax_impl.i"
+#include "algorithms/kernel/normalization/minmax/minmax_batch_container.h"
+#include "algorithms/kernel/normalization/minmax/minmax_kernel.h"
+#include "algorithms/kernel/normalization/minmax/minmax_impl.i"
 
 namespace daal
 {

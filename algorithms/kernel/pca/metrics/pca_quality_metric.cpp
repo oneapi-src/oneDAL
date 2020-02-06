@@ -21,12 +21,12 @@
 //--
 */
 
-#include "pca_quality_metric_set_batch.h"
-#include "pca_explained_variance_default_batch_container.h"
+#include "algorithms/pca/pca_quality_metric_set_batch.h"
+#include "algorithms/kernel/pca/metrics/pca_explained_variance_default_batch_container.h"
 #include "algorithms/pca/pca_explained_variance_batch.h"
-#include "daal_defines.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "services/daal_defines.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

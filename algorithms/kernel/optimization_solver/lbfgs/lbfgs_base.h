@@ -22,13 +22,13 @@
 #ifndef __LBFGS_BASE_H__
 #define __LBFGS_BASE_H__
 
-#include "lbfgs_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_math.h"
-#include "service_numeric_table.h"
-#include "service_rng.h"
-#include "engine_batch_impl.h"
+#include "algorithms/optimization_solver/lbfgs/lbfgs_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_rng.h"
+#include "algorithms/kernel/engines/engine_batch_impl.h"
 
 namespace daal
 {

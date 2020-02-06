@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 #include "algorithms/linear_regression/linear_regression_model_builder.h"
-#include "linear_regression_model_impl.h"
+#include "algorithms/kernel/linear_regression/linear_regression_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 
 namespace daal

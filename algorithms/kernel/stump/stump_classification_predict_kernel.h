@@ -24,10 +24,10 @@
 #ifndef __STUMP_CLASSIFICATION_PREDICT_KERNEL_H__
 #define __STUMP_CLASSIFICATION_PREDICT_KERNEL_H__
 
-#include "stump_classification_model.h"
-#include "stump_classification_predict.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/stump/stump_classification_model.h"
+#include "algorithms/stump/stump_classification_predict.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::data_management;
 

@@ -21,8 +21,8 @@
 //--
 */
 
-#include "kdtree_knn_classification_train_container_v1.h"
-#include "kdtree_knn_classification_train_dense_default_impl.i"
+#include "algorithms/kernel/k_nearest_neighbors/inner/kdtree_knn_classification_train_container_v1.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_train_dense_default_impl.i"
 
 namespace daal
 {

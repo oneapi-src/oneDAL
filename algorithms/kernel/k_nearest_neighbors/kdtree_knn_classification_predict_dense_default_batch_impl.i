@@ -24,19 +24,19 @@
 #ifndef __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "threading.h"
-#include "daal_defines.h"
-#include "algorithm.h"
-#include "daal_atomic_int.h"
-#include "service_memory.h"
-#include "service_data_utils.h"
-#include "service_math.h"
-#include "service_rng.h"
-#include "service_sort.h"
-#include "numeric_table.h"
-#include "kdtree_knn_classification_predict_dense_default_batch.h"
-#include "kdtree_knn_classification_model_impl.h"
-#include "kdtree_knn_impl.i"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "algorithms/algorithm.h"
+#include "services/daal_atomic_int.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_math.h"
+#include "externals/service_rng.h"
+#include "algorithms/kernel/service_sort.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_impl.i"
 
 namespace daal
 {

@@ -24,8 +24,8 @@
 #ifndef __ASSOC_RULES_APRIORI_ITEMSET_I__
 #define __ASSOC_RULES_APRIORI_ITEMSET_I__
 
-#include "service_memory.h"
-#include "daal_atomic_int.h"
+#include "externals/service_memory.h"
+#include "services/daal_atomic_int.h"
 
 using namespace daal::services;
 using namespace daal::services::internal;

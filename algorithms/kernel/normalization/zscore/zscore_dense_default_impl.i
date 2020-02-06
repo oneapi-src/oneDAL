@@ -24,7 +24,7 @@
 #ifndef __ZSCORE_DENSE_DEFAULT_IMPL_I__
 #define __ZSCORE_DENSE_DEFAULT_IMPL_I__
 
-#include "zscore_moments.h"
+#include "algorithms/kernel/normalization/zscore/zscore_moments.h"
 
 namespace daal
 {

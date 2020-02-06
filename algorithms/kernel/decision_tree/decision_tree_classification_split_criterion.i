@@ -24,11 +24,11 @@
 #ifndef __DECISION_TREE_CLASSIFICATION_SPLIT_CRITERION_I__
 #define __DECISION_TREE_CLASSIFICATION_SPLIT_CRITERION_I__
 
-#include "daal_defines.h"
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_utils.h"
-#include "numeric_table.h"
+#include "services/daal_defines.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_utils.h"
+#include "data_management/data/numeric_table.h"
 
 namespace daal
 {

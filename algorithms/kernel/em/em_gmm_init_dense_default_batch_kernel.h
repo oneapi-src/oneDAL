@@ -24,15 +24,15 @@
 #ifndef __EM_GMM_INIT_DENSE_DEFAULT_BATCH_KERNEL_H__
 #define __EM_GMM_INIT_DENSE_DEFAULT_BATCH_KERNEL_H__
 
-#include "kernel.h"
-#include "service_numeric_table.h"
-#include "numeric_table.h"
-#include "homogen_numeric_table.h"
-#include "service_memory.h"
-#include "em_gmm_init_types.h"
-#include "em_gmm_init_batch.h"
-#include "em_gmm.h"
-#include "uniform_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/homogen_numeric_table.h"
+#include "externals/service_memory.h"
+#include "algorithms/em/em_gmm_init_types.h"
+#include "algorithms/em/em_gmm_init_batch.h"
+#include "algorithms/em/em_gmm.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
 namespace daal
 {

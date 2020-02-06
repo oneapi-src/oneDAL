@@ -19,7 +19,7 @@
 //  Implementation of mt2203 calculation algorithm dispatcher.
 //--
 
-#include "mt2203_batch_container.h"
+#include "algorithms/kernel/engines/mt2203/mt2203_batch_container.h"
 
 namespace daal
 {

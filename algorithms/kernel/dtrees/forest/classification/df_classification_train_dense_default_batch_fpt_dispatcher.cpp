@@ -21,8 +21,8 @@
 //--
 */
 
-#include "df_classification_train_container.h"
-#include "daal_strings.h"
+#include "algorithms/kernel/dtrees/forest/classification/df_classification_train_container.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

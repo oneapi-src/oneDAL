@@ -21,7 +21,7 @@
 //--
 */
 
-#include "classifier_predict_types.h"
+#include "algorithms/classifier/classifier_predict_types.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 
 namespace daal

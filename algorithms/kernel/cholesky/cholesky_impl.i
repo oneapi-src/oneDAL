@@ -21,8 +21,8 @@
 //--
 */
 
-#include "service_numeric_table.h"
-#include "service_lapack.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_lapack.h"
 
 using namespace daal::internal;
 using namespace daal::services;

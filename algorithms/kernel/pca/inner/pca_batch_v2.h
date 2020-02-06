@@ -28,7 +28,7 @@
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
 #include "services/daal_memory.h"
-#include "pca/inner/pca_types_v2.h"
+#include "algorithms/kernel/pca/inner/pca_types_v2.h"
 
 namespace daal
 {

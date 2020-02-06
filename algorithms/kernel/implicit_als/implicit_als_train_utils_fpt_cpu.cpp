@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "implicit_als_train_utils.i"
+#include "algorithms/kernel/implicit_als/implicit_als_train_utils.i"
 
 namespace daal
 {

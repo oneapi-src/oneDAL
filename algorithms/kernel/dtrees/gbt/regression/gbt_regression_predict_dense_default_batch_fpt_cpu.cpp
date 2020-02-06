@@ -21,9 +21,9 @@
 //--
 */
 
-#include "gbt_regression_predict_kernel.h"
-#include "gbt_regression_predict_dense_default_batch_impl.i"
-#include "gbt_regression_predict_container.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_predict_kernel.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_predict_dense_default_batch_impl.i"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_predict_container.h"
 
 namespace daal
 {

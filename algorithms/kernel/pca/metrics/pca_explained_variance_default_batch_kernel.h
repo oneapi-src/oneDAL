@@ -24,10 +24,10 @@
 #ifndef __PCA_EXPLAINED_VARIANCE_DEFAULT_BATCH_KERNEL_H__
 #define __PCA_EXPLAINED_VARIANCE_DEFAULT_BATCH_KERNEL_H__
 
-#include "pca_explained_variance_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
+#include "algorithms/pca/pca_explained_variance_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
 
 namespace daal
 {

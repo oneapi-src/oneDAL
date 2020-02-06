@@ -18,8 +18,8 @@
 #include <jni.h>
 #include "com_intel_daal_algorithms_TrainingBatch.h"
 
-#include "daal_defines.h"
-#include "algorithm.h"
+#include "services/daal_defines.h"
+#include "algorithms/algorithm.h"
 #include "common_helpers_functions.h"
 
 using namespace daal;

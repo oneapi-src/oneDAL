@@ -18,7 +18,7 @@
 #ifndef __MINMAX_MOMENTS_H__
 #define __MINMAX_MOMENTS_H__
 
-#include "normalization/minmax.h"
+#include "algorithms/normalization/minmax.h"
 
 namespace daal
 {

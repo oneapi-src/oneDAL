@@ -22,9 +22,9 @@
 #ifndef __MCG59_KERNEL_H__
 #define __MCG59_KERNEL_H__
 
-#include "engines/mt2203/mt2203.h"
-#include "kernel.h"
-#include "numeric_table.h"
+#include "algorithms/engines/mt2203/mt2203.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

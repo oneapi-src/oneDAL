@@ -21,8 +21,8 @@
 //--
 */
 
-#include "gbt_classification_train_container.h"
-#include "gbt_classification_train_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_train_container.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_train_dense_default_impl.i"
 
 namespace daal
 {

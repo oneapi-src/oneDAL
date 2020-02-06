@@ -21,7 +21,7 @@
 //--
 */
 
-#include "adaboost_quality_metric_set_types.h"
+#include "algorithms/boosting/adaboost_quality_metric_set_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

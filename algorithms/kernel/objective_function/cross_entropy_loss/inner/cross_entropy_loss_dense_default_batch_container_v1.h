@@ -24,8 +24,8 @@
 #ifndef __CROSS_ENTROPY_LOSS_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
 #define __CROSS_ENTROPY_LOSS_DENSE_DEFAULT_BATCH_CONTAINER_V1_H__
 
-#include "cross_entropy_loss_batch.h"
-#include "cross_entropy_loss_dense_default_batch_kernel_v1.h"
+#include "algorithms/optimization_solver/objective_function/cross_entropy_loss_batch.h"
+#include "algorithms/kernel/objective_function/cross_entropy_loss/inner/cross_entropy_loss_dense_default_batch_kernel_v1.h"
 
 namespace daal
 {

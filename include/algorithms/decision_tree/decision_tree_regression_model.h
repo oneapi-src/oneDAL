@@ -29,7 +29,7 @@
 #include "data_management/data/soa_numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "algorithms/model.h"
-#include "decision_tree_model.h"
+#include "algorithms/decision_tree/decision_tree_model.h"
 #include "algorithms/regression/regression_model.h"
 #include "algorithms/regression/tree_traverse.h"
 #include "algorithms/tree_utils/tree_utils_regression.h"

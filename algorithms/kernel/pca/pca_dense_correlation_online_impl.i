@@ -24,10 +24,10 @@
 #ifndef __PCA_DENSE_CORRELATION_ONLINE_IMPL_I__
 #define __PCA_DENSE_CORRELATION_ONLINE_IMPL_I__
 
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "pca_dense_correlation_online_kernel.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_online_kernel.h"
 
 namespace daal
 {

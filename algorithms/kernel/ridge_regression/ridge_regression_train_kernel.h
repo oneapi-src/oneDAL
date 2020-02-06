@@ -24,10 +24,10 @@
 #ifndef __RIDGE_REGRESSION_TRAIN_KERNEL_H__
 #define __RIDGE_REGRESSION_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "ridge_regression_training_types.h"
-#include "linear_model_train_normeq_kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/ridge_regression/ridge_regression_training_types.h"
+#include "algorithms/kernel/linear_model/linear_model_train_normeq_kernel.h"
 
 namespace daal
 {

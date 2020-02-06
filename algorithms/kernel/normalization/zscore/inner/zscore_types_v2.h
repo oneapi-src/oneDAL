@@ -24,7 +24,7 @@
 #ifndef __ZSCORE_TYPES_V2_H__
 #define __ZSCORE_TYPES_V2_H__
 
-#include "zscore_types.h"
+#include "algorithms/normalization/zscore_types.h"
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"

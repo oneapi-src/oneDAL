@@ -20,12 +20,12 @@
 //  Implementation of thread pinner class
 //--
 */
-#include "daal_defines.h"
+#include "services/daal_defines.h"
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 
-    #include "service_thread_pinner.h"
-    #include "daal_memory.h"
-    #include "threading.h"
+#include "algorithms/threading/service_thread_pinner.h"
+#include "services/daal_memory.h"
+#include "algorithms/threading/threading.h"
 
     #if defined(__DO_TBB_LAYER__)
 

@@ -25,12 +25,12 @@
 #ifndef __DTREES_REGRESSION_PREDICT_DENSE_DEFAULT_IMPL_I__
 #define __DTREES_REGRESSION_PREDICT_DENSE_DEFAULT_IMPL_I__
 
-#include "dtrees_model_impl.h"
-#include "service_data_utils.h"
-#include "dtrees_feature_type_helper.h"
-#include "service_environment.h"
-#include "dtrees_predict_dense_default_impl.i"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
+#include "service/kernel/service_data_utils.h"
+#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.h"
+#include "service/kernel/service_environment.h"
+#include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
+#include "service/kernel/service_algo_utils.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

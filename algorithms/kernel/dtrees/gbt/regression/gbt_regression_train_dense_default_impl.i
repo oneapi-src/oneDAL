@@ -25,10 +25,10 @@
 #ifndef __GBT_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __GBT_REGRESSION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "gbt_regression_train_kernel.h"
-#include "gbt_regression_model_impl.h"
-#include "gbt_train_dense_default_impl.i"
-#include "gbt_train_tree_builder.i"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_train_kernel.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_model_impl.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_tree_builder.i"
 
 using namespace daal::algorithms::dtrees::training::internal;
 using namespace daal::algorithms::gbt::training::internal;

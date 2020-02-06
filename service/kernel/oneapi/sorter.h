@@ -18,10 +18,10 @@
 #ifndef __SORTER_H__
 #define __SORTER_H__
 
-#include "math_service_types.h"
+#include "service/kernel/oneapi/math_service_types.h"
 #include "services/buffer.h"
-#include "cl_kernels/radix_sort.cl"
-#include "service_defines_oneapi.h"
+#include "service/kernel/oneapi/cl_kernels/radix_sort.cl"
+#include "service/kernel/oneapi/service_defines_oneapi.h"
 #include "oneapi/internal/types_utils.h"
 #include "oneapi/internal/execution_context.h"
 

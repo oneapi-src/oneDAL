@@ -21,7 +21,7 @@
 //--
 */
 
-#include "multiclass_confusion_matrix_dense_default_batch_container.h"
+#include "algorithms/kernel/classifier/multiclass_confusion_matrix_dense_default_batch_container.h"
 
 namespace daal
 {

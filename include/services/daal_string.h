@@ -25,7 +25,7 @@
 #define __DAAL_STRING__
 
 #include <string>
-#include "base.h"
+#include "services/base.h"
 
 namespace daal
 {

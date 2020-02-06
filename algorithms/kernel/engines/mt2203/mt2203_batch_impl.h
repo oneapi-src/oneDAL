@@ -21,10 +21,10 @@
 //--
 */
 
-#include "engines/mt2203/mt2203.h"
-#include "engine_batch_impl.h"
-#include "service_rng.h"
-#include "service_numeric_table.h"
+#include "algorithms/engines/mt2203/mt2203.h"
+#include "algorithms/kernel/engines/engine_batch_impl.h"
+#include "externals/service_rng.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 #include "services/collection.h"
 
 static const int leapfrogMethodErrcode  = -1002;

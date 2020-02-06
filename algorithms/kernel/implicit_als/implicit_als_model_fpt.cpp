@@ -21,7 +21,7 @@
 //--
 */
 
-#include "implicit_als_model.h"
+#include "algorithms/implicit_als/implicit_als_model.h"
 
 namespace daal
 {

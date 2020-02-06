@@ -22,10 +22,10 @@
 //--
 */
 
-#include "multiclassclassifier_predict_batch_container.h"
-#include "multiclassclassifier_predict_kernel.h"
-#include "multiclassclassifier_predict_mccwu_kernel.h"
-#include "multiclassclassifier_predict_mccwu_impl.i"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_batch_container.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_kernel.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_mccwu_kernel.h"
+#include "algorithms/kernel/multiclassclassifier/multiclassclassifier_predict_mccwu_impl.i"
 
 namespace daal
 {
