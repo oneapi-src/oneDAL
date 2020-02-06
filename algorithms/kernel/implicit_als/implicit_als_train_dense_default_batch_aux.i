@@ -24,7 +24,7 @@
 #ifndef __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_AUX_I__
 #define __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_AUX_I__
 
-#include "implicit_als_train_utils.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_utils.h"
 
 namespace daal
 {

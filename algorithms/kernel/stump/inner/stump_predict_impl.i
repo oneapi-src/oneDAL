@@ -24,10 +24,10 @@
 #ifndef __STUMP_PREDICT_IMPL_I__
 #define __STUMP_PREDICT_IMPL_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "daal_defines.h"
-#include "service_numeric_table.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "services/daal_defines.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

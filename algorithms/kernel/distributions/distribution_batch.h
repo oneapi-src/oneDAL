@@ -23,7 +23,7 @@
 #ifndef __DISTRIBUTION_BATCH__
 #define __DISTRIBUTION_BATCH__
 
-#include "distribution_types.h"
+#include "algorithms/distributions/distribution_types.h"
 
 namespace daal
 {

@@ -18,9 +18,9 @@
 #include "services/error_handling.h"
 #include "data_management/features/defines.h"
 
-#include "threading.h"
-#include "service_string_utils.h"
-#include "service_error_handling.h"
+#include "algorithms/threading/threading.h"
+#include "service/kernel/service_string_utils.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 namespace daal
 {

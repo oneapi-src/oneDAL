@@ -21,8 +21,8 @@
 //--
 */
 
-#include "kernel.h"
-#include "implicit_als_predict_ratings_distributed.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/implicit_als/implicit_als_predict_ratings_distributed.h"
 
 namespace daal
 {

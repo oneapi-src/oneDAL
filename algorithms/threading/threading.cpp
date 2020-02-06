@@ -21,8 +21,8 @@
 //--
 */
 
-#include "threading.h"
-#include "daal_memory.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_memory.h"
 
 #if defined(__DO_TBB_LAYER__)
     #include <stdlib.h> // malloc and free
@@ -30,7 +30,7 @@
     #include <tbb/spin_mutex.h>
     #include "tbb/scalable_allocator.h"
 #else
-    #include "service_service.h"
+#include "externals/service_service.h"
 #endif
 
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)

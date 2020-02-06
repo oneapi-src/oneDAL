@@ -24,11 +24,11 @@
 #ifndef __PCA_DENSE_CORRELATION_BASE_H__
 #define __PCA_DENSE_CORRELATION_BASE_H__
 
-#include "pca_dense_correlation_base_iface.h"
-#include "pca_types.h"
-#include "service_lapack.h"
-#include "pca_dense_base.h"
-#include "service_math.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_base_iface.h"
+#include "algorithms/pca/pca_types.h"
+#include "externals/service_lapack.h"
+#include "algorithms/kernel/pca/pca_dense_base.h"
+#include "externals/service_math.h"
 
 using namespace daal::internal;
 

@@ -23,12 +23,12 @@
 
 #include "algorithms/decision_tree/decision_tree_regression_model.h"
 #include "algorithms/stump/stump_regression_model.h"
-#include "regression_model_impl.h"
-#include "decision_tree_regression_model_impl.h"
-#include "service_defines.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
-#include "stump_regression_model_visitor.h"
+#include "algorithms/kernel/regression/regression_model_impl.h"
+#include "algorithms/kernel/decision_tree/decision_tree_regression_model_impl.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
+#include "algorithms/kernel/stump/stump_regression_model_visitor.h"
 
 namespace daal
 {

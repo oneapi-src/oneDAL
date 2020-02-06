@@ -24,9 +24,9 @@
 #ifndef __LOGISTIC_LOSS_DENSE_DEFAULT_BATCH_CONTAINER_H__
 #define __LOGISTIC_LOSS_DENSE_DEFAULT_BATCH_CONTAINER_H__
 
-#include "logistic_loss_batch.h"
-#include "logistic_loss_dense_default_batch_kernel.h"
-#include "oneapi/logistic_loss_dense_default_kernel_oneapi.h"
+#include "algorithms/optimization_solver/objective_function/logistic_loss_batch.h"
+#include "algorithms/kernel/objective_function/logistic_loss/logistic_loss_dense_default_batch_kernel.h"
+#include "algorithms/kernel/objective_function/logistic_loss/oneapi/logistic_loss_dense_default_kernel_oneapi.h"
 
 namespace daal
 {

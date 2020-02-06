@@ -21,8 +21,8 @@
 //--
 */
 
-#include "pca_dense_correlation_batch_container.h"
-#include "pca_dense_correlation_batch_kernel_instance.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_batch_container.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_batch_kernel_instance.h"
 
 namespace daal
 {

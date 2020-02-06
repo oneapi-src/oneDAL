@@ -21,8 +21,8 @@
 //--
 */
 
-#include "oneapi/logistic_regression_train_kernel_oneapi.h"
-#include "oneapi/logistic_regression_train_dense_default_oneapi_impl.i"
+#include "algorithms/kernel/logistic_regression/oneapi/logistic_regression_train_kernel_oneapi.h"
+#include "algorithms/kernel/logistic_regression/oneapi/logistic_regression_train_dense_default_oneapi_impl.i"
 
 namespace daal
 {

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "distribution_batch.h"
+#include "algorithms/kernel/distributions/distribution_batch.h"
 
 namespace daal
 {

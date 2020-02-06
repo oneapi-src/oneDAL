@@ -24,10 +24,10 @@
 #ifndef __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __IMPLICIT_ALS_TRAIN_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "threading.h"
-#include "service_blas.h"
-#include "service_lapack.h"
-#include "service_error_handling.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_blas.h"
+#include "externals/service_lapack.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 namespace daal
 {

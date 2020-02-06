@@ -22,13 +22,13 @@
 */
 
 //#include "svd.h"
-#include "svd_types.h"
-#include "svd_batch.h"
-#include "svd_online.h"
-#include "svd_distributed.h"
-#include "svd_dense_default_kernel.h"
-#include "kernel.h"
-#include "service_numeric_table.h"
+#include "algorithms/svd/svd_types.h"
+#include "algorithms/svd/svd_batch.h"
+#include "algorithms/svd/svd_online.h"
+#include "algorithms/svd/svd_distributed.h"
+#include "algorithms/kernel/svd/svd_dense_default_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

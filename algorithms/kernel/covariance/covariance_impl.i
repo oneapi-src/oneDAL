@@ -24,17 +24,17 @@
 #ifndef __COVARIANCE_IMPL_I__
 #define __COVARIANCE_IMPL_I__
 
-#include "numeric_table.h"
-#include "csr_numeric_table.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_blas.h"
-#include "service_spblas.h"
-#include "service_stat.h"
-#include "service_numeric_table.h"
-#include "service_error_handling.h"
-#include "threading.h"
-#include "service_ittnotify.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/csr_numeric_table.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "externals/service_blas.h"
+#include "externals/service_spblas.h"
+#include "externals/service_stat.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/service_error_handling.h"
+#include "algorithms/threading/threading.h"
+#include "externals/service_ittnotify.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

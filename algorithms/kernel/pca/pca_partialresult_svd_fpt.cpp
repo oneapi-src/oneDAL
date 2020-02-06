@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca_partialresult_svd.h"
+#include "algorithms/kernel/pca/pca_partialresult_svd.h"
 
 namespace daal
 {

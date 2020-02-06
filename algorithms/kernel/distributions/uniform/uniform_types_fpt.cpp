@@ -19,8 +19,8 @@
 //  Implementation of uniform distribution algorithm and types methods.
 //--
 
-#include "distributions/uniform/uniform_types.h"
-#include "daal_strings.h"
+#include "algorithms/distributions/uniform/uniform_types.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

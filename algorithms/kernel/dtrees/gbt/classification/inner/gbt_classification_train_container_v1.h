@@ -24,12 +24,12 @@
 #ifndef __GBT_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 #define __GBT_CLASSIFICATION_TRAIN_CONTAINER_V1_H__
 
-#include "kernel.h"
-#include "gbt_classification_training_types.h"
-#include "gbt_classification_training_batch.h"
-#include "gbt_classification_train_kernel.h"
-#include "gbt_classification_model_impl.h"
-#include "service_algo_utils.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/gradient_boosted_trees/gbt_classification_training_types.h"
+#include "algorithms/gradient_boosted_trees/gbt_classification_training_batch.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_train_kernel.h"
+#include "algorithms/kernel/dtrees/gbt/classification/gbt_classification_model_impl.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

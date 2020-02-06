@@ -24,10 +24,10 @@
 #ifndef __KDTREE_KNN_CLASSIFICATION_TRAIN_KERNEL_H__
 #define __KDTREE_KNN_CLASSIFICATION_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "kdtree_knn_classification_training_types.h"
-#include "service_error_handling.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/k_nearest_neighbors/kdtree_knn_classification_training_types.h"
+#include "algorithms/kernel/service_error_handling.h"
 
 #if defined(_MSC_VER)
     #define DAAL_FORCEINLINE   __forceinline

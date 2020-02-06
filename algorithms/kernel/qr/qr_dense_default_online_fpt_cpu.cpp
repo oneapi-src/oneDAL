@@ -21,9 +21,9 @@
 //--
 */
 
-#include "qr_dense_default_kernel.h"
-#include "qr_dense_default_online_impl.i"
-#include "qr_dense_default_container.h"
+#include "algorithms/kernel/qr/qr_dense_default_kernel.h"
+#include "algorithms/kernel/qr/qr_dense_default_online_impl.i"
+#include "algorithms/kernel/qr/qr_dense_default_container.h"
 
 namespace daal
 {

@@ -34,18 +34,18 @@
 #ifndef __ADABOOST_TRAIN_IMPL_I__
 #define __ADABOOST_TRAIN_IMPL_I__
 
-#include "algorithm.h"
-#include "numeric_table.h"
-#include "threading.h"
-#include "daal_defines.h"
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
-#include "service_data_utils.h"
+#include "algorithms/algorithm.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_data_utils.h"
 
 #include "algorithms/classifier/classifier_model.h"
-#include "adaboost_model.h"
+#include "algorithms/boosting/adaboost_model.h"
 
 using namespace daal::data_management;
 using namespace daal::internal;

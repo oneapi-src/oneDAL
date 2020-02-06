@@ -24,11 +24,11 @@
 #ifndef __PIVOTED_QR_IMPL_I__
 #define __PIVOTED_QR_IMPL_I__
 
-#include "service_lapack.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_defines.h"
-#include "service_numeric_table.h"
+#include "externals/service_lapack.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

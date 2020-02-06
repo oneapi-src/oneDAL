@@ -22,11 +22,11 @@
 #ifndef __SGD_DENSE_DEFAULT_KERNEL_H__
 #define __SGD_DENSE_DEFAULT_KERNEL_H__
 
-#include "sgd_batch.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "iterative_solver_kernel.h"
-#include "sgd_dense_kernel.h"
+#include "algorithms/optimization_solver/sgd/sgd_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/optimization_solver/iterative_solver_kernel.h"
+#include "algorithms/kernel/optimization_solver/sgd/sgd_dense_kernel.h"
 
 using namespace daal::data_management;
 

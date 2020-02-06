@@ -21,8 +21,8 @@
 //--
 */
 
-#include "linear_regression_qr_model_impl.h"
-#include "serialization_utils.h"
+#include "algorithms/kernel/linear_regression/linear_regression_qr_model_impl.h"
+#include "service/kernel/serialization_utils.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

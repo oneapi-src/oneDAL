@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "merged_numeric_table.h"
+#include "data_management/data/merged_numeric_table.h"
 
 namespace daal
 {

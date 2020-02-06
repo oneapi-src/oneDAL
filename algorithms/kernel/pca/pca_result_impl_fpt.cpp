@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca_result_impl.h"
+#include "algorithms/kernel/pca/pca_result_impl.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 
 namespace daal

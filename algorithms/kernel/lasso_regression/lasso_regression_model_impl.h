@@ -27,7 +27,7 @@
 #include "algorithms/lasso_regression/lasso_regression_model.h"
 #include "algorithms/lasso_regression/lasso_regression_training_types.h"
 
-#include "linear_model_model_impl.h"
+#include "algorithms/kernel/linear_model/linear_model_model_impl.h"
 
 namespace daal
 {

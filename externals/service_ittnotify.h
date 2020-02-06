@@ -98,7 +98,7 @@ private:
         daal::internal::ittnotify::ScopedTask __ittnotify_task(__ittnotify_domain, __ittnotify_stringhandle)
 
 #else
-    #include "service_profiler.h"
+#include "externals/service_profiler.h"
 
     #define DAAL_ITTNOTIFY_CONCAT2(x, y) x##y
     #define DAAL_ITTNOTIFY_CONCAT(x, y)  DAAL_ITTNOTIFY_CONCAT2(x, y)

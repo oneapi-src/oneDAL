@@ -26,10 +26,10 @@
 #ifndef __LINEAR_MODEL_PREDICT_CONTAINER_H__
 #define __LINEAR_MODEL_PREDICT_CONTAINER_H__
 
-#include "linear_model_predict.h"
-#include "linear_model_predict_kernel.h"
+#include "algorithms/linear_model/linear_model_predict.h"
+#include "algorithms/kernel/linear_model/linear_model_predict_kernel.h"
 
-#include "oneapi/linear_model_predict_kernel_oneapi.h"
+#include "algorithms/kernel/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
 
 namespace daal
 {

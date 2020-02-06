@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/optimization_solver/saga/saga_types.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

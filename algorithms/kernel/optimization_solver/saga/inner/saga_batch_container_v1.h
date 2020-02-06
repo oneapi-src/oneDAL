@@ -24,9 +24,9 @@
 #ifndef __SAGA_BATCH_CONTAINER_V1_H__
 #define __SAGA_BATCH_CONTAINER_V1_H__
 
-#include "saga_batch.h"
-#include "saga_dense_default_kernel_v1.h"
-#include "service_algo_utils.h"
+#include "algorithms/optimization_solver/saga/saga_batch.h"
+#include "algorithms/kernel/optimization_solver/saga/inner/saga_dense_default_kernel_v1.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

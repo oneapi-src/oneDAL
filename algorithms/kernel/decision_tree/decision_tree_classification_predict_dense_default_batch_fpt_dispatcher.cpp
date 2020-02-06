@@ -22,7 +22,7 @@
 //--
 */
 
-#include "decision_tree_classification_predict_dense_default_batch_container.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_predict_dense_default_batch_container.h"
 
 namespace daal
 {

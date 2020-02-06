@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "bf_knn_classification_train_container.h"
+#include "algorithms/kernel/k_nearest_neighbors/bf_knn_classification_train_container.h"
 
 namespace daal
 {

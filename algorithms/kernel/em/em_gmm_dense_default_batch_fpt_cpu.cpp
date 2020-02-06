@@ -21,9 +21,9 @@
 //--
 */
 
-#include "em_gmm_dense_default_batch_kernel.h"
-#include "em_gmm_dense_default_batch_impl.i"
-#include "em_gmm_dense_default_batch_container.h"
+#include "algorithms/kernel/em/em_gmm_dense_default_batch_kernel.h"
+#include "algorithms/kernel/em/em_gmm_dense_default_batch_impl.i"
+#include "algorithms/kernel/em/em_gmm_dense_default_batch_container.h"
 
 namespace daal
 {

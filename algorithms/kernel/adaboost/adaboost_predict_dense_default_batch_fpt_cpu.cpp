@@ -21,9 +21,9 @@
 //--
 */
 
-#include "adaboost_predict_batch_container.h"
-#include "adaboost_predict_kernel.h"
-#include "adaboost_predict_impl.i"
+#include "algorithms/kernel/adaboost/adaboost_predict_batch_container.h"
+#include "algorithms/kernel/adaboost/adaboost_predict_kernel.h"
+#include "algorithms/kernel/adaboost/adaboost_predict_impl.i"
 
 namespace daal
 {

@@ -21,7 +21,7 @@
 //--
 */
 
-#include "daal_strings.h"
+#include "service/kernel/daal_strings.h"
 
 namespace daal
 {

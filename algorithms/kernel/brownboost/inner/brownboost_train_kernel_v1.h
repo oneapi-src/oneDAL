@@ -24,10 +24,10 @@
 #ifndef __BROWN_BOOST_TRAIN_KERNEL_V1_H___
 #define __BROWN_BOOST_TRAIN_KERNEL_V1_H___
 
-#include "brownboost_model.h"
-#include "brownboost_training_types.h"
-#include "kernel.h"
-#include "service_numeric_table.h"
+#include "algorithms/boosting/brownboost_model.h"
+#include "algorithms/boosting/brownboost_training_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 

@@ -24,14 +24,14 @@
 #ifndef __STUMP_CLASSIFICATION_TRAIN_AUX_I__
 #define __STUMP_CLASSIFICATION_TRAIN_AUX_I__
 
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
-#include "decision_tree_model.h"
-#include "decision_tree_classification_training_batch.h"
-#include "classifier_training_types.h"
-#include "daal_memory.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/decision_tree/decision_tree_model.h"
+#include "algorithms/decision_tree/decision_tree_classification_training_batch.h"
+#include "algorithms/classifier/classifier_training_types.h"
+#include "services/daal_memory.h"
 
 using namespace daal::data_management;
 using namespace daal::algorithms;

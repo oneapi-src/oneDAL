@@ -22,8 +22,8 @@
 //--
 */
 
-#include "ridge_regression_train_container.h"
-#include "ridge_regression_train_dense_normeq_impl.i"
+#include "algorithms/kernel/ridge_regression/ridge_regression_train_container.h"
+#include "algorithms/kernel/ridge_regression/ridge_regression_train_dense_normeq_impl.i"
 
 namespace daal
 {

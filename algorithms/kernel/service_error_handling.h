@@ -23,8 +23,8 @@
 #ifndef __SERVICE_ERROR_HANDLING_H__
 #define __SERVICE_ERROR_HANDLING_H__
 
-#include "error_handling.h"
-#include "service_threading.h"
+#include "services/error_handling.h"
+#include "algorithms/kernel/service_threading.h"
 
 namespace daal
 {

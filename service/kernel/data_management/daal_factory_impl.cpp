@@ -21,21 +21,21 @@
 //--
 */
 
-#include "data_archive.h"
-#include "homogen_numeric_table.h"
-#include "aos_numeric_table.h"
-#include "soa_numeric_table.h"
-#include "csr_numeric_table.h"
-#include "merged_numeric_table.h"
-#include "row_merged_numeric_table.h"
-#include "symmetric_matrix.h"
-#include "matrix.h"
-#include "data_collection.h"
-#include "serialization_utils.h"
+#include "data_management/data/data_archive.h"
+#include "data_management/data/homogen_numeric_table.h"
+#include "data_management/data/aos_numeric_table.h"
+#include "data_management/data/soa_numeric_table.h"
+#include "data_management/data/csr_numeric_table.h"
+#include "data_management/data/merged_numeric_table.h"
+#include "data_management/data/row_merged_numeric_table.h"
+#include "data_management/data/symmetric_matrix.h"
+#include "data_management/data/matrix.h"
+#include "data_management/data/data_collection.h"
+#include "service/kernel/serialization_utils.h"
 
-#include "numeric_table_sycl_homogen.h"
+#include "data_management/data/numeric_table_sycl_homogen.h"
 
-#include "memory_block.h"
+#include "data_management/data/memory_block.h"
 
 namespace daal
 {

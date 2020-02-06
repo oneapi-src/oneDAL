@@ -24,8 +24,8 @@
 #ifndef __MULTICLASS_CONFUSION_MATRIX_DEFAULT_IMPL_I__
 #define __MULTICLASS_CONFUSION_MATRIX_DEFAULT_IMPL_I__
 
-#include "service_memory.h"
-#include "service_numeric_table.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::internal;
 using namespace daal::services;

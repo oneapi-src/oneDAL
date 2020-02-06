@@ -18,12 +18,12 @@
 #ifndef __BF_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
 #define __BF_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
+#include "algorithms/kernel/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_shared_ptr.h"
-#include "bf_knn_classification_training_batch.h"
-#include "oneapi/bf_knn_classification_train_kernel_ucapi.h"
-#include "oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "algorithms/k_nearest_neighbors/bf_knn_classification_training_batch.h"
+#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h"
+#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 
 namespace daal
 {

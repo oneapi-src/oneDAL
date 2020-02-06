@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/lasso_regression/lasso_regression_training_types.h"
-#include "lasso_regression_model_impl.h"
+#include "algorithms/kernel/lasso_regression/lasso_regression_model_impl.h"
 
 namespace daal
 {

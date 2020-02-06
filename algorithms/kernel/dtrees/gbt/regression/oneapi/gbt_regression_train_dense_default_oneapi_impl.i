@@ -25,21 +25,21 @@
 #ifndef __GBT_REGRESSION_TRAIN_DENSE_DEFAULT_ONEAPI_IMPL_I__
 #define __GBT_REGRESSION_TRAIN_DENSE_DEFAULT_ONEAPI_IMPL_I__
 
-#include "cl_kernels/gbt_batch_regression_kernels.cl"
+#include "algorithms/kernel/dtrees/gbt/regression/oneapi/cl_kernels/gbt_batch_regression_kernels.cl"
 
-#include "oneapi/gbt_feature_type_helper_oneapi.i"
-#include "gbt_regression_model_impl.h"
-#include "../gbt_regression_tree_impl.h"
-#include "gbt_model_impl.h"
+#include "algorithms/kernel/dtrees/gbt/oneapi/gbt_feature_type_helper_oneapi.i"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_model_impl.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_tree_impl.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_model_impl.h"
 
-#include "service_ittnotify.h"
+#include "externals/service_ittnotify.h"
 #include "services/buffer.h"
-#include "numeric_table.h"
-#include "env_detect.h"
-#include "error_indexes.h"
-#include "service_data_utils.h"
-#include "service_algo_utils.h"
-#include "oneapi/service_defines_oneapi.h"
+#include "data_management/data/numeric_table.h"
+#include "services/env_detect.h"
+#include "services/error_indexes.h"
+#include "service/kernel/service_data_utils.h"
+#include "service/kernel/service_algo_utils.h"
+#include "service/kernel/oneapi/service_defines_oneapi.h"
 #include "oneapi/internal/types.h"
 
 using namespace daal::algorithms::dtrees::training::internal;

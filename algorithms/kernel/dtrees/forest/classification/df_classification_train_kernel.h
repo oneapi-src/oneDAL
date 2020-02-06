@@ -25,9 +25,9 @@
 #ifndef __DF_CLASSFICATION_TRAIN_KERNEL_H__
 #define __DF_CLASSFICATION_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "decision_forest_training_parameter.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/decision_forest/decision_forest_training_parameter.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

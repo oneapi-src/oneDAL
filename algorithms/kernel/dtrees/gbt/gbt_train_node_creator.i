@@ -25,10 +25,10 @@
 #ifndef __GBT_TRAIN_NODE_CREATOR_I__
 #define __GBT_TRAIN_NODE_CREATOR_I__
 
-#include "dtrees_model_impl.h"
-#include "dtrees_train_data_helper.i"
-#include "dtrees_predict_dense_default_impl.i"
-#include "gbt_train_aux.i"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_train_data_helper.i"
+#include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_aux.i"
 
 namespace daal
 {

@@ -24,11 +24,11 @@
 #ifndef __QUANTILES_KERNEL_H__
 #define __QUANTILES_KERNEL_H__
 
-#include "numeric_table.h"
-#include "quantiles_batch.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/quantiles/quantiles_batch.h"
 
-#include "service_defines.h"
-#include "service_micro_table.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/data_management/service_micro_table.h"
 
 using namespace daal::data_management;
 

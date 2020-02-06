@@ -24,19 +24,19 @@
 #ifndef __QR_KERNEL_ONLINE_IMPL_I__
 #define __QR_KERNEL_ONLINE_IMPL_I__
 
-#include "service_lapack.h"
-#include "service_memory.h"
-#include "service_math.h"
-#include "service_defines.h"
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
+#include "externals/service_lapack.h"
+#include "externals/service_memory.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
-#include "qr_dense_default_kernel.h"
+#include "algorithms/kernel/qr/qr_dense_default_kernel.h"
 
-#include "qr_dense_default_impl.i"
-#include "qr_dense_default_batch_impl.i"
+#include "algorithms/kernel/qr/qr_dense_default_impl.i"
+#include "algorithms/kernel/qr/qr_dense_default_batch_impl.i"
 
-#include "threading.h"
+#include "algorithms/threading/threading.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;

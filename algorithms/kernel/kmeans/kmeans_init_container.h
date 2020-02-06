@@ -25,13 +25,13 @@
 #ifndef __KMEANS_INIT_CONTAINER_H__
 #define __KMEANS_INIT_CONTAINER_H__
 
-#include "kmeans_init_types.h"
-#include "kmeans_init_batch.h"
-#include "kmeans_init_distributed.h"
-#include "kmeans_init_kernel.h"
-#include "kmeans_init_impl.h"
-#include "oneapi/kmeans_init_dense_batch_kernel_ucapi.h"
-#include "execution_context.h"
+#include "algorithms/kmeans/kmeans_init_types.h"
+#include "algorithms/kmeans/kmeans_init_batch.h"
+#include "algorithms/kmeans/kmeans_init_distributed.h"
+#include "algorithms/kernel/kmeans/kmeans_init_kernel.h"
+#include "algorithms/kernel/kmeans/kmeans_init_impl.h"
+#include "algorithms/kernel/kmeans/oneapi/kmeans_init_dense_batch_kernel_ucapi.h"
+#include "oneapi/internal/execution_context.h"
 
 namespace daal
 {

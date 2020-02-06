@@ -24,12 +24,12 @@
 #ifndef __LOGITBOOST_PREDICT_DENSE_DEFAULT_KERNEL_H__
 #define __LOGITBOOST_PREDICT_DENSE_DEFAULT_KERNEL_H__
 
-#include "algorithm.h"
-#include "service_numeric_table.h"
-#include "logitboost_model.h"
-#include "daal_defines.h"
+#include "algorithms/algorithm.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/boosting/logitboost_model.h"
+#include "services/daal_defines.h"
 
-#include "logitboost_predict_kernel.h"
+#include "algorithms/kernel/logitboost/logitboost_predict_kernel.h"
 
 namespace daal
 {

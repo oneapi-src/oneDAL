@@ -24,7 +24,7 @@
 #ifndef __PCA_RESULT_V2_H__
 #define __PCA_RESULT_V2_H__
 
-#include "pca/inner/pca_result_v1.h"
+#include "algorithms/kernel/pca/inner/pca_result_v1.h"
 #include "data_management/data/data_collection.h"
 #include "data_management/data/numeric_table.h"
 

@@ -25,14 +25,14 @@
 */
 
 #if (!defined(ONEAPI_DAAL_NO_MKL_GPU_FUNC) && defined(__SYCL_COMPILER_VERSION))
-    #include "mkl_blas.h"
+#include "oneapi/internal/math/mkl_blas.h"
 #endif
 
+#include "oneapi/internal/math/types.h"
 #include "oneapi/internal/types_utils.h"
-#include "types.h"
 #include "services/internal/error_handling_helpers.h"
-#include "reference_gemm.h"
-#include "reference_axpy.h"
+#include "oneapi/internal/math/reference_gemm.h"
+#include "oneapi/internal/math/reference_axpy.h"
 
 #include <CL/sycl.hpp>
 

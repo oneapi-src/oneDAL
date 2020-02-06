@@ -20,7 +20,7 @@
 
 #include "com_intel_daal_data_management_data_DataFeature.h"
 #include "com_intel_daal_data_management_data_DataFeatureUtils.h"
-#include "data_dictionary.h"
+#include "data_management/data/data_dictionary.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

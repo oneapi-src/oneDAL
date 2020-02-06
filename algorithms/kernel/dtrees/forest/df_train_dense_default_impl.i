@@ -25,12 +25,12 @@
 #ifndef __DF_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __DF_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "dtrees_train_data_helper.i"
-#include "threading.h"
-#include "dtrees_model_impl.h"
-#include "engine_types_internal.h"
-#include "service_defines.h"
-#include "uniform_kernel.h"
+#include "algorithms/kernel/dtrees/dtrees_train_data_helper.i"
+#include "algorithms/threading/threading.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
+#include "algorithms/kernel/engines/engine_types_internal.h"
+#include "service/kernel/service_defines.h"
+#include "algorithms/kernel/distributions/uniform/uniform_kernel.h"
 
 using namespace daal::algorithms::dtrees::training::internal;
 

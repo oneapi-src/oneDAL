@@ -21,7 +21,7 @@
 //--
 */
 
-#include "pca/inner/pca_types_v1.h"
+#include "algorithms/kernel/pca/inner/pca_types_v1.h"
 
 namespace daal
 {

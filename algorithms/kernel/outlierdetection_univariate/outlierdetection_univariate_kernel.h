@@ -24,12 +24,12 @@
 #ifndef __UNIVAR_OUTLIERDETECTION_KERNEL_H__
 #define __UNIVAR_OUTLIERDETECTION_KERNEL_H__
 
-#include "outlier_detection_univariate.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_math.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
+#include "algorithms/outlier_detection/outlier_detection_univariate.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "externals/service_math.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 namespace daal
 {

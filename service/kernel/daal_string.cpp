@@ -18,8 +18,8 @@
 #include <cstring>
 
 #include "services/daal_string.h"
-#include "service_defines.h"
-#include "service_service.h"
+#include "service/kernel/service_defines.h"
+#include "externals/service_service.h"
 
 namespace daal
 {

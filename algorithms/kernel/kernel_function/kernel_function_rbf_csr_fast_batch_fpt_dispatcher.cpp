@@ -21,9 +21,9 @@
 //--
 */
 
-#include "kernel_function_rbf.h"
-#include "kernel_function_rbf_batch_container.h"
-#include "kernel_function_rbf_csr_fast_kernel.h"
+#include "algorithms/kernel_function/kernel_function_rbf.h"
+#include "algorithms/kernel/kernel_function/kernel_function_rbf_batch_container.h"
+#include "algorithms/kernel/kernel_function/kernel_function_rbf_csr_fast_kernel.h"
 
 namespace daal
 {

@@ -25,7 +25,7 @@
 #define __GBT_REGRESSION_TREE_IMPL__
 
 #include "data_management/data/aos_numeric_table.h"
-#include "gbt_model_impl.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_model_impl.h"
 
 namespace daal
 {

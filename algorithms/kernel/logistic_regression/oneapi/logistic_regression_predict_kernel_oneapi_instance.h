@@ -24,7 +24,7 @@
 #ifndef __LOGISTIC_REGRESSION_TRAIN_KERNEL_ONEAPI_INSTANCE_H__
 #define __LOGISTIC_REGRESSION_TRAIN_KERNEL_ONEAPI_INSTANCE_H__
 
-#include "logistic_regression_predict_kernel_oneapi.h"
-#include "logistic_regression_predict_dense_default_batch_oneapi_impl.i"
+#include "algorithms/kernel/logistic_regression/oneapi/logistic_regression_predict_kernel_oneapi.h"
+#include "algorithms/kernel/logistic_regression/oneapi/logistic_regression_predict_dense_default_batch_oneapi_impl.i"
 
 #endif

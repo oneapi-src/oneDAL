@@ -25,12 +25,12 @@
 #ifndef __MULTICLASSCLASSIFIER_PREDICT_FPK_H__
 #define __MULTICLASSCLASSIFIER_PREDICT_FPK_H__
 
-#include "numeric_table.h"
-#include "model.h"
-#include "algorithm.h"
-#include "multi_class_classifier_predict_types.h"
-#include "service_defines.h"
-#include "service_arrays.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/model.h"
+#include "algorithms/algorithm.h"
+#include "algorithms/multi_class_classifier/multi_class_classifier_predict_types.h"
+#include "service/kernel/service_defines.h"
+#include "service/kernel/service_arrays.h"
 
 using namespace daal::data_management;
 using namespace daal::services::internal;

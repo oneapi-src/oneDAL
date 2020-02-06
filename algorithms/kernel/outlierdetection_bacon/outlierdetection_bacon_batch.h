@@ -24,7 +24,7 @@
 #ifndef __OUTLIERDETECTION_BACON_BATCH_H__
 #define __OUTLIERDETECTION_BACON_BATCH_H__
 
-#include "outlier_detection_bacon_types.h"
+#include "algorithms/outlier_detection/outlier_detection_bacon_types.h"
 
 using namespace daal::data_management;
 

@@ -24,10 +24,10 @@
 #ifndef __PCA_DENSE_SVD_ONLINE_CONTAINER_H__
 #define __PCA_DENSE_SVD_ONLINE_CONTAINER_H__
 
-#include "kernel.h"
-#include "pca_online.h"
-#include "pca_dense_svd_online_kernel.h"
-#include "pca_dense_svd_container.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/pca/pca_online.h"
+#include "algorithms/kernel/pca/pca_dense_svd_online_kernel.h"
+#include "algorithms/kernel/pca/pca_dense_svd_container.h"
 
 using namespace daal::data_management;
 
