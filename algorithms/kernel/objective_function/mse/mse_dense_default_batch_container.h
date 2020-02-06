@@ -118,6 +118,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     if(parameter->resultsToCompute & objective_function::componentOfProximalProjection)
     {
         componentOfProximalProjection = result->get(objective_function::componentOfProximalProjectionIdx).get();
+        componentOfHessianDiagonal = result->get(objective_function::componentOfHessianDiagonalIdx).get();
     }
 
     __DAAL_CALL_KERNEL(env, internal::MSEKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, data, dependentVariables, argument, value,

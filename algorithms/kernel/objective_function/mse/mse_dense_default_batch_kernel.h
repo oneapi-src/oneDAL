@@ -187,9 +187,9 @@ public:
     MSEKernel(): hessianDiagonal(0), hessianDiagonalPtr(nullptr), residual(0), residualPtr(nullptr),
                  previousInputData(nullptr), previousFeatureId(-1), previousFeatureValuesPtr(nullptr), previousFeatureValues(0),
                  computeViaGramMatrix(false), gramMatrix(0), gramMatrixPtr(nullptr), XY(0), XYPtr(nullptr), gradientForGram(0),
-                 gradientForGramPtr(nullptr), xNT(nullptr), X(nullptr), dot(0), dotPtr(nullptr),
-                 betaNT(nullptr), b(nullptr), gradNT(nullptr), gr(nullptr), hesDiagonalNT(nullptr), h(nullptr),
-                 penaltyL1NT(nullptr), penaltyL1Ptr(nullptr), proxNT(nullptr), proxPtr(nullptr), transposedData(false){};
+                 gradientForGramPtr(nullptr), xNT(nullptr), X(nullptr), dot(0), dotPtr(nullptr),betaNT(nullptr), b(nullptr),
+                 gradNT(nullptr), gr(nullptr), hesDiagonalNT(nullptr), h(nullptr), penaltyL1NT(nullptr), penaltyL1Ptr(nullptr),
+                 penaltyL2NT(nullptr), penaltyL2Ptr(nullptr), proxNT(nullptr), proxPtr(nullptr), transposedData(false){};
 private:
     void computeMSE(
         size_t blockSize,
@@ -242,6 +242,8 @@ private:
 
     NumericTable * penaltyL1NT;
     float* penaltyL1Ptr;
+    NumericTable * penaltyL2NT;
+    float* penaltyL2Ptr;
     NumericTable * proxNT;
     algorithmFPType* proxPtr;
     ReadRows<algorithmFPType, cpu> XPtr;
