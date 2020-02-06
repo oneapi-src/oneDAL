@@ -63,6 +63,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const NumericTable * y = input->get(dependentVariable).get();
 
     decision_forest::regression::Model * m = result->get(model).get();
+    m->setNFeatures(x->getNumberOfColumns());
 
     const Parameter * par                  = static_cast<decision_forest::regression::training::Parameter *>(_par);
     daal::services::Environment::env & env = *_env;

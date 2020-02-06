@@ -93,7 +93,22 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 {
     Status s;
     DAAL_CHECK_STATUS(s, algorithms::regression::prediction::Input::check(parameter, method));
-    //TODO: check input model
+    NumericTablePtr dataTable = algorithms::regression::prediction::Input::get(
+        algorithms::regression::prediction::data);
+    const decision_forest::regression::ModelPtr m =
+        algorithms::decision_forest::regression::prediction::Input::get(
+            algorithms::decision_forest::regression::prediction::model);
+    if (!m.get())
+    {
+        s.add(ErrorNullModel);
+        // TODO: check input model
+    }
+    else {
+        const auto nFeatures = dataTable->getNumberOfColumns();
+        const auto nFeaturesModel = m->getNFeatures();
+        DAAL_CHECK(nFeaturesModel == nFeatures,
+            services::ErrorIncorrectNumberOfColumnsInInputNumericTable);
+    }
     return s;
 }
 

@@ -74,6 +74,20 @@ public:
      * \return Number of features in the training data set
      */
     virtual size_t getNumberOfFeatures() const = 0;
+
+    /**
+     *  Retrieves the number of features in the dataset was used on the training stage
+     *  \DAAL_DEPRECATED_USE{ Model::getNumberOfFeatures }
+     *  \return Number of features in the dataset was used on the training stage
+     */
+    virtual size_t getNFeatures() const { return getNumberOfFeatures(); }
+
+    /**
+     *  Sets the number of features in the dataset was used on the training stage
+     *  \DAAL_DEPRECATED
+     *  \param[in]  nFeatures  Number of features in the dataset was used on the training stage
+     */
+    virtual void setNFeatures(size_t nFeatures) {}
 };
 typedef services::SharedPtr<Model> ModelPtr;
 typedef services::SharedPtr<const Model> ModelConstPtr;
