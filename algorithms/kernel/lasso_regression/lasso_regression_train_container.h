@@ -24,13 +24,13 @@
 #ifndef __LASSO_REGRESSION_TRAIN_CONTAINER_H__
 #define __LASSO_REGRESSION_TRAIN_CONTAINER_H__
 
-#include "kernel.h"
+#include "algorithms/kernel/kernel.h"
 #include "algorithms/lasso_regression/lasso_regression_training_types.h"
 #include "algorithms/lasso_regression/lasso_regression_training_batch.h"
-#include "lasso_regression_train_kernel.h"
-#include "lasso_regression_model_impl.h"
+#include "algorithms/kernel/lasso_regression/lasso_regression_train_kernel.h"
+#include "algorithms/kernel/lasso_regression/lasso_regression_model_impl.h"
 #include "algorithms/optimization_solver/sgd/sgd_batch.h"
-#include "service_algo_utils.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

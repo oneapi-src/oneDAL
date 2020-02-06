@@ -24,9 +24,9 @@
 #ifndef __COVARIANCE_KERNEL_H__
 #define __COVARIANCE_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "covariance_types.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/covariance/covariance_types.h"
 
 using namespace daal::services;
 using namespace daal::data_management;

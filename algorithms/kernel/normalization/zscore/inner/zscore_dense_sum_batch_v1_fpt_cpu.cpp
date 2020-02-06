@@ -20,7 +20,7 @@
 //
 //--
 
-#include "zscore_batch_container_v1.h"
+#include "algorithms/kernel/normalization/zscore/inner/zscore_batch_container_v1.h"
 
 namespace daal
 {

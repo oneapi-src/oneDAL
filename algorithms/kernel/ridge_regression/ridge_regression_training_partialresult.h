@@ -25,7 +25,7 @@
 #define __RIDGE_REGRESSION_TRAINING_PARTIALRESULT_
 
 #include "algorithms/ridge_regression/ridge_regression_training_types.h"
-#include "ridge_regression_ne_model_impl.h"
+#include "algorithms/kernel/ridge_regression/ridge_regression_ne_model_impl.h"
 
 namespace daal
 {

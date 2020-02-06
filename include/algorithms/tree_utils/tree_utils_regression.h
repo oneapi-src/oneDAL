@@ -24,7 +24,7 @@
 #ifndef __TREE_UTILS_REGRESSION__
 #define __TREE_UTILS_REGRESSION__
 
-#include "tree_utils.h"
+#include "algorithms/tree_utils/tree_utils.h"
 
 namespace daal
 {

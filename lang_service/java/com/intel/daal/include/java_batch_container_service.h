@@ -26,7 +26,7 @@
 #include <jni.h>
 
 #include "java_callback.h"
-#include "daal_string.h"
+#include "services/daal_string.h"
 
 namespace daal
 {

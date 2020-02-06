@@ -21,7 +21,7 @@
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_model.h"
 #include "data_management/data/numeric_table_sycl_homogen.h"
 
-#include "daal_defines.h"
+#include "services/daal_defines.h"
 
 namespace daal
 {

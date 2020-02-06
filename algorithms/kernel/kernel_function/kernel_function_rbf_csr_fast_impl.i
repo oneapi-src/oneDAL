@@ -24,13 +24,13 @@
 #ifndef __KERNEL_FUNCTION_RBF_CSR_FAST_IMPL_I__
 #define __KERNEL_FUNCTION_RBF_CSR_FAST_IMPL_I__
 
-#include "kernel_function_types_rbf.h"
-#include "service_math.h"
-#include "service_numeric_table.h"
-#include "kernel_function_csr_impl.i"
-#include "threading.h"
+#include "algorithms/kernel_function/kernel_function_types_rbf.h"
+#include "externals/service_math.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "algorithms/kernel/kernel_function/kernel_function_csr_impl.i"
+#include "algorithms/threading/threading.h"
 
-#include "service_spblas.h"
+#include "externals/service_spblas.h"
 
 using namespace daal::data_management;
 

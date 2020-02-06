@@ -26,7 +26,7 @@
 
 #include "services/daal_memory.h"
 #include "services/env_detect.h"
-#include "numeric_table.h"
+#include "data_management/data/numeric_table.h"
 
 namespace daal
 {

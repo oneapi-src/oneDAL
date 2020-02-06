@@ -22,8 +22,8 @@
 //--
 */
 
-#include "multinomial_naive_bayes_predict.h"
-#include "naivebayes_predict_kernel.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_predict.h"
+#include "algorithms/kernel/naivebayes/naivebayes_predict_kernel.h"
 
 namespace daal
 {

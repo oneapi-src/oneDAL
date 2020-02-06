@@ -24,12 +24,12 @@
 #ifndef __ADABOOST_PREDICT_KERNEL_H__
 #define __ADABOOST_PREDICT_KERNEL_H__
 
-#include "adaboost_model.h"
-#include "adaboost_predict.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "service_numeric_table.h"
-#include "service_environment.h"
+#include "algorithms/boosting/adaboost_model.h"
+#include "algorithms/boosting/adaboost_predict.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_environment.h"
 
 using namespace daal::data_management;
 

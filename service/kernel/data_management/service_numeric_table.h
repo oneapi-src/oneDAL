@@ -24,12 +24,12 @@
 #ifndef __SERVICE_NUMERIC_TABLE_H__
 #define __SERVICE_NUMERIC_TABLE_H__
 
-#include "homogen_numeric_table.h"
-#include "csr_numeric_table.h"
-#include "symmetric_matrix.h"
-#include "service_defines.h"
-#include "service_memory.h"
-#include "service_arrays.h"
+#include "data_management/data/homogen_numeric_table.h"
+#include "data_management/data/csr_numeric_table.h"
+#include "data_management/data/symmetric_matrix.h"
+#include "service/kernel/service_defines.h"
+#include "externals/service_memory.h"
+#include "service/kernel/service_arrays.h"
 
 using namespace daal::data_management;
 

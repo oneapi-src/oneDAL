@@ -21,7 +21,7 @@
 //--
 */
 
-#include "multinomial_naive_bayes_training_types.h"
+#include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

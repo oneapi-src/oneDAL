@@ -24,9 +24,9 @@
 #ifndef __PCA_DENSE_CORRELATION_DISTR_STEP2_CONTAINER_H__
 #define __PCA_DENSE_CORRELATION_DISTR_STEP2_CONTAINER_H__
 
-#include "kernel.h"
-#include "pca_distributed.h"
-#include "pca_dense_correlation_distr_step2_kernel.h"
+#include "algorithms/kernel/kernel.h"
+#include "algorithms/pca/pca_distributed.h"
+#include "algorithms/kernel/pca/pca_dense_correlation_distr_step2_kernel.h"
 
 namespace daal
 {

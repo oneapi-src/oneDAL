@@ -22,11 +22,11 @@
 #ifndef __LOGISTIC_LOSS_DENSE_DEFAULT_BATCH_KERNEL_V1_H__
 #define __LOGISTIC_LOSS_DENSE_DEFAULT_BATCH_KERNEL_V1_H__
 
-#include "logistic_loss_batch.h"
-#include "kernel.h"
-#include "service_numeric_table.h"
-#include "service_blas.h"
-#include "numeric_table.h"
+#include "algorithms/optimization_solver/objective_function/logistic_loss_batch.h"
+#include "algorithms/kernel/kernel.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_blas.h"
+#include "data_management/data/numeric_table.h"
 
 namespace daal
 {

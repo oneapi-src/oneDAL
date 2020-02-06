@@ -23,8 +23,8 @@
 //--
 */
 
-#include "logitboost_predict.h"
-#include "logitboost_predict_batch_container.h"
+#include "algorithms/boosting/logitboost_predict.h"
+#include "algorithms/kernel/logitboost/logitboost_predict_batch_container.h"
 
 namespace daal
 {

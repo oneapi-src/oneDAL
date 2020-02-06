@@ -25,9 +25,9 @@
 #ifndef __IMPLICIT_ALS_INIT_TRAIN_KERNEL_H__
 #define __IMPLICIT_ALS_INIT_TRAIN_KERNEL_H__
 
-#include "implicit_als_training_init_batch.h"
-#include "implicit_als_model.h"
-#include "kernel.h"
+#include "algorithms/implicit_als/implicit_als_training_init_batch.h"
+#include "algorithms/implicit_als/implicit_als_model.h"
+#include "algorithms/kernel/kernel.h"
 
 namespace daal
 {

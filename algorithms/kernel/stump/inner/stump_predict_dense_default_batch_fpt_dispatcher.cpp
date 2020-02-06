@@ -22,7 +22,7 @@
 //--
 */
 
-#include "stump_predict_batch_container.h"
+#include "algorithms/kernel/stump/inner/stump_predict_batch_container.h"
 
 namespace daal
 {

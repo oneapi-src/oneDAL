@@ -24,13 +24,13 @@
 #ifndef __MULTIVARIATE_OUTLIER_DETECTION_DENSE_DEFAULT_IMPL_I__
 #define __MULTIVARIATE_OUTLIER_DETECTION_DENSE_DEFAULT_IMPL_I__
 
-#include "numeric_table.h"
-#include "outlier_detection_multivariate_types.h"
-#include "service_numeric_table.h"
-#include "service_math.h"
-#include "service_blas.h"
-#include "service_lapack.h"
-#include "outlierdetection_multivariate_kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/outlier_detection/outlier_detection_multivariate_types.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "externals/service_math.h"
+#include "externals/service_blas.h"
+#include "externals/service_lapack.h"
+#include "algorithms/kernel/outlierdetection_multivariate/outlierdetection_multivariate_kernel.h"
 
 namespace daal
 {

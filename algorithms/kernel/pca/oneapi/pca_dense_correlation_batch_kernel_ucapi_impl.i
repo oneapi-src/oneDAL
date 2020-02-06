@@ -24,15 +24,15 @@
 #ifndef __PCA_DENSE_CORRELATION_BATCH_KERNEL_UCAPI_IMPL__
 #define __PCA_DENSE_CORRELATION_BATCH_KERNEL_UCAPI_IMPL__
 
-#include "service_ittnotify.h"
+#include "externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(pca.dense.correlation.batch.oneapi);
 
-#include "env_detect.h"
-#include "cl_kernels/pca_cl_kernels.cl"
-#include "numeric_table_sycl_homogen.h"
-#include "oneapi/blas_gpu.h"
-#include "oneapi/sum_reducer.h"
-#include "covariance/oneapi/covariance_oneapi_impl.i"
+#include "services/env_detect.h"
+#include "algorithms/kernel/pca/oneapi/cl_kernels/pca_cl_kernels.cl"
+#include "data_management/data/numeric_table_sycl_homogen.h"
+#include "service/kernel/oneapi/blas_gpu.h"
+#include "service/kernel/oneapi/sum_reducer.h"
+#include "algorithms/kernel/covariance/oneapi/covariance_oneapi_impl.i"
 
 using namespace daal::services;
 using namespace daal::internal;

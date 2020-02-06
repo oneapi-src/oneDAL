@@ -24,7 +24,7 @@
 #ifndef __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 #define __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 
-#include "cl_kernels/pca_transform_cl_kernels.cl"
+#include "algorithms/kernel/pca/transform/oneapi/cl_kernels/pca_transform_cl_kernels.cl"
 
 using namespace daal::services;
 using namespace daal::oneapi::internal;

@@ -25,7 +25,7 @@
 
 #include <jni.h>
 #include <tbb/tbb.h>
-#include "daal_string.h"
+#include "services/daal_string.h"
 
 namespace daal
 {

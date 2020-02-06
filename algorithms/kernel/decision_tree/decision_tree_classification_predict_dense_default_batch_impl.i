@@ -24,15 +24,15 @@
 #ifndef __DECISION_TREE_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __DECISION_TREE_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "threading.h"
-#include "daal_defines.h"
-#include "algorithm.h"
-#include "service_utils.h"
-#include "service_data_utils.h"
-#include "numeric_table.h"
-#include "decision_tree_classification_predict_dense_default_batch.h"
-#include "decision_tree_classification_model_impl.h"
-#include "decision_tree_impl.i"
+#include "algorithms/threading/threading.h"
+#include "services/daal_defines.h"
+#include "algorithms/algorithm.h"
+#include "service/kernel/service_utils.h"
+#include "service/kernel/service_data_utils.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_predict_dense_default_batch.h"
+#include "algorithms/kernel/decision_tree/decision_tree_classification_model_impl.h"
+#include "algorithms/kernel/decision_tree/decision_tree_impl.i"
 
 namespace daal
 {

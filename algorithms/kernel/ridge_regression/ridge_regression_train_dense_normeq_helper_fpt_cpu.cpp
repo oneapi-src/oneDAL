@@ -22,7 +22,7 @@
 //--
 */
 
-#include "ridge_regression_train_dense_normeq_helper_impl.i"
+#include "algorithms/kernel/ridge_regression/ridge_regression_train_dense_normeq_helper_impl.i"
 
 namespace daal
 {

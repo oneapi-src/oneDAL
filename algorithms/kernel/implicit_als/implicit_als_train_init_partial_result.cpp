@@ -21,10 +21,10 @@
 //--
 */
 
-#include "implicit_als_training_init_types.h"
-#include "implicit_als_train_init_parameter.h"
-#include "serialization_utils.h"
-#include "daal_strings.h"
+#include "algorithms/implicit_als/implicit_als_training_init_types.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_parameter.h"
+#include "service/kernel/serialization_utils.h"
+#include "service/kernel/daal_strings.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

@@ -20,14 +20,14 @@
 //  Implementation of logloss algorithm
 //--
 */
-#include "service_data_utils.h"
-#include "service_math.h"
-#include "service_utils.h"
-#include "service_ittnotify.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_math.h"
+#include "service/kernel/service_utils.h"
+#include "externals/service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(logistic_loss.dense.default.batch);
 
-#include "common/objective_function_utils.i"
+#include "algorithms/kernel/objective_function/common/objective_function_utils.i"
 
 namespace daal
 {

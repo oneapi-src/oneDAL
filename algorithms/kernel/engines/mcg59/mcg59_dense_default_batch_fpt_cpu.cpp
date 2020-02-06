@@ -19,9 +19,9 @@
 //  Implementation of mcg59 calculation functions.
 //--
 
-#include "mcg59_batch_container.h"
-#include "mcg59_kernel.h"
-#include "mcg59_impl.i"
+#include "algorithms/kernel/engines/mcg59/mcg59_batch_container.h"
+#include "algorithms/kernel/engines/mcg59/mcg59_kernel.h"
+#include "algorithms/kernel/engines/mcg59/mcg59_impl.i"
 
 namespace daal
 {

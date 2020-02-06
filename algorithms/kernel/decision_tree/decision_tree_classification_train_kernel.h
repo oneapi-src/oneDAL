@@ -24,9 +24,9 @@
 #ifndef __DECISION_TREE_CLASSIFICATION_TRAIN_KERNEL_H__
 #define __DECISION_TREE_CLASSIFICATION_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "decision_tree_classification_training_types.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/decision_tree/decision_tree_classification_training_types.h"
 
 namespace daal
 {

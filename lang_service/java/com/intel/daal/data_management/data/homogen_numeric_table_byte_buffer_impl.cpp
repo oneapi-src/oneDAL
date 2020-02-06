@@ -18,8 +18,8 @@
 #include <jni.h>
 
 #include "com_intel_daal_data_management_data_HomogenNumericTableByteBufferImpl.h"
-#include "numeric_table.h"
-#include "homogen_numeric_table.h"
+#include "data_management/data/numeric_table.h"
+#include "data_management/data/homogen_numeric_table.h"
 #include "common_helpers_functions.h"
 
 using namespace daal;

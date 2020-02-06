@@ -21,13 +21,13 @@
 //--
 */
 
-#include "implicit_als_train_init_kernel.h"
-#include "implicit_als_train_init_default_batch_impl.i"
-#include "implicit_als_train_init_dense_default_batch_impl.i"
-#include "implicit_als_train_init_csr_default_batch_impl.i"
-#include "implicit_als_train_init_kernel.h"
-#include "implicit_als_train_init_csr_default_distr_impl.i"
-#include "implicit_als_train_init_container.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_kernel.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_default_batch_impl.i"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_dense_default_batch_impl.i"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_csr_default_batch_impl.i"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_kernel.h"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_csr_default_distr_impl.i"
+#include "algorithms/kernel/implicit_als/implicit_als_train_init_container.h"
 
 namespace daal
 {

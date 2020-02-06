@@ -24,12 +24,12 @@
 #ifndef __KMEANS_INIT_CONTAINER_V1_H__
 #define __KMEANS_INIT_CONTAINER_V1_H__
 
-#include "kmeans/inner/kmeans_init_batch_v1.h"
-#include "kmeans/inner/kmeans_init_distributed_v1.h"
-#include "kmeans_init_batch.h"
-#include "kmeans_init_distributed.h"
-#include "kmeans_init_kernel.h"
-#include "kmeans_init_impl.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_init_batch_v1.h"
+#include "algorithms/kernel/kmeans/inner/kmeans_init_distributed_v1.h"
+#include "algorithms/kmeans/kmeans_init_batch.h"
+#include "algorithms/kmeans/kmeans_init_distributed.h"
+#include "algorithms/kernel/kmeans/kmeans_init_kernel.h"
+#include "algorithms/kernel/kmeans/kmeans_init_impl.h"
 
 namespace daal
 {

@@ -25,15 +25,15 @@
 #ifndef __GBT_TRAIN_TREE_BUILDER_I__
 #define __GBT_TRAIN_TREE_BUILDER_I__
 
-#include "dtrees_model_impl.h"
-#include "dtrees_train_data_helper.i"
-#include "dtrees_predict_dense_default_impl.i"
-#include "gbt_train_aux.i"
-#include "gbt_train_partition.i"
-#include "gbt_train_split_hist.i"
-#include "gbt_train_split_sorting.i"
-#include "gbt_train_node_creator.i"
-#include "gbt_train_updater.i"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_train_data_helper.i"
+#include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_aux.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_partition.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_split_hist.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_split_sorting.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_node_creator.i"
+#include "algorithms/kernel/dtrees/gbt/gbt_train_updater.i"
 
 namespace daal
 {

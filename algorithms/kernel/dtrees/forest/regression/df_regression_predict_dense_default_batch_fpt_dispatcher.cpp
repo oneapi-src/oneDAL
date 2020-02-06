@@ -23,7 +23,7 @@
 //--
 */
 
-#include "df_regression_predict_dense_default_batch_container.h"
+#include "algorithms/kernel/dtrees/forest/regression/df_regression_predict_dense_default_batch_container.h"
 
 namespace daal
 {

@@ -21,9 +21,9 @@
 //--
 */
 
-#include "apriori.h"
-#include "assoc_rules_kernel.h"
-#include "assoc_rules_apriori_kernel.h"
+#include "algorithms/association_rules/apriori.h"
+#include "algorithms/kernel/assocrules/assoc_rules_kernel.h"
+#include "algorithms/kernel/assocrules/assoc_rules_apriori_kernel.h"
 
 namespace daal
 {

@@ -18,7 +18,7 @@
 #ifndef __ZSCORE_MOMENTS_H__
 #define __ZSCORE_MOMENTS_H__
 
-#include "zscore.h"
+#include "algorithms/normalization/zscore.h"
 
 namespace daal
 {

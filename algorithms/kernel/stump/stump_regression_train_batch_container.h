@@ -25,8 +25,8 @@
 #ifndef __STUMP_REGRESSION_TRAIN_BATCH_CONTAINER_H__
 #define __STUMP_REGRESSION_TRAIN_BATCH_CONTAINER_H__
 
-#include "stump_regression_training_batch.h"
-#include "stump_regression_train_kernel.h"
+#include "algorithms/stump/stump_regression_training_batch.h"
+#include "algorithms/kernel/stump/stump_regression_train_kernel.h"
 
 namespace daal
 {

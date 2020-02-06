@@ -21,7 +21,7 @@
 //--
 */
 
-#include "em_gmm_batch.h"
+#include "algorithms/kernel/em/em_gmm_batch.h"
 
 namespace daal
 {

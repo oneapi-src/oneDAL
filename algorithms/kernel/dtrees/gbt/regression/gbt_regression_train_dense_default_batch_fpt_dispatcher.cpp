@@ -21,7 +21,7 @@
 //--
 */
 
-#include "gbt_regression_train_container.h"
+#include "algorithms/kernel/dtrees/gbt/regression/gbt_regression_train_container.h"
 
 namespace daal
 {

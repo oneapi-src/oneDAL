@@ -21,9 +21,9 @@
 //--
 */
 
-#include "pca/inner/pca_batch_v1.h"
-#include "pca/inner/pca_dense_svd_batch_container_v1.h"
-#include "pca_dense_svd_batch_kernel.h"
+#include "algorithms/kernel/pca/inner/pca_batch_v1.h"
+#include "algorithms/kernel/pca/inner/pca_dense_svd_batch_container_v1.h"
+#include "algorithms/kernel/pca/pca_dense_svd_batch_kernel.h"
 
 namespace daal
 {

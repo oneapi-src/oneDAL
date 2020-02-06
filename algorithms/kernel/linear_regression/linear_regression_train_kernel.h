@@ -25,12 +25,12 @@
 #ifndef __LINEAR_REGRESSION_TRAIN_KERNEL_H__
 #define __LINEAR_REGRESSION_TRAIN_KERNEL_H__
 
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "linear_regression_training_types.h"
-#include "linear_model_train_normeq_kernel.h"
-#include "linear_model_train_qr_kernel.h"
-#include "algorithm_kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/linear_regression/linear_regression_training_types.h"
+#include "algorithms/kernel/linear_model/linear_model_train_normeq_kernel.h"
+#include "algorithms/kernel/linear_model/linear_model_train_qr_kernel.h"
+#include "algorithms/algorithm_kernel.h"
 
 namespace daal
 {

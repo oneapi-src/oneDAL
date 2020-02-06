@@ -23,7 +23,7 @@
 #ifndef __CHOLESKY_BATCH__
 #define __CHOLESKY_BATCH__
 
-#include "cholesky_types.h"
+#include "algorithms/cholesky/cholesky_types.h"
 
 using namespace daal::data_management;
 namespace daal

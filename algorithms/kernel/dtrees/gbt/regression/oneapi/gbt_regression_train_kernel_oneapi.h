@@ -27,11 +27,11 @@
 
 #include "oneapi/internal/types.h"
 #include "oneapi/internal/execution_context.h"
-#include "numeric_table.h"
-#include "algorithm_base_common.h"
-#include "gbt_regression_training_types.h"
-#include "engine_batch_impl.h"
-#include "oneapi/gbt_feature_type_helper_oneapi.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/algorithm_base_common.h"
+#include "algorithms/gradient_boosted_trees/gbt_regression_training_types.h"
+#include "algorithms/kernel/engines/engine_batch_impl.h"
+#include "algorithms/kernel/dtrees/gbt/oneapi/gbt_feature_type_helper_oneapi.h"
 
 using namespace daal::data_management;
 using namespace daal::services;

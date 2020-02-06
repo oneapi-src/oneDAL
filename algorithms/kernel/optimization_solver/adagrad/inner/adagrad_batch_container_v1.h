@@ -24,9 +24,9 @@
 #ifndef __ADAGRAD_BATCH_CONTAINER_V1_H__
 #define __ADAGRAD_BATCH_CONTAINER_V1_H__
 
-#include "adagrad_batch.h"
-#include "adagrad_dense_default_kernel_v1.h"
-#include "service_algo_utils.h"
+#include "algorithms/optimization_solver/adagrad/adagrad_batch.h"
+#include "algorithms/kernel/optimization_solver/adagrad/inner/adagrad_dense_default_kernel_v1.h"
+#include "service/kernel/service_algo_utils.h"
 
 namespace daal
 {

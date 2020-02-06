@@ -28,7 +28,7 @@
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
 #include "services/daal_defines.h"
-#include "objective_function_types.h"
+#include "algorithms/optimization_solver/objective_function/objective_function_types.h"
 
 namespace daal
 {

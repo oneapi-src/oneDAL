@@ -24,7 +24,7 @@
 #ifndef __DBSCAN_PARTIAL_RESULT__
 #define __DBSCAN_PARTIAL_RESULT__
 
-#include "dbscan_types.h"
+#include "algorithms/dbscan/dbscan_types.h"
 
 using namespace daal::data_management;
 

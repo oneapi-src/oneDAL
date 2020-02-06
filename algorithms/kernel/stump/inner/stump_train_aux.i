@@ -24,10 +24,10 @@
 #ifndef __STUMP_TRAIN_AUX_I__
 #define __STUMP_TRAIN_AUX_I__
 
-#include "daal_defines.h"
-#include "service_memory.h"
-#include "service_micro_table.h"
-#include "service_numeric_table.h"
+#include "services/daal_defines.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_micro_table.h"
+#include "service/kernel/data_management/service_numeric_table.h"
 
 using namespace daal::data_management;
 

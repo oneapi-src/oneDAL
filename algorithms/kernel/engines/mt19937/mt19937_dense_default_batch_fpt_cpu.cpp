@@ -19,9 +19,9 @@
 //  Implementation of mt19937 calculation functions.
 //--
 
-#include "mt19937_batch_container.h"
-#include "mt19937_kernel.h"
-#include "mt19937_impl.i"
+#include "algorithms/kernel/engines/mt19937/mt19937_batch_container.h"
+#include "algorithms/kernel/engines/mt19937/mt19937_kernel.h"
+#include "algorithms/kernel/engines/mt19937/mt19937_impl.i"
 
 namespace daal
 {

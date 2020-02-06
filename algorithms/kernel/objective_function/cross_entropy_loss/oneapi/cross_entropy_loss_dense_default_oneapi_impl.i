@@ -21,10 +21,10 @@
 //--
 */
 
-#include "oneapi/math_service_types.h"
-#include "oneapi/blas_gpu.h"
-#include "cl_kernel/cross_entropy_loss_dense_default.cl"
-#include "service_ittnotify.h"
+#include "service/kernel/oneapi/math_service_types.h"
+#include "service/kernel/oneapi/blas_gpu.h"
+#include "algorithms/kernel/objective_function/cross_entropy_loss/oneapi/cl_kernel/cross_entropy_loss_dense_default.cl"
+#include "externals/service_ittnotify.h"
 
 DAAL_ITTNOTIFY_DOMAIN(optimization_solver.cross_entropy_loss.batch.oneapi);
 

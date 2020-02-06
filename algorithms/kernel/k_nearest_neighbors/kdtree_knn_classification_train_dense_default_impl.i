@@ -24,20 +24,20 @@
 #ifndef __KDTREE_KNN_CLASSIFICATION_TRAIN_DENSE_DEFAULT_IMPL_I__
 #define __KDTREE_KNN_CLASSIFICATION_TRAIN_DENSE_DEFAULT_IMPL_I__
 
-#include "daal_defines.h"
-#include "threading.h"
-#include "daal_atomic_int.h"
-#include "service_memory.h"
-#include "service_numeric_table.h"
-#include "service_data_utils.h"
-#include "service_math.h"
-#include "service_rng.h"
-#include "service_sort.h"
-#include "numeric_table.h"
-#include "kdtree_knn_classification_model_impl.h"
-#include "kdtree_knn_classification_train_kernel.h"
-#include "kdtree_knn_impl.i"
-#include "engine_batch_impl.h"
+#include "services/daal_defines.h"
+#include "algorithms/threading/threading.h"
+#include "services/daal_atomic_int.h"
+#include "externals/service_memory.h"
+#include "service/kernel/data_management/service_numeric_table.h"
+#include "service/kernel/service_data_utils.h"
+#include "externals/service_math.h"
+#include "externals/service_rng.h"
+#include "algorithms/kernel/service_sort.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h"
+#include "algorithms/kernel/k_nearest_neighbors/kdtree_knn_impl.i"
+#include "algorithms/kernel/engines/engine_batch_impl.h"
 
 #if defined(__INTEL_COMPILER_BUILD_DATE)
     #include <immintrin.h>

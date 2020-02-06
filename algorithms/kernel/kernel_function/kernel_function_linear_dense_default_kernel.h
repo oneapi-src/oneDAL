@@ -24,8 +24,8 @@
 #ifndef __KERNEL_FUNCTION_DENSE_KERNEL_H__
 #define __KERNEL_FUNCTION_DENSE_KERNEL_H__
 
-#include "kernel_function_dense_base.h"
-#include "kernel_function_linear_base.h"
+#include "algorithms/kernel/kernel_function/kernel_function_dense_base.h"
+#include "algorithms/kernel/kernel_function/kernel_function_linear_base.h"
 
 using namespace daal::internal;
 

@@ -18,7 +18,7 @@
 #ifndef __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_UCAPI_IMPL_I__
 #define __BF_KNN_CLASSIFICATION_TRAIN_KERNEL_UCAPI_IMPL_I__
 
-#include "bf_knn_classification_train_kernel_ucapi.h"
+#include "algorithms/kernel/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h"
 
 namespace daal
 {

@@ -18,7 +18,7 @@
 #ifndef __SERVICE_TOPO_H__
 #define __SERVICE_TOPO_H__
 
-#include "daal_defines.h"
+#include "services/daal_defines.h"
 #if !defined(DAAL_CPU_TOPO_DISABLED)
 
     #if defined(__linux__) || defined(__FreeBSD__)

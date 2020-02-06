@@ -24,10 +24,10 @@
 #ifndef __DBSCAN_KERNEL_H
 #define __DBSCAN_KERNEL_H
 
-#include "dbscan_types.h"
-#include "kernel.h"
-#include "numeric_table.h"
-#include "dbscan_utils.h"
+#include "algorithms/dbscan/dbscan_types.h"
+#include "algorithms/kernel/kernel.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/kernel/dbscan/dbscan_utils.h"
 
 using namespace daal::data_management;
 

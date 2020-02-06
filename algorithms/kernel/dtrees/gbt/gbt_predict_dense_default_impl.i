@@ -25,11 +25,11 @@
 #ifndef __GBT_PREDICT_DENSE_DEFAULT_IMPL_I__
 #define __GBT_PREDICT_DENSE_DEFAULT_IMPL_I__
 
-#include "dtrees_model_impl.h"
-#include "dtrees_train_data_helper.i"
-#include "dtrees_predict_dense_default_impl.i"
-#include "dtrees_feature_type_helper.h"
-#include "gbt_internal.h"
+#include "algorithms/kernel/dtrees/dtrees_model_impl.h"
+#include "algorithms/kernel/dtrees/dtrees_train_data_helper.i"
+#include "algorithms/kernel/dtrees/dtrees_predict_dense_default_impl.i"
+#include "algorithms/kernel/dtrees/dtrees_feature_type_helper.h"
+#include "algorithms/kernel/dtrees/gbt/gbt_internal.h"
 
 namespace daal
 {

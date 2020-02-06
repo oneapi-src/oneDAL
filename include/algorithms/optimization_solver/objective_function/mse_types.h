@@ -27,7 +27,7 @@
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
-#include "sum_of_functions_types.h"
+#include "algorithms/optimization_solver/objective_function/sum_of_functions_types.h"
 
 namespace daal
 {
