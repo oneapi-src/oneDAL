@@ -37,7 +37,7 @@ namespace classification
 {
 namespace prediction
 {
-namespace interface2
+namespace interface3
 {
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
@@ -54,27 +54,28 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    Input * input                           = static_cast<Input *>(_in);
-    classifier::prediction::Result * result = static_cast<classifier::prediction::Result *>(_res);
-    const classifier::Parameter * par       = static_cast<classifier::Parameter *>(_par);
-    decision_forest::classification::Model * m =
+    const Input * const input                     = static_cast<Input *>(_in);
+    classifier::prediction::Result * const result = static_cast<classifier::prediction::Result *>(_res);
+    const decision_forest::classification::prediction::Parameter * const par =
+        dynamic_cast<decision_forest::classification::prediction::Parameter *>(_par);
+    const decision_forest::classification::Model * const m =
         static_cast<decision_forest::classification::Model *>(input->get(classifier::prediction::model).get());
 
-    NumericTable * a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
-    NumericTable * r =
+    const NumericTable * const a = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
+    NumericTable * const r =
         ((par->resultsToEvaluate & classifier::ResultToComputeId::computeClassLabels) ? result->get(classifier::prediction::prediction).get() :
                                                                                         nullptr);
-    NumericTable * prob = ((par->resultsToEvaluate & classifier::ResultToComputeId::computeClassProbabilities) ?
-                               result->get(classifier::prediction::probabilities).get() :
-                               nullptr);
+    NumericTable * const prob = ((par->resultsToEvaluate & classifier::ResultToComputeId::computeClassProbabilities) ?
+                                     result->get(classifier::prediction::probabilities).get() :
+                                     nullptr);
 
-    daal::services::Environment::env & env = *_env;
+    const daal::services::Environment::env & env = *_env;
 
+    const VotingMethod votingMethod = par->votingMethod;
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       daal::services::internal::hostApp(*input), a, m, r, prob, par->nClasses);
+                       daal::services::internal::hostApp(*const_cast<Input *>(input)), a, m, r, prob, par->nClasses, votingMethod);
 }
-
-} // namespace interface2
+} // namespace interface3
 } // namespace prediction
 } // namespace classification
 } // namespace decision_forest
