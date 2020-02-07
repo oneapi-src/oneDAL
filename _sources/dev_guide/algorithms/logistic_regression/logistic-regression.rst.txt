@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2019 Intel Corporation
+.. * Copyright 2014-2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -189,22 +189,10 @@ parameter to the methods that access the results of your algorithm.
    * - Result ID
      - Result
    * - probabilities
-     - Numeric table of size:
-
-       - :math:`n \times 1`, if nClasses = 2
-       - :math:`n \times nClasses`, if nClasses > 2
-
-       containing probabilities of classes computed when computeClassesProbabilities option is enabled. 
-       If nClasses = 2, the table contains probabilities of class "1". 
+     - Numeric table of size :math:`n \times nClasses` containing probabilities of classes computed when computeClassesProbabilities option is enabled.
 
    * - logProbabilities
-     - Numeric table of size: 
-
-       - :math:`n \times 1`, if nClasses = 2 
-       - :math:`n \times nClasses`, if nClasses > 2
-
-       containing logarithms of classes' probabilities computed when computeClassesLogProbabilities option is enabled. 
-       If nClasses = 2, the table contains logarithms probabilities of class "1". 
+     - Numeric table of size :math:`n \times nClasses` containing logarithms of classes' probabilities computed when computeClassesLogProbabilities option is enabled.
 
 
 

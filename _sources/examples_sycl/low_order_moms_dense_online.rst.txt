@@ -1,0 +1,5 @@
+low_order_moms_dense_online.cpp
+###############################
+
+.. literalinclude:: ../../../examples/cpp_sycl/source/moments/low_order_moms_dense_online.cpp
+  :language: cpp

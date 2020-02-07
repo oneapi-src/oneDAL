@@ -1,0 +1,5 @@
+cor_dense_online.cpp
+####################
+
+.. literalinclude:: ../../../examples/cpp_sycl/source/covariance/cor_dense_online.cpp
+  :language: cpp

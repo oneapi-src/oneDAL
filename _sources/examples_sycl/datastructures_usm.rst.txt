@@ -1,0 +1,5 @@
+datastructures_usm.cpp
+######################
+
+.. literalinclude:: ../../../examples/cpp_sycl/source/datasource/datastructures_usm.cpp
+  :language: cpp

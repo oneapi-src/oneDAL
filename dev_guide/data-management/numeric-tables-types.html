@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Types of Numeric Tables &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation (Beta) beta03 documentation</title>
+  <title>Types of Numeric Tables &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation 1.0 documentation</title>
   
 
   
@@ -54,7 +54,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home"> Intel&reg; oneAPI Data Analytics Library Documentation (Beta)
+            <a href="../../index.html" class="icon icon-home"> Intel&reg; oneAPI Data Analytics Library Documentation
           
 
           
@@ -472,13 +472,32 @@
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../sycl_examples.html">SYCL* Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notes/known_issues.html">Known Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notes/known_issues.html#dll-file-not-found">DLL file not found</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../notes/known_issues.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -495,7 +514,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">Intel&reg; oneAPI Data Analytics Library Documentation (Beta)</a>
+          <a href="../../index.html">Intel&reg; oneAPI Data Analytics Library Documentation</a>
         
       </nav>
 
@@ -627,8 +646,8 @@ that are laid out in a contiguous memory block:</p>
 <a class="reference internal image-reference" href="../../_images/aos-layout.png"><img alt="../../_images/aos-layout.png" src="../../_images/aos-layout.png" style="width: 600px;" /></a>
 <div class="section" id="examples">
 <h4>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h4>
-<p>C++: <a class="reference external" href="https://github.com/intel/daal/tree/master/examples/cpp/source/datasource/datastructures_aos.cpp">datasource/datastructures_aos.cpp</a></p>
-<p>Java*: <a class="reference external" href="https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/datasource/DataStructuresAOS.java">datasource/DataStructuresAOS.java</a></p>
+<p>C++: <a class="reference external" href="https://github.com/intel/daal/tree/rls/onedal-beta04-rls/examples/cpp/source/datasource/datastructures_aos.cpp">datasource/datastructures_aos.cpp</a></p>
+<p>Java*: <a class="reference external" href="https://github.com/intel/daal/tree/rls/onedal-beta04-rls/examples/java/com/intel/daal/examples/datasource/DataStructuresAOS.java">datasource/DataStructuresAOS.java</a></p>
 </div>
 </div>
 <div class="section" id="soa-numeric-table">
@@ -638,8 +657,8 @@ for each feature are laid out contiguously in memory:</p>
 <a class="reference internal image-reference" href="../../_images/soa-layout.png"><img alt="../../_images/soa-layout.png" src="../../_images/soa-layout.png" style="width: 600px;" /></a>
 <div class="section" id="id2">
 <h4>Examples<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
-<p>C++: <a class="reference external" href="https://github.com/intel/daal/tree/master/examples/cpp/source/datasource/datastructures_soa.cpp">datasource/datastructures_soa.cpp</a></p>
-<p>Java*: <a class="reference external" href="https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/datasource/DataStructuresSOA.java">datasource/DataStructuresSOA.java</a></p>
+<p>C++: <a class="reference external" href="https://github.com/intel/daal/tree/rls/onedal-beta04-rls/examples/cpp/source/datasource/datastructures_soa.cpp">datasource/datastructures_soa.cpp</a></p>
+<p>Java*: <a class="reference external" href="https://github.com/intel/daal/tree/rls/onedal-beta04-rls/examples/java/com/intel/daal/examples/datasource/DataStructuresSOA.java">datasource/DataStructuresSOA.java</a></p>
 </div>
 </div>
 </div>
@@ -690,8 +709,8 @@ specify it by providingoneBased value through the indexing parameter
 of type <code class="docutils literal notranslate"><span class="pre">CSRIndexing</span></code> in the constructor of <code class="docutils literal notranslate"><span class="pre">CSRNumericTable</span></code>.</p>
 <div class="section" id="id3">
 <h3>Examples<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<p>C++: <a class="reference external" href="https://github.com/intel/daal/tree/master/examples/cpp/source/datasource/datastructures_csr.cpp">datasource/datastructures_csr.cpp</a></p>
-<p>Java*: <a class="reference external" href="https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/datasource/DataStructuresCSR.java">datasource/DataStructuresCSR.java</a></p>
+<p>C++: <a class="reference external" href="https://github.com/intel/daal/tree/rls/onedal-beta04-rls/examples/cpp/source/datasource/datastructures_csr.cpp">datasource/datastructures_csr.cpp</a></p>
+<p>Java*: <a class="reference external" href="https://github.com/intel/daal/tree/rls/onedal-beta04-rls/examples/java/com/intel/daal/examples/datasource/DataStructuresCSR.java">datasource/DataStructuresCSR.java</a></p>
 </div>
 </div>
 <div class="section" id="merged-numeric-table">
@@ -712,8 +731,8 @@ rows in the i-th matrix, <span class="math notranslate nohighlight">\(i = 1, 2, 
 <a class="reference internal image-reference" href="../../_images/merged-numeric-table.png"><img alt="../../_images/merged-numeric-table.png" src="../../_images/merged-numeric-table.png" style="width: 400px;" /></a>
 <div class="section" id="id4">
 <h3>Examples<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<p>C++: <a class="reference external" href="https://github.com/intel/daal/tree/master/examples/cpp/source/datasource/datastructures_merged.cpp">datasource/datastructures_merged.cpp</a></p>
-<p>Java*: <a class="reference external" href="https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/datasource/DataStructuresMerged.java">datasource/DataStructuresMerged.java</a></p>
+<p>C++: <a class="reference external" href="https://github.com/intel/daal/tree/rls/onedal-beta04-rls/examples/cpp/source/datasource/datastructures_merged.cpp">datasource/datastructures_merged.cpp</a></p>
+<p>Java*: <a class="reference external" href="https://github.com/intel/daal/tree/rls/onedal-beta04-rls/examples/java/com/intel/daal/examples/datasource/DataStructuresMerged.java">datasource/DataStructuresMerged.java</a></p>
 </div>
 </div>
 </div>
@@ -738,7 +757,7 @@ rows in the i-th matrix, <span class="math notranslate nohighlight">\(i = 1, 2, 
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2014 - 2019, Intel Corporation
+        &copy; Copyright 2014 - 2020, Intel Corporation
 
     </p>
   </div>

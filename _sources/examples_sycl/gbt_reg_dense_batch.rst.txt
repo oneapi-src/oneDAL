@@ -1,0 +1,5 @@
+gbt_reg_dense_batch.cpp
+#######################
+
+.. literalinclude:: ../../../examples/cpp_sycl/source/gradient_boosted_trees/gbt_reg_dense_batch.cpp
+  :language: cpp

@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2019 Intel Corporation
+.. * Copyright 2014-2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ For general information, visit |github|_. The complete
 list of features and documentation are available at |daal-docs|_.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Introduction
 
    getstarted.rst
@@ -62,3 +62,9 @@ list of features and documentation are available at |daal-docs|_.
    :caption: Examples
 
    sycl_examples.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Notes
+
+   notes/known_issues.rst

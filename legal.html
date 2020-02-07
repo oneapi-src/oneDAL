@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Notices and Disclaimers &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation (Beta) beta03 documentation</title>
+  <title>Notices and Disclaimers &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation 1.0 documentation</title>
   
 
   
@@ -54,7 +54,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Intel&reg; oneAPI Data Analytics Library Documentation (Beta)
+            <a href="index.html" class="icon icon-home"> Intel&reg; oneAPI Data Analytics Library Documentation
           
 
           
@@ -472,13 +472,32 @@
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="sycl_examples.html">SYCL* Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/known_issues.html">Known Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notes/known_issues.html#dll-file-not-found">DLL file not found</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notes/known_issues.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -495,7 +514,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Intel&reg; oneAPI Data Analytics Library Documentation (Beta)</a>
+          <a href="index.html">Intel&reg; oneAPI Data Analytics Library Documentation</a>
         
       </nav>
 
@@ -547,24 +566,24 @@
             
   <div class="section" id="notices-and-disclaimers">
 <h1>Notices and Disclaimers<a class="headerlink" href="#notices-and-disclaimers" title="Permalink to this headline">¶</a></h1>
-<p>No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document.</p>
-<p>Intel technologies’ features and benefits depend on system configuration and may require enabled hardware, software or service activation.
-Performance varies depending on system configuration. No product or component can be absolutely secure.
-Check with your system manufacturer or retailer or learn more at <a class="reference external" href="intel.com">intel.com</a>.</p>
-<p>The products and services described may contain defects or errors which may cause deviations from published specifications.
-Current characterized errata are available on request.</p>
-<p>Intel disclaims all express and implied warranties, including without limitation, the implied warranties of merchantability, fitness for a particular purpose,
-and non-infringement, as well as any warranty arising from course of performance, course of dealing, or usage in trade.</p>
+<p>No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted
+by this document.</p>
+<p>This document contains information on products, services and/or processes in development.
+All information provided here is subject to change without notice.
+Contact your Intel representative to obtain the latest forecast, schedule, specifications and roadmaps.</p>
+<p>Intel technologies’ features and benefits depend on system configuration and may require enabled hardware,
+software or service activation. Performance varies depending on system configuration.
+No product or component can be absolutely secure. Check with your system manufacturer or retailer or learn more at [intel.com].</p>
+<p>The products and services described may contain defects or errors which may cause deviations from
+published specifications. Current characterized errata are available on request.</p>
+<p>Intel disclaims all express and implied warranties, including without limitation, the implied warranties of
+merchantability, fitness for a particular purpose, and non-infringement, as well as any warranty arising
+from course of performance, course of dealing, or usage in trade.</p>
 <p>Intel, the Intel logo and Xeon are trademarks of Intel Corporation in the U.S. and/or other countries.</p>
-<p>Microsoft, Windows, and the Windows logo are trademarks, or registered trademarks of Microsoft Corporation in the United States and/or other countries.</p>
+<p>Microsoft, Windows, and the Windows logo are trademarks, or registered trademarks of Microsoft Corporation
+in the United States and/or other countries.</p>
 <p>OpenCL and the OpenCL logo are trademarks of Apple Inc. used by permission of The Khronos Group.</p>
 <p>*Other names and brands may be claimed as the property of others.</p>
-<p>This document contains information on products, services and/or processes in development. All information provided here is subject to change without notice.
-Contact your Intel representative to obtain the latest forecast, schedule, specifications and roadmaps.</p>
-<p>This software and the related documents are Intel copyrighted materials, and your use of them is governed by the express license under which they were provided to you (License).
-Unless the License provides otherwise, you may not use, modify, copy, publish, distribute, disclose or transmit this software or the related documents without Intel’s prior written permission.</p>
-<p>Intel, the Intel logo, Intel Atom, Intel Arria, Intel Core, VTune, Arria, Advisor, and Xeon are trademarks of Intel Corporation in the U.S. and/or other countries.</p>
-<p>This software and the related documents are provided as is, with no express or implied warranties, other than those that are expressly stated in the License.</p>
 <p><strong>© Intel Corporation.</strong></p>
 <table class="docutils align-default">
 <colgroup>
@@ -614,7 +633,7 @@ instruction sets covered by this notice.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2014 - 2019, Intel Corporation
+        &copy; Copyright 2014 - 2020, Intel Corporation
 
     </p>
   </div>

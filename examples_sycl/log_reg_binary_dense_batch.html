@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>log_reg_binary_dense_batch.cpp &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation (Beta) beta03 documentation</title>
+  <title>log_reg_binary_dense_batch.cpp &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation 1.0 documentation</title>
   
 
   
@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="log_reg_dense_batch.cpp" href="log_reg_dense_batch.html" />
-    <link rel="prev" title="kmeans_init_dense_batch.cpp" href="kmeans_init_dense_batch.html" />
+    <link rel="prev" title="lin_reg_norm_eq_dense_batch.cpp" href="lin_reg_norm_eq_dense_batch.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -54,7 +54,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> Intel&reg; oneAPI Data Analytics Library Documentation (Beta)
+            <a href="../index.html" class="icon icon-home"> Intel&reg; oneAPI Data Analytics Library Documentation
           
 
           
@@ -472,13 +472,32 @@
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../sycl_examples.html">SYCL* Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cor_dense_batch.html">cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cor_dense_online.html">cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructures_soa.html">datastructures_soa.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructures_usm.html">datastructures_usm.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">log_reg_binary_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notes/known_issues.html">Known Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../notes/known_issues.html#dll-file-not-found">DLL file not found</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notes/known_issues.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -495,7 +514,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Intel&reg; oneAPI Data Analytics Library Documentation (Beta)</a>
+          <a href="../index.html">Intel&reg; oneAPI Data Analytics Library Documentation</a>
         
       </nav>
 
@@ -551,7 +570,7 @@
 <h1>log_reg_binary_dense_batch.cpp<a class="headerlink" href="#log-reg-binary-dense-batch-cpp" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/* file: log_reg_binary_dense_batch.cpp */</span>
 <span class="cm">/*******************************************************************************</span>
-<span class="cm">* Copyright 2014-2019 Intel Corporation</span>
+<span class="cm">* Copyright 2014-2020 Intel Corporation</span>
 <span class="cm">*</span>
 <span class="cm">* Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
 <span class="cm">* you may not use this file except in compliance with the License.</span>
@@ -591,24 +610,24 @@
 
 <span class="cm">/* Input data set parameters */</span>
 <span class="k">const</span> <span class="n">string</span> <span class="n">trainDatasetFileName</span> <span class="o">=</span> <span class="s">&quot;../data/batch/binary_cls_train.csv&quot;</span><span class="p">;</span>
-<span class="k">const</span> <span class="n">string</span> <span class="n">testDatasetFileName</span> <span class="o">=</span> <span class="s">&quot;../data/batch/binary_cls_test.csv&quot;</span><span class="p">;</span>
-<span class="k">const</span> <span class="kt">size_t</span> <span class="n">nFeatures</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>  <span class="cm">/* Number of features in training and testing data sets */</span>
+<span class="k">const</span> <span class="n">string</span> <span class="n">testDatasetFileName</span>  <span class="o">=</span> <span class="s">&quot;../data/batch/binary_cls_test.csv&quot;</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">size_t</span> <span class="n">nFeatures</span>            <span class="o">=</span> <span class="mi">20</span><span class="p">;</span> <span class="cm">/* Number of features in training and testing data sets */</span>
 
 <span class="cm">/* Logistic regression training parameters */</span>
-<span class="k">const</span> <span class="kt">size_t</span> <span class="n">nClasses</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>  <span class="cm">/* Number of classes */</span>
+<span class="k">const</span> <span class="kt">size_t</span> <span class="n">nClasses</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="cm">/* Number of classes */</span>
 
-<span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="n">trainModel</span><span class="p">(</span><span class="k">const</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">trainData</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">trainDependentVariable</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">testModel</span><span class="p">(</span><span class="k">const</span> <span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span><span class="o">&amp;</span> <span class="n">res</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">testData</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">loadData</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">pData</span><span class="p">,</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">pDependentVar</span><span class="p">);</span>
+<span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="n">trainModel</span><span class="p">(</span><span class="k">const</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">trainData</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">trainDependentVariable</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">testModel</span><span class="p">(</span><span class="k">const</span> <span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="o">&amp;</span> <span class="n">res</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">testData</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">loadData</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&amp;</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">pData</span><span class="p">,</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">pDependentVar</span><span class="p">);</span>
 
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
 <span class="p">{</span>
     <span class="n">checkArguments</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">trainDatasetFileName</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">testDatasetFileName</span><span class="p">);</span>
 
-    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="nl">deviceSelector</span> <span class="p">:</span> <span class="n">getListOfDevices</span><span class="p">())</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span> <span class="nl">deviceSelector</span> <span class="p">:</span> <span class="n">getListOfDevices</span><span class="p">())</span>
     <span class="p">{</span>
-        <span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="n">nameDevice</span> <span class="o">=</span> <span class="n">deviceSelector</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
-        <span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="n">device</span> <span class="o">=</span> <span class="n">deviceSelector</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+        <span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span> <span class="n">nameDevice</span> <span class="o">=</span> <span class="n">deviceSelector</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+        <span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span> <span class="n">device</span>     <span class="o">=</span> <span class="n">deviceSelector</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
         <span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span> <span class="n">queue</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Running on &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">nameDevice</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">;</span>
 
@@ -626,12 +645,11 @@
         <span class="n">loadData</span><span class="p">(</span><span class="n">testDatasetFileName</span><span class="p">,</span> <span class="n">testData</span><span class="p">,</span> <span class="n">testGroundTruth</span><span class="p">);</span>
 
         <span class="n">testModel</span><span class="p">(</span><span class="n">trainingResult</span><span class="p">,</span> <span class="n">testData</span><span class="p">,</span> <span class="n">testGroundTruth</span><span class="p">);</span>
-
     <span class="p">}</span>
     <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="n">trainModel</span><span class="p">(</span><span class="k">const</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">trainData</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">trainDependentVariable</span><span class="p">)</span>
+<span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="n">trainModel</span><span class="p">(</span><span class="k">const</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">trainData</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">trainDependentVariable</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="cm">/* Create an algorithm object to train the logistic regression model */</span>
     <span class="n">training</span><span class="o">::</span><span class="n">Batch</span><span class="o">&lt;&gt;</span> <span class="n">algorithm</span><span class="p">(</span><span class="n">nClasses</span><span class="p">);</span>
@@ -639,15 +657,15 @@
     <span class="cm">/* Pass a training data set and dependent values to the algorithm */</span>
     <span class="n">algorithm</span><span class="p">.</span><span class="n">input</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">data</span><span class="p">,</span> <span class="n">trainData</span><span class="p">);</span>
     <span class="n">algorithm</span><span class="p">.</span><span class="n">input</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">labels</span><span class="p">,</span> <span class="n">trainDependentVariable</span><span class="p">);</span>
-    <span class="n">algorithm</span><span class="p">.</span><span class="n">parameter</span><span class="p">().</span><span class="n">penaltyL2</span> <span class="o">=</span> <span class="mf">0.1f</span><span class="p">;</span>
+    <span class="n">algorithm</span><span class="p">.</span><span class="n">parameter</span><span class="p">().</span><span class="n">penaltyL2</span>     <span class="o">=</span> <span class="mf">0.1f</span><span class="p">;</span>
     <span class="n">algorithm</span><span class="p">.</span><span class="n">parameter</span><span class="p">().</span><span class="n">interceptFlag</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
 
     <span class="cm">/* Set optimization solver SGD mini-batch */</span>
     <span class="k">using</span> <span class="n">SolverType</span> <span class="o">=</span> <span class="n">optimization_solver</span><span class="o">::</span><span class="n">sgd</span><span class="o">::</span><span class="n">Batch</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="n">optimization_solver</span><span class="o">::</span><span class="n">sgd</span><span class="o">::</span><span class="n">miniBatch</span><span class="o">&gt;</span><span class="p">;</span>
     <span class="n">services</span><span class="o">::</span><span class="n">SharedPtr</span><span class="o">&lt;</span><span class="n">SolverType</span><span class="o">&gt;</span> <span class="n">solver</span><span class="p">(</span><span class="k">new</span> <span class="n">SolverType</span><span class="p">());</span>
 
-    <span class="n">solver</span><span class="o">-&gt;</span><span class="n">parameter</span><span class="p">.</span><span class="n">nIterations</span> <span class="o">=</span> <span class="mi">200</span><span class="p">;</span>
-    <span class="n">solver</span><span class="o">-&gt;</span><span class="n">parameter</span><span class="p">.</span><span class="n">batchSize</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">solver</span><span class="o">-&gt;</span><span class="n">parameter</span><span class="p">.</span><span class="n">nIterations</span>       <span class="o">=</span> <span class="mi">200</span><span class="p">;</span>
+    <span class="n">solver</span><span class="o">-&gt;</span><span class="n">parameter</span><span class="p">.</span><span class="n">batchSize</span>         <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
     <span class="n">solver</span><span class="o">-&gt;</span><span class="n">parameter</span><span class="p">.</span><span class="n">accuracyThreshold</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">;</span>
 
     <span class="n">algorithm</span><span class="p">.</span><span class="n">parameter</span><span class="p">().</span><span class="n">optimizationSolver</span> <span class="o">=</span> <span class="n">solver</span><span class="p">;</span>
@@ -656,9 +674,9 @@
     <span class="n">algorithm</span><span class="p">.</span><span class="n">compute</span><span class="p">();</span>
 
     <span class="cm">/* Retrieve the algorithm results */</span>
-    <span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="n">trainingResult</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">.</span><span class="n">getResult</span><span class="p">();</span>
+    <span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="n">trainingResult</span>     <span class="o">=</span> <span class="n">algorithm</span><span class="p">.</span><span class="n">getResult</span><span class="p">();</span>
     <span class="n">logistic_regression</span><span class="o">::</span><span class="n">ModelPtr</span> <span class="n">modelptr</span> <span class="o">=</span> <span class="n">trainingResult</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">model</span><span class="p">);</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">modelptr</span><span class="p">.</span><span class="n">get</span><span class="p">())</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">modelptr</span><span class="p">.</span><span class="n">get</span><span class="p">())</span>
     <span class="p">{</span>
         <span class="n">printNumericTable</span><span class="p">(</span><span class="n">modelptr</span><span class="o">-&gt;</span><span class="n">getBeta</span><span class="p">(),</span> <span class="s">&quot;Logistic Regression coefficients:&quot;</span><span class="p">);</span>
     <span class="p">}</span>
@@ -669,7 +687,7 @@
     <span class="k">return</span> <span class="n">trainingResult</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="kt">void</span> <span class="n">testModel</span><span class="p">(</span><span class="k">const</span> <span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span><span class="o">&amp;</span> <span class="n">trainingResult</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">testData</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">)</span>
+<span class="kt">void</span> <span class="n">testModel</span><span class="p">(</span><span class="k">const</span> <span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="o">&amp;</span> <span class="n">trainingResult</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">testData</span><span class="p">,</span> <span class="k">const</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="cm">/* Create an algorithm object to predict values of logistic regression */</span>
     <span class="n">prediction</span><span class="o">::</span><span class="n">Batch</span><span class="o">&lt;&gt;</span> <span class="n">algorithm</span><span class="p">(</span><span class="n">nClasses</span><span class="p">);</span>
@@ -683,20 +701,17 @@
 
     <span class="cm">/* Retrieve the algorithm results */</span>
     <span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="n">predictionResult</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">.</span><span class="n">getResult</span><span class="p">();</span>
-    <span class="n">printNumericTable</span><span class="p">(</span><span class="n">predictionResult</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">prediction</span><span class="p">),</span>
-        <span class="s">&quot;Logistic regression prediction results (first 10 rows):&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+    <span class="n">printNumericTable</span><span class="p">(</span><span class="n">predictionResult</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">prediction</span><span class="p">),</span> <span class="s">&quot;Logistic regression prediction results (first 10 rows):&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
     <span class="n">printNumericTable</span><span class="p">(</span><span class="n">testGroundTruth</span><span class="p">,</span> <span class="s">&quot;Ground truth (first 10 rows):&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
 <span class="p">}</span>
 
-<span class="kt">void</span> <span class="n">loadData</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">pData</span><span class="p">,</span> <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">pDependentVar</span><span class="p">)</span>
+<span class="kt">void</span> <span class="n">loadData</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&amp;</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">pData</span><span class="p">,</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">pDependentVar</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="cm">/* Initialize FileDataSource&lt;CSVFeatureManager&gt; to retrieve the input data from a .csv file */</span>
-    <span class="n">FileDataSource</span><span class="o">&lt;</span><span class="n">CSVFeatureManager</span><span class="o">&gt;</span> <span class="n">trainDataSource</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span>
-        <span class="n">DataSource</span><span class="o">::</span><span class="n">notAllocateNumericTable</span><span class="p">,</span>
-        <span class="n">DataSource</span><span class="o">::</span><span class="n">doDictionaryFromContext</span><span class="p">);</span>
+    <span class="n">FileDataSource</span><span class="o">&lt;</span><span class="n">CSVFeatureManager</span><span class="o">&gt;</span> <span class="n">trainDataSource</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">::</span><span class="n">notAllocateNumericTable</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">::</span><span class="n">doDictionaryFromContext</span><span class="p">);</span>
 
     <span class="cm">/* Create Numeric Tables for training data and dependent variables */</span>
-    <span class="n">pData</span> <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="n">nFeatures</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">notAllocate</span><span class="p">);</span>
+    <span class="n">pData</span>         <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="n">nFeatures</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">notAllocate</span><span class="p">);</span>
     <span class="n">pDependentVar</span> <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">notAllocate</span><span class="p">);</span>
     <span class="n">NumericTablePtr</span> <span class="nf">mergedData</span><span class="p">(</span><span class="k">new</span> <span class="n">MergedNumericTable</span><span class="p">(</span><span class="n">pData</span><span class="p">,</span> <span class="n">pDependentVar</span><span class="p">));</span>
 
@@ -718,7 +733,7 @@
         <a href="log_reg_dense_batch.html" class="btn btn-neutral float-right" title="log_reg_dense_batch.cpp" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="kmeans_init_dense_batch.html" class="btn btn-neutral float-left" title="kmeans_init_dense_batch.cpp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="lin_reg_norm_eq_dense_batch.html" class="btn btn-neutral float-left" title="lin_reg_norm_eq_dense_batch.cpp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -727,7 +742,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2014 - 2019, Intel Corporation
+        &copy; Copyright 2014 - 2020, Intel Corporation
 
     </p>
   </div>
