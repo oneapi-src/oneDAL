@@ -38,7 +38,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Intel&reg; oneAPI Data Analytics Library Documentation'
-copyright = '2014 - 2019, Intel Corporation'
+copyright = '2014 - 2020, Intel Corporation'
 author = 'Intel'
 
 # The full version, including alpha/beta/rc tags
