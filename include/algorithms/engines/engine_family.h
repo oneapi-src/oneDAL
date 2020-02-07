@@ -90,6 +90,9 @@ protected:
     virtual size_t getMaxNumberOfStreamsImpl() const { return 0; }
 
     FamilyBatchBase(const FamilyBatchBase & other);
+
+private:
+    FamilyBatchBase& operator=(const FamilyBatchBase&);
 };
 typedef services::SharedPtr<FamilyBatchBase> FamilyEnginePtr;
 

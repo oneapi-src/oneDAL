@@ -151,6 +151,9 @@ protected:
         _res               = _result.get();
         return s;
     }
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface1

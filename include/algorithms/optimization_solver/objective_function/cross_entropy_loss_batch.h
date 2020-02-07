@@ -186,6 +186,9 @@ protected:
 
 public:
     InputType input; /*!< %Input data structure */
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface1
@@ -325,6 +328,9 @@ protected:
 
 public:
     InputType input; /*!< %Input data structure */
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface2

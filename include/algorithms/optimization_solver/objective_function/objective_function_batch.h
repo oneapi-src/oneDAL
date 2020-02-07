@@ -113,6 +113,9 @@ protected:
 
 protected:
     objective_function::ResultPtr _result;
+
+private:
+    Batch& operator=(const Batch&);
 };
 /** @} */
 } // namespace interface1
