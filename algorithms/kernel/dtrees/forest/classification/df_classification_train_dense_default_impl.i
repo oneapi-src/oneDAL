@@ -71,7 +71,7 @@ public:
         Histogramm      hist;
 
         ImpurityData(){}
-        ImpurityData(size_t nClasses) : hist(nClasses), var(0){}
+        ImpurityData(size_t nClasses) : hist(nClasses), var(0) {}
         algorithmFPType value() const { return var; }
         void init(size_t nClasses) { var = 0; hist.resize(nClasses, 0); }
     };
@@ -137,6 +137,8 @@ public:
         DAAL_ASSERT(n > 0);
         node.count = n;
         node.impurity = imp.var;
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i<_nClasses; ++i)
         {
             node.hist[i] = imp.hist[i];
@@ -418,6 +420,8 @@ bool UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitCategoricalFeature(
         }
         if((count < nMinSplitPart) || ((n - count) < nMinSplitPart))
             continue;
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for(size_t j = 0; j < _nClasses; ++j)
             _impRight.hist[j] = curImpurity.hist[j] - _impLeft.hist[j];
         calcGini(count, _impLeft);
@@ -517,7 +521,6 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
         {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
-            //one against others
             for(size_t iClass = 0; iClass < _nClasses; ++iClass)
                 histLeft[iClass] = nSamplesPerClass[i*_nClasses + iClass];
         }
@@ -615,9 +618,9 @@ int UnorderedRespHelper<algorithmFPType, cpu>::findBestSplitForFeatureSorted(alg
         if(!split.featureUnordered)
         {
             PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for(size_t iClass = 0; iClass < _nClasses; ++iClass)
-                    histLeft[iClass] += nSamplesPerClass[i*_nClasses + iClass];
+            PRAGMA_VECTOR_ALWAYS
+            for(size_t iClass = 0; iClass < _nClasses; ++iClass)
+                histLeft[iClass] += nSamplesPerClass[i*_nClasses + iClass];
         }
         if(nLeft < nMinSplitPart)
             continue;
@@ -727,6 +730,8 @@ public:
         {
             OOBClassificationData* dst = (OOBClassificationData*)other.oobBuf;
             const OOBClassificationData* src = (const OOBClassificationData*)this->oobBuf;
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for(size_t i = 0, n = _nClasses*nSamples; i < n; ++i)
                 dst[i] += src[i];
         }

@@ -247,9 +247,6 @@ bool ModelImpl::add(const TreeType& tree, size_t nClasses)
         delete probTbl;
         return false;
     }
-    auto prob = probTbl;
-    double *probVals      = prob->getArray();
-
 
     tree.convertToTable(pTbl, impTbl, nodeSamplesTbl, probTbl, nClasses);
     (*_serializationData)[i - 1].reset(pTbl);
