@@ -1,0 +1,5 @@
+pca_transform_dense_batch.cpp
+#############################
+
+.. literalinclude:: ../../../examples/cpp_sycl/source/pca_transform/pca_transform_dense_batch.cpp
+  :language: cpp

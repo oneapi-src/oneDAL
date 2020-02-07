@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2019 Intel Corporation
+.. * Copyright 2014-2020 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -285,7 +285,7 @@ parameter method.
      - any
      - Not applicable
      - The number of clusters. Required.
-   * - nTrails
+   * - nTrials
      - parallelPlusDense, parallelPlusCSR
      - :math:`1`
      - The number of trails to generate all clusters but the first initial cluster. For details, see [Arthur2007]_, section 5

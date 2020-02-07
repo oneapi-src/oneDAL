@@ -1,0 +1,5 @@
+datastructures_soa.cpp
+######################
+
+.. literalinclude:: ../../../examples/cpp_sycl/source/datasource/datastructures_soa.cpp
+  :language: cpp
