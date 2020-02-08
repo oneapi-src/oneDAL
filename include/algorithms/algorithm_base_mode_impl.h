@@ -213,6 +213,8 @@ private:
     bool resetFlag;
     bool wasFinalizeSetup;
     bool resetFinalizeFlag;
+
+    AlgorithmImpl& operator=(const AlgorithmImpl&);
 };
 
 /**
@@ -307,6 +309,8 @@ public:
 private:
     bool wasSetup;
     bool resetFlag;
+
+    AlgorithmImpl& operator=(const AlgorithmImpl&);
 };
 /** @} */
 } // namespace interface1
