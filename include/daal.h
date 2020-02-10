@@ -52,6 +52,7 @@
 #include "data_management/data/numeric_table.h"
 #include "data_management/data/soa_numeric_table.h"
 #include "data_management/data/symmetric_matrix.h"
+#include "data_management/data/internal/finiteness_checker.h"
 #include "algorithms/classifier/classifier_training_types.h"
 #include "algorithms/classifier/classifier_training_batch.h"
 #include "algorithms/classifier/classifier_training_online.h"
