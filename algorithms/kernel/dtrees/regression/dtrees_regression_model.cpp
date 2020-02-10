@@ -43,6 +43,7 @@ namespace internal
 template<>
 void writeLeaf(const TLeaf& l, DecisionTreeNode& row)
 {
+    row.leftIndexOrClass = 0;
     row.featureValueOrResponse = l.response;
 }
 

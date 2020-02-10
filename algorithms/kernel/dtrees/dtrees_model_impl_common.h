@@ -68,7 +68,6 @@ void nodeToTable(const NodeBase& node, size_t iRow, size_t& iCur, DecisionTreeNo
             }
         }
         row.featureIndex = -1;
-        row.featureValueOrResponse = 0;
         writeLeaf<typename NodeType::Leaf>(l, row);
     }
 }

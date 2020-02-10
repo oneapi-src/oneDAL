@@ -46,6 +46,7 @@ template<>
 void writeLeaf(const TLeaf& l, DecisionTreeNode& row)
 {
     row.leftIndexOrClass = l.response.value;
+    row.featureValueOrResponse = 0.0;
 }
 
 template<>
