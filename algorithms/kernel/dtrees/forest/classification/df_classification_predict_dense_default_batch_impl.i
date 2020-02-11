@@ -190,7 +190,7 @@ protected:
         }
         const double * probas = _model->getProbas(iTree);
         fillResults<algorithmFPType, cpu>(_nClasses, _votingMethod, blockSize, probas,
-            lc, currentNodes, resPtr);
+           lc, currentNodes, resPtr);
     }
 
 protected:
