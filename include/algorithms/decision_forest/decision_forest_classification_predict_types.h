@@ -117,12 +117,12 @@ public:
 };
 
 /**
- * <a name="DAAL-STRUCT-ALGORITHMS__CLASSIFIER__PARAMETER"></a>
+ * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_FOREST_CLASSIFICATION__PREDICTION__PARAMETER"></a>
  * \brief Class for the parameters of the Decision Forest classification algorithm
  *
  * \snippet decision_forest/decision_forest_classification_predict_types.h Parameter source code
  */
-/* [interface1::Parameter source code] */
+/* [Parameter source code] */
 struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
 {
     Parameter(size_t nClasses, VotingMethod votingMethod = weighted) :
@@ -131,7 +131,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
     VotingMethod votingMethod;
     services::Status check() const DAAL_C11_OVERRIDE;
 };
-/* [interface1::Parameter source code] */
+/* [Parameter source code] */
 
 } // namespace interface1
 using interface1::Input;
