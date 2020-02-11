@@ -21,7 +21,6 @@
 #include "externals/service_dispatch.h"
 #include "algorithms/threading/threading.h"
 #include "service_numeric_table.h"
-#include <chrono>
 
 namespace daal
 {
