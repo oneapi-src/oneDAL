@@ -90,6 +90,7 @@ protected:
 
 private:
     Atomic(const Atomic &);
+    Atomic& operator=(const Atomic &);
 };
 
 /** @} */
