@@ -24,8 +24,6 @@
 #include "oneapi/internal/types_utils.h"
 #include "oneapi/internal/execution_context.h"
 
-#include "cl_kernels/select_indexed.cl"
-
 namespace daal
 {
 namespace oneapi

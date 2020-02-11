@@ -35,6 +35,8 @@
 
 #include "externals/service_ittnotify.h"
 
+#include <iostream>
+
 namespace daal
 {
 namespace algorithms
@@ -52,6 +54,27 @@ using sort::RadixSort;
 using selection::QuickSelectIndexed;
 using selection::SelectIndexed;
 using selection::SelectIndexedFactory;
+
+inline void merge(
+    bool forceMerge,
+    UniversalBuffer & partialDistances, 
+    UniversalBuffer & partialCategories, 
+    uint32_t& partCount, 
+    uint32_t nParts,  
+    uint32_t probeBlockSize, 
+    uint32_t nK,  
+    const SharedPtr<SelectIndexed> selector,
+    SelectIndexed::Result& selectResult, 
+    Status * st)
+{
+    if (partCount >= nParts || forceMerge && partCount > 0)
+    {
+        // Select nK closest neighbors from [curProbeBlockSize]x[nK * partCount] buffers with partial results
+        selector->selectLabels(partialDistances, partialCategories, nK, probeBlockSize, nK * partCount, nK * nParts, nK * nParts,
+                                selectResult, st);
+        partCount = 0;
+    }
+}
 
 template <typename algorithmFpType>
 Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const NumericTable * x, const classifier::Model * m, NumericTable * y,
@@ -71,12 +94,12 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
     NumericTable * labels = const_cast<NumericTable *>(model->impl()->getLabels().get());
 
     const Parameter * const parameter = static_cast<const Parameter *>(par);
-    const auto nK                     = parameter->k;
+    const uint32_t nK                     = parameter->k;
 
     const size_t nProbeRows = ntData->getNumberOfRows();
     const size_t nLabelRows = labels->getNumberOfRows();
     const size_t nDataRows  = points->getNumberOfRows() < nLabelRows ? points->getNumberOfRows() : nLabelRows;
-    const size_t nFeatures  = points->getNumberOfColumns();
+    const uint32_t nFeatures  = points->getNumberOfColumns();
 
     auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFpType>();
     auto build_options = fptype_name;
@@ -90,23 +113,27 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
         DAAL_CHECK_STATUS_VAR(st);
     }
 
-    const size_t dataBlockSize  = 4096 * 4;
-    const size_t probeBlockSize = (2048 * 4) / sizeof(algorithmFpType);
-    const size_t nParts         = 16;
+    // Block dimensions below are optimal for GEN9
+    // Number of doubles is to 2X less against floats 
+    // to keep the same block size in bytes
+    const uint32_t dataBlockSize  = 4096 * 4;
+    const uint32_t probeBlockSize = (2048 * 4) / sizeof(algorithmFpType);
+
+    // Maximal number of partial selections to be merged at once
+    const uint32_t nParts         = 16;
+    const uint32_t histogramSize  = 256;
 
     auto dataSq = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize, &st);
     DAAL_CHECK_STATUS_VAR(st);
     auto distances = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * probeBlockSize, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto partialDistances = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nK * (nParts + 1), &st);
+    auto partialDistances = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nK * nParts, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto partialCategories = context.allocate(TypeIds::id<int>(), probeBlockSize * nK * (nParts + 1), &st);
+    auto partialCategories = context.allocate(TypeIds::id<int>(), probeBlockSize * nK * nParts, &st);
     DAAL_CHECK_STATUS_VAR(st);
     auto sorted = context.allocate(TypeIds::id<int>(), probeBlockSize * nK, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto radix_buffer = context.allocate(TypeIds::id<int>(), probeBlockSize * 256, &st);
-    DAAL_CHECK_STATUS_VAR(st);
-    auto classes = context.allocate(TypeIds::id<int>(), probeBlockSize, &st);
+    auto radix_buffer = context.allocate(TypeIds::id<int>(), probeBlockSize * histogramSize, &st);
     DAAL_CHECK_STATUS_VAR(st);
     auto init_distances = kernel_factory.getKernel("init_distances", &st);
     DAAL_CHECK_STATUS_VAR(st);
@@ -117,8 +144,8 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
     auto init_categories = kernel_factory.getKernel("init_categories", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    const size_t nDataBlocks  = nDataRows / dataBlockSize + int(nDataRows % dataBlockSize != 0);
-    const size_t nProbeBlocks = nProbeRows / probeBlockSize + int(nProbeRows % probeBlockSize != 0);
+    const uint32_t nDataBlocks  = nDataRows / dataBlockSize + int(nDataRows % dataBlockSize != 0);
+    const uint32_t nProbeBlocks = nProbeRows / probeBlockSize + int(nProbeRows % probeBlockSize != 0);
     SelectIndexed::Result selectResult(context, nK, probeBlockSize, distances.type(), &st);
     DAAL_CHECK_STATUS_VAR(st);
 
@@ -127,32 +154,32 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
     SharedPtr<SelectIndexed> selector(factory.Create(nK, params, &st));
     DAAL_CHECK_STATUS_VAR(st);
 
-    for (size_t pblock = 0; pblock < nProbeBlocks; pblock++)
+    for (uint32_t pblock = 0; pblock < nProbeBlocks; pblock++)
     {
-        const size_t pfirst = pblock * probeBlockSize;
-        size_t plast        = pfirst + probeBlockSize;
+        const uint32_t pfirst = pblock * probeBlockSize;
+        uint32_t plast        = pfirst + probeBlockSize;
 
         if (plast > nProbeRows)
         {
             plast = nProbeRows;
         }
-        const size_t curProbeBlockSize = plast - pfirst;
+        const uint32_t curProbeBlockSize = plast - pfirst;
 
         BlockDescriptor<algorithmFpType> probeRows;
         DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(pfirst, curProbeBlockSize, readOnly, probeRows));
         auto curProbes = probeRows.getBuffer();
 
         uint32_t partCount = 0;
-        for (size_t dblock = 0; dblock < nDataBlocks; dblock++)
+        for (uint32_t dblock = 0; dblock < nDataBlocks; dblock++)
         {
-            const size_t dfirst = dblock * dataBlockSize;
-            size_t dlast        = dfirst + dataBlockSize;
+            const uint32_t dfirst = dblock * dataBlockSize;
+            uint32_t dlast        = dfirst + dataBlockSize;
 
             if (dlast > nDataRows)
             {
                 dlast = nDataRows;
             }
-            const size_t curDataBlockSize = dlast - dfirst;
+            const uint32_t curDataBlockSize = dlast - dfirst;
 
             BlockDescriptor<int> labelRows;
             DAAL_CHECK_STATUS_VAR(labels->getBlockOfRows(dfirst, dataBlockSize, readOnly, labelRows));
@@ -179,42 +206,25 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const Numer
                                   curProbeBlockSize, nK, partCount, nParts, dblock != 0 && partCount == 0, &st);
             DAAL_CHECK_STATUS_VAR(st);
             partCount++;
-            if (partCount >= nParts)
-            {
-                // Select nK closest neighbors from [curProbeBlockSize]x[nK * partCount] buffers with partial results
-                selector->selectLabels(partialDistances, partialCategories, nK, curProbeBlockSize, nK * partCount, nK * nParts, nK * nParts,
-                                       selectResult, &st);
-                DAAL_CHECK_STATUS_VAR(st);
-                partCount = 0;
-            }
+            //merge partial data 
+            merge(false, partialDistances, partialCategories, partCount, nParts, curProbeBlockSize, nK, selector, selectResult, &st);
+            DAAL_CHECK_STATUS_VAR(st);
             DAAL_CHECK_STATUS_VAR(labels->releaseBlockOfRows(labelRows));
             DAAL_CHECK_STATUS_VAR(points->releaseBlockOfRows(dataRows));
         }
-        if (partCount > 0)
-        {
-            // Select nK closest neighbors from buffers with remaining partial results
-            selector->selectLabels(partialDistances, partialCategories, nK, curProbeBlockSize, nK * partCount, nK * nParts, nK * nParts, selectResult,
-                                   &st);
-            DAAL_CHECK_STATUS_VAR(st);
-        }
+        // force merging of remainig partial data 
+        merge(true, partialDistances, partialCategories, partCount, nParts, curProbeBlockSize, nK, selector, selectResult, &st);
+        DAAL_CHECK_STATUS_VAR(st);
         // sort labels of closest neighbors
         RadixSort::sort(selectResult.indices, sorted, radix_buffer, curProbeBlockSize, nK, nK, &st);
         DAAL_CHECK_STATUS_VAR(st);
+        BlockDescriptor<int> resultBlock;
+        DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(pfirst, curProbeBlockSize, writeOnly, resultBlock));
+        auto classes = UniversalBuffer(resultBlock.getBuffer());
         // search for maximum occurrence label
         computeWinners(context, find_winners, sorted, classes, curProbeBlockSize, nK, &st);
         DAAL_CHECK_STATUS_VAR(st);
-        // copy final results
-        {
-            DAAL_ITTNOTIFY_SCOPED_TASK(compute.copy_results);
-            BlockDescriptor<algorithmFpType> resultBlock;
-            DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(0, nProbeRows, writeOnly, resultBlock));
-            auto classesRows = classes.template get<int>().toHost(ReadWriteMode::readOnly, &st);
-            DAAL_CHECK_STATUS_VAR(st);
-            auto res = resultBlock.getBuffer().toHost(ReadWriteMode::writeOnly, &st);
-            DAAL_CHECK_STATUS_VAR(st);
-            for (int i = 0; i < curProbeBlockSize; i++) res.get()[pfirst + i] = classesRows.get()[i];
-            DAAL_CHECK_STATUS_VAR(y->releaseBlockOfRows(resultBlock));
-        }
+        DAAL_CHECK_STATUS_VAR(y->releaseBlockOfRows(resultBlock));
         DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(probeRows));
     }
     return st;
