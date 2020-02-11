@@ -47,7 +47,7 @@
 #define __DAAL_DNNFN(f_cpu,f_pref,f_name)        __DAAL_CONCAT4(fpk_,f_pref,f_cpu,f_name)
 #define __DAAL_DNNFN_CALL(f_pref,f_name,f_args)  __DAAL_DNNFN_CALL1(f_pref,f_name,f_args)
 
-#if (defined(__x86_64__) && !defined(__APPLE__)) || defined(_WIN64)
+#if (defined(__x86_64__) && !defined(__APPLE__))
     #define __DAAL_MKLFPK_KNL   avx512_mic_
 #else
     #define __DAAL_MKLFPK_KNL   avx2_
