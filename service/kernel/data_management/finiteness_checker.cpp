@@ -30,15 +30,15 @@ namespace internal
 {
 typedef daal::data_management::NumericTable::StorageLayout NTLayout;
 
-void valuesAreFinite(float * dataPtr, bool * finitenessPrt, size_t n, bool allowNaN)
+void valuesAreFinite(const float * dataPtr, bool * finitenessPrt, size_t n, bool allowNaN)
 {
     uint32_t * uint32Ptr = (uint32_t *)dataPtr;
     for (size_t i = 0; i < n; ++i)
     {
         // first check: all exponent bits are 1 (inf or nan)
-        if (0x7f800000u == (*uint32Ptr & 0x7f800000u))
+        if (0x7f800000u == (uint32Ptr[i] & 0x7f800000u))
             // second check: 1 in fraction bits (nan)
-            if (0x00000000u != (*uint32Ptr & 0x007fffffu) && allowNaN)
+            if (0x00000000u != (uint32Ptr[i] & 0x007fffffu) && allowNaN)
                 finitenessPrt[i] = true;
             else
                 finitenessPrt[i] = false;
@@ -47,15 +47,15 @@ void valuesAreFinite(float * dataPtr, bool * finitenessPrt, size_t n, bool allow
     }
 }
 
-void valuesAreFinite(double * dataPtr, bool * finitenessPrt, size_t n, bool allowNaN)
+void valuesAreFinite(const double * dataPtr, bool * finitenessPrt, size_t n, bool allowNaN)
 {
     uint64_t * uint64Ptr = (uint64_t *)dataPtr;
     for (size_t i = 0; i < n; ++i)
     {
         // first check: all exponent bits are 1 (inf or nan)
-        if (0x7ff0000000000000uLL == (*uint64Ptr & 0x7ff0000000000000uLL))
+        if (0x7ff0000000000000uLL == (uint64Ptr[i] & 0x7ff0000000000000uLL))
             // second check: 1 in fraction bits (nan)
-            if (0x0000000000000000uLL != (*uint64Ptr & 0x000fffffffffffffuLL) && allowNaN)
+            if (0x0000000000000000uLL != (uint64Ptr[i] & 0x000fffffffffffffuLL) && allowNaN)
                 finitenessPrt[i] = true;
             else
                 finitenessPrt[i] = false;
@@ -65,7 +65,7 @@ void valuesAreFinite(double * dataPtr, bool * finitenessPrt, size_t n, bool allo
 }
 
 template <typename DataType, daal::CpuType cpu>
-DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, DataType ** dataPtrs)
+DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
     DataType sum = 0;
     for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx)
@@ -75,7 +75,7 @@ DataType computeSum(size_t nDataPtrs, size_t nElementsPerPtr, DataType ** dataPt
 }
 
 template <typename DataType, daal::CpuType cpu>
-bool checkFiniteness(size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, DataType ** dataPtrs, bool allowNaN)
+bool checkFiniteness(size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
 {
     size_t optArrLen = nElements + (64 - nElements % 64);
     daal::services::internal::TArray<bool, cpu> finiteArr(optArrLen);
@@ -107,9 +107,9 @@ void runBlocks(bool inParallel, size_t nBlocks, Func func)
 }
 
 template <typename DataType>
-DataType sumWithAVX512(size_t n, DataType * dataPtr)
+DataType sumWithAVX512(size_t n, const DataType * dataPtr)
 {
-    size_t nPerInstr = 64 / sizeof(DataType);
+    const size_t nPerInstr = 64 / sizeof(DataType);
     DataType sum;
     if (sizeof(DataType) == 4)
     {
@@ -131,7 +131,7 @@ DataType sumWithAVX512(size_t n, DataType * dataPtr)
 }
 
 template <typename DataType>
-DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, DataType ** dataPtrs)
+DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs)
 {
     size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
     if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
@@ -158,18 +158,18 @@ DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, DataType
 }
 
 template <>
-float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, float ** dataPtrs)
+float computeSum<float, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs)
 {
     return computeSumAVX512Impl<float>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
 template <>
-double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, double ** dataPtrs)
+double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs)
 {
     return computeSumAVX512Impl<double>(nDataPtrs, nElementsPerPtr, dataPtrs);
 }
 
-void checkFinitenessInBlocks(float ** dataPtrs, bool * finite, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+void checkFinitenessInBlocks(const float ** dataPtrs, bool * finite, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                              size_t nSurplus, bool allowNaN)
 {
     const size_t nPerInstr = 16;
@@ -207,7 +207,7 @@ void checkFinitenessInBlocks(float ** dataPtrs, bool * finite, bool inParallel, 
     });
 }
 
-void checkFinitenessInBlocks(double ** dataPtrs, bool * finite, const bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+void checkFinitenessInBlocks(const double ** dataPtrs, bool * finite, const bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
                              size_t nSurplus, bool allowNaN)
 {
     const size_t nPerInstr = 8;
@@ -246,7 +246,7 @@ void checkFinitenessInBlocks(double ** dataPtrs, bool * finite, const bool inPar
 }
 
 template <typename DataType>
-bool checkFinitenessAVX512Impl(size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, DataType ** dataPtrs, bool allowNaN)
+bool checkFinitenessAVX512Impl(size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
 {
     size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
     if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
@@ -269,13 +269,13 @@ bool checkFinitenessAVX512Impl(size_t nElements, size_t nDataPtrs, size_t nEleme
 }
 
 template <>
-bool checkFiniteness<float, avx512>(size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, float ** dataPtrs, bool allowNaN)
+bool checkFiniteness<float, avx512>(size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
 {
     return checkFinitenessAVX512Impl<float>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
 template <>
-bool checkFiniteness<double, avx512>(size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, double ** dataPtrs, bool allowNaN)
+bool checkFiniteness<double, avx512>(size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
 {
     return checkFinitenessAVX512Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
@@ -306,8 +306,8 @@ void allValuesAreFiniteImpl(NumericTable & table, bool allowNaN, bool * finitene
 
     daal::services::internal::TArray<BlockDescriptor<DataType>, cpu> blockDescrArr(nDataPtrs);
     BlockDescriptor<DataType> * blockDescrPtr = blockDescrArr.get();
-    daal::services::internal::TArray<DataType *, cpu> dataPtrsArr(nDataPtrs);
-    DataType ** dataPtrs = dataPtrsArr.get();
+    daal::services::internal::TArray<const DataType *, cpu> dataPtrsArr(nDataPtrs);
+    const DataType ** dataPtrs = dataPtrsArr.get();
     for (size_t i = 0; i < nDataPtrs; ++i)
     {
         if (layout == NTLayout::soa)
