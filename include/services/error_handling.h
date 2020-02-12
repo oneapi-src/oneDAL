@@ -194,6 +194,8 @@ protected:
 private:
     ErrorID _id;
     ErrorDetail * _details;
+
+    Error& operator=(const Error &);
 };
 typedef SharedPtr<Error> ErrorPtr;
 

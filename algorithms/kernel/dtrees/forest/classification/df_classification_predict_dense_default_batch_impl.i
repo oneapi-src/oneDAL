@@ -627,9 +627,6 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
         probPtr = probNT->getArray();
     }
 
-
-    const bool bUseTLS(_nClasses > s_cMaxClassesBufSize);
-    const size_t nCols(_data->getNumberOfColumns());
     daal::SafeStatus safeStat;
 
     const HomogenNumericTable<algorithmFPType> * hmgData = dynamic_cast<const HomogenNumericTable<algorithmFPType> *>(_data);
@@ -711,7 +708,6 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
 
     float * resPtr = nullptr;
     float * probPtr = nullptr;
-    ClassIndexType* valPtr = nullptr;
     HomogenNumericTable<float> * resNT  = dynamic_cast<HomogenNumericTable<float> *>(_res);
     HomogenNumericTable<float> * probNT = dynamic_cast<HomogenNumericTable<float> *>(_prob);
     const size_t nRows = _data->getNumberOfRows();
@@ -737,8 +733,6 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
         probPtr = probNT->getArray();
     }
 
-
-    const size_t nCols(_data->getNumberOfColumns());
     Status status;
 
     if(_prob != nullptr)
@@ -799,8 +793,6 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
         __m512i nOne   = _mm512_set1_epi32(-1);
         __m512i zero   = _mm512_set1_epi32(0);
         __m512 zero_ps = _mm512_set1_ps(0);
-        __m512 one_ps =  _mm512_set1_ps(1);
-        __m512 max_ps =  _mm512_set1_ps(-1);
         __m512i one    = _mm512_set1_epi32(1);
         __m512i idx =    _mm512_set_epi32(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
         __mmask16 ones_mask = 0xffff;
