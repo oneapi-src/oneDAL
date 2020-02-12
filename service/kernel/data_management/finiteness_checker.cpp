@@ -36,9 +36,9 @@ void valuesAreFinite(const float * dataPtr, bool * finitenessPrt, size_t n, bool
     for (size_t i = 0; i < n; ++i)
     {
         // first check: all exponent bits are 1 (inf or nan)
-        if (0x7f800000u == (*uint32Ptr & 0x7f800000u))
+        if (0x7f800000u == (uint32Ptr[i] & 0x7f800000u))
             // second check: 1 in fraction bits (nan)
-            if (0x00000000u != (*uint32Ptr & 0x007fffffu) && allowNaN)
+            if (0x00000000u != (uint32Ptr[i] & 0x007fffffu) && allowNaN)
                 finitenessPrt[i] = true;
             else
                 finitenessPrt[i] = false;
@@ -53,9 +53,9 @@ void valuesAreFinite(const double * dataPtr, bool * finitenessPrt, size_t n, boo
     for (size_t i = 0; i < n; ++i)
     {
         // first check: all exponent bits are 1 (inf or nan)
-        if (0x7ff0000000000000uLL == (*uint64Ptr & 0x7ff0000000000000uLL))
+        if (0x7ff0000000000000uLL == (uint64Ptr[i] & 0x7ff0000000000000uLL))
             // second check: 1 in fraction bits (nan)
-            if (0x0000000000000000uLL != (*uint64Ptr & 0x000fffffffffffffuLL) && allowNaN)
+            if (0x0000000000000000uLL != (uint64Ptr[i] & 0x000fffffffffffffuLL) && allowNaN)
                 finitenessPrt[i] = true;
             else
                 finitenessPrt[i] = false;
