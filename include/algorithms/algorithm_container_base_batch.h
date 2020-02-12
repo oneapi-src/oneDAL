@@ -179,9 +179,6 @@ public:
 
 protected:
     AlgorithmContainerImpl<batch> * _cntr;
-
-    AlgorithmDispatchContainer(const AlgorithmDispatchContainer&);
-    AlgorithmDispatchContainer& operator=(const AlgorithmDispatchContainer&);
 };
 
 /** @} */
