@@ -148,8 +148,6 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
                                                         function then no random sampling is performed, and all terms are
                                                         used to calculate the gradient. This parameter is ignored
                                                         if batchIndices is provided. */
-private:
-    Parameter& operator=(const Parameter&);
 };
 /* [interface1::Parameter source code] */
 
@@ -354,8 +352,6 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
                                                         function then no random sampling is performed, and all terms are
                                                         used to calculate the gradient. This parameter is ignored
                                                         if batchIndices is provided. */
-private:
-    Parameter& operator=(const Parameter&);
 };
 /* [Parameter source code] */
 
