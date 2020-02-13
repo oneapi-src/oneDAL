@@ -121,6 +121,20 @@ public:
     */
     virtual size_t getNumberOfClasses() const = 0;
 
+    /**
+    *  Perform Depth First Traversal of i-th tree
+    *  \param[in] iTree    Index of the tree to traverse
+    *  \param[in] visitor  This object gets notified when tree nodes are visited
+    */
+    virtual void traverseDFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor& visitor) const = 0;
+
+    /**
+    *  Perform Breadth First Traversal of i-th tree
+    *  \param[in] iTree    Index of the tree to traverse
+    *  \param[in] visitor  This object gets notified when tree nodes are visited
+    */
+    virtual void traverseBFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor& visitor) const = 0;
+
 protected:
     Model() : classifier::Model()
     {}
