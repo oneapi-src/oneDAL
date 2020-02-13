@@ -201,6 +201,9 @@ const int SERIALIZATION_LINEAR_REGRESSION_GROUP_OF_BETAS_RESULT_ID              
 const int SERIALIZATION_LASSO_REGRESSION_MODEL_ID                                              = 100170;
 const int SERIALIZATION_LASSO_REGRESSION_TRAINING_RESULT_ID                                    = 100180;
 const int SERIALIZATION_LASSO_REGRESSION_PREDICTION_RESULT_ID                                  = 100190;
+const int SERIALIZATION_ELASTIC_NET_MODEL_ID                                                   = 100191;
+const int SERIALIZATION_ELASTIC_NET_TRAINING_RESULT_ID                                         = 100192;
+const int SERIALIZATION_ELASTIC_NET_PREDICTION_RESULT_ID                                       = 100193;
 
 const int SERIALIZATION_PCA_RESULT_ID                                                          = 100200;
 const int SERIALIZATION_PCA_PARTIAL_RESULT_CORRELATION_ID                                      = 100210;

@@ -46,10 +46,22 @@ namespace prediction
 namespace internal
 {
 
+template <typename algorithmFPType, CpuType cpu>
+class PredictClassificationTask;
+
 template <typename algorithmFpType, prediction::Method method, CpuType cpu>
 class PredictKernel : public daal::algorithms::Kernel
 {
 public:
+
+    PredictKernel(): _task(nullptr){};
+    ~PredictKernel()
+    {
+        if(_task)
+        {
+            delete _task;
+        }
+    }
     /**
      *  \brief Compute decision forest prediction results.
      *
@@ -58,8 +70,9 @@ public:
      *  \param r[out]   Prediction results
      *  \param par[in]  decision forest algorithm parameters
      */
-    services::Status compute(services::HostAppIface* pHostApp, const NumericTable *a,
-        const decision_forest::classification::Model *m, NumericTable *r, NumericTable *prob, size_t nClasses);
+    services::Status compute(services::HostAppIface * const pHostApp, const NumericTable * a, const decision_forest::classification::Model * const m,
+                             NumericTable * const r, NumericTable * const prob, const size_t nClasses, const VotingMethod votingMethod);
+    PredictClassificationTask<algorithmFpType, cpu>* _task;
 };
 
 } // namespace internal

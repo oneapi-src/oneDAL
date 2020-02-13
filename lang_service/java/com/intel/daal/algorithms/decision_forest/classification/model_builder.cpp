@@ -90,6 +90,23 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classifi
 }
 
 /*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_ModelBuilder
+* Method:    cAddLeafNodeByProba
+* Signature: (JIII)J
+*/
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_ModelBuilder_cAddLeafNodeByProba(JNIEnv * env, jobject, jlong algAddr,
+                                                                                                                        jlong treeId, jlong parentId,
+                                                                                                                        jlong position, jdoubleArray proba)
+{
+    services::SharedPtr<ModelBuilder> * ptr = new services::SharedPtr<ModelBuilder>();
+    *ptr                                    = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
+    const double* const probaInternal       = env->GetDoubleArrayElements(proba, 0);
+    long nodeId                             = (*ptr)->addLeafNodeByProba(treeId, parentId, position, probaInternal);
+    DAAL_CHECK_THROW((*ptr)->getStatus());
+    return nodeId;
+}
+
+/*
  * Class:     com_intel_daal_algorithms_decision_forest_classification_ModelBuilder
  * Method:    cGetModel
  * Signature:(JII)J
@@ -102,4 +119,18 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classifi
     ModelPtr *model = new ModelPtr;
     *model = staticPointerCast<Model>((*ptr)->getModel());
     return (jlong)model;
+}
+
+/*
+ * Class:     com_intel_daal_algorithms_decision_forest_classification_ModelBuilder
+ * Method:    cSetNFeatures
+ * Signature:(JII)J
+ */
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_ModelBuilder_cSetNFeatures(JNIEnv * env, jobject, jlong algAddr,
+                                                                                                                 jlong nFeatures)
+{
+    services::SharedPtr<ModelBuilder> * ptr = new services::SharedPtr<ModelBuilder>();
+    *ptr                                    = staticPointerCast<ModelBuilder>(*(SharedPtr<ModelBuilder> *)algAddr);
+    (*ptr)->setNFeatures(nFeatures);
+    DAAL_CHECK_THROW((*ptr)->getStatus());
 }

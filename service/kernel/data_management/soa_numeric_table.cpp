@@ -27,7 +27,9 @@ namespace interface1
 SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual):
     NumericTable(nColumns, nRows, featuresEqual), _arrays(nColumns), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
-    _layout = soa;
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
 
     if( !resizePointersArray(nColumns) )
     {
@@ -45,9 +47,11 @@ services::SharedPtr<SOANumericTable> SOANumericTable::create(size_t nColumns, si
 SOANumericTable::SOANumericTable( NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag):
         NumericTable(ddict), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
-    _layout = soa;
-    this->_status |= setNumberOfRowsImpl( nRows );
-    if( !resizePointersArray( getNumberOfColumns() ) )
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
+    this->_status |= setNumberOfRowsImpl(nRows);
+    if (!resizePointersArray(getNumberOfColumns()))
     {
         this->_status.add(services::ErrorMemoryAllocationFailed);
         return;
@@ -68,7 +72,9 @@ services::SharedPtr<SOANumericTable> SOANumericTable::create(NumericTableDiction
 SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status &st):
         NumericTable(nColumns, nRows, featuresEqual, st), _arrays(nColumns), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
-    _layout = soa;
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
     if (!resizePointersArray(nColumns))
     {
         st.add(services::ErrorMemoryAllocationFailed);
@@ -79,9 +85,11 @@ SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface:
 SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status &st):
     NumericTable(ddict, st), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
-    _layout = soa;
-    st |= setNumberOfRowsImpl( nRows );
-    if( !resizePointersArray( getNumberOfColumns() ) )
+    _layout     = soa;
+    _arrOffsets = NULL;
+    _index      = 0;
+    st |= setNumberOfRowsImpl(nRows);
+    if (!resizePointersArray(getNumberOfColumns()))
     {
         st.add(services::ErrorMemoryAllocationFailed);
         return;

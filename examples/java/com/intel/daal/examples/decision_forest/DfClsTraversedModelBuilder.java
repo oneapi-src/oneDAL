@@ -245,6 +245,7 @@ class DfClsTraversedModelBuilder {
             parentMap.clear();
         }
 
+        modelBuilder.setNFeatures(nFeatures);
         return modelBuilder.getModel();
     }
 
@@ -340,6 +341,9 @@ class DfClsTraversedModelBuilder {
         /* Pass a testing data set and the trained model to the algorithm */
         algorithm.input.set(NumericTableInputId.data, testData);
         algorithm.input.set(ModelInputId.model, model);
+
+        /* Set voting method */
+        algorithm.parameter.setVotingMethod(VotingMethod.unweighted);
 
         /* Compute prediction results */
         PredictionResult predictionResult = algorithm.compute();
