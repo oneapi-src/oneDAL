@@ -43,19 +43,16 @@ public:
     services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
 
     void copyPartialSelections(oneapi::internal::ExecutionContextIface& context,
-            const oneapi::internal::KernelPtr& kernel_gather_selection,
             oneapi::internal::UniversalBuffer& distances,
             oneapi::internal::UniversalBuffer& categories,
             oneapi::internal::UniversalBuffer& partialDistances,
             oneapi::internal::UniversalBuffer& partialCategories,
             uint32_t curProbeBlockSize,
             uint32_t nK,
-            uint32_t& nPart,
+            uint32_t nPart,
             uint32_t totalParts,
-            bool bCopyPrevious,
             services::Status* st);
     void initDistances(oneapi::internal::ExecutionContextIface& context,
-            const oneapi::internal::KernelPtr& kernel_init_distances,
             oneapi::internal::UniversalBuffer& dataSq,
             oneapi::internal::UniversalBuffer& distances,
             uint32_t dataBlockSize,
@@ -66,9 +63,15 @@ public:
                           const services::Buffer<algorithmFpType> & probes, oneapi::internal::UniversalBuffer & distances, uint32_t dataBlockSize,
                           uint32_t probeBlockSize, uint32_t nFeatures, services::Status * st);
 
-    void computeWinners(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::KernelPtr & kernel_compute_winners,
-                        oneapi::internal::UniversalBuffer & categories, oneapi::internal::UniversalBuffer & classes, uint32_t probesBlockSize,
-                        uint32_t nK, services::Status * st);
+    void computeWinners(oneapi::internal::ExecutionContextIface& context,
+            oneapi::internal::UniversalBuffer& categories,
+            oneapi::internal::UniversalBuffer& classes,
+            uint32_t probesBlockSize,
+            uint32_t nK,
+            services::Status* st);
+
+    void buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory,
+            services::Status* st);
 
     uint32_t _maxWorkItemsPerGroup = 256;
 };
