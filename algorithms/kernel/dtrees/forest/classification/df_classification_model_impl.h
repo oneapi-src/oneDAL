@@ -63,9 +63,6 @@ public:
     virtual void traverseBF(size_t iTree, classifier::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
     virtual void clear() DAAL_C11_OVERRIDE { ImplType::clear(); }
 
-    virtual void traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
-    virtual void traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
-
     virtual void traverseDFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
     virtual void traverseBFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
 
@@ -75,6 +72,9 @@ public:
     bool add(const TreeType& tree, size_t nClasses);
 
     virtual size_t getNumberOfTrees() const DAAL_C11_OVERRIDE;
+
+    virtual void traverseDFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
+    virtual void traverseBFS(size_t iTree, tree_utils::classification::TreeNodeVisitor& visitor) const DAAL_C11_OVERRIDE;
 };
 
 } // namespace internal

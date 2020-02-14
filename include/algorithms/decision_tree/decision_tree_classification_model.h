@@ -172,18 +172,6 @@ public:
     *  Perform Depth First Traversal of tree
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     */
-    void traverseDFS(tree_utils::classification::TreeNodeVisitor& visitor) const;
-
-    /**
-    *  Perform Breadth First Traversal of tree
-    *  \param[in] visitor  This object gets notified when tree nodes are visited
-    */
-    void traverseBFS(tree_utils::classification::TreeNodeVisitor& visitor) const;
-
-    /**
-    *  Perform Depth First Traversal of tree
-    *  \param[in] visitor  This object gets notified when tree nodes are visited
-    */
     void traverseDFS(tree_utils::classification::interface1::TreeNodeVisitor& visitor) const;
 
     /**
@@ -191,6 +179,18 @@ public:
     *  \param[in] visitor  This object gets notified when tree nodes are visited
     */
     void traverseBFS(tree_utils::classification::interface1::TreeNodeVisitor& visitor) const;
+
+    /**
+    *  Perform Depth First Traversal of tree
+    *  \param[in] visitor  This object gets notified when tree nodes are visited
+    */
+    void traverseDFS(tree_utils::classification::TreeNodeVisitor& visitor) const;
+
+    /**
+    *  Perform Breadth First Traversal of tree
+    *  \param[in] visitor  This object gets notified when tree nodes are visited
+    */
+    void traverseBFS(tree_utils::classification::TreeNodeVisitor& visitor) const;
 
 protected:
     Model(size_t nFeatures, services::Status &st);

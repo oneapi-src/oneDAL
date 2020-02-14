@@ -81,14 +81,14 @@ void Model::traverseDF(classifier::TreeNodeVisitor& visitor) const { _impl->trav
 
 void Model::traverseBF(classifier::TreeNodeVisitor& visitor) const { _impl->traverseBF(visitor); }
 
-void Model::traverseDFS(tree_utils::classification::interface2::TreeNodeVisitor& visitor) const
+void Model::traverseDFS(tree_utils::classification::TreeNodeVisitor& visitor) const
 {
-    _impl->traverseDFS<tree_utils::classification::interface2::LeafNodeDescriptor>(visitor);
+    _impl->traverseDFS<tree_utils::classification::LeafNodeDescriptor>(visitor);
 }
 
-void Model::traverseBFS(tree_utils::classification::interface2::TreeNodeVisitor& visitor) const
+void Model::traverseBFS(tree_utils::classification::TreeNodeVisitor& visitor) const
 {
-    _impl->traverseBFS<tree_utils::classification::interface2::LeafNodeDescriptor>(visitor);
+    _impl->traverseBFS<tree_utils::classification::LeafNodeDescriptor>(visitor);
 }
 
 void Model::traverseDFS(tree_utils::classification::interface1::TreeNodeVisitor& visitor) const
