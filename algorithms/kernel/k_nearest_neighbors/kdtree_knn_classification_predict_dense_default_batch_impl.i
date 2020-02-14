@@ -38,6 +38,8 @@
 #include "kdtree_knn_classification_model_impl.h"
 #include "kdtree_knn_impl.i"
 
+#include <cstdio>
+
 namespace daal
 {
 namespace algorithms
@@ -52,6 +54,47 @@ using namespace daal::services::internal;
 using namespace daal::services;
 using namespace daal::internal;
 using namespace kdtree_knn_classification::internal;
+
+/*
+Internal class required to get smth like std::iterator_traits::value_type
+*/
+
+template <typename T>
+struct type_predictor   
+{
+   typedef T type;
+};
+template <typename T>
+struct type_predictor<T*>
+{
+   typedef T type;
+};
+template <typename T>
+struct type_predictor<T&>
+{
+   typedef T type;
+};
+
+template <typename algorithmFpType, CpuType cpu>
+struct GlobalNeighbors
+{
+    algorithmFpType distance;
+    size_t index;
+
+    inline bool operator<(const GlobalNeighbors & rhs) const 
+    { 
+        return (distance < rhs.distance); 
+    }
+};
+
+template<CpuType cpu, typename T> 
+inline void swap(T& t1, T& t2)
+{
+    printf("Swap %s\n", __PRETTY_FUNCTION__);
+    T temp = t1;
+    t1 = t2;
+    t2 = temp;
+}
 
 template <CpuType cpu, typename T>
 DAAL_FORCEINLINE T heapLeftChildIndex(T index)
@@ -69,39 +112,43 @@ DAAL_FORCEINLINE T heapParentIndex(T index)
     return (index - 1) / 2;
 }
 
+/*
+Due to C++ standard ```a[n] == *(a + n)``` if ```a``` is RandomAccessIterator
+https://en.cppreference.com/w/cpp/experimental/ranges/iterator/RandomAccessIterator
+*/
+
 template <CpuType cpu, typename RandomAccessIterator>
 void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
 {
-    if (first != last)
+    typedef typename type_predictor<decltype(first)>::type vtype;
+    auto i = last - first - 1;
+    if (0 < i)
     {
-        --last;
-        auto i = last - first;
-        if (i > 0)
+        const vtype newItem = *(last - 1);
+        auto prev          = i;
+        for (i = heapParentIndex<cpu>(i); first[i] < newItem; i = heapParentIndex<cpu>(i))
         {
-            const auto newItem = *last; // It can be moved instead.
-            auto prev          = i;
-            for (i = heapParentIndex<cpu>(i); i && (*(first + i) < newItem); i = heapParentIndex<cpu>(i))
-            {
-                *(first + prev) = *(first + i); // It can be moved instead.
-                prev            = i;
-            }
-            *(first + i) = newItem; // It can be moved instead.
+            first[prev] = first[i];
+            prev            = i;
+            if(!i)  break;//!!!!!!!!
         }
+        first[prev] = newItem;
     }
 }
 
 template <CpuType cpu, typename RandomAccessIterator, typename Diff>
 DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator /*last*/, Diff count, Diff i)
 {
+    printf("iAMH %s \n", __PRETTY_FUNCTION__);
     for (auto largest = i;; i = largest)
     {
         const auto l = heapLeftChildIndex<cpu>(i);
-        if ((l < count) && (*(first + largest) < *(first + l)))
+        if ((l < count) && (first[largest] < first[l]))
         {
             largest = l;
         }
         const auto r = heapRightChildIndex<cpu>(i);
-        if ((r < count) && (*(first + largest) < *(first + r)))
+        if ((r < count) && (first[largest] < first[r]))
         {
             largest = r;
         }
@@ -110,9 +157,8 @@ DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAc
         {
             break;
         }
-        auto temp          = *(first + i);
-        *(first + i)       = *(first + largest);
-        *(first + largest) = temp; // Moving can be used instead.
+        printf("Largest %i, I %i\n", (int) largest, (int) i);
+        swap<cpu, type_predictor<decltype(first)>::type >(first[i], first[largest]);
     }
 }
 
@@ -122,9 +168,7 @@ void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
     if (1 < last - first)
     {
         --last;
-        auto temp = *first;
-        *first    = *last;
-        *last     = temp; // Moving can be used instead.
+        swap<cpu, type_predictor<decltype(first)>::type >(*last, *first);
         internalAdjustMaxHeap<cpu>(first, last, last - first, first - first);
     }
 }
@@ -190,20 +234,14 @@ public:
 
     T * getMax() { return _elements; }
 
-    const T & operator[](size_t index) const { return *(_elements + index); }
+    const T & operator[](size_t index) const 
+    { 
+        return _elements[index]; 
+    }
 
 private:
     T * _elements;
     size_t _count;
-};
-
-template <typename algorithmFpType, CpuType cpu>
-struct GlobalNeighbors
-{
-    algorithmFpType distance;
-    size_t index;
-
-    inline bool operator<(const GlobalNeighbors & rhs) const { return (distance < rhs.distance); }
 };
 
 template <typename algorithmFpType>
@@ -214,8 +252,11 @@ struct SearchNode
 };
 
 template <typename algorithmFpType, CpuType cpu>
-Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compute(const NumericTable * x, const classifier::Model * m,
-                                                                                   NumericTable * y, const daal::algorithms::Parameter * par)
+Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compute(
+    const NumericTable * x, 
+    const classifier::Model * m,
+    NumericTable * y, 
+    const daal::algorithms::Parameter * par)
 {
     Status status;
 
@@ -329,11 +370,29 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     return status;
 }
 
+template<CpuType cpu, typename algorithmFpType>
+inline void distance_comp(
+    const algorithmFpType* vec, 
+    const algorithmFpType& val, 
+    algorithmFpType* out,
+    size_t length)
+{
+    for(size_t i = 0; i < length; i++){
+        const auto de = vec[i] - val;
+        out[i] += de * de;
+    }
+}
+
 template <typename algorithmFpType, CpuType cpu>
 void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(
-    const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
-    kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, size_t k, algorithmFpType radius,
-    const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data)
+    const algorithmFpType * query, 
+    Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
+    kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, 
+    size_t k, 
+    algorithmFpType radius,
+    const KDTreeTable & kdTreeTable, 
+    size_t rootTreeNodeIndex, 
+    const NumericTable & data)
 {
     heap.reset();
     stack.reset();
@@ -353,12 +412,26 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
     size_t curBDIdx, nextBDIdx;
     for (;;)
     {
+        printf("\n");
+        for(size_t v = 0; v < stack.size(); v++){
+            const SearchNode<algorithmFpType> p = stack.get_raw()[v];
+            printf("S: %i, %f ", (int) p.nodeIndex, (float) p.minDistance);
+        }
+        printf("\n");
+        for(size_t v = 0; v < heap.size(); v++){
+            const auto p = heap[v];
+            printf("H: %i, %f ", (int) p.index, (float) p.distance);
+        }
+        printf("\n");
         node = static_cast<const KDTreeNode *>(kdTreeTable.getArray()) + cur.nodeIndex;
+        printf("I: %i, LI: %i, RI: %i\n", 
+            (int) cur.nodeIndex, 
+            (int) node->leftIndex,
+            (int) node->rightIndex);
         if (node->dimension == __KDTREE_NULLDIMENSION)
         {
             start = node->leftIndex;
             end   = node->rightIndex;
-
             for (i = start; i < end; ++i)
             {
                 distance[i - start] = 0;
@@ -371,31 +444,35 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             {
                 const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
 
-                const_cast<NumericTable &>(data).getBlockOfColumnValues(j, start, end - start, readOnly, xBD[nextBDIdx]);
+                const_cast<NumericTable &>(data).getBlockOfColumnValues(j, 
+                    start, end - start, readOnly, xBD[nextBDIdx]);
                 const algorithmFpType * const nx = xBD[nextBDIdx].getBlockPtr();
                 DAAL_PREFETCH_READ_T0(nx);
                 DAAL_PREFETCH_READ_T0(nx + 16);
 
-                for (i = 0; i < end - start; ++i)
+                /*for (i = 0; i < end - start; ++i)
                 {
-                    distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
-                }
+                    const auto de = query[j - 1] - dx[i];
+                    distance[i] += de * de;
+                }*/
+                //printf("New");
+                distance_comp<cpu, algorithmFpType>(dx, query[j - 1], distance, (size_t)(end - start));
 
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
 
-                const auto tempBDIdx = curBDIdx;
-                curBDIdx             = nextBDIdx;
-                nextBDIdx            = tempBDIdx;
+                swap<cpu, decltype(curBDIdx)>(curBDIdx, nextBDIdx);
             }
             {
                 const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
-                for (i = 0; i < end - start; ++i)
+                /*for (i = 0; i < end - start; ++i)
                 {
-                    distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
-                }
+                    const auto de = query[j - 1] - dx[i];
+                    distance[i] += de * de;
+                }*/
+                distance_comp<cpu, algorithmFpType>(dx, query[j - 1], distance, (size_t)(end - start));
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
             }
-
+            printf("\nStart %i, End %i\n", (int) start, (int) end);
             for (i = start; i < end; ++i)
             {
                 if (distance[i - start] <= radius)
@@ -404,8 +481,13 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                     curNeighbor.index    = i;
                     if (heap.size() < k)
                     {
+                        printf("Pushing %i %f\n", (int) curNeighbor.index, (float) curNeighbor.distance);
                         heap.push(curNeighbor, k);
-
+                        for(size_t v = 0; v < heap.size(); v++){
+                            const auto p = heap[v];
+                            printf("H: %i, %f ", (int) p.index, (float) p.distance);
+                        }
+                        printf("\n");
                         if (heap.size() == k)
                         {
                             radius = heap.getMax()->distance;
@@ -415,7 +497,13 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                     {
                         if (heap.getMax()->distance > curNeighbor.distance)
                         {
+                            printf("Replace max %i %f\n", (int) curNeighbor.index, (float) curNeighbor.distance);
                             heap.replaceMax(curNeighbor);
+                            for(size_t v = 0; v < heap.size(); v++){
+                                const auto p = heap[v];
+                                printf("H: %i, %f ", (int) p.index, (float) p.distance);
+                            }
+                            printf("\n");
                             radius = heap.getMax()->distance;
                         }
                     }
@@ -425,6 +513,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             if (!stack.empty())
             {
                 cur = stack.pop();
+                printf("Stack size 1 %i\n", (int) stack.size());
                 DAAL_PREFETCH_READ_T0(static_cast<const KDTreeNode *>(kdTreeTable.getArray()) + cur.nodeIndex);
             }
             else
@@ -444,10 +533,12 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                 val -= node->cutPoint;
                 toPush.minDistance = cur.minDistance + val * val;
                 stack.push(toPush);
+                printf("Stack size 3 %i\n", (int) stack.size());
             }
             else if (!stack.empty())
             {
                 cur = stack.pop();
+                printf("Stack size 2 %i\n", (int) stack.size());
                 DAAL_PREFETCH_READ_T0(static_cast<const KDTreeNode *>(kdTreeTable.getArray()) + cur.nodeIndex);
             }
             else
@@ -464,6 +555,12 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 {
     const size_t heapSize = heap.size();
     if (heapSize < 1) return services::Status();
+
+    for(size_t i = 0; (i < k) && (i < heapSize); i++){
+        const auto& node = heap[i]; 
+        printf("Node: %i, %f\n", (int) node.index, (float) node.distance);
+    }
+    printf("\n");
 
     struct Voting
     {

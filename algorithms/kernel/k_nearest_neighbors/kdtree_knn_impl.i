@@ -146,7 +146,7 @@ public:
         _size *= 2;
         T * const newData = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
         DAAL_CHECK_MALLOC(newData)
-        if (_top == _sizeMinus1)
+        if (_count == 0)
         {
             _top = _size - 1;
         }
@@ -158,7 +158,9 @@ public:
         oldData = nullptr;
         return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
-
+    const T* get_raw(void){
+        return _data;
+    }
 private:
     T * _data;
     size_t _top;
