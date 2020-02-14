@@ -157,6 +157,9 @@ protected:
 
 private:
     ModelImpl *_impl;  /*!< Model implementation */
+
+    Model(const Model&);
+    Model& operator=(const Model&);
 };
 typedef services::SharedPtr<Model> ModelPtr;
 } // namespace interface1

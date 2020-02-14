@@ -212,6 +212,9 @@ protected:
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
+
+private:
+    Online& operator=(const Online &);
 };
 /** @} */
 } // namespace interface1
@@ -392,6 +395,9 @@ protected:
         _result.reset(new ResultType());
         _partialResult.reset(new PartialResultType());
     }
+
+private:
+    Online& operator=(const Online &);
 };
 /** @} */
 } // namespace interface2

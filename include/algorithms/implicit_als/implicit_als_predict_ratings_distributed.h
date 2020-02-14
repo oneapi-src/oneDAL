@@ -225,6 +225,9 @@ protected:
         _par = &parameter;
         _partialResult.reset(new PartialResultType());
     }
+
+private:
+    Distributed& operator=(const Distributed&);
 };
 /** @} */
 } // namespace interface1

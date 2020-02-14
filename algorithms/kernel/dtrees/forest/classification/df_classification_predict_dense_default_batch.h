@@ -72,6 +72,10 @@ public:
     services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const decision_forest::classification::Model * m,
                              NumericTable * r, NumericTable * prob, size_t nClasses);
     PredictClassificationTask<algorithmFpType, cpu>* _task;
+
+private:
+    PredictKernel(const PredictKernel&);
+    PredictKernel& operator=(const PredictKernel&);
 };
 
 } // namespace internal

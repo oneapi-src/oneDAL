@@ -492,6 +492,8 @@ private:
     size_t currentReadBlockOffset;
 
     byte * serializedBuffer;
+
+    DataArchive& operator=(const DataArchive&);
 };
 
 /**
@@ -1229,6 +1231,10 @@ public:
 protected:
     DataArchiveIface * _arch;
     services::SharedPtr<services::ErrorCollection> _errors;
+
+private:
+    OutputDataArchive(const OutputDataArchive&);
+    OutputDataArchive& operator=(const OutputDataArchive&);
 };
 /** @} */
 

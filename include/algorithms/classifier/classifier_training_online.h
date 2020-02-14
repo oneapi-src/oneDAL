@@ -126,6 +126,9 @@ protected:
 
     void initialize() { _in = &input; }
     virtual Online * cloneImpl() const DAAL_C11_OVERRIDE = 0;
+
+private:
+    Online& operator=(const Online &);
 };
 /** @} */
 } // namespace interface1
@@ -224,6 +227,9 @@ protected:
     ResultPtr _result;
 
     virtual Online * cloneImpl() const DAAL_C11_OVERRIDE = 0;
+
+private:
+    Online& operator=(const Online &);
 };
 /** @} */
 } // namespace interface2
