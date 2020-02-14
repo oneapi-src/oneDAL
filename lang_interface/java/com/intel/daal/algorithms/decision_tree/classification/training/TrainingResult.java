@@ -23,7 +23,6 @@ package com.intel.daal.algorithms.decision_tree.classification.training;
 
 import com.intel.daal.utils.*;
 import com.intel.daal.services.DaalContext;
-import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
 import com.intel.daal.algorithms.decision_tree.classification.Model;
 

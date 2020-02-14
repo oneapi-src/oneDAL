@@ -25,8 +25,6 @@ import com.intel.daal.utils.*;
 import java.io.Serializable;
 
 import com.intel.daal.algorithms.ComputeMode;
-import com.intel.daal.algorithms.ComputeStep;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.services.DaalContext;

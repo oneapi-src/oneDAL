@@ -22,10 +22,6 @@
 package com.intel.daal.data_management.data;
 
 import com.intel.daal.utils.*;
-import java.lang.reflect.Field;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
 import com.intel.daal.services.DaalContext;
 

@@ -25,8 +25,6 @@ import com.intel.daal.utils.*;
 import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.algorithms.classifier.training.TrainingResultId;
 import com.intel.daal.algorithms.gbt.classification.Model;
-import com.intel.daal.data_management.data.Factory;
-import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.services.DaalContext;
 
 /**

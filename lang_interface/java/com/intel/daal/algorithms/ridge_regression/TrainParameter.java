@@ -27,10 +27,7 @@ package com.intel.daal.algorithms.ridge_regression;
 import com.intel.daal.utils.*;
 import com.intel.daal.services.DaalContext;
 
-import com.intel.daal.algorithms.ridge_regression.Parameter;
-
 import com.intel.daal.data_management.data.NumericTable;
-import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.Factory;
 
 /**

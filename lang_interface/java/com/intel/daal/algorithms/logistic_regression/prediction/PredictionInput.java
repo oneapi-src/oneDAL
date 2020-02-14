@@ -32,7 +32,6 @@ import com.intel.daal.algorithms.classifier.prediction.NumericTableInputId;
 import com.intel.daal.algorithms.classifier.prediction.ModelInputId;
 import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.NumericTable;
-import com.intel.daal.data_management.data.SerializableBase;
 import com.intel.daal.services.DaalContext;
 
 /**

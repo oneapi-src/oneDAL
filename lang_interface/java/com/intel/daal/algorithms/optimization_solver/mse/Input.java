@@ -25,11 +25,9 @@
 package com.intel.daal.algorithms.optimization_solver.mse;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.services.DaalContext;
-import com.intel.daal.data_management.data.Factory;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__OPTIMIZATION_SOLVER__MSE__INPUT"></a>

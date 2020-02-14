@@ -22,8 +22,6 @@
 package com.intel.daal.algorithms.implicit_als.training;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
-import com.intel.daal.algorithms.ComputeStep;
 import com.intel.daal.algorithms.Precision;
 import com.intel.daal.algorithms.TrainingDistributed;
 import com.intel.daal.algorithms.implicit_als.Parameter;

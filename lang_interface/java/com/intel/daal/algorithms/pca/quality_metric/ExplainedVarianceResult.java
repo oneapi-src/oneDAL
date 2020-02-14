@@ -22,12 +22,9 @@
 package com.intel.daal.algorithms.pca.quality_metric;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.services.DaalContext;
-import com.intel.daal.data_management.data.DataCollection;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__PCA__QUALITY_METRIC__EXPLAINEDVARIANCERESULT"></a>

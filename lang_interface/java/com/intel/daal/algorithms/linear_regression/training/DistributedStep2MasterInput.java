@@ -22,7 +22,6 @@
 package com.intel.daal.algorithms.linear_regression.training;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.services.DaalContext;
 
 /**

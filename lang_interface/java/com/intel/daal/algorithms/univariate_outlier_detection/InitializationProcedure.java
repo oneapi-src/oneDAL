@@ -21,7 +21,6 @@
  */
 package com.intel.daal.algorithms.univariate_outlier_detection;
 
-import java.nio.DoubleBuffer;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.services.DaalContext;
 
