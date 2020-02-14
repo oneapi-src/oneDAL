@@ -15,8 +15,11 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "services/error_handling.h"
 #include "service/kernel/oneapi/select_indexed.h"
 #include "oneapi/internal/utils.h"
+#include "algorithms/kernel/engines/engine_types_internal.h"
+#include "externals/service_rng.h"
 #include "externals/service_ittnotify.h"
 
 using namespace daal::data_management;

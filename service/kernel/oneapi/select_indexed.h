@@ -18,7 +18,7 @@
 #ifndef __SELECT_INDEXED_H__
 #define __SELECT_INDEXED_H__
 
-#include "service/kernel/oneapi/math_service_types.h"
+#include "algorithms/engines/engine.h"
 #include "services/buffer.h"
 #include "service/kernel/oneapi/cl_kernels/select_indexed.cl"
 #include "oneapi/internal/types_utils.h"

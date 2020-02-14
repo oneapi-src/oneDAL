@@ -139,7 +139,7 @@ __kernel void quick_select_group(__global  algorithmFPType           *in_values,
         int split_index             = 0;
         const algorithmFPType rnd   = get_rnd(rnd_seq, RndPeriod, &rnd_count);
         int pos                     = (int)(rnd * (partition_end - partition_start - 1));
-        pos = pos < 0 ? 0 : pos;
+        pos                         = pos < 0 ? 0 : pos;
         const algorithmFPType pivot = values[partition_start + pos];
         int num_of_great            = 0;
         partition_by_values(values, indices, partition_start, partition_end, local_id, local_size, pivot, &split_index, &num_of_great);
