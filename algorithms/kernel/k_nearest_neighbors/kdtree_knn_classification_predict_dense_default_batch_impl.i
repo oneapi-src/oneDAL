@@ -283,13 +283,8 @@ inline void distance_comp(const algorithmFpType* vec, const algorithmFpType& val
 
 template <typename algorithmFpType, CpuType cpu>
 void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(const algorithmFpType * query, 
-    Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap,
-    kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, 
-    size_t k, 
-    algorithmFpType radius,
-    const KDTreeTable & kdTreeTable, 
-    size_t rootTreeNodeIndex, 
-    const NumericTable & data)
+    Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap, kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, 
+    size_t k, algorithmFpType radius, const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data)
 {
     heap.reset();
     stack.reset();
