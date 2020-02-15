@@ -40,8 +40,6 @@
 #include "service_utils.h"
 #include "../service_heap.h"
 
-#include <cstdio>
-
 namespace daal
 {
 namespace algorithms
@@ -284,8 +282,7 @@ inline void distance_comp(const algorithmFpType* vec, const algorithmFpType& val
 }
 
 template <typename algorithmFpType, CpuType cpu>
-void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(
-    const algorithmFpType * query, 
+void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(const algorithmFpType * query, 
     Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap,
     kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, 
     size_t k, 
@@ -416,12 +413,6 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 {
     const size_t heapSize = heap.size();
     if (heapSize < 1) return services::Status();
-
-    printf("Heap:\n");
-    for(size_t i = 0; i < heapSize; i++){
-        const auto& nd = heap[i];
-        printf("Node: %i %f\n", (int) nd.index, (float) nd.distance);
-    }
 
     struct Voting
     {

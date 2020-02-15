@@ -80,93 +80,92 @@ inline const T & max(const T & a, const T & b)
 template <typename T, CpuType cpu>
 class Stack
 {
+private:
+    T * _data;
+    long _top;
+    long _sizeMinus1;
+    size_t _size;
+    /*
+        There was a strong assumption that stack can be initialized by only powers of 2.
+        Due to the usage scenario it's true but wrong in general. This function should fix it.
+    */
+    size_t nextPowerOf2(size_t x)
+    {
+        x--;
+        x |= x >> 1;
+        x |= x >> 2;
+        x |= x >> 4;
+        x |= x >> 8;
+        x |= x >> 16;
+        x |= x >> 32;
+        x++;
+        return x;
+    }
 public:
     Stack() : _data(nullptr) {}
 
-    ~Stack()
-    {
-        services::daal_free(_data);
-        _data = nullptr;
-    }
-
-    bool init(size_t size)
-    {
-        _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(size * sizeof(T)));
-        _size = size;
-        _top = _sizeMinus1 = size - 1;
-        _count             = 0;
-        return _data;
-    }
-
     void clear()
     {
-        if (_data)
+        if (_data != nullptr)
         {
             services::daal_free(_data);
             _data = nullptr;
         }
     }
 
+    ~Stack()
+    {
+        clear();
+    }
+
+    bool init(size_t size)
+    {
+        _size = size ? nextPowerOf2(size) : 1; //Handles both cases size == 0 and size != 0
+        _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
+        _sizeMinus1 = (long) _size - 1;
+        _top = -1;
+        return _data;
+    }
+
     void reset()
     {
-        _top   = _sizeMinus1;
-        _count = 0;
+        _top = -1;
     }
 
     DAAL_FORCEINLINE services::Status push(const T & value)
     {
         services::Status status;
-        if (_count >= _size)
+        if (_top >= _sizeMinus1)
         {
             status = grow();
             DAAL_CHECK_STATUS_VAR(status)
         }
-
-        _top        = (_top + 1) & _sizeMinus1;
-        _data[_top] = value;
-        ++_count;
-
+        _data[++_top] = value;
         return status;
     }
 
     DAAL_FORCEINLINE T pop()
     {
-        const T value = _data[_top--];
-        _top          = _top & _sizeMinus1;
-        --_count;
-        return value;
+        return _data[_top--];
     }
 
-    bool empty() const { return (_count == 0); }
+    bool empty() const { return _top == -1; }
 
-    size_t size() const { return _count; }
+    size_t size() const { return (size_t) (_top + 1); }
 
     services::Status grow()
     {
-        _size *= 2;
+        _size <<= 1; // Equal to multiplying by 2
         T * const newData = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
         DAAL_CHECK_MALLOC(newData)
-        if (_count == 0)
-        {
-            _top = _size - 1;
-        }
-        _sizeMinus1 = _size - 1;
-        int result  = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, _count * sizeof(T));
+        _sizeMinus1 = (long) _size - 1;
+        int result  = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, size() * sizeof(T));
         T * oldData = _data;
         _data       = newData;
         services::daal_free(oldData);
         oldData = nullptr;
         return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
-    const T* get_raw(void){
-        return _data;
-    }
-private:
-    T * _data;
-    size_t _top;
-    size_t _count;
-    size_t _size;
-    size_t _sizeMinus1;
 };
 
 } // namespace internal
