@@ -105,21 +105,20 @@ __kernel void quick_select_group(__global  algorithmFPType           *in_values,
                                  int K,
                                  int BlockOffset) 
 {
-    const int id            = get_global_id(0);
-    const int global_id     = id * get_num_sub_groups() + get_sub_group_id();
+    const int row_id        = get_global_id(0) * get_num_sub_groups() + get_sub_group_id();
     const int local_id      = get_local_id(1);
     const int local_size    = get_sub_group_size();
-    const int max_global_id = get_global_size(0);
+    const int row_number   = get_global_size(0);
 
-    if(global_id >= max_global_id) 
+    if(row_id >= row_number) 
     {
         return;
     }
 
-    N = (global_id == get_global_size(0) - 1) ? NLast : N;
+    N = (row_id == get_global_size(0) - 1) ? NLast : N;
 
-    const int offset_in  = global_id * BlockOffset;
-    const int offset_out = global_id * K;
+    const int offset_in  = row_id * BlockOffset;
+    const int offset_out = row_id * K;
     int partition_start  = 0;
     int partition_end    = N;
     int rnd_count        = 0;
