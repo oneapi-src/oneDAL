@@ -106,6 +106,38 @@ DAAL_FORCEINLINE void sortMaxHeap(RandomAccessIterator first, RandomAccessIterat
     }
 }
 
+/*
+Cut from kdtree_knn_classification_predict_dense_default_batch.i to provide more consistent access
+*/
+
+template<CpuType cpu, typename RandomAccessIterator, typename Addr>
+DAAL_FORCEINLINE void maxHeapUpdate(RandomAccessIterator first, Addr& prev, const Addr i)
+{
+    *(first + prev) = *(first + i);
+    prev            = i;
+}
+
+template <CpuType cpu, typename RandomAccessIterator, typename Compare>
+void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last, Compare compare)
+{
+    auto i = last - first - 1;
+    if (0 < i)
+    {
+        const auto newItem = *(last - 1);
+        auto prev          = i;
+        for (i = heapParentIndex<cpu>(i); i && compare(*(first + i), newItem); i = heapParentIndex<cpu>(i))
+        {
+            maxHeapUpdate<cpu, RandomAccessIterator, decltype(i)>(first, prev, i);
+        }
+        // Last iteration of cycle for case i == 0
+        if(!i && (*(first + i) < newItem))
+        {
+            maxHeapUpdate<cpu, RandomAccessIterator, decltype(i)>(first, prev, i);
+        }
+        *(first + prev) = newItem;
+    }
+}
+
 } // namespace internal
 } // namespace algorithms
 } // namespace daal

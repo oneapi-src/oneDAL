@@ -37,6 +37,8 @@
 #include "kdtree_knn_classification_predict_dense_default_batch.h"
 #include "kdtree_knn_classification_model_impl.h"
 #include "kdtree_knn_impl.i"
+#include "service_utils.h"
+#include "../service_heap.h"
 
 #include <cstdio>
 
@@ -54,22 +56,7 @@ using namespace daal::services::internal;
 using namespace daal::services;
 using namespace daal::internal;
 using namespace kdtree_knn_classification::internal;
-
-/*
-Internal class required to get smth like std::iterator_traits::value_type
-*/
-
-template <typename T>
-struct type_predictor { typedef T type; };
-
-template <typename T>
-struct type_predictor<T*> { typedef T type; };
-
-template <typename T>
-struct type_predictor<T&> { typedef T type; };
-
-template <typename T>
-struct type_predictor<T&&> { typedef T type; };
+using namespace daal::algorithms::internal;
 
 template <typename algorithmFpType, CpuType cpu>
 struct GlobalNeighbors
@@ -83,101 +70,29 @@ struct GlobalNeighbors
     }
 };
 
-template<CpuType cpu, typename T> 
-inline void swap(T& t1, T& t2)
+template <typename algorithmFpType>
+struct SearchNode
 {
-    T temp = t1;
-    t1 = t2;
-    t2 = temp;
-}
-
-template <CpuType cpu, typename T>
-DAAL_FORCEINLINE T heapLeftChildIndex(T index)
-{
-    return 2 * index + 1;
-}
-template <CpuType cpu, typename T>
-DAAL_FORCEINLINE T heapRightChildIndex(T index)
-{
-    return 2 * index + 2;
-}
-template <CpuType cpu, typename T>
-DAAL_FORCEINLINE T heapParentIndex(T index)
-{
-    return (index - 1) / 2;
-}
+    size_t nodeIndex;
+    algorithmFpType minDistance;
+};
 
 /*
-Due to C++ standard ```a[n] == *(a + n)``` if ```a``` is RandomAccessIterator
-https://en.cppreference.com/w/cpp/experimental/ranges/iterator/RandomAccessIterator
+Functor to provide compare operator fot GlobalNeighbor
+We use such structure to provide as small as possible overhead on forwarding comparator
 */
 
-template <CpuType cpu, typename RandomAccessIterator>
-void pushMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
+template<CpuType cpu, typename algorithmFpType>
+struct GlobalNeighborComparator
 {
-    typedef typename type_predictor<decltype(first)>::type vtype;
-    auto i = last - first - 1;
-    if (0 < i)
+    typedef GlobalNeighbors<algorithmFpType, cpu> GN;
+    static DAAL_FORCEINLINE bool comp(const GN& left, const GN& right)
     {
-        const vtype newItem = *(last - 1);
-        auto prev          = i;
-        for (i = heapParentIndex<cpu>(i); first[i] < newItem; i = heapParentIndex<cpu>(i))
-        {
-            first[prev] = first[i];
-            prev            = i;
-            if(!i)  break;//!!!!!!!!
-        }
-        first[prev] = newItem;
+        return left.distance < right.distance;
     }
-}
+};
 
-template <CpuType cpu, typename RandomAccessIterator, typename Diff>
-DAAL_FORCEINLINE void internalAdjustMaxHeap(RandomAccessIterator first, RandomAccessIterator /*last*/, Diff count, Diff i)
-{
-    for (auto largest = i;; i = largest)
-    {
-        const auto l = heapLeftChildIndex<cpu>(i);
-        if ((l < count) && (first[largest] < first[l]))
-        {
-            largest = l;
-        }
-        const auto r = heapRightChildIndex<cpu>(i);
-        if ((r < count) && (first[largest] < first[r]))
-        {
-            largest = r;
-        }
-
-        if (largest == i)
-        {
-            break;
-        }
-        swap<cpu, type_predictor<decltype(first)>::type >(first[i], first[largest]);
-    }
-}
-
-template <CpuType cpu, typename RandomAccessIterator>
-void popMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
-{
-    if (1 < last - first)
-    {
-        --last;
-        swap<cpu, type_predictor<decltype(first)>::type >(*last, *first);
-        internalAdjustMaxHeap<cpu>(first, last, last - first, first - first);
-    }
-}
-
-template <CpuType cpu, typename RandomAccessIterator>
-void makeMaxHeap(RandomAccessIterator first, RandomAccessIterator last)
-{
-    const auto count = last - first;
-    auto i           = count / 2;
-    while (0 < i)
-    {
-        internalAdjustMaxHeap<cpu>(first, last, count, --i);
-    }
-}
-
-template <typename T, CpuType cpu>
+template <typename T, CpuType cpu, typename Comparator>
 class Heap
 {
 public:
@@ -212,15 +127,15 @@ public:
         _elements[_count++] = e;
         if (_count == k)
         {
-            makeMaxHeap<cpu>(_elements, _elements + _count);
+            makeMaxHeap<cpu>(_elements, _elements + _count, Comparator::comp);
         }
     }
 
     void replaceMax(const T & e)
     {
-        popMaxHeap<cpu>(_elements, _elements + _count);
+        popMaxHeap<cpu>(_elements, _elements + _count, Comparator::comp);
         _elements[_count - 1] = e;
-        pushMaxHeap<cpu>(_elements, _elements + _count);
+        pushMaxHeap<cpu>(_elements, _elements + _count, Comparator::comp);
     }
 
     size_t size() const { return _count; }
@@ -237,13 +152,6 @@ private:
     size_t _count;
 };
 
-template <typename algorithmFpType>
-struct SearchNode
-{
-    size_t nodeIndex;
-    algorithmFpType minDistance;
-};
-
 template <typename algorithmFpType, CpuType cpu>
 Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compute(
     const NumericTable * x, 
@@ -254,7 +162,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     Status status;
 
     typedef GlobalNeighbors<algorithmFpType, cpu> Neighbors;
-    typedef Heap<Neighbors, cpu> MaxHeap;
+    typedef Heap<Neighbors, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > MaxHeap;
     typedef kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> SearchStack;
     typedef daal::services::internal::MaxVal<algorithmFpType> MaxVal;
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
@@ -367,11 +275,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 Function that reduces code duplication
 */
 template<CpuType cpu, typename algorithmFpType>
-inline void distance_comp(
-    const algorithmFpType* vec, 
-    const algorithmFpType& val, 
-    algorithmFpType* out,
-    size_t length)
+inline void distance_comp(const algorithmFpType* vec, const algorithmFpType& val, algorithmFpType* out, size_t length)
 {
     for(size_t i = 0; i < length; i++){
         const auto de = vec[i] - val;
@@ -382,7 +286,7 @@ inline void distance_comp(
 template <typename algorithmFpType, CpuType cpu>
 void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(
     const algorithmFpType * query, 
-    Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
+    Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap,
     kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, 
     size_t k, 
     algorithmFpType radius,
@@ -435,7 +339,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
 
                 const_cast<NumericTable &>(data).releaseBlockOfColumnValues(xBD[curBDIdx]);
 
-                swap<cpu, decltype(curBDIdx)>(curBDIdx, nextBDIdx);
+                daal::services::internal::swap<cpu, size_t>(curBDIdx, nextBDIdx);
             }
             {
                 const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
@@ -508,10 +412,16 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
 
 template <typename algorithmFpType, CpuType cpu>
 services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::predict(
-    algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap, const NumericTable & labels, size_t k)
+    algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap, const NumericTable & labels, size_t k)
 {
     const size_t heapSize = heap.size();
     if (heapSize < 1) return services::Status();
+
+    printf("Heap:\n");
+    for(size_t i = 0; i < heapSize; i++){
+        const auto& nd = heap[i];
+        printf("Node: %i %f\n", (int) nd.index, (float) nd.distance);
+    }
 
     struct Voting
     {
