@@ -66,6 +66,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable *y = input->get(classifier::training::labels).get();
 
     decision_forest::classification::Model *m = result->get(classifier::training::model).get();
+    m->setNFeatures(x->getNumberOfColumns());
 
     const decision_forest::classification::training::interface1::Parameter *par =
         static_cast<decision_forest::classification::training::interface1::Parameter*>(_par);
