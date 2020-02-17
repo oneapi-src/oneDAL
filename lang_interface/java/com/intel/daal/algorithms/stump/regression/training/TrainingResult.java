@@ -22,7 +22,6 @@
 package com.intel.daal.algorithms.stump.regression.training;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.algorithms.stump.regression.Model;
 import com.intel.daal.algorithms.regression.training.TrainingResultId;
 import com.intel.daal.services.DaalContext;

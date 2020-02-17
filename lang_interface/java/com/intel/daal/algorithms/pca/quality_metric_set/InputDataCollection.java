@@ -25,7 +25,6 @@ package com.intel.daal.algorithms.pca.quality_metric_set;
 
 import com.intel.daal.utils.*;
 import com.intel.daal.algorithms.ComputeMode;
-import com.intel.daal.algorithms.Input;
 import com.intel.daal.services.DaalContext;
 import com.intel.daal.algorithms.pca.quality_metric.ExplainedVarianceInput;
 import com.intel.daal.algorithms.quality_metric.QualityMetricInput;

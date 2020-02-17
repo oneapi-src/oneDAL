@@ -22,7 +22,6 @@
 package com.intel.daal.algorithms;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.utils.*;
 import com.intel.daal.data_management.data.SerializableBase;
 import com.intel.daal.services.DaalContext;
 import com.intel.daal.data_management.data.Factory;
