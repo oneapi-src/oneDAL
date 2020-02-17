@@ -22,8 +22,6 @@
 package com.intel.daal.algorithms.multinomial_naive_bayes.training;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.algorithms.classifier.training.PartialResultId;
 import com.intel.daal.algorithms.multinomial_naive_bayes.PartialModel;
 import com.intel.daal.services.DaalContext;

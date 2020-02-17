@@ -74,7 +74,7 @@ public final class LibUtils{
      * @param path   sub folder (in temporary folder) name
      * @param name   library name
      */
-    private static void loadFromJar(String path, String name) throws Throwable
+    private static void loadFromJar(String path, String name) throws IOException
     {
         String FullName = createLibraryFileName(name);
 

@@ -22,7 +22,6 @@
 package com.intel.daal.algorithms.bacon_outlier_detection;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.services.DaalContext;

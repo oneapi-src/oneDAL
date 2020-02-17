@@ -23,7 +23,6 @@
  */
 package com.intel.daal.algorithms.gbt.classification.prediction;
 
-import com.intel.daal.algorithms.classifier.Parameter;
 import com.intel.daal.services.DaalContext;
 
 /**

@@ -25,7 +25,6 @@ package com.intel.daal.algorithms.multi_class_classifier;
 
 import com.intel.daal.algorithms.multi_class_classifier.training.TrainingMethod;
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.data_management.data.SerializableBase;
 import com.intel.daal.services.DaalContext;
 

@@ -32,10 +32,7 @@
 package com.intel.daal.algorithms.optimization_solver.sum_of_functions;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.AnalysisBatch;
-import com.intel.daal.algorithms.Precision;
 import com.intel.daal.services.DaalContext;
-import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.algorithms.optimization_solver.objective_function.Result;
 import com.intel.daal.algorithms.optimization_solver.sum_of_functions.Input;
 import com.intel.daal.algorithms.optimization_solver.sum_of_functions.Parameter;

@@ -29,7 +29,6 @@ import com.intel.daal.services.DaalContext;
 
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.data_management.data.Factory;
-import com.intel.daal.data_management.data.Factory;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LASSO_REGRESSION__TRAINPARAMETER"></a>

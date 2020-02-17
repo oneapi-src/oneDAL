@@ -24,14 +24,9 @@ package com.intel.daal.data_management.data;
 import com.intel.daal.utils.*;
 import java.io.Serializable;
 import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-
-import com.intel.daal.services.DaalContext;
 
 class PackedSymmetricMatrixUtils {
     /** @private */

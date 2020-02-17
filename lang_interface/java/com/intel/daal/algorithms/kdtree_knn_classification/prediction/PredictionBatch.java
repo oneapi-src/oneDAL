@@ -26,7 +26,6 @@
 package com.intel.daal.algorithms.kdtree_knn_classification.prediction;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.algorithms.Precision;
 import com.intel.daal.algorithms.kdtree_knn_classification.Parameter;
 import com.intel.daal.services.DaalContext;
