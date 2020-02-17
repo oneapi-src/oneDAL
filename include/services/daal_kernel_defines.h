@@ -129,6 +129,8 @@
     #define DAAL_KERNEL_AVX512_CONTAINER1(ContainerTemplate, ...)
     #define DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, ...)
 #endif
+
+#define DAAL_EXPAND(...) __VA_ARGS__
 /** @} */
 
 #endif
