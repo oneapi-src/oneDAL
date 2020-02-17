@@ -29,9 +29,9 @@
 DECLARE_SOURCE(
     quick_select_simd,
 
-algorithmFPType get_rnd(   __global  const algorithmFPType *rnd_seq,
-                int RndPeriod,
-                int *count) 
+algorithmFPType get_rnd(__global  const algorithmFPType *rnd_seq,
+                        int RndPeriod,
+                        int *count) 
 {
     algorithmFPType ret = rnd_seq[(*count)++];
     if(*count >= RndPeriod)
