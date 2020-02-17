@@ -31,11 +31,11 @@ namespace internal
 {
 typedef daal::data_management::NumericTable::StorageLayout NTLayout;
 
-const uint32_t floatExpMask = 0x7f800000u;
+const uint32_t floatExpMask  = 0x7f800000u;
 const uint32_t floatFracMask = 0x007fffffu;
 const uint32_t floatZeroBits = 0x00000000u;
 
-const uint64_t doubleExpMask = 0x7ff0000000000000uLL;
+const uint64_t doubleExpMask  = 0x7ff0000000000000uLL;
 const uint64_t doubleFracMask = 0x000fffffffffffffuLL;
 const uint64_t doubleZeroBits = 0x0000000000000000uLL;
 
@@ -45,8 +45,7 @@ bool valuesAreNotFinite(const float * dataPtr, size_t n, bool allowNaN)
 
     for (size_t i = 0; i < n; ++i)
         // check: all value exponent bits are 1 (so, it's inf or nan) and it's not allowed nan
-        if ( floatExpMask == (uint32Ptr[i] & floatExpMask) && !( floatZeroBits != (uint32Ptr[i] & floatFracMask) && allowNaN ) )
-            return true;
+        if (floatExpMask == (uint32Ptr[i] & floatExpMask) && !(floatZeroBits != (uint32Ptr[i] & floatFracMask) && allowNaN)) return true;
     return false;
 }
 
@@ -56,8 +55,7 @@ bool valuesAreNotFinite(const double * dataPtr, size_t n, bool allowNaN)
 
     for (size_t i = 0; i < n; ++i)
         // check: all value exponent bits are 1 (so, it's inf or nan) and it's not allowed nan
-        if ( doubleExpMask == (uint64Ptr[i] & doubleExpMask) && !( doubleZeroBits != (uint64Ptr[i] & doubleFracMask) && allowNaN ) )
-            return true;
+        if (doubleExpMask == (uint64Ptr[i] & doubleExpMask) && !(doubleZeroBits != (uint64Ptr[i] & doubleFracMask) && allowNaN)) return true;
     return false;
 }
 
@@ -75,8 +73,7 @@ template <typename DataType, daal::CpuType cpu>
 bool checkFiniteness(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
 {
     bool notFinite = false;
-    for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx)
-        notFinite |= valuesAreNotFinite(dataPtrs[ptrIdx], nElementsPerPtr, allowNaN);
+    for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx) notFinite |= valuesAreNotFinite(dataPtrs[ptrIdx], nElementsPerPtr, allowNaN);
 
     return !notFinite;
 }
@@ -159,15 +156,14 @@ double computeSum<double, avx512>(size_t nDataPtrs, size_t nElementsPerPtr, cons
 }
 
 services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
-                             size_t nSurplus, bool allowNaN, bool & finiteness)
+                                         size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 16;
     services::internal::TArray<bool, avx512> notFiniteArr(nTotalBlocks);
     bool * notFinitePtr = notFiniteArr.get();
     DAAL_CHECK_MALLOC(notFinitePtr);
-    for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock)
-        notFinitePtr[iBlock] = false;
+    for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) notFinitePtr[iBlock] = false;
 
     runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
         size_t ptrIdx        = iBlock / nBlocksPerPtr;
@@ -198,15 +194,14 @@ services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParalle
             __mmask16 orMask    = _kor_mask16(fracAreZeros, notAllowNaNMask);
             __mmask16 finalMask = _kand_mask16(expAreOnes, orMask);
 
-            if ( _cvtmask16_u32(finalMask) != 0 )
-                notFinitePtr[iBlock] = true;
+            if (_cvtmask16_u32(finalMask) != 0) notFinitePtr[iBlock] = true;
         }
         size_t offset = start + (lcSize / nPerInstr) * nPerInstr;
         notFinitePtr[iBlock] |= valuesAreNotFinite(dataPtrs[ptrIdx] + offset, end - offset, allowNaN);
     });
 
     for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock)
-        if ( notFinitePtr[iBlock] )
+        if (notFinitePtr[iBlock])
         {
             finiteness = false;
             return s;
@@ -215,16 +210,15 @@ services::Status checkFinitenessInBlocks(const float ** dataPtrs, bool inParalle
     return s;
 }
 
-services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr,
-                             size_t nPerBlock, size_t nSurplus, bool allowNaN, bool & finiteness)
+services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParallel, size_t nTotalBlocks, size_t nBlocksPerPtr, size_t nPerBlock,
+                                         size_t nSurplus, bool allowNaN, bool & finiteness)
 {
     services::Status s;
     const size_t nPerInstr = 8;
     services::internal::TArray<bool, avx512> notFiniteArr(nTotalBlocks);
     bool * notFinitePtr = notFiniteArr.get();
     DAAL_CHECK_MALLOC(notFinitePtr);
-    for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock)
-        notFinitePtr[iBlock] = false;
+    for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) notFinitePtr[iBlock] = false;
 
     runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
         size_t ptrIdx        = iBlock / nBlocksPerPtr;
@@ -255,15 +249,14 @@ services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParall
             __mmask8 orMask    = _kor_mask8(fracAreZeros, notAllowNaNMask);
             __mmask8 finalMask = _kand_mask8(expAreOnes, orMask);
 
-            if ( _cvtmask8_u32(finalMask) != 0 )
-                notFinitePtr[iBlock] = true;
+            if (_cvtmask8_u32(finalMask) != 0) notFinitePtr[iBlock] = true;
         }
         size_t offset = start + (lcSize / nPerInstr) * nPerInstr;
         notFinitePtr[iBlock] |= valuesAreNotFinite(dataPtrs[ptrIdx] + offset, end - offset, allowNaN);
     });
 
     for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock)
-        if ( notFinitePtr[iBlock] )
+        if (notFinitePtr[iBlock])
         {
             finiteness = false;
             return s;
@@ -273,8 +266,7 @@ services::Status checkFinitenessInBlocks(const double ** dataPtrs, bool inParall
 }
 
 template <typename DataType>
-bool checkFinitenessAVX512Impl(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs,
-                               bool allowNaN)
+bool checkFinitenessAVX512Impl(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
 {
     size_t nBlocksPerPtr = nElementsPerPtr / BLOCK_SIZE;
     if (nBlocksPerPtr == 0) nBlocksPerPtr = 1;
@@ -289,15 +281,13 @@ bool checkFinitenessAVX512Impl(const size_t nElements, size_t nDataPtrs, size_t 
 }
 
 template <>
-bool checkFiniteness<float, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs,
-                                    bool allowNaN)
+bool checkFiniteness<float, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const float ** dataPtrs, bool allowNaN)
 {
     return checkFinitenessAVX512Impl<float>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
 
 template <>
-bool checkFiniteness<double, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs,
-                                     bool allowNaN)
+bool checkFiniteness<double, avx512>(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const double ** dataPtrs, bool allowNaN)
 {
     return checkFinitenessAVX512Impl<double>(nElements, nDataPtrs, nElementsPerPtr, dataPtrs, allowNaN);
 }
