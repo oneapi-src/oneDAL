@@ -69,7 +69,7 @@ int main(int argc, char * argv[])
 
     /* Set an input data table for the algorithm */
     algorithm.input.set(em_gmm::data, dataSource.getNumericTable());
-    algorithm.input.set(em_gmm::inputValues, initAlgorihm.getResult());
+    algorithm.input.set(em_gmm::inputValues, resultInit);
 
     /* Compute the results of the EM algorithm for the GMM with the default parameters */
     algorithm.compute();

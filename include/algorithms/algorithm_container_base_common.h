@@ -97,6 +97,10 @@ public:
 
 protected:
     AlgorithmContainerImpl<mode> * _cntr;
+
+private:
+    AlgorithmDispatchContainer(const AlgorithmDispatchContainer&);
+    AlgorithmDispatchContainer& operator=(const AlgorithmDispatchContainer&);
 };
 
 #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                        \
