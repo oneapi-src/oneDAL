@@ -48,8 +48,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
 
-    NumericTable * a                  = static_cast<NumericTable *>(input->get(data).get());
-    NumericTable * r                  = static_cast<NumericTable *>(result->get(weights).get());
+    NumericTable * a = static_cast<NumericTable *>(input->get(data).get());
+    NumericTable * r = static_cast<NumericTable *>(result->get(weights).get());
 
     NumericTable * locationTable  = static_cast<NumericTable *>(input->get(InputId::location).get());
     NumericTable * scatterTable   = static_cast<NumericTable *>(input->get(InputId::scatter).get());

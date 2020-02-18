@@ -28,12 +28,11 @@ namespace bf_knn_classification
 {
 namespace training
 {
-
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, int method)
 {
     services::Status status;
-    const classifier::training::Input *algInput = static_cast<const classifier::training::Input *>(input);
+    const classifier::training::Input * algInput = static_cast<const classifier::training::Input *>(input);
     bf_knn_classification::ModelPtr mptr(new Model(algInput->getNumberOfFeatures()));
     DAAL_CHECK(mptr, services::ErrorNullResult);
     set(classifier::training::model, mptr);

@@ -298,54 +298,54 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
                 return;
             }
 
-        const size_t _startRow = iBlock * numRowsInBlock;
-        const size_t _nRows    = (iBlock < (numRowsBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
+            const size_t _startRow = iBlock * numRowsInBlock;
+            const size_t _nRows    = (iBlock < (numRowsBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
 
-        daal::internal::ReadRows<algorithmFPType, cpu, NumericTable> dataTableBD(dataTable, _startRow, _nRows);
-        DAAL_CHECK_BLOCK_STATUS_THR(dataTableBD);
-        const algorithmFPType * _dataArray_block = dataTableBD.get();
+            daal::internal::ReadRows<algorithmFPType, cpu, NumericTable> dataTableBD(dataTable, _startRow, _nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(dataTableBD);
+            const algorithmFPType * _dataArray_block = dataTableBD.get();
 
-        for (size_t i = 0; i < _nRows; i++)
-        {
-            /* loop invariants */
-#if defined _MEAN_ENABLE_ || defined _SORM_ENABLE_
-            const algorithmFPType _invN = algorithmFPType(1.0) / algorithmFPType(_td->nvectors + 1);
-#endif
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < _cd.nFeatures; j++)
+            for (size_t i = 0; i < _nRows; i++)
             {
-                const algorithmFPType arg = _dataArray_block[i * _cd.nFeatures + j];
+                /* loop invariants */
+#if defined _MEAN_ENABLE_ || defined _SORM_ENABLE_
+                const algorithmFPType _invN = algorithmFPType(1.0) / algorithmFPType(_td->nvectors + 1);
+#endif
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t j = 0; j < _cd.nFeatures; j++)
+                {
+                    const algorithmFPType arg = _dataArray_block[i * _cd.nFeatures + j];
 
 #if defined _SUM2_ENABLE_ || defined _SORM_ENABLE_
-                const algorithmFPType arg2 = arg * arg;
+                    const algorithmFPType arg2 = arg * arg;
 #endif
 #if defined _MEAN_ENABLE_ || defined _SUM2C_ENABLE_ || defined _VARC_ENABLE_ || defined _STDEV_ENABLE_ || defined _VART_ENABLE_
-                const algorithmFPType delta = arg - _td->mean[j];
+                    const algorithmFPType delta = arg - _td->mean[j];
 #endif
 #ifdef _MIN_ENABLE_
-                _td->min[j] = arg < _td->min[j] ? arg : _td->min[j];
+                    _td->min[j] = arg < _td->min[j] ? arg : _td->min[j];
 #endif
 #ifdef _MAX_ENABLE_
-                _td->max[j] = arg > _td->max[j] ? arg : _td->max[j];
+                    _td->max[j] = arg > _td->max[j] ? arg : _td->max[j];
 #endif
 #if (defined _SUM_ENABLE_) || (defined _MEAN_ENABLE_)
-                _td->sum[j] += arg;
+                    _td->sum[j] += arg;
 #endif
 #ifdef _SUM2_ENABLE_
-                _td->sum2[j] += arg2;
+                    _td->sum2[j] += arg2;
 #endif
 #ifdef _MEAN_ENABLE_
-                _td->mean[j] += delta * _invN;
+                    _td->mean[j] += delta * _invN;
 #endif
 #if defined _SUM2C_ENABLE_ || defined _VARC_ENABLE_ || defined _STDEV_ENABLE_ || defined _VART_ENABLE_
-                _td->varc[j] += delta * (arg - _td->mean[j]);
+                    _td->varc[j] += delta * (arg - _td->mean[j]);
 #endif
-            }
+                }
 
-            _td->nvectors++;
-        }
-    });
+                _td->nvectors++;
+            }
+        });
     } // end for DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsOnlineTask.ProcessBlocks);
 
     {
@@ -356,120 +356,120 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
         bool bMemoryAllocationFailed = false;
 
         /* Merge results by TLS buffers */
-    tls_data.reduce([&](tls_moments_data_t<algorithmFPType, cpu> * _td) {
-        if (_td->malloc_errors)
-        {
-            bMemoryAllocationFailed = true;
-            delete _td;
-            return;
-        }
-        if (!safeStat)
-        {
-            delete _td;
-            return;
-        }
+        tls_data.reduce([&](tls_moments_data_t<algorithmFPType, cpu> * _td) {
+            if (_td->malloc_errors)
+            {
+                bMemoryAllocationFailed = true;
+                delete _td;
+                return;
+            }
+            if (!safeStat)
+            {
+                delete _td;
+                return;
+            }
 
-        /* loop invariants */
-        algorithmFPType n1_p_n2        = n_current + _td->nvectors;
-        algorithmFPType n1_m_n2        = n_current * _td->nvectors;
-        algorithmFPType delta_scale    = n1_m_n2 / n1_p_n2;
-        algorithmFPType mean_scale     = algorithmFPType(1.0) / (n1_p_n2);
-        algorithmFPType variance_scale = algorithmFPType(1.0) / (n1_p_n2 - algorithmFPType(1.0));
+            /* loop invariants */
+            algorithmFPType n1_p_n2        = n_current + _td->nvectors;
+            algorithmFPType n1_m_n2        = n_current * _td->nvectors;
+            algorithmFPType delta_scale    = n1_m_n2 / n1_p_n2;
+            algorithmFPType mean_scale     = algorithmFPType(1.0) / (n1_p_n2);
+            algorithmFPType variance_scale = algorithmFPType(1.0) / (n1_p_n2 - algorithmFPType(1.0));
 
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < _cd.nFeatures; j++)
-        {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = 0; j < _cd.nFeatures; j++)
+            {
 #if defined _MEAN_ENABLE_ || defined _SUM2C_ENABLE_ || defined _VARC_ENABLE_ || defined _STDEV_ENABLE_ || defined _VART_ENABLE_
-            algorithmFPType delta = _td->mean[j] - _cd.mean[j];
+                algorithmFPType delta = _td->mean[j] - _cd.mean[j];
 #endif
 #ifdef _MIN_ENABLE_
-            if (_td->min[j] < _min[j]) _min[j] = _td->min[j]; /* merging _min */
+                if (_td->min[j] < _min[j]) _min[j] = _td->min[j]; /* merging _min */
 #endif
 #ifdef _MAX_ENABLE_
-            if (_td->max[j] > _max[j]) _max[j] = _td->max[j]; /* merging _max */
+                if (_td->max[j] > _max[j]) _max[j] = _td->max[j]; /* merging _max */
 #endif
 #if (defined _SUM_ENABLE_) || (defined _MEAN_ENABLE_)
-            _sums[j] += _td->sum[j]; /* merging _sums */
+                _sums[j] += _td->sum[j]; /* merging _sums */
 #endif
 #ifdef _SUM2_ENABLE_
-            _sumSq[j] += _td->sum2[j]; /* merging sum2 */
+                _sumSq[j] += _td->sum2[j]; /* merging sum2 */
 #endif
 #if defined _VARC_ENABLE_ || defined _STDEV_ENABLE_ || defined _VART_ENABLE_
-            _cd.variance[j] =
-                (_td->varc[j] + _cd.variance[j] * (n_current - 1) + delta * delta * delta_scale) * variance_scale; /* merging variances */
+                _cd.variance[j] =
+                    (_td->varc[j] + _cd.variance[j] * (n_current - 1) + delta * delta * delta_scale) * variance_scale; /* merging variances */
 #endif
 #ifdef _MEAN_ENABLE_
-            _cd.mean[j] = (_cd.mean[j] * n_current + _td->mean[j] * _td->nvectors) * mean_scale; /* merging means */
+                _cd.mean[j] = (_cd.mean[j] * n_current + _td->mean[j] * _td->nvectors) * mean_scale; /* merging means */
 #endif
-        }
-        /* Increase number of already merged values */
-        n_current += _td->nvectors;
+            }
+            /* Increase number of already merged values */
+            n_current += _td->nvectors;
 
-        delete _td;
-    });
+            delete _td;
+        });
 
-    if (bMemoryAllocationFailed) return Status(daal::services::ErrorMemoryAllocationFailed);
-    DAAL_CHECK_SAFE_STATUS();
+        if (bMemoryAllocationFailed) return Status(daal::services::ErrorMemoryAllocationFailed);
+        DAAL_CHECK_SAFE_STATUS();
 
-    if (isOnline)
-    {
+        if (isOnline)
+        {
 #if (defined _SUM_ENABLE_) || (defined _MEAN_ENABLE_)
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < _cd.nFeatures; i++)
-        {
-            _sums[i] += _cd.prevSums[i];
-        }
-#endif
-    }
-
-#if (defined _SUM2C_ENABLE_) || (defined _VARC_ENABLE_) || (defined _STDEV_ENABLE_) || (defined _VART_ENABLE_)
-    if (_cd.nVectors > 0)
-    {
-        algorithmFPType nVectorsM1 = (algorithmFPType)(_cd.nVectors - 1);
-        if (!isOnline)
-        {
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
             for (size_t i = 0; i < _cd.nFeatures; i++)
             {
-                _sumSqCen[i] = _cd.variance[i] * nVectorsM1;
+                _sums[i] += _cd.prevSums[i];
             }
-        }
-        else /* isOnline */
-        {
-            if (nObs == 0)
-            {
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < _cd.nFeatures; i++)
-                {
-                    _sumSqCen[i] += _cd.variance[i] * nVectorsM1;
-                }
-            }
-            else /* if (nObs != 0) */
-            {
-                algorithmFPType invPrevNVectors = 1.0 / (algorithmFPType)nObs;
-                algorithmFPType invNVectors     = 1.0 / (algorithmFPType)_cd.nVectors;
-                algorithmFPType coeff           = (algorithmFPType)(nObs * _cd.nVectors) / (algorithmFPType)(nObs + _cd.nVectors);
-
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < _cd.nFeatures; i++)
-                {
-                    algorithmFPType mean1 = _cd.prevSums[i] * invPrevNVectors;
-                    algorithmFPType mean2 = (_sums[i] - _cd.prevSums[i]) * invNVectors;
-
-                    algorithmFPType ssqdm2 = _cd.variance[i] * nVectorsM1;
-
-                    _sumSqCen[i] += (ssqdm2 + coeff * (mean1 * mean1 + mean2 * mean2 - 2 * mean1 * mean2));
-                }
-            } /* if (nObs != 0) */
-        }     /* isOnline */
-    }         /* if (_cd.nVectors > 0) */
 #endif
-    }// end for DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsOnlineTask.MergeBlocks);
+        }
+
+#if (defined _SUM2C_ENABLE_) || (defined _VARC_ENABLE_) || (defined _STDEV_ENABLE_) || (defined _VART_ENABLE_)
+        if (_cd.nVectors > 0)
+        {
+            algorithmFPType nVectorsM1 = (algorithmFPType)(_cd.nVectors - 1);
+            if (!isOnline)
+            {
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t i = 0; i < _cd.nFeatures; i++)
+                {
+                    _sumSqCen[i] = _cd.variance[i] * nVectorsM1;
+                }
+            }
+            else /* isOnline */
+            {
+                if (nObs == 0)
+                {
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t i = 0; i < _cd.nFeatures; i++)
+                    {
+                        _sumSqCen[i] += _cd.variance[i] * nVectorsM1;
+                    }
+                }
+                else /* if (nObs != 0) */
+                {
+                    algorithmFPType invPrevNVectors = 1.0 / (algorithmFPType)nObs;
+                    algorithmFPType invNVectors     = 1.0 / (algorithmFPType)_cd.nVectors;
+                    algorithmFPType coeff           = (algorithmFPType)(nObs * _cd.nVectors) / (algorithmFPType)(nObs + _cd.nVectors);
+
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t i = 0; i < _cd.nFeatures; i++)
+                    {
+                        algorithmFPType mean1 = _cd.prevSums[i] * invPrevNVectors;
+                        algorithmFPType mean2 = (_sums[i] - _cd.prevSums[i]) * invNVectors;
+
+                        algorithmFPType ssqdm2 = _cd.variance[i] * nVectorsM1;
+
+                        _sumSqCen[i] += (ssqdm2 + coeff * (mean1 * mean1 + mean2 * mean2 - 2 * mean1 * mean2));
+                    }
+                } /* if (nObs != 0) */
+            }     /* isOnline */
+        }         /* if (_cd.nVectors > 0) */
+#endif
+    } // end for DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsOnlineTask.MergeBlocks);
 
     _cd.resultArray[(int)nObservations][0] += (algorithmFPType)(_cd.nVectors);
 

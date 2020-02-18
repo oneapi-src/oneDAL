@@ -81,7 +81,6 @@ decision_forest::classification::ModelPtr buildModel()
     ModelBuilder::NodeId child31 = modelBuilder.addLeafNode(tree3, root3, 0, 2);
     modelBuilder.setNFeatures(nFeatures);
     return modelBuilder.getModel();
-
 }
 
 void testModel(decision_forest::classification::ModelPtr & model)

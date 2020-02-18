@@ -159,7 +159,7 @@ protected:
     }
 
 private:
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -316,7 +316,7 @@ protected:
     }
 
 private:
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 /** @} */
 } // namespace interface1
@@ -443,7 +443,7 @@ protected:
     }
 
 private:
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -600,7 +600,7 @@ protected:
     }
 
 private:
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 /** @} */
 } // namespace interface2

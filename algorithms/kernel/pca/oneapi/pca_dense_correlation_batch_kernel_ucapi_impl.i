@@ -130,7 +130,6 @@ Status PCACorrelationKernelUCAPI<algorithmFPType>::compute(bool isCorrelation, b
         // copying variances. Means are computed inplace
         // with help of setResult in BatchContainer
 
-
         if (resultsToCompute & mean)
         {
             auto mean_cov = covarianceAlg->getResult()->get(covariance::mean);

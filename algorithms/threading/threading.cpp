@@ -30,7 +30,7 @@
     #include <tbb/spin_mutex.h>
     #include "tbb/scalable_allocator.h"
 #else
-#include "externals/service_service.h"
+    #include "externals/service_service.h"
 #endif
 
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)

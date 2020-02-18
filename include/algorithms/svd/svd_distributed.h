@@ -203,7 +203,7 @@ protected:
     }
 
 private:
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -320,7 +320,7 @@ protected:
 private:
     DistributedPartialResultPtr _partialResult;
 
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -447,7 +447,7 @@ protected:
 private:
     DistributedPartialResultStep3Ptr _partialResult;
 
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 /** @} */
 } // namespace interface1

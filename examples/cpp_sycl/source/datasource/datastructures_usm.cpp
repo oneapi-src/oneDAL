@@ -33,9 +33,7 @@ using namespace daal;
 using namespace daal::services;
 using namespace daal::data_management;
 
-#define IS_USM_SUPPORTED \
-    (defined(__SYCL_COMPILER_VERSION)) && \
-    (__SYCL_COMPILER_VERSION >= 20191001)
+#define IS_USM_SUPPORTED (defined(__SYCL_COMPILER_VERSION)) && (__SYCL_COMPILER_VERSION >= 20191001)
 
 uint32_t generateMinStd(uint32_t x)
 {
@@ -46,7 +44,7 @@ uint32_t generateMinStd(uint32_t x)
 }
 
 /* Compute correlation matrix */
-NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table)
+NumericTablePtr computeCorrelationMatrix(const NumericTablePtr & table)
 {
     using namespace daal::algorithms;
 
@@ -62,55 +60,49 @@ NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table)
 #if IS_USM_SUPPORTED
 
 /* Fill the buffer with pseudo random numbers generated with MinStd engine */
-cl::sycl::event generateData(cl::sycl::queue &q, float *deviceData,
-                             size_t nRows, size_t nCols)
+cl::sycl::event generateData(cl::sycl::queue & q, float * deviceData, size_t nRows, size_t nCols)
 {
     using namespace cl::sycl;
-    return q.submit([&](handler &cgh)
-    {
-        cgh.parallel_for<class FillTable>(range<1>(nRows), [=](id<1> idx)
-        {
+    return q.submit([&](handler & cgh) {
+        cgh.parallel_for<class FillTable>(range<1>(nRows), [=](id<1> idx) {
             constexpr float genMax = 2147483647.0f;
-            uint32_t genState = 7777 + idx[0] * idx[0];
-            genState = generateMinStd(genState);
-            genState = generateMinStd(genState);
+            uint32_t genState      = 7777 + idx[0] * idx[0];
+            genState               = generateMinStd(genState);
+            genState               = generateMinStd(genState);
             for (size_t j = 0; j < nCols; j++)
             {
                 deviceData[idx[0] * nCols + j] = (float)genState / genMax;
-                genState = generateMinStd(genState);
+                genState                       = generateMinStd(genState);
             }
         });
     });
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     constexpr size_t nCols = 10;
     constexpr size_t nRows = 10000;
 
-    for (const auto &deviceDescriptor : getListOfDevices())
+    for (const auto & deviceDescriptor : getListOfDevices())
     {
-        const auto &device = deviceDescriptor.second;
+        const auto & device = deviceDescriptor.second;
         if (device.is_host())
         {
             /* Shared memory allocations do not work on host by design */
             continue;
         }
 
-        const auto &deviceName = deviceDescriptor.first;
+        const auto & deviceName = deviceDescriptor.first;
         std::cout << "Running on " << deviceName << std::endl << std::endl;
 
         /* Crate SYCL* queue with desired device */
-        cl::sycl::queue queue{device};
+        cl::sycl::queue queue { device };
 
         /* Set the queue to default execution context */
-        Environment::getInstance()->setDefaultExecutionContext(
-            SyclExecutionContext{queue}
-        );
+        Environment::getInstance()->setDefaultExecutionContext(SyclExecutionContext { queue });
 
         /* Allocate shared memory to store input data */
-        float *dataDevice = (float *)cl::sycl::malloc_shared(
-            sizeof(float) * nRows * nCols, queue.get_device(), queue.get_context());
+        float * dataDevice = (float *)cl::sycl::malloc_shared(sizeof(float) * nRows * nCols, queue.get_device(), queue.get_context());
         if (!dataDevice)
         {
             std::cout << "USM allocation failed on " << deviceName << std::endl;
@@ -121,8 +113,7 @@ int main(int argc, char *argv[])
         generateData(queue, dataDevice, nRows, nCols).wait();
 
         /* Create numeric table from shared memory */
-        NumericTablePtr dataTable = SyclHomogenNumericTable<float>::create(
-            dataDevice, nCols, nRows, cl::sycl::usm::alloc::shared);
+        NumericTablePtr dataTable = SyclHomogenNumericTable<float>::create(dataDevice, nCols, nRows, cl::sycl::usm::alloc::shared);
 
         /* Compute correlation matrix of generated dataset */
         NumericTablePtr covariance = computeCorrelationMatrix(dataTable);
@@ -139,11 +130,10 @@ int main(int argc, char *argv[])
 
 #else /* USM is not supported */
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     std::cout << "USM extensions are not available, make sure "
-              << "the compiler and runtime support USM"
-              << std::endl;
+              << "the compiler and runtime support USM" << std::endl;
     return 0;
 }
 

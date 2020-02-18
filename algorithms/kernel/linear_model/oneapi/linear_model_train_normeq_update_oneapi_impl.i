@@ -83,7 +83,7 @@ services::Status UpdateKernelOneAPI<algorithmFPType>::compute(NumericTable & xTa
     {
         const TypeIds::Id idType = TypeIds::id<algorithmFPType>();
 
-        sumXBuf = xtxBuff.getSubBuffer(nBetasIntercept*nCols, nBetasIntercept, &status);
+        sumXBuf = xtxBuff.getSubBuffer(nBetasIntercept * nCols, nBetasIntercept, &status);
         DAAL_CHECK_STATUS_VAR(status);
 
         UniversalBuffer sumYBufTmp = context.allocate(idType, nResponses, &status);

@@ -26,10 +26,8 @@ namespace bf_knn_classification
 {
 namespace prediction
 {
-
 namespace internal
 {
-
 template class KNNClassificationPredictKernelUCAPI<DAAL_FPTYPE>;
 
 } // namespace internal

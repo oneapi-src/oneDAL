@@ -40,12 +40,12 @@ Model::~Model()
     _impl = nullptr;
 }
 
-Model::Model(size_t nFeatures, services::Status &st) : _impl(new ModelImpl(nFeatures))
+Model::Model(size_t nFeatures, services::Status & st) : _impl(new ModelImpl(nFeatures))
 {
     DAAL_CHECK_COND_ERROR(_impl, st, services::ErrorMemoryAllocationFailed);
 }
 
-services::Status Model::serializeImpl(data_management::InputDataArchive  * arch)
+services::Status Model::serializeImpl(data_management::InputDataArchive * arch)
 {
     daal::algorithms::classifier::Model::serialImpl<data_management::InputDataArchive, false>(arch);
     return _impl->serialImpl<data_management::InputDataArchive, false>(arch);

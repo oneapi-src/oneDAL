@@ -128,8 +128,8 @@ services::Status TransformKernel<algorithmFPType, method, cpu>::compute(NumericT
     const algorithmFPType * pInvSigmas      = invSigmas.get();
     const algorithmFPType * pInvEigenvalues = invEigenvalues.get();
 
-    size_t numInvSigmas      = invSigmas.size();
-    size_t numMeans          = 0;
+    size_t numInvSigmas = invSigmas.size();
+    size_t numMeans     = 0;
 
     const algorithmFPType * pRawMeans = nullptr;
     ReadRows<algorithmFPType, cpu> meansRows;

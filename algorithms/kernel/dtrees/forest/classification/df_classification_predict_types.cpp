@@ -103,7 +103,7 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     }
     else
     {
-        const auto nFeatures = dataTable->getNumberOfColumns();
+        const auto nFeatures      = dataTable->getNumberOfColumns();
         const auto nFeaturesModel = m->getNFeatures();
 
         DAAL_CHECK(nFeaturesModel == nFeatures, services::ErrorIncorrectNumberOfColumnsInInputNumericTable);

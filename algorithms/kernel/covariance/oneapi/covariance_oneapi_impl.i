@@ -202,8 +202,8 @@ services::Status mergeCrossProduct(size_t nFeatures, const services::Buffer<algo
 
     {
         const algorithmFPType invPartialNObs = (algorithmFPType)(1.0) / partialNObservations;
-        const algorithmFPType invNObs = (algorithmFPType)(1.0) / nObservations;
-        const algorithmFPType invNewNObs = (algorithmFPType)(1.0) / (nObservations + partialNObservations);
+        const algorithmFPType invNObs        = (algorithmFPType)(1.0) / nObservations;
+        const algorithmFPType invNewNObs     = (algorithmFPType)(1.0) / (nObservations + partialNObservations);
 
         KernelArguments args(8);
         args.set(0, static_cast<uint32_t>(nFeatures));

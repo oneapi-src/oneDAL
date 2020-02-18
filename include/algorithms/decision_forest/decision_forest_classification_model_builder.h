@@ -129,10 +129,9 @@ public:
         return resId;
     }
 
-
     void setNFeatures(size_t nFeatures)
     {
-        if(!_model.get())
+        if (!_model.get())
         {
             _status |= services::ErrorNullModel;
             services::throwIfPossible(_status);

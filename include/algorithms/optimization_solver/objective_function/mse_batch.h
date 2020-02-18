@@ -166,7 +166,7 @@ public:
     ParameterType parameter; /*!< %Parameter data structure */
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
@@ -300,7 +300,7 @@ public:
     InputType input; /*!< %Input data structure */
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

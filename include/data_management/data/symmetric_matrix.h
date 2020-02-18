@@ -755,10 +755,10 @@ protected:
     {
         if ((block.getRWFlag() & (int)writeOnly) && !IsSameType<T, DataType>::value)
         {
-            const size_t nDim    = getNumberOfColumns();
-            const size_t nSize   = (nDim * (nDim + 1)) / 2;
-            T * buffer           = block.getBlockPtr();
-            DataType * ptr       = (DataType *)_ptr.get();
+            const size_t nDim  = getNumberOfColumns();
+            const size_t nSize = (nDim * (nDim + 1)) / 2;
+            T * buffer         = block.getBlockPtr();
+            DataType * ptr     = (DataType *)_ptr.get();
 
             for (size_t i = 0; i < nSize; i++)
             {
@@ -1444,10 +1444,10 @@ protected:
     {
         if ((block.getRWFlag() & (int)writeOnly) && !IsSameType<T, DataType>::value)
         {
-            const size_t nDim    = getNumberOfColumns();
-            const size_t nSize   = (nDim * (nDim + 1)) / 2;
-            T * buffer           = block.getBlockPtr();
-            DataType * ptr       = (DataType *)_ptr.get();
+            const size_t nDim  = getNumberOfColumns();
+            const size_t nSize = (nDim * (nDim + 1)) / 2;
+            T * buffer         = block.getBlockPtr();
+            DataType * ptr     = (DataType *)_ptr.get();
 
             for (size_t i = 0; i < nSize; i++)
             {

@@ -33,7 +33,7 @@ namespace interface1
 {
 using namespace daal::internal;
 
-template<typename algorithmFPType>
+template <typename algorithmFPType>
 services::Status ReferencePotrf<algorithmFPType>::operator()(const math::UpLo uplo, const size_t n, services::Buffer<algorithmFPType> & a_buffer,
                                                              const size_t lda)
 {

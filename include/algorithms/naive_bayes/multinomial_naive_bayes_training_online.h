@@ -214,7 +214,7 @@ protected:
     }
 
 private:
-    Online& operator=(const Online &);
+    Online & operator=(const Online &);
 };
 /** @} */
 } // namespace interface1
@@ -397,7 +397,7 @@ protected:
     }
 
 private:
-    Online& operator=(const Online &);
+    Online & operator=(const Online &);
 };
 /** @} */
 } // namespace interface2

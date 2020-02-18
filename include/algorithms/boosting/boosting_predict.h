@@ -105,7 +105,7 @@ protected:
     virtual Batch * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1

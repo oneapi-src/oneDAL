@@ -165,7 +165,7 @@ protected:
 private:
     ResultPtr _result;
 
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 typedef services::SharedPtr<Batch<> > mt2203Ptr;
 typedef services::SharedPtr<const Batch<> > mt2203ConstPtr;

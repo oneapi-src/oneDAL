@@ -186,7 +186,7 @@ protected:
     }
 
 private:
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -313,7 +313,7 @@ protected:
 private:
     DistributedPartialResultPtr _partialResult;
 
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
