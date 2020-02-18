@@ -45,7 +45,7 @@ namespace quality_metric_set
 namespace interface1
 {
 Parameter::Parameter(size_t nBeta, size_t nBetaReducedModel, double alphaVal, double accuracyVal)
-    : numBeta(nBeta), numBetaReducedModel(nBetaReducedModel), alpha(alphaVal), accuracyThreshold(accuracyVal)
+    : alpha(alphaVal), accuracyThreshold(accuracyVal), numBeta(nBeta), numBetaReducedModel(nBetaReducedModel)
 {}
 
 services::Status Parameter::check() const
