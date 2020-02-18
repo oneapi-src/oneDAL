@@ -110,7 +110,7 @@ protected:
     void initialize() {}
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 typedef services::SharedPtr<Batch> BatchPtr;
 
@@ -188,7 +188,7 @@ protected:
     void initialize() {}
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 typedef services::SharedPtr<Batch> BatchPtr;
 

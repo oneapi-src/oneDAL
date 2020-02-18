@@ -26,19 +26,19 @@
 
 #include <string.h>
 
-#define DECLARE_SOURCE(name, src) static const char* name = #src;
+#define DECLARE_SOURCE(name, src) static const char * name = #src;
 
-DECLARE_SOURCE(clKernelPrediction,
+DECLARE_SOURCE(
+    clKernelPrediction,
 
-__kernel void addBetaIntercept(const __global algorithmFPType *beta, uint nBetas, __global algorithmFPType *yTable, uint nResponses)
-{
-    uint rowIdx = get_global_id(0);
-    uint colIdx = get_global_id(1);
+    __kernel void addBetaIntercept(const __global algorithmFPType * beta, uint nBetas, __global algorithmFPType * yTable, uint nResponses) {
+        uint rowIdx = get_global_id(0);
+        uint colIdx = get_global_id(1);
 
-    algorithmFPType value = yTable[rowIdx*nResponses + colIdx];
+        algorithmFPType value = yTable[rowIdx * nResponses + colIdx];
 
-    yTable[rowIdx*nResponses + colIdx] = value + beta[colIdx*nBetas];
-}
+        yTable[rowIdx * nResponses + colIdx] = value + beta[colIdx * nBetas];
+    }
 
 );
 

@@ -48,140 +48,75 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFPType, Method method>
 class RegressionTrainBatchKernelOneAPI : public daal::algorithms::Kernel
 {
 public:
-    services::Status compute(HostAppIface* pHostApp, const NumericTable *x, const NumericTable *y,
-        gbt::regression::Model& m, Result& res, const Parameter& par,
-        engines::internal::BatchBaseImpl& engine);
+    services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, gbt::regression::Model & m, Result & res,
+                             const Parameter & par, engines::internal::BatchBaseImpl & engine);
 
 private:
-    services::Status scan(const services::Buffer<algorithmFPType>& values,
-                          oneapi::internal::UniversalBuffer& partialSums,
-                          int nRows,
-                          int localSize,
+    services::Status scan(const services::Buffer<algorithmFPType> & values, oneapi::internal::UniversalBuffer & partialSums, int nRows, int localSize,
                           int nLocalSums);
 
-    services::Status reduce(oneapi::internal::UniversalBuffer& partialSums,
-                            oneapi::internal::UniversalBuffer& totalSum,
-                            int localSize,
+    services::Status reduce(oneapi::internal::UniversalBuffer & partialSums, oneapi::internal::UniversalBuffer & totalSum, int localSize,
                             int nSubgroupSums);
 
-    services::Status getInitialResponse(NumericTable& y, algorithmFPType *response);
+    services::Status getInitialResponse(NumericTable & y, algorithmFPType * response);
 
-    services::Status computeOptCoeffs(NumericTable& y,
-                                      oneapi::internal::UniversalBuffer& response,
-                                      oneapi::internal::UniversalBuffer& optCoeffs);
+    services::Status computeOptCoeffs(NumericTable & y, oneapi::internal::UniversalBuffer & response, oneapi::internal::UniversalBuffer & optCoeffs);
 
-    services::Status initializeTreeOrder(size_t nRows,
-                                         oneapi::internal::UniversalBuffer& treeOrder);
+    services::Status initializeTreeOrder(size_t nRows, oneapi::internal::UniversalBuffer & treeOrder);
 
-    services::Status computePartialHistograms(const oneapi::internal::UniversalBuffer& data,
-                                              oneapi::internal::UniversalBuffer& treeOrder,
-                                              oneapi::internal::UniversalBuffer& optCoeffs,
-                                              oneapi::internal::UniversalBuffer& partialHistograms,
-                                              size_t iStart,
-                                              size_t nRows,
-                                              oneapi::internal::UniversalBuffer& binOffsets,
-                                              size_t nTotalBins,
-                                              size_t nFeatures,
-                                              size_t localSize,
-                                              size_t nPartialHistograms);
+    services::Status computePartialHistograms(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
+                                              oneapi::internal::UniversalBuffer & optCoeffs, oneapi::internal::UniversalBuffer & partialHistograms,
+                                              size_t iStart, size_t nRows, oneapi::internal::UniversalBuffer & binOffsets, size_t nTotalBins,
+                                              size_t nFeatures, size_t localSize, size_t nPartialHistograms);
 
-    services::Status reducePartialHistograms(oneapi::internal::UniversalBuffer& partialHistograms,
-                                             oneapi::internal::UniversalBuffer& histograms,
-                                             size_t nTotalBins,
-                                             size_t reduceLocalSize,
-                                             size_t nPartialHistograms);
+    services::Status reducePartialHistograms(oneapi::internal::UniversalBuffer & partialHistograms, oneapi::internal::UniversalBuffer & histograms,
+                                             size_t nTotalBins, size_t reduceLocalSize, size_t nPartialHistograms);
 
-    services::Status computeHistogram(const oneapi::internal::UniversalBuffer& data,
-                                      oneapi::internal::UniversalBuffer& treeOrder,
-                                      oneapi::internal::UniversalBuffer& optCoeffs,
-                                      oneapi::internal::UniversalBuffer& partialHistograms,
-                                      oneapi::internal::UniversalBuffer& histograms,
-                                      size_t iStart,
-                                      size_t nRows,
-                                      oneapi::internal::UniversalBuffer& binOffsets,
-                                      size_t nTotalBins,
-                                      size_t nFeatures);
+    services::Status computeHistogram(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
+                                      oneapi::internal::UniversalBuffer & optCoeffs, oneapi::internal::UniversalBuffer & partialHistograms,
+                                      oneapi::internal::UniversalBuffer & histograms, size_t iStart, size_t nRows,
+                                      oneapi::internal::UniversalBuffer & binOffsets, size_t nTotalBins, size_t nFeatures);
 
-    services::Status computeHistogramDiff(oneapi::internal::UniversalBuffer& histogramSrc,
-                                          oneapi::internal::UniversalBuffer& histogramTotal,
-                                          oneapi::internal::UniversalBuffer& histogramDst,
-                                          size_t nBins);
+    services::Status computeHistogramDiff(oneapi::internal::UniversalBuffer & histogramSrc, oneapi::internal::UniversalBuffer & histogramTotal,
+                                          oneapi::internal::UniversalBuffer & histogramDst, size_t nBins);
 
-    services::Status computeTotalOptCoeffs(oneapi::internal::UniversalBuffer& histograms,
-                                           oneapi::internal::UniversalBuffer& totalOptCoeffs,
-                                           oneapi::internal::UniversalBuffer& binOffsets,
-                                           size_t nTotalBins,
-                                           size_t nFeatures,
-                                           size_t localSize);
+    services::Status computeTotalOptCoeffs(oneapi::internal::UniversalBuffer & histograms, oneapi::internal::UniversalBuffer & totalOptCoeffs,
+                                           oneapi::internal::UniversalBuffer & binOffsets, size_t nTotalBins, size_t nFeatures, size_t localSize);
 
-    services::Status computeBestSplitForFeatures(oneapi::internal::UniversalBuffer& histograms,
-                                                 oneapi::internal::UniversalBuffer& totalOptCoeffs,
-                                                 oneapi::internal::UniversalBuffer& splitInfo,
-                                                 oneapi::internal::UniversalBuffer& splitValue,
-                                                 oneapi::internal::UniversalBuffer& binOffsets,
-                                                 size_t nTotalBins,
-                                                 size_t nFeatures,
-                                                 algorithmFPType lambda,
-                                                 size_t localSize);
+    services::Status computeBestSplitForFeatures(oneapi::internal::UniversalBuffer & histograms, oneapi::internal::UniversalBuffer & totalOptCoeffs,
+                                                 oneapi::internal::UniversalBuffer & splitInfo, oneapi::internal::UniversalBuffer & splitValue,
+                                                 oneapi::internal::UniversalBuffer & binOffsets, size_t nTotalBins, size_t nFeatures,
+                                                 algorithmFPType lambda, size_t localSize);
 
-    services::Status computeBestSplit(oneapi::internal::UniversalBuffer& histograms,
-                                      oneapi::internal::UniversalBuffer& binOffsets,
-                                      size_t nTotalBins,
-                                      size_t nFeatures,
-                                      algorithmFPType lambda,
-                                      gbt::internal::BestSplitOneAPI<algorithmFPType>& bestSplit,
-                                      algorithmFPType* gTotal = nullptr,
-                                      algorithmFPType* hTotal = nullptr);
+    services::Status computeBestSplit(oneapi::internal::UniversalBuffer & histograms, oneapi::internal::UniversalBuffer & binOffsets,
+                                      size_t nTotalBins, size_t nFeatures, algorithmFPType lambda,
+                                      gbt::internal::BestSplitOneAPI<algorithmFPType> & bestSplit, algorithmFPType * gTotal = nullptr,
+                                      algorithmFPType * hTotal = nullptr);
 
-    services::Status partitionScan(const oneapi::internal::UniversalBuffer& data,
-                                   oneapi::internal::UniversalBuffer& treeOrder,
-                                   oneapi::internal::UniversalBuffer& partialSums,
-                                   int splitValue,
-                                   size_t iStart,
-                                   size_t nRows,
-                                   size_t localSize,
+    services::Status partitionScan(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
+                                   oneapi::internal::UniversalBuffer & partialSums, int splitValue, size_t iStart, size_t nRows, size_t localSize,
                                    size_t nLocalSums);
 
-    services::Status partitionSumScan(oneapi::internal::UniversalBuffer& partialSums,
-                                      oneapi::internal::UniversalBuffer& partialPrefixSums,
-                                      oneapi::internal::UniversalBuffer& totalSum,
-                                      size_t localSize,
-                                      size_t nSubgroupSums);
+    services::Status partitionSumScan(oneapi::internal::UniversalBuffer & partialSums, oneapi::internal::UniversalBuffer & partialPrefixSums,
+                                      oneapi::internal::UniversalBuffer & totalSum, size_t localSize, size_t nSubgroupSums);
 
-    services::Status partitionReorder(const oneapi::internal::UniversalBuffer& data,
-                                      oneapi::internal::UniversalBuffer& treeOrder,
-                                      oneapi::internal::UniversalBuffer& treeOrderBuf,
-                                      oneapi::internal::UniversalBuffer& partialPrefixSums,
-                                      int spliteValue,
-                                      size_t iStart,
-                                      size_t nRows,
-                                      size_t localSize,
-                                      size_t nLocalSums);
+    services::Status partitionReorder(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
+                                      oneapi::internal::UniversalBuffer & treeOrderBuf, oneapi::internal::UniversalBuffer & partialPrefixSums,
+                                      int spliteValue, size_t iStart, size_t nRows, size_t localSize, size_t nLocalSums);
 
-    services::Status partitionCopy(oneapi::internal::UniversalBuffer& treeOrderBuf,
-                                   oneapi::internal::UniversalBuffer& treeOrder,
-                                   size_t iStart,
+    services::Status partitionCopy(oneapi::internal::UniversalBuffer & treeOrderBuf, oneapi::internal::UniversalBuffer & treeOrder, size_t iStart,
                                    size_t nRows);
 
-    services::Status doPartition(const oneapi::internal::UniversalBuffer& data,
-                                 oneapi::internal::UniversalBuffer& treeOrder,
-                                 oneapi::internal::UniversalBuffer& treeOrderBuf,
-                                 int splitValue,
-                                 size_t iStart,
-                                 size_t nRows,
-                                 size_t& nLeft,
-                                 size_t& nRight);
+    services::Status doPartition(const oneapi::internal::UniversalBuffer & data, oneapi::internal::UniversalBuffer & treeOrder,
+                                 oneapi::internal::UniversalBuffer & treeOrderBuf, int splitValue, size_t iStart, size_t nRows, size_t & nLeft,
+                                 size_t & nRight);
 
-    services::Status updateResponse(oneapi::internal::UniversalBuffer& treeOrder,
-                                    oneapi::internal::UniversalBuffer& response,
-                                    size_t iStart,
-                                    size_t nRows,
-                                    algorithmFPType inc);
+    services::Status updateResponse(oneapi::internal::UniversalBuffer & treeOrder, oneapi::internal::UniversalBuffer & response, size_t iStart,
+                                    size_t nRows, algorithmFPType inc);
 
     oneapi::internal::KernelPtr kernelScan;
     oneapi::internal::KernelPtr kernelReduce;
@@ -198,21 +133,20 @@ private:
     oneapi::internal::KernelPtr kernelPartitionCopy;
     oneapi::internal::KernelPtr kernelUpdateResponse;
 
-    const uint32_t _maxWorkItemsPerGroup = 128; // should be a power of two for interal needs
-    const uint32_t _maxLocalBuffer = 30000; // should be less than a half of local memory (two buffers)
-    const uint32_t _preferableSubGroup = 16; // preferable maximal sub-group size
-    const uint32_t _maxLocalSize = 128;
-    const uint32_t _maxLocalSums = 256;
-    const uint32_t _maxLocalHistograms = 256;
-    const uint32_t _preferableGroupSize = 256;
+    const uint32_t _maxWorkItemsPerGroup = 128;   // should be a power of two for interal needs
+    const uint32_t _maxLocalBuffer       = 30000; // should be less than a half of local memory (two buffers)
+    const uint32_t _preferableSubGroup   = 16;    // preferable maximal sub-group size
+    const uint32_t _maxLocalSize         = 128;
+    const uint32_t _maxLocalSums         = 256;
+    const uint32_t _maxLocalHistograms   = 256;
+    const uint32_t _preferableGroupSize  = 256;
 };
 
 } // namespace internal
-}
-}
-}
-}
+} // namespace training
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
 } // namespace daal
-
 
 #endif

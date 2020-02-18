@@ -173,7 +173,7 @@ protected:
     }
 
 private:
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -317,7 +317,7 @@ protected:
     }
 
 private:
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 }; // class  : public Training
 /** @} */
 } // namespace interface1

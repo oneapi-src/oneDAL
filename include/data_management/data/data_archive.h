@@ -493,7 +493,7 @@ private:
 
     byte * serializedBuffer;
 
-    DataArchive& operator=(const DataArchive&);
+    DataArchive & operator=(const DataArchive &);
 };
 
 /**
@@ -989,7 +989,7 @@ protected:
     services::SharedPtr<services::ErrorCollection> _errors;
 
 private:
-    InputDataArchive& operator=(const InputDataArchive&);
+    InputDataArchive & operator=(const InputDataArchive &);
 };
 
 /**
@@ -1233,8 +1233,8 @@ protected:
     services::SharedPtr<services::ErrorCollection> _errors;
 
 private:
-    OutputDataArchive(const OutputDataArchive&);
-    OutputDataArchive& operator=(const OutputDataArchive&);
+    OutputDataArchive(const OutputDataArchive &);
+    OutputDataArchive & operator=(const OutputDataArchive &);
 };
 /** @} */
 

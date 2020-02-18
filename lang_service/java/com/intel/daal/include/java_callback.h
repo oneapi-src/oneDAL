@@ -312,7 +312,7 @@ protected:
 #endif
 
 private:
-    JavaCallback& operator=(const JavaCallback&);
+    JavaCallback & operator=(const JavaCallback &);
 };
 } // namespace services
 } // namespace daal

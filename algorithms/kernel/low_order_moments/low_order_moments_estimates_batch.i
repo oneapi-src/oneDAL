@@ -462,15 +462,15 @@ Status compute_estimates(NumericTable * dataTable, Result * result)
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < _cd.nFeatures; j++)
         {
-        #ifdef _SORM_ENABLE_
+    #ifdef _SORM_ENABLE_
             _sorm[j] = _sum2[j] * _invN;
-        #endif
-        #ifdef _VART_ENABLE_
+    #endif
+    #ifdef _VART_ENABLE_
             _vart[j] = _stdev[j] / _mean[j];
-        #endif
+    #endif
         }
 #endif /* #if (defined _VART_ENABLE_ || defined _SORM_ENABLE_) */
-    } /* end for DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsBatchTask.MergeBlocks); */
+    }  /* end for DAAL_ITTNOTIFY_SCOPED_TASK(LowOrderMomentsBatchTask.MergeBlocks); */
 
     return Status();
 } /* compute_estimates */

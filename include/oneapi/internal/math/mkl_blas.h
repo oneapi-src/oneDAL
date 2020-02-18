@@ -170,7 +170,6 @@ private:
     cl::sycl::queue & _queue;
 };
 
-
 /** @} */
 } // namespace interface1
 

@@ -183,7 +183,7 @@ public:
 private:
     Environment();
     Environment(const Environment & e);
-    Environment& operator=(const Environment &);
+    Environment & operator=(const Environment &);
     ~Environment();
 
     void _cpu_detect(int);

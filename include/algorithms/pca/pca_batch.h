@@ -179,7 +179,7 @@ protected:
     }
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 
 /** @} */

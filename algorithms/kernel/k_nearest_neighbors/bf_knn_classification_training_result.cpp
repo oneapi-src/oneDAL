@@ -37,8 +37,7 @@ Result::Result() : classifier::training::Result() {}
 
 daal::algorithms::bf_knn_classification::ModelPtr Result::get(classifier::training::ResultId id) const
 {
-    return services::staticPointerCast<daal::algorithms::bf_knn_classification::Model,
-                                      data_management::SerializationIface>(Argument::get(id));
+    return services::staticPointerCast<daal::algorithms::bf_knn_classification::Model, data_management::SerializationIface>(Argument::get(id));
 }
 
 } // namespace interface1

@@ -33,17 +33,17 @@ namespace internal
 {
 namespace sort
 {
-
 class RadixSort
 {
 public:
-    static void sort(const UniversalBuffer& input, const UniversalBuffer& output,  const UniversalBuffer& buffer,
-                     uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, services::Status* status);
+    static void sort(const UniversalBuffer & input, const UniversalBuffer & output, const UniversalBuffer & buffer, uint32_t nVectors,
+                     uint32_t vectorSize, uint32_t vectorOffset, services::Status * status);
+
 private:
     RadixSort();
 };
 
-} // namespace math
+} // namespace sort
 } // namespace internal
 } // namespace oneapi
 } // namespace daal

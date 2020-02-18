@@ -307,7 +307,8 @@ bool isLower(NumericTableIface::StorageLayout layout)
 }
 
 template <typename T>
-void printArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, const std::string& message, size_t interval = 10)
+void printArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, const std::string & message,
+                size_t interval = 10)
 {
     std::cout << std::setiosflags(std::ios::left);
     std::cout << message << std::endl;
@@ -324,13 +325,13 @@ void printArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows,
 }
 
 template <typename T>
-void printArray(T * array, const size_t nCols, const size_t nRows, const std::string& message, size_t interval = 10)
+void printArray(T * array, const size_t nCols, const size_t nRows, const std::string & message, size_t interval = 10)
 {
     printArray(array, nCols, nRows, nCols, message, interval);
 }
 
 template <typename T>
-void printLowerArray(T * array, const size_t nPrintedRows, const std::string& message, size_t interval = 10)
+void printLowerArray(T * array, const size_t nPrintedRows, const std::string & message, size_t interval = 10)
 {
     std::cout << std::setiosflags(std::ios::left);
     std::cout << message << std::endl;
@@ -348,7 +349,8 @@ void printLowerArray(T * array, const size_t nPrintedRows, const std::string& me
 }
 
 template <typename T>
-void printUpperArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, const std::string& message, size_t interval = 10)
+void printUpperArray(T * array, const size_t nPrintedCols, const size_t nPrintedRows, const size_t nCols, const std::string & message,
+                     size_t interval = 10)
 {
     std::cout << std::setiosflags(std::ios::left);
     std::cout << message << std::endl;

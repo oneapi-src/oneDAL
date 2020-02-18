@@ -124,7 +124,7 @@ services::Status AssociationRulesKernel<apriori, algorithmFPType, cpu>::firstPas
 {
     const ItemSetList<cpu> & L_0    = L[0];
     const ItemSetList<cpu> & L_prev = L[itemSetSize - 1];
-    size_t oldNumRules        = numRules;
+    size_t oldNumRules              = numRules;
 
     for (size_t i = 0; i <= itemSetSize; ++i)
     {

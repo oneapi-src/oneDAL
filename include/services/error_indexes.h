@@ -397,12 +397,12 @@ enum ErrorID
     ErrorEmptyInputAlgorithmsCollection = -90201, /*!< Input algorithms collection is empty */
 
     // Group of SYCL-related errors -90900..-90999
-    ErrorEmptyBuffer = -90900,                                          /*!< Buffer is empty */
-    ErrorAccessUSMPointerOnOtherDevice = -90901,                        /*!< Cannot access USM pointer from the other device */
+    ErrorEmptyBuffer                   = -90900, /*!< Buffer is empty */
+    ErrorAccessUSMPointerOnOtherDevice = -90901, /*!< Cannot access USM pointer from the other device */
 
     // Other errors: -100000..
-    ErrorObjectDoesNotSupportSerialization = -100000,                   /*!< SerializationIface is not implemented or implemented incorrectly */
-    ErrorExecutionContext = -100001,                                    /*!< Execution context errors*/
+    ErrorObjectDoesNotSupportSerialization = -100000, /*!< SerializationIface is not implemented or implemented incorrectly */
+    ErrorExecutionContext                  = -100001, /*!< Execution context errors*/
 
     ErrorCouldntAttachCurrentThreadToJavaVM       = -110001, /*!< Couldn't attach current thread to Java VM */
     ErrorCouldntCreateGlobalReferenceToJavaObject = -110002, /*!< Couldn't create global reference to Java object */

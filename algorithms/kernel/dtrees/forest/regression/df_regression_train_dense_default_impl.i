@@ -392,7 +392,7 @@ bool OrderedRespHelper<algorithmFPType, cpu>::findBestSplitOrderedFeature(const 
 #endif
     algorithmFPType vBest = split.impurityDecrease < 0 ? daal::services::internal::MaxVal<algorithmFPType>::get() :
                                                          (curImpurity.var - split.impurityDecrease) * algorithmFPType(n);
-    IndexType iBest            = -1;
+    IndexType iBest = -1;
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {
         const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);

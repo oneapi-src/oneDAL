@@ -51,8 +51,8 @@ BatchContainer<algorithmFPType, correlationDense, cpu>::~BatchContainer()
 template <typename algorithmFPType, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute()
 {
-    Input * input                     = static_cast<Input *>(_in);
-    Result * result                   = static_cast<Result *>(_res);
+    Input * input   = static_cast<Input *>(_in);
+    Result * result = static_cast<Result *>(_res);
 
     interface1::BatchParameter<algorithmFPType, correlationDense> * parameter =
         static_cast<interface1::BatchParameter<algorithmFPType, correlationDense> *>(_par);

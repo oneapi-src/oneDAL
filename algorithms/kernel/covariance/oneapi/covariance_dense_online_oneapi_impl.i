@@ -58,9 +58,9 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
     algorithmFPType * nObservations      = nullptr;
     algorithmFPType partialNObservations = 0.0;
 
-    const size_t nFeatures  = dataTable->getNumberOfColumns();
-    const size_t nVectors   = dataTable->getNumberOfRows();
-    partialNObservations    = static_cast<algorithmFPType>(nVectors);
+    const size_t nFeatures = dataTable->getNumberOfColumns();
+    const size_t nVectors  = dataTable->getNumberOfRows();
+    partialNObservations   = static_cast<algorithmFPType>(nVectors);
 
     BlockDescriptor<algorithmFPType> dataBlock;
     BlockDescriptor<algorithmFPType> sumBlock;
