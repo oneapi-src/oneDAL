@@ -7,6 +7,17 @@ trigger:
 - master
 
 jobs:
+- job: 'ClangFormat'
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+    - script: |
+        .ci/env/clang.sh
+      displayName: 'apt-get'
+    - script: |
+        .ci/scripts/clang-format.sh
+      displayName: 'clang-format check'
+      failOnStderr: true
 - job: Linux
   timeoutInMinutes: 0
   pool:
