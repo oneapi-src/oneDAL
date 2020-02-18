@@ -52,7 +52,7 @@ jobs:
 - job: macOS
   timeoutInMinutes: 0
   pool:
-    vmImage: 'macOS-10.14'
+    vmImage: 'macOS-10.15'
   strategy:
     matrix:
       mac32e:
