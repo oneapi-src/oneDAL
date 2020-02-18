@@ -53,7 +53,7 @@ if not defined TBBROOT (
     set "LIB=%DAAL%\lib\%DAAL_IA%_win;%DAAL_UP%\tbb\lib\%DAAL_IA%_win\vc_mt;%LIB%"
     set "PATH=%DAAL_UP%\redist\%DAAL_IA%_win\daal;%DAAL_UP%\redist\%DAAL_IA%_win\tbb\vc_mt;%PATH%"
     if exist "%DAAL_UP%\..\linux\daal\lib\intel64_lin" (
-        set "LD_LIBRARY_PATH=%DAAL_UP%\..\linux\daal\lib\intel64_lin;%DAAL_UP%\..\linux\tbb\lib\intel64_lin\gcc4.7;%DAAL_UP%\..\linux\tbb\lib\intel64_lin\gcc4.4;%LD_LIBRARY_PATH%"
+        set "LD_LIBRARY_PATH=%DAAL_UP%\..\linux\daal\lib\intel64_lin;%DAAL_UP%\..\linux\tbb\lib\intel64_lin\gcc4.8;%DAAL_UP%\..\linux\tbb\lib\intel64_lin\gcc4.7;%DAAL_UP%\..\linux\tbb\lib\intel64_lin\gcc4.4;%LD_LIBRARY_PATH%"
     )
 ) else (
     set "LIB=%DAAL%\lib\%DAAL_IA%_win;%LIB%"
