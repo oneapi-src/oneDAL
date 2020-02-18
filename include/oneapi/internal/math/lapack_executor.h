@@ -115,7 +115,7 @@ private:
 
         explicit Execute(cl::sycl::queue & queue, const math::UpLo uplo, const size_t n, const size_t ny, UniversalBuffer & a_buffer,
                          const size_t lda, UniversalBuffer & b_buffer, const size_t ldb, services::Status * status)
-            : queue(queue), uplo(uplo), ny(ny), n(n), a_buffer(a_buffer), lda(lda), b_buffer(b_buffer), ldb(ldb), status(status)
+            : queue(queue), uplo(uplo), n(n), ny(ny), a_buffer(a_buffer), lda(lda), b_buffer(b_buffer), ldb(ldb), status(status)
         {}
 
         template <typename T>

@@ -230,7 +230,7 @@ public:
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model(size_t nFeatures = 0) : _models(new data_management::DataCollection()), _nFeatures(nFeatures), _nIterations(0) {}
+    Model(size_t nFeatures = 0) : _nFeatures(nFeatures), _models(new data_management::DataCollection()), _nIterations(0) {}
 
     /**
      * Constructs the LogitBoost model
