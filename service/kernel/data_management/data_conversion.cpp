@@ -58,6 +58,11 @@ static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * d
     ptr(nrows, ncols, dst, ptrMin, arrOffsets);
     return true;
 }
+#else
+static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
+{
+    return false;
+}
 #endif
 
 template<typename T1, typename T2>
@@ -208,31 +213,29 @@ DAAL_REGISTER_WITH_HOMOGEN_NT_TYPES(DAAL_REGISTER_VECTOR_ASSIGN)
         DAAL_TABLE_DOWN_ENTRY(F,unsigned short),   \
     }
 
-#if defined(__INTEL_COMPILER)
 template <typename T>
-vectorCopy2vFuncType getVector()
+DAAL_EXPORT vectorCopy2vFuncType getVector()
 {
     return tryToCopyFuncAVX512<T>;
 }
 
 template <>
-vectorCopy2vFuncType getVector<float>()
+DAAL_EXPORT vectorCopy2vFuncType getVector<float>()
 {
     return tryToCopyFuncAVX512<float>;
 }
 
 template <>
-vectorCopy2vFuncType getVector<double>()
+DAAL_EXPORT vectorCopy2vFuncType getVector<double>()
 {
     return tryToCopyFuncAVX512<double>;
 }
 
 template <>
-vectorCopy2vFuncType getVector<int>()
+DAAL_EXPORT vectorCopy2vFuncType getVector<int>()
 {
     return NULL; /* no implementation for integer */
 }
-#endif
 
 DAAL_EXPORT vectorConvertFuncType getVectorUpCast(int idx1, int idx2)
 {
@@ -261,31 +264,6 @@ DAAL_EXPORT vectorStrideConvertFuncType getVectorStrideDownCast(int idx1, int id
 } // namespace internal
 namespace data_feature_utils
 {
-#if defined(__INTEL_COMPILER)
-template <typename T>
-DAAL_EXPORT internal::vectorCopy2vFuncType getVector()
-{
-    return internal::getVector<T>();
-}
-
-template <>
-DAAL_EXPORT internal::vectorCopy2vFuncType getVector<float>()
-{
-    return internal::getVector<float>();
-}
-
-template <>
-DAAL_EXPORT internal::vectorCopy2vFuncType getVector<double>()
-{
-    return internal::getVector<double>();
-}
-
-template <>
-DAAL_EXPORT internal::vectorCopy2vFuncType getVector<int>()
-{
-    return internal::getVector<int>();
-}
-#endif
 DAAL_EXPORT internal::vectorConvertFuncType getVectorUpCast(int idx1, int idx2)
 {
     return internal::getVectorUpCast(idx1, idx2);
