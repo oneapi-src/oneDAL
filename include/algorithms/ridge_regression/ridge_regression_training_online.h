@@ -181,7 +181,7 @@ protected:
     }
 
 private:
-    Online& operator=(const Online &);
+    Online & operator=(const Online &);
 }; // class : Online
 /** @} */
 } // namespace interface1

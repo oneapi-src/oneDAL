@@ -128,7 +128,7 @@ protected:
     virtual Online * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
 private:
-    Online& operator=(const Online &);
+    Online & operator=(const Online &);
 };
 /** @} */
 } // namespace interface1
@@ -229,7 +229,7 @@ protected:
     virtual Online * cloneImpl() const DAAL_C11_OVERRIDE = 0;
 
 private:
-    Online& operator=(const Online &);
+    Online & operator=(const Online &);
 };
 /** @} */
 } // namespace interface2

@@ -31,7 +31,6 @@ namespace daal
 {
 namespace algorithms
 {
-
 /**
  * @defgroup bf_knn_classification k-Nearest Neighbors
  * \copydoc daal::algorithms::bf_knn_classification
@@ -44,7 +43,6 @@ namespace algorithms
  */
 namespace bf_knn_classification
 {
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__BF_KNN_CLASSIFICATION__DATAUSEINMODEL"></a>
  * \brief The option to enable/disable an usage of the input dataset in kNN model
@@ -60,7 +58,6 @@ enum DataUseInModel
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-STRUCT-ALGORITHMS__BF_KNN_CLASSIFICATION__PARAMETER"></a>
  * \brief BF kNN algorithm parameters
@@ -77,21 +74,15 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
      *  \param[in] dataUse              The option to enable/disable an usage of the input dataset in kNN model
      */
     Parameter(size_t nClasses = 2, size_t nNeighbors = 1, DataUseInModel dataUse = doNotUse)
-        : daal::algorithms::classifier::Parameter(nClasses),
-          k(nNeighbors),
-          dataUseInModel(dataUse),
-          engine(engines::mcg59::Batch<>::create())
+        : daal::algorithms::classifier::Parameter(nClasses), k(nNeighbors), dataUseInModel(dataUse), engine(engines::mcg59::Batch<>::create())
     {}
 
     /**
      *  Parameter copy constructor
      *  \param[in] other             Object to copy
      */
-    Parameter(const Parameter& other)
-        : daal::algorithms::classifier::Parameter(other.nClasses),
-          k(other.k),
-          dataUseInModel(other.dataUseInModel),
-          engine(other.engine->clone())
+    Parameter(const Parameter & other)
+        : daal::algorithms::classifier::Parameter(other.nClasses), k(other.k), dataUseInModel(other.dataUseInModel), engine(other.engine->clone())
     {}
 
     /**
@@ -134,13 +125,13 @@ public:
      * Returns actual model implementation
      * \return Model implementation
      */
-    const ModelImpl *impl() const { return _impl; }
+    const ModelImpl * impl() const { return _impl; }
 
     /**
      * Returns actual model implementation
      * \return Model implementation
      */
-    ModelImpl *impl() { return _impl; }
+    ModelImpl * impl() { return _impl; }
 
     /**
      *  Retrieves the number of features in the dataset was used on the training stage
@@ -149,17 +140,17 @@ public:
     size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
 
 protected:
-    Model(size_t nFeatures, services::Status &st);
+    Model(size_t nFeatures, services::Status & st);
 
-    services::Status serializeImpl(data_management::InputDataArchive   *arch) DAAL_C11_OVERRIDE;
+    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive *arch) DAAL_C11_OVERRIDE;
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 
 private:
-    ModelImpl *_impl;  /*!< Model implementation */
+    ModelImpl * _impl; /*!< Model implementation */
 
-    Model(const Model&);
-    Model& operator=(const Model&);
+    Model(const Model &);
+    Model & operator=(const Model &);
 };
 typedef services::SharedPtr<Model> ModelPtr;
 } // namespace interface1

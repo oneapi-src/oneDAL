@@ -74,7 +74,6 @@ services::Status ReferenceGemm<algorithmFPType>::operator()(const Transpose tran
         args.set(4, (uint32_t)lda);
         args.set(7, one);
         args.set(8, (uint32_t)ldb);
-
     }
     else if (transa == Transpose::Trans && transb == Transpose::NoTrans)
     {

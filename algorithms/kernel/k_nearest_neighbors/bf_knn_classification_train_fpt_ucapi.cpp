@@ -26,10 +26,8 @@ namespace bf_knn_classification
 {
 namespace training
 {
-
 namespace internal
 {
-
 template class KNNClassificationTrainKernelUCAPI<DAAL_FPTYPE>;
 
 } // namespace internal

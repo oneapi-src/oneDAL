@@ -39,8 +39,8 @@ namespace internal
 template class RegressionTrainBatchKernelOneAPI<DAAL_FPTYPE, defaultDense>;
 }
 
-}
-}
-}
-}
-}
+} // namespace training
+} // namespace regression
+} // namespace gbt
+} // namespace algorithms
+} // namespace daal

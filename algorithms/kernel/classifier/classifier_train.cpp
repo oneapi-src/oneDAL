@@ -91,8 +91,8 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
 
 services::Status Input::checkImpl(const daal::algorithms::Parameter * parameter) const
 {
-    services::Status s;   // Error status
-    bool flag    = false; // Flag indicates error in table of labels
+    services::Status s; // Error status
+    bool flag = false;  // Flag indicates error in table of labels
 
     data_management::NumericTablePtr dataTable = get(data);
     DAAL_CHECK_STATUS(s, data_management::checkNumericTable(dataTable.get(), dataStr()));

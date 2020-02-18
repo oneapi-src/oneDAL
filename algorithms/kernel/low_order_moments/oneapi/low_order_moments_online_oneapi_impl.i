@@ -162,7 +162,6 @@ template <typename algorithmFPType, Method method>
 services::Status LowOrderMomentsOnlineKernelOneAPI<algorithmFPType, method>::finalizeCompute(PartialResult * partialResult, Result * result,
                                                                                              const Parameter * parameter)
 {
-
     services::Status status;
 
     auto & context = daal::oneapi::internal::getDefaultContext();

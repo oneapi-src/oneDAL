@@ -434,7 +434,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
         }
         else
         {
-            algorithmFpType val  = query[node->dimension];
+            algorithmFpType val        = query[node->dimension];
             const algorithmFpType diff = val - node->cutPoint;
 
             if (cur.minDistance <= radius)

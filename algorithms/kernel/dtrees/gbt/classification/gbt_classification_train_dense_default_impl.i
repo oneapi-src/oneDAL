@@ -78,8 +78,7 @@ public:
                     exp[i] = -f[sampleInd[i]];
                     /* make all values less than threshold as threshold value
                     to fix slow work on vExp on large negative inputs */
-                    if (exp[i] < expThreshold)
-                        exp[i] = expThreshold;
+                    if (exp[i] < expThreshold) exp[i] = expThreshold;
                 }
             }
             else
@@ -91,8 +90,7 @@ public:
                     exp[i] = -f[i];
                     /* make all values less than threshold as threshold value
                     to fix slow work on vExp on large negative inputs */
-                    if (exp[i] < expThreshold)
-                        exp[i] = expThreshold;
+                    if (exp[i] < expThreshold) exp[i] = expThreshold;
                 }
             }
             daal::internal::Math<algorithmFPType, cpu>::vExp(end - start, exp + start, exp + start);

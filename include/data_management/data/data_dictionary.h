@@ -422,8 +422,8 @@ protected:
     {}
 
 private:
-    Dictionary(const Dictionary&);
-    Dictionary& operator=(const Dictionary&);
+    Dictionary(const Dictionary &);
+    Dictionary & operator=(const Dictionary &);
 };
 typedef Dictionary<NumericTableFeature, SERIALIZATION_DATADICTIONARY_NT_ID> NumericTableDictionary;
 typedef services::SharedPtr<NumericTableDictionary> NumericTableDictionaryPtr;

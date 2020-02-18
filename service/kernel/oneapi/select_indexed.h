@@ -33,7 +33,6 @@ namespace internal
 {
 namespace selection
 {
-
 class QuickSelectIndexed
 {
 public:
@@ -42,26 +41,23 @@ public:
         UniversalBuffer values;
         UniversalBuffer indices;
 
-        Result(ExecutionContextIface& context, uint32_t K,  uint32_t nVectors, TypeId valueType, TypeId indexType, services::Status* status)
-            : values(context.allocate(valueType, nVectors * K, status)),
-              indices(context.allocate(indexType, nVectors * K, status))
+        Result(ExecutionContextIface & context, uint32_t K, uint32_t nVectors, TypeId valueType, TypeId indexType, services::Status * status)
+            : values(context.allocate(valueType, nVectors * K, status)), indices(context.allocate(indexType, nVectors * K, status))
         {}
     };
 
 public:
-    static Result select(const UniversalBuffer& dataVectors, const UniversalBuffer& indexVectors,
-                        const UniversalBuffer& rndSeq, uint32_t nRndSeq,
-                        uint32_t K, uint32_t nVectors, uint32_t vectorSize,
-                        uint32_t vectorOffset, services::Status* status);
-    static Result& select(const UniversalBuffer& dataVectors, const UniversalBuffer& indexVectors,
-                        const UniversalBuffer& rndSeq, uint32_t nRndSeq,
-                        uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset,
-                        Result& result, services::Status* status);
+    static Result select(const UniversalBuffer & dataVectors, const UniversalBuffer & indexVectors, const UniversalBuffer & rndSeq, uint32_t nRndSeq,
+                         uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, services::Status * status);
+    static Result & select(const UniversalBuffer & dataVectors, const UniversalBuffer & indexVectors, const UniversalBuffer & rndSeq,
+                           uint32_t nRndSeq, uint32_t K, uint32_t nVectors, uint32_t vectorSize, uint32_t vectorOffset, Result & result,
+                           services::Status * status);
+
 private:
     QuickSelectIndexed();
 };
 
-} // namespace math
+} // namespace selection
 } // namespace internal
 } // namespace oneapi
 } // namespace daal

@@ -294,8 +294,8 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
         //f = softmax(f)
         softmaxThreaded(f.get(), f.get(), n, nClasses);
 
-        const bool bL1          = (parameter->penaltyL1 > 0);
-        const bool bL2          = (parameter->penaltyL2 > 0);
+        const bool bL1 = (parameter->penaltyL1 > 0);
+        const bool bL2 = (parameter->penaltyL2 > 0);
 
         const algorithmFPType div = algorithmFPType(1) / algorithmFPType(n);
         if (valueNT)
@@ -305,9 +305,9 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
             WriteRows<algorithmFPType, cpu> vr(valueNT, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(vr);
-            algorithmFPType & value               = *vr.get();
-            value                                 = 0.0;
-            const algorithmFPType * lp            = logP.get();
+            algorithmFPType & value    = *vr.get();
+            value                      = 0.0;
+            const algorithmFPType * lp = logP.get();
 
             for (size_t i = 0; i < n; ++i)
             {

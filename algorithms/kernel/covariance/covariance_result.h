@@ -98,7 +98,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
         set(mean, SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
     }
 
-
     return status;
 }
 

@@ -197,7 +197,7 @@ private:
     PartialResultPtr _partialResult;
     ResultPtr _result;
 
-    Online& operator=(const Online &);
+    Online & operator=(const Online &);
 };
 /** @} */
 } // namespace interface1

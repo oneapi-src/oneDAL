@@ -53,7 +53,7 @@ void Result::set(ResultId id, const regression::ModelPtr & value)
 
 Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
-    const ModelConstPtr m           = get(model);
+    const ModelConstPtr m = get(model);
 
     DAAL_CHECK(m, ErrorNullModel);
 

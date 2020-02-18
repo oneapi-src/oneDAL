@@ -58,7 +58,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, svdDense, cp
 {
     Result * result = static_cast<Result *>(_res);
 
-    DistributedInput<svdDense> * input      = static_cast<DistributedInput<svdDense> *>(_in);
+    DistributedInput<svdDense> * input = static_cast<DistributedInput<svdDense> *>(_in);
 
     data_management::DataCollectionPtr inputPartialResults = input->get(pca::partialResults);
 

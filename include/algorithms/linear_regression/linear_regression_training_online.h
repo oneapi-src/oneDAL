@@ -186,7 +186,7 @@ protected:
     }
 
 private:
-    Online& operator=(const Online &);
+    Online & operator=(const Online &);
 }; // class  : public Training
 /** @} */
 } // namespace interface1

@@ -125,7 +125,10 @@ struct TreeNodeSplit : public TreeNodeBase
         featureUnordered = bUnordered;
     }
     virtual bool isSplit() const DAAL_C11_OVERRIDE { return true; }
-    virtual size_t numChildren() const DAAL_C11_OVERRIDE { return (kid[0] ? kid[0]->numChildren() + 1 : 0) + (kid[1] ? kid[1]->numChildren() + 1 : 0); }
+    virtual size_t numChildren() const DAAL_C11_OVERRIDE
+    {
+        return (kid[0] ? kid[0]->numChildren() + 1 : 0) + (kid[1] ? kid[1]->numChildren() + 1 : 0);
+    }
 };
 
 template <typename TResponseType>

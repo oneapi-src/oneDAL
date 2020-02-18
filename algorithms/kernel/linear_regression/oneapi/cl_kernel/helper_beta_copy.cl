@@ -26,27 +26,27 @@
 
 #include <string.h>
 
-#define DECLARE_SOURCE(name, src) static const char* name = #src;
+#define DECLARE_SOURCE(name, src) static const char * name = #src;
 
-DECLARE_SOURCE(clKernelHelperBetaCopy,
+DECLARE_SOURCE(
+    clKernelHelperBetaCopy,
 
-__kernel void copyBeta(const __global algorithmFPType *src, uint nCols, uint nColsSrc, __global algorithmFPType *dst, uint intercept)
-{
-    uint idxY = get_global_id(0);
-    uint idxX = get_global_id(1);
+    __kernel void copyBeta(const __global algorithmFPType * src, uint nCols, uint nColsSrc, __global algorithmFPType * dst, uint intercept) {
+        uint idxY = get_global_id(0);
+        uint idxX = get_global_id(1);
 
-    if(idxX == 0)
-    {
-        if(intercept == 1)
+        if (idxX == 0)
         {
-            dst[idxY*nCols] = src[idxY*nColsSrc + nColsSrc- 1];
+            if (intercept == 1)
+            {
+                dst[idxY * nCols] = src[idxY * nColsSrc + nColsSrc - 1];
+            }
+        }
+        else
+        {
+            dst[idxY * nCols + idxX] = src[idxY * nColsSrc + idxX - 1];
         }
     }
-    else
-    {
-        dst[idxY*nCols + idxX] = src[idxY*nColsSrc + idxX - 1];
-    }
-}
 
 );
 

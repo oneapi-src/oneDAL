@@ -263,8 +263,8 @@ public:
     {
         if (!_aResponse.size()) return;
 
-        size_t idx                 = _aResponse[0].idx;
-        size_t iDst                = 0;
+        size_t idx  = _aResponse[0].idx;
+        size_t iDst = 0;
         for (; iDst < idx; dst[iDst] = iDst, ++iDst)
             ;
 

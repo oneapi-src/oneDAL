@@ -154,7 +154,7 @@ protected:
     }
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 
 /** @} */
@@ -270,7 +270,7 @@ protected:
     }
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 
 /** @} */

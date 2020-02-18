@@ -19,7 +19,7 @@
 #define __SYCL_HOMOGEN_NUMERIC_TABLE_H__
 
 #ifdef DAAL_SYCL_INTERFACE
-#include <CL/sycl.hpp>
+    #include <CL/sycl.hpp>
 #endif
 
 #include "data_management/data/numeric_table_sycl.h"
@@ -69,11 +69,9 @@ public:
     }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    static services::SharedPtr<SyclHomogenNumericTable<DataType> >
-        create(const services::SharedPtr<DataType> &usmData,
-               size_t nColumns, size_t nRows,
-               const cl::sycl::usm::alloc &usmAllocType,
-               services::Status *stat = NULL)
+    static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(const services::SharedPtr<DataType> & usmData, size_t nColumns,
+                                                                          size_t nRows, const cl::sycl::usm::alloc & usmAllocType,
+                                                                          services::Status * stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
         return create(services::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
@@ -81,11 +79,8 @@ public:
 #endif
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    static services::SharedPtr<SyclHomogenNumericTable<DataType> >
-        create(DataType *usmData,
-               size_t nColumns, size_t nRows,
-               const cl::sycl::usm::alloc &usmAllocType,
-               services::Status *stat = NULL)
+    static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(DataType * usmData, size_t nColumns, size_t nRows,
+                                                                          const cl::sycl::usm::alloc & usmAllocType, services::Status * stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
         return create(services::Buffer<DataType>(usmData, bufferSize, usmAllocType), nColumns, nRows, stat);
@@ -178,10 +173,8 @@ public:
     services::Status assign(int value) DAAL_C11_OVERRIDE { return assignImpl<int>(value); }
 
 protected:
-    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
-                            size_t nColumns, size_t nRows,
-                            services::Status &st) :
-        SyclNumericTable(nColumns, nRows, featuresEqual, st)
+    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, size_t nColumns, size_t nRows, services::Status & st)
+        : SyclNumericTable(nColumns, nRows, featuresEqual, st)
     {
         _layout = NumericTableIface::aos;
 
@@ -190,30 +183,26 @@ protected:
         st |= _ddict->setAllFeatures(df);
     }
 
-    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
-                            const services::Buffer<DataType> &buffer,
-                            size_t nColumns, size_t nRows, services::Status &st) :
-        SyclHomogenNumericTable(featuresEqual, nColumns, nRows, st)
+    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, const services::Buffer<DataType> & buffer, size_t nColumns, size_t nRows,
+                            services::Status & st)
+        : SyclHomogenNumericTable(featuresEqual, nColumns, nRows, st)
     {
         if (nColumns * nRows > buffer.size())
         {
-            st |= services::Error::create(services::ErrorIncorrectSizeOfArray, services::Row,
-                                          "Buffer size is not enough to represent the table");
+            st |= services::Error::create(services::ErrorIncorrectSizeOfArray, services::Row, "Buffer size is not enough to represent the table");
             services::throwIfPossible(st);
         }
 
         if (st)
         {
-            _buffer = buffer;
+            _buffer    = buffer;
             _memStatus = userAllocated;
         }
     }
 
-    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
-                            size_t nColumns, size_t nRows,
-                            NumericTable::AllocationFlag memoryAllocationFlag,
-                            services::Status &st) :
-        SyclHomogenNumericTable(featuresEqual, nColumns, nRows, st)
+    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, size_t nColumns, size_t nRows,
+                            NumericTable::AllocationFlag memoryAllocationFlag, services::Status & st)
+        : SyclHomogenNumericTable(featuresEqual, nColumns, nRows, st)
     {
         if (memoryAllocationFlag == NumericTableIface::doAllocate)
         {
@@ -221,11 +210,9 @@ protected:
         }
     }
 
-    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual,
-                            size_t nColumns, size_t nRows,
-                            NumericTable::AllocationFlag memoryAllocationFlag,
-                            const DataType &constValue, services::Status &st) :
-        SyclHomogenNumericTable(featuresEqual, nColumns, nRows, memoryAllocationFlag, st)
+    SyclHomogenNumericTable(DictionaryIface::FeaturesEqual featuresEqual, size_t nColumns, size_t nRows,
+                            NumericTable::AllocationFlag memoryAllocationFlag, const DataType & constValue, services::Status & st)
+        : SyclHomogenNumericTable(featuresEqual, nColumns, nRows, memoryAllocationFlag, st)
     {
         st |= assignImpl<DataType>(constValue);
     }
@@ -253,8 +240,7 @@ protected:
             {
                 const size_t size = getNumberOfColumns() * getNumberOfRows();
 
-                const auto universalBuffer = oneapi::internal::getDefaultContext()
-                    .allocate(oneapi::internal::TypeIds::id<DataType>(), size, &status);
+                const auto universalBuffer = oneapi::internal::getDefaultContext().allocate(oneapi::internal::TypeIds::id<DataType>(), size, &status);
 
                 services::throwIfPossible(status);
                 DAAL_CHECK_STATUS_VAR(status);

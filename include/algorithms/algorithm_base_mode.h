@@ -113,8 +113,8 @@ protected:
     Parameter * _par;
 
 private:
-    Algorithm(const Algorithm&);
-    Algorithm& operator=(const Algorithm&);
+    Algorithm(const Algorithm &);
+    Algorithm & operator=(const Algorithm &);
 };
 
 /**
@@ -165,8 +165,8 @@ protected:
     Result * _res;
 
 private:
-    Algorithm(const Algorithm&);
-    Algorithm& operator=(const Algorithm&);
+    Algorithm(const Algorithm &);
+    Algorithm & operator=(const Algorithm &);
 };
 
 /** @} */

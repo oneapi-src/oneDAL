@@ -108,7 +108,7 @@ protected:
     ResultPtr _result;
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 /** @} */
 typedef services::SharedPtr<Batch> BatchPtr;
@@ -185,7 +185,7 @@ protected:
     ResultPtr _result;
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 /** @} */
 typedef services::SharedPtr<Batch> BatchPtr;

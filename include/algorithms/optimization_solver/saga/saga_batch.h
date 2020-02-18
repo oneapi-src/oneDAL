@@ -185,7 +185,7 @@ protected:
     }
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
@@ -334,7 +334,7 @@ protected:
     }
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

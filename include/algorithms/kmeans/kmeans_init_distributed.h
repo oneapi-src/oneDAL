@@ -400,7 +400,7 @@ private:
     PartialResultPtr _partialResult;
     ResultPtr _result;
 
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -695,7 +695,7 @@ public:
 private:
     DistributedStep2LocalPlusPlusPartialResultPtr _partialResult;
 
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -811,7 +811,7 @@ public:
 private:
     DistributedStep3MasterPlusPlusPartialResultPtr _partialResult;
 
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -923,7 +923,7 @@ public:
 private:
     DistributedStep4LocalPlusPlusPartialResultPtr _partialResult;
 
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 
 /**
@@ -1062,7 +1062,7 @@ private:
     DistributedStep5MasterPlusPlusPartialResultPtr _partialResult;
     ResultPtr _result;
 
-    Distributed& operator=(const Distributed&);
+    Distributed & operator=(const Distributed &);
 };
 } // namespace interface2
 using interface2::DistributedContainer;
