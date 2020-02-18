@@ -210,25 +210,25 @@ DAAL_REGISTER_WITH_HOMOGEN_NT_TYPES(DAAL_REGISTER_VECTOR_ASSIGN)
 
 #if defined(__INTEL_COMPILER)
 template <typename T>
-vectorCopy2vFuncType getVector()
+DAAL_EXPORT vectorCopy2vFuncType getVector()
 {
     return tryToCopyFuncAVX512<T>;
 }
 
 template <>
-vectorCopy2vFuncType getVector<float>()
+DAAL_EXPORT vectorCopy2vFuncType getVector<float>()
 {
     return tryToCopyFuncAVX512<float>;
 }
 
 template <>
-vectorCopy2vFuncType getVector<double>()
+DAAL_EXPORT vectorCopy2vFuncType getVector<double>()
 {
     return tryToCopyFuncAVX512<double>;
 }
 
 template <>
-vectorCopy2vFuncType getVector<int>()
+DAAL_EXPORT vectorCopy2vFuncType getVector<int>()
 {
     return NULL; /* no implementation for integer */
 }
