@@ -59,6 +59,7 @@ static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * d
     return true;
 }
 #else
+template <typename T>
 static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
 {
     return false;
