@@ -32,7 +32,6 @@ namespace prediction
 {
 namespace interface1
 {
-
 Input::Input() : classifier::prediction::Input() {}
 
 bf_knn_classification::ModelPtr Input::get(classifier::prediction::ModelInputId id) const
@@ -50,7 +49,7 @@ void Input::set(classifier::prediction::ModelInputId id, const bf_knn_classifica
     Argument::set(id, value);
 }
 
-services::Status Input::check(const daal::algorithms::Parameter *parameter, int method) const
+services::Status Input::check(const daal::algorithms::Parameter * parameter, int method) const
 {
     const Parameter * const algParameter = static_cast<const Parameter *>(parameter);
     DAAL_CHECK_EX(algParameter->k > 0, services::ErrorIncorrectParameter, services::ParameterName, kStr());

@@ -92,7 +92,7 @@ protected:
     FamilyBatchBase(const FamilyBatchBase & other);
 
 private:
-    FamilyBatchBase& operator=(const FamilyBatchBase&);
+    FamilyBatchBase & operator=(const FamilyBatchBase &);
 };
 typedef services::SharedPtr<FamilyBatchBase> FamilyEnginePtr;
 

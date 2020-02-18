@@ -22,7 +22,8 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(bf_knn_classification::prediction::BatchContainer, batch, DAAL_FPTYPE, bf_knn_classification::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(bf_knn_classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
+                                           bf_knn_classification::prediction::defaultDense)
 
 namespace bf_knn_classification
 {
@@ -30,15 +31,15 @@ namespace prediction
 {
 namespace interface1
 {
-template<typename algorithmFPType, bf_knn_classification::prediction::Method method>
+template <typename algorithmFPType, bf_knn_classification::prediction::Method method>
 Batch<algorithmFPType, method>::Batch() : classifier::prediction::Batch()
 {
     _par = new ParameterType();
     initialize();
 }
 
-template<typename algorithmFPType, bf_knn_classification::prediction::Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other): classifier::prediction::Batch(other)
+template <typename algorithmFPType, bf_knn_classification::prediction::Method method>
+Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::prediction::Batch(other)
 {
     _par = new ParameterType(other.parameter());
     initialize();

@@ -45,7 +45,6 @@ namespace prediction
 {
 namespace internal
 {
-
 template <typename algorithmFPType, CpuType cpu>
 class PredictClassificationTask;
 
@@ -61,21 +60,21 @@ public:
      *  \param r[out]   Prediction results
      *  \param par[in]  decision forest algorithm parameters
      */
-    PredictKernel(): _task(nullptr){};
+    PredictKernel() : _task(nullptr) {};
     ~PredictKernel()
     {
-        if(_task)
+        if (_task)
         {
             delete _task;
         }
     }
     services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const decision_forest::classification::Model * m,
                              NumericTable * r, NumericTable * prob, size_t nClasses);
-    PredictClassificationTask<algorithmFpType, cpu>* _task;
+    PredictClassificationTask<algorithmFpType, cpu> * _task;
 
 private:
-    PredictKernel(const PredictKernel&);
-    PredictKernel& operator=(const PredictKernel&);
+    PredictKernel(const PredictKernel &);
+    PredictKernel & operator=(const PredictKernel &);
 };
 
 } // namespace internal

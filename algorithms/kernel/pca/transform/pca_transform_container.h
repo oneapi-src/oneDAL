@@ -85,10 +85,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     else
     {
         __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::TransformKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                *(input->get(data)), *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues,
-                                *(result->get(transformedData)));
+                                *(input->get(data)), *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues, *(result->get(transformedData)));
     }
-
 }
 
 } // namespace transform

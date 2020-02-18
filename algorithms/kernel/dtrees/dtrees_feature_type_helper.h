@@ -53,6 +53,7 @@ public:
 
     size_t getNumberOfFeatures() const { return _nFeat; }
     void clearBuf() { destroyBuf(); };
+
 private:
     void allocBuf(size_t n);
     void destroyBuf();

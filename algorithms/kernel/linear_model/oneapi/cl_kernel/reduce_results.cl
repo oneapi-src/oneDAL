@@ -26,17 +26,17 @@
 
 #include <string.h>
 
-#define DECLARE_SOURCE(name, src) static const char* name = #src;
+#define DECLARE_SOURCE(name, src) static const char * name = #src;
 
-DECLARE_SOURCE(clKernelCopy,
+DECLARE_SOURCE(
+    clKernelCopy,
 
-__kernel void reduceResults(__global algorithmFPType *dst, uint dstOffset, uint dstStride, 
-                         const __global algorithmFPType *src, uint srcOffset, uint srcStride)
-{
-    uint valIdx = get_global_id(0);
+    __kernel void reduceResults(__global algorithmFPType * dst, uint dstOffset, uint dstStride, const __global algorithmFPType * src, uint srcOffset,
+                                uint srcStride) {
+        uint valIdx = get_global_id(0);
 
-    dst[dstStride*valIdx + dstOffset] += src[srcStride*valIdx + srcOffset];
-}
+        dst[dstStride * valIdx + dstOffset] += src[srcStride * valIdx + srcOffset];
+    }
 
 );
 

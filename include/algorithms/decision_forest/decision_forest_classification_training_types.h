@@ -211,7 +211,7 @@ public:
 private:
     ResultImpl * _impl;
 
-    Result& operator=(const Result&);
+    Result & operator=(const Result &);
 };
 typedef services::SharedPtr<Result> ResultPtr;
 

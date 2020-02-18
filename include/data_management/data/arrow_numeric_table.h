@@ -157,7 +157,7 @@ protected:
 
         NumericTable::serialImpl<Archive, onDeserialize>(arch);
 
-        const size_t ncol  = _ddict->getNumberOfFeatures();
+        const size_t ncol = _ddict->getNumberOfFeatures();
 
         for (size_t i = 0; i < ncol; ++i)
         {
@@ -342,7 +342,7 @@ private:
             return services::Status(services::ErrorMethodNotSupported);
         }
 
-        const size_t nobs  = getNumberOfRows();
+        const size_t nobs = getNumberOfRows();
         block.setDetails(featIdx, idx, rwFlag);
 
         if (idx >= nobs)
@@ -435,11 +435,11 @@ private:
     const std::shared_ptr<const arrow::ChunkedArray> getColumnChunkedArrayPtr(size_t idx)
     {
 #if ARROW_VERSION >= 15000
-            return _table->column(idx);
+        return _table->column(idx);
 #else
-            const std::shared_ptr<const arrow::Column> columnPtr = _table->column(idx);
-            DAAL_ASSERT(columnPtr);
-            return columnPtr->data();
+        const std::shared_ptr<const arrow::Column> columnPtr = _table->column(idx);
+        DAAL_ASSERT(columnPtr);
+        return columnPtr->data();
 #endif
     }
 };

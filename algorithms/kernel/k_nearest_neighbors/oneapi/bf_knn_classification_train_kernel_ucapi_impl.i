@@ -30,10 +30,9 @@ namespace training
 {
 namespace internal
 {
-
 template <typename algorithmFpType>
-Status KNNClassificationTrainKernelUCAPI<algorithmFpType>::
-                 compute(NumericTable * x, NumericTable * y, Model * r, const Parameter& par, engines::BatchBase &engine)
+Status KNNClassificationTrainKernelUCAPI<algorithmFpType>::compute(NumericTable * x, NumericTable * y, Model * r, const Parameter & par,
+                                                                   engines::BatchBase & engine)
 {
     return Status();
 }

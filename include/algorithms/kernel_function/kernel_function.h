@@ -107,7 +107,7 @@ protected:
     ResultPtr _result;
 
 private:
-    KernelIface& operator=(const KernelIface&);
+    KernelIface & operator=(const KernelIface &);
 };
 typedef services::SharedPtr<KernelIface> KernelIfacePtr;
 /** @} */

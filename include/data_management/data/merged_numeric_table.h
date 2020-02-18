@@ -347,7 +347,7 @@ protected:
     services::Status getTFeature(size_t feat_idx, size_t idx, size_t nrows, int rwFlag, BlockDescriptor<T> & block)
     {
         services::Status s;
-        size_t nobs  = getNumberOfRows();
+        size_t nobs = getNumberOfRows();
         block.setDetails(feat_idx, idx, rwFlag);
 
         if (idx >= nobs)

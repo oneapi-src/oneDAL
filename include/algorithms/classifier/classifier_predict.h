@@ -120,7 +120,7 @@ protected:
     interface1::ResultPtr _result;
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
@@ -217,7 +217,7 @@ protected:
     ResultPtr _result;
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

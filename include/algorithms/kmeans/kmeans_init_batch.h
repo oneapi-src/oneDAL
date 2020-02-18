@@ -181,7 +181,7 @@ public:
 private:
     ResultPtr _result;
 
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2

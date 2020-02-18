@@ -26,32 +26,28 @@
 
 #include <string.h>
 
-#define DECLARE_SOURCE(name, src) static const char* name = #src;
+#define DECLARE_SOURCE(name, src) static const char * name = #src;
 
-DECLARE_SOURCE(kmeans_init_cl_kernels,
+DECLARE_SOURCE(
+    kmeans_init_cl_kernels,
 
-__kernel void gather_random(__global const algorithmFPType *data,
-                            __global       algorithmFPType *centroids,
-                            __global const int             *indices,
-                            int N,
-                            int K,
-                            int P) {
+    __kernel void gather_random(__global const algorithmFPType * data, __global algorithmFPType * centroids, __global const int * indices, int N,
+                                int K, int P) {
+        const int global_id_0 = get_global_id(0);
 
-    const int global_id_0 = get_global_id(0);
+        const int local_id_1   = get_local_id(1);
+        const int local_size_1 = get_local_size(1);
 
-    const int local_id_1 = get_local_id(1);
-    const int local_size_1 = get_local_size(1);
+        int ind = indices[global_id_0];
 
-    int ind = indices[global_id_0];
-
-    if (ind >= 0 && ind < N)
-    {
-        for (int i = local_id_1; i < P; i += local_size_1)
+        if (ind >= 0 && ind < N)
         {
-            centroids[global_id_0 * P + i] = data[ind * P + i];
+            for (int i = local_id_1; i < P; i += local_size_1)
+            {
+                centroids[global_id_0 * P + i] = data[ind * P + i];
+            }
         }
     }
-}
 
 );
 

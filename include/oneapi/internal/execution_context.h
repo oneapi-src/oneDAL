@@ -339,8 +339,8 @@ public:
     virtual void syrk(math::UpLo upper_lower, math::Transpose trans, size_t n, size_t k, double alpha, const UniversalBuffer & a_buffer, size_t lda,
                       size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, services::Status * status = NULL) = 0;
 
-    virtual void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
-                      const UniversalBuffer y_buffer, const int incy, services::Status * status = NULL) = 0;
+    virtual void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, const UniversalBuffer y_buffer,
+                      const int incy, services::Status * status = NULL) = 0;
 
     virtual void potrf(math::UpLo uplo, size_t n, UniversalBuffer & a_buffer, size_t lda, services::Status * status = NULL) = 0;
 
@@ -357,7 +357,7 @@ public:
 
     virtual InfoDevice & getInfoDevice() = 0;
 
-    virtual void copy(UniversalBuffer dest, size_t desOffset, void *src, size_t srcOffset, size_t count, services::Status *status) = 0;
+    virtual void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count, services::Status * status) = 0;
 };
 
 /**
@@ -414,8 +414,8 @@ public:
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
 
-    void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx,
-              const UniversalBuffer y_buffer, const int incy, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, const UniversalBuffer y_buffer, const int incy,
+              services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
@@ -452,12 +452,7 @@ public:
 
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
 
-    void copy(UniversalBuffer dest,
-              size_t desOffset,
-              void *src,
-              size_t srcOffset,
-              size_t count,
-              services::Status *status = NULL) DAAL_C11_OVERRIDE
+    void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }

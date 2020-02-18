@@ -21,19 +21,19 @@
 #include "_daal_version_data.h"
 
 #if PRODUCT_STATUS == 'A'
-    #define PRODUCTSTATUS    "alpha"
+    #define PRODUCTSTATUS          "alpha"
     #define FILE_VERSION0(a, b, c) #a "." #b "-alpha0" #c
-    #define SUBBUILD         0
+    #define SUBBUILD               0
 #endif
 #if PRODUCT_STATUS == 'B'
-    #define PRODUCTSTATUS    "beta"
+    #define PRODUCTSTATUS          "beta"
     #define FILE_VERSION0(a, b, c) #a "." #b "-beta0" #c
-    #define SUBBUILD         0
+    #define SUBBUILD               0
 #endif
 #if PRODUCT_STATUS == 'P'
-    #define PRODUCTSTATUS    ""
+    #define PRODUCTSTATUS          ""
     #define FILE_VERSION0(a, b, c) #a "." #b "." #c
-    #define SUBBUILD         1
+    #define SUBBUILD               1
 #endif
 
 /* Intermediate defines */
@@ -42,7 +42,7 @@
 /* The next 3 defines need to use in *.rc files */
 /* instead of symbolic constants like "10.0.2.0" */
 
-#define FILE_VERSION        MAJORVERSION, MINORVERSION, UPDATEVERSION, SUBBUILD
+#define FILE_VERSION MAJORVERSION, MINORVERSION, UPDATEVERSION, SUBBUILD
 
 #define FILE_VERSION_STR    FILE_VERSION1(MAJORVERSION, MINORVERSION, UPDATEVERSION)
 #define PRODUCT_VERSION_STR FILE_VERSION1(MAJORVERSION, MINORVERSION, UPDATEVERSION)

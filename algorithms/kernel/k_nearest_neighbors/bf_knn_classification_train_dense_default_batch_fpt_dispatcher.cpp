@@ -21,22 +21,23 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(bf_knn_classification::training::BatchContainer, batch, DAAL_FPTYPE, bf_knn_classification::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(bf_knn_classification::training::BatchContainer, batch, DAAL_FPTYPE,
+                                           bf_knn_classification::training::defaultDense)
 namespace bf_knn_classification
 {
 namespace training
 {
 namespace interface1
 {
-template<typename algorithmFPType, bf_knn_classification::training::Method method>
+template <typename algorithmFPType, bf_knn_classification::training::Method method>
 Batch<algorithmFPType, method>::Batch() : classifier::training::Batch()
 {
     _par = new ParameterType();
     initialize();
 }
 
-template<typename algorithmFPType, bf_knn_classification::training::Method method>
-Batch<algorithmFPType, method>::Batch(const Batch &other): classifier::training::Batch(other)
+template <typename algorithmFPType, bf_knn_classification::training::Method method>
+Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::training::Batch(other)
 {
     _par = new ParameterType(other.parameter());
     initialize();
@@ -46,6 +47,6 @@ template class Batch<DAAL_FPTYPE, defaultDense>;
 
 } // namespace interface1
 } // namespace training
-} // namespace namespace bf_knn_classification
+} // namespace bf_knn_classification
 } // namespace algorithms
 } // namespace daal

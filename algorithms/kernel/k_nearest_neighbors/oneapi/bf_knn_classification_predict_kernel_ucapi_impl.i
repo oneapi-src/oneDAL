@@ -46,7 +46,6 @@ namespace prediction
 {
 namespace internal
 {
-
 //using namespace daal::services::internal;
 //using namespace daal::services;
 //using namespace daal::internal;
@@ -54,32 +53,32 @@ using namespace daal::oneapi::internal;
 using sort::RadixSort;
 using selection::QuickSelectIndexed;
 
-template<typename algorithmFpType>
-Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
-                 compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par)
+template <typename algorithmFpType>
+Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(const NumericTable * x, const classifier::Model * m, NumericTable * y,
+                                                                     const daal::algorithms::Parameter * par)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
 
     Status st;
 
-    auto& context = Environment::getInstance()->getDefaultExecutionContext();
-    auto& kernel_factory = context.getClKernelFactory();
+    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & kernel_factory = context.getClKernelFactory();
 
-    const Model *model = static_cast<const Model *>(m);
+    const Model * model = static_cast<const Model *>(m);
 
-    NumericTable *ntData = const_cast<NumericTable *>( x );
-    NumericTable *points = const_cast<NumericTable *>(model->impl()->getData().get());
-    NumericTable *labels = const_cast<NumericTable *>(model->impl()->getLabels().get());
+    NumericTable * ntData = const_cast<NumericTable *>(x);
+    NumericTable * points = const_cast<NumericTable *>(model->impl()->getData().get());
+    NumericTable * labels = const_cast<NumericTable *>(model->impl()->getLabels().get());
 
     const Parameter * const parameter = static_cast<const Parameter *>(par);
-    const auto nK = parameter->k;
+    const auto nK                     = parameter->k;
 
     const size_t nProbeRows = ntData->getNumberOfRows();
     const size_t nLabelRows = labels->getNumberOfRows();
-    const size_t nDataRows = points->getNumberOfRows() < nLabelRows ? points->getNumberOfRows() : nLabelRows;
-    const size_t nFeatures = points->getNumberOfColumns();
+    const size_t nDataRows  = points->getNumberOfRows() < nLabelRows ? points->getNumberOfRows() : nLabelRows;
+    const size_t nFeatures  = points->getNumberOfColumns();
 
-    auto fptype_name = oneapi::internal::getKeyFPType<algorithmFpType>();
+    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFpType>();
     auto build_options = fptype_name;
     build_options.add(" -D sortedType=int -D NumParts=16 ");
 
@@ -90,49 +89,47 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
         kernel_factory.build(ExecutionTargetIds::device, cachekey.c_str(), bf_knn_cl_kernels, build_options.c_str());
     }
 
-    const size_t dataBlockSize = 4096 * 4;
+    const size_t dataBlockSize  = 4096 * 4;
     const size_t probeBlockSize = (2048 * 4) / sizeof(algorithmFpType);
-    const size_t nParts = 16;
+    const size_t nParts         = 16;
 
-    auto dataSq             = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize,                       &st);
+    auto dataSq = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto data_temp          = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * nFeatures,           &st);
+    auto data_temp = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * nFeatures, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto probe_temp         = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nFeatures,          &st);
+    auto probe_temp = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nFeatures, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto distances          = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * probeBlockSize,      &st);
+    auto distances = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize * probeBlockSize, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto categories         = context.allocate(TypeIds::id<int>(), probeBlockSize * dataBlockSize,                  &st);
+    auto categories = context.allocate(TypeIds::id<int>(), probeBlockSize * dataBlockSize, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto partialDistances   = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nK * (nParts + 1),  &st);
+    auto partialDistances = context.allocate(TypeIds::id<algorithmFpType>(), probeBlockSize * nK * (nParts + 1), &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto partialCategories  = context.allocate(TypeIds::id<int>(), probeBlockSize * nK * (nParts + 1),              &st);
+    auto partialCategories = context.allocate(TypeIds::id<int>(), probeBlockSize * nK * (nParts + 1), &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto sorted             = context.allocate(TypeIds::id<int>(), probeBlockSize * nK,                             &st);
+    auto sorted = context.allocate(TypeIds::id<int>(), probeBlockSize * nK, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto buffer             = context.allocate(TypeIds::id<int>(), probeBlockSize * nK,                             &st);
+    auto buffer = context.allocate(TypeIds::id<int>(), probeBlockSize * nK, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto radix_buffer       = context.allocate(TypeIds::id<int>(), probeBlockSize * 256,                            &st);
+    auto radix_buffer = context.allocate(TypeIds::id<int>(), probeBlockSize * 256, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto classes            = context.allocate(TypeIds::id<int>(), probeBlockSize,                                  &st);
+    auto classes = context.allocate(TypeIds::id<int>(), probeBlockSize, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto rndSeq             = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize,                       &st);
+    auto rndSeq = context.allocate(TypeIds::id<algorithmFpType>(), dataBlockSize, &st);
     DAAL_CHECK_STATUS_VAR(st);
-    auto rndIndices         = context.allocate(TypeIds::id<size_t>(), dataBlockSize,                                &st);
+    auto rndIndices = context.allocate(TypeIds::id<size_t>(), dataBlockSize, &st);
     DAAL_CHECK_STATUS_VAR(st);
 
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(compute.RNG);
-        auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&(*parameter->engine));
-        if(!engineImpl)
-            return Status(ErrorIncorrectEngineParameter);
+        auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&(*parameter->engine));
+        if (!engineImpl) return Status(ErrorIncorrectEngineParameter);
         daal::internal::RNGs<size_t, sse2> rng;
-        size_t              numbers[dataBlockSize];
-        algorithmFpType     values[dataBlockSize];
+        size_t numbers[dataBlockSize];
+        algorithmFpType values[dataBlockSize];
         rng.uniform(dataBlockSize, &numbers[0], engineImpl->getState(), 0, (size_t)(dataBlockSize - 1));
-        for(int i = 0; i < dataBlockSize; i++)
-            values[i] = static_cast<algorithmFpType>(numbers[i]) / (dataBlockSize - 1);
-        context.copy(rndSeq, 0, (void*)&values[0], 0, dataBlockSize, &st);
+        for (int i = 0; i < dataBlockSize; i++) values[i] = static_cast<algorithmFpType>(numbers[i]) / (dataBlockSize - 1);
+        context.copy(rndSeq, 0, (void *)&values[0], 0, dataBlockSize, &st);
         DAAL_CHECK_STATUS_VAR(st);
     }
     auto init_distances = kernel_factory.getKernel("init_distances", &st);
@@ -144,8 +141,8 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
     auto init_categories = kernel_factory.getKernel("init_categories", &st);
     DAAL_CHECK_STATUS_VAR(st);
 
-    const size_t nDataBlocks = nDataRows / dataBlockSize + int (nDataRows % dataBlockSize != 0);
-    const size_t nProbeBlocks = nProbeRows / probeBlockSize + int (nProbeRows % probeBlockSize != 0);
+    const size_t nDataBlocks  = nDataRows / dataBlockSize + int(nDataRows % dataBlockSize != 0);
+    const size_t nProbeBlocks = nProbeRows / probeBlockSize + int(nProbeRows % probeBlockSize != 0);
     QuickSelectIndexed::Result selectResult(context, nK, probeBlockSize, distances.type(), categories.type(), &st);
     DAAL_CHECK_STATUS_VAR(st);
 
@@ -164,25 +161,23 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
     for (size_t pblock = 0; pblock < nProbeBlocks; pblock++)
     {
         const size_t pfirst = pblock * probeBlockSize;
-        size_t plast = pfirst + probeBlockSize;
+        size_t plast        = pfirst + probeBlockSize;
 
-        if (plast > nProbeRows)
-            plast = nProbeRows;
+        if (plast > nProbeRows) plast = nProbeRows;
         const size_t curProbeBlockSize = plast - pfirst;
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.copy_query);
             context.copy(probe_temp, 0, probes_all, pfirst * nFeatures, nFeatures * curProbeBlockSize, &st);
         }
-        auto probes = probe_temp.template get<algorithmFpType>();
+        auto probes        = probe_temp.template get<algorithmFpType>();
         uint32_t partCount = 0;
 
         for (size_t dblock = 0; dblock < nDataBlocks; dblock++)
         {
             const size_t dfirst = dblock * dataBlockSize;
-            size_t dlast = dfirst + dataBlockSize;
+            size_t dlast        = dfirst + dataBlockSize;
 
-            if (dlast > nDataRows)
-                dlast = nDataRows;
+            if (dlast > nDataRows) dlast = nDataRows;
             const size_t curDataBlockSize = dlast - dfirst;
 
             // Let's calculate distances using GEMM
@@ -190,47 +185,56 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
                 DAAL_ITTNOTIFY_SCOPED_TASK(compute.copy_data);
                 context.copy(data_temp, 0, data_all, dfirst * nFeatures, nFeatures * curDataBlockSize, &st);
             }
-            auto data = data_temp.template get<algorithmFpType>();
-            auto sumResult = math::SumReducer::sum(math::Layout::RowMajor,
-                                                   data, curDataBlockSize, nFeatures, &st); DAAL_CHECK_STATUS_VAR(st);
-            initDistances(context, init_distances, sumResult.sumOfSquares, distances, curDataBlockSize, curProbeBlockSize, &st); DAAL_CHECK_STATUS_VAR(st);
-            computeDistances(context, data, probes, distances, curDataBlockSize, curProbeBlockSize, nFeatures, &st); DAAL_CHECK_STATUS_VAR(st);
+            auto data      = data_temp.template get<algorithmFpType>();
+            auto sumResult = math::SumReducer::sum(math::Layout::RowMajor, data, curDataBlockSize, nFeatures, &st);
+            DAAL_CHECK_STATUS_VAR(st);
+            initDistances(context, init_distances, sumResult.sumOfSquares, distances, curDataBlockSize, curProbeBlockSize, &st);
+            DAAL_CHECK_STATUS_VAR(st);
+            computeDistances(context, data, probes, distances, curDataBlockSize, curProbeBlockSize, nFeatures, &st);
+            DAAL_CHECK_STATUS_VAR(st);
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(compute.copy_categories);
-                initCategories(context, init_categories, labels_all, categories, curProbeBlockSize, curDataBlockSize, dfirst, &st); DAAL_CHECK_STATUS_VAR(st);
+                initCategories(context, init_categories, labels_all, categories, curProbeBlockSize, curDataBlockSize, dfirst, &st);
+                DAAL_CHECK_STATUS_VAR(st);
             }
-            QuickSelectIndexed::select( distances, categories, rndSeq, dataBlockSize, nK, curProbeBlockSize,
-                                        curDataBlockSize, curDataBlockSize, selectResult, &st);  DAAL_CHECK_STATUS_VAR(st);
-            copyPartialSelections(context, gather_selection, selectResult.values, selectResult.indices, partialDistances,
-                                  partialCategories, curProbeBlockSize, nK, partCount, nParts, dblock != 0 && partCount == 0, &st);  DAAL_CHECK_STATUS_VAR(st);
+            QuickSelectIndexed::select(distances, categories, rndSeq, dataBlockSize, nK, curProbeBlockSize, curDataBlockSize, curDataBlockSize,
+                                       selectResult, &st);
+            DAAL_CHECK_STATUS_VAR(st);
+            copyPartialSelections(context, gather_selection, selectResult.values, selectResult.indices, partialDistances, partialCategories,
+                                  curProbeBlockSize, nK, partCount, nParts, dblock != 0 && partCount == 0, &st);
+            DAAL_CHECK_STATUS_VAR(st);
             partCount++;
-            if(partCount >= nParts)
+            if (partCount >= nParts)
             {
-                QuickSelectIndexed::select(partialDistances, partialCategories, rndSeq, dataBlockSize, nK, curProbeBlockSize,
-                                            nK * partCount, nK * nParts, selectResult, &st);  DAAL_CHECK_STATUS_VAR(st);
+                QuickSelectIndexed::select(partialDistances, partialCategories, rndSeq, dataBlockSize, nK, curProbeBlockSize, nK * partCount,
+                                           nK * nParts, selectResult, &st);
+                DAAL_CHECK_STATUS_VAR(st);
                 partCount = 0;
             }
         }
-        if(partCount > 0)
+        if (partCount > 0)
         {
-            QuickSelectIndexed::select(partialDistances, partialCategories, rndSeq, dataBlockSize, nK, curProbeBlockSize,
-                                        nK * partCount, nK * nParts, selectResult, &st);  DAAL_CHECK_STATUS_VAR(st);
+            QuickSelectIndexed::select(partialDistances, partialCategories, rndSeq, dataBlockSize, nK, curProbeBlockSize, nK * partCount, nK * nParts,
+                                       selectResult, &st);
+            DAAL_CHECK_STATUS_VAR(st);
         }
-        RadixSort::sort(selectResult.indices, sorted,  radix_buffer, curProbeBlockSize, nK, nK, &st); DAAL_CHECK_STATUS_VAR(st);
+        RadixSort::sort(selectResult.indices, sorted, radix_buffer, curProbeBlockSize, nK, nK, &st);
+        DAAL_CHECK_STATUS_VAR(st);
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.winners);
-            computeWinners(context, find_winners, sorted, classes, curProbeBlockSize, nK, &st); DAAL_CHECK_STATUS_VAR(st);
+            computeWinners(context, find_winners, sorted, classes, curProbeBlockSize, nK, &st);
+            DAAL_CHECK_STATUS_VAR(st);
         }
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(compute.copy_results);
             BlockDescriptor<algorithmFpType> resultBlock;
             DAAL_CHECK_STATUS_VAR(y->getBlockOfRows(0, nProbeRows, writeOnly, resultBlock));
             auto classesRows = classes.template get<int>().toHost(ReadWriteMode::readOnly);
-            auto res = resultBlock.getBuffer().toHost(ReadWriteMode::writeOnly);
-                for(int i = 0; i < curProbeBlockSize; i++)
-                {
-                    res.get()[pfirst + i] = classesRows.get()[i];
-                }
+            auto res         = resultBlock.getBuffer().toHost(ReadWriteMode::writeOnly);
+            for (int i = 0; i < curProbeBlockSize; i++)
+            {
+                res.get()[pfirst + i] = classesRows.get()[i];
+            }
             DAAL_CHECK_STATUS_VAR(y->releaseBlockOfRows(resultBlock));
         }
     }
@@ -241,15 +245,10 @@ Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::
 }
 
 template <typename algorithmFpType>
-void KNNClassificationPredictKernelUCAPI<algorithmFpType>::initCategories
-        (ExecutionContextIface& context,
-         const KernelPtr& kernel_init_categories,
-         const Buffer<int>& labels,
-         UniversalBuffer& categories,
-         uint32_t probeBlockSize,
-         uint32_t dataBlockSize,
-         uint32_t offset,
-         Status* st)
+void KNNClassificationPredictKernelUCAPI<algorithmFpType>::initCategories(ExecutionContextIface & context, const KernelPtr & kernel_init_categories,
+                                                                          const Buffer<int> & labels, UniversalBuffer & categories,
+                                                                          uint32_t probeBlockSize, uint32_t dataBlockSize, uint32_t offset,
+                                                                          Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.init_categories);
     KernelArguments args(4);
@@ -266,23 +265,13 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::initCategories
 }
 
 template <typename algorithmFpType>
-void KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyPartialSelections
-        (ExecutionContextIface& context,
-         const KernelPtr& kernel_gather_selection,
-         UniversalBuffer& distances,
-         UniversalBuffer& categories,
-         UniversalBuffer& partialDistances,
-         UniversalBuffer& partialCategories,
-         uint32_t probeBlockSize,
-         uint32_t nK,
-         uint32_t& nPart,
-         uint32_t totalParts,
-         bool bKeepPrevious,
-         Status* st)
+void KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyPartialSelections(
+    ExecutionContextIface & context, const KernelPtr & kernel_gather_selection, UniversalBuffer & distances, UniversalBuffer & categories,
+    UniversalBuffer & partialDistances, UniversalBuffer & partialCategories, uint32_t probeBlockSize, uint32_t nK, uint32_t & nPart,
+    uint32_t totalParts, bool bKeepPrevious, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.copyPartialSelections);
-    if(bKeepPrevious)
-        nPart++;
+    if (bKeepPrevious) nPart++;
     KernelArguments args(7);
     args.set(0, distances, AccessModeIds::read);
     args.set(1, categories, AccessModeIds::read);
@@ -296,8 +285,10 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyPartialSelections
     KernelRange global_range(probeBlockSize, nK);
 
     KernelNDRange range(2);
-    range.global(global_range, st); DAAL_CHECK_STATUS_PTR(st);
-    range.local(local_range, st); DAAL_CHECK_STATUS_PTR(st);
+    range.global(global_range, st);
+    DAAL_CHECK_STATUS_PTR(st);
+    range.local(local_range, st);
+    DAAL_CHECK_STATUS_PTR(st);
 
     {
         context.run(range, kernel_gather_selection, args, st);
@@ -305,14 +296,9 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyPartialSelections
 }
 
 template <typename algorithmFpType>
-void KNNClassificationPredictKernelUCAPI<algorithmFpType>::initDistances
-        (ExecutionContextIface& context,
-         const KernelPtr& kernel_init_distances,
-         UniversalBuffer& dataSq,
-         UniversalBuffer& distances,
-         uint32_t dataBlockSize,
-         uint32_t probesBlockSize,
-         Status* st)
+void KNNClassificationPredictKernelUCAPI<algorithmFpType>::initDistances(ExecutionContextIface & context, const KernelPtr & kernel_init_distances,
+                                                                         UniversalBuffer & dataSq, UniversalBuffer & distances,
+                                                                         uint32_t dataBlockSize, uint32_t probesBlockSize, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.initDistances);
 
@@ -329,39 +315,26 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::initDistances
 }
 
 template <typename algorithmFpType>
-void KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances
-        (ExecutionContextIface& context,
-         const Buffer<algorithmFpType>& data,
-         const Buffer<algorithmFpType>& probes,
-         UniversalBuffer& distances,
-         uint32_t dataBlockSize,
-         uint32_t probeBlockSize,
-         uint32_t nFeatures,
-         Status* st)
+void KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeDistances(ExecutionContextIface & context, const Buffer<algorithmFpType> & data,
+                                                                            const Buffer<algorithmFpType> & probes, UniversalBuffer & distances,
+                                                                            uint32_t dataBlockSize, uint32_t probeBlockSize, uint32_t nFeatures,
+                                                                            Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.GEMM);
-    auto gemmStatus = BlasGpu<algorithmFpType>::xgemm
-            (math::Layout::RowMajor,
-             math::Transpose::NoTrans, math::Transpose::Trans,
-             probeBlockSize, dataBlockSize, nFeatures,
-             algorithmFpType(-2.0),
-             probes, nFeatures, 0,
-             data, nFeatures, 0,
-             algorithmFpType(1.0),
-             distances.get<algorithmFpType>(), dataBlockSize, 0);
+    auto gemmStatus = BlasGpu<algorithmFpType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, probeBlockSize,
+                                                      dataBlockSize, nFeatures, algorithmFpType(-2.0), probes, nFeatures, 0, data, nFeatures, 0,
+                                                      algorithmFpType(1.0), distances.get<algorithmFpType>(), dataBlockSize, 0);
 
-    if (st != nullptr) { *st = gemmStatus; }
+    if (st != nullptr)
+    {
+        *st = gemmStatus;
+    }
 }
 
 template <typename algorithmFpType>
-void KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners
-        (ExecutionContextIface& context,
-         const KernelPtr& kernel_compute_winners,
-         UniversalBuffer& categories,
-         UniversalBuffer& classes,
-         uint32_t probesBlockSize,
-         uint32_t nK,
-         Status* st)
+void KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners(ExecutionContextIface & context, const KernelPtr & kernel_compute_winners,
+                                                                          UniversalBuffer & categories, UniversalBuffer & classes,
+                                                                          uint32_t probesBlockSize, uint32_t nK, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.initDistances);
 
@@ -374,8 +347,10 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners
     KernelRange global_range(probesBlockSize);
 
     KernelNDRange range(1);
-    range.global(global_range, st); DAAL_CHECK_STATUS_PTR(st);
-    range.local(local_range, st); DAAL_CHECK_STATUS_PTR(st);
+    range.global(global_range, st);
+    DAAL_CHECK_STATUS_PTR(st);
+    range.local(local_range, st);
+    DAAL_CHECK_STATUS_PTR(st);
 
     {
         context.run(range, kernel_compute_winners, args, st);

@@ -27,7 +27,6 @@ namespace training
 {
 namespace interface1
 {
-
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 } // namespace interface1

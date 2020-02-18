@@ -66,8 +66,7 @@ public:
     Any(const T & value) : _value(new Value<T>(value))
     {}
 
-    Any(const Any &other) :
-        _value(other._value ? other._value->copy() : NULL) { }
+    Any(const Any & other) : _value(other._value ? other._value->copy() : NULL) {}
 
     ~Any() DAAL_C11_OVERRIDE { delete _value; }
 

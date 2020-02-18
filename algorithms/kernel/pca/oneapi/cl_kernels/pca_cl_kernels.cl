@@ -26,18 +26,17 @@
 
 #include <string.h>
 
-#define DECLARE_SOURCE(name, src) static const char* name = #src;
+#define DECLARE_SOURCE(name, src) static const char * name = #src;
 
-DECLARE_SOURCE(pca_cl_kernels,
+DECLARE_SOURCE(
+    pca_cl_kernels,
 
-__kernel void calculateVariances(__global algorithmFPType* covariance,
-                                 __global algorithmFPType* variances)
-{
-    const int tid = get_global_id(0);
-    const int nFeatures = get_global_size(0);
+    __kernel void calculateVariances(__global algorithmFPType * covariance, __global algorithmFPType * variances) {
+        const int tid       = get_global_id(0);
+        const int nFeatures = get_global_size(0);
 
-    variances[tid] = covariance[tid * nFeatures + tid];
-}
+        variances[tid] = covariance[tid * nFeatures + tid];
+    }
 
 );
 

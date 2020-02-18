@@ -220,9 +220,9 @@ struct TlsData
 template <typename algorithmFPType, CpuType cpu>
 services::Status PredictMulticlassTask<algorithmFPType, cpu>::run(const NumericTable & beta, services::HostAppIface * pHostApp)
 {
-    const size_t nRowsTotal    = _data->getNumberOfRows();
-    const size_t nCols         = _data->getNumberOfColumns();
-    const size_t nClasses      = beta.getNumberOfRows();
+    const size_t nRowsTotal = _data->getNumberOfRows();
+    const size_t nCols      = _data->getNumberOfColumns();
+    const size_t nClasses   = beta.getNumberOfRows();
     DAAL_ASSERT(beta.getNumberOfColumns() == nCols + 1);
     const size_t nYPerRow            = nClasses;
     const size_t nRowsInBlockDefault = 500;

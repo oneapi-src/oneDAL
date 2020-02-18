@@ -49,7 +49,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__BF_KNN_CLASSIFICATION__PREDICTION__BATCHCONTAINER"></a>
  *  \brief Class containing computation methods for BF kNN model-based prediction
  */
-template<typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public PredictionContainerIface
 {
 public:
@@ -57,7 +57,7 @@ public:
      * Constructs a container for BF kNN model-based prediction with a specified environment
      * \param[in] daalEnv   Environment object
      */
-    BatchContainer(daal::services::Environment::env *daalEnv);
+    BatchContainer(daal::services::Environment::env * daalEnv);
 
     ~BatchContainer();
 
@@ -83,15 +83,15 @@ public:
  *      - \ref bf_knn_classification::interface1::Model "bf_knn_classification::Model" class
  *      - \ref training::interface1::Batch "training::Batch" class
  */
-template<typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
+template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::prediction::Batch
 {
 public:
     typedef classifier::prediction::Batch super;
 
     typedef algorithms::bf_knn_classification::prediction::Input InputType;
-    typedef algorithms::bf_knn_classification::Parameter         ParameterType;
-    typedef typename super::ResultType                           ResultType;
+    typedef algorithms::bf_knn_classification::Parameter ParameterType;
+    typedef typename super::ResultType ResultType;
 
     /** Default constructor */
     Batch();
@@ -105,7 +105,8 @@ public:
     Batch(const Batch<algorithmFPType, method> & other);
 
     /** Destructor */
-    ~Batch() {
+    ~Batch()
+    {
         delete _par;
         _par = NULL;
     }
@@ -114,49 +115,43 @@ public:
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    virtual ParameterType& parameter() { return *static_cast<ParameterType*>(_par); }
+    virtual ParameterType & parameter() { return *static_cast<ParameterType *>(_par); }
 
     /**
     * Gets parameter of the algorithm
     * \return parameter of the algorithm
     */
-    virtual const ParameterType& parameter() const { return *static_cast<const ParameterType*>(_par); }
+    virtual const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
      * Get input objects for the BF kNN prediction algorithm
      * \return %Input objects for the BF kNN prediction algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return static_cast<InputType*>(_in); }
+    InputType * getInput() DAAL_C11_OVERRIDE { return static_cast<InputType *>(_in); }
 
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return(int)method; }
+    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated BF kNN prediction algorithm with a copy of input objects
      * of this BF kNN prediction algorithm
      * \return Pointer to the newly allocated algorithm
      */
-    services::SharedPtr<Batch<algorithmFPType, method> > clone() const
-    {
-        return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl());
-    }
+    services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 public:
     InputType input; /*!< %Input objects of the algorithm */
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new Batch<algorithmFPType, method>(*this);
-    }
+    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
         services::Status s = _result->allocate<algorithmFPType>(_in, _par, (int)method);
-        _res = _result.get();
+        _res               = _result.get();
         return s;
     }
 
@@ -167,7 +162,7 @@ protected:
     }
 
 private:
-    Batch& operator=(const Batch&);
+    Batch & operator=(const Batch &);
 };
 
 /** @} */

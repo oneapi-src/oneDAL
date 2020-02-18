@@ -16,20 +16,20 @@
 *******************************************************************************/
 
 #ifdef DAAL_SYCL_INTERFACE
-#ifndef __DAAL_ONEAPI_INTERNAL_EXECUTION_CONTEXT_SYCL_H__
-#define __DAAL_ONEAPI_INTERNAL_EXECUTION_CONTEXT_SYCL_H__
+    #ifndef __DAAL_ONEAPI_INTERNAL_EXECUTION_CONTEXT_SYCL_H__
+        #define __DAAL_ONEAPI_INTERNAL_EXECUTION_CONTEXT_SYCL_H__
 
-#include <vector>
-#include <cstring>
-#include <CL/cl.h>
-#include <CL/sycl.hpp>
+        #include <vector>
+        #include <cstring>
+        #include <CL/cl.h>
+        #include <CL/sycl.hpp>
 
-#include "services/daal_string.h"
-#include "oneapi/internal/execution_context.h"
-#include "oneapi/internal/kernel_scheduler_sycl.h"
-#include "oneapi/internal/math/blas_executor.h"
-#include "oneapi/internal/math/lapack_executor.h"
-#include "oneapi/internal/error_handling.h"
+        #include "services/daal_string.h"
+        #include "oneapi/internal/execution_context.h"
+        #include "oneapi/internal/kernel_scheduler_sycl.h"
+        #include "oneapi/internal/math/blas_executor.h"
+        #include "oneapi/internal/math/lapack_executor.h"
+        #include "oneapi/internal/error_handling.h"
 
 namespace daal
 {
@@ -50,22 +50,13 @@ private:
     public:
         ProgramCacheEntry() : _program(nullptr) {}
 
-        ~ProgramCacheEntry()
-        {
-            delete _program;
-        }
+        ~ProgramCacheEntry() { delete _program; }
 
-        void setProgram(OpenClProgramRef *program)
-        {
-            _program = program;
-        }
+        void setProgram(OpenClProgramRef * program) { _program = program; }
 
-        OpenClProgramRef * getProgram()
-        {
-            return _program;
-        }
+        OpenClProgramRef * getProgram() { return _program; }
 
-        const char* getName(services::Status * status = nullptr)
+        const char * getName(services::Status * status = nullptr)
         {
             if (!_program)
             {
@@ -90,25 +81,20 @@ private:
 
         ~KernelCacheEntry() {}
 
-        void setKernel(KernelPtr kernel, const char *name)
+        void setKernel(KernelPtr kernel, const char * name)
         {
-            _name = name;
+            _name   = name;
             _kernel = kernel;
         }
 
-        KernelPtr getKernel()
-        {
-            return _kernel;
-        }
+        KernelPtr getKernel() { return _kernel; }
 
-        const char* getName()
-        {
-            return _name.c_str();
-        }
+        const char * getName() { return _name.c_str(); }
     };
 
 public:
-    explicit OpenClKernelFactory(cl::sycl::queue & deviceQueue) : _clProgramRef(nullptr), _executionTarget(ExecutionTargetIds::unspecified), _deviceQueue(deviceQueue)
+    explicit OpenClKernelFactory(cl::sycl::queue & deviceQueue)
+        : _clProgramRef(nullptr), _executionTarget(ExecutionTargetIds::unspecified), _deviceQueue(deviceQueue)
     {}
 
     void build(ExecutionTargetId target, const char * key, const char * program, const char * options = "",
@@ -131,8 +117,8 @@ public:
         }
         else
         {
-            _clProgramCache[id].setProgram(new OpenClProgramRef(_deviceQueue.get_context().get(),
-                                           _deviceQueue.get_device().get(), key, program, options, status));
+            _clProgramCache[id].setProgram(
+                new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), key, program, options, status));
             if (status != nullptr && !status->ok())
             {
                 return;
@@ -169,14 +155,13 @@ public:
             {
                 return KernelPtr();
             }
-            kernelPtr        = KernelPtr(new OpenClKernel(_executionTarget, *_clProgramRef, kernelRef));
+            kernelPtr = KernelPtr(new OpenClKernel(_executionTarget, *_clProgramRef, kernelRef));
             _kernelCache[id].setKernel(kernelPtr, kernelName);
         }
         return kernelPtr;
     }
 
-    ~OpenClKernelFactory() DAAL_C11_OVERRIDE
-    {}
+    ~OpenClKernelFactory() DAAL_C11_OVERRIDE {}
 
 protected:
     uint64_t hash(const char * key)
@@ -325,20 +310,15 @@ public:
 
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
 
-    void copy(UniversalBuffer dest,
-              size_t desOffset,
-              void *src,
-              size_t srcOffset,
-              size_t count,
-              services::Status *status = nullptr) DAAL_C11_OVERRIDE
+    void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count,
+              services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
         // TODO: Thread safe?
         try
         {
-            ArrayCopier::copy(_deviceQueue, dest,
-                               desOffset, src, srcOffset, count);
+            ArrayCopier::copy(_deviceQueue, dest, desOffset, src, srcOffset, count);
         }
-        catch (cl::sycl::exception const &e)
+        catch (cl::sycl::exception const & e)
         {
             convertSyclExceptionToStatus(e, status);
         }
