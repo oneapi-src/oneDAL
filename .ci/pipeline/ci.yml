@@ -26,21 +26,14 @@ jobs:
     matrix:
       lnx32:
         platform.type : 'lnx32'
-        with_gpu      : 'false'
       lnx32e:
         platform.type : 'lnx32e'
-        with_gpu      : 'true'
     maxParallel: 2
   steps:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
-      scripts/mklfpk.sh with_gpu=$(with_gpu)
-      scripts/tbb.sh
-      export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-      export PATH=$JAVA_HOME/bin:$PATH
-      export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH 
-      make daal -j4 PLAT=$(platform.type) COMPILER=gnu REQCPU="avx2"
+      .ci/scripts/build.sh --platform $(platform.type)
     displayName: 'make'
   - script: |
       cp -R __release_lnx_gnu $(Build.ArtifactStagingDirectory)/
@@ -57,15 +50,9 @@ jobs:
     matrix:
       mac32e:
         platform.type : 'mac32e'
-        with_gpu      : 'false'
   steps:
   - script: |
-      scripts/mklfpk.sh with_gpu=$(with_gpu)
-      scripts/tbb.sh
-      export JAVA_HOME=$(/usr/libexec/java_home -v 12)
-      export PATH=$JAVA_HOME/bin:$PATH
-      export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
-      make daal -j4 PLAT=$(platform.type) COMPILER=clang REQCPU="avx2"
+      .ci/scripts/build.sh --platform $(platform.type)
     displayName: 'make'
   - script: |
       cp -R __release_mac_clang $(Build.ArtifactStagingDirectory)/
@@ -74,6 +61,7 @@ jobs:
     inputs:
       artifactName: 'Mac build'
       targetPath: '__release_mac_clang'
+
 # Windows build is temporary disabled
 #- job: Windows
 #  pool:
