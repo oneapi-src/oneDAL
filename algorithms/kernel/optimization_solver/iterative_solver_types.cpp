@@ -65,10 +65,10 @@ Parameter::Parameter(const Parameter & other)
 
 Parameter & Parameter::operator=(const Parameter & other)
 {
-    nIterations = other.nIterations;
-    accuracyThreshold = other.accuracyThreshold;
+    nIterations            = other.nIterations;
+    accuracyThreshold      = other.accuracyThreshold;
     optionalResultRequired = other.optionalResultRequired;
-    batchSize = other.batchSize;
+    batchSize              = other.batchSize;
 
     if (other.function)
     {
@@ -78,6 +78,8 @@ Parameter & Parameter::operator=(const Parameter & other)
     {
         function.reset();
     }
+
+    return *this;
 }
 
 services::Status Parameter::check() const

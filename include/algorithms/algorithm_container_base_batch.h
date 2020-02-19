@@ -186,7 +186,7 @@ protected:
 
 private:
     AlgorithmDispatchContainer(const AlgorithmDispatchContainer &);
-    AlgorithmDispatchContainer& operator=(const AlgorithmDispatchContainer &);
+    AlgorithmDispatchContainer & operator=(const AlgorithmDispatchContainer &);
 };
 
 /** @} */
