@@ -137,10 +137,16 @@ public:
     }
 
     /** \private */
-    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE { return serialImpl<InputDataArchive, false>(arch); }
+    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
+{
+return serialImpl<InputDataArchive, false>(arch);
+}
 
     /** \private */
-    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE { return serialImpl<const OutputDataArchive, true>(arch); }
+    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
+{
+return serialImpl<const OutputDataArchive, true>(arch);
+}
 
     /** \private */
     template <typename Archive, bool onDeserialize>
@@ -172,7 +178,7 @@ public:
                 /* Make sure that dictionary is allocated */
                 getCategoricalDictionary();
                 /* Make sure that dictionary is empty */
-                cat_dict->empty();
+                cat_dict->clear();
             }
 
             size_t size = cat_dict->size();
