@@ -29,16 +29,17 @@
 DECLARE_SOURCE(
     quick_select_simd,
 
-    algorithmFPType get_rnd(__global const algorithmFPType * rnd_seq, int RndPeriod, int * count)
-    {
+    algorithmFPType get_rnd(__global const algorithmFPType * rnd_seq, int RndPeriod, int * count) {
         algorithmFPType ret = rnd_seq[(*count)++];
-        if (*count >= RndPeriod) *count = 0;
+        if (*count >= RndPeriod)
+        {
+            *count = 0;
+        }
         return ret;
     }
 
     void partition_by_values(__global algorithmFPType * values, __global int * indices, int partition_start, int partition_end, int local_id,
-                             int local_size, algorithmFPType pivot, int * split_index_ptr, int * great_total_ptr)
-    {
+                             int local_size, algorithmFPType pivot, int * split_index_ptr, int * great_total_ptr) {
         int full_size       = partition_end - partition_start;
         int last_group_size = full_size % local_size;
         int full_group_size = full_size - last_group_size;
@@ -86,8 +87,7 @@ DECLARE_SOURCE(
 
     __kernel void quick_select_group(__global algorithmFPType * in_values, __global int * in_indices, __global algorithmFPType * out_values,
                                      __global int * out_indices, __global const algorithmFPType * rnd_seq, int RndPeriod, int N, int NLast, int K,
-                                     int BlockOffset)
-    {
+                                     int BlockOffset) {
         const int row_id     = get_global_id(0) * get_num_sub_groups() + get_sub_group_id();
         const int local_id   = get_local_id(1);
         const int local_size = get_sub_group_size();
@@ -140,8 +140,7 @@ DECLARE_SOURCE(
             }
             if (iteration_count > N)
             {
-                nbrdistances[offset_out + i] = pdist[i];
-                nbrlabels[offset_out + i]    = plabels[i];
+                break;
             }
         }
         for (int i = local_id; i < K; i += local_size)
@@ -155,27 +154,38 @@ DECLARE_SOURCE(
 
 DECLARE_SOURCE(
     direct_select_simd, __kernel void direct_select_group(__global const algorithmFPType * values_in, __global algorithmFPType * values_out,
-                                                          __global int * indices_out, int N, int NL, int BlockOffset, algorithmFPType FPMax)
-    {
+                                                          __global int * indices_out, int N, int NL, int BlockOffset, algorithmFPType FPMax) {
         const int local_size    = get_sub_group_size();
         const int sub_group_num = get_num_sub_groups();
         const int M             = get_global_size(0);
         const int global_id     = get_global_id(0) * sub_group_num + get_sub_group_id();
 
-        if (global_id >= M) return;
+        if (global_id >= M)
+        {
+            return;
+        }
 
         const int local_id = get_sub_group_local_id();
 
         const __global algorithmFPType * finput = &values_in[global_id * BlockOffset];
 
-        if (global_id == get_global_size(0) - 1) N = NL;
+        if (global_id == get_global_size(0) - 1)
+        {
+            N = NL;
+        }
 
         const int array_size = __K__;
-
         int indices[array_size];
-        for (int j = 0; j < array_size; j++) indices[j] = -1;
+        for (int j = 0; j < array_size; j++)
+        {
+            indices[j] = -1;
+        }
+
         algorithmFPType values[array_size];
-        for (int j = 0; j < array_size; j++) values[j] = FPMax;
+        for (int j = 0; j < array_size; j++)
+        {
+            values[j] = FPMax;
+        }
 
         for (int i = local_id; i < N; i += local_size)
         {

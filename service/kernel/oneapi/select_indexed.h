@@ -20,7 +20,7 @@
 
 #include "algorithms/engines/engine.h"
 #include "services/buffer.h"
-#include "service/kernel/oneapi/cl_kernels/select_indexed.cl"
+#include "services/daal_defines.h"
 #include "oneapi/internal/types_utils.h"
 #include "oneapi/internal/execution_context.h"
 

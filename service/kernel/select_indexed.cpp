@@ -16,6 +16,7 @@
 *******************************************************************************/
 
 #include "service/kernel/oneapi/select_indexed.h"
+#include "service/kernel/oneapi/cl_kernels/select_indexed.cl"
 #include "oneapi/internal/utils.h"
 #include "externals/service_rng.h"
 #include "algorithms/kernel/engines/engine_batch_impl.h"
