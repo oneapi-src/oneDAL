@@ -80,33 +80,12 @@ inline const T & max(const T & a, const T & b)
 template <typename T, CpuType cpu>
 class Stack
 {
-private:
-    T * _data;
-    long _top;
-    long _sizeMinus1;
-    size_t _size;
-    /*
-        There was a strong assumption that stack can be initialized by only powers of 2.
-        Due to the usage scenario it's true but wrong in general. This function should fix it.
-    */
-    size_t nextPowerOf2(size_t x)
-    {
-        x--;
-        x |= x >> 1;
-        x |= x >> 2;
-        x |= x >> 4;
-        x |= x >> 8;
-        x |= x >> 16;
-        x |= x >> 32;
-        x++;
-        return x;
-    }
-
 public:
     Stack() : _data(nullptr) {}
 
     void clear()
     {
+        reset();
         if (_data != nullptr)
         {
             services::daal_free(_data);
@@ -118,19 +97,21 @@ public:
 
     bool init(size_t size)
     {
-        _size       = size ? nextPowerOf2(size) : 1; //Handles both cases size == 0 and size != 0
+        if((long) size < 0L) return false;
+        size       = size ? nextPowerOf2(size) : 1; //Handles both cases size == 0 and size != 0
+        setSize(size);
         _data       = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
-        _sizeMinus1 = (long)_size - 1;
-        _top        = -1;
-        return _data;
+        reset();
+        return (_data == nullptr) ? false : true;
     }
 
-    void reset() { _top = -1; }
+    void reset() { _top = -1L; }
 
     DAAL_FORCEINLINE services::Status push(const T & value)
     {
         services::Status status;
-        if (_top >= _sizeMinus1)
+        //Check if the pushing value can be written into _data
+        if (_top + 2L >= _sizeMinus1)
         {
             status = grow();
             DAAL_CHECK_STATUS_VAR(status)
@@ -141,22 +122,45 @@ public:
 
     DAAL_FORCEINLINE T pop() { return _data[_top--]; }
 
-    bool empty() const { return _top == -1; }
+    bool empty() const { return (_top == -1L); }
 
-    size_t size() const { return (size_t)(_top + 1); }
+    DAAL_FORCEINLINE size_t size() const { return (size_t)(_top + 1L); }
 
     services::Status grow()
     {
-        _size <<= 1; // Equal to multiplying by 2
+        setSize(_size * 2);
         T * const newData = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
         DAAL_CHECK_MALLOC(newData)
-        _sizeMinus1 = (long)_size - 1;
         int result  = services::internal::daal_memcpy_s(newData, _size * sizeof(T), _data, size() * sizeof(T));
         T * oldData = _data;
         _data       = newData;
         services::daal_free(oldData);
         oldData = nullptr;
         return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
+    }
+private:
+    T * _data;
+    long _top;
+    long _sizeMinus1;
+    size_t _size;
+    void setSize(size_t size)
+    {
+        _size = size;
+        _sizeMinus1 = (long)_size - 1L;
+    }
+    /*
+        There was a strong assumption that stack can be initialized by only powers of 2.
+        Due to the usage scenario it's true but wrong in general. This function should fix it.
+    */
+    size_t nextPowerOf2(size_t x)
+    {
+        //Checking if the input value is already power of 2
+        if(x && !(x & (x - 1))) 
+            return x;
+        size_t power = 0;
+        for(; x != 0; power++)
+            x >>= 1;
+        return 1 << power;
     }
 };
 
