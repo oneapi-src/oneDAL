@@ -68,3 +68,9 @@ list of features and documentation are available at |daal-docs|_.
    :caption: Notes
 
    notes/known_issues.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contributing Guide
+
+   contribution/coding_guide.rst
