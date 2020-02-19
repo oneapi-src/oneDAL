@@ -223,6 +223,9 @@ protected:
     {
         return daal::algorithms::Result::serialImpl<Archive, onDeserialize>(arch);
     }
+
+private:
+    Result & operator=(const Result &);
 };
 typedef services::SharedPtr<Result> ResultPtr;
 
