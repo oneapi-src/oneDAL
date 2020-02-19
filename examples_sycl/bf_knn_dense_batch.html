@@ -34,7 +34,6 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="cor_dense_batch.cpp" href="cor_dense_batch.html" />
@@ -481,6 +480,7 @@
 <li class="toctree-l2"><a class="reference internal" href="kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
@@ -496,6 +496,95 @@
 <li class="toctree-l1"><a class="reference internal" href="../notes/known_issues.html">Known Issues</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../notes/known_issues.html#dll-file-not-found">DLL file not found</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../notes/known_issues.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contribution/coding_guide.html">Coding Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contribution/coding_guide.html#coding-style">Coding Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#general-rules">General Rules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#whitespaces">Whitespaces</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#c-files">C++ Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#header-files">Header Files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#naming-conventions">Naming Conventions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#file-names">File Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#type-names">Type Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#function-names">Function Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#variable-names">Variable Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#class-member-names-and-method-names">Class Member Names and Method Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#constant-names">Constant Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#distributed-and-streaming-computational-schemes">Distributed and streaming computational schemes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#declaration-order">Declaration Order</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#typedefs">Typedefs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#defines">Defines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#common-definitions">Common definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#statements">Statements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#comments">Comments</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#function-comments">Function Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#variable-comments">Variable Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#class-data-members-comments">Class Data Members Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#function-declarations-comments">Function Declarations Comments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#templates-declaration">Templates declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#deprecated-api">Deprecated API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#notes">Notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contribution/coding_guide.html#programming-guidelines">Programming guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#local-variables">Local Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#constants">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#static-and-global-variables">Static and Global Variables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#undetermined-order-of-construction-and-destruction">Undetermined order of construction and destruction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#static-variables-within-a-function-scope">Static variables within a function scope</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#usage-of-const">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#usage-of-const-in-functions">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> in Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#usage-of-const-methods">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#usage-of-const-and-mutable-data-members">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> and <code class="docutils literal notranslate"><span class="pre">mutable</span></code> Data Members</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#ownership-raii-resource-acquisition-is-initialization">Ownership (RAII – Resource Acquisition Is Initialization)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#smart-pointers">Smart Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#passing-parameters-of-non-primitive-types-by-reference">Passing parameters of non-primitive types by reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#preprocessor-macros">Preprocessor Macros</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#id1">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#write-short-functions">Write short functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#function-s-arguments">Function’s arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#infix-and-postfix-increment-operators">Infix and postfix increment operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#assertions">Assertions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#classes">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#initialization">Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#clone-all-parts-of-an-object">Clone all parts of an object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#assignment">Assignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#new-and-delete">New and delete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#access-control">Access Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#template-metaprogramming">Template metaprogramming</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#hiding-the-implementation-in-model-classes">Hiding the implementation in <code class="docutils literal notranslate"><span class="pre">Model</span></code> classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#sdl-requirements">SDL Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#handling-primitive-data-types">Handling Primitive Data Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#working-with-pointers">Working with Pointers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#working-with-buffers">Working with Buffers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#handling-exceptions">Handling exceptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#handling-null-byte-injection">Handling null byte injection</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -605,28 +694,26 @@
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">daal</span><span class="o">::</span><span class="n">algorithms</span><span class="p">;</span>
 
 <span class="cm">/* Input data set parameters */</span>
-<span class="k">const</span> <span class="n">string</span> <span class="n">trainDatasetFileName</span>            <span class="o">=</span> <span class="s">&quot;../data/batch/k_nearest_neighbors_train.csv&quot;</span><span class="p">;</span>
-<span class="k">const</span> <span class="n">string</span> <span class="n">testDatasetFileName</span>             <span class="o">=</span> <span class="s">&quot;../data/batch/k_nearest_neighbors_test.csv&quot;</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">string</span> <span class="n">trainDatasetFileName</span> <span class="o">=</span> <span class="s">&quot;../data/batch/k_nearest_neighbors_train.csv&quot;</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">string</span> <span class="n">testDatasetFileName</span>  <span class="o">=</span> <span class="s">&quot;../data/batch/k_nearest_neighbors_test.csv&quot;</span><span class="p">;</span>
 
 <span class="k">const</span> <span class="kt">size_t</span> <span class="n">nFeatures</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
 <span class="k">const</span> <span class="kt">size_t</span> <span class="n">nClasses</span>  <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
 
-<span class="kt">void</span> <span class="nf">trainModel</span><span class="p">(</span><span class="n">bf_knn_classification</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span><span class="o">&amp;</span> <span class="n">trainingResult</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">testModel</span><span class="p">(</span><span class="n">bf_knn_classification</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span><span class="o">&amp;</span> <span class="n">trainingResult</span><span class="p">,</span>
-                <span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">ResultPtr</span><span class="o">&amp;</span> <span class="n">predictionResult</span><span class="p">,</span>
-                <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">printResults</span><span class="p">(</span><span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">,</span> <span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">ResultPtr</span><span class="o">&amp;</span> <span class="n">predictionResult</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">trainModel</span><span class="p">(</span><span class="n">bf_knn_classification</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="o">&amp;</span> <span class="n">trainingResult</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">testModel</span><span class="p">(</span><span class="n">bf_knn_classification</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="o">&amp;</span> <span class="n">trainingResult</span><span class="p">,</span> <span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="o">&amp;</span> <span class="n">predictionResult</span><span class="p">,</span>
+               <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">printResults</span><span class="p">(</span><span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">,</span> <span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="o">&amp;</span> <span class="n">predictionResult</span><span class="p">);</span>
 
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
 <span class="p">{</span>
     <span class="n">checkArguments</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">trainDatasetFileName</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">testDatasetFileName</span><span class="p">);</span>
 
-    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="nl">deviceSelector</span> <span class="p">:</span> <span class="n">getListOfDevices</span><span class="p">())</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span> <span class="nl">deviceSelector</span> <span class="p">:</span> <span class="n">getListOfDevices</span><span class="p">())</span>
     <span class="p">{</span>
-        <span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="n">nameDevice</span> <span class="o">=</span> <span class="n">deviceSelector</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
-        <span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="n">device</span> <span class="o">=</span> <span class="n">deviceSelector</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
-        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">device</span><span class="p">.</span><span class="n">is_gpu</span><span class="p">())</span>
-            <span class="k">continue</span><span class="p">;</span>
+        <span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span> <span class="n">nameDevice</span> <span class="o">=</span> <span class="n">deviceSelector</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+        <span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span> <span class="n">device</span>     <span class="o">=</span> <span class="n">deviceSelector</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">device</span><span class="p">.</span><span class="n">is_gpu</span><span class="p">())</span> <span class="k">continue</span><span class="p">;</span>
         <span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span> <span class="n">queue</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Running on &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">nameDevice</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">;</span>
 
@@ -644,15 +731,13 @@
     <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="kt">void</span> <span class="nf">trainModel</span><span class="p">(</span><span class="n">bf_knn_classification</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span><span class="o">&amp;</span> <span class="n">trainingResult</span><span class="p">)</span>
+<span class="kt">void</span> <span class="nf">trainModel</span><span class="p">(</span><span class="n">bf_knn_classification</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="o">&amp;</span> <span class="n">trainingResult</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="cm">/* Initialize FileDataSource&lt;CSVFeatureManager&gt; to retrieve the input data from a .csv file */</span>
-    <span class="n">FileDataSource</span><span class="o">&lt;</span><span class="n">CSVFeatureManager</span><span class="o">&gt;</span> <span class="n">trainDataSource</span><span class="p">(</span><span class="n">trainDatasetFileName</span><span class="p">,</span>
-                                                      <span class="n">DataSource</span><span class="o">::</span><span class="n">notAllocateNumericTable</span><span class="p">,</span>
-                                                      <span class="n">DataSource</span><span class="o">::</span><span class="n">doDictionaryFromContext</span><span class="p">);</span>
+    <span class="n">FileDataSource</span><span class="o">&lt;</span><span class="n">CSVFeatureManager</span><span class="o">&gt;</span> <span class="n">trainDataSource</span><span class="p">(</span><span class="n">trainDatasetFileName</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">::</span><span class="n">notAllocateNumericTable</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">::</span><span class="n">doDictionaryFromContext</span><span class="p">);</span>
 
     <span class="cm">/* Create Numeric Tables for training data and labels */</span>
-    <span class="n">NumericTablePtr</span> <span class="n">trainData</span> <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="n">nFeatures</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">notAllocate</span><span class="p">);</span>
+    <span class="n">NumericTablePtr</span> <span class="n">trainData</span>        <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="n">nFeatures</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">notAllocate</span><span class="p">);</span>
     <span class="n">NumericTablePtr</span> <span class="n">trainGroundTruth</span> <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">doNotAllocate</span><span class="p">);</span>
     <span class="n">NumericTablePtr</span> <span class="n">mergedData</span><span class="p">(</span><span class="k">new</span> <span class="n">MergedNumericTable</span><span class="p">(</span><span class="n">trainData</span><span class="p">,</span> <span class="n">trainGroundTruth</span><span class="p">));</span>
     <span class="cm">/* Retrieve the data from the input file */</span>
@@ -671,18 +756,15 @@
     <span class="n">trainingResult</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">.</span><span class="n">getResult</span><span class="p">();</span>
 <span class="p">}</span>
 
-<span class="kt">void</span> <span class="nf">testModel</span><span class="p">(</span><span class="n">bf_knn_classification</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span><span class="o">&amp;</span> <span class="n">trainingResult</span><span class="p">,</span>
-                <span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">ResultPtr</span><span class="o">&amp;</span> <span class="n">predictionResult</span><span class="p">,</span>
-                <span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">)</span>
+<span class="kt">void</span> <span class="nf">testModel</span><span class="p">(</span><span class="n">bf_knn_classification</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="o">&amp;</span> <span class="n">trainingResult</span><span class="p">,</span> <span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="o">&amp;</span> <span class="n">predictionResult</span><span class="p">,</span>
+               <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="cm">/* Initialize FileDataSource&lt;CSVFeatureManager&gt; to retrieve the test data from a .csv file */</span>
-    <span class="n">FileDataSource</span><span class="o">&lt;</span><span class="n">CSVFeatureManager</span><span class="o">&gt;</span> <span class="n">testDataSource</span><span class="p">(</span><span class="n">testDatasetFileName</span><span class="p">,</span>
-                                                     <span class="n">DataSource</span><span class="o">::</span><span class="n">notAllocateNumericTable</span><span class="p">,</span>
-                                                     <span class="n">DataSource</span><span class="o">::</span><span class="n">doDictionaryFromContext</span><span class="p">);</span>
+    <span class="n">FileDataSource</span><span class="o">&lt;</span><span class="n">CSVFeatureManager</span><span class="o">&gt;</span> <span class="n">testDataSource</span><span class="p">(</span><span class="n">testDatasetFileName</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">::</span><span class="n">notAllocateNumericTable</span><span class="p">,</span> <span class="n">DataSource</span><span class="o">::</span><span class="n">doDictionaryFromContext</span><span class="p">);</span>
 
     <span class="cm">/* Create Numeric Tables for testing data and labels */</span>
     <span class="n">NumericTablePtr</span> <span class="n">testData</span> <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="n">nFeatures</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">doNotAllocate</span><span class="p">);</span>
-    <span class="n">testGroundTruth</span> <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">doNotAllocate</span><span class="p">);</span>
+    <span class="n">testGroundTruth</span>          <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;&gt;::</span><span class="n">create</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NumericTable</span><span class="o">::</span><span class="n">doNotAllocate</span><span class="p">);</span>
     <span class="n">NumericTablePtr</span> <span class="n">mergedData</span><span class="p">(</span><span class="k">new</span> <span class="n">MergedNumericTable</span><span class="p">(</span><span class="n">testData</span><span class="p">,</span> <span class="n">testGroundTruth</span><span class="p">));</span>
 
     <span class="cm">/* Retrieve the data from input file */</span>
@@ -692,7 +774,7 @@
     <span class="n">bf_knn_classification</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">Batch</span><span class="o">&lt;&gt;</span> <span class="n">algorithm</span><span class="p">;</span>
 
     <span class="cm">/* Pass the testing data set and trained model to the algorithm */</span>
-    <span class="n">algorithm</span><span class="p">.</span><span class="n">input</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">data</span><span class="p">,</span>  <span class="n">testData</span><span class="p">);</span>
+    <span class="n">algorithm</span><span class="p">.</span><span class="n">input</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">data</span><span class="p">,</span> <span class="n">testData</span><span class="p">);</span>
     <span class="n">algorithm</span><span class="p">.</span><span class="n">input</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">model</span><span class="p">,</span> <span class="n">trainingResult</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">training</span><span class="o">::</span><span class="n">model</span><span class="p">));</span>
 
     <span class="cm">/* Compute prediction results */</span>
@@ -702,11 +784,9 @@
     <span class="n">predictionResult</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">.</span><span class="n">getResult</span><span class="p">();</span>
 <span class="p">}</span>
 
-<span class="kt">void</span> <span class="nf">printResults</span><span class="p">(</span><span class="n">NumericTablePtr</span><span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">,</span> <span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">ResultPtr</span><span class="o">&amp;</span> <span class="n">predictionResult</span><span class="p">)</span>
+<span class="kt">void</span> <span class="nf">printResults</span><span class="p">(</span><span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">testGroundTruth</span><span class="p">,</span> <span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">ResultPtr</span> <span class="o">&amp;</span> <span class="n">predictionResult</span><span class="p">)</span>
 <span class="p">{</span>
-    <span class="n">printNumericTables</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">testGroundTruth</span><span class="p">,</span>
-                                 <span class="n">predictionResult</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">prediction</span><span class="p">),</span>
-                                 <span class="s">&quot;Ground truth&quot;</span><span class="p">,</span> <span class="s">&quot;Classification results&quot;</span><span class="p">,</span>
+    <span class="n">printNumericTables</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">testGroundTruth</span><span class="p">,</span> <span class="n">predictionResult</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="n">classifier</span><span class="o">::</span><span class="n">prediction</span><span class="o">::</span><span class="n">prediction</span><span class="p">),</span> <span class="s">&quot;Ground truth&quot;</span><span class="p">,</span> <span class="s">&quot;Classification results&quot;</span><span class="p">,</span>
                                  <span class="s">&quot;BF kNN classification results (first 20 observations):&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
