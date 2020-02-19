@@ -20,6 +20,8 @@ jobs:
       failOnStderr: true
 - job: Linux
   timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_gnu'
   pool:
     vmImage: 'ubuntu-18.04'
   strategy:
@@ -36,16 +38,21 @@ jobs:
       .ci/scripts/build.sh --platform $(platform.type)
     displayName: 'make'
   - script: |
-      cp -R __release_lnx_gnu $(Build.ArtifactStagingDirectory)/
+      cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: '$(platform.type) build'
-      targetPath: '__release_lnx_gnu'
+      targetPath: '$(release.dir)'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
+    displayName: 'examples'  
 - job: macOS
   timeoutInMinutes: 0
-  pool:
-    vmImage: 'macOS-10.15'
+  variables:
+    release.dir: '__release_mac_clang'
+  pool: 
+    vmImage:  'macOS-10.15'
   strategy:
     matrix:
       mac32e:
@@ -55,12 +62,12 @@ jobs:
       .ci/scripts/build.sh --platform $(platform.type)
     displayName: 'make'
   - script: |
-      cp -R __release_mac_clang $(Build.ArtifactStagingDirectory)/
+      cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'Mac build'
-      targetPath: '__release_mac_clang'
+      targetPath: '$(release.dir)'
 
 # Windows build is temporary disabled
 #- job: Windows
