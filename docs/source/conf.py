@@ -68,7 +68,7 @@ substitutions = [
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx_tabs.tabs', 'sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks']
+extensions = ['sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks', 'sphinx_tabs.tabs']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -95,11 +95,11 @@ extlinks = {'cpp_example': ('https://github.com/intel/daal/tree/master/examples/
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_context = {
-    'css_files': [
-        '_static/style.css',  # override wide tables in RTD theme
-        ],
-    }
+# html_context = {
+#     'css_files': [
+#         '_static/style.css',  # override wide tables in RTD theme
+#         ],
+#     }
 
 
 # html_theme = 'otc_tcs_sphinx_theme'
