@@ -532,7 +532,7 @@ public:
         compressionStream->push_back(&wBlock);
     }
 
-    void read(byte * ptr, size_t size) DAAL_C11_OVERRIDE {}
+    void read(byte * /*ptr*/, size_t /*size*/) DAAL_C11_OVERRIDE {}
 
     size_t getSizeOfArchive() const DAAL_C11_OVERRIDE { return compressionStream->getCompressedDataSize(); }
 

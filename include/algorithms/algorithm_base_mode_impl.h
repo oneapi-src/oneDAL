@@ -228,7 +228,7 @@ public:
     /** Deafult constructor */
     AlgorithmImpl() : wasSetup(false), resetFlag(true) {}
 
-    AlgorithmImpl(const AlgorithmImpl & other) : wasSetup(false), resetFlag(true) {}
+    AlgorithmImpl(const AlgorithmImpl & /*other*/) : wasSetup(false), resetFlag(true) {}
 
     virtual ~AlgorithmImpl() { resetCompute(); }
 

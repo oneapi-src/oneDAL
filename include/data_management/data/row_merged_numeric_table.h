@@ -117,7 +117,7 @@ public:
         return setNumberOfRowsImpl(_obsnum + obs);
     }
 
-    services::Status resize(size_t nrows) DAAL_C11_OVERRIDE { return services::Status(services::throwIfPossible(services::ErrorMethodNotSupported)); }
+    services::Status resize(size_t /*nrows*/) DAAL_C11_OVERRIDE { return services::Status(services::throwIfPossible(services::ErrorMethodNotSupported)); }
 
     MemoryStatus getDataMemoryStatus() const DAAL_C11_OVERRIDE
     {

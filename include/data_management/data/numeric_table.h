@@ -418,7 +418,7 @@ public:
      *  \param[in] ddict Pointer to the data dictionary
      *  \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED_VIRTUAL virtual services::Status setDictionary(NumericTableDictionary * ddict) { return services::Status(); }
+    DAAL_DEPRECATED_VIRTUAL virtual services::Status setDictionary(NumericTableDictionary * /*ddict*/) { return services::Status(); }
 
     /**
      *  Returns a pointer to a data dictionary
@@ -906,7 +906,7 @@ protected:
     services::Status _status;
 
 protected:
-    NumericTable(NumericTableDictionaryPtr ddict, services::Status & st)
+    NumericTable(NumericTableDictionaryPtr ddict, services::Status & /*st*/)
         : _obsnum(0), _ddict(ddict), _layout(layout_unknown), _memStatus(notAllocated), _normalizationFlag(NumericTable::nonNormalized)
     {}
 
@@ -925,7 +925,7 @@ protected:
         return services::Status();
     }
 
-    virtual services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) { return services::Status(); }
+    virtual services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) { return services::Status(); }
 
     virtual void freeDataMemoryImpl() {}
 

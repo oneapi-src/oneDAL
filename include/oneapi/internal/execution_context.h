@@ -367,10 +367,10 @@ public:
 class CpuKernelFactory : public Base, public ClKernelFactoryIface
 {
 public:
-    virtual void build(ExecutionTargetId target, const char * key, const char * program, const char * options = "",
-                       services::Status * status = NULL) DAAL_C11_OVERRIDE
+    virtual void build(ExecutionTargetId /*target*/, const char * /*key*/, const char * /*program*/, const char * /*options = ""*/,
+                       services::Status * /*status = NULL*/) DAAL_C11_OVERRIDE
     {}
-    virtual services::SharedPtr<KernelIface> getKernel(const char * kernelName, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    virtual services::SharedPtr<KernelIface> getKernel(const char * /*kernelName*/, services::Status * /*status = NULL*/) DAAL_C11_OVERRIDE
     {
         return services::SharedPtr<KernelIface>();
     }
@@ -391,58 +391,58 @@ public:
         _infoDevice.max_work_group_size    = 0;
     }
 
-    void run(const KernelRange & range, const KernelPtr & kernel, const KernelArguments & args, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    void run(const KernelRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
 
-    void run(const KernelNDRange & range, const KernelPtr & kernel, const KernelArguments & args, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    void run(const KernelNDRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
 
-    void gemm(math::Transpose transa, math::Transpose transb, size_t m, size_t n, size_t k, double alpha, const UniversalBuffer & a_buffer,
-              size_t lda, size_t offsetA, const UniversalBuffer & b_buffer, size_t ldb, size_t offsetB, double beta, UniversalBuffer & c_buffer,
-              size_t ldc, size_t offsetC, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    void gemm(math::Transpose /*transa*/, math::Transpose /*transb*/, size_t /*m*/, size_t /*n*/, size_t /*k*/, double /*alpha*/, const UniversalBuffer & /*a_buffer*/,
+              size_t /*lda*/, size_t /*offsetA*/, const UniversalBuffer & /*b_buffer*/, size_t /*ldb*/, size_t /*offsetB*/, double /*beta*/, UniversalBuffer & /*c_buffer*/,
+              size_t /*ldc*/, size_t /*offsetC*/, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
 
-    void syrk(math::UpLo upper_lower, math::Transpose trans, size_t n, size_t k, double alpha, const UniversalBuffer & a_buffer, size_t lda,
-              size_t offsetA, double beta, UniversalBuffer & c_buffer, size_t ldc, size_t offsetC, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    void syrk(math::UpLo /*upper_lower*/, math::Transpose /*trans*/, size_t /*n*/, size_t /*k*/, double /*alpha*/, const UniversalBuffer & /*a_buffer*/, size_t /*lda*/,
+              size_t /*offsetA*/, double /*beta*/, UniversalBuffer & /*c_buffer*/, size_t /*ldc*/, size_t /*offsetC*/, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
 
-    void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, const UniversalBuffer y_buffer, const int incy,
+    void axpy(const uint32_t /*n*/, const double /*a*/, const UniversalBuffer /*x_buffer*/, const int /*incx*/, const UniversalBuffer /*y_buffer*/, const int /*incy*/,
               services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
 
-    void potrf(math::UpLo uplo, size_t n, UniversalBuffer & a_buffer, size_t lda, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    void potrf(math::UpLo /*uplo*/, size_t /*n*/, UniversalBuffer & /*a_buffer*/, size_t /*lda*/, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
 
-    void potrs(math::UpLo uplo, size_t n, size_t ny, UniversalBuffer & a_buffer, size_t lda, UniversalBuffer & b_buffer, size_t ldb,
+    void potrs(math::UpLo /*uplo*/, size_t /*n*/, size_t /*ny*/, UniversalBuffer & /*a_buffer*/, size_t /*lda*/, UniversalBuffer & /*b_buffer*/, size_t /*ldb*/,
                services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
 
-    void copy(UniversalBuffer dest, size_t desOffset, UniversalBuffer src, size_t srcOffset, size_t count,
+    void copy(UniversalBuffer /*dest*/, size_t /*desOffset*/, UniversalBuffer /*src*/, size_t /*srcOffset*/, size_t /*count*/,
               services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
 
-    void fill(UniversalBuffer dest, double value, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    void fill(UniversalBuffer /*dest*/, double /*value*/, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }
 
-    UniversalBuffer allocate(TypeId type, size_t bufferSize, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    UniversalBuffer allocate(TypeId /*type*/, size_t /*bufferSize*/, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
         return UniversalBuffer();
@@ -452,7 +452,7 @@ public:
 
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
 
-    void copy(UniversalBuffer dest, size_t desOffset, void * src, size_t srcOffset, size_t count, services::Status * status = NULL) DAAL_C11_OVERRIDE
+    void copy(UniversalBuffer /*dest*/, size_t /*desOffset*/, void * /*src*/, size_t /*srcOffset*/, size_t /*count*/, services::Status * status = NULL) DAAL_C11_OVERRIDE
     {
         services::internal::tryAssignStatus(status, services::ErrorMethodNotImplemented);
     }

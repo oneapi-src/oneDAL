@@ -296,7 +296,7 @@ protected:
         st |= initOffsets();
     }
 
-    services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
     {
         if (checkOffsets())
         {

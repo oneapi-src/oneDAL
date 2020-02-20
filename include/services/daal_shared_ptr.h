@@ -94,7 +94,7 @@ public:
 class EmptyDeleter : public DeleterIface
 {
 public:
-    void operator()(const void * ptr) DAAL_C11_OVERRIDE {}
+    void operator()(const void * /*ptr*/) DAAL_C11_OVERRIDE {}
 };
 
 /**

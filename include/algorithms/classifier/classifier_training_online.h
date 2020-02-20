@@ -167,7 +167,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online & other) {}
+    Online(const Online & /*other*/) {}
 
     virtual ~Online() {}
 

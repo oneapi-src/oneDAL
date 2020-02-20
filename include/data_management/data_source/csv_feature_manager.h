@@ -96,7 +96,7 @@ public:
         }
     }
 
-    static void nullFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr) {}
+    static void nullFunc(const char * /*word*/, FeatureAuxData & /*aux*/, DAAL_DATA_TYPE * /*arr*/) {}
 
 protected:
     template <class T>
@@ -451,8 +451,8 @@ public:
      *  \param[out] rowBuffer    Pointer to a Buffer View to store the result of parsing
      *  \param[in]  ntRowIndex   Position in the Numeric Table at which to store the result of parsing
      */
-    virtual void parseRowIn(char * rawRowData, size_t rawDataSize, DataSourceDictionary * dictionary,
-                            services::BufferView<DAAL_DATA_TYPE> & rowBuffer, size_t ntRowIndex) DAAL_C11_OVERRIDE
+    virtual void parseRowIn(char * rawRowData, size_t rawDataSize, DataSourceDictionary * /*dictionary*/,
+                            services::BufferView<DAAL_DATA_TYPE> & rowBuffer, size_t /*ntRowIndex*/) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(dictionary);
         DAAL_ASSERT(rawRowData);

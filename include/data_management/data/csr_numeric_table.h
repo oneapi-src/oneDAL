@@ -637,7 +637,7 @@ public:
      *  \param[in]    dataSize     Number of non-zero values
      *  \param[in]    type         Memory type
      */
-    services::Status allocateDataMemory(size_t dataSize, daal::MemType type = daal::dram)
+    services::Status allocateDataMemory(size_t dataSize, daal::MemType /*type*/ = daal::dram)
     {
         freeDataMemoryImpl();
 
@@ -705,7 +705,7 @@ protected:
         st |= _ddict->setAllFeatures(_defaultFeature);
     }
 
-    services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
     {
         return services::Status(services::ErrorMethodNotSupported);
     }

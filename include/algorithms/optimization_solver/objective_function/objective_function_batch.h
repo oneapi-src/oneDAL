@@ -74,7 +74,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) { initialize(); }
+    Batch(const Batch & /*other*/) { initialize(); }
 
     /** Destructor */
     virtual ~Batch() {}

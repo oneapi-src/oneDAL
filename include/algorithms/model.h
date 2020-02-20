@@ -66,7 +66,7 @@ public:
 
 protected:
     template <typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive * arch)
+    services::Status serialImpl(Archive * /*arch*/)
     {
         return services::Status();
     }

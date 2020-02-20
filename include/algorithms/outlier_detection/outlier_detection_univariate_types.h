@@ -110,8 +110,8 @@ struct DAAL_EXPORT DefaultInit : public InitIface
     * \param[in] scatter       Measure of spread, the array of standard deviations of size 1 x p
     * \param[in] threshold     Limit that defines the outlier region, the array of non-negative numbers of size 1 x p
     */
-    virtual void operator()(data_management::NumericTable * data, data_management::NumericTable * location, data_management::NumericTable * scatter,
-                            data_management::NumericTable * threshold)
+    virtual void operator()(data_management::NumericTable * /*data*/, data_management::NumericTable * /*location*/, data_management::NumericTable * /*scatter*/,
+                            data_management::NumericTable * /*threshold*/)
     {}
 };
 

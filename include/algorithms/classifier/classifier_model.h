@@ -142,7 +142,7 @@ public:
      *  \DAAL_DEPRECATED
      *  \param[in]  nFeatures  Number of features in the dataset was used on the training stage
      */
-    virtual void setNFeatures(size_t nFeatures) {}
+    virtual void setNFeatures(size_t /*nFeatures*/) {}
 };
 /** @} */
 typedef services::SharedPtr<Model> ModelPtr;
