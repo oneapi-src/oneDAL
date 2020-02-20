@@ -111,7 +111,7 @@ CC=cl
 !ENDIF
 
 !IF ("$(compiler)"!="msvs")
-COPTS=-Wall -w $(COPTS)
+COPTS=-W4 $(COPTS)
 
 !IF ("$(_IA)"=="ia32")
 COPTS=-m32 $(COPTS)
@@ -122,7 +122,7 @@ COPTS=-m64 $(COPTS)
 !ENDIF
 
 !ELSE
-COPTS=-W3 -EHsc $(COPTS)
+COPTS=-W4 -EHsc $(COPTS)
 !ENDIF
 
 !IF ("$(threading)"=="sequential")
