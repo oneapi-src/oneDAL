@@ -452,6 +452,8 @@ protected:
 
 private:
     DistributedPartialResultStep3Ptr _partialResult;
+
+    Distributed & operator=(const Distributed &);
 };
 /** @} */
 } // namespace interface1
