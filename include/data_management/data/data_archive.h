@@ -989,7 +989,7 @@ protected:
     services::SharedPtr<services::ErrorCollection> _errors;
 
 private:
-    InputDataArchive(const InputDataArchive&);
+    InputDataArchive(const InputDataArchive &);
     InputDataArchive & operator=(const InputDataArchive &);
 };
 
