@@ -1,0 +1,5 @@
+lin_reg_norm_eq_dense_online.cpp
+################################
+
+.. literalinclude:: ../../../examples/cpp_sycl/source/linear_regression/lin_reg_norm_eq_dense_online.cpp
+  :language: cpp

@@ -34,7 +34,6 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="gbt_reg_dense_batch.cpp" href="gbt_reg_dense_batch.html" />
@@ -481,6 +480,7 @@
 <li class="toctree-l2"><a class="reference internal" href="kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
@@ -496,6 +496,95 @@
 <li class="toctree-l1"><a class="reference internal" href="../notes/known_issues.html">Known Issues</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../notes/known_issues.html#dll-file-not-found">DLL file not found</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../notes/known_issues.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contribution/coding_guide.html">Coding Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contribution/coding_guide.html#coding-style">Coding Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#general-rules">General Rules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#whitespaces">Whitespaces</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#c-files">C++ Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#header-files">Header Files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#naming-conventions">Naming Conventions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#file-names">File Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#type-names">Type Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#function-names">Function Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#variable-names">Variable Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#class-member-names-and-method-names">Class Member Names and Method Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#constant-names">Constant Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#distributed-and-streaming-computational-schemes">Distributed and streaming computational schemes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#declaration-order">Declaration Order</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#typedefs">Typedefs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#defines">Defines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#common-definitions">Common definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#statements">Statements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#comments">Comments</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#function-comments">Function Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#variable-comments">Variable Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#class-data-members-comments">Class Data Members Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#function-declarations-comments">Function Declarations Comments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#templates-declaration">Templates declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#deprecated-api">Deprecated API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#notes">Notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contribution/coding_guide.html#programming-guidelines">Programming guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#local-variables">Local Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#constants">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#static-and-global-variables">Static and Global Variables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#undetermined-order-of-construction-and-destruction">Undetermined order of construction and destruction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#static-variables-within-a-function-scope">Static variables within a function scope</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#usage-of-const">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#usage-of-const-in-functions">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> in Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#usage-of-const-methods">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#usage-of-const-and-mutable-data-members">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> and <code class="docutils literal notranslate"><span class="pre">mutable</span></code> Data Members</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#ownership-raii-resource-acquisition-is-initialization">Ownership (RAII – Resource Acquisition Is Initialization)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#smart-pointers">Smart Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#passing-parameters-of-non-primitive-types-by-reference">Passing parameters of non-primitive types by reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#preprocessor-macros">Preprocessor Macros</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#id1">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#write-short-functions">Write short functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#function-s-arguments">Function’s arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#infix-and-postfix-increment-operators">Infix and postfix increment operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#assertions">Assertions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#classes">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#initialization">Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#clone-all-parts-of-an-object">Clone all parts of an object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#assignment">Assignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#new-and-delete">New and delete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#access-control">Access Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#template-metaprogramming">Template metaprogramming</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#hiding-the-implementation-in-model-classes">Hiding the implementation in <code class="docutils literal notranslate"><span class="pre">Model</span></code> classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contribution/coding_guide.html#sdl-requirements">SDL Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#handling-primitive-data-types">Handling Primitive Data Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#working-with-pointers">Working with Pointers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#working-with-buffers">Working with Buffers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#handling-exceptions">Handling exceptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../contribution/coding_guide.html#handling-null-byte-injection">Handling null byte injection</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -603,9 +692,7 @@
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">daal</span><span class="o">::</span><span class="n">services</span><span class="p">;</span>
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">daal</span><span class="o">::</span><span class="n">data_management</span><span class="p">;</span>
 
-<span class="cp">#define IS_USM_SUPPORTED \</span>
-<span class="cp">    (defined(__SYCL_COMPILER_VERSION)) &amp;&amp; \</span>
-<span class="cp">    (__SYCL_COMPILER_VERSION &gt;= 20191001)</span>
+<span class="cp">#define IS_USM_SUPPORTED (defined(__SYCL_COMPILER_VERSION)) &amp;&amp; (__SYCL_COMPILER_VERSION &gt;= 20191001)</span>
 
 <span class="kt">uint32_t</span> <span class="nf">generateMinStd</span><span class="p">(</span><span class="kt">uint32_t</span> <span class="n">x</span><span class="p">)</span>
 <span class="p">{</span>
@@ -616,7 +703,7 @@
 <span class="p">}</span>
 
 <span class="cm">/* Compute correlation matrix */</span>
-<span class="n">NumericTablePtr</span> <span class="nf">computeCorrelationMatrix</span><span class="p">(</span><span class="k">const</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span><span class="n">table</span><span class="p">)</span>
+<span class="n">NumericTablePtr</span> <span class="nf">computeCorrelationMatrix</span><span class="p">(</span><span class="k">const</span> <span class="n">NumericTablePtr</span> <span class="o">&amp;</span> <span class="n">table</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">using</span> <span class="k">namespace</span> <span class="n">daal</span><span class="o">::</span><span class="n">algorithms</span><span class="p">;</span>
 
@@ -632,55 +719,49 @@
 <span class="cp">#if IS_USM_SUPPORTED</span>
 
 <span class="cm">/* Fill the buffer with pseudo random numbers generated with MinStd engine */</span>
-<span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">event</span> <span class="n">generateData</span><span class="p">(</span><span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span> <span class="o">&amp;</span><span class="n">q</span><span class="p">,</span> <span class="kt">float</span> <span class="o">*</span><span class="n">deviceData</span><span class="p">,</span>
-                             <span class="kt">size_t</span> <span class="n">nRows</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nCols</span><span class="p">)</span>
+<span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">event</span> <span class="n">generateData</span><span class="p">(</span><span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span> <span class="o">&amp;</span> <span class="n">q</span><span class="p">,</span> <span class="kt">float</span> <span class="o">*</span> <span class="n">deviceData</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nRows</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nCols</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">using</span> <span class="k">namespace</span> <span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="p">;</span>
-    <span class="k">return</span> <span class="n">q</span><span class="p">.</span><span class="n">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">handler</span> <span class="o">&amp;</span><span class="n">cgh</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="n">cgh</span><span class="p">.</span><span class="n">parallel_for</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">FillTable</span><span class="o">&gt;</span><span class="p">(</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">nRows</span><span class="p">),</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="n">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span> <span class="n">idx</span><span class="p">)</span>
-        <span class="p">{</span>
+    <span class="k">return</span> <span class="n">q</span><span class="p">.</span><span class="n">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">handler</span> <span class="o">&amp;</span> <span class="n">cgh</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cgh</span><span class="p">.</span><span class="n">parallel_for</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">FillTable</span><span class="o">&gt;</span><span class="p">(</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">nRows</span><span class="p">),</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="n">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span> <span class="n">idx</span><span class="p">)</span> <span class="p">{</span>
             <span class="k">constexpr</span> <span class="kt">float</span> <span class="n">genMax</span> <span class="o">=</span> <span class="mf">2147483647.0f</span><span class="p">;</span>
-            <span class="kt">uint32_t</span> <span class="n">genState</span> <span class="o">=</span> <span class="mi">7777</span> <span class="o">+</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-            <span class="n">genState</span> <span class="o">=</span> <span class="n">generateMinStd</span><span class="p">(</span><span class="n">genState</span><span class="p">);</span>
-            <span class="n">genState</span> <span class="o">=</span> <span class="n">generateMinStd</span><span class="p">(</span><span class="n">genState</span><span class="p">);</span>
+            <span class="kt">uint32_t</span> <span class="n">genState</span>      <span class="o">=</span> <span class="mi">7777</span> <span class="o">+</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+            <span class="n">genState</span>               <span class="o">=</span> <span class="n">generateMinStd</span><span class="p">(</span><span class="n">genState</span><span class="p">);</span>
+            <span class="n">genState</span>               <span class="o">=</span> <span class="n">generateMinStd</span><span class="p">(</span><span class="n">genState</span><span class="p">);</span>
             <span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">nCols</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
             <span class="p">{</span>
                 <span class="n">deviceData</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">nCols</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">genState</span> <span class="o">/</span> <span class="n">genMax</span><span class="p">;</span>
-                <span class="n">genState</span> <span class="o">=</span> <span class="n">generateMinStd</span><span class="p">(</span><span class="n">genState</span><span class="p">);</span>
+                <span class="n">genState</span>                       <span class="o">=</span> <span class="n">generateMinStd</span><span class="p">(</span><span class="n">genState</span><span class="p">);</span>
             <span class="p">}</span>
         <span class="p">});</span>
     <span class="p">});</span>
 <span class="p">}</span>
 
-<span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
 <span class="p">{</span>
     <span class="k">constexpr</span> <span class="kt">size_t</span> <span class="n">nCols</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
     <span class="k">constexpr</span> <span class="kt">size_t</span> <span class="n">nRows</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">;</span>
 
-    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span><span class="nl">deviceDescriptor</span> <span class="p">:</span> <span class="n">getListOfDevices</span><span class="p">())</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span> <span class="nl">deviceDescriptor</span> <span class="p">:</span> <span class="n">getListOfDevices</span><span class="p">())</span>
     <span class="p">{</span>
-        <span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span><span class="n">device</span> <span class="o">=</span> <span class="n">deviceDescriptor</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+        <span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span> <span class="n">device</span> <span class="o">=</span> <span class="n">deviceDescriptor</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">device</span><span class="p">.</span><span class="n">is_host</span><span class="p">())</span>
         <span class="p">{</span>
             <span class="cm">/* Shared memory allocations do not work on host by design */</span>
             <span class="k">continue</span><span class="p">;</span>
         <span class="p">}</span>
 
-        <span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span><span class="n">deviceName</span> <span class="o">=</span> <span class="n">deviceDescriptor</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+        <span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span> <span class="n">deviceName</span> <span class="o">=</span> <span class="n">deviceDescriptor</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Running on &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">deviceName</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
         <span class="cm">/* Crate SYCL* queue with desired device */</span>
-        <span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span> <span class="n">queue</span><span class="p">{</span><span class="n">device</span><span class="p">};</span>
+        <span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span> <span class="n">queue</span> <span class="p">{</span> <span class="n">device</span> <span class="p">};</span>
 
         <span class="cm">/* Set the queue to default execution context */</span>
-        <span class="n">Environment</span><span class="o">::</span><span class="n">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">setDefaultExecutionContext</span><span class="p">(</span>
-            <span class="n">SyclExecutionContext</span><span class="p">{</span><span class="n">queue</span><span class="p">}</span>
-        <span class="p">);</span>
+        <span class="n">Environment</span><span class="o">::</span><span class="n">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">setDefaultExecutionContext</span><span class="p">(</span><span class="n">SyclExecutionContext</span> <span class="p">{</span> <span class="n">queue</span> <span class="p">});</span>
 
         <span class="cm">/* Allocate shared memory to store input data */</span>
-        <span class="kt">float</span> <span class="o">*</span><span class="n">dataDevice</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span> <span class="o">*</span><span class="p">)</span><span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="p">(</span>
-            <span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)</span> <span class="o">*</span> <span class="n">nRows</span> <span class="o">*</span> <span class="n">nCols</span><span class="p">,</span> <span class="n">queue</span><span class="p">.</span><span class="n">get_device</span><span class="p">(),</span> <span class="n">queue</span><span class="p">.</span><span class="n">get_context</span><span class="p">());</span>
+        <span class="kt">float</span> <span class="o">*</span> <span class="n">dataDevice</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span> <span class="o">*</span><span class="p">)</span><span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)</span> <span class="o">*</span> <span class="n">nRows</span> <span class="o">*</span> <span class="n">nCols</span><span class="p">,</span> <span class="n">queue</span><span class="p">.</span><span class="n">get_device</span><span class="p">(),</span> <span class="n">queue</span><span class="p">.</span><span class="n">get_context</span><span class="p">());</span>
         <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">dataDevice</span><span class="p">)</span>
         <span class="p">{</span>
             <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;USM allocation failed on &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">deviceName</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
@@ -691,8 +772,7 @@
         <span class="n">generateData</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">dataDevice</span><span class="p">,</span> <span class="n">nRows</span><span class="p">,</span> <span class="n">nCols</span><span class="p">).</span><span class="n">wait</span><span class="p">();</span>
 
         <span class="cm">/* Create numeric table from shared memory */</span>
-        <span class="n">NumericTablePtr</span> <span class="n">dataTable</span> <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">create</span><span class="p">(</span>
-            <span class="n">dataDevice</span><span class="p">,</span> <span class="n">nCols</span><span class="p">,</span> <span class="n">nRows</span><span class="p">,</span> <span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">usm</span><span class="o">::</span><span class="n">alloc</span><span class="o">::</span><span class="n">shared</span><span class="p">);</span>
+        <span class="n">NumericTablePtr</span> <span class="n">dataTable</span> <span class="o">=</span> <span class="n">SyclHomogenNumericTable</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">create</span><span class="p">(</span><span class="n">dataDevice</span><span class="p">,</span> <span class="n">nCols</span><span class="p">,</span> <span class="n">nRows</span><span class="p">,</span> <span class="n">cl</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">usm</span><span class="o">::</span><span class="n">alloc</span><span class="o">::</span><span class="n">shared</span><span class="p">);</span>
 
         <span class="cm">/* Compute correlation matrix of generated dataset */</span>
         <span class="n">NumericTablePtr</span> <span class="n">covariance</span> <span class="o">=</span> <span class="n">computeCorrelationMatrix</span><span class="p">(</span><span class="n">dataTable</span><span class="p">);</span>
@@ -709,11 +789,10 @@
 
 <span class="cp">#else </span><span class="cm">/* USM is not supported */</span><span class="cp"></span>
 
-<span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
 <span class="p">{</span>
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;USM extensions are not available, make sure &quot;</span>
-              <span class="o">&lt;&lt;</span> <span class="s">&quot;the compiler and runtime support USM&quot;</span>
-              <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+              <span class="o">&lt;&lt;</span> <span class="s">&quot;the compiler and runtime support USM&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
     <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 

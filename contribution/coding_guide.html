@@ -1,0 +1,2378 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Coding Guidelines &mdash; Intel&amp;reg; oneAPI Data Analytics Library Documentation 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script type="text/javascript" src="../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.js"></script>
+        <script type="text/javascript" src="../_static/sphinx_tabs/tabs.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_tabs/semantic-ui-2.4.1/segment.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_tabs/semantic-ui-2.4.1/menu.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_tabs/semantic-ui-2.4.1/tab.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_tabs/tabs.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Known Issues" href="../notes/known_issues.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Intel&reg; oneAPI Data Analytics Library Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getstarted.html">Get Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getstarted.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getstarted.html#before-you-begin">Before You Begin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getstarted.html#basic-usage-scenario">Basic Usage Scenario</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getstarted.html#build-and-run-examples">Build and Run Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../build_app/build-application.html">Build application with oneDAL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../build_app/build-application.html#applications-on-windows">Applications on Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../build_app/build-application.html#applications-on-linux">Applications on Linux</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../build_app/build-application.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../legal.html">Notices and Disclaimers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide/data-management/data-management.html">Data Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/data-management/numeric-tables.html">Numeric Tables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/data-management/generic-interfaces.html">Generic Interfaces</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/data-management/generic-interfaces.html#initialize">Initialize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/data-management/generic-interfaces.html#operate">Operate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/data-management/generic-interfaces.html#deinitialize">Deinitialize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/data-management/generic-interfaces.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/data-management/essential-interfaces.html">Essential Interfaces for Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/data-management/numeric-tables-types.html">Types of Numeric Tables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/data-management/numeric-tables-types.html#sycl-numeric-tables">SYCL* Numeric Tables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/data-management/numeric-tables-types.html#heterogeneous-numeric-tables">Heterogeneous Numeric Tables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/data-management/numeric-tables-types.html#homogeneous-numeric-tables">Homogeneous Numeric Tables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/data-management/numeric-tables-types.html#csr-numeric-table">CSR Numeric Table</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/data-management/numeric-tables-types.html#merged-numeric-table">Merged Numeric Table</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/data-management/data-sources.html">Data Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/data-management/data-sources.html#samples">Samples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/data-management/data-sources.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/data-management/data-dictionaries.html">Data Dictionaries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/data-management/data-dictionaries.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/data-management/data-serialization-and-deserialization.html">Data Serialization and Deserialization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/data-management/data-serialization-and-deserialization.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/data-management/data-compression.html">Data Compression</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/data-management/data-compression.html#general-api-for-data-compression-and-decompression">General API for Data Compression and Decompression</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/data-management/data-compression.html#compression-and-decompression-interfaces">Compression and Decompression Interfaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/data-management/data-compression.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/data-management/data-model.html">Data Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide/analysis.html">Analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html">K-Means Clustering</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#centroid-initialization">Centroid Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#computation">Computation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#initialization">Initialization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#id5">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#id6">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html">Correlation and Variance-Covariance Matrices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#details">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/covariance/correlation-and-variance-covariance-matrices.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html">Principal Component Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#details">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#performance-considerations">Performance Considerations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#id2">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#online-processing">Online Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/pca/principal-component-analysis.html#distributed-processing">Distributed Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html">Singular Value Decomposition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#details">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#batch-and-online-processing">Batch and Online Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#performance-considerations">Performance Considerations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svd/singular-value-decomposition.html#online-processing">Online Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/association_rules/association-rules.html">Association Rules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/association_rules/association-rules.html#details">Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/association_rules/association-rules.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/association_rules/association-rules.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/association_rules/association-rules.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/association_rules/association-rules.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/association_rules/association-rules.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/association_rules/association-rules.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html">Kernel Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html#linear-kernel">Linear Kernel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html#radial-basis-function-kernel">Radial Basis Function Kernel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html#id1">Problem Statement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/kernel_function/kernel-functions.html#id2">Batch Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/em/expectation-maximization.html">Expectation-Maximization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/em/expectation-maximization.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/em/expectation-maximization.html#expectation-maximization-em-algorithm-in-the-general-form">Expectation-Maximization (EM) Algorithm in the General Form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/em/expectation-maximization.html#em-algorithm-for-the-gaussian-mixture-model">EM algorithm for the Gaussian Mixture Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/em/expectation-maximization.html#id3">Initialization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/em/expectation-maximization.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/em/expectation-maximization.html#id4">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/em/expectation-maximization.html#id5">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/em/expectation-maximization.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html">Limited-Memory Broyden-Fletcher-Goldfarb-Shanno Algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#transformation">Transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#intrinsic-parameters">Intrinsic Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#hessian-update-algorithm">Hessian Update Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-input">Algorithm Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-parameters">Algorithm Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#algorithm-output">Algorithm Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/lbfgs/limited-memory-broyden-fletcher-goldfarb-shanno-algorithm.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html">Stochastic Gradient Descent Algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#computation-methods">Computation methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#mini-batch-method">Mini-batch method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#default-method">Default method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#momentum-method">Momentum method</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#algorithm-parameters">Algorithm Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/sgd_solver/stochastic-gradient-descent-algorithm.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide/training-prediction.html">Training and Prediction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/index.html">Decision Forest</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest.html">Decision Forest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest-regression.html">Regression Decision Forest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest-regression.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest-regression.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest-classification.html">Classification Decision Forest</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest-classification.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_forest/decision-forest-classification.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/decision_tree/index.html">Decision Trees</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/decision_tree/decision-tree.html">Decision Tree</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_tree/decision-tree.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/decision_tree/decision-tree-regression.html">Regression Decision Tree</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_tree/decision-tree-regression.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_tree/decision-tree-regression.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/decision_tree/decision-tree-classification.html">Classification Decision Tree</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_tree/decision-tree-classification.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/decision_tree/decision-tree-classification.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/index.html">Gradient Boosted Trees</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees.html">Gradient Boosted Trees</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html">Regression Gradient Boosted Trees</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-regression.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html">Classification Gradient Boosted Trees</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html#details">Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/gradient_boosted_trees/gradient-boosted-trees-classification.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">k-Nearest Neighbors (kNN) Classifier</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#training">Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html">Implicit Alternating Least Squares</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#initialization-stage">Initialization Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#initialization">Initialization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#batch-processing">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#computation">Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#id1">Batch Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/implicit_als/implicit-alternating-least-squares.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/index.html">Linear and Ridge Regressions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-regression.html">Linear Regression</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-regression.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/ridge-regression.html">Ridge Regression</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/ridge-regression.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-ridge-regression-computation.html">Linear and Ridge Regressions Computation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-ridge-regression-computation.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/linear_ridge_regression/linear-ridge-regression-computation.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html">Logistic Regression</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#training">Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#output">Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/logistic_regression/logistic-regression.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html">Naïve Bayes Classifier</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#training">Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#performance-considerations">Performance Considerations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#id2">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/naive_bayes/naive-bayes-classifier.html#id3">Prediction Stage</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html">Support Vector Machine Classifier</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#training">Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm/support-vector-machine-classifier.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html">Multi-class Classifier</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#details">Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training-stage">Training Stage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction-stage">Prediction Stage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#training">Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#prediction">Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dev_guide/algorithms/svm_multi_class/multi-class-classifier.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide/services/services.html">Services</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/services/extracting-version-information.html">Extracting Version Information</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/services/extracting-version-information.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/services/handling-errors.html">Handling Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/services/handling-errors.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/services/managing-memory.html">Managing Memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/services/managing-computational-environment.html">Managing the Computational Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../dev_guide/services/managing-computational-environment.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/services/callback-for-host-application.html">Providing a Callback for the Host Application</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sycl_examples.html">SYCL* Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/bf_knn_dense_batch.html">bf_knn_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/cor_dense_batch.html">cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/cor_dense_online.html">cor_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/datastructures_soa.html">datastructures_soa.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/datastructures_usm.html">datastructures_usm.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/gbt_reg_dense_batch.html">gbt_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/kmeans_dense_batch.html">kmeans_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/kmeans_init_dense_batch.html">kmeans_init_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/lin_reg_norm_eq_dense_batch.html">lin_reg_norm_eq_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/lin_reg_norm_eq_dense_online.html">lin_reg_norm_eq_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/log_reg_binary_dense_batch.html">log_reg_binary_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/log_reg_dense_batch.html">log_reg_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/low_order_moms_dense_batch.html">low_order_moms_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/low_order_moms_dense_online.html">low_order_moms_dense_online.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/pca_cor_dense_batch.html">pca_cor_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/pca_transform_dense_batch.html">pca_transform_dense_batch.cpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples_sycl/sgd_mini_log_loss_dense_batch.html">sgd_mini_log_loss_dense_batch.cpp</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notes/known_issues.html">Known Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../notes/known_issues.html#dll-file-not-found">DLL file not found</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notes/known_issues.html#how-to-fix">How to Fix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing Guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Coding Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#coding-style">Coding Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#general-rules">General Rules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#whitespaces">Whitespaces</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c-files">C++ Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#header-files">Header Files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#naming-conventions">Naming Conventions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#file-names">File Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#type-names">Type Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#function-names">Function Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#variable-names">Variable Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#class-member-names-and-method-names">Class Member Names and Method Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#constant-names">Constant Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#distributed-and-streaming-computational-schemes">Distributed and streaming computational schemes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#declaration-order">Declaration Order</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#typedefs">Typedefs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defines">Defines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#common-definitions">Common definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#statements">Statements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comments">Comments</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#function-comments">Function Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#variable-comments">Variable Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#class-data-members-comments">Class Data Members Comments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#function-declarations-comments">Function Declarations Comments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#templates-declaration">Templates declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deprecated-api">Deprecated API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#notes">Notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#programming-guidelines">Programming guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#local-variables">Local Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#constants">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#static-and-global-variables">Static and Global Variables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#undetermined-order-of-construction-and-destruction">Undetermined order of construction and destruction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#static-variables-within-a-function-scope">Static variables within a function scope</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#usage-of-const">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#usage-of-const-in-functions">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> in Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usage-of-const-methods">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usage-of-const-and-mutable-data-members">Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> and <code class="docutils literal notranslate"><span class="pre">mutable</span></code> Data Members</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#ownership-raii-resource-acquisition-is-initialization">Ownership (RAII – Resource Acquisition Is Initialization)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#smart-pointers">Smart Pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#passing-parameters-of-non-primitive-types-by-reference">Passing parameters of non-primitive types by reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preprocessor-macros">Preprocessor Macros</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#namespaces">Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#write-short-functions">Write short functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#function-s-arguments">Function’s arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#infix-and-postfix-increment-operators">Infix and postfix increment operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#assertions">Assertions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#classes">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#initialization">Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#clone-all-parts-of-an-object">Clone all parts of an object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#assignment">Assignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-and-delete">New and delete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#access-control">Access Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#template-metaprogramming">Template metaprogramming</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#hiding-the-implementation-in-model-classes">Hiding the implementation in <code class="docutils literal notranslate"><span class="pre">Model</span></code> classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sdl-requirements">SDL Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#handling-primitive-data-types">Handling Primitive Data Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#working-with-pointers">Working with Pointers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#working-with-buffers">Working with Buffers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#handling-exceptions">Handling exceptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#handling-null-byte-injection">Handling null byte injection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel&reg; oneAPI Data Analytics Library Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Coding Guidelines</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/contribution/coding_guide.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="coding-guidelines">
+<h1>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">¶</a></h1>
+<p>As more time and effort is spent on maintenance rather than on writing the initial code,
+it is essential to keep the code base manageable.
+Any developer should be able to quickly understand the code written by another developer.
+By ensuring <strong>consistency</strong> in the code base you save time and effort for both yourself and others.</p>
+<p>These guidelines cover our coding style along with more practical issues.
+To learn more about contribution process, see <a class="reference external" href="https://github.com/intel/daal/blob/master/CONTRIBUTING.md">How to Contribute</a>.</p>
+<div class="section" id="coding-style">
+<h2>Coding Style<a class="headerlink" href="#coding-style" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#general-rules">General rules</a></p></li>
+<li><p><a class="reference internal" href="#naming-conventions">Naming conventions</a></p></li>
+<li><p><a class="reference internal" href="#declaration-order">Declaration order</a></p></li>
+<li><p><a class="reference internal" href="#typedefs">Typedefs</a></p></li>
+<li><p><a class="reference internal" href="#defines">Defines</a></p></li>
+<li><p><a class="reference internal" href="#common-definitions">Common definitions</a></p></li>
+<li><p><a class="reference internal" href="#statements">Statements</a></p></li>
+<li><p><a class="reference internal" href="#comments">Comments</a></p></li>
+<li><p><a class="reference internal" href="#templates-declaration">Templates declaration</a></p></li>
+<li><p><a class="reference internal" href="#deprecated-api">Deprecated API</a></p></li>
+</ul>
+<div class="section" id="general-rules">
+<h3>General Rules<a class="headerlink" href="#general-rules" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="whitespaces">
+<h4>Whitespaces<a class="headerlink" href="#whitespaces" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Do not leave trailing spaces in the end of a line.</p></li>
+<li><p>Always put an empty line in the end of the file.</p></li>
+<li><p>Surround operators with spaces: <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">+=</span> <span class="pre">1</span></code> is preferred to <code class="docutils literal notranslate"><span class="pre">x+=1</span></code>.</p></li>
+<li><p>Only use spaces, not tabs.</p></li>
+<li><p>Keep the same indent in spaces: indent is equal to four spaces.</p></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Configure your editor to produce spaces instead of tabs.
+This guarantees that source code always looks and prints fine regardless of any editor settings.</p>
+</div>
+</div>
+<div class="section" id="functions">
+<h4>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>The order of function’s parameters: first inputs, then outputs.</p></li>
+</ul>
+</div>
+<div class="section" id="c-files">
+<h4>C++ Files<a class="headerlink" href="#c-files" title="Permalink to this headline">¶</a></h4>
+<p>Each C++ file should begin with the following:</p>
+<ul class="simple">
+<li><p>a comment containing the name of the file</p></li>
+<li><p>the copyright notice</p></li>
+<li><p>a brief description of the file’s content</p></li>
+</ul>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Code must compile without errors and warnings.</p>
+</div>
+</div>
+<div class="section" id="header-files">
+<h4>Header Files<a class="headerlink" href="#header-files" title="Permalink to this headline">¶</a></h4>
+<p>A header file should include only the header files it needs.</p>
+<ul class="simple">
+<li><p>Whenever possible put <code class="docutils literal notranslate"><span class="pre">include</span></code>s in .cpp files, not in header files.</p></li>
+<li><p>Do not use <code class="docutils literal notranslate"><span class="pre">#include</span></code> if a forward declaration is sufficient.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="naming-conventions">
+<h3>Naming Conventions<a class="headerlink" href="#naming-conventions" title="Permalink to this headline">¶</a></h3>
+<p>Rules that apply for a name of any entity:</p>
+<ul class="simple">
+<li><p>Give descriptive and meaningful names.</p></li>
+<li><p>Avoid ambiguity.</p></li>
+<li><p>Do not abbriviate words.</p></li>
+<li><p>Do not remove letters from words.</p></li>
+</ul>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">n</span><span class="p">;</span> <span class="c1">// Meaningless</span>
+<span class="kt">int</span> <span class="n">nerr</span><span class="p">;</span> <span class="c1">// Ambiguous abbreviation</span>
+<span class="kt">int</span> <span class="n">nCompConns</span><span class="p">;</span> <span class="c1">// Ambiguous abbreviation</span>
+<span class="kt">int</span> <span class="n">wgcConnections</span><span class="p">;</span> <span class="c1">// Meaningless for others</span>
+<span class="kt">int</span> <span class="n">pcReader</span><span class="p">;</span> <span class="c1">// Ambiguous (&quot;pc&quot; can mean different things)</span>
+<span class="kt">int</span> <span class="n">cstmrId</span><span class="p">;</span> <span class="c1">// Missing letters</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">priceCountReader</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">numErrors</span><span class="p">;</span> <span class="c1">// &quot;num&quot; is a widespread convention</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>For more specific rules, see:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#file-names">File names</a></p></li>
+<li><p><a class="reference internal" href="#type-names">Type names</a></p></li>
+<li><p><a class="reference internal" href="#function-names">Function names</a></p></li>
+<li><p><a class="reference internal" href="#variable-names">Variable names</a></p></li>
+<li><p><a class="reference internal" href="#class-member-names-and-method-names">Class member names and method names</a></p></li>
+<li><p><a class="reference internal" href="#constant-names">Constant names</a></p></li>
+<li><p>Naming conventions for <a class="reference internal" href="#distributed-and-streaming-computational-schemes">distributed and streaming computational schemes</a></p></li>
+</ul>
+<div class="section" id="file-names">
+<h4>File Names<a class="headerlink" href="#file-names" title="Permalink to this headline">¶</a></h4>
+<p>The name of a file:</p>
+<ul class="simple">
+<li><p>should be in all lowercase</p></li>
+<li><p>may include underscores (<code class="docutils literal notranslate"><span class="pre">_</span></code>)</p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">algorithm</span><span class="o">/</span><span class="n">kmeans_assign</span><span class="p">.</span><span class="n">h</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="type-names">
+<h4>Type Names<a class="headerlink" href="#type-names" title="Permalink to this headline">¶</a></h4>
+<p>The names of classes, structs, typedefs, and enums:</p>
+<ul class="simple">
+<li><p>should start with a capital letter</p></li>
+<li><p>should have a capital letter for each new word</p></li>
+<li><p>should not contain underscores (<code class="docutils literal notranslate"><span class="pre">_</span></code>)</p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyClass</span><span class="p">;</span>
+<span class="k">struct</span> <span class="n">MyStruct</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">int</span> <span class="n">MyType</span><span class="p">;</span>
+<span class="k">enum</span> <span class="n">MyEnum</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="function-names">
+<h4>Function Names<a class="headerlink" href="#function-names" title="Permalink to this headline">¶</a></h4>
+<p>The name of a function:</p>
+<ul class="simple">
+<li><p>should start with a lowercase letter</p></li>
+<li><p>should have a capital letter for each new word</p></li>
+<li><p>should not contain underscores (<code class="docutils literal notranslate"><span class="pre">_</span></code>)</p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">addTableEntry</span><span class="p">();</span>
+<span class="n">deleteTable</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="variable-names">
+<h4>Variable Names<a class="headerlink" href="#variable-names" title="Permalink to this headline">¶</a></h4>
+<p>The name of a local variable:</p>
+<ul class="simple">
+<li><p>should start with a lowercase letter</p></li>
+<li><p>should have a capital letter for each new word</p></li>
+<li><p>should not contain underscores (<code class="docutils literal notranslate"><span class="pre">_</span></code>)</p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">numBlocks</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="class-member-names-and-method-names">
+<h4>Class Member Names and Method Names<a class="headerlink" href="#class-member-names-and-method-names" title="Permalink to this headline">¶</a></h4>
+<p>There is a difference in naming <code class="docutils literal notranslate"><span class="pre">public</span></code> and <code class="docutils literal notranslate"><span class="pre">private</span></code> class members and methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">public</span></code> class members and methods are named in the same way as local variables and functions:</p>
+<ul>
+<li><p><a class="reference internal" href="#variable-names">Variable Names</a></p></li>
+<li><p><a class="reference internal" href="#function-names">Function Names</a></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">private</span></code> class members and methods should have an additional underscore (<code class="docutils literal notranslate"><span class="pre">_</span></code>) at the beginning.</p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Table</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="kt">int</span> <span class="n">colsInTable</span><span class="p">;</span> <span class="c1">// external</span>
+<span class="k">private</span><span class="o">:</span>
+  <span class="n">string</span> <span class="n">_tableName</span><span class="p">;</span> <span class="c1">// internal</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="constant-names">
+<h4>Constant Names<a class="headerlink" href="#constant-names" title="Permalink to this headline">¶</a></h4>
+<p>Constants:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="kt">int</span> <span class="n">daysInAWeek</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Enum members:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span> <span class="n">MyTableTypes</span> <span class="p">{</span><span class="n">intType</span><span class="p">,</span> <span class="n">doubleType</span><span class="p">};</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="distributed-and-streaming-computational-schemes">
+<h4>Distributed and streaming computational schemes<a class="headerlink" href="#distributed-and-streaming-computational-schemes" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="enum-names">
+<h5>Enum Names<a class="headerlink" href="#enum-names" title="Permalink to this headline">¶</a></h5>
+<p>For numeric tables: <code class="docutils literal notranslate"><span class="pre">InputId</span></code>. For models: <code class="docutils literal notranslate"><span class="pre">Input[Name]Id</span></code></p>
+<ul class="simple">
+<li><p>remove <code class="docutils literal notranslate"><span class="pre">Distributed</span></code> from names</p></li>
+<li><p>add <code class="docutils literal notranslate"><span class="pre">Step?</span></code></p></li>
+<li><p>remove <code class="docutils literal notranslate"><span class="pre">Numeric</span> <span class="pre">Table</span></code> and <code class="docutils literal notranslate"><span class="pre">Table</span></code> from names</p></li>
+</ul>
+<p>Name template is the following: <code class="docutils literal notranslate"><span class="pre">[Prefix][Method][SbjName][Type]Id;</span></code></p>
+<dl class="simple">
+<dt>Prefix</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Step?Master</span></code> or <code class="docutils literal notranslate"><span class="pre">Step?Local</span></code> – for distributed processing mode</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Online</span></code> – for online processing mode</p></li>
+<li><p>none – for batch processing mode</p></li>
+</ul>
+</dd>
+<dt>Method</dt><dd><ul class="simple">
+<li><p>SVD, Correlation, etc.</p></li>
+</ul>
+</dd>
+<dt>SbjName</dt><dd><ul class="simple">
+<li><p>PartialResult, Input</p></li>
+</ul>
+</dd>
+<dt>Type</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Collection</span></code> or <code class="docutils literal notranslate"><span class="pre">Model</span></code></p></li>
+<li><p>none – for Numeric Table</p></li>
+</ul>
+</dd>
+</dl>
+<p>Examples of renaming:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MasterInputId</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Step2MasterInputId</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DistributedPartialResultStep3Id</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Step3LocalPartialResultId</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PartialSVDTableResultId</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Step?LocalSVDPartialResultId</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Step3LocalNumericTableInputId</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Step3LocalInputId</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Step3LocalCollectionInputId</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Step3LocalInputCollectionId</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="class-names">
+<h5>Class Names<a class="headerlink" href="#class-names" title="Permalink to this headline">¶</a></h5>
+<p>Name templates:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DistributedInput&lt;step,</span> <span class="pre">method&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DistributedPartialResult&lt;step,</span> <span class="pre">method&gt;</span></code> - for distributed computation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PartialResult&lt;method&gt;</span></code> - for online computation and distributed step1</p></li>
+</ul>
+<dl class="simple">
+<dt>step</dt><dd><p><code class="docutils literal notranslate"><span class="pre">step2Master</span></code>, <code class="docutils literal notranslate"><span class="pre">step3Local</span></code>, etc. (starts from 2)</p>
+</dd>
+<dt>method</dt><dd><p>default if there is only one method used</p>
+</dd>
+<dt>PartialResult</dt><dd><p>is returned from 1st computation step</p>
+</dd>
+<dt>DistributedPartialResult</dt><dd><p>is returned from steps 2 and higher</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="section" id="declaration-order">
+<h3>Declaration Order<a class="headerlink" href="#declaration-order" title="Permalink to this headline">¶</a></h3>
+<p>Use the specified order of declarations within a class:
+your class definition should start with its <code class="docutils literal notranslate"><span class="pre">public:</span></code> section, followed by
+its <code class="docutils literal notranslate"><span class="pre">protected:</span></code> section, and then its <code class="docutils literal notranslate"><span class="pre">private:</span></code> section. If any of these
+sections are empty, omit them.</p>
+<p>The declarations generally should be in the following order:</p>
+<ul class="simple">
+<li><p>Typedefs and Enums</p></li>
+<li><p>Constants (<code class="docutils literal notranslate"><span class="pre">static</span> <span class="pre">const</span></code> data members)</p></li>
+<li><p>Constructors</p></li>
+<li><p>Destructor</p></li>
+<li><p>Methods, including static methods</p></li>
+<li><p>Data Members (except <code class="docutils literal notranslate"><span class="pre">static</span> <span class="pre">const</span></code> data members)</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Friend declarations should always be in the <code class="docutils literal notranslate"><span class="pre">private</span></code> section.</p>
+</div>
+</div>
+<div class="section" id="typedefs">
+<h3>Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h3>
+<p>Use typedefs for template-based classes. It improves code readability and ensures
+that the same type is used in all cases.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// typedefs</span>
+<span class="k">typedef</span> <span class="n">hash_map</span><span class="o">&lt;</span><span class="n">UrlTableProperties</span> <span class="o">*</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span> <span class="n">PropertiesMap</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="defines">
+<h3>Defines<a class="headerlink" href="#defines" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define DAL_MY_DEFINE </span><span class="c1">// external</span>
+<span class="cp">#define __MY_DEFINE </span><span class="c1">// internal</span>
+<span class="cp">#ifndef __FILE_NAME_H__</span>
+<span class="cp">#define __FILE_NAME_H__</span>
+<span class="cp">#pragma directive should be indented</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="common-definitions">
+<h3>Common definitions<a class="headerlink" href="#common-definitions" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">defined</span><span class="p">(</span><span class="n">__x86_64__</span><span class="p">)</span> <span class="c1">// defined for Linux 64bit and MacOS 64bit OSes</span>
+<span class="n">defined</span><span class="p">(</span><span class="n">__linux__</span><span class="p">)</span> <span class="c1">// defined for Linux and MacOS</span>
+<span class="n">defined</span><span class="p">(</span><span class="n">__APPLE__</span><span class="p">)</span> <span class="c1">// defined for MacOS</span>
+<span class="n">defined</span><span class="p">(</span><span class="n">_WIN64</span><span class="p">)</span> <span class="c1">// defined for Winddows 64bit</span>
+<span class="n">defined</span><span class="p">(</span><span class="n">_WIN32</span><span class="p">)</span> <span class="c1">// defined for Winddows 32bit &amp; Winddows 64bit</span>
+<span class="n">defined</span><span class="p">(</span><span class="n">__ICL</span><span class="p">)</span> <span class="c1">// defined for Intel compiler. Has numeric value.</span>
+<span class="n">defined</span><span class="p">(</span><span class="n">__INTEL_COMPILER</span><span class="p">)</span> <span class="c1">// defined for Intel compiler. Has numeric value.</span>
+<span class="n">defined</span><span class="p">(</span><span class="n">_MSC_VER</span><span class="p">)</span> <span class="c1">// defined for Intel and MS compilers. Has numeric value.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="statements">
+<h3>Statements<a class="headerlink" href="#statements" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Each line should contain at most one statement:</p>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
+<span class="n">a</span><span class="o">++</span><span class="p">;</span> <span class="n">b</span><span class="o">++</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">a</span><span class="o">++</span><span class="p">;</span>
+<span class="n">b</span><span class="o">++</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</li>
+<li><p>The statement that follows conditional statement should be on a separate line:</p>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">condition</span><span class="p">)</span> <span class="n">statement</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">condition</span><span class="p">)</span>
+    <span class="n">statement</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="comments">
+<h3>Comments<a class="headerlink" href="#comments" title="Permalink to this headline">¶</a></h3>
+<p>Comments should provide information that is not readily understandable from the code itself.</p>
+<p>Linus Torvalds <a class="reference external" href="https://github.com/torvalds/linux/blob/master/Documentation/process/coding-style.rst#8-commenting">says</a>:</p>
+<div class="docutils container">
+<div class="quotation docutils container">
+<p><em>NEVER try to explain HOW your code works in a comment: it’s much
+better to write the code so that the _working_ is obvious, and it’s
+a waste of time to explain badly written code.</em></p>
+<p><em>Generally, you want your comments to tell WHAT your code does, not
+HOW. Also, try to avoid putting comments inside a function body: if
+the function is so complex that you need to separately comment parts
+of it, you should probably split it into smaller functions. You can
+make small comments to note or warn about something particularly
+clever (or ugly), but try to avoid excess. Instead, put the comments
+at the head of the function, telling people WHAT it does, and
+possibly WHY it does it.</em></p>
+</div>
+</div>
+<div class="section" id="function-comments">
+<h4>Function Comments<a class="headerlink" href="#function-comments" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Always document functions that are a part of an API.</p></li>
+<li><p>Document locally used functions when they require clarification.</p></li>
+</ul>
+</div>
+<div class="section" id="variable-comments">
+<h4>Variable Comments<a class="headerlink" href="#variable-comments" title="Permalink to this headline">¶</a></h4>
+<p>In most cases, the name of a variable should be descriptive enough
+to give a good idea of what the variable is used for. In certain cases,
+more comments are required.</p>
+</div>
+<div class="section" id="class-data-members-comments">
+<h4>Class Data Members Comments<a class="headerlink" href="#class-data-members-comments" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Each data member of a class should have a comment describing what it is used for.</p></li>
+<li><p>If the variable can take sentinel values with special meanings, such as a null pointer or -1, document this.</p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="o">:</span>
+<span class="c1">// Keeps track of the total number of entries in the table.</span>
+<span class="c1">// Used to ensure we do not go over the limit. -1 means</span>
+<span class="c1">// that we don&#39;t yet know how many entries the table has.</span>
+<span class="kt">int</span> <span class="n">_nEntries</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="function-declarations-comments">
+<h4>Function Declarations Comments<a class="headerlink" href="#function-declarations-comments" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Every declaration of a non-trivial function should be preceded by comments that describe what the function does and how to use it.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="templates-declaration">
+<h3>Templates declaration<a class="headerlink" href="#templates-declaration" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Empty template classes should have a <code class="docutils literal notranslate"><span class="pre">{}</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Template&lt;...&gt;</span></code> should all be in one line.</p></li>
+</ul>
+</div>
+<div class="section" id="deprecated-api">
+<h3>Deprecated API<a class="headerlink" href="#deprecated-api" title="Permalink to this headline">¶</a></h3>
+<p>To mark API in oneDAL as deprecated, do the following:</p>
+<div class="sphinx-tabs docutils container">
+<div class="ui top attached tabular menu sphinx-menu docutils container">
+<div class="active item sphinx-data-tab-0-0 docutils container">
+<div class="docutils container">
+<p>C++</p>
+</div>
+</div>
+<div class="item sphinx-data-tab-0-1 docutils container">
+<div class="docutils container">
+<p>Java</p>
+</div>
+</div>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-0 active docutils container">
+<ol class="arabic simple">
+<li><p>Mark deprecated API with <code class="docutils literal notranslate"><span class="pre">DAAL_DEPRECATED</span></code> define. For virtual functions use <code class="docutils literal notranslate"><span class="pre">DAAL_DEPRECATED_VIRTUAL</span></code> define.</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">DAAL_DEPRECATED</span> <span class="k">class</span> <span class="nc">A</span> <span class="c1">// Deprecated class</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">DAAL_DEPRECATED</span> <span class="n">A</span><span class="p">()</span> <span class="p">{}</span> <span class="c1">// Deprecated class constructor</span>
+  <span class="n">DAAL_DEPRECATED</span> <span class="kt">void</span> <span class="n">func</span><span class="p">()</span> <span class="p">{}</span> <span class="c1">// Deprecated function in class</span>
+  <span class="n">DAAL_DEPRECATED</span> <span class="kt">int</span> <span class="n">classMember</span><span class="p">;</span> <span class="c1">// Deprecated class member</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Add a special tag to documentation comment:</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">\DAAL_DEPRECATED</span></code> when you remove something from API.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">\DAAL_DEPRECATED_USE{</span> <span class="pre">newFunction</span> <span class="pre">}</span></code> when you introduce a new function to use instead of a deprecated one and want to reference it.</p></li>
+</ul>
+<p>These tags add standard phrases about deprecation. They are defined in our doxygen configurations.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm">* Description for function that will be removed</span>
+<span class="hll"><span class="cm">* \DAAL_DEPRECATED</span>
+</span><span class="cm">*/</span>
+<span class="n">DAAL_DEPRECATED</span> <span class="kt">int</span> <span class="nf">removedFunction</span><span class="p">()</span> <span class="p">{}</span>
+
+<span class="cm">/**</span>
+<span class="cm">* Description for function with old name</span>
+<span class="hll"><span class="cm">* \DAAL_DEPRECATED_USE{ newFunction }</span>
+</span><span class="cm">*/</span>
+<span class="n">DAAL_DEPRECATED</span> <span class="kt">int</span> <span class="nf">oldFunction</span><span class="p">()</span> <span class="p">{}</span>
+
+<span class="cm">/**</span>
+<span class="cm">* Description for new function</span>
+<span class="cm">*/</span>
+<span class="kt">void</span> <span class="nf">newFunction</span><span class="p">()</span> <span class="p">{}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To mark enums and their elements as deprecated, you only need to put the appropriate documentation tag in a doc comment.</p>
+</div>
+</div>
+<div class="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-1 docutils container">
+<ol class="arabic simple">
+<li><p>Mark deprecated code with <code class="docutils literal notranslate"><span class="pre">&#64;Deprecated</span></code> annotation before:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="nd">@Deprecated</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">A</span>               <span class="c1">// Deprecated class</span>
+<span class="o">{</span>
+    <span class="nd">@Deprecated</span>
+    <span class="kd">public</span> <span class="nf">A</span><span class="o">()</span> <span class="o">{}</span>            <span class="c1">// Deprecated class constructor</span>
+
+    <span class="nd">@Deprecated</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">func</span><span class="o">()</span> <span class="o">{}</span>    <span class="c1">// Deprecated function in class</span>
+
+    <span class="nd">@Deprecated</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="n">classMember</span><span class="o">;</span>  <span class="c1">// Deprecated class member</span>
+<span class="o">};</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Add special tag to documentation comment:</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">&#64;DAAL_DEPRECATED</span></code> when you remove something from API.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">&#64;DAAL_DEPRECATED_USE{</span> <span class="pre">newFunction</span> <span class="pre">}</span></code> when you introduce a new function to use instead of a deprecated one and want to reference it.</p></li>
+</ul>
+<p>These tags add standard phrases about deprecation. They are defined in our doxygen configurations.</p>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="notes">
+<h4>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h4>
+<p>You can generate a reference to another functionality without <code class="docutils literal notranslate"><span class="pre">\ref</span></code>:</p>
+<ol class="arabic simple">
+<li><p>Add the appropriate tag to documentation comment :</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">\DAAL_DEPRECATED_USE{</span> <span class="pre">newFunction</span> <span class="pre">}</span></code> to reference global functions.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">\DAAL_DEPRECATED_USE{</span> <span class="pre">ClassName::newFunction</span> <span class="pre">}</span></code> to reference functions that are defined inside classes.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">\DAAL_DEPRECATED_USE{</span> <span class="pre">\ref</span> <span class="pre">daal::&lt;all</span> <span class="pre">namespaces</span> <span class="pre">to</span> <span class="pre">ClassName&gt;::ClassName::newFunction</span> <span class="pre">&quot;newFunction&quot;</span> <span class="pre">}</span></code> if a reference
+is not parsed correctly by doxygen (quotation marks are a part of a command).</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">DAAL_DEPRECATED</span></code> and <code class="docutils literal notranslate"><span class="pre">DAAL_DEPRECATED_VIRTUAL</span></code> after <code class="docutils literal notranslate"><span class="pre">\return</span></code> tag.</p></li>
+</ol>
+</div>
+</div>
+</div>
+<div class="section" id="programming-guidelines">
+<h2>Programming guidelines<a class="headerlink" href="#programming-guidelines" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="local-variables">
+<h3>Local Variables<a class="headerlink" href="#local-variables" title="Permalink to this headline">¶</a></h3>
+<p>To make it easier for the reader to find the declaration, see what type the variable is, and what it was initialized to:</p>
+<ul>
+<li><p>Place a function’s variables in the narrowest scope possible.</p></li>
+<li><p>Initialize variables in the declaration.</p></li>
+<li><p>Use initialization instead of declaration and assignment.</p>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+<span class="n">i</span> <span class="o">=</span> <span class="n">f</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Declaration includes initialization.</span>
+<span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">g</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">;</span>
+<span class="n">v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// Prefer initializing using brace initialization.</span>
+<span class="n">v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Good -- v starts initialized, brace initialization is used.</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</li>
+</ul>
+<p>When you work with variables needed for <code class="docutils literal notranslate"><span class="pre">if</span></code>, <code class="docutils literal notranslate"><span class="pre">while</span></code>, and <code class="docutils literal notranslate"><span class="pre">for</span></code> statements:</p>
+<ul>
+<li><p>If the variable is not an object, declare it within the statement to confine it to the scope of the statement:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">p</span> <span class="o">=</span> <span class="n">strchr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">&#39;/&#39;</span><span class="p">))</span>
+    <span class="n">str</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p>If the variable is an object, declare it outside the loop.</p>
+<p>As object’s constructor is invoked every time the object is created or enters the scope, and its destructor is
+invoked every time the object goes out of scope, you make your code inefficient by placing variable’s declaration inside a loop.</p>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Inefficient implementation:</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1000000</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Foo</span> <span class="n">f</span><span class="p">;</span> <span class="c1">// My ctor and dtor get called 1000000 times each.</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">DoSomething</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// More efficient</span>
+<span class="n">Foo</span> <span class="n">f</span><span class="p">;</span> <span class="c1">// My ctor and dtor get called once each.</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1000000</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">DoSomething</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="constants">
+<h3>Constants<a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Use constant variables or functions returning the constant value instead of hard coded constant values:</p>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">foo</span><span class="p">(</span><span class="s">&quot;Hard coded string&quot;</span><span class="p">);</span>
+<span class="c1">// ...</span>
+<span class="n">bar</span><span class="p">(</span><span class="s">&quot;Hard coded string&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="nf">hardCodedString</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="s">&quot;Hard coded string&quot;</span><span class="p">;</span> <span class="p">}</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">hardCodedString</span><span class="p">());</span>
+<span class="n">bar</span><span class="p">(</span><span class="n">hardCodedString</span><span class="p">());</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="static-and-global-variables">
+<h3>Static and Global Variables<a class="headerlink" href="#static-and-global-variables" title="Permalink to this headline">¶</a></h3>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Static variables of class type may cause hard-to-find bugs
+due to the <a class="reference internal" href="#undetermined-order-of-construction-and-destruction">undetermined order of construction and destruction</a>.</p>
+</div>
+<ul class="simple">
+<li><p>Avoid using static variables of class type.</p></li>
+<li><p>Use <a class="reference internal" href="#static-variables-within-a-function-scope">static variables within a function scope</a> instead.</p></li>
+</ul>
+<div class="section" id="undetermined-order-of-construction-and-destruction">
+<h4>Undetermined order of construction and destruction<a class="headerlink" href="#undetermined-order-of-construction-and-destruction" title="Permalink to this headline">¶</a></h4>
+<p>The order in which class constructors and initializers for
+static variables are called is only partially specified in C++. It may
+even change from build to build, which causes bugs that are difficult to find.</p>
+<p>On program termination, global and static variables are destroyed.
+The order in which destructors are called is defined to be
+the reverse of the order in which the constructors were called. Since the order in which
+constructors are called is undertermined, so is the order of destructors.</p>
+<p>Consider the following examples:</p>
+<ol class="arabic simple">
+<li><p>At program-end time, a static variable is destroyed, but the code is still running in another thread,
+tries to access the destroyed variable and, therefore, fails.</p></li>
+<li><p>The destructor for a static string variable might be run prior to the destructor for another variable
+that contains a reference to that string.</p></li>
+</ol>
+</div>
+<div class="section" id="static-variables-within-a-function-scope">
+<h4>Static variables within a function scope<a class="headerlink" href="#static-variables-within-a-function-scope" title="Permalink to this headline">¶</a></h4>
+<p>A static variable within a function scope may be initialized with
+the result of a function, since its initialization order is well-defined
+and does not occur until control passes through its declaration.</p>
+<p>This is why we reccomend using a static variable within a function scope
+if you need a static or a global variable of a class type. Create a function
+that returns the variable you need, but make sure that the function call
+does not happen when the program is terminating.</p>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">SingletonClass</span> <span class="n">inst</span><span class="p">;</span> <span class="c1">// Bad – initialization order is undefined.</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">SingletonClass</span><span class="o">&amp;</span> <span class="n">getInst</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">static</span> <span class="n">SingletonClass</span> <span class="n">inst</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">inst</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// Good – initialization happens when the function is called</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="usage-of-const">
+<h3>Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code><a class="headerlink" href="#usage-of-const" title="Permalink to this headline">¶</a></h3>
+<p>The general rule is to use <code class="docutils literal notranslate"><span class="pre">const</span></code> declaration whenever possible.</p>
+<p>For details, see:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#usage-of-const-in-functions">Usage of const in Functions</a></p></li>
+<li><p><a class="reference internal" href="#usage-of-const-methods">Usage of const Methods</a></p></li>
+<li><p><a class="reference internal" href="#usage-of-const-and-mutable-data-members">Usage of const and mutable Data Members</a></p></li>
+</ul>
+<p>The advantages of using <code class="docutils literal notranslate"><span class="pre">const</span></code>:</p>
+<ul class="simple">
+<li><p>Implies semantic constraints handled by compiler</p></li>
+<li><p>Adds a level of compile-time type checking</p></li>
+<li><p>Helps to specify the logic of the code</p></li>
+<li><p>Helps to make the code consistent and self-documented</p></li>
+<li><p>Helps to find possible errors</p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Good</span>
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">(</span><span class="n">Collection</span><span class="o">&amp;</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="c1">//we need to save initial size, then make sure it will not be modified</span>
+  <span class="k">const</span> <span class="kt">size_t</span> <span class="n">len</span> <span class="o">=</span> <span class="n">c</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="section" id="usage-of-const-in-functions">
+<h4>Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> in Functions<a class="headerlink" href="#usage-of-const-in-functions" title="Permalink to this headline">¶</a></h4>
+<p>If a function guarantees that it will not modify an argument passed by
+reference or by pointer, the corresponding function parameter should be
+a reference-to-const (<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">T&amp;</span></code>) or pointer-to-const (<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">T*</span></code>),
+respectively.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="k">const</span> <span class="n">Foo</span><span class="o">&amp;</span> <span class="n">foo</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="c1">// foo should not be modified by this function, &#39;const&#39; states it clearly</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage-of-const-methods">
+<h4>Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> Methods<a class="headerlink" href="#usage-of-const-methods" title="Permalink to this headline">¶</a></h4>
+<p>Declare methods to be <code class="docutils literal notranslate"><span class="pre">const</span></code> whenever possible:</p>
+<ul class="simple">
+<li><p>Accessors should almost always be <code class="docutils literal notranslate"><span class="pre">const</span></code>.</p></li>
+<li><p>Other methods should be <code class="docutils literal notranslate"><span class="pre">const</span></code> if they do not modify any data members,
+do not call any non-const methods, and do not return a
+non-const pointer or non-const reference to a data member.</p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="kt">int</span> <span class="n">getValue</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span> <span class="c1">// does not modify data members</span>
+  <span class="kt">void</span> <span class="nf">setValue</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span> <span class="c1">// can modify data members</span>
+<span class="k">protected</span><span class="o">:</span>
+<span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage-of-const-and-mutable-data-members">
+<h4>Usage of <code class="docutils literal notranslate"><span class="pre">const</span></code> and <code class="docutils literal notranslate"><span class="pre">mutable</span></code> Data Members<a class="headerlink" href="#usage-of-const-and-mutable-data-members" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p>Consider making data members <code class="docutils literal notranslate"><span class="pre">const</span></code> whenever they do not need to be modified after construction.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">Foo</span> <span class="p">(</span><span class="kt">int</span> <span class="n">val</span><span class="p">)</span><span class="o">:</span> <span class="n">_val</span><span class="p">(</span><span class="n">val</span><span class="p">){}</span> <span class="c1">// never going to be changed</span>
+<span class="k">protected</span><span class="o">:</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">_val</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">const</span></code> usage is sort of is viral: once appeared in a function it
+causes its propagation in related functions. But this is an excellent
+feature!</p>
+<ul>
+<li><p>If a class needs to modify its member in a <code class="docutils literal notranslate"><span class="pre">const</span></code> function (e.g. when
+implementing caching), then declare this data member <code class="docutils literal notranslate"><span class="pre">mutable</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">Foo</span><span class="p">()</span><span class="o">:</span><span class="n">_isInitialized</span><span class="p">(</span><span class="nb">false</span><span class="p">){}</span>
+  <span class="kt">int</span> <span class="n">get</span> <span class="p">()</span> <span class="k">const</span>
+  <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">_isInitialized</span><span class="p">)</span>
+      <span class="p">{</span>
+          <span class="n">_value</span> <span class="o">=</span> <span class="n">calcValue</span><span class="p">();</span>
+          <span class="n">_isInitialized</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">return</span> <span class="n">_value</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="k">private</span><span class="o">:</span>
+  <span class="k">mutable</span> <span class="kt">int</span> <span class="n">_value</span><span class="p">;</span>
+  <span class="k">mutable</span> <span class="kt">bool</span> <span class="n">_isInitialized</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>When you use <code class="docutils literal notranslate"><span class="pre">mutable</span></code> in multi-threaded program, make
+sure thread-safe access is provided.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="ownership-raii-resource-acquisition-is-initialization">
+<h3>Ownership (RAII – Resource Acquisition Is Initialization)<a class="headerlink" href="#ownership-raii-resource-acquisition-is-initialization" title="Permalink to this headline">¶</a></h3>
+<p>C++ provides constructor and destructor symmetry which can naturally be
+used to manage resource allocation and deallocation pairs, e.g.
+dynamically allocated memory. This bookkeeping technique is called
+<strong>Resource Acquisition Is Initialization (RAII)</strong>.</p>
+<p>Holding a resource is tied to the object’s lifetime:</p>
+<ul>
+<li><p>Resource allocation (acquisition) is done by the constructor during object’s creation.
+More specifically, during initialization.</p></li>
+<li><p>Resource deallocation (release) is done by the destructor during object’s destruction.
+If objects are destroyed properly, resource leaks do not occur.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FileHolder</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">FileHolder</span> <span class="p">(</span><span class="kt">FILE</span><span class="o">*</span> <span class="n">f</span><span class="p">)</span><span class="o">:</span> <span class="n">_file</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+  <span class="p">{</span>
+  <span class="p">}</span>
+  <span class="o">~</span><span class="n">FileHolder</span>
+  <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">_file</span><span class="p">)</span>
+      <span class="n">fclose</span><span class="p">(</span><span class="n">_file</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="k">private</span><span class="o">:</span>
+  <span class="kt">FILE</span><span class="o">*</span> <span class="n">_file</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Place resource acquisition in a separate instruction:</p>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">(</span><span class="n">Foo</span><span class="o">*</span> <span class="n">data</span><span class="p">,</span> <span class="kt">int</span> <span class="n">priority</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">priority</span><span class="p">();</span>
+
+<span class="n">foo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="n">Foo</span><span class="p">()),</span> <span class="n">priority</span><span class="p">());</span>
+<span class="c1">// if priority() throws exception then the memory allocated by new can be lost</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Preferable</span>
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">(</span><span class="n">Foo</span><span class="o">*</span> <span class="n">data</span><span class="p">,</span> <span class="kt">int</span> <span class="n">priority</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">priority</span><span class="p">();</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span> <span class="n">ptr</span><span class="p">(</span><span class="k">new</span> <span class="n">Foo</span><span class="p">());</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">priority</span><span class="p">());</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="smart-pointers">
+<h3>Smart Pointers<a class="headerlink" href="#smart-pointers" title="Permalink to this headline">¶</a></h3>
+<p>“Smart” pointers are partial case of RAII idiom. These classes act like pointers, e.g. by overloading the <code class="docutils literal notranslate"><span class="pre">*</span></code> and <code class="docutils literal notranslate"><span class="pre">-&gt;</span></code>
+operators providing additional features, such as automatic memory management.
+Some smart pointer types can be used to automate ownership bookkeeping.</p>
+</div>
+<div class="section" id="passing-parameters-of-non-primitive-types-by-reference">
+<h3>Passing parameters of non-primitive types by reference<a class="headerlink" href="#passing-parameters-of-non-primitive-types-by-reference" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Parameters of complex types should be passed by reference.</p></li>
+<li><p>Use <cite>const</cite> to emphasize they are not modified.</p></li>
+</ul>
+<p>This makes code more efficient: copy constructors are not called. It also allows to avoid unwanted inexplicit casting of types.</p>
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
+<span class="k">class</span> <span class="nc">string</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">string</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">);</span><span class="c1">// allocates memory buffer and copies ‘other’ content into it.</span>
+<span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="n">string</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span><span class="c1">// Inefficient: string(string) is called</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">s</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
+<span class="k">class</span> <span class="nc">Base</span>
+<span class="p">{</span>
+  <span class="n">Base</span><span class="p">(</span><span class="k">const</span> <span class="n">Base</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">);</span>
+  <span class="k">virtual</span> <span class="nf">printMe</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Base&quot;</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">Derived</span><span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
+<span class="p">{</span>
+  <span class="k">virtual</span> <span class="n">printMe</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Derived&quot;</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="n">Base</span> <span class="n">b</span><span class="p">);</span> <span class="c1">// Reference was forgotten!!!</span>
+
+<span class="n">Derived</span> <span class="n">d</span><span class="p">;</span>
+<span class="n">print</span><span class="p">(</span><span class="n">d</span><span class="p">);</span> <span class="c1">// Logical error: Base was created, polymorphic behavior is lost!</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="preprocessor-macros">
+<h3>Preprocessor Macros<a class="headerlink" href="#preprocessor-macros" title="Permalink to this headline">¶</a></h3>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Be very cautious with macros. Prefer inline functions, enums,
+and const variables to macros.</p>
+</div>
+<p>Macros mean that the code you see is not the same as the code the
+compiler sees. This can introduce unexpected behavior, especially since
+macros have global scope.</p>
+<ul>
+<li><p>Use a <code class="docutils literal notranslate"><span class="pre">const</span></code> or <code class="docutils literal notranslate"><span class="pre">enum</span></code> instead of <code class="docutils literal notranslate"><span class="pre">#define</span> <span class="pre">NAME</span> <span class="pre">value</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">MAX_CAPACITY</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p>If constants define a related set, make them an enumerated type:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyNet</span>
+  <span class="p">{</span>
+  <span class="k">public</span><span class="o">:</span>
+      <span class="k">enum</span> <span class="p">{</span> <span class="n">eMaxUsers</span> <span class="o">=</span> <span class="mi">255</span><span class="p">;</span> <span class="p">}</span>
+      <span class="p">...</span>
+  <span class="k">private</span><span class="o">:</span>
+      <span class="k">enum</span> <span class="p">{</span> <span class="n">eMaxServers</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span> <span class="p">}</span>
+  <span class="p">};</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="namespaces">
+<h3>Namespaces<a class="headerlink" href="#namespaces" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Use namespaces instead of name prefixes to prevent name conflicts.</p></li>
+<li><p>Never put <code class="docutils literal notranslate"><span class="pre">using</span></code> directive before <code class="docutils literal notranslate"><span class="pre">#include</span></code> or in header files
+outside of functions, methods, or classes.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Since you do not know in what order directives may appear in the code below,
+this can leas to a name confict.</p>
+</div>
+</li>
+<li><p>You may use a <code class="docutils literal notranslate"><span class="pre">using</span></code> declaration anywhere in a .cpp file.</p></li>
+</ul>
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
+
+<span class="c1">// Header foo.h</span>
+<span class="k">namespace</span> <span class="n">foo</span>
+<span class="p">{</span>
+  <span class="k">class</span> <span class="nc">Bar</span><span class="p">{}</span>
+<span class="p">}</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">foo</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// client_code.cpp</span>
+<span class="cp">#include</span> <span class="cpf">“foo.h”</span><span class="cp"></span>
+<span class="k">struct</span> <span class="n">Bar</span> <span class="p">{</span> <span class="kt">int</span> <span class="n">code</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="n">Bar</span> <span class="n">res</span><span class="p">;</span> <span class="c1">// Error: ambiguous</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id1">
+<h3>Functions<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#write-short-functions">Write short functions</a>.</p></li>
+<li><p>Avoid multiple nesting levels, e.g. use small functions for complex conditions checking.</p></li>
+<li><p>Never write code that depends on the order of <a class="reference internal" href="#function-s-arguments">function’s arguments</a>.</p></li>
+</ul>
+<div class="section" id="write-short-functions">
+<h4>Write short functions<a class="headerlink" href="#write-short-functions" title="Permalink to this headline">¶</a></h4>
+<p>Prefer small and focused functions, as they promote clarity and correctness.
+Long functions are sometimes appropriate, so no hard limit is placed on a
+function’s length.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If a function is longer then 40 lines, consider breaking it into smaller
+and easier-to-maintain pieces of code. Make sure that by doing this you are not
+harming the structure of the program.</p>
+</div>
+<p>Linus Torvalds <a class="reference external" href="https://github.com/torvalds/linux/blob/master/Documentation/process/coding-style.rst#6-functions">says</a>:</p>
+<div class="docutils container">
+<div class="quotation docutils container">
+<p><em>Functions should be short and sweet, do just one thing and do that
+well.</em></p>
+<p><em>The maximum length of a function is inversely proportional to the
+complexity and indentation level of that function. So, if you have a
+conceptually simple function that is just one long (but simple)
+case-statement, where you have to do lots of small things for a lot
+of different cases, it’s OK to have a longer function.</em></p>
+<p><em>Another measure of the function is the number of local variables.
+They shouldn’t exceed 5-10, or you’re doing something wrong. Re-think
+the function, and split it into smaller pieces. A human brain can
+generally easily keep track of about 7 different things, anything
+more and it gets confused. You know you’re brilliant, but maybe you’d
+like to understand what you did 2 weeks from now.</em></p>
+</div>
+</div>
+</div>
+<div class="section" id="function-s-arguments">
+<h4>Function’s arguments<a class="headerlink" href="#function-s-arguments" title="Permalink to this headline">¶</a></h4>
+<p>Do not rely on the evaluation order of function’s arguments, as it is undefined.
+Directly specify evaluation order instead.</p>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
+
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+<span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="n">foo</span><span class="p">(</span><span class="o">++</span><span class="n">count</span><span class="p">,</span> <span class="o">++</span><span class="n">count</span><span class="p">);</span> <span class="c1">// Error: arguments evaluation order is undefined</span>
+
+<span class="kt">int</span> <span class="nf">inc</span><span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">val</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="o">++</span><span class="n">val</span><span class="p">;</span> <span class="p">}</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">inc</span><span class="p">(</span><span class="n">count</span><span class="p">),</span> <span class="n">inc</span><span class="p">(</span><span class="n">count</span><span class="p">));</span> <span class="c1">// Error: arguments evaluation order is undefined</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">tmp</span> <span class="o">=</span> <span class="o">++</span><span class="n">count</span><span class="p">;</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="o">++</span><span class="n">count</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="infix-and-postfix-increment-operators">
+<h3>Infix and postfix increment operators<a class="headerlink" href="#infix-and-postfix-increment-operators" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Prefer infix increment operator to the postfix one.</p></li>
+</ul>
+<p>When a variable is incremented (<code class="docutils literal notranslate"><span class="pre">++i</span></code> or <code class="docutils literal notranslate"><span class="pre">i++</span></code>) or decremented (<code class="docutils literal notranslate"><span class="pre">--i</span></code> or <code class="docutils literal notranslate"><span class="pre">i--</span></code>)
+and the value of the expression is not used, one must decide whether to
+pre-increment (pre-decrement) or post-increment (post-decrement).</p>
+<p>When the return value is ignored, the “pre” form (<code class="docutils literal notranslate"><span class="pre">++i</span></code>) is never less
+efficient than the “post” form (<code class="docutils literal notranslate"><span class="pre">i++</span></code>), and is often more efficient. This
+is because post-increment (post-decrement) requires a copy of <code class="docutils literal notranslate"><span class="pre">i</span></code> to be
+made, which is the value of the expression. If <code class="docutils literal notranslate"><span class="pre">i</span></code> is an iterator or other
+non-scalar type, copying <code class="docutils literal notranslate"><span class="pre">i</span></code> could be expensive. Since the two types of
+increment behave the same when the value is ignored, why not just always
+pre-increment?</p>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="c1">// Not recommended</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="c1">// Preferable</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="assertions">
+<h3>Assertions<a class="headerlink" href="#assertions" title="Permalink to this headline">¶</a></h3>
+<p>Assert is a powerful tool. It makes code self-documented and self-checking in run-time. Some code quality standards define asserts
+usage paradigm “the more the better”, i.e. the number of asserts in the code characterizes its quality.</p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">assert</span></code> to check invariants and internal assumptions.</p></li>
+<li><p>Make sure that <code class="docutils literal notranslate"><span class="pre">assert</span></code> usage does not cause side effects:</p></li>
+</ul>
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
+<span class="n">assert</span><span class="p">(</span> <span class="o">++</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="p">);</span> <span class="c1">// Error: ++i happens in debug only</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Use classes with strictly defined purposes.</p></li>
+<li><p>Avoid fat-interface classes.</p></li>
+<li><p>Do not add a new method to the class if it is not supposed to modify its protected data nor does it call its protected methods.</p></li>
+<li><p>Use friends only when it is absolutely necessary.</p></li>
+<li><p>Declare virtual destructor in a polymorphic base class.</p></li>
+</ul>
+<div class="section" id="initialization">
+<h4>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h4>
+<p>If you define member variables inside a class, provide an in-class initializer for each member variable or write a constructor (it can be a default constructor).</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>If you do not declare any constructors yourself, then the compiler will generate a default constructor for you.
+This might result in some fields not being initialized at all or initialized to inappropriate values.</p>
+</div>
+<div class="section" id="initializers">
+<h5>Initializers<a class="headerlink" href="#initializers" title="Permalink to this headline">¶</a></h5>
+<p>Use initializers list instead of assignment in constructors:</p>
+<div class="comparison docutils container">
+<div class="leftside docutils container">
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
+
+<span class="k">class</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+  <span class="n">Foo</span><span class="p">(){</span>
+    <span class="n">_string</span> <span class="o">=</span> <span class="s">&quot;AAA&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="c1">// This is an equivalent to</span>
+  <span class="c1">// _Foo(): string() { _string = &quot;AAA&quot;; }</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="rightside docutils container">
+<div class="hint admonition">
+<p class="admonition-title">Good</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// The following is more efficient:</span>
+<span class="k">class</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+  <span class="n">Foo</span><span class="p">()</span><span class="o">:</span><span class="n">_string</span><span class="p">(</span><span class="s">&quot;AAA&quot;</span><span class="p">){}</span> <span class="c1">// string(const char*) only</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Exception:</strong> Acquisition of resource allocated by <code class="docutils literal notranslate"><span class="pre">new</span></code> is preferable to perform as assignment in the constructor body:</p>
+<div class="error admonition">
+<p class="admonition-title">Not recommended</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Not recommended</span>
+<span class="k">class</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+  <span class="n">Foo</span><span class="p">()</span><span class="o">:</span> <span class="n">_ptrA</span><span class="p">(</span><span class="k">new</span> <span class="n">A</span><span class="p">()),</span> <span class="n">_ptrB</span><span class="p">(</span><span class="k">new</span> <span class="n">B</span><span class="p">()){</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+<span class="c1">// Memory can be allocated first, then passed to _ptrA and _ptrB.</span>
+<span class="c1">// If B::B() throws exception, then memory allocated by new A() is lost</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="constructors">
+<h5>Constructors<a class="headerlink" href="#constructors" title="Permalink to this headline">¶</a></h5>
+<p>Avoid doing complex initialization in constructors (in particular, initialization that can fail or that requires virtual method calls).</p>
+<p>The problems with doing work in constructors are:</p>
+<ul class="simple">
+<li><p>There is no easy way for constructors to signal errors, short of using exceptions.</p></li>
+<li><p>If the work fails, you now have an object which initialization code have failed, so it may be an indeterminate state.</p></li>
+<li><p>If the work calls virtual functions, these calls will not get dispatched to the subclass implementations. Future modifications of
+your class can quietly introduce this problem even if your class is not currently sub-classed.</p></li>
+<li><p>If someone creates a global variable of this type (which is against the rules, but still), the constructor code will be called
+before <code class="docutils literal notranslate"><span class="pre">main()</span></code>, possibly breaking some implicit assumptions in the constructor code.</p></li>
+</ul>
+<p>Constructors should never:</p>
+<ul class="simple">
+<li><p>call virtual functions</p></li>
+<li><p>attempt to raise non-fatal failures.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If your object requires non-trivial initialization, consider using a factory function or <code class="docutils literal notranslate"><span class="pre">init()</span></code> method.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Destructors should not call virtual functions or throw exceptions either.</p>
+</div>
+</div>
+<div class="section" id="constructors-for-non-trivial-types">
+<h5>Constructors for non-trivial types<a class="headerlink" href="#constructors-for-non-trivial-types" title="Permalink to this headline">¶</a></h5>
+<p>Use explicit copy constructors for non-trivial types:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span>
+<span class="p">{</span>
+  <span class="k">explicit</span> <span class="n">Base</span><span class="p">(</span><span class="k">const</span> <span class="n">Base</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">);</span>
+  <span class="k">virtual</span> <span class="nf">printMe</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Base&quot;</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">Derived</span><span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
+<span class="p">{</span>
+  <span class="k">virtual</span> <span class="n">printMe</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Derived&quot;</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="n">Base</span> <span class="n">b</span><span class="p">);</span>
+
+<span class="n">Derived</span> <span class="n">d</span><span class="p">;</span>
+<span class="n">print</span><span class="p">(</span><span class="n">d</span><span class="p">);</span> <span class="c1">// Compile time error</span>
+</pre></div>
+</div>
+<p>This helps to prevent unwanted conversion to the base type.
+It also helps to indicate the places where duplication of the class data is required, which can probably be handled more efficiently.</p>
+</div>
+</div>
+<div class="section" id="clone-all-parts-of-an-object">
+<h4>Clone all parts of an object<a class="headerlink" href="#clone-all-parts-of-an-object" title="Permalink to this headline">¶</a></h4>
+<p>Call base class copy constructor and copy constructors for all members of the class.
+The same goes for assignment operation.</p>
+</div>
+<div class="section" id="assignment">
+<h4>Assignment<a class="headerlink" href="#assignment" title="Permalink to this headline">¶</a></h4>
+<p>Operator <code class="docutils literal notranslate"><span class="pre">=</span></code> should check for ‘this’ argument passed and return a reference to the object.</p>
+</div>
+<div class="section" id="new-and-delete">
+<h4>New and delete<a class="headerlink" href="#new-and-delete" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Provide overloaded <code class="docutils literal notranslate"><span class="pre">new</span></code> and <code class="docutils literal notranslate"><span class="pre">delete</span></code> consistently: overloaded <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">operator</span> <span class="pre">new(params)</span></code> should be
+matched with <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">operator</span> <span class="pre">delete(void*,</span> <span class="pre">params)</span></code>, the same goes for <code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">[]</span></code>, <code class="docutils literal notranslate"><span class="pre">delete</span> <span class="pre">[]</span></code>.</p></li>
+<li><p>Provide all standard versions of <code class="docutils literal notranslate"><span class="pre">new()</span></code> operator.</p></li>
+</ul>
+</div>
+<div class="section" id="access-control">
+<h4>Access Control<a class="headerlink" href="#access-control" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Make data members private, and provide access to them through <code class="docutils literal notranslate"><span class="pre">set</span></code> and <code class="docutils literal notranslate"><span class="pre">get</span></code> methods as needed.</p></li>
+<li><p>Do not open data except for static const values on a class. Exception: simple structures.</p></li>
+</ul>
+</div>
+<div class="section" id="template-metaprogramming">
+<h4>Template metaprogramming<a class="headerlink" href="#template-metaprogramming" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p>Avoid complicated template programming. It allows extremely flexible interfaces that are type safe and high performance,
+but, at the same time, the techniques used in template metaprogramming are often obscure and hard to maintain.</p></li>
+<li><p>Put considerable effort into minimizing and isolating the complexity.</p>
+<ul class="simple">
+<li><p>Make sure that tricky code is especially well commented: carefully document how the code is used, say something about what the “generated” code looks like.</p></li>
+<li><p>Pay extra attention to the error messages that the compiler emits when users make mistakes.
+The error messages are a part of your user interface, and your code should be tweaked as necessary so that the error messages are understandable and helpful.</p></li>
+</ul>
+</li>
+<li><p>Use class member types (<code class="docutils literal notranslate"><span class="pre">typedefs</span></code>) to increase readability of template classes:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">Point</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="k">typedef</span> <span class="n">T</span> <span class="n">value_type</span><span class="p">;</span>
+  <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span> <span class="n">pointer</span><span class="p">;</span>
+  <span class="p">...</span>
+
+  <span class="k">static</span> <span class="n">pointer</span> <span class="n">create</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Point</span><span class="p">());</span> <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="hiding-the-implementation-in-model-classes">
+<h3>Hiding the implementation in <code class="docutils literal notranslate"><span class="pre">Model</span></code> classes<a class="headerlink" href="#hiding-the-implementation-in-model-classes" title="Permalink to this headline">¶</a></h3>
+<p>Separate the interface and the implementation in <code class="docutils literal notranslate"><span class="pre">Model</span></code> classes. This
+allows to change the implementation specifics without changing the public interface.</p>
+<p>The implementation of the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class should consist of the following three parts:</p>
+<ul class="simple">
+<li><p>a class with a public interface</p></li>
+<li><p>an internal class with the implementation</p></li>
+<li><p>an internal class that maps the interface to the implementation</p></li>
+</ul>
+<p>Below you can find the details of what each class should consist of.</p>
+<ol class="arabic">
+<li><p>Public interface.</p>
+<p>This class defines the public API of the model via purely virtual functions and should not provide any implementation.</p>
+</li>
+</ol>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span> <span class="n">some_namespace</span>
+<span class="p">{</span>
+<span class="k">class</span> <span class="nc">Model</span> <span class="o">:</span> <span class="k">public</span> <span class="n">daal</span><span class="o">::</span><span class="n">algorithms</span><span class="o">::</span><span class="n">Model</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">virtual</span> <span class="kt">int</span> <span class="n">foo</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic" start="2">
+<li><p>Internal class with the implementation.</p>
+<p>This class contains everything that is needed for implementation:</p>
+<ul class="simple">
+<li><p>functionality of the public API of the model</p></li>
+<li><p>training algorithm</p></li>
+<li><p>prediction algorithm</p></li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span> <span class="n">some_namespace</span>
+<span class="p">{</span>
+<span class="k">namespace</span> <span class="n">internal</span>
+<span class="p">{</span>
+<span class="k">class</span> <span class="nc">ModelInternal</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="kt">int</span> <span class="n">fooImpl</span><span class="p">()</span> <span class="p">{...}</span>
+    <span class="cm">/* All the methods that are needed to implement training and prediction algorithms go here */</span>
+
+<span class="p">};</span>
+<span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic" start="3">
+<li><p>Internal class that maps the interface to the implementation.</p>
+<p>This class can be used inside the respective algorithm’s kernel. To unify the implementation of the methods of this class,
+<code class="docutils literal notranslate"><span class="pre">typedef</span> <span class="pre">ImplType</span></code> should be defined within this class and point to the type with the implementation.</p>
+</li>
+</ol>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span> <span class="n">some_namespace</span>
+<span class="p">{</span>
+<span class="k">namespace</span> <span class="n">internal</span>
+<span class="p">{</span>
+<span class="k">class</span> <span class="nc">ModelImpl</span> <span class="o">:</span> <span class="k">public</span> <span class="n">some_namespace</span><span class="o">::</span><span class="n">Model</span><span class="p">,</span>
+                  <span class="k">public</span> <span class="n">some_namespace</span><span class="o">::</span><span class="n">internal</span><span class="o">::</span><span class="n">ModelInternal</span>
+<span class="n">SDL</span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">typedef</span> <span class="n">some_namespace</span><span class="o">::</span><span class="n">internal</span><span class="o">::</span><span class="n">ModelInternal</span> <span class="n">ImplType</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="nf">foo</span><span class="p">()</span> <span class="n">DAAL_C11_OVERRIDE</span> <span class="p">{</span> <span class="k">return</span> <span class="n">ImplType</span><span class="o">::</span><span class="n">fooImpl</span><span class="p">();</span> <span class="p">}</span>
+<span class="p">};</span>
+<span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="sdl-requirements">
+<h3>SDL Requirements<a class="headerlink" href="#sdl-requirements" title="Permalink to this headline">¶</a></h3>
+<p>SDL stands for Security Development Lifecycle and discusses the best known practices:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#handling-primitive-data-types">Handling primitive data types</a></p></li>
+<li><p><a class="reference internal" href="#working-with-pointers">Working with pointers</a></p></li>
+<li><p><a class="reference internal" href="#working-with-buffers">Working with buffers</a></p></li>
+<li><p><a class="reference internal" href="#handling-exceptions">Handling exceptions</a></p></li>
+<li><p><a class="reference internal" href="#handling-null-byte-injection">Handling null byte injection</a></p></li>
+</ul>
+<div class="section" id="handling-primitive-data-types">
+<h4>Handling Primitive Data Types<a class="headerlink" href="#handling-primitive-data-types" title="Permalink to this headline">¶</a></h4>
+<p>SDL requires to explicitly catch type conversion errors:</p>
+<ul class="simple">
+<li><p>Detect and handle runtime errors that could occur upon conversion.</p></li>
+<li><p>Detect invalid type conversions by using exceptions or post-validation code where applicable.</p></li>
+</ul>
+<p>For oneDAL it means that every method where type conversion occurs
+should return <code class="docutils literal notranslate"><span class="pre">Status</span></code> explicitly or by reference.</p>
+<p>Below we discuss conversion between integer types in different cases:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#code-is-performance-oriented">Code is performance-oriented</a> (i.e. recursive functions, loops with indefinite or a large number of iterations)</p></li>
+<li><p><a class="reference internal" href="#code-is-not-performance-oriented">Code is not performance-oriented</a></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Conversion of floating point data types is not a security problem.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>It is required to add error code into <a class="reference external" href="https://github.com/intel/daal/blob/master/service/kernel/error_handling.cpp">error_handling.cpp</a>.</p>
+</div>
+<div class="section" id="code-is-performance-oriented">
+<h5>Code is performance-oriented<a class="headerlink" href="#code-is-performance-oriented" title="Permalink to this headline">¶</a></h5>
+<p>In this case, it is a good practice to use <code class="docutils literal notranslate"><span class="pre">DAAL_ASSERT</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nrows</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="n">di</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">di</span> <span class="o">&gt;</span> <span class="n">nrows</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">di</span> <span class="o">=</span> <span class="n">nrows</span> <span class="o">-</span> <span class="n">i</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">ncols</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">NumericTableFeature</span> <span class="o">&amp;</span> <span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">_ddict</span><span class="p">)[</span><span class="n">j</span><span class="p">];</span>
+        <span class="kt">char</span> <span class="o">*</span> <span class="n">pc</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">_arrays</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">get</span><span class="p">();</span>
+        <span class="n">DAAL_ASSERT</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>
+        <span class="kt">char</span> <span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="n">pc</span> <span class="o">+</span> <span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">f</span><span class="p">.</span><span class="n">typeSize</span><span class="p">;</span>
+
+        <span class="n">internal</span><span class="o">::</span><span class="n">getVectorUpCast</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">indexType</span><span class="p">,</span> <span class="n">internal</span><span class="o">::</span><span class="n">getConversionDataType</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">())(</span><span class="n">di</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">lbuf</span><span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">di</span><span class="p">;</span> <span class="o">++</span><span class="n">k</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">buffer</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">ncols</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">lbuf</span><span class="p">[</span><span class="n">k</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="code-is-not-performance-oriented">
+<h5>Code is not performance-oriented<a class="headerlink" href="#code-is-not-performance-oriented" title="Permalink to this headline">¶</a></h5>
+<p>For code that is not performance-oriented, consider whether or not the conversion is safe.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#conversion-is-safe">Conversion is safe</a></p></li>
+<li><p><a class="reference internal" href="#conversion-is-not-safe">Conversion is not safe</a></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Type conversion is safe if the range of the destination type contains the range of the source type.
+For example, the following would be considered a safe conversion:</p>
+<ul class="simple">
+<li><p>from <code class="docutils literal notranslate"><span class="pre">byte</span></code> to <code class="docutils literal notranslate"><span class="pre">int</span></code></p></li>
+<li><p>from <code class="docutils literal notranslate"><span class="pre">byte</span></code> to <code class="docutils literal notranslate"><span class="pre">size_t</span></code></p></li>
+<li><p>from <code class="docutils literal notranslate"><span class="pre">short</span></code> to <code class="docutils literal notranslate"><span class="pre">int</span></code></p></li>
+<li><p>from <code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">short</span></code> to <code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">int</span></code></p></li>
+</ul>
+<p>See <a class="reference internal" href="#examples-of-safe-conversions">examples of safe conversions</a> for more details.</p>
+</div>
+<div class="section" id="conversion-is-safe">
+<h6>Conversion is safe<a class="headerlink" href="#conversion-is-safe" title="Permalink to this headline">¶</a></h6>
+<p>SDL allows two options:</p>
+<ul class="simple">
+<li><p>a comment justifying why the type converstion is safe for each instance where it is used</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DAAL_ASSERT</span></code></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">DAAL_ASSERT</span></code> is a better solution as macros is more informative than a comment.</p>
+</div>
+</div>
+<div class="section" id="conversion-is-not-safe">
+<h6>Conversion is not safe<a class="headerlink" href="#conversion-is-not-safe" title="Permalink to this headline">¶</a></h6>
+<p>In this case, every method where type conversion occurs should return <code class="docutils literal notranslate"><span class="pre">Status</span></code>.</p>
+</div>
+</div>
+<div class="section" id="examples-of-type-conversion-verification">
+<h5>Examples of type conversion verification<a class="headerlink" href="#examples-of-type-conversion-verification" title="Permalink to this headline">¶</a></h5>
+<p>In the examples below, <code class="docutils literal notranslate"><span class="pre">&lt;error</span> <span class="pre">code&gt;</span></code> depends on the context.</p>
+<div class="section" id="conversion-from-int-to-size-t">
+<h6>Conversion from <code class="docutils literal notranslate"><span class="pre">int</span></code> to <code class="docutils literal notranslate"><span class="pre">size_t</span></code><a class="headerlink" href="#conversion-from-int-to-size-t" title="Permalink to this headline">¶</a></h6>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">blockIndex</span><span class="p">;</span>
+<span class="c1">// ...</span>
+<span class="n">DAAL_CHECK</span><span class="p">(</span><span class="n">blockIndex</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">error</span> <span class="n">code</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="kt">size_t</span> <span class="n">N</span> <span class="o">=</span> <span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="n">blockIndex</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="conversion-from-size-t-to-int">
+<h6>Conversion from <code class="docutils literal notranslate"><span class="pre">size_t</span></code> to <code class="docutils literal notranslate"><span class="pre">int</span></code><a class="headerlink" href="#conversion-from-size-t-to-int" title="Permalink to this headline">¶</a></h6>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">size_t</span> <span class="n">blockIndex</span><span class="p">;</span>
+<span class="c1">// ...</span>
+<span class="n">DAAL_CHECK</span><span class="p">(</span><span class="n">blockIndex</span> <span class="o">&lt;=</span> <span class="n">INT_MAX</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">error</span> <span class="n">code</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="kt">int</span> <span class="n">N</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">blockIndex</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="examples-of-safe-conversions">
+<h5>Examples of safe conversions<a class="headerlink" href="#examples-of-safe-conversions" title="Permalink to this headline">¶</a></h5>
+<p>The conversion is safe if a variable being converted is declared as <code class="docutils literal notranslate"><span class="pre">const</span></code> and the following is true for the value it is initialized with:</p>
+<ul>
+<li><p>It is unrelated to the input data.</p></li>
+<li><p>It is within the range of the destination type.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="n">DAAL_ASSERT</span><span class="p">(</span><span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="kt">size_t</span> <span class="n">uN</span> <span class="o">=</span> <span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="n">n</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>The conversion is safe if the following is true for the value that a variable being converted is initialized with:</p>
+<ul>
+<li><p>It is with the ragne of the destination type</p></li>
+<li><p>It cannot leave that range during the workflow.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">size_t</span> <span class="nf">getMaxElement</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">elementsArray</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nElements</span><span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">services</span><span class="o">::</span><span class="n">Status</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">max</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nElements</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">max</span> <span class="o">&lt;</span> <span class="n">elementsArray</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="p">{</span>
+                <span class="n">max</span> <span class="o">=</span> <span class="n">elementsArray</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="c1">// max is initialize by 0 and during workflow it can increase only,</span>
+        <span class="c1">// so max is equal to 0 or more than 0,  such conversion is safe</span>
+        <span class="n">DAAL_ASSERT</span><span class="p">(</span><span class="n">max</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="n">max</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="working-with-pointers">
+<h4>Working with Pointers<a class="headerlink" href="#working-with-pointers" title="Permalink to this headline">¶</a></h4>
+<p>When you work with pointers, follow security best practices listed below:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#handle-allocation-errors">Handle allocation errors</a></p></li>
+<li><p><a class="reference internal" href="#handle-errors">Handle errors</a></p></li>
+<li><p><a class="reference internal" href="#do-not-access-freed-memory">Do not access freed memory</a></p></li>
+<li><p><a class="reference internal" href="#avoid-null-pointer-de-reference-errors">Avoid null pointer de-reference errors</a></p></li>
+<li><p><a class="reference internal" href="#avoid-freeing-the-same-buffer-more-than-once">Avoid freeing the same buffer more than once</a></p></li>
+<li><p><a class="reference internal" href="#do-not-take-the-size-of-a-pointer-to-determine-the-size-of-the-object-it-points-to">Do not take the size of a pointer to determine the size of the object it points to</a></p></li>
+<li><p><a class="reference internal" href="#set-up-a-pointer-to-zero-after-freeing-memory-buffer">Set up a pointer to zero after freeing memory buffer</a></p></li>
+</ul>
+<div class="section" id="handle-allocation-errors">
+<h5>Handle allocation errors<a class="headerlink" href="#handle-allocation-errors" title="Permalink to this headline">¶</a></h5>
+<ul class="simple">
+<li><p>Always check the result of a memory allocation operation.</p></li>
+<li><p>Explicitly handle all errors.</p></li>
+</ul>
+</div>
+<div class="section" id="handle-errors">
+<h5>Handle errors<a class="headerlink" href="#handle-errors" title="Permalink to this headline">¶</a></h5>
+<p>Methods that allocate memory should return <code class="docutils literal notranslate"><span class="pre">Status</span></code> object.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">services</span><span class="o">::</span><span class="n">Status</span> <span class="n">initialize</span><span class="p">()</span>
+<span class="p">{</span>
+        <span class="n">T</span> <span class="o">*</span> <span class="n">newData</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">services</span><span class="o">::</span><span class="n">daal_malloc</span><span class="p">(</span><span class="n">_size</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)));</span>
+        <span class="n">DAAL_CHECK</span><span class="p">(</span><span class="n">newData</span><span class="p">,</span> <span class="n">services</span><span class="o">::</span><span class="n">ErrorMemoryAllocationFailed</span><span class="p">);</span>
+        <span class="c1">// ...</span>
+        <span class="n">services</span><span class="o">::</span><span class="n">daal_free</span><span class="p">(</span><span class="n">oldData</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">services</span><span class="o">::</span><span class="n">Status</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="do-not-access-freed-memory">
+<h5>Do not access freed memory<a class="headerlink" href="#do-not-access-freed-memory" title="Permalink to this headline">¶</a></h5>
+<p>To avoid accessing memory after it is released:</p>
+<ul class="simple">
+<li><p>Explicitly set pointers stored in variables to <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</p></li>
+<li><p>Check against <code class="docutils literal notranslate"><span class="pre">NULL</span></code> when in doubt.</p></li>
+</ul>
+<p>Be careful of race conditions when freeing memory and setting the
+related pointer to <code class="docutils literal notranslate"><span class="pre">NULL</span></code> asynchronously.</p>
+</div>
+<div class="section" id="avoid-null-pointer-de-reference-errors">
+<h5>Avoid null pointer de-reference errors<a class="headerlink" href="#avoid-null-pointer-de-reference-errors" title="Permalink to this headline">¶</a></h5>
+<p>To prevent reading or writing to memory with a null pointer, explicitly validate a pointer against <code class="docutils literal notranslate"><span class="pre">NULL</span></code> before using it.</p>
+</div>
+<div class="section" id="avoid-freeing-the-same-buffer-more-than-once">
+<h5>Avoid freeing the same buffer more than once<a class="headerlink" href="#avoid-freeing-the-same-buffer-more-than-once" title="Permalink to this headline">¶</a></h5>
+<p>To avoid freeing buffers that have already been freed,
+explicitly invalidate pointers to the buffers that have already been freed by setting pointer to <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</p>
+</div>
+<div class="section" id="do-not-take-the-size-of-a-pointer-to-determine-the-size-of-the-object-it-points-to">
+<h5>Do not take the size of a pointer to determine the size of the object it points to<a class="headerlink" href="#do-not-take-the-size-of-a-pointer-to-determine-the-size-of-the-object-it-points-to" title="Permalink to this headline">¶</a></h5>
+<p>This mistake may go unnoticed as the outcome might be the same on certain architectures.
+Bear in mind that this might not be the case if the code is run in another environment.</p>
+</div>
+<div class="section" id="set-up-a-pointer-to-zero-after-freeing-memory-buffer">
+<h5>Set up a pointer to zero after freeing memory buffer<a class="headerlink" href="#set-up-a-pointer-to-zero-after-freeing-memory-buffer" title="Permalink to this headline">¶</a></h5>
+<p>According to SDL, you should set a pointer to zero after using it.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">services</span><span class="o">::</span><span class="n">Status</span> <span class="n">initialize</span><span class="p">()</span>
+<span class="p">{</span>
+        <span class="n">T</span> <span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">services</span><span class="o">::</span><span class="n">daal_malloc</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)));</span>
+        <span class="n">DAAL_CHECK_MALLOC</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1">// ...</span>
+        <span class="n">services</span><span class="o">::</span><span class="n">daal_free</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">services</span><span class="o">::</span><span class="n">Status</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="working-with-buffers">
+<h4>Working with Buffers<a class="headerlink" href="#working-with-buffers" title="Permalink to this headline">¶</a></h4>
+<p>When you work with buffers, follow security best practices listed below:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#use-a-special-function-for-copying-bytes-between-buffers">Use a special function for copying bytes between buffers</a></p></li>
+<li><p><a class="reference internal" href="#use-a-special-function-for-memory-allocation-and-zero-fill-buffers">Use a special function for memory allocation and zero-fill buffers</a></p></li>
+<li><p><a class="reference internal" href="#check-buffer-size">Check buffer size</a></p></li>
+</ul>
+<div class="section" id="use-a-special-function-for-copying-bytes-between-buffers">
+<h5>Use a special function for copying bytes between buffers<a class="headerlink" href="#use-a-special-function-for-copying-bytes-between-buffers" title="Permalink to this headline">¶</a></h5>
+<p>Use <code class="docutils literal notranslate"><span class="pre">daal_memcpy_s</span></code> to copy memory:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">daal_memcpy_s</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">destination</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">numberOfElements</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">source</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">count</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>If its returned value is not equal to zero:</p>
+<ul class="simple">
+<li><p>change the library status to <code class="docutils literal notranslate"><span class="pre">ErrorMemoryCopyFailedInternal</span></code></p></li>
+<li><p>free the memory that was used for a copy</p></li>
+<li><p>set the buffer to <code class="docutils literal notranslate"><span class="pre">NULL</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="use-a-special-function-for-memory-allocation-and-zero-fill-buffers">
+<h5>Use a special function for memory allocation and zero-fill buffers<a class="headerlink" href="#use-a-special-function-for-memory-allocation-and-zero-fill-buffers" title="Permalink to this headline">¶</a></h5>
+<p>Use <code class="docutils literal notranslate"><span class="pre">daal_calloc</span></code> or <code class="docutils literal notranslate"><span class="pre">service_scalable_calloc</span></code> for memory allocation and zero-fill buffers.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You may use <code class="docutils literal notranslate"><span class="pre">daal_calloc</span></code> or <code class="docutils literal notranslate"><span class="pre">service_scalable_calloc</span></code> in performance-oriented cases as well,
+but make sure you initialize all data before using it.</p>
+</div>
+</div>
+<div class="section" id="check-buffer-size">
+<h5>Check buffer size<a class="headerlink" href="#check-buffer-size" title="Permalink to this headline">¶</a></h5>
+<p>To prevent buffer overflow when performing multiplication operations on the size of the buffer, check its size:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION</span><span class="p">(</span><span class="n">type</span><span class="p">,</span> <span class="n">multiplier1</span><span class="p">,</span> <span class="n">multiplier2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="handling-exceptions">
+<h4>Handling exceptions<a class="headerlink" href="#handling-exceptions" title="Permalink to this headline">¶</a></h4>
+<p>Exceptions should be handled securely:</p>
+<ul class="simple">
+<li><p>Provide messages and details that contain no secure information.</p></li>
+<li><p>Use oneDAL recommended way for providing your exception messages.</p></li>
+</ul>
+</div>
+<div class="section" id="handling-null-byte-injection">
+<h4>Handling null byte injection<a class="headerlink" href="#handling-null-byte-injection" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Check input strings on null byte injection to prevent possible security vulnerabilities.</p></li>
+<li><p>Verify that third-party and system functions you use can appropriately handle overly-long, malformed, and non-printable symbols.</p></li>
+</ul>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>If you are working with user-defined data, be careful as you might encounter null characters there.</p>
+<p>For example: after copying data from user-defined source into your internal buffer and inserting a null symbol in the end of it as a flag of the data ending there,
+you might encounter the user’s null symbol somewhere else in the data and take is for your flag.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../notes/known_issues.html" class="btn btn-neutral float-left" title="Known Issues" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014 - 2020, Intel Corporation
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
