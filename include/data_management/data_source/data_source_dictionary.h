@@ -172,7 +172,7 @@ public:
                 /* Make sure that dictionary is allocated */
                 getCategoricalDictionary();
                 /* Make sure that dictionary is empty */
-                cat_dict->empty();
+                cat_dict->clear();
             }
 
             size_t size = cat_dict->size();
