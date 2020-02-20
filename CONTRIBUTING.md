@@ -25,13 +25,15 @@ We welcome community contributions to Intel(R) oneAPI Data Analytics Library. If
 
 To contribute your changes directly to the repository, do the following:
 - Make sure you can build the product and run all the examples with your patch.
-- Make sure your code is in line with our [coding style](#code-style).
+- Make sure your code is in line with our [coding style](#code-style) as `clang-format` is one of the checks in our public CI.
 - For a larger feature, provide a relevant example.
 - [Submit](https://github.com/intel/daal/pulls) a pull request into the `master` branch.
 
 Public and private CIs are enabled for the repository. Your PR should pass all of our checks. We will review your contribution and, if any additional fixes or modifications are necessary, we may give some feedback to guide you. When accepted, your pull request will be merged into our GitHub* repository.
 
 ## Code Style
+
+### ClangFormat
 
 **Prerequisites:** ClangFormat `9.0.0` or later
 
@@ -42,6 +44,10 @@ clang-format style=file <your file>
 ```
 
 Refer to [ClangFormat documentation](https://clang.llvm.org/docs/ClangFormat.html) for more information.
+
+### Coding Guidelines
+
+For your convenience we also added [coding guidelines](http://intel.github.io/daal/contribution/coding_guide.html) with examples and detailed descriptions of the coding style oneDAL follows. We encourage you to consult them when writing your code.
 
 ---
 **Note:** oneDAL is licensed under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). By contributing to the project, you agree to the license and copyright terms therein and release your contribution under these terms.
