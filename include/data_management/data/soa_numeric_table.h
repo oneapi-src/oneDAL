@@ -432,13 +432,13 @@ private:
     {
         if (isHomogeneous())
         {
-            if (isAllComleted()) DAAL_CHECK_STATUS_VAR(searchMinPointer());
+            if (isAllCompleted()) DAAL_CHECK_STATUS_VAR(searchMinPointer());
         }
 
         return services::Status();
     }
 
-    bool isAllComleted() const
+    bool isAllCompleted() const
     {
         size_t ncols = getNumberOfColumns();
 
@@ -525,8 +525,6 @@ private:
         T * buffer    = block.getBlockPtr();
         bool computed = false;
 
-/* only for AVX512 architecture with using intrinsics */
-#if defined(__INTEL_COMPILER)
         if (isHomogeneous())
         {
             NumericTableFeature & f = (*_ddict)[0];
@@ -538,7 +536,6 @@ private:
                 computed         = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _arrOffsets);
             }
         }
-#endif
         if (!computed)
         {
             size_t di = 32;

@@ -132,7 +132,7 @@ public:
     /**
      * Returns dimensions of value tensor
      * \return Dimensions of value tensor
-     * \DAAL_DEPRECATEDs
+     * \DAAL_DEPRECATED
      */
     DAAL_DEPRECATED_VIRTUAL virtual const services::Collection<size_t> getValueSize(const services::Collection<size_t> &inputSize,
                                                             const daal::algorithms::Parameter *par, const int method) const DAAL_C11_OVERRIDE;

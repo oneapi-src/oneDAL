@@ -140,7 +140,7 @@ public:
     Result();
 
     /*
-     * \DAAL_DEPRECATEDs
+     * \DAAL_DEPRECATED
      */
     virtual ~Result() {};
 
