@@ -57,6 +57,40 @@ img.with-border {
    border:1px solid #021a40;
 }
 
+div.leftside {
+ width: 49%;
+ padding: 0px 3px 0px 0px;
+ float: left;
+}
+
+div.rightside {
+ margin-left: 50%;
+}
+
+/* Clear floats after the columns */
+.rightside:after {
+ content: "";
+ display: table;
+ clear: both;
+} 
+
+div.admonition-container {
+ width: 49%;
+ padding: 0px 3px 0px 0px;
+}
+
+/* Clear floats after the columns */
+.admonition-container:after {
+ content: "";
+ display: table;
+ clear: both;
+} 
+
+div.quotation {
+  background-color: #fffff1;
+  padding: 1em 0 0 1em;
+}
+
 /*
 .rst-content tt.literal, .rst-content code.literal, .highlight {
    background: #f0f0f0;
