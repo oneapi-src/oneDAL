@@ -318,7 +318,7 @@ protected:
 
 private:
     Distributed & operator=(const Distributed &);
-} // class  : public Training
+}; // class  : public Training
 /** @} */
 } // namespace interface1
 using interface1::DistributedContainer;

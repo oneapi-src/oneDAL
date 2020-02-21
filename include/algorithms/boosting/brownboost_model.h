@@ -149,7 +149,7 @@ protected:
     template <typename modelFPType>
     DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status & st);
 
-} // class Model
+}; // class Model
 typedef services::SharedPtr<Model> ModelPtr;
 /** @} */
 } // namespace interface1
@@ -298,7 +298,7 @@ protected:
     template <typename modelFPType>
     DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status & st);
 
-} // class Model
+}; // class Model
 typedef services::SharedPtr<Model> ModelPtr;
 /** @} */
 } // namespace interface2
