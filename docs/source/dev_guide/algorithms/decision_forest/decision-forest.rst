@@ -229,7 +229,7 @@ parameters:
    * - maxTreeDepth
      - 0
      - Maximal tree depth. Default is 0 (unlimited).
-   * - minObservationsInLeafNodes
+   * - minObservationsInLeafNode
      - 1 for classification, 5 for regression
      - Minimum number of observations in the leaf node.
    * - impurityThreshold
