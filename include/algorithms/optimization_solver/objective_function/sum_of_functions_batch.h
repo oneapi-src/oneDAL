@@ -72,7 +72,7 @@ public:
      *  Main constructor
      */
     Batch(size_t numberOfTerms, InputType * sumOfFunctionsInput, ParameterType * sumOfFunctionsParameter)
-        : sumOfFunctionsInput(sumOfFunctionsInput), sumOfFunctionsParameter(sumOfFunctionsParameter)
+        : sumOfFunctionsParameter(sumOfFunctionsParameter), sumOfFunctionsInput(sumOfFunctionsInput)
     {
         initialize();
         if (sumOfFunctionsParameter != NULL)
@@ -87,7 +87,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) : sumOfFunctionsInput(other.sumOfFunctionsInput), sumOfFunctionsParameter(other.sumOfFunctionsParameter)
+    Batch(const Batch & other) : sumOfFunctionsParameter(other.sumOfFunctionsParameter), sumOfFunctionsInput(other.sumOfFunctionsInput)
     {
         initialize();
     }
@@ -150,7 +150,7 @@ public:
      *  Main constructor
      */
     Batch(size_t numberOfTerms, InputType * sumOfFunctionsInput, ParameterType * sumOfFunctionsParameter)
-        : sumOfFunctionsInput(sumOfFunctionsInput), sumOfFunctionsParameter(sumOfFunctionsParameter)
+        : sumOfFunctionsParameter(sumOfFunctionsParameter), sumOfFunctionsInput(sumOfFunctionsInput)
     {
         initialize();
         if (sumOfFunctionsParameter != NULL)
@@ -165,7 +165,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) : sumOfFunctionsInput(other.sumOfFunctionsInput), sumOfFunctionsParameter(other.sumOfFunctionsParameter)
+    Batch(const Batch & other) : sumOfFunctionsParameter(other.sumOfFunctionsParameter), sumOfFunctionsInput(other.sumOfFunctionsInput)
     {
         initialize();
     }

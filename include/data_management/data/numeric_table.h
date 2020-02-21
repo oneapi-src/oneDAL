@@ -57,7 +57,7 @@ class DAAL_EXPORT BlockDescriptor
 {
 public:
     /** \private */
-    BlockDescriptor() : _ptr(), _buffer(), _capacity(0), _ncols(0), _nrows(0), _colsOffset(0), _rowsOffset(0), _rwFlag(0), _pPtr(0), _rawPtr(0) {}
+    BlockDescriptor() : _ptr(), _nrows(0), _ncols(0), _colsOffset(0), _rowsOffset(0), _rwFlag(0), _buffer(), _capacity(0), _pPtr(0), _rawPtr(0) {}
 
     /** \private */
     ~BlockDescriptor() { freeBuffer(); }
@@ -907,11 +907,11 @@ protected:
 
 protected:
     NumericTable(NumericTableDictionaryPtr ddict, services::Status & /*st*/)
-        : _obsnum(0), _ddict(ddict), _layout(layout_unknown), _memStatus(notAllocated), _normalizationFlag(NumericTable::nonNormalized)
+        : _ddict(ddict), _obsnum(0), _memStatus(notAllocated), _layout(layout_unknown), _normalizationFlag(NumericTable::nonNormalized)
     {}
 
     NumericTable(size_t featnum, size_t obsnum, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st)
-        : _obsnum(obsnum), _layout(layout_unknown), _memStatus(notAllocated), _normalizationFlag(NumericTable::nonNormalized)
+        : _obsnum(obsnum), _memStatus(notAllocated), _layout(layout_unknown), _normalizationFlag(NumericTable::nonNormalized)
     {
         _ddict = NumericTableDictionary::create(featnum, featuresEqual, &st);
         if (!st) return;

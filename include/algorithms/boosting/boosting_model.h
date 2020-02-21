@@ -100,7 +100,7 @@ public:
      * \param[in] nFeatures Number of features in the dataset
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model(size_t nFeatures = 0) : _models(new data_management::DataCollection()), _nFeatures(nFeatures) {}
+    Model(size_t nFeatures = 0) : _nFeatures(nFeatures), _models(new data_management::DataCollection()) {}
 
     virtual ~Model() {}
 

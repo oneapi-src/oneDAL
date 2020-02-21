@@ -223,7 +223,7 @@ public:
 
     explicit ModifierBinding(const features::FeatureIdCollectionIfacePtr & identifiers, const services::SharedPtr<Modifier> & modifier,
                              services::Status * /*status*/ = NULL)
-        : _modifier(modifier), _identifiers(identifiers), _outputFeaturesOffset(0), _numberOfOutputFeatures(0)
+        : _outputFeaturesOffset(0), _numberOfOutputFeatures(0), _modifier(modifier), _identifiers(identifiers)
     {}
 
     services::Status bind(size_t outputFeaturesOffset, const features::FeatureIdMappingIfacePtr & mapping,

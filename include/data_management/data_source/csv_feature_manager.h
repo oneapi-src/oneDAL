@@ -318,7 +318,7 @@ public:
     /**
      *  Default constructor
      */
-    CSVFeatureManager() : _delimiter(','), _numberOfTokens(0), _isHeaderParsed(false) {}
+    CSVFeatureManager() : _delimiter(','), _isHeaderParsed(false), _numberOfTokens(0) {}
 
     virtual ~CSVFeatureManager() {}
 

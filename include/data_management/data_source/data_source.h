@@ -196,10 +196,10 @@ class DataSource : public DataSourceIface
 public:
     DataSource()
         : _dict(),
-          _errors(new services::ErrorCollection()),
-          _initialMaxRows(10),
           _autoNumericTableFlag(doAllocateNumericTable),
-          _autoDictionaryFlag(doDictionaryFromContext)
+          _autoDictionaryFlag(doDictionaryFromContext),
+          _errors(new services::ErrorCollection()),
+          _initialMaxRows(10)
     {}
 
     virtual ~DataSource() {}

@@ -63,7 +63,7 @@ public:
     /**
      *  Constructor of a data feature
      */
-    DataSourceFeature() : name(NULL), name_length(0), cat_dict(NULL) {}
+    DataSourceFeature() : name_length(0), name(NULL), cat_dict(NULL) {}
 
     /**
      *  Copy constructor for a data feature
