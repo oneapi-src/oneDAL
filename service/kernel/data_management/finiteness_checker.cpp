@@ -39,6 +39,17 @@ const uint64_t doubleExpMask  = 0x7ff0000000000000uLL;
 const uint64_t doubleFracMask = 0x000fffffffffffffuLL;
 const uint64_t doubleZeroBits = 0x0000000000000000uLL;
 
+template <typename DataType>
+DataType getInf()
+{
+    DataType inf;
+    if (sizeof(DataType) == 4)
+        *((uint32_t *)(&inf)) = floatExpMask;
+    else
+        *((uint64_t *)(&inf)) = doubleExpMask;
+    return inf;
+}
+
 bool valuesAreNotFinite(const float * dataPtr, size_t n, bool allowNaN)
 {
     const uint32_t * uint32Ptr = (const uint32_t *)dataPtr;
@@ -73,7 +84,7 @@ template <typename DataType, daal::CpuType cpu>
 bool checkFiniteness(const size_t nElements, size_t nDataPtrs, size_t nElementsPerPtr, const DataType ** dataPtrs, bool allowNaN)
 {
     bool notFinite = false;
-    for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx) notFinite |= valuesAreNotFinite(dataPtrs[ptrIdx], nElementsPerPtr, allowNaN);
+    for (size_t ptrIdx = 0; ptrIdx < nDataPtrs; ++ptrIdx) notFinite = notFinite || valuesAreNotFinite(dataPtrs[ptrIdx], nElementsPerPtr, allowNaN);
 
     return !notFinite;
 }
@@ -129,6 +140,7 @@ DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const Da
 
     daal::services::internal::TArray<DataType, avx512> partialSumsArr(nTotalBlocks);
     DataType * pSums = partialSumsArr.get();
+    if (!pSums) return getInf<DataType>();
     for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) pSums[iBlock] = 0;
 
     runBlocks(inParallel, nTotalBlocks, [&](size_t iBlock) {
