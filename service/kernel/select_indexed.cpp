@@ -207,7 +207,7 @@ Status QuickSelectIndexed::init(Params & par)
     return st;
 }
 
-SelectIndexed * QuickSelectIndexed::Create(Params & par, daal::services::Status * st)
+SelectIndexed * QuickSelectIndexed::create(Params & par, daal::services::Status * st)
 {
     QuickSelectIndexed * ret = new QuickSelectIndexed();
     daal::services::Status status;
@@ -217,12 +217,17 @@ SelectIndexed * QuickSelectIndexed::Create(Params & par, daal::services::Status 
         {
             *st = Status(ErrorMemoryAllocationFailed);
         }
-        return ret;
+        return nullptr;
     }
     status = ret->init(par);
     if (st)
     {
         *st = status;
+    }
+    if (!status.ok())
+    {
+        delete ret;
+        return nullptr;
     }
     return ret;
 }
@@ -274,12 +279,13 @@ SelectIndexed::Result DirectSelectIndexed::selectIndices(const UniversalBuffer &
     return result;
 }
 
-SelectIndexed * DirectSelectIndexed::Create(Params & par, daal::services::Status * st)
+SelectIndexed * DirectSelectIndexed::create(Params & par, daal::services::Status * st)
 {
     DirectSelectIndexed * ret = new DirectSelectIndexed(par.nK);
     if (!ret && st)
     {
         *st = daal::services::Status(ErrorMemoryAllocationFailed);
+        return nullptr;
     }
     return ret;
 }
@@ -290,7 +296,7 @@ SelectIndexedFactory::SelectIndexedFactory()
     _entries << makeEntry<QuickSelectIndexed>();
 }
 
-SelectIndexed * SelectIndexedFactory::Create(int K, SelectIndexed::Params & par, Status * st)
+SelectIndexed * SelectIndexedFactory::create(int K, SelectIndexed::Params & par, Status * st)
 {
     for (size_t i = 0; i < _entries.size(); i++)
         if (_entries[i].inRange(K))

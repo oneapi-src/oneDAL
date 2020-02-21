@@ -42,19 +42,19 @@ class KNNClassificationPredictKernelUCAPI : public daal::algorithms::Kernel
 public:
     services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
 
-    void copyPartialSelections(oneapi::internal::ExecutionContextIface & context, oneapi::internal::UniversalBuffer & distances,
-                               oneapi::internal::UniversalBuffer & categories, oneapi::internal::UniversalBuffer & partialDistances,
-                               oneapi::internal::UniversalBuffer & partialCategories, uint32_t curProbeBlockSize, uint32_t nK, uint32_t nPart,
+    void copyPartialSelections(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::UniversalBuffer & distances,
+                               const oneapi::internal::UniversalBuffer & categories, oneapi::internal::UniversalBuffer & partialDistances,
+                               oneapi::internal::UniversalBuffer & partialLabels, uint32_t curQueryBlockRows, uint32_t nK, uint32_t nPart,
                                uint32_t totalParts, services::Status * st);
-    void initDistances(oneapi::internal::ExecutionContextIface & context, oneapi::internal::UniversalBuffer & dataSq,
-                       oneapi::internal::UniversalBuffer & distances, uint32_t dataBlockSize, uint32_t probesBlockSize, services::Status * st);
+    void scatterSumOfSquares(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::UniversalBuffer & dataSumOfSquares,
+                             oneapi::internal::UniversalBuffer & distances, uint32_t dataBlockRows, uint32_t queryBlockRows, services::Status * st);
 
     void computeDistances(oneapi::internal::ExecutionContextIface & context, const services::Buffer<algorithmFpType> & data,
-                          const services::Buffer<algorithmFpType> & probes, oneapi::internal::UniversalBuffer & distances, uint32_t dataBlockSize,
-                          uint32_t probeBlockSize, uint32_t nFeatures, services::Status * st);
+                          const services::Buffer<algorithmFpType> & query, oneapi::internal::UniversalBuffer & distances, uint32_t dataBlockRows,
+                          uint32_t queryBlockRows, uint32_t nFeatures, services::Status * st);
 
-    void computeWinners(oneapi::internal::ExecutionContextIface & context, oneapi::internal::UniversalBuffer & categories,
-                        oneapi::internal::UniversalBuffer & classes, uint32_t probesBlockSize, uint32_t nK, services::Status * st);
+    void computeWinners(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::UniversalBuffer & categories,
+                        oneapi::internal::UniversalBuffer & classes, uint32_t queryBlockRows, uint32_t nK, services::Status * st);
 
     void buildProgram(oneapi::internal::ClKernelFactoryIface & kernel_factory, services::Status * st);
 };
