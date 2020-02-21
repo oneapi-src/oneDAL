@@ -201,10 +201,19 @@ template <typename algorithmFpType>
 void KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyPartialSelections(ExecutionContextIface & context, const UniversalBuffer & distances,
                                                                                  const UniversalBuffer & categories,
                                                                                  UniversalBuffer & partialDistances, UniversalBuffer & partialLabels,
-                                                                                 uint32_t queryBlockRows, uint32_t nK, uint32_t nPart,
-                                                                                 uint32_t totalParts, Status * st)
+                                                                                 uint32_t queryBlockRows, uint32_t nK, uint32_t nChunk,
+                                                                                 uint32_t totalNumberOfChunks, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.copyPartialSelections);
+    if (nK > INT_MAX || totalNumberOfChunks > INT_MAX || nChunk > INT_MAX)
+    {
+        if (st)
+        {
+            *st = services::Status(services::ErrorBufferSizeIntegerOverflow);
+        }
+        return;
+    }
+
     auto & kernel_factory = context.getClKernelFactory();
     buildProgram(kernel_factory, st);
     DAAL_CHECK_STATUS_PTR(st);
@@ -217,8 +226,8 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::copyPartialSelections
     args.set(2, partialDistances, AccessModeIds::readwrite);
     args.set(3, partialLabels, AccessModeIds::readwrite);
     args.set(4, nK);
-    args.set(5, nPart);
-    args.set(6, totalParts);
+    args.set(5, nChunk);
+    args.set(6, totalNumberOfChunks);
 
     KernelRange local_range(1, 1);
     KernelRange global_range(queryBlockRows, nK);
@@ -237,6 +246,14 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::scatterSumOfSquares(E
                                                                                uint32_t dataBlockRows, uint32_t queryBlockRows, Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.scatterSumOfSquares);
+    if (dataBlockRows > INT_MAX)
+    {
+        if (st)
+        {
+            *st = services::Status(services::ErrorBufferSizeIntegerOverflow);
+        }
+        return;
+    }
     auto & kernel_factory = context.getClKernelFactory();
     buildProgram(kernel_factory, st);
     DAAL_CHECK_STATUS_PTR(st);
@@ -274,6 +291,14 @@ void KNNClassificationPredictKernelUCAPI<algorithmFpType>::computeWinners(Execut
                                                                           Status * st)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeWinners);
+    if (nK > INT_MAX)
+    {
+        if (st)
+        {
+            *st = services::Status(services::ErrorBufferSizeIntegerOverflow);
+        }
+        return;
+    }
     auto & kernel_factory = context.getClKernelFactory();
     buildProgram(kernel_factory, st);
     DAAL_CHECK_STATUS_PTR(st);

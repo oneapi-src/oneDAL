@@ -44,8 +44,8 @@ public:
 
     void copyPartialSelections(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::UniversalBuffer & distances,
                                const oneapi::internal::UniversalBuffer & categories, oneapi::internal::UniversalBuffer & partialDistances,
-                               oneapi::internal::UniversalBuffer & partialLabels, uint32_t curQueryBlockRows, uint32_t nK, uint32_t nPart,
-                               uint32_t totalParts, services::Status * st);
+                               oneapi::internal::UniversalBuffer & partialLabels, uint32_t curQueryBlockRows, uint32_t nK, uint32_t nChunk,
+                               uint32_t totalNumberOfChunks, services::Status * st);
     void scatterSumOfSquares(oneapi::internal::ExecutionContextIface & context, const oneapi::internal::UniversalBuffer & dataSumOfSquares,
                              oneapi::internal::UniversalBuffer & distances, uint32_t dataBlockRows, uint32_t queryBlockRows, services::Status * st);
 
