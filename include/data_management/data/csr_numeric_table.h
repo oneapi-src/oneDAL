@@ -363,8 +363,8 @@ public:
 class DAAL_EXPORT CSRNumericTable : public NumericTable, public CSRNumericTableIface
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
 
     DAAL_CAST_OPERATOR(CSRNumericTable)
     /**

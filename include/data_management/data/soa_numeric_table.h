@@ -45,8 +45,8 @@ namespace interface1
 class DAAL_EXPORT SOANumericTable : public NumericTable
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
 
     /**
      *  Constructor for an empty Numeric Table

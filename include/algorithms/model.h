@@ -71,7 +71,7 @@ protected:
         return services::Status();
     }
 
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_IMPL()
 };
 typedef services::SharedPtr<Model> ModelPtr;
 /** @} */

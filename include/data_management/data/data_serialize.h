@@ -143,17 +143,17 @@ public:                            \
     virtual int getSerializationTag() const DAAL_C11_OVERRIDE;
 
 #define DECLARE_SERIALIZABLE_CAST(ClassName) \
-    DECLARE_SERIALIZABLE();                  \
-    DAAL_CAST_OPERATOR(ClassName);
+    DECLARE_SERIALIZABLE()                   \
+    DAAL_CAST_OPERATOR(ClassName)
 
-#define DECLARE_MODEL(DstClassName, SrcClassName) \
-    DECLARE_SERIALIZABLE();                       \
-    DAAL_CAST_OPERATOR(DstClassName);             \
+#define DECLARE_MODEL(DstClassName, SrcClassName)       \
+    DECLARE_SERIALIZABLE()                              \
+    DAAL_CAST_OPERATOR(DstClassName)                    \
     DAAL_DOWN_CAST_OPERATOR(DstClassName, SrcClassName)
 
 #define DECLARE_MODEL_IFACE(DstClassName, SrcClassName) \
-    DECLARE_SERIALIZABLE_IFACE();                       \
-    DAAL_CAST_OPERATOR(DstClassName);                   \
+    DECLARE_SERIALIZABLE_IFACE()                        \
+    DAAL_CAST_OPERATOR(DstClassName)                    \
     DAAL_DOWN_CAST_OPERATOR(DstClassName, SrcClassName)
 
 #endif

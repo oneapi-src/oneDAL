@@ -187,7 +187,7 @@ protected:
 
 private:
     Online & operator=(const Online &);
-}; // class  : public Training
+} // class  : public Training
 /** @} */
 } // namespace interface1
 using interface1::OnlineContainer;

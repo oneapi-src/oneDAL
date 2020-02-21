@@ -144,7 +144,7 @@ public:
 class DAAL_EXPORT Result : public regression::prediction::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result(size_t nElements = 0);
 
     /**

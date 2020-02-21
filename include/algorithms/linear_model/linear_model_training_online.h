@@ -71,7 +71,7 @@ public:
      * \return Structure that contains the result of the linear model-based training
      */
     ResultPtr getResult() { return ResultType::cast(_result); }
-}; // class  : public Online
+} // class  : public Online
 /** @} */
 } // namespace interface1
 using interface1::Online;

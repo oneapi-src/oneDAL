@@ -103,7 +103,7 @@ public:
 protected:
     PartialResultPtr _partialResult;
     ResultPtr _result;
-}; // class  : public Online
+} // class  : public Online
 /** @} */
 } // namespace interface1
 using interface1::Online;

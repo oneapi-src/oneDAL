@@ -167,7 +167,7 @@ protected:
 
 private:
     Distributed & operator=(const Distributed &);
-}; // class  : public Training
+} // class  : public Training
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__RIDGE_REGRESSION__TRAINING__DISTRIBUTED_STEP2MASTER_ALGORITHMFPTYPE_METHOD"></a>
@@ -301,7 +301,7 @@ protected:
 
 private:
     Distributed & operator=(const Distributed &);
-}; // class  : public Training
+} // class  : public Training
 /** @} */
 } // namespace interface1
 

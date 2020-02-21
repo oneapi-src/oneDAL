@@ -399,7 +399,7 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP12_ID = 121200;
 const int SERIALIZATION_DBSCAN_DISTRIBUTED_RESULT_STEP13_ID         = 121300;
 const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
 
-}; // namespace daal
+} // namespace daal
 
 #define DAAL_NEW_DELETE()                                                                       \
     static void * operator new(std::size_t sz) { return daal::services::daal_calloc(sz); }      \

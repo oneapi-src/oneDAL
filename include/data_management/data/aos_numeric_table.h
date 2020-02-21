@@ -54,8 +54,8 @@ namespace interface1
 class DAAL_EXPORT AOSNumericTable : public NumericTable
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
-    DECLARE_SERIALIZABLE_IMPL();
+    DECLARE_SERIALIZABLE_TAG()
+    DECLARE_SERIALIZABLE_IMPL()
 
     /**
      *  Constructor for an empty Numeric Table with a predefined size of the structure that represents a feature vector

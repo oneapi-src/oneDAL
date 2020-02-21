@@ -79,7 +79,7 @@ namespace interface1
 class DAAL_EXPORT PartialResult : public classifier::training::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialResult);
+    DECLARE_SERIALIZABLE_CAST(PartialResult)
 
     PartialResult();
     virtual ~PartialResult() {}
@@ -160,7 +160,7 @@ typedef services::SharedPtr<PartialResult> PartialResultPtr;
 class DAAL_EXPORT Result : public classifier::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
     virtual ~Result() {}
 

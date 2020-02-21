@@ -120,7 +120,7 @@ namespace interface1
 class DAAL_EXPORT Model : public daal::algorithms::Model
 {
 public:
-    DAAL_CAST_OPERATOR(Model);
+    DAAL_CAST_OPERATOR(Model)
 
     virtual ~Model() DAAL_C11_OVERRIDE {}
 

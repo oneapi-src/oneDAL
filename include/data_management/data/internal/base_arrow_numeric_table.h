@@ -55,7 +55,7 @@ typedef services::SharedPtr<ArrowNumericTable> ArrowNumericTablePtr;
  */
 class DAAL_EXPORT BaseArrowImmutableNumericTable : public ArrowNumericTable
 {
-    DECLARE_SERIALIZABLE_TAG();
+    DECLARE_SERIALIZABLE_TAG()
 
 public:
     bool isMutable() const DAAL_C11_OVERRIDE { return false; }

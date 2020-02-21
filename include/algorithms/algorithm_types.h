@@ -349,7 +349,7 @@ protected:
 class DAAL_EXPORT OptionalArgument : public SerializableArgument
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
+    DECLARE_SERIALIZABLE_TAG()
 
     /** Default constructor. Constructs empty argument */
     OptionalArgument() : SerializableArgument(0) {}

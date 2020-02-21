@@ -647,7 +647,7 @@ public:
 class DAAL_EXPORT NumericTable : public SerializationIface, public NumericTableIface, public DenseNumericTableIface
 {
 public:
-    DAAL_CAST_OPERATOR(NumericTable);
+    DAAL_CAST_OPERATOR(NumericTable)
 
     /**
      *  Constructor for a Numeric Table with predefined dictionary

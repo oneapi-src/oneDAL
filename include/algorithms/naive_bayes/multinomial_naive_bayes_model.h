@@ -224,7 +224,7 @@ typedef services::SharedPtr<Model> ModelPtr;
 class DAAL_EXPORT PartialModel : public classifier::Model
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialModel);
+    DECLARE_SERIALIZABLE_CAST(PartialModel)
     /**
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ PartialModel::create }

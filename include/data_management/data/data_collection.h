@@ -46,11 +46,11 @@ typedef services::SharedPtr<SerializationIface> SerializationIfacePtr;
 class DAAL_EXPORT DataCollection : public SerializationIface, private services::Collection<SerializationIfacePtr>
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
+    DECLARE_SERIALIZABLE_TAG()
 
     typedef services::Collection<SerializationIfacePtr> super;
 
-    DAAL_CAST_OPERATOR(DataCollection);
+    DAAL_CAST_OPERATOR(DataCollection)
 
     /** Default constructor */
     DataCollection();
@@ -172,7 +172,7 @@ template <typename T>
 class DAAL_EXPORT KeyValueCollection
 {
 public:
-    DAAL_CAST_OPERATOR(KeyValueCollection);
+    DAAL_CAST_OPERATOR(KeyValueCollection)
 
     /** Default constructor */
     KeyValueCollection() {}
@@ -266,9 +266,9 @@ template <typename T>
 class DAAL_EXPORT SerializableKeyValueCollection : public SerializationIface, public KeyValueCollection<T>
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
+    DECLARE_SERIALIZABLE_TAG()
 
-    DAAL_CAST_OPERATOR(SerializableKeyValueCollection);
+    DAAL_CAST_OPERATOR(SerializableKeyValueCollection)
 
     /** Default constructor */
     SerializableKeyValueCollection() : KeyValueCollection<T>() {}

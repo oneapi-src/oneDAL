@@ -180,7 +180,7 @@ public:
 class DAAL_EXPORT PartialResult : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialResult);
+    DECLARE_SERIALIZABLE_CAST(PartialResult)
     PartialResult();
 
     virtual ~PartialResult() {}
@@ -291,7 +291,7 @@ struct DAAL_EXPORT OnlineParameter : public Parameter
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
 
     virtual ~Result() {}
