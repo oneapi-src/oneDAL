@@ -62,10 +62,7 @@ struct GlobalNeighbors
     algorithmFpType distance;
     size_t index;
 
-    inline bool operator<(const GlobalNeighbors & rhs) const 
-    { 
-        return (distance < rhs.distance); 
-    }
+    inline bool operator<(const GlobalNeighbors & rhs) const { return (distance < rhs.distance); }
 };
 
 template <typename algorithmFpType>
@@ -80,14 +77,11 @@ Functor to provide compare operator fot GlobalNeighbor
 We use such structure to provide as small as possible overhead on forwarding comparator
 */
 
-template<CpuType cpu, typename algorithmFpType>
+template <CpuType cpu, typename algorithmFpType>
 struct GlobalNeighborComparator
 {
     typedef GlobalNeighbors<algorithmFpType, cpu> GN;
-    static DAAL_FORCEINLINE bool comp(const GN& left, const GN& right)
-    {
-        return left.distance < right.distance;
-    }
+    static DAAL_FORCEINLINE bool comp(const GN & left, const GN & right) { return left.distance < right.distance; }
 };
 
 template <typename T, CpuType cpu, typename Comparator>
@@ -140,10 +134,7 @@ public:
 
     T * getMax() { return _elements; }
 
-    const T & operator[](size_t index) const 
-    { 
-        return _elements[index]; 
-    }
+    const T & operator[](size_t index) const { return _elements[index]; }
 
 private:
     T * _elements;
@@ -151,11 +142,8 @@ private:
 };
 
 template <typename algorithmFpType, CpuType cpu>
-Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compute(
-    const NumericTable * x, 
-    const classifier::Model * m,
-    NumericTable * y, 
-    const daal::algorithms::Parameter * par)
+Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compute(const NumericTable * x, const classifier::Model * m,
+                                                                                   NumericTable * y, const daal::algorithms::Parameter * par)
 {
     Status status;
 
@@ -272,19 +260,21 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 /*
 Function that reduces code duplication
 */
-template<CpuType cpu, typename algorithmFpType>
-inline void distance_comp(const algorithmFpType* vec, const algorithmFpType& val, algorithmFpType* out, size_t length)
+template <CpuType cpu, typename algorithmFpType>
+inline void distance_comp(const algorithmFpType * const vec, const algorithmFpType & val, algorithmFpType * out, const size_t length)
 {
-    for(size_t i = 0; i < length; i++){
+    for (size_t i = 0; i < length; i++)
+    {
         const auto de = vec[i] - val;
         out[i] += de * de;
     }
 }
 
 template <typename algorithmFpType, CpuType cpu>
-void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(const algorithmFpType * query, 
-    Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap, kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, 
-    size_t k, algorithmFpType radius, const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data)
+void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(
+    const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap,
+    kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, size_t k, algorithmFpType radius,
+    const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data)
 {
     heap.reset();
     stack.reset();
@@ -321,8 +311,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             {
                 const algorithmFpType * const dx = xBD[curBDIdx].getBlockPtr();
 
-                const_cast<NumericTable &>(data).getBlockOfColumnValues(j, 
-                    start, end - start, readOnly, xBD[nextBDIdx]);
+                const_cast<NumericTable &>(data).getBlockOfColumnValues(j, start, end - start, readOnly, xBD[nextBDIdx]);
                 const algorithmFpType * const nx = xBD[nextBDIdx].getBlockPtr();
                 DAAL_PREFETCH_READ_T0(nx);
                 DAAL_PREFETCH_READ_T0(nx + 16);
@@ -378,7 +367,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
         }
         else
         {
-            algorithmFpType val  = query[node->dimension];
+            algorithmFpType val        = query[node->dimension];
             const algorithmFpType diff = val - node->cutPoint;
 
             if (cur.minDistance <= radius)
@@ -404,7 +393,8 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
 
 template <typename algorithmFpType, CpuType cpu>
 services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::predict(
-    algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap, const NumericTable & labels, size_t k)
+    algorithmFpType & predictedClass, const Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu, GlobalNeighborComparator<cpu, algorithmFpType> > & heap,
+    const NumericTable & labels, size_t k)
 {
     const size_t heapSize = heap.size();
     if (heapSize < 1) return services::Status();

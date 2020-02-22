@@ -97,10 +97,10 @@ public:
 
     bool init(size_t size)
     {
-        if((long) size < 0L) return false;
-        size       = size ? nextPowerOf2(size) : 1; //Handles both cases size == 0 and size != 0
+        if ((long)size < 0L) return false;
+        size = size ? nextPowerOf2(size) : 1; //Handles both cases size == 0 and size != 0
         setSize(size);
-        _data       = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
+        _data = static_cast<T *>(services::internal::service_malloc<T, cpu>(_size * sizeof(T)));
         reset();
         return (_data == nullptr) ? false : true;
     }
@@ -138,6 +138,7 @@ public:
         oldData = nullptr;
         return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
     }
+
 private:
     T * _data;
     long _top;
@@ -145,7 +146,7 @@ private:
     size_t _size;
     void setSize(size_t size)
     {
-        _size = size;
+        _size       = size;
         _sizeMinus1 = (long)_size - 1L;
     }
     /*
@@ -155,11 +156,9 @@ private:
     size_t nextPowerOf2(size_t x)
     {
         //Checking if the input value is already power of 2
-        if(x && !(x & (x - 1))) 
-            return x;
+        if (x && !(x & (x - 1))) return x;
         size_t power = 0;
-        for(; x != 0; power++)
-            x >>= 1;
+        for (; x != 0; power++) x >>= 1;
         return 1 << power;
     }
 };
