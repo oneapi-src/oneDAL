@@ -104,10 +104,15 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     }
                     else
                     {
-                        XPtr.set(dataNT, 0, nDataRows);
-                        DAAL_CHECK_BLOCK_STATUS(XPtr);
-                        X = const_cast<algorithmFPType*>(XPtr.get());
-                        transposedData = false;
+                        X = new algorithmFPType[nTheta*nDataRows];
+                        daal::threader_for(nTheta, nTheta, [&](const size_t iBlock)
+                        {
+                            data_management::BlockDescriptor<algorithmFPType> bd;
+                            dataNT->getBlockOfColumnValues(iBlock, 0, nDataRows, readOnly, bd);
+                            daal::services::internal::daal_memcpy_s(&X[iBlock*nDataRows], nDataRows, bd.getBlockPtr(), sizeof(algorithmFPType)*nDataRows);
+                            dataNT->releaseBlockOfColumnValues(bd);
+                        });
+                        transposedData = true;
                     }
                 }
                 else
