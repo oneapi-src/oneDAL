@@ -124,8 +124,8 @@ struct DAAL_EXPORT DefaultInit : public InitIface
     * \param[in] scatter       Measure of spread, the variance-covariance matrix of size p x p
     * \param[in] threshold     Limit that defines the outlier region, the array of size 1 x 1 containing a non-negative number
     */
-    virtual void operator()(data_management::NumericTable * /*data*/, data_management::NumericTable * /*location*/, data_management::NumericTable * /*scatter*/,
-                            data_management::NumericTable * /*threshold*/) DAAL_C11_OVERRIDE
+    virtual void operator()(data_management::NumericTable * /*data*/, data_management::NumericTable * /*location*/,
+                            data_management::NumericTable * /*scatter*/, data_management::NumericTable * /*threshold*/) DAAL_C11_OVERRIDE
     {}
 };
 

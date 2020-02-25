@@ -70,7 +70,9 @@ struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
               const services::SharedPtr<weak_learner::prediction::Batch> & wlPredictForParameter);
 
     /** Copy constructor */
-    Parameter(const Parameter & other) : classifier::interface1::Parameter(), weakLearnerTraining(other.weakLearnerTraining), weakLearnerPrediction(other.weakLearnerPrediction) {}
+    Parameter(const Parameter & other)
+        : classifier::interface1::Parameter(), weakLearnerTraining(other.weakLearnerTraining), weakLearnerPrediction(other.weakLearnerPrediction)
+    {}
 
     /** The algorithm for weak learner model training */
     services::SharedPtr<weak_learner::training::Batch> weakLearnerTraining;

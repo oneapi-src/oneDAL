@@ -87,7 +87,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) : objective_function::Batch(), sumOfFunctionsParameter(other.sumOfFunctionsParameter), sumOfFunctionsInput(other.sumOfFunctionsInput)
+    Batch(const Batch & other)
+        : objective_function::Batch(), sumOfFunctionsParameter(other.sumOfFunctionsParameter), sumOfFunctionsInput(other.sumOfFunctionsInput)
     {
         initialize();
     }
@@ -165,7 +166,8 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) : objective_function::Batch(), sumOfFunctionsParameter(other.sumOfFunctionsParameter), sumOfFunctionsInput(other.sumOfFunctionsInput)
+    Batch(const Batch & other)
+        : objective_function::Batch(), sumOfFunctionsParameter(other.sumOfFunctionsParameter), sumOfFunctionsInput(other.sumOfFunctionsInput)
     {
         initialize();
     }

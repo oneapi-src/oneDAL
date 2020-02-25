@@ -146,9 +146,9 @@ public:                            \
     DECLARE_SERIALIZABLE()                   \
     DAAL_CAST_OPERATOR(ClassName)
 
-#define DECLARE_MODEL(DstClassName, SrcClassName)       \
-    DECLARE_SERIALIZABLE()                              \
-    DAAL_CAST_OPERATOR(DstClassName)                    \
+#define DECLARE_MODEL(DstClassName, SrcClassName) \
+    DECLARE_SERIALIZABLE()                        \
+    DAAL_CAST_OPERATOR(DstClassName)              \
     DAAL_DOWN_CAST_OPERATOR(DstClassName, SrcClassName)
 
 #define DECLARE_MODEL_IFACE(DstClassName, SrcClassName) \

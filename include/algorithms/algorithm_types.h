@@ -327,7 +327,10 @@ public:
     * \param[in] parameter     Pointer to the parameters of the algorithm
     * \param[in] method        Computation method
     */
-    virtual services::Status check(const PartialResult * /*partialResult*/, const Parameter * /*parameter*/, int /*method*/) const { return services::Status(); }
+    virtual services::Status check(const PartialResult * /*partialResult*/, const Parameter * /*parameter*/, int /*method*/) const
+    {
+        return services::Status();
+    }
 
 protected:
     /** \private */
