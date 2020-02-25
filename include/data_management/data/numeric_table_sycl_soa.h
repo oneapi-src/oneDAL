@@ -479,7 +479,7 @@ protected:
                 NumericTableFeature f = (*_ddict)[i];
 
                 BufferHostReinterpreter<char> reinterpreter(_arrays[i], rwMode, nrows);
-                TypeDispatcher::dispatch(_arrays[i].type(), reinterpreter);
+                TypeDispatcher<NoReturnSyclEvent>::dispatch(_arrays[i].type(), reinterpreter);
 
                 services::Status st;
                 auto charPtr = reinterpreter.getResult(st);
@@ -527,7 +527,7 @@ private:
         {
             auto featureUniBuffer = _arrays[j];
             BufferConverterTo<T> converter(featureUniBuffer, idx, nrows);
-            TypeDispatcher::dispatch(featureUniBuffer.type(), converter);
+            TypeDispatcher<NoReturnSyclEvent>::dispatch(featureUniBuffer.type(), converter);
 
             services::Status st;
             auto buffer = converter.getResult(st);
@@ -581,7 +581,7 @@ private:
 
                 auto uniBuffer = _arrays[j];
                 BufferConverterFrom<T> converter(tempColumn, uniBuffer, 0, nrows);
-                TypeDispatcher::dispatch(uniBuffer.type(), converter);
+                TypeDispatcher<NoReturnSyclEvent>::dispatch(uniBuffer.type(), converter);
 
                 _arrays[j] = converter.getResult(st);
                 DAAL_CHECK_STATUS_VAR(st);
@@ -614,7 +614,7 @@ private:
 
         auto uniBuffer = _arrays[feat_idx];
         BufferConverterTo<T> converter(uniBuffer, idx, nrows);
-        TypeDispatcher::dispatch(uniBuffer.type(), converter);
+        TypeDispatcher<NoReturnSyclEvent>::dispatch(uniBuffer.type(), converter);
         services::Status st;
 
         auto buffer = converter.getResult(st);
@@ -639,7 +639,7 @@ private:
             {
                 auto uniBuffer = _arrays[feat_idx];
                 BufferConverterFrom<T> converter(block.getBuffer(), uniBuffer, block.getRowsOffset(), block.getNumberOfRows());
-                TypeDispatcher::dispatch(uniBuffer.type(), converter);
+                TypeDispatcher<NoReturnSyclEvent>::dispatch(uniBuffer.type(), converter);
 
                 services::Status st;
                 _arrays[feat_idx] = converter.getResult(st);

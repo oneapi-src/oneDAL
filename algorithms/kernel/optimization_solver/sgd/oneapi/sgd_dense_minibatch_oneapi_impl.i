@@ -176,6 +176,8 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
     services::Status status;
 
     ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    SyclEventIface * eventOfCopyIndices;
+    SyclEventIface * eventOfCopyIndices2;
 
     const size_t argumentSize = inputArgument->getNumberOfRows();
     const size_t nIter        = parameter->nIterations;
@@ -228,11 +230,24 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
 
     const IndicesStatus indicesStatus = (batchIndices ? user : (batchSize < nTerms ? random : all));
     services::SharedPtr<HomogenNumericTableCPU<int, cpu> > ntBatchIndices;
+    services::SharedPtr<SyclHomogenNumericTable<int> > ntBatchIndicesSycl;
+    services::SharedPtr<HomogenNumericTableCPU<int, cpu> > ntBatchIndices2;
+    services::SharedPtr<SyclHomogenNumericTable<int> > ntBatchIndices2Sycl;
+    BlockDescriptor<int> batchIndicesBD;
+    BlockDescriptor<int> batchIndicesSyclBD;
+    BlockDescriptor<int> batchIndices2BD;
+    BlockDescriptor<int> batchIndices2SyclBD;
 
     if (indicesStatus == user || indicesStatus == random)
     {
-        // Replace by SyclNumericTable when will be RNG on GPU
-        ntBatchIndices = HomogenNumericTableCPU<int, cpu>::create(batchSize, 1, &status);
+        ntBatchIndices     = HomogenNumericTableCPU<int, cpu>::create(batchSize, 1, &status);
+        ntBatchIndicesSycl = SyclHomogenNumericTable<int>::create(batchSize, 1, NumericTableIface::doAllocate);
+
+        if (L > 1)
+        {
+            ntBatchIndices2     = HomogenNumericTableCPU<int, cpu>::create(batchSize, 1, &status);
+            ntBatchIndices2Sycl = SyclHomogenNumericTable<int>::create(batchSize, 1, NumericTableIface::doAllocate);
+        }
     }
 
     NumericTablePtr previousBatchIndices            = function->sumOfFunctionsParameter->batchIndices;
@@ -288,23 +303,115 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
 
     *nProceededIterations = static_cast<int>(nIter);
 
+    bool isSync                           = false;
+    bool isSecondPartOfIndices            = false;
+    bool isFirstPartOfIndicesInitialized  = false;
+    bool isSecondPartOfIndicesInitialized = false;
+
     services::internal::HostAppHelper host(pHost, 10);
     for (size_t epoch = startIteration; epoch < (startIteration + nIter); epoch++)
     {
-        if (epoch % L == 0 || epoch == startIteration)
+        if (L > 1)
+        {
+            if ((epoch % (L << 1) == 0) || (epoch == startIteration))
+            {
+                learningRate = learningRateArray[(epoch / L) % learningRateLength];
+                consCoeff    = consCoeffsArray[(epoch / L) % consCoeffsLength];
+
+                if ((indicesStatus == user) || (indicesStatus == random))
+                {
+                    DAAL_ITTNOTIFY_SCOPED_TASK(generateUniform);
+
+                    const int * pValues = nullptr;
+                    DAAL_CHECK_STATUS(status, rngTask.get(pValues));
+                    ntBatchIndices->setArray(const_cast<int *>(pValues), ntBatchIndices->getNumberOfRows());
+
+                    DAAL_CHECK_STATUS(status,
+                                      ntBatchIndices->getBlockOfRows(0, ntBatchIndices->getNumberOfRows(), ReadWriteMode::readOnly, batchIndicesBD));
+                    const services::Buffer<int> batchIndicesBuffer = batchIndicesBD.getBuffer();
+
+                    DAAL_CHECK_STATUS(status, ntBatchIndicesSycl->getBlockOfRows(0, ntBatchIndicesSycl->getNumberOfRows(), ReadWriteMode::writeOnly,
+                                                                                 batchIndicesSyclBD));
+                    const services::Buffer<int> batchIndicesSyclBuffer = batchIndicesSyclBD.getBuffer();
+
+                    eventOfCopyIndices = &ctx.copy(batchIndicesSyclBuffer, 0, batchIndicesBuffer, 0, batchSize, &status, isSync);
+                }
+                if ((indicesStatus == user) || (indicesStatus == random))
+                {
+                    DAAL_ITTNOTIFY_SCOPED_TASK(generateUniform);
+
+                    const int * pValues2 = nullptr;
+                    DAAL_CHECK_STATUS(status, rngTask.get(pValues2));
+                    ntBatchIndices2->setArray(const_cast<int *>(pValues2), ntBatchIndices2->getNumberOfRows());
+
+                    DAAL_CHECK_STATUS(
+                        status, ntBatchIndices2->getBlockOfRows(0, ntBatchIndices2->getNumberOfRows(), ReadWriteMode::readOnly, batchIndices2BD));
+                    const services::Buffer<int> batchIndices2Buffer = batchIndices2BD.getBuffer();
+
+                    DAAL_CHECK_STATUS(status, ntBatchIndices2Sycl->getBlockOfRows(0, ntBatchIndices2Sycl->getNumberOfRows(), ReadWriteMode::writeOnly,
+                                                                                  batchIndices2SyclBD));
+                    const services::Buffer<int> batchIndices2SyclBuffer = batchIndices2SyclBD.getBuffer();
+
+                    eventOfCopyIndices2 = &ctx.copy(batchIndices2SyclBuffer, 0, batchIndices2Buffer, 0, batchSize, &status, isSync);
+                }
+
+                isSecondPartOfIndices            = false;
+                isFirstPartOfIndicesInitialized  = false;
+                isSecondPartOfIndicesInitialized = false;
+            }
+        }
+        else
         {
             learningRate = learningRateArray[(epoch / L) % learningRateLength];
             consCoeff    = consCoeffsArray[(epoch / L) % consCoeffsLength];
-            if (indicesStatus == user || indicesStatus == random)
+
+            if ((indicesStatus == user) || (indicesStatus == random))
             {
                 DAAL_ITTNOTIFY_SCOPED_TASK(generateUniform);
+
                 const int * pValues = nullptr;
                 DAAL_CHECK_STATUS(status, rngTask.get(pValues));
                 ntBatchIndices->setArray(const_cast<int *>(pValues), ntBatchIndices->getNumberOfRows());
+
+                DAAL_CHECK_STATUS(status,
+                                  ntBatchIndices->getBlockOfRows(0, ntBatchIndices->getNumberOfRows(), ReadWriteMode::readOnly, batchIndicesBD));
+                const services::Buffer<int> batchIndicesBuffer = batchIndicesBD.getBuffer();
+
+                DAAL_CHECK_STATUS(status, ntBatchIndicesSycl->getBlockOfRows(0, ntBatchIndicesSycl->getNumberOfRows(), ReadWriteMode::writeOnly,
+                                                                             batchIndicesSyclBD));
+                const services::Buffer<int> batchIndicesSyclBuffer = batchIndicesSyclBD.getBuffer();
+
+                eventOfCopyIndices = &ctx.copy(batchIndicesSyclBuffer, 0, batchIndicesBuffer, 0, batchSize, &status, isSync);
             }
+
+            isFirstPartOfIndicesInitialized = false;
         }
 
-        DAAL_CHECK_STATUS(status, function->computeNoThrow());
+        if ((epoch % L == 0) && (L > 1) && !(epoch == startIteration))
+        {
+            isSecondPartOfIndices = true;
+        }
+
+        if (isSecondPartOfIndices)
+        {
+            if (!isSecondPartOfIndicesInitialized)
+            {
+                function->sumOfFunctionsParameter->batchIndices = ntBatchIndices2Sycl;
+                isSecondPartOfIndicesInitialized                = true;
+                eventOfCopyIndices2->wait();
+            }
+            DAAL_CHECK_STATUS(status, function->computeNoThrow());
+        }
+        else
+        {
+            if (!isFirstPartOfIndicesInitialized)
+            {
+                function->sumOfFunctionsParameter->batchIndices = ntBatchIndicesSycl;
+                isFirstPartOfIndicesInitialized                 = true;
+                eventOfCopyIndices->wait();
+            }
+            DAAL_CHECK_STATUS(status, function->computeNoThrow());
+        }
 
         if (host.isCancelled(status, 1))
         {
@@ -332,6 +439,22 @@ services::Status SGDKernelOneAPI<algorithmFPType, miniBatch, cpu>::compute(HostA
         }
         DAAL_CHECK_STATUS(status, makeStep(argumentSize, prevWorkValueBuff, gradientBuff, workValueBuff, learningRate, consCoeff));
         nProceededIters++;
+
+        if (L > 1)
+        {
+            if ((epoch % (L << 1) == (L << 1) - 1) && !(epoch == startIteration))
+            {
+                ntBatchIndices->releaseBlockOfRows(batchIndicesBD);
+                ntBatchIndicesSycl->releaseBlockOfRows(batchIndicesSyclBD);
+                ntBatchIndices2->releaseBlockOfRows(batchIndices2BD);
+                ntBatchIndices2Sycl->releaseBlockOfRows(batchIndices2SyclBD);
+            }
+        }
+        else
+        {
+            ntBatchIndices->releaseBlockOfRows(batchIndicesBD);
+            ntBatchIndicesSycl->releaseBlockOfRows(batchIndicesSyclBD);
+        }
     }
 
     if (lastIterationResult)

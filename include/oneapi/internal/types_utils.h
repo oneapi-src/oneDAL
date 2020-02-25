@@ -19,6 +19,9 @@
 #define __DAAL_ONEAPI_INTERNAL_TYPES_UTILS_H__
 
 #include "oneapi/internal/types.h"
+#ifdef DAAL_SYCL_INTERFACE
+    #include <CL/sycl.hpp>
+#endif
 
 namespace daal
 {
@@ -43,11 +46,28 @@ typedef Typelist<daal::oneapi::internal::int8_t, daal::oneapi::internal::int16_t
 
 typedef Typelist<daal::oneapi::internal::float32_t, daal::oneapi::internal::float64_t> FloatTypes;
 
+struct NoReturnSyclEvent
+{};
+
+#ifdef DAAL_SYCL_INTERFACE
+struct ReturnSyclEvent
+{};
+#endif
+
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__TYPEDISPATCHER"></a>
  *  \brief Makes runtime dispatching of types
  */
+template <typename T>
 class TypeDispatcher
+{};
+
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__TYPEDISPATCHER"></a>
+ *  \brief Makes runtime dispatching of types
+ */
+template <>
+class TypeDispatcher<NoReturnSyclEvent>
 {
 public:
     template <typename Operation>
@@ -83,6 +103,50 @@ private:
     }
 };
 
+#ifdef DAAL_SYCL_INTERFACE
+/**
+ *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__TYPEDISPATCHER"></a>
+ *  \brief Makes runtime dispatching of types
+ */
+template <>
+class TypeDispatcher<ReturnSyclEvent>
+{
+public:
+    template <typename Operation>
+    static cl::sycl::event dispatch(TypeId type, Operation && op)
+    {
+        return dispatchInternal(type, op, PrimitiveTypes());
+    }
+
+    template <typename Operation>
+    static cl::sycl::event floatDispatch(TypeId type, Operation && op)
+    {
+        return dispatchInternal(type, op, FloatTypes());
+    }
+
+private:
+    template <typename Operation, typename Head, typename... Rest>
+    static cl::sycl::event dispatchInternal(TypeId type, Operation && op, Typelist<Head, Rest...>)
+    {
+        if (type == TypeIds::id<Head>())
+        {
+            return op(Typelist<Head>());
+        }
+        else
+        {
+            return dispatchInternal(type, op, Typelist<Rest...>());
+        }
+    }
+
+    template <typename Operation>
+    static cl::sycl::event dispatchInternal(TypeId type, Operation && op, Typelist<>)
+    {
+        DAAL_ASSERT(!"Unknown type");
+        return cl::sycl::event {};
+    }
+};
+#endif
+
 /**
  *  <a name="DAAL-CLASS-ONEAPI-INTERNAL__TYPETOSTRINGCONVERTER"></a>
  *  \brief Converts type to string representation
@@ -104,6 +168,10 @@ services::String getKeyFPType(TypeId typeId);
 
 } // namespace interface1
 
+#ifdef DAAL_SYCL_INTERFACE
+using interface1::ReturnSyclEvent;
+#endif
+using interface1::NoReturnSyclEvent;
 using interface1::Typelist;
 using interface1::TypeDispatcher;
 using interface1::getKeyFPType;

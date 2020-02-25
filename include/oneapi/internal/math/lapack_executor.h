@@ -90,7 +90,7 @@ public:
                     services::Status * status)
     {
         Execute op(queue, uplo, n, a_buffer, lda, status);
-        TypeDispatcher::floatDispatch(a_buffer.type(), op);
+        TypeDispatcher<NoReturnSyclEvent>::floatDispatch(a_buffer.type(), op);
     }
 };
 
@@ -139,7 +139,7 @@ public:
                     UniversalBuffer & b_buffer, const size_t ldb, services::Status * status)
     {
         Execute op(queue, uplo, n, ny, a_buffer, lda, b_buffer, ldb, status);
-        TypeDispatcher::floatDispatch(a_buffer.type(), op);
+        TypeDispatcher<NoReturnSyclEvent>::floatDispatch(a_buffer.type(), op);
     }
 };
 

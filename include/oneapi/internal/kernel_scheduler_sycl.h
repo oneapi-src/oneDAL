@@ -415,7 +415,7 @@ private:
         {
             const auto & arg = args.get(i);
             SyclKernelSchedulerArgHandler argHandler(cgh, storage, i, arg);
-            TypeDispatcher::dispatch(arg.dataType(), argHandler);
+            TypeDispatcher<NoReturnSyclEvent>::dispatch(arg.dataType(), argHandler);
         }
     }
 
