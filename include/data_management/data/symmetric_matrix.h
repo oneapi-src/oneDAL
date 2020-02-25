@@ -493,7 +493,7 @@ protected:
         st |= assign(constValue);
     }
 
-    services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
     {
         freeDataMemoryImpl();
 
@@ -1187,7 +1187,7 @@ public:
 protected:
     services::SharedPtr<byte> _ptr;
 
-    services::Status allocateDataMemoryImpl(daal::MemType type = daal::dram) DAAL_C11_OVERRIDE
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
     {
         freeDataMemoryImpl();
 

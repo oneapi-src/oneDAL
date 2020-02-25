@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
 class ExampleApp : public daal::services::HostAppIface
 {
 public:
-    ExampleApp(double timeLimitSec) : _timeLimitSec(timeLimitSec), _bCancelled(false), _startTime(0) {}
+    ExampleApp(double timeLimitSec) : _startTime(0), _timeLimitSec(timeLimitSec), _bCancelled(false) {}
     void start()
     {
         time(&_startTime);

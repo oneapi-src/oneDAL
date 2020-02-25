@@ -69,7 +69,7 @@ public:
      * \param[in] nSupportVectors  Number of support vectors in model
      */
     ModelBuilder(size_t nFeatures, size_t nSupportVectors)
-        : _nFeatures(nFeatures), _nSupportVectors(nSupportVectors), _modelPtr(Model::create<modelFPType>(nFeatures))
+        : _modelPtr(Model::create<modelFPType>(nFeatures)),_nFeatures(nFeatures), _nSupportVectors(nSupportVectors)
     {
         _supportV  = _modelPtr->getSupportVectors();
         _supportI  = _modelPtr->getSupportIndices();
