@@ -53,7 +53,7 @@ void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock(con
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.gemm);
     BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, numComponents, numRows, numFeatures,
-        1.0, eigenvectors, numFeatures, 0, dataBlock, numFeatures, 0, 0.0, resultBlock, numComponents, 0);
+                                    1.0, eigenvectors, numFeatures, 0, dataBlock, numFeatures, 0, 0.0, resultBlock, numComponents, 0);
 }
 
 template <typename algorithmFPType, transform::Method method>
@@ -68,7 +68,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
     buildKernel(ctx, factory);
 
     const char * const computeInvSigmasKernel = "computeInvSigmas";
-    KernelPtr kernel = factory.getKernel(computeInvSigmasKernel);
+    KernelPtr kernel                          = factory.getKernel(computeInvSigmasKernel);
     BlockDescriptor<algorithmFPType> varBlock;
     variances->getBlockOfRows(0, numFeatures, readOnly, varBlock);
 
@@ -94,7 +94,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     buildKernel(ctx, factory);
 
     const char * const normalizeKernel = "normalize";
-    KernelPtr kernel = factory.getKernel(normalizeKernel);
+    KernelPtr kernel                   = factory.getKernel(normalizeKernel);
 
     const unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
     KernelArguments args(7);
@@ -164,7 +164,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::allocateBuffer(
     services::Status status;
 
     const algorithmFPType zero = 0.0;
-    returnBuffer               = ctx.allocate(TypeIds::id<algorithmFPType>(), bufferSize, &status)
+    returnBuffer               = ctx.allocate(TypeIds::id<algorithmFPType>(), bufferSize, &status);
     DAAL_CHECK_STATUS_VAR(status);
     ctx.fill(returnBuffer, zero, &status);
 
@@ -213,7 +213,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::buildKernel(Exe
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildKernel);
     services::Status status;
 
-    auto fptype_name  = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
 
     const services::String options = getKeyFPType<algorithmFPType>();
@@ -233,8 +233,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     services::Status status;
     ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    const uint32_t numVectors   = data.getNumberOfRows();
-    const uint32_t numFeatures  = data.getNumberOfColumns();
+    const uint32_t numVectors    = data.getNumberOfRows();
+    const uint32_t numFeatures   = data.getNumberOfColumns();
     const uint32_t numComponents = transformedData.getNumberOfColumns();
 
     /* Calculating invSigmas and invEigenValues*/
