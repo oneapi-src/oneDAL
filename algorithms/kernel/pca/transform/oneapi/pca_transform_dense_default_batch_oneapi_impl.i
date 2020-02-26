@@ -200,7 +200,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::checkVariances(
     for (size_t i = 0; i < numRows; i++)
     {
         if (varBlock.getBlockPtr()[i] < 0)
-        {   
+        {
             pVariances.releaseBlockOfRows(varBlock);
             return status.add(ErrorIncorrectOptionalInput);
         }
