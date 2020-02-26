@@ -49,9 +49,9 @@ using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType, transform::Method method>
 void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock(const uint32_t numRows, const uint32_t numFeatures,
-                                                                             const uint32_t numComponents, UniversalBuffer & dataBlock,
-                                                                             const services::Buffer<algorithmFPType> & eigenvectors,
-                                                                             const services::Buffer<algorithmFPType> & resultBlock)
+                                                                             const uint32_t numComponents, UniversalBuffer &dataBlock,
+                                                                             const services::Buffer<algorithmFPType> &eigenvectors,
+                                                                             const services::Buffer<algorithmFPType> &resultBlock)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.gemm);
     BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, numComponents, numRows, numFeatures,
@@ -59,18 +59,18 @@ void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock(con
 }
 
 template <typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigmas(ExecutionContextIface & ctx, NumericTable * variances,
-                                                                                  const services::Buffer<algorithmFPType> & invSigmas,
+services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigmas(ExecutionContextIface &ctx, NumericTable *variances,
+                                                                                  const services::Buffer<algorithmFPType> &invSigmas,
                                                                                   const uint32_t numFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeInvSigmas);
     services::Status status;
 
-    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
     buildKernel(ctx, factory);
 
-    const char * const computeInvSigmasKernel = "computeInvSigmas";
-    KernelPtr kernel                          = factory.getKernel(computeInvSigmasKernel);
+    const char *const computeInvSigmasKernel = "computeInvSigmas";
+    KernelPtr kernel = factory.getKernel(computeInvSigmasKernel);
     BlockDescriptor<algorithmFPType> varBlock;
     variances->getBlockOfRows(0, numFeatures, readOnly, varBlock);
 
@@ -84,19 +84,19 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::computeInvSigma
 }
 
 template <typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(ExecutionContextIface & ctx, UniversalBuffer & copyBlock,
-                                                                           UniversalBuffer & rawMeans, UniversalBuffer & invSigmas, uint32_t numMeans,
+services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(ExecutionContextIface &ctx, UniversalBuffer &copyBlock,
+                                                                           UniversalBuffer &rawMeans, UniversalBuffer &invSigmas, uint32_t numMeans,
                                                                            uint32_t numInvSigmas, const uint32_t numFeatures,
                                                                            const uint32_t numVectors)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.normalize);
     services::Status status;
 
-    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
     buildKernel(ctx, factory);
 
-    const char * const normalizeKernel = "normalize";
-    KernelPtr kernel                   = factory.getKernel(normalizeKernel);
+    const char *const normalizeKernel = "normalize";
+    KernelPtr kernel = factory.getKernel(normalizeKernel);
 
     const unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
     KernelArguments args(7);
@@ -122,19 +122,19 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
 }
 
 template <typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(ExecutionContextIface & ctx,
-                                                                           const services::Buffer<algorithmFPType> & transformedBlock,
-                                                                           UniversalBuffer & invEigenvalues, const uint32_t numComponents,
+services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(ExecutionContextIface &ctx,
+                                                                           const services::Buffer<algorithmFPType> &transformedBlock,
+                                                                           UniversalBuffer &invEigenvalues, const uint32_t numComponents,
                                                                            const uint32_t numVectors)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.whitening);
     services::Status status;
 
-    ClKernelFactoryIface & factory = ctx.getClKernelFactory();
+    ClKernelFactoryIface &factory = ctx.getClKernelFactory();
     buildKernel(ctx, factory);
 
-    const char * const whiteningKernel = "whitening";
-    KernelPtr kernel                   = factory.getKernel(whiteningKernel);
+    const char *const whiteningKernel = "whitening";
+    KernelPtr kernel = factory.getKernel(whiteningKernel);
 
     const unsigned int workItemsPerGroup = (numComponents > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numComponents;
     KernelArguments args(4);
@@ -158,14 +158,14 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(Execu
 }
 
 template <typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::allocateBuffer(ExecutionContextIface & ctx, UniversalBuffer & returnBuffer,
+services::Status TransformKernelOneAPI<algorithmFPType, method>::allocateBuffer(ExecutionContextIface &ctx, UniversalBuffer &returnBuffer,
                                                                                 uint32_t bufferSize)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.allocateBuffer);
     services::Status status;
 
     const algorithmFPType zero = 0.0;
-    returnBuffer               = ctx.allocate(TypeIds::id<algorithmFPType>(), bufferSize, &status);
+    returnBuffer = ctx.allocate(TypeIds::id<algorithmFPType>(), bufferSize, &status);
     DAAL_CHECK_STATUS_VAR(status);
     ctx.fill(returnBuffer, zero, &status);
 
@@ -173,8 +173,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::allocateBuffer(
 }
 
 template <typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBufferByRef(ExecutionContextIface & ctx, UniversalBuffer & returnBuffer,
-                                                                                 NumericTable & data, uint32_t nRows, uint32_t nCols)
+services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBufferByRef(ExecutionContextIface &ctx, UniversalBuffer &returnBuffer,
+                                                                                 NumericTable &data, uint32_t nRows, uint32_t nCols)
 
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.copyBufferByRef);
@@ -190,7 +190,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::copyBufferByRef
 }
 
 template <typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::checkVariances(NumericTable & pVariances, uint32_t numRows)
+services::Status TransformKernelOneAPI<algorithmFPType, method>::checkVariances(NumericTable &pVariances, uint32_t numRows)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.checkVariances);
     services::Status status;
@@ -200,7 +200,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::checkVariances(
     for (size_t i = 0; i < numRows; i++)
     {
         if (varBlock.getBlockPtr()[i] < 0)
-        {   
+        {
             pVariances.releaseBlockOfRows(varBlock);
             return status.add(ErrorIncorrectOptionalInput);
         }
@@ -211,12 +211,12 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::checkVariances(
 }
 
 template <typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::buildKernel(ExecutionContextIface & ctx, ClKernelFactoryIface & factory)
+services::Status TransformKernelOneAPI<algorithmFPType, method>::buildKernel(ExecutionContextIface &ctx, ClKernelFactoryIface &factory)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildKernel);
     services::Status status;
 
-    auto fptype_name   = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name = oneapi::internal::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
 
     const services::String options = getKeyFPType<algorithmFPType>();
@@ -228,16 +228,16 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::buildKernel(Exe
 }
 
 template <typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(NumericTable & data, NumericTable & eigenvectors, NumericTable * pMeans,
-                                                                         NumericTable * pVariances, NumericTable * pEigenvalues,
-                                                                         NumericTable & transformedData)
+services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(NumericTable &data, NumericTable &eigenvectors, NumericTable *pMeans,
+                                                                         NumericTable *pVariances, NumericTable *pEigenvalues,
+                                                                         NumericTable &transformedData)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     services::Status status;
-    ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface &ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    const uint32_t numVectors    = data.getNumberOfRows();
-    const uint32_t numFeatures   = data.getNumberOfColumns();
+    const uint32_t numVectors = data.getNumberOfRows();
+    const uint32_t numFeatures = data.getNumberOfColumns();
     const uint32_t numComponents = transformedData.getNumberOfColumns();
 
     /* Calculating invSigmas and invEigenValues*/
