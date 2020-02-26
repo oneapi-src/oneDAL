@@ -75,7 +75,6 @@ DECLARE_SOURCE(
 
     __kernel void whitening(__global algorithmFPType * transformedBlock, __global const algorithmFPType * invEigenValues,
                             const uint maxWorkItemsPerGroup, const uint numComponents) {
-
         const int glid                 = get_global_id(0);
         const int numWorkItemsPerGroup = get_local_size(0);
         const int numVec               = get_num_groups(0);
