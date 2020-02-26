@@ -55,11 +55,11 @@ DECLARE_SOURCE(
 
         uint numOfDataItemsProcessedByWI = numFeatures / maxWorkItemsPerGroup;
 
-        for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
+        for (uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
             const int dataId  = glid + numVec * numWorkItemsPerGroup * i;
             const int meansId = dataId % numFeatures;
-            if (dataId < numFeatures *  numVec)
+            if (dataId < numFeatures * numVec)
             {
                 if (numMeans != 0)
                 {
@@ -80,11 +80,11 @@ DECLARE_SOURCE(
         const int numVec               = get_num_groups(0);
 
         uint numOfDataItemsProcessedByWI = numComponents / maxWorkItemsPerGroup;
-        for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
+        for (uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
             const int dataId   = glid + numVec * numWorkItemsPerGroup * i;
             const int eigValId = dataId % numComponents;
-            if (dataId < numComponents *  numVec)
+            if (dataId < numComponents * numVec)
             {
                 transformedBlock[dataId] = transformedBlock[dataId] * invEigenValues[eigValId];
             }
