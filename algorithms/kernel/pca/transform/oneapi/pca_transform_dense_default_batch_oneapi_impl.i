@@ -42,7 +42,6 @@ namespace oneapi
 {
 namespace internal
 {
-
 using namespace daal::oneapi::internal;
 
 template <typename algorithmFPType, transform::Method method>
@@ -98,7 +97,6 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
 
     const unsigned int workItemsPerGroup = (numFeatures > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numFeatures;
     KernelArguments args(7);
-    
     args.set(0, copyBlock, AccessModeIds::readwrite);
     args.set(1, rawMeans, AccessModeIds::read);
     args.set(2, invSigmas, AccessModeIds::read);
@@ -120,8 +118,8 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::normalize(Execu
     return status;
 }
 
-template<typename algorithmFPType, transform::Method method>
-services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(ExecutionContextIface& ctx,
+template <typename algorithmFPType, transform::Method method>
+services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(ExecutionContextIface & ctx,
                                                                            const services::Buffer<algorithmFPType> & transformedBlock,
                                                                            UniversalBuffer & invEigenvalues, const uint32_t numComponents,
                                                                            const uint32_t numVectors)
