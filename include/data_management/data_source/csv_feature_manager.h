@@ -451,7 +451,7 @@ public:
      *  \param[out] rowBuffer    Pointer to a Buffer View to store the result of parsing
      *  \param[in]  ntRowIndex   Position in the Numeric Table at which to store the result of parsing
      */
-    virtual void parseRowIn(char * rawRowData, size_t rawDataSize, DataSourceDictionary * /*dictionary*/,
+    virtual void parseRowIn(char * rawRowData, size_t rawDataSize, DataSourceDictionary * DAAL_ASSERT_DECL(dictionary),
                             services::BufferView<DAAL_DATA_TYPE> & rowBuffer, size_t /*ntRowIndex*/) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(dictionary);
