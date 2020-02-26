@@ -44,14 +44,13 @@ namespace internal
  *  <a name="DAAL-CLASS-SERVICES-INTERNAL__HASHTABLE"></a>
  *  \brief Hash table implementation
  */
-template<class T, size_t size>
+template <class T, size_t size>
 class HashTable
 {
 public:
     HashTable()
     {
-        for (size_t i = 0; i < size; ++i)
-            _arr[i] = nullptr;
+        for (size_t i = 0; i < size; ++i) _arr[i] = nullptr;
     }
 
     ~HashTable()
@@ -63,23 +62,21 @@ public:
         }
     }
 
-    bool contain(const services::String &key, services::Status &status)
+    bool contain(const services::String & key, services::Status & status)
     {
         size_t id = get_unique_hash(key, status);
-        if (!status.ok())
-            return false;
+        if (!status.ok()) return false;
         return _arr[id] != nullptr;
     }
 
-    void add(const services::String &key, const services::SharedPtr<T> obj, services::Status &status)
+    void add(const services::String & key, const services::SharedPtr<T> obj, services::Status & status)
     {
         size_t id = get_unique_hash(key, status);
-        if (!status.ok())
-            return;
+        if (!status.ok()) return;
         _arr[id] = new Entry(obj, key);
     }
 
-    services::SharedPtr<T> get(const services::String &key, services::Status &status)
+    services::SharedPtr<T> get(const services::String & key, services::Status & status)
     {
         size_t id = get_unique_hash(key, status);
         return status.ok() == true ? _arr[id]->obj : services::SharedPtr<T>();
@@ -88,16 +85,16 @@ public:
 private:
     struct Entry
     {
-        Entry() : obj(), key() { }
-        Entry(const services::SharedPtr<T> &obj_, const services::String &key_) : obj(obj_), key(key_) { }
+        Entry() : obj(), key() {}
+        Entry(const services::SharedPtr<T> & obj_, const services::String & key_) : obj(obj_), key(key_) {}
 
         services::SharedPtr<T> obj;
         services::String key;
     };
 
-    static size_t get_hash(const services::String &key)
+    static size_t get_hash(const services::String & key)
     {
-        size_t hash = 0;
+        size_t hash        = 0;
         size_t magic_p_pow = 1;
         for (size_t i = 0; i < key.length(); ++i)
         {
@@ -107,9 +104,9 @@ private:
         return hash;
     }
 
-    size_t get_unique_hash(const services::String &key, services::Status &status)
+    size_t get_unique_hash(const services::String & key, services::Status & status)
     {
-        size_t id = get_hash(key) % size;
+        size_t id             = get_hash(key) % size;
         const size_t start_id = id;
         while (_arr[id] != nullptr && _arr[id]->key != key)
         {
@@ -123,7 +120,7 @@ private:
         return id;
     }
 
-    Entry* _arr[size];
+    Entry * _arr[size];
     const static size_t magic_p = 5381;
 };
 

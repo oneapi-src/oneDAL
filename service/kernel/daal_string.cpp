@@ -106,10 +106,8 @@ String & String::operator=(const String & other)
 
 bool String::operator==(const String & other)
 {
-    if (this == &other)
-        return true;
-    if (this->length() != other.length())
-        return false;
+    if (this == &other) return true;
+    if (this->length() != other.length()) return false;
     return strncmp(this->c_str(), other.c_str(), this->length()) == 0;
 }
 
