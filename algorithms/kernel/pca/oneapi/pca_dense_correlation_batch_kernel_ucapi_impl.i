@@ -54,7 +54,7 @@ PCACorrelationKernelUCAPI<algorithmFPType>::PCACorrelationKernelUCAPI(const PCAC
 }
 
 template <typename algorithmFPType>
-Status PCACorrelationKernelUCAPI<algorithmFPType>::compute(bool isCorrelation, bool isDeterministic, NumericTable & dataTable,   
+Status PCACorrelationKernelUCAPI<algorithmFPType>::compute(bool isCorrelation, bool isDeterministic, NumericTable & dataTable,
                                                            covariance::BatchImpl * covarianceAlg, DAAL_UINT64 resultsToCompute,
                                                            NumericTable & eigenvectors, NumericTable & eigenvalues, NumericTable & means,
                                                            NumericTable & variances)
