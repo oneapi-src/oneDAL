@@ -35,15 +35,15 @@ DECLARE_SOURCE(
         const int tid                 = get_global_id(0);
         const algorithmFPType epsilon = 1e-10;
 
-    /*Case when rawVariances[tid] < 0 is handled inside compute method*/
-    if (rawVariances[tid] > epsilon)
-    {
-        invSigmas[tid] = (algorithmFPType)1 / (algorithmFPType)sqrt(rawVariances[tid]);
-    }
-    else
-    {
-        invSigmas[tid] = (algorithmFPType)0;
-    }
+        /*Case when rawVariances[tid] < 0 is handled inside compute method*/
+        if (rawVariances[tid] > epsilon)
+        {
+            invSigmas[tid] = (algorithmFPType)1 / (algorithmFPType)sqrt(rawVariances[tid]);
+        }
+        else
+        {
+            invSigmas[tid] = (algorithmFPType)0;
+        }
 }
 
     __kernel void normalize(__global algorithmFPType * copyBlock, __global const algorithmFPType * rawMeans,
