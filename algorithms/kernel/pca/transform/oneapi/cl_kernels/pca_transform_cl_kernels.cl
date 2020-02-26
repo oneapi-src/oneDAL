@@ -44,7 +44,7 @@ DECLARE_SOURCE(
         {
             invSigmas[tid] = (algorithmFPType)0;
         }
-}
+    }
 
     __kernel void normalize(__global algorithmFPType * copyBlock, __global const algorithmFPType * rawMeans,
                             __global const algorithmFPType * invSigmas, uint numMeans, uint numInvSigmas, const uint maxWorkItemsPerGroup,
@@ -55,47 +55,46 @@ DECLARE_SOURCE(
         const int numWorkItemsPerGroup = get_local_size(0);
         const int numVec               = get_num_groups(0);
 
-        if (numFeatures > maxWorkItemsPerGroup)
-        {
-            uint numOfDataItemsProcessedByWI = numFeatures / maxWorkItemsPerGroup;
+        uint numOfDataItemsProcessedByWI = numFeatures / maxWorkItemsPerGroup;
 
-    for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
-    {
-        const int dataId = glid + numVec * numWorkItemsPerGroup * i;
-        const int meansId = dataId % numFeatures;
-        if (dataId < numFeatures *  numVec)
+        for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
-            if (numMeans != 0)
+            const int dataId = glid + numVec * numWorkItemsPerGroup * i;
+            const int meansId = dataId % numFeatures;
+            if (dataId < numFeatures *  numVec)
             {
-                copyBlock[dataId] = copyBlock[dataId] - rawMeans[meansId];
-            }
-            if (numInvSigmas != 0)
-            {
-                copyBlock[dataId] = copyBlock[dataId] * invSigmas[meansId];
+                if (numMeans != 0)
+                {
+                    copyBlock[dataId] = copyBlock[dataId] - rawMeans[meansId];
+                }
+                if (numInvSigmas != 0)
+                {
+                    copyBlock[dataId] = copyBlock[dataId] * invSigmas[meansId];
+                }
             }
         }
     }
-}
+
     __kernel void whitening(__global algorithmFPType * transformedBlock, __global const algorithmFPType * invEigenValues,
                             const uint maxWorkItemsPerGroup, const uint numComponents) {
         
 
-    const int tid = get_local_id(0);
-    const int glid = get_global_id(0);
-    const int numWorkItemsPerGroup = get_local_size(0);
-    const int numVec = get_num_groups(0);
+        const int tid = get_local_id(0);
+        const int glid = get_global_id(0);
+        const int numWorkItemsPerGroup = get_local_size(0);
+        const int numVec = get_num_groups(0);
 
-    uint numOfDataItemsProcessedByWI = numComponents / maxWorkItemsPerGroup;
-    for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
-    {
-        const int dataId = glid + numVec * numWorkItemsPerGroup * i;
-        const int eigValId = dataId % numComponents;
-        if (dataId < numComponents *  numVec)
+        uint numOfDataItemsProcessedByWI = numComponents / maxWorkItemsPerGroup;
+        for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
-            transformedBlock[dataId] = transformedBlock[dataId] * invEigenValues[eigValId];
+            const int dataId = glid + numVec * numWorkItemsPerGroup * i;
+            const int eigValId = dataId % numComponents;
+            if (dataId < numComponents *  numVec)
+            {
+                transformedBlock[dataId] = transformedBlock[dataId] * invEigenValues[eigValId];
+            }
         }
     }
-}
 
 );
 
