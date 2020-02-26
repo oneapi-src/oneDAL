@@ -133,7 +133,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::whitening(Execu
     buildKernel(ctx, factory);
 
     const char * const whiteningKernel = "whitening";
-    KernelPtr kernel = factory.getKernel(whiteningKernel);
+    KernelPtr kernel                   = factory.getKernel(whiteningKernel);
 
     const unsigned int workItemsPerGroup = (numComponents > maxWorkItemsPerGroup) ? maxWorkItemsPerGroup : numComponents;
     KernelArguments args(4);
@@ -164,7 +164,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::allocateBuffer(
     services::Status status;
 
     const algorithmFPType zero = 0.0;
-    returnBuffer = ctx.allocate(TypeIds::id<algorithmFPType>(), bufferSize, &status);
+    returnBuffer               = ctx.allocate(TypeIds::id<algorithmFPType>(), bufferSize, &status)
     DAAL_CHECK_STATUS_VAR(status);
     ctx.fill(returnBuffer, zero, &status);
 
@@ -196,7 +196,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::checkVariances(
 
     BlockDescriptor<algorithmFPType> varBlock;
     DAAL_CHECK_STATUS(status, pVariances.getBlockOfRows(0, numRows, ReadWriteMode::readOnly, varBlock));
-    for(size_t i = 0; i < numRows; i++)
+    for (size_t i = 0; i < numRows; i++)
     {
         if (varBlock.getBlockPtr()[i] < 0)
         {
@@ -213,7 +213,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::buildKernel(Exe
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.buildKernel);
     services::Status status;
 
-    auto fptype_name = oneapi::internal::getKeyFPType<algorithmFPType>();
+    auto fptype_name  = oneapi::internal::getKeyFPType<algorithmFPType>();
     auto build_options = fptype_name;
 
     const services::String options = getKeyFPType<algorithmFPType>();
@@ -231,10 +231,10 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     services::Status status;
-    ExecutionContextIface &ctx = services::Environment::getInstance()->getDefaultExecutionContext();
+    ExecutionContextIface & ctx = services::Environment::getInstance()->getDefaultExecutionContext();
 
-    const uint32_t numVectors  = data.getNumberOfRows();
-    const uint32_t numFeatures = data.getNumberOfColumns();
+    const uint32_t numVectors   = data.getNumberOfRows();
+    const uint32_t numFeatures  = data.getNumberOfColumns();
     const uint32_t numComponents = transformedData.getNumberOfColumns();
 
     /* Calculating invSigmas and invEigenValues*/
@@ -266,7 +266,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     {
         numMeans = numFeatures;
         DAAL_CHECK_STATUS(status, copyBufferByRef(ctx, rawMeans, *pMeans, numMeans, 1));
-    }    
+    }
 
     bool isWhitening = pEigenvalues != nullptr;
     bool isNormalize = pMeans != nullptr || pVariances != nullptr;
@@ -280,8 +280,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
 
     if (isNormalize)
     {
-        DAAL_CHECK_STATUS(status, normalize(ctx, copyBlock, dataBlock.getBuffer(), rawMeans, invSigmas, numMeans, numInvSigmas,
-                          numFeatures, numVectors));
+        DAAL_CHECK_STATUS(status, normalize(ctx, copyBlock, rawMeans, invSigmas, numMeans, numInvSigmas, numFeatures, numVectors));
     }
 
     BlockDescriptor<algorithmFPType> transformedBlock;
@@ -293,7 +292,7 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     computeTransformedBlock(numVectors, numFeatures, numComponents, copyBlock, basis.getBuffer(), transformedBlock.getBuffer());
 
     /* compute whitening to unit variance of transformed data if required */
-    if(isWhitening)
+    if (isWhitening)
     {
         DAAL_CHECK_STATUS(status, whitening(ctx, transformedBlock.getBuffer(), invEigenvalues, numComponents, numVectors));
     }
