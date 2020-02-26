@@ -1025,7 +1025,6 @@ Status PredictClassificationTask<algorithmFPType, cpu>::run(services::HostAppIfa
     {
         return predictOneRowByAllTrees(nTreesTotal);
     }
-    const size_t rowsNumber = _res ? _res->getNumberOfRows() : _prob->getNumberOfRows();
     if (_cachedModel != _model)
     {
         _cachedModel = _model;

@@ -222,6 +222,12 @@ public:
     KernelErrorCollection(const KernelErrorCollection & other);
 
     /**
+     * Assignment operator of a kernel error collection
+     * \param[in] other Kernel error collection that will be copied
+     */
+    KernelErrorCollection & operator=(const KernelErrorCollection & other);
+
+    /**
      * Adds error id to kernel error collection
      * \param[in] id Identifier of error
      * \return    Pointer to the new error
