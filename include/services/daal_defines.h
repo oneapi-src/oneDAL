@@ -434,7 +434,7 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
 
 #ifdef DEBUG_ASSERT
     #include <assert.h>
-    #define DAAL_ASSERT(cond) assert(cond);
+    #define DAAL_ASSERT(cond)     assert(cond);
     #define DAAL_ASSERT_DECL(var) var
 #else
     #define DAAL_ASSERT(cond)
