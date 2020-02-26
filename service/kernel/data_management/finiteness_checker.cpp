@@ -140,6 +140,7 @@ DataType computeSumAVX512Impl(size_t nDataPtrs, size_t nElementsPerPtr, const Da
 
     daal::services::internal::TArray<DataType, avx512> partialSumsArr(nTotalBlocks);
     DataType * pSums = partialSumsArr.get();
+    // return infinity as sum and go to next step (finiteness check of all elements) if memory allocation failed
     if (!pSums) return getInf<DataType>();
     for (size_t iBlock = 0; iBlock < nTotalBlocks; ++iBlock) pSums[iBlock] = 0;
 
