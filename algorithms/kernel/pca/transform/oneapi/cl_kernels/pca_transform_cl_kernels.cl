@@ -26,13 +26,13 @@
 
 #include <string.h>
 
-#define DECLARE_SOURCE(name, src) static const char *name = #src;
+#define DECLARE_SOURCE(name, src) static const char * name = #src;
 
 DECLARE_SOURCE(
     pca_transform_cl_kernels,
 
-    __kernel void computeInvSigmas(__global const algorithmFPType *rawVariances, __global algorithmFPType *invSigmas) {
-        const int tid = get_global_id(0);
+    __kernel void computeInvSigmas(__global const algorithmFPType * rawVariances, __global algorithmFPType * invSigmas) {
+        const int tid                 = get_global_id(0);
         const algorithmFPType epsilon = 1e-10;
 
         /*Case when rawVariances[tid] < 0 is handled inside compute method*/
@@ -46,20 +46,20 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void normalize(__global algorithmFPType *copyBlock, __global const algorithmFPType *rawMeans,
-                            __global const algorithmFPType *invSigmas, uint numMeans, uint numInvSigmas, const uint maxWorkItemsPerGroup,
+    __kernel void normalize(__global algorithmFPType * copyBlock, __global const algorithmFPType * rawMeans,
+                            __global const algorithmFPType * invSigmas, uint numMeans, uint numInvSigmas, const uint maxWorkItemsPerGroup,
                             const uint numFeatures) {
-        const int glid = get_global_id(0);
+        const int glid                 = get_global_id(0);
         const int numWorkItemsPerGroup = get_local_size(0);
-        const int numVec = get_num_groups(0);
+        const int numVec               = get_num_groups(0);
 
         uint numOfDataItemsProcessedByWI = numFeatures / maxWorkItemsPerGroup;
 
-        for (uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
+        for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
-            const int dataId = glid + numVec * numWorkItemsPerGroup * i;
+            const int dataId  = glid + numVec * numWorkItemsPerGroup * i;
             const int meansId = dataId % numFeatures;
-            if (dataId < numFeatures * numVec)
+            if (dataId < numFeatures *  numVec)
             {
                 if (numMeans != 0)
                 {
@@ -73,18 +73,18 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void whitening(__global algorithmFPType *transformedBlock, __global const algorithmFPType *invEigenValues,
+    __kernel void whitening(__global algorithmFPType * transformedBlock, __global const algorithmFPType * invEigenValues,
                             const uint maxWorkItemsPerGroup, const uint numComponents) {
-        const int glid = get_global_id(0);
+        const int glid                 = get_global_id(0);
         const int numWorkItemsPerGroup = get_local_size(0);
-        const int numVec = get_num_groups(0);
+        const int numVec               = get_num_groups(0);
 
         uint numOfDataItemsProcessedByWI = numComponents / maxWorkItemsPerGroup;
-        for (uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
+        for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
-            const int dataId = glid + numVec * numWorkItemsPerGroup * i;
+            const int dataId   = glid + numVec * numWorkItemsPerGroup * i;
             const int eigValId = dataId % numComponents;
-            if (dataId < numComponents * numVec)
+            if (dataId < numComponents *  numVec)
             {
                 transformedBlock[dataId] = transformedBlock[dataId] * invEigenValues[eigValId];
             }
