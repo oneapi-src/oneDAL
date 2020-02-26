@@ -141,6 +141,9 @@ class DfClsDenseBatch {
         Model model = trainingResult.get(TrainingResultId.model);
         algorithm.input.set(NumericTableInputId.data, testData);
         algorithm.input.set(ModelInputId.model, model);
+        algorithm.parameter.setVotingMethod(VotingMethod.weighted);
+        algorithm.parameter.setResultsToEvaluate(com.intel.daal.algorithms.classifier.ResultsToComputeId.computeClassProbabilities
+            | com.intel.daal.algorithms.classifier.ResultsToComputeId.computeClassLabels);
 
         /* Compute prediction results */
         return algorithm.compute();
@@ -149,6 +152,8 @@ class DfClsDenseBatch {
     private static void printResults(PredictionResult predictionResult) {
         NumericTable predictionResults = predictionResult.get(PredictionResultId.prediction);
         Service.printNumericTable("Decision forest prediction results (first 10 rows):", predictionResults, 10);
+        NumericTable probabilitiesResults = predictionResult.get(PredictionResultId.probabilities);
+        Service.printNumericTable("Decision forest probabilities results (first 10 rows):", probabilitiesResults, 10);
         Service.printNumericTable("Ground truth (first 10 rows):", testGroundTruth, 10);
     }
 
