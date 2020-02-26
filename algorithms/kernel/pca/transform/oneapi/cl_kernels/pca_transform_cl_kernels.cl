@@ -26,7 +26,7 @@
 
 #include <string.h>
 
-#define DECLARE_SOURCE(name, src) static const char* name = #src;
+#define DECLARE_SOURCE(name, src) static const char * name = #src;
 
 DECLARE_SOURCE(
     pca_transform_cl_kernels,
