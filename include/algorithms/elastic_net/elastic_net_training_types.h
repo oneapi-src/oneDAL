@@ -147,8 +147,8 @@ struct DAAL_EXPORT Parameter : public linear_model::Parameter
     Parameter(const SolverPtr & solver = SolverPtr());
     Parameter(const Parameter & o)
         : linear_model::Parameter(o),
-          elasticNetL1Parameters(o.elasticNetL1Parameters),
-          elasticNetL2Parameters(o.elasticNetL2Parameters),
+          penaltyL1(o.penaltyL1),
+          penaltyL2(o.penaltyL2),
           optimizationSolver(o.optimizationSolver),
           dataUseInComputation(o.dataUseInComputation),
           optResultToCompute(o.optResultToCompute)
@@ -156,8 +156,8 @@ struct DAAL_EXPORT Parameter : public linear_model::Parameter
 
     services::Status check() const DAAL_C11_OVERRIDE;
 
-    data_management::NumericTablePtr elasticNetL1Parameters; /*!< Numeric table that contains values of elastic net L1 parameters */
-    data_management::NumericTablePtr elasticNetL2Parameters; /*!< Numeric table that contains values of elastic net L2 parameters */
+    data_management::NumericTablePtr penaltyL1; /*!< Numeric table that contains values of elastic net L1 parameters */
+    data_management::NumericTablePtr penaltyL2; /*!< Numeric table that contains values of elastic net L2 parameters */
 
     SolverPtr optimizationSolver; /*!< Default is coordinate descent solver */
 

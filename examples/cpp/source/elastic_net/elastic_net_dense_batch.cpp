@@ -81,10 +81,10 @@ void trainModel()
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(training::data, trainData);
     algorithm.input.set(training::dependentVariables, trainDependentVariables);
-    algorithm.parameter().elasticNetL1Parameters =
-        NumericTablePtr(new HomogenNumericTable<>(nDependentVariables, 1, NumericTable::doAllocate, 0.1f));
-    algorithm.parameter().elasticNetL2Parameters =
-        NumericTablePtr(new HomogenNumericTable<>(nDependentVariables, 1, NumericTable::doAllocate, 0.2f));
+    algorithm.parameter().penaltyL1 =
+        NumericTablePtr(new HomogenNumericTable<>(nDependentVariables, 1, NumericTable::doAllocate, 0.5f));
+    algorithm.parameter().penaltyL2 =
+        NumericTablePtr(new HomogenNumericTable<>(nDependentVariables, 1, NumericTable::doAllocate, 0.5f));
     /* Build the multiple elastic net model */
     algorithm.compute();
 
