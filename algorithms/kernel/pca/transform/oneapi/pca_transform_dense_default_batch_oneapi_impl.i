@@ -24,7 +24,7 @@
 #ifndef __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 #define __PCA_TRANSFORM_DENSE_DEFAULT_BATCH_ONEAPI_IMPL_I__
 
-#include "service_ittnotify.h"
+#include "externals/service_ittnotify.h"
 DAAL_ITTNOTIFY_DOMAIN(pca.transform.batch.oneapi);
 
 #include "algorithms/kernel/pca/transform/oneapi/cl_kernels/pca_transform_cl_kernels.cl"
@@ -50,7 +50,7 @@ using namespace daal::oneapi::internal;
 template <typename algorithmFPType, transform::Method method>
 void TransformKernelOneAPI<algorithmFPType, method>::computeTransformedBlock(const uint32_t numRows, const uint32_t numFeatures,
                                                                              const uint32_t numComponents, UniversalBuffer & dataBlock,
-                                                                             UniversalBuffer & eigenvectors,
+                                                                             const services::Buffer<algorithmFPType> & eigenvectors,
                                                                              const services::Buffer<algorithmFPType> & resultBlock)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.gemm);

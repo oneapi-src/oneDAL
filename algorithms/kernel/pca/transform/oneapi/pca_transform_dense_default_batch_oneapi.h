@@ -50,7 +50,7 @@ public:
                              data_management::NumericTable * pEigenvalues, data_management::NumericTable & transformedData);
 
     void computeTransformedBlock(uint32_t numRows, uint32_t numFeatures, uint32_t numComponents, daal::oneapi::internal::UniversalBuffer & dataBlock,
-                                 daal::oneapi::internal::UniversalBuffer & eigenvectors, const services::Buffer<algorithmFPType> & resultBlock);
+                                 const services::Buffer<algorithmFPType> & eigenvectors, const services::Buffer<algorithmFPType> & resultBlock);
 
 private:
     services::Status allocateBuffer(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::UniversalBuffer & returnBuffer,
