@@ -57,7 +57,7 @@ DECLARE_SOURCE(
 
         for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
-            const int dataId = glid + numVec * numWorkItemsPerGroup * i;
+            const int dataId  = glid + numVec * numWorkItemsPerGroup * i;
             const int meansId = dataId % numFeatures;
             if (dataId < numFeatures *  numVec)
             {
@@ -76,14 +76,14 @@ DECLARE_SOURCE(
     __kernel void whitening(__global algorithmFPType * transformedBlock, __global const algorithmFPType * invEigenValues,
                             const uint maxWorkItemsPerGroup, const uint numComponents) {
 
-        const int glid = get_global_id(0);
+        const int glid                 = get_global_id(0);
         const int numWorkItemsPerGroup = get_local_size(0);
-        const int numVec = get_num_groups(0);
+        const int numVec               = get_num_groups(0);
 
         uint numOfDataItemsProcessedByWI = numComponents / maxWorkItemsPerGroup;
         for(uint i = 0; i < numOfDataItemsProcessedByWI + 1; i++)
         {
-            const int dataId = glid + numVec * numWorkItemsPerGroup * i;
+            const int dataId   = glid + numVec * numWorkItemsPerGroup * i;
             const int eigValId = dataId % numComponents;
             if (dataId < numComponents *  numVec)
             {

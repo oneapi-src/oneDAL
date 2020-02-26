@@ -274,10 +274,6 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     bool isWhitening = pEigenvalues != nullptr;
     bool isNormalize = pMeans != nullptr || pVariances != nullptr;
 
-    BlockDescriptor<algorithmFPType> dataBlock;
-    DAAL_CHECK_STATUS(status, data.getBlockOfRows(0, numVectors, ReadWriteMode::readOnly, dataBlock));
-    auto dataBuffer = dataBlock.getBuffer();
-
     auto copyBlock = ctx.allocate(TypeIds::id<algorithmFPType>(), numVectors * numFeatures, &status);
     DAAL_CHECK_STATUS(status, copyBufferByRef(ctx, copyBlock, data, numVectors, numFeatures));
 
@@ -301,7 +297,6 @@ services::Status TransformKernelOneAPI<algorithmFPType, method>::compute(Numeric
     }
     transformedData.releaseBlockOfRows(transformedBlock);
     eigenvectors.releaseBlockOfRows(basis);
-    data.releaseBlockOfRows(dataBlock);
 
     return status;
 } /* void TransformKernelOneAPI<algorithmFPType, defaultDense>::compute */
