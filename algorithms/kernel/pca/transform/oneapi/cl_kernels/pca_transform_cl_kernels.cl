@@ -49,9 +49,7 @@ DECLARE_SOURCE(
     __kernel void normalize(__global algorithmFPType * copyBlock, __global const algorithmFPType * rawMeans,
                             __global const algorithmFPType * invSigmas, uint numMeans, uint numInvSigmas, const uint maxWorkItemsPerGroup,
                             const uint numFeatures) {
-        const int tid                  = get_local_id(0);
         const int glid                 = get_global_id(0);
-        const int gid                  = get_group_id(0);
         const int numWorkItemsPerGroup = get_local_size(0);
         const int numVec               = get_num_groups(0);
 
@@ -77,9 +75,7 @@ DECLARE_SOURCE(
 
     __kernel void whitening(__global algorithmFPType * transformedBlock, __global const algorithmFPType * invEigenValues,
                             const uint maxWorkItemsPerGroup, const uint numComponents) {
-        
 
-        const int tid = get_local_id(0);
         const int glid = get_global_id(0);
         const int numWorkItemsPerGroup = get_local_size(0);
         const int numVec = get_num_groups(0);
