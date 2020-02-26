@@ -403,6 +403,7 @@ enum ErrorID
     // Other errors: -100000..
     ErrorObjectDoesNotSupportSerialization = -100000, /*!< SerializationIface is not implemented or implemented incorrectly */
     ErrorExecutionContext                  = -100001, /*!< Execution context errors*/
+    ErrorHashTableCollision                = -100002, /*!< Hash table collision happened. Please, increase the buffer size.*/
 
     ErrorCouldntAttachCurrentThreadToJavaVM       = -110001, /*!< Couldn't attach current thread to Java VM */
     ErrorCouldntCreateGlobalReferenceToJavaObject = -110002, /*!< Couldn't create global reference to Java object */
