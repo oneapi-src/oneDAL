@@ -98,6 +98,16 @@ public:
     String & operator=(const String & other);
 
     /**
+     * Comparison operators: equal to
+     */
+    bool operator==(const String & other);
+
+    /**
+     * Comparison operators: not equal to
+     */
+    bool operator!=(const String & other);
+
+    /**
      * Returns the number of characters in the string
      * \return The number of characters in the string
      */

@@ -927,6 +927,7 @@ void ErrorMessageCollection::parseResourceFile()
     // Other errors: -100000..
     add(ErrorObjectDoesNotSupportSerialization, "SerializationIface is not implemented or implemented incorrectly");
     add(ErrorExecutionContext, "Execution context error");
+    add(ErrorHashTableCollision, "Hash table collision happened. Please, increase the buffer size.");
 
     add(ErrorCouldntAttachCurrentThreadToJavaVM, "Couldn't attach current thread to Java VM");
     add(ErrorCouldntCreateGlobalReferenceToJavaObject, "Couldn't create global reference to Java object");
