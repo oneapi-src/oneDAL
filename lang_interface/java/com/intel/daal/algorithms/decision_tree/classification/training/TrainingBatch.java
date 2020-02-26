@@ -26,7 +26,6 @@
 package com.intel.daal.algorithms.decision_tree.classification.training;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.algorithms.Precision;
 import com.intel.daal.algorithms.decision_tree.classification.Parameter;
 import com.intel.daal.services.DaalContext;

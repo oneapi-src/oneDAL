@@ -22,11 +22,9 @@
 package com.intel.daal.algorithms.decision_tree.regression.training;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.data_management.data.Factory;
 import com.intel.daal.data_management.data.NumericTable;
 import com.intel.daal.services.DaalContext;
-import com.intel.daal.algorithms.Precision;
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__DECISION_TREE__REGRESSION__TRAINING__TRAININGINPUT"></a>

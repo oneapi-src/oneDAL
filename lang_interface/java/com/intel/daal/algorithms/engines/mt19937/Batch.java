@@ -26,7 +26,6 @@
 package com.intel.daal.algorithms.engines.mt19937;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.engines.Input;
 import com.intel.daal.algorithms.engines.Result;
 import com.intel.daal.algorithms.Precision;
 import com.intel.daal.services.DaalContext;

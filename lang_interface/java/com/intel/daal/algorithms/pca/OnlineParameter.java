@@ -23,7 +23,6 @@ package com.intel.daal.algorithms.pca;
 
 import com.intel.daal.utils.*;
 import com.intel.daal.algorithms.Precision;
-import com.intel.daal.algorithms.ComputeStep;
 import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.services.DaalContext;
 import com.intel.daal.algorithms.covariance.OnlineImpl;

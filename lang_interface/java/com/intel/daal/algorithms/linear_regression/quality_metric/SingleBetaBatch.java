@@ -23,7 +23,6 @@
 package com.intel.daal.algorithms.linear_regression.quality_metric;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.algorithms.Precision;
 import com.intel.daal.services.DaalContext;
 

@@ -26,7 +26,6 @@
 package com.intel.daal.algorithms.weak_learner.training;
 
 import com.intel.daal.utils.*;
-import com.intel.daal.algorithms.ComputeMode;
 import com.intel.daal.services.DaalContext;
 
 /**

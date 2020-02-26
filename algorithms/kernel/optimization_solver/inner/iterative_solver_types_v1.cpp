@@ -63,6 +63,25 @@ Parameter::Parameter(const Parameter & other)
     }
 }
 
+Parameter & Parameter::operator=(const Parameter & other)
+{
+    nIterations            = other.nIterations;
+    accuracyThreshold      = other.accuracyThreshold;
+    optionalResultRequired = other.optionalResultRequired;
+    batchSize              = other.batchSize;
+
+    if (other.function)
+    {
+        function = other.function->clone();
+    }
+    else
+    {
+        function.reset();
+    }
+
+    return *this;
+}
+
 services::Status Parameter::check() const
 {
     DAAL_CHECK_EX(function.get(), ErrorIncorrectParameter, ArgumentName, "function");

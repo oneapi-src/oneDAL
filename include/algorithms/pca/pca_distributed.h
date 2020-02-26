@@ -455,6 +455,9 @@ protected:
         _partialResult.reset(new PartialResult<svdDense>());
         _result.reset(new ResultType());
     }
+
+private:
+    Distributed & operator=(const Distributed &);
 };
 /** @} */
 } // namespace interface1
