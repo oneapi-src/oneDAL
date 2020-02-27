@@ -92,10 +92,10 @@ class ElasticNetDenseBatch {
 
         elasticNetTrain.input.set(TrainingInputId.data, trainData);
         elasticNetTrain.input.set(TrainingInputId.dependentVariable, trainDependentVariables);
-        NumericTable elasticNetL1Parameters = new HomogenNumericTable(context, Float.class, nDependentVariables, 1, NumericTable.AllocationFlag.DoAllocate, 0.1);
-        NumericTable elasticNetL2Parameters = new HomogenNumericTable(context, Float.class, nDependentVariables, 1, NumericTable.AllocationFlag.DoAllocate, 0.2);
-        elasticNetTrain.parameter.setElasticNetL1Parameters(elasticNetL1Parameters);
-        elasticNetTrain.parameter.setElasticNetL2Parameters(elasticNetL2Parameters);
+        NumericTable penaltyL1 = new HomogenNumericTable(context, Float.class, nDependentVariables, 1, NumericTable.AllocationFlag.DoAllocate, 0.5);
+        NumericTable penaltyL2 = new HomogenNumericTable(context, Float.class, nDependentVariables, 1, NumericTable.AllocationFlag.DoAllocate, 0.5);
+        elasticNetTrain.parameter.setPenaltyL1(penaltyL1);
+        elasticNetTrain.parameter.setPenaltyL2(penaltyL2);
 
         /* Build the multiple elastic net model */
         TrainingResult trainingResult = elasticNetTrain.compute();

@@ -49,19 +49,19 @@ public class TrainParameter extends com.intel.daal.algorithms.Parameter {
     /**
      * Sets the numeric table that represents L1 elastic net parameters. If no L1 elastic net parameters are provided,
      * the implementation will generate L1 elastic net parameters equal to 1.
-     * @param elasticNetL1Parameters The numeric table that represents L1 elastic net parameters
+     * @param penaltyL1 The numeric table that represents L1 elastic net parameters
      */
-    public void setElasticNetL1Parameters(NumericTable elasticNetL1Parameters) {
-        cSetElasticNetL1Parameters(this.cObject, elasticNetL1Parameters.getCObject());
+    public void setPenaltyL1(NumericTable penaltyL1) {
+        cSetPenaltyL1(this.cObject, penaltyL1.getCObject());
     }
 
     /**
      * Sets the numeric table that represents L2 elastic net parameters. If no L2 elastic net parameters are provided,
      * the implementation will generate L2 elastic net parameters equal to 1.
-     * @param elasticNetL2Parameters The numeric table that represents L2 elastic net parameters
+     * @param penaltyL2 The numeric table that represents L2 elastic net parameters
      */
-    public void setElasticNetL2Parameters(NumericTable elasticNetL2Parameters) {
-        cSetElasticNetL2Parameters(this.cObject, elasticNetL2Parameters.getCObject());
+    public void setPenaltyL2(NumericTable penaltyL2) {
+        cSetPenaltyL2(this.cObject, penaltyL2.getCObject());
     }
 
     /**
@@ -69,8 +69,8 @@ public class TrainParameter extends com.intel.daal.algorithms.Parameter {
      * the implementation will generate L1 elastic net parameters equal to 1.
      * @return The numeric table that represents L1 elastic net parameters.
      */
-    public NumericTable getElasticNetL1Parameters() {
-        return (NumericTable)Factory.instance().createObject(getContext(), cGetElasticNetL1Parameters(this.cObject));
+    public NumericTable getPenaltyL1() {
+        return (NumericTable)Factory.instance().createObject(getContext(), cGetPenaltyL1(this.cObject));
     }
 
     /**
@@ -78,8 +78,8 @@ public class TrainParameter extends com.intel.daal.algorithms.Parameter {
      * the implementation will generate L2 elastic net parameters equal to 1.
      * @return The numeric table that represents L2 elastic net parameters.
      */
-    public NumericTable getElasticNetL2Parameters() {
-        return (NumericTable)Factory.instance().createObject(getContext(), cGetElasticNetL2Parameters(this.cObject));
+    public NumericTable getPenaltyL2() {
+        return (NumericTable)Factory.instance().createObject(getContext(), cGetPenaltyL2(this.cObject));
     }
 
     /**
@@ -143,10 +143,10 @@ public class TrainParameter extends com.intel.daal.algorithms.Parameter {
         return new com.intel.daal.algorithms.optimization_solver.iterative_solver.Batch(getContext(), cGetOptimizationSolver(this.cObject));
     }
 
-    private native void cSetElasticNetL1Parameters(long parAddr, long elasticNetL1Parameters);
-    private native void cSetElasticNetL2Parameters(long parAddr, long elasticNetL2Parameters);
-    private native long cGetElasticNetL1Parameters(long parAddr);
-    private native long cGetElasticNetL2Parameters(long parAddr);
+    private native void cSetPenaltyL1(long parAddr, long penaltyL1);
+    private native void cSetPenaltyL2(long parAddr, long penaltyL2);
+    private native long cGetPenaltyL1(long parAddr);
+    private native long cGetPenaltyL2(long parAddr);
     private native void cSetInterceptFlag(long parAddr, boolean interceptFlag);
     private native boolean cGetInterceptFlag(long parAddr);
     private native void cSetDataUseInComputation(long parAddr, int flag);

@@ -371,9 +371,7 @@
     DECLARE_DAAL_STRING_CONST(step13Assignments                  ) \
     DECLARE_DAAL_STRING_CONST(step13AssignmentQueries            ) \
     DECLARE_DAAL_STRING_CONST(gramMatrix                         ) \
-    DECLARE_DAAL_STRING_CONST(lassoParameters                    ) \
-    DECLARE_DAAL_STRING_CONST(elasticNetL1Parameters             ) \
-    DECLARE_DAAL_STRING_CONST(elasticNetL2Parameters             )
+    DECLARE_DAAL_STRING_CONST(lassoParameters                    )
 
 /**
  *  Intel(R) Data Analytics Acceleration Library (Intel(R) DAAL) namespace
