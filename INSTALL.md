@@ -18,12 +18,14 @@
 # Installation from Sources
 
 Required Software:
-* C/C++ compiler (see [System Requirements](https://software.intel.com/en-us/articles/intel-data-analytics-acceleration-library-2020-system-requirements))
-* Java\* JDK (see [System Requirements](https://software.intel.com/en-us/articles/intel-data-analytics-acceleration-library-2020-system-requirements))
+* C/C++ Compiler
+* Java\* JDK
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2 installer](http://msys2.github.io) with the msys/make package (Windows\* only); install the package as follows:
 
         pacman -S msys/make
+
+For details, see [System Requirements for oneDAL](https://software.intel.com/en-us/articles/system-requirements-for-oneapi-data-analytics-library#).
 
 ## Installation Steps
 1. Clone the sources from GitHub\* as follows:
