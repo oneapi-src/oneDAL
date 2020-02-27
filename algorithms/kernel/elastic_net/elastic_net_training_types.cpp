@@ -149,19 +149,19 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     const Parameter * parameter = static_cast<Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
     DAAL_CHECK_STATUS(s, parameter->check());
 
-    const size_t elasticNetL1ParamsNumberOfColumns = parameter->elasticNetL1Parameters->getNumberOfColumns();
-    DAAL_CHECK((elasticNetL1ParamsNumberOfColumns == 1) || (nColumnsInDepVariable == elasticNetL1ParamsNumberOfColumns),
+    const size_t penaltyL1NumberOfColumns = parameter->penaltyL1->getNumberOfColumns();
+    DAAL_CHECK((penaltyL1NumberOfColumns == 1) || (nColumnsInDepVariable == penaltyL1NumberOfColumns),
                ErrorIncorrectNumberOfColumns);
-    const size_t elasticNetL2ParamsNumberOfColumns = parameter->elasticNetL2Parameters->getNumberOfColumns();
-    DAAL_CHECK((elasticNetL2ParamsNumberOfColumns == 1) || (nColumnsInDepVariable == elasticNetL2ParamsNumberOfColumns),
+    const size_t penaltyL2NumberOfColumns = parameter->penaltyL2->getNumberOfColumns();
+    DAAL_CHECK((penaltyL2NumberOfColumns == 1) || (nColumnsInDepVariable == penaltyL2NumberOfColumns),
                ErrorIncorrectNumberOfColumns);
     return services::Status();
 }
 
 Parameter::Parameter(const SolverPtr & solver)
     : linear_model::Parameter(),
-      elasticNetL1Parameters(new HomogenNumericTable<double>(1, 1, NumericTableIface::doAllocate, 0.5)),
-      elasticNetL2Parameters(new HomogenNumericTable<double>(1, 1, NumericTableIface::doAllocate, 0.5)),
+      penaltyL1(HomogenNumericTable<double>::create(1, 1, NumericTableIface::doAllocate, 0.5)),
+      penaltyL2(HomogenNumericTable<double>::create(1, 1, NumericTableIface::doAllocate, 0.5)),
       optimizationSolver(solver),
       dataUseInComputation(doUse),
       optResultToCompute(0)
@@ -169,9 +169,8 @@ Parameter::Parameter(const SolverPtr & solver)
 
 services::Status Parameter::check() const
 {
-    services::Status status = checkNumericTable(elasticNetL1Parameters.get(), elasticNetL1ParametersStr(), packed_mask, 0, 0, 1);
-    status =
-        (status == services::Status() ? checkNumericTable(elasticNetL2Parameters.get(), elasticNetL2ParametersStr(), packed_mask, 0, 0, 1) : status);
+    services::Status status = checkNumericTable(penaltyL1.get(), penaltyL1Str(), packed_mask, 0, 0, 1);
+    status = (status == services::Status() ? checkNumericTable(penaltyL2.get(), penaltyL2Str(), packed_mask, 0, 0, 1) : status);
     return status;
 }
 
