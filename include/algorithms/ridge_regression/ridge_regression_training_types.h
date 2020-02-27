@@ -192,7 +192,7 @@ class DistributedInput
 class DAAL_EXPORT PartialResult : public linear_model::training::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialResult);
+    DECLARE_SERIALIZABLE_CAST(PartialResult)
     PartialResult();
 
     /**
@@ -334,7 +334,7 @@ public:
 class DAAL_EXPORT Result : public linear_model::training::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
 
     /**

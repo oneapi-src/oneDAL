@@ -66,7 +66,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) {}
+    Batch(const Batch & /*other*/) {}
 
     ~Batch() DAAL_C11_OVERRIDE {}
 
@@ -143,7 +143,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch & other) {}
+    Batch(const Batch & /*other*/) {}
 
     ~Batch() DAAL_C11_OVERRIDE {}
 

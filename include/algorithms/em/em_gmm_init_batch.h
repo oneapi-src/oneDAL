@@ -158,7 +158,7 @@ private:
 using interface1::BatchContainer;
 using interface1::Batch;
 
-}; // namespace init
+} // namespace init
 } // namespace em_gmm
 } // namespace algorithms
 } // namespace daal

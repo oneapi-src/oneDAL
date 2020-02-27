@@ -49,7 +49,7 @@ template <typename DataType = DAAL_DATA_TYPE>
 class DAAL_EXPORT Matrix : public HomogenNumericTable<DataType>
 {
 public:
-    DECLARE_SERIALIZABLE_TAG();
+    DECLARE_SERIALIZABLE_TAG()
 
     /**
      *  Constructor for a matrix

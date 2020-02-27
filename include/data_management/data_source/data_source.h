@@ -196,10 +196,10 @@ class DataSource : public DataSourceIface
 public:
     DataSource()
         : _dict(),
-          _errors(new services::ErrorCollection()),
-          _initialMaxRows(10),
           _autoNumericTableFlag(doAllocateNumericTable),
-          _autoDictionaryFlag(doDictionaryFromContext)
+          _autoDictionaryFlag(doDictionaryFromContext),
+          _errors(new services::ErrorCollection()),
+          _initialMaxRows(10)
     {}
 
     virtual ~DataSource() {}
@@ -246,7 +246,7 @@ public:
         return loadDataBlock(maxRows, this->DataSource::_spnt.get());
     }
 
-    size_t loadDataBlock(size_t maxRows, NumericTable * nt) DAAL_C11_OVERRIDE
+    size_t loadDataBlock(size_t /*maxRows*/, NumericTable * /*nt*/) DAAL_C11_OVERRIDE
     {
         this->_status.add(services::throwIfPossible(services::ErrorMethodNotSupported));
         return 0;
@@ -264,7 +264,7 @@ public:
         return loadDataBlock(maxRows, rowOffset, fullRows, this->DataSource::_spnt.get());
     }
 
-    size_t loadDataBlock(size_t maxRows, size_t rowOffset, size_t fullRows, NumericTable * nt) DAAL_C11_OVERRIDE
+    size_t loadDataBlock(size_t /*maxRows*/, size_t /*rowOffset*/, size_t /*fullRows*/, NumericTable * /*nt*/) DAAL_C11_OVERRIDE
     {
         this->_status.add(services::throwIfPossible(services::ErrorMethodNotSupported));
         return 0;
@@ -285,7 +285,7 @@ public:
         return loadDataBlock(this->DataSource::_spnt.get());
     }
 
-    size_t loadDataBlock(NumericTable * nt) DAAL_C11_OVERRIDE
+    size_t loadDataBlock(NumericTable * /*nt*/) DAAL_C11_OVERRIDE
     {
         this->_status.add(services::throwIfPossible(services::ErrorMethodNotSupported));
         return 0;

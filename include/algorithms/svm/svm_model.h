@@ -198,7 +198,7 @@ public:
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
-    Model() : _SV(), _SVIndices(), _SVCoeff(), _bias(0.0) {}
+    Model() : _SV(), _SVCoeff(), _bias(0.0), _SVIndices() {}
 
     /**
      * Constructs empty SVM model for deserialization

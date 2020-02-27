@@ -143,7 +143,7 @@ public:
     /**
      * Constructs a container for the logistic loss objective function in the batch processing mode
      */
-    BatchContainer(daal::services::Environment::env * daalEnv) {}
+    BatchContainer(daal::services::Environment::env * /*daalEnv*/) {}
 
     /**
      * Computes the result of the logistic loss objective function in the batch processing mode
@@ -169,7 +169,7 @@ public:
     /**
      * Main constructor
      */
-    Batch(size_t numberOfTerms) : parameter(numberOfTerms), super(numberOfTerms, &input, &parameter) { initialize(); }
+    Batch(size_t numberOfTerms) : super(numberOfTerms, &input, &parameter), parameter(numberOfTerms) { initialize(); }
 
     /**
      * Constructs an the Mean squared error objective function algorithm by copying input objects and parameters
@@ -178,7 +178,7 @@ public:
      *                  and parameters of the algorithm
      */
     Batch(const Batch<algorithmFPType> & other)
-        : parameter(other.parameter), super(other.parameter.numberOfTerms, &input, &parameter), input(other.input)
+        : super(other.parameter.numberOfTerms, &input, &parameter), input(other.input), parameter(other.parameter)
     {
         initialize();
     }

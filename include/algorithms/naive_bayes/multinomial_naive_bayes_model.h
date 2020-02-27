@@ -224,7 +224,7 @@ typedef services::SharedPtr<Model> ModelPtr;
 class DAAL_EXPORT PartialModel : public classifier::Model
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialModel);
+    DECLARE_SERIALIZABLE_CAST(PartialModel)
     /**
      * Empty constructor for deserialization
      * \DAAL_DEPRECATED_USE{ PartialModel::create }
@@ -295,7 +295,7 @@ public:
      *  Sets the number of features in the dataset was used on the training stage
      *  \param[in]  nFeatures  Number of features in the dataset was used on the training stage
      */
-    void setNFeatures(size_t nFeatures) DAAL_C11_OVERRIDE {}
+    void setNFeatures(size_t /*nFeatures*/) DAAL_C11_OVERRIDE {}
 
     template <typename modelFPType>
     services::Status initialize()
