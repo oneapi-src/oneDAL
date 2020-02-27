@@ -84,8 +84,8 @@ public:
     size_t getMaxNumberOfStreams() const;
 
 protected:
-    virtual services::Status addImpl(size_t numberOfStreams) { return services::Status(); }
-    virtual services::SharedPtr<FamilyBatchBase> getImpl(size_t i) const { return services::SharedPtr<FamilyBatchBase>(); }
+    virtual services::Status addImpl(size_t /*numberOfStreams*/) { return services::Status(); }
+    virtual services::SharedPtr<FamilyBatchBase> getImpl(size_t /*i*/) const { return services::SharedPtr<FamilyBatchBase>(); }
     virtual size_t getNumberOfStreamsImpl() const { return 0; }
     virtual size_t getMaxNumberOfStreamsImpl() const { return 0; }
 

@@ -166,7 +166,7 @@ typedef services::SharedPtr<Model> ModelPtr;
 class DAAL_EXPORT PartialModel : public daal::algorithms::Model
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialModel);
+    DECLARE_SERIALIZABLE_CAST(PartialModel)
 
     /**
      * Constructs a partial implicit ALS model of a specified size

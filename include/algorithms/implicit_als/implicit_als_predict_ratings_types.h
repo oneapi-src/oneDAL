@@ -247,7 +247,7 @@ public:
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result();
     virtual ~Result() {}
 
@@ -299,7 +299,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 class DAAL_EXPORT PartialResult : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(PartialResult);
+    DECLARE_SERIALIZABLE_CAST(PartialResult)
     /** Default constructor */
     PartialResult();
     /** Default destructor */

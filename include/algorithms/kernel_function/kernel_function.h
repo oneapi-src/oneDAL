@@ -60,7 +60,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    KernelIface(const KernelIface & other) { initialize(); }
+    KernelIface(const KernelIface & /*other*/) { initialize(); }
 
     /**
      * Get input objects for the kernel function algorithm

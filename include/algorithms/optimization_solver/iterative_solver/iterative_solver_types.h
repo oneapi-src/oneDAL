@@ -227,7 +227,7 @@ public:
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result() : daal::algorithms::Result(lastOptionalResultId + 1) {}
 
     ~Result() DAAL_C11_OVERRIDE {};
@@ -437,7 +437,7 @@ public:
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     Result() : daal::algorithms::Result(lastOptionalResultId + 1) {}
 
     ~Result() DAAL_C11_OVERRIDE {};

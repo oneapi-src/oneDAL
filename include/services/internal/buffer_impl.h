@@ -47,9 +47,9 @@ template <typename T>
 class BufferVisitor : public Base
 {
 public:
-    virtual void operator()(const HostBuffer<T> & buffer) {}
-    virtual void operator()(const UsmBufferIface<T> & buffer) {}
-    virtual void operator()(const SyclBufferIface<T> & buffer) {}
+    virtual void operator()(const HostBuffer<T> & /*buffer*/) {}
+    virtual void operator()(const UsmBufferIface<T> & /*buffer*/) {}
+    virtual void operator()(const SyclBufferIface<T> & /*buffer*/) {}
 };
 
 /**

@@ -321,7 +321,7 @@ public:
 class DAAL_EXPORT OnlinePartialResult : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(OnlinePartialResult);
+    DECLARE_SERIALIZABLE_CAST(OnlinePartialResult)
     /** Default constructor */
     OnlinePartialResult();
     /** Default destructor */
@@ -404,7 +404,7 @@ typedef services::SharedPtr<OnlinePartialResult> OnlinePartialResultPtr;
 class DAAL_EXPORT Result : public daal::algorithms::Result
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(Result);
+    DECLARE_SERIALIZABLE_CAST(Result)
     /** Default constructor */
     Result();
     /** Default destructor */
@@ -490,7 +490,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 class DAAL_EXPORT DistributedPartialResult : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(DistributedPartialResult);
+    DECLARE_SERIALIZABLE_CAST(DistributedPartialResult)
     /** Default constructor */
     DistributedPartialResult();
     /** Default destructor */
@@ -589,7 +589,7 @@ typedef services::SharedPtr<DistributedPartialResult> DistributedPartialResultPt
 class DAAL_EXPORT DistributedPartialResultStep3 : public daal::algorithms::PartialResult
 {
 public:
-    DECLARE_SERIALIZABLE_CAST(DistributedPartialResultStep3);
+    DECLARE_SERIALIZABLE_CAST(DistributedPartialResultStep3)
     /** Default constructor */
     DistributedPartialResultStep3();
     /** Default destructor */

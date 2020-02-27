@@ -41,9 +41,9 @@ namespace internal
 class FeatureModifierPrimitive : public Base
 {
 public:
-    virtual void initialize(Config & context, size_t index) {}
+    virtual void initialize(Config & /*context*/, size_t /*index*/) {}
     virtual DAAL_DATA_TYPE apply(Context & context, size_t index) = 0;
-    virtual void finalize(Config & context, size_t index) {}
+    virtual void finalize(Config & /*context*/, size_t /*index*/) {}
 };
 
 /**
@@ -53,7 +53,7 @@ public:
 class DefaultFeatureModifierPrimitive : public FeatureModifierPrimitive
 {
 public:
-    virtual DAAL_DATA_TYPE apply(Context & context, size_t index) DAAL_C11_OVERRIDE { return (DAAL_DATA_TYPE)0; }
+    virtual DAAL_DATA_TYPE apply(Context & /*context*/, size_t /*index*/) DAAL_C11_OVERRIDE { return (DAAL_DATA_TYPE)0; }
 };
 
 /**
