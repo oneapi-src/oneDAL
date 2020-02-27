@@ -19,12 +19,8 @@
     #ifndef __DAAL_ONEAPI_INTERNAL_EXECUTION_CONTEXT_SYCL_H__
         #define __DAAL_ONEAPI_INTERNAL_EXECUTION_CONTEXT_SYCL_H__
 
-        #include <vector>
-        #include <cstring>
-        #include <CL/cl.h>
-        #include <CL/sycl.hpp>
-
         #include "services/daal_string.h"
+        #include "services/internal/hash_table.h"
         #include "oneapi/internal/execution_context.h"
         #include "oneapi/internal/kernel_scheduler_sycl.h"
         #include "oneapi/internal/math/blas_executor.h"
@@ -41,149 +37,106 @@ namespace interface1
 {
 class OpenClKernelFactory : public Base, public ClKernelFactoryIface
 {
-private:
-    class ProgramCacheEntry
-    {
-    private:
-        OpenClProgramRef * _program;
-
-    public:
-        ProgramCacheEntry() : _program(nullptr) {}
-
-        ~ProgramCacheEntry() { delete _program; }
-
-        void setProgram(OpenClProgramRef * program) { _program = program; }
-
-        OpenClProgramRef * getProgram() { return _program; }
-
-        const char * getName(services::Status * status = nullptr)
-        {
-            if (!_program)
-            {
-                if (status)
-                {
-                    status->add(services::ErrorExecutionContext);
-                }
-                return nullptr;
-            }
-            return _program->getName();
-        }
-    };
-
-    class KernelCacheEntry
-    {
-    private:
-        KernelPtr _kernel;
-        services::String _name;
-
-    public:
-        KernelCacheEntry() : _kernel(), _name() {}
-
-        ~KernelCacheEntry() {}
-
-        void setKernel(KernelPtr kernel, const char * name)
-        {
-            _name   = name;
-            _kernel = kernel;
-        }
-
-        KernelPtr getKernel() { return _kernel; }
-
-        const char * getName() { return _name.c_str(); }
-    };
-
 public:
     explicit OpenClKernelFactory(cl::sycl::queue & deviceQueue)
-        : _clProgramRef(nullptr), _executionTarget(ExecutionTargetIds::unspecified), _deviceQueue(deviceQueue)
+        : _currentProgramRef(nullptr), _executionTarget(ExecutionTargetIds::unspecified), _deviceQueue(deviceQueue)
     {}
 
-    void build(ExecutionTargetId target, const char * key, const char * program, const char * options = "",
+    ~OpenClKernelFactory() DAAL_C11_OVERRIDE {}
+
+    void build(ExecutionTargetId target, const char * name, const char * program, const char * options = "",
                services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
         // TODO: Thread safe?
-        // TODO Rework of "cache"
-
-        uint64_t id = hash(key) % SIZE_CACHE_PROGRAM;
-
-        while (_clProgramCache[id].getProgram() != nullptr && strcmp(_clProgramCache[id].getName(), key) != 0)
+        services::Status localStatus;
+        services::String key = name;
+        const bool res       = programHashTable.contain(key, localStatus);
+        if (!localStatus.ok())
         {
-            id = (id + 1) % SIZE_CACHE_PROGRAM;
+            services::internal::tryAssignStatus(status, localStatus);
+            return;
         }
-
-        if (_clProgramCache[id].getProgram())
+        if (!res)
         {
-            _clProgramRef    = _clProgramCache[id].getProgram();
-            _executionTarget = target;
+            auto programPtr = services::SharedPtr<OpenClProgramRef>(
+                new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), name, program, options, &localStatus));
+            if (!localStatus.ok())
+            {
+                services::internal::tryAssignStatus(status, localStatus);
+                return;
+            }
+            programHashTable.add(key, programPtr, localStatus);
+            if (!localStatus.ok())
+            {
+                services::internal::tryAssignStatus(status, localStatus);
+                return;
+            }
+            _currentProgramRef = programPtr.get();
         }
         else
         {
-            _clProgramCache[id].setProgram(
-                new OpenClProgramRef(_deviceQueue.get_context().get(), _deviceQueue.get_device().get(), key, program, options, status));
-            if (status != nullptr && !status->ok())
+            _currentProgramRef = programHashTable.get(key, localStatus).get();
+            if (!localStatus.ok())
             {
+                services::internal::tryAssignStatus(status, localStatus);
                 return;
             }
-            _clProgramRef    = _clProgramCache[id].getProgram();
-            _executionTarget = target;
         }
+
+        _executionTarget = target;
     }
 
     KernelPtr getKernel(const char * kernelName, services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
-        DAAL_ASSERT(_clProgramRef);
-        DAAL_ASSERT(*_clProgramRef);
-        KernelPtr kernelPtr;
-
-        services::String keyCache = _clProgramRef->getName();
-        keyCache.add(kernelName);
-        uint64_t id = hash(keyCache.c_str()) % SIZE_CACHE_KERNEL;
-        // TODO: Thread safe?
-
-        while (_kernelCache[id].getKernel() && strcmp(_kernelCache[id].getName(), kernelName) != 0)
+        if (_currentProgramRef == nullptr)
         {
-            id = (id + 1) % SIZE_CACHE_KERNEL;
+            services::internal::tryAssignStatus(status, services::ErrorExecutionContext);
+            return KernelPtr();
         }
 
-        if (_kernelCache[id].getKernel())
+        services::Status localStatus;
+
+        services::String key = _currentProgramRef->getName();
+        key.add(kernelName);
+
+        bool res = kernelHashTable.contain(key, localStatus);
+        if (!localStatus.ok())
         {
-            kernelPtr = _kernelCache[id].getKernel();
+            services::internal::tryAssignStatus(status, localStatus);
+            return KernelPtr();
+        }
+        if (res)
+        {
+            auto kernel = kernelHashTable.get(key, localStatus);
+            services::internal::tryAssignStatus(status, localStatus);
+            return kernel;
         }
         else
         {
-            auto kernelRef = OpenClKernelRef(_clProgramRef->get(), kernelName, status);
-            if (status != nullptr && !status->ok())
+            auto kernelRef = OpenClKernelRef(_currentProgramRef->get(), kernelName, &localStatus);
+            if (!localStatus.ok())
             {
+                services::internal::tryAssignStatus(status, localStatus);
                 return KernelPtr();
             }
-            kernelPtr = KernelPtr(new OpenClKernel(_executionTarget, *_clProgramRef, kernelRef));
-            _kernelCache[id].setKernel(kernelPtr, kernelName);
+            KernelPtr kernel(new OpenClKernel(_executionTarget, *_currentProgramRef, kernelRef));
+            kernelHashTable.add(key, kernel, localStatus);
+            if (!localStatus.ok())
+            {
+                services::internal::tryAssignStatus(status, localStatus);
+                return KernelPtr();
+            }
+            return kernel;
         }
-        return kernelPtr;
-    }
-
-    ~OpenClKernelFactory() DAAL_C11_OVERRIDE {}
-
-protected:
-    uint64_t hash(const char * key)
-    {
-        uint64_t hash    = 5381;
-        const char * str = key;
-        char c;
-
-        while (c = *str++)
-        {
-            hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-        }
-        return hash;
     }
 
 private:
-    static const size_t SIZE_CACHE_PROGRAM = 512u;
-    static const size_t SIZE_CACHE_KERNEL  = 2048u;
-    ProgramCacheEntry _clProgramCache[SIZE_CACHE_PROGRAM];
-    KernelCacheEntry _kernelCache[SIZE_CACHE_KERNEL];
+    static const size_t SIZE_HASHTABLE_PROGRAM = 1024;
+    static const size_t SIZE_HASHTABLE_KERNEL  = 4096;
+    services::internal::HashTable<OpenClProgramRef, SIZE_HASHTABLE_PROGRAM> programHashTable;
+    services::internal::HashTable<KernelIface, SIZE_HASHTABLE_KERNEL> kernelHashTable;
 
-    OpenClProgramRef * _clProgramRef;
+    OpenClProgramRef * _currentProgramRef;
 
     ExecutionTargetId _executionTarget;
     cl::sycl::queue & _deviceQueue;
@@ -243,7 +196,7 @@ public:
         math::SyrkExecutor::run(_deviceQueue, upper_lower, trans, n, k, alpha, a_buffer, lda, offsetA, beta, c_buffer, ldc, offsetC, status);
     }
 
-    void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, UniversalBuffer y_buffer, const int incy,
+    void axpy(const uint32_t n, const double a, const UniversalBuffer x_buffer, const int incx, const UniversalBuffer y_buffer, const int incy,
               services::Status * status = nullptr) DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(x_buffer.type() == y_buffer.type());

@@ -21,7 +21,6 @@
 #include "service/kernel/oneapi/math_service_types.h"
 #include "services/buffer.h"
 #include "service/kernel/oneapi/cl_kernels/sum_reducer.cl"
-#include "service/kernel/oneapi/service_defines_oneapi.h"
 #include "oneapi/internal/types_utils.h"
 #include "oneapi/internal/execution_context.h"
 
