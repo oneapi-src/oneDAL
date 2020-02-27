@@ -121,6 +121,18 @@ following parameters:
    * - nClasses
      - Not applicable.
      - The number of classes. A required parameter.
+   * - votingMethod
+     - weighted
+     - A flag that specifies which method is used to compute probabilities and class labels:
+
+       weighted
+         - Probability for each class is computed as a sample mean of estimates across all trees, where each estimate
+           is the normalized number of training samples for this class that were recorded in a particular leaf node for current input.
+         - The algorithm returns the label for the class that gets the maximal value in a sample mean.
+
+       unweighted
+         - Probabilities are computed as normalized votes distribution across all trees of the forest.
+         - The algorithm returns the label for the class that gets the majority of votes across all trees of the forest.
 
 Output
 ******
