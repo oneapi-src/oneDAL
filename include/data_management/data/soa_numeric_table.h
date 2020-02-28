@@ -79,8 +79,8 @@ public:
     DAAL_DEPRECATED SOANumericTable(NumericTableDictionary * ddict, size_t nRows, AllocationFlag memoryAllocationFlag = notAllocate)
         : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
     {
-        _layout     = soa;
-        _index      = 0;
+        _layout = soa;
+        _index  = 0;
 
         this->_status |= setNumberOfRowsImpl(nRows);
         if (!resizePointersArray(getNumberOfColumns()))
@@ -114,10 +114,7 @@ public:
     static services::SharedPtr<SOANumericTable> create(NumericTableDictionaryPtr ddict, size_t nRows,
                                                        AllocationFlag memoryAllocationFlag = notAllocate, services::Status * stat = NULL);
 
-    virtual ~SOANumericTable()
-    {
-        freeDataMemoryImpl();
-    }
+    virtual ~SOANumericTable() { freeDataMemoryImpl(); }
 
     /**
      *  Sets a pointer to an array of values for a given feature
@@ -253,7 +250,6 @@ public:
     }
 
 protected:
-
     class WrapperedRawPointer
     {
     protected:
@@ -276,7 +272,7 @@ protected:
             {
                 daal::services::daal_free(_arrOffsets);
                 _arrOffsets = NULL;
-                _count = 0;
+                _count      = 0;
             }
         }
 
@@ -285,10 +281,9 @@ protected:
 
         DAAL_INT64 * get() const { return _arrOffsets; }
 
-        WrapperedRawPointer & operator = (WrapperedRawPointer const & wrapper)
+        WrapperedRawPointer & operator=(WrapperedRawPointer const & wrapper)
         {
-            if (this == &wrapper)
-                return *this;
+            if (this == &wrapper) return *this;
 
             allocate(wrapper._count);
 
@@ -341,7 +336,7 @@ protected:
         }
 
         _wrapOffsets.deallocate();
-        _index      = 0;
+        _index = 0;
 
         return is_resized;
     }
@@ -485,7 +480,7 @@ private:
         /* compute offsets */
         for (size_t i = 0; i < ncols; ++i)
         {
-            char * pv      = (char *)(_arrays[i].get());
+            char * pv = (char *)(_arrays[i].get());
             DAAL_ASSERT(static_cast<DAAL_UINT64>(pv - ptrMin) <= MaxVal<long long>::get())
             _wrapOffsets.get()[i] = static_cast<DAAL_INT64>(pv - ptrMin);
         }
@@ -496,9 +491,9 @@ private:
     /* the method checks for the fact that all columns have the same data type and this type is double or float. */
     bool isHomogeneousFloatOrDouble() const
     {
-        const size_t ncols = getNumberOfColumns();
+        const size_t ncols             = getNumberOfColumns();
         const NumericTableFeature & f0 = (*_ddict)[0];
-        const auto indexType = f0.indexType;
+        const auto indexType           = f0.indexType;
 
         for (size_t i = 0; i < ncols; ++i)
         {
@@ -507,7 +502,7 @@ private:
         }
 
         return daal::data_management::features::IndexNumType::DAAL_FLOAT32 == indexType
-             || daal::data_management::features::IndexNumType::DAAL_FLOAT64 == indexType;
+               || daal::data_management::features::IndexNumType::DAAL_FLOAT64 == indexType;
     }
 
     template <typename T>
