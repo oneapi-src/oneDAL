@@ -27,6 +27,12 @@ namespace data_management
 {
 namespace internal
 {
+/**
+ * Checks that all values in given numeric table are finite
+ * \param[in]  table             Reference to numeric table
+ * \param[in]  allowNaN          Allow Not a Number special values existance
+ * \return                       Finiteness status
+ */
 template <typename DataType>
 DAAL_EXPORT bool allValuesAreFinite(NumericTable & table, bool allowNaN);
 
