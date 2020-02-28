@@ -281,10 +281,7 @@ protected:
         }
 
         WrapperedRawPointer() : _arrOffsets(NULL), _count(0) {};
-        ~WrapperedRawPointer()
-        {
-            deallocate();
-        }
+        ~WrapperedRawPointer() { deallocate(); }
 
         DAAL_INT64 * get() const { return _arrOffsets; }
 
