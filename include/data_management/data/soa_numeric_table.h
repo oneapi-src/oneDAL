@@ -80,7 +80,6 @@ public:
         : NumericTable(NumericTableDictionaryPtr(ddict, services::EmptyDeleter())), _arraysInitialized(0), _partialMemStatus(notAllocated)
     {
         _layout     = soa;
-        _arrOffsets = NULL;
         _index      = 0;
 
         this->_status |= setNumberOfRowsImpl(nRows);
@@ -118,11 +117,6 @@ public:
     virtual ~SOANumericTable()
     {
         freeDataMemoryImpl();
-        if (_arrOffsets)
-        {
-            daal::services::daal_free(_arrOffsets);
-            _arrOffsets = NULL;
-        }
     }
 
     /**
@@ -259,6 +253,57 @@ public:
     }
 
 protected:
+
+    class WrapperedRawPointer
+    {
+    protected:
+        DAAL_INT64 * _arrOffsets;
+        size_t _count;
+
+    public:
+        services::Status allocate(size_t count)
+        {
+            deallocate();
+            _arrOffsets = (DAAL_INT64 *)daal::services::daal_malloc(count * sizeof(DAAL_INT64));
+            DAAL_CHECK_MALLOC(_arrOffsets)
+            _count = count;
+            return services::Status();
+        }
+
+        void deallocate()
+        {
+            if (_arrOffsets)
+            {
+                daal::services::daal_free(_arrOffsets);
+                _arrOffsets = NULL;
+                _count = 0;
+            }
+        }
+
+        WrapperedRawPointer() : _arrOffsets(NULL), _count(0) {};
+        ~WrapperedRawPointer()
+        {
+            deallocate();
+        }
+
+        DAAL_INT64 * get() const { return _arrOffsets; }
+
+        WrapperedRawPointer & operator = (WrapperedRawPointer const & wrapper)
+        {
+            if (this == &wrapper)
+                return *this;
+
+            allocate(wrapper._count);
+
+            for (size_t i = 0; i < _count; ++i)
+            {
+                _arrOffsets[i] = wrapper._arrOffsets[i];
+            }
+
+            return *this;
+        }
+    };
+
     SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface::FeaturesEqual featuresEqual, services::Status & st);
 
     SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, AllocationFlag memoryAllocationFlag, services::Status & st);
@@ -266,7 +311,7 @@ protected:
     services::Collection<services::SharedPtr<byte> > _arrays;
     size_t _arraysInitialized;
     MemoryStatus _partialMemStatus;
-    DAAL_INT64 * _arrOffsets;
+    WrapperedRawPointer _wrapOffsets;
     size_t _index;
 
     bool resizePointersArray(size_t nColumns)
@@ -298,12 +343,8 @@ protected:
             _memStatus = notAllocated;
         }
 
-        if (_arrOffsets)
-        {
-            daal::services::daal_free(_arrOffsets);
-            _arrOffsets = NULL;
-            _index      = 0;
-        }
+        _wrapOffsets.deallocate();
+        _index      = 0;
 
         return is_resized;
     }
@@ -406,9 +447,9 @@ protected:
 private:
     services::Status generatesOffsets()
     {
-        if (isHomogeneous())
+        if (isHomogeneousFloatOrDouble() && isAllCompleted())
         {
-            if (isAllCompleted()) DAAL_CHECK_STATUS_VAR(searchMinPointer());
+            DAAL_CHECK_STATUS_VAR(searchMinPointer());
         }
 
         return services::Status();
@@ -416,7 +457,7 @@ private:
 
     bool isAllCompleted() const
     {
-        size_t ncols = getNumberOfColumns();
+        const size_t ncols = getNumberOfColumns();
 
         for (size_t i = 0; i < ncols; ++i)
         {
@@ -428,12 +469,9 @@ private:
 
     services::Status searchMinPointer()
     {
-        size_t ncols = getNumberOfColumns();
+        const size_t ncols = getNumberOfColumns();
 
-        if (_arrOffsets) daal::services::daal_free(_arrOffsets);
-
-        _arrOffsets = (DAAL_INT64 *)daal::services::daal_malloc(ncols * sizeof(DAAL_INT64));
-        DAAL_CHECK_MALLOC(_arrOffsets)
+        DAAL_CHECK_MALLOC(_wrapOffsets.allocate(ncols));
         _index        = 0;
         char * ptrMin = (char *)_arrays[0].get();
 
@@ -451,29 +489,28 @@ private:
         for (size_t i = 0; i < ncols; ++i)
         {
             char * pv      = (char *)(_arrays[i].get());
-            _arrOffsets[i] = (DAAL_INT64)(pv - ptrMin);
-            DAAL_ASSERT(_arrOffsets[i] >= 0)
+            DAAL_ASSERT(static_cast<DAAL_UINT64>(pv - ptrMin) <= MaxVal<long long>::get())
+            _wrapOffsets.get()[i] = static_cast<DAAL_INT64>(pv - ptrMin);
         }
 
         return services::Status();
     }
 
-    /* the method checks for the fact that all columns have the same data type. */
-    bool isHomogeneous() const
+    /* the method checks for the fact that all columns have the same data type and this type is double or float. */
+    bool isHomogeneousFloatOrDouble() const
     {
-        size_t ncols = getNumberOfColumns();
-
-        NumericTableFeature & f0 = (*_ddict)[0];
+        const size_t ncols = getNumberOfColumns();
+        const NumericTableFeature & f0 = (*_ddict)[0];
+        const auto indexType = f0.indexType;
 
         for (size_t i = 0; i < ncols; ++i)
         {
             NumericTableFeature & f1 = (*_ddict)[i];
-
-            if (f1.indexType != f0.indexType) return false;
+            if (f1.indexType != indexType) return false;
         }
 
-        return (int)f0.indexType == (int)internal::getConversionDataType<float>()
-               || (int)f0.indexType == (int)internal::getConversionDataType<double>();
+        return daal::data_management::features::IndexNumType::DAAL_FLOAT32 == indexType
+             || daal::data_management::features::IndexNumType::DAAL_FLOAT64 == indexType;
     }
 
     template <typename T>
@@ -501,14 +538,14 @@ private:
         T * buffer    = block.getBlockPtr();
         bool computed = false;
 
-        if (_arrOffsets)
+        if (_wrapOffsets.get())
         {
             NumericTableFeature & f = (*_ddict)[0];
 
             if ((int)internal::getConversionDataType<T>() == (int)f.indexType)
             {
                 T const * ptrMin = (T *)(_arrays[_index].get()) + idx;
-                computed         = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _arrOffsets);
+                computed         = data_management::internal::getVector<T>()(nrows, ncols, buffer, ptrMin, _wrapOffsets.get());
             }
         }
         if (!computed)

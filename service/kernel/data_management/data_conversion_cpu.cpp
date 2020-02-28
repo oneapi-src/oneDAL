@@ -36,9 +36,9 @@ void vectorCopyInternal()
 template <>
 void vectorCopyInternal<float>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
 {
-    float * pd           = (float *)dst;
-    float const * pmin   = (float *)ptrMin;
-    char const * ptrByte = (char *)ptrMin;
+    float * pd           = static_cast<float *>(dst);
+    float const * pmin   = static_cast<float const *>(ptrMin);
+    char const * ptrByte = static_cast<char const *>(ptrMin);
 
     const size_t nColSize = ncols - ncols % 8;
 
@@ -52,8 +52,7 @@ void vectorCopyInternal<float>(const size_t nrows, const size_t ncols, void * ds
         for (size_t j = nColSize; j < ncols; ++j)
         {
             char const * pc   = ptrByte + arrOffsets[j];
-            float * pi        = (float *)(pc) + i;
-            pd[i * ncols + j] = *pi;
+            pd[i * ncols + j] = *((float *)(pc) + i);
         }
     }
 }
@@ -61,9 +60,9 @@ void vectorCopyInternal<float>(const size_t nrows, const size_t ncols, void * ds
 template <>
 void vectorCopyInternal<double>(const size_t nrows, const size_t ncols, void * dst, void const * ptrMin, DAAL_INT64 * arrOffsets)
 {
-    double * pd          = (double *)dst;
-    double const * pmin  = (double *)ptrMin;
-    char const * ptrByte = (char *)ptrMin;
+    double * pd          = static_cast<double *>(dst);
+    double const * pmin  = static_cast<double const *>(ptrMin);
+    char const * ptrByte = static_cast<char const *>(ptrMin);
 
     const size_t nColSize = ncols - ncols % 8;
 
@@ -77,8 +76,7 @@ void vectorCopyInternal<double>(const size_t nrows, const size_t ncols, void * d
         for (size_t j = nColSize; j < ncols; ++j)
         {
             char const * pc   = ptrByte + arrOffsets[j];
-            double * pi       = (double *)(pc) + i;
-            pd[i * ncols + j] = *pi;
+            pd[i * ncols + j] = *((double *)(pc) + i);
         }
     }
 }

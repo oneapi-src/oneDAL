@@ -27,7 +27,6 @@ SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface:
     : NumericTable(nColumns, nRows, featuresEqual), _arrays(nColumns), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
     _layout     = soa;
-    _arrOffsets = NULL;
     _index      = 0;
 
     if (!resizePointersArray(nColumns))
@@ -47,7 +46,6 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
     : NumericTable(ddict), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
     _layout     = soa;
-    _arrOffsets = NULL;
     _index      = 0;
     this->_status |= setNumberOfRowsImpl(nRows);
     if (!resizePointersArray(getNumberOfColumns()))
@@ -71,7 +69,6 @@ SOANumericTable::SOANumericTable(size_t nColumns, size_t nRows, DictionaryIface:
     : NumericTable(nColumns, nRows, featuresEqual, st), _arrays(nColumns), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
     _layout     = soa;
-    _arrOffsets = NULL;
     _index      = 0;
     if (!resizePointersArray(nColumns))
     {
@@ -84,7 +81,6 @@ SOANumericTable::SOANumericTable(NumericTableDictionaryPtr ddict, size_t nRows, 
     : NumericTable(ddict, st), _arraysInitialized(0), _partialMemStatus(notAllocated)
 {
     _layout     = soa;
-    _arrOffsets = NULL;
     _index      = 0;
     st |= setNumberOfRowsImpl(nRows);
     if (!resizePointersArray(getNumberOfColumns()))
