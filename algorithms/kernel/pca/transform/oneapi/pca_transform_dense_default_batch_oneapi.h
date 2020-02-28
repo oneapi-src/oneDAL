@@ -56,8 +56,8 @@ private:
     services::Status allocateBuffer(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::UniversalBuffer & returnBuffer,
                                     uint32_t bufferSize);
 
-    services::Status copyBufferByRef(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::UniversalBuffer & returnBuffer,
-                                     data_management::NumericTable & data, const uint32_t nRows, const uint32_t nCols);
+    services::Status copyBuffer(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::UniversalBuffer & returnBuffer,
+                                data_management::NumericTable & data, const uint32_t nRows, const uint32_t nCols);
 
     services::Status buildKernel(daal::oneapi::internal::ExecutionContextIface & context, daal::oneapi::internal::ClKernelFactoryIface & factory);
 
@@ -73,8 +73,15 @@ private:
     services::Status whitening(daal::oneapi::internal::ExecutionContextIface & context, const services::Buffer<algorithmFPType> & transformedBlock,
                                daal::oneapi::internal::UniversalBuffer & invEigenvalues, const uint32_t numComponents, const uint32_t numVectors);
 
+    services::Status initBuffers(daal::oneapi::internal::ExecutionContextIface & ctx, data_management::NumericTable & data,
+                                 const uint32_t numFeatures, const uint32_t numComponents, const uint32_t numVectors);
+
 private:
     const unsigned int maxWorkItemsPerGroup = 256;
+    daal::oneapi::internal::UniversalBuffer invSigmas;
+    daal::oneapi::internal::UniversalBuffer invEigenvalues;
+    daal::oneapi::internal::UniversalBuffer rawMeans;
+    daal::oneapi::internal::UniversalBuffer copyBlock;
 };
 
 } // namespace internal
