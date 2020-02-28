@@ -250,7 +250,11 @@ public:
     }
 
 protected:
-    class WrapperedRawPointer
+    /**
+     *  <a name="DAAL-CLASS-DATA_MANAGEMENT__WRAPPEDRAWPOINTER"></a>
+     *  \brief   Class that provides functionality of deep copy.
+     */
+    class WrappedRawPointer
     {
     protected:
         DAAL_INT64 * _arrOffsets;
@@ -276,12 +280,12 @@ protected:
             }
         }
 
-        WrapperedRawPointer() : _arrOffsets(NULL), _count(0) {};
-        ~WrapperedRawPointer() { deallocate(); }
+        WrappedRawPointer() : _arrOffsets(NULL), _count(0) {};
+        ~WrappedRawPointer() { deallocate(); }
 
         DAAL_INT64 * get() const { return _arrOffsets; }
 
-        WrapperedRawPointer & operator=(WrapperedRawPointer const & wrapper)
+        WrappedRawPointer & operator=(WrappedRawPointer const & wrapper)
         {
             if (this == &wrapper) return *this;
 
@@ -303,7 +307,7 @@ protected:
     services::Collection<services::SharedPtr<byte> > _arrays;
     size_t _arraysInitialized;
     MemoryStatus _partialMemStatus;
-    WrapperedRawPointer _wrapOffsets;
+    WrappedRawPointer _wrapOffsets;
     size_t _index;
 
     bool resizePointersArray(size_t nColumns)
